@@ -102,7 +102,7 @@ class SkeletonSelectionToolboxGUI(toolboxGUI.GfxToolbox):
         bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         gtklogger.setWidgetName(bbox, "Select")
         vbox.pack_start(bbox, expand=False, fill=False, padding=0)
-        bbox.pack_start(Gtk.Label("Select: "),
+        bbox.pack_start(Gtk.Label(label="Select: "),
                         expand=False, fill=False, padding=0)
 
         # self.tbbox = Gtk.Frame()       # holds SkeletonSelectionToolboxModes
@@ -113,9 +113,9 @@ class SkeletonSelectionToolboxGUI(toolboxGUI.GfxToolbox):
         self.tbdict = {}
         for mode in skeletonselmodebase.SkeletonSelectionMode.modes:
             if group:
-                button = Gtk.RadioButton(mode.name, group=group)
+                button = Gtk.RadioButton(label=mode.name, group=group)
             else:
-                button = Gtk.RadioButton(mode.name)
+                button = Gtk.RadioButton(label=mode.name)
                 group = button
             bbox.pack_start(button, expand=False, fill=False, padding=0)
             gtklogger.setWidgetName(button, mode.name)

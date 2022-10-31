@@ -30,8 +30,10 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO.GUI import gfxmenu
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import quit 
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import types
 
 ## TODO: Menu creation here is clumsy and should be cleaned up.
 ## Currently the "menu" arg to the SubWindow constructor is expected
@@ -64,7 +66,7 @@ class SubWindow:
     # destroyed.
     def __init__(self, title, menu=None, callback=None, guiloggable=True):
         debug.mainthreadTest()
-        self.gtk = Gtk.Window(Gtk.WindowType.TOPLEVEL, title=title)
+        self.gtk = Gtk.Window(type=Gtk.WindowType.TOPLEVEL, title=title)
         if guiloggable:
             gtklogger.newTopLevelWidget(self.gtk, title)
             gtklogger.connect_passive(self.gtk, 'delete-event')

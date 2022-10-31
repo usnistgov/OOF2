@@ -15,6 +15,8 @@
 ## of str.  Is that due to the way the pipe is opened?  The way that
 ## data is put into the pipe?  The way it's being read? 
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 import atexit
 import os

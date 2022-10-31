@@ -9,6 +9,9 @@
 # oof_manager@nist.gov. 
 
 from . import adopteelogger
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class AdjustmentLogger(adopteelogger.AdopteeLogger):

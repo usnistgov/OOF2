@@ -16,6 +16,8 @@
 # for them (so they're not really global variables...).  This helps to
 # avoid import loops, because this files doesn't import anything else.
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 import sys
 import weakref

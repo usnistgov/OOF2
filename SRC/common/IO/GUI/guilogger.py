@@ -21,7 +21,11 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import progressbar_delay
 from ooflib.common.IO.GUI import activityViewer
 from ooflib.common.IO.GUI import gtklogger
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import os
 import sys
 import traceback
@@ -239,10 +243,10 @@ def pauseLog(menuitem):
     pass
 
 def pauseGUI(menuitem):
-    dialog = Gtk.Dialog(flags=Gtk.DialogFlags.MODAL, parent=guitop.top())
+    dialog = Gtk.Dialog(modal=True, transient_for=guitop.top())
     dialog.set_title("OOF2 Pause")
     content = dialog.get_content_area()
-    content.pack_start(Gtk.Label("Continue?"),
+    content.pack_start(Gtk.Label(label="Continue?"),
                        expand=True, fill=True, padding=2)
     dialog.add_action_widget(gtkutils.StockButton("gtk-ok", "OK"),
                              Gtk.ResponseType.OK)

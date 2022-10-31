@@ -13,6 +13,9 @@ from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from gi.repository import Pango
 
@@ -61,7 +64,7 @@ class StockButton(Gtk.Button):
                     self.label = Gtk.Label(halign=align)
                     self.label.set_markup(labelstr + ' ')
                 else:
-                    self.label = Gtk.Label(labelstr + ' ')
+                    self.label = Gtk.Label(label=labelstr + ' ')
                 hbox.pack_start(self.label, expand=True, fill=True, padding=0)
             hbox.pack_start(image, expand=False, fill=False, padding=0)
         else:
@@ -72,7 +75,7 @@ class StockButton(Gtk.Button):
                     self.label = Gtk.Label(halign=align)
                     self.label.set_markup(' ' + labelstr)
                 else:
-                    self.label = Gtk.Label(' ' + labelstr)
+                    self.label = Gtk.Label(label=' ' + labelstr)
                 hbox.pack_start(self.label, expand=True, fill=True, padding=0)
         self.add(hbox)
 

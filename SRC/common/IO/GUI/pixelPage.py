@@ -26,6 +26,9 @@ from ooflib.common.IO.GUI import historian
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import regclassfactory
 from ooflib.common.IO.GUI import whowidget
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 if config.dimension()==2:
@@ -52,7 +55,7 @@ class SelectionPage(oofGUI.MainPage):
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                             halign=Gtk.Align.CENTER, margin_top=2)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
-        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        label = Gtk.Label(label='Microstructure=', halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         self.mswidget = whowidget.WhoWidget(microstructure.microStructures,
                                             scope=self)

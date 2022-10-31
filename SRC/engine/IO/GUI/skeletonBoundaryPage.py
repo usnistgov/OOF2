@@ -23,6 +23,8 @@ from ooflib.engine import boundarybuilder
 from ooflib.engine import skeletoncontext
 from ooflib.engine.IO import boundarymenu
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 # TODO: Display interface material, if any.
@@ -60,11 +62,12 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
                                               scope=self)
         switchboard.requestCallbackMain(self.skelwidget,
                                         self.widgetChanged)
-        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        label = Gtk.Label(label='Microstructure=', halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[0],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label='Skeleton=',
+                          halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[1],
                              expand=False, fill=False, padding=0)
@@ -103,7 +106,7 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
                                    expand=False, fill=False, padding=0)
 
         # Buttons that actually do stuff.
-        self.newbutton = Gtk.Button("New...")
+        self.newbutton = Gtk.Button(label="New...")
         gtklogger.setWidgetName(self.newbutton, 'New')
         gtklogger.connect(self.newbutton, "clicked", self.newBoundaryCB)
         self.newbutton.set_tooltip_text(
@@ -111,7 +114,7 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         boundarybuttonbox.pack_start(self.newbutton,
                                      expand=True, fill=True, padding=0)
 
-        self.editbutton = Gtk.Button("Modify...")
+        self.editbutton = Gtk.Button(label="Modify...")
         gtklogger.setWidgetName(self.editbutton, 'Modify')
         gtklogger.connect(self.editbutton, "clicked", self.modifyBoundaryCB)
         self.editbutton.set_tooltip_text(
@@ -119,14 +122,14 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         boundarybuttonbox.pack_start(self.editbutton,
                                      expand=True, fill=True, padding=0)
         
-        self.renamebutton = Gtk.Button("Rename...")
+        self.renamebutton = Gtk.Button(label="Rename...")
         gtklogger.setWidgetName(self.renamebutton, 'Rename')
         gtklogger.connect(self.renamebutton, "clicked", self.renameBoundaryCB)
         self.renamebutton.set_tooltip_text("Rename the selected boundary.")
         boundarybuttonbox.pack_start(self.renamebutton,
                                      expand=True, fill=True, padding=0)
 
-        self.deletebutton = Gtk.Button("Delete")
+        self.deletebutton = Gtk.Button(label="Delete")
         gtklogger.setWidgetName(self.deletebutton, 'Delete')
         gtklogger.connect(self.deletebutton, "clicked", self.deleteBoundaryCB)
         self.deletebutton.set_tooltip_text(

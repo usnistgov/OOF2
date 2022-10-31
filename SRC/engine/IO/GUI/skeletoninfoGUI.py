@@ -23,7 +23,10 @@ from ooflib.engine.IO import skeletoninfo
 
 from ooflib.common.utils import stringjoin
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import sys
 
 class SkeletonInfoMode:
@@ -59,7 +62,7 @@ class SkeletonInfoMode:
     
     def labelmaster(self, column, row, labeltext, width=1, height=1):
         debug.mainthreadTest()
-        label = Gtk.Label(labeltext, halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label=labeltext, halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, column, row, width, height)
 
     def entrymaster(self, column, row, editable=False, width=1, height=1):
@@ -560,7 +563,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         clickbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        hbox.pack_start(Gtk.Label("Click on an: "),
+        hbox.pack_start(Gtk.Label(label="Click on an: "),
                         expand=False, fill=False, padding=0)
 
         self.modebuttons = []
@@ -583,7 +586,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         table = Gtk.Grid(row_spacing=2, column_spacing=2) 
         clickbox.pack_start(table, expand=False, fill=False, padding=0)
 
-        label = Gtk.Label('x=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='x=', halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,0, 1,1)
         self.xtext = Gtk.Entry(editable=False,
                                hexpand=True, halign=Gtk.Align.FILL)
@@ -591,7 +594,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.xtext.set_width_chars(13)
         table.attach(self.xtext, 1,0, 1,1)
 
-        label = Gtk.Label('y=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='y=', halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,1, 1,1)
         self.ytext = Gtk.Entry(editable=False,
                                hexpand=True, halign=Gtk.Align.FILL)

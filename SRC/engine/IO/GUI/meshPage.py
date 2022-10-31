@@ -30,7 +30,10 @@ from ooflib.engine import meshstatus
 from ooflib.engine import skeletoncontext
 import ooflib.engine.mesh
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import string
 
 meshmenu = mainmenu.OOF.Mesh
@@ -54,17 +57,18 @@ class MeshPage(oofGUI.MainPage):
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               scope=self)
-        label = Gtk.Label("Microstructure=", halign=Gtk.Align.END)
+        label = Gtk.Label(label="Microstructure=", halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[0],
                              expand=False, fill=False, padding=0)
 
-        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label="Skeleton=",
+                          halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[1],
                              expand=False, fill=False, padding=0)
 
-        label = Gtk.Label("Mesh=", halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label="Mesh=", halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[2],
                              expand=False, fill=False, padding=0)
@@ -167,7 +171,7 @@ class MeshPage(oofGUI.MainPage):
         self.subprobNew.set_tooltip_text("Create a new subproblem.")
         subpbuttons.attach(self.subprobNew, 0,0, 1,1)
 
-        self.subprobRename = Gtk.Button("Rename...", hexpand=True)
+        self.subprobRename = Gtk.Button(label="Rename...", hexpand=True)
         gtklogger.setWidgetName(self.subprobRename, "Rename")
         gtklogger.connect(self.subprobRename, "clicked", self.subprobRenameCB)
         self.subprobRename.set_tooltip_text("Rename the selected subproblem")
@@ -187,7 +191,7 @@ class MeshPage(oofGUI.MainPage):
         self.subprobCopy.set_tooltip_text("Copy the selected subproblem.")
         subpbuttons.attach(self.subprobCopy, 0,1, 1,1)
 
-        self.subprobInfo = Gtk.Button("Info", hexpand=True)
+        self.subprobInfo = Gtk.Button(label="Info", hexpand=True)
         gtklogger.setWidgetName(self.subprobInfo, "Info")
         gtklogger.connect(self.subprobInfo, 'clicked', self.subprobInfoCB)
         self.subprobInfo.set_tooltip_text(

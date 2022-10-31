@@ -27,7 +27,11 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import sys
 import types
 
@@ -128,7 +132,7 @@ class RegisteredClassFactory(RCFBase):
                                    spacing=2)
             self.box.pack_start(self.titlebox,
                                 expand=False, fill=False, padding=0)
-            self.titlebox.pack_start(Gtk.Label(title, halign=Gtk.Align.START),
+            self.titlebox.pack_start(Gtk.Label(label=title, halign=Gtk.Align.START),
                                      expand=False, fill=False, padding=0)
             self.titlebox.pack_start(self.options.gtk,
                                      expand=True, fill=True, padding=0)
@@ -551,7 +555,7 @@ class RegistrationGUIData:
         # would have to be redone.
         self._signal = gtklogger.connect(self._button, 'clicked', self.buttonCB)
         self._box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-        self._label = Gtk.Label(registration.name(), halign=Gtk.Align.START)
+        self._label = Gtk.Label(label=registration.name(), halign=Gtk.Align.START)
         if hasattr(registration, 'tip'):
             self._label.set_tooltip_text(registration.tip)
         self.sbcallback = None
@@ -654,7 +658,7 @@ class RegisteredClassListFactory(RCFBase):
         self.grid.foreach(Gtk.Widget.destroy) # clear the grid
         row = 0
         if self.title:
-            self.grid.attach(Gtk.Label(self.title), 0,row,1,1)
+            self.grid.attach(Gtk.Label(label=self.title), 0,row,1,1)
             row += 1
             self.grid.attach(
                 Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),

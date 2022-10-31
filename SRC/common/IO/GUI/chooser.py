@@ -12,9 +12,13 @@ from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import GObject
 from gi.repository import Gdk
 from gi.repository import Gtk
+
 import sys
 import types
 
@@ -129,7 +133,8 @@ class ChooserWidget:
 
     def makeSubWidget(self, name):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, margin=2)
-        label = Gtk.Label(name, halign=Gtk.Align.START, hexpand=True, margin=5)
+        label = Gtk.Label(label=name, halign=Gtk.Align.START,
+                          hexpand=True, margin=5)
         image = Gtk.Image.new_from_icon_name('pan-down-symbolic',
                                              Gtk.IconSize.BUTTON)
         hbox.pack_start(label, expand=True, fill=True, padding=2)
@@ -201,7 +206,7 @@ class ChooserWidget:
                 # If the GtkComboBox allowed tooltips, we'd use it
                 # instead.
                 if name == self.current_string:
-                    menuitem = Gtk.MenuItem.new_with_label("")
+                    menuitem = Gtk.MenuItem(label="")
                     gtklogger.setWidgetName(menuitem, name)
                     label = menuitem.get_child()
                     ## TODO: If we want to allow markup in names, then
@@ -211,7 +216,7 @@ class ChooserWidget:
                     label.set_markup("<i>" + nm + "</i>")
                     menuitem.set_sensitive(False)
                 else:
-                    menuitem = Gtk.MenuItem(name)
+                    menuitem = Gtk.MenuItem(label=name)
                     gtklogger.setWidgetName(menuitem, name)
                     gtklogger.connect(menuitem, 'activate', self.activateCB,
                                       name)
@@ -301,7 +306,7 @@ class FakeChooserWidget:
     def __init__(self, namelist, callback=None, callbackargs=(),
                  update_callback=None, update_callback_args=(), helpdict={}):
         debug.mainthreadTest()
-        self.gtk = gtk.Label("Gen-u-wine Fake Widget")
+        self.gtk = Gtk.Label("Gen-u-wine Fake Widget")
         debug.fmsg(namelist)
     def show(self):
         pass
@@ -348,7 +353,7 @@ class NewChooserWidget(ChooserWidget):
         hbox.pack_start(self.gtk, expand=True, fill=True, padding=2)
         self.gtk = hbox
 
-        self.newbutton = Gtk.Button(buttontext)
+        self.newbutton = Gtk.Button(label=buttontext)
         hbox.pack_start(self.newbutton, expand=False, fill=False, padding=2)
         gtklogger.connect(self.newbutton, 'clicked', self.newbuttonCB)
     def newbuttonCB(self, button):
@@ -386,7 +391,7 @@ class ChooserListWidgetBase:
         debug.mainthreadTest()
         self.liststore = Gtk.ListStore(GObject.TYPE_STRING,
                                        GObject.TYPE_PYOBJECT)
-        self.treeview = Gtk.TreeView(self.liststore, **kwargs)
+        self.treeview = Gtk.TreeView(model=self.liststore, **kwargs)
         self.gtk = self.treeview
         self.treeview.set_property("headers-visible", 0)
         cell = Gtk.CellRendererText()

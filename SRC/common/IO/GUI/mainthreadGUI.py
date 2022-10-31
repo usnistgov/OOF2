@@ -15,9 +15,13 @@ from ooflib.SWIG.common import threadstate
 from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import thread_enable
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GLib
+
 import threading
 
 class OOFIdleCallback:

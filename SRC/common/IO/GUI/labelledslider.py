@@ -12,7 +12,11 @@
 from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO.GUI import gtklogger
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import sys
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -83,8 +87,8 @@ class LabelledSlider:
         # from page_size?
         self.adjustment = Gtk.Adjustment(
             value=value, lower=vmin, upper=vmax,
-            step_incr=step, # arrow keys move this far
-            page_incr=step, # page up and page down keys move this far
+            step_increment=step, # arrow keys move this far
+            page_increment=step, # page up and page down keys move this far
             page_size=0)    # max slider value is upper-page_size
         self.slider = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL,
                                 adjustment=self.adjustment)

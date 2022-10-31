@@ -40,7 +40,7 @@ public:
   bool finished();
   void stop();
   bool stopped();
-  void setMessage(char*);
+  void setMessage(const std::string&);
   void setFraction(double);
   %newobject message;
   std::string *message();

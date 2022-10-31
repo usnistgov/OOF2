@@ -36,7 +36,10 @@ AllProperties = propertyregistration.AllProperties
 #Interface branch
 from ooflib.engine.IO import interfaceparameters
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import types, string
 
 OOF = mainmenu.OOF
@@ -394,7 +397,7 @@ class MaterialPane:
             update_callback=self.newMatSelection,
             name="MaterialList",
             border_width=2)
-        hbox.pack_start(Gtk.Label("Material:"),
+        hbox.pack_start(Gtk.Label(label="Material:"),
                         expand=False, fill=False, padding=0)
         hbox.pack_start(self.materialName.gtk,
                         expand=True, fill=True, padding=0)
@@ -406,7 +409,7 @@ class MaterialPane:
             border_width=2)
         vbox.pack_start(self.matproplist.gtk, expand=True, fill=True, padding=0)
 
-        self.removebutton = Gtk.Button('Remove Property from Material',
+        self.removebutton = Gtk.Button(label='Remove Property from Material',
                                        border_width=2)
         gtklogger.setWidgetName(self.removebutton, "RemoveProperty")
         vbox.pack_start(self.removebutton, expand=False, fill=False, padding=0)
@@ -425,7 +428,7 @@ class MaterialPane:
         vbox.pack_start(assigngrid, expand=False, fill=False, padding=0)
         
         # Assign materials to pixels
-        self.assignbutton = Gtk.Button('Assign to Pixels...',
+        self.assignbutton = Gtk.Button(label='Assign to Pixels...',
                                        hexpand=True,
                                        border_width=2)
         gtklogger.setWidgetName(self.assignbutton, "Assign")
@@ -436,7 +439,7 @@ class MaterialPane:
         assigngrid.attach(self.assignbutton, 0,0, 1,1)
         
         # Remove materials from pixels
-        self.removematbutton = Gtk.Button('Remove from Pixels...',
+        self.removematbutton = Gtk.Button(label='Remove from Pixels...',
                                           hexpand=True,
                                           border_width=2)
         gtklogger.setWidgetName(self.removematbutton, "RemoveMaterial")
@@ -448,9 +451,9 @@ class MaterialPane:
 
         if runtimeflags.surface_mode:
             # Assign material to interface
-            self.assigninterfacebutton = Gtk.Button('Assign to interface...',
-                                                    hexpand=True,
-                                                    border_width=2)
+            self.assigninterfacebutton = Gtk.Button(
+                label='Assign to interface...',
+                hexpand=True, border_width=2)
             gtklogger.setWidgetName(self.assigninterfacebutton,
                                     "AssignInterface")
             self.assigninterfacebutton.set_tooltip_text(
@@ -460,9 +463,9 @@ class MaterialPane:
                               self.on_interface_assign)
         
             # Remove material from interface
-            self.removeinterfacebutton = Gtk.Button('Remove from interface...',
-                                                    hexpand=True,
-                                                    border_width=2)
+            self.removeinterfacebutton = Gtk.Button(
+                label='Remove from interface...',
+                hexpand=True, border_width=2)
             gtklogger.setWidgetName(self.removeinterfacebutton,
                                     "RemoveInterface")
             self.removeinterfacebutton.set_tooltip_text(

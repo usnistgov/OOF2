@@ -30,6 +30,9 @@ import oofcanvas
 from oofcanvas import oofcanvasgui
 
 import sys
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from gi.repository import Gdk
 
@@ -107,7 +110,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         gtklogger.connect(self.clearbutton, 'clicked', self.clearCB)
         self.clearbutton.set_tooltip_text("Unselect all objects.")
 
-        self.invertbutton = Gtk.Button('Invert')
+        self.invertbutton = Gtk.Button(label='Invert')
         gtklogger.setWidgetName(self.invertbutton, "Invert")
         hbox.pack_start(self.invertbutton, expand=True, fill=True, padding=0)
         gtklogger.connect(self.invertbutton, 'clicked', self.invertCB)
@@ -125,8 +128,8 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         
         table = Gtk.Grid(row_spacing=1, column_spacing=1)
         vbox.pack_start(table, expand=False, fill=False, padding=0)
-        table.attach(Gtk.Label('down'), 0,0, 1,1)
-        table.attach(Gtk.Label('up'),   0,1, 1,1)
+        table.attach(Gtk.Label(label='down'), 0,0, 1,1)
+        table.attach(Gtk.Label(label='up'),   0,1, 1,1)
 
         self.xdownentry = Gtk.Entry()
         self.ydownentry = Gtk.Entry()
@@ -183,7 +186,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                        spacing=2, margin=2)
         outerbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        hbox.pack_start(Gtk.Label('Selection size: '),
+        hbox.pack_start(Gtk.Label(label='Selection size: '),
                         expand=False, fill=False, padding=0)
         self.sizetext = Gtk.Entry()
         gtklogger.setWidgetName(self.sizetext, 'size')

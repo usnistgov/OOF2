@@ -60,7 +60,7 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
     def __init__(self, toolbox, table, row):
         debug.mainthreadTest()
         PixelInfoGUIPlugIn.__init__(self, toolbox)
-        label = Gtk.Label('microstructure=',
+        label = Gtk.Label(label='microstructure=',
                           halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,row,1,1)
         self.microtext = Gtk.Entry(hexpand=True, halign=Gtk.Align.FILL)
@@ -69,7 +69,7 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
         self.microtext.set_editable(False)
         table.attach(self.microtext, 1,row,1,1)
 
-        label = Gtk.Label('pixel groups=',
+        label = Gtk.Label(label='pixel groups=',
                           halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,row+1,1,1)
         self.grouplist = Gtk.TextView(left_margin=5, right_margin=5,

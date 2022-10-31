@@ -32,6 +32,8 @@ import ooflib.engine.IO.meshmenu
 import ooflib.engine.IO.subproblemmenu
 import ooflib.engine.mesh
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import GObject
 from gi.repository import Gtk
 
@@ -57,17 +59,18 @@ class SolverPage(oofGUI.MainPage):
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               scope=self)
         switchboard.requestCallbackMain(self.meshwidget, self.meshCB)
-        label = Gtk.Label("Microstructure=", halign=Gtk.Align.END)
+        label = Gtk.Label(label="Microstructure=", halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[0],
                              expand=False, fill=False, padding=0)
 
-        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label="Skeleton=",
+                          halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[1], expand=False, fill=False,
                              padding=0)
 
-        label = Gtk.Label("Mesh=", halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label="Mesh=", halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[2], expand=False, fill=False,
                              padding=0)
@@ -101,7 +104,7 @@ class SolverPage(oofGUI.MainPage):
                                    Gtk.PolicyType.AUTOMATIC)
 
         self.subprobList = Gtk.ListStore(GObject.TYPE_PYOBJECT)
-        self.subpListView = Gtk.TreeView(self.subprobList)
+        self.subpListView = Gtk.TreeView(model=self.subprobList)
         gtklogger.setWidgetName(self.subpListView, "SubproblemList")
         self.subpScroll.add(self.subpListView)
         gtklogger.adoptGObject(self.subprobList, self.subpListView,
@@ -265,7 +268,7 @@ class SolverPage(oofGUI.MainPage):
         # The ListStore just contains the defined Fields.  The
         # TreeView displays their names and initializers.
         self.initlist = Gtk.ListStore(GObject.TYPE_PYOBJECT)
-        self.initview = Gtk.TreeView(self.initlist)
+        self.initview = Gtk.TreeView(model=self.initlist)
         gtklogger.setWidgetName(self.initview, 'Initializers')
         self.initscroll.add(self.initview)
         self.initview.set_headers_clickable(False)
@@ -359,14 +362,16 @@ class SolverPage(oofGUI.MainPage):
         # The start time isn't set directly by the user, except by
         # applying field initializers at a given time.  It's displayed
         # in a desensitized Gtk.Entry.
-        label = Gtk.Label('current time=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='current time=',
+                          halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,0, 1,1)
         self.currentTimeEntry = Gtk.Entry(sensitive=False, hexpand=True,
                                           halign=Gtk.Align.FILL)
         table.attach(self.currentTimeEntry, 1,0, 1,1)
         
         # End time is set by the user.
-        label = Gtk.Label('end time=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='end time=',
+                          halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,1, 1,1)
         self.endtimeEntry = Gtk.Entry(hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.endtimeEntry, 'end')
@@ -380,7 +385,7 @@ class SolverPage(oofGUI.MainPage):
                                      valign=Gtk.Align.CENTER)
         table.attach(statusFrame, 2,0, 1,2)
         vbox.pack_start(self.statusLabel, expand=False, fill=False, padding=0)
-        self.statusDetailButton = Gtk.Button("Details...",
+        self.statusDetailButton = Gtk.Button(label="Details...",
                                              halign=Gtk.Align.CENTER, margin=6)
         vbox.pack_start(self.statusDetailButton,
                         expand=False, fill=False, padding=3)

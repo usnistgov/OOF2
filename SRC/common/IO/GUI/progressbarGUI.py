@@ -18,7 +18,10 @@ from ooflib.common.IO import activityviewermenu
 from ooflib.common.IO.GUI import activityViewer
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
-from gi.repository import GObject
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import GLib
 from gi.repository import Gtk
 from gi.repository import Pango
 
@@ -62,8 +65,8 @@ class GUIProgressBar(progressbar.ProgressBar):
     def schedule(self):
         # Schedule the bar for periodic updates via the gtk timeout
         # events.  The time is specified in milliseconds.
-        self.timeout_id = GObject.timeout_add(progressbar_delay.period,
-                                              self._updateGUI)
+        self.timeout_id = GLib.timeout_add(interval=progressbar_delay.period,
+                                           function=self._updateGUI)
 
     def show(self):
         debug.mainthreadTest()
@@ -106,7 +109,7 @@ class GUIProgressBar(progressbar.ProgressBar):
                 self.timeout_id = None
                 self.progress = None
                 pgrs.disconnectBar(self)
-                GObject.source_remove(timeout_id)
+                GLib.source_remove(timeout_id)
             finally:
                 pgrs.releaseThreadLock()
 

@@ -28,6 +28,8 @@ from ooflib.engine.IO import meshinfo
 from ooflib.engine.IO.GUI import meshdataGUI
 import ooflib.engine.mesh
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 ## TODO: Add a SegmentMode that will display interface materials.
@@ -60,7 +62,7 @@ class MeshInfoMode:
     
     def labelmaster(self, column, row, labeltext, width=1, height=1):
         debug.mainthreadTest()
-        label = Gtk.Label(labeltext, halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label=labeltext, halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, column, row, width, height)
 
     def entrymaster(self, column, row, editable=False, width=1, height=1):
@@ -257,7 +259,7 @@ class NodeMode(MeshInfoMode):
                 # self.fieldvalWidgets.add(sep)
                 # self.table.attach(sep, 0,3, fldrow,fldrow+1,xoptions=gtk.FILL)
                 # fldrow += 1
-                flabel = Gtk.Label(fld.name(),
+                flabel = Gtk.Label(label=fld.name(),
                                   halign=Gtk.Align.END, hexpand=False)
                 self.fieldvalWidgets.add(flabel)
                 self.table.attach_next_to(flabel, prevRowWidget,
@@ -272,7 +274,7 @@ class NodeMode(MeshInfoMode):
                 prevRowWidget = flabel
                 while not fcomp.end():
                     # row = fldrow + fcomp.integer()
-                    label = Gtk.Label(" " + fcomp.shortrepr()+"=")
+                    label = Gtk.Label(label=" " + fcomp.shortrepr()+"=")
                     self.fieldvalWidgets.add(label)
                     if lastComponent:
                         self.table.attach_next_to(label, lastComponent,
@@ -347,7 +349,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
                        halign=Gtk.Align.CENTER)
         clickbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        hbox.pack_start(Gtk.Label("Click on an: ", halign=Gtk.Align.END),
+        hbox.pack_start(Gtk.Label(label="Click on an: ", halign=Gtk.Align.END),
                         expand=False, fill=False, padding=0)
 
         self.modebuttons = []
@@ -370,7 +372,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.table = Gtk.Grid(row_spacing=2, column_spacing=2, margin=2)
         clickbox.pack_start(self.table, expand=False, fill=False, padding=0)
 
-        label = Gtk.Label('x=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='x=', halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, 0,0, 1,1)
         self.xtext = Gtk.Entry(editable=False, hexpand=True,
                                halign=Gtk.Align.FILL)
@@ -378,7 +380,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.xtext.set_width_chars(13)
         self.table.attach(self.xtext, 1,0, 1,1)
         self.xtext.set_tooltip_text("x coordinate of the mouse click on the undisplaced Mesh")
-        label = Gtk.Label('y=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='y=', halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, 0,1, 1,1)
         self.ytext = Gtk.Entry(editable=False, hexpand=True,
                                halign=Gtk.Align.FILL)

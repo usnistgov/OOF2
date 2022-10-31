@@ -20,6 +20,9 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
 from ooflib.common.IO.mainmenu import OOF
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 ndigits = 10
@@ -38,7 +41,7 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
         infotable = Gtk.Grid(row_spacing=2, column_spacing=2)
         infoframe.add(infotable)
-        pixellabel = Gtk.Label("Pixel: ",
+        pixellabel = Gtk.Label(label="Pixel: ",
                                halign=Gtk.Align.END, hexpand=False)
         self.pixel_x = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.pixel_x, "PixelX")
@@ -46,7 +49,7 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.pixel_y = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.pixel_y, "PixelY")
         self.pixel_y.set_width_chars(ndigits)
-        physicallabel = Gtk.Label("Physical: ",
+        physicallabel = Gtk.Label(label="Physical: ",
                                   halign=Gtk.Align.END, hexpand=False)
         self.physical_x = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.physical_x, "PhysicalX")
@@ -55,8 +58,10 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         gtklogger.setWidgetName(self.physical_y, "PhysicalY")
         self.physical_y.set_width_chars(ndigits)
 
-        infotable.attach(Gtk.Label("X", halign=Gtk.Align.CENTER), 1,0, 1,1)
-        infotable.attach(Gtk.Label("Y", halign=Gtk.Align.CENTER), 2,0, 1,1) 
+        infotable.attach(Gtk.Label(label="X", halign=Gtk.Align.CENTER),
+                         1,0, 1,1)
+        infotable.attach(Gtk.Label(label="Y", halign=Gtk.Align.CENTER),
+                         2,0, 1,1) 
         infotable.attach(pixellabel,      0,1, 1,1)
         infotable.attach(self.pixel_x,    1,1, 1,1)
         infotable.attach(self.pixel_y,    2,1, 1,1)
@@ -91,7 +96,7 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         factorrow = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
                             margin=2)
         zoombox.pack_start(factorrow, expand=False, fill=False, padding=0)
-        factorrow.pack_start(Gtk.Label("Zoom Factor: "),
+        factorrow.pack_start(Gtk.Label(label="Zoom Factor: "),
                              expand=False, fill=False, padding=0)
         self.zoomfactor = Gtk.Entry(editable=True)
         self.zoomfactor.set_width_chars(ndigits)
@@ -104,7 +109,7 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
             Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL, margin=2),
             fill=False, expand=False, padding=2)
 
-        label0 = Gtk.Label("Shift+Click: Zoom in\nCtrl+Click: Zoom out",
+        label0 = Gtk.Label(label="Shift+Click: Zoom in\nCtrl+Click: Zoom out",
                            halign=Gtk.Align.CENTER,
                            margin_bottom=2)
         label0.set_pattern("             _______\n            ________\n")

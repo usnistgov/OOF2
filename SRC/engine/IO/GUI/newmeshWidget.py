@@ -16,7 +16,10 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.engine.IO import meshmenu
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import string
 
 # Widget for the MasterElementTypesParameter, whose value is a list of
@@ -67,7 +70,7 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
             self.mapchooser = chooser.ChooserWidget(
                 [], callback=self.orderCB, name="Map",
                 hexpand=True, halign=Gtk.Align.FILL)
-            label = Gtk.Label('mapping order', halign=Gtk.Align.END)
+            label = Gtk.Label(label='mapping order', halign=Gtk.Align.END)
             label.set_tooltip_text(
                 'Polynomial order of the functions used to map master elements'
                 ' to physical space.')
@@ -78,7 +81,8 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
             self.funchooser = chooser.ChooserWidget(
                 [], callback=self.orderCB, name="Func",
                 hexpand=True, halign=Gtk.Align.FILL)
-            label = Gtk.Label('interpolation order:', halign=Gtk.Align.END)
+            label = Gtk.Label(label='interpolation order:',
+                              halign=Gtk.Align.END)
             label.set_tooltip_text(
                 'Polynomial order of the functions used to interpolate'
                 ' within elements.')
@@ -90,7 +94,7 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
             row = 2
             self.classwidgets = []
             for geometry, elclass in zip(elgeometries, elclasses):
-                label = Gtk.Label(repr(geometry)+'-cornered element:',
+                label = Gtk.Label(label=repr(geometry)+'-cornered element:',
                                   halign=Gtk.Align.END)
                 label.set_tooltip_text(
                         'Type of finite element to use for %d cornered'

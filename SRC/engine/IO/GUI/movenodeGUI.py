@@ -28,7 +28,10 @@ from ooflib.engine.IO import movenode
 import oofcanvas
 from oofcanvas import oofcanvasgui
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import sys
 import types
 
@@ -52,7 +55,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         mainbox.pack_start(hbox, expand=False, fill=False, padding=0)
         gtklogger.setWidgetName(hbox, "MoveWith")
-        hbox.pack_start(Gtk.Label("Move with: "),
+        hbox.pack_start(Gtk.Label(label="Move with: "),
                         expand=False, fill=False, padding=0)
 
         modes = [("Mouse", "Click and drag a node to move it."),
@@ -74,7 +77,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
             gtklogger.connect(button, 'clicked', self.changeMode, mode)
 
         # allow illegal move?
-        self.allow_illegal = Gtk.CheckButton("Allow illegal moves")
+        self.allow_illegal = Gtk.CheckButton(label="Allow illegal moves")
         gtklogger.setWidgetName(self.allow_illegal, "AllowIllegal")
         mainbox.pack_start(self.allow_illegal,
                            expand=False, fill=False, padding=0)
@@ -91,7 +94,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         r = 2
         mainbox.pack_start(self.table, expand=False, fill=False, padding=0)
 
-        label = Gtk.Label('x=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='x=', halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, 0,0, 1,1)
         self.xtext = Gtk.Entry(editable=True,
                                halign=Gtk.Align.FILL, hexpand=True)
@@ -101,7 +104,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.xtext.set_width_chars(12)
         self.xtext.set_tooltip_text("x position of the mouse")
 
-        label = Gtk.Label('y=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='y=', halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, 0,1, 1,1)
         self.ytext = Gtk.Entry(editable=True,
                                halign=Gtk.Align.FILL, hexpand=True)
@@ -111,10 +114,12 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.ytext.set_width_chars(12)
         self.ytext.set_tooltip_text("y position of the mouse")
 
-        label = Gtk.Label("Change in... ", halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label="Change in... ",
+                          halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, 0,2, 1,1)
 
-        label = Gtk.Label("shape energy=", halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label="shape energy=",
+                          halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, 0,3, 1,1)
         self.shapetext = Gtk.Entry(editable=False,
                                    hexpand=True, halign=Gtk.Align.FILL)
@@ -123,7 +128,8 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.table.attach(self.shapetext, 1,3, 1,1)
         self.shapetext.set_tooltip_text("total change in shape energy")
 
-        label = Gtk.Label("homogeneity=", halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label="homogeneity=",
+                          halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, 0,4, 1,1)
         self.homogtext = Gtk.Entry(editable=False,
                                    hexpand=True, halign=Gtk.Align.FILL)
@@ -146,7 +152,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         mainbox.pack_start(bbox, expand=True, fill=True, padding=0)
         self.undobutton = gtkutils.StockButton("edit-undo-symbolic", "Undo")
         self.undobutton.set_tooltip_text("Undo the latest node move.")
-        self.movebutton = Gtk.Button('Move')
+        self.movebutton = Gtk.Button(label='Move')
         self.movebutton.set_tooltip_text(
             "Move the selected node to the specified position.")
         self.redobutton = gtkutils.StockButton("edit-redo-symbolic", "Redo")

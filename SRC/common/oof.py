@@ -52,6 +52,9 @@ from ooflib.common.IO import reporter
 from ooflib.common.IO import progressbar
 
 from ooflib.common.utils import stringjoin
+
+## TODO PYTHON3: Remove 'import types' from all files where it's now
+## irrelevant.
             
 ########################################
 

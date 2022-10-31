@@ -19,7 +19,10 @@ from ooflib.common.IO.GUI import pixelinfoGUIplugin
 from ooflib.engine.IO import orientationmatrix
 from ooflib.orientationmap import pixelinfoplugin
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import math
 
 class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
@@ -29,7 +32,7 @@ class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         debug.mainthreadTest()
         pixelinfoGUIplugin.PixelInfoGUIPlugIn.__init__(self, toolbox)
 
-        self.label = Gtk.Label('orientation=', halign=Gtk.Align.END)
+        self.label = Gtk.Label(label='orientation=', halign=Gtk.Align.END)
         table.attach(self.label, 0,row, 1,1)
 
         self.stack = Gtk.Stack(homogeneous=False)
@@ -149,10 +152,10 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.refOrient = None   # the current reference orientation
         self.sbcbs = []         # switchboard callbacks
 
-        title = Gtk.Label("Misorientation", halign=Gtk.Align.FILL)
+        title = Gtk.Label(label="Misorientation", halign=Gtk.Align.FILL)
         table.attach(title, 1,row, 1,1)
 
-        label = Gtk.Label("reference=", halign=Gtk.Align.END)
+        label = Gtk.Label(label="reference=", halign=Gtk.Align.END)
         table.attach(label, 0,row+1, 1,1)
 
         frame = Gtk.Frame()
@@ -183,14 +186,14 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
                                       hexpand=True)
         gtklogger.setWidgetName(self.refPointTable, 'point')
 
-        xlabel = Gtk.Label("x=", halign=Gtk.Align.END)
+        xlabel = Gtk.Label(label="x=", halign=Gtk.Align.END)
         self.refPointTable.attach(xlabel, 0,0, 1,1)
 
         self.xtext = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.xtext, 'X')
         self.refPointTable.attach(self.xtext, 1,0, 1,1)
 
-        ylabel = Gtk.Label("y=", halign=Gtk.Align.END)
+        ylabel = Gtk.Label(label="y=", halign=Gtk.Align.END)
         self.refPointTable.attach(ylabel, 0,1, 1,1)
         
         self.ytext = Gtk.Entry(editable=False)
@@ -221,7 +224,7 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         # The "Set Reference" button copies the orientation from the
         # OrientMapPixelInfoPlugIn to the reference widget in this
         # plug-in.
-        self.setRefButton = Gtk.Button("Set Reference Point",
+        self.setRefButton = Gtk.Button(label="Set Reference Point",
                                     halign=Gtk.Align.CENTER)
         gtklogger.setWidgetName(self.setRefButton, "setref")
         vbox.pack_start(self.setRefButton, fill=False, expand=False, padding=0)
@@ -230,7 +233,7 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
             'Set the reference orientation to the'
             ' previously selected orientation.')
 
-        label = Gtk.Label("symmetry=", halign=Gtk.Align.END)
+        label = Gtk.Label(label="symmetry=", halign=Gtk.Align.END)
         table.attach(label, 0,row+2, 1,1)
         symParam = self.getMenu().Set_Symmetry.get_arg('symmetry')
         symbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
@@ -238,14 +241,14 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.symtext = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.symtext, 'text')
         symbox.pack_start(self.symtext, expand=True, fill=True, padding=0)
-        self.setSymButton = Gtk.Button("Set")
+        self.setSymButton = Gtk.Button(label="Set")
         gtklogger.setWidgetName(self.setSymButton, "set")
         gtklogger.connect(self.setSymButton, 'clicked', self.setSymmetryCB)
         symbox.pack_start(self.setSymButton,
                           expand=False, fill=False, padding=0)
         table.attach(symbox, 1,row+2, 1,1)
 
-        label = Gtk.Label("misorientation=", halign=Gtk.Align.END)
+        label = Gtk.Label(label="misorientation=", halign=Gtk.Align.END)
         table.attach(label, 0,row+3, 1,1)
         self.misorientationText = Gtk.Entry(editable=False, hexpand=True)
         gtklogger.setWidgetName(self.misorientationText, 'misorientation')

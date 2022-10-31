@@ -22,7 +22,11 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import os
 import os.path
 import re
@@ -87,7 +91,7 @@ class FileSelectorWidget(parameterwidgets.ParameterWidget):
         # Directory selector
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         vbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        hbox.pack_start(Gtk.Label("Directory:"), expand=False, fill=False,
+        hbox.pack_start(Gtk.Label(label="Directory:"), expand=False, fill=False,
                         padding=0)
         self.dirWidget = chooser.ChooserComboWidget([],
                                                     callback=self.dirChangedCB, 
@@ -136,7 +140,7 @@ class FileSelectorWidget(parameterwidgets.ParameterWidget):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                        halign=Gtk.Align.START, spacing=2)
         vbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        label = Gtk.Label("show hidden files", halign=Gtk.Align.START)
+        label = Gtk.Label(label="show hidden files", halign=Gtk.Align.START)
         hbox.pack_start(label, expand=False, fill=False, padding=0)
         self.hiddenButton = Gtk.CheckButton()
         hbox.pack_start(self.hiddenButton, expand=False, fill=False, padding=0)
@@ -353,8 +357,9 @@ class WriteFileSelectorWidget(FileSelectorWidget):
     def addMoreWidgets(self, vbox): # Widgets below the file list.
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         vbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        label = Gtk.Label('File:')
-        hbox.pack_start(Gtk.Label('File:'), expand=False, fill=False, padding=0)
+        label = Gtk.Label(label='File:')
+        hbox.pack_start(
+            Gtk.Label(label='File:'), expand=False, fill=False, padding=0)
         self.fileEntry = Gtk.Entry()
         gtklogger.setWidgetName(self.fileEntry, 'File')
         self.fileEntrySignal = gtklogger.connect(self.fileEntry, 'changed',

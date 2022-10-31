@@ -17,6 +17,8 @@ from ooflib.engine import profile
 from ooflib.engine import profilefunction
 from ooflib.engine.IO.GUI import meshparamwidgets
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 import types
 
@@ -67,7 +69,7 @@ class LabelledProfileRCF:
         debug.mainthreadTest()
         self.fpsw = fpsw                # parent FluxProfileSetWidget
         self.gtk = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
-        self.label = Gtk.Label(label+" = ")
+        self.label = Gtk.Label(label=label+" = ")
         self.widget = regclassfactory.RegisteredClassFactory(
             profile.ProfileXT.registry, scope=scope, name=label)
         self.sbcb = switchboard.requestCallbackMain(self.widget, self.rcfCB)

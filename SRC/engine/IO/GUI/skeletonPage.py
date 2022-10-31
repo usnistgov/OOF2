@@ -28,6 +28,8 @@ from ooflib.engine import skeletoncontext
 from ooflib.engine import skeletonelement
 from ooflib.engine import skeletonmodifier
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from gi.repository import Pango
 
@@ -51,11 +53,12 @@ class SkeletonPage(oofGUI.MainPage):
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.skelwidget = whowidget.WhoWidget(whoville.getClass('Skeleton'),
                                               scope=self)
-        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        label = Gtk.Label(label='Microstructure=', halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[0],
                              expand=True, fill=True, padding=0)
-        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label='Skeleton=',
+                          halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[1],
                              expand=True, fill=True, padding=0)
@@ -73,7 +76,7 @@ class SkeletonPage(oofGUI.MainPage):
             "Create a new skeleton from the current microstructure.")
         bbox.pack_start(self.newbutton, expand=True, fill=True, padding=0)
         
-        self.simplebutton = Gtk.Button('Simple...')
+        self.simplebutton = Gtk.Button(label='Simple...')
         gtklogger.setWidgetName(self.simplebutton, "Simple")
         gtklogger.connect(self.simplebutton, 'clicked', self.simple_skeleton_CB)
         self.simplebutton.set_tooltip_text(
@@ -83,7 +86,7 @@ class SkeletonPage(oofGUI.MainPage):
             " jagged, which may cause errors in finite element solutions.")
         bbox.pack_start(self.simplebutton, expand=True, fill=True, padding=0)
 
-        self.autobutton = Gtk.Button('Auto...')
+        self.autobutton = Gtk.Button(label='Auto...')
         gtklogger.setWidgetName(self.autobutton, 'Auto')
         gtklogger.connect(self.autobutton, 'clicked', self.autoCB)
         self.autobutton.set_tooltip_text(

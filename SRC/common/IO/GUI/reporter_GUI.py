@@ -10,7 +10,6 @@
 
 # Message window, and the GUI part of the error reporting machinery.
 
-from gi.repository import Gtk
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
@@ -28,6 +27,11 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import subWindow
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
 import os
 import string
 import sys
@@ -90,7 +94,7 @@ class MessageWindow(subWindow.SubWindow):
         self.button_dict = {}
         self.signal_dict = {}
         for m in reporter.messageclasses:
-            button = Gtk.CheckButton(m)
+            button = Gtk.CheckButton(label=m)
             gtklogger.setWidgetName(button, m)
             buttonbox.pack_end(button, fill=False, expand=False, padding=0)
             self.signal_dict[m] = gtklogger.connect(button, "clicked",
@@ -233,20 +237,20 @@ class WarningPopUp:
     def __init__(self, message):
         debug.mainthreadTest()
         self.gtk = gtklogger.Dialog(title="%s Warning"%subWindow.oofname(),
-                                    parent=guitop.top().gtk)
+                                    transient_for=guitop.top().gtk)
         gtklogger.newTopLevelWidget(self.gtk, "Warning")
 
         vbox = self.gtk.get_content_area()
         vbox.set_spacing(3)
 
-        vbox.pack_start(Gtk.Label("WARNING"),
+        vbox.pack_start(Gtk.Label(label="WARNING"),
                                  expand=False, fill=False, padding=0)
-        vbox.pack_start(Gtk.Label(message),
+        vbox.pack_start(Gtk.Label(label=message),
                                  expand=False, fill=False, padding=0)
         button = gtkutils.StockButton("gtk-ok", "OK")
         self.gtk.add_action_widget(button, Gtk.ResponseType.OK)
 
-        disable_button = Gtk.Button("Disable warnings")
+        disable_button = Gtk.Button(label="Disable warnings")
         self.gtk.add_action_widget(disable_button, Gtk.ResponseType.REJECT)
 
         disable_button.set_tooltip_text(
@@ -316,8 +320,8 @@ class ErrorPopUp:
         self.datestampstring = time.strftime("%Y %b %d %H:%M:%S %Z")
         self.gtk = gtklogger.Dialog(
             title="%s Error" % subWindow.oofname(),
-            flags=Gtk.DialogFlags.MODAL,
-            parent=guitop.top().gtk,
+            modal=True,
+            transient_for=guitop.top().gtk,
             border_width=3)
         self.gtk.set_keep_above(True) # might not work
         gtklogger.newTopLevelWidget(self.gtk, "Error")
@@ -326,7 +330,7 @@ class ErrorPopUp:
         vbox.set_spacing(3)
 
         classname = utils.stringsplit(str(e_type),'.')[-1]
-        vbox.pack_start(Gtk.Label("ERROR"),
+        vbox.pack_start(Gtk.Label(label="ERROR"),
                                  expand=False, fill=False, padding=0)
 
         self.errframe = Gtk.Frame()
@@ -349,7 +353,7 @@ class ErrorPopUp:
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
                        homogeneous=True)
         vbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        self.tracebutton = Gtk.Button("View Traceback")
+        self.tracebutton = Gtk.Button(label="View Traceback")
         gtklogger.setWidgetName(self.tracebutton, "ViewTraceback")
         gtklogger.connect(self.tracebutton, "clicked", self.trace)
         hbox.pack_start(self.tracebutton, expand=False, fill=False, padding=0)
@@ -365,7 +369,7 @@ class ErrorPopUp:
         okbut.set_can_default(True)
         self.gtk.add_action_widget(okbut,
                                    Gtk.ResponseType.OK)
-        self.gtk.add_action_widget(Gtk.Button("Abort"),
+        self.gtk.add_action_widget(Gtk.Button(label="Abort"),
                                    Gtk.ResponseType.CLOSE)
         self.gtk.set_default_response(Gtk.ResponseType.OK)
 

@@ -11,6 +11,9 @@
 
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 # TODO: Add gui logging somehow

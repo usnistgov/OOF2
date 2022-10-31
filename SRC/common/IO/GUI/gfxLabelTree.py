@@ -25,8 +25,12 @@ from ooflib.common import debug
 from ooflib.common import labeltree
 from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import gtklogger
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import GObject
 from gi.repository import Gtk
+
 import string
 import weakref
 
@@ -51,7 +55,7 @@ class GfxLabelTree:
         # column is the label, and the second is the LabelTree node.
         self.treestore = Gtk.TreeStore(GObject.TYPE_STRING,
                                        GObject.TYPE_PYOBJECT)
-        self.gtk = Gtk.TreeView(self.treestore)
+        self.gtk = Gtk.TreeView(model=self.treestore)
         gtklogger.setWidgetName(self.gtk, name)
 
         # Store this GfxLabelTree in a weak value dictionary so that

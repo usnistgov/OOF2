@@ -22,7 +22,11 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import labelledslider
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import math
 
 
@@ -38,7 +42,7 @@ class LabelledSliderSet:
         self.callback = None
 
         for i in range(len(label)):
-            newlabel = Gtk.Label(label[i], halign=Gtk.Align.END)
+            newlabel = Gtk.Label(label=label[i], halign=Gtk.Align.END)
             self.gtk.attach(newlabel,0,i, 1,1)
 
             newslider = labelledslider.FloatLabelledSlider(

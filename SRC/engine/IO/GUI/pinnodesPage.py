@@ -22,6 +22,8 @@ from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import pinnodesmodifier
 from ooflib.engine import skeletoncontext
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class PinNodesPage(oofGUI.MainPage):
@@ -37,11 +39,11 @@ class PinNodesPage(oofGUI.MainPage):
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.skelwidget = whowidget.WhoWidget(whoville.getClass('Skeleton'),
                                               callback=self.select_skeletonCB)
-        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        label = Gtk.Label(label='Microstructure=', halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[0],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label='Skeleton=', halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[1],
                              expand=False, fill=False, padding=0)
@@ -113,11 +115,11 @@ class PinNodesPage(oofGUI.MainPage):
                         homogeneous=True, spacing=2,
                         margin_start=2, margin_end=2, margin_bottom=2)
         modbox.pack_start(hbox2, expand=False, fill=False, padding=0)
-        self.unpinallbutton = Gtk.Button("Unpin All")
+        self.unpinallbutton = Gtk.Button(label="Unpin All")
         gtklogger.setWidgetName(self.unpinallbutton, 'Unpin All')
         gtklogger.connect(self.unpinallbutton, "clicked", self.unpinallCB)
         self.unpinallbutton.set_tooltip_text("Unpin all the pinned nodes.")
-        self.invertbutton = Gtk.Button("Invert")
+        self.invertbutton = Gtk.Button(label="Invert")
         gtklogger.setWidgetName(self.invertbutton, 'Invert')
         gtklogger.connect(self.invertbutton, "clicked", self.invertCB)
         self.invertbutton.set_tooltip_text(

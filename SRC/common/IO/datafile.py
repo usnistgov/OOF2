@@ -150,4 +150,5 @@ def readDataFile(filename, menu):
         parser = menuparser.MenuParser(source, menu)
         parser.run()
     finally:
+        source.close()
         prog.finish()

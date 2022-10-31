@@ -107,7 +107,10 @@ const std::string &ErrWarning::classname() const {
 // typemap.
 
 void pythonErrorRelay() {
-  PYTHON_THREAD_BEGIN_BLOCK;
+  // pythonErrorRelay should be called inside a
+  //PYTHON_THREAD_BEGIN_BLOCK/PYTHON_THREAD_END_BLOCK block. 
+
+  //PYTHON_THREAD_BEGIN_BLOCK;
   PyObject *ptype;
   PyObject *pvalue;
   PyObject *ptraceback;

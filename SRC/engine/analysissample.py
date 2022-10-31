@@ -528,10 +528,10 @@ DirectSampleSetRegistration(
     "Spaced Grid Points",
     SpacedGridSampleSet,
     21,
-    params=[parameter.FloatParameter(
+    params=[parameter.PositiveFloatParameter(
             'delta_x', 0.1,
             tip="Horizontal spacing between grid points."),
-            parameter.FloatParameter(
+            parameter.PositiveFloatParameter(
             'delta_y', 0.1,
             tip="Vertical spacing between grid points.")],
     sample_type=GRID,

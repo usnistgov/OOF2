@@ -21,7 +21,10 @@ from ooflib.engine import mesh
 from ooflib.engine.IO import meshcsparams
 from ooflib.engine.IO import meshmenu
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import string
 
 
@@ -53,7 +56,7 @@ class MeshCrossSectionSetParamWidget(parameterwidgets.ParameterWidget):
         except KeyError:
             # no mesh!
             self.meshobj = None
-            vbox.add(Gtk.Label('No mesh!'))
+            vbox.add(Gtk.Label(label='No mesh!'))
         else:
             # In the proxy case, the behavior is to set the line
             # width, etc. for all the cross sections in whatever mesh
@@ -64,12 +67,12 @@ class MeshCrossSectionSetParamWidget(parameterwidgets.ParameterWidget):
             # and behave a little differently, since the chooser
             # doesn't get built in that case.
             if isinstance(self.meshobj, whoville.WhoProxy):
-                vbox.add(Gtk.Label('Selected'))
+                vbox.add(Gtk.Label(label='Selected'))
             else:
                 self.chooser = chooser.MultiListWidget(
                     self.meshobj.allCrossSectionNames(), name="List",
                     hexpand=True, halign=Gtk.Align.FILL)
-                self.selected = Gtk.CheckButton("Selected")
+                self.selected = Gtk.CheckButton(label="Selected")
                 gtklogger.setWidgetName(self.selected, "Selected")
                 gtklogger.connect(self.selected, "clicked", self.selectedCB)
                 vbox.pack_start(self.selected,
@@ -174,27 +177,27 @@ class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
         bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         vbox.pack_start(bbox, expand=False, fill=False, padding=0)
 
-        self.newbutton = Gtk.Button('New')
+        self.newbutton = Gtk.Button(label='New')
         gtklogger.setWidgetName(self.newbutton, "New")
         gtklogger.connect(self.newbutton, 'clicked', self.newCB)
         bbox.pack_start(self.newbutton, expand=True, fill=True, padding=0)
 
-        self.copybutton = Gtk.Button('Copy')
+        self.copybutton = Gtk.Button(label='Copy')
         gtklogger.setWidgetName(self.copybutton, "Copy")
         gtklogger.connect(self.copybutton, 'clicked', self.copyCB)
         bbox.pack_start(self.copybutton, expand=True, fill=True, padding=0)
 
-        self.editbutton = Gtk.Button('Edit')
+        self.editbutton = Gtk.Button(label='Edit')
         gtklogger.setWidgetName(self.editbutton, "Edit")
         gtklogger.connect(self.editbutton, 'clicked', self.editCB)
         bbox.pack_start(self.editbutton, expand=True, fill=True, padding=0)
 
-        self.renamebutton = Gtk.Button('Rename')
+        self.renamebutton = Gtk.Button(label='Rename')
         gtklogger.setWidgetName(self.renamebutton, "Rename")
         gtklogger.connect(self.renamebutton, 'clicked', self.renameCB)
         bbox.pack_start(self.renamebutton, expand=True, fill=True, padding=0)
 
-        self.deletebutton = Gtk.Button('Remove')
+        self.deletebutton = Gtk.Button(label='Remove')
         gtklogger.setWidgetName(self.deletebutton, "Remove")
         gtklogger.connect(self.deletebutton, 'clicked', self.deleteCB)
         bbox.pack_start(self.deletebutton, expand=True, fill=True, padding=0)

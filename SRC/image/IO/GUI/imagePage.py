@@ -32,6 +32,9 @@ from ooflib.common.IO.GUI import regclassfactory
 from ooflib.common.IO.GUI import whowidget
 from ooflib.image import imagecontext
 from ooflib.image import imagemodifier
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class ImagePage(oofGUI.MainPage):
@@ -45,12 +48,12 @@ class ImagePage(oofGUI.MainPage):
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                             spacing=3, margin=2, halign=Gtk.Align.CENTER)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
-        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        label = Gtk.Label(label='Microstructure=', halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         self.imagewidget = whowidget.WhoWidget(imagecontext.imageContexts)
         centerbox.pack_start(self.imagewidget.gtk[0],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label('Image=', halign=Gtk.Align.END)
+        label = Gtk.Label(label='Image=', halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.imagewidget.gtk[1],
                              expand=False, fill=False, padding=0)
@@ -60,7 +63,7 @@ class ImagePage(oofGUI.MainPage):
                             spacing=3, margin=2, halign=Gtk.Align.CENTER)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
 
-        self.loadbutton = Gtk.Button('Load...')
+        self.loadbutton = Gtk.Button(label='Load...')
         gtklogger.setWidgetName(self.loadbutton, 'Load')
         centerbox.pack_start(self.loadbutton, expand=True, fill=True, padding=0)
         gtklogger.connect(self.loadbutton, 'clicked', self.loadCB)
@@ -98,7 +101,7 @@ class ImagePage(oofGUI.MainPage):
         self.savebutton.set_tooltip_text('Save the current image to a file.')
         centerbox.pack_start(self.savebutton, expand=True, fill=True, padding=0)
 
-        self.autogroupbutton = Gtk.Button('Group...')
+        self.autogroupbutton = Gtk.Button(label='Group...')
         gtklogger.setWidgetName(self.autogroupbutton, 'Group')
         gtklogger.connect(self.autogroupbutton, 'clicked', self.autogroupCB)
         centerbox.pack_start(self.autogroupbutton,

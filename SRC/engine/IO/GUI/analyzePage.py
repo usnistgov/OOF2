@@ -30,6 +30,8 @@ from ooflib.engine.IO.GUI import outputwidget
 from ooflib.engine.IO.GUI import sampleregclassfactory
 import ooflib.engine.mesh
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gdk
 from gi.repository import Gtk
 
@@ -39,7 +41,10 @@ from gi.repository import Gtk
 
 # Base class for AnalyzePage and BoundaryAnalysisPage.
 
-## TODO: "Go" button isn't desensitized when XY function arg is empty
+## TODO PYTHON3: "Go" button isn't desensitized when XY function arg
+## is empty, or when Sampling args have illegal values.  newSampleCB
+## is called when the Sampling subclass is changed, but not when the
+## parameters change.
 
 class BaseAnalysisPage(oofGUI.MainPage):
     def buildBottomRow(self, mainbox):
@@ -64,7 +69,7 @@ class BaseAnalysisPage(oofGUI.MainPage):
         namedOpsBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
                               margin=2)
         namebox.pack_start(namedOpsBox, expand=True, fill=True, padding=0)
-        self.createNamedOpButton = Gtk.Button('New...')
+        self.createNamedOpButton = Gtk.Button(label='New...')
         gtklogger.setWidgetName(self.createNamedOpButton, "New")
         gtklogger.connect(self.createNamedOpButton, 'clicked', self.createCB)
         self.createNamedOpButton.set_tooltip_text(
@@ -72,7 +77,7 @@ class BaseAnalysisPage(oofGUI.MainPage):
         namedOpsBox.pack_start(self.createNamedOpButton,
                                expand=True, fill=True, padding=0)
         
-        self.saveNamedOpButton = Gtk.Button('Save...')
+        self.saveNamedOpButton = Gtk.Button(label='Save...')
         gtklogger.setWidgetName(self.saveNamedOpButton, "Save")
         gtklogger.connect(self.saveNamedOpButton, 'clicked', self.savenamedCB)
         self.saveNamedOpButton.set_tooltip_text(
@@ -80,7 +85,7 @@ class BaseAnalysisPage(oofGUI.MainPage):
         namedOpsBox.pack_start(self.saveNamedOpButton,
                                expand=True, fill=True, padding=0)
 
-        self.deleteNamedOpButton = Gtk.Button('Delete...')
+        self.deleteNamedOpButton = Gtk.Button(label='Delete...')
         gtklogger.setWidgetName(self.deleteNamedOpButton, "Delete")
         gtklogger.connect(self.deleteNamedOpButton, 'clicked', self.deleteCB)
         self.deleteNamedOpButton.set_tooltip_text("Delete a named analysis.")
@@ -90,7 +95,7 @@ class BaseAnalysisPage(oofGUI.MainPage):
         # Display the name of the current analysis, if there is one.
         hbox4 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         namebox.pack_start(hbox4, expand=False, fill=False, padding=0)
-        hbox4.pack_start(Gtk.Label("Current:"),
+        hbox4.pack_start(Gtk.Label(label="Current:"),
                          expand=False, fill=False, padding=0)
         self.namedAnalysisChooser = chooser.ChooserWidget(
             [], callback=self.retrieveCB, name="Retrieve", allowNone=True)
@@ -162,15 +167,16 @@ class AnalyzePage(BaseAnalysisPage):
         # of a parameter table, which is a component of the
         # OutputWidget) are context-sensitive and update themselves
         # automatically.
-        label = Gtk.Label("Microstructure=", halign=Gtk.Align.END)
+        label = Gtk.Label(label="Microstructure=", halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[0],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label="Skeleton=",
+                          halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[1],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label("Mesh=", halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label="Mesh=", halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[2],
                              expand=False, fill=False, padding=0)
@@ -180,7 +186,7 @@ class AnalyzePage(BaseAnalysisPage):
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
 
         self.timeWidget = self.timeparam.makeWidget(scope=self)
-        centerbox.pack_start(Gtk.Label("Time="),
+        centerbox.pack_start(Gtk.Label(label="Time="),
                              expand=False, fill=False, padding=0)
         centerbox.pack_start(self.timeWidget.gtk,
                              expand=False, fill=False, padding=0)
@@ -231,10 +237,10 @@ class AnalyzePage(BaseAnalysisPage):
         output_box.pack_start(output_type_selector_box,
                               expand=False, fill=False, padding=0)
 
-        self.scalar_output_button = Gtk.RadioButton("Scalar")
+        self.scalar_output_button = Gtk.RadioButton(label="Scalar")
         gtklogger.setWidgetName(self.scalar_output_button, 'ScalarMode')
         self.aggregate_output_button = Gtk.RadioButton(
-            "Aggregate", group=self.scalar_output_button)
+            label="Aggregate", group=self.scalar_output_button)
         gtklogger.setWidgetName(self.aggregate_output_button, 'AggregateMode')
         output_type_selector_box.pack_start(self.scalar_output_button,
                                             expand=False, fill=False, padding=0)

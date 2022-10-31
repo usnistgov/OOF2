@@ -24,6 +24,8 @@ import ooflib.common.microstructure
 ## may not work properly, since the interface code has never been
 ## completed.
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class InterfacePage(oofGUI.MainPage):
@@ -47,14 +49,14 @@ class InterfacePage(oofGUI.MainPage):
             whoville.getClass('Microstructure'), scope=self)
         switchboard.requestCallbackMain(self.skelwidget,
                                         self.widgetChanged)
-        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        label = Gtk.Label(label='Microstructure=', halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=0, fill=0, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[0],
                              expand=0, fill=0, padding=0)
         #We might want to include a skeleton in the widget, if an interface
         #is defined in terms of skeleton segments. For now the interface is
         #only associated with a microstructure
-        # label = Gtk.Label('Skeleton=', halign=Gtk.Align.END)
+        # label = Gtk.Label(label='Skeleton=', halign=Gtk.Align.END)
         # centerbox.pack_start(label, expand=False, fill=False, padding=0)
         # centerbox.pack_start(self.skelwidget.gtk[1],
         #                      expand=True, fill=True, padding=0)
@@ -90,7 +92,7 @@ class InterfacePage(oofGUI.MainPage):
                                     expand=0, fill=0, padding=0)
 
         # Buttons that actually do stuff.
-        self.newbutton = Gtk.Button("New...")
+        self.newbutton = Gtk.Button(label="New...")
         gtklogger.setWidgetName(self.newbutton, 'New')
         gtklogger.connect(self.newbutton, "clicked", self.newInterfaceCB)
         self.newbutton.set_tooltip_text(
@@ -98,14 +100,14 @@ class InterfacePage(oofGUI.MainPage):
         interfacebuttonbox.pack_start(self.newbutton,
                                       expand=1, fill=1, padding=0)
 
-        self.renamebutton = Gtk.Button("Rename...")
+        self.renamebutton = Gtk.Button(label="Rename...")
         gtklogger.setWidgetName(self.renamebutton, 'Rename')
         gtklogger.connect(self.renamebutton, "clicked", self.renameInterfaceCB)
         self.renamebutton.set_tooltip_text("Rename the selected interface.")
         interfacebuttonbox.pack_start(self.renamebutton,
                                       expand=1, fill=1, padding=0)
 
-        self.deletebutton = Gtk.Button("Delete")
+        self.deletebutton = Gtk.Button(label="Delete")
         gtklogger.setWidgetName(self.deletebutton, 'Delete')
         gtklogger.connect(self.deletebutton, "clicked", self.deleteInterfaceCB)
         self.deletebutton.set_tooltip_text(
@@ -118,14 +120,14 @@ class InterfacePage(oofGUI.MainPage):
                                     homogeneous=1, spacing=2)
         interfacelistbox.pack_start(materialbuttonbox,
                                     expand=0, fill=0, padding=0)
-        self.assignmatbutton = Gtk.Button("Assign interface material...")
+        self.assignmatbutton = Gtk.Button(label="Assign interface material...")
         gtklogger.setWidgetName(self.assignmatbutton, 'Assign material')
         gtklogger.connect(self.assignmatbutton, "clicked", self.assignmatCB)
         self.assignmatbutton.set_tooltip_text("Assign material to interface.")
         materialbuttonbox.pack_start(self.assignmatbutton,
                                      expand=1, fill=1, padding=0)
 
-        self.removematbutton = Gtk.Button("Remove material")
+        self.removematbutton = Gtk.Button(label="Remove material")
         gtklogger.setWidgetName(self.removematbutton, 'Remove material')
         gtklogger.connect(self.removematbutton, "clicked", self.removematCB)
         self.removematbutton.set_tooltip_text("Remove material from interface.")

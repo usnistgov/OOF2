@@ -29,8 +29,12 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import quit
 from ooflib.common.IO.GUI import subWindow
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import GLib
 from gi.repository import Gtk
+
 import string
 import sys
 import time
@@ -271,6 +275,7 @@ def delayed_add_ProgressBar(progressid):
         if progressbar_delay.delay < progressbar_delay.period:
             pbupdater()
         else:
+            pass
             GLib.timeout_add(interval=progressbar_delay.delay,
                              function=pbupdater)
 

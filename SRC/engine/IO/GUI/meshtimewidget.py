@@ -21,6 +21,8 @@ from ooflib.engine import mesh
 from ooflib.engine.IO import animationtimes
 from ooflib.engine.IO import meshparameters
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 # Widget for choosing a time at which to display a Mesh.  There are

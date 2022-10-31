@@ -127,6 +127,7 @@ class PScriptLoader(scriptloader.ScriptLoader):
             locals=sys.modules['__main__'].__dict__,
             **kwargs)
     def progress(self, current, total):
+        debug.fmsg(f"current={current} total={total} prog={self.prog}")
         self.prog.setFraction((1.0*current)/total)
         if current <= total:
             self.prog.setMessage("Read %d/%d lines" % (current, total))

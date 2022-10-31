@@ -23,6 +23,8 @@ from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.engine.IO import outputClones
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 # The generic output value widget just prints the value.
@@ -39,7 +41,7 @@ class GenericOVWidget:
             gtklogger.setWidgetName(self.gtk, 'generic')
             self.gtk.set_text(repr(val))
         else:
-            self.gtk = Gtk.Label("No data")
+            self.gtk = Gtk.Label(label="No data")
             self.gtk.set_sensitive(False)
     def destroy(self):
         debug.mainthreadTest()
@@ -58,7 +60,7 @@ class VectorWidget:
             self.gtk = Gtk.Grid(row_spacing=2, column_spacing=2,**kwargs)
             row = 0
             while not iterator.end():
-                label = Gtk.Label(iterator.shortrepr()+':',
+                label = Gtk.Label(label=iterator.shortrepr()+':',
                                   halign=Gtk.Align.END)
                 self.gtk.attach(label, 0,row, 1,1)
                 entry = Gtk.Entry(editable=False, halign=Gtk.Align.FILL,
@@ -69,7 +71,7 @@ class VectorWidget:
                 row += 1
                 iterator.increment()
         else:
-            self.gtk = Gtk.Label("No data", **kwargs)
+            self.gtk = Gtk.Label(label="No data", **kwargs)
             self.gtk.set_sensitive(False)
     def show(self):
         debug.mainthreadTest()
@@ -107,12 +109,12 @@ class SymmMatrix3Widget:
             ijstr = iterator.shortrepr()
             if not rowlabels[row]:
                 rowlabels[row] = ijstr[0]
-                label = Gtk.Label(rowlabels[row]+': ', halign=Gtk.Align.END,
-                                  hexpand=False)
+                label = Gtk.Label(label=rowlabels[row]+': ',
+                                  halign=Gtk.Align.END, hexpand=False)
                 self.gtk.attach(label, 0,row+1, 1,1)
             if not collabels[col]:
                 collabels[col] = ijstr[1]
-                label = Gtk.Label(collabels[col], hexpand=True,
+                label = Gtk.Label(label=collabels[col], hexpand=True,
                                   halign=Gtk.Align.FILL)
                 self.gtk.attach(label, col+1,0, 1,1)
             entry = Gtk.Entry(editable=False, halign=Gtk.Align.FILL,

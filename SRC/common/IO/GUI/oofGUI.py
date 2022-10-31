@@ -40,6 +40,8 @@ from ooflib.common.IO.GUI import quit
 from ooflib.common.IO.GUI import widgetscope
 import ooflib.common.quit
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 allPages = {}                           # dictionary of pages keyed by name
@@ -56,7 +58,7 @@ class oofGUI(widgetscope.WidgetScope):
     def __init__(self):
         debug.mainthreadTest()
         widgetscope.WidgetScope.__init__(self, None)
-        self.gtk = Gtk.Window(Gtk.WindowType.TOPLEVEL)
+        self.gtk = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
         self.gtk.set_title(oofname)
         initial_width, initial_height = map(int,
                                             runtimeflags.geometry.split('x'))
@@ -99,7 +101,7 @@ class oofGUI(widgetscope.WidgetScope):
         self.historian = historian.Historian(self.historianCB,
                                              self.sensitizeHistory)
 
-        label = Gtk.Label('Task:')
+        label = Gtk.Label(label='Task:')
         chooserBox.pack_start(label, expand=False, fill=False, padding=2)
         
         self.prevHistoryButton = gtkutils.StockButton('go-first-symbolic')

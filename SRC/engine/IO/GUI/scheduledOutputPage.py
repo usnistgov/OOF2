@@ -22,6 +22,8 @@ from ooflib.engine.IO import scheduledoutput
 from ooflib.engine.IO import scheduledoutputmenu
 import ooflib.engine.mesh
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import GObject
 from gi.repository import Gtk
 
@@ -41,24 +43,26 @@ class OutputPage(oofGUI.MainPage):
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               scope=self)
         switchboard.requestCallbackMain(self.meshwidget, self.meshCB)
-        label = Gtk.Label("Microstructure=", halign=Gtk.Align.END)
+        label = Gtk.Label(label="Microstructure=", halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[0],
                              expand=False, fill=False, padding=0)
 
-        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label="Skeleton=",
+                          halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[1],
                              expand=False, fill=False, padding=0)
 
-        label = Gtk.Label("Mesh=", halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label="Mesh=", halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[2],
                              expand=False, fill=False, padding=0)
 
         mainbox.pack_start(
-            Gtk.Label("Skip this page if you're only solving static problems.",
-                      halign=Gtk.Align.CENTER),
+            Gtk.Label(
+                label="Skip this page if you're only solving static problems.",
+                halign=Gtk.Align.CENTER),
             expand=False, fill=False, padding=2)
 
         # Buttons along the top: New, Delete All, Rewind All
@@ -96,7 +100,7 @@ class OutputPage(oofGUI.MainPage):
         scrollWindow = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN,
                                           margin_start=2, margin_end=2)
         mainbox.pack_start(scrollWindow, expand=True, fill=True, padding=0)
-        self.outputView = Gtk.TreeView(self.outputList, has_tooltip=True)
+        self.outputView = Gtk.TreeView(model=self.outputList, has_tooltip=True)
         self.outputView.set_grid_lines(Gtk.TreeViewGridLines.VERTICAL)
         self.outputView.connect('query-tooltip', self.tooltipQueryCB)
         gtklogger.setWidgetName(self.outputView, "list")
@@ -151,7 +155,7 @@ class OutputPage(oofGUI.MainPage):
         outputBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         masterButtonBox.pack_start(outputBox,
                                    expand=True, fill=False, padding=0)
-        outputBox.pack_start(Gtk.Label("Output", halign=Gtk.Align.CENTER),
+        outputBox.pack_start(Gtk.Label(label="Output", halign=Gtk.Align.CENTER),
                            expand=False, fill=False, padding=0)
         grid = Gtk.Grid(row_homogeneous=True, column_homogeneous=True)
         outputBox.pack_start(grid, expand=False, fill=False, padding=0)
@@ -196,8 +200,9 @@ class OutputPage(oofGUI.MainPage):
         scheduleBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         masterButtonBox.pack_start(scheduleBox,
                                    expand=True, fill=False, padding=0)
-        scheduleBox.pack_start(Gtk.Label("Schedule", halign=Gtk.Align.CENTER),
-                               expand=False, fill=False, padding=0)
+        scheduleBox.pack_start(
+            Gtk.Label(label="Schedule", halign=Gtk.Align.CENTER),
+            expand=False, fill=False, padding=0)
         grid = Gtk.Grid(row_homogeneous=True, column_homogeneous=True)
         scheduleBox.pack_start(grid, expand=False, fill=False, padding=0)
 
@@ -222,8 +227,9 @@ class OutputPage(oofGUI.MainPage):
         destBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         masterButtonBox.pack_start(destBox,
                                    expand=True, fill=False, padding=0)
-        destBox.pack_start(Gtk.Label("Destination", halign=Gtk.Align.CENTER),
-                               expand=False, fill=False, padding=0)
+        destBox.pack_start(
+            Gtk.Label(label="Destination", halign=Gtk.Align.CENTER),
+            expand=False, fill=False, padding=0)
         grid = Gtk.Grid(row_homogeneous=True, column_homogeneous=True)
         destBox.pack_start(grid, expand=False, fill=False, padding=0)
 
@@ -509,7 +515,8 @@ class OutputPage(oofGUI.MainPage):
         output = self.currentOutput()
         newoutputparam = menuitem.get_arg('new_output')
         newoutputparam.set(output)
-        params = [a for a in menuitem.params if a.name not in ('mesh', 'output')]
+        params = [a for a in menuitem.params
+                  if a.name not in ('mesh', 'output')]
         if parameterwidgets.getParameters(title='Redefine an Output',
                                           scope=self,
                                           parentwindow=self.gtk.get_toplevel(),

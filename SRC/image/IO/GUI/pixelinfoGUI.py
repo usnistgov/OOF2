@@ -18,6 +18,9 @@ from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import pixelinfoGUIplugin
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
@@ -33,7 +36,7 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         # switches from RGB to HSV or vice versa.
         self.colorv = None
         
-        label = Gtk.Label('image=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='image=', halign=Gtk.Align.END, hexpand=False)
         grid.attach(label, 0,row, 1,1)
         self.imagetext = Gtk.Entry(editable=False, hexpand=True,
                                    halign=Gtk.Align.FILL)
@@ -44,11 +47,12 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         selectorbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                               halign=Gtk.Align.START,
                               spacing=2)
-        self.rgb_selector = Gtk.RadioButton("RGB")
+        self.rgb_selector = Gtk.RadioButton(label="RGB")
         self.rgb_selector.set_tooltip_text(
             "View color values in Red-Green-Blue format.")
         selectorbox.add(self.rgb_selector)
-        self.hsv_selector = Gtk.RadioButton("HSV", group=self.rgb_selector)
+        self.hsv_selector = Gtk.RadioButton(label="HSV",
+                                            group=self.rgb_selector)
         self.hsv_selector.set_tooltip_text(
             "View color values in Hue-Saturation-Value format.")
         selectorbox.add(self.hsv_selector)
@@ -59,21 +63,21 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         gtklogger.connect(self.hsv_selector, "clicked", self.selector_cb)
         grid.attach(selectorbox, 1,row+1, 1,1)
         
-        self.label1 = Gtk.Label('red=', halign=Gtk.Align.END)
+        self.label1 = Gtk.Label(label='red=', halign=Gtk.Align.END)
         grid.attach(self.label1, 0,row+2, 1,1)
         self.text1 = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.text1,'Text 1')
         self.text1.set_width_chars(10)
         grid.attach(self.text1, 1,row+2, 1,1)
 
-        self.label2 = Gtk.Label('green=', halign=Gtk.Align.END)
+        self.label2 = Gtk.Label(label='green=', halign=Gtk.Align.END)
         grid.attach(self.label2, 0,row+3,1,1)
         self.text2 = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.text2,'Text 2')
         self.text2.set_width_chars(10)
         grid.attach(self.text2, 1,row+3, 1,1)
 
-        self.label3 = Gtk.Label('blue=', halign=Gtk.Align.END)
+        self.label3 = Gtk.Label(label='blue=', halign=Gtk.Align.END)
         grid.attach(self.label3, 0,row+4, 1,1)
         self.text3 = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.text3,'Text 3')

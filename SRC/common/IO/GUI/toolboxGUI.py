@@ -13,6 +13,9 @@ from ooflib.common import toolbox
 from ooflib.common import primitives
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import widgetscope
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class GfxToolbox(widgetscope.WidgetScope):

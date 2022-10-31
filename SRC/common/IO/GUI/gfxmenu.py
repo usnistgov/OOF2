@@ -15,6 +15,8 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.oofmenu import *
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gdk
 from gi.repository import Gtk
 
@@ -22,7 +24,7 @@ def gtkOOFMenu(menu, accelgroup=None, parentwindow=None):
     # Function to turn an OOFMenu into Gtk.  The leading GtkMenuItem
     # is returned.
     debug.mainthreadTest()
-    base = Gtk.MenuItem(utils.underscore2space(menu.name))
+    base = Gtk.MenuItem(label=utils.underscore2space(menu.name))
     menu.parentwindow = parentwindow
     gtklogger.setWidgetName(base, menu.name)
     new_gtkmenu = Gtk.Menu()
@@ -139,7 +141,7 @@ def _OOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
     debug.mainthreadTest()
     if not (self.secret or self.getOption('cli_only')):
 
-        new_gtkitem = Gtk.MenuItem(self.menuItemName()) 
+        new_gtkitem = Gtk.MenuItem(label=self.menuItemName()) 
         gtklogger.setWidgetName(new_gtkitem, self.name)
         try:
             self.gtkitem.append(new_gtkitem)
@@ -292,7 +294,7 @@ def _CheckOOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
                                     popup=False):
     debug.mainthreadTest()
     if not (self.secret or self.getOption('cli_only')):
-        new_gtkitem = Gtk.CheckMenuItem(self.menuItemName())
+        new_gtkitem = Gtk.CheckMenuItem(label=self.menuItemName())
         gtklogger.setWidgetName(new_gtkitem, self.name)
         try:
             self.gtkitem.append(new_gtkitem)

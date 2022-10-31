@@ -16,7 +16,11 @@ from ooflib.common import debug
 from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import math
 import types
 
@@ -57,10 +61,10 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
 
         # Labels.
         for r in range(self.rows):
-            lbl = Gtk.Label(' %d ' % (r+1), halign=Gtk.Align.END)
+            lbl = Gtk.Label(label=' %d ' % (r+1), halign=Gtk.Align.END)
             self.table.attach(lbl, 0, r+1, 1, 1)
         for c in range(self.cols):
-            lbl = Gtk.Label(repr(c+1))
+            lbl = Gtk.Label(label=repr(c+1))
             self.table.attach(lbl, c+1, 0, 1, 1)
 
         for r in range(self.rows):
@@ -124,10 +128,10 @@ class SymmetricMatrixInputBase(MatrixInputBase):
 
         # Do labels first.
         for r in range(self.rows):
-            lbl = Gtk.Label(' %d ' % (r+1), halign=Gtk.Align.END)
+            lbl = Gtk.Label(label=' %d ' % (r+1), halign=Gtk.Align.END)
             self.table.attach(lbl, 0, r+1, 1, 1)
         for c in range(self.cols):
-            lbl = Gtk.Label(repr(c+1))
+            lbl = Gtk.Label(label=repr(c+1))
             self.table.attach(lbl, c+1, 0, 1, 1)
 
         # Now put the actual widgets in.

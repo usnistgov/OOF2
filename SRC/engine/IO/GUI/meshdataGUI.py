@@ -40,7 +40,10 @@ from ooflib.engine import mesh
 from ooflib.engine.IO.GUI import outputvalwidgets
 import ooflib.engine.IO.output
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import sys
 
 allMeshDataWindows = []
@@ -78,7 +81,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
                                               name="Godot")
 
         title = utils.underscore2space(self._name)
-        self.gtk = Gtk.Window(Gtk.WindowType.TOPLEVEL, title=title)
+        self.gtk = Gtk.Window(type=Gtk.WindowType.TOPLEVEL, title=title)
         gtklogger.newTopLevelWidget(self.gtk, title)
         gtklogger.connect_passive(self.gtk, 'delete-event')
         gtklogger.connect_passive(self.gtk, 'configure-event')
@@ -105,7 +108,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
         self.table = Gtk.Grid(margin=2, row_spacing=2, column_spacing=2)
         expander.add(self.table)
 
-        label = Gtk.Label("Source Window:", halign=Gtk.Align.END)
+        label = Gtk.Label(label="Source Window:", halign=Gtk.Align.END)
         self.table.attach(label, 0,0, 1,1)
         label.set_tooltip_text(
             "Display data for mouse clicks in this Graphics window.")
@@ -115,7 +118,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
                                                       name='GfxWindow')
         self.table.attach(self.gfxWindowChooser.gtk, 1,0, 1,1)
 
-        label = Gtk.Label("Mesh:", halign=Gtk.Align.END)
+        label = Gtk.Label(label="Mesh:", halign=Gtk.Align.END)
         self.table.attach(label, 0,1, 1,1)
         label.set_tooltip_text("Data is displayed for values on this mesh.")
 
@@ -126,7 +129,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
         self.table.attach(self.meshText, 1,1, 1,1)
 
         # Position controls
-        label = Gtk.Label("position x:", halign=Gtk.Align.END)
+        label = Gtk.Label(label="position x:", halign=Gtk.Align.END)
         self.table.attach(label, 0,2, 1,1)
         self.xText = Gtk.Entry(hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.xText, 'x')
@@ -137,7 +140,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
         self.xsignal = gtklogger.connect(self.xText, 'changed',
                                          self.posChangedCB)
 
-        label = Gtk.Label("position y:", halign=Gtk.Align.END)
+        label = Gtk.Label(label="position y:", halign=Gtk.Align.END)
         self.table.attach(label, 0,3, 1,1)
         self.yText = Gtk.Entry(hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.yText, 'y')
@@ -160,7 +163,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
         # "Edit" button changes do a "Done" button.  When the user
         # clicks "Done" the data is updated and the time widget
         # becomes uneditable again.
-        label = Gtk.Label("time:", halign=Gtk.Align.END)
+        label = Gtk.Label(label="time:", halign=Gtk.Align.END)
         self.table.attach(label, 0,5, 1,1)
         tBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
                        hexpand=True, halign=Gtk.Align.FILL)
@@ -169,14 +172,14 @@ class MeshDataGUI(widgetscope.WidgetScope):
         tBox.pack_start(self.tText, expand=True, fill=True, padding=0)
         gtklogger.setWidgetName(self.tText, 't')
         self.tText.set_width_chars(12)
-        self.tEditButton = Gtk.Button("Edit")
+        self.tEditButton = Gtk.Button(label="Edit")
         tBox.pack_start(self.tEditButton, expand=False, fill=False, padding=0)
         gtklogger.setWidgetName(self.tEditButton, "tEdit")
         gtklogger.connect(self.tEditButton, 'clicked', self.tEditCB)
         self.tEditMode = False
  
         # Output selection
-        label = Gtk.Label("Output:", halign=Gtk.Align.END)
+        label = Gtk.Label(label="Output:", halign=Gtk.Align.END)
         label.set_alignment(1.0, 0.5)
         self.table.attach(label, 0,7, 1,1)
         label.set_tooltip_text("Choose which data is displayed.")
@@ -208,7 +211,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
         freezeframe.add(hbox)
         # Freeze Space button
         self.freezeSpaceFlag = False
-        self.freezeSpaceButton = Gtk.CheckButton('Space')
+        self.freezeSpaceButton = Gtk.CheckButton(label='Space')
         gtklogger.setWidgetName(self.freezeSpaceButton, 'Space')
         hbox.pack_start(self.freezeSpaceButton,
                         expand=True, fill=False, padding=0)
@@ -220,7 +223,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
             "when the sample position changes.")
         # Freeze Time button
         self.freezeTimeFlag = False
-        self.freezeTimeButton = Gtk.CheckButton('Time')
+        self.freezeTimeButton = Gtk.CheckButton(label='Time')
         gtklogger.setWidgetName(self.freezeTimeButton, "Time")
         hbox.pack_start(self.freezeTimeButton,
                         expand=True, fill=False, padding=0)

@@ -14,6 +14,8 @@ from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import pixelinfoGUIplugin
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class MaterialPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
@@ -23,7 +25,8 @@ class MaterialPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         debug.mainthreadTest()
         pixelinfoGUIplugin.PixelInfoGUIPlugIn.__init__(self, toolbox)
 
-        label = Gtk.Label('material=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='material=',
+                          halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,row, 1,1)
         self.materialtext = Gtk.Entry(editable=False,
                                       halign=Gtk.Align.FILL, hexpand=True)

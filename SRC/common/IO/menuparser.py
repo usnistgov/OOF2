@@ -126,6 +126,8 @@ class FileInput(InputSource):
                 "Premature EOF at byte %d! (%d missing)" %
                 (self.bytecount, n-len(b)))
         return b
+    def close(self):
+        self.file.close()
 
 class ProgFileInput(FileInput):
     ## FileInput with a ProgressBar

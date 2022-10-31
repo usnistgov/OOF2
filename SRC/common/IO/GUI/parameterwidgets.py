@@ -23,8 +23,11 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import widgetscope
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gdk
 from gi.repository import Gtk
+
 import math
 import string
 import sys
@@ -354,7 +357,7 @@ class AutoWidget(ParameterWidget):
     def deleteTextCB(self, gtkobj, start_pos, end_pos):
         # In automatic mode, deletion does nothing.
         if self.automatic:
-            self.gtk.stop_emission("delete_text")
+            self.gtk.stop_emission_by_name("delete_text")
             return
         # In manual mode, deleting the last character switches to
         # automatic mode.
@@ -369,7 +372,7 @@ class AutoWidget(ParameterWidget):
             # Just a normal deletion.
             self.gtk.get_buffer().delete_text(start_pos, end_pos-start_pos)
 
-        self.gtk.stop_emission("delete_text")
+        self.gtk.stop_emission_by_name("delete_text")
         self.widgetChanged(self.validValue(self.get_value()),
                            interactive=True)
                 
@@ -472,7 +475,7 @@ class BooleanWidget(ParameterWidget):
         else:
             labelstr = 'false'
         if not compact:
-            self.button = Gtk.CheckButton(labelstr)
+            self.button = Gtk.CheckButton(label=labelstr)
         else:
             quargs.setdefault('halign', Gtk.Align.CENTER)
             quargs.setdefault('hexpand', True)
@@ -662,6 +665,7 @@ parameter.FloatParameter.makeWidget = _FloatParameter_makeWidget
 
 class PositiveFloatWidget(FloatWidget):
     def validValue(self, val):
+        debug.fmsg("val=", val, type(val))
         try:
             if isinstance(val, StringType):
                 fval = 1.0*utils.OOFeval(val)
@@ -864,7 +868,7 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
             ]
         self.validities[tablepos] = widget.isValid()
         
-        label = Gtk.Label(param.name + ' =', halign=Gtk.Align.END,
+        label = Gtk.Label(label=param.name + ' =', halign=Gtk.Align.END,
                           hexpand=False, margin_start=5)
         self.labels.append(label)
         if param.tip:
@@ -1000,8 +1004,8 @@ class ParameterDialog(widgetscope.WidgetScope):
                 self.setData(key, value)
             
         self.parameters = parameters
-        self.dialog = gtklogger.Dialog(flags=Gtk.DialogFlags.MODAL,
-                                       parent=parentwindow,
+        self.dialog = gtklogger.Dialog(modal=True,
+                                       transient_for=parentwindow,
                                        border_width=3)
         # Window.set_keep_above is not guaranteed to work, but it won't hurt.
         # https://developer.gnome.org/gtk3/stable/GtkWindow.html#gtk-window-set-keep-above
@@ -1311,10 +1315,10 @@ class PointWidget(ParameterWidget):
         debug.mainthreadTest()
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
                        **kwargs)
-        xlabel = Gtk.Label("x:", halign=Gtk.Align.END)
+        xlabel = Gtk.Label(label="x:", halign=Gtk.Align.END)
         self.xwidget = FloatWidget(parameter.FloatParameter('Tweedledum', 0),
                                    name="X")
-        ylabel = Gtk.Label("y:", halign=Gtk.Align.END)
+        ylabel = Gtk.Label(label="y:", halign=Gtk.Align.END)
         self.ywidget = FloatWidget(parameter.FloatParameter('Tweedledee', 0),
                                    name="Y")
         hbox.pack_start(xlabel, expand=False, fill=False, padding=0)

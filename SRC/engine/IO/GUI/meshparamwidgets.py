@@ -28,7 +28,10 @@ from ooflib.engine import skeletoncontext
 from ooflib.engine import subproblemcontext
 from ooflib.engine.IO import meshparameters
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import string
 
 ## Blocks of code preceded by "if TESTINGPAPER:" are an attempt to
@@ -306,7 +309,7 @@ class FieldIndexParameterWidget(parameterwidgets.ParameterWidget):
             lambda w: isinstance(w, IndexableWidget))
         self.sbcallback = switchboard.requestCallbackMain(self.fieldwidget,
                                                           self.fieldCB)
-        self.notapplicable = Gtk.Label('(Not Applicable)',
+        self.notapplicable = Gtk.Label(label='(Not Applicable)',
                                        halign=Gtk.Align.START)
         self.nIndices = 0
         self.update()

@@ -27,6 +27,9 @@ from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
 from ooflib.common.IO.GUI import whowidget
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class ActiveAreaPage(oofGUI.MainPage):
@@ -43,7 +46,7 @@ class ActiveAreaPage(oofGUI.MainPage):
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                             halign=Gtk.Align.CENTER, margin_top=2)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
-        label = Gtk.Label('Microstructure=',
+        label = Gtk.Label(label='Microstructure=',
                           halign=Gtk.Align.END, hexpand=False)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         self.mswidget = whowidget.WhoWidget(microstructure.microStructures,
@@ -88,25 +91,25 @@ class ActiveAreaPage(oofGUI.MainPage):
         bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                        spacing=2, margin=2)
         naabox.pack_start(bbox, expand=False, fill=False, padding=0)
-        self.storebutton = Gtk.Button("Store...")
+        self.storebutton = Gtk.Button(label="Store...")
         bbox.pack_start(self.storebutton, expand=True, fill=False, padding=0)
         gtklogger.setWidgetName(self.storebutton, "Store")
         gtklogger.connect(self.storebutton, 'clicked', self.storeCB)
         self.storebutton.set_tooltip_text(
             "Save the current active area for future use.")
-        self.renamebutton = Gtk.Button("Rename...")
+        self.renamebutton = Gtk.Button(label="Rename...")
         bbox.pack_start(self.renamebutton, expand=True, fill=False, padding=0)
         gtklogger.setWidgetName(self.renamebutton, "Rename")
         gtklogger.connect(self.renamebutton, 'clicked', self.renameCB)
         self.renamebutton.set_tooltip_text(
             "Rename the selected saved active areas.")
-        self.deletebutton = Gtk.Button("Delete")
+        self.deletebutton = Gtk.Button(label="Delete")
         bbox.pack_start(self.deletebutton, expand=True, fill=False, padding=0)
         gtklogger.setWidgetName(self.deletebutton, "Delete")
         gtklogger.connect(self.deletebutton, 'clicked', self.deleteCB)
         self.deletebutton.set_tooltip_text(
             "Delete the selected saved active areas.")
-        self.restorebutton = Gtk.Button("Restore")
+        self.restorebutton = Gtk.Button(label="Restore")
         bbox.pack_start(self.restorebutton, expand=True, fill=False, padding=0)
         gtklogger.setWidgetName(self.restorebutton, "Restore")
         gtklogger.connect(self.restorebutton, 'clicked', self.restoreCB)
@@ -169,7 +172,7 @@ class ActiveAreaPage(oofGUI.MainPage):
         gtklogger.connect(self.redobutton, 'clicked', self.redoCB)
         self.redobutton.set_tooltip_text("Redo an undone operation.")
 
-        self.overridebutton = Gtk.ToggleButton('Override')
+        self.overridebutton = Gtk.ToggleButton(label='Override')
         hbox.pack_start(self.overridebutton, expand=True, fill=False, padding=0)
         gtklogger.setWidgetName(self.overridebutton, "Override")
         self.overridesignal = gtklogger.connect(self.overridebutton,

@@ -23,6 +23,8 @@ from ooflib.common.IO.GUI import regclassfactory
 
 from oofcanvas import oofcanvasgui
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 ## TODO: Fix these bugs:

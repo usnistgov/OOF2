@@ -31,23 +31,20 @@ void switchboard_notify(const std::string &msg) {
     PYTHON_THREAD_BEGIN_BLOCK;
     PyObject *result = PyObject_CallFunction(notifier, "s", msg.c_str());
     if(!result) {
-      // std::cerr << "switchboard_notify: notification failed!" << std::endl;
-      // std::cerr << "switchboard_notify: exception type="
-      // 		<< repr_nolock(PyErr_Occurred()) << std::endl;
-      // PyErr_Print();
-      // exit(1);
       pythonErrorRelay();	// raises an exception
     }
-    Py_XDECREF(result);
+    else {
+      Py_XDECREF(result);
+    }
   }
 }
 
 void switchboard_notify(const OOFMessage &msg) {
   if(notifier != 0) {
+    PYTHON_THREAD_BEGIN_BLOCK;
     PyObject *pmsg = msg.pythonObject();
     if(!pmsg)
       pythonErrorRelay();
-    PYTHON_THREAD_BEGIN_BLOCK;
     PyObject *result = PyObject_CallFunction(notifier, "O", pmsg);
     if(!result) {
       pythonErrorRelay();	// raises an exception
