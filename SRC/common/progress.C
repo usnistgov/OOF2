@@ -81,10 +81,10 @@ void Progress::start() {
       started_ = true;
       finished_ = false;
     }
-    // // Send the "new progress" message to the ActivityViewer window.
-    // OOFMessage msg("new progress");
-    // msg.addarg(id());
-    // switchboard_notify(msg);
+    // Send the "new progress" message to the ActivityViewer window.
+    OOFMessage msg("new progress");
+    msg.addarg(id());
+    switchboard_notify(msg);
   }
 }
 

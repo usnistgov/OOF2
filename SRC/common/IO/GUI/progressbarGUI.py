@@ -21,8 +21,9 @@ from ooflib.common.IO.GUI import gtkutils
 
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import GLib
 from gi.repository import Gtk
+from gi.repository import GLib
+gi.require_version("Pango", "1.0")
 from gi.repository import Pango
 
 import sys

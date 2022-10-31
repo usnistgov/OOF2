@@ -14,8 +14,12 @@ from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import subthread
 from ooflib.common.IO.GUI import gtklogger
-from gi.repository import Gtk
+
 import ooflib.common.microstructure
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 #####################
 

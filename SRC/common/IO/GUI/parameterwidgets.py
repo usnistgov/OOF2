@@ -25,8 +25,8 @@ from ooflib.common.IO.GUI import widgetscope
 
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gdk
 from gi.repository import Gtk
+from gi.repository import Gdk
 
 import math
 import string

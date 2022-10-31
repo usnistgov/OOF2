@@ -29,7 +29,6 @@ from ooflib.common.IO.GUI import whowidget
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-from gi.repository import Pango
 
 import sys
 from types import *             # TODO PYTHON3: Do we need this?

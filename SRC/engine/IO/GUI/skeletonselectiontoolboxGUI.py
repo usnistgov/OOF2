@@ -18,7 +18,10 @@ from ooflib.common.IO.GUI import toolboxGUI
 from ooflib.engine import skeletonselectionmethod
 from ooflib.engine import skeletonselmodebase
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 from oofcanvas import oofcanvasgui
 
 # The SkeletonSelectionToolbox GUI is a ToolboxGUI that contains other

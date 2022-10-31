@@ -17,8 +17,6 @@ from ooflib.common.IO.GUI import gtklogger
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-from gi.repository import Pango
-
 
 # A gtk.Button containing an image from the given stock item, (eg,
 # gtk.STOCK_OK) and optional text.  If 'reverse' is true, the text
