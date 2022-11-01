@@ -25,7 +25,7 @@
 %import "engine/flux.swg"
 %import "engine/nodalequation.swg"
 %import "engine/planarity.swg"
-#endif NOSECONDIMPORTS
+#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/equation.h"
@@ -37,7 +37,7 @@ typedef std::vector<Equation*> EquationVec;
 
 %typemap(out) Equation* {
    // typemap(out) Equation*
-   $result = $source->pythonObject();
+   $result = $1->pythonObject();
    if(!$result)
      SWIG_fail;
 }

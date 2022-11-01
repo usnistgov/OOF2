@@ -32,7 +32,7 @@ MAKE_LISTVEC_TYPEMAPS(ContourCoord);
 %typemap(out) CurveVec* {
   // Convert a vector of CCurves (which are std::deques of
   // MasterCoord*'s) to a list of lists of MasterCoords.
-  CurveVec::size_type sz = $source->size();
+  CurveVec::size_type sz = $1->size();
   $result = PyList_New((Py_ssize_t) sz);
   for(std::vector<CCurve>::size_type i=0; i<sz; i++) {
     CCurve &curve = (*$1)[i];
