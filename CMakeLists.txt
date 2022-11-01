@@ -176,7 +176,7 @@ set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 set(Python3_ROOT /opt/local) # Use MacPorts if available
 ## TODO: Allow user to choose python sub version
 include(FindPython)
-find_package(Python3 3.8 EXACT COMPONENTS Interpreter Development)
+find_package(Python3 3.9 EXACT COMPONENTS Interpreter Development)
 set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
 set(PYEXEC ${Python3_EXECUTABLE})
 
@@ -191,13 +191,15 @@ include(FindBLAS)
  
 include(FindSWIG)
 include(UseSWIG)
-find_package(SWIG 4.0 COMPONENTS python)
+find_package(SWIG 4.1 COMPONENTS python)
 ## UseSWIG can generate dependencies only for cmake >= 3.20.  Setting
 ## the flag for it is harmless even if it doesn't always work.
 set(SWIG_USE_SWIG_DEPENDENCIES True)
 set(UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
 set(SWIG_SOURCE_FILE_EXTENSIONS ".swg" ".i")
-set(CMAKE_SWIG_FLAGS -py3)
+if(${SWIG_VERSION} VERSION_LESS "4.1")
+  set(CMAKE_SWIG_FLAGS -py3)
+endif()
 # add_compile_definitions(SWIG_TYPE_TABLE=oof2)
 if(${SWIG_USE_BUILTIN})		# wishful thinking
   list(APPEND CMAKE_SWIG_FLAGS -builtin)
