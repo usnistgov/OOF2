@@ -19,7 +19,7 @@
 %include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
 %import "engine/material.swg"
-#endif NOSECONDIMPORTS
+#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/material.h"
