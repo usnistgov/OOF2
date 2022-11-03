@@ -36,6 +36,8 @@ set(ooflibs
 
 # executable python scripts to install, after changing @PYEXEC@ to the
 # full path name of the desired python version.
+## TODO PYTHON3: Just use Python3_EXECUTABLE instead of PYEXEC.  We
+## don't need PYEXEC.
 
 set(oofscripts
   oof2
