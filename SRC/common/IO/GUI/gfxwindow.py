@@ -114,7 +114,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # paned2 is in left half of paned1
         self.paned2 = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
                                 wide_handle=True,
-                                margin_right=gtkutils.handle_padding)
+                                margin_end=gtkutils.handle_padding)
         gtklogger.setWidgetName(self.paned2, "Pane2")
         self.paned1.pack1(self.paned2, resize=True, shrink=True)
         gtklogger.connect_passive(self.paned2, 'notify::position')
