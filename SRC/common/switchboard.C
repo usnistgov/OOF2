@@ -12,10 +12,11 @@
 #include <oofconfig.h>
 #include <string>
 
-#include "switchboard.h"
-#include "ooferror.h"
-#include "trace.h"
+#include "common/ooferror.h"
 #include "common/pythonlock.h"
+#include "common/pyutils.h"
+#include "common/switchboard.h"
+#include "common/trace.h"
 
 static PyObject *notifier = 0;
 
@@ -57,7 +58,6 @@ void switchboard_notify(const OOFMessage &msg) {
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 const std::string OOFMessage::classname_("OOFMessage");
-//const std::string OOFMessage::modulename_("ooflib.SWIG.common.switchboard");
 
 OOFMessage::OOFMessage(const std::string &msgname)
   : msgname(msgname)
@@ -67,6 +67,7 @@ OOFMessage::OOFMessage(const std::string &msgname)
 const std::string &OOFMessage::name() const { return msgname; }
 
 void OOFMessage::addarg(const PythonExportableBase &arggh) {
+  PYTHON_THREAD_BEGIN_BLOCK;
   PyObject *arg = arggh.pythonObject();
   if(!arg)
     pythonErrorRelay();
@@ -74,10 +75,12 @@ void OOFMessage::addarg(const PythonExportableBase &arggh) {
 }
 
 void OOFMessage::addarg(const std::string &strng) {
+  PYTHON_THREAD_BEGIN_BLOCK;
   args.push_back(PyUnicode_FromString(strng.c_str()));
 }
 
 void OOFMessage::addarg(int val) {
+  PYTHON_THREAD_BEGIN_BLOCK;
   args.push_back(PyLong_FromLong(val));
 }
 
@@ -87,4 +90,9 @@ int OOFMessage::nargs() const {
 
 PyObject *OOFMessage::getarg(int i) const {
   return args[i];
+}
+
+std::ostream &operator<<(std::ostream &os, const OOFMessage &msg) {
+  os << "OOFMessage(" << msg.name();
+  return os;
 }

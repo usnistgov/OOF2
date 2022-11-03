@@ -19,12 +19,14 @@
 // unicode string.  This replaces Python2's PyString_AsString().
 
 std::string pyStringAsString(PyObject *str) {
+  assert(PyUnicode_Check(str));
   PyObject *ustr = PyUnicode_AsEncodedString(str, "UTF-8", "replace");
   if(!ustr)
     pythonErrorRelay();
-  char *result = PyBytes_AsString(ustr);
-  if(!result)
+  char *r = PyBytes_AsString(ustr);
+  if(!r)
     pythonErrorRelay();
+  std::string result(r);
   Py_XDECREF(ustr);
   return result;
 }
@@ -38,12 +40,18 @@ std::string pyStringAsString(PyObject *str) {
 std::string repr_nolock(PyObject *obj) {
   assert(obj != 0);
   PyObject *repr = PyObject_Repr(obj);
+  if(!repr)
+    pythonErrorRelay();
   PyObject *ustr = PyUnicode_AsEncodedString(repr, "UTF-8", "replace");
-  assert(ustr != 0);
-  std::string r(PyBytes_AsString(ustr));
+  if(!ustr)
+    pythonErrorRelay();
+  char *r = PyBytes_AsString(ustr);
+  if(!r)
+    pythonErrorRelay();
+  std::string result(r);
   Py_XDECREF(repr);
   Py_XDECREF(ustr);
-  return r;
+  return result;
 }
 
 std::string repr(PyObject *obj) {

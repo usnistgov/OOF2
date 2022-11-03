@@ -380,8 +380,8 @@ def requestCallback(msgname, func, *args, **kwargs):
 
 def notify(msgname, *args, **kwargs):
     if switchboard.verbose and switchboard.nCallbacks(msgname) > 0:
-        # debug.dumpCaller()
-        debug.dumpTrace(-6,-2)
+        # debug.dumpTrace(-6, -2)
+        debug.dumpCaller()
     switchboard.notify(msgname, *args, **kwargs)
     
 def removeCallback(action):

@@ -29,13 +29,14 @@ public:
   OOFMessage(const std::string &msgname);
   const std::string &name() const;
   virtual const std::string &classname() const { return classname_; }
-  //virtual const std::string &modulename() const { return modulename_; }
   void addarg(const PythonExportableBase&);
   void addarg(const std::string &);
   void addarg(int);
   int nargs() const;
   PyObject *getarg(int) const;
 };
+
+std::ostream &operator<<(std::ostream&, const OOFMessage&);
 
 void switchboard_notify(const std::string&);
 void switchboard_notify(const OOFMessage&); // for more complicated messages
