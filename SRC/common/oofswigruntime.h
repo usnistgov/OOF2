@@ -27,11 +27,14 @@
 // defined in swigruntime.h and also defined in all swig-generated C++
 // files.
 
+// TODO PYTHON3?  Allow users to switch between swig versions, and
+// include either swigruntime-402.h or swigruntime-410.h here.
+
 #include <oofconfig.h>
 
 #ifndef SWIG_RUNTIME_VERSION
 
-#include "common/swigruntime.h"
+#include "common/swigruntime-410.h"
 #define SWIG_as_voidptr(a) const_cast< void * >(static_cast< const void * >(a)) 
 
 #endif 
