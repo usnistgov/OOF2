@@ -18,6 +18,7 @@ class Equation;
 class Field;
 class FieldIndex;
 
+#include <string>
 #include <vector>
 
 class CConjugatePair {

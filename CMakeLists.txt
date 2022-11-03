@@ -9,6 +9,12 @@
 cmake_minimum_required(VERSION 3.16)
 project(oof2 VERSION 2.2.3)
 
+if("$ENV{CONDA_PREFIX}")
+  message("CONDA_PREFIX is $ENV{CONDA_PREFIX}")
+else()
+  message("CONDA_PREFIX is not defined")
+endif()
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # OOF2/SRC subdirectories containing python files to install.  The
@@ -213,8 +219,12 @@ include(FindPkgConfig)
 if(APPLE)
 set(ENV{PKG_CONFIG_PATH}
   "$ENV{PKG_CONFIG_PATH}:${Python3_LIBRARY_DIRS}/pkgconfig")
-#message("PKG_CONFIG_PATH is $ENV(PKG_CONFIG_PATH)")
 endif()
+if($ENV{CONDA_PREFIX})
+  set(ENV{PKG_CONFIG_PATH}
+    "$ENV{PKG_CONFIG_PATH}:$ENV{CONDA_PREFIX}/lib/pkgconfig")
+endif()
+message("PKG_CONFIG_PATH is $ENV(PKG_CONFIG_PATH)")
 
 pkg_check_modules(
   OOFCANVAS REQUIRED
