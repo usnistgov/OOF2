@@ -133,7 +133,7 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
     # creating explicit groups in the regexp itself. The explicit
     # groups cause split and match to be annoying.
     floatpattern = re.compile(
-        "[-+]?(?:\d+(?:\.\d*)?|\d*\.\d+)(?:[eE][-+]?\d+)?")
+        r"[-+]?(?:\d+(?:\.\d*)?|\d*\.\d+)(?:[eE][-+]?\d+)?")
 
     ## TODO: Delete pdfmode?  It's not used, and pdf_compare(), below,
     ## is better when comparing pdf files created by cairo.
@@ -141,9 +141,9 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
     # Pattern for detecting PDF date strings, which should not be
     # compared.  This looks for a non-digit or beginning of a line,
     # followed by exactly 14 digits, followed by 'Z'.
-    datepattern = re.compile("(?:\D|^)\d{14}Z")
+    datepattern = re.compile(r"(?:\D|^)\d{14}Z")
     # Pattern for detecting the time as printed by datetime.today().
-    timepattern = re.compile("\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\.\d*")
+    timepattern = re.compile(r"\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\.\d*")
 
     try:
         file2 = reference_file(file2)
