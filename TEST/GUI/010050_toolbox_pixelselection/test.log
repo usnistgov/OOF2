@@ -167,7 +167,7 @@ event(Gdk.EventType.BUTTON_PRESS,x= 7.0000000000000e+01,y= 1.5000000000000e+01,b
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Brush']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.0000000000000e+01)
 assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','2 (0.00888889%)')
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':False,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
 assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'50.5875','yup':'114.9'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
@@ -252,14 +252,14 @@ checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Brush
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 6.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 6.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.4000000000000e+01)
 assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','419 (1.86222%)')
 
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.3000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 3.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.3000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 3.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 0.0000000000000e+00)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
 assert tests.gtkMultiTextCompare({'xdown':'41.1375','ydown':'71.325','xup':'98.3625','yup':'46.125'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
 
@@ -268,8 +268,8 @@ event(Gdk.EventType.BUTTON_PRESS,x= 7.3000000000000e+01,y= 9.0000000000000e+00,b
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Rectangle']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findGfxWindow('Graphics_1').simulateMouse('down', 41.1375, 101.775, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 41.1375, 101.775, 1, False, False)
@@ -313,7 +313,7 @@ event(Gdk.EventType.BUTTON_PRESS,x= 1.3400000000000e+02,y= 8.0000000000000e+00,b
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Circle']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.0000000000000e+01)
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findGfxWindow('Graphics_1').simulateMouse('down', 25.9125, 67.65, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 25.9125, 67.65, 1, False, False)
@@ -354,7 +354,7 @@ event(Gdk.EventType.BUTTON_PRESS,x= 1.3600000000000e+02,y= 1.4000000000000e+01,b
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Ellipse']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.0000000000000e+01)
 findGfxWindow('Graphics_1').simulateMouse('down', 76.3125, 110.175, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 76.3125, 109.65, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 76.3125, 109.125, 1, False, False)
@@ -398,7 +398,7 @@ event(Gdk.EventType.BUTTON_PRESS,x= 1.3500000000000e+02,y= 1.2000000000000e+01,b
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Color']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.0000000000000e+01)
 findGfxWindow('Graphics_1').simulateMouse('down', 45.3375, 84.45, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 45.3375, 84.45, 1, False, False)
 checkpoint microstructure page sensitized
@@ -436,7 +436,7 @@ assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':
 assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'82.6125','yup':'44.025'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
 
 # Undo
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Undo').clicked()
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
@@ -498,8 +498,8 @@ event(Gdk.EventType.BUTTON_PRESS,x= 1.1400000000000e+02,y= 1.4000000000000e+01,b
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Circle']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 5.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 5.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.6000000000000e+01)
 
 # Circle selection with the shift key depressed
 findGfxWindow('Graphics_1').simulateMouse('down', 89.9625, 99.15, 1, True, False)
@@ -590,17 +590,17 @@ assert tests.gtkMultiTextCompare({'xdown':'88.9125','ydown':'48.225','xup':'102.
 
 # Make the toolbox wider
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(261)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 3.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 3.4000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(269)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.6000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(270)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.5000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.5000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(285)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 1.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 1.0000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(287)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 8.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 8.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(301)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 0.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(341)
 
 # Clear the selection

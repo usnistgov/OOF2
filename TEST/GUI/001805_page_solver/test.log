@@ -368,8 +368,8 @@ checkpoint Solver page sensitized
 checkpoint OOF.Subproblem.Set_Solver
 
 # Check that fields can be initialized, but not time derivs.
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 2.6000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 2.6000000000000e+01)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([3]))
 checkpoint Solver page sensitized
 findWidget('OOF2:Solver Page:VPane:FieldInit:Set').clicked()
@@ -386,10 +386,10 @@ findWidget('Dialog-Initialize BC floatdisp:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Boundary_Conditions.Set_BC_Initializer
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 8.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 9.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 2.4000000000000e+01)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 2.6000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 8.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 9.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 2.6000000000000e+01)
 # Check that floatdisp initializer is displayed correctly (min=0).
 
 # Set the temperature initializer
@@ -410,7 +410,7 @@ findWidget('Dialog-Initialize BC floattemp:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Boundary_Conditions.Set_BC_Initializer
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 8.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 8.0000000000000e+00)
 # Check that floattemp initializer is min=0.
 
 # Switch to time dependent solver.
@@ -442,12 +442,12 @@ checkpoint OOF.Subproblem.Set_Solver
 assert tests.checkInitializees("Temperature", "Displacement", "Displacement_t", 'floattemp', 'floatdisp')
 
 # Check that time_derivative can be set for floatdisp bc
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 9.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 1.2000000000000e+01)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 3.5000000000000e+01)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 3.6000000000000e+01)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 3.7000000000000e+01)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 4.4000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 9.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 1.2000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 3.5000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 3.6000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 3.7000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 4.4000000000000e+01)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([4]))
 checkpoint Solver page sensitized
 tree=findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers')
@@ -464,10 +464,10 @@ findWidget('Dialog-Initialize BC floatdisp:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Boundary_Conditions.Set_BC_Initializer
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 8.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 9.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 2.4000000000000e+01)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 4.4000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 8.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 9.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 4.4000000000000e+01)
 # Check that initializer listed for floatdisp is min=0, time_derivative=0.1
 
 # Check that time_derivative isn't settable for floattemp.
@@ -487,18 +487,18 @@ findWidget('Dialog-Initialize BC floattemp:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Boundary_Conditions.Set_BC_Initializer
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 8.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 8.0000000000000e+00)
 # Check that initializer for floattemp is min=0.2
 
 # Clear the floattemp bc initializer
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 9.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 3.4000000000000e+01)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 4.4000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 9.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 3.4000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 4.4000000000000e+01)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Clear').clicked()
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Boundary_Conditions.Clear_BC_Initializer
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 8.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 8.0000000000000e+00)
 # Check that floattemp initializer has been cleared.
 
 # Clear all initializers
@@ -534,9 +534,9 @@ checkpoint Solver page sensitized
 checkpoint page installed Solver
 
 # Check that the time derivative of floatdisp isn't settable.
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 9.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 2.4000000000000e+01)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 2.6000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 9.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 2.6000000000000e+01)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([3]))
 checkpoint Solver page sensitized
 findWidget('OOF2:Solver Page:VPane:FieldInit:Set').clicked()
@@ -550,7 +550,7 @@ findWidget('Dialog-Initialize BC floatdisp:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Boundary_Conditions.Set_BC_Initializer
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 8.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 8.0000000000000e+00)
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Python_Log']).activate()
 checkpoint toplevel widget mapped Dialog-Python_Log
 findWidget('Dialog-Python_Log').resize(192, 122)

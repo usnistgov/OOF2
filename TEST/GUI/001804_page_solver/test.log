@@ -293,9 +293,9 @@ assert tests.listCheck("Temperature", "Temperature_z", "Displacement")
 assert tests.selection(0)
 
 # Select new field
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 8.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 8.0000000000000e+00)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([2]))
 checkpoint Solver page sensitized
 
@@ -393,7 +393,7 @@ checkpoint toplevel widget mapped chooserPopup-Mesh
 findMenu(findWidget('chooserPopup-Mesh'), ['mesh<2>']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 checkpoint Solver page sensitized
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 assert tests.sensitization0()
 assert tests.listCheck()
 

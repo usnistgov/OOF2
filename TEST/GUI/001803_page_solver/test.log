@@ -278,16 +278,16 @@ assert tests.sensitization8()
 assert tests.selection(1)
 
 # Select third subproblem
-findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_vadjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_vadjustment().set_value( 2.0000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_property('vadjustment').set_value( 2.0000000000000e+01)
 findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList').get_selection().select_path(Gtk.TreePath([2]))
 checkpoint Solver page sensitized
 assert tests.selection(2)
 assert tests.sensitization7()
 
 # Select first subproblem
-findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_vadjustment().set_value( 1.9112155731228e+01)
-findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_property('vadjustment').set_value( 1.9112155731228e+01)
+findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList').get_selection().select_path(Gtk.TreePath([0]))
 checkpoint Solver page sensitized
 assert tests.sensitization3()

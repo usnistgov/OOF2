@@ -212,7 +212,7 @@ checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.New
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 6.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.8000000000000e+01)
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['File', 'Quit']).activate()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(336, 86)

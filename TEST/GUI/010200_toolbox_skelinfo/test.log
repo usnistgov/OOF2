@@ -60,9 +60,9 @@ assert tests.chooserListCheck(elbox+":SegmentList",[])
 assert tests.chooserListCheck(elbox+":NodeList",[])
 
 # Load a Skeleton
-findWidget('OOF2:Introduction Page:Scroll').get_vadjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2:Introduction Page:Scroll').get_vadjustment().set_value( 6.0000000000000e+00)
-findWidget('OOF2:Introduction Page:Scroll').get_vadjustment().set_value( 9.0000000000000e+00)
+findWidget('OOF2:Introduction Page:Scroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
+findWidget('OOF2:Introduction Page:Scroll').get_property('vadjustment').set_value( 6.0000000000000e+00)
+findWidget('OOF2:Introduction Page:Scroll').get_property('vadjustment').set_value( 9.0000000000000e+00)
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Load', 'Data']).activate()
 checkpoint toplevel widget mapped Dialog-Data
 findWidget('Dialog-Data').resize(192, 92)
@@ -297,7 +297,7 @@ assert tests.chooserListCheck(elbox+":SegmentList",["Segment 68, nodes (36, 43) 
 assert tests.chooserListCheck(elbox+":NodeList",["Node 36 at (22.0, 50.0) (angle: 72.988721236)","Node 44 at (31.0, 62.5) (angle: 54.2461127456)", "Node 43 at (12.5, 62.5) (angle: 52.7651660184)"], tolerance=1.e-6)
 
 # Switch to node mode
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Node').clicked()
 checkpoint Graphics_1 Skeleton Info showed position
 checkpoint contourmap info updated for Graphics_1
@@ -345,7 +345,7 @@ assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(ndbox+":ElementList",["Element 30","Element 35","Element 54","Element 55"])
 
 # Switch to segment mode
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.8000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Segment').clicked()
 checkpoint Graphics_1 Skeleton Info showed position
 checkpoint contourmap info updated for Graphics_1
@@ -380,12 +380,12 @@ assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(sgbox+":ElementList",["Element 54","Element 60"])
 assert tests.chooserListCheck(sgbox+":NodeList",["Node 43 at (12.5, 62.5)","Node 44 at (31.0, 62.5)"], tolerance=1.e-6)
 
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.9000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 5.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 6.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.9000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 5.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 6.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 0.0000000000000e+00)
 
 # Click on another segment
 findGfxWindow('Graphics_1').simulateMouse('down', 10.975, 69.25, 1, False, False)
@@ -407,7 +407,7 @@ assert tests.chooserListCheck(sgbox+":NodeList",["Node 43 at (12.5, 62.5)","Node
 
 # Switch to element mode
 findWidget('OOF2 Graphics 1').resize(800, 492)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Element').clicked()
 checkpoint Graphics_1 Skeleton Info showed position
 checkpoint contourmap info updated for Graphics_1
@@ -435,12 +435,12 @@ checkpoint Graphics_1 Element sensitized
 checkpoint selection info updated Element
 deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(265)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Element:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Element:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['ByDominantPixel']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.4000000000000e+01)
 findGfxWindow('Graphics_1').simulateMouse('down', 41.10125, 55.95, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 41.10125, 55.95, 1, False, False)
 checkpoint Graphics_1 Element sensitized
@@ -878,7 +878,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QueryNode
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 0.0000000000000e+00)
 assert findWidget(tbox+":Click:Node").get_active()
 assert not findWidget(tbox+":Click:Segment").get_active()
 assert tests.gtkMultiFloatCompare({'X Text':51.4,'Y Text':68.17},cbox)

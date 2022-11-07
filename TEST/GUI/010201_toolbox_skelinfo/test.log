@@ -253,7 +253,7 @@ assert tests.chooserListCheck(elbox+":NodeList",["Node 43 at (12.5, 62.5) (angle
 # Node peek
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:ElementInformation:NodeList').get_selection().select_path(Gtk.TreePath([1]))
 checkpoint contourmap info updated for Graphics_1
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 7.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 7.0000000000000e+00)
 assert findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert not findWidget(tbox+":Click:Segment").get_active()
@@ -275,7 +275,7 @@ checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QueryNodeByID
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Node').clicked()
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 0.0000000000000e+00)
 assert not findWidget(tbox+":Click:Element").get_active()
 assert findWidget(tbox+":Click:Node").get_active()
 assert not findWidget(tbox+":Click:Segment").get_active()
@@ -320,7 +320,7 @@ assert tests.chooserListStateCheck(elbox+":NodeList",[])
 findWidget('OOF2 Graphics 1').resize(1218, 641)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:ElementInformation:SegmentList').get_selection().select_path(Gtk.TreePath([1]))
 checkpoint contourmap info updated for Graphics_1
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 7.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 7.0000000000000e+00)
 assert findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert not findWidget(tbox+":Click:Segment").get_active()
@@ -343,7 +343,7 @@ checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QuerySegmentByID
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Segment').clicked()
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 0.0000000000000e+00)
 assert not findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert findWidget(tbox+":Click:Segment").get_active()
@@ -389,8 +389,8 @@ assert tests.chooserListStateCheck(elbox+":NodeList", [])
 assert tests.chooserListStateCheck(elbox+":SegmentList", [])
 
 # Delete Skeleton layer
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 wevent(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), Gdk.EventType.BUTTON_PRESS, button=3, state=0, window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 checkpoint toplevel widget mapped PopUp-0
 findMenu(findWidget('PopUp-0'), ['Delete']).activate() # MenuItemLogger
