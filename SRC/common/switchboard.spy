@@ -261,7 +261,7 @@ class _SwitchboardTaskList(object):
 class _Switchboard(object):
     def __init__(self):
         self.taskdict = {}
-        self.verbose = 0
+        self.verbose = False
         self.lock = lock.SLock()
         self.depth = 0
     def _defineMessage(self, msgname):

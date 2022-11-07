@@ -9,12 +9,6 @@
 cmake_minimum_required(VERSION 3.16)
 project(oof2 VERSION 2.2.3)
 
-if("$ENV{CONDA_PREFIX}")
-  message("CONDA_PREFIX is $ENV{CONDA_PREFIX}")
-else()
-  message("CONDA_PREFIX is not defined")
-endif()
-
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # OOF2/SRC subdirectories containing python files to install.  The
@@ -184,7 +178,7 @@ set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 set(Python3_ROOT /opt/local) # Use MacPorts if available
 ## TODO: Allow user to choose python sub version
 include(FindPython)
-find_package(Python3 3.9 EXACT COMPONENTS Interpreter Development)
+find_package(Python3 3.10 EXACT COMPONENTS Interpreter Development)
 set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
 set(PYEXEC ${Python3_EXECUTABLE})
 
@@ -224,7 +218,7 @@ if($ENV{CONDA_PREFIX})
   set(ENV{PKG_CONFIG_PATH}
     "$ENV{PKG_CONFIG_PATH}:$ENV{CONDA_PREFIX}/lib/pkgconfig")
 endif()
-message("PKG_CONFIG_PATH is $ENV(PKG_CONFIG_PATH)")
+#message("PKG_CONFIG_PATH is $ENV{PKG_CONFIG_PATH}")
 
 pkg_check_modules(
   OOFCANVAS REQUIRED

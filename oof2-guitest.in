@@ -1,4 +1,4 @@
-#!@PYEXEC@ -W error
+#!@PYEXEC@ 
 # -*- python -*-
 
 # This software was produced by NIST, an agency of the U.S. government,
