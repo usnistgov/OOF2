@@ -13,7 +13,7 @@
 
 ## TODO PYTHON3: The loggergui appears to be receiving bytes instead
 ## of str.  Is that due to the way the pipe is opened?  The way that
-## data is put into the pipe?  The way it's being read? 
+## data is put into the pipe?  The way it's being read?
 
 import gi
 gi.require_version("Gtk", "3.0")
@@ -335,13 +335,15 @@ def logScrollBars(window, name=None):
     assert isinstance(window, Gtk.ScrolledWindow)
     if name is not None:
         setWidgetName(window, name)
-    adoptGObject(window.get_hadjustment(), window,
-                 access_method=window.get_hadjustment)
-    adoptGObject(window.get_vadjustment(), window,
-                 access_method=window.get_vadjustment)
+    adoptGObject(window.get_property('hadjustment'), window,
+                 access_method=window.get_property,
+                 access_args=('hadjustment',))
+    adoptGObject(window.get_property('vadjustment'), window,
+                 access_method=window.get_property,
+                 access_args=('vadjustment',))
     return (
-        connect_passive(window.get_hadjustment(), 'value-changed'),
-        connect_passive(window.get_vadjustment(), 'value-changed'))
+        connect_passive(window.get_property('hadjustment'), 'value-changed'),
+        connect_passive(window.get_property('vadjustment'), 'value-changed'))
 
 
 

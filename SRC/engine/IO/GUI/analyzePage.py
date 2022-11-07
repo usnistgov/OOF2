@@ -272,7 +272,7 @@ class AnalyzePage(BaseAnalysisPage):
                               expand=False, fill=False, padding=0)
         self.aggregate_output_obj.gtk.hide()
         
-        output_scroll.add_with_viewport(output_box)
+        output_scroll.add(output_box)
         self.topPane.pack1(self.outputframe, resize=True, shrink=pshrink)
 
         # Operation

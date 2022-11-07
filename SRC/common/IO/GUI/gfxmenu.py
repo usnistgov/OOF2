@@ -151,9 +151,13 @@ def _OOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
         new_gtkitem.connect("destroy", self.gtkitem_destroyed)
         
         parent_menu.insert(new_gtkitem, self.gui_order())
-        if self.help_menu:
-            base.gtkhelpmenu = 1
-            new_gtkitem.set_right_justified(True)
+
+        ## Right justification of help menus is "now considered a bad
+        ## idea" according to the gtk documentation, and
+        ## MenuItem.set_right_justified is deprecated.
+        # if self.help_menu:
+        #     base.gtkhelpmenu = 1
+        #     new_gtkitem.set_right_justified(True)
 
         if (self.callback is None and self.gui_callback is None 
             and self.children_visible()):

@@ -27,8 +27,8 @@
 
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import GObject
 from gi.repository import Gtk
+from gi.repository import GLib
 import sys
 import re
 
@@ -188,7 +188,7 @@ class LogProcessor:
                               padding=0)
         self.clearButton.connect('clicked', self.clearCB)
 
-        GObject.io_add_watch(sys.stdin, GObject.IO_IN, self.inputHandler)
+        GLib.io_add_watch(sys.stdin, GLib.IO_IN, self.inputHandler)
 
         window.show_all()
         

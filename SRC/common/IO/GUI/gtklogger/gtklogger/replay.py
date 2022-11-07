@@ -511,7 +511,9 @@ def buildEvent(etype, **kwargs):
         ev.time = Gtk.get_current_event_time()
     if hasattr(ev, 'set_device'):
         disp = Gdk.Display.get_default()
-        ev.set_device(disp.list_devices()[0])
+        seat = disp.get_default_seat()
+        device = seat.get_keyboard()
+        ev.set_device(device)
     for arg, val in kwargs.items():
         if logutils.debugLevel() > 0:
             if not hasattr(ev, arg):

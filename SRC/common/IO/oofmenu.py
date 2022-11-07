@@ -109,14 +109,15 @@ params:	      A list of Parameters that are provided as arguments to
               parameter, using Parameter.name and Parameter.value for
               the key and value.  [default value = []]
 
-help_menu:    If help_menu=1, then this item is presumed to be a 'Help'
-              menu and will be right justified in a GUI menu bar.  Setting
-              help_menu=1 on anything other than a plain old OOFMenuItem with
-              no callback doesn't make any sense, and may cause confusion.
-
 ordering:     New items are added to menus just before the first item with
               a larger ordering number.  Items with the same ordering number
               appear in the order in which they're added. [default value=0]
+
+help_menu:    If help_menu=1, then this item is presumed to be a 'Help'
+              menu and will be in the right-most position in a GUI menu bar,
+              independent of its ordering.  Setting help_menu=1 on anything
+              other than a plain old OOFMenuItem with no callback doesn't
+              make any sense, and may cause confusion.
 
 Options:      Any additional keyword arguments to the OOFMenuItem
               constructor are options that apply to the menu item and

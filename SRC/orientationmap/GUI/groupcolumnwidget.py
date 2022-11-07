@@ -99,7 +99,6 @@ class GroupColumnWidget(parameterwidgets.ParameterWidget):
 
         nlabel = Gtk.Label(label="Name",
                            halign=Gtk.Align.CENTER, hexpand=True)
-        nlabel.set_alignment(0.0, 0.5)
         nframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         nframe.add(nlabel)
         self.table.attach(nframe, 2,0, 1,1)

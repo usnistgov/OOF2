@@ -180,7 +180,6 @@ class MeshDataGUI(widgetscope.WidgetScope):
  
         # Output selection
         label = Gtk.Label(label="Output:", halign=Gtk.Align.END)
-        label.set_alignment(1.0, 0.5)
         self.table.attach(label, 0,7, 1,1)
         label.set_tooltip_text("Choose which data is displayed.")
         
