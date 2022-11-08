@@ -9,6 +9,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(oof2 VERSION 2.2.3)
 
+set(DESIRED_SWIGVERSION 4.1)
+set(DESIRED_PYVERSION 3.10)
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # OOF2/SRC subdirectories containing python files to install.  The
@@ -178,7 +181,9 @@ set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 set(Python3_ROOT /opt/local) # Use MacPorts if available
 ## TODO: Allow user to choose python sub version
 include(FindPython)
-find_package(Python3 3.10 EXACT COMPONENTS Interpreter Development)
+find_package(
+  Python3 ${DESIRED_PYVERSION} EXACT
+  COMPONENTS Interpreter Development)
 set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
 set(PYEXEC ${Python3_EXECUTABLE})
 
@@ -193,7 +198,7 @@ include(FindBLAS)
  
 include(FindSWIG)
 include(UseSWIG)
-find_package(SWIG 4.1 COMPONENTS python)
+find_package(SWIG ${DESIRED_SWIGVERSION} COMPONENTS python)
 ## UseSWIG can generate dependencies only for cmake >= 3.20.  Setting
 ## the flag for it is harmless even if it doesn't always work.
 set(SWIG_USE_SWIG_DEPENDENCIES True)
