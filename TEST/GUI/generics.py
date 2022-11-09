@@ -553,8 +553,22 @@ def pixelGroupSizeCheck(msname, grpname, n):
 
 # Error message tests
 
-def errorMsg(text):
-    return gtkTextviewTail('Error:ErrorText', text+'\n')
+# The exact form of an error message can change from one python
+# version to another.  errorMsg() can accept a bunch of expected
+# messages, and returns True if one of them matches the contents of
+# the error message dialog.
+## TODO: It would be better if this explicitly specified which message
+## to expect for each python version, but that would break each time a
+## new version came out.  This version breaks only when a new message
+## format appears.
+
+def errorMsg(*texts):
+    for text in texts:
+        if gtkTextviewTail('Error:ErrorText', text+'\n'):
+            return True
+    return False
+
+# Check the contents of the message window.
 
 def msgTextTail(text):
     return gtkTextviewTail('OOF2 Messages 1:Text', text+'\n')
