@@ -36,7 +36,7 @@ SyntaxError: EOL while scanning string literal""",
 
         # Python 3.10
 """File "TEST_DATA/syntaxerror.py", line 2
-'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
-^
+    'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
+    ^
 SyntaxError: unterminated string literal (detected at line 2)"""
     )
