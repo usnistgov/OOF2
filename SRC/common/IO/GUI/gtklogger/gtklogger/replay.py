@@ -254,6 +254,9 @@ class GUILogLineRunner:
 
         # Run this line, but only if there are no postponed lines
         # ready to go, and if this line is also ready.
+        ## TODO PYTHON3: intermittent failures here (at least with
+        ## python3.9 -W error with PYTHONDEVMODE=1:
+        ##   gobject.Warning: g_object_unref: assertion 'old_ref > 0' failed
         if not self.run_postponed() and self.ready():
             assert self.status in ("repeating", "installed")
             # Add the idle callback for the next line *before*
@@ -398,7 +401,7 @@ class PostponedLine(PerformLine):
                              ppl.line)
         self.ppl = ppl
     def ready(self):
-        # Overrides PerformLine.ready()
+        # Overrides GUILogLineRunner.ready()
         return logutils.run_level() <= self.ppl.runlevel
     def start(self):
         _postponed.remove(self)
