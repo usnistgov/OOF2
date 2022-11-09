@@ -24,7 +24,8 @@ checkpoint OOF.File.LoadStartUp.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(527, 282)
 findWidget('OOF2').resize(782, 545)
-assert tests.errorMsg('File "TEST_DATA/syntaxerror.py", line 2\n    \'Twas brillig, and the slithy toves did gyre and gimble in the wabe.\n    ^\nSyntaxError: unterminated string literal (detected at line 2)\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestedsyntaxerr.py raised a SyntaxError exception')
+assert tests.errorMsgTest()
+
 findWidget('Error').resize(527, 282)
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
 assert tests.noExecution()
@@ -40,7 +41,8 @@ findWidget('Dialog-Script:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Load.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(266, 162)
-assert tests.errorMsg('File "TEST_DATA/syntaxerror.py", line 2\n    \'Twas brillig, and the slithy toves did gyre and gimble in the wabe.\n    ^\nSyntaxError: unterminated string literal (detected at line 2)\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestedsyntaxerr.py raised a SyntaxError exception')
+assert tests.errorMsgTest()
+
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
 assert tests.noExecution()
 assert utils.OOFeval("teststring") == "ok"

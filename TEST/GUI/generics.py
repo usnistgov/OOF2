@@ -314,14 +314,15 @@ def gtkTextviewCompare(widgetpath, targettext, tolerance=None):
         return False
     return True
 
-def gtkTextviewTail(widgetpath, targettext, tolerance=None):
+def gtkTextviewTail(widgetpath, targettext, tolerance=None, quiet=False):
     msgbuffer = gtklogger.findWidget(widgetpath).get_buffer()
     text = msgbuffer.get_text(msgbuffer.get_start_iter(),
                               msgbuffer.get_end_iter(), True)
     if not fp_string_compare_tail(text, targettext, tolerance):
-        print((("gtkTextviewTail failed for %s\n"
-                "expected =>%s<=\ngot =>%s<=")
-               % (widgetpath, targettext, text)), file=sys.stderr)
+        if not quiet:
+            print((f"gtkTextviewTail failed for {widgetpath}\n"
+                   f"expected =>{targettext}<=\ngot =>{text}<="),
+                  file=sys.stderr)
         return False
     return True
 
@@ -564,8 +565,14 @@ def pixelGroupSizeCheck(msname, grpname, n):
 
 def errorMsg(*texts):
     for text in texts:
-        if gtkTextviewTail('Error:ErrorText', text+'\n'):
+        if gtkTextviewTail('Error:ErrorText', text+'\n', quiet=(len(texts)>1)):
             return True
+    # Failed!
+    msgbuffer = gtklogger.findWidget('Error:ErrorText').get_buffer()
+    realtext = msgbuffer.get_text(msgbuffer.get_start_iter(),
+                              msgbuffer.get_end_iter(), True)
+    print("errorMsg test failed!", file=sys.stderr)
+    print(f"Got =>{realtext}<=", file=sys.stderr)
     return False
 
 # Check the contents of the message window.
