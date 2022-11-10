@@ -502,7 +502,14 @@ class GroupGUI:
 
     def getGroupSet(self):
         skelcontext = self.parent.getCurrentSkeleton()
-        if skelcontext:
+        # If this is being called in indirect response to a
+        # switchboard signal, the skeleton may be in the process of
+        # being dismantled, and getGroups might fail.  So check for
+        # that by calling defunct() before doing anything.
+        ## TODO: That's a general problem with switchboard signals
+        ## that invoke other switchboard signals, perhaps combined
+        ## with subthread/mainthread calls.
+        if skelcontext and not skelcontext.defunct():
             return self.activemode().getGroups(skelcontext)
 
         
