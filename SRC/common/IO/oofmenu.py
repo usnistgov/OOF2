@@ -376,7 +376,6 @@ from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
-from ooflib.common import garbage
 from ooflib.common import parallel_enable
 from ooflib.common import thread_enable
 from ooflib.common import worker
@@ -801,7 +800,6 @@ class OOFMenuItem:
                 # mode.
                 workerclass = worker.getThreadedWorker
         the_worker = workerclass(self, argtuple, argdict)
-        garbage.collect()
         # Launch the thread (and wait for it to finish if in text
         # mode).
         the_worker.start()

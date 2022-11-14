@@ -39,7 +39,6 @@ from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import ooferror
 from ooflib.common import autoload
 from ooflib.common import debug
-from ooflib.common import garbage
 from ooflib.common import mainthread
 from ooflib.common import oof_getopt as getopt
 from ooflib.common import oofversion
@@ -619,11 +618,6 @@ def run(no_interp=None):
 """, file=sys.stderr)
 
             startupfiles = [StartUpScriptNoLog(oofrcpath)]+startupfiles
-
-
-    if thread_enable.query() and not (runtimeflags.text_mode or config.no_gui()):
-        # TODO: Is this still necessary?
-        garbage.disable()               # work-around for gtk bug?
 
     start_parallel_machine()  # start parallel suite (if available)
 
