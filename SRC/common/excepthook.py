@@ -44,22 +44,14 @@ displayTraceBack = printTraceBack
 # OOFexceptHook is a class with a __call__ method instead of a simple
 # function so that the getTraceBackList method can be overridden in
 # derived classes.  See scriptloader.py.
-## TODO PYTHON3: Is this still necessary?  Does ScriptLoader still need it?
+## TODO PYTHON3: that's no longer necessary.  Turn OOFexceptHook back
+## into a function?
 
 class OOFexceptHook:
     def getTraceBackList(self, tback): # may be redefined in derived classes
         return traceback.extract_tb(tback)
     def __call__(self, e_type, e_value, tback):
         displayTraceBack(e_type, e_value, tback)
-        # Now that we've handled the exception, clear it.  The system's
-        # exception data keeps a reference to the local dictionary of the
-        # frame in which the exception occurred, and this can prevent
-        # garbage collection.  TODO: One can imagine circumstances in
-        # which this isn't the right thing to do, but those circumstances
-        # should probably assign a new excepthook function.
-        ## Python3 has no sys.exc_clear.  Perhaps the exception is
-        ## cleared automatically after the excepthook is called?
-        ##sys.exc_clear()
 
     ## Not sure why __cmp__ was defined.  OOFexceptHook seems to work
     ## properly without it in python2, and it's not used in python3.

@@ -68,14 +68,16 @@ propagate_exceptions = False
 # callback, or invoke a WorkerCore that calls the callback.  In the
 # first case, the Worker and the WorkerCore may be the same object.
 
-# Keep track of existing workers for debugging and testing.
+# Keep track of existing workers for debugging and testing.  These are
+# checked in TEST/fundamental_test.py.
 import weakref
-allWorkers = weakref.WeakKeyDictionary()
-allWorkerCores = weakref.WeakKeyDictionary()
+allWorkers = weakref.WeakSet()
+allWorkerCores = weakref.WeakSet()
 
 class Worker:
     def __init__(self):
-        allWorkers[self] = 1
+        allWorkers.add(self)
+
         # toplevel is true if this worker wasn't started either
         # directly or indirectly by another worker.
         self.toplevel = self.isTopLevel()
@@ -95,11 +97,10 @@ class WorkerCore:
         self.args = args
         self.kwargs = kwargs
         self._finished = False
-        allWorkerCores[self] = 1
+        allWorkerCores.add(self)
     def __getattr__(self, attrname):    # Stunt double for the menuitem
         return getattr(self.menuitem, attrname)    
     def initialize(self):       # called on subthread
-#         debug.fmsg("assigning excepthook, menuitem=", self.menuitem.path())
         self.excepthook = excepthook.assign_excepthook(
             excepthook.OOFexceptHook())
     def finalize(self):
