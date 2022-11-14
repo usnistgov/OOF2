@@ -166,14 +166,12 @@ def dumpReferrers(obj, levels=0, exclude=[], _level=0):
                 [type(ref) for ref in refs], file=sys.stderr)
         for ref in refs:
             reftype = type(ref)
-            if reftype is types.FrameType:
+            if reftype is types.FrameType: # only in Python2 ?
                 print("-> %2d"%_level, "  "*_level, end=' ', file=sys.stderr)
                 print("frame", ref.f_code.co_filename, \
                     ref.f_code.co_name, ref.f_lineno, file=sys.stderr)
             elif ref is not obj and ref not in exclude:
                 print("-> %2d"%_level, "  "*_level, end=' ', file=sys.stderr)
-                # TODO PYTHON3: I'm not sure this is correct.  It used
-                # to be "if reftype is types.InstanceType:"
                 if not inspect.isclass(reftype):
                     print("instance", ref.__class__.__name__, ref,
                           file=sys.stderr)

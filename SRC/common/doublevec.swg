@@ -50,7 +50,6 @@ public:
   }
 
   %newobject clone;
-  // TODO PYTHON3: Check that allocated vector is cleaned up properly.
   DoubleVec *clone() {
     return new DoubleVec(*self);
   }

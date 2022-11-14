@@ -210,21 +210,19 @@ ET& DoubleVecIterator<VT, ET>::operator*() {
 template<typename VT, typename ET>
 bool DoubleVecIterator<VT, ET>::operator==(const DoubleVecIterator& other) const
 {
- // TODO: Is there some subtle reason that this line isn't simply
- // return &vec==&other.vec && index==other.index;  ?
- return (&vec==&other.vec && index==other.index) ? true : false;
+  return &vec==&other.vec && index==other.index; 
 }
 
 template<typename VT, typename ET>
 bool DoubleVecIterator<VT, ET>::operator!=(const DoubleVecIterator& other) const
 {
-  return (&vec==&other.vec && index!=other.index) ? true : false;
+  return &vec==&other.vec && index!=other.index;
 }
 
 template<typename VT, typename ET>
 bool DoubleVecIterator<VT, ET>::operator<(const DoubleVecIterator& other) const
 {
-  return (&vec==&other.vec && index<other.index) ? true : false;
+  return &vec==&other.vec && index<other.index;
 }
 
 template<typename VT, typename ET>
