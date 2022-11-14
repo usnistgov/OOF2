@@ -1178,15 +1178,15 @@ class AutomaticNameParameter(Parameter):
         return \
           "A character string, or the variable <constant>automatic</constant>."
 
-    ## TODO PYTHON3: Do we even need binaryRepr and binaryRead for
-    ## this parameter?  Is it ever used in data files?  Probably not.
     def binaryRepr(self, datafile, value):
-        ## TODO PYTHON3: Does this work when value==automatic?
+        # Unresolved automatic name parameter values should never be
+        # stored in data files, so the binaryRepr just stores the
+        # string.
+        assert value != automatic.automatic
         length = len(value)
         return struct.pack(structIntFmt, length) + bytes(value, "UTF-8")
     
     def binaryRead(self, parser):
-        ## TODO PYTHON3: Does this work when value==automatic?\
         b = parser.getBytes(structIntSize)
         (length,) = struct.unpack(structIntFmt, b)
         return parser.getBytes(length).decode()

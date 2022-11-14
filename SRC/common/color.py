@@ -142,31 +142,6 @@ class RGBColor(OpaqueColor):
                     self.blue != other.blue)
         return Color.__ne__(self, other)
 
-    # ## TODO PYTHON3: Do we need __lt__? 
-    # def __lt__(self, other):
-    #     if isinstance(other, RGBColor):
-    #         for att in ("red", "green", "blue", "alpha"):
-    #             s = getattr(self, att)
-    #             o = getattr(other, att)
-    #             if s < o:
-    #                 return True
-    #             if s > o:
-    #                 return False
-    #         return False
-    #     return Color.__lt__(self, other)
-
-    ## Maybe uglier but maybe faster version of __lt__.
-    # def __lt__(self, other):
-    #     if isinstance(other, RGBColor):
-    #         return (self.red < other.red or
-    #                 (self.red == other.red and
-    #                  (self.green < other.green or
-    #                   (self.green == other.green and
-    #                    (self.blue < other.blue or
-    #                     (self.blue == other.blue and
-    #                      self.alpha < other.alpha))))))
-    #     return Color.__lt__(self, other)
-
     # RGBColor overrides the default repr defined in RegisteredClass,
     # because the default one writes too many digits. The repr is used
     # when creating names for automatically generated pixel groups

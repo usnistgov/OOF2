@@ -14,8 +14,6 @@ from ooflib.common import labeltree
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 
-## TODO PYTHON3: Remove stripPtr() calls. They're now no-ops.
-
 enumdict = {}
 regclassdict = {}
 
@@ -43,7 +41,7 @@ def processRegClass(regclass):
             return
     except AttributeError:
         pass
-    regclassdict[stripPtr(regclass.__name__)] = regclass
+    regclassdict[regclass.__name__] = regclass
     for r in regclass.registry:
         for p in r.params:
             process_param(p)
@@ -69,15 +67,9 @@ def xmlIndexEntry(name, category, xmlid):
         
 def regclassID(regclass):
     # xml id string to mark the definition of a base RegisteredClass
-    return "RegisteredClass-%s" % stripPtr(regclass.__name__)
+    return "RegisteredClass-%s" % regclass.__name__
 def registrationID(reg):
-    return "RegisteredClass-%s" % stripPtr(reg.subclass.__name__)
-def stripPtr(name):
-    ## TODO PYTHON3: Get rid of this function.  It should not be
-    ## necessary with swig4.
-    if name[-3:] == "Ptr":
-        return name[:-3]
-    return name
+    return "RegisteredClass-%s" % reg.subclass.__name__
 
 ###################
 
@@ -460,12 +452,12 @@ may be members of more than one
     ## Reference pages for each base class
     for regclassname in regclassnames:
         regclass = regclassdict[regclassname]
-        xmlIndexEntry(stripPtr(regclassname),"RegisteredClass base class",
+        xmlIndexEntry(regclassname,"RegisteredClass base class",
                       regclassID(regclass))
         print(" <refentry xreflabel='%s' id='%s' role='RegisteredClass'>" % \
-              (stripPtr(regclassname), regclassID(regclass)), file=file)
+              (regclassname, regclassID(regclass)), file=file)
         print("  <refnamediv>", file=file)
-        print("   <refname>%s</refname>" % stripPtr(regclassname), file=file)
+        print("   <refname>%s</refname>" % regclassname, file=file)
         try:
             tip = getHelp(regclass)
         except AttributeError:
@@ -501,7 +493,7 @@ may be members of more than one
             print("    %s" % getDiscussion(regclass), file=file)
         except AttributeError:
             print("<para>MISSING DISCUSSION: %s</para>" \
-                  % stripPtr(regclassname), file=file)
+                  % regclassname, file=file)
         print("  </refsect1>", file=file)
         print(" </refentry>", file=file)
     print("</section>", file=file)
@@ -559,7 +551,7 @@ may be members of more than one
         print("      Base class%s:"%("es"*(len(reg.registeredclasses)>1)), file=file)
         for regclass in reg.registeredclasses:
             print("      <link linkend='%s'><classname>%s</classname></link>" \
-            % (regclassID(regclass), stripPtr(regclass.__name__)), file=file)
+            % (regclassID(regclass), regclass.__name__), file=file)
         print("     </simpara></listitem>", file=file)
         if reg.params:
             print("     <listitem><para>", file=file)

@@ -14,8 +14,6 @@
 
 %module(package="ooflib.SWIG.common") canvasimage
 
-// TODO PYTHON3: How much of this is necessary?
-
 // The CanvasImage and NewCanvasImage typemaps are for returning an
 // OOFCanvas::CanvasImage from C++ to Python.  This requires some
 // extra work because we can't use %import "oofcanvas/oofcanvas.swg",
@@ -31,7 +29,7 @@
   typedef OOFCanvas::CanvasImage NewCanvasImage;
 %}
 
-%typemap(out) OOFCanvas::CanvasImage* {
+%typemap(out) OOFCanvas::CanvasImage* {  
    // typemap(out) OOFCanvas::CanvasImage*
   $result = $1->pythonObject(false);
 }

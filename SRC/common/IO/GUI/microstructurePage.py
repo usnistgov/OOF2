@@ -30,9 +30,6 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-import sys
-from types import *             # TODO PYTHON3: Do we need this?
-
 if config.dimension()==2:
     pixstring = "pixel"
     Pixstring = "Pixel"

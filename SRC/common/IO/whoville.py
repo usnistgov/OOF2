@@ -650,11 +650,8 @@ class WhoClass:
                 count += 1
     def __repr__(self):
         return 'WhoClass(%s)' % self.name()
-    # def __cmp__(self, other):
-    #     # comparing names is good enough, because WhoClass names are unique.
-    #     return cmp(self.name(), other.name())
-    ## TODO PYTHON3: What comparison operators are required?  Any?
     def __lt__(self, other):
+        # comparing names is good enough, because WhoClass names are unique.
         return self.name() < other.name()
 
 class WhoDoUndoClass(WhoClass):

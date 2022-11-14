@@ -63,13 +63,13 @@ typedef Array<int> NewArrayInt;
   delete $1;
 }
 
-%typemap(in, numinputs=0) bool *newness (bool tmp) {
-  // typemap(in, numinputs=0) bool *newness
+%typemap(in, numinputs=0) bool *bool_argout (bool tmp) {
+  // typemap(in, numinputs=0) bool *bool_argout
   $1 = &tmp;
 }
 
-%typemap(argout) bool *newness {
-  // typemap(argout) bool *newness
+%typemap(argout) bool *bool_argout {
+  // typemap(argout) bool *bool_argout
   PyObject *newval = (*$1? Py_True : Py_False);
 
   if (!PyList_Check($result)) {
@@ -84,14 +84,13 @@ typedef Array<int> NewArrayInt;
 }
 
 //For SnapRefine.
- // TODO PYTHON3: Change the name of this typemap
-%typemap(in, numinputs=0) int *cskel_edgecat (int tmp) {
-  // typemap(in, numinputs=0) int *cskel_edgecat
+%typemap(in, numinputs=0) int *int_argout (int tmp) {
+  // typemap(in, numinputs=0) int *int_argout
   $1 = &tmp;
 }
 
-%typemap(argout) int *cskel_edgecat {
-  // typemap(argout) int *cskel_edgecat
+%typemap(argout) int *int_argout {
+  // typemap(argout) int *int_argout
   PyObject *newval = PyLong_FromLong(*$1);
   if (!PyList_Check($result)) {
     PyObject *oldval = $result;
@@ -114,7 +113,7 @@ public:
   void setCurrentActiveArea(ActiveArea*);
   int nGroups();
   PixelGroup *getGroup(const std::string &name, 
-		       bool *newness); //creates new group if necessary
+		       bool *bool_argout); // creates new group if necessary
   PixelGroup *findGroup(const std::string &name); // never creates a new group
   void removeGroup(char *name);
   void removeAllGroups();
@@ -132,7 +131,7 @@ public:
 				 Coord *cskel_OutPoint);
   double edgeHomogeneity(const Coord &Point, const Coord &Point);
   double edgeHomogeneityCat(const Coord &Point, const Coord &Point,
-			    int* cskel_edgecat);
+			    int* int_argout);
   bool transitionPointWithPoints_unbiased(Coord *Point, Coord *Point,
 				 Coord *cskel_OutPoint);
 

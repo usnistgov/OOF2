@@ -54,10 +54,6 @@ class PlaceHolder(object, metaclass=PlaceHolderMetaClass):
     idtag = ''                  
     def __repr__(self):
         return self.idtag
-    ## TODO PYTHON3: This used to define __cmp__, which isn't used any
-    ## more. Why did it have it?  Does it need __lt__ instead?
-    # def __cmp__(self, other):
-    #     return cmp(self.__class__, other.__class__)
 
 # Defining these classes automatically creates an instance of each
 # class with a name given by the idtag.

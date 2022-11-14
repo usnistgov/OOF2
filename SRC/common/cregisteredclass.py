@@ -18,9 +18,6 @@
 # be instances of the Registration class in this file
 # (cregisteredclass.py) rather than the one in registeredclass.py.
 
-## TODO PYTHON3: Check that all of this works.  Changing swig versions
-## could have broken it.
-
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import timestamp
 from ooflib.common import debug
@@ -35,8 +32,7 @@ def registerCClass(klass):
     if not hasattr(klass, 'getRegistration'):
         def getRegistration(self):
             for reg in self.registry:
-                ## TODO PYTHON3: Try using "if reg.subclass is self.__class__"
-                if issubclass(reg.subclass, self.__class__):
+                if reg.subclass is self.__class__:
                     return reg
         klass.getRegistration = getRegistration
 
@@ -146,23 +142,6 @@ class Registration(registeredclass.Registration):
         self.subclass.__repr__ = repr
         self.subclass.__str__ = repr
         
-        # Actually, __repr__ has to be redefined in the xxxxPtr
-        # version of the subclass, which is the parent of the class we
-        # have.  The repr for this class, however, should *not* print
-        # the 'Ptr' part of the class name, since that name should be
-        # hidden from the user, and anyhow there's no way to construct
-        # xxxxPtr objects directly from a script.
-        ## TODO: That comment is certainly wrong, although the code
-        ## might work.  Swig4 doesn't have xxxxPtr versions of classes.
-        def repr(ego, reprname=reprname):
-            return '%s(%s)' % (reprname, ego.paramrepr())
-        # Just in case there is more than one base class, check for
-        # the one that's derived from regclass.
-        for base in self.subclass.__bases__:
-            if issubclass(base, self.registeredclasses[0]):
-                base.__repr__ = repr
-                return
-
     def substituteClass(self, newclass):
         # Sometimes a module is loaded that redefines the behavior of
         # an existing RegisteredClass subclass, for example by adding
