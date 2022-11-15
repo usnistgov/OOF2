@@ -29,7 +29,6 @@ from ooflib.common.IO import reporter
 from ooflib.common.IO import xmlmenudump
 from ooflib.common import parallel_enable
 from ooflib.common.labeltree import LabelTree, makePath
-import types, sys
 
 from ooflib.common.utils import stringjoin, stringsplit
 

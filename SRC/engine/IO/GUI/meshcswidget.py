@@ -25,9 +25,6 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-import string
-
-
 # Widget for MeshCrossSectionSet objects.  Just puts up a list of the
 # things, and lets the user pick any number of them, or use the
 # "selected" one, which has meaning in the context of a mesh object.

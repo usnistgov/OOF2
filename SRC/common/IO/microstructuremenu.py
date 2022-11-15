@@ -34,7 +34,6 @@ from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
 from ooflib.image import imagecontext
 import ooflib.common.microstructure
-from types import *
 
 if parallel_enable.enabled():
     from ooflib.common.IO import microstructureIPC
@@ -43,6 +42,7 @@ micromenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'Microstructure',
     help="Create and manipulate &micro; objects.",
     cli_only=1))
+
 #######################
 
 if config.dimension() == 2:

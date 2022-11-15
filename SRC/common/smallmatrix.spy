@@ -7,8 +7,6 @@
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
-import types
-
 
 # Another opportunity for bounds checking.
 def _SmallMatrix___getitem__(self, idx):

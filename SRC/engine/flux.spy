@@ -8,7 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import types
 from ooflib.common import debug
 from ooflib.common import utils
 

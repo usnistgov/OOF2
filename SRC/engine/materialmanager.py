@@ -22,8 +22,6 @@ from ooflib.engine import materialtype
 from ooflib.engine.propertyregistration import AllProperties
 
 import itertools
-import string
-import sys
 
 # "MaterialProps" is a collection of properties which make up a
 # material.  It contains the actual material instance, which has

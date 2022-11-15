@@ -13,8 +13,6 @@ from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 import struct
-import types
-
 
 # String-based function object used by boundary profiles -- user types
 # in a string, and one of these objects gets built.  Profiles'

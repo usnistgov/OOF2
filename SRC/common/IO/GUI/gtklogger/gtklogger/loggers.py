@@ -18,7 +18,6 @@
 
 import re
 import sys
-import types
 
 from . import logutils
 

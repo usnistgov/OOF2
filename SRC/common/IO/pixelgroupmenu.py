@@ -32,7 +32,6 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.common.IO.mainmenu import OOF
 from ooflib.common.IO.oofmenu import OOFMenuItem
 from ooflib.common.IO.pixelgroupparam import PixelGroupParameter
-from types import *
 import ooflib.common.microstructure      # a local variable is named 'microstructure'
 
 if parallel_enable.enabled():

@@ -33,8 +33,6 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-import string
-
 allCompoundFields = ooflib.SWIG.engine.field.allCompoundFields
 
 subpmenu = subproblemmenu.subproblemMenu

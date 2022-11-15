@@ -22,12 +22,10 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import pixelgroupparam
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
-if config.dimension() == 2:
-    from ooflib.engine import skeletonelement
+from ooflib.engine import skeletonelement
 from ooflib.engine.IO import materialparameter
 from ooflib.engine.IO import pbcparams
 from ooflib.engine.IO import skeletongroupparams
-import types
 #Interface branch
 from ooflib.engine.IO import interfaceparameters
 

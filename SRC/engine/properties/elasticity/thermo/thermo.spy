@@ -17,7 +17,6 @@ FloatParameter = parameter.FloatParameter
 from ooflib.engine.IO import isocijkl 
 from ooflib.engine import problem
 from ooflib.SWIG.common import config
-import types
 
 if config.devel()>=1:
     reg = PropertyRegistration(

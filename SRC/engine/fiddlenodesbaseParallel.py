@@ -30,7 +30,6 @@ from ooflib.engine.IO import skeletonIPC
 from ooflib.engine.IO import skeletonmenu
 
 import math
-import string
 import sys
 import time
 from functools import reduce

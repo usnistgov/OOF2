@@ -8,18 +8,13 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.engine import propertyregistration
-PropertyRegistration = propertyregistration.PropertyRegistration
-
+from ooflib.SWIG.common import config
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import problem
+from ooflib.engine import propertyregistration
 
-import types
-from ooflib.SWIG.common import config
-
-
-reg = PropertyRegistration(
+reg = propertyregistration.PropertyRegistration(
     name='Mechanical:MassDensity:ConstantMassDensity',
     subclass=MassDensityProp,
     modulename="ooflib.SWIG.engine.properties.massdensity.massdensity",
@@ -30,7 +25,6 @@ reg = PropertyRegistration(
     tip="Uniform mass density.",
     discussion=xmlmenudump.loadFile(
         'DISCUSSIONS/engine/property/massdensity.xml'))
-
 
 reg.eqnInfo(equations=[problem.ForceBalanceEquation],
             fields=[problem.Displacement],

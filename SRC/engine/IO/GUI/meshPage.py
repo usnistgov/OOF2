@@ -34,8 +34,6 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-import string
-
 meshmenu = mainmenu.OOF.Mesh
 
 ## TODO: Check that the time is updated correctly in the Mesh info

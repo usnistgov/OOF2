@@ -13,8 +13,6 @@
 # the subproblem's self.matrix_symmetry attribute, and are set in
 # conjugate.py's check_symmetry function.
 
-import types
-
 SYMMETRIC="Symmetric"
 ASYMMETRIC="Asymmetric"
 INCONSISTENT="Symmetry unknown"

@@ -43,8 +43,6 @@ from ooflib.engine import skeletonselectable
 from ooflib.engine import materialmanager
 
 import math
-import time
-import types
 import weakref
 import sys
 from functools import reduce

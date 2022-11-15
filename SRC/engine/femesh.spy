@@ -18,7 +18,6 @@ from ooflib.common.IO import reporter
 from ooflib.engine import boundary
 from ooflib.engine import materialmanager
 from ooflib.engine import scpatch
-import string
 #Interface branch
 from ooflib.engine import bdycondition
 from ooflib.engine import profile

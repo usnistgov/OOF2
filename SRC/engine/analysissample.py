@@ -46,8 +46,7 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.SWIG.engine import outputval
 import math
-import string
-import types
+
 from functools import reduce
 
 # Sample objects should have a "columnNames" attribute, which is a

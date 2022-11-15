@@ -22,7 +22,7 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.engine import deputy
 from ooflib.engine import fiddlenodesbase
 from ooflib.engine import skeletonmodifier
-import types
+
 from functools import reduce
 
 

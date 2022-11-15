@@ -29,10 +29,6 @@ from ooflib.common.IO import xmlmenudump
 
 import oofcanvas
 
-import types
-import weakref
-
-
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # LayerOrderings are used to determine the default position of a layer

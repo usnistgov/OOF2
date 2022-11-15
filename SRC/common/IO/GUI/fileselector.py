@@ -29,9 +29,7 @@ from gi.repository import Gtk
 
 import os
 import os.path
-import re
-import string
-import weakref
+import re                       # TODO PYTHON3: Is this needed?
 
 # FileSelectorWidget and friends.
 

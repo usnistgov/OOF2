@@ -37,7 +37,6 @@ from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 import struct
-import types
 
 class EnumBase: pass
 

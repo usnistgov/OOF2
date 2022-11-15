@@ -64,7 +64,6 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import timestamp
 from ooflib.common import debug
 from ooflib.common import utils
-from types import *
 import struct
 
 from ooflib.common.utils import stringjoin

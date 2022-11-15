@@ -12,7 +12,6 @@
 from ooflib.common import debug
 from ooflib.common.IO import parameter
 from ooflib.engine import materialmanager
-import types
 #Interface branch
 from ooflib.engine.IO import interfaceparameters
 

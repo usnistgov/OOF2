@@ -32,9 +32,6 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-import sys
-import types
-
 class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def __init__(self, movenodetoolbox):
         debug.mainthreadTest()

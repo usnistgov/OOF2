@@ -45,11 +45,10 @@ from ooflib.engine.IO import meshparameters
 from ooflib.engine.IO import skeletonIO
 from ooflib.engine.IO import subproblemmenu
 
-
 if parallel_enable.enabled():
     from ooflib.engine.IO import meshIPC
+
 import ooflib.engine.mesh
-import types
 
 SyncMeshParameter = ooflib.engine.mesh.SyncMeshParameter
 

@@ -8,7 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-import sys, os, types, code
+import sys, os
 
 # g++ code won't correctly resolve dynamic casts in shared libraries
 # unless RTLD_GLOBAL is set when the library is loaded.  See
@@ -52,9 +52,6 @@ from ooflib.common.IO import progressbar
 
 from ooflib.common.utils import stringjoin
 
-## TODO PYTHON3: Remove 'import types' from all files where it's now
-## irrelevant.
-            
 ########################################
 
 # Option processing:

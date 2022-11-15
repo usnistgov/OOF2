@@ -18,7 +18,6 @@ from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 import struct
-import types
 
 from ooflib.common.utils import stringjoin
 

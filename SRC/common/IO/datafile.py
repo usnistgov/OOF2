@@ -19,7 +19,6 @@ from ooflib.common.IO import menuparser
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 import os.path
-import types
 
 ##############################
 

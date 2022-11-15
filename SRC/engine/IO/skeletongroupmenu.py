@@ -34,7 +34,6 @@ if config.dimension() == 2:
     import ooflib.engine.skeleton as skeleton
 elif config.dimension() == 3:
     import ooflib.engine.skeleton3d as skeleton
-import types
 
 AutomaticNameParameter = parameter.AutomaticNameParameter
 NodeGroupParameter = skeletongroupparams.NodeGroupParameter

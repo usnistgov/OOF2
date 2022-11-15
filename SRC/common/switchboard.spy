@@ -14,8 +14,6 @@
 # something important, and can request callbacks when the Switchboard
 # receives a message.
 
-import sys
-import types
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import threadstate
 from ooflib.common import atshutdown

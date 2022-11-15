@@ -59,8 +59,6 @@ from ooflib.engine.IO import interfaceparameters
 if parallel_enable.enabled():
     from ooflib.engine.IO import materialmenuIPC
 
-import types
-
 StringParameter = parameter.StringParameter
 OOFMenuItem = oofmenu.OOFMenuItem
 matmanager = materialmanager.materialmanager

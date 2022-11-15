@@ -18,9 +18,7 @@ from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
 from ooflib.common.IO import placeholder
 import ooflib.engine.mesh
-import string
 import struct
-import types
 
 # FieldInit subclasses must be derived from FieldInit *and* from
 # RegisteredClass.

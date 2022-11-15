@@ -15,7 +15,6 @@
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import placeholder 
-import types
 
 class NodeGroupParameter(parameter.StringParameter):
     def valueDesc(self):

@@ -11,7 +11,6 @@
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
-import types, sys
 
 # Special types for representing the selection in aggregate parameters
 # (ie parameters that can be set to a group or the currently selected

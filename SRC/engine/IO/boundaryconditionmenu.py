@@ -27,7 +27,6 @@ from ooflib.common import parallel_enable
 if parallel_enable.enabled():
     from ooflib.engine.IO import boundaryconditionIPC
 import ooflib.engine.mesh
-import types
 
 ## TODO: It's possible to create a boundary condition that can't be
 ## evaluated by defining it and then undefining the fields and

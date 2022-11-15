@@ -29,9 +29,6 @@ from ooflib.engine.IO import output
 from ooflib.engine.IO import outputClones
 from ooflib.engine.IO import propertyoutputreg
 
-from types import *
-import string
-
 ######################################
 
 # Displacement

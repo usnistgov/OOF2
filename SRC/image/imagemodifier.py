@@ -22,8 +22,6 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.image import imagecontext
 
-from types import *
-
 # Base class for Python ImageModifiers. 
 class ImageModifier(registeredclass.RegisteredClass):
     registry = []

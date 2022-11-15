@@ -33,9 +33,6 @@ from ooflib.engine.IO import outputDefs
 
 import oofcanvas
 
-from types import *
-import sys
-
 RegisteredParameter = parameter.RegisteredParameter
 IntParameter = parameter.IntParameter
 IntRangeParameter = parameter.IntRangeParameter

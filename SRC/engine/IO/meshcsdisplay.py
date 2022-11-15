@@ -23,7 +23,6 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import placeholder
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine.IO import meshcsparams
-import types
 
 import oofcanvas
 

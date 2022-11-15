@@ -20,7 +20,6 @@ from gi.repository import GObject
 from gi.repository import Gdk
 
 import sys
-import types
 
 # The ChooserWidget creates a pull-down menu containing the given list
 # of objects.  The currently selected object is shown when the menu

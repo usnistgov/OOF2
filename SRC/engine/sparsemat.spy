@@ -9,7 +9,6 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import doublevec
-import types
 
 def _sparsemat___size__(self):
     return (self.nrows(), self.ncols())
@@ -64,7 +63,6 @@ def _sparsemat___rmul__(self, x):
 SparseMat.__rmul__ = _sparsemat___rmul__
 
 def _sparsemat___imul__(self, x):
-    import types
     if isinstance(x, float) or isinstance(x, int):
         self.scale(x)
         return self
@@ -72,7 +70,6 @@ def _sparsemat___imul__(self, x):
 SparseMat.__imul__ = _sparsemat___imul__
 
 def _sparsemat___itruediv__(self, x):
-    import types
     if isinstance(x, float) or isinstance(x, int):
         self.scale(1./x)
         return self

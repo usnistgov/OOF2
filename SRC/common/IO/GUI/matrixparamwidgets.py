@@ -21,10 +21,6 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-import math
-import types
-
-
 # An array of input things.  Exactly which kind of input thing is
 # determined by the paramtype argument, which must be a Parameter
 # subclass.  An array of that subclass's widgets will be

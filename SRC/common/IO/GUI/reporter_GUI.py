@@ -33,8 +33,6 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 import os
-import string
-import sys
 import time
 import traceback
 

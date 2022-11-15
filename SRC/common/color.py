@@ -8,7 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import math, types
+import math
 from ooflib.SWIG.common import config
 from ooflib.common import debug
 from ooflib.common import registeredclass

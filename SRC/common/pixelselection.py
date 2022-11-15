@@ -29,7 +29,6 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import whoville
 from ooflib.common.IO import topwho       # required for '<top microstructure>'
-import types
 
 class PixelSelection(cpixelselection.CPixelSelection):
     def __repr__(self):

@@ -53,8 +53,6 @@ from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
-from types import *
-import string
 import struct
 
 

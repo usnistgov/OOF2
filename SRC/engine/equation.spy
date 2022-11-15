@@ -10,7 +10,6 @@
 
 from ooflib.common import debug
 from ooflib.common import utils
-import types
 
 def _Equation___hash_(self):
     return self.objectid()

@@ -14,7 +14,7 @@ from ooflib.SWIG.common import mpitools
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common.IO import menuparser
-import errno, os, socket, sys, time, types
+import errno, os, socket, sys, time
 
 
 # Local buffer and lock for doing socket-like communications between

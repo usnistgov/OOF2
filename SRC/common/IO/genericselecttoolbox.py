@@ -31,7 +31,6 @@
 # and invokes the non-GUI menu item, which creates the actual method
 # does the selection.
 
-
 from ooflib.SWIG.common import switchboard
 from ooflib.common import primitives
 from ooflib.common import debug
@@ -39,9 +38,6 @@ from ooflib.common import registeredclass
 from ooflib.common import toolbox
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
-from types import *
-import math
-
 
 # Base class for selection toolboxes.
 

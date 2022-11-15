@@ -22,7 +22,6 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
-import types
 
 nodeselectmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'NodeSelection',

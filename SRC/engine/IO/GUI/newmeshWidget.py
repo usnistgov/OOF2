@@ -20,8 +20,6 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-import string
-
 # Widget for the MasterElementTypesParameter, whose value is a list of
 # MasterElement enumerators, one for each MasterElement topology.  The
 # widget has a ChooserWidget for each element topology, and two extra

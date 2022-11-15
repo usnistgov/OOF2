@@ -20,7 +20,6 @@ from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import placeholder
-import types
 
 class FieldParameterBase(parameter.ObjParameter, parameter.Parameter):
     def __init__(self, name, value=None, default=None, tip=None, outofplane=0):

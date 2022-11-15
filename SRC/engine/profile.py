@@ -14,7 +14,7 @@ from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import profilefunction
-import types, struct
+import struct
 
 from ooflib.common.utils import stringjoin
 

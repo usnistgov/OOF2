@@ -8,7 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import types
 from ooflib.SWIG.common import colordifference
 from ooflib.common.IO import parameter
 

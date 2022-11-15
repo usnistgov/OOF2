@@ -20,8 +20,6 @@ from ooflib.common import utils
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import conjugate
 from ooflib.engine import propertyregistration
-import sys
-import types
 
 #=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=#
 

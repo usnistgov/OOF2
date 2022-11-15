@@ -8,10 +8,12 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-# Used by TypeChecker.__repr__() in parameter.py.
+# Used by TypeChecker.__repr__() in parameter.py (and a few other places)
 
 import types
+from ooflib.common import debug
 
+## TODO PYTHON3: reversetypedir no longer seems to be necessary
 reversetypedir = {}
 
 for name, tipe in list(types.__dict__.items()):

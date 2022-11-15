@@ -8,8 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import types
-
 def _doublevec___len__(self):
     return self.size()
 DoubleVec.__len__ = _doublevec___len__

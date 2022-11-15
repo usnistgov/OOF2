@@ -26,7 +26,6 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.engine import skeletoncontext
 from ooflib.engine import skeletonsegment # for the segSequence function.
 from ooflib.engine.IO import skeletongroupparams
-import types
 import math
 #Interface branch
 from ooflib.engine.IO import interfaceparameters

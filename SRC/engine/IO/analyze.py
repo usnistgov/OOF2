@@ -22,8 +22,6 @@ from ooflib.common import utils
 from ooflib.common.IO import formatchars
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine.IO import outputClones
-import math
-import types
 
 ## TODO: For direct output, it would be useful to have separate output
 ## files for each time step.  Perhaps if the output file name
@@ -349,8 +347,8 @@ DataOperationRegistration(
 ############################ MPI #########################################
 
 ## TODO: The MPI-enabled functions here have not been updated for
-## doing time-dependent analysis.  They're commented out so that
-## they're not mistaken for working code.
+## doing time-dependent analysis, or for Python 3. They're commented
+## out so that they're not mistaken for working code.
 
 # if parallel_enable.enabled():
 #     from ooflib.SWIG.common import mpitools

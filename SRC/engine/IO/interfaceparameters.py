@@ -11,7 +11,6 @@
 from ooflib.common import enum
 from ooflib.common import utils
 from ooflib.common.IO import parameter
-import types
 
 #Might be able to combine the material type and compatibilty
 #if we can imagine a material that accepts both bulk and interface

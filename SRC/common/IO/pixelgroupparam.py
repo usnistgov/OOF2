@@ -11,7 +11,6 @@
 
 from ooflib.common.IO import parameter
 from ooflib.common.IO import placeholder
-import types, struct
 
 # Parameter subclass for choosing a PixelGroup in a Microstructure
 

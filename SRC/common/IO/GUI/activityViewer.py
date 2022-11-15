@@ -35,10 +35,6 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from gi.repository import GLib
 
-import string
-import sys
-import time
-
 activityViewer = None
 
 ## Has the Activity Viewer been opened?  If the Activity Viewer has

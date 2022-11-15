@@ -28,8 +28,6 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-import re
-import string
 import textwrap
 
 ## TODO: Add a table of contents.

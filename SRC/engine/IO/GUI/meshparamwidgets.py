@@ -32,8 +32,6 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-import string
-
 ## Blocks of code preceded by "if TESTINGPAPER:" are an attempt to
 ## reproduce the bug that motivated gui test 00176.
 TESTINGPAPER = False

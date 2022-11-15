@@ -15,7 +15,6 @@ from ooflib.common import color
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
-from types import *
 import math
 
 FloatParameter = parameter.FloatParameter

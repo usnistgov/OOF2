@@ -24,7 +24,6 @@ from ooflib.common.IO import mainmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.SWIG.common import switchboard
-import types
 
 boundarymenu = skeletonmenu.skeletonmenu.addItem(mainmenu.OOFMenuItem(
     'Boundary',

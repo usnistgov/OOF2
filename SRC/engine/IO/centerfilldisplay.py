@@ -28,8 +28,6 @@ from ooflib.engine.IO import contourdisplay
 from ooflib.engine.IO import displaymethods
 from ooflib.engine.IO import output
 from ooflib.engine.IO import outputDefs
-from types import *
-import sys
 
 import oofcanvas
 

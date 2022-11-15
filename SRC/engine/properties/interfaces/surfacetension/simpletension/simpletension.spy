@@ -8,16 +8,11 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-
-from ooflib.engine import propertyregistration
-from ooflib.engine import problem
-from ooflib.common.IO import parameter
-
-from ooflib.engine.IO import interfaceparameters
-
 from ooflib.common import runtimeflags
-
-import types
+from ooflib.common.IO import parameter
+from ooflib.engine import problem
+from ooflib.engine import propertyregistration
+from ooflib.engine.IO import interfaceparameters
 
 #The following string is placed in builtinprops.py
 #import ooflib.SWIG.engine.properties.interfaces.surfacetension.simpletension.simpletension

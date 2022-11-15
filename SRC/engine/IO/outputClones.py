@@ -25,10 +25,7 @@ from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.engine.IO import meshparameters
 from ooflib.engine.IO import output
-from types import *
-import itertools
-import math
-import sys
+
 from functools import reduce
 
 # Examples of Outputs

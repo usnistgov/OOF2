@@ -41,16 +41,15 @@ from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
 import copy
 import os.path
-import string
 import sys
 import traceback
 import types
 
 import oofcanvas
 
+# TODO: These are used inconsistently.  Don't define the local variables. 
 FloatParameter = parameter.FloatParameter
 IntParameter = parameter.IntParameter
-StringParameter = parameter.StringParameter
 
 OOF = mainmenu.OOF
 OOFMenuItem = oofmenu.OOFMenuItem

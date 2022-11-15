@@ -15,8 +15,6 @@ from . import widgetlogger
 from . import logutils
 from . import loggers
 
-import string, sys
-
 class MenuItemLogger(widgetlogger.WidgetLogger):
     classes = (Gtk.MenuItem,)
     def location(self, menuitem, *args):

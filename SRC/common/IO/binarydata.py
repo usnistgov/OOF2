@@ -58,7 +58,6 @@ from ooflib.common.IO import menuparser
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 import struct
-import types
 
 OOF = mainmenu.OOF
 

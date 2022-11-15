@@ -24,8 +24,6 @@ from ooflib.common import pixelselection
 from ooflib.common import primitives
 from ooflib.common import utils
 from ooflib.common.IO import whoville
-from types import *
-import string
 import sys
 
 #############################

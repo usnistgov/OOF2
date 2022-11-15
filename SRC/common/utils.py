@@ -13,7 +13,6 @@ from ooflib.SWIG.common import lock
 from ooflib.common import debug
 
 import os
-import string
 import subprocess
 import sys
 import types

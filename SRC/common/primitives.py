@@ -18,7 +18,6 @@ from ooflib.common import utils
 from ooflib.common.IO import parameter
 import math
 import struct
-import types
 
 class Point:
     """

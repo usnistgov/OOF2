@@ -9,14 +9,10 @@
 # oof_manager@nist.gov. 
 
 from ooflib.common import runtimeflags
-
-from ooflib.engine import propertyregistration
-from ooflib.engine import problem
 from ooflib.common.IO import parameter
-
+from ooflib.engine import problem
+from ooflib.engine import propertyregistration
 from ooflib.engine.IO import interfaceparameters
-
-import types
 
 if runtimeflags.surface_mode:
     reg = propertyregistration.PropertyRegistration(

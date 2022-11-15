@@ -21,7 +21,6 @@ from ooflib.common import thread_enable
 from ooflib.common import utils
 from ooflib.common.IO import questioner
 import ooflib.SWIG.common.lock
-import string
 import sys
 import traceback
 
