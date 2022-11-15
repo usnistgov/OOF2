@@ -9,7 +9,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import labeltree
 from ooflib.common import utils
@@ -564,7 +564,7 @@ class AnalyzePage(BaseAnalysisPage):
             elif analysis.data.isAggregateOutput():
                 self.aggregate_output_button.set_active(1) # sets output_obj
             else:
-                raise ooferror2.PyErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "Unclassifiable output?")
             self.output_obj.set_value(analysis.data)
             self.domain_obj.set(analysis.domain, interactive=False)

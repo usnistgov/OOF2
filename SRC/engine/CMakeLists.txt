@@ -169,7 +169,7 @@ swig_sources(
   meshiterator
   nodalequation
   node
-  ooferror2
+  ooferror
   orientationimage
   outputval
   pixelgroupsubproblem

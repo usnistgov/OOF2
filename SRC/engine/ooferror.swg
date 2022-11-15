@@ -12,13 +12,7 @@
 #ifndef ENGINE_OOFERROR_SWG
 #define ENGINE_OOFERROR_SWG
 
-// This file is called ooferror2.swg instead of ooferror.swg because
-// if it were called "ooferror.swg", the swig-generated python code
-// would start with "import ooferrorc", which would import
-// SWIG/common/ooferrorcmodule, since that one has already been
-// loaded.
-
-%module(package="ooflib.SWIG.engine") ooferror2
+%module(package="ooflib.SWIG.engine") ooferror
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
@@ -96,6 +90,6 @@ public:
 };
 WRAP_OOFERROR_CLASS(ErrInvalidDestination);
 
-%pythoncode "engine/ooferror2.spy"
+%pythoncode "engine/ooferror.spy"
 
 #endif // ENGINE_OOFERROR_SWG

@@ -14,7 +14,7 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import timestamp
 from ooflib.SWIG.engine import field
 from ooflib.SWIG.engine import flux
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.SWIG.engine import sparsemat
 from ooflib.common import debug
 from ooflib.common import utils
@@ -427,7 +427,7 @@ class SubProblemContext(whoville.Who):
                     unsolvable = self.checkSolvability()
                     if unsolvable:
                         if solving:
-                            raise ooferror2.PyErrUserError(unsolvable)
+                            raise ooferror.PyErrUserError(unsolvable)
                         else:
                             return
 
@@ -845,7 +845,7 @@ class SubProblemContext(whoville.Who):
         if linsys.n_unknowns_part('K')==0 and linsys.n_unknowns_part('C')==0:
             return
         if self.nonlinear_activefields():
-            raise ooferror2.PyErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "A nonlinear solver is required for subproblem '%s'." 
                 % self.name())
 

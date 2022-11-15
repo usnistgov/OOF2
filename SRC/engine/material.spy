@@ -10,7 +10,7 @@
 # oof_manager@nist.gov.
 
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.SWIG.engine import property
 from ooflib.common import debug
 from ooflib.common import utils
@@ -73,14 +73,14 @@ def _Material_cross_reference(self):
     for prop in self.properties: 
         try:
             prop.bookkeeping(self)
-        except ooferror2.PyErrRedundantProperty as exc:
+        except ooferror.PyErrRedundantProperty as exc:
             self.consistency_state.append(
                 "Property '%s' is a redundant property of type '%s'."
                 % (prop.name(), exc.get_tag()))
     for prop in self.properties: 
         try:
             prop.c_cross_reference(self)
-        except ooferror2.PyErrNoSuchProperty as exc:
+        except ooferror.PyErrNoSuchProperty as exc:
             self.consistency_state.append(exc.summary())
     self.set_consistency(self.self_consistent()) # sets C++ flag
             
@@ -111,7 +111,7 @@ Material.precompute = _Material_precompute
 #     for prop in self.properties():
 #         try:
 #             prop.precompute(mesh)
-#         except ooferror2.PyErrNoSuchField:
+#         except ooferror.PyErrNoSuchField:
 #             pass
 #
 # Material.precompute_all_properties = _Material_precompute_all_properties

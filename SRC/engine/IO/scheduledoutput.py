@@ -9,7 +9,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.common import registeredclass
@@ -71,7 +71,7 @@ class ScheduledOutput(registeredclass.RegisteredClass):
         self.scheduleType = None
     def setDestination(self, destination):
         if not isinstance(destination, self.getRegistration().destinationClass):
-            raise ooferror2.PyErrInvalidDestination()
+            raise ooferror.PyErrInvalidDestination()
         self.destination = destination
     def deleteDestination(self, meshctxt):
         self.finish(meshctxt)

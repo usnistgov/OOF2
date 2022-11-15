@@ -12,7 +12,7 @@
 # for each registered PropertyOutput.  This bridges the gap between
 # the C++ PropertyOutputs and the more general Python Outputs.
 
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import utils
 
@@ -66,7 +66,7 @@ class _PORegBase(PropertyOutputRegistration):
         for element, ecoords, in zip(elements, coords):
             mat = element.material()
             if mat and not mat.self_consistent():
-                raise ooferror2.ErrBadMaterial(element.material().name())
+                raise ooferror.ErrBadMaterial(element.material().name())
             mesh.begin_all_subproblems(element)
             results.extend(po.evaluate(mesh, element, ecoords))
             mesh.end_all_subproblems(element)

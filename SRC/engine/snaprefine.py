@@ -21,7 +21,7 @@
 # each edge is marked.
 
 from ooflib.SWIG.common import config
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.common import parallel_enable
@@ -338,7 +338,7 @@ class SnapRefine(refine.Refine):
                             debug.fmsg([n.position() for n in el.nodes])
                             debug.fmsg("signature=", signature)
                             debug.fmsg("rule=", self.rules[signature])
-                            raise ooferror2.PyErrPyProgrammingError(
+                            raise ooferror.PyErrPyProgrammingError(
                                 "Illegal element created by SnapRefine")
             else:
                 newElements = snaprefinemethod.unrefinedelement(

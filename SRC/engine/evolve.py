@@ -12,7 +12,7 @@ import sys
 
 from ooflib.SWIG.common import progress
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO import reporter
@@ -47,7 +47,7 @@ def evolve(meshctxt, endtime):
     targettime = endtime
 
     if starttime > endtime:
-        raise ooferror2.PyErrSetupError(
+        raise ooferror.PyErrSetupError(
             "End time must not precede current time.")
 
     meshctxt.solver_precompute(solving=True)
@@ -81,7 +81,7 @@ def evolve(meshctxt, endtime):
                 # Initial output comes *after* solving static fields.
                 # For fully static problems, this is the only output.
                 _do_output(meshctxt, starttime)
-            except ooferror2.PyErrInterrupted as exc:
+            except ooferror.PyErrInterrupted as exc:
                 meshctxt.setStatus(meshstatus.Failed(exc.summmary()))
                 raise
             except Exception as exc:
@@ -103,7 +103,7 @@ def evolve(meshctxt, endtime):
         # Loop over output times
         for t1 in meshctxt.outputSchedule.times(endtime):
             if t1 == lasttime:
-                raise ooferror2.PyErrSetupError("Time step is zero!")
+                raise ooferror.PyErrSetupError("Time step is zero!")
             # If t1 <= starttime, there's no evolution to be done, and
             # any output at t1==starttime has already been done after
             # static initialization. 
@@ -124,7 +124,7 @@ def evolve(meshctxt, endtime):
                 ## section, above, sets the mesh status if any
                 ## exceptions occur. This does it only for
                 ## interruptions.  Why?
-                except ooferror2.PyErrInterrupted as err:
+                except ooferror.PyErrInterrupted as err:
                     # Interruptions shouldn't raise an error dialog.
                     debug.fmsg("Interrupted!")
                     meshctxt.setStatus(meshstatus.Failed(
@@ -135,7 +135,7 @@ def evolve(meshctxt, endtime):
                 if time < t1:
                     meshctxt.setStatus(meshstatus.Failed(
                             "Solver failed to reach the target time."))
-                    raise ooferror2.PyErrSetupError(
+                    raise ooferror.PyErrSetupError(
                         "Failed to reach target time. target=%s, actual=%s"
                         % (t1, time))
                 if not meshctxt.outputSchedule.isConditional():
@@ -222,7 +222,7 @@ def initializeStaticFields(subprobctxts, time, prog):
     # end consistency loop
 
     if not prog.stopped() and not consistent:
-        raise ooferror2.PyErrConvergenceFailure(
+        raise ooferror.PyErrConvergenceFailure(
             "Static self-consistency loop", maxconsistencysteps)
     return linsysDict
 
@@ -420,7 +420,7 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
             ## End of consistency loop.
 
             if not stepTaken and not prog.stopped():
-                raise ooferror2.PyErrConvergenceFailure(
+                raise ooferror.PyErrConvergenceFailure(
                     "Self-consistency loop at t=%s" % time, maxconsistencysteps)
             if meshctxt.outputSchedule.isConditional():
                 _do_output(meshctxt, time)
@@ -428,13 +428,13 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
         ## End main loop.
 
         if prog.stopped():
-            raise ooferror2.PyErrInterrupted()
+            raise ooferror.PyErrInterrupted()
 
-    except ooferror2.PyErrInterrupted:
+    except ooferror.PyErrInterrupted:
         debug.fmsg("Interrupted!")
         meshctxt.setStatus(meshstatus.Failed("Solution interrupted"))
         raise
-    except ooferror2.PyOOFError as err:
+    except ooferror.PyOOFError as err:
         debug.fmsg("Caught an PyOOFError:", err)
         meshctxt.setStatus(meshstatus.Failed(err.summary()))
         raise

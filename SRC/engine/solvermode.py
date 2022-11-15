@@ -8,7 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.SWIG.engine import ooferror2
 from ooflib.common import debug
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter

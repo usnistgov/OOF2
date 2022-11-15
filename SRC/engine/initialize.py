@@ -17,7 +17,7 @@
 from ooflib.common import debug
 from ooflib.common import parallel_enable
 from ooflib.common import utils
-import ooflib.SWIG.engine.ooferror2
+import ooflib.SWIG.engine.ooferror
 from ooflib.SWIG.common import config
 
 

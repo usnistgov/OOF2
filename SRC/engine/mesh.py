@@ -20,7 +20,7 @@ from ooflib.SWIG.common import timestamp
 from ooflib.SWIG.engine import entiremeshsubproblem
 from ooflib.SWIG.engine import material
 from ooflib.SWIG.engine import meshdatacache
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import labeltree
 from ooflib.common import parallel_enable
@@ -390,8 +390,8 @@ class Mesh(whoville.Who):
         from ooflib.engine import subproblemcontext
         path = self.path()
         if not path:
-            raise ooferror2.PyErrPyProgrammingError("No path to mesh '%s'!?"
-                                                    % self.name())
+            raise ooferror.PyErrPyProgrammingError("No path to mesh '%s'!?"
+                                                   % self.name())
         subpaths = subproblemcontext.subproblems.keys(base=path)
         ## subpaths is a list of relative paths of length 1.
         return [s[0] for s in subpaths]
@@ -684,12 +684,12 @@ class Mesh(whoville.Who):
             try:
                 boundary_obj0 = self.getBoundary(boundaries[0])
             except:
-                raise ooferror2.PyErrSetupError(
+                raise ooferror.PyErrSetupError(
                     "There is no boundary named '%s'!" % boundaries[0])
             try:
                 boundary_obj1 = self.getBoundary(boundaries[1])
             except:
-                raise ooferror2.PyErrSetupError(
+                raise ooferror.PyErrSetupError(
                     "There is no boundary named '%s'!" % boundaries[1])
 
             realmesh = self.getObject()
@@ -711,7 +711,7 @@ class Mesh(whoville.Who):
                     bdy.addNode(nodes1[i])
                     self.periodicPointBoundaries[name].append(bdy)
                 else:
-                    raise ooferror2.PyErrSetupError(
+                    raise ooferror.PyErrSetupError(
                         "Nodes along periodic edge boundaries do not match up")
 
         return self.periodicPointBoundaries[name]
@@ -792,7 +792,7 @@ class Mesh(whoville.Who):
         # This is called for every node pair in a periodic BC, so it
         # shouldn't do anything too expensive.
         if name in self.bdyconditions:
-            raise ooferror2.PyErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Duplicate boundary condition name %s." % name )
         else:
             self.bdyconditions[name]=bc
@@ -819,8 +819,8 @@ class Mesh(whoville.Who):
         try:
             bc = self.bdyconditions[oldname]
         except KeyError:
-            raise ooferror2.PyErrSetupError("Can't find boundary condition %s!"
-                                            % oldname)
+            raise ooferror.PyErrSetupError("Can't find boundary condition %s!"
+                                           % oldname)
         newname = utils.uniqueName(newname, self.allBndyCondNames(),
                                    exclude = oldname)
         if newname != oldname:

@@ -9,7 +9,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.common import utils
@@ -306,7 +306,7 @@ class OutputSchedule:
                 # output. If it is, silently delete it.
                 try:
                     output.setDestination(o.destination)
-                except ooferror2.PyErrInvalidDestination:
+                except ooferror.PyErrInvalidDestination:
                     pass
                 # If the old output was given an automatically
                 # generated name, the name must be updated to reflect

@@ -10,16 +10,6 @@
 
 from ooflib.SWIG.common.ooferror import *
 
-# registerErrorClass(ErrConvergenceFailure)
-# registerErrorClass(ErrDuplicateField)
-# registerErrorClass(ErrNoSuchField)
-# registerErrorClass(ErrNoSuchProperty)
-# registerErrorClass(ErrPropertyMissing)
-# registerErrorClass(ErrRedundantProperty)
-# registerErrorClass(ErrBadMaterial)
-# registerErrorClass(ErrInvalidDestination)
-# registerErrorClass(ErrTimeStepTooSmall)
-
 def _ErrBadMaterial_details(self):
     from ooflib.engine import materialmanager
     mat = materialmanager.getMaterial(self.materialName())

@@ -31,7 +31,7 @@ CSubProblem.set_mesh = _set_mesh
 
 ## Code that may be useful when getting rid of self.mesh.
 # def _mesh_setter(self, meshobj):
-#     raise ooferror2.ErrPyProgrammingError("Don't set CSubProblem.mesh!")
+#     raise ooferror.ErrPyProgrammingError("Don't set CSubProblem.mesh!")
 # def _mesh_getter(self):
 #     return self.get_femesh()
 # CSubProblem.mesh = property(_mesh_getter, _mesh_setter)
