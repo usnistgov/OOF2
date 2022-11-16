@@ -136,7 +136,6 @@ swig_sources(
   bdyanalysis
   boundarycond
   cconjugate
-  # cfiddlenodesbaseParallel
   cmatrixmethods
   cnonlinearsolver
   compoundsubproblem
@@ -169,7 +168,6 @@ swig_sources(
   meshiterator
   nodalequation
   node
-  ooferror
   orientationimage
   outputval
   pixelgroupsubproblem
@@ -177,7 +175,6 @@ swig_sources(
   planarity
   pointdata
   property
-#  propertyhdr
   pypropertywrapper
   rank3tensor
   smallsystem
@@ -188,6 +185,16 @@ swig_sources(
   oof2common
   oof2engine
   )
+
+swig_sources(
+  SWIGFILES
+  ooferror
+  LIBRARIES
+  oof2common
+  oof2engine
+  TARGET_SFX 2 # because ooferror already exists as a cmake target in common
+  )
+
 
 add_subdirectory(IO)
 add_subdirectory(properties)

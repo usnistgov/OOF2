@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.16)
 project(oof2 VERSION 2.2.3)
 
 set(DESIRED_SWIGVERSION 4.1)
-set(DESIRED_PYVERSION 3.10)
+set(DESIRED_PYVERSION 3.8)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -63,14 +63,18 @@ set(GTK3_MIN_VERSION 3.22)
 # that contain swig files.
 #  swig_sources(
 #        SWIGFILES  a b      # .swg suffix is assumed
+#     optional arguments
 #        LIBRARIES  <names of libraries to link to, must be cmake targets>
 #        CFLAGS <additional compiler options>)
+#        INCLUDE_DIRECTORIES <additional directories to search for C++ headers>
+#        TARGET_SFX <suffix to use for the cmake target.  See below>
+#  )
 
 
 function(swig_sources)
-  set(multiValueArgs SWIGFILES LIBRARIES CFLAGS INCLUDE_DIRECTORIES)
+  set(multiValueArgs SWIGFILES LIBRARIES CFLAGS INCLUDE_DIRECTORIES TARGET_SFX)
   cmake_parse_arguments(PARSE_ARGV 0 SS "" "" "${multiValueArgs}")
-  # "SS" for Swig_Sources
+  #                                  ^ "SS" for Swig_Sources
 
   foreach(swigfile ${SS_SWIGFILES})
     set_property(
@@ -96,25 +100,56 @@ function(swig_sources)
     set_property(
       SOURCE ${swigfile}.swg
       PROPERTY GENERATED_COMPILE_OPTIONS
-      ${OOFCANVAS_CFLAGS})
+      "${SS_CFLAGS}"
+      "${OOFCANVAS_CFLAGS}")
+
+    if(SS_TARGET_SFX)
+      # If the TARGET_SFX argument is supplied, append it to
+      # ${swigfile} to create the target name, although the installed
+      # name will still be ${swigfile}.  This allows us to build two
+      # modules with the same names but different locations, despite
+      # the fact that cmake requires all target names to be unique.
+
+      ## Unfortunately this doesn't work, because cmake calls swig
+      ## with "-interface _${swigfile}${SS_TARGET_SFX}" instead of
+      ## "-interface _${OUTPUT_NAME}", and then the generated python
+      ## file tries to import the a nonexistent file
+      ## (_${swigfile}${SS_TARGET_SFX}).
+
+      ## BUT a simple example doesn't have this behavior... it uses
+      ## the modified target name for -interface, but also uses it for
+      ## the import from the .py file, so it's ok.  What's going wrong
+      ## here?
+
+      set(TARGET ${swigfile}${SS_TARGET_SFX}) # create a unique target name
+      # set_property(			      # but don't use it for the files
+      # 	SOURCE ${swigfile}.swg
+      # 	PROPERTY OUTPUT_NAME
+      # 	${swigfile})	 # *not* ${TARGET}, which has the suffix added
+    else()
+      set(TARGET ${swigfile})
+    endif()
+
     swig_add_library(
-      ${swigfile}
+      ${TARGET}
       TYPE MODULE
       LANGUAGE PYTHON
       SOURCES ${swigfile}.swg)
 
+
     ## OOFCANVAS_LINK_LIBRARIES contains the full paths.  Why isn't
-    ## the library found?
+    ## the library found?  TODO PYTHON3: explain that comment, or delete it.
+    ## TODO PYTHON3: combine all these target_link_libraries calls?
     target_link_libraries(
-      ${swigfile}
+      ${TARGET}
       PUBLIC
       ${Python3_LIBRARIES})
     target_link_libraries(
-      ${swigfile}
+      ${TARGET}
       PUBLIC
       ${SS_LIBRARIES})
     target_link_libraries(
-      ${swigfile}
+      ${TARGET}
       PUBLIC
       ${OOFCANVAS_LINK_LIBRARIES}
       )
@@ -140,7 +175,7 @@ function(swig_sources)
     endif()
     # Install the swig-generated and compiled library
     install(
-      TARGETS ${swigfile}
+      TARGETS ${TARGET}
       DESTINATION ${PYDEST}/ooflib/SWIG/${relpath})
     # Install the swig-generated python file
     install(
