@@ -1196,7 +1196,7 @@ class OOF_AnisoPlaneStress(unittest.TestCase):
 class OOF_BadMaterial(unittest.TestCase):
     @memorycheck.check("microstructure")
     def Analyze(self):
-        from ooflib.SWIG.engine import ooferror2
+        from ooflib.SWIG.engine import ooferror
         OOF.Microstructure.New(
             name='microstructure',
             width=1.0, height=1.0,
@@ -1248,7 +1248,7 @@ class OOF_BadMaterial(unittest.TestCase):
             name='material', 
             property='Orientation')
         self.assertRaises(
-            ooferror2.PyErrBadMaterial,
+            ooferror.PyErrBadMaterial,
             OOF.Mesh.Analyze.Average,
             mesh='microstructure:skeleton:mesh',
             time=latest,

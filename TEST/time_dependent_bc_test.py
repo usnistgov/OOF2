@@ -487,14 +487,14 @@ class OOF_TimeDependentFloat(unittest.TestCase):
 
     @memorycheck.check("microstructure")
     def Conflict(self):
-        from ooflib.SWIG.engine import ooferror2
+        from ooflib.SWIG.engine import ooferror
         OOF.Help.No_Warnings(True)
         self.adaptive()
         self.floatTopEdge()
         self.floatLeftEdge()
         self.initializeMin('top', 0.0)
         self.initializeMin('left', 0.0)
-        self.assertRaises(ooferror2.PyErrWarning, self.initialize)
+        self.assertRaises(ooferror.PyErrWarning, self.initialize)
         OOF.Help.No_Warnings(False)
         outputdestination.forgetTextOutputStreams()
 

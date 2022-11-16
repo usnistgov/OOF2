@@ -183,10 +183,10 @@ if __name__ == "__main__":
     global preconditioner
     global doublevec
     global matrixmethod
-    global ooferror2
+    global ooferror
     from ooflib.SWIG.common import doublevec
     from ooflib.SWIG.engine import sparsemat
-    from ooflib.SWIG.engine import ooferror2
+    from ooflib.SWIG.engine import ooferror
     from ooflib.engine import preconditioner
     from ooflib.engine import matrixmethod
 

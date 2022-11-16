@@ -288,8 +288,8 @@ class OOF_BCTest(unittest.TestCase):
                               boundary='right'))
 
         # make sure an inconsistent loop raises an error
-        from ooflib.SWIG.engine import ooferror2
-        self.assertRaises(ooferror2.PyErrSetupError,
+        from ooflib.SWIG.engine import ooferror
+        self.assertRaises(ooferror.PyErrSetupError,
                           OOF.Mesh.Solve, mesh="bc_test:skeleton:mesh",
                           endtime=0.0)
 
@@ -312,7 +312,7 @@ class OOF_BCTest(unittest.TestCase):
                                             name='bc<6>')
         OOF.Mesh.Boundary_Conditions.Enable(mesh='bc_test:skeleton:mesh',
                                             name='bc<5>')
-        self.assertRaises(ooferror2.PyErrSetupError,
+        self.assertRaises(ooferror.PyErrSetupError,
                           OOF.Mesh.Solve, mesh='bc_test:skeleton:mesh',
                           endtime=0.0)
 
