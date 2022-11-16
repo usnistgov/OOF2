@@ -15,7 +15,7 @@ from ooflib.SWIG.common import timestamp
 from ooflib.SWIG.engine import material
 from ooflib.SWIG.orientationmap import orientmapproperty
 from ooflib.SWIG.engine.properties.orientation import orientation
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import registeredclass
 from ooflib.common import microstructure
@@ -60,7 +60,7 @@ def orientationmapNotify(ms):
     for matl in matls:
         try:
             orient = matl.fetchProperty("Orientation")
-        except ooferror2.PyErrNoSuchProperty:
+        except ooferror.PyErrNoSuchProperty:
             pass
         else:
             if isinstance(orient, orientmapproperty.OrientationMapProp):
@@ -121,7 +121,7 @@ def getOrientationAtPoint(ms, point):
             orientprop = mat.fetchProperty("Orientation")
             if isinstance(orientprop, orientation.OrientationProp):
                 return orientprop.orientation(), "Property"
-        except ooferror2.PyErrNoSuchProperty:
+        except ooferror.PyErrNoSuchProperty:
             pass
     # Look for an Orientation Map, whether or not there's an
     # OrientationMapProp.
