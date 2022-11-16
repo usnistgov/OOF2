@@ -109,18 +109,6 @@ function(swig_sources)
       # name will still be ${swigfile}.  This allows us to build two
       # modules with the same names but different locations, despite
       # the fact that cmake requires all target names to be unique.
-
-      ## Unfortunately this doesn't work, because cmake calls swig
-      ## with "-interface _${swigfile}${SS_TARGET_SFX}" instead of
-      ## "-interface _${OUTPUT_NAME}", and then the generated python
-      ## file tries to import the a nonexistent file
-      ## (_${swigfile}${SS_TARGET_SFX}).
-
-      ## BUT a simple example doesn't have this behavior... it uses
-      ## the modified target name for -interface, but also uses it for
-      ## the import from the .py file, so it's ok.  What's going wrong
-      ## here?
-
       set(TARGET ${swigfile}${SS_TARGET_SFX}) # create a unique target name
       # set_property(			      # but don't use it for the files
       # 	SOURCE ${swigfile}.swg
