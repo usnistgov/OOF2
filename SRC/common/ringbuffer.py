@@ -59,7 +59,9 @@
 from ooflib.common import debug
 from ooflib.common.utils import stringjoin
 
-## TODO PYTHON3: Make RingBuffer a true iterable object
+## TODO MAYBE: Make RingBuffer a true iterable object.  Since the
+## RingBuffer has a concept of its current position, it's not a simple
+## container, and the iterator protocol might not really make sense.
 
 class RingBuffer:
     """

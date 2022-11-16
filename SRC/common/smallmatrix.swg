@@ -46,7 +46,7 @@ public:
     // The rest of the arithmetic operators are defined in
     // smallmatrix.spy.  We used to do them here, like this:
     //     SmallMatrix __add__(const SmallMatrix &x) {
-    //       return operator+(*self, x);
+    //       return self->operator+(x);
     //     }
     // The trouble with that is that returning a SmallMatrix rather
     // than a SmallMatrix* causes swig to generate an extra copy
@@ -55,9 +55,9 @@ public:
     // By using copy() (which returns a SmallMatrix*) and swigged
     // in-place arithmetic operations we avoid the extra copy.
 
-    // TODO PYTHON3: Check that that is still the case.  Does swig4
-    // have a better way?  Setting the "optimal" option on the out
-    // typemap doesn't work if we have an %exception typemap.
+    // In swig4, Setting the "optimal" option on the out typemap would
+    // eliminate the copy, but that doesn't work if we have an
+    // %exception typemap.
 
   // Matrix multiplication is *not* done the same way, because we
   // don't have an in-place C++ matrix multiplication operator.
