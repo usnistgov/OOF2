@@ -128,12 +128,12 @@ public:
   NewArrayInt *getCategoryMapRO();
   ICoord getRepresentativePixel(int category);
   bool transitionPointWithPoints(Coord *Point, Coord *Point,
-				 Coord *cskel_OutPoint);
+				 Coord *argout_Point);
   double edgeHomogeneity(const Coord &Point, const Coord &Point);
   double edgeHomogeneityCat(const Coord &Point, const Coord &Point,
 			    int* int_argout);
   bool transitionPointWithPoints_unbiased(Coord *Point, Coord *Point,
-				 Coord *cskel_OutPoint);
+				 Coord *argout_Point);
 
 };
 

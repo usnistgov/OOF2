@@ -589,8 +589,6 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
   argh.resize(sz);
   for(std::vector<char*>::size_type i=0; i<sz; i++) {
     PyObject *str = PySequence_GetItem($input, (Py_ssize_t) i);
-    // TODO PYTHON3: Is this really the best way to convert Python
-    // strings to char*?
     PyObject *ustr = PyUnicode_AsEncodedString(str, "UTF-8", "replace");
     argh[i] = PyBytes_AsString(ustr);
     // argh stores pointers to data that will be deleted as soon as
@@ -983,11 +981,8 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 // This scheme for handling argout parameters by concatenating tuples
 // is from https://www.swig.org/Doc4.0/Python.html#Python_nn61.
 
-// TODO PYTHON3: Change the name of this typemap.  Names should
-// indicate what a typemap does, not the context in which it does it.
-
-%typemap(argout) Coord *cskel_OutPoint {
-  // typemap(argout) Coord *cskel_OutPoint
+%typemap(argout) Coord *argout_Point {
+  // typemap(argout) Coord *argout_Point
   // Get the Point class
   FETCH_CLASS(ooflib.common.primitives, Point);
   // Create a Point object from the Coord
@@ -1016,16 +1011,31 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
   }
  }
 
-%typemap(in, numinputs=0) Coord *cskel_OutPoint (Coord tmp) {
-  // typemap(in, numinputs=0) Coord *cskel_OutPoint
+%typemap(in, numinputs=0) Coord *argout_Point (Coord tmp) {
+  // typemap(in, numinputs=0) Coord *argout_Point
   $1 = &tmp;
  }
 
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
-// TODO PYTHON3: Why isn't this the usual PythonConvertible typemap?
-%typemap(out) Progress* {
-  // typemap(out) Progress*
+// // TODO PYTHON3: Why isn't this the usual PythonExportable typemap?
+// %typemap(out) Progress* {
+//   // typemap(out) Progress*
+//   if($1) {
+//     $result = $1->pythonObject();
+//     if(!$result)
+//       SWIG_fail;
+//   }
+//   else {
+//     Py_INCREF(Py_None);
+//     $result = Py_None;
+//   }
+//  }
+
+// or ...
+
+%define PYTHONEXPORTABLE(CLASS)
+%typemap(out) CLASS* {
   if($1) {
     $result = $1->pythonObject();
     if(!$result)
@@ -1036,6 +1046,7 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
     $result = Py_None;
   }
  }
+%enddef
 
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//

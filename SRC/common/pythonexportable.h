@@ -66,7 +66,7 @@
 // 2) In every swig file containing a function that returns a base
 //    class pointer ("MyExportable*" in the example above), include
 //    the following typemap:
-//    %typemap(python, out) BASECLASS* {
+//    %typemap(out) BASECLASS* {
 //      $target = $source->pythonObject();
 //    }
 //    where BASECLASS is the base class of the heirarchy derived

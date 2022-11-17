@@ -925,7 +925,7 @@ void CMicrostructure::endMarking(MarkInfo *mm) const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// Returns Point instead of bool via the cskel_OutPoint typemap.
+// Returns (bool,Point) to python via the argout_Point typemap.
 bool CMicrostructure::transitionPointWithPoints(const Coord *c0,
 						const Coord *c1,
 						Coord *point) const
