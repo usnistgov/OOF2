@@ -13,7 +13,3 @@ def _ContourCellSkeleton___getitem__(self, idx):
     return self.getitem(idx)
 
 ContourCellSkeleton.__getitem__ = _ContourCellSkeleton___getitem__
-
-
-## TODO PYTHON3: Why was this here?
-# from ooflib.SWIG.engine.mastercoord import MasterCoord

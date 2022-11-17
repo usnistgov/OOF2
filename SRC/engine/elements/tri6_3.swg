@@ -20,6 +20,12 @@
 %}
 void tri6_3init();
 
-%pythoncode "engine/elements/tri6_3.spy"
+// Tri6_3 (superparametric) elements are not constructed, because
+// there's no machinery for placing the shape-controlling side nodes,
+// and also no way to draw them properly.  If they're ever used,
+// uncomment the following lines:
+// %pythoncode %{
+//   tri6_3init()
+// %}
 
 #endif // TRI6_3_SWIG

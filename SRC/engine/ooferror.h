@@ -28,6 +28,7 @@ public:
   virtual const std::string &classname() const;
 };
 
+// TODO: Is ErrDuplicateField ever used?
 class ErrDuplicateField : public ErrUserErrorBase<ErrDuplicateField> {
 private:
   const std::string field;

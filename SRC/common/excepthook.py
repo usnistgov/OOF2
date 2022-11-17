@@ -42,7 +42,7 @@ displayTraceBack = printTraceBack
 # OOFexceptHook is a class with a __call__ method instead of a simple
 # function so that the getTraceBackList method can be overridden in
 # derived classes.  See scriptloader.py.
-## TODO PYTHON3: that's no longer necessary.  Turn OOFexceptHook back
+## TODO: that's no longer necessary.  Turn OOFexceptHook back
 ## into a function?
 
 class OOFexceptHook:

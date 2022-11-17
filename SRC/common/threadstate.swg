@@ -80,7 +80,9 @@ void testcancel();
 
 Progress *getProgress(char *name, ProgressType);
 
-%pythoncode "common/threadstate.spy"
+%pythoncode %{
+  initThreadState()
+%}
 
 #endif // THREADSTATE_SWG
 

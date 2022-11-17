@@ -153,6 +153,13 @@ public:
 
 ADD_REPR(Element, repr);
 
-%pythoncode "engine/element.spy"
+%pythoncode %{
+def _Element__position(self, coords):
+    ## TODO PYTHON3: Try removing the list() call.  This is used in _pos in
+    ## outputClnes, and maybe elsewhere too.
+    return list(map(self.from_master, coords))
+
+Element.position = _Element__position
+%}
 
 #endif // ELEMENTS_SWG

@@ -20,6 +20,12 @@
 %}
 void quad8_4init();
 
-%pythoncode "engine/elements/quad8_4.spy"
+// Quad8_4 (superparametric) elements are not constructed, because
+// there's no machinery for placing the shape-controlling side nodes,
+// and also no way to draw them properly.  If they're ever used,
+// uncomment the following lines:
+// %pythoncode %{
+//   quad8_4init()
+// %}
 
 #endif // QUAD8_SWIG

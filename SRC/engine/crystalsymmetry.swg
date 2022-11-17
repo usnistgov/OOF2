@@ -48,6 +48,22 @@
   $1 = &sym;
 };
 
-%pythoncode "engine/crystalsymmetry.spy"
+
+%pythoncode %{
+
+from ooflib.common import enum
+
+# Don't change this Enum without also changing crystalsymmetry.h.
+class AnisoCrystalSymmetry(enum.EnumClass(
+        "Tetragonal",
+        "Hexagonal",
+        "Cubic",
+        "Trigonal",
+        "Orthorhombic",
+        "Monoclinic",
+        "Triclinic")):
+    pass
+%}
+
 
 #endif // CRYSTALSYMMETRY_SWG

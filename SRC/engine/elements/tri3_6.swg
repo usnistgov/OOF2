@@ -20,6 +20,8 @@
 %}
 void tri3_6init();
 
-%pythoncode "engine/elements/tri3_6.spy"
+%pythoncode %{
+  tri3_6init()
+%}
 
 #endif // TRI3_6_SWIG

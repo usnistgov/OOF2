@@ -19,6 +19,8 @@
 %}
 void quad8init();
 
-%pythoncode "engine/elements/quad8.spy"
+%pythoncode %{
+  quad8init()
+%}
 
 #endif // QUAD8_SWIG

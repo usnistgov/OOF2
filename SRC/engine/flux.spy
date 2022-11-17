@@ -11,10 +11,6 @@
 from ooflib.common import debug
 from ooflib.common import utils
 
-# Flux.__repr__ = Flux.name
-# SymmetricTensorFlux.__repr__ = SymmetricTensorFlux.name
-# VectorFlux.__repr__ = VectorFlux.name
-
 def _Flux___hash__(self):
     return self.objectid()
 
@@ -43,11 +39,6 @@ class _AllFluxes:
             if not isinstance(flx, Flux):
                 raise IndexError("Bad flux name: " + indx)
             return flx
-##            for i in range(countFluxes()):
-##                f = getFluxByIndex(i)
-##                if f.name() == indx:
-##                    return f
-##            raise IndexError("Bad flux name: " + indx)
     def __len__(self):
         return countFluxes()
 

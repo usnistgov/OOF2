@@ -18,7 +18,7 @@
 
 class SmallMatrix;
 
-// Don't change this enum without also changing crystalsymmetry.spy.
+// Don't change this enum without also changing crystalsymmetry.swg.
 enum AnisoCrystalSymmetry {
   TETRAGONAL,
   HEXAGONAL,

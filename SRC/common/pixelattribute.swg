@@ -34,6 +34,13 @@ public:
 int nAttributes();
 PxlAttributeRegistration *getRegistration(int);
 
-%pythoncode "common/pixelattribute.spy"
+%pythoncode %{
+
+def _writeGlobalData(self, datafile, ms):
+    pass
+
+PxlAttributeRegistration.writeGlobalData = _writeGlobalData
+
+%}
 
 #endif // PIXELATTRIBUTE_SWG

@@ -57,5 +57,3 @@ def _Node___hash__(self):
     return self.index()
 Node.__hash__ = _Node___hash__
 
-## TODO PYTHON3: Do we need this?
-# from ooflib.SWIG.common.coord import Coord

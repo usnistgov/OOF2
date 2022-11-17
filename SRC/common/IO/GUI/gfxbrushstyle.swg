@@ -42,7 +42,17 @@ public:
   GfxSquareBrush(double);
 };
 
-%pythoncode "common/IO/GUI/gfxbrushstyle.spy"
+//%pythoncode "common/IO/GUI/gfxbrushstyle.spy"
 
+%pythoncode %{
 
+# When the GUI is loaded, the Registrations for the BrushStyles should
+# create GfxBrushStyles instead of the non-GUI BrushStyles that were
+# registered in brushstyle.py.  Here we sneakily replace the
+# registered classes with the GUI versions.
+from ooflib.SWIG.common import brushstyle
+brushstyle.circleReg.substituteClass(GfxCircleBrush)
+brushstyle.squareReg.substituteClass(GfxSquareBrush)
+
+%}
 #endif // GFXBRUSHSTYLE_SWG

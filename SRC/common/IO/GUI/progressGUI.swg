@@ -22,6 +22,11 @@
 
 void initialize();
 
-%pythoncode "common/IO/GUI/progressGUI.spy"
+%pythoncode %{
+  initialize()
+%}
+
+
+
 
 #endif // PROGRESSGUI_SWG

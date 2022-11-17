@@ -172,10 +172,12 @@ public:
   void operator++();
 };
 
-// fieldindex.spy adds __iter__ and __next__ methods to IteratorP,
-// making it into a real python iterator.  The old TODO about doing
-// that said "Fixing this at this late date will be a pain".
-// TODO PYTHON3: Find out what broke.
+// fieldindex.spy added __iter__ and __next__ methods to IteratorP,
+// making it into a real python iterator, but the code is commented
+// out.  The old TODO about doing that said "Fixing this at this late
+// date will be a pain".  TODO PYTHON3: Find out what broke.  If the
+// iterator code in fieldindex.spy isn't resurrected, move the rest of
+// that file into a %pythoncode block in this file.
 
 // TODO INDEXING: Don't swig IteratorP and IndexP.  Make the
 // underlying FieldIndex and FieldIterator classes PythonExportable,

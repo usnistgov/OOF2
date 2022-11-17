@@ -36,7 +36,9 @@ FEMesh.getNodes = _FEMesh_getNodes
 # means that the extra data added by the initializer here can be
 # safely stored in the swig wrapper class.
 
-## TODO PYTHON3: Use %pythonappend instead of monkeypatching?
+## TODO PYTHON3: Use %pythonappend instead of monkeypatching?  It's
+## not useful when adding a completely new method, but might work for
+## __init__ here.
 
 old_FEMesh__init__ = FEMesh.__init__
 
@@ -974,7 +976,4 @@ def _enclosingElement(self, skeleton, point):
 
 FEMesh.enclosingElement = _enclosingElement
 
-###########################################################################
 
-## TODO PYTHON3: Do we need this?
-#from ooflib.SWIG.engine.element import Element

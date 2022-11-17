@@ -35,21 +35,6 @@
 // TODO: Change the xxxxxVec* "in" typemaps so that they accept any
 // Python iterator, not just lists and tuples.
 
-// TODO? use SWIG_exception_fail instead of calling PyErr_SetString
-// and SWIG_fail.  NO!  Then we're restricted to swig's list of
-// exception types.
-
-// TODO PYTHON3: Check that all %include's in all .swg files are
-// correct.  Should they be %import instead?  %import gathers type
-// information but doesn't generate wrappers.
-
-// TODO PYTHON3: Examine all .spy files. Many can probably be replaced
-// with %extend directives in the .swg files.
-
-// TODO PYTHON3: Remove all super-cautious destructors?  Do a
-// case-insensitive search for "super-cautious".
-
-
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // In these comments, "[x]" means a Python list of objects of type x
