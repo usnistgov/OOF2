@@ -29,7 +29,6 @@ from gi.repository import Gtk
 
 import os
 import os.path
-import re                       # TODO PYTHON3: Is this needed?
 
 # FileSelectorWidget and friends.
 
@@ -599,7 +598,8 @@ class WriteModeWidget(parameterwidgets.ParameterWidget):
         if phile and os.path.exists(phile):
             if self.state != "overwrite":
                 self.state = "overwrite"
-                ## TODO: render "OVERWRITE" in bold
+                ## TODO: render "OVERWRITE" in bold, after markup is
+                ## enabled in ChooserWidget.
                 self.widget.update(["OVERWRITE", "append"])
         else:
             if self.state != "write":
