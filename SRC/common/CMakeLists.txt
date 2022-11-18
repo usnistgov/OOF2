@@ -104,7 +104,6 @@ swig_sources(
   boolarray
   brushstyle
   burn
-  canvasimage
   ccolor
   cdebug
   cmicrostructure
