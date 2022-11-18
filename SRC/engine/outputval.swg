@@ -78,25 +78,7 @@ typedef OutputVal NewOutputVal;
   delete $1;
 }
 
-
-%typemap(out) OutputVal* {
-  // typemap(out) OutputVal*
-  $result = $1->pythonObject();
-  if(!$result)
-    SWIG_fail;
-}
-
-// For transferring ownership to Python.  %newobject doesn't work if
-// there's an output typemap.  TODO PYTHON3: Is it possible to detect
-// the presence of %newobject from within a typemap?
-
-%typemap(out) NewOutputVal* {
-  // typemap(out) NewOutputVal*
-  $result = $1->pythonObject(true);
-  if(!$result)
-    SWIG_fail;
-}
-
+PYTHONEXPORTABLE(OutputVal);
 %nodefaultctor OutputVal;
 
 class OutputVal {

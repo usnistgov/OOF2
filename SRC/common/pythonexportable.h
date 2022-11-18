@@ -69,8 +69,9 @@
 //    %typemap(out) BASECLASS* {
 //      $target = $source->pythonObject();
 //    }
-//    where BASECLASS is the base class of the heirarchy derived
-//    from PythonExportable.  
+//    where BASECLASS is the base class of the hierarchy derived from
+//    PythonExportable.  This can be done by passing the base class
+//    name to the PYTHONEXPORTABLE macro defined in typemaps.swg.
 
 // If the C++ class heirarchy derived from PythonExportable is
 // swigged, and the swigged Python classes are extended by Python

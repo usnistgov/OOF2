@@ -17,7 +17,7 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "common/canvasimage.swg"
+%include "common/canvasimage.swg"
 %import "common/coord.swg"
 %import "common/timestamp.swg"
 %import "common/ccolor.swg"
@@ -26,7 +26,6 @@
 
 %{
 #include "common/IO/bitoverlay.h"
-#include "oofcanvas/canvasimage.h"
 %}
 
    
@@ -46,7 +45,7 @@ public:
   void setColor(CColor*);
   CColor getBG();
   CColor getFG();
-  OOFCanvas::CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
   
   Coord size();
   ICoord sizeInPixels();

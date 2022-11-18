@@ -17,8 +17,8 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%include "common/canvasimage.swg"
 %import "common/abstractimage.swg"
-%import "common/canvasimage.swg"
 %import "common/coord.swg"
 %import "common/pixelattribute.swg"
 %import "common/timestamp.swg"
@@ -141,14 +141,11 @@ typedef std::string MaterialType;
   // typemap(newfree) MaterialSet*
   delete $1;
 }
-   
-%typemap(out) Property* {
-  // typemap(out) Property*
-  $result = $1->pythonObject();
-  if(!$result)
-    SWIG_fail;
-}
 
+// TODO PYTHON3: Should this be in property.swg?  Would that drag too
+// much other stuff into this file?
+PYTHONEXPORTABLE(Property);
+   
 // Convert a std::string& to a MaterialType Enum
 // TODO PYTHON3: We should have generic Enum <--> const std::string& typemaps.
 %typemap(out) MaterialType {
@@ -229,7 +226,7 @@ TimeStamp getMaterialTimeStamp(CMicrostructure*);
 class MaterialImage : public AbstractImage {
 public:
   MaterialImage(CMicrostructure*, CColor*, CColor*);
-  OOFCanvas::CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 
 %pythoncode "engine/material.spy"

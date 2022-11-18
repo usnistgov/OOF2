@@ -35,12 +35,7 @@
 typedef std::vector<Equation*> EquationVec;
 %}
 
-%typemap(out) Equation* {
-   // typemap(out) Equation*
-   $result = $1->pythonObject();
-   if(!$result)
-     SWIG_fail;
-}
+PYTHONEXPORTABLE(Equation);
 
 %typemap(out) EquationVec * {
   // typemap(out) EquationVec*

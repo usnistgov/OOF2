@@ -17,8 +17,8 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%include "common/canvasimage.swg"
 %import "common/abstractimage.swg"
-%import "common/canvasimage.swg"
 %import "engine/angle2color.swg"
 #endif // NOSECONDIMPORTS
 
@@ -33,7 +33,7 @@ class CMicrostructure;
 class OrientationImage : public AbstractImage {
 public:
   OrientationImage(CMicrostructure*, Angle2Color*, CColor*, CColor*);
-  OOFCanvas::CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 
 #endif // ORIENTATIONIMAGE_SWG

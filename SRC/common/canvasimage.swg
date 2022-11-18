@@ -12,36 +12,24 @@
 #ifndef CANVASIMAGE_SWG
 #define CANVASIMAGE_SWG
 
-%module(package="ooflib.SWIG.common") canvasimage
-
-// The CanvasImage and NewCanvasImage typemaps are for returning an
-// OOFCanvas::CanvasImage from C++ to Python.  This requires some
-// extra work because we can't use %import "oofcanvas/oofcanvas.swg",
-// since that file isn't part of OOF2.  So these typemaps explicitly
-// do what would have been done if swig had known about the
-// OOFCanvas::CanvasImage class.
-
-// These aren't in common/typemaps.swg in order to avoid including
+// This file defines the CanvasImage and NewCanvasImage typemaps for
+// returning an OOFCanvas::CanvasImage from C++ to Python.  The
+// typemaps aren't in common/typemaps.swg in order to avoid including
 // oofcanvas.h in all swig C++ output files.
+
+// This file doesn't define a module and shouldn't be swigged
+// directly.  It should be %included in other swig files, not
+// %imported.
+
+%include "typemaps.swg"
 
 %{
   #include <oofcanvas.h>
+  typedef OOFCanvas::CanvasImage CanvasImage;
   typedef OOFCanvas::CanvasImage NewCanvasImage;
 %}
 
-%typemap(out) OOFCanvas::CanvasImage* {  
-   // typemap(out) OOFCanvas::CanvasImage*
-  $result = $1->pythonObject(false);
-}
+PYTHONEXPORTABLE(CanvasImage);
 
-%typemap(newfree) OOFCanvas::CanvasImage* {
-  // typemap(newfree) OOFCanvas::CanvasImage*
-  delete $1;
- }
-
-%typemap(out) NewOOFCanvasImage* {
-   // typemap(out) NewOOFCanvasImage*
-  $result = $1->pythonObject(true);
-}
 
 #endif // CANVASIMAGE_SWG

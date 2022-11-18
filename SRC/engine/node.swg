@@ -26,12 +26,7 @@
 #include "engine/node.h"
 %}
 
-%typemap(out) Node* {
-  // typemap(out) Node*
-  $result = $1->pythonObject();
-  if(!$result)
-    SWIG_fail;
-}
+PYTHONEXPORTABLE(Node);
 
 %nodefaultctor Node;
 

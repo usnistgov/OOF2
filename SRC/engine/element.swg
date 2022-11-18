@@ -51,21 +51,7 @@
 %}
 
 MAKE_LISTVEC_TYPEMAPS(MasterCoord);
-
-// PythonExportable typemap for ElementData*-returning functions.
-// Has the extra-special feature of noticing null-pointer returns
-// and translating them to "None".
-
-%typemap(out) ElementData* {
-  // typemap(out) ElementData*
-  if($1 != 0) {
-    $result = $1->pythonObject();
-    if(!$result)
-      SWIG_fail;
-  }
-  else
-    $result = Py_None;
-}
+PYTHONEXPORTABLE(ElementData);
 
 class Material;
 class ElementNodeIterator;

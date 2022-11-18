@@ -28,12 +28,7 @@
 typedef std::vector<Flux*> FluxVec;
 %}
 
-%typemap(out) Flux* {
-  // typemap(out) Flux*
-  $result = $1->pythonObject();
-  if(!$result)
-    SWIG_fail;
-}
+PYTHONEXPORTABLE(Flux);
 
 %typemap(out) FluxVec * {
   // typemap(out) FluxVec*

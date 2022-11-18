@@ -26,10 +26,7 @@ public:
   const std::string &name();
 };
 
-%typemap(out) PxlAttributeRegistration* {
-  // typemap(out) PxlAttributeRegistration*
-  $result = $1->pythonObject();
-}
+PYTHONEXPORTABLE(PxlAttributeRegistration);
 
 int nAttributes();
 PxlAttributeRegistration *getRegistration(int);

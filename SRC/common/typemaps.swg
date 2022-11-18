@@ -193,6 +193,45 @@
   delete $1;
  }
 
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
+// PYTHONEXPORTABLE generates the typemaps to use when a
+// PythonExportable object is returned from C++ to Python and needs to
+// be turned into a derived class object.  See pythonexportable.h.
+// The argument to PYTHONEXPORTABLE is the base class -- ie the class
+// derived from PythonExportable.
+// If Python should take ownership of the returned object, the
+// function being swigged should return NewCLASS* instead of CLASS*,
+// and the swig file should include a C++ typedef making NewCLASS the
+// same as CLASS.
+
+%define PYTHONEXPORTABLE(CLASS)
+%typemap(out) CLASS* {
+  // typemap(out) CLASS* (via PYTHONEXPORTABLE)
+  if($1) {
+    $result = $1->pythonObject(false);
+    if(!$result)
+      SWIG_fail;
+  }
+  else {
+    Py_INCREF(Py_None);
+    $result = Py_None;
+  }
+ }
+%typemap(out) New##CLASS* {
+  // typemap(out) New##CLASS* (via PYTHONEXPORTABLE)
+  if($1) {
+    $result = $1->pythonObject(true);
+    if(!$result)
+      SWIG_fail;
+  }
+  else {
+    Py_INCREF(Py_None);
+    $result = Py_None;
+  }
+ }
+%enddef				// PYTHONEXPORTABLE
+
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
 %typemap(out) std::string* {
@@ -1016,42 +1055,6 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
   $1 = &tmp;
  }
 
-//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-
-// // TODO PYTHON3: Why isn't this the usual PythonExportable typemap?
-// %typemap(out) Progress* {
-//   // typemap(out) Progress*
-//   if($1) {
-//     $result = $1->pythonObject();
-//     if(!$result)
-//       SWIG_fail;
-//   }
-//   else {
-//     Py_INCREF(Py_None);
-//     $result = Py_None;
-//   }
-//  }
-
-// or ...
-
-%define PYTHONEXPORTABLE(CLASS)
-%typemap(out) CLASS* {
-  if($1) {
-    $result = $1->pythonObject();
-    if(!$result)
-      SWIG_fail;
-  }
-  else {
-    Py_INCREF(Py_None);
-    $result = Py_None;
-  }
- }
-%enddef
-
-//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
 #endif // COMMONTYPEMAPS_SWG
+

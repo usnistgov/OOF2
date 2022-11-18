@@ -17,11 +17,11 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%include "common/canvasimage.swg"
 %include "common/ooferrorwrappers.swg"
 %import "common/IO/bitoverlay.swg"
 %import "common/abstractimage.swg"
 %import "common/boolarray.swg"
-%import "common/canvasimage.swg"
 %import "common/ccolor.swg"
 %import "common/doublearray.swg"
 %import "common/ooferror.swg"
@@ -78,7 +78,7 @@ public:
   void evenly_illuminate(int);
   
   bool compare(OOFImage&, double);
-  OOFCanvas::CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 
   // getTimeStamp is redefined in oofimage.spy so that it can have optional args
   %rename(_getTimeStamp) getTimeStamp;

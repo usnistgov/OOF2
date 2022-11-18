@@ -17,8 +17,8 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%include "common/canvasimage.swg"
 %import "common/abstractimage.swg"
-%import "common/canvasimage.swg"
 %import "common/coord.swg"
 %import "engine/angle2color.swg"
 %import "engine/corientation.swg"
@@ -55,7 +55,7 @@ class OrientMapImage : public AbstractImage {
 public:
   OrientMapImage(OrientMap*, Angle2Color*);
   ~OrientMapImage();
-  OOFCanvas::CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 
 void registerOrientMap(char*, OrientMap*);
