@@ -231,13 +231,8 @@ class ThreadedWorker(Worker):
     
     def join(self):                     # waits for thread to finish
         self.worker.join()
-        # TODO: This seems like a silly way to use a lock.  What's it
-        # doing?
-        self.lock.acquire()
         self.worker.threadstate = None
-        self.lock.release()
-        # Save the exception data, if any, before finalizing the
-        # worker.
+        # Save the exception data, if any, before finalizing the worker.
         exception_data = self.worker.exception_data
         self.worker.cleanUp()
         self.worker = None
@@ -247,11 +242,8 @@ class ThreadedWorker(Worker):
         # the caller of the menu item.
         if ((propagate_exceptions or not self.toplevel)
             and exception_data is not None):
-            ## TODO PYTHON3: Check this.  I'm not sure why or if the
-            ## old commented-out version worked.
             raise exception_data[1].with_traceback(exception_data[2])
-            #raise exception_data[0](exception_data[1]).with_traceback(exception_data[2])
-
+            
     def finished(self):
         return self.worker.finished()
     def threadstate(self):

@@ -54,7 +54,6 @@ public:
 PYTHONEXPORTABLE(Progress);
 
 %extend Progress {
-  // TODO PYTHON3: Use slots.  Only with swig's -builtin option?
   bool __eq__(Progress *other) {
     return self->id() == other->id();
   }

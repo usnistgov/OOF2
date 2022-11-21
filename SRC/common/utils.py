@@ -498,9 +498,6 @@ class OrderedSet:
 # slice operations that a real list would. (__del__ and __setitem__
 # aren't provided for slices.  __getitem__ is.)
 
-## TODO PYTHON3: Make ReservableList iterable.
-
-
 class ReservableList:
     def __init__(self, n=0):
         self._list = [None]*n
@@ -562,6 +559,21 @@ class ReservableList:
             self._list.sort()
         else:
             self._list[:self._length] = sorted(self._list[:self._length])
+    def __iter__(self):
+        return ReservableListIterator(self)
+
+class ReservableListIterator:
+    def __init__(self, rlist):
+        self.rlist = rlist
+        self.index = 0
+    def __iter__(self):
+        return self
+    def __next__(self):
+        if self.index >= len(self.rlist):
+            raise StopIteration
+        self.index += 1
+        return self.rlist[self.index-1]
+    
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 

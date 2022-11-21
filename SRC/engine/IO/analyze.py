@@ -156,14 +156,13 @@ def _getMoments(sampling, domain, output, exponents):
     moments = []
     for exponent in exponents:
         # If exponent is 0, this call doesn't really evaluate the output.
+        ## TODO: Integrate all powers at once, so that output isn't
+        ## re-evaluated for each.
         integrals = sampling.integrate(domain, output, power=exponent)
         # Convert the list to an iterator so that we don't have to
         # work hard to initialize the sum to the right kind of zero
         # (eg, 0 or OutputVal.zero()).
         integraliter = iter(integrals)
-        ## TODO PYTHON3: Check this.  Old version was
-        ## integraliter.next(). Is integraliter a real python3
-        ## iterator?
         sample, sum = next(integraliter)
         for sample, value in integraliter:
             sum += value

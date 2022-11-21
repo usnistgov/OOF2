@@ -32,6 +32,11 @@
 // swig-generated C++ code, which requires unrelated C++ headers to be
 // loaded.
 
+// TODO PYTHON3: Swig's -builtin doesn't work because it's not
+// compatible with the %exception typemap.  If there's ever a fix for
+// that, go through all the swigged classes and use python slots
+// whereever possible.
+
 // TODO: Change the xxxxxVec* "in" typemaps so that they accept any
 // Python iterator, not just lists and tuples.
 
@@ -132,8 +137,7 @@
 // *before* the class declaration in the swig file.
 
 // If not using -builtin, ADD_REPR can appear after the declaration
-// and the function does not need to be swigged. TODO PYTHON3: Check
-// that.
+// and the function does not need to be swigged.
 
 // ADD_REPR_GENERIC uses the to_string template (from
 // common/tostring.h, not std::to_string) instead of a class method,
@@ -142,9 +146,10 @@
 // swig file hasn't already #included common/tostring.h.
 // TODO PYTHON3? Implement it for -builtin.
 
-// Note that it's not sufficient to add a __repr__ to a base class.
-// Swig will override it with a generic uninformative __repr__ in the
-// derived classes unless a __repr__ is explicitly created for them.
+// Note that it's not sufficient to add a __repr__ to a base class and
+// hope to have it used for the derived classes.  Swig will override
+// it with a generic uninformative __repr__ in the derived classes
+// unless a __repr__ is explicitly created for them.
 
 #ifdef SWIGPYTHON_BUILTIN
 %define ADD_REPR(CLASS, FUNC)
@@ -387,8 +392,6 @@ std::string {
 // The "in" typemaps use a const vector. C++ will only see a copy of
 // the python data, so it can't change it and shouldn't try.
 
-// TODO: Do we need typemap(in) std::vector<double> (no * or &)?
-
 %typemap(in) const std::vector<double>& (std::vector<double> vec) {
   // typemap(in) std::vector<double>&
   if(!PySequence_Check($input)) {
@@ -478,8 +481,6 @@ std::string {
 
 // The "in" typemaps use a const vector. C++ will only see a copy of
 // the python data, so it can't change it and shouldn't try.
-
-// TODO: Do we need typemap(in) std::vector<int> (no * or &)?
 
 // Define a swig macro to create the typemaps, so that we can easily
 // generate them for different varieties of int.  On the Python side,
