@@ -15,11 +15,7 @@ from .UTILS import file_utils
 reference_file = file_utils.reference_file
 file_utils.generate = False
 
-# shortening = 1.0
-# suffix = ""
-
 class SaveableMeshTest(unittest.TestCase):
-    # This routine uses the global 'suffix' variable.
     def saveAndLoad(self, filename):
         # Save the mesh in ascii format, and compare with a reference file.
         asciifilename = filename + self.suffix + "-ascii.dat"
@@ -3258,9 +3254,6 @@ def make_dynamic_set(suffix, shortening):
         OOF_ThermalElasticTimeSteppers("SS22ThermalOnly"),
         OOF_ThermalElasticTimeSteppers("SS22"),
         OOF_ThermalElasticTimeSteppers("CN"),
-
-        ## TODO: Figure out why OOF_StaticAndDynamic fails
-        ## intermittently on OS X.
         OOF_StaticAndDynamic("SS22PlaneStrain")
     ]
     for t in tests:
@@ -3273,12 +3266,15 @@ oop_periodic_set = [
     OOF_OutOfPlanePeriodicBC('Static')
 ]
 
-test_set = (static_set
-            + make_dynamic_set(suffix="", shortening=1)
-            + make_dynamic_set(suffix="-short", shortening=0.1)
-            + oop_periodic_set)
+test_set = (static_set +
+            make_dynamic_set(suffix="", shortening=1) +
+            make_dynamic_set(suffix="-short", shortening=0.1) +
+            oop_periodic_set)
 
 ## Uncomment this to run just a single test when debugging.
-# test_set = [OOF_ThermalElasticTimeSteppers("SS22ThermalOnly")]
-# test_set[0].shortening=1
-# test_set[0].suffix=""
+# test_set = [
+#     OOF_StaticAndDynamic("SS22PlaneStrain")
+# ]
+# for test in test_set:
+#     test.shortening = 1
+#     test.suffix = ""

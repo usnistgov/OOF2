@@ -255,19 +255,14 @@ def writeMesh(dfile, meshcontext, includeFields=True):
         # Cached data.  Cached data must be stored before the current
         # data, so that when it's reloaded, the current data isn't
         # overwritten.
-
-        ## TODO PYTHON3: The regression test reference files contain
-        ## duplicate information, and presumably other mesh data files
-        ## do too.  For example, mesh_data/subptest0_stripe0.mesh
-        ## contains a Mesh.Load_Field line containing no Fields.
-        ## mesh_data/oop_periodic_static-ascii.dat contains two
-        ## identical lines of field data at time=0.0.
         curtime = meshcontext.getCurrentTime()
         latest = meshcontext.atLatest()
-        for time in meshcontext.cachedTimes():
+        times = sorted(meshcontext.cachedTimes())
+        for time in times:
             meshcontext.restoreCachedData(time)
             writeAndCacheFields(dfile, meshcontext, time)
             meshcontext.releaseCachedData()
+        # Restore the mesh to its current state.    
         if latest:
             meshcontext.restoreLatestData()
             meshcontext.releaseLatestData() # allow overwriting
@@ -275,14 +270,16 @@ def writeMesh(dfile, meshcontext, includeFields=True):
             meshcontext.restoreCachedData(curtime)
             meshcontext.releaseCachedData()
 
-        # Current data
-        writeFields(dfile, meshcontext)
+        # Save the current state, if it hasn't been cached.
+        if curtime not in times:
+            writeFields(dfile, meshcontext)
+            dfile.startCmd(meshmenu.Time)
+            dfile.argument('mesh', meshcontext.path())
+            dfile.argument('time', meshcontext.getCurrentTime())
+            dfile.endCmd()
 
-    # Time
-    dfile.startCmd(meshmenu.Time)
-    dfile.argument('mesh', meshcontext.path())
-    dfile.argument('time', meshcontext.getCurrentTime())
-    dfile.endCmd()
+    # If there are no Fields, the time isn't defined.  It will have
+    # been initialized to 0 when the Mesh was created.
 
     # Cross sections:
     for csname in meshcontext.cross_sections.all_names(): # already ordered
@@ -516,7 +513,6 @@ meshmenu.addItem(OOFMenuItem(
     help="Cache_Fields is used internally in Mesh data files.",
     discussion="<para>Store the current Field values in the data cache.</para>"
     ))
-
 
 def _subpEqns(menuitem, subproblem, equations):
     subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
