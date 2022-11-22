@@ -216,13 +216,6 @@ class TextOutputDestination(OutputDestination):
         self.basestream.comment(*args)
     def close(self):
         self.basestream.close()
-        ## TODO PYTHON3: The python2 version had this call at the end
-        ## of BaseOutputStream._removeStream, but that was being
-        ## called at shutdown when "switchboard" was no longer
-        ## available in this module.  Is the GUI updated properly if
-        ## the call is made here instead?
-        switchboard.notify("output destinations changed")
-
 
 # OutputStream directs output to a file, specified by a file name and
 # mode. If two OutputStreams have the same filename but different
