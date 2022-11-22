@@ -23,7 +23,6 @@ from ooflib.common import enum
 from ooflib.common import primitives
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
-from ooflib.common.IO.typename import typename
 from ooflib.engine import problem
 from ooflib.engine.IO import output
 from ooflib.engine.IO import outputClones
@@ -205,7 +204,7 @@ class VoigtPairListParameter(parameter.ListOfStringsParameter):
         for s in x:
             if not (isinstance(s, str) and len(s)==2 and
                     s[0] in "123456" and s[1] in "123456"):
-                parameter.raiseTypeError("list of %s" % typename(type(s)),
+                parameter.raiseTypeError("list of %s" % type(s).__name__,
                                          "list of Voigt index pairs [1-6][1-6]")
     def valueDesc(self):
         return "A list of character strings of the form 'XY'" \
@@ -218,7 +217,7 @@ class SymmIndexPairListParameter(parameter.ListOfStringsParameter):
         for s in x:
             if not (isinstance(s, str) and len(s)==2 and
                     s[0] in "123" and s[1] in "123"):
-                parameter.raiseTypeError("list of %s" % typename(type(s)),
+                parameter.raiseTypeError("list of %s" % type(s).__name__,
                                          "list of index pairs [1-3][1-3]")
     def valueDesc(self):
         return "A list of character strings of the form 'XY'" \
@@ -234,7 +233,7 @@ class Rank3TensorIndexParameter(parameter.ListOfStringsParameter):
         for s in x:
             if not (isinstance(s, str) and len(s)==2 and
                     s[0] in "123" and s[1] in "123456"):
-                parameter.raiseTypeError("list of %s" % typename(type(s)),
+                parameter.raiseTypeError("list of %s" % type(s).__name__,
                                          "list of index pairs [1-3][1-6]")
     def valueDesc(self):
         return "A list of character strings of the form 'XY'" \

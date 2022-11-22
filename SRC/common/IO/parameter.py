@@ -38,7 +38,6 @@ from ooflib.common import debug
 from ooflib.common import registeredclass
 from ooflib.common import utils
 from ooflib.common.IO import automatic
-from ooflib.common.IO.typename import typename
 import inspect
 import math
 import re
@@ -106,8 +105,8 @@ class TypeChecker:
         raiseTypeError(type(x), self.types)
     def __repr__(self):
         if len(self.types)==1:
-            return typename(self.types[0])
-        return '[' + stringjoin([typename(t) for t in self.types], ',') + ']'
+            return self.types[0].__name__
+        return '[' + stringjoin([t.__name__ for t in self.types], ',') + ']'
     def __len__(self):
         return len(self.types)
     def __getitem__(self, i):
@@ -535,7 +534,7 @@ class ListOfStringsParameter(Parameter):
             raiseTypeError(type(x), "list of strings")
         for s in x:
             if not isinstance(s, StringType):
-                raiseTypeError("list of %s" % typename(type(s)),
+                raiseTypeError("list of %s" % type(s).__name__,
                                "list of strings")
     def binaryRepr(self, datafile, value):
         lengthstr = struct.pack(structIntFmt, len(value))

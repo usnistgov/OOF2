@@ -45,34 +45,6 @@ def pairs(lst):
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
     
-# Function to return 1 if the argument is indexable and 0 otherwise
-# def isIndexable(x):
-#     try:
-#         len(x) # I suppose one could imagine python optimizing this away!
-#         return 1
-#     except TypeError:
-#         return 0
-#     except AttributeError:
-#         return 0
-
-#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
-    
-## Commented out because it's not used at the moment.  This can be
-## done better by using sets and/or itertools.
-
-# # Used by boundary-condition consistency check to see if small tuples
-# # overlap.  Returns a possibly-empty tuple of the intersecting
-# # components.
-# def tupleIntersect(x,y):
-#     result = ()  # Empty tuple.
-#     for xvalue in x:
-#         for yvalue in y:
-#             if xvalue == yvalue:
-#                 result+=(xvalue,)
-#     return result
-
-#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
-
 # Function to take a list of lists and flatten it into a single list.
 def flatten(lols):
     result = []
@@ -152,12 +124,6 @@ def classes(c):
         return [c] +  flatten(map(classes, c.__bases__))
     return classes(c.__class__)
 
-# Get the *names* of the classes to which an object or class belongs.
-# This loses namespace information, so it's not as robust as using
-# classes().  But it's more readable.
-def classnames(c):
-    return [cl.__name__ for cl in classes(c)]
-
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
 # Using PrintableClass as a metaclass allows a class (not the
@@ -231,15 +197,6 @@ def OOFeval_r(expr):
     if expr == 'None':
         return None
     return mainmodule.__dict__[expr]
-
-#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
-
-### Parse an argument list, e.g. from inside an "eval" when the
-### arguments arrive in string form.  IS THIS USED?
-
-    
-##def argback(*args,**kwargs):
-##    return {"tuple":args, "dictionary":kwargs}
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
@@ -638,21 +595,6 @@ def _find_machine_epsilon():
     return eps
 
 machine_epsilon = _find_machine_epsilon()
-
-#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
-
-# Built-in all() isn't defined in python < 2.5.
-## TODO: Remove this if we stop supporting 2.4.
-
-try:
-    all
-except NameError:
-    def all(iterable):
-        for element in iterable:
-            if not element:
-                return False
-        return True
-    __builtins__['all'] = all
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
