@@ -21,10 +21,12 @@
 %}
 
 // The C++ AnisoCrystalSymmetry enum defined in crystalsymmetry.h is
-// *not* swigged.  Instead, a Python Enum class is define in
-// crystalsymmetry.spy and this typemap converts from one to the
+// *not* swigged.  Instead, a Python Enum class is defined in the
+// pythoncode block below.  This typemap converts from one to the
 // other.
-// TODO PYTHON3: Is there a better way to do this?
+
+// TODO PYTHON3: Is there a better way to do this?  Can a python Enum
+// class be built automatically from a swigged C++ enum?
 
 %typemap(in) AnisoCrystalSymmetry* (AnisoCrystalSymmetry sym) {
   // typemap(in) AnisoCrystalSymmetry*
