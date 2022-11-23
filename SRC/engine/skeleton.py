@@ -1772,7 +1772,7 @@ class Skeleton(SkeletonBase):
         bdy = self.getPointBoundary(name, exterior)
 
         # Correctly returns an empty boundary if nodes==None.
-        if nodes:
+        if nodes is not None:
             for n in nodes:
                 bdy.addNode(n)
 

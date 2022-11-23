@@ -416,6 +416,7 @@ class SkeletonContext(whoville.WhoDoUndo):
 
     def createPointBoundary(self, name, node_set,
                             exterior=None, autoselect=1):
+        # node_set can be a generator or other iterable object
         bdy = self.getObject().makePointBoundary(name, node_set, exterior)
 
         for mesh in self.getMeshes():

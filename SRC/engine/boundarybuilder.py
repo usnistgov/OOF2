@@ -713,9 +713,7 @@ class PointFromSegments(BoundaryConstructor):
             nodes[s.nodes()[0]]=s
             nodes[s.nodes()[1]]=s
 
-        # createPointBoundary needs a list, not an iterator.
-        ## TODO PYTHON3: Fix that?
-        skelcontext.createPointBoundary(name, list(nodes.keys()))
+        skelcontext.createPointBoundary(name, nodes.keys())
 
 registeredclass.Registration(
     "Point boundary from segments",
@@ -754,8 +752,7 @@ class PointFromElements(BoundaryConstructor):
                     nodes.add(n0)
                     nodes.add(n1)
 
-        skelcontext.createPointBoundary(name,
-                                        list(nodes)) # TODO: Leave as set?
+        skelcontext.createPointBoundary(name, nodes) 
 
 registeredclass.Registration("Point boundary from elements",
                              BoundaryConstructor,
