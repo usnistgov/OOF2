@@ -268,7 +268,6 @@ registeredclass.Registration(
 
 class FiddleNodesTargets(registeredclass.RegisteredClass):
     registry = []
-
     tip = "Set target Nodes for Skeleton modifiers."
     discussion = """<para>
     <classname>FiddleNodesTargets</classname> objects are used as the
@@ -277,25 +276,15 @@ class FiddleNodesTargets(registeredclass.RegisteredClass):
     that move &nodes; around.
     </para> """
 
-## FiddleNodesTargets objects are called once per iteration of a
-## FiddleNodes process.  Most of the F.N.Targets objects make sure to
-## return the same list of nodes each time they're called, so that the
-## set of nodes being fiddled doesn't change.  This means that they
-## have to contain a reference to a set of nodes, which means that the
-## nodes won't be deleted properly when the Skeleton is destroyed (the
-## FiddleNodesTargets objects aren't necessarily destroyed because
-## they're kept in the modifier history buffer.)
-    
 class AllNodes(FiddleNodesTargets):
-    def __init__(self):
-        self.nodes = None
-    def __call__(self, context):
-        if self.nodes is None:
-            self.nodes = [n for n in context.getObject().activeNodes()
-                          if n.movable()]
-        return self.nodes
-    def cleanUp(self):
-        self.nodes = None
+    # def __call__(self, context):
+    #     for node in context.getObject().activeNodes():
+    #         if node.movable():
+    #             yield node
+    def __call__(self, context, prevnodes):
+        if prevnodes is not None:
+            return prevnodes
+        return [n for n in context.getObject().activeNodes() if n.movable()]
 
 registeredclass.Registration(
     'All Nodes',
@@ -311,17 +300,13 @@ registeredclass.Registration(
     </para>""")
 
 class SelectedNodes(FiddleNodesTargets):
-    def __init__(self):
-        self.nodes = None
-    def __call__(self, context):
-        if self.nodes is None:
-            skel = context.getObject()
-            # Use retrieveInOrder() so that results are repeatable in debug mode
-            self.nodes = [n for n in context.nodeselection.retrieveInOrder()
-                          if n.movable() and n.active(skel)]
-        return self.nodes
-    def cleanUp(self):
-        self.nodes = None
+    def __call__(self, context, prevnodes):
+        if prevnodes is not None:
+            return prevnodes
+        skel = context.getObject()
+        # Use retrieveInOrder() so that results are repeatable in debug mode
+        return list(context.nodeselection.retrieveInOrder(
+            lambda n: n.movable() and n.active(skel)))
 
 registeredclass.Registration(
     'Selected Nodes',
@@ -338,15 +323,17 @@ registeredclass.Registration(
 class NodesInGroup(FiddleNodesTargets):
     def __init__(self, group):
         self.group = group
-        self.nodes = None
-    def __call__(self, context):
-        if self.nodes is None:
-            skel = context.getObject()
-            self.nodes = [n for n in context.nodegroups.get_group(self.group)
-                          if n.movable() and n.active(skel)]
-        return self.nodes
-    def cleanUp(self):
-        self.nodes = None
+        # self.nodes = None
+    def __call__(self, context, prevnodes):
+        if prevnodes is not None:
+            return prevnodes
+        skel = context.getObject()
+        return [n for n in context.nodegroups.get_group(self.group)
+                if n.movable() and n.active(skel)]
+        # skel = context.getObject()
+        # for n in context.nodegroups.get_group(self.group):
+        #     if n.movable() and n.active():
+        #         yield n
 
 registeredclass.Registration(
     'Nodes in Group',
@@ -366,21 +353,21 @@ registeredclass.Registration(
     
 
 class FiddleSelectedElements(FiddleNodesTargets):
-    def __init__(self):
-        self.nodes = None
-    def __call__(self, context):
-        if self.nodes is None:
-            self.nodes = []
-            nodedict = {}
-            # Use retrieveInOrder so that results are repeatable in debug mode
-            for element in context.elementselection.retrieveInOrder():
-                if element.active(context.getObject()):
-                    for nd in element.nodes:
-                        nodedict[nd] = 1
-            self.nodes = [n for n in nodedict if n.movable()]
-        return self.nodes
-    def cleanUp(self):
-        self.nodes = None
+    def __call__(self, context, prevnodes):
+        if prevnodes is not None:
+            return prevnodes
+        nodedict = {}
+        skel = context.getObject()
+        # Use retrieveInOrder so that results are repeatable in debug mode
+        for element in context.elementselection.retrieveInOrder(
+                lambda e: e.active(skel)):
+            for nd in element.nodes:
+                nodedict[nd] = 1
+        # keys of a dict are retrieved in the order they were added
+        return [n for n in nodedict if n.movable()]
+            # for n in nodedict:
+            #     if n.movable():
+            #         yield n
 
 registeredclass.Registration(
     'Selected Elements',
@@ -397,12 +384,12 @@ registeredclass.Registration(
 class FiddleHeterogeneousElements(FiddleNodesTargets):
     def __init__(self, threshold=0.9):
         self.threshold = threshold
-
-    def __call__(self, context):
+    def __call__(self, context, prevnodes):
         # The other FiddleNodesTargets classes make sure to compute
-        # the list of nodes just once.  This one recomputes it each
-        # time it's called, so that elements that become homogeneous
-        # during the process won't be processed further.
+        # the list of nodes just once, by returning prevnodes
+        # unchanged if its not None.  This one recomputes it each time
+        # it's called, so that elements that become homogeneous during
+        # the process won't be processed further.
         nodedict = {}
         skel = context.getObject()
         for element in skel.activeElements():
@@ -410,8 +397,6 @@ class FiddleHeterogeneousElements(FiddleNodesTargets):
                 for node in element.nodes:
                     nodedict[node] = 1
         return [n for n in nodedict if n.movable()]
-    def cleanUp(self):
-        pass
 
 registeredclass.Registration(
     'Heterogeneous Elements',
@@ -434,25 +419,22 @@ registeredclass.Registration(
 class FiddleElementsInGroup(FiddleNodesTargets):
     def __init__(self, group):
         self.group = group
-        self.nodes = None
-    def __call__(self, context):
-        if self.nodes is None:
-            ## TODO PYTHON3: The only reason to use OrderedSet here is
-            ## so that we can compare results with the python2
-            ## version.  The python2 dict doesn't preserve order.  The
-            ## python3 dict would be sufficient if we weren't
-            ## comparing results with python2.  The python3 set would
-            ## work too, but since it doesn't preserve order some
-            ## future version of python might change the results.
-            nodedict = utils.OrderedSet()
-            for element in context.elementgroups.get_group(self.group):
-                if element.active(context.getObject()):
-                    for nd in element.nodes:
-                        nodedict.add(nd)
-            self.nodes = [n for n in nodedict if n.movable()]
-        return self.nodes
-    def cleanUp(self):
-        self.nodes = None
+    def __call__(self, context, prevnodes):
+        if prevnodes is not None:
+            return prevnodes
+        ## TODO PYTHON3: The only reason to use OrderedSet here is
+        ## so that we can compare results with the python2
+        ## version.  The python2 dict doesn't preserve order.  The
+        ## python3 dict would be sufficient if we weren't
+        ## comparing results with python2.  The python3 set would
+        ## work too, but since it doesn't preserve order some
+        ## future version of python might change the results.
+        nodedict = utils.OrderedSet()
+        for element in context.elementgroups.get_group(self.group):
+            if element.active(context.getObject()):
+                for nd in element.nodes:
+                    nodedict.add(nd)
+        return [n for n in nodedict if n.movable()]
     
 registeredclass.Registration(
     'Elements in Group',
@@ -518,59 +500,61 @@ class FiddleNodes:
         ## global Pcount
         ## Pcount += 1
         skeleton = context.getObject()
-        prog = self.makeProgress()
         self.count = 0
-        prog.setMessage(self.header)
         before = skeleton.energyTotal(self.criterion.alpha)
+        self.activenodes = None
 
-        while self.iteration.goodToGo():
-            self.count += 1
-            # the context acquires the writing permissions inside
-            # coreProcess.
-            self.coreProcess(context)
-            self.updateIteration(prog)
-            skeleton.updateGeometry()
-            switchboard.notify("skeleton homogeneity changed", context.path())
-
+        prog = self.makeProgress()
+        prog.setMessage(self.header)
+        try:
+            while self.iteration.goodToGo():
+                self.count += 1
+                # the context acquires the writing permissions inside
+                # coreProcess.
+                self.coreProcess(context)
+                self.updateIteration(prog)
+                skeleton.updateGeometry()
+                switchboard.notify("skeleton homogeneity changed",
+                                   context.path())
+                if prog.stopped():
+                    break
+            switchboard.notify("skeleton nodes moved", context)
             if prog.stopped():
-                break
+                return
 
-        
-        switchboard.notify("skeleton nodes moved", context)
-        if prog.stopped():
-            self.targets.cleanUp()
-            return
-
-        after = skeleton.energyTotal(self.criterion.alpha)
-        if before:
-            rate = 100.0*(before-after)/before
-        else:
-            rate = 0.0
-        diffE = after - before
-        reporter.report("%s deltaE = %10.4e (%6.3f%%)"
-                        % (self.outro, diffE, rate))
-        self.targets.cleanUp()
-        prog.finish()
+            after = skeleton.energyTotal(self.criterion.alpha)
+            if before:
+                rate = 100.0*(before-after)/before
+            else:
+                rate = 0.0
+            diffE = after - before
+            reporter.report("%s deltaE = %10.4e (%6.3f%%)"
+                            % (self.outro, diffE, rate))
+        finally:
+            self.activenodes = None
+            prog.finish()
 
     def coreProcess(self, context):
         ## NOTE FOR DEVELOPERS:
-        #### if a change is made to this function,
-        #### make sure that the SAME changes are made, in a
-        #### consistent way in fiddlenodesbaseParallel.py
+        #### if a change is made to this function, make sure that the
+        #### SAME changes are made, in a consistent way in
+        #### fiddlenodesbaseParallel.py.  Or not.  The parallel code
+        #### is very out of date and should just be rewritten.
         skeleton = context.getObject()
 
-        prog = self.makeProgress()
         self.totalE = skeleton.energyTotal(self.criterion.alpha)
         self.nok = self.nbad = 0
         self.deltaE = 0.
         # TODO: If the Skeleton is periodic and a node and its partner
         # are both active, only one of them should be in activenodes.
-        activenodes = self.targets(context)
-        crandom.shuffle(activenodes)
+        self.activenodes = list(self.targets(context, self.activenodes))
+        crandom.shuffle(self.activenodes)
         j = 0
         context.begin_writing()
+
+        prog = self.makeProgress()
         try:
-            for node in activenodes:
+            for node in self.activenodes:
                 change = deputy.DeputyProvisionalChanges()
                 change.moveNode(node, self.movedPosition(skeleton, node),
                                 skeleton)
