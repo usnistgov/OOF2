@@ -27,7 +27,6 @@ class OOFRandomNumberGenerator
 public:
   OOFRandomNumberGenerator() {};
   int operator() (int aRange);
-  // int __call__(int aRange) { return operator()(aRange); } // needed w swig4?
 };
 
 // This implementation of std::random_shuffle was copied from
@@ -37,8 +36,6 @@ public:
 // /Applications/XCode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/c++/v1/algorithm)
 // doesn't behave the same way, and makes our tests fail.
 
-// On OS X 10.7, but not OS X 10.9 or Linux, this fails to compile
-// unless iostream is included before algorithm.  TODO: WTF?
 #include <iostream>
 #include <algorithm>
 
@@ -59,5 +56,7 @@ void shuffleVector(std::vector<TYPE> &vec) {
   OOFRandomNumberGenerator r;
   oofshuffle(vec.begin(), vec.end(), r);
 }
+
+void shuffle(PyObject*);	// shuffle a python list
 
 #endif	// RANDOM_H

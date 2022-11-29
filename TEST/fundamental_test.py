@@ -8,7 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import unittest, os
+import unittest, os, sys
 
 # For reasons that I don't completely understand, file_utils needs to
 # be imported with an absolute path name, or else the modules imported
@@ -206,14 +206,24 @@ class OOF_Fundamental(unittest.TestCase):
         self.assertEqual(r, expected)
 
     def Shuffle(self):
+        # Make sure that the shuffle algorithm does what it used to
+        # do. When we relied on methods provide by the system or by
+        # Python, the implementation sometimes changed, which broke
+        # other tests.
         from ooflib.SWIG.common import crandom
         crandom.rndmseed(137)
         r = list(range(50))
-        crandom.shuffle(r)
         expected = [6, 5, 30, 37, 10, 11, 43, 32, 41, 1, 20, 33, 13, 35, 28, 38, 18, 17, 2, 36, 22, 9, 3, 48, 15, 25, 40, 21, 31, 26, 42, 49, 16, 4, 46, 27, 24, 34, 45, 14, 47, 23, 44, 7, 12, 29, 19, 0, 8, 39]
-        self.assertEqual(r, expected)
+        # To ensure that shuffle, implemented in C++, isn't
+        # mishandling reference counts, count the references to one
+        # element of the list before and after shuffling.
+        val = 40                # anything in the list
+        refcount = sys.getrefcount(val)
+        crandom.shuffle(r)
         self.assertEqual(len(r), 50)
-        self.assertEqual(len(set(r)), 50)
+        self.assertEqual(len(set(r)), 50) # no duplicate entries
+        self.assertEqual(r, expected)
+        self.assertEqual(refcount, sys.getrefcount(val))
         # Repeat with same seed
         crandom.rndmseed(137)
         r = list(range(50))
@@ -224,11 +234,10 @@ class OOF_Fundamental(unittest.TestCase):
         r = list(range(50))
         crandom.shuffle(r)
         expected2 = [10, 20, 42, 23, 36, 25, 2, 30, 17, 32, 34, 49, 13, 21, 33, 47, 35, 46, 24, 5, 28, 0, 29, 22, 38, 27, 26, 4, 40, 16, 3, 19, 14, 37, 39, 1, 44, 48, 6, 11, 7, 18, 31, 9, 8, 45, 15, 12, 43, 41]
-        self.assertEqual(r, expected2)
         self.assertEqual(len(r), 50)
         self.assertEqual(len(set(r)), 50)
-        
-        
+        self.assertEqual(r, expected2)
+
 test_set = [
     OOF_Fundamental("OrderedDict"),
     OOF_Fundamental("Ordered_Set"),
