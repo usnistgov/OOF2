@@ -277,14 +277,10 @@ class FiddleNodesTargets(registeredclass.RegisteredClass):
     </para> """
 
 class AllNodes(FiddleNodesTargets):
-    # def __call__(self, context):
-    #     for node in context.getObject().activeNodes():
-    #         if node.movable():
-    #             yield node
     def __call__(self, context, prevnodes):
-        if prevnodes is not None:
+        if prevnodes:
             return prevnodes
-        return [n for n in context.getObject().activeNodes() if n.movable()]
+        return (n for n in context.getObject().activeNodes() if n.movable())
 
 registeredclass.Registration(
     'All Nodes',
@@ -301,12 +297,12 @@ registeredclass.Registration(
 
 class SelectedNodes(FiddleNodesTargets):
     def __call__(self, context, prevnodes):
-        if prevnodes is not None:
+        if prevnodes:
             return prevnodes
         skel = context.getObject()
-        # Use retrieveInOrder() so that results are repeatable in debug mode
-        return list(context.nodeselection.retrieveInOrder(
-            lambda n: n.movable() and n.active(skel)))
+        # Use retrieveInOrder() so that results are repeatable in tests
+        return context.nodeselection.retrieveInOrder(
+            lambda n: n.movable() and n.active(skel))
 
 registeredclass.Registration(
     'Selected Nodes',
@@ -323,17 +319,12 @@ registeredclass.Registration(
 class NodesInGroup(FiddleNodesTargets):
     def __init__(self, group):
         self.group = group
-        # self.nodes = None
     def __call__(self, context, prevnodes):
-        if prevnodes is not None:
+        if prevnodes:
             return prevnodes
         skel = context.getObject()
-        return [n for n in context.nodegroups.get_group(self.group)
-                if n.movable() and n.active(skel)]
-        # skel = context.getObject()
-        # for n in context.nodegroups.get_group(self.group):
-        #     if n.movable() and n.active():
-        #         yield n
+        return (n for n in context.nodegroups.get_group(self.group)
+                if n.movable() and n.active(skel))
 
 registeredclass.Registration(
     'Nodes in Group',
@@ -354,20 +345,17 @@ registeredclass.Registration(
 
 class FiddleSelectedElements(FiddleNodesTargets):
     def __call__(self, context, prevnodes):
-        if prevnodes is not None:
+        if prevnodes:
             return prevnodes
         nodedict = {}
         skel = context.getObject()
-        # Use retrieveInOrder so that results are repeatable in debug mode
+        # Use retrieveInOrder so that results are repeatable in tests
         for element in context.elementselection.retrieveInOrder(
                 lambda e: e.active(skel)):
             for nd in element.nodes:
                 nodedict[nd] = 1
         # keys of a dict are retrieved in the order they were added
-        return [n for n in nodedict if n.movable()]
-            # for n in nodedict:
-            #     if n.movable():
-            #         yield n
+        return (n for n in nodedict if n.movable())
 
 registeredclass.Registration(
     'Selected Elements',
@@ -396,7 +384,7 @@ class FiddleHeterogeneousElements(FiddleNodesTargets):
             if element.homogeneity(skel.MS, False) < self.threshold:
                 for node in element.nodes:
                     nodedict[node] = 1
-        return [n for n in nodedict if n.movable()]
+        return (n for n in nodedict if n.movable())
 
 registeredclass.Registration(
     'Heterogeneous Elements',
@@ -420,7 +408,7 @@ class FiddleElementsInGroup(FiddleNodesTargets):
     def __init__(self, group):
         self.group = group
     def __call__(self, context, prevnodes):
-        if prevnodes is not None:
+        if prevnodes:
             return prevnodes
         ## TODO PYTHON3: The only reason to use OrderedSet here is
         ## so that we can compare results with the python2
@@ -434,7 +422,7 @@ class FiddleElementsInGroup(FiddleNodesTargets):
             if element.active(context.getObject()):
                 for nd in element.nodes:
                     nodedict.add(nd)
-        return [n for n in nodedict if n.movable()]
+        return (n for n in nodedict if n.movable())
     
 registeredclass.Registration(
     'Elements in Group',
