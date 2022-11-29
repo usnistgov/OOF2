@@ -140,8 +140,7 @@ class ElementMode(MeshInfoMode):
         ## updateNodeList() because the iterator doesn't quite act
         ## like a list.  The ChooserListWidget uses list.index(),
         ## which the iterator doesn't have.
-        self.updateNodeList(self.nodes,
-                            [node for node in element.node_iterator()])
+        self.updateNodeList(self.nodes, list(element.node_iterator()))
 
         ## If a node is selected in the list, then it's been peeked at
         ## and should be highlighted.  The peeker might not be in the

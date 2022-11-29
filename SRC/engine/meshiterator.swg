@@ -30,10 +30,11 @@
 // Constructors for these classes aren't swigged because the objects
 // should only be created by calling FEMesh::node_iterator, etc.
 
-// TODO PYTHON3: Make these into real Python iterators.  __next__()
-// must return the object being pointed to or raise StopIteration, and
-// they must have an __iter__ function that returns self.
-
+// The .spy file adds __iter__ and __next__ methods to make these into
+// real iterators.
+// TODO PYTHON3: Are the increment methods still needed outside of the
+// iterator methods?  Find code that can be simplified because these
+// classes are real iterators.
 
 %nodefaultctor NodeIterator;
 

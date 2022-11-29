@@ -6,7 +6,9 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
+
+## TODO PYTHON3: Do we need __getitem__ ?
 
 def _ElementNodeIterator___getitem__(self, idx):
     if self.end():
@@ -17,7 +19,21 @@ def _ElementNodeIterator___getitem__(self, idx):
 
 ElementNodeIterator.__getitem__ = _ElementNodeIterator___getitem__
 
+def _ElementNodeIterator___iter__(self):
+    return self
 
+ElementNodeIterator.__iter__ = _ElementNodeIterator___iter__
+
+def _ElementNodeIterator___next__(self):
+    if self.end():
+        raise StopIteration
+    ans = self.node()
+    self.increment()
+    return ans
+
+ElementNodeIterator.__next__ = _ElementNodeIterator___next__
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def _ElementFuncNodeIterator___getitem__(self, idx):
     if self.end():
@@ -28,7 +44,21 @@ def _ElementFuncNodeIterator___getitem__(self, idx):
 
 ElementFuncNodeIterator.__getitem__ = _ElementFuncNodeIterator___getitem__
 
+def _ElementFuncNodeIterator___iter__(self):
+    return self
 
+ElementFuncNodeIterator.__iter__ = _ElementFuncNodeIterator___iter__
+
+def _ElementFuncNodeIterator___next__(self):
+    if self.end():
+        raise StopIteration
+    ans = self.funcnode()
+    self.increment()
+    return ans
+
+ElementFuncNodeIterator.__next__ = _ElementFuncNodeIterator___next__
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def _ElementCornerNodeIterator___getitem__(self, idx):
     if self.end():
@@ -39,3 +69,14 @@ def _ElementCornerNodeIterator___getitem__(self, idx):
 
 ElementCornerNodeIterator.__getitem__ = _ElementCornerNodeIterator___getitem__
 
+def _ElementCornerNodeIterator___iter__(self):
+    return self
+
+def _ElementCornerNodeIterator___next__(self):
+    if self.end():
+        raise StopIteration
+    ans = self.node()
+    self.increment()
+    return ans
+
+ElementCornerNodeIterator.__next__ = _ElementCornerNodeIterator___next__

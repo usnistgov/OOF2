@@ -530,6 +530,8 @@ class ReservableListIterator:
             raise StopIteration
         self.index += 1
         return self.rlist[self.index-1]
+    def __len__(self):
+        return len(self.rlist)
     
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#

@@ -996,16 +996,12 @@ class Mesh(whoville.Who):
         # compare node positions
         mynodes = mymesh.node_iterator()
         othernodes = othermesh.node_iterator()
-        while not (mynodes.end() or othernodes.end()):
-            mynode = mynodes.node()
-            othernode = othernodes.node()
+        if mynodes.size() != othernodes.size():
+            return "Wrong number of nodes"
+        for mynode, othernode in zip(mynodes, othernodes):
             if (mynode.position() - othernode.position())**2 > tol2:
                 return "Node outside of tolerance, %s" % \
                        mynode.position() - othernode.position()
-            mynodes.increment()
-            othernodes.increment()
-        if not (mynodes.end() and othernodes.end()):
-            return "Wrong number of nodes"
 
         # compare subproblems
         mysubprobs = self.subproblems()
@@ -1065,9 +1061,7 @@ class Mesh(whoville.Who):
 
                         # Check that the subproblems have the same
                         # sets of nodes
-                        mynodeiter = subp.funcnode_iterator()
-                        othernodeiter = osubp.funcnode_iterator()
-                        if mynodeiter.size() != othernodeiter.size():
+                        if subpctxt.nfuncnodes() != osubpctxt.nfuncnodes():
                             return (
                                 "Different numbers of nodes in subproblem %s"
                                 % subpname)
@@ -1075,14 +1069,10 @@ class Mesh(whoville.Who):
                         # Create a sorted list of nodes, because
                         # funcnode_iterator doesn't return them in a
                         # guaranteed order
-                        mynodes = []
-                        othernodes = []
-                        while not mynodeiter.end():
-                            mynodes.append(mynodeiter.node())
-                            mynodeiter.increment()
-                        while not othernodeiter.end():
-                            othernodes.append(othernodeiter.node())
-                            othernodeiter.increment()
+                        mynodeiter = subp.funcnode_iterator()
+                        othernodeiter = osubp.funcnode_iterator()
+                        mynodes = list(mynodeiter)
+                        othernodes = list(othernodeiter)
                         mynodes.sort(key=_nodekey)
                         othernodes.sort(key=_nodekey)
 

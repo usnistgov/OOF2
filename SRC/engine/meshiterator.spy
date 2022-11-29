@@ -8,11 +8,30 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-## Defining Iterator.__getitem__ allows constructions like
-## "for node in mesh.iterator():"
+def _NodeIterator___getitem__(self, idx):
+    if self.end():
+        raise IndexError
+    ans = self.node()
+    self.increment()
+    return ans
 
-## TODO PYTHON3: Use real iterators.  Does just defining __getitem__
-## work in python3?
+NodeIterator.__getitem__ = _NodeIterator___getitem__
+
+def _NodeIterator___iter__(self):
+    return self
+
+NodeIterator.__iter__ = _NodeIterator___iter__
+
+def _NodeIterator___next__(self):
+    if self.end():
+        raise StopIteration
+    val = self.node()
+    self.increment()
+    return val
+
+NodeIterator.__next__ = _NodeIterator___next__
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def _FuncNodeIterator___getitem__(self,idx):
     if self.end():
@@ -23,6 +42,22 @@ def _FuncNodeIterator___getitem__(self,idx):
 
 FuncNodeIterator.__getitem__ = _FuncNodeIterator___getitem__
 
+def _FuncNodeIterator___iter__(self):
+    return self
+
+FuncNodeIterator.__iter__ = _FuncNodeIterator___iter__
+
+def _FuncNodeIterator___next__(self):
+    if self.end():
+        raise StopIteration
+    val = self.node()
+    self.increment()
+    return val
+
+FuncNodeIterator.__next__ = _FuncNodeIterator___next__
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 def _ElementIterator___getitem__(self, idx):
     if self.end():
         raise IndexError
@@ -32,13 +67,16 @@ def _ElementIterator___getitem__(self, idx):
 
 ElementIterator.__getitem__ = _ElementIterator___getitem__
 
-def _NodeIterator___getitem__(self, idx):
+def _ElementIterator___iter__(self):
+    return self
+
+ElementIterator.__iter__ = _ElementIterator___iter__
+
+def _ElementIterator___next__(self):
     if self.end():
-        raise IndexError
-    ans = self.node()
+        raise StopIteration
+    val = self.element()
     self.increment()
-    return ans
+    return val
 
-NodeIterator.__getitem__ = _NodeIterator___getitem__
-
-
+ElementIterator.__next__ = _ElementIterator___next__

@@ -1058,18 +1058,14 @@ class Skeleton(SkeletonBase):
 
     def element_iterator(self):         # for compatiblity w/ Element output
         self.cleanUp()
-        ## TODO PYTHON3: Should this return an iterator?  elements is
-        ## a ReservableList.
-        return self.elements
+        return iter(self.elements)
 
     def node_iterator(self):
         self.cleanUp()
-        ## TODO PYTHON3: Should this return an iterator?
-        return self.nodes
+        return iter(self.nodes)
 
     def segment_iterator(self):
         self.cleanUp()
-        # This really does return an iterator.
         return self.segments.values()
 
     # This returns the position in the skeleton's node list
@@ -1555,17 +1551,21 @@ class Skeleton(SkeletonBase):
         return total
 
     def illegalElements(self):
+        ## TODO PYTHON3: Return a generator?
         return [e for e in self.elements if e.illegal()]
 
     def activeElements(self):
+        ## TODO PYTHON3: Return a generator?
         self.cleanUp()
         return [e for e in self.elements if e.active(self)]
 
     def activeNodes(self):
+        ## TODO PYTHON3: Return a generator?
         self.cleanUp()
         return [n for n in self.nodes if n.active(self)]
 
     def activeSegments(self):
+        ## TODO PYTHON3: Return a generator?
         self.cleanUp()
         return [s for s in self.segments.values() if s.active(self)]
                     
