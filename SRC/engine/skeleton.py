@@ -477,9 +477,6 @@ class SkeletonBase:
             self.illegalCount = illegalCount
         return self.illegalCount
 
-    def getIllegalElements(self):
-        return [e for e in self.elements if e.illegal()]
-    
     def getHomogeneityIndex(self):
         if (self.homogeneity_index_computation_time < self.MS.getTimeStamp()):
             self.setHomogeneityIndex()
@@ -1551,13 +1548,11 @@ class Skeleton(SkeletonBase):
         return total
 
     def illegalElements(self):
-        ## TODO PYTHON3: Return a generator?
-        return [e for e in self.elements if e.illegal()]
+        return SkeletonElementIterator(self, lambda e: e.illegal())
 
     def activeElements(self):
-        ## TODO PYTHON3: Return a generator?
         self.cleanUp()
-        return [e for e in self.elements if e.active(self)]
+        return SkeletonElementIterator(self, lambda e: e.active(self))
 
     def activeNodes(self):
         ## TODO PYTHON3: Return a generator?
@@ -2867,6 +2862,26 @@ class Skeleton(SkeletonBase):
 ########################## end femesh_shares ###############################
 
 ## end of class Skeleton
+
+########################################################################
+
+# SkeletonElementIterator is used for iterating over the elements of a
+# Skeleton or a subset of them.  It has the benefits of a simple
+# generator while also allowing giving information about how the
+# iteration is progressing.
+
+class SkeletonElementIterator:
+    def __init__(self, skeleton, condition=lambda x: True):
+        self.skeleton = skeleton
+        self.condition = condition
+        self.counter = 0
+    def __iter__(self):
+        for i, element in enumerate(self.skeleton.elements):
+            if self.condition(element):
+                self.counter = i
+                yield element
+    def fraction(self):
+        return self.counter/self.skeleton.nelements()
 
 ########################################################################
 

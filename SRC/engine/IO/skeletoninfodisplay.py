@@ -183,7 +183,7 @@ class SkeletonIllegalElementDisplay(display.DisplayMethod):
         display.DisplayMethod.__init__(self)
     def draw(self, gfxwindow):
         skel = self.who.resolve(gfxwindow).getObject()
-        elements = skel.getIllegalElements()
+        elements = skel.illegalElements()
         if elements:
             draw_elements(self.canvaslayer, elements, 1.4*self.linewidth,
                           oofcanvas.white)

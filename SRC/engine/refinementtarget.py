@@ -48,15 +48,14 @@ class RefinementTarget(registeredclass.RegisteredClass):
 class CheckAllElements(RefinementTarget):     
     def __call__(self, skeleton, context, divisions, markedEdges, criterion):
         prog = progress.findProgress("Refine")
-        elements = skeleton.activeElements()
-        n = len(elements)
-        for i, element in enumerate(elements):
+        eliter = skeleton.activeElements()
+        for i, element in enumerate(eliter):
             if criterion(skeleton, element):
                 self.markElement(element, divisions, markedEdges)
-            if prog.stopped() :
+            if prog.stopped():
                 return
-            prog.setFraction(1.0*(i+1)/n)
-            prog.setMessage("checked %d/%d elements" % (i+1, n))
+            prog.setFraction(eliter.fraction())
+            prog.setMessage(f"checked {i+1} active elements")
 
 registeredclass.Registration(
     'All Elements',
@@ -127,16 +126,15 @@ class CheckHomogeneity(RefinementTarget):
         
     def __call__(self, skeleton, context, divisions, markedEdges, criterion):
         prog = progress.findProgress("Refine")
-        elements = skeleton.activeElements()
-        n = len(elements)
-        for i, element in enumerate(elements):
+        eliter = skeleton.activeElements()
+        for i, element in enumerate(eliter):
             if element.homogeneity(skeleton.MS, False) < self.threshold and \
                criterion(skeleton, element):
                 self.markElement(element, divisions, markedEdges)
             if prog.stopped() :
                 return
-            prog.setFraction(1.0*(i+1)/n)
-            prog.setMessage("checked %d/%d elements" % (i+1, n))
+            prog.setFraction(eliter.fraction())
+            prog.setMessage(f"checked {i+1} elements")
                 
 registeredclass.Registration(
     'Heterogeneous Elements',
@@ -326,9 +324,8 @@ class CheckAspectRatio(RefinementTarget):
        self.only_quads = only_quads
    def __call__(self, skeleton, context, divisions, markedEdges, criterion):
        prog = progress.findProgress("Refine")
-       elements = skeleton.activeElements()
-       n = len(elements)
-       for i, element in enumerate(elements):
+       eliter = skeleton.activeElements()
+       for i, element in enumerate(eliter):
            if (criterion(skeleton, element) and (element.nnodes() == 4 or
                                                  not self.only_quads)):
                for segment in element.getAspectRatioSegments(self.threshold,
@@ -337,8 +334,8 @@ class CheckAspectRatio(RefinementTarget):
                        self.markSegment(segment, divisions, markedEdges)
            if prog.stopped():
                return
-           prog.setFraction((i+1)/n)
-           prog.setMessage("checked %d/%d elements" % (i+1, n))
+           prog.setFraction(eliter.fraction())
+           prog.setMessage(f"checked {i+1} elements")
 
 registeredclass.Registration(
     'Aspect Ratio',

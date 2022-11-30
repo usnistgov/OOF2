@@ -149,9 +149,8 @@ class AdaptiveMeshRefine(refinementtarget.RefinementTarget):
         femesh=subproblemobj.mesh
         self.estimator.preprocess(subproblemobj)
         prog = progress.findProgress("Refine")
-        elements = skeleton.activeElements()
-        n = len(elements)
-        for i, element in enumerate(elements):
+        eliter = skeleton.activeElements()
+        for i, element in enumerate(eliter):
             # If the refinement is done more than once from the skeleton
             # page (after a mesh has been created),
             # some of the new skeleton elements may not have
@@ -168,8 +167,8 @@ class AdaptiveMeshRefine(refinementtarget.RefinementTarget):
                 self.markElement(element, divisions, markedEdges)
             if prog.stopped() :
                 return
-            prog.setFraction(1.0*(i+1)/n)
-            prog.setMessage("checked %d/%d elements" % (i+1, n))
+            prog.setFraction(eliter.fraction())
+            prog.setMessage(f"checked {i+1} active elements")
 
 #####################
 

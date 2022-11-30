@@ -24,7 +24,7 @@ class FixIllegal(skeletonmodifier.SkeletonModifier):
         # vigilante doesn't really need a properCopy!
         skel = oldskeleton.deputyCopy()
         skel.activate()
-        suckers = skel.illegalElements() # a list
+        suckers = list(skel.illegalElements())
         # illegalset holds the elements to be checked.  It is
         # initially set to the illegal elements in the unmodified
         # skeleton, but new elements can be added to it if moving one

@@ -72,6 +72,8 @@ ElementCornerNodeIterator.__getitem__ = _ElementCornerNodeIterator___getitem__
 def _ElementCornerNodeIterator___iter__(self):
     return self
 
+ElementCornerNodeIterator.__iter__ = _ElementCornerNodeIterator___iter__
+
 def _ElementCornerNodeIterator___next__(self):
     if self.end():
         raise StopIteration
