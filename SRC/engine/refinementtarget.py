@@ -49,13 +49,14 @@ class CheckAllElements(RefinementTarget):
     def __call__(self, skeleton, context, divisions, markedEdges, criterion):
         prog = progress.findProgress("Refine")
         eliter = skeleton.activeElements()
+        n = eliter.ntotal()
         for i, element in enumerate(eliter):
             if criterion(skeleton, element):
                 self.markElement(element, divisions, markedEdges)
             if prog.stopped():
                 return
             prog.setFraction(eliter.fraction())
-            prog.setMessage(f"checked {i+1} active elements")
+            prog.setMessage(f"checked {eliter.nexamined()}/{n}  elements")
 
 registeredclass.Registration(
     'All Elements',
@@ -127,6 +128,7 @@ class CheckHomogeneity(RefinementTarget):
     def __call__(self, skeleton, context, divisions, markedEdges, criterion):
         prog = progress.findProgress("Refine")
         eliter = skeleton.activeElements()
+        n = eliter.ntotal()
         for i, element in enumerate(eliter):
             if element.homogeneity(skeleton.MS, False) < self.threshold and \
                criterion(skeleton, element):
@@ -134,7 +136,7 @@ class CheckHomogeneity(RefinementTarget):
             if prog.stopped() :
                 return
             prog.setFraction(eliter.fraction())
-            prog.setMessage(f"checked {i+1} elements")
+            prog.setMessage(f"checked {eliter.nexamined()}/{n} elements")
                 
 registeredclass.Registration(
     'Heterogeneous Elements',
@@ -325,6 +327,7 @@ class CheckAspectRatio(RefinementTarget):
    def __call__(self, skeleton, context, divisions, markedEdges, criterion):
        prog = progress.findProgress("Refine")
        eliter = skeleton.activeElements()
+       n = eliter.ntotal()
        for i, element in enumerate(eliter):
            if (criterion(skeleton, element) and (element.nnodes() == 4 or
                                                  not self.only_quads)):
@@ -335,7 +338,7 @@ class CheckAspectRatio(RefinementTarget):
            if prog.stopped():
                return
            prog.setFraction(eliter.fraction())
-           prog.setMessage(f"checked {i+1} elements")
+           prog.setMessage(f"checked {eliter.nexamined()}/{n} elements")
 
 registeredclass.Registration(
     'Aspect Ratio',

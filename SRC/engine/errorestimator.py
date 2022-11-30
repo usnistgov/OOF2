@@ -150,6 +150,7 @@ class AdaptiveMeshRefine(refinementtarget.RefinementTarget):
         self.estimator.preprocess(subproblemobj)
         prog = progress.findProgress("Refine")
         eliter = skeleton.activeElements()
+        n = eliter.ntotal()
         for i, element in enumerate(eliter):
             # If the refinement is done more than once from the skeleton
             # page (after a mesh has been created),
@@ -168,7 +169,7 @@ class AdaptiveMeshRefine(refinementtarget.RefinementTarget):
             if prog.stopped() :
                 return
             prog.setFraction(eliter.fraction())
-            prog.setMessage(f"checked {i+1} active elements")
+            prog.setMessage(f"checked {eliter.nexamined()}/{n} elements")
 
 #####################
 

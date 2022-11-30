@@ -2873,15 +2873,22 @@ class Skeleton(SkeletonBase):
 class SkeletonElementIterator:
     def __init__(self, skeleton, condition=lambda x: True):
         self.skeleton = skeleton
-        self.condition = condition
-        self.counter = 0
+        self.condition = condition # predicate
+        self.count = 0          # number examined
+        self.nret = 0           # number returned
     def __iter__(self):
-        for i, element in enumerate(self.skeleton.elements):
+        for self.count, element in enumerate(self.skeleton.elements):
             if self.condition(element):
-                self.counter = i
+                self.nret += 1
                 yield element
     def fraction(self):
-        return self.counter/self.skeleton.nelements()
+        return self.count/self.skeleton.nelements()
+    def ntotal(self):
+        return self.skeleton.nelements()
+    def nexamined(self):
+        return self.count
+    def nreturned(self):
+        return self.nret
 
 ########################################################################
 
