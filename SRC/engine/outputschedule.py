@@ -84,6 +84,16 @@ registeredclass.Registration(
 # The Schedule class determines when scheduled output is produced.
 # UnconditionalSchedules determine the output times in advance.
 # ConditionalSchedules do it on the fly.
+
+# Subclasses of Schedule need to have a __next__() method which returns
+# the next time in the schedule, or raises StopIteration if there is
+# no next time.  Schedule.__next__() is called by
+# OutputSchedule.reset() and OutputSchedule.times(), below, via
+# next().
+
+# The subclasses should also have a reset() method.  After reset() is
+# called, the next time returned by __next__() should be the first
+# time.
     
 class Schedule(registeredclass.RegisteredClass):
     registry = []
@@ -134,7 +144,7 @@ class Once(UnconditionalSchedule):
         UnconditionalSchedule.__init__(self)
     def reset(self, continuing):
         self.done = False
-    def __next__(self):         # TODO PYTHON3: Check iterator
+    def __next__(self):
         if self.done:
             raise StopIteration
         self.done = True
@@ -159,7 +169,7 @@ class Periodic(UnconditionalSchedule):
         UnconditionalSchedule.__init__(self)
     def reset(self, continuing):
         self.count = 0
-    def __next__(self):         # TODO PYTHON3: Check iterator
+    def __next__(self):
         t = self.time0 + self.delay + self.count*self.interval
         self.count += 1
         return t
@@ -189,7 +199,7 @@ class Geometric(UnconditionalSchedule):
         if not continuing:
             self.nextstep = self.timestep
             self.lasttime = None
-    def __next__(self):         # TODO PYTHON3: Check iterator
+    def __next__(self):
         ## TODO: This doesn't quite do the right thing on the first
         ## step of a continued computation, if the previous step was
         ## truncated to hit the end time exactly.  For example, with
@@ -229,7 +239,7 @@ class SpecifiedTimes(UnconditionalSchedule):
     def reset(self, continuing):
         if not continuing:
             self.count = 0
-    def __next__(self):         # TODO PYTHON3: Check iterator
+    def __next__(self):
         if self.count == len(self.times):
             raise StopIteration
         t = self.times[self.count] + self.time0
@@ -373,7 +383,6 @@ class OutputSchedule:
                     self.conditionalOutputs.add(output)
                 else:
                     try:
-                        # TODO PYTHON3: Check iterator
                         t = roundOffCheck(next(output.schedule), time0)
                         if continuing:
                             while t <= time0:
@@ -407,7 +416,6 @@ class OutputSchedule:
             for output in self.nextoutputs:
                 try:
                     self.nexttimes[output] = roundOffCheck(
-                        # TODO PYTHON3: Check iterator
                         next(output.schedule), endtime)
                 except StopIteration:
                     del self.nexttimes[output]
