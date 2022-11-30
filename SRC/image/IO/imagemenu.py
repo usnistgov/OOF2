@@ -81,7 +81,6 @@ sizeparams = parameter.ParameterGroup(
 ###################################
 
 def loadImage(menuitem, filename, microstructure, height, width):
-    debug.fmsg("filename=", filename)
     if filename:
         # Read file and create an OOFImage object
         image = autoReadImage(filename, height, width)
@@ -342,16 +341,11 @@ def createPixelGroups(menuitem, image, name_template):
     mscontext.begin_writing()
     try:
         newgrpnames = autogroup.autogroup(ms, immidge, name_template)
-        debug.fmsg("back from autogroup")
     finally:
         prog.finish()
-        debug.fmsg("back from prog.finish")
         mscontext.end_writing()
-        debug.fmsg("back from end_writing")
 
-    debug.fmsg("notify redraw")
     switchboard.notify('redraw')
-    debug.fmsg("back from notify")
     if not prog.stopped():      # not interrupted
         # Do this only after releasing the ms write lock!  If the main
         # thread is waiting for the read lock, then switchboard.notify
