@@ -74,6 +74,9 @@ class OutputImageFormat(enum.EnumClass(
         "pdf", "png")):
     pass
 
+if debug.debug():
+    enum.addEnumName(OutputImageFormat, "datadump")
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class GfxSettings:
@@ -996,7 +999,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             clone = self.gfxmanager.openWindow(clone=1)
             clone.settings = copy.deepcopy(self.settings)
             for layer in self.layers:
-                clone.incorporateLayer(layer, )
+                clone.incorporateLayer(layer)
                 clone.deselectLayer(clone.selectedLayerNumber())
             if self.selectedLayer is not None:
                 clone.selectLayer(self.layerID(self.selectedLayer))
@@ -1195,6 +1198,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             elif format == "png":
                 if not self.oofcanvas.saveAsPNG(filename, pixels, background):
                     raise ooferror.PyErrUserError("Cannot save canvas!")
+            elif format == "datadump":
+                self.oofcanvas.datadump(filename)
 
     def saveCanvasRegion(self, menuitem, filename, format, overwrite,
                          pixels, background, lowerleft, upperright):

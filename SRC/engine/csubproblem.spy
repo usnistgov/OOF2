@@ -168,12 +168,8 @@ CSubProblem.create_elem_bdynodemap=_CSubProblem_create_elem_bdynodemap
 #Interface branch
 def _CSubProblem_create_bdy_node_map(self, skel):
     # Initializing
-    nd_iter = self.node_iterator()
-    ## TODO PYTHON3: Use a real iterator
-    while not nd_iter.end():
-        node = nd_iter.node()
+    for node in self.node_iterator():
         self.bdy_node_map[node.index()] = 0
-        nd_iter.increment()
         
     for seg in skel.segment_iterator():
         n0, n1 = seg.nodes()

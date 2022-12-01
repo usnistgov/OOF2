@@ -23,15 +23,22 @@ from ooflib.common.IO import xmlmenudump
 import oofcanvas
 
 def draw_elements(canvaslayer, elements, lineWidth, color):
-    segs = oofcanvas.CanvasSegments.create()
-    segs.setLineWidthInPixels(lineWidth)
-    segs.setLineColor(color)
+    first = True
     for element in elements:
+        if first:
+            # Make sure not to do anything if there are no elements.
+            # The elements arg is an iterator and we don't know if it
+            # has anything to return until we've tried.
+            segs = oofcanvas.CanvasSegments.create()
+            segs.setLineWidthInPixels(lineWidth)
+            segs.setLineColor(color)
+            first = False
         for i in range(element.nnodes()):
             n0 = element.nodes[i].position()
             n1 = element.nodes[(i+1)%element.nnodes()].position()
             segs.addSegment(n0, n1)
-    canvaslayer.addItem(segs)
+    if not first:
+        canvaslayer.addItem(segs)
 
 class SkeletonInfoDisplay(display.DisplayMethod):
     def __init__(self, query_color, peek_color, node_size,
