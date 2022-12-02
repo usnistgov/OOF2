@@ -315,10 +315,6 @@ IteratorP ScalarFieldBase::iterator(Planarity) const {
   return IteratorP(new ScalarFieldIterator);
 }
 
-IndexP ScalarFieldBase::componenttype() const {
-  return IndexP(new ScalarFieldIndex);
-}
-
 IndexP ScalarFieldBase::getIndex(const std::string &) const {
   return IndexP(new ScalarFieldIndex);
 }
@@ -429,10 +425,6 @@ IteratorP TwoVectorFieldBase::iterator(Planarity) const {
   return IteratorP(new VectorFieldIterator(0, 2));
 }
 
-IndexP TwoVectorFieldBase::componenttype() const {
-  return IndexP(new VectorFieldIndex);
-}
-
 IndexP TwoVectorFieldBase::getIndex(const std::string &str) const {
   return IndexP(new VectorFieldIndex(str[0] - 'x'));
 }
@@ -536,10 +528,6 @@ IteratorP VectorFieldBase::iterator(Planarity planarity) const {
   return IteratorP(new VectorFieldIterator(mindim, maxdim));
 }
 
-IndexP VectorFieldBase::componenttype() const {
-  return IndexP(new VectorFieldIndex);
-}
-
 IndexP VectorFieldBase::getIndex(const std::string &str) const {
   return IndexP(new VectorFieldIndex(str[0] - 'x'));
 }
@@ -635,10 +623,6 @@ IteratorP SymmetricTensorField::iterator(Planarity p) const {
   // Weird but right -- getSymTensorIterator returns an IteratorP*,
   // just dereference it to get what we want.
   return *getSymTensorIterator(p);
-}
-
-IndexP SymmetricTensorField::componenttype() const {
-  return IndexP(new SymTensorIndex);
 }
 
 IndexP SymmetricTensorField::getIndex(const std::string& str) const {

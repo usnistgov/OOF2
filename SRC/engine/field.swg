@@ -118,7 +118,6 @@ public:
   void setValueFromOutputValue(FEMesh*, PointData&, OutputValue*);
 
   IteratorP iterator(Planarity p);
-  IndexP componenttype();
   IndexP getIndex(char *);	// convert from "x", "xy", etc.
   ArithmeticOutputValue newOutputValue();
   ArithmeticOutputValue output(FEMesh*, PointData&);

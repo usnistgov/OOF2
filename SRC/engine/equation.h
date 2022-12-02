@@ -79,7 +79,6 @@ public:
   // host flux, for DivergenceEquations, and out-of-plane components
   // of the flux for PlaneFluxEquation objects.
   virtual IteratorP iterator() const = 0;
-  virtual IndexP componenttype() const = 0;
   virtual IndexP getIndex(const std::string&) const = 0;
 
   static std::vector<Equation*> &all();
@@ -179,7 +178,6 @@ public:
   virtual int integration_order(const Element*) const;
 
   virtual IteratorP iterator() const;
-  virtual IndexP componenttype() const;
   virtual IndexP getIndex(const std::string&) const;
 
   virtual const std::string &classname() const;
@@ -208,7 +206,6 @@ public:
   virtual int integration_order(const Element*) const;
 
   virtual IteratorP iterator() const;
-  virtual IndexP componenttype() const;
   virtual IndexP getIndex(const std::string&) const;
 
   virtual const std::string &classname() const;
@@ -237,7 +234,6 @@ public:
 
   virtual int integration_order(const Element*) const;
   virtual IteratorP iterator() const;
-  virtual IndexP componenttype() const;
   virtual IndexP getIndex(const std::string&) const;
   virtual const std::string &classname() const;
   virtual bool allow_boundary_conditions() const { return false; }

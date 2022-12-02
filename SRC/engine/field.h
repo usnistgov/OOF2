@@ -182,7 +182,6 @@ public:
   }
 
   virtual IteratorP iterator(Planarity) const = 0;
-  virtual IndexP componenttype() const = 0;
   virtual IndexP getIndex(const std::string&) const = 0;
 
   // Stuff required by fieldeqnlist.h templates, which handle Field
@@ -297,7 +296,6 @@ public:
 				       const OutputValue*);
 
   virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
-  virtual IndexP componenttype() const;
   virtual IndexP getIndex(const std::string&) const;
   virtual const std::string &classname() const { return classname_; }
 };
@@ -333,7 +331,6 @@ public:
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
   virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
-  virtual IndexP componenttype() const;
   virtual IndexP getIndex(const std::string&) const;
   virtual const std::string &classname() const { return classname_; }
 };
@@ -372,7 +369,6 @@ public:
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
   virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
-  virtual IndexP componenttype() const;
   virtual IndexP getIndex(const std::string&) const;
 };
 
@@ -415,7 +411,6 @@ public:
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
   virtual IteratorP iterator(Planarity) const;
-  virtual IndexP componenttype() const;
   virtual IndexP getIndex(const std::string&) const;
 
   virtual const std::string &classname() const {

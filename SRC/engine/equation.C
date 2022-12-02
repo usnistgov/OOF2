@@ -484,10 +484,6 @@ IteratorP DivergenceEquation::iterator() const {
   return fflux->divergence_iterator();
 }
 
-IndexP DivergenceEquation::componenttype() const {
-  return fflux->divergence_componenttype();
-}
-
 IndexP DivergenceEquation::getIndex(const std::string &str) const {
   return fflux->divergence_getIndex(str);
 }
@@ -520,10 +516,6 @@ int PlaneFluxEquation::integration_order(const Element *el) const {
 
 IteratorP PlaneFluxEquation::iterator() const {
   return fflux->out_of_plane_iterator();
-}
-
-IndexP PlaneFluxEquation::componenttype() const {
-  return fflux->componenttype();
 }
 
 IndexP PlaneFluxEquation::getIndex(const std::string &str) const {
@@ -583,10 +575,6 @@ void NaturalEquation::boundary_integral(const CSubProblem *subp,
 
 IteratorP NaturalEquation::iterator() const {
   return IteratorP(new ScalarFieldIterator);
-}
-
-IndexP NaturalEquation::componenttype() const {
-  return IndexP(new ScalarFieldIndex);
 }
 
 IndexP NaturalEquation::getIndex(const std::string&str) const {

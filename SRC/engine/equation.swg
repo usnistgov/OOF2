@@ -66,7 +66,6 @@ public:
   int ndof();			// same as dim()
   NodalEquation *nodaleqn(const FuncNode&, int);
   IteratorP iterator();
-  IndexP componenttype();
   IndexP getIndex(char*);
   int is_active(const CSubProblem*);
   bool allow_boundary_conditions();

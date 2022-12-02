@@ -134,20 +134,12 @@ IteratorP VectorFlux::out_of_plane_iterator() const {
   return IteratorP(new OutOfPlaneVectorFieldIterator());
 }
 
-IndexP VectorFlux::componenttype() const {
-  return IndexP(new VectorFieldIndex);
-}
-
 IndexP VectorFlux::getIndex(const std::string &str) const {
   return IndexP(new VectorFieldIndex(str[0] - 'x'));
 }
 
 IndexP VectorFlux::getOutOfPlaneIndex(const std::string &str) const {
   return IndexP(new OutOfPlaneVectorFieldIndex(str[0] - 'x'));
-}
-
-IndexP VectorFlux::divergence_componenttype() const {
-  return IndexP(new ScalarFieldIndex);
 }
 
 IndexP VectorFlux::divergence_getIndex(const std::string&) const {
@@ -173,20 +165,12 @@ IteratorP SymmetricTensorFlux::out_of_plane_iterator() const {
   return IteratorP(new OutOfPlaneSymTensorIterator());
 }
 
-IndexP SymmetricTensorFlux::componenttype() const {
-  return IndexP(new SymTensorIndex);
-}
-
 IndexP SymmetricTensorFlux::getIndex(const std::string &str) const {
   return IndexP(new SymTensorIndex(SymTensorIndex::str2voigt(str)));
 }
 
 IndexP SymmetricTensorFlux::getOutOfPlaneIndex(const std::string &str) const {
   return IndexP(new OutOfPlaneSymTensorIndex(SymTensorIndex::str2voigt(str)));
-}
-
-IndexP SymmetricTensorFlux::divergence_componenttype() const {
-  return IndexP(new VectorFieldIndex);
 }
 
 IndexP SymmetricTensorFlux::divergence_getIndex(const std::string &str) const {

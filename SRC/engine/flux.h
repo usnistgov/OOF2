@@ -84,10 +84,8 @@ public:
   virtual IteratorP iterator(Planarity) const = 0;
   virtual IteratorP divergence_iterator() const = 0;
   virtual IteratorP out_of_plane_iterator() const = 0;
-  virtual IndexP componenttype() const = 0;
   virtual IndexP getIndex(const std::string&) const = 0;
   virtual IndexP getOutOfPlaneIndex(const std::string&) const = 0;
-  virtual IndexP divergence_componenttype() const = 0;
   virtual IndexP divergence_getIndex(const std::string&) const = 0;
 
   virtual FluxNormal *BCCallback(const Coord&,
@@ -177,10 +175,8 @@ public:
   virtual IteratorP iterator(Planarity) const;
   virtual IteratorP divergence_iterator() const;
   virtual IteratorP out_of_plane_iterator() const;
-  virtual IndexP componenttype() const;
   virtual IndexP getIndex(const std::string&) const;
   virtual IndexP getOutOfPlaneIndex(const std::string&) const;
-  virtual IndexP divergence_componenttype() const;
   virtual IndexP divergence_getIndex(const std::string&) const;
 
   virtual ArithmeticOutputVal *contract(const FEMesh*, const Element*,
@@ -234,10 +230,8 @@ public:
   virtual IteratorP iterator(Planarity) const;
   virtual IteratorP divergence_iterator() const;
   virtual IteratorP out_of_plane_iterator() const;
-  virtual IndexP componenttype() const;
   virtual IndexP getIndex(const std::string&) const;
   virtual IndexP getOutOfPlaneIndex(const std::string&) const;
-  virtual IndexP divergence_componenttype() const;
   virtual IndexP divergence_getIndex(const std::string&) const;
 
   // Ideally, all arguments here would be const, but the first

@@ -59,7 +59,6 @@ public:
 
   IteratorP iterator(Planarity p);
   IteratorP divergence_iterator();
-  IndexP componenttype();
   ArithmeticOutputValue newOutputValue();
 };
 
