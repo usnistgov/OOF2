@@ -25,7 +25,7 @@
 // pythoncode block below.  This typemap converts from one to the
 // other.
 
-// TODO PYTHON3: Is there a better way to do this?  Can a python Enum
+// TODO: Is there a better way to do this?  Can a python Enum
 // class be built automatically from a swigged C++ enum?
 
 %typemap(in) AnisoCrystalSymmetry* (AnisoCrystalSymmetry sym) {

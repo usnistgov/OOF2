@@ -8,17 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-## TODO PYTHON3: Do we need __getitem__ ?
-
-def _ElementNodeIterator___getitem__(self, idx):
-    if self.end():
-        raise IndexError
-    ans = self.node()
-    self.increment()
-    return ans
-
-ElementNodeIterator.__getitem__ = _ElementNodeIterator___getitem__
-
 def _ElementNodeIterator___iter__(self):
     return self
 
@@ -35,15 +24,6 @@ ElementNodeIterator.__next__ = _ElementNodeIterator___next__
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def _ElementFuncNodeIterator___getitem__(self, idx):
-    if self.end():
-        raise IndexError
-    ans = self.funcnode()
-    self.increment()
-    return ans
-
-ElementFuncNodeIterator.__getitem__ = _ElementFuncNodeIterator___getitem__
-
 def _ElementFuncNodeIterator___iter__(self):
     return self
 
@@ -59,15 +39,6 @@ def _ElementFuncNodeIterator___next__(self):
 ElementFuncNodeIterator.__next__ = _ElementFuncNodeIterator___next__
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-def _ElementCornerNodeIterator___getitem__(self, idx):
-    if self.end():
-        raise IndexError
-    ans = self.node()
-    self.increment()
-    return ans
-
-ElementCornerNodeIterator.__getitem__ = _ElementCornerNodeIterator___getitem__
 
 def _ElementCornerNodeIterator___iter__(self):
     return self
