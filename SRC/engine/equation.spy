@@ -16,7 +16,7 @@ def _Equation___hash_(self):
 
 Equation.__hash__ = _Equation___hash_
 
-# Euqations are sometimes stored in an OrderedSet and need to have
+# Equations are sometimes stored in an OrderedSet and need to have
 # __lt__ defined.
 
 def _Equation___lt__(self, other):
@@ -39,30 +39,12 @@ DivergenceEquation.__repr__ = DivergenceEquation.name
 
 PlaneFluxEquation.__repr__ = PlaneFluxEquation.name
 
-## TODO PYTHON3: Do we need this?
-#from ooflib.SWIG.engine.nodalequation import NodalEquation
-
-# AllEquations acts like a list of Equations
-class _AllEquations:
-    def __getitem__(self, indx):
-        if isinstance(indx, int):
-            if indx >= countEquations() or indx < 0:
-                raise IndexError("Bad equation index: " + str(indx))
-            return getEquationByIndex(indx)
-        elif isinstance(indx, (str, bytes)):
-            return getEquationByName(indx)
-    def __len__(self):
-        return countEquations()
-
-allEquations = _AllEquations()
-
-## TODO PYTHON3: With swig4, it may be possible to simplify
-## getEquation().  It currently calls getEquationByName(), which is an
-## inline function defined in equation.swg, which in turn calls
-## Equation::getEquation(), which is a static method in the C++
-## Equation class.  Can we just swig that method and rename it?
-def getEquation(name):
-    return getEquationByName(name)
-
-utils.OOFdefine('getEquation', getEquation)
+def allEquations():
+    for indx in range(countEquations()):
+        yield getEquationByIndex(indx)
+    
+# getEquation(name) returns the equation with the given name.
+# Equation.getEquation is a static C++ method.
+getEquation = Equation.getEquation
+utils.OOFdefine('getEquation', Equation.getEquation)
 

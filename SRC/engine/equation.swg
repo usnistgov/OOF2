@@ -70,6 +70,7 @@ public:
   IndexP getIndex(char*);
   int is_active(const CSubProblem*);
   bool allow_boundary_conditions();
+  static Equation *getEquation(const std::string&);
 };
 
 %extend Equation {
@@ -111,12 +112,6 @@ public:
 
 int countEquations();
 Equation *getEquationByIndex(int);
-
-%inline %{
-  Equation *getEquationByName(const std::string &name) {
-    return Equation::getEquation(name);
-  }
-%}
 
 %pythoncode "engine/equation.spy"
 

@@ -307,9 +307,7 @@ class FieldPage(oofGUI.MainPage):
         debug.mainthreadTest()
         self.eqntable.foreach(Gtk.Widget.destroy) # clear the table
         self.eqnbuttons = {}
-        eqlist = equation.allEquations
-        row=0
-        for eqn in eqlist:
+        for row, eqn in enumerate(equation.allEquations()):
             label = Gtk.Label(label=utils.underscore2space(eqn.name()),
                               halign=Gtk.Align.END)
             self.eqntable.attach(label, 0,row, 1,1)
@@ -320,10 +318,9 @@ class FieldPage(oofGUI.MainPage):
                                                                    signal)
             button.set_tooltip_text('Active equations will be solved.')
             self.eqntable.attach(button, 2,row, 1,1)
-            row += 1
         self.eqntable.attach(
             Gtk.Separator(orientation=Gtk.Orientation.VERTICAL),
-            1,0, 1,len(eqlist))
+            1,0, 1,equation.countEquations())
 
     def newEquationCB(self):  # Switchboard, "new equation".
         self.build_eqnTable()
@@ -415,7 +412,7 @@ class FieldPage(oofGUI.MainPage):
                     self.fieldbuttons[(fname, "active")].set(0)
                     if config.dimension() == 2:
                         self.fieldbuttons[(fname, "inplane")].set(0)
-            for eqn in equation.allEquations:
+            for eqn in equation.allEquations():
                 active = subp.is_active_equation(eqn)
                 self.eqnbuttons[(eqn.name(),"active")].set(active)
         else:                           # no current subproblem

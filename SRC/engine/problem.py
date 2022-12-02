@@ -385,7 +385,7 @@ that contribute to the &equation;.
 </para>""", file=phile)
     # List of Equations
     print("<itemizedlist>", file=phile)
-    for eqn in equation.allEquations:
+    for eqn in equation.allEquations():
         print("<listitem><simpara>", file=phile)
         print("<link linkend='Equation-%s'><varname>%s</varname></link>" % (eqn.name(), eqn.name()), file=phile)
         print("</simpara></listitem>", file=phile)
@@ -393,7 +393,7 @@ that contribute to the &equation;.
     # Reference page for each Equation
     links = {'PlaneFluxEquation' : 'Section-Concepts-Mesh-Equation-PlaneFlux',
              'DivergenceEquation' : 'Section-Concepts-Mesh-Equation-Divergence'}
-    for eqn in equation.allEquations:
+    for eqn in equation.allEquations():
         name = eqn.name()
         xmlmenudump.xmlIndexEntry(name, 'Equation', 'Equation-%s' % name)
         classname = eqn.__class__.__name__

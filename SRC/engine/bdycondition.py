@@ -1159,7 +1159,7 @@ def _build_oops(field, eqn, boundary):
     # that happens, this ".flux" de-reference should be made more
     # robust.
     dflux = eqn.flux()
-    for e in equation.allEquations:
+    for e in equation.allEquations():
         if isinstance(e, equation.PlaneFluxEquation):
             if e.flux() == dflux:
                 if not oop_eqn:
