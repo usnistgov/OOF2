@@ -38,8 +38,8 @@ public:
   int integer();
   bool in_plane();
   void set(const std::vector<int>*);
-  %newobject components;
-  std::vector<int> *components();
+  // %newobject getComponents;
+  // std::vector<int> *getComponents();
   const std::string &shortstring();
 };
 
@@ -152,8 +152,8 @@ public:
   bool in_plane();
   IndexP cloneIndex();
   void set(const std::vector<int>*);
-  %newobject components;
-  std::vector<int> *components();
+  %newobject getComponents;
+  std::vector<int> *getComponents();
   const std::string &shortstring();
 };
 

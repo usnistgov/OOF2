@@ -18,7 +18,7 @@ bool operator==(const FieldIndex &a, const FieldIndex &b) {
   return a.integer() == b.integer();
 }
 
-std::vector<int> *ScalarFieldIndex::components() const {
+std::vector<int> *ScalarFieldIndex::getComponents() const {
   return new std::vector<int>;	// empty vector
 }
 
@@ -35,7 +35,7 @@ void VectorFieldIndex::set(int given_index) {
   index_ = given_index;
 }
 
-std::vector<int> *VectorFieldIndex::components() const {
+std::vector<int> *VectorFieldIndex::getComponents() const {
   std::vector<int> *c = new std::vector<int>(1);
   (*c)[0] = index_;
   return c;
@@ -63,7 +63,7 @@ void SymTensorIndex::set(const std::vector<int> *component) {
   v = ij2voigt((*component)[0], (*component)[1]);
 }
 
-std::vector<int> *SymTensorIndex::components() const {
+std::vector<int> *SymTensorIndex::getComponents() const {
   std::vector<int> *c = new std::vector<int>(2);
   (*c)[0] = rowset[v];
   (*c)[1] = colset[v];

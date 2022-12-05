@@ -284,7 +284,7 @@ public:
   }
   virtual int integer() const { return index_; }
   virtual void set(const std::vector<int>*);
-  virtual std::vector<int>* components() const;
+  virtual std::vector<int>* getComponents() const;
   virtual void print(std::ostream &os) const;
   virtual const std::string &shortstring() const;
 };

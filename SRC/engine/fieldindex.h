@@ -41,19 +41,24 @@ public:
   // returns the value of the index, and the SymTensorIndex returns
   // the index's Voigt representation.
   virtual int integer() const = 0;
-  // in_plane() is false if the index represents an out-of-plane
-  // component of a field.
 
-  // This is not virtual just so that subclasses in which it doesn't
-  // make sense don't have to define it.  See the TODO in outputval.h.
+  // in_plane() is false if the index represents an out-of-plane
+  // component of a field.  This doesn't make sense in some
+  // subclasses, but it can be ignored there.  See the TODO in
+  // outputval.h.
   virtual bool in_plane() const { return true; }
 
   // Set the value of the index by passing in a vector of ints.
   // Inefficient, but general.
   virtual void set(const std::vector<int>*) = 0;
+  
   // Return the value of the index as a vector of ints.  The vector
   // needs to be deleted by the caller.
-  virtual std::vector<int>* components() const = 0;
+
+  // TODO: getComponents() seems to be used only by SymmMatrix3Widget
+  // (in ouptutvalwidgets.py) which could use something else.  It's
+  // odd to require it in all subclasses if it's only used in one.
+  virtual std::vector<int>* getComponents() const = 0;
 
   virtual void print(std::ostream &os) const = 0;
   virtual const std::string &shortstring() const = 0;
@@ -79,7 +84,7 @@ public:
   virtual int integer() const { return 0; }
   virtual bool in_plane() const { return true; }
   virtual void set(const std::vector<int>*) {}
-  virtual std::vector<int> *components() const;	// returns a zero-length vector
+  virtual std::vector<int> *getComponents() const; // returns a zero-length vector
   virtual void print(std::ostream&) const;
   virtual const std::string &shortstring() const;
 };
@@ -100,7 +105,7 @@ public:
   virtual bool in_plane() const { return index_ < 2; }
   virtual void set(const std::vector<int>*);
   void set(int);
-  virtual std::vector<int> *components() const;
+  virtual std::vector<int> *getComponents() const;
   virtual void print(std::ostream&) const;
   virtual const std::string &shortstring() const;
 };
@@ -148,7 +153,7 @@ public:
   bool diagonal() const { return v < 3; }
   virtual bool in_plane() const { return v < 2 || v == 5; }
   virtual void set(const std::vector<int>*);
-  virtual std::vector<int> *components() const;	// returns new vector
+  virtual std::vector<int> *getComponents() const;	// returns new vector
   virtual void print(std::ostream&) const;
   static int ij2voigt(int i, int j) { return ( i==j ? i : 6-i-j ); }
   // The argument str in str2voigt must be "pq" where p and q are in
@@ -191,8 +196,8 @@ public:
     return IndexP(fieldindex->cloneIndex());
   }
   void set(const std::vector<int> *comps) { fieldindex->set(comps); }
-  std::vector<int> *components() const { // returns new vector
-    return fieldindex->components();
+  std::vector<int> *getComponents() const { // returns new vector
+    return fieldindex->getComponents();
   }
   const std::string &shortstring() const {
     return fieldindex->shortstring();

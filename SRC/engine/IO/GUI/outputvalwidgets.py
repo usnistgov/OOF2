@@ -103,9 +103,7 @@ class SymmMatrix3Widget:
         rowlabels = [None]*3
         collabels = [None]*3
         while not iterator.end():
-            comps = iterator.components()
-            row = comps[0]
-            col = comps[1]
+            row, col = iterator.getComponents()
             ijstr = iterator.shortrepr()
             if not rowlabels[row]:
                 rowlabels[row] = ijstr[0]

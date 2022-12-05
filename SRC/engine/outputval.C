@@ -406,7 +406,7 @@ void ListOutputValIndex::set(const std::vector<int> *vals) {
   index_ = (*vals)[0];
 }
 
-std::vector<int> *ListOutputValIndex::components() const {
+std::vector<int> *ListOutputValIndex::getComponents() const {
   std::vector<int> *result = new std::vector<int>(1);
   (*result)[0] = index_;
   return result;
