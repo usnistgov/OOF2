@@ -23,11 +23,13 @@ from ooflib.engine.IO import outputDefs
 SymmetricMatrixInput = matrixparamwidgets.SymmetricMatrixInput
 SymmetricMatrixBoolInput = matrixparamwidgets.SymmetricMatrixBoolInput
 
-# Used for triclinic materials with symmetric rank two tensors.  There
-# is another SymmMatrix3Widget object in outputvalwidgets.py, but it's
-# primarily used for display of values.  It's sufficiently different
-# that combining the two is probably not useful.
-class SymmMatrix3Widget(SymmetricMatrixInput):
+# Used for triclinic materials with symmetric rank two tensors.  Not
+# to be confused with the SymmMatrix3Widget object in
+# outputvalwidgets.py, which is primarily used for display of values.
+# It's sufficiently different that combining the two is probably not
+# useful.
+
+class SymmMatrix3ParameterWidget(SymmetricMatrixInput):
     settable = symmmatrix.voigtIndices
     def __init__(self, param, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
@@ -63,15 +65,15 @@ class SymmMatrix3Widget(SymmetricMatrixInput):
             self.set_values(result)
 
 def _SymmMatrix3Parameter_makeWidget(self, scope=None, **kwargs):
-    return SymmMatrix3Widget(self, scope, name=self.name, **kwargs)
+    return SymmMatrix3ParameterWidget(self, scope, name=self.name, **kwargs)
 
 symmmatrix.SymmMatrix3Parameter.makeWidget = _SymmMatrix3Parameter_makeWidget
 
 # For properties, we want a widget that will return a
 # TriclinicRank2Tensor object, but otherwise behaves identically to
-# the SymmMatrix3Widget.
+# the SymmMatrix3ParameterWidget.
 
-class TriclinicRank2TensorParameterWidget(SymmMatrix3Widget):
+class TriclinicRank2TensorParameterWidget(SymmMatrix3ParameterWidget):
     def new_value(self, gtk, event):
         result = self.value
         try:
@@ -89,7 +91,7 @@ symmmatrix.TriclinicRank2TensorParameter.makeWidget = _TR2TP_makeWidget
 
 
 ## for symmetric monoclinic rank two tensors
-class MonoclinicSymmWidget(SymmMatrix3Widget):
+class MonoclinicSymmWidget(SymmMatrix3ParameterWidget):
     settable = ((0,0), (1,1), (2,2), (0,2))
     def set_values(self, value):
         debug.mainthreadTest()
@@ -123,7 +125,7 @@ symmmatrix.MonoclinicRank2TensorParameter.makeWidget = \
 
 
 ## for symmetric orthorhombic rank two tensors
-class OrthorhombicSymmWidget(SymmMatrix3Widget):
+class OrthorhombicSymmWidget(SymmMatrix3ParameterWidget):
     settable = ((0,0), (1,1), (2,2))
     def set_values(self, value):
         debug.mainthreadTest()
@@ -156,7 +158,7 @@ symmmatrix.OrthorhombicRank2TensorParameter.makeWidget = \
 
 ## For Tetragonal, Trigonal, Hexagonal symmetric rank two tensors
 ## for symmetric orthorhombic rank two tensors
-class IsotropicPlaneSymmWidget(SymmMatrix3Widget):
+class IsotropicPlaneSymmWidget(SymmMatrix3ParameterWidget):
     ## base class for Tetragonal, Trigonal, Hexagonal SymmWidgets.
     ## the function new_value is overwritten by subclasses
     settable=((0,0), (2,2))
@@ -220,7 +222,7 @@ symmmatrix.HexagonalRank2TensorParameter.makeWidget = \
     _HexagonalSymmParameter_makeWidget
 
 ## For CUBIC symmetric rank two tensors
-class CubicSymmWidget(SymmMatrix3Widget):
+class CubicSymmWidget(SymmMatrix3ParameterWidget):
     settable = [(0,0)]
     def new_value(self, gtk, event):
         result = self.value
