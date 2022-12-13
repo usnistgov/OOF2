@@ -331,7 +331,7 @@ class FieldIndexParameterWidget(parameterwidgets.ParameterWidget):
             iterator = field.iterator_all()
             while not iterator.end():
                 self.nIndices += 1
-                it = iterator.cloneIndex() # TODO: why?
+                it = iterator.clone() # TODO PYTHON3: why?
                 itrepr = it.shortrepr()
                 itlist.append(itrepr)
                 iterator.increment()

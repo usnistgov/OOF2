@@ -18,6 +18,19 @@ bool operator==(const FieldIndex &a, const FieldIndex &b) {
   return a.integer() == b.integer();
 }
 
+std::ostream &operator<<(std::ostream &os, const FieldIndex &fi) {
+  fi.print(os);
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const IndexP &ip) {
+  const FieldIndex &fi(ip);
+  os << "IndexP(" << fi << ")";
+  return os;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 std::vector<int> *ScalarFieldIndex::getComponents() const {
   return new std::vector<int>;	// empty vector
 }
@@ -27,12 +40,47 @@ const std::string &ScalarFieldIndex::shortstring() const {
   return ss;
 }
 
-void VectorFieldIndex::set(const std::vector<int> *component) {
-  index_ = (*component)[0];
+void ScalarFieldIndex::print(std::ostream &os) const {
+  os << "ScalarFieldIndex()";
 }
 
-void VectorFieldIndex::set(int given_index) {
-  index_ = given_index;
+const std::string& ScalarFieldIndex::classname() const {
+  static const std::string nm("ScalarFieldIndex");
+  return nm;
+}
+
+const std::string& ScalarFieldCompIterator::classname() const {
+  static const std::string nm("ScalarFieldCompIterator");
+  return nm;
+}
+
+ScalScalarFieldCompIterator &ScalarFieldCompIterator::operator++() {
+  done = true;
+  return *this;
+}
+
+bool ScalarFieldCompIterator::operator!=(const ComponentIterator &othr) const {
+  const ScalarFieldCompIterator& other =
+    dynamic_cast<const ScalarFieldCompIterator&>(othr);
+  return othr.done != done;
+}
+
+IndexP ScalarFieldCompIterator::operator*() const {
+  assert(!done);
+  return IndexP(new ScalarFieldIndex());
+}
+
+IndexP ScalarFieldComponents::operator[](int i) const {
+  if(i != 0)
+    throw ErrBadIndex(i, __FILE__, __LINE__);
+  return IndexP(new ScalarFieldIndex());
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+const std::string &VectorFieldIndex::classname() const {
+  const std::string nm("VectorFieldIndex");
+  return nm;
 }
 
 std::vector<int> *VectorFieldIndex::getComponents() const {
@@ -48,8 +96,51 @@ const std::string &VectorFieldIndex::shortstring() const {
   return names[index_];
 }
 
+void VectorFieldIndex::print(std::ostream &os) const {
+  os << "VectorFieldIndex(" << index_ << ")";
+}
+
+const std::string& VectorFieldCompIterator::classname() const {
+  static const std::string nm("VectorFieldCompIterator");
+  return nm;
+}
+
+IndexP VectorFieldCompIterator::operator*() const {
+  return IndexP(new VectorFieldIndex(index_)); 
+}
+
+bool VectorFieldCompIterator::operator!=(const ComponentIterator &othr) const {
+  const VectorFieldCompIterator &other =
+    dynamic_cast<const VectorFieldCompIterator&>(othr);
+  return other.index != index;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+const std::string &OutOfPlaneVectorFieldIndex::classname() const {
+  static const std::string nm("OutOfPlaneVectorFieldIndex");
+  return nm;
+}
+
+const std::string &OutOfPlaneVectorFieldCompIterator::classname() const {
+  static const std::string nm("OutOfPlaneVectorFieldCompIterator");
+  return nm;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 static const int rowset[] = { 0, 1, 2, 1, 0, 0 };
 static const int colset[] = { 0, 1, 2, 2, 2, 1 };
+
+const std::string &SymTensorIndex::classname() const {
+  static const std::string nm("SymTensorIndex");
+  return nm;
+}
+
+const std::string &OutOfPlaneSymTensorIndex::classname() const {
+  static const std::string nm("OutOfPlaneSymTensorIndex");
+  return nm;
+}
 
 int SymTensorIndex::row() const {
   return rowset[v];
@@ -63,6 +154,45 @@ void SymTensorIndex::set(const std::vector<int> *component) {
   v = ij2voigt((*component)[0], (*component)[1]);
 }
 
+SymTensorIterator::SymTensorIterator(int i, int j)
+  : v(SymTensorIndex::ij2voigt(i, j))
+{}
+
+bool SymTensorIterator::operator!=(const ComponentIterator &othr) const {
+  const SymTensorIterator &other =
+    dynamic_cast<const SymTensorIterator&>(othr);
+  return other.v != v;
+}
+
+const std::string &SymTensorIterator::classname() const {
+  static const std::string nm("SymTensorIterator");
+  return nm;
+}
+
+const std::string &SymTensorInPlaneIterator::classname() const {
+  static const std::string nm("SymTensorInPlaneIterator");
+  return nm;
+}
+
+const std::string &SymTensorOutOfPlaneIterator::classname() const {
+  static const std::string nm("SymTensorOutOfPlaneIterator");
+  return nm;
+}
+
+const std::string &OutOfPlaneSymTensorIterator::classname() const {
+  static const std::string nm("OutOfPlaneSymTensorIterator");
+  return nm;
+}
+
+IndexP SymTensorIterator::operator*() const {
+  return IndexP(new SymTensorIndex(v));
+}
+
+IndexP OutOfPlaneSymTensorIterator::operator*() const {
+  return IndexP(new OutOfPlaneSymTensorIndex(v));
+}
+
+// TODO PYTHON3: Get rid of this method.
 std::vector<int> *SymTensorIndex::getComponents() const {
   std::vector<int> *c = new std::vector<int>(2);
   (*c)[0] = rowset[v];
@@ -77,33 +207,20 @@ const std::string &SymTensorIndex::shortstring() const {
   return voigt[v];
 }
 
-std::ostream &operator<<(std::ostream &os, const FieldIndex &fi) {
-  fi.print(os);
-  return os;
-}
-
-void ScalarFieldIndex::print(std::ostream &os) const {
-  os << "ScalarFieldIndex()";
-}
-
-void VectorFieldIndex::print(std::ostream &os) const {
-  os << "VectorFieldIndex(" << index_ << ")";
-}
-
 void SymTensorIndex::print(std::ostream &os) const {
   os << "SymTensorIndex(" << row() << "," << col() << ")";
 }
 
-std::ostream &operator<<(std::ostream &os, const IndexP &ip) {
-  const FieldIndex &fi(ip);
-  os << "IndexP(" << fi << ")";
-  return os;
-}
+SymTensorIterator::SymTensorIterator(SpaceIndex i, SpaceIndex j)
+  : v(ij2voigt(i, j))
+{}
 
-IteratorP *getSymTensorIterator(Planarity planarity) {
-  if(planarity == IN_PLANE)
-    return new IteratorP(new SymTensorInPlaneIterator());
-  if(planarity == OUT_OF_PLANE)
-    return new IteratorP(new SymTensorOutOfPlaneIterator());
-  return new IteratorP(new SymTensorIterator());
-}
+
+
+// IteratorP *getSymTensorIterator(Planarity planarity) {
+//   if(planarity == IN_PLANE)
+//     return new IteratorP(new SymTensorInPlaneIterator());
+//   if(planarity == OUT_OF_PLANE)
+//     return new IteratorP(new SymTensorOutOfPlaneIterator());
+//   return new IteratorP(new SymTensorIterator());
+// }

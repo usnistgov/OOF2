@@ -152,6 +152,14 @@ public:
   double value(const FEMesh*, const PointData*, int component) const;
   double value(const FEMesh*, const ElementFuncNodeIterator&, int component)
     const;
+
+  // TODO: Add
+  // double value(const FEMesh*, const Element*, const MasterPosition&);
+  // double value(const FEMesh*, const Coord&);
+  // which will interpolate to the given position.  The second form
+  // will find the Element and MasterCoord and call the first
+  // form. This will be useful in Outputs, and maybe elsewhere.  See
+  // ThermalExpansion::output.
   
   virtual DegreeOfFreedom *operator()(const PointData*, int component) const=0;
   DegreeOfFreedom *operator()(const PointData &n, int component) const
@@ -181,8 +189,10 @@ public:
     return f1.index() == f2.index();
   }
 
-  virtual IteratorP iterator(Planarity) const = 0;
+  // virtual IteratorP iterator(Planarity) const = 0;
   virtual IndexP getIndex(const std::string&) const = 0;
+
+  virtual ComponentsP components(Planarity) const = 0;
 
   // Stuff required by fieldeqnlist.h templates, which handle Field
   // data that varies from Node to Node, such as specifying which
@@ -295,7 +305,8 @@ public:
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
 
-  virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
+  // virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
+  virtual ComponentsP components(Planarity=ALL_INDICES/*irrelevant*/) const;
   virtual IndexP getIndex(const std::string&) const;
   virtual const std::string &classname() const { return classname_; }
 };
@@ -330,7 +341,8 @@ public:
   virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
-  virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
+  // virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
+  virtual ComponentsP components(Planarity=ALL_INDICES/*irrelevant*/) const;
   virtual IndexP getIndex(const std::string&) const;
   virtual const std::string &classname() const { return classname_; }
 };
@@ -368,7 +380,8 @@ public:
   virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
-  virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
+  // virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
+  virtual Components components(Planarity=ALL_INDICES/*irrelevant*/) const;
   virtual IndexP getIndex(const std::string&) const;
 };
 
@@ -410,7 +423,8 @@ public:
   virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
-  virtual IteratorP iterator(Planarity) const;
+  // virtual IteratorP iterator(Planarity) const;
+  virtual Components components(Planarity) const;
   virtual IndexP getIndex(const std::string&) const;
 
   virtual const std::string &classname() const {

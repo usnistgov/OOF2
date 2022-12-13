@@ -311,8 +311,13 @@ void ScalarFieldBase::setValueFromOutputValue(FEMesh *mesh,
 }
 
 
-IteratorP ScalarFieldBase::iterator(Planarity) const {
-  return IteratorP(new ScalarFieldIterator);
+// IteratorP ScalarFieldBase::iterator(Planarity) const {
+//   return IteratorP(new ScalarFieldIterator);
+// }
+
+ComponentsP ScalarFieldBase::components(Planarity) const {
+  static const ScalarFieldComponents comps;
+  return ComponentsP(&comps);
 }
 
 IndexP ScalarFieldBase::getIndex(const std::string &) const {
@@ -421,8 +426,13 @@ void TwoVectorFieldBase::setValueFromOutputValue(
 //   return Coord(x->value(mesh), y->value(mesh));
 // }
 
-IteratorP TwoVectorFieldBase::iterator(Planarity) const {
-  return IteratorP(new VectorFieldIterator(0, 2));
+// IteratorP TwoVectorFieldBase::iterator(Planarity) const {
+//   return IteratorP(new VectorFieldIterator(0, 2));
+// }
+
+ComponentsP TwoVectorFieldBase::components(Planarity) const {
+  static VectorFieldComponents comps(2);
+  return ComponentsP(&comps);
 }
 
 IndexP TwoVectorFieldBase::getIndex(const std::string &str) const {
@@ -619,11 +629,11 @@ void SymmetricTensorField::setValueFromOutputValue(FEMesh* m,
   free(vvec);
 }
 
-IteratorP SymmetricTensorField::iterator(Planarity p) const {
-  // Weird but right -- getSymTensorIterator returns an IteratorP*,
-  // just dereference it to get what we want.
-  return *getSymTensorIterator(p);
-}
+// IteratorP SymmetricTensorField::iterator(Planarity p) const {
+//   // Weird but right -- getSymTensorIterator returns an IteratorP*,
+//   // just dereference it to get what we want.
+//   return *getSymTensorIterator(p);
+// }
 
 IndexP SymmetricTensorField::getIndex(const std::string& str) const {
   return IndexP(new SymTensorIndex(SymTensorIndex::str2voigt(str)));

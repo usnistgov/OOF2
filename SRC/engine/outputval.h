@@ -56,7 +56,7 @@ public:
   // getIndex converts the string representation of a component index
   // into an IndexP object that can be used to extract a component.
   virtual IndexP getIndex(const std::string&) const = 0;
-  virtual IteratorP getIterator() const = 0;
+  // virtual IteratorP getIterator() const = 0;
 
   friend class OutputValue;
 };
@@ -137,7 +137,7 @@ public:
   virtual double operator[](const IndexP&) const;
   virtual double &operator[](const IndexP&);
   virtual IndexP getIndex(const std::string&) const;
-  virtual IteratorP getIterator() const;
+  // virtual IteratorP getIterator() const;
   
   virtual void print(std::ostream&) const;
 };
@@ -208,7 +208,7 @@ public:
   virtual double operator[](const IndexP &p) const;
   virtual double &operator[](const IndexP &p);
   virtual IndexP getIndex(const std::string&) const;
-  virtual IteratorP getIterator() const;
+  // virtual IteratorP getIterator() const;
   virtual double magnitude() const;
   virtual void print(std::ostream&) const;
 };
@@ -249,7 +249,7 @@ public:
   double operator[](int i) const { return data[i]; }
   virtual double operator[](const IndexP &p) const;
   virtual double &operator[](const IndexP &p);
-  virtual IteratorP getIterator() const;
+  // virtual IteratorP getIterator() const;
   virtual IndexP getIndex(const std::string&) const;
   virtual std::vector<double> *value_list() const;
   virtual void print(std::ostream&) const;
@@ -279,7 +279,8 @@ public:
   ListOutputValIndex(const ListOutputValIndex &o)
     : max_(o.max_), index_(o.index_), ov_(o.ov_)
   {}
-  virtual FieldIndex *cloneIndex() const {
+  virtual const std::string &classname() const;
+  virtual FieldIndex *clone() const {
     return new ListOutputValIndex(*this);
   }
   virtual int integer() const { return index_; }
@@ -290,24 +291,25 @@ public:
 };
 
 
-class ListOutputValIterator : public ListOutputValIndex,
-				   public FieldIterator
-{
-public:
-  ListOutputValIterator(const ListOutputVal *ov)
-    : ListOutputValIndex(ov)
-  {}
-  ListOutputValIterator(const ListOutputValIterator &o)
-    : ListOutputValIndex(o)
-  {}
-  virtual void operator++() { index_++; }
-  virtual bool end() const { return index_ == max_; }
-  virtual void reset() { index_ = 0; }
-  virtual int size() const { return max_; }
-  virtual FieldIterator *cloneIterator() const {
-    return new ListOutputValIterator(*this);
-  }
-};
+// TODO PYTHON3: Use ComponentIterator?  Do we need this?
+// class ListOutputValIterator : public ListOutputValIndex,
+// 				   public FieldIterator
+// {
+// public:
+//   ListOutputValIterator(const ListOutputVal *ov)
+//     : ListOutputValIndex(ov)
+//   {}
+//   ListOutputValIterator(const ListOutputValIterator &o)
+//     : ListOutputValIndex(o)
+//   {}
+//   virtual void operator++() { index_++; }
+//   virtual bool end() const { return index_ == max_; }
+//   virtual void reset() { index_ = 0; }
+//   virtual int size() const { return max_; }
+//   virtual FieldIterator *cloneIterator() const {
+//     return new ListOutputValIterator(*this);
+//   }
+// };
 
 
 

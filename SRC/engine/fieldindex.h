@@ -15,6 +15,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "common/pythonexportable.h"
 #include "engine/indextypes.h"
 #include "engine/planarity.h"
 
@@ -26,13 +27,16 @@
 // choose the components of a Field, and because
 // 'FieldFluxEquationOrOtherIndexableObjectIndex' is too long.
 
-class FieldIterator;
+class FieldIterator;		//  obsolete?
+class Components; // iterator over the components of a Field, Flux or Equation
+class ComponentsP;	     // wrapper around a pointer to Components
 
-class FieldIndex {
+class FieldIndex : public PythonExportable<FieldIndex> {
 public:
   FieldIndex() {}
   virtual ~FieldIndex() { }
-  virtual FieldIndex *cloneIndex() const = 0; // create a copy
+  virtual FieldIndex *clone() const = 0; // create a copy
+
   // The possible values of the index must be ordered in some
   // (possibly arbitrary) way, so that, for example, the corresponding
   // degrees of freedom of a Field at a Node can be listed in order.
@@ -48,16 +52,18 @@ public:
   // outputval.h.
   virtual bool in_plane() const { return true; }
 
-  // Set the value of the index by passing in a vector of ints.
-  // Inefficient, but general.
-  virtual void set(const std::vector<int>*) = 0;
-  
+  // // Set the value of the index by passing in a vector of ints.
+  // // Inefficient, but general.
+  // virtual void set(const std::vector<int>*) = 0;
+
   // Return the value of the index as a vector of ints.  The vector
   // needs to be deleted by the caller.
-
   // TODO: getComponents() seems to be used only by SymmMatrix3Widget
   // (in ouptutvalwidgets.py) which could use something else.  It's
   // odd to require it in all subclasses if it's only used in one.
+  // getComponents returns a vector representation of the integer
+  // components of the iterator -- i for a vector, ij for a tensor,
+  // etc.
   virtual std::vector<int>* getComponents() const = 0;
 
   virtual void print(std::ostream &os) const = 0;
@@ -74,16 +80,15 @@ bool operator==(const FieldIndex&, const FieldIndex&);
 // The ScalarFieldIndex has no value, which is not to say that it is
 // worthless.  It just doesn't do anything.
 
-class ScalarFieldIndex : virtual public FieldIndex {
+class ScalarFieldIndex : public FieldIndex {
 public:
   ScalarFieldIndex() {}
   virtual ~ScalarFieldIndex() {}
-  virtual FieldIndex *cloneIndex() const {
-    return new ScalarFieldIndex;
-  }
+  virtual const std::string &classname() const;
+  virtual FieldIndex *clone() const { return new ScalarFieldIndex; }
   virtual int integer() const { return 0; }
   virtual bool in_plane() const { return true; }
-  virtual void set(const std::vector<int>*) {}
+  // virtual void set(const std::vector<int>*) {}
   virtual std::vector<int> *getComponents() const; // returns a zero-length vector
   virtual void print(std::ostream&) const;
   virtual const std::string &shortstring() const;
@@ -92,7 +97,7 @@ public:
 
 // The VectorFieldIndex stores a single int.
 
-class VectorFieldIndex : virtual public FieldIndex {
+class VectorFieldIndex : public FieldIndex {
 protected:
   int index_;
 public:
@@ -100,14 +105,16 @@ public:
   VectorFieldIndex(SpaceIndex i) : index_(i) {}
   VectorFieldIndex(const VectorFieldIndex &o) : index_(o.index_) {}
   virtual ~VectorFieldIndex() {}
-  virtual FieldIndex *cloneIndex() const { return new VectorFieldIndex(*this); }
+  virtual const std::string &classname() const;
+  virtual FieldIndex *clone() const { return new VectorFieldIndex(*this); }
   virtual int integer() const { return index_; }
   virtual bool in_plane() const { return index_ < 2; }
-  virtual void set(const std::vector<int>*);
-  void set(int);
+  // virtual void set(const std::vector<int>*);
+  // void set(int);
   virtual std::vector<int> *getComponents() const;
   virtual void print(std::ostream&) const;
   virtual const std::string &shortstring() const;
+  friend class VectorFieldCompIterator;
 };
 
 // The OutOfPlaneVectorFieldIndex is a VectorFieldIndex that only
@@ -119,8 +126,9 @@ class OutOfPlaneVectorFieldIndex : public VectorFieldIndex {
 public:
   OutOfPlaneVectorFieldIndex() : VectorFieldIndex(2) {}
   OutOfPlaneVectorFieldIndex(SpaceIndex i) : VectorFieldIndex(i) {}
+  virtual const std::string &classname() const;
   virtual int integer() const { return index_ - 2; }
-  virtual FieldIndex *cloneIndex() const {
+  virtual FieldIndex *clone() const {
     return new OutOfPlaneVectorFieldIndex(*this);
   }
 };
@@ -137,22 +145,26 @@ public:
 //  2 1  3
 //  2 2  2
 
-class SymTensorIndex : virtual public FieldIndex {
+// TODO: Use a separate variety of IndexType for a Voigt index?  Get
+// rid of IndexType completely and just use int?
+
+class SymTensorIndex : public FieldIndex {
 protected:
   int v;			// voigt index
 public:
   SymTensorIndex() : v(0) {}
-  SymTensorIndex(SpaceIndex i) : v(i) {}
+  SymTensorIndex(int i) : v(i) {}
   SymTensorIndex(SpaceIndex i, SpaceIndex j) : v(i==j? int(i) : int(6-i-j)) {}
   SymTensorIndex(const SymTensorIndex &o) : v(o.v) {}
   virtual ~SymTensorIndex() {}
-  virtual FieldIndex *cloneIndex() const { return new SymTensorIndex(*this); }
+  virtual const std::string &classname() const;
+  virtual FieldIndex *clone() const { return new SymTensorIndex(*this); }
   virtual int integer() const { return v; }
   int row() const;		// i
   int col() const;		// j
   bool diagonal() const { return v < 3; }
   virtual bool in_plane() const { return v < 2 || v == 5; }
-  virtual void set(const std::vector<int>*);
+  // virtual void set(const std::vector<int>*);
   virtual std::vector<int> *getComponents() const;	// returns new vector
   virtual void print(std::ostream&) const;
   static int ij2voigt(int i, int j) { return ( i==j ? i : 6-i-j ); }
@@ -171,7 +183,8 @@ public:
   OutOfPlaneSymTensorIndex() : SymTensorIndex(2) {}
   OutOfPlaneSymTensorIndex(SpaceIndex i) : SymTensorIndex(i) {}
   OutOfPlaneSymTensorIndex(SpaceIndex i, SpaceIndex j) : SymTensorIndex(i,j) {}
-  virtual FieldIndex *cloneIndex() const {
+  virtual const std::string &classname() const;
+  virtual FieldIndex *clone() const {
     return new OutOfPlaneSymTensorIndex(*this);
   }
   virtual int integer() const { return v - 2; }
@@ -187,15 +200,15 @@ protected:
   FieldIndex *fieldindex;
 public:
   IndexP(FieldIndex *i) : fieldindex(i) {}
-  IndexP(const IndexP &o) : fieldindex(o.fieldindex->cloneIndex()) {}
-  virtual ~IndexP() { delete fieldindex; }
+  IndexP(const IndexP &o) : fieldindex(o.fieldindex->clone()) {}
+  ~IndexP() { delete fieldindex; }
   int integer() const { return fieldindex->integer(); }
   bool in_plane() const { return fieldindex->in_plane(); }
   operator const FieldIndex&() const { return *fieldindex; }
-  IndexP cloneIndex() const {
-    return IndexP(fieldindex->cloneIndex());
+  IndexP clone() const {
+    return IndexP(fieldindex->clone());
   }
-  void set(const std::vector<int> *comps) { fieldindex->set(comps); }
+  // void set(const std::vector<int> *comps) { fieldindex->set(comps); }
   std::vector<int> *getComponents() const { // returns new vector
     return fieldindex->getComponents();
   }
@@ -208,120 +221,369 @@ std::ostream &operator<<(std::ostream &, const IndexP&);
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// A FieldIterator is a FieldIndex that can be incremented, so it can
-// loop over all possible values of the index.  The reason that we
-// need separate FieldIterator and FieldIndex classes is that the
-// Iterators can have different flavors for iterating over subsets of
-// the possible Index values.  In particular, there are in-plane and
-// out-of-plane iterators whose constructors take a Planarity
-// argument.  We don't always know the planarity in circumstances
-// where we need an Index, but we have to know it when we need an
-// Iterator.
+// Components and ComponentIterators.
 
-// Both FieldIndex and FieldIterator need clone() functions, but they
-// return different types so they must have different names (since
-// FieldIterator is derived from FieldIndex).  A happy side effect is
-// that it's possible to call FieldIterator::cloneIndex() to get an
-// independent FieldIndex object containing the current state of the
-// FieldIterator.
+// A Components object holds the indices of the components of a Field,
+// Flux, or Equation. There are different subclasses for different
+// kinds of Fields, Fluxes, and Equations (scalar, vector, etc).
 
+// A ComponentIterator is used to iterate over the indices stored in
+// the Components.  The indices don't have to be stored explicitly --
+// they can be generate on the fly.
 
-class FieldIterator : virtual public FieldIndex {
+class ComponentIterator : public PythonExportable<ComponentIterator> {
 public:
-  FieldIterator() {}
-  virtual ~FieldIterator() {}
-  virtual void operator++() = 0; // go to next FieldIndex value
-  virtual bool end() const = 0;	// are we there yet?
-  virtual void reset() = 0;
-  virtual int size() const = 0; // number of entries being iterated over
-  virtual FieldIterator *cloneIterator() const = 0;
+  virtual ~ComponentIterator() {}
+  virtual bool operator!=(const ComponentIterator&) const = 0;
+  virtual ComponentIterator& operator++() = 0;
+  virtual IndexP operator*() const = 0;
+  virtual ComponentIterator *clone() const = 0;
 };
 
-class ScalarFieldIterator : public ScalarFieldIndex, public FieldIterator
-{
+class ComponentIteratorP {
+private:
+  ComponentIterator *iter;
+public:
+  ComponentIteratorP(ComponentIterator *iter)
+    : iter(iter)
+  {}
+  ~ComponentIteratorP() {
+    if(iter)
+      delete iter;
+  }
+  ComponentIteratorP(ComponentIteratorP &&other)
+    : iter(other.iter)
+  {
+    other.iter = 0; // move constructor takes ownership of the pointer
+  }
+  ComponentIteratorP(const ComponentIteratorP &other)
+    : iter(other.iter->clone())
+  {}
+  bool operator!=(const ComponentIteratorP &other) const {
+    return *iter != *other.iter;
+  }
+  ComponentIteratorP& operator++() {
+    ++iter;
+    return *this;
+  }
+  ComponentIteratorP operator++(int) { // postfix
+    ComponentIteratorP tmp(*this);
+    operator++();
+    return tmp;
+  }
+  IndexP operator*() const {
+    return **iter;
+  }
+};
+
+class Components : public PythonExportable<Components> {
+public:
+  virtual ~Components() {}
+  // Nothing can change the Components object, so begin() and end()
+  // are const.
+  virtual ComponentIteratorP begin() const = 0;
+  virtual ComponentIteratorP end() const = 0;
+};
+
+class ComponentsP {
+private:
+  Components *components;
+public:
+  ComponentsP(Components *c) : components(c) {}
+  ComponentIteratorP begin() const { return components->begin(); }
+  ComponentIteratorP end() const { return components->end(); }
+};
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// // A FieldIterator is a FieldIndex that can be incremented, so it can
+// // loop over all possible values of the index.  The reason that we
+// // need separate FieldIterator and FieldIndex classes is that the
+// // Iterators can have different flavors for iterating over subsets of
+// // the possible Index values.  In particular, there are in-plane and
+// // out-of-plane iterators whose constructors take a Planarity
+// // argument.  We don't always know the planarity in circumstances
+// // where we need an Index, but we have to know it when we need an
+// // Iterator.
+
+// class FieldIterator : virtual public FieldIndex { 
+// public:
+//   FieldIterator() {}
+//   virtual ~FieldIterator() {}
+//   virtual void operator++() = 0; // go to next FieldIndex value
+//   virtual bool end() const = 0;	// are we there yet?
+//   virtual void reset() = 0;
+//   virtual int size() const = 0; // number of entries being iterated over
+// };
+
+// class ScalarFieldIterator : public ScalarFieldIndex, public FieldIterator
+// {
+// private:
+//   bool done;
+// public:
+//   ScalarFieldIterator() : done(false) {}
+//   ScalarFieldIterator(const ScalarFieldIterator &o) : done(o.done) {}
+//   virtual ~ScalarFieldIterator() {}
+//   virtual void operator++() { done = true; }
+//   virtual bool end() const { return done; }
+//   virtual void reset() { done = false; }
+ //   virtual int size() const { return 1; }
+// };
+
+class ScalarFieldCompIterator : public ComponentIterator {
 private:
   bool done;
 public:
-  ScalarFieldIterator() : done(false) {}
-  ScalarFieldIterator(const ScalarFieldIterator &o) : done(o.done) {}
-  virtual ~ScalarFieldIterator() {}
-  virtual void operator++() { done = true; }
-  virtual bool end() const { return done; }
-  virtual void reset() { done = false; }
-  virtual int size() const { return 1; }
-  virtual FieldIterator *cloneIterator() const {
-    return new ScalarFieldIterator(*this);
+  ScalarFieldCompIterator(bool done=false) : done(done) {}
+  virtual const std::string &classname() const;
+  virtual ScalarFieldCompIterator &operator++();
+  virtual bool operator!=(const ComponentIterator&) const;
+  virtual IndexP operator*() const;
+  virtual ComponentIterator *clone() const {
+    return new ScalarFieldCompIterator(*this);
   }
 };
 
-class VectorFieldIterator : public VectorFieldIndex, public FieldIterator
-{
-private:
-  int max;
-  int start;
+class ScalarFieldComponents : public Components {
 public:
-  VectorFieldIterator() : max(3), start(0) {}
-  VectorFieldIterator(int i, int dim=3)
-    : VectorFieldIndex(i), max(dim), start(i)
+  typedef ScalarFieldCompIterator iterator;
+  typedef ScalarFieldCompIterator const_iterator;
+  virtual ComponentIteratorP begin() const {
+    return ComponentIteratorP(new ScalarFieldCompIterator(false)); 
+  }
+  virtual ComponentIteratorP end() const {
+    return ComponentIteratorP(new ScalarFieldCompIterator(true)); 
+  }
+};
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+class VectorFieldCompIterator : public ComponentIterator {
+protected:
+  SpaceIndex index, imax;
+public:
+  VectorFieldCompIterator(SpaceIndex imin, SpaceIndex imax)
+    : index(imin), imax(imax)
   {}
-  VectorFieldIterator(const VectorFieldIterator &o)
-    :  VectorFieldIndex(o), max(o.max), start(o.start)
-  {}
-  virtual ~VectorFieldIterator() {}
-  virtual void operator++() { index_++; }
-  virtual bool end() const { return index_ >= max; }
-  virtual void reset() { index_ = start; }
-  virtual int size() const { return max; }
-  virtual FieldIterator *cloneIterator() const {
-    return new VectorFieldIterator(*this);
+  virtual const std::string &classname() const;
+  virtual VectorFieldCompIterator &operator++() {
+    ++index;
+    return *this;
+  }
+  virtual bool operator!=(const ComponentIterator&) const;
+  virtual IndexP operator*() const {
+    return IndexP(new VectorFieldIndex(index));
+  }
+  virtual ComponentIterator *clone() const {
+    return new VectorFieldCompIterator(*this);
   }
 };
 
-class OutOfPlaneVectorFieldIterator
-  : public OutOfPlaneVectorFieldIndex, public FieldIterator
-{
-private:
-  int max;
+class VectorFieldComponents : public Components {
+protected:
+  SpaceIndex imax;
 public:
-  OutOfPlaneVectorFieldIterator() : max(3) {}
-  virtual ~OutOfPlaneVectorFieldIterator() {}
-  virtual void operator++() { index_++; }
-  virtual bool end() const { return index_ >= max; }
-  virtual void reset() { index_ = 0; }
-  virtual int size() const { return max; }
-  virtual FieldIterator *cloneIterator() const {
-    return new OutOfPlaneVectorFieldIterator(*this);
+  typedef VectorFieldCompIterator iterator;
+  typedef VectorFieldCompIterator const_iterator;
+  VectorFieldComponents(SpaceIndex imax) : imax(imax) {}
+  virtual ComponentIteratorP begin() const {
+    return ComponentIteratorP(new VectorFieldCompIterator(0, imax));
+  }
+  virtual ComponentIteratorP end() const {
+    return ComponentIteratorP(new VectorFieldCompIterator(imax, imax));
   }
 };
 
-
-class SymTensorIterator : public SymTensorIndex, public FieldIterator {
+class OutOfPlaneVectorFieldComponents : public Components {
+protected:
+  SpaceIndex imax;
 public:
-  SymTensorIterator() {}
-  SymTensorIterator(SpaceIndex i) : SymTensorIndex(i) {}
-  SymTensorIterator(SpaceIndex i, SpaceIndex j) : SymTensorIndex(i, j) {}
-  virtual ~SymTensorIterator() {}
-  virtual void operator++() { v++; }
-  virtual bool end() const { return v > 5; }
-  virtual void reset() { v = 0; }
-  virtual int size() const { return 6; }
-  virtual FieldIterator *cloneIterator() const {
+  typedef VectorFieldCompIterator iterator;
+  typedef VectorFieldCompIterator const_iterator;
+  OutOfPlaneVectorFieldComponents(SpaceIndex imax): imax(imax) {}
+  virtual ComponentIteratorP begin() const {
+    return ComponentIteratorP(new VectorFieldCompIterator(2, imax));
+  }
+  virtual ComponentIteratorP end() const {
+    return ComponentIteratorP(new VectorFieldCompIterator(imax, imax));
+  }
+};
+
+// class VectorFieldIterator : public VectorFieldIndex, public FieldIterator 
+// {
+// private:
+//   int max;
+//   int start;
+// public:
+//   VectorFieldIterator() : max(3), start(0) {}
+//   VectorFieldIterator(int i, int dim=3)
+//     : VectorFieldIndex(i), max(dim), start(i)
+//   {}
+//   VectorFieldIterator(const VectorFieldIterator &o)
+//     :  VectorFieldIndex(o), max(o.max), start(o.start)
+//   {}
+//   virtual ~VectorFieldIterator() {}
+//   virtual void operator++() { index_++; }
+//   virtual bool end() const { return index_ >= max; }
+//   virtual void reset() { index_ = start; }
+//   virtual int size() const { return max; }
+// };
+
+
+// class OutOfPlaneVectorFieldIterator  
+//   : public OutOfPlaneVectorFieldIndex, public FieldIterator
+// {
+// private:
+//   int max;
+// public:
+//   OutOfPlaneVectorFieldIterator() : max(3) {}
+//   virtual ~OutOfPlaneVectorFieldIterator() {}
+//   virtual void operator++() { index_++; }
+//   virtual bool end() const { return index_ >= max; }
+//   virtual void reset() { index_ = 0; }
+//   virtual int size() const { return max; }
+// };
+
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// 3x3 Symmetric tensor field components and iterators.  There are
+// different varieties for different planarities.
+
+// SymTensorComponents contains all components, or just the in-plane
+// or just the out-of-plane components of a SymmetricTensor Field
+// (according to the Planarity argument).  The field has components
+// xx, yy, zz, yz, xz, xy, numbered 0-5.
+
+// SymTensorInPlaneComponents contains only the in-plane components of
+// a symmetric tensor field.  The components are xx, yy, and xy,
+// numbered 0, 1, and 5.  The field has out-of-plane components, but
+// they're not iterated over.
+
+// SymTensorOutOfPlaneComponents contains the out-of-plane components
+// of a symmetric tensor field.  The components are zz, yz, and xz,
+// and are numbered 2, 3, and 4.  The field has in-plane components,
+// but they aren't iterated over.
+
+// OutOfPlaneSymTensorComponents contains the components of a
+// out-of-plane symmetric tensor field.  The field has components zz,
+// yz, and xz, numbered 0, 1, and 2.  The *field* has no in-plane
+// components.
+
+class SymTensorIterator : public ComponentIterator {
+protected:
+  int v;
+public:
+  SymTensorIterator(int v) : v(v) {} // arg is the initial voigt index
+  SymTensorIterator(int i, int j);
+  const std::string& classname() const;
+  SymTensorIterator &operator++() { v++; return *this; }
+  virtual bool operator!=(const ComponentIterator &) const;
+  virtual IndexP operator*() const;
+  virtual ComponentIterator *clone() const {
     return new SymTensorIterator(*this);
   }
 };
 
-
 class SymTensorInPlaneIterator : public SymTensorIterator {
 public:
-  SymTensorInPlaneIterator() {}
-  SymTensorInPlaneIterator(int i) : SymTensorIterator(i) {}
-  virtual ~SymTensorInPlaneIterator() {}
-  virtual void operator++() { v++; if(v == 2) v = 5; }
-  virtual FieldIterator *cloneIterator() const {
+  SymTensorInPlaneIterator(int v) : SymTensorIterator(v) {}
+  SymTensorInPlaneIterator(int i, int j) : SymTensorIterator(i, j) {}
+  const std::string& classname() const;
+  SymTensorInPlaneIterator &operator++() {
+    v++;
+    if(v == 2) v = 5;
+    return *this;
+  }
+  virtual ComponentIterator *clone() const {
     return new SymTensorInPlaneIterator(*this);
   }
-  virtual int size() const { return 3; }
 };
+
+class SymTensorOutOfPlaneIterator : public SymTensorIterator {
+public:
+  SymTensorOutOfPlaneIterator(int v) : SymTensorIterator(v) {}
+  SymTensorOutOfPlaneIterator(int i, int j) : SymTensorIterator(i, j) {}
+  virtual const std::string& classname() const;
+  SymTensorOutOfPlaneIterator &operator++() { v++; return *this; }
+  virtual int integer() const { return v; }
+  virtual ComponentIterator *clone() const {
+    return new SymTensorOutOfPlaneIterator(*this);
+  }
+};
+
+class OutOfPlaneSymTensorIterator : public SymTensorOutOfPlaneIterator {
+public:
+  OutOfPlaneSymTensorIterator(int v) : SymTensorOutOfPlaneIterator(v) {}
+  OutOfPlaneSymTensorIterator(int i, int j):SymTensorOutOfPlaneIterator(i, j){}
+  virtual const std::string &classname() const; 
+  virtual int integer() const { return v - 2; }
+  virtual ComponentIterator *clone() const {
+    return new OutOfPlaneSymTensorIterator(*this);
+  }
+};
+
+class SymTensorComponents : public Components {
+public:
+  virtual ComponentIteratorP begin() const {
+    return ComponentIteratorP(new SymTensorIterator(0));
+  }
+  virtual ComponentIteratorP end() const {
+    return ComponentIteratorP(new SymTensorIterator(6));
+  }
+};
+
+class SymTensorInPlaneComponents : public Components {
+public:
+  virtual ComponentIteratorP begin() const {
+    return ComponentIteratorP(new SymTensorInPlaneIterator(0));
+  }
+  virtual ComponentIteratorP end() const {
+    return ComponentIteratorP(new SymTensorInPlaneIterator(6));
+  }
+};
+
+class OutOfPlaneSymTensorComponents : public Components {
+public:
+  virtual ComponentIteratorP begin() const {
+    return ComponentIteratorP(new OutOfPlaneSymTensorIterator(2));
+  }
+  virtual ComponentIteratorP end() const {
+    return ComponentIteratorP(new OutOfPlaneSymTensorIterator(5));
+  }
+};
+
+class SymTensorOutOfPlaneComponents : public Components {
+public:
+  virtual ComponentIteratorP begin() const {
+    return ComponentIteratorP(new SymTensorOutOfPlaneIterator(2));
+  }
+  virtual ComponentIteratorP end() const {
+    return ComponentIteratorP(new SymTensorOutOfPlaneIterator(5));
+  }
+};
+
+// class SymTensorIterator : public SymTensorIndex, public FieldIterator {
+// public:
+//   SymTensorIterator() {}
+//   SymTensorIterator(SpaceIndex i) : SymTensorIndex(i) {}
+//   SymTensorIterator(SpaceIndex i, SpaceIndex j) : SymTensorIndex(i, j) {}
+//   virtual ~SymTensorIterator() {}
+//   virtual void operator++() { v++; }
+//   virtual bool end() const { return v > 5; }
+//   virtual void reset() { v = 0; }
+//   virtual int size() const { return 6; }
+// };
+
+
+// class SymTensorInPlaneIterator : public SymTensorIterator { 
+// public:
+//   SymTensorInPlaneIterator() {}
+//   SymTensorInPlaneIterator(int i) : SymTensorIterator(i) {}
+//   virtual ~SymTensorInPlaneIterator() {}
+//   virtual void operator++() { v++; if(v == 2) v = 5; }
+//   virtual int size() const { return 3; }
+// };
 
 // The SymTensorOutOfPlaneIterator loops over the out-of-plane
 // components of a SymTensorIndex.  This is different than looping
@@ -329,74 +591,67 @@ public:
 // integer() functions return different values.  That is, this
 // iterator loops over zz, yz, and xz, giving them integer values 2,
 // 3, and 4.
-class SymTensorOutOfPlaneIterator : public SymTensorIterator {
-public:
-  SymTensorOutOfPlaneIterator() : SymTensorIterator(2) {}
-  SymTensorOutOfPlaneIterator(int i) : SymTensorIterator(i) {}
-  virtual ~SymTensorOutOfPlaneIterator() {}
-  virtual void operator++() { v++; }
-  bool end() const { return v > 4; }
-  virtual int size() const { return 3; }
-  virtual FieldIterator *cloneIterator() const {
-    return new SymTensorOutOfPlaneIterator(*this);
-  }
-};
+
+// class SymTensorOutOfPlaneIterator : public SymTensorIterator {
+// public:
+//   SymTensorOutOfPlaneIterator() : SymTensorIterator(2) {}
+//   SymTensorOutOfPlaneIterator(int i) : SymTensorIterator(i) {}
+//   virtual ~SymTensorOutOfPlaneIterator() {}
+//   virtual void operator++() { v++; }
+//   bool end() const { return v > 4; }
+//   virtual int size() const { return 3; }
+// };
 
 // The OutOfPlaneSymTensorIterator loops over all the components of a
 // OutOfPlaneSymTensorIndex: zz, yz, xz, with integer values 0, 1, 2.
-class OutOfPlaneSymTensorIterator
-  : public OutOfPlaneSymTensorIndex, public FieldIterator
-{
-public:
-  virtual ~OutOfPlaneSymTensorIterator() {}
-  virtual void operator++() { v++; }
-  virtual bool end() const { return v > 4; }
-  virtual void reset() { v = 0; }
-  virtual int size() const { return 3; }
-  virtual FieldIterator *cloneIterator() const {
-    return new OutOfPlaneSymTensorIterator(*this);
-  }
-};
 
-// Wrapper class so that Fluxes and Fields can return an appropriate
-// type of iterator, other classes don't have to worry about
-// deallocating it, and the virtual functions still work.
+// class OutOfPlaneSymTensorIterator 
+//   : public OutOfPlaneSymTensorIndex, public FieldIterator
+// {
+// public:
+//   virtual ~OutOfPlaneSymTensorIterator() {}
+//   virtual void operator++() { v++; }
+//   virtual bool end() const { return v > 4; }
+//   virtual void reset() { v = 0; }
+//   virtual int size() const { return 3; }
+// };
 
-class IteratorP : public IndexP {
-private:
-  // IndexP already stores a pointer to the underlying FieldIndex,
-  // which is a base class of the underlying FieldIterator.  So
-  // there's no need to store it again -- just cast it to the derived
-  // class when it's needed.  Whoops -- that's too slow! Store it instead.
-  FieldIterator *fi_;
-  FieldIterator *fielditerator() {  return fi_; }
-  const FieldIterator *fielditerator() const { return fi_; }
-public:
-  IteratorP(FieldIterator *i)
-    : IndexP(i),
-      fi_(dynamic_cast<FieldIterator*>(i))
-  {}
-  // The copy constructor needs to create a copy of the underlying
-  // FieldIterator object.  If we naively used the IndexP copy
-  // constructor, we'll get only the FieldIndex part of the
-  // FieldIterator.
-  IteratorP(const IteratorP &o)
-    : IndexP(o.fi_->cloneIterator())
-  {
-    fi_ = dynamic_cast<FieldIterator*>(fieldindex);
-  }
-  virtual ~IteratorP() {}
-  operator const FieldIndex*() const { return fieldindex; }
-  operator const FieldIterator*() const { return fi_; }
-  inline void operator++() { fi_->operator++(); }
-  inline bool end() const { return fi_->end(); }
-  inline void reset() { fi_->reset(); }
-  inline int size() const { return fi_->size(); }
-  IteratorP cloneIterator() const {
-    return IteratorP(fi_->cloneIterator());
-  }
-};
+// // Wrapper class so that Fluxes and Fields can return an appropriate
+// // type of iterator, other classes don't have to worry about
+// // deallocating it, and the virtual functions still work.
 
-IteratorP *getSymTensorIterator(Planarity);
+// class IteratorP : public IndexP { 
+// private:
+//   // IndexP already stores a pointer to the underlying FieldIndex,
+//   // which is a base class of the underlying FieldIterator.  So
+//   // there's no need to store it again -- just cast it to the derived
+//   // class when it's needed.  Whoops -- that's too slow! Store it instead.
+//   FieldIterator *fi_;
+//   FieldIterator *fielditerator() {  return fi_; }
+//   const FieldIterator *fielditerator() const { return fi_; }
+// public:
+//   IteratorP(FieldIterator *i)
+//     : IndexP(i),
+//       fi_(dynamic_cast<FieldIterator*>(i))
+//   {}
+//   // The copy constructor needs to create a copy of the underlying
+//   // FieldIterator object.  If we naively used the IndexP copy
+//   // constructor, we'll get only the FieldIndex part of the
+//   // FieldIterator.
+//   IteratorP(const IteratorP &o)
+//     : IndexP(o.fi_->cloneIterator())
+//   {
+//     fi_ = dynamic_cast<FieldIterator*>(fieldindex);
+//   }
+//   virtual ~IteratorP() {}
+//   operator const FieldIndex*() const { return fieldindex; }
+//   operator const FieldIterator*() const { return fi_; }
+//   inline void operator++() { fi_->operator++(); }
+//   inline bool end() const { return fi_->end(); }
+//   inline void reset() { fi_->reset(); }
+//   inline int size() const { return fi_->size(); }
+// };
+
+// IteratorP *getSymTensorIterator(Planarity);
 
 #endif // FIELDINDEX_H

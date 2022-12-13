@@ -144,6 +144,8 @@ void ThermalExpansion::output(FEMesh *mesh,
     // Compute alpha*T with T interpolated to position pos
     //* TODO: This is baroque and may be slow.  Make a specialized
     //* function for getting the value of a scalar field.
+    //* See TODO in field.h.
+   
     const OutputValue tfield = element->outputField(mesh, *temperature, pos);
     const ScalarOutputVal *tval =
       dynamic_cast<const ScalarOutputVal*>(tfield.valuePtr());

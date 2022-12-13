@@ -388,9 +388,9 @@ std::vector<double> *ListOutputVal::value_list() const {
   return res;
 }
 
-IteratorP ListOutputVal::getIterator() const {
-  return IteratorP(new ListOutputValIterator(this));
-}
+// IteratorP ListOutputVal::getIterator() const {
+//   return IteratorP(new ListOutputValIterator(this));
+// }
 
 IndexP ListOutputVal::getIndex(const std::string &s) const {
   for(int i=0; i<size(); i++) {
@@ -398,6 +398,11 @@ IndexP ListOutputVal::getIndex(const std::string &s) const {
       return IndexP(new ListOutputValIndex(this, i));
   }
   throw ErrProgrammingError("Bad index '" + s + "'", __FILE__, __LINE__);
+}
+
+const std::string& ListOutputValIndex::classname() const {
+  static const std::string nm("ListOutputValIndex");
+  return nm;
 }
 
 void ListOutputValIndex::set(const std::vector<int> *vals) {

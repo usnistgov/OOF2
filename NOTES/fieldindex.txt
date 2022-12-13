@@ -1,0 +1,165 @@
+Thoughts on reworking the FieldIndex class and its relatives.  Mostly
+its relatives.
+
+The problem is that iterating over the components of a Field, Flux, or
+Equation with the current classes is clumsy, especially in Python.
+
+Some Output code needs to evaluate a Field at a point, but we almost
+never use the FieldIndex directly to extract the value of a component.
+More often it's used to compute a matrix row or column number.  That's
+not really relevant here, but I spent too long looking for cases where
+FieldIndex was being used to get a component.
+
+An example, from elasticity.C.  We currently have code like this:
+
+Iterator ell = displacement->iterator();
+for(SymTensorIterator ij; !ij.end(); ++ij) {
+  for(; !ell.end(); ++ell) {
+     // do something with ell and ij
+  }
+  ell.reset();
+}
+
+This would be better with real iterators:
+
+for(auto ij=flux->components().begin(); ij!=flux->components().end(); ++ij) {
+  for(auto ell=disp->components().begin(); ell!=disp->components().end(); ++ell)
+    // (abbreviated "displacement" to make the line fit my editor window)
+    ...
+
+or even better:
+
+for(auto ij : flux->components())
+  for(auto ell : displacement->components())
+    ...
+
+
+We can keep the existing FieldIndex classes for subscripting different
+kinds of fields.  (Renaming FieldIndex to "Component" might make
+sense, but that might also be confusing -- is field[i] the component
+or is i the component?)
+
+TODO: Get rid of FieldIndex::set().  It seems to be used only in
+largestrain.C, in a spot where iterators could be used instead.  In
+any case, if the constructor can take a value we don't need set(), eg
+   VectorFieldIndex k(2);
+instead of
+   VectorFieldIndex k;
+   k.set(2);
+
+NEW: Give every Field/Equation/Flux subclass a components() method,
+which returns an object of a Components class. Field::components()
+takes an optional Planarity argument.
+
+NEW: Components objects are iterable.  In C++ they have begin(), end()
+methods, which return a ComponentIterator, which has operator++ and
+operator* and whatever else iterators need (operator!=, I think).
+They will act like STL iterators, so we can write:
+
+for(auto component : field.components()) {
+    IndexP i = *component;
+    ...
+}
+
+or
+
+for(auto c=field.components().begin(); c<field.components().end(); c++) {
+  IndexP i = *c;
+  ...
+}
+
+The advantage of a separate Components class is the subclasses can
+have begin(), end(), and operator++ methods, so that they can be used
+in for loops and range-based for loops:
+
+    for(FieldIndex i : field->components(INPLANE)) { ... }
+
+If there were no distinction between Field and Components classes,
+we couldn't pass a planarity argument to the iterator.  For purely
+theoretical reasons, I like making the Field object different from the
+set of Components that can be used to index it.  In principle, we
+could fold the Components functionality into Field (making it more
+like the current scheme) but we'd have to pass the Planarity argument
+to the begin() and end() methods, which I think would break the
+range-based for loops (which implicitly call begin() and end()).
+
+The Field classes might have static instances of their Components
+objects, which can be returned by Field::components(Planarity).  That
+would reduce the overhead in the components() function calls in
+
+for(auto ij=field.components().begin(); ij!=field.components().end(); ij++)
+
+Components::begin() and Components::end() will have to allocate a
+lightweight object, but that's inevitable.
+
+Unlike the old FieldIterator, ComponentIterator is not derived from
+FieldIndex. (That relationship made it hard to construct the python
+iterators properly.)  An advantage of this is that it means that we
+don't need to use virtual inheritance in the C++ classes.
+PythonExportable doesn't work with virtual inheritance.
+
+We will still need generic wrappers, like the old IndexP and IteratorP
+classes, for the same reason as before -- so that we can call virtual
+functions through a base class pointer and delete the pointers
+automatically.  We often only have a base class Field pointer, so
+Field::components() needs to return a base class Components pointer.
+We can't return a base class Components *object*.  The base class
+Components pointer needs to be contained in a ComponentsP object,
+which can then call the virtual Components methods through the base
+class pointer, and can delete the pointer when done.
+
+Then can write completely generic code:
+
+for(ComponentIteratorP iter=field->components().begin();
+                       iter!=field->components().end(); iter++)
+{
+  IndexP i = *iter;
+  ...
+}
+
+or
+
+for(ComponentIteratorP iter : field->components()) {
+  IndexP i = *iter;
+  ...
+}
+
+Subclasses of Components and ComponentIterator might be templated in
+C++ with the corresponding FieldIndex subclass, if that's useful.
+
+--------
+
+FieldIndex, Components (maybe?), and ComponentIterator should be
+derived from PythonExportable.  Methods like SymmMatrix.__getitem__
+would expect a FieldIndex of the correct type, and could use derived
+class methods.
+
+In Python, the PythonExportable FieldIndex and ComponentIterator
+classes can be used directly, without needing to swig IndexP,
+ComponentP, or ComponentIteratorP.
+
+The ComponentIterator will have __iter__ and __next__ methods to
+enable us to write:
+
+for i in field.components():
+    etc
+
+or:
+
+names = [comp.shortstring() for comp in flux.divergence_components(planarity)]
+
+instead of the current
+
+names = []
+it = flux.iterator(planarity)
+while not it.end():
+   names.append(it.shortstring())
+   it.increment()
+
+(copied with some simplification from various methods in outputClones.py)
+
+Components.__iter__ will return a ComponentIterator.
+ComponentIterator.__iter__ could be a generator function that returns
+a series of FieldIndex objects, or it could return self, and
+ComponentIterator.__next__ could return a FieldIndex.
+

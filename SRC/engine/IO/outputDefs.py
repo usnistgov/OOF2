@@ -37,9 +37,9 @@ from ooflib.engine.IO import propertyoutputreg
 
 Displacement = field.getField("Displacement")
 iter = Displacement.iterator(planarity.IN_PLANE)
-disp0 = iter.cloneIndex()
+disp0 = iter.clone()
 iter.increment()
-disp1 = iter.cloneIndex()
+disp1 = iter.clone()
 
 displacementFieldOutput = outputClones.FieldOutput.clone(
     name="displacement field",

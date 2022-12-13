@@ -129,6 +129,8 @@ void Elasticity::flux_matrix(const FEMesh *mesh, const Element *element,
 #endif
     } // end of loop over ell
 
+    // TODO: No good reason to reset the iterator. Just create another
+    // one.  Get rid of FieldIterator::reset().  
     ell.reset();
 
 #if DIM==2

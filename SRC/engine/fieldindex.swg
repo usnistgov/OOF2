@@ -150,7 +150,7 @@ public:
   ~IndexP();
   int integer();
   bool in_plane();
-  IndexP cloneIndex();
+  IndexP clone();
   void set(const std::vector<int>*);
   %newobject getComponents;
   std::vector<int> *getComponents();

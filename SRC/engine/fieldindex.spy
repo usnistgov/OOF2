@@ -24,12 +24,14 @@ IteratorP.shortrepr = _shortrepr
 # # values of the IndexP class, not over the components of the thing
 # # being indexed.
 
-
 # def IteratorP___iter__(self):
 #     return self
 
 # IteratorP.__iter__ = IteratorP___iter__
 
+## THIS IS WRONG.  It should save the current value, increment, then
+## return the saved value.  That's hard to do when the iterator and
+## the index are the same object.
 # def IteratorP___next__(self):
 #     self.increment()
 #     if self.end():
