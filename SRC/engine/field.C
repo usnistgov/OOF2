@@ -320,6 +320,11 @@ ComponentsP ScalarFieldBase::components(Planarity) const {
   return ComponentsP(&comps);
 }
 
+ComponentsP ScalarFieldBase::outOfPlaneComponents() const {
+  static const EmptyFieldComponents comps;
+  return ComponentsP(&comps);
+}
+
 IndexP ScalarFieldBase::getIndex(const std::string &) const {
   return IndexP(new ScalarFieldIndex);
 }
@@ -397,41 +402,13 @@ void TwoVectorFieldBase::setValueFromOutputValue(
   (*this)(node, 1)->value(mesh) = vov[1];
 }
 
-// // The TwoVectorHelper class allows TwoVectorField(FuncNode) to act like a
-// Coord.
-// TwoVectorHelper TwoVectorFieldBase::operator()(FEMesh *mesh, 
-// 					       const FuncNode *node) const
-// {
-//   // offset() will raise ErrNoSuchField if this field isn't defined at the node.
-//   int idx = node->fieldset.offset(this);
-//   return TwoVectorHelper(mesh, node->doflist[idx], node->doflist[idx+1]);
-// }
-
-// TwoVectorHelper
-// TwoVectorFieldBase::operator()(FEMesh *mesh, 
-// 			       const ElementFuncNodeIterator &ei) const
-// {
-//   return operator()(mesh, ei.funcnode());
-// }
-
-// // field(node) = coord
-// TwoVectorHelper &TwoVectorHelper::operator=(const Coord &v) {
-//   x->value(mesh) = v(0);
-//   y->value(mesh) = v(1);
-//   return *this;
-// }
-
-// // coord = field(node)
-// TwoVectorHelper::operator const Coord() const {
-//   return Coord(x->value(mesh), y->value(mesh));
-// }
-
-// IteratorP TwoVectorFieldBase::iterator(Planarity) const {
-//   return IteratorP(new VectorFieldIterator(0, 2));
-// }
-
 ComponentsP TwoVectorFieldBase::components(Planarity) const {
   static VectorFieldComponents comps(2);
+  return ComponentsP(&comps);
+}
+
+ComponentsP TwoVectorFieldBase::outOfPlaneComponents() const {
+  static const EmptyFieldComponents comps;
   return ComponentsP(&comps);
 }
 
@@ -499,43 +476,30 @@ void VectorFieldBase::setValueFromOutputValue(FEMesh *mesh,
     (*this)(node, i)->value(mesh) = vov[i];
 }
 
-// // The VectorHelper class allows VectorField(FuncNode) to act like a Vector.
-// VectorHelper VectorFieldBase::operator()(FEMesh *mesh, const FuncNode *node)
-//   const
-// {
-//   // offset() will raise ErrNoSuchField if this field isn't defined at the node.
-//   return VectorHelper(mesh, &node->doflist[node->fieldset.offset(this)], dim);
+// IteratorP VectorFieldBase::iterator(Planarity planarity) const {
+//   int mindim = (planarity == OUT_OF_PLANE ? 2 : 0);
+//   int maxdim = (planarity == IN_PLANE ? 2 : ndof());
+//   return IteratorP(new VectorFieldIterator(mindim, maxdim));
 // }
 
-// VectorHelper VectorFieldBase::operator()(FEMesh *mesh,
-// 					 const ElementFuncNodeIterator &ei)
-//   const
-// {
-//   return operator()(mesh, ei.funcnode());
-// }
+ComponentsP VectorFieldBase::components(Planarity planarity) const {
+  static VectorFieldComponents allcomps(0, dim);
+  static VectorFieldComponents inplane(0, 2);
+  static VectorFieldComponents outofplane(2,dim);
+    
+  if(planarity == ALL_INDICES) 
+    return ComponentsP(&allcomps);
+  else if(planarity == IN_PLANE)
+    return ComponentsP(&inplane);
+  return ComponentsP(&outofplane);
+}
 
-// // field(node) = vector
-// VectorHelper &VectorHelper::operator=(const VECTOR_D &v) {
-// #ifdef DEBUG
-//   assert(v.dim() == ndof);
-// #endif
-//   for(unsigned int i=0; i<ndof; i++)
-//     x[i]->value(mesh) = v[i];
-//   return *this;
-// }
+// Out of plane components returns just one component, 'z', but its an
+// OutOfPlaneVectorFieldIndex, not a VectorFieldIndex.
 
-// // vector = field(node)
-// VectorHelper::operator const VECTOR_D() const {
-//   VECTOR_D v(ndof);
-//   for(unsigned int i=0; i<ndof; i++)
-//     v[i] = x[i]->value(mesh);
-//   return v;
-// }
-
-IteratorP VectorFieldBase::iterator(Planarity planarity) const {
-  int mindim = (planarity == OUT_OF_PLANE ? 2 : 0);
-  int maxdim = (planarity == IN_PLANE ? 2 : ndof());
-  return IteratorP(new VectorFieldIterator(mindim, maxdim));
+ComponentsP VectorFieldBase::out_of_plane_components() const {
+  static OutOfPlaneVectorFieldComponents comp(dim);
+  return ComponentsP(&comp);
 }
 
 IndexP VectorFieldBase::getIndex(const std::string &str) const {
@@ -561,9 +525,6 @@ DegreeOfFreedom *SymmetricTensorField::operator()
   assert ((comp >= 0) && (comp <= 6));
   return pd->doflist[pd->fieldset.offset(this) + comp];
 }
-
-// TODO: Should have another one for (i,j) indices?
-
 
 DegreeOfFreedom *SymmetricTensorField::operator()
   (const ElementFuncNodeIterator &ei, int comp) const 
@@ -634,6 +595,10 @@ void SymmetricTensorField::setValueFromOutputValue(FEMesh* m,
 //   // just dereference it to get what we want.
 //   return *getSymTensorIterator(p);
 // }
+
+ComponentsP SymmetricTensorField::components(Planarity planarity) const {
+
+}
 
 IndexP SymmetricTensorField::getIndex(const std::string& str) const {
   return IndexP(new SymTensorIndex(SymTensorIndex::str2voigt(str)));

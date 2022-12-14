@@ -330,6 +330,37 @@ public:
  //   virtual int size() const { return 1; }
 // };
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// EmptyFieldComponents is used to "iterate" over fields that have no
+// components, like the out-of-plane parts of a scalar or 2-vector.
+// It just lets use define all the classes identically and put
+// outOfPlaneComponents in the Field base class.
+
+class EmptyFieldIterator : public ComponentIterator {
+public:
+  EmptyFieldIterator() {}
+  virtual const std::string &classname() const;
+  virtual EmptyFieldIterator &operator++() { return *this; }
+  virtual bool operator!=(const ComponentIterator&) const { return false; }
+  virtual IndexP operator*() const { return IndexP(nullptr); }
+  virtual ComponentIterator *clone() const {
+    return new EmptyFieldIterator();
+  }
+};
+
+class EmptyFieldComponents : public Components {
+public:
+  virtual ComponentIteratorP begin() const {
+    return ComponentIteratorP(new EmptyFieldIterator());
+  }
+  virtual ComponentIteratorP end() const {
+    return ComponentIteratorP(new EmptyFieldIterator());
+  }
+};
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 class ScalarFieldCompIterator : public ComponentIterator {
 private:
   bool done;
@@ -346,8 +377,6 @@ public:
 
 class ScalarFieldComponents : public Components {
 public:
-  typedef ScalarFieldCompIterator iterator;
-  typedef ScalarFieldCompIterator const_iterator;
   virtual ComponentIteratorP begin() const {
     return ComponentIteratorP(new ScalarFieldCompIterator(false)); 
   }
@@ -381,16 +410,42 @@ public:
 
 class VectorFieldComponents : public Components {
 protected:
-  SpaceIndex imax;
+  SpaceIndex imin, imax;
 public:
-  typedef VectorFieldCompIterator iterator;
-  typedef VectorFieldCompIterator const_iterator;
-  VectorFieldComponents(SpaceIndex imax) : imax(imax) {}
+  VectorFieldComponents(SpaceIndex imin, SpaceIndex imax)
+    : imin(imin), imax(imax)
+  {}
   virtual ComponentIteratorP begin() const {
-    return ComponentIteratorP(new VectorFieldCompIterator(0, imax));
+    return ComponentIteratorP(new VectorFieldCompIterator(imin, imax));
   }
   virtual ComponentIteratorP end() const {
     return ComponentIteratorP(new VectorFieldCompIterator(imax, imax));
+  }
+};
+
+// OutOfPlaneVectorFieldCompIterator iterates over the out-of-plane
+// components of a vector field, like VectorFieldCompIterator with
+// planarity=OUT_OF_PLANE, but it dereferences into an
+// OutOfPlaneVectorFieldIndex instead of a VectorFieldIndex.
+
+class OutOfPlaneVectorFieldCompIterator : public ComponentIterator {
+protected:
+  SpaceIndex index, imax;
+public:
+  OutOfPlaneVectorFieldCompIterator(SpaceIndex imin, SpaceIndex imax)
+    : index(imin), imax(imax)
+  {}
+  virtual const std::string &classname() const;
+  virtual OutOfPlaneVectorFieldCompIterator &operator++() {
+    ++index;
+    return *this;
+  }
+  virtual bool operator!=(const ComponentIterator&) const;
+  virtual IndexP operator*() const {
+    return IndexP(new OutOfPlaneVectorFieldIndex(index));
+  }
+  virtual ComponentIterator *clone() const {
+    return new OutOfPlaneVectorFieldCompIterator(*this);
   }
 };
 
@@ -398,14 +453,13 @@ class OutOfPlaneVectorFieldComponents : public Components {
 protected:
   SpaceIndex imax;
 public:
-  typedef VectorFieldCompIterator iterator;
-  typedef VectorFieldCompIterator const_iterator;
   OutOfPlaneVectorFieldComponents(SpaceIndex imax): imax(imax) {}
   virtual ComponentIteratorP begin() const {
-    return ComponentIteratorP(new VectorFieldCompIterator(2, imax));
+    return ComponentIteratorP(new OutOfPlaneVectorFieldCompIterator(2, imax));
   }
   virtual ComponentIteratorP end() const {
-    return ComponentIteratorP(new VectorFieldCompIterator(imax, imax));
+    return ComponentIteratorP(
+		      new OutOfPlaneVectorFieldCompIterator(imax, imax));
   }
 };
 
@@ -429,6 +483,10 @@ public:
 //   virtual int size() const { return max; }
 // };
 
+
+// OutOfPlaneVectorFieldIterator was used only by
+// PlaneFluxEquation::iterator, which returned its Flux's out of plane
+// iterator.
 
 // class OutOfPlaneVectorFieldIterator  
 //   : public OutOfPlaneVectorFieldIndex, public FieldIterator
@@ -474,6 +532,7 @@ class SymTensorIterator : public ComponentIterator {
 protected:
   int v;
 public:
+  SymTensorIterator() : v(0) {}
   SymTensorIterator(int v) : v(v) {} // arg is the initial voigt index
   SymTensorIterator(int i, int j);
   const std::string& classname() const;
@@ -483,10 +542,20 @@ public:
   virtual ComponentIterator *clone() const {
     return new SymTensorIterator(*this);
   }
+  // SymTensorIterator is sometimes used directly, where the
+  // generalization introduced by Components just gets in the way.
+  // Giving it some of the SymTensorIndex methods is convenient.
+  int row() const;
+  int col() const;
 };
+
+// Use these when iterating over a tensor w/o the Components machinery.
+SymTensorIterator symTensorBegin();
+SymTensorIterator symTensorEnd();
 
 class SymTensorInPlaneIterator : public SymTensorIterator {
 public:
+  SymTensorInPlaneIterator() : SymTensorIterator(0) {}
   SymTensorInPlaneIterator(int v) : SymTensorIterator(v) {}
   SymTensorInPlaneIterator(int i, int j) : SymTensorIterator(i, j) {}
   const std::string& classname() const;
@@ -502,6 +571,7 @@ public:
 
 class SymTensorOutOfPlaneIterator : public SymTensorIterator {
 public:
+  SymTensorOutOfPlaneIterator() : SymTensorIterator(2) {}
   SymTensorOutOfPlaneIterator(int v) : SymTensorIterator(v) {}
   SymTensorOutOfPlaneIterator(int i, int j) : SymTensorIterator(i, j) {}
   virtual const std::string& classname() const;
@@ -514,6 +584,7 @@ public:
 
 class OutOfPlaneSymTensorIterator : public SymTensorOutOfPlaneIterator {
 public:
+  OutOfPlaneSymTensorIterator() : SymTensorOutOfPlaneIterator(2) {}
   OutOfPlaneSymTensorIterator(int v) : SymTensorOutOfPlaneIterator(v) {}
   OutOfPlaneSymTensorIterator(int i, int j):SymTensorOutOfPlaneIterator(i, j){}
   virtual const std::string &classname() const; 

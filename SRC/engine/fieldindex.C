@@ -150,6 +150,14 @@ int SymTensorIndex::col() const {
   return colset[v];
 }
 
+int SymTensorIterator::row() const {
+  return rowset[v];
+}
+
+int SymTensorIterator::col() const {
+  return colset[v];
+}
+
 void SymTensorIndex::set(const std::vector<int> *component) {
   v = ij2voigt((*component)[0], (*component)[1]);
 }
@@ -201,8 +209,6 @@ std::vector<int> *SymTensorIndex::getComponents() const {
 }
 
 const std::string &SymTensorIndex::shortstring() const {
-  // It looks like the conversion from char to string is handled
-  // automatically here...
   static const std::string voigt[] = {"xx", "yy", "zz", "yz", "xz", "xy"};
   return voigt[v];
 }
@@ -215,6 +221,13 @@ SymTensorIterator::SymTensorIterator(SpaceIndex i, SpaceIndex j)
   : v(ij2voigt(i, j))
 {}
 
+SymTensorIterator symTensorBegin() {
+  return SymTensorIterator(0);
+}
+
+SymTensorIterator symTensorEnd() {
+  return SymTensorIterator(6);
+}
 
 
 // IteratorP *getSymTensorIterator(Planarity planarity) {

@@ -181,11 +181,11 @@ public:
   const std::string &classname();
 };
 
-class VectorFieldBase : public Field {
-public:
-  VectorFieldBase(char *name, int d);
-  const std::string &classname();
-};
+// class VectorFieldBase : public Field {
+// public:
+//   VectorFieldBase(char *name, int d);
+//   const std::string &classname();
+// };
 
 class SymmetricTensorField : public Field {
 public:

@@ -16,7 +16,6 @@
 class CompoundField;
 class Field;
 class FieldIndex;
-class IteratorP;
 class ScalarField;
 class ScalarFieldBase;
 class TwoVectorField;
@@ -170,7 +169,7 @@ public:
 				      int component)
     const = 0;
   DegreeOfFreedom *operator()(const ElementFuncNodeIterator &n,
-			      const IteratorP &i) const
+			      const IndexP &i) const
   {
     return operator()(n, i.integer());
   }
@@ -193,6 +192,7 @@ public:
   virtual IndexP getIndex(const std::string&) const = 0;
 
   virtual ComponentsP components(Planarity) const = 0;
+  virtual ComponentsP outOfPlaneComponents() const = 0;
 
   // Stuff required by fieldeqnlist.h templates, which handle Field
   // data that varies from Node to Node, such as specifying which
@@ -307,6 +307,7 @@ public:
 
   // virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
   virtual ComponentsP components(Planarity=ALL_INDICES/*irrelevant*/) const;
+  virtual ComponentsP outOfPlaneComponents() const;
   virtual IndexP getIndex(const std::string&) const;
   virtual const std::string &classname() const { return classname_; }
 };
@@ -342,7 +343,8 @@ public:
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
   // virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
-  virtual ComponentsP components(Planarity=ALL_INDICES/*irrelevant*/) const;
+  virtual ComponentsP components(Planarity /*irrelevant*/) const;
+  virtual ComponentsP outOfPlaneComponents() const;
   virtual IndexP getIndex(const std::string&) const;
   virtual const std::string &classname() const { return classname_; }
 };
@@ -381,7 +383,8 @@ public:
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
   // virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
-  virtual Components components(Planarity=ALL_INDICES/*irrelevant*/) const;
+  virtual ComponentsP components(Planarity=ALL_INDICES) const;
+  virtual ComponentsP outOfPlaneComponents() const;
   virtual IndexP getIndex(const std::string&) const;
 };
 
@@ -424,7 +427,8 @@ public:
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
   // virtual IteratorP iterator(Planarity) const;
-  virtual Components components(Planarity) const;
+  virtual ComponentsP components(Planarity) const;
+  virtual ComponentsP outOfPlaneComponents() const;
   virtual IndexP getIndex(const std::string&) const;
 
   virtual const std::string &classname() const {
