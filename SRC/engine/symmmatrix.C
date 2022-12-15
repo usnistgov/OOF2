@@ -497,10 +497,6 @@ IndexP SymmMatrix3::getIndex(const std::string &str) const {
   return IndexP(new SymTensorIndex(SymTensorIndex::str2voigt(str)));
 }
 
-IteratorP SymmMatrix3::getIterator() const {
-  return IteratorP(new SymTensorIterator());
-}
-
 ArithmeticOutputValue *newSymTensorOutputValue() {
   return new ArithmeticOutputValue(new SymmMatrix3());
 }

@@ -779,16 +779,14 @@ void CSubProblem::post_process() {
 void mapLocalNonConjField(const Field &field, std::vector<int> &lmap,
 			  int &lowestrow, FuncNode::FieldSet &fieldset)
 {
-  for(IteratorP fieldcomp = field.iterator(ALL_INDICES); !fieldcomp.end();
-      ++fieldcomp)
-    {
-      if(lowestrow == -1 || lowestrow >= (int) lmap.size())
-	throw ErrSetupError("Too many degrees of freedom! Not enough equations?");
-      int dof_indx = fieldset.offset(&field) + fieldcomp.integer();
-      lmap[lowestrow] = dof_indx;
-      while(lmap[lowestrow] == -1 and lowestrow < (int) lmap.size())
-	++lowestrow;
-    }
+  for(IndexP fieldcomp : field.components(ALL_INDICES)) {
+    if(lowestrow == -1 || lowestrow >= (int) lmap.size())
+      throw ErrSetupError("Too many degrees of freedom! Not enough equations?");
+    int dof_indx = fieldset.offset(&field) + fieldcomp.integer();
+    lmap[lowestrow] = dof_indx;
+    while(lmap[lowestrow] == -1 and lowestrow < (int) lmap.size())
+      ++lowestrow;
+  }
 }
 
 // See if a local conjugacy map has already been constructed for the

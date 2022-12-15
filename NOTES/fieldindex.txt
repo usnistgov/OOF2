@@ -117,10 +117,9 @@ for(ComponentIteratorP iter=field->components().begin();
   ...
 }
 
-or
+or, better,
 
-for(ComponentIteratorP iter : field->components()) {
-  IndexP i = *iter;
+for(IndexP i : field->components()) {
   ...
 }
 

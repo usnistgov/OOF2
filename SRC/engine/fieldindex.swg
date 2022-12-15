@@ -43,6 +43,7 @@ public:
   const std::string &shortstring();
 };
 
+PYTHONEXPORTABLE(FieldIndex);
 ADD_REPR_GENERIC(FieldIndex);
 
 class ScalarFieldIndex : public FieldIndex {
@@ -83,59 +84,59 @@ public:
 
 ADD_REPR_GENERIC(SymTensorIndex);
 
-%nodefaultctor FieldIterator;
+// %nodefaultctor FieldIterator;
 
-// This adds an increment method to all FieldIterator subclasses in
-// this file and in any file that %includes or %imports this one.
-%rename(increment) FieldIterator::operator++();
+// // This adds an increment method to all FieldIterator subclasses in
+// // this file and in any file that %includes or %imports this one.
+// %rename(increment) FieldIterator::operator++();
 
-class FieldIterator : public FieldIndex {
-public:
-  int size();
-  bool end();
-  FieldIterator *cloneIterator();
-  void operator++();
-};
+// class FieldIterator : public FieldIndex {
+// public:
+//   int size();
+//   bool end();
+//   FieldIterator *cloneIterator();
+//   void operator++();
+// };
 
-class ScalarFieldIterator: public ScalarFieldIndex, public FieldIterator {
-public:
-  ScalarFieldIterator();
-};
+// class ScalarFieldIterator: public ScalarFieldIndex, public FieldIterator {
+// public:
+//   ScalarFieldIterator();
+// };
 
-class VectorFieldIterator: public VectorFieldIndex, public FieldIterator {
-public:
-  VectorFieldIterator();
-};
+// class VectorFieldIterator: public VectorFieldIndex, public FieldIterator {
+// public:
+//   VectorFieldIterator();
+// };
 
-class OutOfPlaneVectorFieldIterator
-  : public OutOfPlaneVectorFieldIndex, public FieldIterator
-{
-public:
-  OutOfPlaneVectorFieldIterator();
-};
+// // class OutOfPlaneVectorFieldIterator
+// //   : public OutOfPlaneVectorFieldIndex, public FieldIterator
+// // {
+// // public:
+// //   OutOfPlaneVectorFieldIterator();
+// // };
 
-class SymTensorIterator: public SymTensorIndex, public FieldIterator {
-public:
-  SymTensorIterator();
-};
+// class SymTensorIterator: public SymTensorIndex, public FieldIterator {
+// public:
+//   SymTensorIterator();
+// };
 
-ADD_REPR_GENERIC(SymTensorIterator);
+// ADD_REPR_GENERIC(SymTensorIterator);
 
-class SymTensorInPlaneIterator: public SymTensorIterator {
-public:
-  SymTensorInPlaneIterator();
-};
+// class SymTensorInPlaneIterator: public SymTensorIterator {
+// public:
+//   SymTensorInPlaneIterator();
+// };
 
-class SymTensorOutOfPlaneIterator: public SymTensorIterator {
-public:
-  SymTensorOutOfPlaneIterator();
-};
+// class SymTensorOutOfPlaneIterator: public SymTensorIterator {
+// public:
+//   SymTensorOutOfPlaneIterator();
+// };
 
-class OutOfPlaneSymTensorIterator:
-  public OutOfPlaneSymTensorIndex, public FieldIterator
-{
-  OutOfPlaneSymTensorIterator();
-};
+// class OutOfPlaneSymTensorIterator:
+//   public OutOfPlaneSymTensorIndex, public FieldIterator
+// {
+//   OutOfPlaneSymTensorIterator();
+// };
 
 
 // IndexP and IteratorP objects should NOT be created directly in

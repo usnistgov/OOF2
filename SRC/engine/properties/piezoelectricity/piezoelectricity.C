@@ -45,13 +45,8 @@ PiezoElectricity::PiezoElectricity(PyObject *reg,
   total_polarization = 
     dynamic_cast<VectorFlux*>(Flux::getFlux("Total_Polarization"));
 
-#if DIM==2
   displacement = 
     dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));
-#elif DIM==3
-  displacement = 
-    dynamic_cast<ThreeVectorField*>(Field::getField("Displacement"));
-#endif
 }
 
 
@@ -59,10 +54,8 @@ void PiezoElectricity::precompute(FEMesh*) {}
 
 int PiezoElectricity::integration_order(const CSubProblem *subproblem,
 					const Element *el) const {
-#if DIM==2
   if(displacement->in_plane(subproblem))
     return el->dshapefun_degree();
-#endif
   return el->shapefun_degree();
 }
 
@@ -81,57 +74,40 @@ void PiezoElectricity::flux_matrix(const FEMesh *mesh,
   double sf = nu.shapefunction(pos);
   double dsf0 = nu.dshapefunction(0, pos);
   double dsf1 = nu.dshapefunction(1, pos);
-#if DIM==3
-  double dsf2 = nu.dshapefunction(2, pos);
-#endif
 
   if(*flux == *stress_flux) {
-    for(SymTensorIterator ij; !ij.end(); ++ij) { // stress component ij
-#if DIM==2
+    for(IndexP ij : flux->components(ALL_INDICES)) { // stress component ij
       fluxdata->stiffness_matrix_element(ij, voltage, nu)
-	-= eijk(0,ij)*dsf0 + eijk(1,ij)*dsf1;
-#elif DIM==3
-      fluxdata->stiffness_matrix_element(ij, voltage, nu)
-	-= eijk(0,ij)*dsf0 + eijk(1,ij)*dsf1 + eijk(2,ij)*dsf2;
-#endif // DIM==3
+	-= eijk(0,ij.integer())*dsf0 + eijk(1,ij.integer())*dsf1;
     }
-#if DIM==2
     if(!voltage->in_plane(mesh)) {
       Field *voop = voltage->out_of_plane();
-      for(SymTensorIterator ij; !ij.end(); ++ij) {
-	fluxdata->stiffness_matrix_element(ij, voop, nu) -= eijk(2,ij)*sf;
+      for(IndexP ij : flux->components(ALL_INDICES)) {
+	fluxdata->stiffness_matrix_element(ij, voop, nu)
+	  -= eijk(2,ij.integer())*sf;
       }
     }
-#endif // DIM==2
   }
 
   if(*flux == *total_polarization) {
-    for(VectorFieldIterator i; !i.end(); ++i) { // polarization components
+    for(IndexP i : flux->components(ALL_INDICES)) { // polarization components
       // in-plane displacement gradient contributions
       int ii = i.integer();
-      for(IteratorP ell = displacement->iterator(); !ell.end(); ++ell) {
+      for(IndexP ell : displacement->components(ALL_INDICES)) {
 	SymTensorIndex ell0(0, ell.integer());
 	SymTensorIndex ell1(1, ell.integer());
 	
-#if DIM==2
 	fluxdata->stiffness_matrix_element(i, displacement, ell, nu) +=
 	  eijk(ii, ell0)*dsf0 + eijk(ii, ell1)*dsf1;
-#elif DIM==3
-	SymTensorIndex ell2(2, ell.integer());
-	fluxdata->stiffness_matrix_element(i, displacement, ell, nu) +=
-	  eijk(ii, ell0)*dsf0 + eijk(ii, ell1)*dsf1 + eijk(ii, ell2)*dsf2;
-#endif	// DIM==3
       }
 
-#if DIM==2
       if(!displacement->in_plane(mesh)) {
 	Field *oop = displacement->out_of_plane();
-	for(IteratorP kay=oop->iterator(ALL_INDICES); !kay.end(); ++kay) {
+	for(IndexP kay : oop->components(ALL_INDICES)) {
 	  fluxdata->stiffness_matrix_element(i, oop, kay, nu) +=
 	    sf * eijk(ii, SymTensorIndex(2, kay.integer()));
 	}
       }
-#endif // DIM==2
 
     }  // end loop over polarization components
   } 

@@ -171,7 +171,6 @@ public:
   double contract(const SymmMatrix3&) const;
 
   virtual IndexP getIndex(const std::string&) const;
-  virtual IteratorP getIterator() const;
   virtual void print(std::ostream&) const;
 };
 

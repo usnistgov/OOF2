@@ -90,7 +90,7 @@ void Diffusion::static_flux_value(const FEMesh  *mesh,
 
   const SymmMatrix3 cond( conductivitytensor( mesh, element, pt ) );
 
-  for(VectorFieldIterator i; !i.end(); ++i)
+  for(IndexP i : flux->components(ALL_INDICES))
     fluxdata->flux_vector_element( i ) -=
       cond( i.integer(), 0 ) * fieldGradient[0] +
       cond( i.integer(), 1 ) * fieldGradient[1] +
@@ -129,7 +129,7 @@ void Diffusion::flux_matrix(const FEMesh  *mesh,
   // the flux is in-plane, because the out-of-plane components of
   // the flux matrix are used to construct the constraint equation.
 
-  for(VectorFieldIterator i; !i.end(); ++i){
+  for(IndexP i : flux->components(ALL_INDICES)) {
     // in-plane concentration gradient contributions
     fluxdata->stiffness_matrix_element( i, concentration, j ) -=
                   cond(i.integer(), 0) * dsf0 + cond(i.integer(), 1) * dsf1;
@@ -150,7 +150,7 @@ void Mobility::first_time_deriv_matrix(const FEMesh *mesh,
 					SmallSystem *eqdata) const {
 
   double shapeFuncVal = eni.shapefunction( mpos );
-  for(IteratorP eqncomp = eqn->iterator(); !eqncomp.end(); ++eqncomp) {
+  for(IndexP eqncomp : eqn->components()) {
     // Kinetic coefficient is unity.
     eqdata->damping_matrix_element(eqncomp,concentration,eqncomp,eni) += \
       shapeFuncVal;

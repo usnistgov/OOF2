@@ -58,13 +58,16 @@ void PlaneStrain::flux_offset(const FEMesh *mesh, const Element *element,
   }
   const Cijkl modulus = elasticity->cijkl(mesh, element, x);
   // Modulus is the rotated cijkl.
-  for(SymTensorIterator ij; !ij.end(); ++ij) {
+  for(IndexP ij : flux->components(ALL_INDICES)) {
     double &offset_el = fluxdata->offset_vector_element(ij);
-    for(SymTensorIterator kl; !kl.end(); ++kl) {
-      if(kl.integer()==2) { // Index 2 is voigt-order for the zz component.
-	offset_el -= modulus(ij, kl)*ezz_; // Sign gives physical results.
-      }
-    }
+    SymTensorIndex zz(2);
+    offset_el -= modulus(ij, zz)*ezz_; // Sign gives physical results
+    // OLD VERSION WAS THIS, WITH MYSTERIOUS LOOP
+    // for(SymTensorIterator kl; !kl.end(); ++kl) {
+    //   if(kl.integer()==2) { // Index 2 is voigt-order for the zz component.
+    // 	offset_el -= modulus(ij, kl)*ezz_; // Sign gives physical results.
+    //   }
+    // }
   }
 }
 

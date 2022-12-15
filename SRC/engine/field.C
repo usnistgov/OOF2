@@ -403,7 +403,7 @@ void TwoVectorFieldBase::setValueFromOutputValue(
 }
 
 ComponentsP TwoVectorFieldBase::components(Planarity) const {
-  static VectorFieldComponents comps(2);
+  static VectorFieldComponents comps(0, 2);
   return ComponentsP(&comps);
 }
 
@@ -483,13 +483,13 @@ void VectorFieldBase::setValueFromOutputValue(FEMesh *mesh,
 // }
 
 ComponentsP VectorFieldBase::components(Planarity planarity) const {
-  static VectorFieldComponents allcomps(0, dim);
-  static VectorFieldComponents inplane(0, 2);
-  static VectorFieldComponents outofplane(2,dim);
+  static const VectorFieldComponents allcomps(0, dim);
+  static const VectorFieldComponents inplane(0, 2);
+  static const VectorFieldComponents outofplane(2,dim);
     
   if(planarity == ALL_INDICES) 
     return ComponentsP(&allcomps);
-  else if(planarity == IN_PLANE)
+  if(planarity == IN_PLANE)
     return ComponentsP(&inplane);
   return ComponentsP(&outofplane);
 }
@@ -497,7 +497,7 @@ ComponentsP VectorFieldBase::components(Planarity planarity) const {
 // Out of plane components returns just one component, 'z', but its an
 // OutOfPlaneVectorFieldIndex, not a VectorFieldIndex.
 
-ComponentsP VectorFieldBase::out_of_plane_components() const {
+ComponentsP VectorFieldBase::outOfPlaneComponents() const {
   static OutOfPlaneVectorFieldComponents comp(dim);
   return ComponentsP(&comp);
 }
@@ -533,13 +533,13 @@ DegreeOfFreedom *SymmetricTensorField::operator()
 }
 
 DegreeOfFreedom *SymmetricTensorField::operator()
-  (const ElementFuncNodeIterator &ei, SymTensorIterator &sti) const 
+  (const ElementFuncNodeIterator &ei, SymTensorIndex &sti) const 
 {
   return this->operator()(ei.funcnode(),sti.integer());
 }
 
 DegreeOfFreedom *SymmetricTensorField::operator()
-  (const PointData &pd, SymTensorIterator& sti) const 
+  (const PointData &pd, SymTensorIndex& sti) const 
 {
   return this->operator()(&pd, sti.integer());
 }
@@ -554,9 +554,8 @@ ArithmeticOutputValue SymmetricTensorField::output(const FEMesh *mesh,
   SymmMatrix3 *oval = new SymmMatrix3();
   ArithmeticOutputValue ov(oval);
   if(pd.hasField(*this)) {
-    for(SymTensorIterator i=SymTensorIterator(0); 
-	!i.end(); ++i)
-      (*oval)[i] = operator()(pd, i)->value(mesh);
+    for(SymTensorIndex i : symTensorIJComponents) 
+      (*oval)[i] = operator()(pd, i.integer())->value(mesh);
   }
   return ov;
 }
@@ -569,9 +568,8 @@ SymmetricTensorField::output(const FEMesh *mesh,
   SymmMatrix3 *oval = new SymmMatrix3();
   ArithmeticOutputValue ov(oval);
   if(pd.hasField(*this)) {
-    for(SymTensorIterator i=SymTensorIterator(0); 
-	!i.end(); ++i)
-      (*oval)[i] = operator()(pd, i)->value(mesh);
+    for(SymTensorIndex i : symTensorIJComponents)
+      (*oval)[i] = operator()(pd, i.integer())->value(mesh);
   }
   return ov;
 }
@@ -590,16 +588,22 @@ void SymmetricTensorField::setValueFromOutputValue(FEMesh* m,
   free(vvec);
 }
 
-// IteratorP SymmetricTensorField::iterator(Planarity p) const {
-//   // Weird but right -- getSymTensorIterator returns an IteratorP*,
-//   // just dereference it to get what we want.
-//   return *getSymTensorIterator(p);
-// }
-
 ComponentsP SymmetricTensorField::components(Planarity planarity) const {
-
+  static const SymTensorComponents allcomps;
+  static const SymTensorInPlaneComponents inplane;
+  static const SymTensorOutOfPlaneComponents outofplane;
+  if(planarity == ALL_INDICES)
+    return ComponentsP(&allcomps);
+  if(planarity == IN_PLANE)
+    return ComponentsP(&inplane);
+  return ComponentsP(&outofplane);
 }
 
 IndexP SymmetricTensorField::getIndex(const std::string& str) const {
   return IndexP(new SymTensorIndex(SymTensorIndex::str2voigt(str)));
+}
+
+ComponentsP SymmetricTensorField::outOfPlaneComponents() const {
+  static const OutOfPlaneSymTensorComponents comps;
+  return ComponentsP(&comps);
 }

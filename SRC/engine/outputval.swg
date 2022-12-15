@@ -86,7 +86,6 @@ public:
   ~OutputVal();
   int dim();
   IndexP getIndex(char *);
-  IteratorP getIterator();
   NewOutputVal *clone();
   NewOutputVal *zero();
   %newobject value_list;

@@ -417,9 +417,8 @@ public:
   virtual DegreeOfFreedom *operator()(const ElementFuncNodeIterator&,
 				      int component) const;
   DegreeOfFreedom *operator()(const ElementFuncNodeIterator&,
-			      SymTensorIterator&) const;
-  DegreeOfFreedom *operator()(const PointData&, 
-			      SymTensorIterator&) const;
+			      SymTensorIndex&) const;
+  DegreeOfFreedom *operator()(const PointData&, SymTensorIndex&) const;
   virtual ArithmeticOutputValue newOutputValue() const;
   virtual ArithmeticOutputValue output(const FEMesh*, 
 			     const ElementFuncNodeIterator&) const;

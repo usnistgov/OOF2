@@ -58,12 +58,12 @@ public:
 
   // Return the value of the index as a vector of ints.  The vector
   // needs to be deleted by the caller.
-  // TODO: getComponents() seems to be used only by SymmMatrix3Widget
-  // (in ouptutvalwidgets.py) which could use something else.  It's
-  // odd to require it in all subclasses if it's only used in one.
-  // getComponents returns a vector representation of the integer
-  // components of the iterator -- i for a vector, ij for a tensor,
-  // etc.
+  // TODO PYTHON3: getComponents() seems to be used only by
+  // SymmMatrix3Widget (in ouptutvalwidgets.py) which could use
+  // something else.  It's odd to require it in all subclasses if it's
+  // only used in one.  getComponents returns a vector representation
+  // of the integer components of the iterator -- i for a vector, ij
+  // for a tensor, etc.
   virtual std::vector<int>* getComponents() const = 0;
 
   virtual void print(std::ostream &os) const = 0;
@@ -204,7 +204,9 @@ public:
   ~IndexP() { delete fieldindex; }
   int integer() const { return fieldindex->integer(); }
   bool in_plane() const { return fieldindex->in_plane(); }
+  // Allow IndexP to be used where a FieldIndex or FieldIndex* is expected
   operator const FieldIndex&() const { return *fieldindex; }
+  operator const FieldIndex*() const { return fieldindex; }
   IndexP clone() const {
     return IndexP(fieldindex->clone());
   }
@@ -276,7 +278,7 @@ public:
   }
 };
 
-class Components : public PythonExportable<Components> {
+class Components {
 public:
   virtual ~Components() {}
   // Nothing can change the Components object, so begin() and end()
@@ -287,9 +289,9 @@ public:
 
 class ComponentsP {
 private:
-  Components *components;
+  const Components *components;
 public:
-  ComponentsP(Components *c) : components(c) {}
+  ComponentsP(const Components *c) : components(c) {}
   ComponentIteratorP begin() const { return components->begin(); }
   ComponentIteratorP end() const { return components->end(); }
 };
@@ -340,6 +342,7 @@ public:
 class EmptyFieldIterator : public ComponentIterator {
 public:
   EmptyFieldIterator() {}
+  virtual ~EmptyFieldIterator() {}
   virtual const std::string &classname() const;
   virtual EmptyFieldIterator &operator++() { return *this; }
   virtual bool operator!=(const ComponentIterator&) const { return false; }
@@ -534,7 +537,7 @@ protected:
 public:
   SymTensorIterator() : v(0) {}
   SymTensorIterator(int v) : v(v) {} // arg is the initial voigt index
-  SymTensorIterator(int i, int j);
+  SymTensorIterator(SpaceIndex i, SpaceIndex j);
   const std::string& classname() const;
   SymTensorIterator &operator++() { v++; return *this; }
   virtual bool operator!=(const ComponentIterator &) const;
@@ -547,11 +550,8 @@ public:
   // Giving it some of the SymTensorIndex methods is convenient.
   int row() const;
   int col() const;
+  int integer() const { return v; }
 };
-
-// Use these when iterating over a tensor w/o the Components machinery.
-SymTensorIterator symTensorBegin();
-SymTensorIterator symTensorEnd();
 
 class SymTensorInPlaneIterator : public SymTensorIterator {
 public:
@@ -588,6 +588,7 @@ public:
   OutOfPlaneSymTensorIterator(int v) : SymTensorOutOfPlaneIterator(v) {}
   OutOfPlaneSymTensorIterator(int i, int j):SymTensorOutOfPlaneIterator(i, j){}
   virtual const std::string &classname() const; 
+  virtual IndexP operator*() const;
   virtual int integer() const { return v - 2; }
   virtual ComponentIterator *clone() const {
     return new OutOfPlaneSymTensorIterator(*this);
@@ -614,6 +615,16 @@ public:
   }
 };
 
+class SymTensorOutOfPlaneComponents : public Components {
+public:
+  virtual ComponentIteratorP begin() const {
+    return ComponentIteratorP(new SymTensorOutOfPlaneIterator(2));
+  }
+  virtual ComponentIteratorP end() const {
+    return ComponentIteratorP(new SymTensorOutOfPlaneIterator(5));
+  }
+};
+
 class OutOfPlaneSymTensorComponents : public Components {
 public:
   virtual ComponentIteratorP begin() const {
@@ -624,15 +635,37 @@ public:
   }
 };
 
-class SymTensorOutOfPlaneComponents : public Components {
+// SymTensorIJIterator and SymTensorIJComponents are used to iterate
+// over the components of a symmetric 3x3 tensor and get a real
+// SymTensorIndex out, not a FieldIndex or IndexP.  An instance called
+// symTensorIJComponents is created for convenience.  Use it like
+//   for(SymTensorIndex ij : symTensorIJComponents) { ... }
+// or
+//   for(SymTensorIterator it=symTensorIJComponents.begin();
+//       it != symTensorIJComponents.end(); ++it)
+//      { ... }
+
+class SymTensorIJIterator {
+private:
+  int v;
 public:
-  virtual ComponentIteratorP begin() const {
-    return ComponentIteratorP(new SymTensorOutOfPlaneIterator(2));
-  }
-  virtual ComponentIteratorP end() const {
-    return ComponentIteratorP(new SymTensorOutOfPlaneIterator(5));
+  SymTensorIJIterator() : v(0) {}
+  SymTensorIJIterator(int v): v(v) {}
+  SymTensorIJIterator &operator++() { v++; return *this; }
+  SymTensorIndex operator*() const { return SymTensorIndex(v); }
+  bool operator!=(const SymTensorIJIterator &other) const {
+    return v != other.v;
   }
 };
+
+class SymTensorIJComponents {
+public:
+  SymTensorIJIterator begin() const { return SymTensorIJIterator(0); }
+  SymTensorIJIterator end() const { return SymTensorIJIterator(6); }
+};
+
+extern SymTensorIJComponents symTensorIJComponents;
+
 
 // class SymTensorIterator : public SymTensorIndex, public FieldIterator {
 // public:

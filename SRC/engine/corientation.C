@@ -709,6 +709,12 @@ const std::string &COrientABG::classname() const {
   return nm;
 }
 
+template<>
+const std::string &OIndex<COrientABG>::classname() const {
+  static const std::string nm("OIndex_COrientABG");
+  return nm;
+}
+
 COrientABG *COrientABG::clone() const {
   return new COrientABG(*this); 
 }
@@ -729,6 +735,12 @@ const std::vector<std::string> COrientBunge::arguments(
 
 const std::string &COrientBunge::classname() const {
   static const std::string nm("COrientBunge");
+  return nm;
+}
+
+template<>
+const std::string &OIndex<COrientBunge>::classname() const {
+  static const std::string nm("OIndex_COrientBunge");
   return nm;
 }
 
@@ -755,6 +767,12 @@ const std::string &COrientQuaternion::classname() const {
   return nm;
 }
 
+template<>
+const std::string &OIndex<COrientQuaternion>::classname() const {
+  static const std::string nm("OIndex_COrientQuaternion");
+  return nm;
+}
+
 COrientQuaternion *COrientQuaternion::clone() const {
   return new COrientQuaternion(*this);
 };
@@ -773,6 +791,12 @@ const std::vector<std::string> COrientX::arguments({"phi", "theta", "psi"});
 
 const std::string &COrientX::classname() const {
   static const std::string nm("COrientX");
+  return nm;
+}
+
+template<>
+const std::string &OIndex<COrientX>::classname() const {
+  static const std::string nm("OIndex_COrientX");
   return nm;
 }
 
@@ -797,6 +821,12 @@ const std::string &COrientXYZ::classname() const {
   return nm;
 }
 
+template<>
+const std::string &OIndex<COrientXYZ>::classname() const {
+  static const std::string nm("OIndex_COrientXYZ");
+  return nm;
+}
+
 COrientXYZ *COrientXYZ::clone() const {
   return new COrientXYZ(*this);
 };
@@ -818,6 +848,12 @@ const std::string &COrientAxis::classname() const {
   return nm;
 }
 
+template<>
+const std::string &OIndex<COrientAxis>::classname() const {
+  static const std::string nm("OIndex_COrientAxis");
+  return nm;
+}
+
 COrientAxis *COrientAxis::clone() const {
   return new COrientAxis(*this);
 };
@@ -836,6 +872,12 @@ const std::vector<std::string> COrientRodrigues::arguments({"r1", "r2", "r3"});
 
 const std::string &COrientRodrigues::classname() const {
   static const std::string nm("COrientRodrigues");
+  return nm;
+}
+
+template<>
+const std::string &OIndex<COrientRodrigues>::classname() const {
+  static const std::string nm("OIndex_COrientRodrigues");
   return nm;
 }
 

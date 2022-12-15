@@ -23,7 +23,6 @@
 #include <vector>
 
 class IndexP;
-class IteratorP;
 
 // The OutputVal classes defined here are used to ferry values from
 // the finite element mesh out to the Python output machinery. The

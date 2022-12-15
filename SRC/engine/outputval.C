@@ -157,10 +157,6 @@ IndexP ScalarOutputVal::getIndex(const std::string&) const {
   return IndexP(new ScalarFieldIndex());
 }
 
-IteratorP ScalarOutputVal::getIterator() const {
-  return IteratorP(new ScalarFieldIterator());
-}
-
 ScalarOutputVal operator+(const ScalarOutputVal &a, const ScalarOutputVal &b) {
   ScalarOutputVal result(a);
   result += b;
@@ -274,10 +270,6 @@ double &VectorOutputVal::operator[](const IndexP &p) {
 IndexP VectorOutputVal::getIndex(const std::string &str) const {
   // str must be "x", "y", or "z"
   return IndexP(new VectorFieldIndex(str[0] - 'x'));
-}
-
-IteratorP VectorOutputVal::getIterator() const {
-  return IteratorP(new VectorFieldIterator(0, size_));
 }
 
 double VectorOutputVal::magnitude() const {

@@ -123,8 +123,8 @@ void PyroElectricity::set_effective_modulus(const FEMesh *mesh,
       const Rank3Tensor &dijk = piezoelectricity->dijk(mesh, el, pos);
 
       for(unsigned int i=0;i<3;++i) {
-	for(SymTensorIterator jk; !jk.end(); ++jk) {
-	  for(SymTensorIterator lm; !lm.end(); ++lm) {
+	for(SymTensorIndex jk : symTensorIJComponents) {
+	  for(SymTensorIndex lm : symTensorIJComponents) {
 	    double diagfact = 1.0;
 	    if(!jk.diagonal())
 	      diagfact *= 2.0;
@@ -171,7 +171,7 @@ void PyroElectricity::flux_matrix(const FEMesh *mesh,
 
   double sf = nu.shapefunction(pos);
   if(*flux==*total_polarization)
-    for(VectorFieldIterator i; !i.end(); ++i) {
+    for(IndexP i : flux->components(ALL_INDICES)) {
       fluxdata->stiffness_matrix_element(i,temperature,nu) +=
 	effective_modulus[i.integer()]*sf;
     }
@@ -191,7 +191,7 @@ void PyroElectricity::flux_offset(const FEMesh *mesh,
     set_effective_modulus(mesh, element, pos);
 
   if(*flux==*total_polarization)
-    for(VectorFieldIterator i; !i.end(); ++i) {
+    for(IndexP i : flux->components(ALL_INDICES)) {
       // It's T-T0, so minus.  
       fluxdata->offset_vector_element(i) -=
 	effective_modulus[i.integer()]*tzero;

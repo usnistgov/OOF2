@@ -76,7 +76,6 @@ public:
   double midEigenvalue();
   double minEigenvalue();
   double contract(SymmMatrix3&);
-  IteratorP getIterator();
 };
 
 %extend SymmMatrix3 {

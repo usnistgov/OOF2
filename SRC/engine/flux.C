@@ -116,22 +116,25 @@ const std::string &SymmetricTensorFlux::classname() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-IteratorP VectorFlux::iterator(Planarity planarity) const {
-  int maxdim = 3;
-  int mindim = 0;
-#if DIM==2
-  if(planarity == IN_PLANE) maxdim = 2;
-  if(planarity == OUT_OF_PLANE) mindim = 2;
-#endif
-  return IteratorP(new VectorFieldIterator(mindim, maxdim));
+ComponentsP VectorFlux::components(Planarity planarity) const {
+  static const VectorFieldComponents allcomps(0, 3);
+  static const VectorFieldComponents inplane(0, 2);
+  static const VectorFieldComponents outofplane(2, 3);
+  if(planarity == ALL_INDICES)
+    return ComponentsP(&allcomps);
+  if(planarity == IN_PLANE)
+    return ComponentsP(&inplane);
+  return ComponentsP(&outofplane);
 }
 
-IteratorP VectorFlux::divergence_iterator() const {
-  return IteratorP(new ScalarFieldIterator);
+ComponentsP VectorFlux::divergenceComponents() const {
+  static const ScalarFieldComponents comp;
+  return ComponentsP(&comp);
 }
 
-IteratorP VectorFlux::out_of_plane_iterator() const {
-  return IteratorP(new OutOfPlaneVectorFieldIterator());
+ComponentsP VectorFlux::outOfPlaneComponents() const {
+  static OutOfPlaneVectorFieldComponents comp(3);
+  return ComponentsP(&comp);
 }
 
 IndexP VectorFlux::getIndex(const std::string &str) const {
@@ -146,23 +149,25 @@ IndexP VectorFlux::divergence_getIndex(const std::string&) const {
   return IndexP(new ScalarFieldIndex);
 }
 
-IteratorP SymmetricTensorFlux::iterator(Planarity planarity) const {
-#if DIM==2
+ComponentsP SymmetricTensorFlux::components(Planarity planarity) const {
+  static const SymTensorComponents allcomps;
+  static const SymTensorInPlaneComponents inplane;
+  static const SymTensorOutOfPlaneComponents outofplane;
+  if(planarity == ALL_INDICES)
+    return ComponentsP(&allcomps);
   if(planarity == IN_PLANE)
-    return IteratorP(new SymTensorInPlaneIterator);
-  if(planarity == OUT_OF_PLANE)
-    return IteratorP(new SymTensorOutOfPlaneIterator);
-#endif
-  return IteratorP(new SymTensorIterator);
+    return ComponentsP(&inplane);
+  return ComponentsP(&outofplane);
 }
 
-IteratorP SymmetricTensorFlux::divergence_iterator() const
-{
-  return IteratorP(new VectorFieldIterator(0, DIM));
+ComponentsP SymmetricTensorFlux::divergenceComponents() const {
+  static const VectorFieldComponents comps(0, 3);
+  return ComponentsP(&comps);
 }
 
-IteratorP SymmetricTensorFlux::out_of_plane_iterator() const {
-  return IteratorP(new OutOfPlaneSymTensorIterator());
+ComponentsP SymmetricTensorFlux::outOfPlaneComponents() const {
+  static const OutOfPlaneSymTensorComponents comps;
+  return ComponentsP(&comps);
 }
 
 IndexP SymmetricTensorFlux::getIndex(const std::string &str) const {
@@ -440,9 +445,8 @@ ArithmeticOutputValue Flux::output(const FEMesh *mesh, const Element *el,
   // std::cerr << "Flux::output: pos=" << pos << " el=" << *el << std::endl;
   DoubleVec *fluxvals = evaluate( mesh, el, pos );
   ArithmeticOutputValue ov = newOutputValue();
-  for(IteratorP it = iterator(ALL_INDICES); !it.end(); ++it) {
+  for(IndexP it : components(ALL_INDICES)) 
     ov[it] = (*fluxvals)[it.integer()];
-  }
   delete fluxvals;
   // When we started using Eigen's matrix solvers, we learned that we
   // had been constructing *negative* definite matrices for the force

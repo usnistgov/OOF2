@@ -32,6 +32,7 @@ class Equation;
 class BoundaryEdge;
 class CNonlinearSolver;
 class CSubProblem;
+class ComponentsP;
 class Edge;
 class EdgeGaussPoint;
 class Element;
@@ -44,7 +45,6 @@ class FluxNormal;
 class FuncNode;
 class GaussPoint;
 class IndexP;
-class IteratorP;
 class LinearizedSystem;
 class Material;
 class NodalEquation;
@@ -74,11 +74,12 @@ public:
   int localindex(const FuncNode&, int component) const;
   NodalEquation *nodaleqn(const FuncNode&, int component) const;
 
-  // Equations can return an iterator that iterates over their
-  // components, which are the components of the divergence of the
-  // host flux, for DivergenceEquations, and out-of-plane components
-  // of the flux for PlaneFluxEquation objects.
-  virtual IteratorP iterator() const = 0;
+  // components() returns an object that is used to iterate over the
+  // Equations's components, which are the components of the
+  // divergence of the host flux, for DivergenceEquations, and
+  // out-of-plane components of the flux for PlaneFluxEquation
+  // objects.
+  virtual ComponentsP components() const = 0;
   virtual IndexP getIndex(const std::string&) const = 0;
 
   static std::vector<Equation*> &all();
@@ -177,7 +178,7 @@ public:
     const;
   virtual int integration_order(const Element*) const;
 
-  virtual IteratorP iterator() const;
+  virtual ComponentsP components() const;
   virtual IndexP getIndex(const std::string&) const;
 
   virtual const std::string &classname() const;
@@ -205,7 +206,7 @@ public:
     const;
   virtual int integration_order(const Element*) const;
 
-  virtual IteratorP iterator() const;
+  virtual ComponentsP components() const;
   virtual IndexP getIndex(const std::string&) const;
 
   virtual const std::string &classname() const;
@@ -233,7 +234,7 @@ public:
  				 const FluxNormal *) const;
 
   virtual int integration_order(const Element*) const;
-  virtual IteratorP iterator() const;
+  virtual ComponentsP components() const;
   virtual IndexP getIndex(const std::string&) const;
   virtual const std::string &classname() const;
   virtual bool allow_boundary_conditions() const { return false; }

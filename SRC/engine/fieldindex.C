@@ -31,6 +31,13 @@ std::ostream &operator<<(std::ostream &os, const IndexP &ip) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+const std::string &EmptyFieldIterator::classname() const {
+  static const std::string nm("EmptyFieldIterator");
+  return nm;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 std::vector<int> *ScalarFieldIndex::getComponents() const {
   return new std::vector<int>;	// empty vector
 }
@@ -54,7 +61,7 @@ const std::string& ScalarFieldCompIterator::classname() const {
   return nm;
 }
 
-ScalScalarFieldCompIterator &ScalarFieldCompIterator::operator++() {
+ScalarFieldCompIterator &ScalarFieldCompIterator::operator++() {
   done = true;
   return *this;
 }
@@ -62,7 +69,7 @@ ScalScalarFieldCompIterator &ScalarFieldCompIterator::operator++() {
 bool ScalarFieldCompIterator::operator!=(const ComponentIterator &othr) const {
   const ScalarFieldCompIterator& other =
     dynamic_cast<const ScalarFieldCompIterator&>(othr);
-  return othr.done != done;
+  return other.done != done;
 }
 
 IndexP ScalarFieldCompIterator::operator*() const {
@@ -70,16 +77,10 @@ IndexP ScalarFieldCompIterator::operator*() const {
   return IndexP(new ScalarFieldIndex());
 }
 
-IndexP ScalarFieldComponents::operator[](int i) const {
-  if(i != 0)
-    throw ErrBadIndex(i, __FILE__, __LINE__);
-  return IndexP(new ScalarFieldIndex());
-}
-
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 const std::string &VectorFieldIndex::classname() const {
-  const std::string nm("VectorFieldIndex");
+  static const std::string nm("VectorFieldIndex");
   return nm;
 }
 
@@ -105,10 +106,6 @@ const std::string& VectorFieldCompIterator::classname() const {
   return nm;
 }
 
-IndexP VectorFieldCompIterator::operator*() const {
-  return IndexP(new VectorFieldIndex(index_)); 
-}
-
 bool VectorFieldCompIterator::operator!=(const ComponentIterator &othr) const {
   const VectorFieldCompIterator &other =
     dynamic_cast<const VectorFieldCompIterator&>(othr);
@@ -125,6 +122,14 @@ const std::string &OutOfPlaneVectorFieldIndex::classname() const {
 const std::string &OutOfPlaneVectorFieldCompIterator::classname() const {
   static const std::string nm("OutOfPlaneVectorFieldCompIterator");
   return nm;
+}
+
+bool OutOfPlaneVectorFieldCompIterator::operator!=(
+					   const ComponentIterator &othr) const
+{
+  const OutOfPlaneVectorFieldCompIterator &other =
+    dynamic_cast<const OutOfPlaneVectorFieldCompIterator&>(othr);
+  return other.index != index;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -158,13 +163,10 @@ int SymTensorIterator::col() const {
   return colset[v];
 }
 
-void SymTensorIndex::set(const std::vector<int> *component) {
-  v = ij2voigt((*component)[0], (*component)[1]);
-}
-
-SymTensorIterator::SymTensorIterator(int i, int j)
+SymTensorIterator::SymTensorIterator(SpaceIndex i, SpaceIndex j)
   : v(SymTensorIndex::ij2voigt(i, j))
 {}
+
 
 bool SymTensorIterator::operator!=(const ComponentIterator &othr) const {
   const SymTensorIterator &other =
@@ -217,23 +219,6 @@ void SymTensorIndex::print(std::ostream &os) const {
   os << "SymTensorIndex(" << row() << "," << col() << ")";
 }
 
-SymTensorIterator::SymTensorIterator(SpaceIndex i, SpaceIndex j)
-  : v(ij2voigt(i, j))
-{}
-
-SymTensorIterator symTensorBegin() {
-  return SymTensorIterator(0);
-}
-
-SymTensorIterator symTensorEnd() {
-  return SymTensorIterator(6);
-}
-
-
-// IteratorP *getSymTensorIterator(Planarity planarity) {
-//   if(planarity == IN_PLANE)
-//     return new IteratorP(new SymTensorInPlaneIterator());
-//   if(planarity == OUT_OF_PLANE)
-//     return new IteratorP(new SymTensorOutOfPlaneIterator());
-//   return new IteratorP(new SymTensorIterator());
-// }
+// SymTensor components are often needed independent of a flux or
+// field, so they can be retrieved from this.
+SymTensorIJComponents symTensorIJComponents;

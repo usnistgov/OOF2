@@ -79,7 +79,7 @@ void Current::static_flux_value(const FEMesh  *mesh,
 
   const SymmMatrix3 cond( conductivitytensor( mesh, element, pt ) );
 
-  for(VectorFieldIterator i; !i.end(); ++i)
+  for(IndexP i : flux->components(ALL_INDICES))
     fluxdata->flux_vector_element( i ) -=
       cond( i.integer(), 0 ) * fieldGradient[0] +
       cond( i.integer(), 1 ) * fieldGradient[1] +
@@ -118,7 +118,7 @@ void Current::flux_matrix(const FEMesh  *mesh,
   // the flux is in-plane, because the out-of-plane components of
   // the flux matrix are used to construct the constraint equation.
 
-  for(VectorFieldIterator i; !i.end(); ++i){
+  for(IndexP i : flux->components(ALL_INDICES)) {
     // in-plane voltage gradient contributions
     fluxdata->stiffness_matrix_element( i, voltage, j ) -=
                   cond(i.integer(), 0) * dsf0 + cond(i.integer(), 1) * dsf1;

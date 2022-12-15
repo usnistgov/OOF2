@@ -159,8 +159,7 @@ void NonlinearHeatConductivity::flux_matrix(const FEMesh  *mesh,
   // Loop over flux components.  Loop over all components, even if
   // the flux is in-plane, because the out-of-plane components of
   // the flux matrix are used to construct the constraint equation.
-  for (VectorFieldIterator i; !i.end(); ++i)
-  {
+  for(IndexP i : flux->components(ALL_INDICES)) {
     // in-plane temperature gradient contributions
     fluxdata->stiffness_matrix_element( i, temperature, j )
 
