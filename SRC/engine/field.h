@@ -188,7 +188,6 @@ public:
     return f1.index() == f2.index();
   }
 
-  // virtual IteratorP iterator(Planarity) const = 0;
   virtual IndexP getIndex(const std::string&) const = 0;
 
   virtual ComponentsP components(Planarity) const = 0;
@@ -305,7 +304,6 @@ public:
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
 
-  // virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
   virtual ComponentsP components(Planarity=ALL_INDICES/*irrelevant*/) const;
   virtual ComponentsP outOfPlaneComponents() const;
   virtual IndexP getIndex(const std::string&) const;
@@ -342,7 +340,6 @@ public:
   virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
-  // virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
   virtual ComponentsP components(Planarity /*irrelevant*/) const;
   virtual ComponentsP outOfPlaneComponents() const;
   virtual IndexP getIndex(const std::string&) const;
@@ -382,7 +379,6 @@ public:
   virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
-  // virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
   virtual ComponentsP components(Planarity=ALL_INDICES) const;
   virtual ComponentsP outOfPlaneComponents() const;
   virtual IndexP getIndex(const std::string&) const;
@@ -425,7 +421,6 @@ public:
   virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
-  // virtual IteratorP iterator(Planarity) const;
   virtual ComponentsP components(Planarity) const;
   virtual ComponentsP outOfPlaneComponents() const;
   virtual IndexP getIndex(const std::string&) const;

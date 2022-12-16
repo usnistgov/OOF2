@@ -117,7 +117,7 @@ public:
 
   void setValueFromOutputValue(FEMesh*, PointData&, OutputValue*);
 
-  IteratorP iterator(Planarity p);
+  // IteratorP iterator(Planarity p);
   IndexP getIndex(char *);	// convert from "x", "xy", etc.
   ArithmeticOutputValue newOutputValue();
   ArithmeticOutputValue output(FEMesh*, PointData&);
@@ -134,12 +134,6 @@ public:
   }
   DegreeOfFreedom *dof(PointData *n, int component) {
     return (*self)(*n, component);
-  }
-  // iterator_all is used in situations in which it's not known if
-  // we're iterating over a Field, Flux, or Equation.
-  // Equation::iterator doesn't take an argument.
-  IteratorP iterator_all() {
-    return self->iterator(ALL_INDICES);
   }
 };
 

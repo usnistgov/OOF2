@@ -55,7 +55,6 @@ public:
   // getIndex converts the string representation of a component index
   // into an IndexP object that can be used to extract a component.
   virtual IndexP getIndex(const std::string&) const = 0;
-  // virtual IteratorP getIterator() const = 0;
 
   friend class OutputValue;
 };
@@ -136,7 +135,6 @@ public:
   virtual double operator[](const IndexP&) const;
   virtual double &operator[](const IndexP&);
   virtual IndexP getIndex(const std::string&) const;
-  // virtual IteratorP getIterator() const;
   
   virtual void print(std::ostream&) const;
 };
@@ -207,7 +205,6 @@ public:
   virtual double operator[](const IndexP &p) const;
   virtual double &operator[](const IndexP &p);
   virtual IndexP getIndex(const std::string&) const;
-  // virtual IteratorP getIterator() const;
   virtual double magnitude() const;
   virtual void print(std::ostream&) const;
 };
@@ -248,7 +245,6 @@ public:
   double operator[](int i) const { return data[i]; }
   virtual double operator[](const IndexP &p) const;
   virtual double &operator[](const IndexP &p);
-  // virtual IteratorP getIterator() const;
   virtual IndexP getIndex(const std::string&) const;
   virtual std::vector<double> *value_list() const;
   virtual void print(std::ostream&) const;
@@ -256,12 +252,12 @@ public:
   friend class ListOutputValIndex;
 };
 
-// ListOutptuValIndex has to be a FieldIndex so that it can be used to
+// ListOutputValIndex has to be a FieldIndex so that it can be used to
 // index ListOutputVal, but it doesn't really belong in FieldIndex
 // because the in_plane method doesn't make any sense for it.  We're
 // over-using the FieldIndex class.
-// TODO: OutputVal should use some other kind of Index, and FieldIndex
-// should be derived from that.
+// TODO PYTHON3: OutputVal should use some other kind of Index, and
+// FieldIndex should be derived from that.
 
 class ListOutputValIndex : virtual public FieldIndex {
 protected:
