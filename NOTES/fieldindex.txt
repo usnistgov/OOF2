@@ -137,13 +137,13 @@ In Python, the PythonExportable FieldIndex and ComponentIterator
 classes can be used directly, without needing to swig IndexP,
 ComponentP, or ComponentIteratorP.
 
-The ComponentIterator will have __iter__ and __next__ methods to
-enable us to write:
+We can write
 
-for i in field.components():
-    etc
+for i in field.components(planarity):
 
-or:
+where i is a object of the appropriate FieldIndex derived class.
+
+Or
 
 names = [comp.shortstring() for comp in flux.divergence_components(planarity)]
 
@@ -157,8 +157,10 @@ while not it.end():
 
 (copied with some simplification from various methods in outputClones.py)
 
-Components.__iter__ will return a ComponentIterator.
-ComponentIterator.__iter__ could be a generator function that returns
-a series of FieldIndex objects, or it could return self, and
-ComponentIterator.__next__ could return a FieldIndex.
-
+Field.components() returns a generic Components object that contains a
+swigged, python-exportable ComponentIterator (obtained by calling the
+C++ Components.begin()).  The Python Components object is *not* the
+same as the C++ Components object, but serves the same purpose.  It
+has an __iter__ method which is a generator function that yields
+successive values of the ComponentIterator (ie swigged
+python-exportable FieldIndex objects).
