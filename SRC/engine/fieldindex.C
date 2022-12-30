@@ -14,6 +14,10 @@
 #include "outputval.h"
 #include "common/tostring.h"
 
+FieldIndex::FieldIndex() {}
+
+FieldIndex::~FieldIndex() {}
+
 bool operator==(const FieldIndex &a, const FieldIndex &b) {
   return a.integer() == b.integer();
 }
@@ -72,9 +76,9 @@ bool ScalarFieldCompIterator::operator!=(const ComponentIterator &othr) const {
   return other.done != done;
 }
 
-IndexP ScalarFieldCompIterator::operator*() const {
+FieldIndex *ScalarFieldCompIterator::fieldindex() const {
   assert(!done);
-  return IndexP(new ScalarFieldIndex());
+  return new ScalarFieldIndex();
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -194,14 +198,6 @@ const std::string &OutOfPlaneSymTensorIterator::classname() const {
   return nm;
 }
 
-IndexP SymTensorIterator::operator*() const {
-  return IndexP(new SymTensorIndex(v));
-}
-
-IndexP OutOfPlaneSymTensorIterator::operator*() const {
-  return IndexP(new OutOfPlaneSymTensorIndex(v));
-}
-
 // TODO PYTHON3: Get rid of this method.
 std::vector<int> *SymTensorIndex::getComponents() const {
   std::vector<int> *c = new std::vector<int>(2);
@@ -222,3 +218,51 @@ void SymTensorIndex::print(std::ostream &os) const {
 // SymTensor components are often needed independent of a flux or
 // field, so they can be retrieved from this.
 SymTensorIJComponents symTensorIJComponents;
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+std::ostream &operator<<(std::ostream &os, const ComponentIterator &ci) {
+  ci.print(os);
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const ComponentIteratorP &cip) {
+  os << "ComponentIteratorP(";
+  cip.iterator()->print(os);
+  os << ")";
+  return os;
+}
+
+void EmptyFieldIterator::print(std::ostream& os) const {
+  os << "EmptyFieldIterator";
+}
+
+void ScalarFieldCompIterator::print(std::ostream &os) const {
+  os << "ScalarFieldCompIterator(" << (done?"done":"not done") << ")";
+}
+
+void VectorFieldCompIterator::print(std::ostream &os) const {
+  os << "VectorFieldCompIterator(" << index << ")";
+}
+
+void OutOfPlaneVectorFieldCompIterator::print(std::ostream &os) const {
+  os << "OutOfPlaneVectorFieldCompIterator(" << index << ")";
+}
+
+void SymTensorIterator::print(std::ostream &os) const {
+  os << "SymTensorIterator(" << v << ")";
+}
+
+void SymTensorInPlaneIterator::print(std::ostream &os) const {
+  os << "SymTensorInPlaneIterator(" << v << ")";
+}
+
+void SymTensorOutOfPlaneIterator::print(std::ostream &os) const {
+  os << "SymTensorOutOfPlaneIterator(" << v << ")";
+}
+
+void OutOfPlaneSymTensorIterator::print(std::ostream &os) const {
+  os << "OutOfPlaneSymTensorIterator(" << v << ")";
+}
+
+  

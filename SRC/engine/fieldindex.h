@@ -27,7 +27,6 @@
 // choose the components of a Field, and because
 // 'FieldFluxEquationOrOtherIndexableObjectIndex' is too long.
 
-class FieldIterator;		//  obsolete?
 class Components; // iterator over the components of a Field, Flux or Equation
 class ComponentsP;	     // wrapper around a pointer to Components
 
@@ -204,7 +203,7 @@ public:
   ~IndexP() { delete fieldindex; }
   int integer() const { return fieldindex->integer(); }
   bool in_plane() const { return fieldindex->in_plane(); }
-  // Allow IndexP to be used where a FieldIndex or FieldIndex* is expected
+  // Allow IndexP to be used where a FieldIndex& or FieldIndex* is expected
   operator const FieldIndex&() const { return *fieldindex; }
   operator const FieldIndex*() const { return fieldindex; }
   IndexP clone() const {
@@ -231,24 +230,27 @@ std::ostream &operator<<(std::ostream &, const IndexP&);
 
 // A ComponentIterator is used to iterate over the indices stored in
 // the Components.  The indices don't have to be stored explicitly --
-// they can be generate on the fly.
+// they can be generated on the fly.
 
 class ComponentIterator : public PythonExportable<ComponentIterator> {
 public:
+  ComponentIterator() {}
   virtual ~ComponentIterator() {}
   virtual bool operator!=(const ComponentIterator&) const = 0;
   virtual ComponentIterator& operator++() = 0;
-  virtual IndexP operator*() const = 0;
+  virtual FieldIndex *fieldindex() const = 0; // returns new FieldIndex
+  IndexP operator*() const { return IndexP(fieldindex()); }
   virtual ComponentIterator *clone() const = 0;
+  virtual void print(std::ostream&) const = 0;
 };
+
+std::ostream &operator<<(std::ostream&, const ComponentIterator&);
 
 class ComponentIteratorP {
 private:
   ComponentIterator *iter;
 public:
-  ComponentIteratorP(ComponentIterator *iter)
-    : iter(iter)
-  {}
+  ComponentIteratorP(ComponentIterator *iter) : iter(iter) {}
   ~ComponentIteratorP() {
     if(iter)
       delete iter;
@@ -265,18 +267,19 @@ public:
     return *iter != *other.iter;
   }
   ComponentIteratorP& operator++() {
-    ++iter;
+    ++(*iter);
     return *this;
-  }
-  ComponentIteratorP operator++(int) { // postfix
-    ComponentIteratorP tmp(*this);
-    operator++();
-    return tmp;
   }
   IndexP operator*() const {
     return **iter;
   }
+  ComponentIterator *iterator() const { return iter; }
+  FieldIndex *current() const {
+    return iter->fieldindex();	// returns a new FieldIndex*.
+  }
 };
+
+std::ostream &operator<<(std::ostream&, const ComponentIteratorP&);
 
 class Components {
 public:
@@ -298,45 +301,9 @@ public:
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// // A FieldIterator is a FieldIndex that can be incremented, so it can
-// // loop over all possible values of the index.  The reason that we
-// // need separate FieldIterator and FieldIndex classes is that the
-// // Iterators can have different flavors for iterating over subsets of
-// // the possible Index values.  In particular, there are in-plane and
-// // out-of-plane iterators whose constructors take a Planarity
-// // argument.  We don't always know the planarity in circumstances
-// // where we need an Index, but we have to know it when we need an
-// // Iterator.
-
-// class FieldIterator : virtual public FieldIndex { 
-// public:
-//   FieldIterator() {}
-//   virtual ~FieldIterator() {}
-//   virtual void operator++() = 0; // go to next FieldIndex value
-//   virtual bool end() const = 0;	// are we there yet?
-//   virtual void reset() = 0;
-//   virtual int size() const = 0; // number of entries being iterated over
-// };
-
-// class ScalarFieldIterator : public ScalarFieldIndex, public FieldIterator
-// {
-// private:
-//   bool done;
-// public:
-//   ScalarFieldIterator() : done(false) {}
-//   ScalarFieldIterator(const ScalarFieldIterator &o) : done(o.done) {}
-//   virtual ~ScalarFieldIterator() {}
-//   virtual void operator++() { done = true; }
-//   virtual bool end() const { return done; }
-//   virtual void reset() { done = false; }
- //   virtual int size() const { return 1; }
-// };
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
 // EmptyFieldComponents is used to "iterate" over fields that have no
 // components, like the out-of-plane parts of a scalar or 2-vector.
-// It just lets use define all the classes identically and put
+// It just lets us define all the classes identically and put
 // outOfPlaneComponents in the Field base class.
 
 class EmptyFieldIterator : public ComponentIterator {
@@ -346,10 +313,11 @@ public:
   virtual const std::string &classname() const;
   virtual EmptyFieldIterator &operator++() { return *this; }
   virtual bool operator!=(const ComponentIterator&) const { return false; }
-  virtual IndexP operator*() const { return IndexP(nullptr); }
+  virtual FieldIndex *fieldindex() const { return nullptr; }
   virtual ComponentIterator *clone() const {
     return new EmptyFieldIterator();
   }
+  virtual void print(std::ostream&) const;
 };
 
 class EmptyFieldComponents : public Components {
@@ -372,10 +340,11 @@ public:
   virtual const std::string &classname() const;
   virtual ScalarFieldCompIterator &operator++();
   virtual bool operator!=(const ComponentIterator&) const;
-  virtual IndexP operator*() const;
+  virtual FieldIndex *fieldindex() const;
   virtual ComponentIterator *clone() const {
     return new ScalarFieldCompIterator(*this);
   }
+  virtual void print(std::ostream&) const;
 };
 
 class ScalarFieldComponents : public Components {
@@ -403,12 +372,13 @@ public:
     return *this;
   }
   virtual bool operator!=(const ComponentIterator&) const;
-  virtual IndexP operator*() const {
-    return IndexP(new VectorFieldIndex(index));
+  virtual FieldIndex *fieldindex() const {
+    return new VectorFieldIndex(index);
   }
   virtual ComponentIterator *clone() const {
     return new VectorFieldCompIterator(*this);
   }
+  virtual void print(std::ostream&) const;
 };
 
 class VectorFieldComponents : public Components {
@@ -444,12 +414,13 @@ public:
     return *this;
   }
   virtual bool operator!=(const ComponentIterator&) const;
-  virtual IndexP operator*() const {
-    return IndexP(new OutOfPlaneVectorFieldIndex(index));
+  virtual FieldIndex *fieldindex() const {
+    return new OutOfPlaneVectorFieldIndex(index);
   }
   virtual ComponentIterator *clone() const {
     return new OutOfPlaneVectorFieldCompIterator(*this);
   }
+  virtual void print(std::ostream&) const;
 };
 
 class OutOfPlaneVectorFieldComponents : public Components {
@@ -465,46 +436,6 @@ public:
 		      new OutOfPlaneVectorFieldCompIterator(imax, imax));
   }
 };
-
-// class VectorFieldIterator : public VectorFieldIndex, public FieldIterator 
-// {
-// private:
-//   int max;
-//   int start;
-// public:
-//   VectorFieldIterator() : max(3), start(0) {}
-//   VectorFieldIterator(int i, int dim=3)
-//     : VectorFieldIndex(i), max(dim), start(i)
-//   {}
-//   VectorFieldIterator(const VectorFieldIterator &o)
-//     :  VectorFieldIndex(o), max(o.max), start(o.start)
-//   {}
-//   virtual ~VectorFieldIterator() {}
-//   virtual void operator++() { index_++; }
-//   virtual bool end() const { return index_ >= max; }
-//   virtual void reset() { index_ = start; }
-//   virtual int size() const { return max; }
-// };
-
-
-// OutOfPlaneVectorFieldIterator was used only by
-// PlaneFluxEquation::iterator, which returned its Flux's out of plane
-// iterator.
-
-// class OutOfPlaneVectorFieldIterator  
-//   : public OutOfPlaneVectorFieldIndex, public FieldIterator
-// {
-// private:
-//   int max;
-// public:
-//   OutOfPlaneVectorFieldIterator() : max(3) {}
-//   virtual ~OutOfPlaneVectorFieldIterator() {}
-//   virtual void operator++() { index_++; }
-//   virtual bool end() const { return index_ >= max; }
-//   virtual void reset() { index_ = 0; }
-//   virtual int size() const { return max; }
-// };
-
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -541,7 +472,9 @@ public:
   const std::string& classname() const;
   SymTensorIterator &operator++() { v++; return *this; }
   virtual bool operator!=(const ComponentIterator &) const;
-  virtual IndexP operator*() const;
+  virtual FieldIndex *fieldindex() const {
+    return new SymTensorIndex(v);
+  }
   virtual ComponentIterator *clone() const {
     return new SymTensorIterator(*this);
   }
@@ -551,6 +484,7 @@ public:
   int row() const;
   int col() const;
   int integer() const { return v; }
+  virtual void print(std::ostream&) const;
 };
 
 class SymTensorInPlaneIterator : public SymTensorIterator {
@@ -567,6 +501,7 @@ public:
   virtual ComponentIterator *clone() const {
     return new SymTensorInPlaneIterator(*this);
   }
+  virtual void print(std::ostream&) const;
 };
 
 class SymTensorOutOfPlaneIterator : public SymTensorIterator {
@@ -580,6 +515,7 @@ public:
   virtual ComponentIterator *clone() const {
     return new SymTensorOutOfPlaneIterator(*this);
   }
+  virtual void print(std::ostream&) const;
 };
 
 class OutOfPlaneSymTensorIterator : public SymTensorOutOfPlaneIterator {
@@ -588,11 +524,14 @@ public:
   OutOfPlaneSymTensorIterator(int v) : SymTensorOutOfPlaneIterator(v) {}
   OutOfPlaneSymTensorIterator(int i, int j):SymTensorOutOfPlaneIterator(i, j){}
   virtual const std::string &classname() const; 
-  virtual IndexP operator*() const;
+  virtual FieldIndex *fieldindex() const {
+    return new OutOfPlaneSymTensorIndex(v);
+  }
   virtual int integer() const { return v - 2; }
   virtual ComponentIterator *clone() const {
     return new OutOfPlaneSymTensorIterator(*this);
   }
+  virtual void print(std::ostream&) const;
 };
 
 class SymTensorComponents : public Components {
@@ -635,6 +574,8 @@ public:
   }
 };
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 // SymTensorIJIterator and SymTensorIJComponents are used to iterate
 // over the components of a symmetric 3x3 tensor and get a real
 // SymTensorIndex out, not a FieldIndex or IndexP.  An instance called
@@ -653,6 +594,9 @@ public:
   SymTensorIJIterator(int v): v(v) {}
   SymTensorIJIterator &operator++() { v++; return *this; }
   SymTensorIndex operator*() const { return SymTensorIndex(v); }
+  FieldIndex *fieldindex() const {
+    return new SymTensorIndex(v);
+  }
   bool operator!=(const SymTensorIJIterator &other) const {
     return v != other.v;
   }
@@ -665,5 +609,15 @@ public:
 };
 
 extern SymTensorIJComponents symTensorIJComponents;
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Support for Python iterators
+
+class PyComponents {
+public:
+  ComponentIterator *beginIter();
+  ComponentIterator *endIter;
+};
 
 #endif // FIELDINDEX_H

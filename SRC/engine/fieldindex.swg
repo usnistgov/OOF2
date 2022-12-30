@@ -43,6 +43,8 @@ public:
   const std::string &shortstring();
 };
 
+bool operator==(const FieldIndex&, const FieldIndex&);
+
 PYTHONEXPORTABLE(FieldIndex);
 ADD_REPR_GENERIC(FieldIndex);
 
@@ -85,9 +87,9 @@ public:
 ADD_REPR_GENERIC(SymTensorIndex);
 
 
-// IndexP objects should NOT be created directly in
-// Python, because it leads to arguments over whose job it is to
-// delete the enclosed FieldIndex or FieldIterator object.
+// IndexP objects should NOT be created directly in Python, because it
+// leads to arguments over whose job it is to delete the enclosed
+// FieldIndex object.
 
 %nodefaultctor IndexP;
 %feature("valuewrapper") IndexP;
@@ -106,45 +108,38 @@ public:
 
 ADD_REPR_GENERIC(IndexP);
 
-// %nodefaultctor IteratorP;
-// %feature("valuewrapper") IteratorP;
-// %rename(increment) IteratorP::operator++();
+//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//
 
-// class IteratorP: public IndexP {
-// public:
-//   ~IteratorP();
-//   bool end();
-//   int size();
-//   IteratorP cloneIterator();
-//   void operator++();
-// };
+%nodefaultctor ComponentIteratorP;
 
-// // fieldindex.spy added __iter__ and __next__ methods to IteratorP,
-// // making it into a real python iterator, but the code is commented
-// // out.  The old TODO about doing that said "Fixing this at this late
-// // date will be a pain".  TODO PYTHON3: Find out what broke.  If the
-// // iterator code in fieldindex.spy isn't resurrected, move the rest of
-// // that file into a %pythoncode block in this file.
+// The only thing we need from ComponentIteratorP is direct access to
+// the FieldIndex that it's current referring to.
 
-// // TODO INDEXING: Don't swig IteratorP and IndexP.  Make the
-// // underlying FieldIndex and FieldIterator classes PythonExportable,
-// // and swig those.  Operations like SymmMatrix.__getitem__ would
-// // expect a FieldIndex of the correct type, not an IndexP, and the
-// // index object's special methods, like SymTensorIndex.diagonal, would
-// // be available.  The Field, Flux, and Equation classes should be
-// // iterable, with __iter__ returning an appropriate FieldIndex.
+%nodefaultctor ComponentIteratorP;
+%feature("valuewrapper") ComponentIteratorP;
+%rename(increment) ComponentIteratorP::operator++;
 
+ADD_REPR_GENERIC(ComponentIteratorP);
 
-// %extend IteratorP {
-//   void __next__() {
-//     ++(*self);
-//   }
-// };
+%{
+  typedef FieldIndex NewFieldIndex;
+%}
 
-// ADD_REPR_GENERIC(IteratorP);
+class ComponentIteratorP {
+public:
+  ComponentIteratorP &operator++();
+  NewFieldIndex *current();
+  bool operator!=(const ComponentIteratorP&) const;
+};
 
-// %newobject getSymTensorIterator;
-// IteratorP *getSymTensorIterator(Planarity);
+%nodefaultctor ComponentsP;
+%feature("valuewrapper") ComponentsP;
+
+class ComponentsP {
+public:
+  ComponentIteratorP begin() const;
+  ComponentIteratorP end() const;
+};
 
 %pythoncode "engine/fieldindex.spy"
 

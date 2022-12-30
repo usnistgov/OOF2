@@ -85,6 +85,8 @@ typedef std::vector<CompoundField*> CompoundFieldVec;
 %nodefaultdtor Field;
 
 %rename(c_time_derivative) Field::time_derivative;
+%rename(c_components) Field::components;
+%rename(c_outOfPlaneComponents) Field::outOfPlaneComponents;
 
 class Field {
 public:
@@ -107,6 +109,9 @@ public:
   // function in problem.py calls Field.c_time_derivative, etc.
   // c_time_derivative should not be used anywhere else.
   Field *time_derivative(); // renamed to c_time_derivative
+
+  ComponentsP components(Planarity);
+  ComponentsP outOfPlaneComponents();
 
   void registerProperty(Property*);
 
