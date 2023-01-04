@@ -607,3 +607,29 @@ ComponentsP SymmetricTensorField::outOfPlaneComponents() const {
   static const OutOfPlaneSymTensorComponents comps;
   return ComponentsP(&comps);
 }
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+void testIterator_(const Field *field) {
+  std::cerr << "testIterator: " << field->name() << std::endl;
+  for(Planarity planarity : {ALL_INDICES, IN_PLANE, OUT_OF_PLANE}) {
+    if (planarity == IN_PLANE)
+      std::cerr << "IN_PLANE";
+    else if(planarity == OUT_OF_PLANE)
+      std::cerr << "OUT_OF_PLANE";
+    else
+      std::cerr << "ALL_INDICES";
+    std::cerr << ":";
+    for(auto index : field->components(planarity))
+      std::cerr << " " << index;
+    std::cerr << std::endl;
+  }
+}
+
+void testIterators() {
+  for(int i=0; i<countCompoundFields(); i++) {
+    CompoundField *field = getCompoundFieldByIndex(i);
+    testIterator_(field);
+    testIterator_(field->out_of_plane());
+  }
+}

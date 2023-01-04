@@ -190,7 +190,7 @@ public:
   const std::string &classname();
 };
 
-//void testIterators();
+void testIterators();
 
 %pythoncode "engine/field.spy"
 

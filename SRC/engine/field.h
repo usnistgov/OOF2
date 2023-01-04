@@ -436,5 +436,7 @@ int countFields();
 CompoundField *getCompoundFieldByIndex(int);
 int countCompoundFields();
 
+void testIterators();
+
 
 #endif	// FIELD_H
