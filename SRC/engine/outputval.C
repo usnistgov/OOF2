@@ -74,15 +74,15 @@ const ArithmeticOutputValue &ArithmeticOutputValue::operator *=(double x) {
   return *this;
 }
 
-double ArithmeticOutputValue::operator[](const IndexP &p) const {
+double ArithmeticOutputValue::operator[](const FieldIndex &fi) const {
   const ArithmeticOutputVal *thisval =
     dynamic_cast<const ArithmeticOutputVal*>(val);
-  return (*thisval)[p];
+  return (*thisval)[fi];
 }
 
-double &ArithmeticOutputValue::operator[](const IndexP &p) {
+double &ArithmeticOutputValue::operator[](const FieldIndex &fi) {
   ArithmeticOutputVal *thisval = dynamic_cast<ArithmeticOutputVal*>(val);
-  return (*thisval)[p];
+  return (*thisval)[fi];
 }
 
 ArithmeticOutputValue operator*(double x, const ArithmeticOutputValue &ov) {
@@ -140,11 +140,11 @@ const ScalarOutputVal &ScalarOutputVal::operator=(const ScalarOutputVal &other)
   return *this;
 }
 
-double ScalarOutputVal::operator[](const IndexP&) const {
+double ScalarOutputVal::operator[](const FieldIndex&) const {
   return val;
 }
 
-double &ScalarOutputVal::operator[](const IndexP&) {
+double &ScalarOutputVal::operator[](const FieldIndex&) {
   return val;
 }
 
@@ -259,12 +259,12 @@ double VectorOutputVal::dot(const std::vector<double> &other) const {
   return sum;
 }
 
-double VectorOutputVal::operator[](const IndexP &p) const {
-  return data[p.integer()];
+double VectorOutputVal::operator[](const FieldIndex &fi) const {
+  return data[fi.integer()];
 }
-  
-double &VectorOutputVal::operator[](const IndexP &p) {
-  return data[p.integer()];
+
+double &VectorOutputVal::operator[](const FieldIndex &fi) {
+  return data[fi.integer()];
 }
 
 IndexP VectorOutputVal::getIndex(const std::string &str) const {
@@ -345,12 +345,12 @@ ListOutputVal::~ListOutputVal() {
   delete [] data;
 }
 
-double ListOutputVal::operator[](const IndexP &p) const {
-  return data[p.integer()];
+double ListOutputVal::operator[](const FieldIndex &fi) const {
+  return data[fi.integer()];
 }
-  
-double &ListOutputVal::operator[](const IndexP &p) {
-  return data[p.integer()];
+
+double &ListOutputVal::operator[](const FieldIndex &fi) {
+  return data[fi.integer()];
 }
 
 const ListOutputVal &ListOutputVal::operator=(const OutputVal &other) {

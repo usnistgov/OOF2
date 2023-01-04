@@ -122,8 +122,6 @@ public:
 
   void setValueFromOutputValue(FEMesh*, PointData&, OutputValue*);
 
-  // IteratorP iterator(Planarity p);
-  IndexP getIndex(char *);	// convert from "x", "xy", etc.
   ArithmeticOutputValue newOutputValue();
   ArithmeticOutputValue output(FEMesh*, PointData&);
 };
@@ -191,6 +189,8 @@ public:
   SymmetricTensorField(char *name);
   const std::string &classname();
 };
+
+//void testIterators();
 
 %pythoncode "engine/field.spy"
 

@@ -155,8 +155,8 @@ public:
     SymmMatrix::operator-=(x);
     return *this;
   }
-  virtual double operator[](const IndexP&) const;
-  virtual double &operator[](const IndexP&);
+  virtual double operator[](const FieldIndex&) const;
+  virtual double &operator[](const FieldIndex&);
   double operator[](const SymTensorIndex&) const;
   double &operator[](const SymTensorIndex&);
   double trace() const;

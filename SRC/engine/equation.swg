@@ -14,9 +14,6 @@
 
 %module(package="ooflib.SWIG.engine") equation
 
-%feature("valuewrapper") IteratorP;
-%feature("valuewrapper") IndexP;
-
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
@@ -65,8 +62,6 @@ public:
   int dim();
   int ndof();			// same as dim()
   NodalEquation *nodaleqn(const FuncNode&, int);
-  // IteratorP iterator();
-  IndexP getIndex(char*);
   int is_active(const CSubProblem*);
   bool allow_boundary_conditions();
   static Equation *getEquation(const std::string&);

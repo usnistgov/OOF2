@@ -70,8 +70,8 @@ public:
   virtual void component_square() = 0;
   virtual void component_sqrt() = 0;
   virtual double magnitude() const = 0;
-  virtual double operator[](const IndexP&) const = 0;
-  virtual double &operator[](const IndexP&) = 0;
+  virtual double operator[](const FieldIndex&) const = 0;
+  virtual double &operator[](const FieldIndex&) = 0;
 };
 
 class NonArithmeticOutputVal : public OutputVal {
@@ -132,8 +132,8 @@ public:
   virtual double magnitude() const { return fabs(val); }
   double value() const { return val; }
   double &value() { return val; }
-  virtual double operator[](const IndexP&) const;
-  virtual double &operator[](const IndexP&);
+  virtual double operator[](const FieldIndex&) const;
+  virtual double &operator[](const FieldIndex&);
   virtual IndexP getIndex(const std::string&) const;
   
   virtual void print(std::ostream&) const;
@@ -202,8 +202,8 @@ public:
   virtual std::vector<double> *value_list() const;
   double operator[](int i) const { return data[i]; }
   double &operator[](int i) { return data[i]; }
-  virtual double operator[](const IndexP &p) const;
-  virtual double &operator[](const IndexP &p);
+  virtual double operator[](const FieldIndex&) const;
+  virtual double &operator[](const FieldIndex&);
   virtual IndexP getIndex(const std::string&) const;
   virtual double magnitude() const;
   virtual void print(std::ostream&) const;
@@ -243,8 +243,8 @@ public:
   virtual ListOutputVal *clone() const;
   double &operator[](int i) { return data[i]; }
   double operator[](int i) const { return data[i]; }
-  virtual double operator[](const IndexP &p) const;
-  virtual double &operator[](const IndexP &p);
+  virtual double operator[](const FieldIndex&) const;
+  virtual double &operator[](const FieldIndex&);
   virtual IndexP getIndex(const std::string&) const;
   virtual std::vector<double> *value_list() const;
   virtual void print(std::ostream&) const;
@@ -363,13 +363,13 @@ public:
   const ArithmeticOutputValue &operator-=(const ArithmeticOutputValue &other);
   const ArithmeticOutputValue &operator *=(double x);
 
-  // In principle, operator[](IndexP) should be defined in the base
+  // In principle, operator[](FieldIndex) should be defined in the base
   // classes OutputValue and OutputVal.  However, it's a bit of a pain
   // to define them for NonArithmeticOutputVals that are indexed by
   // strings, and they're not needed in C++.  They're defined in
   // Python.
-  double operator[](const IndexP &p) const;
-  double &operator[](const IndexP &p);
+  double operator[](const FieldIndex&) const;
+  double &operator[](const FieldIndex&);
 };
 
 ArithmeticOutputValue operator*(double x, const ArithmeticOutputValue &ov);

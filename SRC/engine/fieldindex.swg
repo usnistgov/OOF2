@@ -37,9 +37,6 @@ public:
   ~FieldIndex();
   int integer();
   bool in_plane();
-  // void set(const std::vector<int>*);
-  // %newobject getComponents;
-  // std::vector<int> *getComponents();
   const std::string &shortstring();
 };
 
@@ -86,28 +83,6 @@ public:
 
 ADD_REPR_GENERIC(SymTensorIndex);
 
-
-// IndexP objects should NOT be created directly in Python, because it
-// leads to arguments over whose job it is to delete the enclosed
-// FieldIndex object.
-
-%nodefaultctor IndexP;
-%feature("valuewrapper") IndexP;
-
-class IndexP {
-public:
-  ~IndexP();
-  int integer();
-  bool in_plane();
-  IndexP clone();
-  // void set(const std::vector<int>*);
-  %newobject getComponents;
-  std::vector<int> *getComponents();
-  const std::string &shortstring();
-};
-
-ADD_REPR_GENERIC(IndexP);
-
 //==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//
 
 %nodefaultctor ComponentIteratorP;
@@ -140,6 +115,27 @@ public:
   ComponentIteratorP begin() const;
   ComponentIteratorP end() const;
 };
+
+//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//
+
+%nodefaultctor SymTensorIJIterator;
+%nodefaultctor SymTensorIJComponents;
+%rename(increment) SymTensorIJIterator::operator++;
+%rename(getIndex) SymTensorIJIterator::operator*;
+
+class SymTensorIJIterator {
+public:
+  SymTensorIJIterator &operator++();
+  NewFieldIndex *fieldindex() const;
+};
+
+class SymTensorIJComponents {
+public:
+  SymTensorIJIterator begin() const;
+  SymTensorIJIterator end() const;
+};
+
+extern const SymTensorIJComponents symTensorIJComponents;
 
 %pythoncode "engine/fieldindex.spy"
 

@@ -14,10 +14,6 @@
 #include "outputval.h"
 #include "common/tostring.h"
 
-FieldIndex::FieldIndex() {}
-
-FieldIndex::~FieldIndex() {}
-
 bool operator==(const FieldIndex &a, const FieldIndex &b) {
   return a.integer() == b.integer();
 }

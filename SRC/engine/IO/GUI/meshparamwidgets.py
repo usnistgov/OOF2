@@ -324,18 +324,15 @@ class FieldIndexParameterWidget(parameterwidgets.ParameterWidget):
         self.update()
         self.widgetChanged(True, interactive)
     def update(self):                   # field has changed
-        itlist = []
+        complist = []
         self.nIndices = 0
         field = self.fieldwidget.get_value()
         if field is not None:
-            iterator = field.iterator_all()
-            while not iterator.end():
+            for fcomp in field.components(planarity.ALL_INDICES):
                 self.nIndices += 1
-                it = iterator.clone() # TODO PYTHON3: why?
-                itrepr = it.shortrepr()
-                itlist.append(itrepr)
-                iterator.increment()
-        self.chooser.update(itlist)
+                comprepr = fcomp.shortstring()
+                complist.append(comprepr)
+        self.chooser.update(complist)
 
         # The __init__ used to put both the chooser and the "Not
         # Applicable" label in the Box, and the show() method showed

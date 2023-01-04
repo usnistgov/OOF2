@@ -85,7 +85,7 @@ class OutputVal {
 public:
   ~OutputVal();
   int dim();
-  IndexP getIndex(char *);
+  // IndexP getIndex(char *);
   NewOutputVal *clone();
   NewOutputVal *zero();
   %newobject value_list;
@@ -109,7 +109,7 @@ public:
 };
 
 %extend ArithmeticOutputVal {
-  double __getitem__(const IndexP &i) const {
+  double __getitem__(const FieldIndex &i) const {
     return (*self)[i];
   }
 };
@@ -171,10 +171,10 @@ public:
   void _mul(double other) {
     (*self) *= other;
   }
-  double __getitem__(const IndexP &i) const {
+  double __getitem__(const FieldIndex &i) const {
     return (*self)[i];
   }
-  void __setitem__(const IndexP &i, double x) {
+  void __setitem__(const FieldIndex &i, double x) {
     (*self)[i] = x;
   }
 };
@@ -186,10 +186,10 @@ public:
 };
 
 %extend ListOutputVal {
-  double __getitem__(const IndexP &i) const {
+  double __getitem__(const FieldIndex &i) const {
     return (*self)[i];
   }
-  void __setitem__(const IndexP &i, double x) {
+  void __setitem__(const FieldIndex &i, double x) {
     (*self)[i] = x;
   }
 };
@@ -219,7 +219,7 @@ public:
 };
 
 %extend ArithmeticOutputValue {
-  double __getitem__(const IndexP &i) const {
+  double __getitem__(const FieldIndex &i) const {
     return (*self)[i];
   }
   void _add(const ArithmeticOutputValue &other) {

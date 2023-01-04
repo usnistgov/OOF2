@@ -65,12 +65,12 @@ void NonlinearHeatConductivityNoDeriv::static_flux_value(
 
   ArithmeticOutputValue outputVal =
     element->outputField( mesh, *temperature, pt );
-  fieldValue = outputVal[0];
+  fieldValue = outputVal[ScalarFieldIndex()];
 
   for (SpaceIndex i=0; i<DIM; ++i){
     ArithmeticOutputValue outputVal =
       element->outputFieldDeriv(mesh, *temperature, &i, pt );
-    fieldGradient[i] = outputVal[0];
+    fieldGradient[i] = outputVal[ScalarFieldIndex()];
   }
 
   // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane
@@ -78,7 +78,7 @@ void NonlinearHeatConductivityNoDeriv::static_flux_value(
   if ( !temperature->in_plane(mesh) ){
     ArithmeticOutputValue outputVal =
       element->outputField(mesh, *temperature->out_of_plane(), pt );
-    fieldGradient[2] = outputVal[0];
+    fieldGradient[2] = outputVal[ScalarFieldIndex()];
   }
 
   // evaluate the value of the flux with the given pt, time and
@@ -119,12 +119,12 @@ void NonlinearHeatConductivity::flux_matrix(const FEMesh  *mesh,
 
   ArithmeticOutputValue outputVal
     = element->outputField( mesh, *temperature, pt );
-  fieldValue = outputVal[0];
+  fieldValue = outputVal[ScalarFieldIndex()];
 
   for (SpaceIndex i=0; i<DIM; ++i){
     ArithmeticOutputValue outputVal =
       element->outputFieldDeriv(mesh, *temperature, &i, pt);
-    fieldGradient[i] = outputVal[0];
+    fieldGradient[i] = outputVal[ScalarFieldIndex()];
   }
 
   // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane
@@ -132,7 +132,7 @@ void NonlinearHeatConductivity::flux_matrix(const FEMesh  *mesh,
   if(!temperature->in_plane(mesh)) {
     ArithmeticOutputValue outputVal =
       element->outputField(mesh, *temperature->out_of_plane(), pt );
-    fieldGradient[2] = outputVal[0];
+    fieldGradient[2] = outputVal[ScalarFieldIndex()];
   }
 
   // evaluate the value of the flux derivatives with the given pt,

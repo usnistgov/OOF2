@@ -10,14 +10,21 @@
 
 from ooflib.common import debug
 
-## TODO PYTHON3: Why do FieldIndex and IndexP redefine shortstring as
-## shortrepr?  Can they use %rename to do it, or do they need both?
-## Can shortstring just be renamed to shortrepr in C++?
+# ## TODO PYTHON3: Why do FieldIndex and IndexP redefine shortstring as
+# ## shortrepr?  Can they use %rename to do it, or do they need both?
+# ## Can shortstring just be renamed to shortrepr in C++?
 
-def _shortrepr(self):
-    return self.shortstring()
+# def _shortrepr(self):
+#     return self.shortstring()
 
-FieldIndex.shortrepr = _shortrepr
-IndexP.shortrepr = _shortrepr
+# FieldIndex.shortrepr = _shortrepr
+# IndexP.shortrepr = _shortrepr
 
-
+def _SymTensorIJComponents__iter__(self):
+    beginp = self.begin()
+    endp = self.end()
+    while beginp != endp:
+        yield beginp.fieldindex()
+        beginp.increment()
+        
+SymTensorIJComponents.__iter__ = _SymTensorIJComponents__iter__
