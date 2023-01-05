@@ -137,16 +137,16 @@ ComponentsP VectorFlux::outOfPlaneComponents() const {
   return ComponentsP(&comp);
 }
 
-IndexP VectorFlux::getIndex(const std::string &str) const {
-  return IndexP(new VectorFieldIndex(str[0] - 'x'));
+FieldIndex *VectorFlux::getIndex(const std::string &str) const {
+  return new VectorFieldIndex(str[0] - 'x');
 }
 
-IndexP VectorFlux::getOutOfPlaneIndex(const std::string &str) const {
-  return IndexP(new OutOfPlaneVectorFieldIndex(str[0] - 'x'));
+FieldIndex *VectorFlux::getOutOfPlaneIndex(const std::string &str) const {
+  return new OutOfPlaneVectorFieldIndex(str[0] - 'x');
 }
 
-IndexP VectorFlux::divergence_getIndex(const std::string&) const {
-  return IndexP(new ScalarFieldIndex);
+FieldIndex *VectorFlux::divergence_getIndex(const std::string&) const {
+  return new ScalarFieldIndex();
 }
 
 ComponentsP SymmetricTensorFlux::components(Planarity planarity) const {
@@ -170,16 +170,20 @@ ComponentsP SymmetricTensorFlux::outOfPlaneComponents() const {
   return ComponentsP(&comps);
 }
 
-IndexP SymmetricTensorFlux::getIndex(const std::string &str) const {
-  return IndexP(new SymTensorIndex(SymTensorIndex::str2voigt(str)));
+FieldIndex *SymmetricTensorFlux::getIndex(const std::string &str) const {
+  return new SymTensorIndex(SymTensorIndex::str2voigt(str));
 }
 
-IndexP SymmetricTensorFlux::getOutOfPlaneIndex(const std::string &str) const {
-  return IndexP(new OutOfPlaneSymTensorIndex(SymTensorIndex::str2voigt(str)));
+FieldIndex *SymmetricTensorFlux::getOutOfPlaneIndex(const std::string &str)
+  const
+{
+  return new OutOfPlaneSymTensorIndex(SymTensorIndex::str2voigt(str));
 }
 
-IndexP SymmetricTensorFlux::divergence_getIndex(const std::string &str) const {
-  return IndexP(new VectorFieldIndex(str[0] - 'x'));
+FieldIndex *SymmetricTensorFlux::divergence_getIndex(const std::string &str)
+  const
+{
+  return new VectorFieldIndex(str[0] - 'x');
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

@@ -82,9 +82,9 @@ public:
   virtual ComponentsP components(Planarity) const = 0;
   virtual ComponentsP divergenceComponents() const = 0;
   virtual ComponentsP outOfPlaneComponents() const = 0;
-  virtual IndexP getIndex(const std::string&) const = 0;
-  virtual IndexP getOutOfPlaneIndex(const std::string&) const = 0;
-  virtual IndexP divergence_getIndex(const std::string&) const = 0;
+  virtual FieldIndex *getIndex(const std::string&) const = 0;
+  virtual FieldIndex *getOutOfPlaneIndex(const std::string&) const = 0;
+  virtual FieldIndex *divergence_getIndex(const std::string&) const = 0;
 
   virtual FluxNormal *BCCallback(const Coord&,
 				 double,
@@ -174,9 +174,9 @@ public:
   virtual ComponentsP divergenceComponents() const;
   virtual ComponentsP outOfPlaneComponents() const;
 
-  virtual IndexP getIndex(const std::string&) const;
-  virtual IndexP getOutOfPlaneIndex(const std::string&) const;
-  virtual IndexP divergence_getIndex(const std::string&) const;
+  virtual FieldIndex *getIndex(const std::string&) const;
+  virtual FieldIndex *getOutOfPlaneIndex(const std::string&) const;
+  virtual FieldIndex *divergence_getIndex(const std::string&) const;
 
   virtual ArithmeticOutputVal *contract(const FEMesh*, const Element*,
 					 const EdgeGaussPoint&) const;
@@ -229,9 +229,9 @@ public:
   virtual ComponentsP components(Planarity) const;
   virtual ComponentsP divergenceComponents() const;
   virtual ComponentsP outOfPlaneComponents() const;
-  virtual IndexP getIndex(const std::string&) const;
-  virtual IndexP getOutOfPlaneIndex(const std::string&) const;
-  virtual IndexP divergence_getIndex(const std::string&) const;
+  virtual FieldIndex *getIndex(const std::string&) const;
+  virtual FieldIndex *getOutOfPlaneIndex(const std::string&) const;
+  virtual FieldIndex *divergence_getIndex(const std::string&) const;
 
   // Ideally, all arguments here would be const, but the first
   // PyObject* gets passed to PyEval_CallObject, which itself does

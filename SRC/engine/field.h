@@ -1,6 +1,5 @@
 // -*- C++ -*-
 
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -188,7 +187,10 @@ public:
     return f1.index() == f2.index();
   }
 
-  virtual IndexP getIndex(const std::string&) const = 0;
+  // getIndex converts the string representation of a FieldIndex (eg,
+  // "x" for a vector component) to an actual FieldIndex.  It's only
+  // used in python.
+  virtual FieldIndex *getIndex(const std::string&) const = 0;
 
   virtual ComponentsP components(Planarity) const = 0;
   virtual ComponentsP outOfPlaneComponents() const = 0;
@@ -306,7 +308,7 @@ public:
 
   virtual ComponentsP components(Planarity=ALL_INDICES/*irrelevant*/) const;
   virtual ComponentsP outOfPlaneComponents() const;
-  virtual IndexP getIndex(const std::string&) const;
+  virtual FieldIndex *getIndex(const std::string&) const;
   virtual const std::string &classname() const { return classname_; }
 };
 
@@ -342,7 +344,7 @@ public:
 				       const OutputValue*);
   virtual ComponentsP components(Planarity /*irrelevant*/) const;
   virtual ComponentsP outOfPlaneComponents() const;
-  virtual IndexP getIndex(const std::string&) const;
+  virtual FieldIndex *getIndex(const std::string&) const;
   virtual const std::string &classname() const { return classname_; }
 };
 
@@ -381,7 +383,7 @@ public:
 				       const OutputValue*);
   virtual ComponentsP components(Planarity=ALL_INDICES) const;
   virtual ComponentsP outOfPlaneComponents() const;
-  virtual IndexP getIndex(const std::string&) const;
+  virtual FieldIndex *getIndex(const std::string&) const;
 };
 
 // ThreeVectorField, provided as a separate class so that it can be
@@ -423,7 +425,7 @@ public:
 				       const OutputValue*);
   virtual ComponentsP components(Planarity) const;
   virtual ComponentsP outOfPlaneComponents() const;
-  virtual IndexP getIndex(const std::string&) const;
+  virtual FieldIndex *getIndex(const std::string&) const;
 
   virtual const std::string &classname() const {
     return classname_;

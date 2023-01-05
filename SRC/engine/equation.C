@@ -484,7 +484,7 @@ ComponentsP DivergenceEquation::components() const {
   return fflux->divergenceComponents();
 }
 
-IndexP DivergenceEquation::getIndex(const std::string &str) const {
+FieldIndex *DivergenceEquation::getIndex(const std::string &str) const {
   return fflux->divergence_getIndex(str);
 }
 
@@ -518,9 +518,8 @@ ComponentsP PlaneFluxEquation::components() const {
   return fflux->outOfPlaneComponents();
 }
 
-IndexP PlaneFluxEquation::getIndex(const std::string &str) const {
+FieldIndex *PlaneFluxEquation::getIndex(const std::string &str) const {
   return fflux->getOutOfPlaneIndex(str);
-  // return fflux->getIndex(str);
 }
 
 //////////////
@@ -578,8 +577,8 @@ ComponentsP NaturalEquation::components() const {
   return ComponentsP(&comps);
 }
 
-IndexP NaturalEquation::getIndex(const std::string&str) const {
-  return IndexP(new ScalarFieldIndex);
+FieldIndex *NaturalEquation::getIndex(const std::string&str) const {
+  return new ScalarFieldIndex();
 }
 
 int NaturalEquation::integration_order(const Element *el) const {

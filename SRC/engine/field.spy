@@ -98,6 +98,6 @@ def _Field_components(self, planarity):
 Field.components = _Field_components
 
 def _Field_outOfPlaneComponents(self):
-    return _fielditer( self.c_outOfPlaneComponents())
+    return _fielditer(self.c_outOfPlaneComponents())
 
 Field.outOfPlaneComponents = _Field_outOfPlaneComponents

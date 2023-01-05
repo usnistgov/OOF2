@@ -106,10 +106,8 @@ def _field_column_names(self):
     if field.ndof() == 1:
         return [field.name()]
     names = []
-    it = field.iterator(planarity.ALL_INDICES)
-    while not it.end():
-        names.append("%s[%s]" % (field.name(), it.shortrepr()))
-        it.increment()
+    for comp in field.components(planarity.ALL_INDICES):
+        names.append("%s[%s]" % (field.name(), comp.shortrepr()))
     return names
 
 FieldOutput = output.Output(
@@ -151,11 +149,9 @@ def _fieldderiv_column_names(self):
     if field.ndof() == 1:
         return ["d(%s)/d%s" % (field.name(), derivative.string())]
     names = []
-    it = field.iterator(planarity.ALL_INDICES)
-    while not it.end():
-        names.append("d(%s[%s])/d%s" % (field.name(), it.shortrepr(),
+    for comp in field.components(planarity.ALL_INDICES):
+        names.append("d(%s[%s])/d%s" % (field.name(), comp.shortrepr(),
                                         derivative.string()))
-        it.increment()
     return names
 
 FieldDerivOutput = output.Output(
@@ -213,11 +209,9 @@ def _flux_instancefn(self):
 
 def _flux_column_names(self):
     flux = self.resolveAlias('flux').value
-    it = flux.iterator(planarity.ALL_INDICES)
     names = []
-    while not it.end():
-        names.append("%s[%s]" % (flux.name(), it.shortrepr()))
-        it.increment()
+    for comp in flux.components(planarity.ALL_INDICES):
+        names.append("%s[%s]" % (flux.name(), comp.shortrepr()))
     return names
 
 FluxOutput = output.Output(

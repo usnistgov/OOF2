@@ -26,6 +26,8 @@
 %import "engine/pointdata.swg"
 #endif // NOSECONDIMPORTS
 
+PYTHONEXPORTABLE(FieldIndex);
+
 %{
 #include "common/coord.h"
 #include "engine/field.h"
@@ -33,6 +35,7 @@
 #include "engine/pointdata.h"
 int countFields();
 typedef std::vector<CompoundField*> CompoundFieldVec;
+typedef FieldIndex NewFieldIndex;
 %}
 
 // Typemap to convert a std::vector of CompoundField*s to a Python
@@ -122,6 +125,8 @@ public:
 
   void setValueFromOutputValue(FEMesh*, PointData&, OutputValue*);
 
+  NewFieldIndex *getIndex(const std::string&) const;
+  
   ArithmeticOutputValue newOutputValue();
   ArithmeticOutputValue output(FEMesh*, PointData&);
 };

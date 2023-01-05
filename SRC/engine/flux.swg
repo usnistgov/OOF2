@@ -30,6 +30,9 @@
 PYTHONEXPORTABLE(Flux);
 
 %nodefaultctor Flux;
+%rename(c_components) Flux::components;
+%rename(c_divergenceComponents) Flux::divergenceComponents;
+%rename(c_outOfPlaneComponents) Flux::outOfPlaneComponents;
 
 class Flux {
 public:
@@ -38,6 +41,9 @@ public:
   const std::string &name();
   int objectid();
   ArithmeticOutputValue newOutputValue();
+  ComponentsP components(Planarity) const;
+  ComponentsP divergenceComponents() const;
+  ComponentsP outOfPlaneComponents() const;
 };
 
 ADD_REPR(Flux, repr);

@@ -153,8 +153,8 @@ std::vector<double> *ScalarOutputVal::value_list() const {
 }
 
 
-IndexP ScalarOutputVal::getIndex(const std::string&) const {
-  return IndexP(new ScalarFieldIndex());
+FieldIndex *ScalarOutputVal::getIndex(const std::string&) const {
+  return new ScalarFieldIndex();
 }
 
 ScalarOutputVal operator+(const ScalarOutputVal &a, const ScalarOutputVal &b) {
@@ -267,9 +267,9 @@ double &VectorOutputVal::operator[](const FieldIndex &fi) {
   return data[fi.integer()];
 }
 
-IndexP VectorOutputVal::getIndex(const std::string &str) const {
+FieldIndex *VectorOutputVal::getIndex(const std::string &str) const {
   // str must be "x", "y", or "z"
-  return IndexP(new VectorFieldIndex(str[0] - 'x'));
+  return new VectorFieldIndex(str[0] - 'x');
 }
 
 double VectorOutputVal::magnitude() const {
@@ -384,10 +384,10 @@ std::vector<double> *ListOutputVal::value_list() const {
 //   return IteratorP(new ListOutputValIterator(this));
 // }
 
-IndexP ListOutputVal::getIndex(const std::string &s) const {
+FieldIndex *ListOutputVal::getIndex(const std::string &s) const {
   for(int i=0; i<size(); i++) {
     if(labels[i] == s)
-      return IndexP(new ListOutputValIndex(this, i));
+      return new ListOutputValIndex(this, i);
   }
   throw ErrProgrammingError("Bad index '" + s + "'", __FILE__, __LINE__);
 }

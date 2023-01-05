@@ -325,8 +325,8 @@ ComponentsP ScalarFieldBase::outOfPlaneComponents() const {
   return ComponentsP(&comps);
 }
 
-IndexP ScalarFieldBase::getIndex(const std::string &) const {
-  return IndexP(new ScalarFieldIndex);
+FieldIndex *ScalarFieldBase::getIndex(const std::string &) const {
+  return new ScalarFieldIndex;
 }
 
 const std::string ScalarFieldBase::classname_("ScalarFieldBase");
@@ -412,8 +412,8 @@ ComponentsP TwoVectorFieldBase::outOfPlaneComponents() const {
   return ComponentsP(&comps);
 }
 
-IndexP TwoVectorFieldBase::getIndex(const std::string &str) const {
-  return IndexP(new VectorFieldIndex(str[0] - 'x'));
+FieldIndex *TwoVectorFieldBase::getIndex(const std::string &str) const {
+  return new VectorFieldIndex(str[0] - 'x');
 }
 
 const std::string TwoVectorFieldBase::classname_("TwoVectorFieldBase");
@@ -502,8 +502,8 @@ ComponentsP VectorFieldBase::outOfPlaneComponents() const {
   return ComponentsP(&comp);
 }
 
-IndexP VectorFieldBase::getIndex(const std::string &str) const {
-  return IndexP(new VectorFieldIndex(str[0] - 'x'));
+FieldIndex *VectorFieldBase::getIndex(const std::string &str) const {
+  return new VectorFieldIndex(str[0] - 'x');
 }
 
 ThreeVectorField::ThreeVectorField(const std::string &nm)
@@ -599,8 +599,8 @@ ComponentsP SymmetricTensorField::components(Planarity planarity) const {
   return ComponentsP(&outofplane);
 }
 
-IndexP SymmetricTensorField::getIndex(const std::string& str) const {
-  return IndexP(new SymTensorIndex(SymTensorIndex::str2voigt(str)));
+FieldIndex *SymmetricTensorField::getIndex(const std::string& str) const {
+  return new SymTensorIndex(SymTensorIndex::str2voigt(str));
 }
 
 ComponentsP SymmetricTensorField::outOfPlaneComponents() const {

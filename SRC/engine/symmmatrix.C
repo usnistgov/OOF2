@@ -484,9 +484,9 @@ void SymmMatrix3::print(std::ostream &os) const {
   os << sm;
 }
 
-IndexP SymmMatrix3::getIndex(const std::string &str) const {
+FieldIndex *SymmMatrix3::getIndex(const std::string &str) const {
   // str must be "xx", "yy", "zz", "yz", "xz", or "xy", or permutations
-  return IndexP(new SymTensorIndex(SymTensorIndex::str2voigt(str)));
+  return new SymTensorIndex(SymTensorIndex::str2voigt(str));
 }
 
 ArithmeticOutputValue *newSymTensorOutputValue() {

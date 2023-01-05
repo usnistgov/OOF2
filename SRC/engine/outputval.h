@@ -53,8 +53,8 @@ public:
   virtual std::vector<double> *value_list() const = 0;
   virtual void print(std::ostream&) const = 0;
   // getIndex converts the string representation of a component index
-  // into an IndexP object that can be used to extract a component.
-  virtual IndexP getIndex(const std::string&) const = 0;
+  // into a FieldIndex object that can be used to extract a component.
+  virtual FieldIndex *getIndex(const std::string&) const = 0;
 
   friend class OutputValue;
 };
@@ -134,7 +134,7 @@ public:
   double &value() { return val; }
   virtual double operator[](const FieldIndex&) const;
   virtual double &operator[](const FieldIndex&);
-  virtual IndexP getIndex(const std::string&) const;
+  virtual FieldIndex *getIndex(const std::string&) const;
   
   virtual void print(std::ostream&) const;
 };
@@ -204,7 +204,7 @@ public:
   double &operator[](int i) { return data[i]; }
   virtual double operator[](const FieldIndex&) const;
   virtual double &operator[](const FieldIndex&);
-  virtual IndexP getIndex(const std::string&) const;
+  virtual FieldIndex *getIndex(const std::string&) const;
   virtual double magnitude() const;
   virtual void print(std::ostream&) const;
 };
@@ -245,7 +245,7 @@ public:
   double operator[](int i) const { return data[i]; }
   virtual double operator[](const FieldIndex&) const;
   virtual double &operator[](const FieldIndex&);
-  virtual IndexP getIndex(const std::string&) const;
+  virtual FieldIndex *getIndex(const std::string&) const;
   virtual std::vector<double> *value_list() const;
   virtual void print(std::ostream&) const;
   const std::string &label(int i) const { return labels[i]; }

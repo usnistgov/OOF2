@@ -80,7 +80,7 @@ public:
   // out-of-plane components of the flux for PlaneFluxEquation
   // objects.
   virtual ComponentsP components() const = 0;
-  virtual IndexP getIndex(const std::string&) const = 0;
+  virtual FieldIndex *getIndex(const std::string&) const = 0;
 
   static std::vector<Equation*> &all();
   const std::string &name() const { return name_; }
@@ -179,7 +179,7 @@ public:
   virtual int integration_order(const Element*) const;
 
   virtual ComponentsP components() const;
-  virtual IndexP getIndex(const std::string&) const;
+  virtual FieldIndex *getIndex(const std::string&) const;
 
   virtual const std::string &classname() const;
   virtual bool allow_boundary_conditions() const { return true; }
@@ -207,7 +207,7 @@ public:
   virtual int integration_order(const Element*) const;
 
   virtual ComponentsP components() const;
-  virtual IndexP getIndex(const std::string&) const;
+  virtual FieldIndex *getIndex(const std::string&) const;
 
   virtual const std::string &classname() const;
   virtual bool allow_boundary_conditions() const { return false; }
@@ -235,7 +235,7 @@ public:
 
   virtual int integration_order(const Element*) const;
   virtual ComponentsP components() const;
-  virtual IndexP getIndex(const std::string&) const;
+  virtual FieldIndex *getIndex(const std::string&) const;
   virtual const std::string &classname() const;
   virtual bool allow_boundary_conditions() const { return false; }
 

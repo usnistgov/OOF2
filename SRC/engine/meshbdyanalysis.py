@@ -64,12 +64,10 @@ class IntegrateBdyFlux(MeshBdyAnalyzer):
     def columnNames(self):
         if isinstance(self.flux, ooflib.SWIG.engine.flux.VectorFlux):
             return ["normal(%s)" % self.flux.name()]
-        it = self.flux.divergence_iterator()
         names = []
-        while not it.end():
+        for comp in self.flux.divergenceComponents():
             names.append("normal(%s)[%s]" 
-                         % (self.flux.name(), it.shortrepr()))
-            it.increment()
+                         % (self.flux.name(), comp.shortrepr()))
         return names
 
 

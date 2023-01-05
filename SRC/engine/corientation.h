@@ -81,7 +81,7 @@ public:
   virtual void print(std::ostream&) const = 0;
 
   const std::string &modulename() const;
-  virtual IndexP getIndex(const std::string&) const = 0;
+  virtual FieldIndex *getIndex(const std::string&) const = 0;
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -169,8 +169,8 @@ public:
   virtual COrientABG *zero() const;
   virtual std::vector<double> *value_list() const;
   static const std::vector<std::string> arguments;
-  virtual IndexP getIndex(const std::string &s) const {
-    return IndexP(new OIndex<COrientABG>(this, s));
+  virtual FieldIndex *getIndex(const std::string &s) const {
+    return new OIndex<COrientABG>(this, s);
   }
 };
 
@@ -198,8 +198,8 @@ public:
   virtual COrientBunge *zero() const;
   virtual std::vector<double> *value_list() const;
   static const std::vector<std::string> arguments;
-  virtual IndexP getIndex(const std::string &s) const {
-    return IndexP(new OIndex<COrientBunge>(this, s));
+  virtual FieldIndex *getIndex(const std::string &s) const {
+    return new OIndex<COrientBunge>(this, s);
   }
 };
 
@@ -228,8 +228,8 @@ public:
   virtual COrientQuaternion *zero() const;
   virtual std::vector<double> *value_list() const;
   static const std::vector<std::string> arguments;
-  virtual IndexP getIndex(const std::string &s) const {
-    return IndexP(new OIndex<COrientQuaternion>(this, s));
+  virtual FieldIndex *getIndex(const std::string &s) const {
+    return new OIndex<COrientQuaternion>(this, s);
   }
 };
 
@@ -260,8 +260,8 @@ public:
   virtual COrientX *zero() const;
   virtual std::vector<double> *value_list() const;
   static const std::vector<std::string> arguments;
-  virtual IndexP getIndex(const std::string &s) const {
-    return IndexP(new OIndex<COrientX>(this, s));
+  virtual FieldIndex *getIndex(const std::string &s) const {
+    return new OIndex<COrientX>(this, s);
   }
 };
 
@@ -292,8 +292,8 @@ public:
   virtual COrientXYZ *zero() const;
   virtual std::vector<double> *value_list() const;
   static const std::vector<std::string> arguments;
-  virtual IndexP getIndex(const std::string &s) const {
-    return IndexP(new OIndex<COrientXYZ>(this, s));
+  virtual FieldIndex *getIndex(const std::string &s) const {
+    return new OIndex<COrientXYZ>(this, s);
   }
 };
 
@@ -325,8 +325,8 @@ public:
   virtual COrientAxis *zero() const;
   virtual std::vector<double> *value_list() const;
   static const std::vector<std::string> arguments;
-  virtual IndexP getIndex(const std::string &s) const {
-    return IndexP(new OIndex<COrientAxis>(this, s));
+  virtual FieldIndex *getIndex(const std::string &s) const {
+    return new OIndex<COrientAxis>(this, s);
   }
 };
 
@@ -359,8 +359,8 @@ public:
   virtual COrientRodrigues *zero() const;
   virtual std::vector<double> *value_list() const;
   static const std::vector<std::string> arguments;
-  virtual IndexP getIndex(const std::string &s) const {
-    return IndexP(new OIndex<COrientRodrigues>(this, s));
+  virtual FieldIndex *getIndex(const std::string &s) const {
+    return new OIndex<COrientRodrigues>(this, s);
   }
 };
 

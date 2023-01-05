@@ -30,9 +30,11 @@
 #include "engine/flux.h"
 #include <vector>
 typedef std::vector<Equation*> EquationVec;
+typedef FieldIndex NewFieldIndex;
 %}
 
 PYTHONEXPORTABLE(Equation);
+PYTHONEXPORTABLE(FieldIndex);
 
 // %typemap(out) EquationVec * {
 //   // typemap(out) EquationVec*
@@ -67,6 +69,7 @@ public:
   bool allow_boundary_conditions();
   static Equation *getEquation(const std::string&);
   ComponentsP components();
+  NewFieldIndex *getIndex(const std::string&) const;
 };
 
 %extend Equation {
