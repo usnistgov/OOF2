@@ -127,7 +127,7 @@ public:
   virtual void print(std::ostream &os) const {
     os << classname() << "('" << args[which] << "')";
   }
-  virtual const std::string &shortstring() const {
+  virtual const std::string &shortrepr() const {
     return args[which];
   }
 };

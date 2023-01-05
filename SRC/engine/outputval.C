@@ -409,7 +409,7 @@ std::vector<int> *ListOutputValIndex::getComponents() const {
   return result;
 }
 
-const std::string &ListOutputValIndex::shortstring() const {
+const std::string &ListOutputValIndex::shortrepr() const {
   return ov_->labels[index_];
 }
 

@@ -108,7 +108,7 @@ def _field_column_names(self):
     names = []
     it = field.iterator(planarity.ALL_INDICES)
     while not it.end():
-        names.append("%s[%s]" % (field.name(), it.shortstring()))
+        names.append("%s[%s]" % (field.name(), it.shortrepr()))
         it.increment()
     return names
 
@@ -153,7 +153,7 @@ def _fieldderiv_column_names(self):
     names = []
     it = field.iterator(planarity.ALL_INDICES)
     while not it.end():
-        names.append("d(%s[%s])/d%s" % (field.name(), it.shortstring(),
+        names.append("d(%s[%s])/d%s" % (field.name(), it.shortrepr(),
                                         derivative.string()))
         it.increment()
     return names
@@ -216,7 +216,7 @@ def _flux_column_names(self):
     it = flux.iterator(planarity.ALL_INDICES)
     names = []
     while not it.end():
-        names.append("%s[%s]" % (flux.name(), it.shortstring()))
+        names.append("%s[%s]" % (flux.name(), it.shortrepr()))
         it.increment()
     return names
 
@@ -545,7 +545,7 @@ def _aggdiff_column_names(self):
     it = inst.getIterator()
     names = []
     while not it.end():
-        names.append("%s[%s]" % (sr, it.shortstring()))
+        names.append("%s[%s]" % (sr, it.shortrepr()))
         it.increment()
     return names
 

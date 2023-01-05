@@ -282,7 +282,7 @@ public:
   virtual void set(const std::vector<int>*);
   virtual std::vector<int>* getComponents() const;
   virtual void print(std::ostream &os) const;
-  virtual const std::string &shortstring() const;
+  virtual const std::string &shortrepr() const;
 };
 
 

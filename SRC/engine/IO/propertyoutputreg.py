@@ -116,7 +116,7 @@ def _symmmatrix3_column_names(self):
     names = []
     it = self.outputInstance().getIterator()
     while not it.end():
-        names.append("%s[%s]" % (sr, it.shortstring()))
+        names.append("%s[%s]" % (sr, it.shortrepr()))
         it.increment()
     return names
 

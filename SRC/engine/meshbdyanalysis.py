@@ -68,7 +68,7 @@ class IntegrateBdyFlux(MeshBdyAnalyzer):
         names = []
         while not it.end():
             names.append("normal(%s)[%s]" 
-                         % (self.flux.name(), it.shortstring()))
+                         % (self.flux.name(), it.shortrepr()))
             it.increment()
         return names
 
@@ -98,7 +98,7 @@ class AverageField(MeshBdyAnalyzer):
         names = []
         it = self.field.iterator(planarity.ALL_INDICES)
         while not it.end():
-            names.append("%s[%s]" % (self.field.name(), it.shortstring()))
+            names.append("%s[%s]" % (self.field.name(), it.shortrepr()))
             it.increment()
         return names
 

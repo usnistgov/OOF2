@@ -330,7 +330,7 @@ class FieldIndexParameterWidget(parameterwidgets.ParameterWidget):
         if field is not None:
             for fcomp in field.components(planarity.ALL_INDICES):
                 self.nIndices += 1
-                comprepr = fcomp.shortstring()
+                comprepr = fcomp.shortrepr()
                 complist.append(comprepr)
         self.chooser.update(complist)
 

@@ -37,7 +37,7 @@ public:
   ~FieldIndex();
   int integer();
   bool in_plane();
-  const std::string &shortstring();
+  const std::string &shortrepr();
 };
 
 bool operator==(const FieldIndex&, const FieldIndex&);

@@ -42,7 +42,7 @@ std::vector<int> *ScalarFieldIndex::getComponents() const {
   return new std::vector<int>;	// empty vector
 }
 
-const std::string &ScalarFieldIndex::shortstring() const {
+const std::string &ScalarFieldIndex::shortrepr() const {
   static std::string ss("");
   return ss;
 }
@@ -90,7 +90,7 @@ std::vector<int> *VectorFieldIndex::getComponents() const {
   return c;
 }
 
-const std::string &VectorFieldIndex::shortstring() const {
+const std::string &VectorFieldIndex::shortrepr() const {
   static const std::string names[] = {std::string("x"),
 				      std::string("y"), 
 				      std::string("z")};
@@ -202,7 +202,7 @@ std::vector<int> *SymTensorIndex::getComponents() const {
   return c;
 }
 
-const std::string &SymTensorIndex::shortstring() const {
+const std::string &SymTensorIndex::shortrepr() const {
   static const std::string voigt[] = {"xx", "yy", "zz", "yz", "xz", "xy"};
   return voigt[v];
 }

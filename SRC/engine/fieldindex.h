@@ -66,7 +66,7 @@ public:
   virtual std::vector<int>* getComponents() const = 0;
 
   virtual void print(std::ostream &os) const = 0;
-  virtual const std::string &shortstring() const = 0;
+  virtual const std::string &shortrepr() const = 0;
 };
 
 std::ostream &operator<<(std::ostream &os, const FieldIndex &fi);
@@ -90,7 +90,7 @@ public:
   // virtual void set(const std::vector<int>*) {}
   virtual std::vector<int> *getComponents() const; // returns a zero-length vector
   virtual void print(std::ostream&) const;
-  virtual const std::string &shortstring() const;
+  virtual const std::string &shortrepr() const;
 };
 
 
@@ -112,7 +112,7 @@ public:
   // void set(int);
   virtual std::vector<int> *getComponents() const;
   virtual void print(std::ostream&) const;
-  virtual const std::string &shortstring() const;
+  virtual const std::string &shortrepr() const;
   friend class VectorFieldCompIterator;
 };
 
@@ -172,7 +172,7 @@ public:
   static int str2voigt(const std::string &str) {
     return ij2voigt(str[0]-'x', str[1]-'x');
   }
-  virtual const std::string &shortstring() const;
+  virtual const std::string &shortrepr() const;
 };
 
 // See comment above wrt OutOfPlaneVectorFieldIndex.
@@ -213,8 +213,8 @@ public:
   std::vector<int> *getComponents() const { // returns new vector
     return fieldindex->getComponents();
   }
-  const std::string &shortstring() const {
-    return fieldindex->shortstring();
+  const std::string &shortrepr() const {
+    return fieldindex->shortrepr();
   }
 };
 

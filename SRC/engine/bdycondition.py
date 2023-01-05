@@ -1175,8 +1175,8 @@ def _build_oops(field, eqn, boundary):
 
     for fcomp, ecomp in zip(oop_field.components(planarity.ALL_INDICES),
                             eqn.components()):
-        new_oop = OutOfPlaneBC(field, oop_field, fcomp.shortstring(),
-                               oop_eqn, ecomp.shortstring(),
+        new_oop = OutOfPlaneBC(field, oop_field, fcomp.shortrepr(),
+                               oop_eqn, ecomp.shortrepr(),
                                boundary)
         res.append(new_oop)
     return res
@@ -1354,8 +1354,8 @@ class PeriodicBC(BC):
                 # assignment statement outside these two loops.
 
                 newprofile = profile.ConstantProfile(0)
-                newbc = FloatBC(self.field, fcomp.shortstring(),
-                                self.equation, ecomp.shortstring(),
+                newbc = FloatBC(self.field, fcomp.shortrepr(),
+                                self.equation, ecomp.shortrepr(),
                                 newprofile, bdy.name(),
                                 visible=False, subordinate=True)
 
