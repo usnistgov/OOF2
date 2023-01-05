@@ -54,6 +54,7 @@ PYTHONEXPORTABLE(Equation);
 // }
 
 %nodefaultctor Equation;
+%rename(c_components) Equation::components;
 
 class Equation {
 public:
@@ -65,6 +66,7 @@ public:
   int is_active(const CSubProblem*);
   bool allow_boundary_conditions();
   static Equation *getEquation(const std::string&);
+  ComponentsP components();
 };
 
 %extend Equation {

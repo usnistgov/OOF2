@@ -48,3 +48,14 @@ def allEquations():
 getEquation = Equation.getEquation
 utils.OOFdefine('getEquation', Equation.getEquation)
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+def _Equation_components(self):
+    comps = self.c_components() # a swigged generic ComponentsP object
+    beginp = comps.begin()      # generic ComponentIteratorP object
+    endp = comps.end()
+    while beginp != endp:
+        yield beginp.current()  # derived FieldIndex class object
+        beginp.increment()
+
+Equation.components = _Equation_components
