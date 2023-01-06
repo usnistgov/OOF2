@@ -161,7 +161,13 @@ ComponentsP SymmetricTensorFlux::components(Planarity planarity) const {
 }
 
 ComponentsP SymmetricTensorFlux::divergenceComponents() const {
-  static const VectorFieldComponents comps(0, 3);
+  // TODO: This just returns the in-plane components.  Is that
+  // correct?  It's currently only used in situations in which the
+  // in-plane components are desired, but possibly the planarity
+  // should be passed as an argument.  It's used in
+  // DivergenceEquation::components() and
+  // IntegrateBdyFlux::columnNames().
+  static const VectorFieldComponents comps(0, 2);
   return ComponentsP(&comps);
 }
 

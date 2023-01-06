@@ -93,11 +93,8 @@ class AverageField(MeshBdyAnalyzer):
     def columnNames(self):
         if self.field.ndof() == 1:
             return [self.field.name()]
-        names = []
-        it = self.field.iterator(planarity.ALL_INDICES)
-        while not it.end():
-            names.append("%s[%s]" % (self.field.name(), it.shortrepr()))
-            it.increment()
+        names = ["%s[%s]" % (self.field.name(), comp.shortrepr())
+                 for comp in self.field.components(planarity.ALL_INDICES)]
         return names
 
 registeredclass.Registration(
