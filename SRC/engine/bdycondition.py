@@ -21,11 +21,12 @@
 ## component.  Perhaps there should be an advanced mode that lets
 ## users choose the non-obvious pairings.
 
+from ooflib.SWIG.common import lock
+from ooflib.SWIG.common import switchboard
+from ooflib.SWIG.engine import boundarycond
 from ooflib.SWIG.engine import equation
 from ooflib.SWIG.engine import ooferror
-from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common import lock
-from ooflib.SWIG.engine import boundarycond
+from ooflib.SWIG.engine import planarity
 from ooflib.common import debug
 from ooflib.common import labeltree
 from ooflib.common import registeredclass
@@ -669,7 +670,6 @@ class FloatBCBase(BC):
 
         eqncomp = self.equation.getIndex(self.eqn_component).integer()
 
-
         if self.root.applicator is None:  
             # This FloatBC has not yet been applied to any node.  Try
             # to apply it to this node.
@@ -1174,7 +1174,7 @@ def _build_oops(field, eqn, boundary):
         return []
 
     for fcomp, ecomp in zip(oop_field.components(planarity.ALL_INDICES),
-                            eqn.components()):
+                           oop_eqn.components()):
         new_oop = OutOfPlaneBC(field, oop_field, fcomp.shortrepr(),
                                oop_eqn, ecomp.shortrepr(),
                                boundary)
@@ -1377,7 +1377,6 @@ class PeriodicBC(BC):
                 bc.add_to_mesh(oop_name, self.mesh)
 
             self.floatBCs += oopbcs
-            
 
     def remove_auxiliary_BCs(self):
         for bc in self.floatBCs:
