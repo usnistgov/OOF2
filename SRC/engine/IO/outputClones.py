@@ -231,7 +231,7 @@ FluxOutput = output.Output(
 def _component(mesh, elements, coords, field, component):
     if field:
         # 'component' is a string, "x" or "xy" or the like
-        comp = field[0].getIndex(component) # convert string to IndexP
+        comp = field[0].getIndex(component) # convert string to FieldIndex
         return [outputval.ScalarOutputVal(f[comp]) for f in field]
     return []
         
@@ -406,29 +406,14 @@ ScalarFunctionOutput = output.Output(
         ]
     )
 
-def _vectorFunctionOutput(mesh, elements, coords, fx=None, fy=None, fz=None):
+def _vectorFunctionOutput(mesh, elements, coords, fx=None, fy=None):
     ans = []
     for element, coordlist in zip(elements, coords):
         for coord in map(element.from_master, coordlist):
-            val = outputval.VectorOutputVal(config.dimension())
-            it = val.getIterator()
-            # Although f has three components, the third one won't be
-            # used if we're not in three dimensions.
-            f = iter([fx, fy, fz])
-            while not it.end(): # use size of val, not f!
-                fi = next(f)    # python iterator
-                val[it] = fi(coord)
-                it.increment()  # oof IteratorP from fieldindex.py
+            val = outputval.VectorOutputVal(2)
+            for i, fi in zip(val.components(), (fx, fy)):
+                val[i] = fi(coord)
             ans.append(val)
-        ## TODO: That was a real mess.  If OutputVal.getIterator
-        ## returned a real Python iterator object, this could be
-        ## rewritten as:
-        ## f = (fx, fy)
-        ## for coord in realcoords:
-        ##     val = outputval.VectorOutputVal(2)
-        ##     for i, fi in itertools.izip(val.getIterator(), f):
-        ##         val[i] = fi(coord)
-        ##     ans.append(val)
     return ans
 
 def _vecfuncparam(component, components):
@@ -438,24 +423,15 @@ def _vecfuncparam(component, components):
         tip="The %s component of the function as a Python function of %s" 
         %(component, components))
 
-if config.dimension() == 2:
-    _vecfuncparams=[_vecfuncparam(comp, 'x and y') for comp in 'xy']
-else:
-    _vecfuncparams=[_vecfuncparam(comp, 'x, y, and z') for comp in 'xyz']
+_vecfuncparams=[_vecfuncparam(comp, 'x and y') for comp in 'xy']
 
 def _vecfunc_shortrepr(self):
-    if config.dimension() == 2:
-        pnames = "xy"
-    else:
-        pnames = "xyz"
+    pnames = "xy"
     return ("("
             + ",".join([self.resolveAlias('f'+p).value.string() for p in pnames])
             + ")")
 def _vecfunc_column_names(self):
-    if config.dimension() == 2:
-        return ["fx", "fy"]
-    else:
-        return ["fx", "fy", "fz"]
+    return ["fx", "fy"]
 
 def vector_instancefn(self):
     return outputval.VectorOutputVal(config.dimension()).zero()
@@ -536,12 +512,7 @@ def _aggdiff_column_names(self):
     inst = self.outputInstance()
     if inst.dim() == 1:
         return [sr]
-    it = inst.getIterator()
-    names = []
-    while not it.end():
-        names.append("%s[%s]" % (sr, it.shortrepr()))
-        it.increment()
-    return names
+    return list(f"{sr}[{comp.shortrepr()}]" for comp in inst.components())
 
 AggregateDifferenceOutput = output.Output(
     name="difference",

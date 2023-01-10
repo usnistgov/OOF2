@@ -9,6 +9,7 @@
 # oof_manager@nist.gov.
 
 from ooflib.SWIG.engine import corientation
+from ooflib.SWIG.engine import fieldindex
 from ooflib.SWIG.engine import outputval
 from ooflib.SWIG.engine import symmmatrix
 from ooflib.common import debug
@@ -108,17 +109,10 @@ class ThreeVectorPropertyOutputRegistration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# def _symmmatrix3_instancefn(self):
-#     return symmmatrix.SymmMatrix3(0.,0.,0.,0.,0.,0.)
-
 def _symmmatrix3_column_names(self):
     sr = self.shortrepr()
-    names = []
-    it = self.outputInstance().getIterator()
-    while not it.end():
-        names.append("%s[%s]" % (sr, it.shortrepr()))
-        it.increment()
-    return names
+    return list(f"{sr}[{comp.shortrepr()}]"
+                for comp in fieldindex.symTensorIJComponents)
 
 class SymmMatrix3PropertyOutputRegistration(
         ArithmeticPropertyOutputRegistration):

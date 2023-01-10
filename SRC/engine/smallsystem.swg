@@ -31,17 +31,17 @@ public:
 };
 
 %extend SmallSystem {
-  double get_stiffness_matrix_element(const IndexP &fluxIndex,
+  double get_stiffness_matrix_element(const FieldIndex &fluxIndex,
 				      const Field *field,
-				      const IndexP &fieldIndex,
+				      const FieldIndex &fieldIndex,
 				      const ElementFuncNodeIterator &efi)
   {
     return self->stiffness_matrix_element( fluxIndex, field, fieldIndex, efi );
   }
 
-  void add_stiffness_matrix_element(const IndexP &fluxIndex,
+  void add_stiffness_matrix_element(const FieldIndex &fluxIndex,
 				    const Field *field,
-				    const IndexP &fieldIndex,
+				    const FieldIndex &fieldIndex,
 				    const ElementFuncNodeIterator &efi,
 				    double increment)
   {
@@ -49,17 +49,18 @@ public:
       += increment;
   }
 
-  double get_force_deriv_matrix_element(const IndexP &forceIndex,
+  double get_force_deriv_matrix_element(const FieldIndex &forceIndex,
 					const Field *field,
-					const IndexP &fieldIndex,
+					const FieldIndex &fieldIndex,
 					const ElementFuncNodeIterator &efi)
   {
-    return self->force_deriv_matrix_element( forceIndex, field, fieldIndex, efi );
+    return self->force_deriv_matrix_element( forceIndex, field, fieldIndex,
+					     efi );
   }
 
-  void add_force_deriv_matrix_element(const IndexP &forceIndex,
+  void add_force_deriv_matrix_element(const FieldIndex &forceIndex,
 				      const Field *field,
-				      const IndexP &fieldIndex,
+				      const FieldIndex &fieldIndex,
 				      const ElementFuncNodeIterator &efi,
 				      double increment)
   {
@@ -67,17 +68,17 @@ public:
       += increment;
   }
 
-  double get_damping_matrix_element(const IndexP &fluxIndex,
+  double get_damping_matrix_element(const FieldIndex &fluxIndex,
 				    const Field *field,
-				    const IndexP &fieldIndex,
+				    const FieldIndex &fieldIndex,
 				    const ElementFuncNodeIterator &efi)
   {
     return self->damping_matrix_element( fluxIndex, field, fieldIndex, efi );
   }
 
-  void add_damping_matrix_element(const IndexP &fluxIndex,
+  void add_damping_matrix_element(const FieldIndex &fluxIndex,
 				  const Field *field,
-				  const IndexP &fieldIndex,
+				  const FieldIndex &fieldIndex,
 				  const ElementFuncNodeIterator &efi,
 				  double increment)
   {
@@ -85,17 +86,17 @@ public:
       += increment;
   }
 
-  double get_mass_matrix_element(const IndexP &fluxIndex,
+  double get_mass_matrix_element(const FieldIndex &fluxIndex,
 				 const Field *field,
-				 const IndexP &fieldIndex,
+				 const FieldIndex &fieldIndex,
 				 const ElementFuncNodeIterator &efi)
   {
     return self->mass_matrix_element( fluxIndex, field, fieldIndex, efi );
   }
 
-  void add_mass_matrix_element(const IndexP &fluxIndex,
+  void add_mass_matrix_element(const FieldIndex &fluxIndex,
 			       const Field *field,
-			       const IndexP &fieldIndex,
+			       const FieldIndex &fieldIndex,
 			       const ElementFuncNodeIterator &efi,
 			       double increment)
   {
@@ -103,32 +104,33 @@ public:
       += increment;
   }
 
-  double get_force_vector_element(const IndexP &forceIndex)
+  double get_force_vector_element(const FieldIndex &forceIndex)
   {
     return self->force_vector_element( forceIndex );
   }
 
-  void add_force_vector_element(const IndexP &forceIndex, double increment)
+  void add_force_vector_element(const FieldIndex &forceIndex, double increment)
   {
     self->force_vector_element( forceIndex ) += increment;
   }
 
-  double get_flux_vector_element(const IndexP &fluxIndex)
+  double get_flux_vector_element(const FieldIndex &fluxIndex)
   {
     return self->flux_vector_element( fluxIndex );
   }
 
-  void add_flux_vector_element(const IndexP &fluxIndex, double increment)
+  void add_flux_vector_element(const FieldIndex &fluxIndex, double increment)
   {
     self->flux_vector_element( fluxIndex ) += increment;
   }
 
-  double get_offset_vector_element(const IndexP &offsetIndex)
+  double get_offset_vector_element(const FieldIndex &offsetIndex)
   {
     return self->offset_vector_element( offsetIndex );
   }
 
-  void add_offset_vector_element(const IndexP &offsetIndex, double increment)
+  void add_offset_vector_element(const FieldIndex &offsetIndex,
+				 double increment)
   {
     self->offset_vector_element( offsetIndex ) += increment;
   }

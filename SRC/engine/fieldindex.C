@@ -261,4 +261,7 @@ void OutOfPlaneSymTensorIterator::print(std::ostream &os) const {
   os << "OutOfPlaneSymTensorIterator(" << v << ")";
 }
 
-  
+std::ostream &operator<<(std::ostream &os, const SymTensorIJIterator &it) {
+  os << "SymTensorIJIterator(" << it.v << ")";
+  return os;
+}

@@ -55,7 +55,6 @@ class GenericOVWidget:
 class VectorWidget:
     def __init__(self, val, **kwargs):
         debug.mainthreadTest()
-        iterator = val.getIterator()
         components = list(val.components(planarity.ALL_INDICES))
         if components:
             self.gtk = Gtk.Grid(row_spacing=2, column_spacing=2,**kwargs)
@@ -99,12 +98,12 @@ class SymmMatrix3Widget:
     def __init__(self, val, **kwargs):
         debug.mainthreadTest()
         self.gtk = Gtk.Grid(**kwargs)
-        iterator = val.getIterator()
         rowlabels = [None]*3
         collabels = [None]*3
-        while not iterator.end():
-            row, col = iterator.getComponents()
-            ijstr = iterator.shortrepr()
+        for ijcomp in fieldindex.symTensorIJComponents:
+            row = ijcomp.row()
+            col = ijcomp.col()
+            ijstr = ijcomp.shortrepr()
             if not rowlabels[row]:
                 rowlabels[row] = ijstr[0]
                 label = Gtk.Label(label=rowlabels[row]+': ',
@@ -119,8 +118,7 @@ class SymmMatrix3Widget:
                               hexpand=True)
             gtklogger.setWidgetName(entry, rowlabels[row]+collabels[col])
             self.gtk.attach(entry, col+1,row+1, 1,1)
-            entry.set_text("%-13.6g" % val[iterator])
-            iterator.increment()
+            entry.set_text("%-13.6g" % val[ijcomp])
             
     def show(self):
         debug.mainthreadTest()

@@ -21,11 +21,14 @@
 %import "engine/fieldindex.swg"
 #endif // NOSECONDIMPORTS
 
+PYTHONEXPORTABLE(FieldIndex);
+
 %{
 #include "engine/outputval.h"
 #include "common/tostring.h"
 #include <vector>
 typedef OutputVal NewOutputVal;
+typedef FieldIndex NewFieldIndex;
 %}
 
 // The OutputValueVec typemap converts a std::vector of OutputValues
@@ -86,6 +89,7 @@ public:
   ~OutputVal();
   int dim();
   // IndexP getIndex(char *);
+  NewFieldIndex *getIndex(const std::string&) const;
   NewOutputVal *clone();
   NewOutputVal *zero();
   %newobject value_list;

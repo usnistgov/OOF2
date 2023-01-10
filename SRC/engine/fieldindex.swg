@@ -127,7 +127,10 @@ class SymTensorIJIterator {
 public:
   SymTensorIJIterator &operator++();
   NewFieldIndex *fieldindex() const;
+  bool operator!=(const SymTensorIJIterator&) const;
 };
+
+ADD_REPR_GENERIC(SymTensorIJIterator);
 
 class SymTensorIJComponents {
 public:

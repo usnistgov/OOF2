@@ -80,21 +80,16 @@ class TestPlasticityProp(pypropertywrapper.PyFluxProperty):
         # gausspoint set from one iteration to the next, which will in
         # general be a bad assumption.
         modulus = self.elasticity.cijkl(mesh, element, masterpos)
-        ij = fieldindex.SymTensorIterator()
-        ## TODO PYTHON3: Use a real iterator
-        while (not ij.end()):
+        for ij in fieldindex.symTensorIJComponents:
             offset = 0.0
-            kl = ep_val.getIterator()
-            while (not kl.end()):
+            for kl in el_val.components():
                 idx = kl.integer()
                 cijkl = modulus[ij.integer(),kl.integer()]
                 if idx<3:
                     offset += cijkl*ep_val[kl]
                 else:
                     offset += 2.0*cijkl*ep_val[kl]
-                kl.increment()
             smallsystem.add_offset_element(ij, offset)
-            ij.increment()
 
     # Evaluate the constraint equation at a gausspoint.
     def evaluate_constraint(self, mesh, element, eqn, masterpos, smallsystem):
@@ -143,21 +138,16 @@ class TestPlasticityProp(pypropertywrapper.PyFluxProperty):
 
             
         modulus = self.elasticity.cijkl(mesh, element, masterpos)
-        ij = fieldindex.SymTensorIterator()
-        ## TODO PYTHON3: Use a real iterator
-        while (not ij.end()):
+        for ij in fieldindex.symTensorComponents:
             stressij = 0.0
-            kl = ep_val.getIterator()
-            while (not kl.end()):
-                idx = kl.integer
+            for kl in ep_val.components():
+                idx = kl.integer()
                 cijkl = modulus[ij.integer(),kl.integer()]
                 if idx<3:
                     stressij += cijkl*strain[kl]
                 else:
                     stressij += 2.0*cijkl*strain[kl]
-                kl.increment()
             # Accumulate the stress somewhere.
-            ij.increment()
 
         # Now call the yield function at this gausspoint with the
         # actual stress, and use this as our contribution to the

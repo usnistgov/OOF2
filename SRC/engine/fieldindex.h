@@ -600,7 +600,10 @@ public:
   bool operator!=(const SymTensorIJIterator &other) const {
     return v != other.v;
   }
+  friend std::ostream &operator<<(std::ostream&, const SymTensorIJIterator&);
 };
+
+std::ostream &operator<<(std::ostream&, const SymTensorIJIterator&);
 
 class SymTensorIJComponents {
 public:
