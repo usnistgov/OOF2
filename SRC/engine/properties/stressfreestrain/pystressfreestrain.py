@@ -27,11 +27,8 @@ class PyStressFreeStrain(pypropertywrapper.PyFluxProperty):
     def flux_offset(self, mesh, element, flux, point, time, fluxdata):
         cijkl = self.elasticity.cijkl(mesh, element, point)
         strain0 = symmmatrix.SymmMatrix3(0.1, 0.1, 0.1, 0, 0, 0)
-        ij = problem.Stress.iterator(planarity.ALL_INDICES)
-        ## TODO PYTHON3: use real iterators
-        while not ij.end():
-            kl = fieldindex.SymTensorIterator()
-            while not kl.end():
+        for ij in problem.Stress.components(planarity.ALL_INDICES):
+            for kl in fieldindex.symTensorIJComponents:
                 strain_kl = strain0.get(kl.row(), kl.col()) # TODO: too ugly
                 if kl.diagonal(): 
                     fluxdata.add_offset_vector_element(
@@ -41,12 +38,10 @@ class PyStressFreeStrain(pypropertywrapper.PyFluxProperty):
                     fluxdata.add_offset_vector_element(
                         ij,
                         2.0*cijkl[ij.integer(), kl.integer()]*strain_kl)
-                kl.increment()
-            ij.increment()
         
         ## It would be nice if this could have been written like this:
-        # for ij in problem.Stress.iterator(planarity.ALL_INDICES):
-        #     for kl in fieldindex.SymTensorIterator():
+        # for ij in problem.Stress.components(planarity.ALL_INDICES):
+        #     for kl in fieldindex.symTensorIJComponents:
         #         if kl.diagonal():
         #             fluxdata(element, ij) -= cijkl[ij, kl]*strain0[kl]
         #         else:
