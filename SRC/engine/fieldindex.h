@@ -12,20 +12,95 @@
 #ifndef FIELDINDEX_H
 #define FIELDINDEX_H
 
+// Classes for referring to the components of a field, flux, or
+// equation.  Different subtypes of FieldIndex are used to index
+// different types of Fields (scalars, vectors, tensors, etc).  Having
+// different types all derived from a common base class allows the
+// same code to handle scalars, vectors, and tensors.  The base class
+// is called 'FieldIndex' because it's commonly used to choose the
+// components of a Field, and because
+// 'FieldFluxEquationOrOtherIndexableObjectIndex' is too long.  In
+// this discussion, the word "Field" almost always means "Field, Flux,
+// Equation, or ...".
+
+// Code that operates on generic Fields needs to use pointers to
+// FieldIndexes, in order to access the virtual functions.  We need to
+// be able to pass those pointers around without worrying about when
+// the index they point to should be deleted.  The IndexP (P for
+// "pointer") class wraps a FieldIndex pointer, allows access to the
+// virtual FieldIndex methods, and takes care of deleting the
+// FieldIndex.  Because IndexP is a lightweight object, containing
+// only a pointer, it can be passed around freely.  Its copy
+// constructor does have to allocate a new FieldIndex object, but it
+// has a move constructor that doesn't involve any allocation.
+
+// An IndexP can be converted to a FieldIndex* or FieldIndex&, so it
+// can be used as an argument to any function that expects a
+// FieldIndex* or FieldIndex&.
+
+// We often want to iterate over all components of a Field, ie, loop
+// over all the possible values of a FieldIndex.  For each type of
+// Field, there is a subclass of ComponentIterator.  A
+// ComponentIterator is like an STL forward iterator.  It can be
+// incremented with operator++ and dereferenced with operator*, which
+// returns an IndexP.  ComponentIterator pointers are wrapped in a
+// generic ComponentIteratorP class, which is analogous to IndexP.
+
+// For each type of Field, there is a Components subclass whose only
+// purpose is to serve as the container that the iterator iterates
+// over.  It has begin() and end() methods that return an appropriate
+// ComponentIteratorP.  Each Field has a components() method that
+// returns a ComponentsP object, which wraps Components like IndexP
+// wraps FieldIndex.  Since the Components classes don't contain any
+// data and aren't actually changed in any way when they're iterated
+// over, the Fields contain static instances of their Components
+// subclass and ComponentsP doesn't have to worry about allocation.
+
+// So, to iterate over a Field's components in C++, you treat the
+// return value of Field::components like an STL forward-iterable
+// container of IndexPs:
+//
+//   for(ComponentIteratorP iter = field->components().begin();
+//       iter != field->components().end();
+//       ++iter)
+//   {
+//      IndexP index = *iter;
+//      ...
+//   }
+//
+// or, equivalently and more simply,
+//
+//   for(IndexP index: field->components()) {
+//      ...
+//   }
+
+// The components() methods for Fields and Fluxes take an optional
+// Planarity argument, which controls whether or not the iterators
+// include the out-of-plane components.  If the argument is omitted,
+// ALL_INDICES is assumed.
+
+// You can iterate over the components of a Field in Python with:
+//
+//   for index in field.components():
+//        # index is an instance of a swigged FieldIndex subclass
+//
+// In Python, Field.components() is a generator function that uses the
+// begin() and end() methods of the ComponentsP object, which it
+// obtains by calling the C++ Field::components() method.  (There's a
+// little bit of swig renaming trickery involved so that the C++
+// components() method and the Python components() method can have the
+// same name but be different things.)  The index is a swigged
+// FieldIndex of the appropriate subclass, because FieldIndex is
+// derived from PythonExportable.  (Components and ComponentIterator
+// don't have be be PythonExportable, and there's no need in Python
+// for IndexP, ComponentIteratorP, or ComponentsP.)
+
 #include <iostream>
 #include <string>
 #include <vector>
 #include "common/pythonexportable.h"
 #include "engine/indextypes.h"
 #include "engine/planarity.h"
-
-
-// Classes for referring to the components of a field, flux, or
-// equation.  Having different types all derived from a common base
-// class allows the same code to handle scalars, vectors, and tensors.
-// The base class is called 'FieldIndex' because it's commonly used to
-// choose the components of a Field, and because
-// 'FieldFluxEquationOrOtherIndexableObjectIndex' is too long.
 
 class Components; // iterator over the components of a Field, Flux or Equation
 class ComponentsP;	     // wrapper around a pointer to Components
@@ -179,6 +254,7 @@ protected:
 public:
   IndexP(FieldIndex *i) : fieldindex(i) {}
   IndexP(const IndexP &o) : fieldindex(o.fieldindex->clone()) {}
+  IndexP(IndexP &&o) : fieldindex(o.fieldindex) { o.fieldindex = nullptr; }
   ~IndexP() { delete fieldindex; }
   int integer() const { return fieldindex->integer(); }
   bool in_plane() const { return fieldindex->in_plane(); }
@@ -233,7 +309,7 @@ public:
   ComponentIteratorP(ComponentIteratorP &&other)
     : iter(other.iter)
   {
-    other.iter = 0; // move constructor takes ownership of the pointer
+    other.iter = nullptr; // move constructor takes ownership of the pointer
   }
   ComponentIteratorP(const ComponentIteratorP &other)
     : iter(other.iter->clone())

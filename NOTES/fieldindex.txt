@@ -164,3 +164,8 @@ same as the C++ Components object, but serves the same purpose.  It
 has an __iter__ method which is a generator function that yields
 successive values of the ComponentIterator (ie swigged
 python-exportable FieldIndex objects).
+
+----------------------------------
+
+What was actually done is slightly different from what was described
+above.  See comments in fieldindex.h.
