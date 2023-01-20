@@ -205,10 +205,12 @@
 // be turned into a derived class object.  See pythonexportable.h.
 // The argument to PYTHONEXPORTABLE is the base class -- ie the class
 // derived from PythonExportable.
+
 // If Python should take ownership of the returned object, the
 // function being swigged should return NewCLASS* instead of CLASS*,
 // and the swig file should include a C++ typedef making NewCLASS the
-// same as CLASS.
+// same as CLASS.  The typedef is not generated automatically here
+// just in case NewCLASS is already defined.
 
 %define PYTHONEXPORTABLE(CLASS)
 %typemap(out) CLASS* {

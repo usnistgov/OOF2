@@ -11,6 +11,7 @@
 from ooflib.SWIG.engine import boundarycond
 from ooflib.SWIG.engine import material
 from ooflib.SWIG.engine import ooferror
+from ooflib.SWIG.engine import planarity
 from ooflib.SWIG.engine.node import FuncNode
 from ooflib.common import debug
 from ooflib.common import utils
@@ -679,22 +680,18 @@ def _getConjugatePairs(meshctxt):
     equations=meshctxt.all_subproblem_equations_bc()
     # equations=meshctxt.all_subproblem_equations() #includes plane stress equations
     conjugatepairs=[]
-    ## TODO PYTHON3: Use real iterators
+
     for fld in fields:
-        flditer=fld.iterator_all()
-        while not flditer.end():
+        for fldcomp in fld.components(planarity.ALL_INDICES):
             for eqn in equations:
-                eqniter=eqn.iterator_all()
-                while not eqniter.end():
+                for eqncomp in eqn.components():
                     for pair in conjugate.listofconjugatepairs.pairs:
                         if pair.get_field()==fld and \
-                           pair.get_field_component().integer()==flditer.integer() and \
+                           pair.get_field_component().integer()==fldcomp.integer() and \
                            pair.get_equation()==eqn and \
-                           pair.get_equation_component().integer()==eqniter.integer():
-                            conjugatepairs.append((fld,flditer.shortrepr(),
-                                                   eqn,eqniter.shortrepr()))
-                    eqniter.increment()
-            flditer.increment()
+                           pair.get_equation_component().integer()==eqncomp.integer():
+                            conjugatepairs.append((fld,fldcomp.shortrepr(),
+                                                   eqn,eqncomp.shortrepr()))
     return conjugatepairs
 
 def _addInterfaceBC(self,bcname):

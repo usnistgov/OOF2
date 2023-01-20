@@ -33,11 +33,7 @@
 NonlinearForceDensityNoDeriv::NonlinearForceDensityNoDeriv(PyObject *reg, const std::string &nm)
   : EqnProperty(nm,reg)
 {
-#if DIM==2
   displacement = dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));
-#elif DIM==3
-  displacement = dynamic_cast<ThreeVectorField*>(Field::getField("Displacement"));
-#endif
   stress_flux  = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
 }
 
@@ -61,17 +57,11 @@ void NonlinearForceDensityNoDeriv::force_value(
   // first compute the current value of the displacement field at the gauss point
 
   fieldVal[0] = fieldVal[1] = 0.0;
-#if DIM==3
-  fieldVal[2] = 0.0;
-#endif
   for(CleverPtr<ElementFuncNodeIterator> node(element->funcnode_iterator());
       !node->end(); ++*node) {
     double shapeFuncVal = node->shapefunction( point );
     fieldVal[0] += shapeFuncVal * (*displacement)( *node, 0 )->value( mesh );
     fieldVal[1] += shapeFuncVal * (*displacement)( *node, 1 )->value( mesh );
-#if DIM==3
-    fieldVal[2] += shapeFuncVal * (*displacement)( *node, 2 )->value( mesh );
-#endif
   }
 
   // now compute the force density value for the current coordinate x,y,z,
@@ -81,17 +71,10 @@ void NonlinearForceDensityNoDeriv::force_value(
 
   coord = element->from_master( point );
 
-#if DIM==2
   nonlin_force_density( coord[0], coord[1], 0.0, time, fieldVal, force );
-#elif DIM==3
-  nonlin_force_density( coord[0], coord[1], coord.z, time, fieldVal, force );
-#endif
 
   eqndata->force_vector_element(0) -= force[0];
   eqndata->force_vector_element(1) -= force[1];
-#if DIM==3
-  eqndata->force_vector_element(2) -= force[2];
-#endif
 
 } // end of 'NonlinearForceDensityNoDeriv::force_value'
 
@@ -112,17 +95,11 @@ void NonlinearForceDensity::force_deriv_matrix(const FEMesh   *mesh,
   // first compute the current value of the displacement field at the gauss point
 
   fieldVal[0] = fieldVal[1] = 0.0;
-#if DIM==3
-  fieldVal[2] = 0.0;
-#endif
   for(CleverPtr<ElementFuncNodeIterator> node(element->funcnode_iterator());
       !node->end(); ++*node){
     shapeFuncVal = node->shapefunction( point );
     fieldVal[0] += shapeFuncVal * (*displacement)( *node, 0 )->value( mesh );
     fieldVal[1] += shapeFuncVal * (*displacement)( *node, 1 )->value( mesh );
-#if DIM==3
-    fieldVal[2] += shapeFuncVal * (*displacement)( *node, 2 )->value( mesh );
-#endif
   }
 
   // now compute the value of the force density derivative function
@@ -133,24 +110,18 @@ void NonlinearForceDensity::force_deriv_matrix(const FEMesh   *mesh,
 
   coord = element->from_master( point );
 
-#if DIM==2
   nonlin_force_density_deriv( coord[0], coord[1], 0.0,
 			      time, fieldVal, forceDeriv );
-#elif DIM==3
-  nonlin_force_density_deriv( coord[0], coord[1], coord.z,
-			      time, fieldVal, forceDeriv );
-#endif
 
   // compute the value of the jth shape function at gauss point point and add
   // its contribution Df(point,field)*phi_j(point) to the small mass-like matrix
 
   shapeFuncVal = j.shapefunction( point );
 
-  for(IteratorP eqncomp = eqn->iterator(); !eqncomp.end(); ++eqncomp) {
+  for(IndexP eqncomp : eqn->components()) {
     int eqno = eqncomp.integer();
 
-    for (IteratorP fieldcomp = displacement->iterator(); !fieldcomp.end(); ++fieldcomp)
-    { // TODO: get rid of this loop, and write component contributions explicitly
+    for (IndexP fieldcomp : displacement->components(ALL_INDICES)) {
       int fieldno = fieldcomp.integer();
 
       eqndata->force_deriv_matrix_element( eqncomp, displacement, fieldcomp, j )

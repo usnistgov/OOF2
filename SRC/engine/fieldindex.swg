@@ -23,11 +23,6 @@
 %{
 #include "engine/fieldindex.h"
 #include "common/tostring.h"
-#ifndef HAVE_SSTREAM
-#include <strstream.h>
-#else 
-#include <sstream>	
-#endif // HAVE_SSTREAM
 %}
 
 %nodefaultctor FieldIndex;
@@ -37,12 +32,12 @@ public:
   ~FieldIndex();
   int integer();
   bool in_plane();
-  void set(const std::vector<int>*);
-  %newobject components;
-  std::vector<int> *components();
-  const std::string &shortstring();
+  const std::string &shortrepr();
 };
 
+bool operator==(const FieldIndex&, const FieldIndex&);
+
+PYTHONEXPORTABLE(FieldIndex);
 ADD_REPR_GENERIC(FieldIndex);
 
 class ScalarFieldIndex : public FieldIndex {
@@ -83,121 +78,62 @@ public:
 
 ADD_REPR_GENERIC(SymTensorIndex);
 
-%nodefaultctor FieldIterator;
+//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//
 
-// This adds an increment method to all FieldIterator subclasses in
-// this file and in any file that %includes or %imports this one.
-%rename(increment) FieldIterator::operator++();
+%nodefaultctor ComponentIteratorP;
 
-class FieldIterator : public FieldIndex {
+// The only thing we need from ComponentIteratorP is direct access to
+// the FieldIndex that it's current referring to.
+
+%nodefaultctor ComponentIteratorP;
+%feature("valuewrapper") ComponentIteratorP;
+%rename(increment) ComponentIteratorP::operator++;
+
+ADD_REPR_GENERIC(ComponentIteratorP);
+
+%{
+  typedef FieldIndex NewFieldIndex;
+%}
+
+class ComponentIteratorP {
 public:
-  int size();
-  bool end();
-  FieldIterator *cloneIterator();
-  void operator++();
+  ComponentIteratorP &operator++();
+  NewFieldIndex *current();
+  bool operator!=(const ComponentIteratorP&) const;
 };
 
-class ScalarFieldIterator: public ScalarFieldIndex, public FieldIterator {
+%nodefaultctor ComponentsP;
+%feature("valuewrapper") ComponentsP;
+
+class ComponentsP {
 public:
-  ScalarFieldIterator();
+  ComponentIteratorP begin() const;
+  ComponentIteratorP end() const;
 };
 
-class VectorFieldIterator: public VectorFieldIndex, public FieldIterator {
+//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//
+
+%nodefaultctor SymTensorIJIterator;
+%nodefaultctor SymTensorIJComponents;
+%rename(increment) SymTensorIJIterator::operator++;
+%rename(getIndex) SymTensorIJIterator::operator*;
+
+class SymTensorIJIterator {
 public:
-  VectorFieldIterator();
+  SymTensorIJIterator &operator++();
+  NewFieldIndex *fieldindex() const;
+  bool operator!=(const SymTensorIJIterator&) const;
 };
 
-class OutOfPlaneVectorFieldIterator
-  : public OutOfPlaneVectorFieldIndex, public FieldIterator
-{
+ADD_REPR_GENERIC(SymTensorIJIterator);
+
+class SymTensorIJComponents {
 public:
-  OutOfPlaneVectorFieldIterator();
+  SymTensorIJIterator begin() const;
+  SymTensorIJIterator end() const;
 };
 
-class SymTensorIterator: public SymTensorIndex, public FieldIterator {
-public:
-  SymTensorIterator();
-};
-
-ADD_REPR_GENERIC(SymTensorIterator);
-
-class SymTensorInPlaneIterator: public SymTensorIterator {
-public:
-  SymTensorInPlaneIterator();
-};
-
-class SymTensorOutOfPlaneIterator: public SymTensorIterator {
-public:
-  SymTensorOutOfPlaneIterator();
-};
-
-class OutOfPlaneSymTensorIterator:
-  public OutOfPlaneSymTensorIndex, public FieldIterator
-{
-  OutOfPlaneSymTensorIterator();
-};
-
-
-// IndexP and IteratorP objects should NOT be created directly in
-// Python, because it leads to arguments over whose job it is to
-// delete the enclosed FieldIndex or FieldIterator object.
-
-%nodefaultctor IndexP;
-%feature("valuewrapper") IndexP;
-
-class IndexP {
-public:
-  ~IndexP();
-  int integer();
-  bool in_plane();
-  IndexP cloneIndex();
-  void set(const std::vector<int>*);
-  %newobject components;
-  std::vector<int> *components();
-  const std::string &shortstring();
-};
-
-ADD_REPR_GENERIC(IndexP);
-
-%nodefaultctor IteratorP;
-%feature("valuewrapper") IteratorP;
-%rename(increment) IteratorP::operator++();
-
-class IteratorP: public IndexP {
-public:
-  ~IteratorP();
-  bool end();
-  int size();
-  IteratorP cloneIterator();
-  void operator++();
-};
-
-// fieldindex.spy added __iter__ and __next__ methods to IteratorP,
-// making it into a real python iterator, but the code is commented
-// out.  The old TODO about doing that said "Fixing this at this late
-// date will be a pain".  TODO PYTHON3: Find out what broke.  If the
-// iterator code in fieldindex.spy isn't resurrected, move the rest of
-// that file into a %pythoncode block in this file.
-
-// TODO INDEXING: Don't swig IteratorP and IndexP.  Make the
-// underlying FieldIndex and FieldIterator classes PythonExportable,
-// and swig those.  Operations like SymmMatrix.__getitem__ would
-// expect a FieldIndex of the correct type, not an IndexP, and the
-// index object's special methods, like SymTensorIndex.diagonal, would
-// be available.  The Field, Flux, and Equation classes should be
-// iterable, with __iter__ returning an appropriate FieldIndex.
-
-
-%extend IteratorP {
-  void __next__() {
-    ++(*self);
-  }
-};
-
-ADD_REPR_GENERIC(IteratorP);
-
-%newobject getSymTensorIterator;
-IteratorP *getSymTensorIterator(Planarity);
+extern const SymTensorIJComponents symTensorIJComponents;
 
 %pythoncode "engine/fieldindex.spy"
 

@@ -21,11 +21,14 @@
 %import "engine/fieldindex.swg"
 #endif // NOSECONDIMPORTS
 
+PYTHONEXPORTABLE(FieldIndex);
+
 %{
 #include "engine/outputval.h"
 #include "common/tostring.h"
 #include <vector>
 typedef OutputVal NewOutputVal;
+typedef FieldIndex NewFieldIndex;
 %}
 
 // The OutputValueVec typemap converts a std::vector of OutputValues
@@ -81,16 +84,19 @@ typedef OutputVal NewOutputVal;
 PYTHONEXPORTABLE(OutputVal);
 %nodefaultctor OutputVal;
 
+%rename(c_components) OutputVal::components;
+
 class OutputVal {
 public:
   ~OutputVal();
   int dim();
-  IndexP getIndex(char *);
-  IteratorP getIterator();
+  // IndexP getIndex(char *);
+  NewFieldIndex *getIndex(const std::string&) const;
   NewOutputVal *clone();
   NewOutputVal *zero();
   %newobject value_list;
   std::vector<double> *value_list();
+  ComponentsP components();
 };
 
 %nodefaultctor NonArithmeticOutputVal;
@@ -110,7 +116,7 @@ public:
 };
 
 %extend ArithmeticOutputVal {
-  double __getitem__(const IndexP &i) const {
+  double __getitem__(const FieldIndex &i) const {
     return (*self)[i];
   }
 };
@@ -145,7 +151,6 @@ public:
   }
 };
 
-
 class VectorOutputVal : public ArithmeticOutputVal {
 public:
   int size();
@@ -172,13 +177,15 @@ public:
   void _mul(double other) {
     (*self) *= other;
   }
-  double __getitem__(const IndexP &i) const {
+  double __getitem__(const FieldIndex &i) const {
     return (*self)[i];
   }
-  void __setitem__(const IndexP &i, double x) {
+  void __setitem__(const FieldIndex &i, double x) {
     (*self)[i] = x;
   }
 };
+
+ADD_REPR_GENERIC(ListOutputVal);
 
 class ListOutputVal : public NonArithmeticOutputVal {
 public:
@@ -186,11 +193,17 @@ public:
   int size();
 };
 
+%nodefaultctor ListOutputValIndex;
+
+class ListOutputValIndex : public FieldIndex {
+
+};
+
 %extend ListOutputVal {
-  double __getitem__(const IndexP &i) const {
+  double __getitem__(const FieldIndex &i) const {
     return (*self)[i];
   }
-  void __setitem__(const IndexP &i, double x) {
+  void __setitem__(const FieldIndex &i, double x) {
     (*self)[i] = x;
   }
 };
@@ -220,7 +233,7 @@ public:
 };
 
 %extend ArithmeticOutputValue {
-  double __getitem__(const IndexP &i) const {
+  double __getitem__(const FieldIndex &i) const {
     return (*self)[i];
   }
   void _add(const ArithmeticOutputValue &other) {

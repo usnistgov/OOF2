@@ -1,6 +1,5 @@
 // -*- C++ -*-
 
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -16,7 +15,6 @@
 class CompoundField;
 class Field;
 class FieldIndex;
-class IteratorP;
 class ScalarField;
 class ScalarFieldBase;
 class TwoVectorField;
@@ -152,6 +150,14 @@ public:
   double value(const FEMesh*, const PointData*, int component) const;
   double value(const FEMesh*, const ElementFuncNodeIterator&, int component)
     const;
+
+  // TODO: Add
+  // double value(const FEMesh*, const Element*, const MasterPosition&);
+  // double value(const FEMesh*, const Coord&);
+  // which will interpolate to the given position.  The second form
+  // will find the Element and MasterCoord and call the first
+  // form. This will be useful in Outputs, and maybe elsewhere.  See
+  // ThermalExpansion::output.
   
   virtual DegreeOfFreedom *operator()(const PointData*, int component) const=0;
   DegreeOfFreedom *operator()(const PointData &n, int component) const
@@ -162,7 +168,7 @@ public:
 				      int component)
     const = 0;
   DegreeOfFreedom *operator()(const ElementFuncNodeIterator &n,
-			      const IteratorP &i) const
+			      const IndexP &i) const
   {
     return operator()(n, i.integer());
   }
@@ -181,8 +187,13 @@ public:
     return f1.index() == f2.index();
   }
 
-  virtual IteratorP iterator(Planarity) const = 0;
-  virtual IndexP getIndex(const std::string&) const = 0;
+  // getIndex converts the string representation of a FieldIndex (eg,
+  // "x" for a vector component) to an actual FieldIndex.  It's only
+  // used in python.
+  virtual FieldIndex *getIndex(const std::string&) const = 0;
+
+  virtual ComponentsP components(Planarity p=ALL_INDICES) const = 0;
+  virtual ComponentsP outOfPlaneComponents() const = 0;
 
   // Stuff required by fieldeqnlist.h templates, which handle Field
   // data that varies from Node to Node, such as specifying which
@@ -295,8 +306,9 @@ public:
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
 
-  virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
-  virtual IndexP getIndex(const std::string&) const;
+  virtual ComponentsP components(Planarity=ALL_INDICES/*irrelevant*/) const;
+  virtual ComponentsP outOfPlaneComponents() const;
+  virtual FieldIndex *getIndex(const std::string&) const;
   virtual const std::string &classname() const { return classname_; }
 };
 
@@ -330,8 +342,9 @@ public:
   virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
-  virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
-  virtual IndexP getIndex(const std::string&) const;
+  virtual ComponentsP components(Planarity /*irrelevant*/) const;
+  virtual ComponentsP outOfPlaneComponents() const;
+  virtual FieldIndex *getIndex(const std::string&) const;
   virtual const std::string &classname() const { return classname_; }
 };
 
@@ -368,8 +381,9 @@ public:
   virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
-  virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
-  virtual IndexP getIndex(const std::string&) const;
+  virtual ComponentsP components(Planarity=ALL_INDICES) const;
+  virtual ComponentsP outOfPlaneComponents() const;
+  virtual FieldIndex *getIndex(const std::string&) const;
 };
 
 // ThreeVectorField, provided as a separate class so that it can be
@@ -401,17 +415,17 @@ public:
   virtual DegreeOfFreedom *operator()(const ElementFuncNodeIterator&,
 				      int component) const;
   DegreeOfFreedom *operator()(const ElementFuncNodeIterator&,
-			      SymTensorIterator&) const;
-  DegreeOfFreedom *operator()(const PointData&, 
-			      SymTensorIterator&) const;
+			      SymTensorIndex&) const;
+  DegreeOfFreedom *operator()(const PointData&, SymTensorIndex&) const;
   virtual ArithmeticOutputValue newOutputValue() const;
   virtual ArithmeticOutputValue output(const FEMesh*, 
 			     const ElementFuncNodeIterator&) const;
   virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
-  virtual IteratorP iterator(Planarity) const;
-  virtual IndexP getIndex(const std::string&) const;
+  virtual ComponentsP components(Planarity) const;
+  virtual ComponentsP outOfPlaneComponents() const;
+  virtual FieldIndex *getIndex(const std::string&) const;
 
   virtual const std::string &classname() const {
     return classname_;
@@ -423,6 +437,8 @@ Field *getFieldByIndex(int);
 int countFields();
 CompoundField *getCompoundFieldByIndex(int);
 int countCompoundFields();
+
+void testIterators();
 
 
 #endif	// FIELD_H

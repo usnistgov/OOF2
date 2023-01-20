@@ -124,21 +124,11 @@ function(swig_sources)
       LANGUAGE PYTHON
       SOURCES ${swigfile}.swg)
 
-
-    ## OOFCANVAS_LINK_LIBRARIES contains the full paths.  Why isn't
-    ## the library found?  TODO PYTHON3: explain that comment, or delete it.
-    ## TODO PYTHON3: combine all these target_link_libraries calls?
     target_link_libraries(
       ${TARGET}
-      PUBLIC
-      ${Python3_LIBRARIES})
-    target_link_libraries(
-      ${TARGET}
-      PUBLIC
-      ${SS_LIBRARIES})
-    target_link_libraries(
-      ${TARGET}
-      PUBLIC
+      PRIVATE
+      ${Python3_LIBRARIES}
+      ${SS_LIBRARIES}
       ${OOFCANVAS_LINK_LIBRARIES}
       )
 

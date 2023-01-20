@@ -32,20 +32,19 @@
 #include "general_nonlinear_elasticity.h"
 
 
-GeneralNonlinearElasticityNoDeriv::GeneralNonlinearElasticityNoDeriv(PyObject *registration, const std::string &nm)
+GeneralNonlinearElasticityNoDeriv::GeneralNonlinearElasticityNoDeriv(
+			     PyObject *registration, const std::string &nm)
   : FluxProperty(nm, registration)
 {
-#if DIM==2
   displacement = dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));
-#elif DIM==3
-  displacement = dynamic_cast<ThreeVectorField*>(Field::getField("Displacement"));
-#endif
   stress_flux = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
 }
 
 
-int GeneralNonlinearElasticityNoDeriv::integration_order(const CSubProblem *subp,
-							 const Element *el) const {
+int GeneralNonlinearElasticityNoDeriv::integration_order(
+						 const CSubProblem *subp,
+						 const Element *el) const
+{
   if(displacement->in_plane(subp))
     return el->dshapefun_degree();
   return el->shapefun_degree();
@@ -80,9 +79,8 @@ void GeneralNonlinearElasticityNoDeriv::static_flux_value(
 
   // now we can plug in the flux element values to fluxdata
 
-  for (SymTensorIterator ij; !ij.end(); ++ij)
-    // FIXED
-    fluxdata->flux_vector_element( ij ) -= stress( ij.row(), ij.col() );
+  for(SymTensorIndex ij : symTensorIJComponents) 
+    fluxdata->flux_vector_element(ij) -= stress(ij.row(), ij.col());
 
 
 } // end of 'GeneralNonlinearElasticityNoDeriv::static_flux_value'
@@ -116,7 +114,8 @@ void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
   computeDisplacementGradient( mesh, element, pt, dispGrad );
 
 
-  // evaluate the value of flux derivatives with the given pt, time, displacement etc
+  // evaluate the value of flux derivatives with the given pt, time,
+  // displacement etc
 
   Coord coord = element->from_master( pt );
 
@@ -133,25 +132,15 @@ void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
   double shapeFuncVal     = node.shapefunction( pt );
   double shapeFuncGrad0 = node.dshapefunction( 0, pt );
   double shapeFuncGrad1 = node.dshapefunction( 1, pt );
-#if DIM==3
-  double shapeFuncGrad2 = node.dshapefunction( 2, pt );
-#endif
-
 
   // finally add the contributions to the stiffness matrix element
 
-  IteratorP kay = displacement->iterator(); // to iterate over components of disp.
+  for (SymTensorIndex ij : symTensorIJComponents) {
+    int i = ij.row();
+    int j = ij.col();
 
-  for (SymTensorIterator ij; !ij.end(); ++ij) {
-
-    int i = ij.row(), j = ij.col();
-
-#if DIM==2
-
-    for( ; !kay.end(); ++kay) { // loop over kth component of displacement
-
+    for(IndexP kay : displacement->components(ALL_INDICES)) {
       int k = kay.integer();
-      // FIXED
       fluxmtx->stiffness_matrix_element( ij, displacement, kay, node ) -=
 	stressDeriv1(i,j,k) * shapeFuncVal +
 	stressDeriv2(i,j,k,0) * shapeFuncGrad0 +
@@ -160,35 +149,12 @@ void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
 
     if ( !displacement->in_plane( mesh ) ){
       Field *disp_z_deriv = displacement->out_of_plane();
-      for(IteratorP kayo = disp_z_deriv->iterator( ALL_INDICES );
-	  !kayo.end(); ++kayo) {
+      for(IndexP kayo : disp_z_deriv->components(ALL_INDICES)) {
 	int ko = kayo.integer();
-	// FIXED
 	fluxmtx->stiffness_matrix_element( ij, disp_z_deriv, kayo, node ) -=
 	  stressDeriv2(i,j,ko,2) * shapeFuncVal;
       }
     }
-
-#elif DIM==3
-
-    // This loop is repeated here because if you start it once and
-    // terminate it twice in different branches of the ifdef, the
-    // editor gets all confused and can't match up the brackets, and
-    // the indenting all breaks.
-
-    for( ; !kay.end(); ++kay) { // loop over kth component of displacement
-      int k = kay.integer();
-      // FIXED
-      fluxmtx->stiffness_matrix_element( ij, displacement, kay, node ) -=
-    	             stressDeriv1(i,j,k) * shapeFuncVal +
-   	             stressDeriv2(i,j,k,0) * shapeFuncGrad0 +
-	             stressDeriv2(i,j,k,1) * shapeFuncGrad1 +
-	             stressDeriv2(i,j,k,2) * shapeFuncGrad2;
-    } // End of kay loop.
-
-#endif
-
-    kay.reset();
 
   } // end of loop over ij
 

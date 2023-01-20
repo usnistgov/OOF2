@@ -42,10 +42,8 @@ DielectricPermittivity::DielectricPermittivity(PyObject *registry,
 int DielectricPermittivity::integration_order(const CSubProblem *mesh,
 					      const Element *el) const
 {
-#if DIM==2
   if(voltage->in_plane(mesh))
     return el->dshapefun_degree();
-#endif
   return el->shapefun_degree();
 }
 
@@ -80,22 +78,16 @@ void DielectricPermittivity::flux_matrix(const FEMesh *mesh,
   // Loop over flux components.  Loop over all components, even if
   // the flux is in-plane, because the out-of-plane components of
   // the flux matrix are used to construct the constraint equation.
-  for(VectorFieldIterator i; !i.end(); ++i) {
+  for(IndexP i : flux->components(ALL_INDICES)) {
     // in-plane voltage gradient contributions
     fluxdata->stiffness_matrix_element(i, voltage, j) -=
       permit(i.integer(), 0) * dsf0 +
       permit(i.integer(), 1) * dsf1;
-#if DIM==3
-    fluxdata->stiffness_matrix_element(i, voltage, j) -=
-      permit(i.integer(), 2) * dsf2;
-
-#elif DIM==2
     // out-of-plane voltage gradient contribution
     if(!voltage->in_plane(mesh)) {
       fluxdata->stiffness_matrix_element(i, voltage->out_of_plane(), j)
 	-= permit(i.integer(), 2) * sf;
     }
-#endif
   }
 }
 

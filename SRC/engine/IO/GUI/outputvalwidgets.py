@@ -55,21 +55,20 @@ class GenericOVWidget:
 class VectorWidget:
     def __init__(self, val, **kwargs):
         debug.mainthreadTest()
-        iterator = val.getIterator()
-        if iterator.size() != 0:
+        components = list(val.components())
+        if components:
             self.gtk = Gtk.Grid(row_spacing=2, column_spacing=2,**kwargs)
             row = 0
-            while not iterator.end():
-                label = Gtk.Label(label=iterator.shortrepr()+':',
+            for comp in components:
+                label = Gtk.Label(label=comp.shortrepr()+':',
                                   halign=Gtk.Align.END)
                 self.gtk.attach(label, 0,row, 1,1)
                 entry = Gtk.Entry(editable=False, halign=Gtk.Align.FILL,
                                   hexpand=True)
-                gtklogger.setWidgetName(entry, iterator.shortrepr())
-                entry.set_text("%-13.6g" % val[iterator])
+                gtklogger.setWidgetName(entry, comp.shortrepr())
+                entry.set_text("%-13.6g" % val[comp])
                 self.gtk.attach(entry, 1,row, 1,1)
                 row += 1
-                iterator.increment()
         else:
             self.gtk = Gtk.Label(label="No data", **kwargs)
             self.gtk.set_sensitive(False)
@@ -99,14 +98,12 @@ class SymmMatrix3Widget:
     def __init__(self, val, **kwargs):
         debug.mainthreadTest()
         self.gtk = Gtk.Grid(**kwargs)
-        iterator = val.getIterator()
         rowlabels = [None]*3
         collabels = [None]*3
-        while not iterator.end():
-            comps = iterator.components()
-            row = comps[0]
-            col = comps[1]
-            ijstr = iterator.shortrepr()
+        for ijcomp in fieldindex.symTensorIJComponents:
+            row = ijcomp.row()
+            col = ijcomp.col()
+            ijstr = ijcomp.shortrepr()
             if not rowlabels[row]:
                 rowlabels[row] = ijstr[0]
                 label = Gtk.Label(label=rowlabels[row]+': ',
@@ -121,8 +118,7 @@ class SymmMatrix3Widget:
                               hexpand=True)
             gtklogger.setWidgetName(entry, rowlabels[row]+collabels[col])
             self.gtk.attach(entry, col+1,row+1, 1,1)
-            entry.set_text("%-13.6g" % val[iterator])
-            iterator.increment()
+            entry.set_text("%-13.6g" % val[ijcomp])
             
     def show(self):
         debug.mainthreadTest()

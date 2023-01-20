@@ -261,8 +261,8 @@ void copyOutputVals(const Rank3Tensor &modulus, ListOutputVal *listdata,
 {
   for(unsigned int i=0; i<idxstrs.size(); i++) {
     const std::string &idxpair = idxstrs[i];
-    int j = int(idxpair[0]-'1'); // 1-3
-    SymTensorIndex kl = SpaceIndex(idxpair[1]-'1'); // Voigt, 1-6
+    int j = int(idxpair[0]-'1');	    // 1-3
+    SymTensorIndex kl(int(idxpair[1]-'1')); // Voigt, 1-6
     (*listdata)[i] = modulus(j, kl);
   }
 }

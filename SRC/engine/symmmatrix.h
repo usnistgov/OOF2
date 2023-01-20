@@ -155,8 +155,8 @@ public:
     SymmMatrix::operator-=(x);
     return *this;
   }
-  virtual double operator[](const IndexP&) const;
-  virtual double &operator[](const IndexP&);
+  virtual double operator[](const FieldIndex&) const;
+  virtual double &operator[](const FieldIndex&);
   double operator[](const SymTensorIndex&) const;
   double &operator[](const SymTensorIndex&);
   double trace() const;
@@ -170,8 +170,8 @@ public:
   double minEigenvalue() const;
   double contract(const SymmMatrix3&) const;
 
-  virtual IndexP getIndex(const std::string&) const;
-  virtual IteratorP getIterator() const;
+  virtual FieldIndex *getIndex(const std::string&) const;
+  virtual ComponentsP components() const;
   virtual void print(std::ostream&) const;
 };
 

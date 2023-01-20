@@ -459,22 +459,14 @@ double SymmMatrix3::minEigenvalue() const {
   return eigenvalues.min();
 }
 
-double &SymmMatrix3::operator[](const IndexP &p) {
-  // Converting directly from IndexP to SymTensorIndex via
-  // const SymTensorIndex &sti = dynamic_cast<const SymTensorIndex&>(p);
-  // compiles but fails at run time on some compilers.
-  const FieldIndex &fi(p);
+double SymmMatrix3::operator[](const FieldIndex &fi) const {
   const SymTensorIndex &sti = dynamic_cast<const SymTensorIndex&>(fi);
-  dirtyeigs_ = true;
   return (*this)(sti.row(), sti.col());
 }
 
-double SymmMatrix3::operator[](const IndexP &p) const {
-  // Converting directly from IndexP to SymTensorIndex via
-  // const SymTensorIndex &sti = dynamic_cast<const SymTensorIndex&>(p);
-  // compiles but fails at run time on some compilers.
-  const FieldIndex &fi(p);
+double &SymmMatrix3::operator[](const FieldIndex &fi) {
   const SymTensorIndex &sti = dynamic_cast<const SymTensorIndex&>(fi);
+  dirtyeigs_ = true;
   return (*this)(sti.row(), sti.col());
 }
 
@@ -492,13 +484,14 @@ void SymmMatrix3::print(std::ostream &os) const {
   os << sm;
 }
 
-IndexP SymmMatrix3::getIndex(const std::string &str) const {
+FieldIndex *SymmMatrix3::getIndex(const std::string &str) const {
   // str must be "xx", "yy", "zz", "yz", "xz", or "xy", or permutations
-  return IndexP(new SymTensorIndex(SymTensorIndex::str2voigt(str)));
+  return new SymTensorIndex(SymTensorIndex::str2voigt(str));
 }
 
-IteratorP SymmMatrix3::getIterator() const {
-  return IteratorP(new SymTensorIterator());
+ComponentsP SymmMatrix3::components() const {
+  static const SymTensorComponents comps;
+  return ComponentsP(&comps);
 }
 
 ArithmeticOutputValue *newSymTensorOutputValue() {

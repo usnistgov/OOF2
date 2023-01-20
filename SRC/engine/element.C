@@ -152,6 +152,7 @@ void Element::make_linear_system(const CSubProblem *const subproblem,
     // TODO OPT MAYBE: Use different integration orders for different
     // equations and properties.  That might make precomputations
     // difficult.
+    // TODO PYTHON3: Use a real iterator
     for(GaussPointIterator gpt = integrator(iorder);
 	!gpt.end();++gpt) {
       mat->make_linear_system( subproblem, this, gpt, dofmap, time,
@@ -717,8 +718,9 @@ std::vector<int> Element::localDoFmap() const {
   for(std::vector<Field*>::size_type fi=0; fi< Field::all().size(); fi++) {
     Field &field = *Field::all()[fi];
     // Field components.
-    for(IteratorP fcomp=field.iterator(ALL_INDICES); !fcomp.end(); ++fcomp) {
+    for(IndexP fcomp : field.components(ALL_INDICES)) {
       // Nodes
+      // TODO PYTHON3: Use a real iterator
       for(CleverPtr<ElementFuncNodeIterator> node(funcnode_iterator());
 	  !node->end(); ++*node)
 	{
@@ -744,7 +746,7 @@ void Element::localDoFs(const FEMesh *mesh, DoubleVec &doflist) const
   for(std::vector<Field*>::size_type fi=0; fi<Field::all().size(); fi++) {
     Field &field = *Field::all()[fi];
     // loop over field components
-    for(IteratorP fcomp=field.iterator(ALL_INDICES); !fcomp.end(); ++fcomp) {
+    for(IndexP fcomp : field.components(ALL_INDICES)) {
       // loop over nodes
       for(CleverPtr<ElementFuncNodeIterator> node(funcnode_iterator());
 	  !node->end(); ++*node)

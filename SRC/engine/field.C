@@ -311,12 +311,22 @@ void ScalarFieldBase::setValueFromOutputValue(FEMesh *mesh,
 }
 
 
-IteratorP ScalarFieldBase::iterator(Planarity) const {
-  return IteratorP(new ScalarFieldIterator);
+// IteratorP ScalarFieldBase::iterator(Planarity) const {
+//   return IteratorP(new ScalarFieldIterator);
+// }
+
+ComponentsP ScalarFieldBase::components(Planarity) const {
+  static const ScalarFieldComponents comps;
+  return ComponentsP(&comps);
 }
 
-IndexP ScalarFieldBase::getIndex(const std::string &) const {
-  return IndexP(new ScalarFieldIndex);
+ComponentsP ScalarFieldBase::outOfPlaneComponents() const {
+  static const EmptyFieldComponents comps;
+  return ComponentsP(&comps);
+}
+
+FieldIndex *ScalarFieldBase::getIndex(const std::string &) const {
+  return new ScalarFieldIndex;
 }
 
 const std::string ScalarFieldBase::classname_("ScalarFieldBase");
@@ -392,41 +402,18 @@ void TwoVectorFieldBase::setValueFromOutputValue(
   (*this)(node, 1)->value(mesh) = vov[1];
 }
 
-// // The TwoVectorHelper class allows TwoVectorField(FuncNode) to act like a
-// Coord.
-// TwoVectorHelper TwoVectorFieldBase::operator()(FEMesh *mesh, 
-// 					       const FuncNode *node) const
-// {
-//   // offset() will raise ErrNoSuchField if this field isn't defined at the node.
-//   int idx = node->fieldset.offset(this);
-//   return TwoVectorHelper(mesh, node->doflist[idx], node->doflist[idx+1]);
-// }
-
-// TwoVectorHelper
-// TwoVectorFieldBase::operator()(FEMesh *mesh, 
-// 			       const ElementFuncNodeIterator &ei) const
-// {
-//   return operator()(mesh, ei.funcnode());
-// }
-
-// // field(node) = coord
-// TwoVectorHelper &TwoVectorHelper::operator=(const Coord &v) {
-//   x->value(mesh) = v(0);
-//   y->value(mesh) = v(1);
-//   return *this;
-// }
-
-// // coord = field(node)
-// TwoVectorHelper::operator const Coord() const {
-//   return Coord(x->value(mesh), y->value(mesh));
-// }
-
-IteratorP TwoVectorFieldBase::iterator(Planarity) const {
-  return IteratorP(new VectorFieldIterator(0, 2));
+ComponentsP TwoVectorFieldBase::components(Planarity) const {
+  static VectorFieldComponents comps(0, 2);
+  return ComponentsP(&comps);
 }
 
-IndexP TwoVectorFieldBase::getIndex(const std::string &str) const {
-  return IndexP(new VectorFieldIndex(str[0] - 'x'));
+ComponentsP TwoVectorFieldBase::outOfPlaneComponents() const {
+  static const EmptyFieldComponents comps;
+  return ComponentsP(&comps);
+}
+
+FieldIndex *TwoVectorFieldBase::getIndex(const std::string &str) const {
+  return new VectorFieldIndex(str[0] - 'x');
 }
 
 const std::string TwoVectorFieldBase::classname_("TwoVectorFieldBase");
@@ -489,47 +476,34 @@ void VectorFieldBase::setValueFromOutputValue(FEMesh *mesh,
     (*this)(node, i)->value(mesh) = vov[i];
 }
 
-// // The VectorHelper class allows VectorField(FuncNode) to act like a Vector.
-// VectorHelper VectorFieldBase::operator()(FEMesh *mesh, const FuncNode *node)
-//   const
-// {
-//   // offset() will raise ErrNoSuchField if this field isn't defined at the node.
-//   return VectorHelper(mesh, &node->doflist[node->fieldset.offset(this)], dim);
+// IteratorP VectorFieldBase::iterator(Planarity planarity) const {
+//   int mindim = (planarity == OUT_OF_PLANE ? 2 : 0);
+//   int maxdim = (planarity == IN_PLANE ? 2 : ndof());
+//   return IteratorP(new VectorFieldIterator(mindim, maxdim));
 // }
 
-// VectorHelper VectorFieldBase::operator()(FEMesh *mesh,
-// 					 const ElementFuncNodeIterator &ei)
-//   const
-// {
-//   return operator()(mesh, ei.funcnode());
-// }
-
-// // field(node) = vector
-// VectorHelper &VectorHelper::operator=(const VECTOR_D &v) {
-// #ifdef DEBUG
-//   assert(v.dim() == ndof);
-// #endif
-//   for(unsigned int i=0; i<ndof; i++)
-//     x[i]->value(mesh) = v[i];
-//   return *this;
-// }
-
-// // vector = field(node)
-// VectorHelper::operator const VECTOR_D() const {
-//   VECTOR_D v(ndof);
-//   for(unsigned int i=0; i<ndof; i++)
-//     v[i] = x[i]->value(mesh);
-//   return v;
-// }
-
-IteratorP VectorFieldBase::iterator(Planarity planarity) const {
-  int mindim = (planarity == OUT_OF_PLANE ? 2 : 0);
-  int maxdim = (planarity == IN_PLANE ? 2 : ndof());
-  return IteratorP(new VectorFieldIterator(mindim, maxdim));
+ComponentsP VectorFieldBase::components(Planarity planarity) const {
+  static const VectorFieldComponents allcomps(0, dim);
+  static const VectorFieldComponents inplane(0, 2);
+  static const VectorFieldComponents outofplane(2,dim);
+    
+  if(planarity == ALL_INDICES) 
+    return ComponentsP(&allcomps);
+  if(planarity == IN_PLANE)
+    return ComponentsP(&inplane);
+  return ComponentsP(&outofplane);
 }
 
-IndexP VectorFieldBase::getIndex(const std::string &str) const {
-  return IndexP(new VectorFieldIndex(str[0] - 'x'));
+// Out of plane components returns just one component, 'z', but its an
+// OutOfPlaneVectorFieldIndex, not a VectorFieldIndex.
+
+ComponentsP VectorFieldBase::outOfPlaneComponents() const {
+  static OutOfPlaneVectorFieldComponents comp(dim);
+  return ComponentsP(&comp);
+}
+
+FieldIndex *VectorFieldBase::getIndex(const std::string &str) const {
+  return new VectorFieldIndex(str[0] - 'x');
 }
 
 ThreeVectorField::ThreeVectorField(const std::string &nm)
@@ -552,9 +526,6 @@ DegreeOfFreedom *SymmetricTensorField::operator()
   return pd->doflist[pd->fieldset.offset(this) + comp];
 }
 
-// TODO: Should have another one for (i,j) indices?
-
-
 DegreeOfFreedom *SymmetricTensorField::operator()
   (const ElementFuncNodeIterator &ei, int comp) const 
 {
@@ -562,13 +533,13 @@ DegreeOfFreedom *SymmetricTensorField::operator()
 }
 
 DegreeOfFreedom *SymmetricTensorField::operator()
-  (const ElementFuncNodeIterator &ei, SymTensorIterator &sti) const 
+  (const ElementFuncNodeIterator &ei, SymTensorIndex &sti) const 
 {
   return this->operator()(ei.funcnode(),sti.integer());
 }
 
 DegreeOfFreedom *SymmetricTensorField::operator()
-  (const PointData &pd, SymTensorIterator& sti) const 
+  (const PointData &pd, SymTensorIndex& sti) const 
 {
   return this->operator()(&pd, sti.integer());
 }
@@ -583,9 +554,8 @@ ArithmeticOutputValue SymmetricTensorField::output(const FEMesh *mesh,
   SymmMatrix3 *oval = new SymmMatrix3();
   ArithmeticOutputValue ov(oval);
   if(pd.hasField(*this)) {
-    for(SymTensorIterator i=SymTensorIterator(0); 
-	!i.end(); ++i)
-      (*oval)[i] = operator()(pd, i)->value(mesh);
+    for(SymTensorIndex i : symTensorIJComponents) 
+      (*oval)[i] = operator()(pd, i.integer())->value(mesh);
   }
   return ov;
 }
@@ -598,9 +568,8 @@ SymmetricTensorField::output(const FEMesh *mesh,
   SymmMatrix3 *oval = new SymmMatrix3();
   ArithmeticOutputValue ov(oval);
   if(pd.hasField(*this)) {
-    for(SymTensorIterator i=SymTensorIterator(0); 
-	!i.end(); ++i)
-      (*oval)[i] = operator()(pd, i)->value(mesh);
+    for(SymTensorIndex i : symTensorIJComponents)
+      (*oval)[i] = operator()(pd, i.integer())->value(mesh);
   }
   return ov;
 }
@@ -619,12 +588,48 @@ void SymmetricTensorField::setValueFromOutputValue(FEMesh* m,
   free(vvec);
 }
 
-IteratorP SymmetricTensorField::iterator(Planarity p) const {
-  // Weird but right -- getSymTensorIterator returns an IteratorP*,
-  // just dereference it to get what we want.
-  return *getSymTensorIterator(p);
+ComponentsP SymmetricTensorField::components(Planarity planarity) const {
+  static const SymTensorComponents allcomps;
+  static const SymTensorInPlaneComponents inplane;
+  static const SymTensorOutOfPlaneComponents outofplane;
+  if(planarity == ALL_INDICES)
+    return ComponentsP(&allcomps);
+  if(planarity == IN_PLANE)
+    return ComponentsP(&inplane);
+  return ComponentsP(&outofplane);
 }
 
-IndexP SymmetricTensorField::getIndex(const std::string& str) const {
-  return IndexP(new SymTensorIndex(SymTensorIndex::str2voigt(str)));
+FieldIndex *SymmetricTensorField::getIndex(const std::string& str) const {
+  return new SymTensorIndex(SymTensorIndex::str2voigt(str));
+}
+
+ComponentsP SymmetricTensorField::outOfPlaneComponents() const {
+  static const OutOfPlaneSymTensorComponents comps;
+  return ComponentsP(&comps);
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+void testIterator_(const Field *field) {
+  std::cerr << "testIterator: " << field->name() << std::endl;
+  for(Planarity planarity : {ALL_INDICES, IN_PLANE, OUT_OF_PLANE}) {
+    if (planarity == IN_PLANE)
+      std::cerr << "IN_PLANE";
+    else if(planarity == OUT_OF_PLANE)
+      std::cerr << "OUT_OF_PLANE";
+    else
+      std::cerr << "ALL_INDICES";
+    std::cerr << ":";
+    for(auto index : field->components(planarity))
+      std::cerr << " " << index;
+    std::cerr << std::endl;
+  }
+}
+
+void testIterators() {
+  for(int i=0; i<countCompoundFields(); i++) {
+    CompoundField *field = getCompoundFieldByIndex(i);
+    testIterator_(field);
+    testIterator_(field->out_of_plane());
+  }
 }

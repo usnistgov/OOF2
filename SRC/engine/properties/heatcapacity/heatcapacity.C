@@ -33,11 +33,12 @@ void HeatCapacityProp::first_time_deriv_matrix(const FEMesh *mesh,
 					       const ElementFuncNodeIterator &eni,
 					       const MasterPosition &mpos,
 					       double time,
-					       SmallSystem *eqdata) const {
+					       SmallSystem *eqdata) const
+{
 
   // Optional -- check that the equation is the right one.
   double shapeFuncVal = eni.shapefunction( mpos );
-  for(IteratorP eqncomp = eqn->iterator(); !eqncomp.end(); ++eqncomp) {
+  for(IndexP eqncomp : eqn->components()) {
     eqdata->damping_matrix_element(eqncomp, temperature, eqncomp, eni) += \
       cv_ * shapeFuncVal;
   }

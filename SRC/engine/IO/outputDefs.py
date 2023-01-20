@@ -36,10 +36,7 @@ from ooflib.engine.IO import propertyoutputreg
 # Point so that it can be added to a position.
 
 Displacement = field.getField("Displacement")
-iter = Displacement.iterator(planarity.IN_PLANE)
-disp0 = iter.cloneIndex()
-iter.increment()
-disp1 = iter.cloneIndex()
+disp0, disp1 = Displacement.components(planarity.IN_PLANE)
 
 displacementFieldOutput = outputClones.FieldOutput.clone(
     name="displacement field",

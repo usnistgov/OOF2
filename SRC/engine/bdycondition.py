@@ -21,11 +21,12 @@
 ## component.  Perhaps there should be an advanced mode that lets
 ## users choose the non-obvious pairings.
 
+from ooflib.SWIG.common import lock
+from ooflib.SWIG.common import switchboard
+from ooflib.SWIG.engine import boundarycond
 from ooflib.SWIG.engine import equation
 from ooflib.SWIG.engine import ooferror
-from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common import lock
-from ooflib.SWIG.engine import boundarycond
+from ooflib.SWIG.engine import planarity
 from ooflib.common import debug
 from ooflib.common import labeltree
 from ooflib.common import registeredclass
@@ -669,7 +670,6 @@ class FloatBCBase(BC):
 
         eqncomp = self.equation.getIndex(self.eqn_component).integer()
 
-
         if self.root.applicator is None:  
             # This FloatBC has not yet been applied to any node.  Try
             # to apply it to this node.
@@ -1173,16 +1173,12 @@ def _build_oops(field, eqn, boundary):
         # If no plane-flux equation can be found, silently fail.
         return []
 
-    field_itr = oop_field.iterator_all()
-    eqn_itr = oop_eqn.iterator_all()
-
-    while not field_itr.end():
-        new_oop = OutOfPlaneBC(field, oop_field, field_itr.shortstring(),
-                               oop_eqn, eqn_itr.shortstring(),
+    for fcomp, ecomp in zip(oop_field.components(planarity.ALL_INDICES),
+                           oop_eqn.components()):
+        new_oop = OutOfPlaneBC(field, oop_field, fcomp.shortrepr(),
+                               oop_eqn, ecomp.shortrepr(),
                                boundary)
         res.append(new_oop)
-        field_itr.increment()
-        eqn_itr.increment()
     return res
 
 
@@ -1345,9 +1341,9 @@ class PeriodicBC(BC):
 
             # Create floatBC with constant profile
 
-            field_comp_itr = self.field.iterator_all()
-            eqn_comp_itr = self.equation.iterator_all()
-            while (not field_comp_itr.end()):
+            for fcomp, ecomp in zip(
+                    self.field.components(planarity.ALL_INDICES),
+                    self.equation.components()):
                 
                 # TODO: There's a slight storage efficiency to be
                 # gained by sharing the trivial profile between all
@@ -1358,8 +1354,8 @@ class PeriodicBC(BC):
                 # assignment statement outside these two loops.
 
                 newprofile = profile.ConstantProfile(0)
-                newbc = FloatBC(self.field, field_comp_itr.shortstring(),
-                                self.equation, eqn_comp_itr.shortstring(),
+                newbc = FloatBC(self.field, fcomp.shortrepr(),
+                                self.equation, ecomp.shortrepr(),
                                 newprofile, bdy.name(),
                                 visible=False, subordinate=True)
 
@@ -1372,10 +1368,6 @@ class PeriodicBC(BC):
                 newbc.add_to_mesh(aux_bc_name, self.mesh)
                 self.floatBCs.append(newbc)
                 
-                field_comp_itr.increment()
-                eqn_comp_itr.increment()
-
-                
             # Add the out-of-plane BCs, via the handy helper function.
             oopbcs = _build_oops(self.field, self.equation, bdy.name())
 
@@ -1385,7 +1377,6 @@ class PeriodicBC(BC):
                 bc.add_to_mesh(oop_name, self.mesh)
 
             self.floatBCs += oopbcs
-            
 
     def remove_auxiliary_BCs(self):
         for bc in self.floatBCs:

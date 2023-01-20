@@ -685,11 +685,6 @@ std::ostream &operator<<(std::ostream &os, const COrientation &orient) {
 
 // Stuff added to make COrientations usable as OutputVals.
 
-const std::string &COrientation::modulename() const {
-  static const std::string nm = "ooflib.SWIG.engine.corientation";
-  return nm;
-}
-
 static double degrees = 180./M_PI;
 
 // -----------
@@ -706,6 +701,12 @@ const std::vector<std::string> COrientABG::arguments(
 
 const std::string &COrientABG::classname() const {
   static const std::string nm("COrientABG");
+  return nm;
+}
+
+template<>
+const std::string &OIndex<COrientABG>::classname() const {
+  static const std::string nm("OIndex_COrientABG");
   return nm;
 }
 
@@ -732,6 +733,12 @@ const std::string &COrientBunge::classname() const {
   return nm;
 }
 
+template<>
+const std::string &OIndex<COrientBunge>::classname() const {
+  static const std::string nm("OIndex_COrientBunge");
+  return nm;
+}
+
 COrientBunge *COrientBunge::clone() const {
   return new COrientBunge(*this);
 };
@@ -752,6 +759,12 @@ const std::vector<std::string> COrientQuaternion::arguments(
 
 const std::string &COrientQuaternion::classname() const {
   static const std::string nm("COrientQuaternion");
+  return nm;
+}
+
+template<>
+const std::string &OIndex<COrientQuaternion>::classname() const {
+  static const std::string nm("OIndex_COrientQuaternion");
   return nm;
 }
 
@@ -776,6 +789,12 @@ const std::string &COrientX::classname() const {
   return nm;
 }
 
+template<>
+const std::string &OIndex<COrientX>::classname() const {
+  static const std::string nm("OIndex_COrientX");
+  return nm;
+}
+
 COrientX *COrientX::clone() const {
   return new COrientX(*this);
 };
@@ -794,6 +813,12 @@ const std::vector<std::string> COrientXYZ::arguments({"phi", "theta", "psi"});
 
 const std::string &COrientXYZ::classname() const {
   static const std::string nm("COrientXYZ");
+  return nm;
+}
+
+template<>
+const std::string &OIndex<COrientXYZ>::classname() const {
+  static const std::string nm("OIndex_COrientXYZ");
   return nm;
 }
 
@@ -818,6 +843,12 @@ const std::string &COrientAxis::classname() const {
   return nm;
 }
 
+template<>
+const std::string &OIndex<COrientAxis>::classname() const {
+  static const std::string nm("OIndex_COrientAxis");
+  return nm;
+}
+
 COrientAxis *COrientAxis::clone() const {
   return new COrientAxis(*this);
 };
@@ -836,6 +867,12 @@ const std::vector<std::string> COrientRodrigues::arguments({"r1", "r2", "r3"});
 
 const std::string &COrientRodrigues::classname() const {
   static const std::string nm("COrientRodrigues");
+  return nm;
+}
+
+template<>
+const std::string &OIndex<COrientRodrigues>::classname() const {
+  static const std::string nm("OIndex_COrientRodrigues");
   return nm;
 }
 

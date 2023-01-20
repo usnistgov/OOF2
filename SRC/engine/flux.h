@@ -37,7 +37,6 @@ class Field;
 class FieldIndex;
 class FluxNormal;
 class GaussPoint;
-class IteratorP;
 class LinearizedSystem;
 class MasterPosition;
 class ArithmeticOutputVal;
@@ -80,13 +79,12 @@ public:
   const std::string &name() const { return name_; }
   std::string *repr() const { return new std::string(name_); }
 
-
-  virtual IteratorP iterator(Planarity) const = 0;
-  virtual IteratorP divergence_iterator() const = 0;
-  virtual IteratorP out_of_plane_iterator() const = 0;
-  virtual IndexP getIndex(const std::string&) const = 0;
-  virtual IndexP getOutOfPlaneIndex(const std::string&) const = 0;
-  virtual IndexP divergence_getIndex(const std::string&) const = 0;
+  virtual ComponentsP components(Planarity) const = 0;
+  virtual ComponentsP divergenceComponents() const = 0;
+  virtual ComponentsP outOfPlaneComponents() const = 0;
+  virtual FieldIndex *getIndex(const std::string&) const = 0;
+  virtual FieldIndex *getOutOfPlaneIndex(const std::string&) const = 0;
+  virtual FieldIndex *divergence_getIndex(const std::string&) const = 0;
 
   virtual FluxNormal *BCCallback(const Coord&,
 				 double,
@@ -172,12 +170,13 @@ public:
 			      const FluxNormal *,
 			      DoubleVec&) const;
 
-  virtual IteratorP iterator(Planarity) const;
-  virtual IteratorP divergence_iterator() const;
-  virtual IteratorP out_of_plane_iterator() const;
-  virtual IndexP getIndex(const std::string&) const;
-  virtual IndexP getOutOfPlaneIndex(const std::string&) const;
-  virtual IndexP divergence_getIndex(const std::string&) const;
+  virtual ComponentsP components(Planarity) const;
+  virtual ComponentsP divergenceComponents() const;
+  virtual ComponentsP outOfPlaneComponents() const;
+
+  virtual FieldIndex *getIndex(const std::string&) const;
+  virtual FieldIndex *getOutOfPlaneIndex(const std::string&) const;
+  virtual FieldIndex *divergence_getIndex(const std::string&) const;
 
   virtual ArithmeticOutputVal *contract(const FEMesh*, const Element*,
 					 const EdgeGaussPoint&) const;
@@ -227,12 +226,12 @@ public:
 
   virtual ArithmeticOutputValue newOutputValue() const;
 
-  virtual IteratorP iterator(Planarity) const;
-  virtual IteratorP divergence_iterator() const;
-  virtual IteratorP out_of_plane_iterator() const;
-  virtual IndexP getIndex(const std::string&) const;
-  virtual IndexP getOutOfPlaneIndex(const std::string&) const;
-  virtual IndexP divergence_getIndex(const std::string&) const;
+  virtual ComponentsP components(Planarity) const;
+  virtual ComponentsP divergenceComponents() const;
+  virtual ComponentsP outOfPlaneComponents() const;
+  virtual FieldIndex *getIndex(const std::string&) const;
+  virtual FieldIndex *getOutOfPlaneIndex(const std::string&) const;
+  virtual FieldIndex *divergence_getIndex(const std::string&) const;
 
   // Ideally, all arguments here would be const, but the first
   // PyObject* gets passed to PyEval_CallObject, which itself does

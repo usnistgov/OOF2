@@ -114,7 +114,7 @@ void NonlinearHeatSource::force_deriv_matrix(const FEMesh   *mesh,
 
   shapeFuncVal = j.shapefunction( point );
 
-  for (IteratorP eqncomp = eqn->iterator(); !eqncomp.end(); ++eqncomp)
+  for (IndexP eqncomp : eqn->components())
     eqndata->force_deriv_matrix_element( eqncomp, temperature, j )
                 -= funcDerivVal * shapeFuncVal;
 
