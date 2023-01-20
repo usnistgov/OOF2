@@ -332,8 +332,8 @@ class MeshDataGUI(widgetscope.WidgetScope):
 
     def destroyCB(self, *args):         # gtk callback
         mainmenu.OOF.Windows.Mesh_Data.removeItem(self._name)
-        switchboard.removeCallback(self.sbcallbacks)
-        switchboard.removeCallback(self.gsbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
+        switchboard.removeCallbacks(self.gsbcallbacks)
         allMeshDataWindows.remove(self)
 
     ##############
