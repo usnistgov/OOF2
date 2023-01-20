@@ -438,18 +438,6 @@ const std::string& ListOutputValIndex::classname() const {
   return nm;
 }
 
-// void ListOutputValIndex::set(const std::vector<int> *vals) {
-//   assert(vals->size() == 1);
-//   assert((*vals)[0] < max_);
-//   index_ = (*vals)[0];
-// }
-
-std::vector<int> *ListOutputValIndex::getComponents() const {
-  std::vector<int> *result = new std::vector<int>(1);
-  (*result)[0] = index_;
-  return result;
-}
-
 const std::string &ListOutputValIndex::shortrepr() const {
   return ov_->labels[index_];
 }

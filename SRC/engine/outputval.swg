@@ -121,8 +121,6 @@ public:
   }
 };
 
-ADD_REPR_GENERIC(ScalarOutputVal);
-
 class ScalarOutputVal : public ArithmeticOutputVal {
 public:
   ScalarOutputVal(double);
@@ -152,8 +150,6 @@ public:
     return new std::string(to_string(self->value()));
   }
 };
-
-ADD_REPR_GENERIC(VectorOutputVal);
 
 class VectorOutputVal : public ArithmeticOutputVal {
 public:

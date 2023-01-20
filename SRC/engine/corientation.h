@@ -139,10 +139,6 @@ public:
   const std::string &classname() const;
   virtual FieldIndex *clone() const { return new OIndex(*this); }
   virtual int integer() const { return which; }
-  // virtual void set(const std::vector<int> *v) { which = (*v)[0]; }
-  virtual std::vector<int> *getComponents() const {
-    return new std::vector<int>(1, which);
-  }
   virtual void print(std::ostream &os) const {
     os << classname() << "('" << args[which] << "')";
   }

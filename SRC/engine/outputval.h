@@ -254,8 +254,6 @@ public:
     return new ListOutputValIndex(ov_, index_);
   }
   virtual int integer() const { return index_; }
-  // virtual void set(const std::vector<int>*);
-  virtual std::vector<int>* getComponents() const;
   virtual void print(std::ostream &os) const;
   virtual const std::string &shortrepr() const;
 };

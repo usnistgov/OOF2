@@ -38,10 +38,6 @@ const std::string &EmptyFieldIterator::classname() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-std::vector<int> *ScalarFieldIndex::getComponents() const {
-  return new std::vector<int>;	// empty vector
-}
-
 const std::string &ScalarFieldIndex::shortrepr() const {
   static std::string ss("");
   return ss;
@@ -82,12 +78,6 @@ FieldIndex *ScalarFieldCompIterator::fieldindex() const {
 const std::string &VectorFieldIndex::classname() const {
   static const std::string nm("VectorFieldIndex");
   return nm;
-}
-
-std::vector<int> *VectorFieldIndex::getComponents() const {
-  std::vector<int> *c = new std::vector<int>(1);
-  (*c)[0] = index_;
-  return c;
 }
 
 const std::string &VectorFieldIndex::shortrepr() const {
@@ -192,14 +182,6 @@ const std::string &SymTensorOutOfPlaneIterator::classname() const {
 const std::string &OutOfPlaneSymTensorIterator::classname() const {
   static const std::string nm("OutOfPlaneSymTensorIterator");
   return nm;
-}
-
-// TODO PYTHON3: Get rid of this method.
-std::vector<int> *SymTensorIndex::getComponents() const {
-  std::vector<int> *c = new std::vector<int>(2);
-  (*c)[0] = rowset[v];
-  (*c)[1] = colset[v];
-  return c;
 }
 
 const std::string &SymTensorIndex::shortrepr() const {
