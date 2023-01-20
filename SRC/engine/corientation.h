@@ -154,10 +154,6 @@ protected:
   const ORIENT *orient;
 public:
   OIterator(const ORIENT *o, int i) : v(i), orient(o) {}
-  virtual const std::string &classname() const {
-    static const std::string nm(orient->classname() + "_iterator");
-    return nm;
-  }
   virtual bool operator!=(const ComponentIterator &othr) const {
     const OIterator<ORIENT> &other =
       dynamic_cast<const OIterator<ORIENT>&>(othr);

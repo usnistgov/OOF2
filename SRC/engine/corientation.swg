@@ -67,6 +67,7 @@ public:
 // template from swig.
 
 %define ORIENTATION_INDEX(CLASS)
+ // Create a swigged class named OIndex_CLASS that stands in for OIndex<CLASS>
   %{
   typedef OIndex<CLASS> OIndex_##CLASS;
   %}

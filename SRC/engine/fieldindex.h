@@ -207,10 +207,7 @@ std::ostream &operator<<(std::ostream &, const IndexP&);
 // the Components.  The indices don't have to be stored explicitly --
 // they can be generated on the fly.
 
-// TODO PYTHON3: Does ComponentIterator need to be PythonExportable?
-// Or just FieldIndex?
-
-class ComponentIterator : public PythonExportable<ComponentIterator> {
+class ComponentIterator {
 public:
   ComponentIterator() {}
   virtual ~ComponentIterator() {}
@@ -288,7 +285,6 @@ class EmptyFieldIterator : public ComponentIterator {
 public:
   EmptyFieldIterator() {}
   virtual ~EmptyFieldIterator() {}
-  virtual const std::string &classname() const;
   virtual EmptyFieldIterator &operator++() { return *this; }
   virtual bool operator!=(const ComponentIterator&) const { return false; }
   virtual FieldIndex *fieldindex() const { return nullptr; }
@@ -315,7 +311,6 @@ private:
   bool done;
 public:
   ScalarFieldCompIterator(bool done=false) : done(done) {}
-  virtual const std::string &classname() const;
   virtual ScalarFieldCompIterator &operator++();
   virtual bool operator!=(const ComponentIterator&) const;
   virtual FieldIndex *fieldindex() const;
@@ -344,7 +339,6 @@ public:
   VectorFieldCompIterator(SpaceIndex imin, SpaceIndex imax)
     : index(imin), imax(imax)
   {}
-  virtual const std::string &classname() const;
   virtual VectorFieldCompIterator &operator++() {
     ++index;
     return *this;
@@ -388,7 +382,6 @@ public:
   OutOfPlaneVectorFieldCompIterator(SpaceIndex imin, SpaceIndex imax)
     : index(imin), imax(imax)
   {}
-  virtual const std::string &classname() const;
   virtual OutOfPlaneVectorFieldCompIterator &operator++() {
     ++index;
     return *this;
@@ -449,7 +442,6 @@ public:
   SymTensorIterator() : v(0) {}
   SymTensorIterator(int v) : v(v) {} // arg is the initial voigt index
   SymTensorIterator(SpaceIndex i, SpaceIndex j);
-  const std::string& classname() const;
   SymTensorIterator &operator++() { v++; return *this; }
   virtual bool operator!=(const ComponentIterator &) const;
   virtual FieldIndex *fieldindex() const {
@@ -472,7 +464,6 @@ public:
   SymTensorInPlaneIterator() : SymTensorIterator(0) {}
   SymTensorInPlaneIterator(int v) : SymTensorIterator(v) {}
   SymTensorInPlaneIterator(int i, int j) : SymTensorIterator(i, j) {}
-  const std::string& classname() const;
   SymTensorInPlaneIterator &operator++() {
     v++;
     if(v == 2) v = 5;
@@ -489,7 +480,6 @@ public:
   SymTensorOutOfPlaneIterator() : SymTensorIterator(2) {}
   SymTensorOutOfPlaneIterator(int v) : SymTensorIterator(v) {}
   SymTensorOutOfPlaneIterator(int i, int j) : SymTensorIterator(i, j) {}
-  virtual const std::string& classname() const;
   SymTensorOutOfPlaneIterator &operator++() { v++; return *this; }
   virtual int integer() const { return v; }
   virtual ComponentIterator *clone() const {
@@ -503,7 +493,6 @@ public:
   OutOfPlaneSymTensorIterator() : SymTensorOutOfPlaneIterator(2) {}
   OutOfPlaneSymTensorIterator(int v) : SymTensorOutOfPlaneIterator(v) {}
   OutOfPlaneSymTensorIterator(int i, int j):SymTensorOutOfPlaneIterator(i, j){}
-  virtual const std::string &classname() const; 
   virtual FieldIndex *fieldindex() const {
     return new OutOfPlaneSymTensorIndex(v);
   }
@@ -593,14 +582,5 @@ public:
 
 extern SymTensorIJComponents symTensorIJComponents;
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// Support for Python iterators
-
-class PyComponents {
-public:
-  ComponentIterator *beginIter();
-  ComponentIterator *endIter;
-};
 
 #endif // FIELDINDEX_H

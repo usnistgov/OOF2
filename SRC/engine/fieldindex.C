@@ -31,13 +31,6 @@ std::ostream &operator<<(std::ostream &os, const IndexP &ip) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-const std::string &EmptyFieldIterator::classname() const {
-  static const std::string nm("EmptyFieldIterator");
-  return nm;
-}
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
 const std::string &ScalarFieldIndex::shortrepr() const {
   static std::string ss("");
   return ss;
@@ -49,11 +42,6 @@ void ScalarFieldIndex::print(std::ostream &os) const {
 
 const std::string& ScalarFieldIndex::classname() const {
   static const std::string nm("ScalarFieldIndex");
-  return nm;
-}
-
-const std::string& ScalarFieldCompIterator::classname() const {
-  static const std::string nm("ScalarFieldCompIterator");
   return nm;
 }
 
@@ -91,11 +79,6 @@ void VectorFieldIndex::print(std::ostream &os) const {
   os << "VectorFieldIndex(" << index_ << ")";
 }
 
-const std::string& VectorFieldCompIterator::classname() const {
-  static const std::string nm("VectorFieldCompIterator");
-  return nm;
-}
-
 bool VectorFieldCompIterator::operator!=(const ComponentIterator &othr) const {
   const VectorFieldCompIterator &other =
     dynamic_cast<const VectorFieldCompIterator&>(othr);
@@ -106,11 +89,6 @@ bool VectorFieldCompIterator::operator!=(const ComponentIterator &othr) const {
 
 const std::string &OutOfPlaneVectorFieldIndex::classname() const {
   static const std::string nm("OutOfPlaneVectorFieldIndex");
-  return nm;
-}
-
-const std::string &OutOfPlaneVectorFieldCompIterator::classname() const {
-  static const std::string nm("OutOfPlaneVectorFieldCompIterator");
   return nm;
 }
 
@@ -162,26 +140,6 @@ bool SymTensorIterator::operator!=(const ComponentIterator &othr) const {
   const SymTensorIterator &other =
     dynamic_cast<const SymTensorIterator&>(othr);
   return other.v != v;
-}
-
-const std::string &SymTensorIterator::classname() const {
-  static const std::string nm("SymTensorIterator");
-  return nm;
-}
-
-const std::string &SymTensorInPlaneIterator::classname() const {
-  static const std::string nm("SymTensorInPlaneIterator");
-  return nm;
-}
-
-const std::string &SymTensorOutOfPlaneIterator::classname() const {
-  static const std::string nm("SymTensorOutOfPlaneIterator");
-  return nm;
-}
-
-const std::string &OutOfPlaneSymTensorIterator::classname() const {
-  static const std::string nm("OutOfPlaneSymTensorIterator");
-  return nm;
 }
 
 const std::string &SymTensorIndex::shortrepr() const {

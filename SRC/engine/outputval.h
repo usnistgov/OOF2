@@ -264,7 +264,6 @@ protected:
   const ListOutputVal *ov_;
 public:
   ListOutputValIterator(const ListOutputVal *lov, int i) : v(i), ov_(lov) {}
-  virtual const std::string &classname() const;
   virtual bool operator!=(const ComponentIterator&) const;
   virtual ComponentIterator& operator++() { v++; return *this; }
   virtual FieldIndex *fieldindex() const {

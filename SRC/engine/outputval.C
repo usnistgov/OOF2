@@ -446,11 +446,6 @@ void ListOutputValIndex::print(std::ostream &os) const {
   os << "ListOutputValIndex(" << index_ << ")";
 }
 
-const std::string &ListOutputValIterator::classname() const {
-  static std::string nm("ListOutputValIterator");
-  return nm;
-}
-
 bool ListOutputValIterator::operator!=(const ComponentIterator &othr) const {
   const ListOutputValIterator& other =
     dynamic_cast<const ListOutputValIterator&>(othr);
