@@ -10,6 +10,7 @@
 
 from ooflib.common import debug
 from ooflib.common import utils
+from ooflib.SWIG.engine import planarity
 
 def _Flux___hash__(self):
     return self.objectid()
@@ -58,8 +59,8 @@ def _fluxiter(comps):
         yield beginp.current()
         beginp.increment()
 
-def _Flux_components(self, planarity):
-    return _fluxiter(self.c_components(planarity))
+def _Flux_components(self, plan=planarity.ALL_INDICES):
+    return _fluxiter(self.c_components(plan))
 
 Flux.components = _Flux_components
 

@@ -11,6 +11,7 @@
 
 #include <oofconfig.h>
 #include "common/ooferror.h"
+#include "common/pythonexportable.h"
 #include "common/pythonlock.h"
 #include "common/pyutils.h"
 
@@ -57,4 +58,11 @@ std::string repr_nolock(PyObject *obj) {
 std::string repr(PyObject *obj) {
   PYTHON_THREAD_BEGIN_BLOCK;
   return repr_nolock(obj);
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+std::ostream &operator<<(std::ostream &os, const PythonExportableBase &peb) {
+  os << "PythonExportableBase(" << &peb << ")";
+  return os;
 }

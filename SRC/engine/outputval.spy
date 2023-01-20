@@ -174,3 +174,15 @@ from ooflib.common.IO import parameter
 
 class OutputValParameter(parameter.Parameter):
     types=(OutputVal,)
+
+##############################
+
+def _OutputVal_components(self):
+    comps = self.c_components()
+    beginp = comps.begin()
+    endp = comps.end()
+    while beginp != endp:
+        yield beginp.current()
+        beginp.increment()
+
+OutputVal.components = _OutputVal_components

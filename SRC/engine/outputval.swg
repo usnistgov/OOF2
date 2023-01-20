@@ -84,6 +84,8 @@ typedef FieldIndex NewFieldIndex;
 PYTHONEXPORTABLE(OutputVal);
 %nodefaultctor OutputVal;
 
+%rename(c_components) OutputVal::components;
+
 class OutputVal {
 public:
   ~OutputVal();
@@ -94,6 +96,7 @@ public:
   NewOutputVal *zero();
   %newobject value_list;
   std::vector<double> *value_list();
+  ComponentsP components();
 };
 
 %nodefaultctor NonArithmeticOutputVal;
@@ -117,6 +120,8 @@ public:
     return (*self)[i];
   }
 };
+
+ADD_REPR_GENERIC(ScalarOutputVal);
 
 class ScalarOutputVal : public ArithmeticOutputVal {
 public:
@@ -148,6 +153,7 @@ public:
   }
 };
 
+ADD_REPR_GENERIC(VectorOutputVal);
 
 class VectorOutputVal : public ArithmeticOutputVal {
 public:
@@ -183,10 +189,18 @@ public:
   }
 };
 
+ADD_REPR_GENERIC(ListOutputVal);
+
 class ListOutputVal : public NonArithmeticOutputVal {
 public:
   ListOutputVal(std::vector<std::string>*);
   int size();
+};
+
+%nodefaultctor ListOutputValIndex;
+
+class ListOutputValIndex : public FieldIndex {
+
 };
 
 %extend ListOutputVal {

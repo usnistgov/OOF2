@@ -685,11 +685,6 @@ std::ostream &operator<<(std::ostream &os, const COrientation &orient) {
 
 // Stuff added to make COrientations usable as OutputVals.
 
-const std::string &COrientation::modulename() const {
-  static const std::string nm = "ooflib.SWIG.engine.corientation";
-  return nm;
-}
-
 static double degrees = 180./M_PI;
 
 // -----------

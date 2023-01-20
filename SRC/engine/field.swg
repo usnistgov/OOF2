@@ -113,7 +113,7 @@ public:
   // c_time_derivative should not be used anywhere else.
   Field *time_derivative(); // renamed to c_time_derivative
 
-  ComponentsP components(Planarity);
+  ComponentsP components(Planarity p=planarity.ALL_INDICES);
   ComponentsP outOfPlaneComponents();
 
   void registerProperty(Property*);

@@ -489,6 +489,11 @@ FieldIndex *SymmMatrix3::getIndex(const std::string &str) const {
   return new SymTensorIndex(SymTensorIndex::str2voigt(str));
 }
 
+ComponentsP SymmMatrix3::components() const {
+  static const SymTensorComponents comps;
+  return ComponentsP(&comps);
+}
+
 ArithmeticOutputValue *newSymTensorOutputValue() {
   return new ArithmeticOutputValue(new SymmMatrix3());
 }

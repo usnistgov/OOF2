@@ -55,7 +55,7 @@ class GenericOVWidget:
 class VectorWidget:
     def __init__(self, val, **kwargs):
         debug.mainthreadTest()
-        components = list(val.components(planarity.ALL_INDICES))
+        components = list(val.components())
         if components:
             self.gtk = Gtk.Grid(row_spacing=2, column_spacing=2,**kwargs)
             row = 0

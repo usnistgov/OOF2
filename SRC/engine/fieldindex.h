@@ -232,6 +232,9 @@ std::ostream &operator<<(std::ostream &, const IndexP&);
 // the Components.  The indices don't have to be stored explicitly --
 // they can be generated on the fly.
 
+// TODO PYTHON3: Does ComponentIterator need to be PythonExportable?
+// Or just FieldIndex?
+
 class ComponentIterator : public PythonExportable<ComponentIterator> {
 public:
   ComponentIterator() {}
@@ -394,6 +397,8 @@ public:
   virtual ComponentIteratorP end() const {
     return ComponentIteratorP(new VectorFieldCompIterator(imax, imax));
   }
+  int min() const { return imin; }
+  int max() const { return imax; }
 };
 
 // OutOfPlaneVectorFieldCompIterator iterates over the out-of-plane

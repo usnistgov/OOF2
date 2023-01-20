@@ -9,6 +9,7 @@
 # oof_manager@nist.gov. 
 
 import math
+from ooflib.common import debug
 
 # __getitem__ is used when a COrientation is acting as an OutputVal,
 # and one of its components is being retrieved by the GUI
@@ -48,3 +49,5 @@ def COrientAxis__getitem__(self, index):
     return retrievalfn()
 
 COrientAxis.__getitem__ = COrientAxis__getitem__
+
+

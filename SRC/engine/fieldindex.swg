@@ -23,6 +23,8 @@
 %{
 #include "engine/fieldindex.h"
 #include "common/tostring.h"
+
+// TODO PYTHON3: Do we still need this here?
 #ifndef HAVE_SSTREAM
 #include <strstream.h>
 #else 

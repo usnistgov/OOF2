@@ -15,14 +15,11 @@
 #ifndef OUTPUTVAL_H
 #define OUTPUTVAL_H
 
-#include "common/pythonexportable.h"
 #include "engine/fieldindex.h"
 
 #include <iostream>
 #include <math.h>
 #include <vector>
-
-class IndexP;
 
 // The OutputVal classes defined here are used to ferry values from
 // the finite element mesh out to the Python output machinery. The
@@ -55,6 +52,10 @@ public:
   // getIndex converts the string representation of a component index
   // into a FieldIndex object that can be used to extract a component.
   virtual FieldIndex *getIndex(const std::string&) const = 0;
+  // Like Fields, Fluxes, and Equations, OutputVal components are
+  // indexed by FieldIndex objects and can be iterated over with
+  // ComponentsP.
+  virtual ComponentsP components() const = 0;
 
   friend class OutputValue;
 };
@@ -135,7 +136,7 @@ public:
   virtual double operator[](const FieldIndex&) const;
   virtual double &operator[](const FieldIndex&);
   virtual FieldIndex *getIndex(const std::string&) const;
-  
+  virtual ComponentsP components() const;
   virtual void print(std::ostream&) const;
 };
 
@@ -149,13 +150,14 @@ class VectorOutputVal : public ArithmeticOutputVal {
 private:
   unsigned int size_;
   double *data;
+  mutable VectorFieldComponents *components_;
   static std::string classname_;
 public:
   VectorOutputVal();
   VectorOutputVal(int n);
   VectorOutputVal(const VectorOutputVal&);
   VectorOutputVal(const std::vector<double>&);
-  virtual ~VectorOutputVal() { delete [] data; }
+  virtual ~VectorOutputVal();
   virtual const VectorOutputVal &operator=(const OutputVal&);
   const VectorOutputVal &operator=(const VectorOutputVal&);
   virtual unsigned int dim() const { return size_; }
@@ -200,6 +202,7 @@ public:
   double dot(const std::vector<double>&) const;
 
   virtual std::vector<double> *value_list() const;
+  virtual ComponentsP components() const;
   double operator[](int i) const { return data[i]; }
   double &operator[](int i) { return data[i]; }
   virtual double operator[](const FieldIndex&) const;
@@ -223,11 +226,77 @@ VectorOutputVal operator/(VectorOutputVal&, double);
 // structure, so the labels for its components need to be supplied
 // externally.
 
+class ListOutputVal;
+
+// ListOutputValIndex has to be a FieldIndex so that it can be used to
+// index ListOutputVal, but it doesn't really belong in FieldIndex
+// because the in_plane method doesn't make any sense for it.  We're
+// over-using the FieldIndex class.
+// TODO PYTHON3: OutputVal should use some other kind of Index, and
+// FieldIndex should be derived from that.
+
+class ListOutputValIndex : virtual public FieldIndex {
+protected:
+  int index_;
+  const ListOutputVal *ov_;
+public:
+  ListOutputValIndex(const ListOutputVal *ov)
+    : index_(0), ov_(ov)
+  {}
+  ListOutputValIndex(const ListOutputVal *ov, int i)
+    : index_(i), ov_(ov)
+  {}
+  ListOutputValIndex(ListOutputValIndex &o)
+    : index_(o.index_), ov_(o.ov_)
+  {}
+  virtual const std::string &classname() const;
+  virtual FieldIndex *clone() const {
+    return new ListOutputValIndex(ov_, index_);
+  }
+  virtual int integer() const { return index_; }
+  // virtual void set(const std::vector<int>*);
+  virtual std::vector<int>* getComponents() const;
+  virtual void print(std::ostream &os) const;
+  virtual const std::string &shortrepr() const;
+};
+
+class ListOutputValIterator: public ComponentIterator {
+protected:
+  int v;
+  const ListOutputVal *ov_;
+public:
+  ListOutputValIterator(const ListOutputVal *lov, int i) : v(i), ov_(lov) {}
+  virtual const std::string &classname() const;
+  virtual bool operator!=(const ComponentIterator&) const;
+  virtual ComponentIterator& operator++() { v++; return *this; }
+  virtual FieldIndex *fieldindex() const {
+    return new ListOutputValIndex(ov_, v);
+  }
+  virtual ComponentIterator *clone() const {
+    return new ListOutputValIterator(ov_, v);
+  }
+  virtual void print(std::ostream&) const;
+};
+
+class ListOutputValComponents : public Components {
+protected:
+  const ListOutputVal *ov_;
+public:
+  ListOutputValComponents(const ListOutputVal *lov) : ov_(lov) {}
+  virtual ComponentIteratorP begin() const;
+  virtual ComponentIteratorP end() const;
+};
+
+// TODO: ListOutputValComponents doesn't really need to be a separate
+// class. ListOutputVal could be derived from Components, and
+// ListOutputVal::components() coudl return ComponentsP(this).
+
 class ListOutputVal : public NonArithmeticOutputVal {
 private:
   unsigned int size_;
   double *data;
-  const std::vector<std::string> labels; 
+  ListOutputValComponents components_;
+  const std::vector<std::string> labels;
   static std::string classname_;
 public:
   ListOutputVal(const std::vector<std::string>*);
@@ -241,6 +310,7 @@ public:
   unsigned int size() const { return size_; }  
   virtual ListOutputVal *zero() const;
   virtual ListOutputVal *clone() const;
+  virtual ComponentsP components() const;
   double &operator[](int i) { return data[i]; }
   double operator[](int i) const { return data[i]; }
   virtual double operator[](const FieldIndex&) const;
@@ -251,62 +321,6 @@ public:
   const std::string &label(int i) const { return labels[i]; }
   friend class ListOutputValIndex;
 };
-
-// ListOutputValIndex has to be a FieldIndex so that it can be used to
-// index ListOutputVal, but it doesn't really belong in FieldIndex
-// because the in_plane method doesn't make any sense for it.  We're
-// over-using the FieldIndex class.
-// TODO PYTHON3: OutputVal should use some other kind of Index, and
-// FieldIndex should be derived from that.
-
-class ListOutputValIndex : virtual public FieldIndex {
-protected:
-  int max_;
-  int index_;
-  const ListOutputVal *ov_;
-public:
-  ListOutputValIndex(const ListOutputVal *ov)
-    : max_(ov->size_), index_(0), ov_(ov)
-  {}
-  ListOutputValIndex(const ListOutputVal *ov, int i)
-    : max_(ov->size_), index_(i), ov_(ov)
-  {}
-  ListOutputValIndex(const ListOutputValIndex &o)
-    : max_(o.max_), index_(o.index_), ov_(o.ov_)
-  {}
-  virtual const std::string &classname() const;
-  virtual FieldIndex *clone() const {
-    return new ListOutputValIndex(*this);
-  }
-  virtual int integer() const { return index_; }
-  virtual void set(const std::vector<int>*);
-  virtual std::vector<int>* getComponents() const;
-  virtual void print(std::ostream &os) const;
-  virtual const std::string &shortrepr() const;
-};
-
-
-// TODO PYTHON3: Use ComponentIterator?  Do we need this?
-// class ListOutputValIterator : public ListOutputValIndex,
-// 				   public FieldIterator
-// {
-// public:
-//   ListOutputValIterator(const ListOutputVal *ov)
-//     : ListOutputValIndex(ov)
-//   {}
-//   ListOutputValIterator(const ListOutputValIterator &o)
-//     : ListOutputValIndex(o)
-//   {}
-//   virtual void operator++() { index_++; }
-//   virtual bool end() const { return index_ == max_; }
-//   virtual void reset() { index_ = 0; }
-//   virtual int size() const { return max_; }
-//   virtual FieldIterator *cloneIterator() const {
-//     return new ListOutputValIterator(*this);
-//   }
-// };
-
-
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

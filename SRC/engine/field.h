@@ -192,7 +192,7 @@ public:
   // used in python.
   virtual FieldIndex *getIndex(const std::string&) const = 0;
 
-  virtual ComponentsP components(Planarity) const = 0;
+  virtual ComponentsP components(Planarity p=ALL_INDICES) const = 0;
   virtual ComponentsP outOfPlaneComponents() const = 0;
 
   // Stuff required by fieldeqnlist.h templates, which handle Field

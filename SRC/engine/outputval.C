@@ -157,6 +157,11 @@ FieldIndex *ScalarOutputVal::getIndex(const std::string&) const {
   return new ScalarFieldIndex();
 }
 
+ComponentsP ScalarOutputVal::components() const {
+  static const ScalarFieldComponents comps;
+  return ComponentsP(&comps);
+}
+
 ScalarOutputVal operator+(const ScalarOutputVal &a, const ScalarOutputVal &b) {
   ScalarOutputVal result(a);
   result += b;
@@ -191,11 +196,13 @@ ScalarOutputVal operator/(const ScalarOutputVal &a, double b) {
 
 VectorOutputVal::VectorOutputVal()
   : size_(0),
+    components_(nullptr),
     data(nullptr)
 {}
 
 VectorOutputVal::VectorOutputVal(int n)
   : size_(n),
+    components_(nullptr),
     data(new double[n])
 {
   for(int i=0; i<n; i++)
@@ -204,6 +211,7 @@ VectorOutputVal::VectorOutputVal(int n)
 
 VectorOutputVal::VectorOutputVal(const VectorOutputVal &other)
   : size_(other.size_),
+    components_(nullptr),
     data(new double[other.size_])
 {
   (void) memcpy(data, other.data, size_*sizeof(double));
@@ -211,19 +219,28 @@ VectorOutputVal::VectorOutputVal(const VectorOutputVal &other)
 
 VectorOutputVal::VectorOutputVal(const std::vector<double> &vec)
   : size_(vec.size()),
+    components_(nullptr),
     data(new double[vec.size()])
 {
   (void) memcpy(data, vec.data(), size_*sizeof(double));
 }
 
+VectorOutputVal::~VectorOutputVal() {
+  delete [] data;
+  delete components_;
+}
+
 const VectorOutputVal &VectorOutputVal::operator=(const OutputVal &other) {
   *this = dynamic_cast<const VectorOutputVal&>(other);
+  delete components_;
   return *this;
 }
 
 const VectorOutputVal &VectorOutputVal::operator=(const VectorOutputVal &other)
 {
   delete [] data;
+  delete components_;
+  components_ = nullptr;
   size_ = other.size();
   data = new double[size_];
   (void) memcpy(data, other.data, size_*sizeof(double));
@@ -259,6 +276,21 @@ double VectorOutputVal::dot(const std::vector<double> &other) const {
   return sum;
 }
 
+ComponentsP VectorOutputVal::components() const {
+  // Because ComponentsP doesn't delete its Components, we can't
+  // allocate and return a new Components object each time this is
+  // called.  But we can't create a Components object in the
+  // VectorOutputVal constructor, because we might not know the size
+  // yet.
+  if(components_ == nullptr ||
+     components_->min() != 0 || components_->max() != size_)
+    {
+      delete components_;
+      components_ = new VectorFieldComponents(0, size_);
+    }
+  return ComponentsP(components_);
+}
+
 double VectorOutputVal::operator[](const FieldIndex &fi) const {
   return data[fi.integer()];
 }
@@ -268,8 +300,14 @@ double &VectorOutputVal::operator[](const FieldIndex &fi) {
 }
 
 FieldIndex *VectorOutputVal::getIndex(const std::string &str) const {
-  // str must be "x", "y", or "z"
-  return new VectorFieldIndex(str[0] - 'x');
+  // TODO: Specify the names of the components in the constructor?
+  // Not all 2D or 3D vectors are space vectors.
+  if(size_ <= 3) {
+    // str must be "x", "y", or "z"
+    return new VectorFieldIndex(str[0] - 'x');
+  }
+  // str must be "0", "1", "2", etc.
+  return new VectorFieldIndex(str[0] - '0');
 }
 
 double VectorOutputVal::magnitude() const {
@@ -318,6 +356,7 @@ std::string ListOutputVal::classname_("ListOutputVal");
 ListOutputVal::ListOutputVal(const std::vector<std::string> *lbls)
   : size_(lbls->size()),
     data(new double[lbls->size()]),
+    components_(this),
     labels(*lbls) 
 {
   for(unsigned int i=0; i<size_; i++)
@@ -328,6 +367,7 @@ ListOutputVal::ListOutputVal(const std::vector<std::string> *lbls,
 			     const std::vector<double> &vec)
   : size_(vec.size()),
     data(new double[size_]),
+    components_(this),
     labels(*lbls)
 {
   (void) memcpy(data, vec.data(), size_*sizeof(double));
@@ -336,6 +376,7 @@ ListOutputVal::ListOutputVal(const std::vector<std::string> *lbls,
 ListOutputVal::ListOutputVal(const ListOutputVal &other)
   : size_(other.size()),
     data(new double[other.size()]),
+    components_(this),
     labels(other.labels)
 {
   (void) memcpy(data, other.data, size_*sizeof(double));
@@ -343,6 +384,10 @@ ListOutputVal::ListOutputVal(const ListOutputVal &other)
 
 ListOutputVal::~ListOutputVal() {
   delete [] data;
+}
+
+ComponentsP ListOutputVal::components() const {
+  return ComponentsP(&components_);
 }
 
 double ListOutputVal::operator[](const FieldIndex &fi) const {
@@ -353,16 +398,16 @@ double &ListOutputVal::operator[](const FieldIndex &fi) {
   return data[fi.integer()];
 }
 
-const ListOutputVal &ListOutputVal::operator=(const OutputVal &other) {
-  *this = dynamic_cast<const ListOutputVal&>(other);
-  return *this;
-}
-
 const ListOutputVal &ListOutputVal::operator=(const ListOutputVal &other) {
   delete [] data;
   size_ = other.size();
   data = new double[size_];
   (void) memcpy(data, other.data, size_*sizeof(double));
+  return *this;
+}
+
+const ListOutputVal &ListOutputVal::operator=(const OutputVal &other) {
+  *this = dynamic_cast<const ListOutputVal&>(other);
   return *this;
 }
 
@@ -380,10 +425,6 @@ std::vector<double> *ListOutputVal::value_list() const {
   return res;
 }
 
-// IteratorP ListOutputVal::getIterator() const {
-//   return IteratorP(new ListOutputValIterator(this));
-// }
-
 FieldIndex *ListOutputVal::getIndex(const std::string &s) const {
   for(int i=0; i<size(); i++) {
     if(labels[i] == s)
@@ -397,11 +438,11 @@ const std::string& ListOutputValIndex::classname() const {
   return nm;
 }
 
-void ListOutputValIndex::set(const std::vector<int> *vals) {
-  assert(vals->size() == 1);
-  assert((*vals)[0] < max_);
-  index_ = (*vals)[0];
-}
+// void ListOutputValIndex::set(const std::vector<int> *vals) {
+//   assert(vals->size() == 1);
+//   assert((*vals)[0] < max_);
+//   index_ = (*vals)[0];
+// }
 
 std::vector<int> *ListOutputValIndex::getComponents() const {
   std::vector<int> *result = new std::vector<int>(1);
@@ -415,6 +456,29 @@ const std::string &ListOutputValIndex::shortrepr() const {
 
 void ListOutputValIndex::print(std::ostream &os) const {
   os << "ListOutputValIndex(" << index_ << ")";
+}
+
+const std::string &ListOutputValIterator::classname() const {
+  static std::string nm("ListOutputValIterator");
+  return nm;
+}
+
+bool ListOutputValIterator::operator!=(const ComponentIterator &othr) const {
+  const ListOutputValIterator& other =
+    dynamic_cast<const ListOutputValIterator&>(othr);
+  return other.ov_ != ov_ || other.v != v;
+}
+
+void ListOutputValIterator::print(std::ostream &os) const {
+  os << "ListOutputValIterator(" << *ov_ << ")";
+}
+
+ComponentIteratorP ListOutputValComponents::begin() const {
+  return ComponentIteratorP(new ListOutputValIterator(ov_, 0));
+}
+
+ComponentIteratorP ListOutputValComponents::end() const {
+  return ComponentIteratorP(new ListOutputValIterator(ov_, ov_->size()));
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
