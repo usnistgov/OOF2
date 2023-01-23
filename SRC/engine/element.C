@@ -716,7 +716,6 @@ std::vector<int> Element::localDoFmap() const {
     // Field components.
     for(IndexP fcomp : field.components(ALL_INDICES)) {
       // Nodes
-      // TODO PYTHON3: Use a real iterator
       for(CleverPtr<ElementFuncNodeIterator> node(funcnode_iterator());
 	  !node->end(); ++*node)
 	{

@@ -36,10 +36,8 @@ FEMesh.getNodes = _FEMesh_getNodes
 # created in Python, and never returned from C++ to Python.  That
 # means that the extra data added by the initializer here can be
 # safely stored in the swig wrapper class.
-
-## TODO PYTHON3: Use %pythonappend instead of monkeypatching?  It's
-## not useful when adding a completely new method, but might work for
-## __init__ here.
+# We can't use %pythonappend to do this because we're adding an
+# argument to the constructor, as well as extending it.
 
 old_FEMesh__init__ = FEMesh.__init__
 
