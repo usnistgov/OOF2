@@ -152,9 +152,7 @@ void Element::make_linear_system(const CSubProblem *const subproblem,
     // TODO OPT MAYBE: Use different integration orders for different
     // equations and properties.  That might make precomputations
     // difficult.
-    // TODO PYTHON3: Use a real iterator
-    for(GaussPointIterator gpt = integrator(iorder);
-	!gpt.end();++gpt) {
+    for(GaussPoint gpt : integrator(iorder)) {
       mat->make_linear_system( subproblem, this, gpt, dofmap, time,
 			       nlsolver, system );
     }    
@@ -183,16 +181,14 @@ void InterfaceElement::make_linear_system(const CSubProblem *const subproblem,
 
     current_side = LEFT;
     // std::cerr << "InterfaceElement::make_linear_system, left-side gp loop." << std::endl;
-    for(GaussPointIterator gpt = integrator(iorder);
-	!gpt.end();++gpt) {
+    for(GaussPoint gpt : integrator(iorder)) {
       mat->make_linear_system( subproblem, this, gpt, dofmap, time,
 			       nlsolver, system );
     }    
 
     current_side = RIGHT;
     // std::cerr << "InterfaceElement::make_linear_system, right-side gp loop." << std::endl;
-    for(GaussPointIterator gpt = integrator(iorder);
-	!gpt.end();++gpt) {
+    for(GaussPoint gpt : integrator(iorder)) {
       mat->make_linear_system( subproblem, this, gpt, dofmap, time,
 			       nlsolver, system );
     }
@@ -883,17 +879,24 @@ std::vector<Edge*> *Element::perimeter() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+// TODO PYTHON3: Element::integration_points() is only used (once) in
+// ElementSample.integrate() in analysissample.py, and it's the only
+// thing that uses GaussPointIterator::gausspointptr().  Can this be
+// done better (more pythonic, more STL-ish) without
+// integration_points() and gausspointptr()?
+
 std::vector<GaussPoint*>* Element::integration_points(int order) const {
   std::vector<GaussPoint*>* r = new std::vector<GaussPoint*>;
-  for(GaussPointIterator g = integrator(order); !g.end(); ++g) {
+  for(GaussPointIterator g = integrator(order).begin();
+      g != integrator(order).end(); ++g) {
     r->push_back(g.gausspointptr());
   }
   return r;
 }
 
 
-GaussPointIterator Element::integrator(int order) const {
-  return GaussPointIterator(this, (order < 0 ? 0 : order));
+GaussPointIntegrator Element::integrator(int order) const {
+  return GaussPointIntegrator(this, order);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -916,8 +919,8 @@ int Element::ndof() const {
 
 double Element::area() const {
   double a = 0.0;
-  for(GaussPointIterator gpt = integrator(0); !gpt.end(); ++gpt) {
-    a += gpt.gausspoint().weight();
+  for(GaussPoint gpt : integrator(0)) {
+    a += gpt.weight();
   }
   return a;
 }

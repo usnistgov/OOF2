@@ -209,7 +209,7 @@ public:
   // in Python.  This is probably temporary.
   std::vector<GaussPoint*>* integration_points(int order) const;
 
-  GaussPointIterator integrator(int order) const;
+  GaussPointIntegrator integrator(int order) const;
   // int ngauss(int order);	// number of gauss points used at this order
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

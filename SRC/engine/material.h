@@ -193,7 +193,7 @@ public:
 
   void make_linear_system(const CSubProblem*,
 			  const Element*,
-			  const GaussPointIterator&,
+			  const GaussPoint&,
 			  const std::vector<int>&,
 			  double time,
 			  const CNonlinearSolver*,

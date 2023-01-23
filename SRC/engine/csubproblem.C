@@ -1675,9 +1675,9 @@ double CSubProblem::zz_L2_estimate(const Element *elem, const Flux *fluks) {
   int dim = fluks->ndof();
   double error = 0.0;
   double refer = 0.0;
-  for(GaussPointIterator gpt = elem->integrator(order); !gpt.end(); ++gpt) {
-    MasterCoord mc = gpt.gausspoint().mastercoord();
-    double wt = gpt.gausspoint().weight();
+  for(GaussPoint gpt: elem->integrator(order)) {
+    MasterCoord mc = gpt.mastercoord();
+    double wt = gpt.weight();
     zz_L2_estimate_sub(elem, fluks, dim, error, refer, mc, wt);
   }
   if (refer == 0.0)
@@ -1718,9 +1718,9 @@ DoubleVec *CSubProblem::zz_L2_weights(const Flux *fluks,
     if(first)
       order = 2*elem->shapefun_degree();
     double value = 0.0;
-    for(GaussPointIterator gpt = elem->integrator(order); !gpt.end(); ++gpt) {
-      MasterCoord mc = gpt.gausspoint().mastercoord();
-      double wt = gpt.gausspoint().weight();
+    for(GaussPoint gpt : elem->integrator(order)) {
+      MasterCoord mc = gpt.mastercoord();
+      double wt = gpt.weight();
       zz_L2_weights_sub(elem, fluks, dim, value, mc, wt);
     }
     values.push_back(value);
