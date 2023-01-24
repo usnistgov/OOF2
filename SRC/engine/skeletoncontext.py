@@ -28,6 +28,7 @@ from ooflib.engine import skeletongroups
 from ooflib.engine import skeletonnode
 from ooflib.engine import skeletonselectable
 from ooflib.engine.IO import movenode
+import itertools
 import sys
 
 # When propagating boundaries, Deputies shouldn't be around - since they
@@ -676,10 +677,10 @@ class SkeletonContext(whoville.WhoDoUndo):
         return self.edgeboundaries.keys() # returns an iterator!
     
     def allBoundaryNames(self):
-        ## TODO PYTHON3: Make this return an iterator.  Check that
-        ## it's ok in all situations.
-        return (list(self.edgeboundaries.keys()) +
-                list(self.pointboundaries.keys()))
+        for name in self.edgeboundaries:
+            yield name
+        for name in self.pointboundaries:
+            yield name
 
     #Interface branch
     def allInterfaceNames(self):
@@ -691,10 +692,9 @@ class SkeletonContext(whoville.WhoDoUndo):
             return []
         
     def uniqueBoundaryName(self, name):
-        if config.dimension() == 2:
-            return utils.uniqueName(name, self.allBoundaryNames()+self.allInterfaceNames())
-        if config.dimension() == 3:
-            return utils.uniqueName(name, self.allBoundaryNames())
+        return utils.uniqueName(
+            name,
+            itertools.chain(self.allBoundaryNames(), self.allInterfaceNames()))
 
     # Get information about the named boundary, i.e. type, size, and
     # return it as a string, with newlines as appropriate.
