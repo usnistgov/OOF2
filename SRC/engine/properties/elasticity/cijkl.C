@@ -15,6 +15,7 @@
 
 #include "cijkl.h"
 #include "common/doublevec.h"
+#include "common/smallmatrix.h"
 #include "common/tostring.h"
 #include "common/trace.h"
 #include "engine/corientation.h"

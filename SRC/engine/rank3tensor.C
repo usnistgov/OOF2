@@ -13,6 +13,7 @@
 
 #include "common/doublevec.h"
 #include "common/ooferror.h"
+#include "common/smallmatrix.h"
 #include "engine/corientation.h"
 #include "engine/fieldindex.h"
 #include "engine/ooferror.h"

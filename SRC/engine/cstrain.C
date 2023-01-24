@@ -13,6 +13,7 @@
 #include <oofconfig.h>
 
 #include "common/doublevec.h"
+#include "common/smallmatrix.h"
 #include "engine/cstrain.h"
 #include "engine/element.h"
 #include "engine/elementnodeiterator.h"

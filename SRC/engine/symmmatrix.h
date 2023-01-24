@@ -1,6 +1,5 @@
 // -*- C++ -*-
 
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -12,7 +11,6 @@
 
 #include <oofconfig.h>
 
-
 // Symmetric matrix storage class
 // may not be best for linear algebra!
 
@@ -21,12 +19,8 @@ class SymmMatrix;
 #ifndef SYMMMATRIX_H
 #define SYMMMATRIX_H
 
-// TODO PYTHON3: Do we need these #includes?  Can they just be forward
-// declarations?
-#include "common/smallmatrix.h"
 #include "engine/IO/propertyoutput.h"
 #include "engine/eigenvalues.h"
-#include "engine/fieldindex.h"
 #include "engine/outputval.h"
 
 #include <iostream>
@@ -34,8 +28,12 @@ class SymmMatrix;
 #include <string>
 #include <vector>
 
-class IndexP;
 class COrientation;
+class FieldIndex;
+class DoubleVec;
+class IndexP;
+class SmallMatrix;
+class SymTensorIndex;
 
 class SymmMatrix {
 protected:

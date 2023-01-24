@@ -102,9 +102,6 @@
 // you don't use PythonNative, but there may be a small performance
 // penalty.
 
-// TODO PYTHON3: Check all modulename() methods.  Are any used?
-// Delete the unnecessary ones.
-
 #include <iostream>
 
 #include <Python.h>
