@@ -30,8 +30,6 @@
 #include "engine/smallsystem.h"
 #include "engine/symmmatrix.h"
 
-const std::string Flux::modulename_("ooflib.SWIG.engine.flux");
-
 std::vector<Flux*> &Flux::allfluxes() {
   static std::vector<Flux*> all_fluxes;
   return all_fluxes;

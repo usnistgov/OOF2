@@ -54,7 +54,6 @@ class PyHeatConductivity(pypropertywrapper.PyFluxProperty):
 reg = propertyregistration.PropertyRegistration(
     'Thermal:Conductivity:PyIsotropic',
     PyHeatConductivity,
-    "ooflib.engine.properties.heatconductivity.pyheatconductivity",
     ordering=10000,
     propertyType="ThermalConductivity",
     secret=True

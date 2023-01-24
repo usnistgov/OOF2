@@ -24,7 +24,6 @@ private:
   const std::string msgname;
   std::vector<PyObject*> args;
   static const std::string classname_;
-  static const std::string modulename_;
 public:
   OOFMessage(const std::string &msgname);
   const std::string &name() const;

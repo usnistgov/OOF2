@@ -67,11 +67,6 @@ int countEquations() {
   return Equation::all().size();
 }
 
-
-
-const std::string Equation::modulename_("ooflib.SWIG.engine.equation");
-
-
 Equation::Equation(const std::string &nm, int d)
   : dim_(d),
     name_(nm),

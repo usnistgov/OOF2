@@ -742,8 +742,6 @@ void PyEqnProperty::second_time_deriv_matrix(
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 std::string PyPropertyElementData::classname_("PyPropertyElementData");
-// std::string PyPropertyElementData::modulename_(
-// 				       "ooflib.SWIG.engine.pypropertywrapper");
 
 PyPropertyElementData::PyPropertyElementData(const std::string & name,
 					     PyObject *dat) 

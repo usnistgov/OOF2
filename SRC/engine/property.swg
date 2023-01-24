@@ -31,7 +31,6 @@ public:
   ~Property();
   const std::string &name();
   const std::string &classname(); // Returns the name of the derived class.
-  const std::string &modulename(); 
   bool is_computable(CSubProblem*);
   void cache_active(CSubProblem*, bool);
   bool currently_active(CSubProblem*);

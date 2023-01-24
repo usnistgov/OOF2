@@ -17,7 +17,6 @@ from ooflib.engine import propertyregistration
 reg = propertyregistration.PropertyRegistration(
     name='Mechanical:MassDensity:ConstantMassDensity',
     subclass=MassDensityProp,
-    modulename="ooflib.SWIG.engine.properties.massdensity.massdensity",
     ordering=100,
     params=[parameter.FloatParameter('rho', 1.0, tip="Mass density")],
     outputs=["Material Constants:Mechanical:Mass Density"],

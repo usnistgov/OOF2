@@ -29,7 +29,7 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Triclinic:C1',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",319,
+    319,
     [rank3tensor.C1Rank3TensorParameter(
             'dijk',
             rank3tensor.C1Rank3Tensor(
@@ -53,7 +53,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Monoclinic:C2',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",318,
+    318,
     [rank3tensor.C2Rank3TensorParameter(
             'dijk',
             rank3tensor.C2Rank3Tensor(d14=1, d16=1,
@@ -76,7 +76,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Monoclinic:Cs',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",317,
+    317,
     [rank3tensor.CsRank3TensorParameter(
             'dijk',
             rank3tensor.CsRank3Tensor(d11=1, d12=1, d13=1, d15=1,
@@ -101,7 +101,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Orthorhombic:D2',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",316,
+    316,
     [rank3tensor.D2Rank3TensorParameter(
             'dijk',
             rank3tensor.D2Rank3Tensor(d14=1.0, d25=1.0, d36=1.0),
@@ -122,7 +122,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Orthorhombic:C2v',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",315,
+    315,
     [rank3tensor.C2vRank3TensorParameter(
             'dijk',
             rank3tensor.C2vRank3Tensor(d15=1, d24=1, d31=1, d32=1, d33=1),
@@ -143,7 +143,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Tetragonal:C4',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",314,
+    314,
     [rank3tensor.C4Rank3TensorParameter(
             'dijk',
             rank3tensor.C4Rank3Tensor(d14=1, d15=1, d31=1, d33=1),
@@ -164,7 +164,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Tetragonal:C4i',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",313,
+    313,
     [rank3tensor.C4iRank3TensorParameter(
             'dijk',
             rank3tensor.C4iRank3Tensor(d14=1, d15=1, d31=1, d36=1),
@@ -185,7 +185,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Tetragonal:D4',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",312,
+    312,
     [rank3tensor.D4Rank3TensorParameter(
             'dijk',
             rank3tensor.D4Rank3Tensor(d14=1),
@@ -206,7 +206,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Tetragonal:C4v',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",311,
+    311,
     [rank3tensor.C4vRank3TensorParameter(
             'dijk',
             rank3tensor.C4vRank3Tensor(d15=1.0, d31=1.0, d33=1.0),
@@ -227,7 +227,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Tetragonal:D2d',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",310,
+    310,
     [rank3tensor.D2dRank3TensorParameter(
             'dijk',
             rank3tensor.D2dRank3Tensor(d14=1, d36=1),
@@ -248,7 +248,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Trigonal:C3',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",309,
+    309,
     [rank3tensor.C3Rank3TensorParameter(
             'dijk',
             rank3tensor.C3Rank3Tensor(d11=1, d14=1, d15=1, d22=1, d31=1, d33=1),
@@ -269,7 +269,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Trigonal:D3',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",308,
+    308,
     [rank3tensor.D3Rank3TensorParameter(
             'dijk',
             rank3tensor.D3Rank3Tensor(d11=1, d14=1),
@@ -290,7 +290,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Trigonal:C3v',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",307,
+    307,
     [rank3tensor.C3vRank3TensorParameter(
             'dijk',
             rank3tensor.C3vRank3Tensor(d15=1, d22=1, d31=1, d33=1),
@@ -311,7 +311,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Hexagonal:C6',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",306,
+    306,
     [rank3tensor.C6Rank3TensorParameter(
             'dijk',
             rank3tensor.C6Rank3Tensor(d14=1, d15=1.0, d31=1.0, d33=1.0),
@@ -332,7 +332,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Hexagonal:D6i',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",305,
+    305,
     [rank3tensor.D6iRank3TensorParameter(
             'dijk',
             rank3tensor.D6iRank3Tensor(d11=1, d22=1),
@@ -353,7 +353,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Hexagonal:D6',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",304,
+    304,
     [rank3tensor.D6Rank3TensorParameter(
             'dijk',
             rank3tensor.D6Rank3Tensor(d14=1),
@@ -374,7 +374,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Hexagonal:C6v',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",303,
+    303,
     [rank3tensor.C6vRank3TensorParameter(
             'dijk',
             rank3tensor.C6vRank3Tensor(d15=1.0, d31=1.0, d33=1.0),
@@ -395,7 +395,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Hexagonal:D3h',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",302,
+    302,
     [rank3tensor.D3hRank3TensorParameter(
             'dijk',
             rank3tensor.D3hRank3Tensor(d22=1),
@@ -416,7 +416,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization, problem.Stress],
 reg = PropertyRegistration(
     'Couplings:PiezoElectricity:Cubic:Td',
     AnisotropicPiezoElectricity,
-    "ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity",301,
+    301,
     [rank3tensor.TdRank3TensorParameter(
             'dijk',
             rank3tensor.TdRank3Tensor(d14=1),

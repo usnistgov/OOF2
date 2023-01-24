@@ -38,7 +38,6 @@ class Progress : public PythonExportable<Progress> {
   bool stopped_;
   bool finished_;
   ThreadState *threadstate;
-  static const std::string modulename_;
   PyObject *progressbar;
 protected:
   // started_ indicates that the progress object is actually being
@@ -79,7 +78,6 @@ public:
   virtual void setFraction(double) = 0;
   const std::string &name() const { return name_; }
   const std::string *message() const;
-  virtual const std::string &modulename() const { return modulename_; }
   void setProgressBar(PyObject*);
   bool hasProgressBar() const;
 

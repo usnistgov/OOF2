@@ -19,8 +19,9 @@ from ooflib.engine.IO import interfaceparameters
 
 if runtimeflags.surface_mode:
     reg = propertyregistration.PropertyRegistration(
-        'Mechanical:Interface:SurfaceTension:Isotropic', SimpleTension,
-        "ooflib.SWIG.engine.properties.interfaces.surfacetension.simpletension.simpletension",210,
+        'Mechanical:Interface:SurfaceTension:Isotropic',
+        SimpleTension,
+        210,
         [
         parameter.FloatParameter('gamma_left', 0.01, tip="value of the surface tension"),
         parameter.FloatParameter('gamma_right', 0.01, tip="value of the surface tension")

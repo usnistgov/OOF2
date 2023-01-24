@@ -146,7 +146,6 @@ void Progress::releaseThreadLock() {
 // If new Progress subclasses are created, remember to update the
 // factory function ThreadState::getProgress.
 
-const std::string Progress::modulename_("ooflib.SWIG.common.progress");
 const std::string DefiniteProgress::classname_("DefiniteProgress");
 const std::string LogDefiniteProgress::classname_("LogDefiniteProgress");
 const std::string IndefiniteProgress::classname_("IndefiniteProgress");

@@ -22,7 +22,7 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 reg = PropertyRegistration(
     'Mechanical:ForceDensity:TestNonconstantForceDensity',
     TestNonconstantForceDensity,
-    "ooflib.SWIG.engine.properties.forcedensity.nonconstant.nonconstant_force_density",102,
+    102,
     [parameter.IntParameter('testno', 1, tip="Test number for the nonconstant force density property.")],
     propertyType="ForceDensity",
     secret=True,

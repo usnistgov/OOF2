@@ -23,7 +23,7 @@ T0tip = "Temperature at which the thermal expansion vanishes."
 
 reg = PropertyRegistration(
     'Couplings:ThermalExpansion:Isotropic', IsotropicThermalExpansion,
-    "ooflib.SWIG.engine.properties.thermalexpansion.thermalexpansion",200,
+    200,
     [parameter.FloatParameter('alpha', 1.0,
                               tip="Thermal expansion coefficient."),
      parameter.FloatParameter('T0', 0.0, tip=T0tip)],
@@ -43,7 +43,7 @@ reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Temperature],
 reg = PropertyRegistration(
     'Couplings:ThermalExpansion:Anisotropic:Triclinic',
     AnisotropicThermalExpansion,
-    "ooflib.SWIG.engine.properties.thermalexpansion.thermalexpansion",210,
+    210,
     [symmmatrix.TriclinicRank2TensorParameter(
             'alpha',
             symmmatrix.TriclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
@@ -65,7 +65,7 @@ reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Temperature],
 reg = PropertyRegistration(
     'Couplings:ThermalExpansion:Anisotropic:Monoclinic',
     AnisotropicThermalExpansion,
-    "ooflib.SWIG.engine.properties.thermalexpansion.thermalexpansion",209,
+    209,
     [symmmatrix.MonoclinicRank2TensorParameter(
             'alpha',
             symmmatrix.MonoclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
@@ -87,7 +87,7 @@ reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Temperature],
 reg = PropertyRegistration(
     'Couplings:ThermalExpansion:Anisotropic:Orthorhombic',
     AnisotropicThermalExpansion,
-    "ooflib.SWIG.engine.properties.thermalexpansion.thermalexpansion",208,
+    208,
     [symmmatrix.OrthorhombicRank2TensorParameter(
             'alpha',
             symmmatrix.OrthorhombicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
@@ -109,7 +109,7 @@ reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Temperature],
 reg = PropertyRegistration(
     'Couplings:ThermalExpansion:Anisotropic:Tetragonal',
     AnisotropicThermalExpansion,
-    "ooflib.SWIG.engine.properties.thermalexpansion.thermalexpansion",207,
+    207,
     [symmmatrix.TetragonalRank2TensorParameter(
             'alpha',
             symmmatrix.TetragonalRank2Tensor(xx=1.0, zz=0.5),
@@ -131,7 +131,7 @@ reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Temperature],
 reg = PropertyRegistration(
     'Couplings:ThermalExpansion:Anisotropic:Trigonal',
     AnisotropicThermalExpansion,
-    "ooflib.SWIG.engine.properties.thermalexpansion.thermalexpansion",206,
+    206,
     [symmmatrix.TrigonalRank2TensorParameter(
             'alpha',
             symmmatrix.TrigonalRank2Tensor(xx=1.0, zz=0.5),
@@ -153,7 +153,7 @@ reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Temperature],
 reg = PropertyRegistration(
     'Couplings:ThermalExpansion:Anisotropic:Hexagonal',
     AnisotropicThermalExpansion,
-    "ooflib.SWIG.engine.properties.thermalexpansion.thermalexpansion",205,
+    205,
     [symmmatrix.HexagonalRank2TensorParameter(
             'alpha',
             symmmatrix.HexagonalRank2Tensor(xx=1.0, zz=0.5),
@@ -175,7 +175,7 @@ reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Temperature],
 reg = PropertyRegistration(
     'Couplings:ThermalExpansion:Anisotropic:Cubic',
     AnisotropicThermalExpansion,
-    "ooflib.SWIG.engine.properties.thermalexpansion.thermalexpansion",204,
+    204,
     [symmmatrix.CubicRank2TensorParameter(
             'alpha',
             symmmatrix.CubicRank2Tensor(xx=1.0),

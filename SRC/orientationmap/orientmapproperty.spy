@@ -13,7 +13,6 @@ from ooflib.engine import propertyregistration
 propertyregistration.PropertyRegistration(
     'OrientationMap',
     OrientationMapProp,
-    "ooflib.SWIG.orientationmap.orientmapproperty",
     1010,
     [],
     outputs=["Material Constants:Orientation"],

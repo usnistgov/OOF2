@@ -351,7 +351,6 @@ class TestPlasticityProp(pypropertywrapper.PyFluxProperty):
 if False:
     reg = propertyregistration.PropertyRegistration(
         'Mechanical:Plasticity:TestPlasticity', TestPlasticityProp,
-        "ooflib.engine.properties.plasticity.plasticity", 
         105,
         params=[parameter.FloatParameter("yield_stress", 1.0,
                                          tip="Yield stress.")],

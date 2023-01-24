@@ -17,7 +17,6 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 
 SkeletonRelaxationRateTensor = PropertyRegistration(
     'SkeletonRelaxationRate', SkeletonRelaxationRate,
-    "ooflib.SWIG.engine.properties.skeletonrelaxationrate.skeletonrelaxationrate",
     9000,
     [parameter.FloatParameter('gamma', 1,), # force prefactor
      skeletonmodifier.alphaParameter],

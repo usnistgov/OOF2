@@ -18,7 +18,6 @@
 #include <math.h>
 #include <string.h>		// for memcpy
 
-std::string OutputVal::modulename_("ooflib.SWIG.engine.outputval");
 std::string ScalarOutputVal::classname_("ScalarOutputVal");
 std::string VectorOutputVal::classname_("VectorOutputVal");
 

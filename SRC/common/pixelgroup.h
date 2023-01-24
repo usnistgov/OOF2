@@ -139,7 +139,6 @@ bool pixelGroupQueryPixel(const CMicrostructure&, const ICoord&,
 class PixelGroupAttributeRegistration : public PxlAttributeRegistration {
 private:
   static const std::string classname_;
-  static const std::string modulename_;
 public:
   PixelGroupAttributeRegistration();
   virtual ~PixelGroupAttributeRegistration() {}
@@ -147,7 +146,6 @@ public:
     return new GroupList();
   }
   virtual const std::string &classname() const { return classname_;}
-  virtual const std::string &modulename() const { return modulename_; }
 };
 
 #endif // PIXELGROUP_H

@@ -49,7 +49,6 @@ class SmallSystem;
 
 class Flux : public IdentifiedObject, public PythonExportable<Flux> {
 private:
-  static const std::string modulename_;
   const std::string name_;
   int index_;
   bool negate_;
@@ -68,7 +67,6 @@ public:
   static Flux *getFlux(const std::string &name);
   int index() const { return index_; }
   virtual const std::string &classname() const = 0;
-  virtual const std::string &modulename() const { return modulename_; }
 
   int ndof() const { return dim; }
   virtual int divergence_dim() const { return divdim; }

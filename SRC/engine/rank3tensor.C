@@ -168,9 +168,6 @@ Rank3Tensor operator/(const Rank3Tensor &A, double x) {
 
 
 std::string Rank3Tensor::classname_("Rank3Tensor");
-std::string Rank3Tensor::modulename_("ooflib.SWIG.engine.rank3tensor");
-
-
 
 SymmMatrix &Rank3Tensor::operator()(unsigned int i) {
   assert(i<nrows && i>=0);

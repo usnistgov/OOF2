@@ -21,7 +21,6 @@
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Names needed for PythonExportable base class
-const std::string Node::modulename_("ooflib.SWIG.engine.node");
 const std::string Node::classname_("Node");
 const std::string FuncNode::classname_("FuncNode");
 

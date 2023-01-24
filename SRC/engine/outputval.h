@@ -1,6 +1,5 @@
 // -*- C++ -*-
 
-
 /* This software was produced by NIST, an agency of the U.S. government,
 * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -36,7 +35,6 @@ class OutputVal : public PythonExportable<OutputVal> {
 private:
   OutputVal(const OutputVal&) = delete;
 protected:
-  static std::string modulename_;
   int refcount;
 public:
   OutputVal();
@@ -45,7 +43,6 @@ public:
   virtual unsigned int dim() const = 0;
   virtual OutputVal *clone() const = 0;
   virtual OutputVal *zero() const = 0;
-  virtual const std::string &modulename() const { return modulename_; }
   // IO ops.
   virtual std::vector<double> *value_list() const = 0;
   virtual void print(std::ostream&) const = 0;

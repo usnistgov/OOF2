@@ -24,7 +24,7 @@ class IsoElasticityProp(CIsoElasticityProp):
 # Property class registration code
 reg = IsotropicElasticity = PropertyRegistration(
     "Mechanical:Elasticity:Isotropic", IsoElasticityProp,
-    "ooflib.SWIG.engine.properties.elasticity.iso.iso", 10,
+    10,
     [isocijkl.IsotropicCijklParameter('cijkl',
                           isocijkl.IsotropicRank4TensorCij(c11=1.0, c12=0.5),
                                             tip=parameter.emptyTipString)],

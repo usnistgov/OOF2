@@ -21,7 +21,7 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 reg = PropertyRegistration(
     'Mechanical:Elasticity:TestGeneralNonlinearElasticityNoDeriv',
     TestGeneralNonlinearElasticityNoDeriv,
-    "ooflib.SWIG.engine.properties.elasticity.nonlinear.general_nonlinear_elasticity",201,
+    201,
     [parameter.IntParameter('testno', 1, tip="Test number for the general nonlinear elasticity property.")],
     propertyType="Elasticity",
     secret=True,
@@ -37,7 +37,7 @@ reg.fluxInfo( fluxes=[problem.Stress], fields=[problem.Displacement],
 reg = PropertyRegistration(
     'Mechanical:Elasticity:TestGeneralNonlinearElasticity',
     TestGeneralNonlinearElasticity,
-    "ooflib.SWIG.engine.properties.elasticity.nonlinear.general_nonlinear_elasticity",202,
+    202,
     [parameter.IntParameter('testno', 1, tip="Test number for the general nonlinear elasticity property.")],
     propertyType="Elasticity",
     secret=True,

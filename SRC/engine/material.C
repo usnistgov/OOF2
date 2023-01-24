@@ -533,8 +533,6 @@ void Material::dump(std::ostream &os) const {
 
 const std::string
 MaterialAttributeRegistration::classname_("MaterialAttributeRegistration");
-const std::string
-MaterialAttributeRegistration::modulename_("ooflib.SWIG.engine.material");
 
 static MaterialAttributeRegistration *matattrreg;
 

@@ -83,7 +83,6 @@ private:
   mutable bool dirtyeigs_;	// are eigenvalues up-to-date?
   void findEigenvalues() const;
   static std::string classname_; // OutputVal is PythonExportable
-  static std::string modulename_;
 public:
   SymmMatrix3() : SymmMatrix(3), dirtyeigs_(true) {}
 //   virtual ~SymmMatrix3();
@@ -96,7 +95,6 @@ public:
   virtual OutputVal *zero() const;
   virtual SymmMatrix3 *one() const;
   virtual const std::string &classname() const { return classname_; }
-  virtual const std::string &modulename() const { return modulename_; }
   SymmMatrix3 &operator=(const SymmMatrix3 &x) {
     dirtyeigs_ = x.dirtyeigs_;
     eigenvalues = x.eigenvalues;

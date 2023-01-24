@@ -67,8 +67,6 @@ Property::Property(const std::string &nm, PyObject *registration)
   PyObject *psub = PyObject_GetAttrString(registration, (char*) "subclass");
   classname_ = getPyStringData(psub, "__name__");
   Py_XDECREF(psub);
-  // registry.modulename
-  modulename_ = getPyStringData(registration, "modulename");
   Py_INCREF(registration_);
 }
 

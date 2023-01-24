@@ -113,7 +113,6 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
 reg = propertyregistration.PropertyRegistration(
     'Mechanical:Elasticity:PyIsotropic',
     PyElasticity,
-    "ooflib.engine.properties.elasticity.pyelasticity",
     ordering=10000,
     outputs=["Energy"],
     propertyType="Elasticity",

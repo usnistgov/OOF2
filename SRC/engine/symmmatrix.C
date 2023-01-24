@@ -284,7 +284,6 @@ void SymmMatrix::clear(double x) {
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 std::string SymmMatrix3::classname_("SymmMatrix3");
-std::string SymmMatrix3::modulename_("ooflib.SWIG.engine.symmmatrix");
 
 SymmMatrix3::SymmMatrix3(double v00, double v11, double v22,
 			 double v12, double v02, double v01)

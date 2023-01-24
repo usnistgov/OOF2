@@ -16,7 +16,7 @@ from ooflib.engine import propertyregistration
 
 reg = propertyregistration.PropertyRegistration(
     'Thermal:HeatCapacity:ConstantHeatCapacity', HeatCapacityProp,
-    "ooflib.SWIG.engine.properties.heatcapacity.heatcapacity",100,
+    100,
     [parameter.FloatParameter(
             'cv', 1.0, tip="accumulated thermal energy per unit volume")],
     outputs=["Material Constants:Thermal:Heat Capacity"],

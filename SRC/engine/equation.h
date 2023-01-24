@@ -58,7 +58,6 @@ class Equation : public IdentifiedObject, public PythonExportable<Equation> {
 protected:
   int dim_;			// number of components
   std::string name_;
-  static const std::string modulename_;
   const unsigned int index_;
 public:
   Equation(const std::string &nm, int d);
@@ -67,7 +66,6 @@ public:
   static Equation *getEquation(const std::string&);
 
   virtual const std::string &classname() const = 0;
-  virtual const std::string &modulename() const { return modulename_; }
 
   // where a given component lives in the eqn lists in a Node
   int localindex(const FuncNode&, const FieldIndex &component) const;
