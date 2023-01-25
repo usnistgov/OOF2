@@ -746,11 +746,9 @@ class SkeletonContext(whoville.WhoDoUndo):
 
     # Copy over the group data from another skeletoncontext.
     def groupCopy(self, other):
-        ## TODO PYTHON3: This doesn't work, and didn't work in python2
-        ## either.
-        self.nodegroups.nameCopy(other.nodegroups)
-        self.segmentgroups.nameCopy(other.segmentgroups)
-        self.elementgroups.nameCopy(other.elementgroups)
+        self.nodegroups.addGroups(other.nodegroups.allGroups())
+        self.segmentgroups.addGroups(other.segmentgroups.allGroups())
+        self.elementgroups.addGroups(other.elementgroups.allGroups())
 
     # ## ### #### ##### ###### ####### ####### ###### ##### #### ### ## #
 

@@ -50,7 +50,9 @@ import weakref
 class GenericGroupSet:
     def __init__(self, skeletoncontext, objects=None, groupset=[]):
         self.skeletoncontext = skeletoncontext
-        self.groups = utils.OrderedSet(groupset)
+        # self.groups contains the names of the groups, in the order
+        # in which they were created.
+        self.groups = utils.OrderedSet(groupset) 
 
         # self.objects is a reference to the list of objects in the
         # Skeleton from which the members of the group are chosen.  It
@@ -79,6 +81,8 @@ class GenericGroupSet:
         del self.objects
 
     # When new skeletons are pushed on, create the required groups.
+    # Called by the switchboard when a new Skeleton is pushed onto the
+    # SkeletonContext.
     def new_skeleton(self, context, oldskeleton, newskeleton):
         if context==self.skeletoncontext:
             newtracker = newskeleton.newGroupTracker(self)
@@ -97,14 +101,26 @@ class GenericGroupSet:
         
         
     # Add a name or names to the list of known groups. 
-    def addGroup(self, *names):
-        if names:
-            for name in names:
-                self.groups.add(name)
-                for t in self.tracker.values():
-                    t.add_group(name)
+    def addGroup(self, name):
+        self.groups.add(name)
+        for t in self.tracker.values():
+            t.add_group(name)
+        switchboard.notify("groupset member added", self.skeletoncontext,
+                           self, name)
+
+    # Add multiple groups, but only send one switchboard signal.
+    def addGroups(self, names):
+        # names is an iterable container of names, but might not be
+        # subscriptable.
+        lastname = None
+        for name in names:
+            lastname = name
+            self.groups.add(name)
+            for t in self.tracker.values():
+                t.add_group(name)
+        if lastname is not None:
             switchboard.notify("groupset member added", self.skeletoncontext,
-                               self, names[-1])
+                               self, lastname)
 
     # Remove a name or names from the list of known groups.
     def removeGroup(self, *names):
@@ -131,10 +147,6 @@ class GenericGroupSet:
     def sizeOfGroup(self, name):
         current_tracker = self.tracker[self.skeletoncontext.getObject()]
         return current_tracker.get_group_size(name)
-
-    # Set your list of known names from another group object.
-    def nameCopy(self, other):
-        self.groups = other.groups.copy()
 
     # Access the list of group names -- GUI will want this.
     def allGroups(self):
@@ -300,7 +312,7 @@ class GenericMaterialGroupSet(GenericGroupSet):
 
 class GroupTracker:
     def __init__(self):
-        self.data = {}
+        self.data = {}      # sets of selectables, keyed by group name
     def add_group(self, name):
         # Use an ordered set here so that tests are reproducible.
         # TODO PYTHON3: After comparisons with the old Python2 version
