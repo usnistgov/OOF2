@@ -357,10 +357,9 @@ class NodeGroupSet(GenericGroupSet):
     def __init__(self, skeletoncontext):
         GenericGroupSet.__init__(self, skeletoncontext)
 
-    def new_objects(self, context):
-        if context == self.skeletoncontext:
-            self.objects = self.skeletoncontext.getObject().nodes
-            self.relay()
+    def new_objects(self):
+        self.objects = self.skeletoncontext.getObject().nodes
+        self.relay()
 
     def get_selection(self):
         return self.skeletoncontext.nodeselection.retrieve()
@@ -376,10 +375,9 @@ class SegmentGroupSet(GenericGroupSet):
     def __init__(self, skeletoncontext):
         GenericGroupSet.__init__(self, skeletoncontext)
 
-    def new_objects(self, context):
-        if context == self.skeletoncontext:
-            self.objects = list(self.skeletoncontext.getObject().segments.values())
-            self.relay()
+    def new_objects(self):
+        self.objects = list(self.skeletoncontext.getObject().segments.values())
+        self.relay()
 
     def get_selection(self):
         return self.skeletoncontext.segmentselection.retrieve()
@@ -395,10 +393,9 @@ class ElementGroupSet(GenericMaterialGroupSet):
     def __init__(self, skeletoncontext):
         GenericMaterialGroupSet.__init__(self, skeletoncontext)
 
-    def new_objects(self, context):
-        if context == self.skeletoncontext:
-            self.objects = self.skeletoncontext.getObject().elements
-            self.relay()
+    def new_objects(self):
+        self.objects = self.skeletoncontext.getObject().elements
+        self.relay()
 
     def get_selection(self):
         return self.skeletoncontext.elementselection.retrieve()

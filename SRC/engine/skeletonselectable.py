@@ -569,8 +569,6 @@ class SelectionBase:
         self.rwLock = lock.RWLock()
 
         self.sbcallbacks = [
-            # switchboard.requestCallback(('who changed', 'Skeleton'),
-            #                             self.newSkeleton),
             switchboard.requestCallback(('whodoundo push',
                                          'Skeleton'),
                                         self.whoChanged0)
@@ -592,11 +590,10 @@ class SelectionBase:
                 set.implied_select(oldskeleton, newskeleton)
             self.stack.current().writeskeleton(newskeleton)
 
-    # Response to mesh modification events [('who changed', 'Skeleton') signal]
-    def newSkeleton(self, skelcontext):
-        if skelcontext is self.skeletoncontext:
-            self.timestamp.increment()  # enforces a redraw.
-            self.signal()
+    def newSkeleton(self):
+        # Called from SkeletonContext.updateGroupsAndSelections
+        self.timestamp.increment()  # enforces a redraw.
+        self.signal()
 
     # This returns a SelectionSet object, which has the current state
     # for the entire stack.  To get the current skeleton's current

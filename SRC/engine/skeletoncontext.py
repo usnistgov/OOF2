@@ -274,13 +274,13 @@ class SkeletonContext(whoville.WhoDoUndo):
             meshctxt.skeletonChanged(self.getObject())
 
     def updateGroupsAndSelections(self):
-        self.nodegroups.new_objects(self)
-        self.segmentgroups.new_objects(self)
-        self.elementgroups.new_objects(self)
+        self.nodegroups.new_objects()
+        self.segmentgroups.new_objects()
+        self.elementgroups.new_objects()
 
-        self.nodeselection.newSkeleton(self)
-        self.segmentselection.newSkeleton(self)
-        self.elementselection.newSkeleton(self)
+        self.nodeselection.newSkeleton()
+        self.segmentselection.newSkeleton()
+        self.elementselection.newSkeleton()
     
 
     def undoModification(self):
@@ -746,12 +746,8 @@ class SkeletonContext(whoville.WhoDoUndo):
 
     # Copy over the group data from another skeletoncontext.
     def groupCopy(self, other):
-        # mygroups = [self.nodegroups, self.segmentgroups, self.elementgroups]
-        # othergroups = [other.nodegroups, other.segmentgroups,
-        #                other.elementgroups] 
-        # for (g, og) in zip(None, mygroups, othergroups):
-        #     g.nameCopy(og)
-        ## TODO PYTHON3: Check this
+        ## TODO PYTHON3: This doesn't work, and didn't work in python2
+        ## either.
         self.nodegroups.nameCopy(other.nodegroups)
         self.segmentgroups.nameCopy(other.segmentgroups)
         self.elementgroups.nameCopy(other.elementgroups)
