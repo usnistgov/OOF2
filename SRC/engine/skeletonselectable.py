@@ -248,6 +248,9 @@ class SkeletonSelectable:
         self.children.append(new)
         return new
 
+    def youngest_child(self):
+        return self.children[-1]
+
     # Add/remove parents and children.  Hides the implementation.
     # Does not promise consistency between parents and children.
     # *Does* promise uniqueness of objects in the lists.
