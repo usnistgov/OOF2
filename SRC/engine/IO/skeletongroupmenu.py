@@ -106,7 +106,7 @@ def _auto_group(menuitem, skeleton):
         # Create groups
         groupnames = ms.groupNames()    # all pixel group names in ms
         newgrps = [name for name in groupnames if not groupset.isGroup(name)]
-        groupset.addGroups(newgrps)
+        groupset.addGroup(*newgrps)
         # Find objects to add to groups
         for obj in menuitem.iterator(skelc.getObject().sheriffSkeleton()):
             cat = obj.dominantPixel(ms) # dominant pxl category

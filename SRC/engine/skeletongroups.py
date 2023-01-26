@@ -101,26 +101,15 @@ class GenericGroupSet:
         
         
     # Add a name or names to the list of known groups. 
-    def addGroup(self, name):
-        self.groups.add(name)
-        for t in self.tracker.values():
-            t.add_group(name)
-        switchboard.notify("groupset member added", self.skeletoncontext,
-                           self, name)
-
-    # Add multiple groups, but only send one switchboard signal.
-    def addGroups(self, names):
-        # names is an iterable container of names, but might not be
-        # subscriptable.
-        lastname = None
+    def addGroup(self, *names):
+        if not names:
+            return
         for name in names:
-            lastname = name
             self.groups.add(name)
             for t in self.tracker.values():
                 t.add_group(name)
-        if lastname is not None:
-            switchboard.notify("groupset member added", self.skeletoncontext,
-                               self, lastname)
+        switchboard.notify("groupset member added", self.skeletoncontext,
+                           self, names[-1])
 
     # Remove a name or names from the list of known groups.
     def removeGroup(self, *names):

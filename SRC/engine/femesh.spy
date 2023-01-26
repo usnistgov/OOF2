@@ -322,13 +322,15 @@ FEMesh.renameBoundary = _FEMesh_renameBoundary
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def _FEMesh_createAuxiliaryBCs(self):
-    for bdy in self.boundaries.values():
+    # Convert to list so that we're not iterating over a changing dict.
+    for bdy in list(self.boundaries.values()):
         bdy.createAuxiliaryBCs()
 
 FEMesh.createAuxiliaryBCs = _FEMesh_createAuxiliaryBCs
 
 def _FEMesh_removeAuxiliaryBCs(self):
-    for bdy in self.boundaries.values():
+    # Convert to list so that we're not iterating over a changing dict.
+    for bdy in list(self.boundaries.values()):
         bdy.removeAuxiliaryBCs()
 
 FEMesh.removeAuxiliaryBCs = _FEMesh_removeAuxiliaryBCs
