@@ -143,9 +143,8 @@ public:
       currentpt(i)
   {}
   void operator++() { ++currentpt; }
-  GaussPoint gausspoint() const;
   GaussPoint *gausspointptr() const;
-  GaussPoint operator*() const { return gausspoint(); }
+  GaussPoint operator*() const;
   bool operator!=(const GaussPointIterator &other) const {
     return currentpt != other.currentpt;
   }

@@ -124,13 +124,12 @@ GaussPointIterator GaussPointIntegrator::end() const {
 }
 
 
-GaussPoint GaussPointIterator::gausspoint() const {
+GaussPoint GaussPointIterator::operator*() const {
   return GaussPoint(element, gptable[currentpt].position,
 		    gptable[currentpt].weight, currentpt, gptable.order() );
 }
 
 GaussPoint *GaussPointIterator::gausspointptr() const {
-  // TODO PYTHON3: Are these pointers freed?
   return new GaussPoint(element, gptable[currentpt].position,
 			gptable[currentpt].weight, currentpt, gptable.order() );
 }
