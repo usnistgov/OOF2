@@ -29,14 +29,18 @@ class Element;
 //  Element *el;
 //  double sum1 = 0, sum2 = 0;
 //  int order = ....; // see below
-//  for(GaussPointIntegrator g=el->integrator(order); !g.end(); ++g) {
-//
-//     sum1 += f(g)*g.weight(); // IF f can be evaluated at gauss points, like
-//                               // shapefunctions can
-//
-//     sum2 += f(g.coord())*g.weight();  // IF f can only be evaluated at
-//                                         // real space coordinates  
+//  for(GaussPoint g : el->integrator(order)) {
+//     MasterCoord &m = g;
+//     Coord p = g.coord();
+//     double weight = g.weight();
+//     ...
 //  }
+//
+// In Python, loop over Gauss points with
+//   for g in element.integrator(order):
+//      mastercoord = g
+//      realcoord = g.coord()
+//      weight = g.weight()
 
 // The MasterElement classes contain lists of GaussPtData objects
 // (actually a vector of GaussPtTables).  When an Element creates a

@@ -878,22 +878,6 @@ std::vector<Edge*> *Element::perimeter() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// TODO PYTHON3: Element::integration_points() is only used (once) in
-// ElementSample.integrate() in analysissample.py, and it's the only
-// thing that uses GaussPointIterator::gausspointptr().  Can this be
-// done better (more pythonic, more STL-ish) without
-// integration_points() and gausspointptr()?
-
-std::vector<GaussPoint*>* Element::integration_points(int order) const {
-  std::vector<GaussPoint*>* r = new std::vector<GaussPoint*>;
-  for(GaussPointIterator g = integrator(order).begin();
-      g != integrator(order).end(); ++g) {
-    r->push_back(g.gausspointptr());
-  }
-  return r;
-}
-
-
 GaussPointIntegrator Element::integrator(int order) const {
   return GaussPointIntegrator(this, order);
 }

@@ -86,8 +86,7 @@ public:
   %newobject perimeter;
   EdgeVec* perimeter();
 
-  %newobject integration_points;
-  GaussPointVec* integration_points(int);
+  GaussPointIntegrator integrator(int);
 
   MasterCoord center();
   int ncorners();

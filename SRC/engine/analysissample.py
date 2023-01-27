@@ -116,7 +116,7 @@ class ElementSample(Sample):
     #     return self.index
     def integrate(self, domain, output, order, power=1):
         femesh = domain.meshctxt.getObject()
-        gauss_pts = self.element.integration_points(order)
+        gauss_pts = list(self.element.integrator(order))
         pts = [x.mastercoord() for x in gauss_pts]
         wgts = [x.weight() for x in gauss_pts]
         if power==0:

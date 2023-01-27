@@ -204,11 +204,6 @@ public:
   void delData(int i) const;
   void clearData() const; // Clears the whole structure.  Do not use.
 
-
-  // Function to return a bunch of gausspoints, for doing integration
-  // in Python.  This is probably temporary.
-  std::vector<GaussPoint*>* integration_points(int order) const;
-
   GaussPointIntegrator integrator(int order) const;
   // int ngauss(int order);	// number of gauss points used at this order
 

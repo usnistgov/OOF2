@@ -1737,35 +1737,6 @@ DoubleVec *CSubProblem::zz_L2_weights(const Flux *fluks,
     }
   }
 
-//   int order = 2*mesh->element[0]->shapefun_degree();
-//   int dim = fluks->ndof();
-
-//   Element *elem = element[0];
-//   double value = 0.0;
-//   for(GaussPointIterator gpt = elem->integrator(order); !gpt.end(); ++gpt) {
-//     MasterCoord mc = gpt.gausspoint().mastercoord();
-//     double wt = gpt.gausspoint().weight();
-//     zz_L2_weights_sub(elem, fluks, dim, value, mc, wt);
-//   }
-//   values.push_back(value);
-//   double min = value;
-//   double max = value;
-
-//   for(int i=1; i<mesh->nelements(); i++) {
-//     Element *elem = mesh->element[i];
-//     value = 0.0;
-//     for(GaussPointIterator gpt = elem->integrator(order); !gpt.end(); ++gpt) {
-//       MasterCoord mc = gpt.gausspoint().mastercoord();
-//       double wt = gpt.gausspoint().weight();
-//       zz_L2_weights_sub(elem, fluks, dim, value, mc, wt);
-//     }
-//     values.push_back(value);
-//     if(value < min)
-//       min = value;
-//     if(value > max)
-//       max = value;
-//   }
-
   double upper = min + (max-min)*top;
   double lower = min + (max-min)*bottom;
   double diff = upper - lower;
