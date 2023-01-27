@@ -22,6 +22,7 @@
 %import "common/coord.swg"
 %import "common/pixelattribute.swg"
 %import "common/timestamp.swg"
+%import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
 %{
@@ -141,12 +142,7 @@ typedef std::string MaterialType;
   delete $1;
 }
 
-// TODO PYTHON3: Should this be in property.swg?  Would that drag too
-// much other stuff into this file?
-PYTHONEXPORTABLE(Property);
-   
 // Convert a std::string& to a MaterialType Enum
-// TODO PYTHON3: We should have generic Enum <--> const std::string& typemaps.
 %typemap(out) MaterialType {
   // typemap(out) MaterialType
   FETCH_CLASS(ooflib.engine.materialtype, MaterialType)

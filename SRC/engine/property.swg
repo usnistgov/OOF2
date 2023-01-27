@@ -71,6 +71,8 @@ public:
   void output(FEMesh*, Element*, PropertyOutput*, MasterPosition&, OutputVal*);
 };
 
+PYTHONEXPORTABLE(Property);
+
 %nodefaultctor PhysicalProperty;
 
 class PhysicalProperty : public Property {
