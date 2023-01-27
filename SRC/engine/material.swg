@@ -73,9 +73,8 @@ typedef std::string MaterialType;
     // raised a KeyError, which we clear, and return the unmodified
     // Material object.
     if(!$result) {
-      // TODO PYTHON3: Check that there is actually an exception by
-      // callding PyErr_Occurred() before PyErr_ExceptionMatches().
-      if(PyErr_ExceptionMatches(PyExc_KeyError)) { // we got a KeyError
+      if(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_KeyError)) {
+	// we got a KeyError
 	PyErr_Clear();
 	$result = SWIG_NewPointerObj(SWIG_as_voidptr($1),
 				     $descriptor(Material*),
