@@ -120,16 +120,15 @@ def evolve(meshctxt, endtime):
                         meshctxt, subprobctxts,
                         time=time, endtime=t1, delta=delta, prog=prog,
                         linsysDict=linsys_dict)
-                ## TODO PYTHON3: The try block in the initialization
-                ## section, above, sets the mesh status if any
-                ## exceptions occur. This does it only for
-                ## interruptions.  Why?
                 except ooferror.PyErrInterrupted as err:
                     # Interruptions shouldn't raise an error dialog.
                     debug.fmsg("Interrupted!")
                     meshctxt.setStatus(meshstatus.Failed(
                         "Solution interrupted."))
                     break
+                except Exception as exc:
+                    meshcontext.setStatus(meshstate.Failed(repr(exc)))
+                    raise
                 
                 meshctxt.solverDelta = delta
                 if time < t1:
