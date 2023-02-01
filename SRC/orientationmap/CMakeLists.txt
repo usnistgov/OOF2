@@ -17,14 +17,13 @@ target_sources(oof2orientationmap
   pixelselectioncouriero.C
   pixelselectioncouriero.h
   pixeldifferentiatoro.C
-  pixeldifferentiatoro.h)
+  pixeldifferentiatoro.h
+)
 
 target_include_directories(oof2orientationmap
   PUBLIC
-  ## TODO NUMPY: Find out how to find this directory
-  /opt/local/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/numpy/core/include
-
-  )
+  ${NUMPY_INCLUDE}
+)
 
 
 swig_sources(
@@ -39,9 +38,8 @@ swig_sources(
   oof2orientationmap
   oof2engine
   INCLUDE_DIRECTORIES
-  ## TODO NUMPY: Find out how to find this directory
-  /opt/local/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/numpy/core/include
-    )
+  ${NUMPY_INCLUDE}
+)
 
 
 add_subdirectory(GUI)

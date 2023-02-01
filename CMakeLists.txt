@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.16)
 project(oof2 VERSION 2.2.3)
 
 set(DESIRED_SWIGVERSION 4.1)
-set(DESIRED_PYVERSION 3.9)
+set(DESIRED_PYVERSION 3.10)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -56,6 +56,7 @@ set(OOFCANVAS_MIN_VERSION 1.1.0)
 set(MAGICK_MIN_VERSION 6.0.0)
 set(MAGICK_MAX_VERSION 7.0.0)
 set(GTK3_MIN_VERSION 3.22)
+set(NUMPY_MIN_VERSION 1.24.0) # TODO: probably can be less than this
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -237,6 +238,21 @@ if($ENV{CONDA_PREFIX})
     "$ENV{PKG_CONFIG_PATH}:$ENV{CONDA_PREFIX}/lib/pkgconfig")
 endif()
 #message("PKG_CONFIG_PATH is $ENV{PKG_CONFIG_PATH}")
+
+
+# Check the numpy version
+execute_process(
+  COMMAND ${PYEXEC} -c "import numpy; print(numpy.version.version, end='')"
+  OUTPUT_VARIABLE NUMPY_VERSION
+)
+if(${NUMPY_VERSION} VERSION_LESS ${NUMPY_MIN_VERSION})
+  message(FATAL_ERROR "Numpy version is ${NUMPY_VERSION}. Version ${NUMPY_MIN_VERSION} is required.")
+endif()
+# Find the numpy include directory
+execute_process(
+  COMMAND ${PYEXEC} -c "import numpy; print(numpy.get_include(), end='')"
+  OUTPUT_VARIABLE NUMPY_INCLUDE
+)
 
 pkg_check_modules(
   OOFCANVAS REQUIRED
