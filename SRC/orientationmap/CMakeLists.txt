@@ -19,6 +19,14 @@ target_sources(oof2orientationmap
   pixeldifferentiatoro.C
   pixeldifferentiatoro.h)
 
+target_include_directories(oof2orientationmap
+  PUBLIC
+  ## TODO NUMPY: Find out how to find this directory
+  /opt/local/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/numpy/core/include
+
+  )
+
+
 swig_sources(
   SWIGFILES
   orientmapdata
@@ -29,6 +37,11 @@ swig_sources(
   LIBRARIES
   oof2common
   oof2orientationmap
-  oof2engine)
+  oof2engine
+  INCLUDE_DIRECTORIES
+  ## TODO NUMPY: Find out how to find this directory
+  /opt/local/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/numpy/core/include
+    )
+
 
 add_subdirectory(GUI)

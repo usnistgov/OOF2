@@ -25,6 +25,8 @@
 #include <string>
 #include <vector>
 
+#include <numpy/arrayobject.h>
+
 // Make sure that omp.h is included before Magick++.h
 #ifdef HAVE_OPENMP
 #include <omp.h>
@@ -47,6 +49,7 @@ class OOFImage : public AbstractImage {
 protected:
   std::string name_;
   Magick::Image image;
+  PyObject *npobject;
   Coord size_; 
   ICoord sizeInPixels_;		// width, height.
   double scale;			// converts from int rgb to doubles in [0,1]
@@ -57,11 +60,13 @@ public:
   OOFImage(const std::string &nm);
   OOFImage(const std::string &nm, const Coord &sz, const Magick::Geometry &g);
   OOFImage(const std::string &nm, const std::string &filename);
+  OOFImage(const std::string &nm, const std::string &filename,
+	   PyObject *npimage);
   OOFImage(const std::string &nm, const ICoord&,
 	   const std::string &colortype, const Magick::StorageType,
 	   const void*);
   virtual ~OOFImage();
-  void save(const std::string &filename);\
+  void save(const std::string &filename);
   const Magick::Geometry geometry() const { return image.size(); }
   Magick::Image magickImage() const { return image; }
   const std::string &name() const { return name_; }

@@ -93,7 +93,7 @@ def autoReadImage(filename, height, width):
         kwargs['height'] = height
     if width is not automatic.automatic:
         kwargs['width'] = width
-    return oofimage.readImage(filename, **kwargs) # OOFImage object
+    return oofimage.readNumpyImage(filename, **kwargs) # OOFImage object
     
         
 def loadImageIntoMS(image, microstructure):

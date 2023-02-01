@@ -53,6 +53,36 @@ OOFImage::OOFImage(const std::string &name, const std::string &filename)
   imageChanged();
 }
 
+OOFImage::OOFImage(const std::string &name, const std::string &filename,
+		   PyObject *py_npimage)
+  : name_(name),
+    npobject(py_npimage)
+{
+  Py_INCREF(npobject);
+  int ndim = PyArray_NDIM(npobject);
+  std::cerr << "OOFImage::ctor: ndim=" << ndim << std::endl;
+  npy_intp *dims = PyArray_DIMS(npobject);
+  std::cerr << "OOFImage::ctor: dims=" << dims[0] << " " << dims[1]
+	    << std::endl;
+  
+  try {
+    image.read(filename);
+  }
+  catch (Magick::Exception &error) {
+    // Magick::Exceptions have to be converted into OOF2
+    // ImageMagickErrors so that they'll be handled properly by the
+    // SWIG exception typemap.
+    throw ImageMagickError(error.what());
+  }
+  catch (std::exception &error) {
+    std::cerr << "Caught exception: " << std::endl;
+    throw;
+  }
+  image.flip();		// real coordinates don't start at the top
+  setup();
+  imageChanged();
+}
+
 OOFImage::OOFImage(const std::string &name)
   : name_(name)
 {

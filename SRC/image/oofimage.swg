@@ -36,9 +36,14 @@
 #include "image/oofimage.h"
 %}
 
+%typemap(in) PyObject *VERBATIM {
+  $1 = $input;
+ }
+
 class OOFImage : public AbstractImage {
 public:
-  OOFImage(char *name, char *filename);
+  //OOFImage(char *name, char *filename);
+  OOFImage(char *name, char *filename, PyObject *VERBATIM);
   ~OOFImage();
   void save(char *filename);
   const std::string &name();

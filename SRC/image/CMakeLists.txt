@@ -16,7 +16,13 @@ target_sources(oof2image
   autogroup.C
   autogroup.h
   pixeldifferentiator.C
-  pixeldifferentiator.h)
+  pixeldifferentiator.h
+  )
+target_include_directories(oof2image
+  PUBLIC
+  ## TODO NUMPY: Find out how to find this directory
+  /opt/local/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/numpy/core/include
+  )
 
 swig_sources(
   SWIGFILES
@@ -26,6 +32,10 @@ swig_sources(
   pixelselectioncourieri
   LIBRARIES
   oof2common
-  oof2image)
+  oof2image
+  INCLUDE_DIRECTORIES
+  ## TODO NUMPY: Find out how to find this directory
+  /opt/local/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/numpy/core/include
+  )
 
 add_subdirectory(IO)
