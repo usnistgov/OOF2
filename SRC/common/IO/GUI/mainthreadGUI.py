@@ -68,7 +68,7 @@ class OOFIdleBlockCallback:
           try:
                self.result = self.func(*self.args, **self.kwargs)
           except Exception:
-               debug.fmsg("OOFIdleBlockCallback failed! func=", self.func.func,
+               debug.fmsg("OOFIdleBlockCallback failed! func=", self.func,
                           "args=", self.args, "kwargs=", self.kwargs)
                raise
           finally:
