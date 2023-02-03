@@ -96,9 +96,10 @@ public:
   }
 };
 
-%newobject newImageFromData;
-OOFImage *newImageFromData(char *name, ICoord *iPoint,
-			   const std::vector<unsigned short>*);
+// TODO NUMPY: resurrect this 
+// %newobject newImageFromData;
+// OOFImage *newImageFromData(char *name, ICoord *iPoint,
+// 			   const std::vector<unsigned short>*);
 
 // Parallel image send/recv
 #ifdef HAVE_MPI

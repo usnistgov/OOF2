@@ -73,6 +73,7 @@ registeredclass.Registration(
     tip="Gray image data.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/graydata8.xml'))
 
+## TODO NUMPY: Rewrite _newImage and writeImage
 
 def _newImage(menuitem, name, microstructure, pixels):
     ms = ooflib.common.microstructure.microStructures[microstructure].getObject()

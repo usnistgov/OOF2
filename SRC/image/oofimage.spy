@@ -48,16 +48,27 @@ def readImage(filename, **kwargs):
     return image
 
 
+## TODO NUMPY: We could have separate classes of OOFImage depending on
+## the depth of the scikit-image image: gray, RGB, RGBA, all with a
+## template parameter for byte, int, and float data.
+
 import skimage.io
+import numpy
+
+def printnpcolor(npimage, i, j):
+    vals = npimage[i,j]
+    debug.fmsg(f"npimage[{i}, {j}] = {vals} {list(x/255 for x in vals)}")
+
 def readNumpyImage(filename, **kwargs):
+    npimage = skimage.io.imread(filename) # numpy.ndarray object
+    ## Convert to 8 bits per channnel.  TODO NUMPY: Do we need to do this?
+    npimage = skimage.util.img_as_ubyte(npimage)
+    npimage = numpy.flip(npimage, 0)      # flip along y axis
+    
     # Colons in image names are disallowed, because we use them as
     # separators in the labeltree.
-    npimage = skimage.io.imread(filename) # numpy.ndarray object
-    debug.fmsg("npimage.shape=", npimage.shape)
-    
     basename = os.path.basename(filename).replace(':','.')
-    
-    image = OOFImage(basename, filename, npimage)
+    image = OOFImage(basename, filename, npimage.copy(order='C'))
     # Set physical size of image
     pixelsize = image.sizeInPixels()    # iPoint
     given_height = 'height' in kwargs

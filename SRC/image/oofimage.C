@@ -26,6 +26,15 @@
 #include <set>
 #include <iostream>
 
+std::string numpy_typename(int which) {
+  switch(which) {
+  case NPY_UINT8:
+    return "uint8";
+  default:
+    return "not uint8";
+  };
+}
+
 OOFImage::OOFImage(const std::string &name, const std::string &filename)
   : name_(name)
 {
@@ -56,15 +65,33 @@ OOFImage::OOFImage(const std::string &name, const std::string &filename)
 OOFImage::OOFImage(const std::string &name, const std::string &filename,
 		   PyObject *py_npimage)
   : name_(name),
-    npobject(py_npimage)
+    npobject((PyArrayObject*)py_npimage)
 {
   Py_INCREF(npobject);
+  npdata = (unsigned char*) PyArray_BYTES(npobject);
   int ndim = PyArray_NDIM(npobject);
-  std::cerr << "OOFImage::ctor: ndim=" << ndim << std::endl;
   npy_intp *dims = PyArray_DIMS(npobject);
-  std::cerr << "OOFImage::ctor: dims=" << dims[0] << " " << dims[1]
-	    << std::endl;
+  // Is it possible for an image to have only gray and alpha channels?
+  // In which case we'd have ndim==3 and dims[2] == 2.
+  //              ndim    dim[2]
+  // gray         2       -
+  // gray+alpha   3       2
+  // rgb          3       3
+  // rgba         3       4
+  is_gray = ndim == 2;
+  has_alpha = (is_gray && dims[2] == 2) || (!is_gray && dims[2] == 4);
   
+  std::cerr << "OOFImage::ctor: ndim=" << ndim << std::endl;
+  std::cerr << "OOFImage::ctor: dims=" << dims[0] << " " << dims[1]
+	    << " type=" << numpy_typename(PyArray_TYPE(npobject))
+	    << " channels=" << (ndim==3?dims[2]:1)
+	    << " nd=" << npobject->nd
+	    << std::endl;
+  npy_intp *strides = PyArray_STRIDES(npobject);
+  std::cerr << "OOFImage::ctor: strides=" << strides[0] <<  " " << strides[1]
+	    << " " << strides[2]
+	    << std::endl;
+  // START IMAGEMAGICK
   try {
     image.read(filename);
   }
@@ -79,6 +106,8 @@ OOFImage::OOFImage(const std::string &name, const std::string &filename,
     throw;
   }
   image.flip();		// real coordinates don't start at the top
+  // END IMAGEMAGICK
+  
   setup();
   imageChanged();
 }
@@ -88,16 +117,16 @@ OOFImage::OOFImage(const std::string &name)
 {
 }
 
-// Constructor for making a new blank image the same size 
-// and size-in-pixels as an old one.  You can't just pass in 
-// the old image, because that fuction signature is already 
-// taken by the real copy constructor.
-OOFImage::OOFImage(const std::string &name, const Coord &size, 
-		   const Magick::Geometry &g) 
-  : name_(name), image(g, Magick::Color(0,0,0)), size_(size)
-{
-  setup();
-}
+// // Constructor for making a new blank image the same size 
+// // and size-in-pixels as an old one.  You can't just pass in 
+// // the old image, because that fuction signature is already 
+// // taken by the real copy constructor.
+// OOFImage::OOFImage(const std::string &name, const Coord &size, 
+// 		   const Magick::Geometry &g) 
+//   : name_(name), image(g, Magick::Color(0,0,0)), size_(size)
+// {
+//   setup();
+// }
 
 const Magick::PixelPacket *OOFImage::pixelPacket() const {
   return image.getConstPixels(0, 0, sizeInPixels_(0), sizeInPixels_(1));
@@ -121,13 +150,9 @@ OOFImage::OOFImage(const std::string &name, const ICoord &isize,
 
 
 void OOFImage::setup() {
-  try {
-    Magick::Geometry sighs = image.size();
-    sizeInPixels_ = ICoord(sighs.width(), sighs.height());
-  }
-  catch (Magick::Exception &e) {
-    throw ImageMagickError(e.what());
-  }
+  npy_intp *dims = PyArray_DIMS(npobject);
+  sizeInPixels_ = ICoord(dims[1], dims[0]);
+
   
   // Scale factor for converting ImageMagick rgb values to floats in
   // [0,1].  Using "Magick::QuantumRange" doesn't work (TODO: wtf?),
@@ -138,30 +163,11 @@ void OOFImage::setup() {
   // Quantum isn't defined outside of the Magick namespace.
   using namespace Magick;
   scale = 1./QuantumRange;
-//   #ifdef DEBUG
-//     {
-//       std::map<CColor, int> histogram;
-//       const Magick::PixelPacket *pixels = pixelPacket();
-//       for(int i=0; i<sizeInPixels_(0); i++)
-// 	for(int j=0; j<sizeInPixels_(1); j++) {
-// 	  ICoord pt(i,j);
-// 	  CColor color = getColor(pt, pixels);
-// 	  auto iter = histogram.find(color);
-// 	  if(iter == histogram.end())
-// 	    histogram[color] = 1;
-// 	  else
-// 	    iter->second += 1;
-// 	}
-//       for(auto iter=histogram.begin(); iter!=histogram.end(); ++iter) {
-// 	std::cerr << "OOFImage::ctor: " << iter->first << " " << iter->second
-// 		  << std::endl;
-//       }
-//     }
-// #endif // DEBUG
 }
 
 
 OOFImage::~OOFImage() {
+  Py_XDECREF(npobject);
 }
 
 // Tolerant comparison -- returns a boolean true if the other image
@@ -270,25 +276,22 @@ std::vector<unsigned short> *OOFImage::getPixels() {
 
 // Access to individual pixels.
 
-const CColor OOFImage::operator[](const ICoord &c) const {
-  try {
-    Magick::Pixels view(*const_cast<Magick::Image*>(&image));
-    const Magick::PixelPacket *pixels = view.getConst(c(0), c(1), 1, 1);
-    CColor color(pixels->red*scale, pixels->green*scale, pixels->blue*scale);
-    return color;
-
-    // It would be simpler to use Magick::Image::pixelColor, except
-    // that it doesn't work (July 2018).  It works on macOS when using
-    // quartz, but not x11.  It doesn't work on Linux.
-    
-    // Magick::Color color = image.pixelColor(c(0), c(1));
-    // return CColor(color.redQuantum()*scale,
-    // 		  color.greenQuantum()*scale,
-    // 		  color.blueQuantum()*scale);
+const CColor OOFImage::operator[](const ICoord &coord) const {
+  // TODO: This ignores the alpha channel. Is that correct?  Do
+  // micrographs ever have alpha channels?
+  int r = coord(1);		// row
+  int c = coord(0);		// column
+  if(is_gray) {
+    unsigned char *g = (unsigned char*) PyArray_GETPTR2(npimage, r, c);
+    double gr = *g/255.;
+    return CColor(gr, gr, gr);
   }
-  catch (Magick::Exception &e) {
-    throw ImageMagickError(e.what());
-  }
+  // Not gray
+  unsigned char *red = (unsigned char*) PyArray_GETPTR3(npobject, r, c, 0);
+  unsigned char *grn = (unsigned char*) PyArray_GETPTR3(npobject, r, c, 1);
+  unsigned char *blu = (unsigned char*) PyArray_GETPTR3(npobject, r, c, 2);
+  // TODO: compute grn and blu from red and strides.
+  return CColor(*red/255., *grn/255., *blu/255.);
 }
 
 // To get multiple pixel values, call this many times, passing in the

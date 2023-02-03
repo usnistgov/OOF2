@@ -25,6 +25,12 @@
 #include <string>
 #include <vector>
 
+// This value of NPY_NO_DEPRECATED_API suppresses *all* numpy
+// deprecation warnings, which is probably not a good idea.  Not
+// defining NPY_NO_DEPRECATED_API produces deprecation warnings, and
+// the suggestion to set NPY_NO_DEPRECATED_API to NPY_1_7_API_VERSION.
+// But with that setting PyArray_NDIM and PyArray_DIMS aren't defined.
+#define NPY_NO_DEPRECATED_API NPY_1_1_API_VERSION
 #include <numpy/arrayobject.h>
 
 // Make sure that omp.h is included before Magick++.h
@@ -49,16 +55,19 @@ class OOFImage : public AbstractImage {
 protected:
   std::string name_;
   Magick::Image image;
-  PyObject *npobject;
+  PyArrayObject *npobject;		// numpy python object
+  unsigned char *npdata;	// numpy array
   Coord size_; 
   ICoord sizeInPixels_;		// width, height.
   double scale;			// converts from int rgb to doubles in [0,1]
   void setup();
   TimeStamp timestamp;
   CMicrostructure *microstructure;
+  bool has_alpha;		// TODO NUMPY: keep this?
+  bool is_gray;			// TODO NUMPY: keep this?
 public:
   OOFImage(const std::string &nm);
-  OOFImage(const std::string &nm, const Coord &sz, const Magick::Geometry &g);
+  //OOFImage(const std::string &nm, const Coord &sz, const Magick::Geometry &g);
   OOFImage(const std::string &nm, const std::string &filename);
   OOFImage(const std::string &nm, const std::string &filename,
 	   PyObject *npimage);
@@ -67,11 +76,9 @@ public:
 	   const void*);
   virtual ~OOFImage();
   void save(const std::string &filename);
-  const Magick::Geometry geometry() const { return image.size(); }
-  Magick::Image magickImage() const { return image; }
   const std::string &name() const { return name_; }
   void rename(const std::string &nm) { name_ = nm; }
-  void setSize(const Coord*);
+  void setSize(const Coord*);	// Physical size, not pixel size!
 
   virtual const Coord &size() const { return size_; }
   virtual const ICoord &sizeInPixels() const { return sizeInPixels_; }
@@ -151,9 +158,10 @@ public:
   void evenly_illuminate(int windowsize);
 };
 
-OOFImage *newImageFromData(const std::string &name,
-			   const ICoord *isize,
-			   const std::vector<unsigned short> *data);
+// TODO NUMPY: resurrect this
+// OOFImage *newImageFromData(const std::string &name,
+// 			   const ICoord *isize,
+// 			   const std::vector<unsigned short> *data);
 
 // Parallel image send/recv
 #ifdef HAVE_MPI
