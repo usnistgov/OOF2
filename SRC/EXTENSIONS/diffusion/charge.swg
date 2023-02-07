@@ -18,12 +18,9 @@
 #include "EXTENSIONS/diffusion/charge.h"
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
 %import "engine/symmmatrix.swg"
-#endif // NOSECONDIMPORTS
 
 class IsoCurrent : public Property {
 public:

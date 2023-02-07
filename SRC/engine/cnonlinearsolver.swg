@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.engine") cnonlinearsolver
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/timestamp.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/cnonlinearsolver.h"

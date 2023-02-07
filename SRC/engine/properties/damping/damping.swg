@@ -18,11 +18,8 @@
 #include "engine/properties/damping/damping.h"
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
-#endif // NOSECONDIMPORTS
 
 class IsotropicDampingProp : public Property {
 public:

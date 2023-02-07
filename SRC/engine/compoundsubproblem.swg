@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.engine") compoundsubproblem
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/compoundsubproblem.h"

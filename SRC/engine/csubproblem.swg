@@ -24,8 +24,6 @@
 %feature("valuewrapper") NodeIterator;
 %feature("valuewrapper") FuncNodeIterator;
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/doublevec.swg"
 %import "common/lock.swg"
@@ -38,7 +36,6 @@
 %import "engine/material.swg"
 %import "engine/meshiterator.swg"
 %import "engine/node.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/doublevec.h"

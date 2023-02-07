@@ -14,12 +14,9 @@
 
 %module(package="ooflib.SWIG.engine") materialsubproblem
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
 %import "engine/material.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/material.h"

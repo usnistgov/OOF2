@@ -14,8 +14,6 @@
 
 %module(package="ooflib.SWIG.engine") material
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %include "common/canvasimage.swg"
 %import "common/abstractimage.swg"
@@ -23,7 +21,6 @@
 %import "common/pixelattribute.swg"
 %import "common/timestamp.swg"
 %import "engine/property.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/ccolor.h"

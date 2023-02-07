@@ -14,12 +14,9 @@
 
 %module(package="ooflib.SWIG.engine.IO") contour
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/masterelement.swg"
 %import "engine/mastercoord.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/IO/contour.h"

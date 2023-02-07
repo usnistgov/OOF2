@@ -22,15 +22,7 @@
 // Move all of the class-specific typemaps into the .swg files that
 // define the types.  The swig files that needs those typemaps will
 // also need the class definitions, so they can %import the files
-// containing the typemaps.  When %importing the files, prevent
-// chaining of %imports by using
-//   #ifndef NOSECONDIMPORTS
-//   #define NOSECONDIMPORTS
-//   %import ...
-//   #endif
-// That will prevent unrelated types from being defined in the
-// swig-generated C++ code, which requires unrelated C++ headers to be
-// loaded.
+// containing the typemaps. 
 
 // TODO PYTHON3: Swig's -builtin doesn't work because it's not
 // compatible with the %exception typemap.  If there's ever a fix for

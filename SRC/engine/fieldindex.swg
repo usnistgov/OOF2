@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.engine") fieldindex
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/planarity.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/fieldindex.h"

@@ -18,12 +18,9 @@
 #include "engine/properties/permittivity/permittivity.h"
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
 %import "engine/symmmatrix.swg"
-#endif // NOSECONDIMPORTS
 
 class IsoDielectricPermittivity : public Property {
 public:

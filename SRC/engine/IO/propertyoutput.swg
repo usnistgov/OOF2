@@ -14,13 +14,10 @@
 
 %module(package="ooflib.SWIG.engine.IO") propertyoutput
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/mastercoord.swg"
 %import "engine/property.swg"
 %import "engine/outputval.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/mastercoord.h"

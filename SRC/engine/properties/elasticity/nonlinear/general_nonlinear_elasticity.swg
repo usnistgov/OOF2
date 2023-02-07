@@ -18,11 +18,8 @@
 #include "engine/properties/elasticity/nonlinear/general_nonlinear_elasticity.h"
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
-#endif // NOSECONDIMPORTS
 
 %nodefaultctor GeneralNonlinearElasticityNoDeriv;
 

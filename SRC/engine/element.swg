@@ -24,8 +24,6 @@
 %feature("valuewrapper") ElementMapNodeIterator;
 %feature("valuewrapper") ElementCornerNodeIterator;
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/coord.swg"
 %import "engine/csubproblem.swg"
@@ -39,7 +37,6 @@
 %import "engine/material.swg"
 %import "engine/node.swg"
 %import "engine/outputval.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/element.h"

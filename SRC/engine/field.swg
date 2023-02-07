@@ -14,8 +14,6 @@
 
 %module(package="ooflib.SWIG.engine") field
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
 %import "engine/femesh.swg"
@@ -24,7 +22,6 @@
 %import "engine/outputval.swg"
 %import "engine/planarity.swg"
 %import "engine/pointdata.swg"
-#endif // NOSECONDIMPORTS
 
 PYTHONEXPORTABLE(FieldIndex);
 

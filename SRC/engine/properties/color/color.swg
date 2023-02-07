@@ -16,12 +16,9 @@
 #include "common/ccolor.h"
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/ccolor.swg"
 %import "engine/property.swg"
-#endif // NOSECONDIMPORTS
 
 class ColorProp : public Property {
 public:

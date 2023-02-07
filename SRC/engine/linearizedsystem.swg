@@ -14,12 +14,9 @@
 
 %module(package="ooflib.SWIG.engine") linearizedsystem
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/doublevec.swg"
 %import "engine/sparsemat.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/doublevec.h"

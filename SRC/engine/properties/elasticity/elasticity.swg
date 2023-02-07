@@ -15,12 +15,9 @@
 #include "engine/properties/elasticity/elasticity.h"
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
 %import "engine/properties/elasticity/cijkl.swg"
-#endif // NOSECONDIMPORTS
 
 %nodefaultctor Elasticity;
 

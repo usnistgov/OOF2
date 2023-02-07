@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.engine.properties.interfaces.surfacetest") surfacetest
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/properties/interfaces/surfacetest/surfacetest.h"

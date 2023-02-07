@@ -14,13 +14,10 @@
 
 %module(package="ooflib.SWIG.engine") corientation
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/fieldindex.swg"
 %import "engine/outputval.swg"
 %import "engine/IO/propertyoutput.swg"
-#endif // NOSECONDIMPORTS
 
 PYTHONEXPORTABLE(FieldIndex);
 

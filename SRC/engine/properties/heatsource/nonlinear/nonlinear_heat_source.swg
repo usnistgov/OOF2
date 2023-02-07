@@ -14,12 +14,9 @@
 
 %module(package="ooflib.SWIG.engine.properties.heatsource.nonlinear") nonlinear_heat_source
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
 %import "engine/symmmatrix.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/properties/heatsource/nonlinear/nonlinear_heat_source.h"

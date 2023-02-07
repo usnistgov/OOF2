@@ -14,13 +14,10 @@
 
 %module(package="ooflib.SWIG.engine") flux
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/fieldindex.swg"
 %import "engine/outputval.swg"
 %import "engine/planarity.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/flux.h"

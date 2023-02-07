@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.engine.properties.elasticity") cijkl
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/symmmatrix.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/properties/elasticity/cijkl.h"

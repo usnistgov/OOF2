@@ -14,12 +14,9 @@
 
 %module(package="ooflib.SWIG.engine.properties.heatconductivity") nonlinear_heat_conductivity
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
 %import "engine/symmmatrix.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/properties/heatconductivity/nonlinear/nonlinear_heat_conductivity.h"

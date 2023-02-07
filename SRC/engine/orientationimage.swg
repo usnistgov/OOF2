@@ -14,13 +14,10 @@
 
 %module(package="ooflib.SWIG.engine") orientationimage
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %include "common/canvasimage.swg"
 %import "common/abstractimage.swg"
 %import "engine/angle2color.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/ccolor.h"

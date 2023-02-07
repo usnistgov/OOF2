@@ -16,11 +16,8 @@
 
 %module(package="ooflib.SWIG.common") mpitools
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/ooferror.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/mpitools.h"

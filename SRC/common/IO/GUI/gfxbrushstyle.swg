@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.common.IO.GUI") gfxbrushstyle
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/brushstyle.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/IO/GUI/gfxbrushstyle.h"

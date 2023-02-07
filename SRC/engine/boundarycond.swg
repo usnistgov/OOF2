@@ -14,8 +14,6 @@
 
 %module(package="ooflib.SWIG.engine") boundarycond
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
 %import "engine/edgeset.swg"
@@ -23,7 +21,6 @@
 %import "engine/flux.swg"
 %import "engine/linearizedsystem.swg"
 %import "engine/node.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/coord.h"

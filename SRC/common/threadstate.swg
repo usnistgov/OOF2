@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.common") threadstate
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/progress.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/threadstate.h"

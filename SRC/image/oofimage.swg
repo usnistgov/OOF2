@@ -14,8 +14,6 @@
 
 %module(package="ooflib.SWIG.image") oofimage
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %include "common/canvasimage.swg"
 %include "common/ooferrorwrappers.swg"
@@ -26,7 +24,6 @@
 %import "common/doublearray.swg"
 %import "common/ooferror.swg"
 %import "common/timestamp.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "oofcanvas/canvasimage.h"

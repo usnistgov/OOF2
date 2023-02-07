@@ -15,13 +15,10 @@
 
 %module(package="ooflib.SWIG.engine.properties.piezoelectricity") piezoelectricity
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
 %import "engine/symmmatrix.swg"
 %import "engine/rank3tensor.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/properties/piezoelectricity/piezoelectricity.h"
