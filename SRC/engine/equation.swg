@@ -14,15 +14,12 @@
 
 %module(package="ooflib.SWIG.engine") equation
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
 %import "engine/fieldindex.swg"
 %import "engine/flux.swg"
 %import "engine/nodalequation.swg"
 %import "engine/planarity.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/equation.h"

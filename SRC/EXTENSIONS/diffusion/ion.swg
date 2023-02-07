@@ -15,12 +15,9 @@
 #include "EXTENSIONS/diffusion/ion.h"
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
 %import "engine/symmmatrix.swg"
-#endif // NOSECONDIMPORTS
    
 class IonDiffusion : public Property {
 public:

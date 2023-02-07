@@ -14,13 +14,10 @@
 
 %module(package="ooflib.SWIG.image") pixeldifferentiator
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/burn.swg"
 %import "common/statgroups.swg"
 %import "image/oofimage.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/cmicrostructure.h"

@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.engine.properties.forcedensity.nonlinear") nonlinear_force_density
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/properties/forcedensity/nonlinear/nonlinear_force_density.h"

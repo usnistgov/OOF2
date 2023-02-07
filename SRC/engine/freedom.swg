@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.engine") freedom
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/femesh.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/freedom.h"

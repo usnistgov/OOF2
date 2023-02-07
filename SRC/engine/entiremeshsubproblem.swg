@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.engine") entiremeshsubproblem
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/entiremeshsubproblem.h"

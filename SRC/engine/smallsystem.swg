@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.engine") smallsystem
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/fieldindex.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/smallsystem.h"

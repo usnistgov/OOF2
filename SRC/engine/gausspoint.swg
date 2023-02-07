@@ -18,12 +18,9 @@
 #include "engine/gausspoint.h"
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/coord.swg"
 %import "engine/mastercoord.swg"
-#endif // NOSECONDIMPORTS
 
 %nodefaultctor GaussPoint;
 

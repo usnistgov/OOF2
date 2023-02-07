@@ -14,8 +14,6 @@
 
 %module(package="ooflib.SWIG.engine") edge
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/coord.swg"
 %import "engine/field.swg"
@@ -23,7 +21,6 @@
 %import "engine/element.swg"
 %import "engine/mastercoord.swg"
 %import "engine/outputval.swg"
-#endif // NOSECONDIMPORTS
 
 MAKE_LISTVEC_TYPEMAPS(Coord);
 

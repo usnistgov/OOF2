@@ -18,12 +18,9 @@
 #include "engine/properties/thermalexpansion/thermalexpansion.h"
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
 %import "engine/symmmatrix.swg"
-#endif // NOSECONDIMPORTS
 
 class IsotropicThermalExpansion : public Property {
 public:

@@ -14,14 +14,11 @@
 
 %module(package="ooflib.SWIG.engine") cskeleton
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/cmicrostructure.swg"
 %import "common/coord.swg"
 %import "common/timestamp.swg"
 %import "engine/mastercoord.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include <oofconfig.h>

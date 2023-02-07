@@ -14,14 +14,11 @@
 
 %module(package="ooflib.SWIG.image") pixelselectioncourieri
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/burn.swg"
 %import "common/ccolor.swg"
 %import "common/colordifference.swg"
 %import "common/pixelselectioncourier.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "image/pixelselectioncourieri.h"

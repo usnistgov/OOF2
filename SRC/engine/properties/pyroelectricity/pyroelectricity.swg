@@ -18,11 +18,8 @@
 #include "engine/properties/pyroelectricity/pyroelectricity.h"
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
-#endif // NOSECONDIMPORTS
 
  // Typemap to convert the enum value provided by the registered class
  // into a string, which is what the C property is expecting.  This

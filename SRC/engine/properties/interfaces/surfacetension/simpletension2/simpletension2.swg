@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.engine.properties.interfaces.surfacetension.simpletension2") simpletension2
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/properties/interfaces/surfacetension/simpletension2/simpletension2.h"

@@ -14,12 +14,9 @@
 
 %module(package="ooflib.SWIG.orientationmap") pixelselectioncouriero
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/pixelselectioncourier.swg"
 %import "engine/corientation.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/corientation.h"

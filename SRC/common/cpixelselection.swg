@@ -18,14 +18,11 @@
 #include "common/cpixelselection.h"
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/timestamp.swg"
 %import "common/pixelgroup.swg"
 %import "common/IO/bitoverlay.swg"
 %import "common/coord.swg"
-#endif // NOSECONDIMPORTS
 
 class CPixelSelection {
 public:

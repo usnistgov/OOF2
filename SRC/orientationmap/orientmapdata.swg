@@ -14,8 +14,6 @@
 
 %module(package="ooflib.SWIG.orientationmap") orientmapdata
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %include "common/canvasimage.swg"
 %import "common/abstractimage.swg"
@@ -23,7 +21,6 @@
 %import "engine/angle2color.swg"
 %import "engine/corientation.swg"
 %import "image/oofimage.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "orientationmap/orientmapdata.h"

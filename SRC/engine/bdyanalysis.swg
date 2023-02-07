@@ -14,15 +14,12 @@
 
 %module(package="ooflib.SWIG.engine") bdyanalysis
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/outputval.swg"
 %import "engine/flux.swg"
 %import "engine/field.swg"
 %import "engine/edgeset.swg"
 %import "engine/femesh.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include <oofconfig.h>

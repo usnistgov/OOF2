@@ -14,12 +14,9 @@
 
 %module(package="ooflib.SWIG.engine") meshiterator
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/element.swg"
 %import "engine/node.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/element.h"

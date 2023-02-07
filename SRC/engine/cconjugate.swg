@@ -16,13 +16,10 @@
 
 %module(package="ooflib.SWIG.engine") cconjugate
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/equation.swg"
 %import "engine/field.swg"
 %import "engine/fieldindex.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/cconjugate.h"

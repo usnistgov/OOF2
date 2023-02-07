@@ -14,13 +14,10 @@
 
 %module(package="ooflib.SWIG.engine.properties.elasticity.thermo") thermo
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
 %import "engine/properties/elasticity/cijkl.swg"
 %import "engine/properties/elasticity/elasticity.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/properties/elasticity/thermo/thermo.h"

@@ -14,13 +14,10 @@
 
 %module(package="ooflib.SWIG.engine.properties.elasticity.iso") iso
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
 %import "engine/properties/elasticity/elasticity.swg"
 %import "engine/properties/elasticity/cijkl.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/properties/elasticity/iso/iso.h"
