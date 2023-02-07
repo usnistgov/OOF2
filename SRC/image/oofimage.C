@@ -36,7 +36,8 @@ std::string numpy_typename(int which) {
 }
 
 OOFImage::OOFImage(const std::string &name, const std::string &filename)
-  : name_(name)
+  : name_(name),
+    npobject(nullptr)
 {
   // Older versions of ImageMagick required the creation of an empty
   // Image [image = Magick::Image()] followed by an explicit
@@ -68,7 +69,6 @@ OOFImage::OOFImage(const std::string &name, const std::string &filename,
     npobject((PyArrayObject*)py_npimage)
 {
   Py_INCREF(npobject);
-  npdata = (unsigned char*) PyArray_BYTES(npobject);
   int ndim = PyArray_NDIM(npobject);
   npy_intp *dims = PyArray_DIMS(npobject);
   // Is it possible for an image to have only gray and alpha channels?
@@ -113,7 +113,8 @@ OOFImage::OOFImage(const std::string &name, const std::string &filename,
 }
 
 OOFImage::OOFImage(const std::string &name)
-  : name_(name)
+  : name_(name),
+    npobject(nullptr)
 {
 }
 
@@ -143,6 +144,7 @@ OOFImage::OOFImage(const std::string &name, const ICoord &isize,
 		   const Magick::StorageType storage,
 		   const void *data) 
   : name_(name),
+    npobject(nullptr),
     image(isize(0), isize(1), map, storage, data)
 {
   setup();
@@ -161,13 +163,14 @@ void OOFImage::setup() {
   // TODO: Report ImageMagick bug.  QuantumRange is a macro defined as
   // ((Quantum) 65535) in ImageMagick-6/magick/magick-type.h, but
   // Quantum isn't defined outside of the Magick namespace.
-  using namespace Magick;
-  scale = 1./QuantumRange;
+  // using namespace Magick;
+  // scale = 1./QuantumRange;
 }
 
 
 OOFImage::~OOFImage() {
-  Py_XDECREF(npobject);
+  if(npobject)
+    Py_XDECREF(npobject);
 }
 
 // Tolerant comparison -- returns a boolean true if the other image
@@ -282,7 +285,7 @@ const CColor OOFImage::operator[](const ICoord &coord) const {
   int r = coord(1);		// row
   int c = coord(0);		// column
   if(is_gray) {
-    unsigned char *g = (unsigned char*) PyArray_GETPTR2(npimage, r, c);
+    unsigned char *g = (unsigned char*) PyArray_GETPTR2(npobject, r, c);
     double gr = *g/255.;
     return CColor(gr, gr, gr);
   }
