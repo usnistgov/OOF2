@@ -37,8 +37,17 @@
 %}
 
 %typemap(in) PyObject *VERBATIM {
+  // typemap(in) PyObject *VERBATIM
   $1 = $input;
  }
+
+%typemap(out) PyObject* {
+  // typemap(out) PyObject*
+  if($1 == nullptr)
+    $result = Py_None;
+  else
+    $result = $1;
+}
 
 class OOFImage : public AbstractImage {
 public:
@@ -58,6 +67,8 @@ public:
   bool pixelInBounds(ICoord *iPoint);
   %newobject clone;
   OOFImage *clone(char *name);
+
+  PyObject *npImage();
 
   void setMicrostructure(CMicrostructure*);
   CMicrostructure *getCMicrostructure();

@@ -33,6 +33,7 @@ from ooflib.image import imagemodifier
 import ooflib.common.microstructure
 
 import os.path
+import skimage.io
 
 imagemenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'Image',
@@ -154,12 +155,12 @@ switchboard.requestCallback(('remove who', 'Microstructure'), _sensitize)
 
 ##################################
 
-# Use ImageMagick to save an image file.
+# Use scikit-image to save an image file.
 
 def saveImage(menuitem, image, filename, overwrite):
-    immidge = oofimage.getImage(image)
-    if immidge and (overwrite or not os.path.exists(filename)):
-        immidge.save(filename)
+    immidge = oofimage.getImage(image).npImage()
+    if immidge is not None and (overwrite or not os.path.exists(filename)):
+        skimage.io.imsave(filename, immidge, check_contrast=False)
     else:
         reporter.warn("Image was not saved!")
     

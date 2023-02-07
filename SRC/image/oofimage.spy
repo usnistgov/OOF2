@@ -63,12 +63,19 @@ def readNumpyImage(filename, **kwargs):
     npimage = skimage.io.imread(filename) # numpy.ndarray object
     ## Convert to 8 bits per channnel.  TODO NUMPY: Do we need to do this?
     npimage = skimage.util.img_as_ubyte(npimage)
-    npimage = numpy.flip(npimage, 0)      # flip along y axis
+    # Flip along the y axis (so that y coord increases upwards)
+    npimage = numpy.flip(npimage, 0).copy()
+    # Make a copy so that the flipped data is actually stored in the
+    # numpy array.
+    npimage = npimage.copy()
+
+    ## TODO: Store npimage somewhere in python, not just C++, so that
+    ## we can call skimage routines directly on it.
     
     # Colons in image names are disallowed, because we use them as
     # separators in the labeltree.
     basename = os.path.basename(filename).replace(':','.')
-    image = OOFImage(basename, filename, npimage.copy(order='C'))
+    image = OOFImage(basename, filename, npimage)
     # Set physical size of image
     pixelsize = image.sizeInPixels()    # iPoint
     given_height = 'height' in kwargs

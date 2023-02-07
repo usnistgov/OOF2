@@ -56,7 +56,6 @@ protected:
   std::string name_;
   Magick::Image image;
   PyArrayObject *npobject;		// numpy python object
-  unsigned char *npdata;	// numpy array
   Coord size_; 
   ICoord sizeInPixels_;		// width, height.
   double scale;			// converts from int rgb to doubles in [0,1]
@@ -79,6 +78,8 @@ public:
   const std::string &name() const { return name_; }
   void rename(const std::string &nm) { name_ = nm; }
   void setSize(const Coord*);	// Physical size, not pixel size!
+
+  PyObject *npImage() { return (PyObject*) npobject; }
 
   virtual const Coord &size() const { return size_; }
   virtual const ICoord &sizeInPixels() const { return sizeInPixels_; }

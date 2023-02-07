@@ -36,6 +36,9 @@ class ImageContext(whoville.WhoDoUndo):
     def size(self):
         return self.getObject().size()
 
+    def npImage(self):
+        return self.getObject().npImage()
+
 ## The imageContexts is a WhoDoUndoClass that hosts
 ## a set of instances of the ImageContext class, which
 ## which are subclasses of the WhoDoUndo class.
