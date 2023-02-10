@@ -19,7 +19,7 @@
 
 %{
 #include "engine/compoundsubproblem.h"
-  //#include "engine/flux.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 class CIntersectionSubProblem: public CSubProblem {

@@ -23,13 +23,14 @@
 %import "engine/planarity.swg"
 %import "engine/pointdata.swg"
 
-PYTHONEXPORTABLE(FieldIndex);
-
 %{
 #include "common/coord.h"
 #include "engine/field.h"
 #include "engine/outputval.h"
 #include "engine/pointdata.h"
+  #include "engine/flux.h"	// SWIGBUG
+  #include "engine/node.h"	// SWIGBUG
+  #include "engine/property.h"	// SWIGBUG?
 int countFields();
 typedef std::vector<CompoundField*> CompoundFieldVec;
 typedef FieldIndex NewFieldIndex;
@@ -179,12 +180,6 @@ public:
   ThreeVectorField(char *name);
   const std::string &classname();
 };
-
-// class VectorFieldBase : public Field {
-// public:
-//   VectorFieldBase(char *name, int d);
-//   const std::string &classname();
-// };
 
 class SymmetricTensorField : public Field {
 public:

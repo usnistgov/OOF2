@@ -22,13 +22,13 @@
 %import "engine/mastercoord.swg"
 %import "engine/outputval.swg"
 
-MAKE_LISTVEC_TYPEMAPS(Coord);
-
 %{
 #include "engine/edge.h"
 #include "engine/outputval.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
+MAKE_LISTVEC_TYPEMAPS(Coord);
 
 class Edge {
 public:

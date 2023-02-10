@@ -22,6 +22,7 @@
 #include "engine/element.h"
 #include "engine/meshiterator.h"
 #include "engine/node.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 // Constructors for these classes aren't swigged because the objects

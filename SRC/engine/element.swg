@@ -45,10 +45,12 @@
 #include "engine/material.h"
 #include "engine/outputval.h"
 #include "engine/mastercoord.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
-MAKE_LISTVEC_TYPEMAPS(MasterCoord);
 PYTHONEXPORTABLE(ElementData);
+MAKE_LISTVEC_TYPEMAPS(Edge);
+MAKE_LISTVEC_TYPEMAPS(MasterCoord);
 
 class Material;
 class ElementNodeIterator;
@@ -64,13 +66,6 @@ class ElementData {
 public:
   const std::string &name();
 };
-
-MAKE_LISTVEC_TYPEMAPS(GaussPoint);
-MAKE_LISTVEC_TYPEMAPS(Edge);
-
-%typemap(newfree) GaussPointVec* {
-  delete $1;
- }
 
 %nodefaultctor Element;
 

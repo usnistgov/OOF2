@@ -36,6 +36,7 @@
 #include "engine/meshiterator.h"
 #include "engine/nodalequation.h"
 #include "engine/node.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 class FEMesh {

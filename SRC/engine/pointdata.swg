@@ -19,6 +19,8 @@
 
 %{
 #include "engine/pointdata.h"
+  #include "engine/flux.h"	// SWIGBUG
+  #include "engine/node.h"	// SWIGBUG
 %}
 
 %nodefaultctor PointData;

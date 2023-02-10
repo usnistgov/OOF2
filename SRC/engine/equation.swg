@@ -25,32 +25,14 @@
 #include "engine/equation.h"
 #include "engine/fieldindex.h"
 #include "engine/flux.h"
+#include "engine/node.h"
 #include <vector>
 typedef std::vector<Equation*> EquationVec;
 typedef FieldIndex NewFieldIndex;
 %}
 
 PYTHONEXPORTABLE(Equation);
-PYTHONEXPORTABLE(FieldIndex);
-
-// %typemap(out) EquationVec * {
-//   // typemap(out) EquationVec*
-//   EquationVec::size_type sz = $1->size();
-//   // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
-//   $result = PyList_New((Py_ssize_t) sz);
-//   for(std::vector<Equation*>::size_type i=0; i<sz; i++) {
-//     // pythonObject() returns a new reference and PyList_SET_ITEM steals it.
-//     PyObject *eqn = (*$1)[i]->pythonObject();
-//     if(!eqn)
-//       SWIG_fail;
-//     PyList_SET_ITEM($result, (Py_ssize_t) i, eqn);
-//   }
-// }
-
-// %typemap(newfree) EquationVec * {
-//   // typemap(newfree) EquationVec*
-//   delete $1;
-// }
+MAKE_LISTVEC_TYPEMAPS(Equation);
 
 %nodefaultctor Equation;
 %rename(c_components) Equation::components;
