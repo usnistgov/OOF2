@@ -56,7 +56,7 @@ set(OOFCANVAS_MIN_VERSION 1.1.0)
 set(MAGICK_MIN_VERSION 6.0.0)
 set(MAGICK_MAX_VERSION 7.0.0)
 set(GTK3_MIN_VERSION 3.22)
-set(NUMPY_MIN_VERSION 1.24.0) # TODO: probably can be less than this
+set(NUMPY_MIN_VERSION 1.21) # TODO: probably can be less than this
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
