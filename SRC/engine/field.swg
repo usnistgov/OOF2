@@ -28,6 +28,13 @@
 #include "engine/field.h"
 #include "engine/outputval.h"
 #include "engine/pointdata.h"
+
+  // TODO SWIGBUG: Include statements labelled SWIGBUG in swig files
+  // are workarounds for the bug I reported at
+  // https://github.com/swig/swig/issues/2500, which causes swig to
+  // add spurious type conversion routines in its C++ files.  Those
+  // files then won't compile unless the headers for those types are
+  // included.  After the bug is fixed those lines can be removed.
   #include "engine/flux.h"	// SWIGBUG
   #include "engine/node.h"	// SWIGBUG
   #include "engine/property.h"	// SWIGBUG?
