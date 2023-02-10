@@ -19,6 +19,7 @@
 
 %{
 #include "engine/entiremeshsubproblem.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 class CEntireMeshSubProblem : public CSubProblem {

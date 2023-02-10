@@ -12,13 +12,10 @@
 #ifndef OUTPUTVAL_SWG
 #define OUTPUTVAL_SWG
 
-
 %module(package="ooflib.SWIG.engine") outputval
 
 %include "common/typemaps.swg"
 %import "engine/fieldindex.swg"
-
-PYTHONEXPORTABLE(FieldIndex);
 
 %{
 #include "engine/outputval.h"
@@ -191,9 +188,7 @@ public:
 };
 
 %nodefaultctor ListOutputValIndex;
-
 class ListOutputValIndex : public FieldIndex {
-
 };
 
 %extend ListOutputVal {

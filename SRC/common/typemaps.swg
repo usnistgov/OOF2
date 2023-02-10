@@ -661,6 +661,11 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 // CoordRefVec if TYPE is Coord) as a return type if you don't want
 // ownership of the objects to be transferred to Python.
 
+// Because MAKE_LISTVEC_TYPEMAPS adds typedefs to C++ code, it should
+// be invoked in the swig file in which the typemap is used, not where
+// the TYPE is defined (if it's a different file).  The file where the
+// TYPE is defined should be %imported into the file where it's used,
+// and the %import will ignore the C++ code containing the typedefs.
 
 %define MAKE_LISTVEC_TYPEMAPS(TYPE)
 
@@ -969,6 +974,7 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 // comment in threadstate.C about threading_enabled.
 
 %exception {
+  // %exception typemap
   try {
     installSignals;
     Python_Thread_Allow allow_threads(true);

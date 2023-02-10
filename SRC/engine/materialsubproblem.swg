@@ -21,6 +21,7 @@
 %{
 #include "engine/material.h"
 #include "engine/materialsubproblem.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 class CMaterialSubProblem : public CSubProblem {

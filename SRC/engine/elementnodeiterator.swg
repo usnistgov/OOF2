@@ -16,6 +16,7 @@
 
 %{
 #include "engine/elementnodeiterator.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 %include "common/typemaps.swg"

@@ -21,6 +21,7 @@
 
 %{
 #include "engine/node.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 PYTHONEXPORTABLE(Node);

@@ -9,8 +9,6 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef CCONJUGATE_SWG
 #define CCONJUGATE_SWG
 
@@ -22,10 +20,17 @@
 %import "engine/fieldindex.swg"
 
 %{
+#include <oofconfig.h>  
 #include "engine/cconjugate.h"
 #include "engine/equation.h"
 #include "engine/field.h"
+#include "engine/fieldindex.h"
+  #include "engine/outputval.h"	// SWIGBUG
+  #include "engine/flux.h"	// SWIGBUG
+  #include "engine/node.h"	// SWIGBUG
 %}
+
+MAKE_LISTVEC_TYPEMAPS(CConjugatePair);
 
 class CConjugatePair {
 public:

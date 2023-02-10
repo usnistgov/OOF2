@@ -25,6 +25,7 @@
 %}
 
 PYTHONEXPORTABLE(Flux);
+MAKE_LISTVEC_TYPEMAPS(Flux);
 
 %nodefaultctor Flux;
 %rename(c_components) Flux::components;

@@ -19,8 +19,6 @@
 %import "engine/outputval.swg"
 %import "engine/IO/propertyoutput.swg"
 
-PYTHONEXPORTABLE(FieldIndex);
-
 %{
 #include "engine/corientation.h"
 #include "common/tostring.h"

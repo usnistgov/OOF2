@@ -21,6 +21,7 @@
 
 %{
 #include "engine/edgeset.h"
+  #include "engine/flux.h"	// SWIGBUG
 typedef std::vector<const EdgeNodeDistance*> vecdist;
 %}
 

@@ -9,8 +9,8 @@
  * oof_manager@nist.gov.
  */
 
-#ifndef SUBPROBLEM_SWG
-#define SUBPROBLEM_SWG
+#ifndef CSUBPROBLEM_SWG
+#define CSUBPROBLEM_SWG
 
 %module(package="ooflib.SWIG.engine") csubproblem
 
@@ -49,10 +49,9 @@
 #include <vector>
 %}
 
-// Don't use MAKE_LISTVEC_TYPEMAPS for Field or CompoundField
-MAKE_LISTVEC_TYPEMAPS(CConjugatePair);
 MAKE_LISTVEC_TYPEMAPS(Equation);
 MAKE_LISTVEC_TYPEMAPS(Flux);
+MAKE_LISTVEC_TYPEMAPS(CConjugatePair);
 
 %nodefaultctor CSubProblem; // only derived classes can be constructed
 
@@ -162,4 +161,4 @@ long get_globalCSubProblemCount();
 
 %pythoncode "engine/csubproblem.spy"
 
-#endif // SUBPROBLEM_SWG
+#endif // CSUBPROBLEM_SWG

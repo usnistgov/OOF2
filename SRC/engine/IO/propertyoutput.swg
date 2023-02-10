@@ -24,48 +24,6 @@
 #include "engine/IO/propertyoutput.h"
 %}
 
-// %typemap(out) PropertyOutput* {
-//   // typemap(out) PropertyOutput*
-//   $result = $1->pythonObject();
-// }
-
-// %typemap(out) PropertyOutputInit* {
-//   // typemap(out) PropertyOutputInit*
-//   $result = $1->pythonObject();
-// }
-
-// %define PYTHONEXPORTABLEtest(CLASS)
-// %typemap(out) CLASS* {
-//   // typemap(out) CLASS* (via PYTHONEXPORTABLE)
-//   if($1) {
-//     $result = $1->pythonObject(false);
-//     if(!$result)
-//       SWIG_fail;
-//   }
-//   else {
-//     Py_INCREF(Py_None);
-//     $result = Py_None;
-//   }
-//  }
-// %typemap(out) New##CLASS* {
-//   // typemap(out) NEW##CLASS* (via PYTHONEXPORTABLE)
-//   if($1) {
-//     $result = $1->pythonObject(true);
-//     if(!$result)
-//       SWIG_fail;
-//   }
-//   else {
-//     Py_INCREF(Py_None);
-//     $result = Py_None;
-//   }
-//  }
-// // %typemap(newfree) CLASS* {
-// //   // typemap(newfree) CLASS* (via PYTHONEXPORTABLE)
-// //   delete $1;
-// //  }
-// %enddef
-
-
 PYTHONEXPORTABLE(PropertyOutput);
 PYTHONEXPORTABLE(PropertyOutputInit);
 MAKE_LISTVEC_TYPEMAPS(MasterCoord);
