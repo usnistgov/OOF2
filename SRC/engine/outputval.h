@@ -232,7 +232,7 @@ class ListOutputVal;
 // TODO PYTHON3: OutputVal should use some other kind of Index, and
 // FieldIndex should be derived from that.
 
-class ListOutputValIndex : virtual public FieldIndex {
+class ListOutputValIndex : public FieldIndex {
 protected:
   int index_;
   const ListOutputVal *ov_;
