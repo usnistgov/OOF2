@@ -9,8 +9,6 @@
 # oof_manager@nist.gov.
 
 from ooflib.common import debug
-# from ooflib.SWIG.engine import node
-from ooflib.SWIG.engine.node import FuncNode
 from ooflib.engine.profile import Location
 
 def _EdgeSet___repr__(self):
