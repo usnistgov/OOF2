@@ -12,7 +12,6 @@ from ooflib.SWIG.engine import boundarycond
 from ooflib.SWIG.engine import material
 from ooflib.SWIG.engine import ooferror
 from ooflib.SWIG.engine import planarity
-from ooflib.SWIG.engine.node import FuncNode
 from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO import reporter
