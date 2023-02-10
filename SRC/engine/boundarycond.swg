@@ -18,6 +18,7 @@
 %import "engine/csubproblem.swg"
 %import "engine/edgeset.swg"
 %import "engine/equation.swg"
+%import "engine/field.swg"
 %import "engine/flux.swg"
 %import "engine/linearizedsystem.swg"
 %import "engine/node.swg"
@@ -27,7 +28,9 @@
 #include "common/tostring.h"
 #include "engine/boundarycond.h"
 #include "engine/equation.h"
+#include "engine/field.h"
 #include "engine/flux.h"
+#include "engine/node.h"
 %}
 
 class FloatBCApp {
