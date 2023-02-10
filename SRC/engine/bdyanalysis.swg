@@ -22,7 +22,6 @@
 %import "engine/femesh.swg"
 
 %{
-#include <oofconfig.h>
 #include "engine/bdyanalysis.h"
 #include "engine/edgeset.h"
 #include "engine/field.h"

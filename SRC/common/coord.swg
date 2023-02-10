@@ -16,7 +16,6 @@
 
 %include "common/typemaps.swg"
 %{
-#include <oofconfig.h>
 #include "common/coord.h"
 %}
 
