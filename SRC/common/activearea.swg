@@ -20,10 +20,6 @@
 %import "common/pixelattribute.swg"
 
 %{
-  // TODO PYTHON3: It's not necessary to include oofconfig.h, since
-  // typemaps.swg includes it.  Delete it here and in all other swig
-  // files (except typemaps.swg).
-#include <oofconfig.h>
 #include "common/activearea.h"
 #include "common/ooferror.h"
 %}

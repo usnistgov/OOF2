@@ -20,7 +20,6 @@
 %import "engine/fieldindex.swg"
 
 %{
-#include <oofconfig.h>  
 #include "engine/cconjugate.h"
 #include "engine/equation.h"
 #include "engine/field.h"

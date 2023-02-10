@@ -15,7 +15,6 @@
 %module(package="ooflib.SWIG.common") cmicrostructure
 
 %{
-#include <oofconfig.h>
 #include "common/cmicrostructure.h"
 #include "common/array.h"
 typedef Array<int> ArrayInt;

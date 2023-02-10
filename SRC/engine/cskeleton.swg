@@ -21,7 +21,6 @@
 %import "engine/mastercoord.swg"
 
 %{
-#include <oofconfig.h>
 #include "engine/cskeleton.h"
 #include "engine/mastercoord.h"
 %}
