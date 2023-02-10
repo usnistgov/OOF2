@@ -61,10 +61,11 @@ def printnpcolor(npimage, i, j):
 
 def readNumpyImage(filename, **kwargs):
     npimage = skimage.io.imread(filename) # numpy.ndarray object
-    ## Convert to 8 bits per channnel.  TODO NUMPY: Do we need to do this?
+    ## Convert to 8 bits per channel.  TODO NUMPY: Do we need to do this?
+    ## TODO NUMPY: Convert to doubles via img_as_float64
     npimage = skimage.util.img_as_ubyte(npimage)
     # Flip along the y axis (so that y coord increases upwards)
-    npimage = numpy.flip(npimage, 0).copy()
+    npimage = numpy.flip(npimage, 0)
     # Make a copy so that the flipped data is actually stored in the
     # numpy array.
     npimage = npimage.copy()

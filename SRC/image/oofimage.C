@@ -78,7 +78,7 @@ OOFImage::OOFImage(const std::string &name, const std::string &filename,
   // gray+alpha   3       2
   // rgb          3       3
   // rgba         3       4
-  is_gray = ndim == 2;
+  is_gray = ndim == 2 || (ndim==3 && dims[2] == 2);
   has_alpha = (is_gray && dims[2] == 2) || (!is_gray && dims[2] == 4);
   
   std::cerr << "OOFImage::ctor: ndim=" << ndim << std::endl;
