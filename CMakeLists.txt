@@ -231,6 +231,12 @@ endif()
 if(${SWIG_USE_BUILTIN})		# wishful thinking
   list(APPEND CMAKE_SWIG_FLAGS -builtin)
 endif()
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+  list(APPEND CMAKE_SWIG_FLAGS "-DDEBUG")
+endif("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+if(${USE_SKIMAGE})
+  list(APPEND CMAKE_SWIG_FLAGS "-DUSE_SKIMAGE")
+endif(${USE_SKIMAGE})
 
 # Use pkg-config to get info about dependencies
 include(FindPkgConfig)
@@ -266,6 +272,8 @@ endif(${USE_SKIMAGE})
 pkg_check_modules(
   OOFCANVAS REQUIRED
   oofcanvas>=${OOFCANVAS_MIN_VERSION})
+# TODO PYTHON3: Check that oofcanvas was built with the same version
+# of Python as oof2.
 list(APPEND CMAKE_INSTALL_RPATH ${OOFCANVAS_LIBDIR})
 
 ## Dump all variables
