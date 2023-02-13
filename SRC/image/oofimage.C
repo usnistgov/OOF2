@@ -70,10 +70,9 @@ OOFImage::OOFImage(const std::string &name, const std::string &filename)
 #ifdef USE_SKIMAGE
 OOFImage::OOFImage(const std::string &name, const std::string &filename,
 		   PyObject *py_npimage)
-  : name_(name),
-    npobject((PyArrayObject*)py_npimage)
+  : name_(name)
 {
-  Py_INCREF(npobject);
+  setNpImage(py_npimage);
   int ndim = PyArray_NDIM(npobject);
   npy_intp *dims = PyArray_DIMS(npobject);
   // Is it possible for an image to have only gray and alpha channels?
@@ -115,6 +114,11 @@ OOFImage::OOFImage(const std::string &name, const std::string &filename,
   
   setup();
   imageChanged();
+}
+
+void OOFImage::setNpImage(PyObject *py_npimage) {
+  npobject = (PyArrayObject*) py_npimage;
+  Py_INCREF(npobject);
 }
 #endif // USE_SKIMAGE
 
@@ -243,8 +247,19 @@ bool OOFImage::pixelInBounds(const ICoord *pxl) const {
   return true;
 }
 
-OOFImage *OOFImage::clone(const std::string &nm) const {
+OOFImage *OOFImage::clone(const std::string &nm
+#ifdef USE_SKIMAGE
+			  , PyObject *npobject
+#endif // USE_SKIMAGE
+			  )
+  const
+{
+  // Clone should be called after copying the numpy image data in
+  // python, where it's easier to do.
   OOFImage *copy = new OOFImage(nm);
+#ifdef USE_SKIMAGE
+  copy->setNpImage(npobject);
+#endif // USE_SKIMAGE
   try {
     copy->image = Magick::Image(image); // Magick::Image copy constructor
   }

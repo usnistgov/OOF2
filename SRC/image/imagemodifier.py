@@ -43,7 +43,10 @@ def doImageMod(menuitem, image, **params):
     imagectxt.reserve()
     try:
         immidge = imagectxt.getObject()  # OOFImage object
-        newimmidge = immidge.clone(immidge.name())
+        if config.use_skimage():
+            newimmidge = immidge.clone(immidge.name(), immidge.npImage().copy())
+        else:
+            newimmidge = immidge.clone(immidge.name())
         registration = menuitem.data
         imageModifier = registration(**params) # create ImageModifier obj
         imagectxt.begin_writing()

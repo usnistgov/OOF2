@@ -89,6 +89,7 @@ public:
 
 #ifdef USE_SKIMAGE
   PyObject *npImage() { return (PyObject*) npobject; }
+  void setNpImage(PyObject*);
 #endif // USE_SKIMAGE
 
   virtual const Coord &size() const { return size_; }
@@ -136,7 +137,11 @@ public:
   void set(const Array<int> &array, CColor (*f)(int));
   void set(const Array<bool> &array, CColor (*f)(bool));
 
-  OOFImage *clone(const std::string &name) const;
+  OOFImage *clone(const std::string &name
+#ifdef USE_SKIMAGE
+		  , PyObject *npimage
+#endif // USE_SKIMAGE
+		  ) const;
 
   void getColorPoints(const CColor &reference,
 		      const ColorDifference &diff,

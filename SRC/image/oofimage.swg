@@ -50,7 +50,7 @@ class OOFImage : public AbstractImage {
 public:
 #ifdef USE_SKIMAGE
   OOFImage(char *name, char *filename, PyObject *VERBATIM);
-#else // USE_SKIMAGE
+#else // !USE_SKIMAGE
   OOFImage(char *name, char *filename);
 #endif // !USE_SKIMAGE
   ~OOFImage();
@@ -66,10 +66,11 @@ public:
   ICoord pixelFromPoint(Coord *Point);
   bool pixelInBounds(ICoord *iPoint);
   %newobject clone;
-  OOFImage *clone(char *name);
-
 #ifdef USE_SKIMAGE
+  OOFImage *clone(char *name, PyObject *VERBATIM);
   PyObject *npImage();
+#else
+  OOFImage *clone(char *name);
 #endif	// USE_SKIMAGE
 
   void setMicrostructure(CMicrostructure*);
