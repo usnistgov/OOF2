@@ -26,6 +26,7 @@
 #include <set>
 #include <iostream>
 
+#ifdef USE_SKIMAGE
 std::string numpy_typename(int which) {
   switch(which) {
   case NPY_UINT8:
@@ -34,10 +35,13 @@ std::string numpy_typename(int which) {
     return "not uint8";
   };
 }
+#endif // USE_SKIMAGE
 
 OOFImage::OOFImage(const std::string &name, const std::string &filename)
-  : name_(name),
-    npobject(nullptr)
+  : name_(name)
+#ifdef USE_SKIMAGE
+  , npobject(nullptr)
+#endif // USE_SKIMAGE
 {
   // Older versions of ImageMagick required the creation of an empty
   // Image [image = Magick::Image()] followed by an explicit
@@ -63,6 +67,7 @@ OOFImage::OOFImage(const std::string &name, const std::string &filename)
   imageChanged();
 }
 
+#ifdef USE_SKIMAGE
 OOFImage::OOFImage(const std::string &name, const std::string &filename,
 		   PyObject *py_npimage)
   : name_(name),
@@ -111,17 +116,20 @@ OOFImage::OOFImage(const std::string &name, const std::string &filename,
   setup();
   imageChanged();
 }
+#endif // USE_SKIMAGE
 
 OOFImage::OOFImage(const std::string &name)
-  : name_(name),
-    npobject(nullptr)
+  : name_(name)
+#ifdef USE_SKIMAGE
+  , npobject(nullptr)
+#endif // USE_SKIMAGE
 {
 }
 
 // // Constructor for making a new blank image the same size 
 // // and size-in-pixels as an old one.  You can't just pass in 
 // // the old image, because that fuction signature is already 
-// // taken by the real copy constructor.
+// // taken by the real copy constructor.  DO WE NEED THIS?
 // OOFImage::OOFImage(const std::string &name, const Coord &size, 
 // 		   const Magick::Geometry &g) 
 //   : name_(name), image(g, Magick::Color(0,0,0)), size_(size)
@@ -144,7 +152,9 @@ OOFImage::OOFImage(const std::string &name, const ICoord &isize,
 		   const Magick::StorageType storage,
 		   const void *data) 
   : name_(name),
+#ifdef USE_SKIMAGE
     npobject(nullptr),
+#endif // USE_SKIMAGE
     image(isize(0), isize(1), map, storage, data)
 {
   setup();
@@ -152,10 +162,17 @@ OOFImage::OOFImage(const std::string &name, const ICoord &isize,
 
 
 void OOFImage::setup() {
+#ifdef USE_SKIMAGE
   npy_intp *dims = PyArray_DIMS(npobject);
   sizeInPixels_ = ICoord(dims[1], dims[0]);
-
-  
+#else  // !USE_SKIMAGE
+  try {
+    Magick::Geometry sighs = image.size();
+    sizeInPixels_ = ICoord(sighs.width(), sighs.height());
+  }
+  catch (Magick::Exception &e) {
+    throw ImageMagickError(e.what());
+  }
   // Scale factor for converting ImageMagick rgb values to floats in
   // [0,1].  Using "Magick::QuantumRange" doesn't work (TODO: wtf?),
   // so we have to use "using namespace Magick" to get access to
@@ -163,14 +180,17 @@ void OOFImage::setup() {
   // TODO: Report ImageMagick bug.  QuantumRange is a macro defined as
   // ((Quantum) 65535) in ImageMagick-6/magick/magick-type.h, but
   // Quantum isn't defined outside of the Magick namespace.
-  // using namespace Magick;
-  // scale = 1./QuantumRange;
+  using namespace Magick;
+  scale = 1./QuantumRange;
+#endif // !USE_SKIMAGE
 }
 
 
 OOFImage::~OOFImage() {
+#ifdef USE_SKIMAGE
   if(npobject)
     Py_XDECREF(npobject);
+#endif // USE_SKIMAGE
 }
 
 // Tolerant comparison -- returns a boolean true if the other image
@@ -280,6 +300,7 @@ std::vector<unsigned short> *OOFImage::getPixels() {
 // Access to individual pixels.
 
 const CColor OOFImage::operator[](const ICoord &coord) const {
+#ifdef USE_SKIMAGE
   // TODO: This ignores the alpha channel. Is that correct?  Do
   // micrographs ever have alpha channels?
   int r = coord(1);		// row
@@ -295,6 +316,26 @@ const CColor OOFImage::operator[](const ICoord &coord) const {
   unsigned char *blu = (unsigned char*) PyArray_GETPTR3(npobject, r, c, 2);
   // TODO: compute grn and blu from red and strides.
   return CColor(*red/255., *grn/255., *blu/255.);
+#else // !USE_SKIMAGE
+  try {
+    Magick::Pixels view(*const_cast<Magick::Image*>(&image));
+    const Magick::PixelPacket *pixels = view.getConst(coord(0), coord(1), 1, 1);
+    CColor color(pixels->red*scale, pixels->green*scale, pixels->blue*scale);
+    return color;
+
+    // It would be simpler to use Magick::Image::pixelColor, except
+    // that it doesn't work (July 2018).  It works on macOS when using
+    // quartz, but not x11.  It doesn't work on Linux.
+    
+    // Magick::Color color = image.pixelColor(c(0), c(1));
+    // return CColor(color.redQuantum()*scale,
+    // 		  color.greenQuantum()*scale,
+    // 		  color.blueQuantum()*scale);
+  }
+  catch (Magick::Exception &e) {
+    throw ImageMagickError(e.what());
+  }
+#endif // !USE_SKIMAGE
 }
 
 // To get multiple pixel values, call this many times, passing in the

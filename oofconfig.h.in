@@ -1,5 +1,5 @@
 // This file was created automatically by the oof2 setup script.
-// Do not edit it.  Re-run cmake or ccmake to change the options
+// Do not edit it.  Re-run cmake or ccmake to change the options.
 
 #ifndef OOFCONFIG_H
 #define OOFCONFIG_H
@@ -10,6 +10,8 @@
 #cmakedefine DEBUG
 #define DIM 2
 
-#cmakedefine HAVE_SSTREAM 
+#cmakedefine HAVE_SSTREAM
+
+#cmakedefine USE_SKIMAGE
 
 #endif // OOFCONFIG_H

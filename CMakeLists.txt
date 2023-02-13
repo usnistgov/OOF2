@@ -9,8 +9,14 @@
 cmake_minimum_required(VERSION 3.16)
 project(oof2 VERSION 2.2.3)
 
-set(DESIRED_SWIGVERSION 4.1)
-set(DESIRED_PYVERSION 3.10)
+# Options to be set by the user
+set(DESIRED_SWIGVERSION 4.1 CACHE STRING "Choose 4.0 or 4.1")
+set(DESIRED_PYVERSION 3.10 CACHE STRING "Python3 version number")
+option(USE_SKIMAGE "Use scikit-image instead of ImageMagick" OFF)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -104,7 +110,7 @@ function(swig_sources)
       "${SS_CFLAGS}"
       "${OOFCANVAS_CFLAGS}")
 
-    if(SS_TARGET_SFX)
+    if(${SS_TARGET_SFX})
       # If the TARGET_SFX argument is supplied, append it to
       # ${swigfile} to create the target name, although the installed
       # name will still be ${swigfile}.  This allows us to build two
@@ -170,9 +176,9 @@ set(oof_build_types Debug Release)
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${oof_build_types})
 set(CMAKE_BUILD_TYPE Release CACHE STRING "Debug or Release")
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   set(DEBUG True)
-endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+endif("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -229,7 +235,7 @@ endif()
 # Use pkg-config to get info about dependencies
 include(FindPkgConfig)
 # MacPorts puts some pkg-config files in the python library
-if(APPLE)
+if(${APPLE})
 set(ENV{PKG_CONFIG_PATH}
   "$ENV{PKG_CONFIG_PATH}:${Python3_LIBRARY_DIRS}/pkgconfig")
 endif()
@@ -240,19 +246,22 @@ endif()
 #message("PKG_CONFIG_PATH is $ENV{PKG_CONFIG_PATH}")
 
 
-# Check the numpy version
-execute_process(
-  COMMAND ${PYEXEC} -c "import numpy; print(numpy.version.version, end='')"
-  OUTPUT_VARIABLE NUMPY_VERSION
-)
-if(${NUMPY_VERSION} VERSION_LESS ${NUMPY_MIN_VERSION})
-  message(FATAL_ERROR "Numpy version is ${NUMPY_VERSION}. Version ${NUMPY_MIN_VERSION} is required.")
-endif()
-# Find the numpy include directory
-execute_process(
-  COMMAND ${PYEXEC} -c "import numpy; print(numpy.get_include(), end='')"
-  OUTPUT_VARIABLE NUMPY_INCLUDE
-)
+# Check the numpy version and get its include path, if using scikit-image
+if(${USE_SKIMAGE}) 
+  execute_process(
+    COMMAND ${PYEXEC} -c "import numpy; print(numpy.version.version, end='')"
+    OUTPUT_VARIABLE NUMPY_VERSION
+  )
+  if(${NUMPY_VERSION} VERSION_LESS ${NUMPY_MIN_VERSION})
+    message(FATAL_ERROR
+      "Numpy version is ${NUMPY_VERSION}. Version ${NUMPY_MIN_VERSION} is required.")
+  endif()
+  # Find the numpy include directory
+  execute_process(
+    COMMAND ${PYEXEC} -c "import numpy; print(numpy.get_include(), end='')"
+    OUTPUT_VARIABLE NUMPY_INCLUDE
+  )
+endif(${USE_SKIMAGE})
 
 pkg_check_modules(
   OOFCANVAS REQUIRED

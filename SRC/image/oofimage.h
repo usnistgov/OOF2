@@ -30,8 +30,10 @@
 // defining NPY_NO_DEPRECATED_API produces deprecation warnings, and
 // the suggestion to set NPY_NO_DEPRECATED_API to NPY_1_7_API_VERSION.
 // But with that setting PyArray_NDIM and PyArray_DIMS aren't defined.
+#ifdef USE_SKIMAGE
 #define NPY_NO_DEPRECATED_API NPY_1_1_API_VERSION
 #include <numpy/arrayobject.h>
+#endif // SKIMAGE
 
 // Make sure that omp.h is included before Magick++.h
 #ifdef HAVE_OPENMP
@@ -55,31 +57,39 @@ class OOFImage : public AbstractImage {
 protected:
   std::string name_;
   Magick::Image image;
-  PyArrayObject *npobject;		// numpy python object
+#ifdef USE_SKIMAGE
+  PyArrayObject *npobject;	// numpy python object
+  bool has_alpha;		// TODO NUMPY: keep this?
+  bool is_gray;			// TODO NUMPY: keep this?
+#endif // USE_SKIMAGE
   Coord size_; 
   ICoord sizeInPixels_;		// width, height.
   double scale;			// converts from int rgb to doubles in [0,1]
   void setup();
   TimeStamp timestamp;
   CMicrostructure *microstructure;
-  bool has_alpha;		// TODO NUMPY: keep this?
-  bool is_gray;			// TODO NUMPY: keep this?
 public:
   OOFImage(const std::string &nm);
   //OOFImage(const std::string &nm, const Coord &sz, const Magick::Geometry &g);
   OOFImage(const std::string &nm, const std::string &filename);
+#ifdef USE_SKIMAGE
   OOFImage(const std::string &nm, const std::string &filename,
 	   PyObject *npimage);
+#endif // USE_SKIMAGE
   OOFImage(const std::string &nm, const ICoord&,
 	   const std::string &colortype, const Magick::StorageType,
 	   const void*);
   virtual ~OOFImage();
   void save(const std::string &filename);
+  const Magick::Geometry geometry() const { return image.size(); }
+  Magick::Image magickImage() const { return image; }
   const std::string &name() const { return name_; }
   void rename(const std::string &nm) { name_ = nm; }
   void setSize(const Coord*);	// Physical size, not pixel size!
 
+#ifdef USE_SKIMAGE
   PyObject *npImage() { return (PyObject*) npobject; }
+#endif // USE_SKIMAGE
 
   virtual const Coord &size() const { return size_; }
   virtual const ICoord &sizeInPixels() const { return sizeInPixels_; }
@@ -159,10 +169,9 @@ public:
   void evenly_illuminate(int windowsize);
 };
 
-// TODO NUMPY: resurrect this
-// OOFImage *newImageFromData(const std::string &name,
-// 			   const ICoord *isize,
-// 			   const std::vector<unsigned short> *data);
+OOFImage *newImageFromData(const std::string &name,
+ 			   const ICoord *isize,
+ 			   const std::vector<unsigned short> *data);
 
 // Parallel image send/recv
 #ifdef HAVE_MPI

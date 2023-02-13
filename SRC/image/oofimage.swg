@@ -48,8 +48,11 @@
 
 class OOFImage : public AbstractImage {
 public:
-  //OOFImage(char *name, char *filename);
+#ifdef USE_SKIMAGE
   OOFImage(char *name, char *filename, PyObject *VERBATIM);
+#else // USE_SKIMAGE
+  OOFImage(char *name, char *filename);
+#endif // !USE_SKIMAGE
   ~OOFImage();
   void save(char *filename);
   const std::string &name();
@@ -65,7 +68,9 @@ public:
   %newobject clone;
   OOFImage *clone(char *name);
 
+#ifdef USE_SKIMAGE
   PyObject *npImage();
+#endif	// USE_SKIMAGE
 
   void setMicrostructure(CMicrostructure*);
   CMicrostructure *getCMicrostructure();
@@ -104,10 +109,9 @@ public:
   }
 };
 
-// TODO NUMPY: resurrect this 
-// %newobject newImageFromData;
-// OOFImage *newImageFromData(char *name, ICoord *iPoint,
-// 			   const std::vector<unsigned short>*);
+%newobject newImageFromData;
+OOFImage *newImageFromData(char *name, ICoord *iPoint,
+ 			   const std::vector<unsigned short>*);
 
 // Parallel image send/recv
 #ifdef HAVE_MPI
