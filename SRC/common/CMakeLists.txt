@@ -49,8 +49,6 @@ target_sources(oof2common
   guitop.h
   identification.C
   identification.h
-  intarray.C
-  intarray.h
   latticesystem.C
   latticesystem.h
   lock.C
@@ -118,7 +116,6 @@ swig_sources(
   geometry
   guitop
   identification
-  intarray
   latticesystem
   lock
   # mpitools  ## TODO: Add an mpi compilation option 
