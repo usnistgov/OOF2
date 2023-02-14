@@ -18,6 +18,7 @@
 %include "common/typemaps.swg"
 %import "engine/outputval.swg"
 %import "engine/fieldindex.swg"
+%import "engine/IO/propertyoutput.swg"
 
 %{
 #include "engine/symmmatrix.h"
