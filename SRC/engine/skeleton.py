@@ -1053,14 +1053,17 @@ class Skeleton(SkeletonBase):
         self.cleanUp()
         return len(self.elements)
 
+    ## TODO PYTHON3: Use SkeletonElementIterator?
     def element_iterator(self):         # for compatiblity w/ Element output
         self.cleanUp()
         return iter(self.elements)
 
+    ## TODO PYTHON3: Use SkeletonNodeIterator?
     def node_iterator(self):
         self.cleanUp()
         return iter(self.nodes)
 
+    ## TODO PYTHON3: Use SkeletonSegmentIterator?
     def segment_iterator(self):
         self.cleanUp()
         return self.segments.values()
@@ -1555,14 +1558,12 @@ class Skeleton(SkeletonBase):
         return SkeletonElementIterator(self, lambda e: e.active(self))
 
     def activeNodes(self):
-        ## TODO PYTHON3: Return a generator?
         self.cleanUp()
-        return [n for n in self.nodes if n.active(self)]
+        return (n for n in self.nodes if n.active(self))
 
     def activeSegments(self):
-        ## TODO PYTHON3: Return a generator?
         self.cleanUp()
-        return [s for s in self.segments.values() if s.active(self)]
+        return SkeletonSegmentIterator(self, lambda s: s.active(self))
                     
     def nearestNode(self, point):
         if self.hashedNodes is None:
@@ -2865,30 +2866,47 @@ class Skeleton(SkeletonBase):
 
 ########################################################################
 
-# SkeletonElementIterator is used for iterating over the elements of a
-# Skeleton or a subset of them.  It has the benefits of a simple
-# generator while also allowing giving information about how the
-# iteration is progressing.
+# SkeletonIterator classes are used for iterating over the elements of
+# a Skeleton or a subset of them.  They have the benefits of a simple
+# generator while also giving information about how the iteration is
+# progressing.  Subclasses must define self.targets(), which returns
+# in iterable object that returns the set of things to be examined.
+# The things actually returned by the SkeletonIterator are the things
+# in that set for which the given condition is true.
 
-class SkeletonElementIterator:
+class SkeletonIterator:
     def __init__(self, skeleton, condition=lambda x: True):
         self.skeleton = skeleton
         self.condition = condition # predicate
         self.count = 0          # number examined
         self.nret = 0           # number returned
-    def __iter__(self):
-        for self.count, element in enumerate(self.skeleton.elements):
-            if self.condition(element):
-                self.nret += 1
-                yield element
+        self._ntotal = self.total()
     def fraction(self):
-        return self.count/self.skeleton.nelements()
-    def ntotal(self):
-        return self.skeleton.nelements()
+        return self.count/self._ntotal
     def nexamined(self):
         return self.count
     def nreturned(self):
         return self.nret
+    def ntotal(self):
+        return self._ntotal
+    def __iter__(self):
+        for self.count, target in enumerate(self.targets()):
+            if self.condition(target):
+                self.nret += 1
+                yield target
+    
+
+class SkeletonElementIterator(SkeletonIterator):
+    def total(self):
+        return self.skeleton.nelements()
+    def targets(self):
+        return self.skeleton.elements
+
+class SkeletonSegmentIterator(SkeletonIterator):
+    def total(self):
+        return len(self.skeleton.segments)
+    def targets(self):
+        return self.skeleton.segments.values()
 
 ########################################################################
 
