@@ -211,7 +211,10 @@ def imageNameResolver(param, startname):
 
 def copyImage(menuitem, image, microstructure, name):
     sourceimage = oofimage.getImage(image)
-    immidge = sourceimage.clone(name)
+    if config.use_skimage():
+        immidge = sourceimage.clone(name, sourceimage.npImage().copy())
+    else:
+        immidge = sourceimage.clone(name)
     loadImageIntoMS(immidge, microstructure)
 
 imagemenu.addItem(oofmenu.OOFMenuItem(
@@ -397,7 +400,8 @@ def createMSFromImage(menuitem, name, width, height, image):
     # For serial mode #0 in parallel mode
     imagepath = labeltree.makePath(image)
     immidgecontext = imagecontext.imageContexts[image]
-    immidge = immidgecontext.getObject().clone(imagepath[-1])
+    immidge = immidgecontext.getObject().clone(imagepath[-1],
+                                               immidgecontext.npImage().copy())
 
     size = immidge.size() # Point object.
     if width!=automatic.automatic:

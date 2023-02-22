@@ -59,8 +59,6 @@ protected:
   Magick::Image image;
 #ifdef USE_SKIMAGE
   PyArrayObject *npobject;	// numpy python object
-  bool has_alpha;		// TODO NUMPY: keep this?
-  bool is_gray;			// TODO NUMPY: keep this?
 #endif // USE_SKIMAGE
   Coord size_; 
   ICoord sizeInPixels_;		// width, height.
@@ -71,14 +69,17 @@ protected:
 public:
   OOFImage(const std::string &nm);
   //OOFImage(const std::string &nm, const Coord &sz, const Magick::Geometry &g);
-  OOFImage(const std::string &nm, const std::string &filename);
+  OOFImage(const std::string &nm, const std::string &filename
 #ifdef USE_SKIMAGE
-  OOFImage(const std::string &nm, const std::string &filename,
-	   PyObject *npimage);
+	   , PyObject *npimage
 #endif // USE_SKIMAGE
+	   );
   OOFImage(const std::string &nm, const ICoord&,
 	   const std::string &colortype, const Magick::StorageType,
 	   const void*);
+#ifdef USE_SKIMAGE
+  OOFImage(const std::string &nm, PyObject *ndarray);
+#endif // USE_SKIMAGE
   virtual ~OOFImage();
   void save(const std::string &filename);
   const Magick::Geometry geometry() const { return image.size(); }
@@ -113,6 +114,12 @@ public:
   const_iterator end() const;
 
   const CColor operator[](const ICoord &c) const;
+
+  const CColor getMagick(const ICoord&) const;
+#ifdef USE_SKIMAGE
+  const CColor getNumpy(const ICoord&) const;
+#endif // USE_SKIMAGE
+  
   // Version taking ICoord* arg is provided for use in SWIG typemaps.
   const CColor operator[](const ICoord *c) const { return operator[](*c); }
   // Since OOFImage isn't actually made up of CColors, it's hard to
@@ -177,6 +184,10 @@ public:
 OOFImage *newImageFromData(const std::string &name,
  			   const ICoord *isize,
  			   const std::vector<unsigned short> *data);
+
+#ifdef USE_SKIMAGE
+OOFImage *newImageFromNumpyData(const std::string&, PyObject*);
+#endif // USE_SKIMAGE
 
 // Parallel image send/recv
 #ifdef HAVE_MPI

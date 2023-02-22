@@ -61,18 +61,22 @@ def printnpcolor(npimage, i, j):
 
 def readNumpyImage(filename, **kwargs):
     npimage = skimage.io.imread(filename) # numpy.ndarray object
-    ## Convert to 8 bits per channel.  TODO NUMPY: Do we need to do this?
-    ## TODO NUMPY: Convert to doubles via img_as_float64
-    npimage = skimage.util.img_as_ubyte(npimage)
+    # Convert to rgb if necessary
+    if len(npimage.shape) == 2:
+        # gray scale with no alpha channel
+        npimage = skimage.color.gray2rgb(npimage)
+    elif npimage.shape[2] == 4:
+        # rgb with an alpha channel
+        ## TODO NUMPY: What if it's HSV or some other color space?
+        npimage = npimage[:,:,0:3] # just remove the alpha channel
+    # Convert to 64 bits per channel.
+    npimage = skimage.util.img_as_float64(npimage)
     # Flip along the y axis (so that y coord increases upwards)
     npimage = numpy.flip(npimage, 0)
     # Make a copy so that the flipped data is actually stored in the
     # numpy array.
     npimage = npimage.copy()
 
-    ## TODO: Store npimage somewhere in python, not just C++, so that
-    ## we can call skimage routines directly on it.
-    
     # Colons in image names are disallowed, because we use them as
     # separators in the labeltree.
     basename = os.path.basename(filename).replace(':','.')

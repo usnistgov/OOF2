@@ -111,8 +111,13 @@ public:
 };
 
 %newobject newImageFromData;
-OOFImage *newImageFromData(char *name, ICoord *iPoint,
+OOFImage *newImageFromData(const std::string &name, ICoord *iPoint,
  			   const std::vector<unsigned short>*);
+
+#ifdef USE_SKIMAGE
+%newobject newImageFromNumpyData;
+OOFImage *newImageFromNumpyData(const std::string &name, PyObject *VERBATIM);
+#endif // USE_SKIMAGE
 
 // Parallel image send/recv
 #ifdef HAVE_MPI

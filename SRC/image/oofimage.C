@@ -14,6 +14,7 @@
 #ifdef HAVE_MPI
 #include "common/mpitools.h"
 #endif ////HAVE_MPI
+#include "common/pyutils.h"
 #include "common/IO/bitoverlay.h"
 #include "common/ooferror.h"
 #include "common/boolarray.h"
@@ -37,64 +38,47 @@ std::string numpy_typename(int which) {
 }
 #endif // USE_SKIMAGE
 
-OOFImage::OOFImage(const std::string &name, const std::string &filename)
-  : name_(name)
-#ifdef USE_SKIMAGE
-  , npobject(nullptr)
-#endif // USE_SKIMAGE
-{
-  // Older versions of ImageMagick required the creation of an empty
-  // Image [image = Magick::Image()] followed by an explicit
-  // image.read(filename), because passing the filename to the Image
-  // constructor did not raise an exception if the file didn't exist.
-  // This problem seems to be fixed, so we use simpler one-step
-  // process here.
-  try {
-    image.read(filename);
-  }
-  catch (Magick::Exception &error) {
-    // Magick::Exceptions have to be converted into OOF2
-    // ImageMagickErrors so that they'll be handled properly by the
-    // SWIG exception typemap.
-    throw ImageMagickError(error.what());
-  }
-  catch (std::exception &error) {
-    std::cerr << "Caught exception: " << std::endl;
-    throw;
-  }
-  image.flip();		// real coordinates don't start at the top
-  setup();
-  imageChanged();
-}
+// OOFImage::OOFImage(const std::string &name, const std::string &filename)
+//   : name_(name)
+// #ifdef USE_SKIMAGE
+//   , npobject(nullptr)
+// #endif // USE_SKIMAGE
+// {
+//   // Older versions of ImageMagick required the creation of an empty
+//   // Image [image = Magick::Image()] followed by an explicit
+//   // image.read(filename), because passing the filename to the Image
+//   // constructor did not raise an exception if the file didn't exist.
+//   // This problem seems to be fixed, so we use simpler one-step
+//   // process here.
+//   try {
+//     image.read(filename);
+//   }
+//   catch (Magick::Exception &error) {
+//     // Magick::Exceptions have to be converted into OOF2
+//     // ImageMagickErrors so that they'll be handled properly by the
+//     // SWIG exception typemap.
+//     throw ImageMagickError(error.what());
+//   }
+//   catch (std::exception &error) {
+//     std::cerr << "Caught exception: " << std::endl;
+//     throw;
+//   }
+//   image.flip();		// real coordinates don't start at the top
+//   setup();
+//   imageChanged();
+// }
 
+OOFImage::OOFImage(const std::string &name, const std::string &filename
 #ifdef USE_SKIMAGE
-OOFImage::OOFImage(const std::string &name, const std::string &filename,
-		   PyObject *py_npimage)
+		   , PyObject *py_npimage
+#endif // USE_SKIMAGE
+		   )
   : name_(name)
 {
+#ifdef USE_SKIMAGE
   setNpImage(py_npimage);
-  int ndim = PyArray_NDIM(npobject);
-  npy_intp *dims = PyArray_DIMS(npobject);
-  // Is it possible for an image to have only gray and alpha channels?
-  // In which case we'd have ndim==3 and dims[2] == 2.
-  //              ndim    dim[2]
-  // gray         2       -
-  // gray+alpha   3       2
-  // rgb          3       3
-  // rgba         3       4
-  is_gray = ndim == 2 || (ndim==3 && dims[2] == 2);
-  has_alpha = (is_gray && dims[2] == 2) || (!is_gray && dims[2] == 4);
+#endif // USE_SKIMAGE
   
-  std::cerr << "OOFImage::ctor: ndim=" << ndim << std::endl;
-  std::cerr << "OOFImage::ctor: dims=" << dims[0] << " " << dims[1]
-	    << " type=" << numpy_typename(PyArray_TYPE(npobject))
-	    << " channels=" << (ndim==3?dims[2]:1)
-	    << " nd=" << npobject->nd
-	    << std::endl;
-  npy_intp *strides = PyArray_STRIDES(npobject);
-  std::cerr << "OOFImage::ctor: strides=" << strides[0] <<  " " << strides[1]
-	    << " " << strides[2]
-	    << std::endl;
   // START IMAGEMAGICK
   try {
     image.read(filename);
@@ -112,6 +96,16 @@ OOFImage::OOFImage(const std::string &name, const std::string &filename,
   image.flip();		// real coordinates don't start at the top
   // END IMAGEMAGICK
   
+  setup();
+  imageChanged();
+}
+
+#ifdef USE_SKIMAGE
+
+OOFImage::OOFImage(const std::string &name, PyObject *pyobj)
+  : name_(name)
+{
+  setNpImage(pyobj);
   setup();
   imageChanged();
 }
@@ -151,6 +145,11 @@ OOFImage *newImageFromData(const std::string &name, const ICoord *isize,
   return new OOFImage(name, *isize, "RGB", Magick::ShortPixel, &((*data)[0]));
 }
 
+OOFImage *newImageFromNumpyData(const std::string &name, PyObject *ndarray) {
+  return new OOFImage(name, ndarray);
+}
+
+
 OOFImage::OOFImage(const std::string &name, const ICoord &isize,
 		   const std::string &map,
 		   const Magick::StorageType storage,
@@ -169,7 +168,10 @@ void OOFImage::setup() {
 #ifdef USE_SKIMAGE
   npy_intp *dims = PyArray_DIMS(npobject);
   sizeInPixels_ = ICoord(dims[1], dims[0]);
-#else  // !USE_SKIMAGE
+  int ndim = PyArray_NDIM(npobject);
+#endif  // USE_SKIMAGE
+
+  // TODO NUMPY: Get rid of Magick code
   try {
     Magick::Geometry sighs = image.size();
     sizeInPixels_ = ICoord(sighs.width(), sighs.height());
@@ -186,7 +188,6 @@ void OOFImage::setup() {
   // Quantum isn't defined outside of the Magick namespace.
   using namespace Magick;
   scale = 1./QuantumRange;
-#endif // !USE_SKIMAGE
 }
 
 
@@ -291,7 +292,15 @@ OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
 {
   // The OOFImage constructor flips the image so that OOF can access
   // pixels easily in a right handed coordinate system with the origin
-  // in the lower left corner of the image.
+  // in the lower left corner of the image.  This has to flip it back.
+#ifdef USE_SKIMAGE
+  OOFCanvas::CanvasImage *img =
+    OOFCanvas::CanvasImage::newFromNumpy(OOFCANVAS_COORD(*pos),
+					 (PyObject*) npobject, true/* flipy*/);
+  img->setDrawIndividualPixels(true);
+  img->setSize(OOFCANVAS_COORD(*size));
+  return img;
+#else  // !USE_SKIMAGE
   Magick::Image copy = image;
   copy.flip();
   OOFCanvas::CanvasImage *img =
@@ -299,6 +308,7 @@ OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
   img->setDrawIndividualPixels(true);
   img->setSize(OOFCANVAS_COORD(*size));
   return img;
+#endif	// !USE_SKIMAGE
 }
 
 std::vector<unsigned short> *OOFImage::getPixels() {
@@ -314,24 +324,7 @@ std::vector<unsigned short> *OOFImage::getPixels() {
 
 // Access to individual pixels.
 
-const CColor OOFImage::operator[](const ICoord &coord) const {
-#ifdef USE_SKIMAGE
-  // TODO: This ignores the alpha channel. Is that correct?  Do
-  // micrographs ever have alpha channels?
-  int r = coord(1);		// row
-  int c = coord(0);		// column
-  if(is_gray) {
-    unsigned char *g = (unsigned char*) PyArray_GETPTR2(npobject, r, c);
-    double gr = *g/255.;
-    return CColor(gr, gr, gr);
-  }
-  // Not gray
-  unsigned char *red = (unsigned char*) PyArray_GETPTR3(npobject, r, c, 0);
-  unsigned char *grn = (unsigned char*) PyArray_GETPTR3(npobject, r, c, 1);
-  unsigned char *blu = (unsigned char*) PyArray_GETPTR3(npobject, r, c, 2);
-  // TODO: compute grn and blu from red and strides.
-  return CColor(*red/255., *grn/255., *blu/255.);
-#else // !USE_SKIMAGE
+const CColor OOFImage::getMagick(const ICoord &coord) const {
   try {
     Magick::Pixels view(*const_cast<Magick::Image*>(&image));
     const Magick::PixelPacket *pixels = view.getConst(coord(0), coord(1), 1, 1);
@@ -350,6 +343,35 @@ const CColor OOFImage::operator[](const ICoord &coord) const {
   catch (Magick::Exception &e) {
     throw ImageMagickError(e.what());
   }
+}
+
+#ifdef USE_SKIMAGE
+const CColor OOFImage::getNumpy(const ICoord &coord) const {
+  int r = coord(1);		// row
+  int c = coord(0);		// column
+  double *red = (double*) PyArray_GETPTR3(npobject, r, c, 0);
+  double *grn = (double*) PyArray_GETPTR3(npobject, r, c, 1);
+  double *blu = (double*) PyArray_GETPTR3(npobject, r, c, 2);
+  // TODO: compute grn and blu from red and strides.
+  return CColor(*red, *grn, *blu);
+}
+#endif // USE_SKIMAGE
+
+const CColor OOFImage::operator[](const ICoord &coord) const {
+#ifdef USE_SKIMAGEXXX
+  CColor n =  getNumpy(coord);
+#ifdef DEBUG
+  CColor m = getMagick(coord);
+  if(n != m) {
+    std::cerr << "OOFImage::operator[]: color mismatch! "
+	      << " coord=" << coord << " numpy=" << n << " "
+	      << " magick=" << m << std::endl;
+    throw ErrProgrammingError("Numpy and ImageMagick disagree!", __FILE__, __LINE__);
+  }
+#endif // DEBUG
+  return n;
+#else // !USE_SKIMAGE
+  return getMagick(coord);
 #endif // !USE_SKIMAGE
 }
 
