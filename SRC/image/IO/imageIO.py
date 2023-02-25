@@ -51,16 +51,17 @@ class ImageData(registeredclass.RegisteredClass):
 
     
 # RGBData8 is an old format, predating our use of numpy.  It should
-# only be used to load old data files.  Also, it should be called
-# RGBData16.
+# only be used to load old data files.  Also, it should have been
+# called RGBData16.
 
 class RGBData8(ImageData):
     def __init__(self, rgbvalues):
         self.rgbvalues = rgbvalues
-    def values(self):
-        return self.rgbvalues
+    # RGBData8 has no toBytes method because it is only used to read
+    # old data files, and cannot write new ones.
     def toArray(self, sizeInPixels):
-        data = numpy.array(self.rgbvalues, dtype=numpy.dtype('<d'))
+        data = numpy.array(self.rgbvalues, dtype=numpy.dtype('H'))
+        data = skimage.util.img_as_float64(data)
         data = data.reshape(sizeInPixels[1], sizeInPixels[0], 3)
         return data
 
@@ -68,7 +69,7 @@ registeredclass.Registration(
     'RGBData8',
     ImageData,
     RGBData8,
-    ordering=0,
+    ordering=100,
     params=[
     parameter.ListOfUnsignedShortsParameter('rgbvalues', tip="RGB values.")],
     tip="RGB image data.",
@@ -79,6 +80,8 @@ registeredclass.Registration(
 
 class NumpyRGB64(ImageData):
     def __init__(self, rgbdata):
+        if type(rgbdata) == str:
+            rgbdata = bytes.fromhex(rgbdata)
         self.rgbdata = rgbdata
     def toBytes(self, image):
         # Convert image to 64-bit float. This is a no-op if nothing
@@ -103,7 +106,7 @@ registeredclass.Registration(
     params=[
         parameter.BytesParameter('npdata',
                                  tip='64 bit floats encoded as bytes')],
-    tip="Numpy RGB image data stored as 8 byte floats")
+    tip="Numpy RGB image data stored as 8 byte floats.")
 
 #-----------
 
