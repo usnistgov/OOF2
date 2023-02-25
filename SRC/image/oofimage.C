@@ -146,6 +146,13 @@ OOFImage *newImageFromData(const std::string &name, const ICoord *isize,
 }
 
 OOFImage *newImageFromNumpyData(const std::string &name, PyObject *ndarray) {
+// #ifdef DEBUG
+//   int ndim = PyArray_NDIM((PyArrayObject*) ndarray);
+//   npy_intp *shape = PyArray_SHAPE((PyArrayObject*) ndarray);
+//   std::cerr << "newImageFromNumpyData: shape=";
+//   for(int i=0; i<ndim; i++) std::cerr << " " << shape[i];
+//   std::cerr << std::endl;
+// #endif // DEBUG
   return new OOFImage(name, ndarray);
 }
 
@@ -166,11 +173,11 @@ OOFImage::OOFImage(const std::string &name, const ICoord &isize,
 
 void OOFImage::setup() {
 #ifdef USE_SKIMAGE
+  //int ndim = PyArray_NDIM(npobject);
   npy_intp *dims = PyArray_DIMS(npobject);
   sizeInPixels_ = ICoord(dims[1], dims[0]);
-  int ndim = PyArray_NDIM(npobject);
-#endif  // USE_SKIMAGE
-
+  std::cerr << "OOFImage::setup: sizeInPixels_=" << sizeInPixels_ << std::endl;
+#else  // !USE_SKIMAGE
   // TODO NUMPY: Get rid of Magick code
   try {
     Magick::Geometry sighs = image.size();
@@ -188,6 +195,7 @@ void OOFImage::setup() {
   // Quantum isn't defined outside of the Magick namespace.
   using namespace Magick;
   scale = 1./QuantumRange;
+#endif // !USE_SKIMAGE
 }
 
 

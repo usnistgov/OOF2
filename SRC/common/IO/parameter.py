@@ -45,7 +45,11 @@ import struct
 
 from ooflib.common.utils import stringjoin
 
-structIntFmt = '>i'
+## TODO: Should have chosen little-endian for this and many other
+## struct formats in this file, since it's the native format for most
+## computers.  Is it too late to change?  Change it and update the
+## version number in binary files?
+structIntFmt = '>i'             # big endian
 structIntSize = struct.calcsize(structIntFmt)
 
 # The python2 version of this file used FloatType, IntType, etc, via
@@ -553,6 +557,23 @@ class ListOfStringsParameter(Parameter):
     def valueDesc(self):
         return "A list of character strings."
 
+# BytesParameters should probably be used only in data files.  In an
+# ascii file, the value should be converted to a string with
+# bytes.hex() when written, and converted back with bytes.fromhex()
+# when read.  See NumpyRGB16 in imageIO.py for an example.
+
+class BytesParameter(Parameter):
+    types = (bytes,str)
+    def binaryRepr(self, datafile, value):
+        length = len(value)
+        return struct.pack(structIntFmt, length) + value
+    def binaryRead(self, parser):
+        b = parser.getBytes(structIntSize)
+        (length,) = struct.unpack(structIntFmt, b)
+        return parser.getBytes(length)
+    def valueDesc(self):
+        return "A python bytes object."
+    
 class FloatParameter(Parameter):
     types=(IntType, FloatType)
     def __init__(self, name, value=None, default=0.0, tip=None):

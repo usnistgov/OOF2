@@ -22,47 +22,22 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.image.IO import imagemenu
 import ooflib.common.microstructure
 
+import sys
 if config.use_skimage():
     import numpy
+    import skimage
 
 imgmenu = mainmenu.OOF.LoadData.addItem(oofmenu.OOFMenuItem('Image'))
 
-# class NumpyArrayParameter(parameter.Parameter):
-#     types = (numpy.ndarray,)
-#     def binaryRepr(self, datafile, value):
-#         shape = value.shape
-#         shapeFmt = ">" + "i"*len(shape)
-#         dt = value.dtype.str # string representation of dtype
-#         return (struct.pack(structIntFmt, len(shape)) + # no. of dims
-#                 struct.pack(shapeFmt, *shape) +         # dims
-#                 struct.pack(structIntFmt, len(dt)) +    # no. chars in type str
-#                 bytes(dt, "UTF-8") +                    # type str
-#                 value.tobytes())                        # array data
-#     def binaryRead(self, parser):
-#         b = parser.getBytes(parameter.structIntSize)
-#         (ndims,) = struct.unpack(parameter.structIntFmt, b)
-#         shapeFmt = ">" + "i"*ndims
-#         b = parser.getBytes(struct.calcsize(shapeFmt))
-#         shape = struct.unpack(shapeFmt, b)
-#         b = parser.getBytes(parameter.structIntSize)
-#         (ndtype,) = struct.unpack(parameter.structIntFmt, b)
-#         dtypename = parser.getBytes(ndtype).decode()
-#         dtype = numpy.dtype(dtypename)
-#         n = dtype.itemsize      # no. bytes per array entry
-#         for d in shape:
-#             n *= d
-#         b = parser.getBytes(n)
-#         array = numpy.frombuffer(b, dtype)
-#         array.reshape(shape)
-#         return array
-#     def valueDesc(self):
-#         return "A numpy array (numpy.ndarray)."
-#     ## TODO: How does this get written in an ascii data file?
-                
-
-
 # ImageData classes contain image data to be stored in OOF2 data
 # files.
+
+# TODO: If the internal representation of images is changed from
+# 64-bit float to something else, then the toArray() methods in the
+# ImageData subclasses will have to change.  Those classes should all
+# call a single function that converts the numpy array to the correct
+# format.  Should the user be able to choose the image representation?
+
 
 class ImageData(registeredclass.RegisteredClass):
     registry = []
@@ -74,17 +49,19 @@ class ImageData(registeredclass.RegisteredClass):
     command.
     </para>"""
 
+    
 # RGBData8 is an old format, predating our use of numpy.  It should
-# only be used to load old data files.
+# only be used to load old data files.  Also, it should be called
+# RGBData16.
 
 class RGBData8(ImageData):
     def __init__(self, rgbvalues):
         self.rgbvalues = rgbvalues
     def values(self):
         return self.rgbvalues
-    def getArray(self, nrows, ncols):
-        data = numpy.array(self.rgbvalues, dtype=dtype('>f8'))
-        data.reshape(nrows, ncols, 3)
+    def toArray(self, sizeInPixels):
+        data = numpy.array(self.rgbvalues, dtype=numpy.dtype('<d'))
+        data = data.reshape(sizeInPixels[1], sizeInPixels[0], 3)
         return data
 
 registeredclass.Registration(
@@ -98,39 +75,25 @@ registeredclass.Registration(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/rgbdata8.xml')
 )
 
-# # GrayData8 is an old format, predating our use of numpy.  It should
-# # only be used to load old data files.
-
-# class GrayData8(ImageData):
-#     depth = 1
-#     def __init__(self, grayvalues):
-#         self.grayvalues = grayvalues
-#     def values(self):
-#         return self.grayvalues
-#     def getArray(self, shape):
-#         data = numpy.array(self.grayvalues, dtype=dtype('>f8'))
-        
-# registeredclass.Registration(
-#     'GrayData8',
-#     ImageData,
-#     GrayData8,
-#     ordering=1,
-#     params=[
-#     parameter.ListOfUnsignedShortsParameter('grayvalues', tip="Gray values.")],
-#     tip="Gray image data.",
-#     discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/graydata8.xml'))
+#-----------
 
 class NumpyRGB64(ImageData):
-    def __init__(self, npdata):
-        self.npdata = npdata
-    def values(self):
-        return self.npdata
-    def getArray(self, nrows, ncols):
-        array = numpy.frombuffer(self.npdata, dtype=numpy.dtype('>f8'))
-        array.reshape(nrows, ncols, 3)
+    def __init__(self, rgbdata):
+        self.rgbdata = rgbdata
+    def toBytes(self, image):
+        # Convert image to 64-bit float. This is a no-op if nothing
+        # has to be done.
+        img64 = skimage.img_as_float64(image)
+        # Ensure that the output is little-endian
+        if img64.dtype != numpy.dtype("<d"):
+            img64 = img64.byteswap(inplace=(img64 is not image))
+        self.rgbdata = img64.tobytes()
+    def toArray(self, sizeInPixels):
+        array = numpy.frombuffer(self.npdata, dtype=numpy.dtype('<d'))
+        array = array.reshape(sizeInPixels[1], sizeInPixels[0], 3)
         return array
     def __repr__(self):
-        return self.nbdata.tobytes()
+        return f"NumpyRGB64(rgbdata='{self.rgbdata.hex()}')"
 
 registeredclass.Registration(
     'NumpyRGB64',
@@ -140,50 +103,48 @@ registeredclass.Registration(
     params=[
         parameter.BytesParameter('npdata',
                                  tip='64 bit floats encoded as bytes')],
-    tip="Numpy image data for an RGB image")
+    tip="Numpy RGB image data stored as 8 byte floats")
 
-# class NumpyGray64(ImageData):
-#     def __init__(self, npdata):
-#         self.npdata = npdata
-#     def values(self):
-#         return self.npdata
-#     def getArray(self, nrows, ncols):
-#         array = numpy.frombuffer(self.npdata, dtype=numpy.dtype('>f8'))
-#         array.reshape(nrows, ncols)
-#         return array
+#-----------
 
-# registeredclass.Registration(
-#     'NumpyGray64',
-#     ImageData,
-#     ordering=3,
-#     params=[
-#         parameter.BytesParameter('npdata',
-#                                  tip='64 bit floats encoded as bytes')],
-#     tip = "Numpy image data for a gray scale image")
-    
-    
-    
-## TODO NUMPY: Rewrite _newImage and writeImage.
-##
-## They should transfer data directly to and from from the numpy
-## object, using numpy.ndarray.tobytes and numpy.frombuffer.
-## Do they have to care about endianness?
+class NumpyRGB16(ImageData):
+    def __init__(self, rgbdata):
+        if type(rgbdata) == str:
+            rgbdata = bytes.fromhex(rgbdata)
+        self.rgbdata = rgbdata
+    def toBytes(self, image):
+        # Convert data to 16 bit unsigned int. This is a no-op if
+        # nothing has to be done.
+        img16 = skimage.img_as_uint(image)
+        # Ensure that the output is little-endian
+        if img16.dtype != numpy.dtype("<H"):
+            # Don't swap bytes in-place if img16 is image!
+            img16 = img16.byteswap(inplace=(img16 is not image))
+        self.rgbdata = img16.tobytes()
+    def toArray(self, sizeInPixels):
+        array = numpy.frombuffer(self.rgbdata, dtype=numpy.dtype("<H"))
+        array = array.reshape(sizeInPixels[1], sizeInPixels[0], 3)
+        return skimage.util.img_as_float64(array)
+    def __repr__(self):
+        return f"NumpyRGB16(rgbdata='{self.rgbdata.hex()}')"
 
-## Existing files use the ListOfUnsignedShortsParameter, which stores
-## shorts, not doubles.  So keep the old versions, but create a new 
-## ImageData classes that stores doubles.  Those commands can copy the data
-## in binary.  Does that make sense for ascii & script data files?
-## Yes-- image.data.tobytes() writes a bytes object that has an ascii
-## repr.
+registeredclass.Registration(
+    'NumpyRGB16',
+    ImageData,
+    NumpyRGB16,
+    ordering=1,
+    params=[
+        parameter.BytesParameter("rgbdata",
+                                 tip='Image data stored as 16 bit ints')],
+    tip="Numpy RGB image data stored as two byte ints.")
+
 
 def _newImage(menuitem, name, microstructure, pixels):
     ms = ooflib.common.microstructure.microStructures[microstructure].getObject()
     if config.use_skimage():
-        #* Get bytes from the ImageData (pixels) arg.  The old
-        #  non-numpy subclasses will have to convert the data.  Numpy
-        #  subclasses just return it.
-        pixelparam = menuitem.get_arg("pixels")
-        image = oofimage.newImageFromNumpyData(name, pixelparam.getArray())
+        # Get bytes from the ImageData (pixels) arg. 
+        image = oofimage.newImageFromNumpyData(
+            name, pixels.toArray(ms.sizeInPixels()))
     else:
         image = oofimage.newImageFromData(name, ms.sizeInPixels(),
                                           list(pixels.values()))
@@ -203,18 +164,25 @@ imgmenu.addItem(oofmenu.OOFMenuItem(
     discussion="<para>Load an &image; from a saved &micro;.</para>"
     ))
 
-
-
 def writeImage(datafile, imagecontext):
     datafile.startCmd(mainmenu.OOF.LoadData.Image.New)
     datafile.argument('name', imagecontext.name())
     datafile.argument('microstructure', imagecontext.getMicrostructure().name())
     npimage = imagecontext.npImage()
-    datafile.argument('pixels', NumpyRGB64(npimage.tobytes()))
+    # Convert image to 16-bit ints.  This is a no-op if nothing has to
+    # be done.
+    img = skimage.util.img_as_uint(npimage)
+    # Make sure image is little-endian
+    if img.dtype != numpy.dtype("<H"):
+        # Swap bytes to ensure little-endianness.  Do it in place only
+        # if the previous conversion created a new object.
+        img = img.byteswap(inplace=(img is not npimage))
+    datafile.argument('pixels', NumpyRGB16(img.tobytes()))
     datafile.endCmd()
 
-# TODO LATER: Allow different image depths, and find a way to store
-# only gray values if the image is gray.
+# TODO?  Allow the user to select the format for saved images?  This
+# will probably have to be set as a global parameter, since images are
+# saved as part of Microstructures, Skeletons, and Meshes.
 
 ###################
 
