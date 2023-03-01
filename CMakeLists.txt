@@ -178,7 +178,7 @@ set(CMAKE_BUILD_TYPE Release CACHE STRING "Debug or Release")
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   set(DEBUG True)
-endif("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+endif()
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -233,15 +233,15 @@ if(${SWIG_USE_BUILTIN})		# wishful thinking
 endif()
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   list(APPEND CMAKE_SWIG_FLAGS "-DDEBUG")
-endif("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+endif()
 if(${USE_SKIMAGE})
   list(APPEND CMAKE_SWIG_FLAGS "-DUSE_SKIMAGE")
-endif(${USE_SKIMAGE})
+endif()
 
 # Use pkg-config to get info about dependencies
 include(FindPkgConfig)
 # MacPorts puts some pkg-config files in the python library
-if(${APPLE})
+if(APPLE)
 set(ENV{PKG_CONFIG_PATH}
   "$ENV{PKG_CONFIG_PATH}:${Python3_LIBRARY_DIRS}/pkgconfig")
 endif()
@@ -267,7 +267,7 @@ if(${USE_SKIMAGE})
     COMMAND ${PYEXEC} -c "import numpy; print(numpy.get_include(), end='')"
     OUTPUT_VARIABLE NUMPY_INCLUDE
   )
-endif(${USE_SKIMAGE})
+endif()
 
 pkg_check_modules(
   OOFCANVAS REQUIRED
