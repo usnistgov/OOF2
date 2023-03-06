@@ -28,6 +28,8 @@ from .UTILS.file_utils import reference_file
 #  Single_<item>, Rectangle, Circle, Ellipse, Clear, Undo, Redo, Invert.
 #  Element also has ByDominantPixel.
 
+## TODO PYTHON3: check that groups are copied when Skeletons are copied
+
 class Direct_Skeleton_Selection(unittest.TestCase):
     def setUp(self):
         global gfxmanager
