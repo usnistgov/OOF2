@@ -20,8 +20,7 @@ import os
 import sys
 import traceback
 import types
-
-
+import weakref
 
 _debug_mode = 0
 
@@ -222,3 +221,30 @@ def dump(*args):
     global _dumpFile
     if _debug_mode and _dumpFile is not None:
         print(*args, file=_dumpFile)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# To track an object and print a message when it is deleted, create an
+# instance of DelNotifier.  When the obj passed into the destructor is
+# garbage collected, a message will be printed.  It's not necessary to
+# keep a reference to the DelNotifier instance.
+
+_weakrefs = set()
+
+class DelNotifier:
+    def __init__(self, obj, message=None):
+        self.objid = id(obj)
+        self.message = message
+        self.wr = weakref.ref(obj, self)
+        for wr in _weakrefs:
+            assert wr.objid != self.objid
+        _weakrefs.add(self)
+    def __call__(self, ref):
+        _weakrefs.remove(self)
+        if self.message:
+            msg("DelNotifier: deleting tracked object",
+                self.objid, self.message)
+        else:
+            msg("DelNotifier: deleting tracked object", self.objid)
+
+        
