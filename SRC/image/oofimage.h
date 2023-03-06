@@ -56,7 +56,7 @@ namespace OOFCanvas {
 class OOFImage : public AbstractImage {
 protected:
   std::string name_;
-  Magick::Image image;
+  // Magick::Image image;
 #ifdef USE_SKIMAGE
   PyArrayObject *npobject;	// numpy python object
 #endif // USE_SKIMAGE
@@ -68,22 +68,20 @@ protected:
   CMicrostructure *microstructure;
 public:
   OOFImage(const std::string &nm);
+  OOFImage(const OOFImage&) = delete;
   //OOFImage(const std::string &nm, const Coord &sz, const Magick::Geometry &g);
-  OOFImage(const std::string &nm, const std::string &filename
-#ifdef USE_SKIMAGE
-	   , PyObject *npimage
+#ifndef USE_SKIMAGE
+  OOFImage(const std::string &nm, const std::string &filename);
 #endif // USE_SKIMAGE
-	   );
-  OOFImage(const std::string &nm, const ICoord&,
-	   const std::string &colortype, const Magick::StorageType,
-	   const void*);
+
+  // OOFImage(const std::string &nm, const ICoord&,
+  // 	   const std::string &colortype, const Magick::StorageType,
+  // 	   const void*);
 #ifdef USE_SKIMAGE
   OOFImage(const std::string &nm, PyObject *ndarray);
 #endif // USE_SKIMAGE
   virtual ~OOFImage();
-  void save(const std::string &filename);
-  const Magick::Geometry geometry() const { return image.size(); }
-  Magick::Image magickImage() const { return image; }
+  // void save(const std::string &filename);
   const std::string &name() const { return name_; }
   void rename(const std::string &nm) { name_ = nm; }
   void setSize(const Coord*);	// Physical size, not pixel size!
@@ -113,25 +111,23 @@ public:
   iterator end();
   const_iterator end() const;
 
-  const CColor operator[](const ICoord &c) const;
-
-  const CColor getMagick(const ICoord&) const;
+  // const CColor getMagick(const ICoord&) const;
 #ifdef USE_SKIMAGE
   const CColor getNumpy(const ICoord&) const;
 #endif // USE_SKIMAGE
   
-  // Version taking ICoord* arg is provided for use in SWIG typemaps.
+  const CColor operator[](const ICoord &c) const;
   const CColor operator[](const ICoord *c) const { return operator[](*c); }
   // Since OOFImage isn't actually made up of CColors, it's hard to
   // use operator[] to set values.  Use this instead:
   void set(const ICoord&, const CColor&);
   void imageChanged();		// call this when done setting pixels.
 
-  // When reading multiple pixels, call getColor repeatedly, passing
-  // in the result of a single call to pixelPacket().  This is not
-  // thread safe.
-  const Magick::PixelPacket *pixelPacket() const;
-  CColor getColor(const ICoord &c, const Magick::PixelPacket*) const;
+  // // When reading multiple pixels, call getColor repeatedly, passing
+  // // in the result of a single call to pixelPacket().  This is not
+  // // thread safe.
+  // const Magick::PixelPacket *pixelPacket() const;
+  // CColor getColor(const ICoord &c, const Magick::PixelPacket*) const;
 
   // Convert to an Array of doubles.  f is a function that takes a
   // CColor and returns a double.
@@ -156,8 +152,6 @@ public:
 
   bool compare(const OOFImage&, double) const;
 
-  std::vector<unsigned short> *getPixels();
-
   void flip(const std::string &axis);
   void fade(double);
   void dim(double);
@@ -181,9 +175,9 @@ public:
   void evenly_illuminate(int windowsize);
 };
 
-OOFImage *newImageFromData(const std::string &name,
- 			   const ICoord *isize,
- 			   const std::vector<unsigned short> *data);
+// OOFImage *newImageFromData(const std::string &name,
+//  			   const ICoord *isize,
+//  			   const std::vector<unsigned short> *data);
 
 #ifdef USE_SKIMAGE
 OOFImage *newImageFromNumpyData(const std::string&, PyObject*);
@@ -197,13 +191,13 @@ OOFImage *_Recv_Image(int, int);
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-class ImageMagickError : public ErrErrorBase<ImageMagickError> {
-  std::string msg;
-public:
-  ImageMagickError(const std::string&);
-  const std::string &classname() const;
-  const std::string *summary() const { return new std::string(msg); }
-};
+// class ImageMagickError : public ErrErrorBase<ImageMagickError> {
+//   std::string msg;
+// public:
+//   ImageMagickError(const std::string&);
+//   const std::string &classname() const;
+//   const std::string *summary() const { return new std::string(msg); }
+// };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

@@ -10,17 +10,18 @@
 
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import config
-if config.dimension() == 2:
-    from ooflib.SWIG.image import oofimage
-elif config.dimension() == 3:
-    from ooflib.SWIG.image import oofimage3d as oofimage
+from ooflib.SWIG.image import oofimage
 from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.common import parallel_enable
 from ooflib.common import registeredclass
+from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.image import imagecontext
+
+import numpy
+import sys
 
 # Base class for Python ImageModifiers. 
 class ImageModifier(registeredclass.RegisteredClass):
@@ -43,15 +44,33 @@ def doImageMod(menuitem, image, **params):
     imagectxt.reserve()
     try:
         immidge = imagectxt.getObject()  # OOFImage object
+        # Create a new OOFImage object to hold the modified image.
+        # Originally it's just a copy of the unmodified image.
+        ## TODO NUMPY: Create the new image with a read-only view of
+        ## the original numpy data.  The modifier can act on the
+        ## orginal data as long as it doesn't change it in place.
         if config.use_skimage():
-            newimmidge = immidge.clone(immidge.name(), immidge.npImage().copy())
+            nporiginal = immidge.npImage()
+            npcopy = nporiginal.copy()
+            debug.DelNotifier(npcopy, "copied image")
+            newimmidge = immidge.clone(immidge.name(), npcopy)
         else:
             newimmidge = immidge.clone(immidge.name())
+            
         registration = menuitem.data
         imageModifier = registration(**params) # create ImageModifier obj
         imagectxt.begin_writing()
         try:
-            imageModifier(newimmidge)   # call its __call__ method on the image
+            modified = imageModifier(newimmidge) # perform the modification
+            assert modified is not None
+            # Make a copy of numpy array if needed to be sure that the
+            # modified numpy image is not a view of another array and
+            # is contiguous.
+            if modified.base is not None or not modified.flags.c_contiguous:
+                consolidated = modified.copy()
+                newimmidge.setNpImage(consolidated)
+            else:
+                newimmidge.setNpImage(modified)
             oofimage.pushModification(image, newimmidge)
         finally:
             imagectxt.end_writing()
@@ -62,43 +81,30 @@ def doImageMod(menuitem, image, **params):
 
 ###################################
 
-if config.dimension() == 2:
-    class FlipDirection(enum.EnumClass(
-        ('x', 'Flip the image about the x axis'),
-        ('y', 'Flip the image about the y axis'),
-        ('xy', 'Flip the image about both the x and y axes (ie, rotate by 180 degrees)'))):
-        tip = "Axis about which to flip an Image."
-        discussion = """<para>
-        <classname>FlipDirection</classname> is used by <xref
-        linkend='MenuItem-OOF.Image.Modify.Flip'/> to specify how to flip
-        an &image;.
-        </para>"""
-elif config.dimension() == 3:
-    class FlipDirection(enum.EnumClass(
-        # TODO 3D: are these all the flip possibilities?
-        ('x', 'Flip the image in the x direction.'),
-        ('y', 'Flip the image in the y direction.'),
-        ('z', 'Flip the image in the z direction.'),
-        ('xy', 'Flip the image in both the x and y directions.'),
-        ('yz', 'Flip the image in both the y and z directions.'),
-        ('xz', 'Flip the image in both the x and z directions.'),
-        ('xyz', 'Flip the image in each of the x, y, and z directions.'))):
-        tip = "Axis about which to flip an Image."
-        discussion = """<para>
-        <classname>FlipDirection</classname> is used by <xref
-        linkend='MenuItem-OOF.Image.Modify.Flip'/> to specify how to flip
-        an &image;.
-        </para>"""
-
+class FlipDirection(enum.EnumClass(
+    ('x', 'Flip the image about the x axis'),
+    ('y', 'Flip the image about the y axis'),
+    ('xy', 'Flip the image about both the x and y axes (ie, rotate by 180 degrees)'))):
+    tip = "Axis about which to flip an Image."
+    discussion = """<para>
+    <classname>FlipDirection</classname> is used by <xref
+    linkend='MenuItem-OOF.Image.Modify.Flip'/> to specify how to flip
+    an &image;.
+    </para>"""
     
 # Actual ImageModifier classes are derived from ImageModifier like this:
 
 class FlipImage(ImageModifier):
     def __init__(self, axis):           # constructor
-        self.axis = axis                # 'x' or 'y'
+        self.axis = axis                # 'x', 'y', or 'xy'
     def __call__(self, image):          # called by doImageMod
-        image.flip(self.axis.name)
-
+        if self.axis == 'x':
+            return numpy.flip(image.npImage(), 1)
+        if self.axis == 'y':
+            return numpy.flip(image.npImage(), 0)
+        # flip both
+        newimg = numpy.flip(image.npImage(), 0)
+        return numpy.flip(newimg, 1)
 
 # Registering the FlipImage class like this installs it in the menus
 # and GUI.  The names of the Parameters in the params list *must* be

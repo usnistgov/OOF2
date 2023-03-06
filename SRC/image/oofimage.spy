@@ -81,7 +81,9 @@ def readNumpyImage(filename, **kwargs):
     # Colons in image names are disallowed, because we use them as
     # separators in the labeltree.
     basename = os.path.basename(filename).replace(':','.')
-    image = OOFImage(basename, filename, npimage)
+    
+    image = OOFImage(basename, npimage)
+    
     # Set physical size of image
     pixelsize = image.sizeInPixels()    # iPoint
     given_height = 'height' in kwargs

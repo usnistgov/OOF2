@@ -44,17 +44,18 @@
     $result = Py_None;
   else
     $result = $1;
+  Py_XINCREF($result);
 }
 
 class OOFImage : public AbstractImage {
 public:
 #ifdef USE_SKIMAGE
-  OOFImage(char *name, char *filename, PyObject *VERBATIM);
+  OOFImage(char *name, PyObject *VERBATIM);
 #else // !USE_SKIMAGE
   OOFImage(char *name, char *filename);
 #endif // !USE_SKIMAGE
   ~OOFImage();
-  void save(char *filename);
+  // void save(char *filename);
   const std::string &name();
   void rename(char *);
   %newobject comment;
@@ -69,6 +70,7 @@ public:
 #ifdef USE_SKIMAGE
   OOFImage *clone(char *name, PyObject *VERBATIM);
   PyObject *npImage();
+  void setNpImage(PyObject *VERBATIM);
 #else
   OOFImage *clone(char *name);
 #endif	// USE_SKIMAGE
@@ -77,8 +79,6 @@ public:
   CMicrostructure *getCMicrostructure();
   void removeMicrostructure();
 
-  %newobject getPixels;
-  std::vector<unsigned short> *getPixels();
   void flip(char *axis);
   void fade(double);
   void dim(double);
@@ -110,15 +110,6 @@ public:
   }
 };
 
-%newobject newImageFromData;
-OOFImage *newImageFromData(const std::string &name, ICoord *iPoint,
- 			   const std::vector<unsigned short>*);
-
-#ifdef USE_SKIMAGE
-%newobject newImageFromNumpyData;
-OOFImage *newImageFromNumpyData(const std::string &name, PyObject *VERBATIM);
-#endif // USE_SKIMAGE
-
 // Parallel image send/recv
 #ifdef HAVE_MPI
 void _Send_Image(OOFImage*, const std::vector<int>*, int);
@@ -128,12 +119,12 @@ OOFImage *_Recv_Image(int, int);
 
 BoolArray threshold(DoubleArray,double);
 
-class ImageMagickError : public ErrError {
-public:
-  ImageMagickError(char *m);
-  ~ImageMagickError();
-};
-WRAP_OOFERROR_CLASS(ImageMagickError);
+// class ImageMagickError : public ErrError {
+// public:
+//   ImageMagickError(char *m);
+//   ~ImageMagickError();
+// };
+// WRAP_OOFERROR_CLASS(ImageMagickError);
 
 DoubleArray grayify(const OOFImage& image);
 void setFromBool(OOFImage&, const BoolArray&);

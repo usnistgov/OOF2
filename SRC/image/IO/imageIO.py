@@ -92,7 +92,7 @@ class NumpyRGB64(ImageData):
             img64 = img64.byteswap(inplace=(img64 is not image))
         self.rgbdata = img64.tobytes()
     def toArray(self, sizeInPixels):
-        array = numpy.frombuffer(self.npdata, dtype=numpy.dtype('<d'))
+        array = numpy.frombuffer(self.npdata, dtype=numpy.dtype('d'))
         array = array.reshape(sizeInPixels[1], sizeInPixels[0], 3)
         return array
     def __repr__(self):
@@ -113,7 +113,10 @@ registeredclass.Registration(
 class NumpyRGB16(ImageData):
     def __init__(self, rgbdata):
         if type(rgbdata) == str:
+            debug.fmsg(f"NumpyRGB16: read {len(rgbdata)} hex characters")
             rgbdata = bytes.fromhex(rgbdata)
+        else:
+            debug.fmsg(f"NumpyRGB16: read {len(rgbdata)} bytes")
         self.rgbdata = rgbdata
     def toBytes(self, image):
         # Convert data to 16 bit unsigned int. This is a no-op if
@@ -125,7 +128,7 @@ class NumpyRGB16(ImageData):
             img16 = img16.byteswap(inplace=(img16 is not image))
         self.rgbdata = img16.tobytes()
     def toArray(self, sizeInPixels):
-        array = numpy.frombuffer(self.rgbdata, dtype=numpy.dtype("<H"))
+        array = numpy.frombuffer(self.rgbdata, dtype=numpy.dtype("H"))
         array = array.reshape(sizeInPixels[1], sizeInPixels[0], 3)
         return skimage.util.img_as_float64(array)
     def __repr__(self):
@@ -141,16 +144,16 @@ registeredclass.Registration(
                                  tip='Image data stored as 16 bit ints')],
     tip="Numpy RGB image data stored as two byte ints.")
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def _newImage(menuitem, name, microstructure, pixels):
     ms = ooflib.common.microstructure.microStructures[microstructure].getObject()
     if config.use_skimage():
         # Get bytes from the ImageData (pixels) arg. 
-        image = oofimage.newImageFromNumpyData(
-            name, pixels.toArray(ms.sizeInPixels()))
+        image = oofimage.OOFImage(name, pixels.toArray(ms.sizeInPixels()))
     else:
-        image = oofimage.newImageFromData(name, ms.sizeInPixels(),
-                                          list(pixels.values()))
+        image = oofimage.OOFImage(name, ms.sizeInPixels(),
+                                  list(pixels.values()))
     image.setSize(ms.size())
     imagemenu.loadImageIntoMS(image, microstructure)
     
@@ -187,7 +190,7 @@ def writeImage(datafile, imagecontext):
 # will probably have to be set as a global parameter, since images are
 # saved as part of Microstructures, Skeletons, and Meshes.
 
-###################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 ## Define a Microstructure IO PlugIn so that Images will be written to
 ## Microstructure data files.
