@@ -14,6 +14,15 @@
 
 %module(package="ooflib.SWIG.engine") pointdata
 
+// TODO PYTHON3: Swig prints warnings when processing this file, but
+// they're harmless.  The problem is that this file imports field.swg,
+// which imports femesh.swg, which imports node.swg, which imports
+// this file.  FuncNode, in node.swg, uses PointData as a base class,
+// and PointData hasn't been defined when node.swg is imported.
+// Declaring PointData here before anything else is imported doesn't
+// help.  But we're not generating code for FuncNode here, so the
+// warning is spurious.
+
 %include "common/typemaps.swg"
 %import "engine/field.swg"
 
