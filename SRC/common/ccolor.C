@@ -119,6 +119,14 @@ bool CColor::operator<(const CColor &other) const {
   return false; 
 }
 
+bool CColor::operator==(const CColor &other) const {
+  return (other.red_ == red_ && other.green_ == green_ && other.blue_ == blue_);
+}
+
+bool CColor::operator!=(const CColor &other) const {
+  return (other.red_ != red_ || other.green_ != green_ || other.blue_ != blue_);
+}
+
 void CColor::operator=(const CColor &other) {
   this->red_ = other.red_;
   this->green_ = other.green_;
@@ -126,7 +134,6 @@ void CColor::operator=(const CColor &other) {
   this->alpha_ = other.alpha_;
   hsv = other.hsv;
 }
-
 
 void CColor::setRed(double r) {
   red_ = r;

@@ -73,6 +73,8 @@ public:
   virtual bool operator<(const CColor &) const;
 
   virtual void operator=(const CColor &);
+  bool operator==(const CColor&) const;
+  bool operator!=(const CColor&) const;
 
   virtual void print(std::ostream&) const;
   virtual CColor *clone() const {
