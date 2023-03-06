@@ -65,7 +65,7 @@ public:
   const COrientABG &operator[](const ICoord pt) const { return angles[pt]; }
   OOFCanvas::CanvasImage *makeCanvasImage(const Coord*, const Coord*,
 					  const Angle2Color*) const;
-  OOFImage *createImage(const std::string&, const Angle2Color&) const;
+  //OOFImage *createImage(const std::string&, const Angle2Color&) const;
   friend class COrientMapReader;
 
   friend void registerOrientMap(const std::string&, OrientMap*);
