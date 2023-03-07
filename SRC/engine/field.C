@@ -644,3 +644,34 @@ IndexP SymmetricTensorField::componenttype() const {
 IndexP SymmetricTensorField::getIndex(const std::string& str) const {
   return IndexP(new SymTensorIndex(SymTensorIndex::str2voigt(str)));
 }
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+void testIterator_(const Field *field) {
+  std::cerr << "testIterator: " << field->name() << std::endl;
+  for(Planarity planarity : {ALL_INDICES, IN_PLANE, OUT_OF_PLANE}) {
+    if (planarity == IN_PLANE)
+      std::cerr << "IN_PLANE";
+    else if(planarity == OUT_OF_PLANE)
+      std::cerr << "OUT_OF_PLANE";
+    else
+      std::cerr << "ALL_INDICES";
+    std::cerr << ":";
+    for(IteratorP fieldcomp=field->iterator(planarity); !fieldcomp.end();
+	++fieldcomp)
+      {
+	std::cerr << " " << fieldcomp;
+      }
+    std::cerr << std::endl;
+  }
+}
+
+void testIterators() {
+  for(int i=0; i<countCompoundFields(); i++) {
+    CompoundField *field = getCompoundFieldByIndex(i);
+    testIterator_(field);
+    testIterator_(field->out_of_plane());
+  }
+}
+
+  

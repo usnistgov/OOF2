@@ -194,6 +194,8 @@ public:
   const std::string &classname();
 };
 
+void testIterators();
+
 %pythoncode "engine/field.spy"
 
 #endif // FIELD_SWG
