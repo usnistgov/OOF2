@@ -14,19 +14,17 @@
 
 %module(package="ooflib.SWIG.engine") masterelement
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/element.swg"
 %import "engine/mastercoord.swg"
 %import "engine/material.swg"
-#endif // NOSECONDIMPORTS
 
 %{
-#include "engine/masterelement.h"
-#include "engine/element.h"
-#include "engine/node.h"
 #include "common/tostring.h"
+#include "engine/element.h"
+#include "engine/masterelement.h"
+#include "engine/node.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 %nodefaultctor ProtoNode;
@@ -42,9 +40,7 @@ public:
   const MasterCoord &mastercoord();
 };
 
-// Create the MasterElementVec typemap and typedef.
 MAKE_LISTVEC_TYPEMAPS(MasterElement);
-// Create the NodeVec typemap and typedef.
 MAKE_LISTVEC_TYPEMAPS(Node);
 
 // Do *not* use %newobject here. C++ retains ownership of the list,

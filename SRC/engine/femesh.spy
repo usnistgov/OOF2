@@ -11,7 +11,7 @@
 from ooflib.SWIG.engine import boundarycond
 from ooflib.SWIG.engine import material
 from ooflib.SWIG.engine import ooferror
-from ooflib.SWIG.engine.node import FuncNode
+from ooflib.SWIG.engine import planarity
 from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO import reporter
@@ -35,10 +35,8 @@ FEMesh.getNodes = _FEMesh_getNodes
 # created in Python, and never returned from C++ to Python.  That
 # means that the extra data added by the initializer here can be
 # safely stored in the swig wrapper class.
-
-## TODO PYTHON3: Use %pythonappend instead of monkeypatching?  It's
-## not useful when adding a completely new method, but might work for
-## __init__ here.
+# We can't use %pythonappend to do this because we're adding an
+# argument to the constructor, as well as extending it.
 
 old_FEMesh__init__ = FEMesh.__init__
 
@@ -323,13 +321,15 @@ FEMesh.renameBoundary = _FEMesh_renameBoundary
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def _FEMesh_createAuxiliaryBCs(self):
-    for bdy in self.boundaries.values():
+    # Convert to list so that we're not iterating over a changing dict.
+    for bdy in list(self.boundaries.values()):
         bdy.createAuxiliaryBCs()
 
 FEMesh.createAuxiliaryBCs = _FEMesh_createAuxiliaryBCs
 
 def _FEMesh_removeAuxiliaryBCs(self):
-    for bdy in self.boundaries.values():
+    # Convert to list so that we're not iterating over a changing dict.
+    for bdy in list(self.boundaries.values()):
         bdy.removeAuxiliaryBCs()
 
 FEMesh.removeAuxiliaryBCs = _FEMesh_removeAuxiliaryBCs
@@ -679,22 +679,18 @@ def _getConjugatePairs(meshctxt):
     equations=meshctxt.all_subproblem_equations_bc()
     # equations=meshctxt.all_subproblem_equations() #includes plane stress equations
     conjugatepairs=[]
-    ## TODO PYTHON3: Use real iterators
+
     for fld in fields:
-        flditer=fld.iterator_all()
-        while not flditer.end():
+        for fldcomp in fld.components(planarity.ALL_INDICES):
             for eqn in equations:
-                eqniter=eqn.iterator_all()
-                while not eqniter.end():
+                for eqncomp in eqn.components():
                     for pair in conjugate.listofconjugatepairs.pairs:
                         if pair.get_field()==fld and \
-                           pair.get_field_component().integer()==flditer.integer() and \
+                           pair.get_field_component().integer()==fldcomp.integer() and \
                            pair.get_equation()==eqn and \
-                           pair.get_equation_component().integer()==eqniter.integer():
-                            conjugatepairs.append((fld,flditer.shortrepr(),
-                                                   eqn,eqniter.shortrepr()))
-                    eqniter.increment()
-            flditer.increment()
+                           pair.get_equation_component().integer()==eqncomp.integer():
+                            conjugatepairs.append((fld,fldcomp.shortrepr(),
+                                                   eqn,eqncomp.shortrepr()))
     return conjugatepairs
 
 def _addInterfaceBC(self,bcname):

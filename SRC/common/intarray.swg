@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.common") intarray
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/coord.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/intarray.h"

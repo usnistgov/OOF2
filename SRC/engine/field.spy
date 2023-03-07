@@ -12,6 +12,7 @@
 from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.SWIG.engine import fieldindex
+from ooflib.SWIG.engine import planarity
 
 Field.__repr__ = Field.name
 CompoundField.__repr__ = CompoundField.name
@@ -82,4 +83,22 @@ def _Field_out_of_plane_time_derivative(self):
 
 CompoundField.out_of_plane_time_derivative = _Field_out_of_plane_time_derivative
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+def _fielditer(comps):
+    # comps is a swigged generic ComponentsP object
+    beginp = comps.begin()      # generic ComponentIteratorP object
+    endp = comps.end()          # generic ComponentIteratorP object
+    while beginp != endp:
+        yield beginp.current()  # derived FieldIndex class object
+        beginp.increment()
+
+def _Field_components(self, plan=planarity.ALL_INDICES):
+    return _fielditer(self.c_components(plan))
+
+Field.components = _Field_components
+
+def _Field_outOfPlaneComponents(self):
+    return _fielditer(self.c_outOfPlaneComponents())
+
+Field.outOfPlaneComponents = _Field_outOfPlaneComponents

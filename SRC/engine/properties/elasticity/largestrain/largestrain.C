@@ -69,7 +69,6 @@ inline double contract_C_dU_dF(const Cijkl &C,
 			       const DoubleVec &dF,
 			       int ij, int k, bool inplane)
 {
-#if DIM==2
   if ( inplane )
     return ( dU(k,0) * ( C(ij,0)*dF[0] + C(ij,5)*dF[1] ) +
 	     dU(k,1) * ( C(ij,5)*dF[0] + C(ij,1)*dF[1] ) );
@@ -77,11 +76,6 @@ inline double contract_C_dU_dF(const Cijkl &C,
     return ( dU(k,0) * ( C(ij,0)*dF[0] + C(ij,5)*dF[1] ) +
 	     dU(k,1) * ( C(ij,5)*dF[0] + C(ij,1)*dF[1] ) +
 	     dU(k,2) * ( C(ij,4)*dF[0] + C(ij,3)*dF[1] ) );
-#elif DIM==3
-  return ( dU(k,0) * ( C(ij,0)*dF[0] + C(ij,5)*dF[1] + C(ij,4)*dF[2] ) +
-	   dU(k,1) * ( C(ij,5)*dF[0] + C(ij,1)*dF[1] + C(ij,3)*dF[2] ) +
-	   dU(k,2) * ( C(ij,4)*dF[0] + C(ij,3)*dF[1] + C(ij,2)*dF[2] ) );
-#endif
 
 } // end of 'contract_C_dU_dF'
 
@@ -110,12 +104,10 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
   bool inplane = false;	// needed both in 2D & 3D versions regardless,
 			// passed to contract_C_dU_dF
 
-#if DIM==2
   // in 2D, check if it is an in-plane eqn or a plane-flux eqn.
   static CompoundField *displacement =
     dynamic_cast<CompoundField*>(Field::getField("Displacement"));
   inplane = displacement->in_plane( mesh );
-#endif
 
   // check for unexpected flux, flux should be a stress flux
   if (*flux != *stress_flux) {
@@ -126,9 +118,6 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
   Fval  = node.shapefunction( pt );     // value of the shape function
   dF[0] = node.dshapefunction( 0, pt ); // x-deriv of the shape function
   dF[1] = node.dshapefunction( 1, pt ); // y-deriv of the shape function
-#if DIM==3
-  dF[2] = node.dshapefunction( 2, pt ); // z-deriv of the shape function
-#endif
 
   computeDisplacementGradient( mesh, element, pt, dU );
 
@@ -136,79 +125,36 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
 
   // add the flux contributions to stiffness matrix element
 
-  // k_indx is needed for fluxmtx->stifness_matrix_element function,
-  // which does not take int k as argument
-  VectorFieldIndex k_indx;
-
-  for (SymTensorIterator ij_iter; !ij_iter.end(); ++ij_iter) {
+  for (SymTensorIndex ij_iter : symTensorIJComponents) {
     int k0, k1, k2, ij = ij_iter.integer();
     double nonlinear_part; // to store the sum from the nonlinear terms
 
     // TODO: Use tensor iterators for k0, k1, k2.
 
-#if DIM==2
-
     // sum CC(i,j,k,l)*dF(l),  k=0   over l=0,1, then add to stiffness_mtx
-    k_indx.set( 0 );
     k0 = ij2voigt( 0,0 );
     k1 = ij2voigt( 0,1 );
     nonlinear_part = contract_C_dU_dF(CC, dU, dF, ij, 0, inplane ); // at ij, k=0
-    fluxmtx->stiffness_matrix_element( ij_iter, displacement, k_indx, node )
+    fluxmtx->stiffness_matrix_element( ij_iter, displacement,
+				       VectorFieldIndex(0), node )
       -= CC( ij,k0 ) * dF[0] + CC( ij,k1 ) * dF[1]
       + nonlinear_part;
 
 
     // sum CC(i,j,k,l)*dF(l),  k=1   over l=0,1, then add to stiffness_mtx
-    k_indx.set( 1 ); 
     k0 = ij2voigt( 1,0 );
     k1 = ij2voigt( 1,1 );
     nonlinear_part = contract_C_dU_dF( CC, dU, dF, ij, 1, inplane ); // at ij, k=1
-    fluxmtx->stiffness_matrix_element( ij_iter, displacement, k_indx, node )
+    fluxmtx->stiffness_matrix_element( ij_iter, displacement,
+				       VectorFieldIndex(1), node )
       -= CC( ij,k0 ) * dF[0] + CC( ij,k1 ) * dF[1]
       + nonlinear_part;
 
-#elif DIM==3
-
-    // sum CC(i,j,k,l)*dF(l),  k=0   over l=0,1,2 then add to stiffness_mtx
-    k_indx.set( 0 );
-    k0 = ij2voigt( 0,0 ); 
-    k1 = ij2voigt( 0,1 );
-    k2 = ij2voigt( 0,2 );
-    nonlinear_part = contract_C_dU_dF( CC, dU, dF, ij, 0, inplane ); // at ij, k=0
-    fluxmtx->stiffness_matrix_element( ij_iter, displacement, k_indx, node )
-      -= CC( ij,k0 ) * dF[0] + CC( ij,k1 ) * dF[1] + CC( ij,k2 ) * dF[2]
-      + nonlinear_part;
-
-    // sum CC(i,j,k,l)*dF(l),  k=1   over l=0,1,2 then add to stiffness_mtx
-    k_indx.set( 1 );
-    k0 = ij2voigt( 1,0 );
-    k1 = ij2voigt( 1,1 ); 
-    k2 = ij2voigt( 1,2 );
-    nonlinear_part = contract_C_dU_dF( CC, dU, dF, ij, 1, inplane ); // at ij, k=1
-    fluxmtx->stiffness_matrix_element( ij_iter, displacement, k_indx, node )
-      -= CC( ij,k0 ) * dF[0] + CC( ij,k1 ) * dF[1] + CC( ij,k2 ) * dF[2]
-      + nonlinear_part;
-
-    // sum CC(i,j,k,l)*dF(l),  k=2   over l=0,1,2 then add to stiffness_mtx
-    k_indx.set( 2 );
-    k0 = ij2voigt( 2,0 ); 
-    k1 = ij2voigt( 2,1 ); 
-    k2 = ij2voigt( 2,2 );
-    nonlinear_part = contract_C_dU_dF( CC, dU, dF, ij, 2, inplane ); // at ij, k=2
-
-    fluxmtx->stiffness_matrix_element( ij_iter, displacement, k_indx, node )
-      -= CC( ij,k0 ) * dF[0] + CC( ij,k1 ) * dF[1] + CC( ij,k2 ) * dF[2]
-      + nonlinear_part;
-#endif
-
-#if DIM==2
 
     if ( !inplane ) // now contributions from z-deriv of displacement field
     {
       Field *disp_z_deriv = displacement->out_of_plane();
-
-      for(IteratorP k_iter = disp_z_deriv->iterator( ALL_INDICES ); !k_iter.end(); ++k_iter)
-      {
+      for(IndexP k_iter : disp_z_deriv->components(ALL_INDICES)) {
 	double diag_factor = ( k_iter.integer()==2 ? 1.0 : 0.5 );
 
 	k2 = ij2voigt( 2, k_iter.integer() );
@@ -217,7 +163,6 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
  	             -= diag_factor * Fval * CC( ij,k2 );
       }
     } // end of 'if (!inplane)'
-#endif
   } // end of loop over ij
 
 } // end of 'CLargeStrainElasticity::flux_matrix'

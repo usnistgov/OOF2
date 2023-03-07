@@ -18,11 +18,8 @@
 #include "engine/properties/heatcapacity/heatcapacity.h"
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
-#endif // NOSECONDIMPORTS
 
 class HeatCapacityProp : public Property {
 public:

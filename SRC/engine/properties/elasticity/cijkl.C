@@ -15,6 +15,7 @@
 
 #include "cijkl.h"
 #include "common/doublevec.h"
+#include "common/smallmatrix.h"
 #include "common/tostring.h"
 #include "common/trace.h"
 #include "engine/corientation.h"
@@ -33,21 +34,22 @@ double Cijkl::operator()(int i, int j, int k, int l) const {
   return c(SymTensorIndex(i, j).integer(), SymTensorIndex(k, l).integer());
 }
 
-double &Cijkl::operator()(const SymTensorIndex &a, const SymTensorIndex &b) {
-  return c(a.integer(), b.integer());
-}
-
-double Cijkl::operator()(const SymTensorIndex &a, const SymTensorIndex &b) const
-{
-  return c(a.integer(), b.integer());
-}
-
 double &Cijkl::operator()(int ij, int kl) {
   return c(ij, kl);
 }
 
 double Cijkl::operator()(int ij, int kl) const {
   return c(ij, kl);
+}
+
+double &Cijkl::operator()(const FieldIndex &a, const FieldIndex &b) {
+  // This assumes that the FieldIndex is really a SymTensorIndex.
+  return c(a.integer(), b.integer());
+}
+
+double Cijkl::operator()(const FieldIndex &a, const FieldIndex &b) const {
+  // This assumes that the FieldIndex is really a SymTensorIndex.
+  return c(a.integer(), b.integer());
 }
 
 // ----------------------------------------------------------- //

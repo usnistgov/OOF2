@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.engine") cstrain
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/IO/propertyoutput.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/cstrain.h"

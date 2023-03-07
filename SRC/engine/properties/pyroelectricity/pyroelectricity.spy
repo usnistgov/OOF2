@@ -39,7 +39,7 @@ class ConstancyEnum (enum.EnumClass('Constant stress','Constant strain')):
 reg = PropertyRegistration(
     'Couplings:PyroElectricity',
     PyroElectricity,
-    "ooflib.SWIG.engine.properties.pyroelectricity.pyroelectricity",500,
+    500,
     [parameter.FloatParameter(
             'px', 0.0,
             tip="Crystal X component of polarization contribution due to temperature change."),

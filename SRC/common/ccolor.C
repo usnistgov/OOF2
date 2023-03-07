@@ -263,7 +263,7 @@ std::string CColor::name() const {
   int b = blue_*256;
   if(b == 256) b = 255;
   char buffer[8];
-  sprintf(buffer, "#%02x%02x%02x", r, g, b);
+  snprintf(buffer, 8, "#%02x%02x%02x", r, g, b);
   return std::string(buffer);
 }
 

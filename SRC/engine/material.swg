@@ -14,15 +14,13 @@
 
 %module(package="ooflib.SWIG.engine") material
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %include "common/canvasimage.swg"
 %import "common/abstractimage.swg"
 %import "common/coord.swg"
 %import "common/pixelattribute.swg"
 %import "common/timestamp.swg"
-#endif // NOSECONDIMPORTS
+%import "engine/property.swg"
 
 %{
 #include "common/ccolor.h"
@@ -73,9 +71,8 @@ typedef std::string MaterialType;
     // raised a KeyError, which we clear, and return the unmodified
     // Material object.
     if(!$result) {
-      // TODO PYTHON3: Check that there is actually an exception by
-      // callding PyErr_Occurred() before PyErr_ExceptionMatches().
-      if(PyErr_ExceptionMatches(PyExc_KeyError)) { // we got a KeyError
+      if(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_KeyError)) {
+	// we got a KeyError
 	PyErr_Clear();
 	$result = SWIG_NewPointerObj(SWIG_as_voidptr($1),
 				     $descriptor(Material*),
@@ -142,12 +139,7 @@ typedef std::string MaterialType;
   delete $1;
 }
 
-// TODO PYTHON3: Should this be in property.swg?  Would that drag too
-// much other stuff into this file?
-PYTHONEXPORTABLE(Property);
-   
 // Convert a std::string& to a MaterialType Enum
-// TODO PYTHON3: We should have generic Enum <--> const std::string& typemaps.
 %typemap(out) MaterialType {
   // typemap(out) MaterialType
   FETCH_CLASS(ooflib.engine.materialtype, MaterialType)

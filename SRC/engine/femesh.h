@@ -41,9 +41,6 @@ struct DoFCompare;
 struct NodalEqnCompare;
 class MasterCoord;
 class NodalEquation;
-//AMR, moved to csubproblem
-//class NodalFluxes;
-//class NodalSCPatches;
 class Node;
 class NodeIterator;
 class RWLock;
@@ -97,9 +94,7 @@ public:
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-class FEMesh {    // : public PythonExportable<FEMesh> {
-  // FEMesh used to be derived from PythonExportable so that it could
-  // be used as an argument in switchboard messages.
+class FEMesh { 
 private:
   CMicrostructure * microstructure;
   RWLock *rwlock;
@@ -111,8 +106,6 @@ public:
   FEMesh(CMicrostructure *);
   virtual ~FEMesh();
   CMicrostructure *get_microstructure() const { return microstructure; }
-  virtual const std::string &classname() const;
-  virtual const std::string &modulename() const;
 
   ElementIterator element_iterator() const;
   NodeIterator node_iterator() const;

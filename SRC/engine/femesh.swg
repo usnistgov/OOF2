@@ -18,8 +18,6 @@
 %feature("valuewrapper") NodeIterator;
 %feature("valuewrapper") FuncNodeIterator;
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/cmicrostructure.swg"
 %import "common/lock.swg"
@@ -29,7 +27,6 @@
 %import "engine/node.swg"
 %import "engine/material.swg"
 %import "engine/meshiterator.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/csubproblem.h"
@@ -39,6 +36,7 @@
 #include "engine/meshiterator.h"
 #include "engine/nodalequation.h"
 #include "engine/node.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 class FEMesh {

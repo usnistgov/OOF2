@@ -14,41 +14,23 @@
 
 %module(package="ooflib.SWIG.engine") flux
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/fieldindex.swg"
 %import "engine/outputval.swg"
 %import "engine/planarity.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/flux.h"
 #include "engine/outputval.h"
-typedef std::vector<Flux*> FluxVec;
 %}
 
 PYTHONEXPORTABLE(Flux);
-
-%typemap(out) FluxVec * {
-  // typemap(out) FluxVec*
-  FluxVec::size_type sz = $1->size();
-  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
-  $result = PyList_New((Py_ssize_t) sz);
-  for(FluxVec::size_type i=0; i<sz; i++) {
-    PyObject *flux = (*$1)[i]->pythonObject();
-    if(!flux)
-      SWIG_fail;
-    PyList_SET_ITEM($result, (Py_ssize_t) i, flux);
-  }
-}
-
-%typemap(newfree) FluxVec * {
-  // typemap(newfree) FluxVec*
-  delete $1;
-}
+MAKE_LISTVEC_TYPEMAPS(Flux);
 
 %nodefaultctor Flux;
+%rename(c_components) Flux::components;
+%rename(c_divergenceComponents) Flux::divergenceComponents;
+%rename(c_outOfPlaneComponents) Flux::outOfPlaneComponents;
 
 class Flux {
 public:
@@ -56,22 +38,15 @@ public:
   int divergence_dim();
   const std::string &name();
   int objectid();
-
-  IteratorP iterator(Planarity p);
-  IteratorP divergence_iterator();
-  IndexP componenttype();
   ArithmeticOutputValue newOutputValue();
+  ComponentsP components(Planarity) const;
+  ComponentsP divergenceComponents() const;
+  ComponentsP outOfPlaneComponents() const;
 };
 
 ADD_REPR(Flux, repr);
 
 %extend Flux {
-  // iterator_all is used in situations in which it's not known if
-  // we're iterating over a Field, Flux, or Equation.
-  // Equation::iterator doesn't take an argument.
-  IteratorP iterator_all() {
-    return self->iterator(ALL_INDICES);
-  }
   bool __eq__(Flux *other) {
     return self->objectid() == other->objectid();
   }

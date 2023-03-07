@@ -370,7 +370,7 @@ void Material::post_process(CSubProblem *subproblem, const Element *el) const {
 // Called from Element::make_linear_system.
 void Material::make_linear_system(const CSubProblem *subproblem,
 				  const Element *el,
-				  const GaussPointIterator &gpt,
+				  const GaussPoint &pt,
 				  const std::vector<int> &dofmap,
 				  double time,
 				  const CNonlinearSolver *nlsolver,
@@ -379,7 +379,6 @@ void Material::make_linear_system(const CSubProblem *subproblem,
 {
   // By the time we are called, we are promised that cross_reference
   // has been run, and that the material is in a consistent state.
-  GaussPoint pt = gpt.gausspoint(); // current gauss pt from gauss pt iterator
   FEMesh *mesh = subproblem->mesh;
 
   FluxSysMap fluxdata;
@@ -534,8 +533,6 @@ void Material::dump(std::ostream &os) const {
 
 const std::string
 MaterialAttributeRegistration::classname_("MaterialAttributeRegistration");
-const std::string
-MaterialAttributeRegistration::modulename_("ooflib.SWIG.engine.material");
 
 static MaterialAttributeRegistration *matattrreg;
 

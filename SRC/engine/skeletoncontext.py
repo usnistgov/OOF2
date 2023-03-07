@@ -28,6 +28,7 @@ from ooflib.engine import skeletongroups
 from ooflib.engine import skeletonnode
 from ooflib.engine import skeletonselectable
 from ooflib.engine.IO import movenode
+import itertools
 import sys
 
 # When propagating boundaries, Deputies shouldn't be around - since they
@@ -273,13 +274,13 @@ class SkeletonContext(whoville.WhoDoUndo):
             meshctxt.skeletonChanged(self.getObject())
 
     def updateGroupsAndSelections(self):
-        self.nodegroups.new_objects(self)
-        self.segmentgroups.new_objects(self)
-        self.elementgroups.new_objects(self)
+        self.nodegroups.new_objects()
+        self.segmentgroups.new_objects()
+        self.elementgroups.new_objects()
 
-        self.nodeselection.newSkeleton(self)
-        self.segmentselection.newSkeleton(self)
-        self.elementselection.newSkeleton(self)
+        self.nodeselection.newSkeleton()
+        self.segmentselection.newSkeleton()
+        self.elementselection.newSkeleton()
     
 
     def undoModification(self):
@@ -676,10 +677,10 @@ class SkeletonContext(whoville.WhoDoUndo):
         return self.edgeboundaries.keys() # returns an iterator!
     
     def allBoundaryNames(self):
-        ## TODO PYTHON3: Make this return an iterator.  Check that
-        ## it's ok in all situations.
-        return (list(self.edgeboundaries.keys()) +
-                list(self.pointboundaries.keys()))
+        for name in self.edgeboundaries:
+            yield name
+        for name in self.pointboundaries:
+            yield name
 
     #Interface branch
     def allInterfaceNames(self):
@@ -691,10 +692,9 @@ class SkeletonContext(whoville.WhoDoUndo):
             return []
         
     def uniqueBoundaryName(self, name):
-        if config.dimension() == 2:
-            return utils.uniqueName(name, self.allBoundaryNames()+self.allInterfaceNames())
-        if config.dimension() == 3:
-            return utils.uniqueName(name, self.allBoundaryNames())
+        return utils.uniqueName(
+            name,
+            itertools.chain(self.allBoundaryNames(), self.allInterfaceNames()))
 
     # Get information about the named boundary, i.e. type, size, and
     # return it as a string, with newlines as appropriate.
@@ -746,15 +746,9 @@ class SkeletonContext(whoville.WhoDoUndo):
 
     # Copy over the group data from another skeletoncontext.
     def groupCopy(self, other):
-        # mygroups = [self.nodegroups, self.segmentgroups, self.elementgroups]
-        # othergroups = [other.nodegroups, other.segmentgroups,
-        #                other.elementgroups] 
-        # for (g, og) in zip(None, mygroups, othergroups):
-        #     g.nameCopy(og)
-        ## TODO PYTHON3: Check this
-        self.nodegroups.nameCopy(other.nodegroups)
-        self.segmentgroups.nameCopy(other.segmentgroups)
-        self.elementgroups.nameCopy(other.elementgroups)
+        self.nodegroups.addGroup(*other.nodegroups.allGroups())
+        self.segmentgroups.addGroup(*other.segmentgroups.allGroups())
+        self.elementgroups.addGroup(*other.elementgroups.allGroups())
 
     # ## ### #### ##### ###### ####### ####### ###### ##### #### ### ## #
 

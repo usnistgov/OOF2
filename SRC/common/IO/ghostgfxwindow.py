@@ -1612,7 +1612,7 @@ def _setDefaultGfxSize(menuitem, width, height):
     GhostGfxWindow.initial_height = height
 
 mainmenu.gfxdefaultsmenu.addItem(oofmenu.OOFMenuItem(
-    'Window',
+    'Window_Size',
     callback=_setDefaultGfxSize,
     ordering=0,
     params=[parameter.IntParameter('width',

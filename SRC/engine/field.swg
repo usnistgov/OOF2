@@ -14,8 +14,6 @@
 
 %module(package="ooflib.SWIG.engine") field
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
 %import "engine/femesh.swg"
@@ -24,15 +22,18 @@
 %import "engine/outputval.swg"
 %import "engine/planarity.swg"
 %import "engine/pointdata.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/coord.h"
 #include "engine/field.h"
 #include "engine/outputval.h"
 #include "engine/pointdata.h"
+  #include "engine/flux.h"	// SWIGBUG
+  #include "engine/node.h"	// SWIGBUG
+  #include "engine/property.h"	// SWIGBUG?
 int countFields();
 typedef std::vector<CompoundField*> CompoundFieldVec;
+typedef FieldIndex NewFieldIndex;
 %}
 
 // Typemap to convert a std::vector of CompoundField*s to a Python
@@ -85,6 +86,8 @@ typedef std::vector<CompoundField*> CompoundFieldVec;
 %nodefaultdtor Field;
 
 %rename(c_time_derivative) Field::time_derivative;
+%rename(c_components) Field::components;
+%rename(c_outOfPlaneComponents) Field::outOfPlaneComponents;
 
 class Field {
 public:
@@ -108,6 +111,9 @@ public:
   // c_time_derivative should not be used anywhere else.
   Field *time_derivative(); // renamed to c_time_derivative
 
+  ComponentsP components(Planarity p=planarity.ALL_INDICES);
+  ComponentsP outOfPlaneComponents();
+
   void registerProperty(Property*);
 
   bool is_active(CSubProblem*);
@@ -117,9 +123,8 @@ public:
 
   void setValueFromOutputValue(FEMesh*, PointData&, OutputValue*);
 
-  IteratorP iterator(Planarity p);
-  IndexP componenttype();
-  IndexP getIndex(char *);	// convert from "x", "xy", etc.
+  NewFieldIndex *getIndex(const std::string&) const;
+  
   ArithmeticOutputValue newOutputValue();
   ArithmeticOutputValue output(FEMesh*, PointData&);
 };
@@ -135,12 +140,6 @@ public:
   }
   DegreeOfFreedom *dof(PointData *n, int component) {
     return (*self)(*n, component);
-  }
-  // iterator_all is used in situations in which it's not known if
-  // we're iterating over a Field, Flux, or Equation.
-  // Equation::iterator doesn't take an argument.
-  IteratorP iterator_all() {
-    return self->iterator(ALL_INDICES);
   }
 };
 
@@ -179,12 +178,6 @@ public:
 class ThreeVectorField : public CompoundField, public Field {
 public:
   ThreeVectorField(char *name);
-  const std::string &classname();
-};
-
-class VectorFieldBase : public Field {
-public:
-  VectorFieldBase(char *name, int d);
   const std::string &classname();
 };
 

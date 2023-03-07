@@ -16,13 +16,11 @@
 
 %{
 #include "engine/elementnodeiterator.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/node.swg"
-#endif // NOSECONDIMPORTS
 
 %nodefaultctor ElementNodeIterator;
 %feature("valuewrapper") ElementNodeIterator;

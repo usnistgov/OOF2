@@ -14,17 +14,15 @@
 
 %module(package="ooflib.SWIG.engine") meshiterator
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/element.swg"
 %import "engine/node.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/element.h"
 #include "engine/meshiterator.h"
 #include "engine/node.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 // Constructors for these classes aren't swigged because the objects

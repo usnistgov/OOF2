@@ -426,9 +426,8 @@ class _PropertyStructureInfo:
 # resulting name as a parameter to their parameter list.
 
 class PropertyRegistrationParent:
-    def __init__(self, subclass, modulename, ordering, secret):
+    def __init__(self, subclass, ordering, secret):
         self.subclass = subclass        # for PythonExportability of Property
-        self.modulename = modulename    # ditto
         self.ordering = ordering
         # The registry is class-level data inserted into the Property
         # class in property.spy.
@@ -452,7 +451,7 @@ class PropertyRegistrationParent:
 # recomputation of the stiffness matrix when mesh.make_stiffness is
 # called, even if the mesh itself hasn't changed.
 class PropertyRegistration(PropertyRegistrationParent):
-    def __init__(self, name, subclass, modulename, ordering, params=[],
+    def __init__(self, name, subclass, ordering, params=[],
                  propertyType=None,
                  outputs=[],
                  secret=0,
@@ -461,8 +460,7 @@ class PropertyRegistration(PropertyRegistrationParent):
                  tip=None,
                  discussion=None):
 
-        PropertyRegistrationParent.__init__(self, subclass,
-                                            modulename, ordering, secret)
+        PropertyRegistrationParent.__init__(self, subclass, ordering, secret)
 
         # Save the fully-qualified name for error reporting.  This
         # datum should not be confused with the parameter "name",
@@ -672,7 +670,6 @@ class PropertyRegistration(PropertyRegistrationParent):
         new_params = [parameter.StringParameter('name',name)] + \
                      [p.clone() for p in old_params]
         return NamedPropertyRegistration(self, name, self.subclass,
-                                         self.modulename, 
                                          self.ordering, new_params,
                                          secret)
     def getParameter(self, name):
@@ -686,14 +683,12 @@ class PropertyRegistration(PropertyRegistrationParent):
 # being created automatically by the tree, and by having a "parent"
 # attribute which refers to a PropertyRegistration object.
 class NamedPropertyRegistration(PropertyRegistration):
-    def __init__(self, parent, name, subclass,
-                 modulename, ordering, params, secret):
+    def __init__(self, parent, name, subclass, ordering, params, secret):
         
         ## TODO: Why does NamedPropertyRegistration inherit from
         ## PropertyRegistration, but call PropertyRegistrationParent's
         ## __init__?  Is the class hierarchy strange?
-        PropertyRegistrationParent.__init__(self, subclass,
-                                            modulename, ordering, secret)
+        PropertyRegistrationParent.__init__(self, subclass, ordering, secret)
 
         self._name = name
         self.moniker = stringsplit(name,":")[-1]
@@ -770,7 +765,6 @@ class NamedPropertyRegistration(PropertyRegistration):
         new_params = [parameter.StringParameter('name', name)] + \
                      [p.clone() for p in non_name_params]
         return NamedPropertyRegistration(self.parent, name, self.subclass,
-                                         self.modulename, 
                                          self.parent.ordering, new_params,
                                          secret)
     

@@ -33,7 +33,6 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 reg = PropertyRegistration(
     'Couplings:IonDiffusion',
     IonDiffusion,
-    "ooflib.SWIG.EXTENSIONS.diffusion.ion",
     ordering=113,
     params=[parameter.FloatParameter('z',
                                      1.0, tip=parameter.emptyTipString)],

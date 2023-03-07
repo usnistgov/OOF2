@@ -100,16 +100,6 @@ FEMesh::~FEMesh() {
   globalFEMeshCountLock.release();
 }
 
-const std::string &FEMesh::classname() const {
-  static const std::string _name = "FEMesh";
-  return _name;
-}
-
-const std::string &FEMesh::modulename() const {
-  static const std::string _name = "ooflib.SWIG.engine.femesh";
-  return _name;
-}
-
 long get_globalFEMeshCount() {
   return FEMesh::globalFEMeshCount;
 }

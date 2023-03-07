@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.engine") dofmap
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/doublevec.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/doublevec.h"

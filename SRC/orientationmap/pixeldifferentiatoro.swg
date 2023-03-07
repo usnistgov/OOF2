@@ -14,12 +14,9 @@
 
 %module(package="ooflib.SWIG.orientationmap") pixeldifferentiatoro
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/burn.swg"
 %import "common/statgroups.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/burn.h"

@@ -14,23 +14,23 @@
 
 %module(package="ooflib.SWIG.engine") boundarycond
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
 %import "engine/edgeset.swg"
 %import "engine/equation.swg"
+%import "engine/field.swg"
 %import "engine/flux.swg"
 %import "engine/linearizedsystem.swg"
 %import "engine/node.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/coord.h"
 #include "common/tostring.h"
 #include "engine/boundarycond.h"
 #include "engine/equation.h"
+#include "engine/field.h"
 #include "engine/flux.h"
+#include "engine/node.h"
 %}
 
 class FloatBCApp {

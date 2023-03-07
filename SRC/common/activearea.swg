@@ -14,16 +14,12 @@
 
 %module(package="ooflib.SWIG.common") activearea
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/cmicrostructure.swg"
 %import "common/cpixelselection.swg"
 %import "common/pixelattribute.swg"
-#endif // NOSECONDIMPORTS
 
 %{
-#include <oofconfig.h>
 #include "common/activearea.h"
 #include "common/ooferror.h"
 %}

@@ -14,12 +14,9 @@
 
 %module(package="ooflib.SWIG.engine") ooferror
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %include "common/ooferrorwrappers.swg"
 %import "common/ooferror.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/ooferror.h"

@@ -50,7 +50,9 @@ import weakref
 class GenericGroupSet:
     def __init__(self, skeletoncontext, objects=None, groupset=[]):
         self.skeletoncontext = skeletoncontext
-        self.groups = utils.OrderedSet(groupset)
+        # self.groups contains the names of the groups, in the order
+        # in which they were created.
+        self.groups = utils.OrderedSet(groupset) 
 
         # self.objects is a reference to the list of objects in the
         # Skeleton from which the members of the group are chosen.  It
@@ -79,6 +81,8 @@ class GenericGroupSet:
         del self.objects
 
     # When new skeletons are pushed on, create the required groups.
+    # Called by the switchboard when a new Skeleton is pushed onto the
+    # SkeletonContext.
     def new_skeleton(self, context, oldskeleton, newskeleton):
         if context==self.skeletoncontext:
             newtracker = newskeleton.newGroupTracker(self)
@@ -98,13 +102,14 @@ class GenericGroupSet:
         
     # Add a name or names to the list of known groups. 
     def addGroup(self, *names):
-        if names:
-            for name in names:
-                self.groups.add(name)
-                for t in self.tracker.values():
-                    t.add_group(name)
-            switchboard.notify("groupset member added", self.skeletoncontext,
-                               self, names[-1])
+        if not names:
+            return
+        for name in names:
+            self.groups.add(name)
+            for t in self.tracker.values():
+                t.add_group(name)
+        switchboard.notify("groupset member added", self.skeletoncontext,
+                           self, names[-1])
 
     # Remove a name or names from the list of known groups.
     def removeGroup(self, *names):
@@ -131,10 +136,6 @@ class GenericGroupSet:
     def sizeOfGroup(self, name):
         current_tracker = self.tracker[self.skeletoncontext.getObject()]
         return current_tracker.get_group_size(name)
-
-    # Set your list of known names from another group object.
-    def nameCopy(self, other):
-        self.groups = other.groups.copy()
 
     # Access the list of group names -- GUI will want this.
     def allGroups(self):
@@ -300,7 +301,7 @@ class GenericMaterialGroupSet(GenericGroupSet):
 
 class GroupTracker:
     def __init__(self):
-        self.data = {}
+        self.data = {}      # sets of selectables, keyed by group name
     def add_group(self, name):
         # Use an ordered set here so that tests are reproducible.
         # TODO PYTHON3: After comparisons with the old Python2 version
@@ -357,10 +358,9 @@ class NodeGroupSet(GenericGroupSet):
     def __init__(self, skeletoncontext):
         GenericGroupSet.__init__(self, skeletoncontext)
 
-    def new_objects(self, context):
-        if context == self.skeletoncontext:
-            self.objects = self.skeletoncontext.getObject().nodes
-            self.relay()
+    def new_objects(self):
+        self.objects = self.skeletoncontext.getObject().nodes
+        self.relay()
 
     def get_selection(self):
         return self.skeletoncontext.nodeselection.retrieve()
@@ -376,10 +376,9 @@ class SegmentGroupSet(GenericGroupSet):
     def __init__(self, skeletoncontext):
         GenericGroupSet.__init__(self, skeletoncontext)
 
-    def new_objects(self, context):
-        if context == self.skeletoncontext:
-            self.objects = list(self.skeletoncontext.getObject().segments.values())
-            self.relay()
+    def new_objects(self):
+        self.objects = list(self.skeletoncontext.getObject().segments.values())
+        self.relay()
 
     def get_selection(self):
         return self.skeletoncontext.segmentselection.retrieve()
@@ -395,10 +394,9 @@ class ElementGroupSet(GenericMaterialGroupSet):
     def __init__(self, skeletoncontext):
         GenericMaterialGroupSet.__init__(self, skeletoncontext)
 
-    def new_objects(self, context):
-        if context == self.skeletoncontext:
-            self.objects = self.skeletoncontext.getObject().elements
-            self.relay()
+    def new_objects(self):
+        self.objects = self.skeletoncontext.getObject().elements
+        self.relay()
 
     def get_selection(self):
         return self.skeletoncontext.elementselection.retrieve()

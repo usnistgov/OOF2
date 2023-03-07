@@ -30,7 +30,6 @@ class IsoLargeStrainElasticity(CIsoLargeStrainElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:LargeStrain:Isotropic',
     IsoLargeStrainElasticity, 
-    "ooflib.SWIG.engine.properties.elasticity.largestrain.largestrain",
     200,
     [
         isocijkl.IsotropicCijklParameter(
@@ -63,7 +62,6 @@ class CubicLargeStrainElasticity(AnisoLargeStrainElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:LargeStrain:Anisotropic:Cubic',
     CubicLargeStrainElasticity,
-    "ooflib.SWIG.engine.properties.elasticity.largestrain.aniso",
     211,
     [anisocijkl.CubicCijklParameter('cijkl',
                                     anisocijkl.CubicRank4TensorCij(c11=1.0,
@@ -88,7 +86,6 @@ class HexagonalLargeStrainElasticityProp(AnisoLargeStrainElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:LargeStrain:Anisotropic:Hexagonal',
     HexagonalLargeStrainElasticityProp,
-    "ooflib.SWIG.engine.properties.elasticity.largestrain.aniso",
     212,
     [anisocijkl.HexagonalCijklParameter(
     'cijkl', anisocijkl.HexagonalRank4TensorCij(c11=1.0,
@@ -113,7 +110,6 @@ class TetragonalLargeStrainElasticity(AnisoLargeStrainElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:LargeStrain:Anisotropic:Tetragonal',
     TetragonalLargeStrainElasticity,
-    "ooflib.SWIG.engine.properties.elasticity.largestrain.aniso",
     213,
     [anisocijkl.TetragonalCijklParameter(
     'cijkl', anisocijkl.TetragonalRank4TensorCij(
@@ -137,7 +133,6 @@ class TrigonalALargeStrainElasticity(AnisoLargeStrainElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:LargeStrain:Anisotropic:TrigonalA',
     TrigonalALargeStrainElasticity,
-    "ooflib.SWIG.engine.properties.elasticity.largestrain.aniso",
     214,
     [anisocijkl.TrigonalACijklParameter('cijkl',
                                         anisocijkl.TrigonalARank4TensorCij(
@@ -160,7 +155,6 @@ class TrigonalBLargeStrainElasticity(AnisoLargeStrainElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:LargeStrain:Anisotropic:TrigonalB',
     TrigonalBLargeStrainElasticity,
-    "ooflib.SWIG.engine.properties.elasticity.largestrain.aniso",
     215,
     [anisocijkl.TrigonalBCijklParameter(
             'cijkl',
@@ -184,7 +178,6 @@ class OrthorhombicLargeStrainElasticity(AnisoLargeStrainElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:LargeStrain:Anisotropic:Orthorhombic',
     OrthorhombicLargeStrainElasticity,
-    "ooflib.SWIG.engine.properties.elasticity.largestrain.aniso",
     216,
     [anisocijkl.OrthorhombicCijklParameter(
             'cijkl',
@@ -209,7 +202,6 @@ class MonoclinicLargeStrainElasticity(AnisoLargeStrainElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:LargeStrain:Anisotropic:Monoclinic',
     MonoclinicLargeStrainElasticity,
-    "ooflib.SWIG.engine.properties.elasticity.largestrain.aniso",
     217,
     [anisocijkl.MonoclinicCijklParameter(
             'cijkl',
@@ -236,7 +228,6 @@ class TriclinicLargeStrainElasticity(AnisoLargeStrainElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:LargeStrain:Anisotropic:Triclinic',
     TriclinicLargeStrainElasticity,
-    "ooflib.SWIG.engine.properties.elasticity.largestrain.aniso",
     218,
     [anisocijkl.TriclinicCijklParameter(
             'cijkl',

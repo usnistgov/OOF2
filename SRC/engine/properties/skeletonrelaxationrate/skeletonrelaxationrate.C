@@ -79,9 +79,9 @@ void SkeletonRelaxationRate::flux_offset(const FEMesh *mesh,
   double energyH = skelel->energyHomogeneity(*mesh->get_microstructure());
   // TODO OPT: compute S in-line.
   const SymmMatrix3 S = shapetensor(element);
-  for(SymTensorIterator ij; !ij.end(); ++ij) {
+  for(SymTensorIndex ij : symTensorIJComponents) {
     double &offset_el = fluxdata->offset_vector_element(ij); // reference!
-    for(SymTensorIterator kl; !kl.end(); ++kl) {
+    for(SymTensorIndex kl : symTensorIJComponents) {
       if(kl.diagonal()) {
 	offset_el -= alpha_*modulus(ij,kl)*gamma_*(1.0+energyH)*energyH;
 	offset_el -= (1.0-alpha_)*modulus(ij,kl)*gamma_*S(kl.row(),kl.col());

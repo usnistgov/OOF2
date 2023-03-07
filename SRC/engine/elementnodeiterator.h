@@ -31,6 +31,16 @@ class ProtoNode;
 // Element, and is the base class for the specialized iterators, which
 // loop over subsets of the Nodes.
 
+// TODO PYTHON3: Make these into real C++ and python iterators?  A
+// more natural syntax would be
+//  for(Node *node : element->nodes()) ...
+//  for(FuncNode *node : element->funcnodes()) ...
+//  for(ElementNodeIterator i=el->nodes().begin(); i!=el.nodes().end(); ++i) ...
+// A difficulty with doing this is that the iterators, as currently
+// written, wrap around the list of nodes, which would not be
+// imposssible to implement with STL type iterators, but would be
+// somewhat messy.  Is this wraparound feature actually needed?
+
 class ElementNodeIterator {	// for looping over all nodes
 protected:
   const Element &element_;

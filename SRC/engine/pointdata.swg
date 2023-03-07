@@ -14,14 +14,13 @@
 
 %module(package="ooflib.SWIG.engine") pointdata
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/field.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/pointdata.h"
+  #include "engine/flux.h"	// SWIGBUG
+  #include "engine/node.h"	// SWIGBUG
 %}
 
 %nodefaultctor PointData;

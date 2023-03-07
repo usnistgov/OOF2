@@ -14,15 +14,12 @@
 
 %module(package="ooflib.SWIG.engine") compoundsubproblem
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/compoundsubproblem.h"
-  //#include "engine/flux.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 class CIntersectionSubProblem: public CSubProblem {

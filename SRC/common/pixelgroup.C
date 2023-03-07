@@ -24,14 +24,12 @@
 
 
 // TODO LATER: Would it be more efficient to base PixelGroup on a
-// std::set instead of a std::vector? 
+// std::set instead of a std::vector?  Would that make tests unreproducible?
 
 //----------- 
 
 const std::string
 PixelGroupAttributeRegistration::classname_("PixelGroupAttributeRegistration");
-const std::string
-PixelGroupAttributeRegistration::modulename_("ooflib.SWIG.common.pixelgroup");
 
 static PixelGroupAttributeRegistration *reg = 0;
 

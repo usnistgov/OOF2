@@ -20,7 +20,6 @@ from ooflib.engine import problem
 reg = PropertyRegistration(
     'Mechanical:ForceDensity:ConstantForceDensity',
     ForceDensity,
-    "ooflib.SWIG.engine.properties.forcedensity.forcedensity",
     100,
     [parameter.FloatParameter('gx', 0.0, 
                               tip="body force density in the x direction"),

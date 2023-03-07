@@ -14,14 +14,14 @@
 
 %module(package="ooflib.SWIG.engine") freedom
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/femesh.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/freedom.h"
+  #include "engine/edge.h"	// SWIGBUG
+  #include "engine/equation.h"	// SWIGBUG
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 %nodefaultctor DegreeOfFreedom;

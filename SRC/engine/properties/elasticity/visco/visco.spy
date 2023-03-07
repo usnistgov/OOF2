@@ -21,7 +21,6 @@ class ViscoElasticity(CViscoElasticity):
 reg = propertyregistration.PropertyRegistration(
     "Mechanical:Viscosity:Isotropic",
     ViscoElasticity,
-    "ooflib.SWIG.engine.properties.elasticity.visco.visco",
     1000,
     [isocijkl.IsotropicCijklParameter('gijkl',
                           isocijkl.IsotropicRank4TensorCij(c11=1.0, c12=0.5),

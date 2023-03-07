@@ -31,7 +31,6 @@ class ElementMapNodeIterator;
 class Node : public PythonExportable<Node>, public Position {
 private:
   static const std::string classname_;
-  static const std::string modulename_;
 protected:
   Node(int n, const Coord &p);	// only called by FEMesh::newMapNode()
   Node(const Node&);		// prohibited
@@ -44,7 +43,6 @@ public:
   
   virtual ~Node() {}
   virtual const std::string &classname() const { return classname_; }
-  virtual const std::string &modulename() const { return modulename_; }
   virtual Coord position() const { return pos; } // get original position
 
   friend bool operator==(const Node&, const Node&);

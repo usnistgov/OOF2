@@ -15,15 +15,13 @@
 
 %module(package="ooflib.SWIG.engine") edgeset
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/femesh.swg"
 %import "engine/edge.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/edgeset.h"
+  #include "engine/flux.h"	// SWIGBUG
 typedef std::vector<const EdgeNodeDistance*> vecdist;
 %}
 

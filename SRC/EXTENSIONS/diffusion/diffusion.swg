@@ -15,12 +15,9 @@
 #include "EXTENSIONS/diffusion/diffusion.h"
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
 %import "engine/symmmatrix.swg"
-#endif // NOSECONDIMPORTS
 
 class IsoDiffusion : public Property {
 public:

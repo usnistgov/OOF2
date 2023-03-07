@@ -31,25 +31,21 @@ class PyHeatConductivity(pypropertywrapper.PyFluxProperty):
         dsf0 = nodeiterator.dshapefunction(0, point)
         dsf1 = nodeiterator.dshapefunction(1, point)
         cond = symmmatrix.SymmMatrix3(1., 1., 1., 0., 0., 0.)
-        fluxiterator = problem.Heat_Flux.iterator(planarity.ALL_INDICES)
-        ## TODO PYTHON3: Use real iterators
-        while not fluxiterator.end():
+        for fluxindex in problem.Heat_Flux.components(planarity.ALL_INDICES):
             fluxdata.add_stiffness_matrix_element(
-                fluxiterator,
+                fluxindex,
                 problem.Temperature,
                 problem.Temperature.getIndex(""), # scalar field dummy 'index'
                 nodeiterator,
-                -(cond.get(fluxiterator.integer(), 0) * dsf0 +
-                  cond.get(fluxiterator.integer(), 1) * dsf1))
+                -(cond.get(fluxindex.integer(), 0) * dsf0 +
+                  cond.get(fluxindex.integer(), 1) * dsf1))
             if not problem.Temperature.in_plane(mesh):
                 fluxdata.add_stiffness_matrix_element(
-                    fluxiterator,
+                    fluxindex,
                     problem.Temperature.out_of_plane(), # also a scalar
                     problem.Temperature.getIndex(""),   # also a dummy
                     nodeiterator,
                     cond.get(fluxiterator.integer(), 2) * sf)
-            
-            fluxiterator.increment()
     def integration_order(self, subproblem, element):
         if problem.Temperature.in_plane(subproblem.get_mesh()):
             return element.dshapefun_degree()
@@ -58,7 +54,6 @@ class PyHeatConductivity(pypropertywrapper.PyFluxProperty):
 reg = propertyregistration.PropertyRegistration(
     'Thermal:Conductivity:PyIsotropic',
     PyHeatConductivity,
-    "ooflib.engine.properties.heatconductivity.pyheatconductivity",
     ordering=10000,
     propertyType="ThermalConductivity",
     secret=True

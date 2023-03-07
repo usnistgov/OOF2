@@ -30,8 +30,6 @@
 #include "engine/smallsystem.h"
 #include "engine/symmmatrix.h"
 
-const std::string Flux::modulename_("ooflib.SWIG.engine.flux");
-
 std::vector<Flux*> &Flux::allfluxes() {
   static std::vector<Flux*> all_fluxes;
   return all_fluxes;
@@ -116,81 +114,80 @@ const std::string &SymmetricTensorFlux::classname() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-IteratorP VectorFlux::iterator(Planarity planarity) const {
-  int maxdim = 3;
-  int mindim = 0;
-#if DIM==2
-  if(planarity == IN_PLANE) maxdim = 2;
-  if(planarity == OUT_OF_PLANE) mindim = 2;
-#endif
-  return IteratorP(new VectorFieldIterator(mindim, maxdim));
-}
-
-IteratorP VectorFlux::divergence_iterator() const {
-  return IteratorP(new ScalarFieldIterator);
-}
-
-IteratorP VectorFlux::out_of_plane_iterator() const {
-  return IteratorP(new OutOfPlaneVectorFieldIterator());
-}
-
-IndexP VectorFlux::componenttype() const {
-  return IndexP(new VectorFieldIndex);
-}
-
-IndexP VectorFlux::getIndex(const std::string &str) const {
-  return IndexP(new VectorFieldIndex(str[0] - 'x'));
-}
-
-IndexP VectorFlux::getOutOfPlaneIndex(const std::string &str) const {
-  return IndexP(new OutOfPlaneVectorFieldIndex(str[0] - 'x'));
-}
-
-IndexP VectorFlux::divergence_componenttype() const {
-  return IndexP(new ScalarFieldIndex);
-}
-
-IndexP VectorFlux::divergence_getIndex(const std::string&) const {
-  return IndexP(new ScalarFieldIndex);
-}
-
-IteratorP SymmetricTensorFlux::iterator(Planarity planarity) const {
-#if DIM==2
+ComponentsP VectorFlux::components(Planarity planarity) const {
+  static const VectorFieldComponents allcomps(0, 3);
+  static const VectorFieldComponents inplane(0, 2);
+  static const VectorFieldComponents outofplane(2, 3);
+  if(planarity == ALL_INDICES)
+    return ComponentsP(&allcomps);
   if(planarity == IN_PLANE)
-    return IteratorP(new SymTensorInPlaneIterator);
-  if(planarity == OUT_OF_PLANE)
-    return IteratorP(new SymTensorOutOfPlaneIterator);
-#endif
-  return IteratorP(new SymTensorIterator);
+    return ComponentsP(&inplane);
+  return ComponentsP(&outofplane);
 }
 
-IteratorP SymmetricTensorFlux::divergence_iterator() const
+ComponentsP VectorFlux::divergenceComponents() const {
+  static const ScalarFieldComponents comp;
+  return ComponentsP(&comp);
+}
+
+ComponentsP VectorFlux::outOfPlaneComponents() const {
+  static OutOfPlaneVectorFieldComponents comp(3);
+  return ComponentsP(&comp);
+}
+
+FieldIndex *VectorFlux::getIndex(const std::string &str) const {
+  return new VectorFieldIndex(str[0] - 'x');
+}
+
+FieldIndex *VectorFlux::getOutOfPlaneIndex(const std::string &str) const {
+  return new OutOfPlaneVectorFieldIndex(str[0] - 'x');
+}
+
+FieldIndex *VectorFlux::divergence_getIndex(const std::string&) const {
+  return new ScalarFieldIndex();
+}
+
+ComponentsP SymmetricTensorFlux::components(Planarity planarity) const {
+  static const SymTensorComponents allcomps;
+  static const SymTensorInPlaneComponents inplane;
+  static const SymTensorOutOfPlaneComponents outofplane;
+  if(planarity == ALL_INDICES)
+    return ComponentsP(&allcomps);
+  if(planarity == IN_PLANE)
+    return ComponentsP(&inplane);
+  return ComponentsP(&outofplane);
+}
+
+ComponentsP SymmetricTensorFlux::divergenceComponents() const {
+  // TODO: This just returns the in-plane components.  Is that
+  // correct?  It's currently only used in situations in which the
+  // in-plane components are desired, but possibly the planarity
+  // should be passed as an argument.  It's used in
+  // DivergenceEquation::components() and
+  // IntegrateBdyFlux::columnNames().
+  static const VectorFieldComponents comps(0, 2);
+  return ComponentsP(&comps);
+}
+
+ComponentsP SymmetricTensorFlux::outOfPlaneComponents() const {
+  static const OutOfPlaneSymTensorComponents comps;
+  return ComponentsP(&comps);
+}
+
+FieldIndex *SymmetricTensorFlux::getIndex(const std::string &str) const {
+  return new SymTensorIndex(SymTensorIndex::str2voigt(str));
+}
+
+FieldIndex *SymmetricTensorFlux::getOutOfPlaneIndex(const std::string &str)
+  const
 {
-  return IteratorP(new VectorFieldIterator(0, DIM));
+  return new OutOfPlaneSymTensorIndex(SymTensorIndex::str2voigt(str));
 }
 
-IteratorP SymmetricTensorFlux::out_of_plane_iterator() const {
-  return IteratorP(new OutOfPlaneSymTensorIterator());
-}
-
-IndexP SymmetricTensorFlux::componenttype() const {
-  return IndexP(new SymTensorIndex);
-}
-
-IndexP SymmetricTensorFlux::getIndex(const std::string &str) const {
-  return IndexP(new SymTensorIndex(SymTensorIndex::str2voigt(str)));
-}
-
-IndexP SymmetricTensorFlux::getOutOfPlaneIndex(const std::string &str) const {
-  return IndexP(new OutOfPlaneSymTensorIndex(SymTensorIndex::str2voigt(str)));
-}
-
-IndexP SymmetricTensorFlux::divergence_componenttype() const {
-  return IndexP(new VectorFieldIndex);
-}
-
-IndexP SymmetricTensorFlux::divergence_getIndex(const std::string &str) const {
-  return IndexP(new VectorFieldIndex(str[0] - 'x'));
+FieldIndex *SymmetricTensorFlux::divergence_getIndex(const std::string &str)
+  const
+{
+  return new VectorFieldIndex(str[0] - 'x');
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -456,9 +453,8 @@ ArithmeticOutputValue Flux::output(const FEMesh *mesh, const Element *el,
   // std::cerr << "Flux::output: pos=" << pos << " el=" << *el << std::endl;
   DoubleVec *fluxvals = evaluate( mesh, el, pos );
   ArithmeticOutputValue ov = newOutputValue();
-  for(IteratorP it = iterator(ALL_INDICES); !it.end(); ++it) {
+  for(IndexP it : components(ALL_INDICES)) 
     ov[it] = (*fluxvals)[it.integer()];
-  }
   delete fluxvals;
   // When we started using Eigen's matrix solvers, we learned that we
   // had been constructing *negative* definite matrices for the force

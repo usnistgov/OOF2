@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.orientationmap") orientmapproperty
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "orientationmap/orientmapproperty.h"

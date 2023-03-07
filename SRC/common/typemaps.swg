@@ -22,15 +22,7 @@
 // Move all of the class-specific typemaps into the .swg files that
 // define the types.  The swig files that needs those typemaps will
 // also need the class definitions, so they can %import the files
-// containing the typemaps.  When %importing the files, prevent
-// chaining of %imports by using
-//   #ifndef NOSECONDIMPORTS
-//   #define NOSECONDIMPORTS
-//   %import ...
-//   #endif
-// That will prevent unrelated types from being defined in the
-// swig-generated C++ code, which requires unrelated C++ headers to be
-// loaded.
+// containing the typemaps. 
 
 // TODO PYTHON3: Swig's -builtin doesn't work because it's not
 // compatible with the %exception typemap.  If there's ever a fix for
@@ -205,10 +197,12 @@
 // be turned into a derived class object.  See pythonexportable.h.
 // The argument to PYTHONEXPORTABLE is the base class -- ie the class
 // derived from PythonExportable.
+
 // If Python should take ownership of the returned object, the
 // function being swigged should return NewCLASS* instead of CLASS*,
 // and the swig file should include a C++ typedef making NewCLASS the
-// same as CLASS.
+// same as CLASS.  The typedef is not generated automatically here
+// just in case NewCLASS is already defined.
 
 %define PYTHONEXPORTABLE(CLASS)
 %typemap(out) CLASS* {
@@ -667,6 +661,11 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 // CoordRefVec if TYPE is Coord) as a return type if you don't want
 // ownership of the objects to be transferred to Python.
 
+// Because MAKE_LISTVEC_TYPEMAPS adds typedefs to C++ code, it should
+// be invoked in the swig file in which the typemap is used, not where
+// the TYPE is defined (if it's a different file).  The file where the
+// TYPE is defined should be %imported into the file where it's used,
+// and the %import will ignore the C++ code containing the typedefs.
 
 %define MAKE_LISTVEC_TYPEMAPS(TYPE)
 
@@ -975,6 +974,7 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 // comment in threadstate.C about threading_enabled.
 
 %exception {
+  // %exception typemap
   try {
     installSignals;
     Python_Thread_Allow allow_threads(true);

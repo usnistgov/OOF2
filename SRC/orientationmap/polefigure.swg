@@ -14,12 +14,9 @@
 
 %module(package="ooflib.SWIG.orientationmap") polefigure
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/crystalsymmetry.swg"
 %import "common/direction.swg"
-#endif //NOSECONDIMPORTS
 
 %{
 #include "common/direction.h"

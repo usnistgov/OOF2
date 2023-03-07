@@ -32,6 +32,9 @@ class OOF_Output(unittest.TestCase):
         from ooflib.common.worker import allWorkers, allWorkerCores
         global outputdestination
         from ooflib.engine.IO import outputdestination
+        build_position_output_args()
+        build_scalar_output_args()
+        build_aggregate_output_args()
 
     def tearDown(self):
         pass
@@ -95,7 +98,8 @@ class OOF_Output(unittest.TestCase):
             try:
                 (param_args, results) = position_output_args[name]
             except KeyError:
-                print("No test data for PositionOutput %s." % name, file=sys.stderr)
+                print("No test data for PositionOutput %s." % name,
+                      file=sys.stderr)
             else:
                 outputobj = tree[name].object
                 paramhier = outputobj.listAllParametersHierarchically(
@@ -114,13 +118,10 @@ class OOF_Output(unittest.TestCase):
 
                 elset = meshobj.element_iterator()
                 reslist = []
-                ## TODO PYTHON3: Use a real iterator
-                while not elset.end():
-                    lmnt = elset.element()
+                for lmnt in elset:
                     reslist += outputclone.evaluate(
                         meshobj, [lmnt],
                         [[mastercoord.MasterCoord(0.0,0.0)]])
-                    elset.next()
                 for (r1,r2) in zip(reslist, results):
                     self.assertTrue( (r1-r2)**2 < tolerance )
         del meshobj
@@ -276,6 +277,8 @@ def build_position_output_args():
     from ooflib.common import primitives
     Point = primitives.Point
     global position_output_args
+    if position_output_args:
+        return
     position_output_args = {
         'original':({},[Point(0.125,0.125),
                         Point(0.375,0.125),
@@ -335,6 +338,8 @@ def build_position_output_args():
 scalar_output_args = {}
 def build_scalar_output_args():
     global scalar_output_args
+    if scalar_output_args:
+        return
     scalar_output_args = {
         'Field:Component':[
             ('thermms:thermskel:therm',
@@ -654,6 +659,8 @@ def build_scalar_output_args():
 aggregate_output_args = {}
 def build_aggregate_output_args():
     global aggregate_output_args
+    if aggregate_output_args:
+        return
     aggregate_output_args = {
         'Field:Value':[('thermms:thermskel:therm',
                         {'field':Displacement},

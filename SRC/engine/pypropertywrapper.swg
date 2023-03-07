@@ -14,15 +14,14 @@
 
 %module(package="ooflib.SWIG.engine") pypropertywrapper
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/element.swg"
 %import "engine/property.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/pypropertywrapper.h"
+  #include "engine/equation.h"	// SWIGBUG
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 // Not much has to be done here.  The Python functions which are

@@ -102,11 +102,11 @@
 // you don't use PythonNative, but there may be a small performance
 // penalty.
 
-
 #include <iostream>
 
 #include <Python.h>
 #include "common/oofswigruntime.h"
+#include "common/pyutils.h"
 
 class PythonExportableBase {
   public:
@@ -154,7 +154,7 @@ class PythonExportableBase {
 	PyObject *result = SWIG_NewPointerObj(SWIG_as_voidptr(derived_addr),
 					      SWIG_TypeQuery(pname.c_str()), 
 					      SWIG_BUILTIN_INIT|iown);
-#else  // Not using -builtin. 
+#else  // Not using -builtin.
 	PyObject *result = SWIG_NewPointerObj(SWIG_as_voidptr(derived_addr),
 					      SWIG_TypeQuery(pname.c_str()),
 					      iown);
@@ -175,6 +175,13 @@ class PythonExportableBase {
       }
     }
   };
+
+// This operator is defined in pyutils.C, because there's no
+// pythonexportable.C.  Perhaps all of this file should be put into
+// pyutils.h.  The operator is useful when debugging PythonExportable,
+// because some classes derived from it might not be otherwise
+// printable.
+std::ostream &operator<<(std::ostream&, const PythonExportableBase&);
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

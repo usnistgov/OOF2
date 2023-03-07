@@ -15,8 +15,9 @@
 
 %module(package="ooflib.SWIG.common") config
 
+%include "common/typemaps.swg"
+
 %{
-#include <oofconfig.h>
 
 bool no_gui() {
 #ifdef NO_GUI

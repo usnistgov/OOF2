@@ -37,8 +37,6 @@
 // PropertyOutputContribution class?  Each subclass will have to have
 // a singleton instance which will be swigged.
 
-// const std::string PropertyOutput::modulename_(
-// 			      "ooflib.SWIG.engine.IO.propertyoutput");
 const std::string ArithmeticPropertyOutput::classname_(
 				       "ArithmeticPropertyOutput");
 const std::string NonArithmeticPropertyOutput::classname_(
@@ -280,8 +278,6 @@ const std::string *PropertyOutput::getRegisteredParamName(const char *name)
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// const std::string PropertyOutputInit::modulename_(
-// 				 "ooflib.SWIG.engine.IO.propertyoutput");
 const std::string ArithmeticPropertyOutputInit::classname_(
 					   "ArithmeticPropertyOutputInit");
 const std::string NonArithmeticPropertyOutputInit::classname_(

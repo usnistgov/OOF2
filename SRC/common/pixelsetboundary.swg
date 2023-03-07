@@ -17,7 +17,6 @@
 %include "common/typemaps.swg"
 
 %{
-#include <oofconfig.h>
 #include <common/pixelsetboundary.h>
 %}
 

@@ -18,11 +18,8 @@
 #include "engine/properties/planestrain/planestrain.h"
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
-#endif // NOSECONDIMPORTS
 
 class PlaneStrain : public Property {
 public:

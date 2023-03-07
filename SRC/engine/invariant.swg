@@ -69,9 +69,6 @@ public:
   // This routine relies on the order in which the Python
   // EigenValueRank values were listed in the class definition.
 
-  // TODO PYTHON3: Can we just swig the C++ enum now?  Or do we lose its
-  // text representation?
-  
   int indx = PyLong_AsLong(PyObject_CallMethod($input, (char*) "index", NULL));
   switch(indx) {
   case 0:

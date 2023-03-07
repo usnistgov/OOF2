@@ -14,16 +14,14 @@
 
 %module(package="ooflib.SWIG.engine") materialsubproblem
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
 %import "engine/material.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/material.h"
 #include "engine/materialsubproblem.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 class CMaterialSubProblem : public CSubProblem {

@@ -227,23 +227,16 @@ class SkeletonElement(SkeletonElementBase,
     def getNumberOfEdges(self):
         return self.nnodes()
 
+    # Return a list of pairs of nodes, one pair for each segment.
     def segment_node_iterator(self):
-        ## TODO PYTHON3: Make this a real iterator?
-        segment_nodes = []
+        nn = self.nnodes()
         for i in range(self.nnodes()):
-            n0 = self.nodes[i]
-            n1 = self.nodes[(i+1)%self.nnodes()]
-            segment_nodes.append((n0,n1))
-        return segment_nodes
+            yield (self.nodes[i], self.nodes[(i+1)%nn])
 
     def segment_iterator(self, skel):
-        ## TODO PYTHON3: Make this a real iterator?        
-        segments = []
+        nn = self.nnodes()
         for i in range(self.nnodes()):
-            n0 = self.nodes[i]
-            n1 = self.nodes[(i+1)%self.nnodes()]
-            segments.append(skel.findSegment(n0, n1))
-        return segments
+            yield skel.findSegment(self.nodes[i], self.nodes[(i+1)%nn])
 
     def edgeNeighbors(self, skeleton, loopRange=0):
         # Search for edge-sharing neighborhood for a given element and return
@@ -638,8 +631,8 @@ class SkeletonQuad(SkeletonElement, cskeleton.CSkeletonQuad):
         ## opposite to each other.  We check the ratio of the second
         ## longest to the second shortest, because this rules out
         ## cases in which one edge is much longer than the other
-        ## three.
-        segs = []
+        ## three. (But one edge can be no more than three times the
+        ## average length of the other three.)
         lengths = [self.edgeLength(i) for i in range(4)]
         sortlengths = sorted(lengths[:])
         if sortlengths[2] > sortlengths[1]*threshold:
@@ -647,8 +640,8 @@ class SkeletonQuad(SkeletonElement, cskeleton.CSkeletonQuad):
             l0 = sortlengths[2]
             l1 = sortlengths[3]
             i0 = i1 = None
-            ## TODO PYTHON3: I'm not sure this does what it's supposed
-            ## to do if two edges have the same length.
+            ## TODO PYTHON3: This doesn't do what it's supposed to do
+            ## if two adjacent edges have the same length.
             for i in (0,1,2,3):
                 leng = lengths[i]
                 if leng == l0:
@@ -657,11 +650,8 @@ class SkeletonQuad(SkeletonElement, cskeleton.CSkeletonQuad):
                     i1 = i
             idiff = i0 - i1
             if idiff == 2 or idiff == -2:
-                segs.append(skeleton.findSegment(self.nodes[i0],
-                                                 self.nodes[(i0+1)%4]))
-                segs.append(skeleton.findSegment(self.nodes[i1],
-                                                 self.nodes[(i1+1)%4]))
-        return segs
+                yield skeleton.findSegment(self.nodes[i0], self.nodes[(i0+1)%4])
+                yield skeleton.findSegment(self.nodes[i1], self.nodes[(i1+1)%4])
 
     def provisionalReplacement(self, oldnode, newnode):
         return ProvisionalQuad(self.replacementNodes(oldnode, newnode),

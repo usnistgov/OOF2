@@ -13,6 +13,7 @@
 
 #include "common/doublevec.h"
 #include "common/ooferror.h"
+#include "common/smallmatrix.h"
 #include "engine/corientation.h"
 #include "engine/fieldindex.h"
 #include "engine/ooferror.h"
@@ -168,9 +169,6 @@ Rank3Tensor operator/(const Rank3Tensor &A, double x) {
 
 
 std::string Rank3Tensor::classname_("Rank3Tensor");
-std::string Rank3Tensor::modulename_("ooflib.SWIG.engine.rank3tensor");
-
-
 
 SymmMatrix &Rank3Tensor::operator()(unsigned int i) {
   assert(i<nrows && i>=0);
@@ -261,8 +259,8 @@ void copyOutputVals(const Rank3Tensor &modulus, ListOutputVal *listdata,
 {
   for(unsigned int i=0; i<idxstrs.size(); i++) {
     const std::string &idxpair = idxstrs[i];
-    int j = int(idxpair[0]-'1'); // 1-3
-    SymTensorIndex kl = SpaceIndex(idxpair[1]-'1'); // Voigt, 1-6
+    int j = int(idxpair[0]-'1');	    // 1-3
+    SymTensorIndex kl(int(idxpair[1]-'1')); // Voigt, 1-6
     (*listdata)[i] = modulus(j, kl);
   }
 }

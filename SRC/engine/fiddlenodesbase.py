@@ -410,18 +410,14 @@ class FiddleElementsInGroup(FiddleNodesTargets):
     def __call__(self, context, prevnodes):
         if prevnodes:
             return prevnodes
-        ## TODO PYTHON3: The only reason to use OrderedSet here is
-        ## so that we can compare results with the python2
-        ## version.  The python2 dict doesn't preserve order.  The
-        ## python3 dict would be sufficient if we weren't
-        ## comparing results with python2.  The python3 set would
-        ## work too, but since it doesn't preserve order some
-        ## future version of python might change the results.
-        nodedict = utils.OrderedSet()
+        # Use a dict instead of a set here.  Sets don't return their
+        # items in a guaranteed order, and if the order changes in a
+        # future version of python, the test scripts will break.
+        nodedict = {}
         for element in context.elementgroups.get_group(self.group):
             if element.active(context.getObject()):
                 for nd in element.nodes:
-                    nodedict.add(nd)
+                    nodedict[nd] = 1
         return (n for n in nodedict if n.movable())
     
 registeredclass.Registration(

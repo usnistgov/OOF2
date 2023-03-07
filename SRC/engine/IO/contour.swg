@@ -14,17 +14,18 @@
 
 %module(package="ooflib.SWIG.engine.IO") contour
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/masterelement.swg"
 %import "engine/mastercoord.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/IO/contour.h"
   typedef std::vector<CCurve> CurveVec;
   extern int nContourStates, nCreated, nDeleted; // DEBUGGING
+
+  #include "engine/edge.h"	// SWIGBUG
+  #include "engine/equation.h"	// SWIGBUG
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 MAKE_LISTVEC_TYPEMAPS(ContourCoord);

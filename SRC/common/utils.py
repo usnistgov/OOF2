@@ -12,6 +12,7 @@
 from ooflib.SWIG.common import lock
 from ooflib.common import debug
 
+import itertools
 import os
 import subprocess
 import sys
@@ -318,68 +319,30 @@ def format(line, width):
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
-# Minimal ordered dictionary class.  If more functionality is
-# required, get someone else's code off the web.  This class just
-# ensures that the objects are returned in the order in which they
-# were added.
-
-## TODO: As of Python 3.7, the built-in dict preserves order, so we
-## don't need OrderedDict, and OrderedSet can be implemented using the
-## keys of a dict.  We'll need to do something to replace
-## OrderedDict.reorder(), though.
-
-# The optional constructor argument is a list (not a dict!) of (key,
-# value) pairs, in the order in which they should appear in the OrderedDict.
+# Ordered dictionary class.  Before Python 3.7, dictionaries didn't
+# return items in the order in which they were added, so we had an
+# dict subclass that had to redefined most dict operations.  As of
+# Python 3.7, we can just use dict, except that we sometimes need to
+# reorder elements, so OrderedDict adds a reorder() method.  (The old
+# version also had a replace() method, but that doesn't seem to be
+# used anywhere.  It's also not necessary -- assigning to an existing
+# key in a post-3.7 dict doesn't change the order of the keys.)
 
 class OrderedDict(dict):
-    def __init__(self, items=None):
-        dict.__init__(self)
-        self._keys = []
-        if items:
-            for key, val in items:
-                self.__setitem__(key, val)
-    def __setitem__(self, key, value):
-        dict.__setitem__(self, key, value)
-        if key not in self._keys:
-            self._keys.append(key)
-    def setdefault(self, key, default=None):
-        if key in self:
-            return self[key]
-        self[key] = default
-        return default
-    def __delitem__(self, key):
-        dict.__delitem__(self, key)
-        self._keys.remove(key)
-    def clear(self):
-        self._keys = []
-        dict.clear(self)
-    def keys(self):
-        return self._keys
-    def values(self):
-        return (self[key] for key in self._keys)
-    def items(self):
-        return ((key, self[key]) for key in self._keys)
     def reorder(self, keylist):
-        # Make sure that our keys are in the order given by keylist.
-        # keylist must contain all of our keys, but may contain more.
-
-        ## Check for keys in self._keys that aren't in keylist
-        unlisted = [key for key in self._keys if key not in keylist]
-
-        self._keys = [key for key in keylist if key in self._keys] + unlisted
-    def __eq__(self, other):
-        return (isinstance(other, OrderedDict)
-                and self._keys == other._keys
-                and super(OrderedDict, self).__eq__(other))
-    def replace(self, oldkey, newkey, newval):
-        i = self._keys.index(oldkey)
-        self._keys[i] = newkey
-        dict.__delitem__(self, oldkey)
-        dict.__setitem__(self, newkey, newval)
+        # Make sure that our keys are in the order given by
+        # keylist. Any of our keys that aren't in keylist are inserted
+        # at the end.  Any keys in keylist that aren't in our keys are
+        # ignored.
+        olddict = {k:v for k,v in self.items()}
+        unlisted = [k for k in olddict if k not in keylist]
+        self.clear()
+        for k in itertools.chain(keylist, unlisted):
+            try:
+                self[k] = olddict[k]
+            except KeyError:
+                pass
         
-
-import itertools
-
 class OrderedSet:
     def __init__(self, iterable=None):
         self.data = OrderedDict()
@@ -402,11 +365,12 @@ class OrderedSet:
         except KeyError:
             pass
     def replace(self, old, new):
-        self.data.replace(old, new, 1)
+        oldkeys = self.data.keys()
+        self.data = OrderedDict({(new if k==old else k) : 1 for k in oldkeys});
     def clear(self):
         self.data = OrderedDict()
     def union(self, other):
-        result = OrderedSet(list(self.data.keys()))
+        result = OrderedSet(self.data.keys())
         for item in other:
             result.add(item)
         return result

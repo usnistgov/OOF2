@@ -64,12 +64,10 @@ class IntegrateBdyFlux(MeshBdyAnalyzer):
     def columnNames(self):
         if isinstance(self.flux, ooflib.SWIG.engine.flux.VectorFlux):
             return ["normal(%s)" % self.flux.name()]
-        it = self.flux.divergence_iterator()
         names = []
-        while not it.end():
+        for comp in self.flux.divergenceComponents():
             names.append("normal(%s)[%s]" 
-                         % (self.flux.name(), it.shortstring()))
-            it.increment()
+                         % (self.flux.name(), comp.shortrepr()))
         return names
 
 
@@ -95,11 +93,8 @@ class AverageField(MeshBdyAnalyzer):
     def columnNames(self):
         if self.field.ndof() == 1:
             return [self.field.name()]
-        names = []
-        it = self.field.iterator(planarity.ALL_INDICES)
-        while not it.end():
-            names.append("%s[%s]" % (self.field.name(), it.shortstring()))
-            it.increment()
+        names = ["%s[%s]" % (self.field.name(), comp.shortrepr())
+                 for comp in self.field.components(planarity.ALL_INDICES)]
         return names
 
 registeredclass.Registration(

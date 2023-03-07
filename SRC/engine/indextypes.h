@@ -29,6 +29,7 @@ public:
   }
   IndexType &operator=(int i) { index = i; return *this; }
   IndexType &operator++() { ++index; return *this; }
+  IndexType operator++(int) { IndexType<N> tmp(index); ++index; return tmp; }
   friend bool operator==(const IndexType<N> &a, const IndexType<N> &b) {
     return a.index == b.index;
   }

@@ -21,7 +21,6 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 reg = PropertyRegistration(
     'Thermal:Conductivity:Isotropic',
     IsoHeatConductivity,
-    "ooflib.SWIG.engine.properties.heatconductivity.heatconductivity",
     ordering=97,
     params=[parameter.FloatParameter('kappa',
                                      1.0, tip=parameter.emptyTipString)],
@@ -40,7 +39,7 @@ reg.fluxInfo(fluxes=[problem.Heat_Flux], fields=[problem.Temperature],
 reg = PropertyRegistration(
     'Thermal:Conductivity:Anisotropic:Triclinic',
     AnisoHeatConductivity,
-    "ooflib.SWIG.engine.properties.heatconductivity.heatconductivity",105,
+    105,
     params=[symmmatrix.TriclinicRank2TensorParameter(
         'kappa',
         symmmatrix.TriclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
@@ -59,7 +58,7 @@ reg.fluxInfo(fluxes=[problem.Heat_Flux], fields=[problem.Temperature],
 reg = PropertyRegistration(
     'Thermal:Conductivity:Anisotropic:Monoclinic',
     AnisoHeatConductivity,
-    "ooflib.SWIG.engine.properties.heatconductivity.heatconductivity",104,
+    104,
     params=[symmmatrix.MonoclinicRank2TensorParameter(
         'kappa',
         symmmatrix.MonoclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
@@ -78,7 +77,7 @@ reg.fluxInfo(fluxes=[problem.Heat_Flux], fields=[problem.Temperature],
 reg = PropertyRegistration(
     'Thermal:Conductivity:Anisotropic:Orthorhombic',
     AnisoHeatConductivity,
-    "ooflib.SWIG.engine.properties.heatconductivity.heatconductivity",103,
+    103,
     params=[symmmatrix.OrthorhombicRank2TensorParameter(
         'kappa',
         symmmatrix.OrthorhombicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
@@ -97,7 +96,7 @@ reg.fluxInfo(fluxes=[problem.Heat_Flux], fields=[problem.Temperature],
 reg = PropertyRegistration(
     'Thermal:Conductivity:Anisotropic:Tetragonal',
     AnisoHeatConductivity,
-    "ooflib.SWIG.engine.properties.heatconductivity.heatconductivity",101,
+    101,
     params=[symmmatrix.TetragonalRank2TensorParameter(
         'kappa',
         symmmatrix.TetragonalRank2Tensor(xx=1.0, zz=0.5),
@@ -116,7 +115,7 @@ reg.fluxInfo(fluxes=[problem.Heat_Flux], fields=[problem.Temperature],
 reg = PropertyRegistration(
     'Thermal:Conductivity:Anisotropic:Trigonal',
     AnisoHeatConductivity,
-    "ooflib.SWIG.engine.properties.heatconductivity.heatconductivity",102,
+    102,
     params=[symmmatrix.TrigonalRank2TensorParameter(
         'kappa',
         symmmatrix.TrigonalRank2Tensor(xx=1.0, zz=0.5),
@@ -135,7 +134,7 @@ time_derivs=[0])
 reg = PropertyRegistration(
     'Thermal:Conductivity:Anisotropic:Hexagonal',
     AnisoHeatConductivity,
-    "ooflib.SWIG.engine.properties.heatconductivity.heatconductivity",100,
+    100,
     params=[symmmatrix.HexagonalRank2TensorParameter(
         'kappa',
         symmmatrix.HexagonalRank2Tensor(xx=1.0, zz=0.5),
@@ -154,7 +153,7 @@ time_derivs=[0])
 reg = PropertyRegistration(
     'Thermal:Conductivity:Anisotropic:Cubic',
     AnisoHeatConductivity,
-    "ooflib.SWIG.engine.properties.heatconductivity.heatconductivity",99,
+    99,
     params=[symmmatrix.CubicRank2TensorParameter(
             'kappa',
             symmmatrix.CubicRank2Tensor(xx=1.0),

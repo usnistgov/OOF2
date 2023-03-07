@@ -9,26 +9,27 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef CCONJUGATE_SWG
 #define CCONJUGATE_SWG
 
 %module(package="ooflib.SWIG.engine") cconjugate
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/equation.swg"
 %import "engine/field.swg"
 %import "engine/fieldindex.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/cconjugate.h"
 #include "engine/equation.h"
 #include "engine/field.h"
+#include "engine/fieldindex.h"
+  #include "engine/outputval.h"	// SWIGBUG
+  #include "engine/flux.h"	// SWIGBUG
+  #include "engine/node.h"	// SWIGBUG
 %}
+
+MAKE_LISTVEC_TYPEMAPS(CConjugatePair);
 
 class CConjugatePair {
 public:

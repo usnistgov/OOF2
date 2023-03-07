@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.engine") pixelselectioncouriere
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/pixelselectioncourier.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/coord.h"

@@ -20,6 +20,7 @@ from ooflib.common import enum
 from ooflib.common import labeltree
 from ooflib.common import microstructure
 from ooflib.common import parallel_enable
+from ooflib.common import utils
 from ooflib.common.IO import automatic
 from ooflib.common.IO import datafile
 from ooflib.common.IO import filenameparam
@@ -247,7 +248,36 @@ def _skeleton_copy(menuitem, skeleton, name):
         nm = name
         
     orig = oldskelcontext.getObject()
-    newskel = orig.properCopy(fresh=True) 
+
+    # Make a new skeleton by copying the old one in the old context.
+    # This skeleton will be disconnected from its parent and inserted
+    # into a new context.
+    newskel = orig.properCopy(fresh=True)
+
+    # Get lists of the elements, segments, and nodes in the groups in
+    # the new skeleton *before* it's disconnected.  The group
+    # information for the new objects will be lost when they're
+    # disconnected.
+    
+    # First, get the objects in the old Skeleton's groups. allGroups
+    # returns a list of group names. get_group(name) returns the
+    # objects in the group.
+    egroups = {name : oldskelcontext.elementgroups.get_group(name)
+               for name in oldskelcontext.elementgroups.allGroups()}
+    sgroups = {name : oldskelcontext.segmentgroups.get_group(name)
+               for name in oldskelcontext.segmentgroups.allGroups()}
+    ngroups = {name : oldskelcontext.nodegroups.get_group(name)
+               for name in oldskelcontext.nodegroups.allGroups()}
+    # Replace each object with the corresponding object in the new
+    # Skeleton, which is the original object's youngest child.
+    # (Because it was just created in this routine.)
+    for grpdict in (egroups, sgroups, ngroups):
+        for name, grplist in grpdict.items():
+            # grplist is an OrderedSet.
+            newgrplist = utils.OrderedSet([obj.youngest_child()
+                                           for obj in grplist])
+            grpdict[name] = newgrplist
+    
     for e in oldskelcontext.edgeboundaries.values():
         newskel.mapBoundary(e, orig, local=None)
     for p in oldskelcontext.pointboundaries.values():
@@ -262,8 +292,14 @@ def _skeleton_copy(menuitem, skeleton, name):
         parent=microstructure.microStructures[msname])
 
     newskelcontext = skeletoncontext.skeletonContexts[ [msname, nm] ]
-    newskelcontext.groupCopy(oldskelcontext)
 
+    # Create groups in the new skeleton
+    newskelcontext.groupCopy(oldskelcontext)
+    # Insert objects into groups.
+    newskelcontext.elementgroups.addToGroup(**egroups)
+    newskelcontext.segmentgroups.addToGroup(**sgroups)
+    newskelcontext.nodegroups.addToGroup(**ngroups)
+        
 
 def copySkeletonNameResolver(param, startname):
     if param.automatic():

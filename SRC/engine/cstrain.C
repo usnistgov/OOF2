@@ -13,6 +13,7 @@
 #include <oofconfig.h>
 
 #include "common/doublevec.h"
+#include "common/smallmatrix.h"
 #include "engine/cstrain.h"
 #include "engine/element.h"
 #include "engine/elementnodeiterator.h"
@@ -34,14 +35,15 @@ void findGeometricStrain(const FEMesh *mesh, const Element *element,
 
   // TODO OPT: Earlier versions of this routine had unrolled loops.
   // They could be unrolled again if necessary.
-  for(SymTensorIterator ij; !ij.end(); ++ij) {
+
+  for(SymTensorIndex ij : symTensorIJComponents) {
     int i = ij.row();
     int j = ij.col();
     (*strain)[ij] += 0.5*(dU(i,j) + dU(j,i));
   }
 
   if(nonlinear) {
-    for(SymTensorIterator ij; !ij.end(); ++ij) {
+    for(SymTensorIndex ij : symTensorIJComponents) {
       int i = ij.row();
       int j = ij.col();
       (*strain)[ij] += 
@@ -67,20 +69,19 @@ void computeDisplacementGradient(const FEMesh *mesh, const Element *element,
   assert(grad.rows() == 3 && grad.cols() == 3);
   
   for(SpaceIndex j=0; j<DIM; ++j) { // loop over gradient components
-    ArithmeticOutputValue oddisp = element->outputFieldDeriv(mesh, *displacement, &j, pt);
+    ArithmeticOutputValue oddisp =
+      element->outputFieldDeriv(mesh, *displacement, &j, pt);
     // loop over field components
-    for(IteratorP i=displacement->iterator(ALL_INDICES); !i.end(); ++i)
+    for(IndexP i : displacement->components(ALL_INDICES)) 
       grad(i.integer(), j) += oddisp[i];
   }
 
-#if DIM==2
   if(!displacement->in_plane(mesh)) {
     Field *oop = displacement->out_of_plane();
     ArithmeticOutputValue oddispz = element->outputField(mesh, *oop, pt);
-    for(IteratorP i=oop->iterator(ALL_INDICES); !i.end(); ++i)
+    for(IndexP i : oop->components(ALL_INDICES))
       grad(i.integer(), 2) += oddispz[i]; 
   }
-#endif // DIM==2
 }
 
 void computeDisplacement(const FEMesh *mesh, const Element *element,
@@ -91,7 +92,7 @@ void computeDisplacement(const FEMesh *mesh, const Element *element,
     dynamic_cast<CompoundField*>(Field::getField("Displacement"));
   assert(disp.size() == 3);
   ArithmeticOutputValue odisp = element->outputField(mesh, *displacement, pt);
-  for(IteratorP i=displacement->iterator(ALL_INDICES); !i.end(); ++i)
+  for(IndexP i : displacement->components(ALL_INDICES))
     disp[i.integer()] += odisp[i];
 }
 

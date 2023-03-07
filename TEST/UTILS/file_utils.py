@@ -275,6 +275,19 @@ def pdf_compare(file1, file2, quiet=False):
     # possibly with a different version number:
     #   /Producer (cairo 1.16.0 (https://cairographics.org))
 
+    # If file2 is a tuple of filenames, compare to each of them, and
+    # return true if any one of them works.
+    if type(file2) is tuple:
+        for f2 in file2:
+            if pdf_compare(file1, f2, quiet=True):
+                if not quiet:
+                    print("Files", file1, "and", f2, "agree", file=sys.stderr)
+                return True
+        if not quiet:
+            print("File", file1, "does not match any of", file2,
+                  file=sys.stderr)
+        return False
+
     try:
         file2 = reference_file(file2)
         f2 = open(file2, "rb")

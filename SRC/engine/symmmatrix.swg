@@ -15,12 +15,10 @@
 
 %module(package="ooflib.SWIG.engine") symmmatrix
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/outputval.swg"
 %import "engine/fieldindex.swg"
-#endif // NOSECONDIMPORTS
+%import "engine/IO/propertyoutput.swg"
 
 %{
 #include "engine/symmmatrix.h"
@@ -76,7 +74,6 @@ public:
   double midEigenvalue();
   double minEigenvalue();
   double contract(SymmMatrix3&);
-  IteratorP getIterator();
 };
 
 %extend SymmMatrix3 {

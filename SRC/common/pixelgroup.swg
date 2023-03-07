@@ -14,12 +14,9 @@
 
 %module(package="ooflib.SWIG.common") pixelgroup
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/cmicrostructure.swg"
 %import "common/pixelattribute.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/pixelgroup.h"

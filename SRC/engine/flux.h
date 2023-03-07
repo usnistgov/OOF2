@@ -37,7 +37,6 @@ class Field;
 class FieldIndex;
 class FluxNormal;
 class GaussPoint;
-class IteratorP;
 class LinearizedSystem;
 class MasterPosition;
 class ArithmeticOutputVal;
@@ -50,7 +49,6 @@ class SmallSystem;
 
 class Flux : public IdentifiedObject, public PythonExportable<Flux> {
 private:
-  static const std::string modulename_;
   const std::string name_;
   int index_;
   bool negate_;
@@ -69,7 +67,6 @@ public:
   static Flux *getFlux(const std::string &name);
   int index() const { return index_; }
   virtual const std::string &classname() const = 0;
-  virtual const std::string &modulename() const { return modulename_; }
 
   int ndof() const { return dim; }
   virtual int divergence_dim() const { return divdim; }
@@ -80,15 +77,12 @@ public:
   const std::string &name() const { return name_; }
   std::string *repr() const { return new std::string(name_); }
 
-
-  virtual IteratorP iterator(Planarity) const = 0;
-  virtual IteratorP divergence_iterator() const = 0;
-  virtual IteratorP out_of_plane_iterator() const = 0;
-  virtual IndexP componenttype() const = 0;
-  virtual IndexP getIndex(const std::string&) const = 0;
-  virtual IndexP getOutOfPlaneIndex(const std::string&) const = 0;
-  virtual IndexP divergence_componenttype() const = 0;
-  virtual IndexP divergence_getIndex(const std::string&) const = 0;
+  virtual ComponentsP components(Planarity) const = 0;
+  virtual ComponentsP divergenceComponents() const = 0;
+  virtual ComponentsP outOfPlaneComponents() const = 0;
+  virtual FieldIndex *getIndex(const std::string&) const = 0;
+  virtual FieldIndex *getOutOfPlaneIndex(const std::string&) const = 0;
+  virtual FieldIndex *divergence_getIndex(const std::string&) const = 0;
 
   virtual FluxNormal *BCCallback(const Coord&,
 				 double,
@@ -174,14 +168,13 @@ public:
 			      const FluxNormal *,
 			      DoubleVec&) const;
 
-  virtual IteratorP iterator(Planarity) const;
-  virtual IteratorP divergence_iterator() const;
-  virtual IteratorP out_of_plane_iterator() const;
-  virtual IndexP componenttype() const;
-  virtual IndexP getIndex(const std::string&) const;
-  virtual IndexP getOutOfPlaneIndex(const std::string&) const;
-  virtual IndexP divergence_componenttype() const;
-  virtual IndexP divergence_getIndex(const std::string&) const;
+  virtual ComponentsP components(Planarity) const;
+  virtual ComponentsP divergenceComponents() const;
+  virtual ComponentsP outOfPlaneComponents() const;
+
+  virtual FieldIndex *getIndex(const std::string&) const;
+  virtual FieldIndex *getOutOfPlaneIndex(const std::string&) const;
+  virtual FieldIndex *divergence_getIndex(const std::string&) const;
 
   virtual ArithmeticOutputVal *contract(const FEMesh*, const Element*,
 					 const EdgeGaussPoint&) const;
@@ -231,20 +224,16 @@ public:
 
   virtual ArithmeticOutputValue newOutputValue() const;
 
-  virtual IteratorP iterator(Planarity) const;
-  virtual IteratorP divergence_iterator() const;
-  virtual IteratorP out_of_plane_iterator() const;
-  virtual IndexP componenttype() const;
-  virtual IndexP getIndex(const std::string&) const;
-  virtual IndexP getOutOfPlaneIndex(const std::string&) const;
-  virtual IndexP divergence_componenttype() const;
-  virtual IndexP divergence_getIndex(const std::string&) const;
+  virtual ComponentsP components(Planarity) const;
+  virtual ComponentsP divergenceComponents() const;
+  virtual ComponentsP outOfPlaneComponents() const;
+  virtual FieldIndex *getIndex(const std::string&) const;
+  virtual FieldIndex *getOutOfPlaneIndex(const std::string&) const;
+  virtual FieldIndex *divergence_getIndex(const std::string&) const;
 
   // Ideally, all arguments here would be const, but the first
-  // PyObject* gets passed to PyEval_CallObject, which itself does
+  // PyObject* gets passed to PyObject_CallFunction, which itself does
   // not have const arguments.
-  // TODO PYTHON3: Is that true for PyObject_CallFunction, which is
-  // now used instead of PyEval_CallObject?  Try using const args.
   virtual FluxNormal *BCCallback(const Coord&,
 				 double,
 				 const Coord&,

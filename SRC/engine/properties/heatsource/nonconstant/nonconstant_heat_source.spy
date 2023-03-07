@@ -23,7 +23,7 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 reg = PropertyRegistration(
     'Thermal:HeatSource:TestNonconstantHeatSource',
     TestNonconstantHeatSource,
-    "ooflib.SWIG.engine.properties.heatsource.nonconstant.nonconstant_heat_source",151,
+    151,
     [parameter.IntParameter('testno', 1, tip="Test number for the nonconstant heat source property.")],
     propertyType="HeatSource",
     secret=True,

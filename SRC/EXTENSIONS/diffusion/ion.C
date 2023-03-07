@@ -70,7 +70,7 @@ void IonDiffusion::static_flux_value(const FEMesh  *mesh,
   
   ArithmeticOutputValue conc_value =
     element->outputField( mesh, *concentration, pt);
-  double c = conc_value[0];
+  double c = conc_value[ScalarFieldIndex()];
 
   const SymmMatrix3 cndct( diffusion->conductivitytensor( mesh, element, pt));
 
@@ -81,14 +81,14 @@ void IonDiffusion::static_flux_value(const FEMesh  *mesh,
     for (SpaceIndex i=0; i<DIM; ++i) {
       ArithmeticOutputValue ov =
 	element->outputFieldDeriv(mesh, *concentration, &i, pt);
-      fieldGradient[i] = ov[0];
+      fieldGradient[i] = ov[ScalarFieldIndex()];
     }
     if (!concentration->in_plane(mesh) ) {
       ArithmeticOutputValue ov =
 	element->outputField(mesh, *concentration->out_of_plane(), pt);
-      fieldGradient[2] = ov[0];
+      fieldGradient[2] = ov[ScalarFieldIndex()];
     }
-    for(VectorFieldIterator i; !i.end(); ++i) {
+    for(IndexP i : flux->components(ALL_INDICES)) {
       fluxdata->flux_vector_element(i) -= \
 	z_*c*(cndct(i.integer(),0)*fieldGradient[0]+
 	     cndct(i.integer(),1)*fieldGradient[1]+
@@ -100,14 +100,14 @@ void IonDiffusion::static_flux_value(const FEMesh  *mesh,
     for (SpaceIndex i=0; i<DIM; ++i) {
       ArithmeticOutputValue ov =
 	element->outputFieldDeriv(mesh, *voltage, &i, pt);
-      fieldGradient[i] = ov[0];
+      fieldGradient[i] = ov[ScalarFieldIndex()];
     }
     if (!voltage->in_plane(mesh) ) {
       ArithmeticOutputValue ov =
 	element->outputField(mesh, *concentration->out_of_plane(), pt);
-      fieldGradient[2] = ov[0];
+      fieldGradient[2] = ov[ScalarFieldIndex()];
     }
-    for(VectorFieldIterator i; !i.end(); ++i) {
+    for(IndexP i : flux->components(ALL_INDICES)) {
       fluxdata->flux_vector_element(i) -=		\
 	z_*c*(cndct(i.integer(),0)*fieldGradient[0]+
 	     cndct(i.integer(),1)*fieldGradient[1]+
@@ -146,7 +146,7 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
   // Same preliminaries as the flux-value case, find concentration
   // field value and conductivity tensor.
   ArithmeticOutputValue conc_value = el->outputField( mesh, *concentration, pt);
-  double c = conc_value[0];
+  double c = conc_value[ScalarFieldIndex()];
   const SymmMatrix3 cndct(diffusion->conductivitytensor( mesh, el, pt));
   std::vector<double> fieldGradient(3);
 
@@ -156,17 +156,17 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
     for (SpaceIndex i=0; i<DIM; ++i) {
       ArithmeticOutputValue ov =
 	el->outputFieldDeriv(mesh, *concentration, &i, pt);
-      fieldGradient[i] = ov[0];
+      fieldGradient[i] = ov[ScalarFieldIndex()];
     }
     if (!concentration->in_plane(mesh) ) {
       ArithmeticOutputValue ov =
 	el->outputField(mesh, *concentration->out_of_plane(), pt);
-      fieldGradient[2] = ov[0];
+      fieldGradient[2] = ov[ScalarFieldIndex()];
     }
 
     // Now we have all the field data and shape functions, build the
     // matrix elements.
-    for( VectorFieldIterator i; !i.end(); ++i) {
+    for(IndexP i : flux->components(ALL_INDICES)) {
 
       // First term, derivatives wrt field gradient.
       double t1 = z_*c*cndct(i.integer(),0)*dsf0 + 
@@ -193,17 +193,17 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
     // For the atom_flux case, need the voltage derivatives.
     for (SpaceIndex i=0; i<DIM; ++i) {
       ArithmeticOutputValue ov = el->outputFieldDeriv(mesh, *voltage, &i, pt);
-      fieldGradient[i] = ov[0];
+      fieldGradient[i] = ov[ScalarFieldIndex()];
     }
     if (!voltage->in_plane(mesh) ) {
       ArithmeticOutputValue ov =
 	el->outputField(mesh, *voltage->out_of_plane(), pt);
-      fieldGradient[2] = ov[0];
+      fieldGradient[2] = ov[ScalarFieldIndex()];
     }
 
     // Now (again) we have all the field data and shape functions,
     // build the matrix elements.
-    for( VectorFieldIterator i; !i.end(); ++i) {
+    for(IndexP i : flux->components(ALL_INDICES)) {
 
       // First term, derivatives wrt field gradient.
       double t1 = z_*c*cndct(i.integer(),0)*dsf0 + 

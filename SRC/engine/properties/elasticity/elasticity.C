@@ -67,7 +67,7 @@ void Elasticity::static_flux_value(const FEMesh *mesh, const Element *element,
   geometricStrain(mesh, element, pt, &strain);
   const Cijkl modulus = cijkl( mesh, element, pt );
 
-  for (SymTensorIterator ij; !ij.end(); ++ij) {
+  for(SymTensorIndex ij : symTensorIJComponents) {
     // TODO OPT: Use modulus(ij,kl) where ij and kl are voigt ints.
     // Unroll the ij loop too.
     int i = ij.row();
@@ -105,39 +105,25 @@ void Elasticity::flux_matrix(const FEMesh *mesh, const Element *element,
 
   const Cijkl modulus = cijkl( mesh, element, x );
 
-  IteratorP ell = displacement->iterator(); // reuse this;
-
-  for (SymTensorIterator ij; !ij.end(); ++ij) {
+  for(IndexP ij : flux->components(ALL_INDICES)) {
 
     // loop over displacement components for in-plane strain contributions
-    for( ; !ell.end(); ++ell) {
+    for(IndexP ell : displacement->components(ALL_INDICES)) {
 
       // loop over k=0,1 is written out explicitly to save a tiny bit of time
       SymTensorIndex ell0( 0, ell.integer() );
       SymTensorIndex ell1( 1, ell.integer() );
 
-#if DIM==2
-      fluxmtx->stiffness_matrix_element( ij, displacement, ell, node ) -=
-                                   modulus( ij, ell0 ) * shapeFuncGrad[0] +
-                                   modulus( ij, ell1 ) * shapeFuncGrad[1];
-#elif DIM==3
-      SymTensorIndex ell2( 2, ell.integer() );
-      fluxmtx->stiffness_matrix_element( ij, displacement, ell, node ) -=
-	                           modulus( ij, ell0 ) * shapeFuncGrad[0] +
-                                   modulus( ij, ell1 ) * shapeFuncGrad[1] +
-                                   modulus( ij, ell2 ) * shapeFuncGrad[2];
-#endif
+      fluxmtx->stiffness_matrix_element( *ij, displacement, ell, node ) -=
+                                   modulus( *ij, ell0 ) * shapeFuncGrad[0] +
+                                   modulus( *ij, ell1 ) * shapeFuncGrad[1];
     } // end of loop over ell
 
-    ell.reset();
-
-#if DIM==2
     // loop over out-of-plane strains
-    if (!displacement->in_plane(mesh))
-    {
+    if (!displacement->in_plane(mesh)) {
       Field *oop = displacement->out_of_plane();
 
-      for(IteratorP kay = oop->iterator( ALL_INDICES ); !kay.end(); ++kay)
+      for(IndexP kay : oop->components(ALL_INDICES))
       {
 	// There are no net factors of 1/2 or 2 here for the
 	// off-diagonal terms, dammit.
@@ -145,7 +131,6 @@ void Elasticity::flux_matrix(const FEMesh *mesh, const Element *element,
 	  -= shapeFuncVal * modulus( ij, SymTensorIndex( 2, kay.integer()) );
       }
     } // end if
-#endif
   } // end of loop over ij
 
 } // end of 'Elasticity::flux_matrix'

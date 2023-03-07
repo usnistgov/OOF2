@@ -15,20 +15,16 @@
 %module(package="ooflib.SWIG.common") cmicrostructure
 
 %{
-#include <oofconfig.h>
 #include "common/cmicrostructure.h"
 #include "common/array.h"
 typedef Array<int> ArrayInt;
 typedef Array<int> NewArrayInt;
 %}
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/coord.swg"
 %import "common/pixelgroup.swg"
 %import "common/timestamp.swg"
-#endif // NOSECONDIMPORTS
 
 %typemap(out) ArrayInt* {
    // typemap(out) ArrayInt*

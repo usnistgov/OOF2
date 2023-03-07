@@ -1,6 +1,5 @@
 // -*- C++ -*-
 
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -12,7 +11,6 @@
 
 #include <oofconfig.h>
 
-
 // Symmetric matrix storage class
 // may not be best for linear algebra!
 
@@ -21,12 +19,8 @@ class SymmMatrix;
 #ifndef SYMMMATRIX_H
 #define SYMMMATRIX_H
 
-// TODO PYTHON3: Do we need these #includes?  Can they just be forward
-// declarations?
-#include "common/smallmatrix.h"
 #include "engine/IO/propertyoutput.h"
 #include "engine/eigenvalues.h"
-#include "engine/fieldindex.h"
 #include "engine/outputval.h"
 
 #include <iostream>
@@ -34,8 +28,12 @@ class SymmMatrix;
 #include <string>
 #include <vector>
 
-class IndexP;
 class COrientation;
+class FieldIndex;
+class DoubleVec;
+class IndexP;
+class SmallMatrix;
+class SymTensorIndex;
 
 class SymmMatrix {
 protected:
@@ -83,7 +81,6 @@ private:
   mutable bool dirtyeigs_;	// are eigenvalues up-to-date?
   void findEigenvalues() const;
   static std::string classname_; // OutputVal is PythonExportable
-  static std::string modulename_;
 public:
   SymmMatrix3() : SymmMatrix(3), dirtyeigs_(true) {}
 //   virtual ~SymmMatrix3();
@@ -96,7 +93,6 @@ public:
   virtual OutputVal *zero() const;
   virtual SymmMatrix3 *one() const;
   virtual const std::string &classname() const { return classname_; }
-  virtual const std::string &modulename() const { return modulename_; }
   SymmMatrix3 &operator=(const SymmMatrix3 &x) {
     dirtyeigs_ = x.dirtyeigs_;
     eigenvalues = x.eigenvalues;
@@ -155,8 +151,8 @@ public:
     SymmMatrix::operator-=(x);
     return *this;
   }
-  virtual double operator[](const IndexP&) const;
-  virtual double &operator[](const IndexP&);
+  virtual double operator[](const FieldIndex&) const;
+  virtual double &operator[](const FieldIndex&);
   double operator[](const SymTensorIndex&) const;
   double &operator[](const SymTensorIndex&);
   double trace() const;
@@ -170,8 +166,8 @@ public:
   double minEigenvalue() const;
   double contract(const SymmMatrix3&) const;
 
-  virtual IndexP getIndex(const std::string&) const;
-  virtual IteratorP getIterator() const;
+  virtual FieldIndex *getIndex(const std::string&) const;
+  virtual ComponentsP components() const;
   virtual void print(std::ostream&) const;
 };
 

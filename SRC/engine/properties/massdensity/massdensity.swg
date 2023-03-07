@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.engine.properties.massdensity") massdensity
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/properties/massdensity/massdensity.h"

@@ -62,11 +62,8 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
         dsf0 = nodeiterator.dshapefunction(0, point)
         dsf1 = nodeiterator.dshapefunction(1, point)
         cijkl = self.modulus()
-        ij = problem.Stress.iterator(planarity.ALL_INDICES)
-        ## TODO PYTHON3: Use a real iterator for these loops
-        while not ij.end():
-            ell = problem.Displacement.iterator(planarity.ALL_INDICES)
-            while not ell.end():
+        for ij in problem.Stress.components(planarity.ALL_INDICES):
+            for ell in problem.Displacement.components(planarity.ALL_INDICES):
                 ell0 = fieldindex.SymTensorIndex(0, ell.integer())
                 ell1 = fieldindex.SymTensorIndex(1, ell.integer())
                 fluxdata.add_stiffness_matrix_element(
@@ -77,18 +74,14 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
                     -(cijkl[(ij.integer(), ell0.integer())]*dsf0
                      + cijkl[(ij.integer(), ell1.integer())]*dsf1)
                     )
-                ell.increment()
             if not problem.Displacement.in_plane(mesh):
                 oop = problem.Displacement.out_of_plane()
-                kay = oop.iterator(planarity.ALL_INDICES)
-                while not kay.end():
+                for k in oop.components(planarity.ALL_INDICES):
                     kl = fieldindex.SymTensorIndex(2, ell.integer)
                     fluxdata.add_stiffness_matrix_element(
                         ij, oop, kay, nodeiterator,
                         -cijkl[(ij.integer(), kl.integer())]*sf
                         )
-                    kay.increment()
-            ij.increment()
 
     def integration_order(self, subproblem, element):
         if problem.Displacement.in_plane(subproblem.get_mesh()):
@@ -104,10 +97,9 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
                 strain = cstrain.getGeometricStrain(mesh, element, pos, False)
                 stress = mod*strain # another SymmMatrix3.
                 return outputval.ScalarOutputVal(0.5*stress.contract(strain))
-                # TODO INDEXING: It would be good to be able to write
-                # that like this:
+                # TODO? Replace that with this:
                 ## e = 0
-                ## for ij in stress.getIterator():
+                ## for ij in stress.components(planarity.ALL_INDICES):
                 ##     if ij.diagonal():
                 ##         e += stress[ij]*strain[ij]
                 ##     else:
@@ -116,17 +108,11 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
                 # Although it would be slower than the calling
                 # SymmMatrix3.contract(), it would be more easily
                 # modifiable and applicable to specialized Python
-                # Properties. The reason that it's not currently
-                # written that way is that stress.getIterator returns
-                # a generic IteratorP object, which is what
-                # SymmMatrix3.__getitem__ wants as a arg, but
-                # IteratorP doesn't have a diagonal() method.
-                    
+                # Properties.                     
 
 reg = propertyregistration.PropertyRegistration(
     'Mechanical:Elasticity:PyIsotropic',
     PyElasticity,
-    "ooflib.engine.properties.elasticity.pyelasticity",
     ordering=10000,
     outputs=["Energy"],
     propertyType="Elasticity",

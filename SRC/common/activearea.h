@@ -61,13 +61,11 @@ public:
 class ActiveAreasAttributeRegistration: public PxlAttributeRegistration {
 private:
   static const std::string classname_;
-  // static const std::string modulename_;
 public:
   ActiveAreasAttributeRegistration();
   virtual ~ActiveAreasAttributeRegistration() {}
   virtual PixelAttribute* createAttribute(const ICoord&) const;
   virtual const std::string &classname() const { return classname_;}
-  // virtual const std::string &modulename() const { return modulename_;}
 };
 
 

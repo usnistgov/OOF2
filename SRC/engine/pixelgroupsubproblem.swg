@@ -14,14 +14,12 @@
 
 %module(package="ooflib.SWIG.engine") pixelgroupsubproblem
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/pixelgroupsubproblem.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 class CPixelGroupSubProblem: public CSubProblem {

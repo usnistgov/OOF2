@@ -14,16 +14,14 @@
 
 %module(package="ooflib.SWIG.engine") node
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/coord.swg"
 %import "engine/field.swg"
 %import "engine/pointdata.swg"
-#endif	// NOSECONDIMPORTS
 
 %{
 #include "engine/node.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 PYTHONEXPORTABLE(Node);

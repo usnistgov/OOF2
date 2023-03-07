@@ -14,11 +14,8 @@
 
 %module(package="ooflib.SWIG.common") statgroups
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/cmicrostructure.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/statgroups.h"

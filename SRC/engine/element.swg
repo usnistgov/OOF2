@@ -24,8 +24,6 @@
 %feature("valuewrapper") ElementMapNodeIterator;
 %feature("valuewrapper") ElementCornerNodeIterator;
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/coord.swg"
 %import "engine/csubproblem.swg"
@@ -39,7 +37,6 @@
 %import "engine/material.swg"
 %import "engine/node.swg"
 %import "engine/outputval.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/element.h"
@@ -48,10 +45,12 @@
 #include "engine/material.h"
 #include "engine/outputval.h"
 #include "engine/mastercoord.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
-MAKE_LISTVEC_TYPEMAPS(MasterCoord);
 PYTHONEXPORTABLE(ElementData);
+MAKE_LISTVEC_TYPEMAPS(Edge);
+MAKE_LISTVEC_TYPEMAPS(MasterCoord);
 
 class Material;
 class ElementNodeIterator;
@@ -68,13 +67,6 @@ public:
   const std::string &name();
 };
 
-MAKE_LISTVEC_TYPEMAPS(GaussPoint);
-MAKE_LISTVEC_TYPEMAPS(Edge);
-
-%typemap(newfree) GaussPointVec* {
-  delete $1;
- }
-
 %nodefaultctor Element;
 
 class Element {
@@ -86,8 +78,7 @@ public:
   %newobject perimeter;
   EdgeVec* perimeter();
 
-  %newobject integration_points;
-  GaussPointVec* integration_points(int);
+  GaussPointIntegrator integrator(int);
 
   MasterCoord center();
   int ncorners();

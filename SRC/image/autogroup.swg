@@ -14,12 +14,9 @@
 
 %module(package="ooflib.SWIG.image") autogroup
 
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/cmicrostructure.swg"
 %import "image/oofimage.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "common/pixelgroup.h"

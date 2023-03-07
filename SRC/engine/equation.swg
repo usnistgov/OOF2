@@ -14,49 +14,28 @@
 
 %module(package="ooflib.SWIG.engine") equation
 
-%feature("valuewrapper") IteratorP;
-%feature("valuewrapper") IndexP;
-
-#ifndef NOSECONDIMPORTS
-#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
 %import "engine/fieldindex.swg"
 %import "engine/flux.swg"
 %import "engine/nodalequation.swg"
 %import "engine/planarity.swg"
-#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/equation.h"
 #include "engine/fieldindex.h"
 #include "engine/flux.h"
+#include "engine/node.h"
 #include <vector>
 typedef std::vector<Equation*> EquationVec;
+typedef FieldIndex NewFieldIndex;
 %}
 
 PYTHONEXPORTABLE(Equation);
-
-%typemap(out) EquationVec * {
-  // typemap(out) EquationVec*
-  EquationVec::size_type sz = $1->size();
-  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
-  $result = PyList_New((Py_ssize_t) sz);
-  for(std::vector<Equation*>::size_type i=0; i<sz; i++) {
-    // pythonObject() returns a new reference and PyList_SET_ITEM steals it.
-    PyObject *eqn = (*$1)[i]->pythonObject();
-    if(!eqn)
-      SWIG_fail;
-    PyList_SET_ITEM($result, (Py_ssize_t) i, eqn);
-  }
-}
-
-%typemap(newfree) EquationVec * {
-  // typemap(newfree) EquationVec*
-  delete $1;
-}
+MAKE_LISTVEC_TYPEMAPS(Equation);
 
 %nodefaultctor Equation;
+%rename(c_components) Equation::components;
 
 class Equation {
 public:
@@ -65,22 +44,14 @@ public:
   int dim();
   int ndof();			// same as dim()
   NodalEquation *nodaleqn(const FuncNode&, int);
-  IteratorP iterator();
-  IndexP componenttype();
-  IndexP getIndex(char*);
   int is_active(const CSubProblem*);
   bool allow_boundary_conditions();
   static Equation *getEquation(const std::string&);
+  ComponentsP components();
+  NewFieldIndex *getIndex(const std::string&) const;
 };
 
 %extend Equation {
-  // iterator_all is used in situations in which it's not known if
-  // we're iterating over a Field, Flux, or Equation.
-  // Field::iterator and Flux::iterator take an argument, but
-  // iterator_all doesn't.
-  IteratorP iterator_all() {
-    return self->iterator();
-  }
   bool __eq__(Equation *other) {
     return self->objectid() == other->objectid();
   }

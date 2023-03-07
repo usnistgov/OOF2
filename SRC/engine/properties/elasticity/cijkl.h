@@ -37,8 +37,13 @@ public:
   double operator()(int, int) const;
   double &operator()(int, int, int, int);
   double operator()(int, int, int, int) const;
-  double &operator()(const SymTensorIndex&, const SymTensorIndex&);
-  double operator()(const SymTensorIndex&, const SymTensorIndex&) const;
+  // operator() is defined with base class FieldIndex& args instead of
+  // derived class SymTensorIndex& args because when the index is
+  // produced by the generic Flux::components mechanism, it's a
+  // FieldIndex. It's up to the caller to be sure that the FieldIndex
+  // is actually a SymTensorIndex.
+  double &operator()(const FieldIndex&, const FieldIndex&);
+  double operator()(const FieldIndex&, const FieldIndex&) const;
 	
   Cijkl transform(const COrientation*) const;
   friend SymmMatrix3 operator*(const Cijkl&, const SymmMatrix3&);
