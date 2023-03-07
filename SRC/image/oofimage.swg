@@ -49,11 +49,7 @@
 
 class OOFImage : public AbstractImage {
 public:
-#ifdef USE_SKIMAGE
   OOFImage(char *name, PyObject *VERBATIM);
-#else // !USE_SKIMAGE
-  OOFImage(char *name, char *filename);
-#endif // !USE_SKIMAGE
   ~OOFImage();
   // void save(char *filename);
   const std::string &name();
@@ -67,22 +63,18 @@ public:
   ICoord pixelFromPoint(Coord *Point);
   bool pixelInBounds(ICoord *iPoint);
   %newobject clone;
-#ifdef USE_SKIMAGE
   OOFImage *clone(char *name, PyObject *VERBATIM);
   PyObject *npImage();
   void setNpImage(PyObject *VERBATIM);
-#else
-  OOFImage *clone(char *name);
-#endif	// USE_SKIMAGE
 
   void setMicrostructure(CMicrostructure*);
   CMicrostructure *getCMicrostructure();
   void removeMicrostructure();
 
-  void flip(char *axis);
-  void fade(double);
-  void dim(double);
-  void blur(double, double);
+  // void flip(char *axis);
+  // void fade(double);
+  // void dim(double);
+  // void blur(double, double);
   void contrast(bool);
   void despeckle();
   void edge(double);
@@ -93,7 +85,7 @@ public:
   void normalize();
   void reduceNoise(double);
   void sharpen(double, double);
-  void gray();
+  // void gray();
   void evenly_illuminate(int);
   
   bool compare(OOFImage&, double);

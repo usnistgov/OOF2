@@ -63,6 +63,7 @@ set(MAGICK_MIN_VERSION 6.0.0)
 set(MAGICK_MAX_VERSION 7.0.0)
 set(GTK3_MIN_VERSION 3.22)
 set(NUMPY_MIN_VERSION 1.21) # TODO: probably can be less than this
+## TODO NUMPY: Check skimage min version number.  Probably should be 0.19
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

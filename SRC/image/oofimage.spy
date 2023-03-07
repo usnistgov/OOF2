@@ -112,7 +112,8 @@ OOFImage.getTimeStamp = _getTimeStamp_optional_args
 
 def getImage(imagename):
     ## returns the actual image
-    ## imagename = microstructurename:image_name OR imagename = [microstructurename, image_name]
+    ## imagename = microstructurename:image_name OR
+    ## imagename = [microstructurename, image_name]
     return imagecontext.imageContexts[imagename].getObject()
 
 def pushModification(imagename, image):

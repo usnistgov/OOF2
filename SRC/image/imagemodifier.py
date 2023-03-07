@@ -21,13 +21,19 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.image import imagecontext
 
 import numpy
+import skimage
 import sys
 
-# Base class for Python ImageModifiers. 
+# Base class for image modification methods.  Subclasses of
+# ImageModifier need to have a __call__ method that takes an OOFImage
+# argument and returns the modified numpy array.
+
 class ImageModifier(registeredclass.RegisteredClass):
     registry = []
     def __call__(self, image):
         pass
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # OOFMenu callback, installed automatically for each ImageModifier
 # class by the switchboard callback invoked when the class is
@@ -52,7 +58,6 @@ def doImageMod(menuitem, image, **params):
         if config.use_skimage():
             nporiginal = immidge.npImage()
             npcopy = nporiginal.copy()
-            debug.DelNotifier(npcopy, "copied image")
             newimmidge = immidge.clone(immidge.name(), npcopy)
         else:
             newimmidge = immidge.clone(immidge.name())
@@ -79,7 +84,11 @@ def doImageMod(menuitem, image, **params):
     switchboard.notify('modified image', imageModifier, image)
     switchboard.notify('redraw')
 
-###################################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+#
+# ImageModifier subclasses and their Registrations
+#
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class FlipDirection(enum.EnumClass(
     ('x', 'Flip the image about the x axis'),
@@ -91,8 +100,6 @@ class FlipDirection(enum.EnumClass(
     linkend='MenuItem-OOF.Image.Modify.Flip'/> to specify how to flip
     an &image;.
     </para>"""
-    
-# Actual ImageModifier classes are derived from ImageModifier like this:
 
 class FlipImage(ImageModifier):
     def __init__(self, axis):           # constructor
@@ -127,11 +134,23 @@ registeredclass.Registration(
     </para>"""
     )
 
-#####################################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class GrayImage(ImageModifier):
     def __call__(self, image):
-        image.gray()
+        # The skimage rgb2gray routine computes the luminance for
+        # "contemporary CRT phosphors", defined by Y = 0.2125 R +
+        # 0.7154 G + 0.0721 B.  The old, pre-numpy, version used
+        # CColor::getGray(), which just averages R, G, and B.
+        # TODO NUMPY: Is it important to preserve the old behavior?
+        # gray = skimage.color.rgb2gray(image.npImage())
+        # return skimage.color.gray2rgb(gray)
+
+        # This reproduces the old behavior:
+        npdata = image.npImage()
+        gray = (npdata[:,:,0] + npdata[:,:,1] + npdata[:,:,2])/3.
+        return skimage.color.gray2rgb(gray)
+            
 registeredclass.Registration(
     'Gray',
     ImageModifier,
@@ -145,11 +164,13 @@ registeredclass.Registration(
     </para>"""
     )
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class FadeImage(ImageModifier):
     def __init__(self, factor):
         self.factor = factor
     def __call__(self, image):
-        image.fade(self.factor)
+        return 1. - (1-image.npImage())*(1-self.factor)
 
 registeredclass.Registration(
     'Fade',
@@ -161,11 +182,13 @@ registeredclass.Registration(
     tip="Fade the image by the given factor.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/fadeimage.xml'))
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class DimImage(ImageModifier):
     def __init__(self, factor):
         self.factor = factor
     def __call__(self, image):
-        image.dim(self.factor)
+        return image.npImage() * self.factor
 
 registeredclass.Registration(
     'Dim',
@@ -179,12 +202,21 @@ registeredclass.Registration(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/dimimage.xml')
     )
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class BlurImage(ImageModifier):
     def __init__(self, radius, sigma):
         self.radius = radius
         self.sigma = sigma
     def __call__(self, image):
-        image.blur(self.radius, self.sigma)
+        # The skimage 'truncate' parameter is the radius of the filter
+        # in units of the standard deviation.  The old ImageMagick
+        # 'radius' parameter was the radius in pixels, not counting
+        # the central pixel.
+        return skimage.filters.gaussian(image.npImage(),
+                                        self.sigma,
+                                        truncate=(self.radius+1)/self.sigma,
+                                        channel_axis=-1)
 
 registeredclass.Registration(
     'Blur',
@@ -192,9 +224,6 @@ registeredclass.Registration(
     BlurImage,
     ordering=2.00,
     params=[parameter.FloatParameter('radius', 0.0,
-      #TODO 3D: not sure if this tip is accurate for the 3D case -- the
-      #vtk documentation isn't very clear about what unit the radius
-      #is
       tip="Radius of the Gaussian, in pixels, not counting the center pixel."),
             parameter.FloatParameter('sigma', 1.0,
       tip="Standard deviation of the Gaussian, in pixels")
@@ -203,83 +232,90 @@ registeredclass.Registration(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/blurimage.xml')
     )
 
-if config.dimension() == 2:
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-    class ContrastImage(ImageModifier):
-        def __init__(self, sharpen):
-            self.sharpen = sharpen
-        def __call__(self, image):
-            image.contrast(self.sharpen)
+class ContrastImage(ImageModifier):
+    def __init__(self, sharpen):
+        self.sharpen = sharpen
+    def __call__(self, image):
+        image.contrast(self.sharpen)
 
-    registeredclass.Registration(
-        'Contrast',
-        ImageModifier,
-        ContrastImage,
-        ordering=2.02,
-        params=[parameter.BooleanParameter('sharpen', 1,
-                                           tip='false to dull, true to sharpen')
-                ],
-        tip="Enhance intensity differences.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/contrast.xml')
-        )
+registeredclass.Registration(
+    'Contrast',
+    ImageModifier,
+    ContrastImage,
+    ordering=2.02,
+    params=[parameter.BooleanParameter('sharpen', 1,
+                                       tip='false to dull, true to sharpen')
+            ],
+    tip="Enhance intensity differences.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/contrast.xml')
+    )
 
-    class DespeckleImage(ImageModifier):
-        def __call__(self, image):
-            image.despeckle()
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-    registeredclass.Registration(
-        'Despeckle',
-        ImageModifier,
-        DespeckleImage,
-        ordering=2.03,
-        tip= "Reduce the speckle noise while preserving the edges in an image.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/despeckle.xml')
-        )
+class DespeckleImage(ImageModifier):
+    def __call__(self, image):
+        image.despeckle()
 
+registeredclass.Registration(
+    'Despeckle',
+    ImageModifier,
+    DespeckleImage,
+    ordering=2.03,
+    tip= "Reduce the speckle noise while preserving the edges in an image.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/despeckle.xml')
+    )
 
-    class EdgeImage(ImageModifier):
-        def __init__(self, radius):
-            self.radius = radius
-        def __call__(self, image):
-            image.edge(self.radius)
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-    registeredclass.Registration(
-        'Edge',
-        ImageModifier,
-        EdgeImage,
-        ordering=2.031,
-        params=[parameter.FloatParameter('radius', 0.0,
-                                         tip="Radius for the operation.")
-                ],
-        tip="Find edges in an image.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/edge.xml')
-        )
+class EdgeImage(ImageModifier):
+    def __init__(self, radius):
+        self.radius = radius
+    def __call__(self, image):
+        image.edge(self.radius)
 
-    class EnhanceImage(ImageModifier):
-        def __call__(self, image):
-            image.enhance()
+registeredclass.Registration(
+    'Edge',
+    ImageModifier,
+    EdgeImage,
+    ordering=2.031,
+    params=[parameter.FloatParameter('radius', 0.0,
+                                     tip="Radius for the operation.")
+            ],
+    tip="Find edges in an image.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/edge.xml')
+    )
 
-    registeredclass.Registration(
-        'Enhance',
-        ImageModifier,
-        EnhanceImage,
-        ordering=2.04,
-        tip='Enhance the image by minimizing noise.',
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/enhance.xml')
-        )
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-    class EqualizeImage(ImageModifier):
-        def __call__(self, image):
-            image.equalize()
+class EnhanceImage(ImageModifier):
+    def __call__(self, image):
+        image.enhance()
 
-    registeredclass.Registration(
-        'Equalize',
-        ImageModifier,
-        EqualizeImage,
-        ordering=2.05,
-        tip='Apply histogram equalization to the image.',
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/equalize.xml')
-        )
+registeredclass.Registration(
+    'Enhance',
+    ImageModifier,
+    EnhanceImage,
+    ordering=2.04,
+    tip='Enhance the image by minimizing noise.',
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/enhance.xml')
+    )
+
+class EqualizeImage(ImageModifier):
+    def __call__(self, image):
+        image.equalize()
+
+registeredclass.Registration(
+    'Equalize',
+    ImageModifier,
+    EqualizeImage,
+    ordering=2.05,
+    tip='Apply histogram equalization to the image.',
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/equalize.xml')
+    )
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class MedianFilterImage(ImageModifier):
     def __init__(self, radius):
@@ -304,9 +340,11 @@ registeredclass.Registration(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/median.xml')
     )
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class NegateImage(ImageModifier):
     def __call__(self, image):
-        image.negate(False)    # False => negate all colors, not just gray
+        return 1. - image.npImage()
         
 registeredclass.Registration(
     'Negate',
@@ -316,6 +354,8 @@ registeredclass.Registration(
     tip="Negate the colors in the image.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/negate.xml')
     )
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class NormalizeImage(ImageModifier):
     def __call__(self, image):
@@ -329,65 +369,69 @@ registeredclass.Registration(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/normalize.xml')
     )
 
-if config.dimension() == 2:
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-    class ReduceNoise(ImageModifier):
-        def __init__(self, radius):
-            self.radius = radius
-        def __call__(self, image):
-            image.reduceNoise(self.radius)
+class ReduceNoise(ImageModifier):
+    def __init__(self, radius):
+        self.radius = radius
+    def __call__(self, image):
+        image.reduceNoise(self.radius)
 
-    registeredclass.Registration(
-        'ReduceNoise',
-        ImageModifier,
-        ReduceNoise,
-        ordering=2.08,
-        params=[parameter.FloatParameter('radius', 0.0,
-                                         tip='Size of the pixel neighborhood.')],
-        tip="Reduce noise while preserving edges.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/reducenoise.xml')
-        )
+registeredclass.Registration(
+    'ReduceNoise',
+    ImageModifier,
+    ReduceNoise,
+    ordering=2.08,
+    params=[parameter.FloatParameter('radius', 0.0,
+                                     tip='Size of the pixel neighborhood.')],
+    tip="Reduce noise while preserving edges.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/reducenoise.xml')
+    )
 
-    class SharpenImage(ImageModifier):
-        def __init__(self, radius, sigma):
-            self.radius = radius
-            self.sigma = sigma
-        def __call__(self, image):
-            image.sharpen(self.radius, self.sigma)
-    registeredclass.Registration(
-        'Sharpen',
-        ImageModifier,
-        SharpenImage,
-        ordering=2.09,
-        params=[parameter.FloatParameter('radius', 0.0,
-                                         tip='Radius of the Gaussian.'),
-                parameter.FloatParameter('sigma', 1.0,
-                                         tip='Standard deviation of the Gaussian.')
-        ],
-        tip="Sharpen the image by convolving with a Gaussian.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/sharpen.xml')
-        )
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-    class ReIlluminateImage(ImageModifier):
-        def __init__(self, radius):
-            self.radius = radius
-        def __call__(self, image):
-            image.evenly_illuminate(self.radius)
+class SharpenImage(ImageModifier):
+    def __init__(self, radius, sigma):
+        self.radius = radius
+        self.sigma = sigma
+    def __call__(self, image):
+        image.sharpen(self.radius, self.sigma)
+registeredclass.Registration(
+    'Sharpen',
+    ImageModifier,
+    SharpenImage,
+    ordering=2.09,
+    params=[parameter.FloatParameter('radius', 0.0,
+                                     tip='Radius of the Gaussian.'),
+            parameter.FloatParameter('sigma', 1.0,
+                                     tip='Standard deviation of the Gaussian.')
+    ],
+    tip="Sharpen the image by convolving with a Gaussian.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/sharpen.xml')
+    )
 
-    registeredclass.Registration(
-        'Reilluminate',
-        ImageModifier,
-        ReIlluminateImage,
-        ordering=3.0,
-        params=[parameter.IntParameter('radius', 10,
-                                       tip='Size of the averaging region.')
-                ],
-        tip='Adjust brightness so that the whole image is evenly illuminated.',
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/reilluminate.xml')
-        )
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# TODO 3D: for 3D, vtk has more options for thresholding, but the
-# interface would have to change
+class ReIlluminateImage(ImageModifier):
+    def __init__(self, radius):
+        self.radius = radius
+    def __call__(self, image):
+        image.evenly_illuminate(self.radius)
+
+registeredclass.Registration(
+    'Reilluminate',
+    ImageModifier,
+    ReIlluminateImage,
+    ordering=3.0,
+    params=[parameter.IntParameter('radius', 10,
+                                   tip='Size of the averaging region.')
+            ],
+    tip='Adjust brightness so that the whole image is evenly illuminated.',
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/reilluminate.xml')
+    )
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class ThresholdImage(ImageModifier):
     def __init__(self, T):
         self.T=T

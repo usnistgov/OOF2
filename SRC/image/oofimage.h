@@ -30,16 +30,8 @@
 // defining NPY_NO_DEPRECATED_API produces deprecation warnings, and
 // the suggestion to set NPY_NO_DEPRECATED_API to NPY_1_7_API_VERSION.
 // But with that setting PyArray_NDIM and PyArray_DIMS aren't defined.
-#ifdef USE_SKIMAGE
 #define NPY_NO_DEPRECATED_API NPY_1_1_API_VERSION
 #include <numpy/arrayobject.h>
-#endif // SKIMAGE
-
-// Make sure that omp.h is included before Magick++.h
-#ifdef HAVE_OPENMP
-#include <omp.h>
-#endif
-#include <Magick++.h>
 
 class BitmapOverlay;
 class BoolArray;
@@ -56,10 +48,7 @@ namespace OOFCanvas {
 class OOFImage : public AbstractImage {
 protected:
   std::string name_;
-  // Magick::Image image;
-#ifdef USE_SKIMAGE
   PyArrayObject *npobject;	// numpy python object
-#endif // USE_SKIMAGE
   Coord size_; 
   ICoord sizeInPixels_;		// width, height.
   double scale;			// converts from int rgb to doubles in [0,1]
@@ -69,27 +58,17 @@ protected:
 public:
   OOFImage(const std::string &nm);
   OOFImage(const OOFImage&) = delete;
-  //OOFImage(const std::string &nm, const Coord &sz, const Magick::Geometry &g);
-#ifndef USE_SKIMAGE
   OOFImage(const std::string &nm, const std::string &filename);
-#endif // USE_SKIMAGE
-
-  // OOFImage(const std::string &nm, const ICoord&,
-  // 	   const std::string &colortype, const Magick::StorageType,
-  // 	   const void*);
-#ifdef USE_SKIMAGE
   OOFImage(const std::string &nm, PyObject *ndarray);
-#endif // USE_SKIMAGE
   virtual ~OOFImage();
   // void save(const std::string &filename);
   const std::string &name() const { return name_; }
   void rename(const std::string &nm) { name_ = nm; }
   void setSize(const Coord*);	// Physical size, not pixel size!
 
-#ifdef USE_SKIMAGE
+  // Get and set the PyObject storing the numpy image data.
   PyObject *npImage() { return (PyObject*) npobject; }
   void setNpImage(PyObject*);
-#endif // USE_SKIMAGE
 
   virtual const Coord &size() const { return size_; }
   virtual const ICoord &sizeInPixels() const { return sizeInPixels_; }
@@ -111,23 +90,12 @@ public:
   iterator end();
   const_iterator end() const;
 
-  // const CColor getMagick(const ICoord&) const;
-#ifdef USE_SKIMAGE
-  const CColor getNumpy(const ICoord&) const;
-#endif // USE_SKIMAGE
-  
   const CColor operator[](const ICoord &c) const;
   const CColor operator[](const ICoord *c) const { return operator[](*c); }
   // Since OOFImage isn't actually made up of CColors, it's hard to
   // use operator[] to set values.  Use this instead:
   void set(const ICoord&, const CColor&);
   void imageChanged();		// call this when done setting pixels.
-
-  // // When reading multiple pixels, call getColor repeatedly, passing
-  // // in the result of a single call to pixelPacket().  This is not
-  // // thread safe.
-  // const Magick::PixelPacket *pixelPacket() const;
-  // CColor getColor(const ICoord &c, const Magick::PixelPacket*) const;
 
   // Convert to an Array of doubles.  f is a function that takes a
   // CColor and returns a double.
@@ -140,11 +108,7 @@ public:
   void set(const Array<int> &array, CColor (*f)(int));
   void set(const Array<bool> &array, CColor (*f)(bool));
 
-  OOFImage *clone(const std::string &name
-#ifdef USE_SKIMAGE
-		  , PyObject *npimage
-#endif // USE_SKIMAGE
-		  ) const;
+  OOFImage *clone(const std::string &name, PyObject *npimage) const;
 
   void getColorPoints(const CColor &reference,
 		      const ColorDifference &diff,
@@ -152,14 +116,13 @@ public:
 
   bool compare(const OOFImage&, double) const;
 
-  void flip(const std::string &axis);
-  void fade(double);
-  void dim(double);
+  // void flip(const std::string &axis);
+  // void fade(double);
+  // void dim(double);
 
   TimeStamp *getTimeStamp() { return &timestamp; }
 
-  // ImageMagick effects
-  void blur(double radius, double sigma);
+  // void blur(double radius, double sigma);
   void contrast(bool sharpen);
   void despeckle();
   void edge(double);
@@ -171,33 +134,17 @@ public:
   void reduceNoise(double);
   void sharpen(double, double);
 
-  void gray();
+  // void gray();
   void evenly_illuminate(int windowsize);
-};
+};				// class OOFImage
 
-// OOFImage *newImageFromData(const std::string &name,
-//  			   const ICoord *isize,
-//  			   const std::vector<unsigned short> *data);
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-#ifdef USE_SKIMAGE
-OOFImage *newImageFromNumpyData(const std::string&, PyObject*);
-#endif // USE_SKIMAGE
-
-// Parallel image send/recv
+// Parallel image send/recv   -- obsolete?
 #ifdef HAVE_MPI
 void _Send_Image(OOFImage*, std::vector<int>*, int);
 OOFImage *_Recv_Image(int, int);
 #endif //HAVE_MPI
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// class ImageMagickError : public ErrErrorBase<ImageMagickError> {
-//   std::string msg;
-// public:
-//   ImageMagickError(const std::string&);
-//   const std::string &classname() const;
-//   const std::string *summary() const { return new std::string(msg); }
-// };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
