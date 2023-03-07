@@ -49,14 +49,14 @@ class CheckAllElements(RefinementTarget):
     def __call__(self, skeleton, context, divisions, markedEdges, criterion):
         prog = progress.findProgress("Refine")
         eliter = skeleton.activeElements()
-        n = eliter.ntotal()
-        for i, element in enumerate(eliter):
+        for element in eliter:
             if criterion(skeleton, element):
                 self.markElement(element, divisions, markedEdges)
             if prog.stopped():
                 return
             prog.setFraction(eliter.fraction())
-            prog.setMessage(f"checked {eliter.nexamined()}/{n}  elements")
+            prog.setMessage(
+                f"checked {eliter.nexamined()}/{eliter.ntotal()}  elements")
 
 registeredclass.Registration(
     'All Elements',
@@ -128,15 +128,15 @@ class CheckHomogeneity(RefinementTarget):
     def __call__(self, skeleton, context, divisions, markedEdges, criterion):
         prog = progress.findProgress("Refine")
         eliter = skeleton.activeElements()
-        n = eliter.ntotal()
-        for i, element in enumerate(eliter):
+        for element in eliter:
             if element.homogeneity(skeleton.MS, False) < self.threshold and \
                criterion(skeleton, element):
                 self.markElement(element, divisions, markedEdges)
             if prog.stopped() :
                 return
             prog.setFraction(eliter.fraction())
-            prog.setMessage(f"checked {eliter.nexamined()}/{n} elements")
+            prog.setMessage(
+                f"checked {eliter.nexamined()}/{eliter.ntotal()} elements")
                 
 registeredclass.Registration(
     'Heterogeneous Elements',
@@ -206,21 +206,20 @@ registeredclass.Registration(
 
 class FromSelectedElements(SegmentChooser):
     def getSegments(self, context):
-        segments = set()
+        #segments = set()
         for elem in context.elementselection.retrieve():
-            if config.dimension() == 2:
-                for i in range(elem.nnodes()):
-                    n0 = elem.nodes[i]
-                    n1 = elem.nodes[(i+1)%elem.nnodes()]
-            elif config.dimension() == 3:
-                for i in range(elem.getNumberOfEdges()):
-                    (n0, n1) = elem.getSegmentNodes(i)
+            for i in range(elem.nnodes()):
+                n0 = elem.nodes[i]
+                n1 = elem.nodes[(i+1)%elem.nnodes()]
             seg = context.getObject().findSegment(n0, n1)
             if seg.active(context.getObject()):
-                segments.add(seg)
+                yield seg
+                #segments.add(seg)
+                ## TODO PYTHON3: NO -- this will return edges twice.
+                
         # TODO: Does the return value have to be a list?  Can it be
-        # left as a set?
-        return list(segments)
+        # left as a set?  A generator?
+        #return list(segments)
 
 registeredclass.Registration(
     'Selected Elements',
@@ -243,15 +242,16 @@ class CheckHeterogeneousEdges(RefinementTarget):
     def __call__(self, skeleton, context, divisions, markedEdges, criterion):
         microstructure = skeleton.MS
         prog = progress.findProgress("Refine")
-        segments = self.choose_from.getSegments(context)
-        n = len(segments)
-        for i, segment in enumerate(segments):
+        segiter = self.choose_from.getSegments(context)
+        debug.fmsg('segiter=', segiter)
+        for segment in segiter:
             if segment.homogeneity(microstructure) < self.threshold:
                 self.markSegment(segment, divisions, markedEdges)
             if prog.stopped():
                 return
-            prog.setFraction((i+1)/n)
-            prog.setMessage("checked %d/%d segments" % (i+1, n))
+            prog.setFraction(segiter.fraction())
+            prog.setMessage(
+                f"checked {segiter.nexamined()}/{segiter.ntotal()} segments")
 
 registeredclass.Registration(
     'Heterogeneous Segments',
@@ -269,6 +269,7 @@ registeredclass.Registration(
 class CheckSelectedEdges(RefinementTarget):
     def __call__(self, skeleton, context, divisions, markedEdges, criterion):
         prog = progress.findProgress("Refine")
+        ## TODO PYTHON3: Use a real iterator
         segments = context.segmentselection.retrieve()
         n = len(segments)
         for i, segment in enumerate(segments):
@@ -327,8 +328,7 @@ class CheckAspectRatio(RefinementTarget):
    def __call__(self, skeleton, context, divisions, markedEdges, criterion):
        prog = progress.findProgress("Refine")
        eliter = skeleton.activeElements()
-       n = eliter.ntotal()
-       for i, element in enumerate(eliter):
+       for element in eliter:
            if (criterion(skeleton, element) and (element.nnodes() == 4 or
                                                  not self.only_quads)):
                for segment in element.getAspectRatioSegments(self.threshold,
@@ -338,7 +338,8 @@ class CheckAspectRatio(RefinementTarget):
            if prog.stopped():
                return
            prog.setFraction(eliter.fraction())
-           prog.setMessage(f"checked {eliter.nexamined()}/{n} elements")
+           prog.setMessage(
+               f"checked {eliter.nexamined()}/{eliter.ntotal()} elements")
 
 registeredclass.Registration(
     'Aspect Ratio',
