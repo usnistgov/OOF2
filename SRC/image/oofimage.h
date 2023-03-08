@@ -123,13 +123,13 @@ public:
   TimeStamp *getTimeStamp() { return &timestamp; }
 
   // void blur(double radius, double sigma);
-  void contrast(bool sharpen);
+  // void contrast(bool sharpen);
   void despeckle();
   void edge(double);
   void enhance();
   void equalize();
   void medianFilter(double);
-  void negate(bool);
+  // void negate(bool);
   void normalize();
   void reduceNoise(double);
   void sharpen(double, double);

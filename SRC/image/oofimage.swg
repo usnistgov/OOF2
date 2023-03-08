@@ -75,13 +75,13 @@ public:
   // void fade(double);
   // void dim(double);
   // void blur(double, double);
-  void contrast(bool);
+  // void contrast(bool);
   void despeckle();
   void edge(double);
   void enhance();
   void equalize();
   void medianFilter(double);
-  void negate(bool);
+  // void negate(bool);
   void normalize();
   void reduceNoise(double);
   void sharpen(double, double);

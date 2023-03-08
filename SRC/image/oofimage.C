@@ -359,10 +359,10 @@ CColor int2color(int x) {
 //   imageChanged();
 // }
 
-void OOFImage::contrast(bool sharpen) {
-  // image.contrast(sharpen);
-  imageChanged();
-}
+// void OOFImage::contrast(bool sharpen) {
+//   // image.contrast(sharpen);
+//   imageChanged();
+// }
 
 void OOFImage::despeckle() {
   // image.despeckle();
@@ -389,10 +389,10 @@ void OOFImage::medianFilter(double radius) {
   imageChanged();
 }
 
-void OOFImage::negate(bool grayscale) {
-  // image.negate(grayscale);
-  imageChanged();
-}
+// void OOFImage::negate(bool grayscale) {
+//   // image.negate(grayscale);
+//   imageChanged();
+// }
 
 void OOFImage::normalize() {
   // image.normalize();

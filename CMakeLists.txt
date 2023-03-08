@@ -12,11 +12,10 @@ project(oof2 VERSION 2.2.3)
 # Options to be set by the user
 set(DESIRED_SWIGVERSION 4.1 CACHE STRING "Choose 4.0 or 4.1")
 set(DESIRED_PYVERSION 3.10 CACHE STRING "Python3 version number")
+
+## TODO NUMPY: If we're going to require numpy/skimage, don't make
+## this an option.
 option(USE_SKIMAGE "Use scikit-image instead of ImageMagick" OFF)
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

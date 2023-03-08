@@ -238,7 +238,29 @@ class ContrastImage(ImageModifier):
     def __init__(self, sharpen):
         self.sharpen = sharpen
     def __call__(self, image):
-        image.contrast(self.sharpen)
+        shortImage = skimage.util.img_as_uint(image.npImage())
+        disk = skimage.morphology.disk(5, dtype=shortImage.dtype)
+
+        ## TODO NUMPY: The documentation at
+        ## https://scikit-image.org/docs/stable/api/skimage.filters.rank.html#enhance-contrast
+        ## says that the input and output image format is
+        ##     ([P,] M, N) ndarray (uint8, uint16)
+        ##
+        ## Does this mean that the pixel channel data is in the first
+        ## index, contrary to the way in which skimage reads data?
+        ## That doesn't seem to make any sense.  Also, the description
+        ## refers to "pixel gray value" and not color.  Does it
+        ## require a gray scale image?  If so, what does the [P] refer
+        ## to in the argument description?
+        ##
+        ## In any case, this code doesn't seem to do anything:
+        
+        reordered = numpy.moveaxis(shortImage, 2, 0) # (M,N,P) -> (P,M,N)
+        contrasted = skimage.filters.rank.enhance_contrast(reordered, disk)
+        reordered = numpy.moveaxis(contrasted, 0, 2) # (P,M,N) -> (M,N,P)
+        return skimage.utils.img_as_float64(reordered)
+
+        #image.contrast(self.sharpen)  # imagemagick version
 
 registeredclass.Registration(
     'Contrast',
