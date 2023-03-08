@@ -608,32 +608,6 @@ ComponentsP SymmetricTensorField::outOfPlaneComponents() const {
   return ComponentsP(&comps);
 }
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-void testIterator_(const Field *field) {
-  std::cerr << "testIterator: " << field->name() << std::endl;
-  for(Planarity planarity : {ALL_INDICES, IN_PLANE, OUT_OF_PLANE}) {
-    if (planarity == IN_PLANE)
-      std::cerr << "IN_PLANE";
-    else if(planarity == OUT_OF_PLANE)
-      std::cerr << "OUT_OF_PLANE";
-    else
-      std::cerr << "ALL_INDICES";
-    std::cerr << ":";
-    for(auto index : field->components(planarity))
-      std::cerr << " " << index;
-    std::cerr << std::endl;
-  }
-}
-
-void testIterators() {
-  for(int i=0; i<countCompoundFields(); i++) {
-    CompoundField *field = getCompoundFieldByIndex(i);
-    testIterator_(field);
-    testIterator_(field->out_of_plane());
-  }
-}
-
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 void testIterator_(const Field *field) {
@@ -646,11 +620,9 @@ void testIterator_(const Field *field) {
     else
       std::cerr << "ALL_INDICES";
     std::cerr << ":";
-    for(IteratorP fieldcomp=field->iterator(planarity); !fieldcomp.end();
-	++fieldcomp)
-      {
+    for(IndexP fieldcomp : field->components(planarity)) {
 	std::cerr << " " << fieldcomp;
-      }
+    }
     std::cerr << std::endl;
   }
 }
