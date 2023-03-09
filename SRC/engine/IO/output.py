@@ -35,6 +35,11 @@ class OutputType(enum.EnumClass('Scalar', 'Aggregate')):
 ## eventually users will be able to construct new Output operations at
 ## run-time by assembling predefined Outputs into new Output chains.
 
+## TODO NUMPY, TODO PYTHON3: Use numpy for the Output's data?  Would
+## that obviate the TODOs about using generators and iterators instead
+## of lists?  Would it make the Python/C++ interface cleaner and
+## faster?
+
 class Output:
     def __init__(self, name, otype, callback, inputs=[], params=[],
                  tip=parameter.emptyTipString,
@@ -484,7 +489,12 @@ class Output:
         return False
 
     def evaluate(self, mesh, elements, coords):
-        ## TODO OPT: Use generators instead of lists!
+        ## TODO PYTHON3? Use generators instead of lists.  Each input
+        ## will have to iterate over the same list of elements and
+        ## coords, so either the loop over elements and coords will
+        ## have to be the outside loop (shared by all inputs), or the
+        ## element and coord generators will have to be converted to
+        ## lists, making the exercise pointless.
         argdict = {}
         for inputname, input in self.inputs.items():
             argdict[inputname] = input.evaluate(mesh, elements, coords)

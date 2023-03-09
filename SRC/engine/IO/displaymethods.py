@@ -96,14 +96,12 @@ class SkeletonDisplayMethod(display.DisplayMethod):
         if parallel_enable.enabled():
             nodes = skeleton.all_skeletons["nodes"]
             elements = skeleton.all_skeletons["elements"]
-            polys = []
             for i in range(mpitools.Size()):
                 for el in elements[i]:
-                    polys.append([primitives.Point(*nodes[i][ni])
-                                  for ni in el])
-            return  polys
+                    yield [primitives.Point(*nodes[i][ni]) for ni in el]
         else:
-            return [el.perimeter() for el in skeleton.element_iterator()]
+            for el in skeleton.element_iterator():
+                yield el.perimeter()
 
 # Dummy exception class, raised by
 # _undisplaced_from_displaced_with_element if it overruns its
@@ -181,8 +179,16 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
                              for element in themesh.element_iterator()
                              if element.material() is not None]
                 else:
+                    # edges is a list of lists of Edges
                     edges = [element.perimeter()
                              for element in themesh.element_iterator()]
+
+                ## TODO PYTHON3: Can this all be done with generators
+                ## instead of lists?  Maybe if all edges were
+                ## evaluated at the same location, so that we wouldn't
+                ## have to iterate over the edges to know how big to
+                ## make the corners list?  Also see TODO in output.py.
+                
                 flatedges = utils.flatten(edges)
                 # corners tells where on each edge to evaluate self.where
                 corners = [[0.0]]*len(flatedges)

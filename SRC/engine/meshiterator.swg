@@ -30,8 +30,8 @@
 
 // The .spy file adds __iter__ and __next__ methods to make these into
 // real iterators.
-// TODO PYTHON3: Are the increment methods still needed outside of the
-// iterator methods?  Find code that can be simplified because these
+
+// TODO PYTHON3: Find code that can be simplified because these
 // classes are real iterators.
 
 %nodefaultctor NodeIterator;

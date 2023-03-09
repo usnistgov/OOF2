@@ -33,13 +33,16 @@ class ProtoNode;
 
 // TODO PYTHON3: Make these into real C++ and python iterators?  A
 // more natural syntax would be
+//
 //  for(Node *node : element->nodes()) ...
 //  for(FuncNode *node : element->funcnodes()) ...
 //  for(ElementNodeIterator i=el->nodes().begin(); i!=el.nodes().end(); ++i) ...
+//
 // A difficulty with doing this is that the iterators, as currently
 // written, wrap around the list of nodes, which would not be
-// imposssible to implement with STL type iterators, but would be
-// somewhat messy.  Is this wraparound feature actually needed?
+// impossible to implement with STL type iterators, but would be
+// somewhat messy.  It looks like this is needed in
+// Element::newBndyEdge().
 
 class ElementNodeIterator {	// for looping over all nodes
 protected:
@@ -73,13 +76,13 @@ public:
 
   const Element &element() const { return element_; } // over whom we're looping
 
- // mlistindex() establishes the correspondence between index of a
- // node in the iterator and the index in the element's and
- // masterelement's nodelists.  By using this virtual function, most
- // of the other functions in the ElementNodeIterator hierarchy need
- // only be defined in the base class.  It returns the index in the
- // master element corresponding to the current index_ in the
- // iterator.
+  // mlistindex() establishes the correspondence between index of a
+  // node in the iterator and the index in the element's and
+  // masterelement's nodelists.  By using this virtual function, most
+  // of the other functions in the ElementNodeIterator hierarchy need
+  // only be defined in the base class.  It returns the index in the
+  // master element corresponding to the current index_ in the
+  // iterator.
   virtual int mlistindex() const;
 
   //Cheap way to get the nodes that are 'partnered' with the main
