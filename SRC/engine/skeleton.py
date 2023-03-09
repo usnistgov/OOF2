@@ -2870,7 +2870,7 @@ class Skeleton(SkeletonBase):
 # a Skeleton or a subset of them.  They have the benefits of a simple
 # generator while also giving information about how the iteration is
 # progressing.  Subclasses must define self.targets(), which returns
-# in iterable object that returns the set of things to be examined.
+# an iterable object that returns the set of things to be examined.
 # The things actually returned by the SkeletonIterator are the things
 # in that set for which the given condition is true.
 

@@ -17,6 +17,7 @@ from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
+from ooflib.engine import skeleton
 from ooflib.engine.IO import skeletongroupparams
 
 import math
@@ -43,7 +44,7 @@ class RefinementTarget(registeredclass.RegisteredClass):
     tip = "Determine which Skeleton segments will be refined."
     discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/refinementtarget.xml')
 
-#########################################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class CheckAllElements(RefinementTarget):     
     def __call__(self, skeleton, context, divisions, markedEdges, criterion):
@@ -66,7 +67,7 @@ registeredclass.Registration(
     tip="Refine all elements.",
     discussion= "<para>Refine all segments of all elements.</para>")
 
-###########################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class CheckSelectedElements(RefinementTarget):
     def __call__(self, skeleton, context, divisions, markedEdges, criterion):
@@ -91,6 +92,8 @@ registeredclass.Registration(
     discussion= """<para>
     Refine all segments of the currently selected elements.
     </para>""")
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class CheckElementsInGroup(RefinementTarget):
     def __init__(self, group):
@@ -119,7 +122,7 @@ registeredclass.Registration(
     Refine all segments of the elements in the given element group.
     </para>""")
 
-######################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class CheckHomogeneity(RefinementTarget):
     def __init__(self, threshold):
@@ -157,18 +160,22 @@ registeredclass.Registration(
     refinement of all elements with homogeneity less than 1.0.
     </para>""")
 
-#####################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# SegmentChooser subclasses are used as parameters in
+# RefinementTargets that identify particular segments.  They need to
+# provide a getSegments() method that returns an instance of a
+# SkeletonSegmentIterator subclass.
 
 class SegmentChooser(registeredclass.RegisteredClass):
     registry = []
-
     tip = "Choose sets of segments be refined."
     discussion = xmlmenudump.loadFile(
         'DISCUSSIONS/engine/reg/segment_chooser.xml')
 
 class FromAllSegments(SegmentChooser):
     def getSegments(self, context):
-        return context.getObject().activeSegments()
+        return skeleton.SkeletonSegmentIterator(context.getObject())
 
 registeredclass.Registration(
     'All Segments',
@@ -183,13 +190,20 @@ registeredclass.Registration(
     consider all &sgmts; of the &skel;.
     </para>""")
 
+class SelectedSegmentsIterator(skeleton.SkeletonSegmentIterator):
+    def __init__(self, context):
+        self.context = context
+        skeleton.SkeletonSegmentIterator.__init__(self, context.getObject())
+    def total(self):
+        return self.context.segmentselection.size()
+    def targets(self):
+        for seg in self.context.segmentselection.retrieve():
+            if seg.active(self.context.getObject()):
+                yield seg
+
 class FromSelectedSegments(SegmentChooser):
     def getSegments(self, context):
-        segments = []
-        for seg in context.segmentselection.retrieve():
-            if seg.active(context.getObject()):
-                segments.append(seg)
-        return segments
+        return SelectedSegmentsIterator(context)
 
 registeredclass.Registration(
     'Selected Segments',
@@ -204,23 +218,30 @@ registeredclass.Registration(
     consider only the currently selected &sgmts;.
     </para>""")
 
-class FromSelectedElements(SegmentChooser):
-    def getSegments(self, context):
-        #segments = set()
-        for elem in context.elementselection.retrieve():
+class SegsFromSelectedElementsIterator(skeleton.SkeletonSegmentIterator):
+    def __init__(self, context):
+        self.context = context
+        skeleton.SkeletonSegmentIterator.__init__(self, context.getObject())
+    # TODO: There should be a total() method that returns the total
+    # number of segments that will be returned, but we don't know that
+    # without actually doing the loop.  Without it, the fraction
+    # reported by the progress bar will be incorrect. 
+    def targets(self):
+        usedsegments = set()
+        for elem in self.context.elementselection.retrieve():
             for i in range(elem.nnodes()):
                 n0 = elem.nodes[i]
                 n1 = elem.nodes[(i+1)%elem.nnodes()]
-            seg = context.getObject().findSegment(n0, n1)
-            if seg.active(context.getObject()):
-                yield seg
-                #segments.add(seg)
-                ## TODO PYTHON3: NO -- this will return edges twice.
-                
-        # TODO: Does the return value have to be a list?  Can it be
-        # left as a set?  A generator?
-        #return list(segments)
+                seg = self.context.getObject().findSegment(n0, n1)
+                if seg.active(self.context.getObject()):
+                    if seg not in usedsegments:
+                        usedsegments.add(seg)
+                        yield seg
 
+class FromSelectedElements(SegmentChooser):
+    def getSegments(self, context):
+        return SegsFromSelectedElementsIterator(context)
+                
 registeredclass.Registration(
     'Selected Elements',
     SegmentChooser,
@@ -234,6 +255,8 @@ registeredclass.Registration(
     consider only the edges of the currently selected &elems;.
     </para>""")
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class CheckHeterogeneousEdges(RefinementTarget):
     def __init__(self, threshold, choose_from):
         self.threshold = threshold
@@ -243,7 +266,6 @@ class CheckHeterogeneousEdges(RefinementTarget):
         microstructure = skeleton.MS
         prog = progress.findProgress("Refine")
         segiter = self.choose_from.getSegments(context)
-        debug.fmsg('segiter=', segiter)
         for segment in segiter:
             if segment.homogeneity(microstructure) < self.threshold:
                 self.markSegment(segment, divisions, markedEdges)
@@ -258,18 +280,21 @@ registeredclass.Registration(
     RefinementTarget,
     CheckHeterogeneousEdges,
     ordering=3,
-    params=[parameter.FloatRangeParameter('threshold', (0.0, 1.0, 0.05),
-                                          value=0.9,
-                                          tip="Refine segments whose homogeneity is less than this."),
-            parameter.RegisteredParameter('choose_from', SegmentChooser,
-                                          tip='Segments to consider.')],
+    params=[
+        parameter.FloatRangeParameter(
+            'threshold', (0.0, 1.0, 0.05),
+            value=0.9,
+            tip="Refine segments whose homogeneity is less than this."),
+        parameter.RegisteredParameter('choose_from', SegmentChooser,
+                                      tip='Segments to consider.')],
     tip="Divide heterogeneous segments.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/check_hetero_segs.xml'))
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class CheckSelectedEdges(RefinementTarget):
     def __call__(self, skeleton, context, divisions, markedEdges, criterion):
         prog = progress.findProgress("Refine")
-        ## TODO PYTHON3: Use a real iterator
         segments = context.segmentselection.retrieve()
         n = len(segments)
         for i, segment in enumerate(segments):
@@ -289,6 +314,8 @@ registeredclass.Registration(
     discussion="""<para>
     <xref linkend='RegisteredClass-Refine'/> all currently selected &sgmts;.
     </para>""")
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class CheckSegmentGroup(RefinementTarget):
     def __init__(self, group):
@@ -319,7 +346,7 @@ registeredclass.Registration(
     </para>"""
     )
 
-#####################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class CheckAspectRatio(RefinementTarget):
    def __init__(self, threshold, only_quads=True):
@@ -357,4 +384,3 @@ registeredclass.Registration(
     ## TODO: explain only_quads in the manual!
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/check_aspect.xml'))
 
-##################################################
