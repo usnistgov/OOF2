@@ -37,10 +37,6 @@
 #include <string>
 #include <vector>
 
-#if DIM==3
-#include "vtk-5.0/vtkMath.h"
-#endif
-
 // ElementData constructors.
 ElementData::ElementData(const std::string &nm)
   : name_(nm)
@@ -64,7 +60,6 @@ Element::Element(PyObject *skelel, const MasterElement &me,
   PYTHON_THREAD_BEGIN_BLOCK;
   if(skeleton_element!=Py_None)
     {
-      // SWIG_GetPtrObj(skeleton_element, (void **)&cskeleton_element, "_CSkeletonElement_p");
       SWIG_ConvertPtr(skeleton_element, (void**) &cskeleton_element,
 		      ((SwigPyObject*) skeleton_element)->ty, 0);
       Py_XINCREF(skeleton_element);
@@ -322,11 +317,7 @@ ElementCornerNodeIterator Element::cornernode_iterator() const {
 // conversion between real coordinates and master element coordinates
 
 Coord Element::from_master(const MasterPosition &mc) const {
-#if DIM==2
   Coord p(0., 0.);
-#elif DIM==3
-  Coord p(0., 0., 0.);
-#endif
   for(ElementMapNodeIterator n=mapnode_iterator(); !n.end(); ++n) {
     p += n.shapefunction(mc) * n.node()->position();
   }
@@ -339,11 +330,7 @@ static const int maxiter = 100;	// should also be settable by user
 MasterCoord Element::to_master(const Coord &x) const {
   // Use Newton's method to solve from_master(xi) - x = 0 for xi.
   // xi -> xi + J^-1 * (x - from_master(xi))
-#if DIM == 2
   MasterCoord xi(0, 0);
-#elif DIM == 3
-  MasterCoord xi(0, 0, 0);
-#endif
   Coord dx = x - from_master(xi);
   int iter = 0;
   do {				// Newton iteration
@@ -352,20 +339,11 @@ MasterCoord Element::to_master(const Coord &x) const {
       for(SpaceIndex j=0; j<DIM; ++j)
 	jac[i][j] = jacobian(i, j, xi);
 
-#if DIM==2
     double dj = jac[0][0]*jac[1][1] - jac[0][1]*jac[1][0];
     dj = 1./dj;
     // xi --> xi + J^-1*(x - from_master(xi))
     xi(0) += ( jac[1][1]*dx(0) - jac[0][1]*dx(1))*dj;
     xi(1) += (-jac[1][0]*dx(0) + jac[0][0]*dx(1))*dj;
-#elif DIM==3
-    double invjac[DIM][DIM];
-    vtkMath::Invert3x3(jac,invjac);
-    // xi --> xi + J^-1*(x - from_master(xi))
-    xi(0) += ( invjac[0][0]*dx(0) + invjac[0][1]*dx(1) + invjac[0][2]*dx(2) );
-    xi(1) += ( invjac[1][0]*dx(0) + invjac[1][1]*dx(1) + invjac[1][2]*dx(2) );
-    xi(2) += ( invjac[2][0]*dx(0) + invjac[2][1]*dx(1) + invjac[2][2]*dx(2) );
-#endif // DIM==3
     dx = x - from_master(xi);	// reevaluate rhs
   } while((norm2(dx) > tolerancesq) && (++iter < maxiter));
   return xi;
@@ -385,9 +363,6 @@ const MasterCoord &Element::getMasterSCpoint(int i) const {
 double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const GaussPoint &g)
   const
 {
-
-#if DIM==2
-
   //         | J11  -J01 |
   //  J^-1 = |           | / |J|
   //         |-J10   J00 |
@@ -405,28 +380,11 @@ double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const GaussPoint &g)
   }
   return sum;
 
-#elif DIM==3
-
-  // typing out a closed form in code is messy for 3d
-  // TODO 3D: it might be worth it to type it out eventually as this is inefficient
-  double m[DIM][DIM], inverse[DIM][DIM];
-  int ii, jj;
-  for(ii=0; ii<DIM; ++ii) {
-    for(jj=0; jj<DIM; ++jj) {
-      m[ii][jj] = jacobian(ii,jj,g);
-    }
-  }
-  double dj = vtkMath::Determinant3x3(m);
-  vtkMath::Invert3x3(m,inverse);
-  return dj*inverse[i][j];
-
-#endif
 }
 
 double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const MasterCoord &mc)
   const
 {
-#if DIM==2
   double sum = 0;
   if(i == j) {
     int ii = 1 - i;
@@ -438,21 +396,6 @@ double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const MasterCoord &mc)
       sum -= (ni.node()->position())(i) * ni.masterderiv(j, mc);
   }
   return sum;
-
-#elif DIM==3
-
-  double m[DIM][DIM], inverse[DIM][DIM];
-  int ii, jj;
-  for(ii=0; ii<DIM; ++ii) {
-    for(jj=0; jj<DIM; ++jj) {
-      m[ii][jj] = jacobian(ii,jj,mc);
-    }
-  }
-  double dj = vtkMath::Determinant3x3(m);
-  vtkMath::Invert3x3(m,inverse);
-  return dj*inverse[i][j];
-
-#endif
 }
 
 
@@ -779,7 +722,6 @@ BoundaryEdge *Element::newBndyEdge(const FuncNode *n0, const FuncNode *n1)
     throw ErrUserError("Element::newBndyEdge: Nodes not corners of element");
   }
   bool forward;
-#if DIM == 2
   ElementCornerNodeIterator beta = alpha + 1;
   if(*beta.node() == *n1) {
     // second node is in front of first
@@ -793,15 +735,6 @@ BoundaryEdge *Element::newBndyEdge(const FuncNode *n0, const FuncNode *n1)
     }
     forward = false;		// it was behind
   }
-#elif DIM == 3
-  ElementCornerNodeIterator beta = cornernode_iterator();
-  while((*beta.node() != *n1) && !beta.end()) {
-    ++beta;
-  }
-  if(beta.end()) {
-    throw ErrUserError("Element::newBndyEdge: Nodes not corners of element");
-  }
-#endif
 
   // find out which edge of the masterelement contains alpha and beta
   const MasterEdge *medge = masterelement().masteredge(alpha, beta);
@@ -809,7 +742,7 @@ BoundaryEdge *Element::newBndyEdge(const FuncNode *n0, const FuncNode *n1)
   // put the endpoints and all intermediate FuncNodes in the BoundaryEdge
   BoundaryEdge *ed = new BoundaryEdge(this, medge->func_size());
   ed->add_node(alpha.funcnode_iterator());
-#if DIM==2 // TODO 3D: will have to add edge nodes another way for 3D when we do quadratic elements
+
   int increment;
   if(forward)
     increment = 1;
@@ -821,7 +754,6 @@ BoundaryEdge *Element::newBndyEdge(const FuncNode *n0, const FuncNode *n1)
     ed->add_node(middle);
     middle += increment;
   }
-#endif
   ed->add_node(beta.funcnode_iterator());
 
   return ed;
@@ -914,7 +846,6 @@ MasterCoord Element::center() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-#if DIM==2
 bool Element::exterior(const MasterCoord &a, const MasterCoord &b) const {
   // Are points a and b on the same exterior edge?
   if(!exterior_edges)
@@ -947,7 +878,7 @@ void Element::dump_exterior() const {  // debugging
       i<exterior_edges->size(); i++)
     std::cerr << "   " << (*exterior_edges)[i] << std::endl;
 }
-#endif
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 std::ostream &operator<<(std::ostream &os, const Element &el) {
