@@ -48,7 +48,6 @@ KEYVAL_CTRL_R = Gdk.keyval_from_name('Control_R')
 
 # TODO: Add handling for Page_Up, Page_Down, Home, End, Delete
 
-
 # Build the file menu outside of the instance, so it doesn't
 # have to be managed when instances come and go.
 
@@ -144,7 +143,9 @@ class GUIConsole(code.InteractiveConsole, subWindow.SubWindow):
 
         # File emulation attributes.
         self.old_stdout = sys.stdout
+        self.old_stderr = sys.stderr
         sys.stdout = self
+        sys.stderr = self
         self.softspace = 0
         self.mode="a"
         #
@@ -369,6 +370,7 @@ class GUIConsole(code.InteractiveConsole, subWindow.SubWindow):
     def local_destroy(self, gtkobj):
         global current_console
         sys.stdout = self.old_stdout
+        sys.stderr = self.old_stderr
         current_console = None
 
     # File-like functionality, allowing the console to stand
@@ -428,7 +430,7 @@ mainmenu.OOF.Windows.Console.add_gui_callback(make_console)
 
 # Operate the console in "raw" mode -- writes out a prompt, then
 # returns whatever was typed from then until a new line was
-# encountered.
+# encountered.  (raw_input() in python2 is input() in python3.)
 
 def raw_input(prompt):
     global current_console
@@ -444,9 +446,9 @@ def raw_input(prompt):
         current_console.raw_result=None
         return result
     else:
-        return sys.modules['__main__'].__builtins__.raw_input(prompt)
+        return sys.modules['__main__'].__builtins__.input(prompt)
 
 
-# Over-ride the "raw_input" function as seen from the
+# Over-ride the "input" function as seen from the
 # OOF evaluation namespace.
-utils.OOFdefine('raw_input', raw_input)
+utils.OOFdefine('input', raw_input)
