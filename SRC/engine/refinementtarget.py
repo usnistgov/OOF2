@@ -381,6 +381,7 @@ registeredclass.Registration(
             'only_quads', value=True,
             tip="Restrict the refinement to quadrilaterals?")],
     tip="Divide elements with extreme aspect ratios.",
-    ## TODO: explain only_quads in the manual!
+    ## TODO: explain only_quads in the manual!  Also, aspect ratio is
+    ## now computed differently.
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/check_aspect.xml'))
 

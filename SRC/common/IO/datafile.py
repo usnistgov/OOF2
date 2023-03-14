@@ -144,10 +144,12 @@ def writeDataFile(filename, mode, format):
 
 def readDataFile(filename, menu):
     prog = progress.getProgress(os.path.basename(filename), progress.DEFINITE)
+    source = None
     try:
         source = menuparser.ProgFileInput(filename, prog)
         parser = menuparser.MenuParser(source, menu)
         parser.run()
     finally:
-        source.close()
+        if source is not None:  # in case an error occured in creating source
+            source.close()
         prog.finish()

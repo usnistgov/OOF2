@@ -663,7 +663,6 @@ parameter.FloatParameter.makeWidget = _FloatParameter_makeWidget
 
 class PositiveFloatWidget(FloatWidget):
     def validValue(self, val):
-        debug.fmsg("val=", val, type(val))
         try:
             if isinstance(val, StringType):
                 fval = 1.0*utils.OOFeval(val)
