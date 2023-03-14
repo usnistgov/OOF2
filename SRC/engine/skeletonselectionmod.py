@@ -938,6 +938,60 @@ registeredclass.Registration(
 
 #######################
 
+class ElementAspectRatio(ElementSelectionModifier):
+    def __init__(self, threshold, only_quads, only_refineable):
+        self.threshold = threshold
+        self.only_refineable = only_refineable
+        self.only_quads = only_quads
+    def __call__(self, skeleton, selection):
+        selected = []
+        # aspectRatio2 return the square of the inverse aspect ratio,
+        # so compare it to 1/threshold^2, and use <.
+        t2 = 1./(self.threshold * self.threshold)
+        for element in skeleton.getObject().element_iterator():
+            if element.nnodes() == 3:
+                if not self.only_quads:
+                    if element.aspectRatio2() < t2:
+                        selected.append(element)
+            else:               # quads
+                if element.aspectRatio2() < t2:
+                    if self.only_refineable:
+                        # Only select elements whose two longest edges
+                        # are not adjacent.
+                        lengths = element.getEdgeLengthsList()
+                        sortlen = sorted([(lengths[i], i) for i in range(4)])
+                        longest = sortlen[3][1] # index of longest edge
+                        nextlongest = sortlen[2][1]
+                        diff = longest - nextlongest
+                        if diff == 2 or diff == -2:
+                            selected.append(element)
+                    else:
+                        selected.append(element)
+        selection.start()
+        selection.clear()
+        selection.select(selected)
+
+registeredclass.Registration(
+    'Select by Aspect Ratio',
+    ElementSelectionModifier,
+    ElementAspectRatio,
+    ordering=3.5,
+    params=[
+        parameter.PositiveFloatParameter(
+            'threshold', value=5,
+            tip="Select Elements with an aspect ratio greater than this."),
+        parameter.BooleanParameter(
+            'only_quads', value=True,
+            tip="Select only quads, or both quads and triangles?"),
+        parameter.BooleanParameter(
+            'only_refineable', value=True,
+            tip="Only select quads with opposing long edges.")
+    ],
+    tip="Select elements with a minimum ratio of longest to shortest adjacent edge."
+    )
+
+#######################
+
 class ElementIllegal(ElementSelectionModifier):
     def __call__(self, skeleton, selection):
         selected = []
