@@ -27,6 +27,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
+import math
 import sys
 
 class SkeletonInfoMode:
@@ -230,12 +231,16 @@ class ElementMode(SkeletonInfoMode):
         self.shape = self.entrymaster(1, 7)
         gtklogger.setWidgetName(self.shape, "Shape")
 
-        self.labelmaster(0, 8, 'element groups=')
-        self.group = self.entrymaster(1, 8)
+        self.labelmaster(0, 8, 'aspect ratio')
+        self.aspect = self.entrymaster(1, 8)
+        gtklogger.setWidgetName(self.aspect, "Aspect")
+
+        self.labelmaster(0, 9, 'element groups=')
+        self.group = self.entrymaster(1, 9)
         gtklogger.setWidgetName(self.group, "Group")
 
-        self.labelmaster(0, 9, 'material=')
-        self.material = self.entrymaster(1, 9)
+        self.labelmaster(0, 10, 'material=')
+        self.material = self.entrymaster(1, 10)
         gtklogger.setWidgetName(self.material, "Material")
 
         self.built = True
@@ -285,6 +290,12 @@ class ElementMode(SkeletonInfoMode):
                 ehom = "%f" % element.homogeneity(skeleton.MS, False)
                 eshape = "%f" % element.energyShape()
 
+                a2 = element.aspectRatio2()
+                if a2 > 0:
+                    aspect = "%f" % (1./math.sqrt(element.aspectRatio2()))
+                else:
+                    aspect = "infinity"
+
                 mat = element.material(container.context)
                 if mat:
                     matname = mat.name()
@@ -294,16 +305,17 @@ class ElementMode(SkeletonInfoMode):
                 pixgrps = "???"
                 ehom = "???"
                 eshape = "???"
+                aspect = "???"
                 matname = "???"
             self.updateGroup(element)
         finally:
             container.context.end_reading()
         mainthread.runBlock(self.updateSomething_thread,
                             (etype, eindex, earea, pixgrps, ehom, eshape,
-                             matname))
+                             aspect, matname))
 
     def updateSomething_thread(self, etype, eindex, earea, pixgrps, ehom,
-                               eshape, matname):
+                               eshape, aspect, matname):
         debug.mainthreadTest()
         self.type.set_text(etype)
         self.index.set_text(eindex)
@@ -311,6 +323,7 @@ class ElementMode(SkeletonInfoMode):
         self.domin.set_text(pixgrps)
         self.homog.set_text(ehom)
         self.shape.set_text(eshape)
+        self.aspect.set_text(aspect)
         self.material.set_text(matname)
 
     def updateNothing(self):
@@ -325,6 +338,7 @@ class ElementMode(SkeletonInfoMode):
         self.domin.set_text("")
         self.homog.set_text("")
         self.shape.set_text("")
+        self.aspect.set_text("")
         self.group.set_text("")
         self.material.set_text("")
 
