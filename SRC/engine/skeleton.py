@@ -3015,7 +3015,7 @@ class ProvisionalChanges:
         # substitution of one element for another.
         self.seg_subs[old] = new
 
-    def moveNode(self, node, position, mobility=(1,1)):
+    def moveNode(self, node, position, mobility=(True,True)):
         self.movednodes.append(
             self.MoveNode(node=node, position=position, mobility=mobility))
 

@@ -495,14 +495,14 @@ def findSignature(marks):
     # divided into more than arbitrary_factor segments in one
     # refinement operation.
     n = len(marks)
-    max = -1
+    maxkey = -1
     imax = None
     for i in range(n):
         key = marks[i]
         for j in range(1, n):
             key = arbitrary_factor*key + marks[(i+j)%n]
         if key > max:
-            max = key
+            maxkey = key
             imax = i
     return imax, tuple([marks[(i+imax)%n] for i in range(n)])
 
