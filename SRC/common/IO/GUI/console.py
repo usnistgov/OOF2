@@ -11,9 +11,6 @@
 # A window for interactively querying OOF while it's running
 # in GUI mode.
 
-## TODO PYTHON3: Get stderr to go to the console instead of to the
-## terminal window.
-
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common import mainthread
