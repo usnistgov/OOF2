@@ -406,82 +406,68 @@ void CMicrostructure::categorize() const {
 } // end CMicrostructure::categorize()
 
 unsigned int CMicrostructure::nCategories() const {
-  // std::cerr << "Acquire, nCategories." << std::endl;
   category_lock.acquire();
   if(!categorized)
     categorize();
   unsigned int res = ncategories;
   category_lock.release();
-  // std::cerr << "Release." << std::endl;
   return res;
 }
 
 int CMicrostructure::category(const ICoord *where) const {
-  // std::cerr << "Acquire, category1" << std::endl;
   category_lock.acquire();
   if(!categorized)
     categorize();
   int cat = categorymap[*where];
   category_lock.release();
-  // std::cerr << "Release." << std::endl;
   return cat;
 }
 
 int CMicrostructure::category(const ICoord &where) const {
-  // std::cerr << "Acquire, category2" << std::endl;
   category_lock.acquire();
   if(!categorized)
     categorize();
   int res = categorymap[where];
   category_lock.release();
-  // std::cerr << "Release." << std::endl;
+  return res;
+}
+
+int CMicrostructure::category(int x, int y) const {
+  category_lock.acquire();
+  if(!categorized)
+    categorize();
+  int res = categorymap[ICoord(x,y)];
+  category_lock.release();
   return res;
 }
 
 // Special version for finding the category of the pixel under an
 // arbitrary point.
 int CMicrostructure::category(const Coord &where) const {
-  // std::cerr << "Acquire, category3." << std::endl;
   category_lock.acquire();
   if(!categorized) 
     categorize();
   int res = categorymap[pixelFromPoint(where)];
   category_lock.release();
-  // std::cerr << "Release." << std::endl;
-  return res;
-}
-
-int CMicrostructure::category(int x, int y) const {
-  // std::cerr << "Acquire, category4" << std::endl;
-  category_lock.acquire();
-  if(!categorized)
-    categorize();
-  int res = categorymap[ICoord(x,y)];
-  category_lock.release();
-  // std::cerr << "Release." << std::endl;
   return res;
 }
 
 const ICoord &CMicrostructure::getRepresentativePixel(std::size_t category)
   const
 {
-  // std::cerr << "Acquire, getRepPixel." << std::endl;
   category_lock.acquire();
   if(!categorized)
     categorize();
   ICoord &res = representativePixels[category];
   category_lock.release();
-  // std::cerr << "Release." << std::endl;
   return res;
 }
 
 const Array<int> *CMicrostructure::getCategoryMap() const {
-  // std::cerr << "Acquire, getCategoryMap." << std::endl;
   category_lock.acquire();
   if(!categorized)
     categorize();
   category_lock.release();
-  // std::cerr << "Released, getCategoryMap." << std::endl;
   return &categorymap;
 }
 
@@ -574,7 +560,8 @@ static const ICoord southwest(-1, -1);
 
 std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
 						    const Coord &c1,
-						    bool &vertical_horizontal)
+						    bool &vertical_horizontal,
+						    bool &flipped)
   const
 {
   // Coordinates of endpoints in pixel space (real).
@@ -624,6 +611,9 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
   //  pixels should be "xxxxx".
   //  Followings will deal with this adjustment.
 
+  // The users of the pixel data may need to know if the order of the
+  // pixels has been flipped.
+  flipped = false;
 
   // This assumes we are traversing an element in counter clockwise
   // order.
@@ -669,6 +659,7 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
     std::vector<ICoord> *pixels = new std::vector<ICoord>(npix);
     int x = ip0(0);
     int y0 = (ip0(1) < ip1(1)) ? ip0(1) : ip1(1);
+    flipped = ip1(1) < ip0(1);
     for(int i=0; i<npix; i++)
       (*pixels)[i] = ICoord(x, y0+i);
     return pixels;
@@ -680,6 +671,7 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
     std::vector<ICoord> *pixels = new std::vector<ICoord>(npix);
     int y = ip0(1);
     int x0 = (ip0(0) < ip1(0)) ? ip0(0) : ip1(0);
+    flipped = ip1(0) < ip0(0);
     for(int i=0; i<npix; i++)
       (*pixels)[i] = ICoord(x0+i, y);
     return pixels;
@@ -701,6 +693,7 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
       Coord temp(p1);
       p1 = p0;
       p0 = temp;
+      flipped = true;
     }
     pixels->reserve(2*abs(id(0))); // biggest possible size
     double x0 = p0(0);
@@ -812,7 +805,7 @@ void CMicrostructure::markSegment(MarkInfo *mm,
 				  const Coord &c0, const Coord &c1) const
 {
   bool dummy;
-  const std::vector<ICoord> *pixels = segmentPixels(c0, c1, dummy);
+  const std::vector<ICoord> *pixels = segmentPixels(c0, c1, dummy, dummy);
 //   std::cerr << "CMicrostructure::markSegment: c0=" <<  c0 << " c1=" << c1 << std::endl;
   for(std::vector<ICoord>::const_iterator pxl=pixels->begin();
       pxl<pixels->end(); ++pxl)
@@ -1000,6 +993,118 @@ bool CMicrostructure::transitionPoint(const Coord &c0, const Coord &c1,
 
 }
 
+// Split a directed line segment (c0, c1) into sections such that each
+// section lies over pixels with a single category.  If a stairstep is
+// detected, treat it as a single section.  Return of list of
+// SegmentSection objects, which give the end points and category each
+// section.
+
+// TODO PYTHON3: Do we still need TransitionPointIterator?
+
+std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
+					const Coord *c0, const Coord *c1)
+  const
+
+{
+  // Work with floating point coordinates in pixel units
+  Coord pt0(physical2Pixel(*c0));
+  Coord pt1(physical2Pixel(*c1));
+
+  bool flipped, dummy;
+  bool vertical = (pt0[0] == pt1[0]);
+  double slope = 0.0;
+  double invslope = 0.0;
+  if(!vertical) {
+    slope = (pt1[1] - pt0[1])/(pt1[0] - pt0[0]);
+    invslope = 1./slope;
+  }
+
+  std::vector<SegmentSection*> *sections = new std::vector<SegmentSection*>;
+  std::vector<ICoord> *pixels = segmentPixels(*c0, *c1, dummy, flipped);
+  // segmentPixels doesn't guarantee that the pixels are in order from
+  // c0 to c1.  If flipped is true, the pixels are in reverse order,
+  // so we iterator over them manually.
+  int npxls = pixels->size();
+  int i0 = flipped ? npxls-1 : 0; // initial pixel index
+  int i1 = flipped ? -1 : npxls;  // final pixel index
+  int idir = flipped ? -1 : 1;	  // pixel index increment
+
+  // Find the category of the starting point.  This is not just
+  // category(c0), because if the segment starts on a boundary going
+  // left or down, we want the pixel to the left or below the starting
+  // point.
+  double x0 = pt0[0];
+  double y0 = pt0[1];
+  if(x0 > pt1[0] && x0 == floor(x0)) // going left
+    x0 -= 0.5;
+  if(y0 > pt1[1] && y0 == floor(y0)) // going down
+    y0 -= 0.5;
+  // If the starting point is on the top or right edge of the
+  // microstructure, roundoff error may make it look like it's
+  // outside.
+  int curcat = category(x0, y0); // category of the current section
+  Coord curpt = pt0;	      // starting point of the current section
+  ICoord prevpxl = (*pixels)[i0]; // previous pixel
+
+  // Loop over the pixels under the segment, looking for category changes.
+  for(int i=i0+idir; i!=i1; i+=idir) {
+    ICoord pxl = (*pixels)[i];	// the pixel to examine
+    int cat = category(pxl);
+    Coord pt;			// next transition point
+    if(cat != curcat) {
+      // Find the actual intersection point of the segment and the
+      // previous pixel, in the direction of pt1.
+      ICoord delta = pxl - prevpxl; // Will be either x, -x, y, or -y
+      if(delta[0] == 1) {
+	// We've moved one pixel in the +x direction from the last
+	// pixel.  The transition point is on the left side of this
+	// pixel, x = pxl[0]
+	assert(delta[1] == 0 && !vertical);
+	pt = Coord(pxl[0],  y0 + slope*(pxl[0] - x0));
+      }
+      else if(delta[0] == -1) {
+	// Moving left.  The transition point is on the left side of
+	// the previous pixel, x = prevpxl[0].
+	assert(delta[1] == 0 && !vertical);
+	pt = Coord(prevpxl[0], y0 + slope*(prevpxl[0] - x0));
+      }
+      else if(delta[1] == 1) {
+	// Moving up one from the previous pixel.  Intersection is at
+	// the bottom of this pixel, y=pxl[1]
+	assert(delta[0] == 0);
+	if(vertical)
+	  pt = Coord(x0, pxl[1]);
+	else
+	  pt = Coord(x0 + invslope*(pxl[1] - y0), pxl[1]);
+      }
+      else if(delta[1] == -1) {
+	assert(delta[0] == 0);
+	if(vertical)
+	  pt = Coord(x0, prevpxl[1]);
+	else
+
+	  pt = Coord(x0 + invslope*(prevpxl[1] - y0), prevpxl[1]);
+      }
+      else {
+	throw ErrProgrammingError("Error in getSegmentSections",
+				  __FILE__, __LINE__);
+      }
+      sections->push_back(new SegmentSection(curpt, pt, curcat));
+      curpt = pt;
+      curcat = cat;
+    } // end if cat != curcat
+    prevpxl = pxl;
+  } // end loop over segment pixels
+
+  // Add the final point.  There can be no more transition points.
+  sections->push_back(new SegmentSection(curpt, pt1, curcat));
+
+  // TODO: Eliminate stairstep sections
+  
+  delete pixels;
+  return sections;
+} // end CMicrostructure::getSegmentSections
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 double CMicrostructure::edgeHomogeneity(const Coord &c0, const Coord &c1) const
@@ -1132,10 +1237,10 @@ CMicrostructure::transitionPointWithPoints_unbiased(const Coord *c0,
 						    Coord *point) const
 {
   Coord cleft,cright;
-  bool bleft, bright, bverticalhorizontal;
+  bool bleft, bright, bverticalhorizontal, dummy;
   
   const std::vector<ICoord> *pixels = segmentPixels(*c0, *c1,
-						    bverticalhorizontal);
+						    bverticalhorizontal, dummy);
 
   // std::cerr << "transitionPointWithPoints_unbiased: pixels=";
   // for(ICoord pix : *pixels)
@@ -1156,7 +1261,7 @@ CMicrostructure::transitionPointWithPoints_unbiased(const Coord *c0,
   // 	    << " cleft=" << cleft << std::endl;
   if(bverticalhorizontal) {
     const std::vector<ICoord> *pixelsright =
-      segmentPixels(*c1, *c0, bverticalhorizontal);
+      segmentPixels(*c1, *c0, bverticalhorizontal, dummy);
     TransitionPointIterator tpIterator2(this, *c0, *c1, pixelsright);
     bright = transitionPointClosest(*c0, *c1, tpIterator2, &cright);
   }
@@ -1198,7 +1303,7 @@ TransitionPointIterator::TransitionPointIterator(
     p1(microstructure->physical2Pixel(c1))
 {
   bool dummy;
-  pixels = MS->segmentPixels(c0,c1,dummy);
+  pixels = MS->segmentPixels(c0,c1,dummy, dummy);
   begin();
 }
 

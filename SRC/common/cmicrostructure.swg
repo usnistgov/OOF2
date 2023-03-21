@@ -98,6 +98,16 @@ typedef Array<int> NewArrayInt;
   Py_XDECREF(newval);
 }
 
+%nodefaultctor SegmentSection;
+
+class SegmentSection {
+public:
+  const Coord p0, p1;
+  const int category;
+};
+
+MAKE_LISTVEC_TYPEMAPS(SegmentSection);
+
 class CMicrostructure {
 public:
   CMicrostructure(const std::string &name, ICoord *Sequence, Coord *Sequence);
@@ -130,6 +140,8 @@ public:
 			    int* int_argout);
   bool transitionPointWithPoints_unbiased(Coord *Point, Coord *Point,
 				 Coord *argout_Point);
+
+  SegmentSectionVec *getSegmentSections(const Coord* Point, const Coord *Point);
 
 };
 

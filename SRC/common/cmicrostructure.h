@@ -78,6 +78,14 @@ public:
   double getNormDelta() const;
 };
 
+class SegmentSection {
+public:
+  const Coord p0, p1;
+  const int category;
+  SegmentSection(const Coord &p0, const Coord &p1, int cat)
+    : p0(p0), p1(p1), category(cat)
+  {}
+};
 
 class CMicrostructure {
 private:
@@ -179,11 +187,13 @@ public:
   const Array<int> *getCategoryMapRO() const; // changes no data
 
   unsigned int nCategories() const;
-  // Three different versions of this for convenience in calling it...
+  // Three, no four, no five different versions of this for
+  // convenience in calling it...
   int category(const ICoord *where) const;
   int category(const ICoord &where) const;
   int category(int x, int y) const;
   int category(const Coord &where) const; // Arbitrary physical-coord point.
+  int category(double x, double y) const { return category(Coord(x,y)); }
   void recategorize();
   const ICoord &getRepresentativePixel(std::size_t category) const;
   bool is_categorized() const { return categorized; }
@@ -192,7 +202,10 @@ public:
     return categoryBdys;
   }
 
-  std::vector<ICoord> *segmentPixels(const Coord&, const Coord&, bool&) const;
+  std::vector<ICoord> *segmentPixels(const Coord&, const Coord&, bool&, bool&)
+    const;
+  std::vector<SegmentSection*> *getSegmentSections(const Coord*, const Coord*)
+    const;
   
   MarkInfo *beginMarking(const CRectangle&) const; // sets active subarray of markedpixels
   void markSegment(MarkInfo*, const Coord&, const Coord&) const;

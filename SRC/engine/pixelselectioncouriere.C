@@ -63,7 +63,7 @@ SegmentSelection::~SegmentSelection() {
 
 void SegmentSelection::start() {
   bool dummy;
-  selected = ms->segmentPixels(n0, n1, dummy);  // get the pixel array
+  selected = ms->segmentPixels(n0, n1, dummy, dummy);  // get the pixel array
   sel_iter = selected->begin();
 }
 
