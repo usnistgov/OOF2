@@ -123,6 +123,12 @@ class PixelInfoToolbox(toolbox.Toolbox):
         switchboard.notify(self)        # caught by GUI toolbox
         switchboard.notify('redraw')
 
+        if debug.debug():
+            ms = self.findMicrostructure()
+            cat = ms.category(self.point)
+            print("PixelInfoToolbox: category=", cat)
+        
+
     def clearPixel(self, menuitem): # Menu callback.
         self.timestamp.increment()
         self.point = None

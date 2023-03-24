@@ -279,6 +279,21 @@ class SkeletonInfoToolbox(toolbox.Toolbox):
             reporter.report("Avoid clicking OUTSIDE of a skeleton.")
         else:
             self.finishQuery(context, sgmt, "Segment", position)
+            if debug.debug():
+                ms = context.getMicrostructure()
+                debug.fmsg("Segment: ", sgmt.nodes()[0].position(),
+                           sgmt.nodes()[1].position())
+                sections = ms.getSegmentSections(sgmt.nodes()[0].position(),
+                                                 sgmt.nodes()[1].position())
+                for section in sections:
+                    debug.fmsg("   SegmentSection", section.p0, section.p1,
+                               "category=", section.category)
+                debug.fmsg(" Reverse segment sections")
+                sections = ms.getSegmentSections(sgmt.nodes()[1].position(),
+                                                 sgmt.nodes()[0].position())
+                for section in sections:
+                    debug.fmsg("   SegmentSection", section.p0, section.p1,
+                               "category=", section.category)
 
     def querySgmtByID(self, menuitem, index):
         context = self.getSkeletonContext()
