@@ -80,11 +80,12 @@ public:
 
 class SegmentSection {
 public:
-  const Coord p0, p1;
-  const int category;
-  SegmentSection(const Coord &p0, const Coord &p1, int cat)
-    : p0(p0), p1(p1), category(cat)
+  Coord p0, p1;
+  int category, stepcategory;
+  SegmentSection(const Coord &p0, const Coord &p1, int cat, int stepcat)
+    : p0(p0), p1(p1), category(cat), stepcategory(stepcat)
   {}
+  Coord span() const { return p1 - p0; }
 };
 
 class CMicrostructure {
