@@ -239,7 +239,8 @@ class ContrastImage(ImageModifier):
         self.sharpen = sharpen
     def __call__(self, image):
         shortImage = skimage.util.img_as_uint(image.npImage())
-        disk = skimage.morphology.disk(5, dtype=shortImage.dtype)
+        disk = skimage.color.gray2rgb(
+            skimage.morphology.disk(5, dtype=shortImage.dtype))
 
         ## TODO NUMPY: The documentation at
         ## https://scikit-image.org/docs/stable/api/skimage.filters.rank.html#enhance-contrast
@@ -258,7 +259,7 @@ class ContrastImage(ImageModifier):
         reordered = numpy.moveaxis(shortImage, 2, 0) # (M,N,P) -> (P,M,N)
         contrasted = skimage.filters.rank.enhance_contrast(reordered, disk)
         reordered = numpy.moveaxis(contrasted, 0, 2) # (P,M,N) -> (M,N,P)
-        return skimage.utils.img_as_float64(reordered)
+        return skimage.util.img_as_float64(reordered)
 
         #image.contrast(self.sharpen)  # imagemagick version
 
