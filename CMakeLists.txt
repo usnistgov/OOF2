@@ -272,7 +272,7 @@ endif()
 foreach(olib ${ooflibs})
   add_library(${olib} SHARED)
   target_include_directories(${olib}
-    PUBLIC
+    PRIVATE
     ${PROJECT_BINARY_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/SRC
