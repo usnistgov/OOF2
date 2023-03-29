@@ -110,26 +110,14 @@ class EdgeMarkings:
         # arguments are the nodes defining the edge, and the number of
         # new nodes to add to that edge.
         key = skeletonnode.canonical_order(node0, node1)
-        try:
-            # Only mark an edge if it's not already marked for more
-            # divisions.
-            if self.markings[key] < ndivs:
-                self.markings[key] = ndivs
-        except KeyError:
+        if self.markings.get(key, 0) < ndivs:
             self.markings[key] = ndivs
-
         # mark the partner segment, if it exists
         partners = node0.getPartnerPair(node1)
         if partners is not None:
             partnerKey = skeletonnode.canonical_order(partners[0], partners[1])
-            try:
-                # Only mark an edge if it's not already marked for more
-                # divisions.
-                if self.markings[partnerKey] < ndivs:
-                    self.markings[partnerKey] = ndivs
-            except KeyError:
-                self.markings[partnerKey] = ndivs
-                
+            if self.markings.get(partnerKey, 0) < ndivs:
+                self.markings[key] = ndivs
 
     def getMark(self, node0, node1):
         key = skeletonnode.canonical_order(node0, node1)
@@ -501,7 +489,7 @@ def findSignature(marks):
         key = marks[i]
         for j in range(1, n):
             key = arbitrary_factor*key + marks[(i+j)%n]
-        if key > max:
+        if key > maxkey:
             maxkey = key
             imax = i
     return imax, tuple([marks[(i+imax)%n] for i in range(n)])
