@@ -997,10 +997,14 @@ bool CMicrostructure::transitionPoint(const Coord &c0, const Coord &c1,
 
 // Utility functions used by CMicrostructure::getSegmentSections()
 
-double SegmentSection::span(int comp) const {
-  // std::cerr << "SegmentSection::span: comp=" << comp << " p0=" << p0
-  // 	    << " p1=" << p1 << std::endl;
-  return fabs((p1[comp] - p0[comp]));
+// #ifdef DEBUG
+// double SegmentSection::span(int comp) const {
+//   return fabs((p1[comp] - p0[comp]));
+// }
+// #endif // DEBUG
+
+double SegmentSection::length2() const {
+  return norm2(p1 - p0);
 }
 
 std::ostream &operator<<(std::ostream &os, const SegmentSection &s) {
@@ -1024,17 +1028,6 @@ bool isint(double x) {
   return floor(x) == x;
 }
 
-#ifdef DEBUG
-// There is certainly a better way to do this.
-template <class V, class T>
-int indexof(const T &t, const V &v) {
-  for(int i=0; i<v.size(); i++)
-    if(v[i] == t)
-      return i;
-  return v.size();
-}
-#endif // DEBUG
-
 int getInitialCat(const CMicrostructure *ms, const Coord &pt0, const Coord &pt1)
 {
   // Get the category to use at the beginning of the segment that goes
@@ -1047,9 +1040,14 @@ int getInitialCat(const CMicrostructure *ms, const Coord &pt0, const Coord &pt1)
     x0 -= 0.5;
   if(y0 > pt1[1] && isint(y0)) // going down
     y0 -= 0.5;
-  int cat = ms->category(ICoord(x0, y0)); 
-  std::cerr << "getInitialCat: " << pt0 << " " << pt1 << " " << cat
-	    << std::endl;
+  // We can't just call category(x0, y0) because that assumes the
+  // coordinates are physical, not pixel.  That means that we have to
+  // check for x and y on the left and upper boundaries of the
+  // microstructure too, the way that pixelFromPoint does.
+  ICoord sz = ms->sizeInPixels();
+  if(x0 >= sz[0]) x0 -= 1;
+  if(y0 >= sz[1]) y0 -= 1;
+  int cat = ms->category(ICoord(x0, y0));
   return cat;
 }
 
@@ -1057,19 +1055,22 @@ int getInitialCat(const CMicrostructure *ms, const Coord &pt0, const Coord &pt1)
 
 // Split a directed line segment (c0, c1) into sections such that each
 // section lies over pixels with a single category.  If a stairstep is
-// detected, treat it as a single section.  Return of list of
+// detected, treat it as a single section. Sections less than
+// maxlength are merged with their neighbors if both neighbors are the
+// same category, or at the end of the segment. Return of list of
 // SegmentSection objects, which give the end points and category each
 // section.
 
 // TODO PYTHON3: Do we still need TransitionPointIterator?
 
 std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
-					const Coord *c0, const Coord *c1)
+				  const Coord *c0, const Coord *c1,
+				  double maxlength)
   const
 
 {
-  std::cerr << "CMicrostructure::getSegmentSections: c0=" << *c0
-	    << " c1=" << *c1 << std::endl;
+  // std::cerr << "CMicrostructure::getSegmentSections: c0=" << *c0
+  // 	    << " c1=" << *c1 << std::endl;
   // Get the pixels under the segment.
   bool flipped, dummy;
   std::vector<SegmentSection*> *sections = new std::vector<SegmentSection*>;
@@ -1078,8 +1079,8 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
   // Pixel-space coordinates of the ends of segment
   Coord pt0(physical2Pixel(*c0));
   Coord pt1(physical2Pixel(*c1));
-  std::cerr << "CMicrostructure::getSegmentSections: pt0=" << pt0
-   	    << " pt1=" << pt1 << std::endl;
+  // std::cerr << "CMicrostructure::getSegmentSections: pt0=" << pt0
+  //  	    << " pt1=" << pt1 << std::endl;
 
   bool vertical = (pt0[0] == pt1[0]);
   double slope = 0.0;		// Only one of slope and invslope is used.
@@ -1089,13 +1090,13 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
     invslope = 1./slope;
   }
 
-#ifdef DEBUG
-  std::cerr << "CMicrostructure::getSegmentSections: got " << pixels->size()
-	    << " pixels, flipped=" << flipped << std::endl;
-  std::cerr << "CMicrostructure::getSegmentSections: pixels=";
-  for(ICoord &pxl : *pixels) std::cerr << " " << pxl;
-  std::cerr << std::endl;
-#endif // DEBUG
+// #ifdef DEBUG
+//   std::cerr << "CMicrostructure::getSegmentSections: got " << pixels->size()
+// 	    << " pixels, flipped=" << flipped << std::endl;
+//   std::cerr << "CMicrostructure::getSegmentSections: pixels=";
+//   for(ICoord &pxl : *pixels) std::cerr << " " << pxl;
+//   std::cerr << std::endl;
+// #endif // DEBUG
 
   // segmentPixels doesn't guarantee that the pixels are in order from
   // c0 to c1.  If flipped is true, the pixels are in reverse order,
@@ -1110,6 +1111,8 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
   // left or down, we want the pixel to the left or below the starting
   // point.
   int prevcat = getInitialCat(this, pt0, pt1);
+  // std::cerr << "CMicrostructure::getSegmentSections: initial category="
+  // 	    << prevcat << std::endl;
   Coord curpt =  pt0;	      // starting point of the current section
   ICoord prevpxl = (*pixels)[i0]; // previous pixel
   // The step category is the category to assign to the segment if it
@@ -1121,6 +1124,8 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
   // Loop over the pixels under the segment, looking for category
   // changes.  Start at the second pixel (i0+idir) because we're
   // looking for endpoints of sections.
+  // std::cerr << "CMicrostructure::getSegmentSections: looping over pixels"
+  // 	    << std::endl;
   for(int i=i0+idir; i!=i1; i+=idir) {
     ICoord pxl = (*pixels)[i];	// the pixel to examine
     int cat = category(pxl);
@@ -1129,10 +1134,10 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
       // Find the actual intersection point of the segment and the
       // previous pixel, in the direction of pt1.
       ICoord delta = pxl - prevpxl; // Will be either x, -x, y, or -y
-      std::cerr << "CMicrostructure::getSegmentSections: transition point: pxl="
-		<< pxl << " prevpxl=" << prevpxl << " delta=" << delta
-		<< " cat=" << cat << " prevcat=" << prevcat
-		<< std::endl;
+      // std::cerr << "CMicrostructure::getSegmentSections: transition point: pxl="
+      // 		<< pxl << " prevpxl=" << prevpxl << " delta=" << delta
+      // 		<< " cat=" << cat << " prevcat=" << prevcat
+      // 		<< std::endl;
       if(delta[0] == 1) {
 	// We've moved one pixel in the +x direction from the last
 	// pixel.  The transition point is on the left side of this
@@ -1257,26 +1262,26 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 	}
       }
       else {
-	std::cerr << "CMicrostructure::getSegmentSections: delta=" << delta
-		  << std::endl;
+	// std::cerr << "CMicrostructure::getSegmentSections: delta=" << delta
+	// 	  << std::endl;
 	throw ErrProgrammingError("Error in getSegmentSections",
 				  __FILE__, __LINE__);
       }
       sections->push_back(new SegmentSection(curpt, pt, prevcat, stepcat));
-      std::cerr << "CMicrostructure::getSegmentSections: added "
-		<< *sections->back()
-		<< " #" << sections->size()-1
-		<< std::endl;
+      // std::cerr << "CMicrostructure::getSegmentSections: added "
+      // 		<< *sections->back()
+      // 		<< " #" << sections->size()-1
+      // 		<< std::endl;
       curpt = pt;
       prevcat = cat;
     } // end if cat != prevcat
     prevpxl = pxl;
   } // end loop over segment pixels
 
-#ifdef DEBUG
-  std::cerr << "CMicrostructure::getSegmentSections: end loop over pixels. "
-	    << std::endl;
-#endif // DEBUG
+// #ifdef DEBUG
+//   std::cerr << "CMicrostructure::getSegmentSections: end loop over pixels. "
+// 	    << std::endl;
+// #endif // DEBUG
   
   // Add the final point.  There can be no more transition points.  If
   // this section is part of a stairstep, its category must be the
@@ -1285,8 +1290,8 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
     stepcat = sections->back()->stepcategory;
     SegmentSection *lastsect = new SegmentSection(curpt, pt1, prevcat, stepcat);
     sections->push_back(lastsect);
-    std::cerr << "CMicrostructure::getSegmentSections: final "
-	      << *lastsect << std::endl;
+    // std::cerr << "CMicrostructure::getSegmentSections: final "
+    // 	      << *lastsect << std::endl;
   }
   else {
     // There were no transition points found, so there can be no
@@ -1310,8 +1315,8 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
   delete pixels;
 
   int nsections = sections->size();
-  std::cerr << "CMicrostructure::getSegmentSections: looking for stairsteps in "
-	    << nsections << " sections" << std::endl;
+  // std::cerr << "CMicrostructure::getSegmentSections: looking for stairsteps in "
+  // 	    << nsections << " sections" << std::endl;
 
   // There are no stairsteps if the entire segment is horizontal or
   // vertical or if there aren't enough sections.
@@ -1320,8 +1325,32 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
   // case.
 
   if(nsections <= 2 || totalspan[0] == 0 || totalspan[1] == 0) {
-    std::cerr << "CMicrostructure::getSegmentSections: no stairs!"
-	      << std::endl;
+    // If there are two sections, we have to check that neither is
+    // shorter than maxlength.  It's not worth going through the whole
+    // step checking code below to get to the length check, so just do
+    // it here.
+    if(nsections == 2) {
+      SegmentSection &seg0 = *(*sections)[0];
+      SegmentSection &seg1 = *(*sections)[1];
+      double maxlen2 = maxlength*maxlength;
+      double ll0 = seg0.length2();
+      double ll1 = seg1.length2();
+      if(ll0 < maxlen2 && ll1 >= maxlen2) {
+	// Collapse seg0
+	seg0.p1 = seg1.p1;
+	seg0.category = seg1.category;
+	seg0.stepcategory = seg1.category;
+	delete (*sections)[1];
+	sections->resize(1);
+      }
+      else if(ll0 >= maxlen2 && ll1 < maxlen2) {
+	// Collapse seg1
+	seg0.p1 = seg1.p1;
+	delete (*sections)[1];
+	sections->resize(1);
+      }
+    }
+    
     return sections;
   }
 
@@ -1361,9 +1390,9 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
   // sections.
   Coord diff = pt1 - pt0;
   int comp = fabs(diff[0]) > fabs(diff[1]) ? 1 : 0;
-  std::cerr << "CMicrostructure::getSegmentSections: computed comp: pt0=" << pt0
-	    << " pt1=" << pt1 << " diff=" << diff
-	    << " comp=" << comp << std::endl;
+  // std::cerr << "CMicrostructure::getSegmentSections: computed comp: pt0=" << pt0
+  // 	    << " pt1=" << pt1 << " diff=" << diff
+  // 	    << " comp=" << comp << std::endl;
 
   // adasections are ones where steps have been replaced with
   // ramps. Since this is an intermediate result and won't outlive
@@ -1382,9 +1411,11 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
   // starting with an integer comp-component, and the sections must
   // alternate between two categories.
   do {
-    std::cerr << "CMicrostructure::getSegmentSections: top of stairstep loop,"
-	      << " sec=" << sec
-	      << " cat=" << (*sections)[sec]->category << std::endl;
+    // std::cerr << "CMicrostructure::getSegmentSections: top of stairstep loop,"
+    // 	      << " sec=" << sec
+    // 	      << " nsections=" << nsections
+    // 	      << " cat=" << (*sections)[sec]->category << std::endl;
+
     // We're either at the beginning of the step search, or have just
     // finished a set of stairs.  If the next sections don't have the
     // right lengths, or if we're too close to the end of the section
@@ -1395,24 +1426,27 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 	    isint((*sections)[sec]->p0[comp]) &&
 	    spantwo((*sections)[sec], (*sections)[sec+1], comp) == 1.0))
       {
-	std::cerr << "CMicrostructure::getSegmentSections:"
-		  << " adding non-step section " << sec << " directly. "
-		  <<  *(*sections)[sec]
-		  << std::endl;
+	// std::cerr << "CMicrostructure::getSegmentSections:"
+	// 	  << " adding non-step section " << sec << " directly. "
+	// 	  <<  *(*sections)[sec]
+	// 	  << std::endl;
 	adasections.push_back(SegmentSection(*(*sections)[sec]));
 	sec++;			// Go on to the next section.
     }
 
+    // std::cerr << "CMicrostructure::getSegmentSections: processed non-steps"
+    // 	      << " sec=" << sec << std::endl;
+
     if(sec < nsections-2) {
-#ifdef DEBUG
-      double sp0 = (*sections)[sec]->span(comp);
-      double sp1 = (*sections)[sec+1]->span(comp);    
-      std::cerr << "CMicrostructure::getSegmentSections:"
-		<< " found a starting step sec=" << sec
-		<< " category=" << (*sections)[sec]->category
-		<< " spans=" << sp0 << " + " << sp1 << " = " << sp0+sp1
-		<< std::endl;
-#endif // DEBUG
+// #ifdef DEBUG
+//       double sp0 = (*sections)[sec]->span(comp);
+//       double sp1 = (*sections)[sec+1]->span(comp);    
+//       std::cerr << "CMicrostructure::getSegmentSections:"
+// 		<< " found a starting step sec=" << sec
+// 		<< " category=" << (*sections)[sec]->category
+// 		<< " spans=" << sp0 << " + " << sp1 << " = " << sp0+sp1
+// 		<< std::endl;
+// #endif // DEBUG
       // The comp-components of this section and the next sum to
       // one. Search for the end section.  Pairs of sections need to sum
       // to 1 (in the comp direction) and their categories must
@@ -1450,63 +1484,98 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
       else {
 	// The sections from sec through nextpair-1 can be combined.  The
 	// category is the stepcategory of any of the sections.
-	std::cerr << "CMicrostructure::getSegmentSections: combining sections "
-		  << sec << " to " << nextpair-1 << std::endl;
+	
+	// std::cerr << "CMicrostructure::getSegmentSections: combining sections "
+	// 	  << sec << " to " << nextpair-1 << std::endl;
 	adasections.emplace_back((*sections)[sec]->p0,
 				 (*sections)[nextpair-1]->p1,
 				 (*sections)[sec]->stepcategory,
 				 (*sections)[sec]->stepcategory);
-	std::cerr << "CMicrostructure::getSegmentSections: combined section is "
-		  << adasections.back() << std::endl;
+	// std::cerr << "CMicrostructure::getSegmentSections: combined section is "
+	// 	  << adasections.back() << std::endl;
       }
       sec = nextpair;     // potential start of next stairstep
     }
 
   } while(sec < nsections);
 
-#ifdef DEBUG
-  std::cerr << "CMicrostructure::getSegmentSections:"
-	    << " step search reduced to " << adasections.size() << " sections."
-	    << std::endl;
-  for(const SegmentSection &section : adasections) 
-    std::cerr  << "      " << section << std::endl;
-#endif // DEBUG
+// #ifdef DEBUG
+//   std::cerr << "CMicrostructure::getSegmentSections:"
+// 	    << " step search reduced to " << adasections.size() << " sections."
+// 	    << std::endl;
+//   for(const SegmentSection &section : adasections) 
+//     std::cerr  << "      " << section << std::endl;
+// #endif // DEBUG
 
   // Take one more pass through the new sections to see if the
   // segments immediately before or after a stairstep can be joined to
   // it.  This can happen if a stair starts right after a
   // long segment with the same category as the first step on the
   // stair.  Copy the sections to the result vector.
-  std::cerr << "CMicrostructure::getSegmentSections: consolidating "
-	    << adasections.size() << " sections" << std::endl;
+
+  // std::cerr << "CMicrostructure::getSegmentSections: consolidating "
+  // 	    << adasections.size() << " sections" << std::endl;
+  nsections = adasections.size();
   std::vector<SegmentSection*> *result = new std::vector<SegmentSection*>;
-  result->reserve(adasections.size());
+  result->reserve(nsections);
   int lastcat = -1;
-  for(const SegmentSection &section : adasections) {
-    std::cerr << "CMicrostructure::getSegmentSections: section=" << section
-	      << std::endl;
-    if(section.category != lastcat) {
+  bool mergenext = false;	// force the second section to merge
+  float maxlen2 = maxlength*maxlength;
+  for(int i=0; i<adasections.size(); i++) {
+    // std::cerr << "CMicrostructure::getSegmentSections: i=" << i << std::endl;
+    SegmentSection &section = adasections[i];
+    // std::cerr << "CMicrostructure::getSegmentSections: section=" << section
+    //  	      << std::endl;
+    if(mergenext) {
+      // std::cerr << "CMicrostructure::getSegmentSections: mergenext" << std::endl;
+      // The first section, already added, is too short.  Replace
+      // its endpoint and category with the data from this section,
+      // and don't add this section.
+      assert(i == 1);
+      SegmentSection &oldsec = *(*result)[0];
+      oldsec.p1 = adasections[1].p1;
+      oldsec.category = adasections[1].category;
+      oldsec.stepcategory = adasections[1].stepcategory;
+      lastcat = oldsec.category;
+      mergenext = false;
+    }
+    else if(section.category == lastcat
+	    || (i < nsections-2 && adasections[i+1].category == lastcat &&
+		section.length2() < maxlen2)
+	    || (i == nsections-1 && section.length2() < maxlen2)
+       )
+      {
+	// std::cerr << "CMicrostructure::getSegmentSections: extending previous"
+	// 	  << std::endl;
+
+	// This section's category is the same as the last section, or
+	// this section is too short.  Extend the old segment to the
+	// end point of the current segment.
+	result->back()->p1 = section.p1;
+	mergenext = false;     
+      }
+    else {
+      // std::cerr << "CMicrostructure::getSegmentSections: adding segment" << std::endl;
       result->push_back(new SegmentSection(section));
       lastcat = section.category;
+      // If the first section is too short, add it but force the
+      // *next* segment to merge with it.
+      mergenext = (i == 0 && section.length2() < maxlen2);
+      // std::cerr << "CMicrostructure::getSegmentSections: mergenext=" << mergenext << std::endl;
     }
-    else {
-      // category is the same.  Extend the old segment to the end
-      // point of the current segment.
-      result->back()->p1 = section.p1;
-    }
-  }
-  std::cerr << "CMicrostructure::getSegmentSections: reduced nsections from "
-	    << nsections << " to " << result->size() << std::endl;
+  } // end loop over sections
+  // std::cerr << "CMicrostructure::getSegmentSections: merging reduced nsections from "
+  //  	    << nsections << " to " << result->size() << std::endl;
     
   for(SegmentSection *seg : *sections)
     delete seg;
   delete sections;
-#ifdef DEBUG
-  std::cerr << "CMicrostructure::getSegmentSections: final sections:"
-	    << std::endl;
-  for(SegmentSection *s : *result)
-    std::cerr << "  " << *s << std::endl;
-#endif // DEBUG
+// #ifdef DEBUG
+//   std::cerr << "CMicrostructure::getSegmentSections: final sections:"
+// 	    << std::endl;
+//   for(SegmentSection *s : *result)
+//     std::cerr << "  " << *s << std::endl;
+// #endif // DEBUG
   return result;
 } // end CMicrostructure::getSegmentSections
 

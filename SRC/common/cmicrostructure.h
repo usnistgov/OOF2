@@ -80,12 +80,15 @@ public:
 
 class SegmentSection {
 public:
-  Coord p0, p1;
+  Coord p0, p1;			// end points in pixel units
   int category, stepcategory;
   SegmentSection(const Coord &p0, const Coord &p1, int cat, int stepcat)
     : p0(p0), p1(p1), category(cat), stepcategory(stepcat)
   {}
-  double span(int) const;
+  double length2() const;	// length squared in pixel units
+// #ifdef DEBUG
+//   double span(int) const;
+// #endif // DEBUG
 };
 
 class CMicrostructure {
@@ -205,8 +208,8 @@ public:
 
   std::vector<ICoord> *segmentPixels(const Coord&, const Coord&, bool&, bool&)
     const;
-  std::vector<SegmentSection*> *getSegmentSections(const Coord*, const Coord*)
-    const;
+  std::vector<SegmentSection*> *getSegmentSections(const Coord*, const Coord*,
+						   double) const;
   
   MarkInfo *beginMarking(const CRectangle&) const; // sets active subarray of markedpixels
   void markSegment(MarkInfo*, const Coord&, const Coord&) const;

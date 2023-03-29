@@ -104,6 +104,7 @@ class SegmentSection {
 public:
   const Coord p0, p1;
   const int category;
+  double length2();
 };
 
 MAKE_LISTVEC_TYPEMAPS(SegmentSection);
@@ -141,7 +142,8 @@ public:
   bool transitionPointWithPoints_unbiased(Coord *Point, Coord *Point,
 				 Coord *argout_Point);
 
-  SegmentSectionVec *getSegmentSections(const Coord* Point, const Coord *Point);
+  SegmentSectionVec *getSegmentSections(const Coord* Point, const Coord *Point,
+					double);
 
 };
 
