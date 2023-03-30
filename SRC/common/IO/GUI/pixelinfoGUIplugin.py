@@ -60,7 +60,7 @@ def registerPlugInClass(plugin):
 
 class MicrostructurePlugIn(PixelInfoGUIPlugIn):
     ordering = 2
-    nrows = 2
+    nrows = 3
     def __init__(self, toolbox, table, row):
         debug.mainthreadTest()
         PixelInfoGUIPlugIn.__init__(self, toolbox)
@@ -88,6 +88,14 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
         scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         scroll.add(self.grouplist)
         table.attach(scroll, 1,row+1,1,1)
+
+        label = Gtk.Label(label='category', halign=Gtk.Align.END, hexpand=False)
+        table.attach(label, 0,row+2,1,1)
+        self.categorytext = Gtk.Entry(hexpand=True, halign=Gtk.Align.FILL)
+        gtklogger.setWidgetName(self.categorytext, "MSCategory")
+        self.categorytext.set_width_chars(12)
+        self.categorytext.set_editable(False)
+        table.attach(self.categorytext, 1,row+2, 1,1)
 
         self.sbcallbacks = [
             switchboard.requestCallbackMain('changed pixel group',
@@ -125,19 +133,23 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
             finally:
                 mscntxt.end_reading()
             grpnames = '\n'.join(names)
+            category = str(microstructure.category(where))
         else:
             msname = '(No microstructure)'
             grpnames = ''
-        mainthread.runBlock(self.reallyupdate, (msname, grpnames))
-    def reallyupdate(self, msname, grpnames):
+            category = ''
+        mainthread.runBlock(self.reallyupdate, (msname, grpnames, category))
+    def reallyupdate(self, msname, grpnames, category):
         debug.mainthreadTest()
         self.microtext.set_text(msname)
         self.grouplist.get_buffer().set_text(grpnames)
+        self.categorytext.set_text(category)
 
     def nonsense(self):
         debug.mainthreadTest()
         self.grouplist.get_buffer().set_text('')
         self.microtext.set_text('???')
+        self.categorytext.set_text('???')
     def grpchanged(self, group, ms_name):
         microstructure = self.toolbox.findMicrostructure()
         if microstructure and microstructure.name() == ms_name:
