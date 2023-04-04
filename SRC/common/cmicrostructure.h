@@ -132,6 +132,9 @@ private:
   mutable bool categorized;
   mutable unsigned int ncategories;
   void categorize() const;
+  void segmentCats(const std::vector<SegmentSection>&,
+		   const std::vector<int>&,
+		   double&, int&) const;
 
   // Lock to protect the sometimes-lengthy categorization process, and
   // functions which query the data it produces.  This lock protects

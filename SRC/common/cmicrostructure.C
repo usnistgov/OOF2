@@ -1051,12 +1051,40 @@ int getInitialCat(const CMicrostructure *ms, const Coord &pt0, const Coord &pt1)
   return cat;
 }
 
+// Given a vector of SegmentSections, compute the sum of their lengths
+// and the dominant category.  indices indicates which sections to
+// include.
+
+void CMicrostructure::segmentCats(const std::vector<SegmentSection> &sections,
+				  const std::vector<int> &indices,
+				  double &totallength, int &category)
+  const
+{
+  std::vector<double> catlength(ncategories, 0);
+  for(int j=0; j<indices.size(); j++) {
+    const SegmentSection &segj = sections[indices[j]];
+    catlength[segj.category] += sqrt(segj.length2());
+  }
+  // Find which category dominates the short sections, and their total
+  // length.
+  double maxlen = -1;
+  category = -1;
+  totallength = 0.0;
+  for(int c=0; c<ncategories; c++) {
+    totallength += catlength[c];
+    if(catlength[c] > maxlen) {
+      category = c;
+      maxlen = catlength[c];
+    }
+  }
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Split a directed line segment (c0, c1) into sections such that each
 // section lies over pixels with a single category.  If a stairstep is
 // detected, treat it as a single section. Sections less than
-// maxlength are merged with their neighbors if both neighbors are the
+// minlength are merged with their neighbors if both neighbors are the
 // same category, or at the end of the segment. Return of list of
 // SegmentSection objects, which give the end points and category each
 // section.
@@ -1065,15 +1093,15 @@ int getInitialCat(const CMicrostructure *ms, const Coord &pt0, const Coord &pt1)
 
 std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 				  const Coord *c0, const Coord *c1,
-				  double maxlength)
+				  double minlength)
   const
-
 {
   // std::cerr << "CMicrostructure::getSegmentSections: c0=" << *c0
   // 	    << " c1=" << *c1 << std::endl;
   // Get the pixels under the segment.
   bool flipped, dummy;
-  std::vector<SegmentSection*> *sections = new std::vector<SegmentSection*>;
+  double minlen2 = minlength*minlength;
+    std::vector<SegmentSection*> *sections = new std::vector<SegmentSection*>;
   std::vector<ICoord> *pixels = segmentPixels(*c0, *c1, dummy, flipped);
 
   // Pixel-space coordinates of the ends of segment
@@ -1326,16 +1354,19 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 
   if(nsections <= 2 || totalspan[0] == 0 || totalspan[1] == 0) {
     // If there are two sections, we have to check that neither is
-    // shorter than maxlength.  It's not worth going through the whole
+    // shorter than minlength.  It's not worth going through the whole
     // step checking code below to get to the length check, so just do
     // it here.
     if(nsections == 2) {
       SegmentSection &seg0 = *(*sections)[0];
       SegmentSection &seg1 = *(*sections)[1];
-      double maxlen2 = maxlength*maxlength;
       double ll0 = seg0.length2();
       double ll1 = seg1.length2();
-      if(ll0 < maxlen2 && ll1 >= maxlen2) {
+      // std::cerr << "CMicrostructure::getSegmentSections: two sections: "
+      // 		<< std::endl
+      // 		<< seg0 << " length=" << sqrt(ll0) << std::endl
+      // 		<< seg1 << " length=" << sqrt(ll1) << std::endl;
+      if(ll0 < minlen2 && ll1 >= minlen2) {
 	// Collapse seg0
 	seg0.p1 = seg1.p1;
 	seg0.category = seg1.category;
@@ -1343,7 +1374,7 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 	delete (*sections)[1];
 	sections->resize(1);
       }
-      else if(ll0 >= maxlen2 && ll1 < maxlen2) {
+      else if(ll0 >= minlen2 && ll1 < minlen2) {
 	// Collapse seg1
 	seg0.p1 = seg1.p1;
 	delete (*sections)[1];
@@ -1353,10 +1384,6 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
     
     return sections;
   }
-
-  // TODO PYTHON3: Collapse segments that are too short before looking
-  // for stairsteps?
-
 
   // Eliminate stairstep sections.  A stairstep is a set of sections
   // that alternate categories (A,B,A,[B...]), and in which transition
@@ -1394,12 +1421,12 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
   // 	    << " pt1=" << pt1 << " diff=" << diff
   // 	    << " comp=" << comp << std::endl;
 
-  // adasections are ones where steps have been replaced with
+  // adaSections are ones where steps have been replaced with
   // ramps. Since this is an intermediate result and won't outlive
   // this routine or be exported to Python, it can be vector of
   // SegmentSections, not a pointer to a vector of pointers to
   // SegmentSections.
-  std::vector<SegmentSection> adasections;
+  std::vector<SegmentSection> adaSections;
 
   int startstep = 0;		// index of first potential stairstep section
   int sec = 0;			// index of section we're examining
@@ -1430,9 +1457,9 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 	// 	  << " adding non-step section " << sec << " directly. "
 	// 	  <<  *(*sections)[sec]
 	// 	  << std::endl;
-	adasections.push_back(SegmentSection(*(*sections)[sec]));
+	adaSections.push_back(SegmentSection(*(*sections)[sec]));
 	sec++;			// Go on to the next section.
-    }
+      }
 
     // std::cerr << "CMicrostructure::getSegmentSections: processed non-steps"
     // 	      << " sec=" << sec << std::endl;
@@ -1470,8 +1497,8 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
       if(nextpair == sec + 2) {
 	// We didn't find a step.  Add the two sections to the output
 	// and look again.
-	adasections.push_back(SegmentSection(*(*sections)[sec]));
-	adasections.push_back(SegmentSection(*(*sections)[sec+1]));
+	adaSections.push_back(SegmentSection(*(*sections)[sec]));
+	adaSections.push_back(SegmentSection(*(*sections)[sec+1]));
 	// std::cerr << "CMicrostructure::getSegmentSections: didn't find a step"
 	// 		<< " s0=" << *(*sections)[sec]
 	// 		<< " s1=" << *(*sections)[s1]
@@ -1487,12 +1514,12 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 	
 	// std::cerr << "CMicrostructure::getSegmentSections: combining sections "
 	// 	  << sec << " to " << nextpair-1 << std::endl;
-	adasections.emplace_back((*sections)[sec]->p0,
+	adaSections.emplace_back((*sections)[sec]->p0,
 				 (*sections)[nextpair-1]->p1,
 				 (*sections)[sec]->stepcategory,
 				 (*sections)[sec]->stepcategory);
 	// std::cerr << "CMicrostructure::getSegmentSections: combined section is "
-	// 	  << adasections.back() << std::endl;
+	// 	  << adaSections.back() << std::endl;
       }
       sec = nextpair;     // potential start of next stairstep
     }
@@ -1501,71 +1528,265 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 
 // #ifdef DEBUG
 //   std::cerr << "CMicrostructure::getSegmentSections:"
-// 	    << " step search reduced to " << adasections.size() << " sections."
+// 	    << " step search reduced to " << adaSections.size() << " sections."
 // 	    << std::endl;
-//   for(const SegmentSection &section : adasections) 
-//     std::cerr  << "      " << section << std::endl;
+//   for(int i=0; i<adaSections.size(); i++) {
+//     std::cerr  << "      " << i << " "  << adaSections[i] << std::endl;
+//   }
 // #endif // DEBUG
 
-  // Take one more pass through the new sections to see if the
-  // segments immediately before or after a stairstep can be joined to
-  // it.  This can happen if a stair starts right after a
-  // long segment with the same category as the first step on the
-  // stair.  Copy the sections to the result vector.
+  // Take one more pass through the new sections to eliminate ones
+  // that are shorter than minlength, and to see if the segments
+  // immediately before or after a stairstep can be joined to it.
+  // This can happen if a stair starts right after a long segment with
+  // the same category as the first step on the stair.  Copy the
+  // sections to the result vector.
 
+  nsections = adaSections.size();
   // std::cerr << "CMicrostructure::getSegmentSections: consolidating "
-  // 	    << adasections.size() << " sections" << std::endl;
-  nsections = adasections.size();
+  // 	    << nsections << " sections" << std::endl;
   std::vector<SegmentSection*> *result = new std::vector<SegmentSection*>;
   result->reserve(nsections);
-  int lastcat = -1;
-  bool mergenext = false;	// force the second section to merge
-  float maxlen2 = maxlength*maxlength;
-  for(int i=0; i<adasections.size(); i++) {
+  //  bool mergenext = false;	// force the second section to merge
+  double totallength = 0;
+  int maxcat = -1;     // dominant category of a set of short sections
+  // Consecutive short sections are accumulated until a non-short
+  // section is found. shortSections contains the indices (in
+  // adaSections) of the current set of short sections.
+  std::vector<int> shortSections;
+  for(int i=0; i<adaSections.size(); i++) {
+    // lastcat is the category of the pixels under the previously
+    // found section.  Its default value, -1, is never a valid
+    // category.
+    int lastcat = result->empty() ? -1 : result->back()->category;
     // std::cerr << "CMicrostructure::getSegmentSections: i=" << i << std::endl;
-    SegmentSection &section = adasections[i];
-    // std::cerr << "CMicrostructure::getSegmentSections: section=" << section
-    //  	      << std::endl;
-    if(mergenext) {
-      // std::cerr << "CMicrostructure::getSegmentSections: mergenext" << std::endl;
-      // The first section, already added, is too short.  Replace
-      // its endpoint and category with the data from this section,
-      // and don't add this section.
-      assert(i == 1);
-      SegmentSection &oldsec = *(*result)[0];
-      oldsec.p1 = adasections[1].p1;
-      oldsec.category = adasections[1].category;
-      oldsec.stepcategory = adasections[1].stepcategory;
-      lastcat = oldsec.category;
-      mergenext = false;
+    SegmentSection &section = adaSections[i];
+    if(section.length2() < minlen2) {
+      // This section is too short.  Store it and deal with it later.
+      // std::cerr << "CMicrostructure::getSegmentSections: Too short"
+      // 		<< std::endl;
+      shortSections.push_back(i);
     }
-    else if(section.category == lastcat
-	    || (i < nsections-2 && adasections[i+1].category == lastcat &&
-		section.length2() < maxlen2)
-	    || (i == nsections-1 && section.length2() < maxlen2)
-       )
-      {
-	// std::cerr << "CMicrostructure::getSegmentSections: extending previous"
+    else {
+      // This section is not too short.  Is it the first one after a
+      // stretch of one or more short sections?
+      if(shortSections.empty()) { // Previous sections were not short.
+	if(section.category == lastcat) {
+	  // This section is the same category as the previous one.
+	  // Extend previous section.
+	  result->back()->p1 = section.p1;
+	  // std::cerr << "CMicrostructure::getSegmentSections: merging, "
+	  // 	    << " merged section is " << *result->back() << std::endl;
+	}
+	else {
+	  result->push_back(new SegmentSection(section));
+	  // std::cerr << "CMicrostructure::getSegmentSections: new section "
+	  // 	    << *result->back()
+	  // 	    << std::endl;
+	  //lastcat = section.category;
+	}
+      }	// end if the previous segment was not short
+      else {
+	// This section is the first non-short one after a sequence of
+	// short ones.  Combine all the short ones and decide what to
+	// do with them.
+
+	// segmentCats returns the total length of the short sections
+	// and the dominant pixel category.
+	segmentCats(adaSections, shortSections,  totallength, maxcat);
+
+	// std::cerr << "CMicrostructure::getSegmentSections: "
+	// 	  << "first long section after " << shortSections.size()
+	// 	  << " short ones.  total short length=" << totallength
+	// 	  << " short category=" << maxcat
 	// 	  << std::endl;
 
-	// This section's category is the same as the last section, or
-	// this section is too short.  Extend the old segment to the
-	// end point of the current segment.
-	result->back()->p1 = section.p1;
-	mergenext = false;     
-      }
-    else {
-      // std::cerr << "CMicrostructure::getSegmentSections: adding segment" << std::endl;
-      result->push_back(new SegmentSection(section));
-      lastcat = section.category;
-      // If the first section is too short, add it but force the
-      // *next* segment to merge with it.
-      mergenext = (i == 0 && section.length2() < maxlen2);
-      // std::cerr << "CMicrostructure::getSegmentSections: mergenext=" << mergenext << std::endl;
+	if((maxcat == lastcat && maxcat == section.category) ||
+	   (totallength < minlength && lastcat == section.category)) {
+	  // The combined short sections are the same category as the
+	  // current and previous long sections, so merge all of them.
+	  // This can't happen when result is empty, because lastcat
+	  // would be -1 then.
+	  result->back()->p1 = section.p1;
+	  // std::cerr << "CMicrostructure::getSegmentSections: "
+	  // 	    << " merged with previous and current, result="
+	  // 	    << *result->back() << std::endl;
+	}
+	else if(maxcat == lastcat) {
+	  // Absorb the short sections into the previous section and
+	  // add the current section.  This also can't happen when
+	  // result is empty.
+	  // std::cerr << "CMicrostructure::getSegmentSections: maxcat==lastcat=="
+	  // 	    << maxcat << std::endl;
+	  result->back()->p1 = adaSections[shortSections.back()].p1;
+	  // std::cerr << "CMicrostructure::getSegmentSections: merged="
+	  // 	    << *result->back() << std::endl;
+	  result->push_back(new SegmentSection(section));
+	  // std::cerr << "CMicrostructure::getSegmentSections: new end="
+	  // 	    << *result->back() << std::endl;
+	}
+	else if(maxcat == section.category) {
+	  // Create a new section from the short ones and the current one.
+	  result->push_back(new SegmentSection(section));
+	  result->back()->p0 = adaSections[shortSections.front()].p0;
+	  // std::cerr << "CMicrostructure::getSegmentSections: "
+	  // 	    << "merged with current=" << *result->back() << std::endl;
+	}
+	else if(totallength < minlength) {
+	  // the short sections don't match the category of either of
+	  // the long sections on either side, but are too short to
+	  // include.  Split them between the two long sections.
+	  // std::cerr << "CMicrostructure::getSegmentSections: "
+	  // 	    << "split short sections" << std::endl;
+	  Coord midpoint;
+	  if(result->size() > 0) {
+	    midpoint = 0.5*(result->back()->p1 + section.p0);
+	    result->back()->p1 = midpoint;
+	    // std::cerr << "CMicrostructure:getSegmentSections: modified old="
+	    // 	      << *result->back() << std::endl;
+	  }
+	  else {
+	    midpoint = adaSections[shortSections.front()].p0;
+	  }
+	  result->push_back(new SegmentSection(section));
+	  result->back()->p0 = midpoint;
+	  // std::cerr << "CMicrostructure::getSegmentSections: new="
+	  // 	    << *result->back() << std::endl;
+	}
+	else {
+	  // The assembled short sections are long enough to form
+	  // their own section, but don't match the category of the
+	  // long sections on either side.  Insert it and the new
+	  // section.
+	  // std::cerr << "CMicrostructure::getSegmentSections:"
+	  // 	    << " combined short sections are long enough" << std::endl;
+	  result->push_back(new SegmentSection(
+				       adaSections[shortSections.front()].p0,
+				       adaSections[shortSections.back()].p1,
+				       maxcat, maxcat));
+	  result->push_back(new SegmentSection(section));
+	}
+
+	// // If the total length of the short sections is still below
+	// // minlength, then the short sections must be merged with the
+	// // previously accepted section or current section, or both.
+	// if(totallength < minlength) {
+	//   if(result->empty()) {
+	//     // There are no previous sections.  Create a new section
+	//     // from short sections and the current section.
+	//     std::cerr << "CMicrostructure::getSegmentSections:"
+	// 	      << " ignoring initial short sections" << std::endl;
+	//     result->push_back(new SegmentSection(section));
+	//     result->back()->p0 = adaSections[shortSections.front()].p0;
+	//     std::cerr << "CMicrostructure::getSegmentSections: created "
+	// 	      << *result->back() << std::endl;
+	//   }
+	//   else {
+	//     // There was a previous long section. Depending on the
+	//     // dominant category of the short section and the sections
+	//     // to either side, add the short section to the previous
+	//     // section, or to this one, or split it between
+	//     // the two, or join all three sections
+	//     if(section.category == lastcat) {
+	//       // Just ignore the short sections.  They come in between
+	//       // two sections with the same category.  Extend the
+	//       // previous long section to the end point of the current
+	//       // section.
+	//       result->back()->p1 = section.p1;
+	//     }
+	//     else if(maxcat == lastcat) {
+	//       // Add all short sections to the previous one, by moving
+	//       // the previous section's endpoint, and then simply add
+	//       // the current section to the result.
+	//       result->back()->p1 = adaSections[shortSections.back()].p1;
+	//       std::cerr << "CMicrostructure::getSegmentSections: "
+	// 		<< "adding short sections to previous long one "
+	// 		<< *result->back() << std::endl;
+	//       result->push_back(new SegmentSection(section));
+	//     }
+	//     else if(maxcat == section.category) {
+	//       // Add all short sections to the current one, by adding
+	//       // the current one to the result and moving its starting
+	//       // point.
+	//       result->push_back(new SegmentSection(section));
+	//       result->back()->p0 = adaSections[shortSections.front()].p0;
+	//       std::cerr << "CMicrostructure::getSegmentSections: "
+	// 		<< "adding short sections to current one "
+	// 		<< *result->back() << std::endl;
+	//     }
+	//     else {
+	//       // The dominant category of the short sections doesn't
+	//       // match either long section.  Extend the previous long
+	//       // section to the midpoint of the short sections, and
+	//       // add a new long section from the midpoint to the end
+	//       // of the current section.
+	//       std::cerr << "CMicrostructure::getSegmentSections: "
+	// 		<< "splitting short sections ";
+	//       Coord midpoint = 0.5*(result->back()->p1 + section.p0);
+	//       result->back()->p1 = midpoint;
+	//       std::cerr << *result->back() << " ";
+	//       result->push_back(new SegmentSection(section));
+	//       result->back()->p0 = midpoint;
+	//       std::cerr << *result->back() << std::endl;
+	//     }
+	//   }
+	// } // end if totallength < minlength
+
+	// else {
+	//   // The sum of the short section lengths is greater than the
+	//   // minimum.  Create a new section using the dominant
+	//   // category of the short ones.
+	  
+	//   // TODO: Is this the right thing to do? Or should the
+	//   // accumulated sections be split between the previous and
+	//   // current sections even if the sum is greater than
+	//   // minlength?
+	//   result->push_back(new SegmentSection(
+	// 		       adaSections[shortSections.front()].p0,
+	// 		       adaSections[shortSections.back()].p1,
+	// 		       maxcat, maxcat));
+	//   std::cerr << "CMicrostructure::getSegmentSections: "
+	// 	    << "creating new section from short sections "
+	// 	    << *result->back()
+	// 	    << std::endl;
+	// }
+
+	// lastcat = section.category;
+      }	// end if the previous section was short but this one isn't
+      
+      // After processing the long section and maybe incorporating
+      // short ones, get ready for the next batch of short ones.
+      shortSections.clear();
+      totallength = 0.0;
+      maxcat = -1;
+    } // end this section was not short
+  }   // end loop over sections
+
+  // If any short sections are left, they are at the end of the
+  // whole segment.
+  // std::cerr << "CMicrostructure::getSegmentSections: " << shortSections.size()
+  // 	    << " short sections left over." << std::endl;
+  if(!shortSections.empty()) {
+    double totallength;
+    int maxcat;
+    segmentCats(adaSections, shortSections, totallength, maxcat);
+    if(result->empty() ||	   // no previous sections
+       (totallength > minlength && // or sum of lengths isn't still too short
+	maxcat != result->back()->category)) // and category doesn't match
+      {
+	// Make a new section from the total set of short sections,
+	// and append it.
+	result->push_back(new SegmentSection(
+			     adaSections[shortSections.front()].p0,
+			     adaSections[shortSections.back()].p1,
+					   maxcat,
+					   maxcat));
     }
-  } // end loop over sections
-  // std::cerr << "CMicrostructure::getSegmentSections: merging reduced nsections from "
-  //  	    << nsections << " to " << result->size() << std::endl;
+    else {
+      // absorb short lengths into the last part of result.
+      result->back()->p1 = adaSections[shortSections.back()].p1;
+      }
+    } // end if there are shortSections left over
     
   for(SegmentSection *seg : *sections)
     delete seg;
