@@ -7,7 +7,9 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
+
+import math
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
@@ -283,17 +285,31 @@ class SkeletonInfoToolbox(toolbox.Toolbox):
                 ms = context.getMicrostructure()
                 debug.fmsg("Segment: ", sgmt.nodes()[0].position(),
                            sgmt.nodes()[1].position())
+                debug.fmsg(" ****** Forward segment sections")
                 sections = ms.getSegmentSections(sgmt.nodes()[0].position(),
-                                                 sgmt.nodes()[1].position())
+                                                 sgmt.nodes()[1].position(),
+                                                 3.0)
+                length = 0.
                 for section in sections:
                     debug.fmsg("   SegmentSection", section.p0, section.p1,
-                               "category=", section.category)
-                debug.fmsg(" Reverse segment sections")
+                               "category=", section.category, "length=",
+                               math.sqrt(section.length2()))
+                    length += math.sqrt(section.length2())
+                debug.fmsg("total length=", length,
+                           "segment length=", sgmt.length())
+                debug.fmsg(" ****** Reverse segment sections")
                 sections = ms.getSegmentSections(sgmt.nodes()[1].position(),
-                                                 sgmt.nodes()[0].position())
+                                                 sgmt.nodes()[0].position(),
+                                                 3.0)
+                length = 0.
                 for section in sections:
                     debug.fmsg("   SegmentSection", section.p0, section.p1,
-                               "category=", section.category)
+                               "category=", section.category,
+                               "length=", math.sqrt(section.length2()))
+                    length += math.sqrt(section.length2())
+                debug.fmsg("total length=", length,
+                           "segment length=", sgmt.length())
+                    
 
     def querySgmtByID(self, menuitem, index):
         context = self.getSkeletonContext()

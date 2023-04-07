@@ -1557,6 +1557,11 @@ class Skeleton(SkeletonBase):
         self.cleanUp()
         return SkeletonElementIterator(self, lambda e: e.active(self))
 
+    def selectedElements(self): 
+        ## TODO PYTHON3: do this better, by looping over the selection object
+        self.cleanUp()
+        return SkeletonElementIterator(self, lambda e: e.isSelected())
+
     def activeNodes(self):
         self.cleanUp()
         return (n for n in self.nodes if n.active(self))
@@ -2907,6 +2912,17 @@ class SkeletonSegmentIterator(SkeletonIterator):
         return len(self.skeleton.segments)
     def targets(self):
         return self.skeleton.segments.values()
+
+class SkeletonSegmentGroupIterator(SkeletonIterator):
+    # Takes a SkeletonContext arg, not a Skeleton!
+    def __init__(self, context, groupname, condition=lambda x: True):
+        self.group = context.segmentgroups.get_group(groupname)
+        SkeletonIterator.__init__(self, context.getObject(),
+                                  groupname, condition)
+    def targets(self):
+        return self.group
+    def ntotal(self):
+        return len(self.group)
 
 ########################################################################
 

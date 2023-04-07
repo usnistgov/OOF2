@@ -274,9 +274,7 @@ RefinementRule(liberalRuleSet, (1,1,0), rule110L)
 #   0      a      1
 # (and its two other symmetric counterparts).  This isn't
 # implemented here as it can be achieved through use of the
-# SwapEdges routine in 2D. For now, the tetrahedral rules do not
-# use this either in order to keep the face matching problem
-# simple.
+# SwapEdges routine in 2D.
 
 def rule111(element, rotation, edgenodes, newSkeleton, alpha):
     n0, n1, n2 = baseNodes(element, rotation)

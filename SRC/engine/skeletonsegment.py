@@ -44,11 +44,7 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
     def length(self):
         n0 = self.nodes()[0].position()
         n1 = self.nodes()[1].position()
-        if config.dimension() == 2:
-            return math.sqrt((n1.x-n0.x)*(n1.x-n0.x)+(n1.y-n0.y)*(n1.y-n0.y))
-        if config.dimension() == 3:
-            return math.sqrt((n1.x-n0.x)*(n1.x-n0.x)+
-                             (n1.y-n0.y)*(n1.y-n0.y)+(n1.z-n0.z)*(n1.z-n0.z))
+        return math.sqrt((n1.x-n0.x)*(n1.x-n0.x)+(n1.y-n0.y)*(n1.y-n0.y))
 
     def getIndex(self):
         return self.index
@@ -171,11 +167,6 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
             return True
         if p0.y == MS.size()[1] and p1.y == MS.size()[1]:
             return True
-        if config.dimension() == 3:
-            if p0.z == 0.0 and p1.z == 0.0:
-                return True
-            if p0.z == MS.size()[2] and p1.z == MS.size()[2]:
-                return True
         return False
 
     def material(self, skelctxt):
@@ -474,10 +465,6 @@ class SkeletonEdge:
                 "Incorrect node set in SkeletonEdge.")
     def reverse(self):
         self.direction *= -1
-
-    if config.dimension() == 3:
-        def getVtkLine(self):
-            return self.segment.getVtkLine()
 
     # Retrieve the nodes in the correct order.  Used for drawing.
     def get_nodes(self):

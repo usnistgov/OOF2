@@ -24,36 +24,35 @@ import weakref
 class SkeletonNode(skeletonselectable.SkeletonSelectable,
                    cskeleton.CSkeletonNode):
 
-    if config.dimension() == 2:
-        def __init__(self, x, y, index):
-            skeletonselectable.SkeletonSelectable.__init__(self, index)
-            cskeleton.CSkeletonNode.__init__(self, x, y)
-            self.dimIndependentInit(index)
+    def __init__(self, x, y, index):
+        skeletonselectable.SkeletonSelectable.__init__(self, index)
+        cskeleton.CSkeletonNode.__init__(self, x, y)
+        self.dimIndependentInit(index)
 
-    elif config.dimension() == 3:
-        def __init__(self, x, y, z, points, index):
-            skeletonselectable.SkeletonSelectable.__init__(self, index)
-            cskeleton.CSkeletonNode.__init__(self, x, y, z, points, index)
-            self.dimIndependentInit(index)
+    # elif config.dimension() == 3:
+    #     def __init__(self, x, y, z, points, index):
+    #         skeletonselectable.SkeletonSelectable.__init__(self, index)
+    #         cskeleton.CSkeletonNode.__init__(self, x, y, z, points, index)
+    #         self.dimIndependentInit(index)
 
-        def moveTo(self, point):
-            # TODO 3D: this could be cleaned up if the elements were stored in C
-            # See note in cskeleton.C
-            cskeleton.CSkeletonNode.moveTo(self, point)
-            for element in self._elements:
-                element.updateVtkCellPoints()
+    #     def moveTo(self, point):
+    #         # TODO 3D: this could be cleaned up if the elements were stored in C
+    #         # See note in cskeleton.C
+    #         cskeleton.CSkeletonNode.moveTo(self, point)
+    #         for element in self._elements:
+    #             element.updateVtkCellPoints()
 
-        def unconstrainedMoveTo(self, point):
-            # TODO 3D: this could be cleaned up if the elements were stored in C
-            # See note in cskeleton.C
-            cskeleton.CSkeletonNode.unconstrainedMoveTo(self, point)
-            for element in self._elements:
-                element.updateVtkCellPoints()
+    #     def unconstrainedMoveTo(self, point):
+    #         # TODO 3D: this could be cleaned up if the elements were stored in C
+    #         # See note in cskeleton.C
+    #         cskeleton.CSkeletonNode.unconstrainedMoveTo(self, point)
+    #         for element in self._elements:
+    #             element.updateVtkCellPoints()
 
-        def moveBy(self, delta):
-            cskeleton.CSkeletonNode.moveBy(self, delta)
-            for element in self._elements:
-                element.updateVtkCellPoints()
+    #     def moveBy(self, delta):
+    #         cskeleton.CSkeletonNode.moveBy(self, delta)
+    #         for element in self._elements:
+    #             element.updateVtkCellPoints()
              
 
     def dimIndependentInit(self, index):

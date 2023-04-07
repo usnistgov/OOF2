@@ -26,6 +26,7 @@ class RefinementTarget(registeredclass.RegisteredClass):
     registry = []
 
     # Derived classes must override either __call__ or preprocess.
+    ## TODO PYTHON3: Is preprocess ever defined or called?
     def preprocess(self, skeleton, divisions, markedEdges):
         pass
     def __call__(self, skeleton, context, divisions, markedEdges, criterion):

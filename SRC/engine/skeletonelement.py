@@ -171,6 +171,7 @@ class SkeletonElement(SkeletonElementBase,
     #     return self.element
 
     def getSegments(self, skeleton):
+        ## TODO PYTHON3: Can this be a generator?
         segments = []
         lastnode = self.nodes[-1]
         for node in self.nodes:

@@ -319,8 +319,6 @@ class SnapRefine(refine.Refine):
         for ii in range(n):
             #print ii, n
             oldElement = elements[ii]
-            oldnnodes = oldElement.nnodes()
-            # For 2D:
             # Get list of number of subdivisions on each edge ("marks")
             (numinitmarks,marks,cats,edgenodes) = \
                       markedEdges.getSnapMarks(oldElement)
