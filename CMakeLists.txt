@@ -9,8 +9,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(oof2 VERSION 2.2.3)
 
-set(DESIRED_SWIGVERSION 4.1)
-set(DESIRED_PYVERSION 3.10)
+set(DESIRED_SWIGVERSION 4.1 CACHE STRING "Choose 4.0 or 4.1")
+set(DESIRED_PYVERSION 3.10 CACHE STRING "Python3 version number")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
