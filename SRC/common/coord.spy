@@ -37,6 +37,11 @@ def _Coord___hash__(self):
 
 Coord.__hash__ = _Coord___hash__
 
+def _Coord___sub__(self, other):
+    return Coord(self[0]-other[0], self[1]-other[1])
+
+Coord.__sub__ = _Coord___sub__
+
 class CoordParameter(parameter.Parameter):
     types=(primitives.Point, Coord)
     

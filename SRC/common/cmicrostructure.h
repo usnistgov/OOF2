@@ -167,6 +167,7 @@ public:
   const ICoord &sizeInPixels() const { return pxlsize_; }
   const Coord &sizeOfPixels() const { return delta_; }
   Coord physical2Pixel(const Coord&) const; // real space to pixel coords
+  Coord physical2Pixel(const Coord *pt) const { return physical2Pixel(*pt); }
   Coord pixel2Physical(const ICoord&) const;
   Coord pixel2Physical(const Coord&) const;
   ICoord pixelFromPoint(const Coord&) const; // pixel containing the given point

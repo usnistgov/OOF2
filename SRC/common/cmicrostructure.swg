@@ -116,7 +116,7 @@ public:
   void destroy(); 
   const std::string &name();
   const Coord &sizeOfPixels();
-  Coord physical2Pixel(const Coord&); // need typemap? then use Coord*)
+  Coord physical2Pixel(const Coord *Point);
   void rename(const std::string &name);
   TimeStamp &getTimeStamp();
   void setCurrentActiveArea(ActiveArea*);
