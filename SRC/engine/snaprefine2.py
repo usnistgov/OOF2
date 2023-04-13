@@ -19,6 +19,7 @@
 # each edge is marked.
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import coord
 from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import enum
@@ -28,12 +29,14 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import refinementtarget2
 from ooflib.engine import refinequadbisection
+from ooflib.engine import skeleton
 from ooflib.engine import skeletonmodifier
 from ooflib.engine import skeletonsegment
 from ooflib.engine import skeletonnode
 from ooflib.engine import refine
-from ooflib.engine import snaprefinemethod
+from ooflib.engine import snaprefinemethod2
 
+import math
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -62,60 +65,85 @@ class TrisectionMarker(SegmentRefinementMethod):
         segMarkings.mark(SegmentMarks(node0, node1, (1/3, 2/3)))
 
 class TransitionPointMarker(SegmentRefinementMethod):
+    def __init__(self, minlength):
+        self.minlength = minlength # min segment length in pixels
     def markSegment(self, skeleton, node0, node1, segMarkings):
         # Get transition points
-        micro = skeleton.getMicrostructure()
-        sections = micro.getSegmentSections(node0.position(), node1.position())
+        micro = skeleton.MS
+        sections = micro.getSegmentSections(node0.position(), node1.position(),
+                                            self.minlength)
         # Compute fractions and categories
         fractions = []
         span = node1.position() - node0.position()
-        # TODO PYTHON3: Coords or Points?
         length = math.sqrt(span*span)
-        for section in sections:
-            diff = segment.p1 - node0.position()
-            fractions.append(math.sqrt(diff*diff)/length)
+        for section in sections[:-1]:
+            diff = section.p1 - node0.position()
+            fractions.append(math.sqrt(coord.dot(diff, diff))/length)
         marks = SegmentMarks(node0, node1, fractions)
 
-        if not segMarkings.insert(node0, node1, fractions):
-            # SegmentMarkings.insert returns False if the segment has
+        if segMarkings.insert(marks):
+            # SegmentMarkings.insert returns True if the segment has
             # already been marked.
             
             # Get the preexisting markings. fetch() ensures that the
             # data goes from node0 to node1, the same way as the
             # current data.
             othermarks = segMarkings.fetch(node0, node1)
+            if len(marks) == len(othermarks) == 0:
+                return
+            
+            # debug.fmsg("merging marks")
+            # debug.fmsg("        marks=", marks)
+            # debug.fmsg("  other marks=", othermarks)
             # See if there are marks in both lists that are within a
             # fraction of a pixel of one another.  Use their average
             # position and just add one mark to the result.  There
             # should not be any chance that one fraction in one list
             # is close to two fractions in the other list, if
-            # getSegmentSections is working properly.  This method is
-            # o(n^2) but n ought to be small almost all the time.
+            # getSegmentSections is working properly.
+
+            # Put the fractions in this set of marks and
+            # the other set of marks in a single sorted list.  If a
+            # pair of fractions in the two lists is almost equal, just
+            # put the average value in.
             pspan = micro.physical2Pixel(span) # span in pixel coords
             plen = math.sqrt(pspan*pspan) # total segment size in pixel coords
+            ## TODO PYTHON3? make the 1 in the following line settable.
             minfrac = 1./plen # fractional distance between points 1 pixel apart
-            fracs0 = set(marks.fractions)
-            fracs1 = set(othermarks.fractions)
+
+            fracs0 = sorted(marks.fractions)
+            fracs1 = sorted(othermarks.fractions)
             newfracs = []
-            for f0 in fracs0:
-                for f1 in fracs1:
-                    if abs(f0-f1) <= minfrac:
-                        newfracs.append(0.5*(f0 + f1))
-                        fracs1.remove(f1)
-                        break
-                else:
-                    # No match for f0 in fracs1
+            i0 = i1 = 0
+            while i0 < len(fracs0) and i1 < len(fracs1):
+                f0 = fracs0[i0]
+                f1 = fracs1[i1]
+                if abs(f1 - f0) <= minfrac:
+                    newfracs.append(0.5*(f0 + f1))
+                    i0 += 1
+                    i1 += 1
+                elif f0 < f1:
                     newfracs.append(f0)
-            # Anything left in fracs1 is unmatched
-            newfracs.extend(fracs1)
+                    i0 += 1
+                else:
+                    newfracs.append(f1)
+                    i1 += 1
+            # If we reached the end of one list, put the rest of the
+            # fractions in the other list into newfracs.
+            if i0 < len(fracs0):
+                newfracs.extend(fracs0[i0:])
+            if i1 < len(fracs1):
+                newfracs.extend(fracs1[i1:])
+
+            # debug.fmsg(" merged marks=", newfracs)
 
             # If there are more than two subdivisions, choose the two
             # that are spaced most evenly.  That will be the fractions
             # fi and fj that minimize
             #      f1**2 + (fj-fi)**2 + (1-fj)**2
             # which would be what you'd compute for the mean squared
-            # deviation of the section lengths, given that the average
-            # section length is always 1/3.
+            # deviation of the fractional section lengths, given that
+            # the average fractional section length is always 1/3.
 
             # An alternative might be to include all transition
             # points, apply the refinement rules to all pairs of them,
@@ -125,12 +153,17 @@ class TransitionPointMarker(SegmentRefinementMethod):
             # is segment by segment.  It would be a nonlocal
             # minimization problem -- we'd have to try all choices of
             # two transition points on all segments in the Skeleton.
+
+            ## TODO PYTHON3: The test for too many marks needs to be
+            ## done on all segments, after the marks have been
+            ## consolidated.
             
             if len(newfracs) > 2:
+                # debug.fmsg(f"Too many marks: {newfracs}")
                 bestdev = 10
                 fibest = None
                 fjbest = None
-                # Again, an o(n^2) algorithm.  Can this be improved?
+                # TODO: This is an o(n^2) algorithm. Can it be improved?
                 for i in range(len(newfracs)-1):
                     fi = newfracs[i]
                     fi2 = fi*fi
@@ -143,52 +176,75 @@ class TransitionPointMarker(SegmentRefinementMethod):
                             fjbest = fj
                 assert fibest is not None and fjbest is not None
                 newfracs = (fibest, fjbest)
+                # debug.fmsg(f"Reduced marks: {newfracs}")
 
-            segMarkings.replace(node0, node1, newfracs)
+            segMarkings.update(node0, node1, newfracs)
                         
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Marks indicating where a segment should be divided.  Marks refer to
-# segments and nodes in the old skeleton.
+# Marks indicating where a segment should be divided. The nodes used
+# to define segments are nodes in the *old* Skeleton.
+
+## TODO PYTHON3: Do we need this class?  SegmentMarkings knows the
+## nodes since they're in the dict keys, and can store the fractions
+## as the value.  We'd have to use SegmentMarkings.positions(node0, node1)
+## instead of SegmentMarks.positions().
 
 class SegmentMarks:
     def __init__(self, node0, node1, fractions):
         self.node0 = node0
         self.node1 = node1
-        self.fractions = fractions # mark at (1-f)*node0 + f*node1
-    def reverse(self):
-        self.node0, self.node1 = self.node1, self.node0
-        self.fractions = [1-f for f in reversed(self.fractions)]
+        self.fractions = fractions # mark is at (1-f)*node0 + f*node1
+    def reversed(self):
+        return SegmentMarks(self.node1, self.node0,
+                            [1-f for f in reversed(self.fractions)])
     def __len__(self):
         return len(self.fractions)
-    def positions(self):
+    def positions(self, node0, node1):
         p0 = self.node0.position()
         p1 = self.node1.position()
         for f in self.fractions:
             yield (1-f)*p0 + f*p1
-        
+    def __repr__(self):
+        return f"SegmentMarks({self.node0}, {self.node1}, {self.fractions})"
+
+class EmptyMarks:
+    def positions(self):
+        return []
+    def reversed(self):
+        return self
+    def __len__(self):
+        return 0
+
+emptyMarks = EmptyMarks()
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Container for SegmentMarks. 
+# Container for all the SegmentMarks in a refinement.  Each Segment
+# (identified by nodes in the old Skeleton) occurs only once.
 
 class SegmentMarkings:
     def __init__(self):
         self.markings = {}
     def insert(self, marks):
-        key = skeletonnode.canonical_order(*marks.nodes)
+        key = skeletonnode.canonical_order(marks.node0, marks.node1)
         if key in self.markings:
-            return False
-        self.markings[key] = marks
-    def replace(self, pt0, pt1, fractions):
+            return True         # didn't insert, marks are already present
+        if key[0] is marks.node0:
+            self.markings[key] = marks
+        else:
+            self.markings[key] = marks.reversed()
+        return False
+    def update(self, pt0, pt1, fractions):
         key = skeletonnode.canonical_order(pt0, pt1)
         self.markings[key] = SegmentMarks(pt0, pt1, fractions)
     def fetch(self, pt0, pt1):
         key = skeletonnode.canonical_order(pt0, pt1)
-        marks = self.markings[key]
-        if key[0] != pt0:
-            marks.reverse()
+        marks = self.markings.get(key, emptyMarks)
+        if key and key[0] is pt1:
+            return marks.reversed()
         return marks
     def getMarks(self, element):
         return [self.fetch(nodes[0], nodes[1])
@@ -199,7 +255,6 @@ class SegmentMarkings:
 
 
 class SnapRefine2(refine.Refine):
-
     def __init__(self, targets, criterion, min_distance, alpha=1):
         self.targets = targets      # RefinementTarget instance
         self.criterion = criterion  # Criterion for refinement
@@ -207,15 +262,15 @@ class SnapRefine2(refine.Refine):
         # refinements, using effective energy
         self.alpha = alpha 
         # Available rules
-        self.rules = snaprefinemethod.getRuleSet('liberal')
+        self.rules = snaprefinemethod2.getRuleSet('SnapRefine')
 
         self.min_distance=min_distance
 
         # Ultimately self.marker should be set in the subclass
         # constructor.
-        self.marker = TransitionPointMarker()
+        self.marker = TransitionPointMarker(min_distance)
 
-    def refinement(self, skeleton, newSkeleton, context, prog):
+    def refinement(self, oldSkeleton, newSkeleton, context, prog):
         maxdelta = max(newSkeleton.MS.sizeOfPixels())
         markedSegs = SegmentMarkings()
 
@@ -226,16 +281,19 @@ class SnapRefine2(refine.Refine):
 
         # Use the RefinementTarget to mark the edges that should be
         # refined. 
-        self.targets(skeleton, context, self.marker, markedSegs, self.criterion)
+        self.targets(oldSkeleton, context, self.marker, markedSegs,
+                     self.criterion)
 
         # connectedsegs contains new segments that have had their
         # parentage set.
         connectedsegments = set() 
 
         # Refine elements and segments
-        
-        for oldElement in skeleton.SkeletonElementIterator(skeleton):
+        eliter = skeleton.SkeletonElementIterator(oldSkeleton)
+        for oldElement in eliter:
             oldnnodes = oldElement.nnodes()
+            # debug.fmsg("******** oldElement=", oldElement)
+            # debug.fmsg("nodes=", [n.position() for n in oldElement.nodes])
             # Get list of subdivisions on each edge ("marks")
             marks =  markedSegs.getMarks(oldElement)
             # Find the canonical order for the marks. (The order is
@@ -248,21 +306,20 @@ class SnapRefine2(refine.Refine):
             ## TODO: why not use the above line?  Only rotation needs
             ## to be passed to the RefinementRule.  Same in refine.py.
             rotation, signature = findSignature(marks)
+            # debug.fmsg(f"signature={signature}, rotation={rotation}")
 
             # Create new nodes on segments.  The marks refer to the
             # old Skeleton, but new nodes are created in the new
             # Skeleton.
             edgenodes = [
-                self.getNewEdgeNodes(nodes[0], nodes[1],
-                                     marks, newSkeleton, skeleton)
-                for marks, nodes in zip(
-                        markedSegs.getMarks(oldSkeleton)
-                        oldElement.segment_node_iterator())]
-
+                self.getNewEdgeNodes(nodes[0], nodes[1], emarks, newSkeleton)
+                for emarks, nodes in zip(
+                        marks, oldElement.segment_node_iterator())]
+            # debug.fmsg(f"edgenodes={edgenodes}")
 
             # Apply refinement rules to create new elements
             newElements = self.rules[signature].apply(
-                oldElement, rotation, edgenodes, newSkeleton, alpha)
+                oldElement, rotation, edgenodes, newSkeleton, self.alpha)
             # if debug.debug():
             #     for el in newElements:
             #         if el.illegal():
@@ -277,7 +334,7 @@ class SnapRefine2(refine.Refine):
 
             # If the old element's homogeneity is 1, it's safe to say that
             # new elements' homogeneities are 1.
-            if oldElement.homogeneity(skeleton.MS, False) == 1.0:
+            if oldElement.homogeneity(oldSkeleton.MS, False) == 1.0:
                 for el in newElements:
                     el.copyHomogeneity(oldElement)
 
@@ -290,7 +347,7 @@ class SnapRefine2(refine.Refine):
                     # Only look at each segment once.
                     if segment not in connectedsegments:
                         connectedsegments.add(segment)
-                        pseg = findParentSegment(skeleton, newElement,
+                        pseg = findParentSegment(oldSkeleton, newElement,
                                                  segment,
                                                  edgenodes)
                         if pseg:
@@ -298,15 +355,15 @@ class SnapRefine2(refine.Refine):
                             segment.add_parent(pseg)
             if prog.stopped():
                 return None
-            prog.setFraction((ii+1)/n)
-            prog.setMessage("%d/%d elements" % (ii+1, n))
+            prog.setFraction(eliter.fraction())
+            prog.setMessage(f"{eliter.nexamined()}/{eliter.ntotal()} elements")
        
         newSkeleton.cleanUp()
         #print "end of refinement"
 
         return newSkeleton
 
-    def getNewEdgeNodes(node0, node1, marks, newSkeleton, oldSkeleton):
+    def getNewEdgeNodes(self, node0, node1, marks, newSkeleton):
         # Create new nodes on the edge joining the nodes corresponding
         # to node0 and node1 in the new skeleton.  node0 and node1 are
         # in the *old* skeleton.
@@ -321,8 +378,13 @@ class SnapRefine2(refine.Refine):
             p0 = node0.position()
             p1 = node1.position()
             diff = p1 - p0
+            # marks.positions() returns positions in the correct order
+            # for the directed segment going from n0 to n1.
             nodes = [newSkeleton.newNodeFromPoint(pt)
-                     for pt in marks.positions()]
+                     for pt in marks.positions(node0, node1)]
+            self.newEdgeNodes[key] = nodes
+            # debug.fmsg(
+            #     f"New nodes on edge {node0} {node1} {p0} {p1}: {[(n,n.position()) for n in nodes]}")
             # Create periodic nodes if necessary
             partners = node0.getPartnerPair(node1)
             # It can happen that partners contains the same two nodes
@@ -358,13 +420,14 @@ class SnapRefine2(refine.Refine):
                     newnodepartner = newSkeleton.newNodeFromPoint(newpt)
                     nodes[i].addPartner(newnodepartner)
                     partnernodes[i] = newnodepartner
-                self.newEdgeNodes[partnerKey] = nodespartner
+                self.newEdgeNodes[partnerKey] = partnernodes
 
         else:
             # Nodes were already created on this edge.  They were
             # created in the opposite order, though.
             nodes.reverse()
-
+            # debug.fmsg("Reusing nodes on edge", node0, node1, ":", nodes)
+        # debug.fmsg(f"returning {len(nodes)} nodes")
         return nodes
         
 
@@ -397,7 +460,7 @@ def findSignature(marks):
 ####################
 
 registeredclass.Registration(
-    'Snap Refine2',
+    'Snap Refine II',
     skeletonmodifier.SkeletonModifier,
     SnapRefine2,
     ordering=400,

@@ -28,7 +28,7 @@ class RefinementTarget2(registeredclass.RegisteredClass):
     discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/refinementtarget.xml')
 
 class ElementRefinementTarget(RefinementTarget2):
-    def markElement(self, skeleton, context, element, marker, markedSegs):
+    def markElement(self, skeleton, element, marker, markedSegs):
         nnodes = element.nnodes()
         for i in range(nnodes):
             marker.markSegment(skeleton,
@@ -36,17 +36,19 @@ class ElementRefinementTarget(RefinementTarget2):
                                markedSegs)
     def __call__(self, skeleton, context, marker, markedSegs, criterion):
         prog = progress.findProgress("Refine")
-        eliter = self.iterator(context)
-        for element in eliter:
+        ## TODO PYTHON3: Be sure that self.iterator returns a
+        ## SkeletonElementIterator so we can use fraction and ntotal
+        eliter = list(self.iterator(context)) # self.iterator is from subclass
+        for i, element in enumerate(eliter):
             ## TODO: Do we need to check criterion here?  Can the
             ## iterator do it?
             if criterion(skeleton, element):
-                self.markElement(microstructure, element, markedSegs)
+                self.markElement(skeleton, element, marker, markedSegs)
             if prog.stopped():
                 return
-            prog.setFraction(eliter.fraction())
-            prog.setMessage(
-                f"checked {eliter.nexamined()}/{eliter.ntotal()} elements")
+            prog.setFraction(i/len(eliter))#eliter.fraction())
+            prog.setMessage(f"checked {i}/{len(eliter)} elements")
+                #f"checked {eliter.nexamined()}/{eliter.ntotal()} elements")
             
 
 class SegmentRefinementTarget(RefinementTarget2):
@@ -60,7 +62,7 @@ class SegmentRefinementTarget(RefinementTarget2):
             ## TODO: Do we need to check criterion here?  Can the
             ## iterator do it?
             if criterion(skeleton, segment):
-                self.markSegment(skeleton segment, divisions, markedSegs)
+                self.markSegment(skeleton, context, segment, marker, markedSegs)
             if prog.stopped():
                 return
             prog.setFraction(segiter.fraction())
@@ -70,7 +72,7 @@ class SegmentRefinementTarget(RefinementTarget2):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class CheckAllElements(ElementRefinementTarget):
+class CheckAllElements2(ElementRefinementTarget):
     def iterator(self, skeletoncontext):
         return skeletoncontext.getObject().activeElements()
     
@@ -88,15 +90,15 @@ class CheckAllElements(ElementRefinementTarget):
 
 registeredclass.Registration(
     'All Elements',
-    RefinementTarget,
-    CheckAllElements,
+    RefinementTarget2,
+    CheckAllElements2,
     ordering=2,
     tip="Refine all elements.",
     discussion= "<para>Refine all segments of all elements.</para>")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class CheckSelectedElements(ElementRefinementTarget):
+class CheckSelectedElements2(ElementRefinementTarget):
     def iterator(self, skeletoncontext):
         skeleton = skeletoncontext.getObject()
         for el in skeleton.selectedElements():
@@ -118,8 +120,8 @@ class CheckSelectedElements(ElementRefinementTarget):
 
 registeredclass.Registration(
     'Selected Elements',
-    RefinementTarget,
-    CheckSelectedElements,
+    RefinementTarget2,
+    CheckSelectedElements2,
     ordering=1,
     tip="Refine selected elements.",
     discussion= """<para>
@@ -128,7 +130,7 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class CheckElementsInGroup(ElementRefinementTarget):
+class CheckElementsInGroup2(ElementRefinementTarget):
     def __init__(self, group):
         self.group = group
     def iterator(self, skeletoncontext):
@@ -152,8 +154,8 @@ class CheckElementsInGroup(ElementRefinementTarget):
 
 registeredclass.Registration(
     'Elements In Group',
-    RefinementTarget,
-    CheckElementsInGroup,
+    RefinementTarget2,
+    CheckElementsInGroup2,
     ordering=1.5,
     params=[skeletongroupparams.ElementGroupParameter('group',
                                                       tip='Refine the elements in this group.')],
@@ -164,14 +166,15 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class CheckHomogeneity(ElementRefinementTarget):
+class CheckHomogeneity2(ElementRefinementTarget):
     def __init__(self, threshold):
         self.threshold = threshold
 
     def iterator(self, context):
-        eliter = skeleton.activeElements()
+        skel = context.getObject()
+        eliter = skel.activeElements()
         for element in eliter:
-            if element.homogeneity(skeleton.MS, False) < self.threshold:
+            if element.homogeneity(skel.MS, False) < self.threshold:
                 yield element
                
     # def __call__(self, skeleton, context, divisions, markedEdges, criterion):
@@ -189,8 +192,8 @@ class CheckHomogeneity(ElementRefinementTarget):
                 
 registeredclass.Registration(
     'Heterogeneous Elements',
-    RefinementTarget,
-    CheckHomogeneity,
+    RefinementTarget2,
+    CheckHomogeneity2,
     ordering=0,
     params=[parameter.FloatRangeParameter('threshold', (0.0, 1.0, 0.05),
                                           value=0.9,
@@ -213,20 +216,20 @@ registeredclass.Registration(
 # provide a getSegments() method that returns an instance of a
 # SkeletonSegmentIterator subclass.
 
-class SegmentChooser(registeredclass.RegisteredClass):
+class SegmentChooser2(registeredclass.RegisteredClass):
     registry = []
     tip = "Choose sets of segments be refined."
     discussion = xmlmenudump.loadFile(
         'DISCUSSIONS/engine/reg/segment_chooser.xml')
 
-class FromAllSegments(SegmentChooser):
+class FromAllSegments2(SegmentChooser2):
     def getSegments(self, context):
         return skeleton.SkeletonSegmentIterator(context.getObject())
 
 registeredclass.Registration(
     'All Segments',
-    SegmentChooser,
-    FromAllSegments,
+    SegmentChooser2,
+    FromAllSegments2,
     4,
     tip="Examine all segments.",
     discussion= """<para>
@@ -247,14 +250,14 @@ class SelectedSegmentsIterator(skeleton.SkeletonSegmentIterator):
             if seg.active(self.context.getObject()):
                 yield seg
 
-class FromSelectedSegments(SegmentChooser):
+class FromSelectedSegments2(SegmentChooser2):
     def getSegments(self, context):
         return SelectedSegmentsIterator(context)
 
 registeredclass.Registration(
     'Selected Segments',
-    SegmentChooser,
-    FromSelectedSegments,
+    SegmentChooser2,
+    FromSelectedSegments2,
     ordering=1,
     tip="Examine selected segments.",
     discussion= """<para>
@@ -284,14 +287,14 @@ class SegsFromSelectedElementsIterator(skeleton.SkeletonSegmentIterator):
                         usedsegments.add(seg)
                         yield seg
 
-class FromSelectedElements(SegmentChooser):
+class FromSelectedElements2(SegmentChooser2):
     def getSegments(self, context):
         return SegsFromSelectedElementsIterator(context)
                 
 registeredclass.Registration(
     'Selected Elements',
-    SegmentChooser,
-    FromSelectedElements,
+    SegmentChooser2,
+    FromSelectedElements2,
     ordering=1,
     tip="Examine segments from segments of currently selected elements.",
     discussion= """<para>
@@ -314,7 +317,7 @@ registeredclass.Registration(
 ## TODO PYTHON3: The classes here are sometimes XXXXSegments and
 ## sometimes XXXXEdges.  We should be consistent.
 
-class CheckHeterogeneousEdges(SegmentRefinementTarget):
+class CheckHeterogeneousEdges2(SegmentRefinementTarget):
     def __init__(self, threshold, choose_from):
         self.threshold = threshold
         self.choose_from = choose_from
@@ -342,22 +345,22 @@ class CheckHeterogeneousEdges(SegmentRefinementTarget):
 
 registeredclass.Registration(
     'Heterogeneous Segments',
-    RefinementTarget,
-    CheckHeterogeneousEdges,
+    RefinementTarget2,
+    CheckHeterogeneousEdges2,
     ordering=3,
     params=[
         parameter.FloatRangeParameter(
             'threshold', (0.0, 1.0, 0.05),
             value=0.9,
             tip="Refine segments whose homogeneity is less than this."),
-        parameter.RegisteredParameter('choose_from', SegmentChooser,
+        parameter.RegisteredParameter('choose_from', SegmentChooser2,
                                       tip='Segments to consider.')],
     tip="Divide heterogeneous segments.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/check_hetero_segs.xml'))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class CheckSelectedEdges(SegmentRefinementTarget):
+class CheckSelectedEdges2(SegmentRefinementTarget):
     def iterator(self, context):
         skel = context.getObject()
         return skeleton.SkeletonSegmentIterator(
@@ -378,8 +381,8 @@ class CheckSelectedEdges(SegmentRefinementTarget):
 
 registeredclass.Registration(
     'Selected Segments',
-    RefinementTarget,
-    CheckSelectedEdges,
+    RefinementTarget2,
+    CheckSelectedEdges2,
     ordering=3,
     tip="Divide selected segments.",
     discussion="""<para>
@@ -388,7 +391,7 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class CheckSegmentGroup(SegmentRefinementTarget):
+class CheckSegmentGroup2(SegmentRefinementTarget):
     def __init__(self, group):
         self.group = group
     def iterator(self, context):
@@ -411,8 +414,8 @@ class CheckSegmentGroup(SegmentRefinementTarget):
 
 registeredclass.Registration(
     'Segments in Group',
-    RefinementTarget,
-    CheckSegmentGroup,
+    RefinementTarget2,
+    CheckSegmentGroup2,
     ordering=3.5,
     params=[skeletongroupparams.SegmentGroupParameter(
         'group', tip='Examine segments in this group')],
@@ -431,12 +434,12 @@ class AspectSegmentIterator(skeleton.SkeletonSegmentIterator):
         SkeletonSegmentIterator.__init__(skel, condition)
     def targets(self):
         for element in self.skeleton.activeElements():
-            if (element.nnodes() = 4 or not self.only_quads):
+            if (element.nnodes() == 4 or not self.only_quads):
                 for segment in element.getAspectRatioSegments(self.threshold,
                                                               self.skeleton):
                     yield segment
 
-class CheckAspectRatio(ElementRefinementTarget):
+class CheckAspectRatio2(ElementRefinementTarget):
     def __init__(self, threshold, only_quads=True):
         self.threshold = threshold
         self.only_quads = only_quads
@@ -463,8 +466,8 @@ class CheckAspectRatio(ElementRefinementTarget):
 
 registeredclass.Registration(
     'Aspect Ratio',
-    RefinementTarget,
-    CheckAspectRatio,
+    RefinementTarget2,
+    CheckAspectRatio2,
     ordering=2.5,
     params=[
         parameter.FloatParameter(

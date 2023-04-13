@@ -571,6 +571,22 @@ bool CSkeletonQuad::illegal() const {
   // 	  (p3 - p2) % (p1 - p2) <= 0.0 ||
   // 	  (p0 - p3) % (p2 - p3) <= 0.0);
 
+#ifdef DEBUG
+  if((p1-p0) % (p3-p0) <= 0.0)
+    std::cerr << "CSkeletonQuad::illegal: (p1-p0)%(p3-p0)=" << (p1-p0)%(p3-p0)
+	      << std::endl;
+  if((p2-p1) % (p0-p1) <= 0.0)
+    std::cerr << "CSkeletonQuad::illegal: (p2-p1)%(p0-p1)=" << (p2-p1)%(p0-p1)
+	      << std::endl;
+  if((p3-p2) % (p1-p2) <= 0.0)
+    std::cerr << "CSkeletonQuad::illegal: (p3-p2)%(p1-p2)=" << (p3-p2)%(p1-p2)
+	      << std::endl;
+  if((p0-p3) % (p2-p3) <= 0.0) {
+    std::cerr << "CSkeletonQuad::illegal: (p0-p3)%(p2-p3)=" << (p0-p3)%(p2-p3)
+	      << std::endl;
+  }
+#endif // DEBUG
+  
   // Using Area() & Cosine().
   return  ( (p1 - p0) % (p3 - p0) <= 0.0 ||
 	    (p2 - p1) % (p0 - p1) <= 0.0 ||

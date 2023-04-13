@@ -228,7 +228,13 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
         # Examine elements and create NodeSnapper objects
         movedict = {}                   # dict of all moves, keyed by element
         movelists = {}         # dict of lists of all moves, keyed by priority
-        elements = self.targets(context)
+
+        ## TODO PYTHON3: When Skeleton.element_iterator returns a
+        ## SkeletonElementIterator, the "list" in the next line can be
+        ## omitted.  Also, the progress bars in the loop below can use
+        ## the SkeletonElementIterator methods and loop can use "for
+        ## element in elements".
+        elements = list(self.targets(context))
 
         # Big try-finally block to ensure that
         # self.targets.cleanSelection() gets called if something goes

@@ -15,6 +15,10 @@ from ooflib.common import utils
 from ooflib.common import enum
 from ooflib.common.IO import xmlmenudump
 
+from ooflib.engine import skeletonelement
+ProvisionalQuad = skeletonelement.ProvisionalQuad
+ProvisionalTriangle = skeletonelement.ProvisionalTriangle
+
 class RefinementRuleSet:
     allRuleSets = []
     ruleDict = {}
@@ -28,7 +32,7 @@ class RefinementRuleSet:
             self.parent = RefinementRuleSet.ruleDict[parent]
         else:
             self.parent = None
-        updateRuleEnum(name, help) 
+        # updateRuleEnum(name, help) 
     def name(self):
         return self._name
     def help(self):
@@ -57,6 +61,11 @@ utils.OOFdefine('getSnapRefineRuleSet', getRuleSet)
 
 ## TODO: If we have more than one rule set, restore this code so that
 ## the user can control which one is used.
+
+## TODO PYTHON3: Have a complete rule set, which includes all possible
+## subdivisions of all signatures, including ones with internal nodes,
+## and a small rule set,which will be faster to apply, but includes
+## only the simplest subdivisions?
 
 # The names of the refinement rule sets are stored in an Enum so that
 # the UI can handle them correctly.
@@ -103,6 +112,11 @@ class ProvisionalRefinement:
    def __init__(self, newbies = [], internalNodes = []):
        self.newbies = newbies   # new elements
        self.internalNodes = internalNodes
+       self.illegal = False
+       for i, element in enumerate(newbies):
+           if element.illegal():
+               self.illegal = True
+               break
    def energy(self, skeleton, alpha):
        energy = 0.0
        for element in self.newbies:
@@ -115,10 +129,11 @@ def theBetter(skeleton, candidates, alpha):
    energy_min = 100000.                # much larger than any possible energy
    theone = None
    for candi in candidates:
-       energy = candi.energy(skeleton, alpha)
-       if energy < energy_min:
-           energy_min = energy
-           theone = candi
+       if not candi.illegal:
+           energy = candi.energy(skeleton, alpha)
+           if energy < energy_min:
+               energy_min = energy
+               theone = candi
    # Before returning the chosen refinement, we need to remove any internal
    # nodes created for the refinements that were not chosen.
    destroyedNodes = set()
@@ -504,7 +519,7 @@ def rule222(element, rotation, edgenodes, newSkeleton, alpha):
          ProvisionalQuad(nodes=[n2, ne, ng, nd], parents=[element]),
          ProvisionalTriangle(nodes=[na, nb, ng], parents=[element]),
          ProvisionalTriangle(nodes=[nc, nd, ng], parents=[element]),
-         ProvisionalTriangle(nodes=[ne, nf, ng], parents=[element])]
+         ProvisionalTriangle(nodes=[ne, nf, ng], parents=[element])],
         internalNodes=[ng])
     refine2a = ProvisionalRefinement(
         [ProvisionalQuad(nodes=[na, nb, ng, nf], parents=[element]),
@@ -512,7 +527,7 @@ def rule222(element, rotation, edgenodes, newSkeleton, alpha):
          ProvisionalQuad(nodes=[ne, nf, ng, nd], parents=[element]),
          ProvisionalTriangle(nodes=[n0, na, nf], parents=[element]),
          ProvisionalTriangle(nodes=[nb, n1, nc], parents=[element]),
-         ProvisionalTriangle(nodes=[ne, nd, n2], parents=[element])]
+         ProvisionalTriangle(nodes=[ne, nd, n2], parents=[element])],
         internalNodes=[ng])
     refine2b = ProvisionalRefinement(
         [ProvisionalQuad(nodes=[na, nb, nc, ng], parents=[element]),
@@ -520,7 +535,7 @@ def rule222(element, rotation, edgenodes, newSkeleton, alpha):
          ProvisionalQuad(nodes=[na, ng, ne, nf], parents=[element]),
          ProvisionalTriangle(nodes=[n0, na, nf], parents=[element]),
          ProvisionalTriangle(nodes=[nb, n1, nc], parents=[element]),
-         ProvisionalTriangle(nodes=[ne, nd, n2], parents=[element])]
+         ProvisionalTriangle(nodes=[ne, nd, n2], parents=[element])],
         internalNodes=[ng])
     refine3a = ProvisionalRefinement(
         [ProvisionalTriangle(nodes=[n0, na, nf], parents=[element]),
@@ -534,7 +549,7 @@ def rule222(element, rotation, edgenodes, newSkeleton, alpha):
          ProvisionalTriangle(nodes=[ne, nd, n2], parents=[element]),
          ProvisionalQuad(nodes=[na, nb, nc, nd], parents=[element]),
          ProvisionalQuad(nodes=[na, nd, ne, nf], parents=[element])])
-    refine3b = ProvisionalRefinement(
+    refine3c = ProvisionalRefinement(
         [ProvisionalTriangle(nodes=[n0, na, nf], parents=[element]),
          ProvisionalTriangle(nodes=[nb, n1, nc], parents=[element]),
          ProvisionalTriangle(nodes=[ne, nd, n2], parents=[element]),
@@ -574,12 +589,12 @@ RefinementRule(snapRefineRules, (0,0,0,0), ruleZero)
 #  0---------a---------1     0---------a---------1   0---------a---------1
 
 
-def rule1000(element, rotation, edgenodes, newSkeleton, alpha)
+def rule1000(element, rotation, edgenodes, newSkeleton, alpha):
     n0, n1, n2, n3 = baseNodes(element, rotation)
     na = edgenodes[rotation][0]
     refine0 = ProvisionalRefinement(
         [ProvisionalTriangle(nodes=[n0, na, n3], parents=[element]),
-         ProvisionalTriangle(nodes==[na, n2, n3], parents=[element]),
+         ProvisionalTriangle(nodes=[na, n2, n3], parents=[element]),
          ProvisionalTriangle(nodes=[na, n1, n2], parents=[element])])
     refine1 = ProvisionalRefinement(
         [ProvisionalTriangle(nodes=[n0, na, n3], parents=[element]),
@@ -613,12 +628,12 @@ def rule1100(element, rotation, edgenodes, newSkeleton, alpha):
     refine0 = ProvisionalRefinement(
         [ProvisionalQuad(nodes=[n0, na, nc, n3], parents=[element]),
          ProvisionalQuad(nodes=[na, n1, nb, nc], parents=[element]),
-         ProvisionalQuad(nodes=[nc, nb, n2, n3], parents=[element])]
+         ProvisionalQuad(nodes=[nc, nb, n2, n3], parents=[element])],
         internalNodes=[nc])
     refine1 = ProvisionalRefinement(
         [ProvisionalTriangle(nodes=[n0, na, n3], parents=[element]),
          ProvisionalQuad(nodes=[na, nb, n2, n3], parents=[element]),
-         ProvisionalTriangle(nodes=[na, n1. nb], parents=[element])])
+         ProvisionalTriangle(nodes=[na, n1, nb], parents=[element])])
     refine2 = ProvisionalRefinement(
         [ProvisionalQuad(nodes=[n0, na, nb, n3], parents=[element]),
          ProvisionalTriangle(nodes=[na, n1, nb], parents=[element]),
@@ -630,7 +645,7 @@ def rule1100(element, rotation, edgenodes, newSkeleton, alpha):
          ProvisionalTriangle(nodes=[nb, n2, n3], parents=[element])])
     return theBetter(newSkeleton, (refine0, refine1, refine2, refine3), alpha)
     
-refinementrule(snapRefineRules, (1,1,0,0), rule1100)
+RefinementRule(snapRefineRules, (1,1,0,0), rule1100)
 
 ### 1010 ###
 
@@ -713,7 +728,7 @@ def rule1111(element, rotation, edgenodes, newSkeleton, alpha):
         [ProvisionalQuad(nodes=[n0, na, ne, nd], parents=[element]),
          ProvisionalQuad(nodes=[na, n1, nb, ne], parents=[element]),
          ProvisionalQuad(nodes=[ne, nb, n2, nc], parents=[element]),
-         ProvisionalQuad(nodes=[nd, ne, nc, n3], parents=[element])]
+         ProvisionalQuad(nodes=[nd, ne, nc, n3], parents=[element])],
         internalNodes=[ne])
     refine1 = ProvisionalRefinement(
         [ProvisionalTriangle(nodes=[n0, na, nd], parents=[element]),
@@ -747,10 +762,17 @@ def rule2000(element, rotation, edgenodes, newSkeleton, alpha):
     n0, n1, n2, n3 = baseNodes(element, rotation)
     na = edgenodes[rotation][0]
     nb = edgenodes[rotation][1]
+    # TODO PYTHON3: na and nb might be way off to one side, which
+    # could make elements 0ad3 and b12c illegal if we're not careful
+    # about the location of nodes c and d.  For instance, if na and nb
+    # are close to node n0, b12c might be convex at nc.  Currently
+    # theBetter() rejects illegal provisional elements.  Would it be
+    # better to come up with legal positions for c and d instead?
     center = element.center()
-    dx = (n1.position() - n1.position())/6.
-    nc = newSkeleton.newNodeFromPoint(center + dx)
-    nd = newSkeleton.newNodeFromPoint(center - dx)
+    # midline is the vector from the center of side 03 to the center of side 12.
+    midline = 0.5*(n1.position()+n2.position()-n0.position()-n3.position())
+    nc = newSkeleton.newNodeFromPoint(center + midline/6.)
+    nd = newSkeleton.newNodeFromPoint(center - midline/6.)
     refine0 = ProvisionalRefinement(
         [ProvisionalTriangle(nodes=[n0, na, n3], parents=[element]),
          ProvisionalQuad(nodes=[na, nb, n2, n3], parents=[element]),
@@ -877,7 +899,7 @@ def rule2011(element, rotation, edgenodes, newSkeleton, alpha):
     refine0 = ProvisionalRefinement(
         [ProvisionalTriangle(nodes=[n0, na, nd], parents=[element]),
          ProvisionalQuad(nodes=[na, nb, nc, nd], parents=[element]),
-         ProvisionalQuad(nodes=[nb, n1, n2, nc], parents=[element])
+         ProvisionalQuad(nodes=[nb, n1, n2, nc], parents=[element]),
          ProvisionalTriangle(nodes=[nc, n3, nd], parents=[element])])
     refine1 = ProvisionalRefinement(
         [ProvisionalTriangle(nodes=[n0, na, nd], parents=[element]),
@@ -948,7 +970,7 @@ def rule2100(element, rotation, edgenodes, newSkeleton, alpha):
          ProvisionalQuad(nodes=[nb, n1, nc, nd], parents=[element]),
          ProvisionalQuad(nodes=[nd, nc, n2, n3], parents=[element])],
         internalNodes=[nd])
-    refine2 = ProvisionalRefinement(
+    refine3 = ProvisionalRefinement(
         [ProvisionalTriangle(nodes=[nb, n1, nc], parents=[element]),
          ProvisionalQuad(nodes=[na, nb, nc, n2], parents=[element]),
          ProvisionalQuad(nodes=[n0, na, n2, n3], parents=[element])])
@@ -970,7 +992,7 @@ RefinementRule(snapRefineRules, (2,1,0,0), rule2100)
 #  |    \     /    |   |    \   \ /    |   |    \ /   /    |
 #  0-----a---b-----1   0-----a---b-----1   0-----a---b-----1
 
-def rule2101(element, rotation, edgenodes, newSkeleton, alpha)
+def rule2101(element, rotation, edgenodes, newSkeleton, alpha):
     n0, n1, n2, n3 = baseNodes(element, rotation)
     na = edgenodes[rotation][0]
     nb = edgenodes[rotation][1]
@@ -979,7 +1001,7 @@ def rule2101(element, rotation, edgenodes, newSkeleton, alpha)
     refine0 = ProvisionalRefinement(
         [ProvisionalTriangle(nodes=[n0, na, nd], parents=[element]),
          ProvisionalQuad(nodes=[na, nb, nc, nd], parents=[element]),
-         ProvisionalTriangle(nodes=[nb, n1, nc], parents=[element])
+         ProvisionalTriangle(nodes=[nb, n1, nc], parents=[element]),
          ProvisionalQuad(nodes=[nd, nc, n2, n3], parents=[element])])
     refine1 = ProvisionalRefinement(
         [ProvisionalTriangle(nodes=[n0, na, nd], parents=[element]),
@@ -1075,7 +1097,7 @@ RefinementRule(snapRefineRules, (2,1,1,0), rule2110)
 #  |    \       \/    |   |    \/       /    | 
 #  0-----a-------b----1   0-----a-------b----1 
 
-def rule2111(element, rotation, cats, edgenodes, newSkeleton):
+def rule2111(element, rotation, edgenodes, newSkeleton, alpha):
     n0, n1, n2, n3 = baseNodes(element, rotation)
     na = edgenodes[rotation][0]
     nb = edgenodes[rotation][1]
@@ -1261,20 +1283,19 @@ def rule2210(element, rotation, edgenodes, newSkeleton, alpha):
          ProvisionalQuad(nodes=[na, nb, nc, nd], parents=[element]),
          ProvisionalTriangle(nodes=[nb, n1, nc], parents=[element]),
          ProvisionalTriangle(nodes=[nd, n2, ne], parents=[element])])
-    refine2 = ProvisionalRefinement(
+    refine1 = ProvisionalRefinement(
         [ProvisionalQuad(nodes=[n0, na, ne, n3], parents=[element]),
          ProvisionalQuad(nodes=[na, nb, nc, ne], parents=[element]),
          ProvisionalTriangle(nodes=[nb, n1, nc], parents=[element]),
          ProvisionalTriangle(nodes=[nc, nd, ne], parents=[element]),
          ProvisionalTriangle(nodes=[nd, n2, ne], parents=[element])])
-    refine3 = ProvisionalRefinement(
+    refine2 = ProvisionalRefinement(
         [ProvisionalQuad(nodes=[n0, na, ne, n3], parents=[element]),
          ProvisionalTriangle(nodes=[na, nb, ne], parents=[element]),
          ProvisionalQuad(nodes=[nb, n1, nc, ne], parents=[element]),
-         ProvisionalTriangle(nodes=[nc, nd, ne], parents=[element])
+         ProvisionalTriangle(nodes=[nc, nd, ne], parents=[element]),
          ProvisionalTriangle(nodes=[nd, n2, ne], parents=[element])])
-    return theBetter(newSkeleton, refine0, refine1, refine2, alpha)
-    
+    return theBetter(newSkeleton, (refine0, refine1, refine2), alpha)
 RefinementRule(snapRefineRules, (2,2,1,0), rule2210)
 
 ### 2211 ###
@@ -1311,7 +1332,7 @@ RefinementRule(snapRefineRules, (2,2,1,0), rule2210)
 #   0-----a-----b--1    0-----a-----b--1
 
 
-def rule2211(element, rotation, edgenodes, newSkeleton, alpha)
+def rule2211(element, rotation, edgenodes, newSkeleton, alpha):
     n0, n1, n2, n3 = baseNodes(element, rotation)
     na = edgenodes[rotation][0]
     nb = edgenodes[rotation][1]
@@ -1400,7 +1421,7 @@ def rule2220(element, rotation, edgenodes, newSkeleton, alpha):
     refine1 = ProvisionalRefinement(
         [ProvisionalQuad(nodes=[n0, na, nf, n3], parents=[element]),
          ProvisionalQuad(nodes=[na, nh, ng, nf], parents=[element]),
-         ProvisionalTriangle(nodes=[na, nb, nh], parents=[element])
+         ProvisionalTriangle(nodes=[na, nb, nh], parents=[element]),
          ProvisionalTriangle(nodes=[ng, ne, nf], parents=[element]),
          ProvisionalQuad(nodes=[nb, n1, nc, nh], parents=[element]),
          ProvisionalQuad(nodes=[nh, nc, nd, ng], parents=[element]),
@@ -1426,7 +1447,7 @@ RefinementRule(snapRefineRules, (2,2,2,0), rule2220)
 #  |    \|    |/   |     |     |    |  |
 #  0-----a----b----1     0-----a----b--1
 
-def rule2221(element, rotation, edgenodes, newSkeleton, alpha)
+def rule2221(element, rotation, edgenodes, newSkeleton, alpha):
     n0, n1, n2, n3 = baseNodes(element, rotation)
     na = edgenodes[rotation][0]
     nb = edgenodes[rotation][1]
@@ -1515,7 +1536,7 @@ def rule2120(element, rotation, edgenodes, newSkeleton, alpha):
 #  |    \|    |/    |    |     |     |     |
 #  0-----a----b-----1    0-----a-----b-----1 
 
-def rule2121(element, rotation, cats, edgenodes, newSkeleton):
+def rule2121(element, rotation, edgenodes, newSkeleton, alpha):
     n0, n1, n2, n3 = baseNodes(element, rotation)
     na = edgenodes[rotation][0]
     nb = edgenodes[rotation][1]
