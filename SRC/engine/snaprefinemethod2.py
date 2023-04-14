@@ -22,9 +22,10 @@ ProvisionalTriangle = skeletonelement.ProvisionalTriangle
 class RefinementRuleSet:
     allRuleSets = []
     ruleDict = {}
-    def __init__(self, name, parent=None, help=None):
+    def __init__(self, name, maxMarks, parent=None, help=None):
         self.rules = {}
         self._name = name
+        self._maxMarks = maxMarks
         self._help = help
         RefinementRuleSet.allRuleSets.append(self)
         RefinementRuleSet.ruleDict[name] = self
@@ -51,6 +52,9 @@ class RefinementRuleSet:
                 f"SnapRefinement rule {signature} not found!")
     def __getitem__(self, signature):
         return self.getRule(signature)
+    def maxMarks(self):
+        # maximum number of marks on an edge that this rule set can handle
+        return self._maxMarks
         
 def getRuleSet(name):
     return RefinementRuleSet.ruleDict[name]
@@ -160,7 +164,7 @@ def theBetter(skeleton, candidates, alpha):
 #     parent='conservative',
 #     help="If there's a choice, choose the refinement that minimizes E, without trying to preserve topology.")
 
-snapRefineRules = RefinementRuleSet('SnapRefine')
+snapRefineRules = RefinementRuleSet('SnapRefine', 2)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

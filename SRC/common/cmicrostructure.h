@@ -23,8 +23,6 @@
 #include "common/lock.h"
 #include "common/pixelgroup.h"
 #include "common/timestamp.h"
-//#include "common/pixelsetboundary.h"
-
 
 class ActiveArea;
 class CRectangle;
@@ -86,10 +84,9 @@ public:
     : p0(p0), p1(p1), category(cat), stepcategory(stepcat)
   {}
   double length2() const;	// length squared in pixel units
-// #ifdef DEBUG
-//   double span(int) const;
-// #endif // DEBUG
 };
+
+std::ostream &operator<<(std::ostream&, const SegmentSection&);
 
 class CMicrostructure {
 private:

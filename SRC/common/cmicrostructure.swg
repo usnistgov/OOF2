@@ -30,8 +30,6 @@ typedef Array<int> NewArrayInt;
    // typemap(out) ArrayInt*
   int h = $1->height();
   int w = $1->width();
-  // assert(h >= PY_SSIZE_T_MIN && h <= PY_SSIZE_T_MAX);
-  // assert(w >= PY_SSIZE_T_MIN && w <= PY_SSIZE_T_MAX);
   $result = PyList_New((Py_ssize_t) h);
   for(int j=0; j<h; j++) {
     PyObject *row = PyList_New((Py_ssize_t) w);
@@ -46,8 +44,6 @@ typedef Array<int> NewArrayInt;
    // typemap(out) ArrayInt*
   int h = $1->height();
   int w = $1->width();
-  // assert(h >= PY_SSIZE_T_MIN && h <= PY_SSIZE_T_MAX);
-  // assert(w >= PY_SSIZE_T_MIN && w <= PY_SSIZE_T_MAX);
   $result = PyList_New((Py_ssize_t) h);
   for(int j=0; j<h; j++) {
     PyObject *row = PyList_New((Py_ssize_t) w);
@@ -106,7 +102,7 @@ public:
   const int category;
   double length2();
 };
-
+ADD_REPR_GENERIC(SegmentSection);
 MAKE_LISTVEC_TYPEMAPS(SegmentSection);
 
 class CMicrostructure {

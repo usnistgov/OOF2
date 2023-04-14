@@ -36,6 +36,7 @@ from ooflib.engine import skeletonnode
 from ooflib.engine import refine
 from ooflib.engine import snaprefinemethod2
 
+import itertools
 import math
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -72,6 +73,16 @@ class TransitionPointMarker(SegmentRefinementMethod):
         micro = skeleton.MS
         sections = micro.getSegmentSections(node0.position(), node1.position(),
                                             self.minlength)
+        if debug.debug():
+            if len(sections) > 1:
+                for section in sections:
+                    if section.length2() < self.minlength*self.minlength:
+                        debug.fmsg(f"node0={node0} {node0.position()}",
+                                   f"node1={node1} {node1.position()}",
+                                   f"sections={sections}")
+                        raise ooferror.PyErrPyProgrammingError(
+                            "section too short!")
+                
         # Compute fractions and categories
         fractions = []
         span = node1.position() - node0.position()
@@ -92,9 +103,6 @@ class TransitionPointMarker(SegmentRefinementMethod):
             if len(marks) == len(othermarks) == 0:
                 return
             
-            # debug.fmsg("merging marks")
-            # debug.fmsg("        marks=", marks)
-            # debug.fmsg("  other marks=", othermarks)
             # See if there are marks in both lists that are within a
             # fraction of a pixel of one another.  Use their average
             # position and just add one mark to the result.  There
@@ -134,50 +142,7 @@ class TransitionPointMarker(SegmentRefinementMethod):
                 newfracs.extend(fracs0[i0:])
             if i1 < len(fracs1):
                 newfracs.extend(fracs1[i1:])
-
-            # debug.fmsg(" merged marks=", newfracs)
-
-            # If there are more than two subdivisions, choose the two
-            # that are spaced most evenly.  That will be the fractions
-            # fi and fj that minimize
-            #      f1**2 + (fj-fi)**2 + (1-fj)**2
-            # which would be what you'd compute for the mean squared
-            # deviation of the fractional section lengths, given that
-            # the average fractional section length is always 1/3.
-
-            # An alternative might be to include all transition
-            # points, apply the refinement rules to all pairs of them,
-            # and choose the one that minimizes the energy.  This
-            # would be difficult, because the refinement rules work
-            # element by element, but the choice of transition points
-            # is segment by segment.  It would be a nonlocal
-            # minimization problem -- we'd have to try all choices of
-            # two transition points on all segments in the Skeleton.
-
-            ## TODO PYTHON3: The test for too many marks needs to be
-            ## done on all segments, after the marks have been
-            ## consolidated.
-            
-            if len(newfracs) > 2:
-                # debug.fmsg(f"Too many marks: {newfracs}")
-                bestdev = 10
-                fibest = None
-                fjbest = None
-                # TODO: This is an o(n^2) algorithm. Can it be improved?
-                for i in range(len(newfracs)-1):
-                    fi = newfracs[i]
-                    fi2 = fi*fi
-                    for j in range(i+1, len(newfracs)):
-                        fj = newfracs[j]
-                        deviation = fi2 + (fj-fi)**2 + (1-fj)**2
-                        if deviation < bestdev:
-                            bestdev = deviation
-                            fibest = fi
-                            fjbest = fj
-                assert fibest is not None and fjbest is not None
-                newfracs = (fibest, fjbest)
-                # debug.fmsg(f"Reduced marks: {newfracs}")
-
+                
             segMarkings.update(node0, node1, newfracs)
                         
 
@@ -207,6 +172,52 @@ class SegmentMarks:
         p1 = self.node1.position()
         for f in self.fractions:
             yield (1-f)*p0 + f*p1
+    def reduceMarks(self, maxMarks):
+        # Reduce the number of marks on this edge to at most maxMarks.
+        if len(self.fractions) <= maxMarks:
+            return
+        if maxMarks == 1:
+            # Find the mark that's closest to the average, and use it.
+            avg = sum(self.fractions)/len(self.fractions)
+            closest = self.fractions[0]
+            for frac in self.fractions[1:]:
+                if abs(frac - avg) < abs(closest-avg):
+                    closest = frac
+            self.fractions = [frac]
+        elif maxMarks == 2:
+            # Choose the two fractions that are spaced most evenly.
+            # That will be the fractions fi and fj that minimize
+            #      fi**2 + (fj-fi)**2 + (1-fj)**2
+            # which would be what you'd compute for the mean squared
+            # deviation of the fractional section lengths, given that
+            # the average fractional section length is always 1/3.
+            bestdev = 10
+            fibest = None
+            fjbest = None
+            # TODO: This is an o(n^2) algorithm. Can it be improved?
+            for i in range(len(self.fractions)-1):
+                fi = self.fractions[i]
+                fi2 = fi*fi
+                for j in range(i+1, len(self.fractions)):
+                    fj = self.fractions[j]
+                    deviation = fi2 + (fj-fi)**2 + (1-fj)**2
+                    if deviation < bestdev:
+                        bestdev = deviation
+                        fibest = fi
+                        fjbest = fj
+            self.fractions = [fi, fj]
+        else:
+            # TODO: This is even worse. Can it be improved?  Do we need it?
+            bestsubset = None
+            bestdev = 10        # bigger than any deviation
+            for subset in itertools.combinations(self.fractions, maxMarks):
+                fsum = subset[0]**2 + (1-subset[-1])**2
+                for i in range(1,maxMarks):
+                    fsum += (subset[i] - subset[i-1])**2
+                if fsum < bestdev:
+                    bestdev = fsum
+                    bestsubset = subset
+            self.fractions = bestsubset
     def __repr__(self):
         return f"SegmentMarks({self.node0}, {self.node1}, {self.fractions})"
 
@@ -217,6 +228,8 @@ class EmptyMarks:
         return self
     def __len__(self):
         return 0
+    def reduceMarks(self, maxMarks):
+        pass
 
 emptyMarks = EmptyMarks()
 
@@ -249,6 +262,9 @@ class SegmentMarkings:
     def getMarks(self, element):
         return [self.fetch(nodes[0], nodes[1])
                 for nodes in element.segment_node_iterator()]
+    def reduceMarks(self, maxMarks):
+        for marking in self.markings.values():
+            marking.reduceMarks(maxMarks)
         
                                
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -264,14 +280,13 @@ class SnapRefine2(refine.Refine):
         # Available rules
         self.rules = snaprefinemethod2.getRuleSet('SnapRefine')
 
-        self.min_distance=min_distance
+        self.min_distance = min_distance
 
         # Ultimately self.marker should be set in the subclass
         # constructor.
         self.marker = TransitionPointMarker(min_distance)
 
     def refinement(self, oldSkeleton, newSkeleton, context, prog):
-        maxdelta = max(newSkeleton.MS.sizeOfPixels())
         markedSegs = SegmentMarkings()
 
         # newEdgeNodes is a dict keyed by pairs of nodes in the old
@@ -284,6 +299,10 @@ class SnapRefine2(refine.Refine):
         self.targets(oldSkeleton, context, self.marker, markedSegs,
                      self.criterion)
 
+        # Reduce the number of marks on edges to the number allowed by
+        # the refinement rules.
+        markedSegs.reduceMarks(self.rules.maxMarks())
+
         # connectedsegs contains new segments that have had their
         # parentage set.
         connectedsegments = set() 
@@ -292,8 +311,6 @@ class SnapRefine2(refine.Refine):
         eliter = skeleton.SkeletonElementIterator(oldSkeleton)
         for oldElement in eliter:
             oldnnodes = oldElement.nnodes()
-            # debug.fmsg("******** oldElement=", oldElement)
-            # debug.fmsg("nodes=", [n.position() for n in oldElement.nodes])
             # Get list of subdivisions on each edge ("marks")
             marks =  markedSegs.getMarks(oldElement)
             # Find the canonical order for the marks. (The order is
@@ -306,7 +323,6 @@ class SnapRefine2(refine.Refine):
             ## TODO: why not use the above line?  Only rotation needs
             ## to be passed to the RefinementRule.  Same in refine.py.
             rotation, signature = findSignature(marks)
-            # debug.fmsg(f"signature={signature}, rotation={rotation}")
 
             # Create new nodes on segments.  The marks refer to the
             # old Skeleton, but new nodes are created in the new
@@ -315,22 +331,10 @@ class SnapRefine2(refine.Refine):
                 self.getNewEdgeNodes(nodes[0], nodes[1], emarks, newSkeleton)
                 for emarks, nodes in zip(
                         marks, oldElement.segment_node_iterator())]
-            # debug.fmsg(f"edgenodes={edgenodes}")
 
             # Apply refinement rules to create new elements
             newElements = self.rules[signature].apply(
                 oldElement, rotation, edgenodes, newSkeleton, self.alpha)
-            # if debug.debug():
-            #     for el in newElements:
-            #         if el.illegal():
-            #             debug.fmsg("oldElement=", oldElement)
-            #             debug.fmsg([n.position() for n in oldElement.nodes])
-            #             debug.fmsg("newElement=", el)
-            #             debug.fmsg([n.position() for n in el.nodes])
-            #             debug.fmsg("signature=", signature)
-            #             debug.fmsg("rule=", self.rules[signature])
-            #             raise ooferror.PyErrPyProgrammingError(
-            #                 "Illegal element created by SnapRefine")
 
             # If the old element's homogeneity is 1, it's safe to say that
             # new elements' homogeneities are 1.
@@ -383,8 +387,6 @@ class SnapRefine2(refine.Refine):
             nodes = [newSkeleton.newNodeFromPoint(pt)
                      for pt in marks.positions(node0, node1)]
             self.newEdgeNodes[key] = nodes
-            # debug.fmsg(
-            #     f"New nodes on edge {node0} {node1} {p0} {p1}: {[(n,n.position()) for n in nodes]}")
             # Create periodic nodes if necessary
             partners = node0.getPartnerPair(node1)
             # It can happen that partners contains the same two nodes
@@ -426,8 +428,7 @@ class SnapRefine2(refine.Refine):
             # Nodes were already created on this edge.  They were
             # created in the opposite order, though.
             nodes.reverse()
-            # debug.fmsg("Reusing nodes on edge", node0, node1, ":", nodes)
-        # debug.fmsg(f"returning {len(nodes)} nodes")
+            
         return nodes
         
 
