@@ -506,12 +506,14 @@ class SegmentMode(SkeletonInfoMode):
             self.syncPeeker(self.nodes, "Node")
             self.updateElementList(self.elem, segment.getElements())
             self.syncPeeker(self.elem, "Element")
-            length = repr(segment.length())
-            homogval = segment.homogeneity(skeleton.MS)
-            if 0.9999 < homogval < 1.0:
-                homog = "1 - (%e)" % (1.0-homogval)
-            else:
-                homog = repr(homogval)
+            ## TODO PYTHON3: Fix floating point formatting here and in
+            ## all toolbox displays
+            length = f"{segment.length():9.4g}" 
+            homogvals = segment.homogeneity(skeleton.MS)
+            homog = [f"1 - {(1-h):8.6f}"
+                     if (0.9999 < h < 1.0)
+                     else f"{h:8.6f}"
+                     for h in homogvals]
             self.updateGroup(segment)
 
             bdynames = ','.join(
@@ -533,7 +535,10 @@ class SegmentMode(SkeletonInfoMode):
         debug.mainthreadTest()
         self.index.set_text(sindex)
         self.length.set_text(length)
-        self.homog.set_text(homog)
+        if homog[0] == homog[1]:
+            self.homog.set_text(homog[0])
+        else:
+            self.homog.set_text(homog[0] + ", " + homog[1])
         self.bndy.set_text(bdynames)
 #         self.material.set_text(matname)
             

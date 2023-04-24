@@ -314,7 +314,7 @@ registeredclass.Registration(
 ## SegmentChooser could reproduce CheckSelectedSegments and
 ## CheckSegmentGroup and Check...
 
-## TODO PYTHON3: The classes here are sometimes XXXXSegments and
+## TODO PYTHON3: The class names here are sometimes XXXXSegments and
 ## sometimes XXXXEdges.  We should be consistent.
 
 class CheckHeterogeneousEdges2(SegmentRefinementTarget):

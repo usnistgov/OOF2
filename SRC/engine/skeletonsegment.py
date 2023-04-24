@@ -54,12 +54,24 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
                self._nodes[1].active(skeleton)
 
     def homogeneity(self, microstructure):
+        # Segment homogeneity can be direction dependent.  Which value
+        # is wanted depends on the circumstances, so this method
+        # returns both.
         pos0 = self._nodes[0].position()
         pos1 = self._nodes[1].position()
-        return microstructure.edgeHomogeneity(pos0, pos1)
+        return (microstructure.edgeHomogeneity(pos0, pos1),
+                microstructure.edgeHomogeneity(pos1, pos0))
+    def oldHomogeneity(self, microstructure):
+        pos0 = self._nodes[0].position()
+        pos1 = self._nodes[1].position()
+        return microstructure.oldEdgeHomogeneity(pos0, pos1)
 
 
     def dominantPixel(self, microstructure):
+        ## TODO PYTHON3: Rewrite to use new edgeHomogeneity machinery.
+        ## Or delete it.  Is it ever used?  Outside of the old
+        ## snaprefine, this is the only place that edgeHomogeneityCat
+        ## is called, so that could be eliminated too.
         n0 = self.nodes()[0].position()
         n1 = self.nodes()[1].position()
         homog, cat = microstructure.edgeHomogeneityCat(n0, n1)

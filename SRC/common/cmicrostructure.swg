@@ -98,10 +98,15 @@ typedef Array<int> NewArrayInt;
 
 class SegmentSection {
 public:
-  const Coord p0, p1;
   const int category;
-  double length2();
+  double pixelLength();
+  double physicalLength();
+  Coord physicalPt0();
+  Coord physicalPt1();
+  Coord pixelPt0();
+  Coord pixelPt1();
 };
+
 ADD_REPR_GENERIC(SegmentSection);
 MAKE_LISTVEC_TYPEMAPS(SegmentSection);
 
@@ -135,6 +140,7 @@ public:
   bool transitionPointWithPoints(Coord *Point, Coord *Point,
 				 Coord *argout_Point);
   double edgeHomogeneity(const Coord &Point, const Coord &Point);
+  double oldEdgeHomogeneity(const Coord &Point, const Coord &Point);
   double edgeHomogeneityCat(const Coord &Point, const Coord &Point,
 			    int* int_argout);
   bool transitionPointWithPoints_unbiased(Coord *Point, Coord *Point,

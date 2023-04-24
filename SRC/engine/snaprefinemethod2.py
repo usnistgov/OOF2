@@ -113,43 +113,47 @@ def baseNodes(element, rotation):
             for i in range(nnodes)]
 
 class ProvisionalRefinement:
-   def __init__(self, newbies = [], internalNodes = []):
-       self.newbies = newbies   # new elements
-       self.internalNodes = internalNodes
-       self.illegal = False
-       for i, element in enumerate(newbies):
-           if element.illegal():
-               self.illegal = True
-               break
-   def energy(self, skeleton, alpha):
-       energy = 0.0
-       for element in self.newbies:
-           energy += element.energyTotal(skeleton, alpha)
-       return energy/len(self.newbies)
-   def accept(self, skeleton):
-       return [element.accept(skeleton) for element in self.newbies]
+    def __init__(self, newbies = [], internalNodes = []):
+        self.newbies = newbies   # new elements
+        self.internalNodes = internalNodes
+        self.illegal = False
+        for i, element in enumerate(newbies):
+            if element.illegal():
+                self.illegal = True
+                debug.fmsg("Illegal refinement:", element)
+                break
+    def energy(self, skeleton, alpha):
+        energy = 0.0
+        for element in self.newbies:
+            energy += element.energyTotal(skeleton, alpha)
+        return energy/len(self.newbies)
+    def accept(self, skeleton):
+        return [element.accept(skeleton) for element in self.newbies]
+    def __repr__(self):
+        return "ProvisionalRefinement" + f"{tuple(self.newbies)}"
+        
 
 def theBetter(skeleton, candidates, alpha):
-   energy_min = 100000.                # much larger than any possible energy
-   theone = None
-   for candi in candidates:
-       if not candi.illegal:
-           energy = candi.energy(skeleton, alpha)
-           if energy < energy_min:
-               energy_min = energy
-               theone = candi
-   # Before returning the chosen refinement, we need to remove any internal
-   # nodes created for the refinements that were not chosen.
-   destroyedNodes = set()
-   for candi in candidates:
-       if candi is theone or not candi.internalNodes:
-           continue
-       for n in candi.internalNodes:
-           if n not in theone.internalNodes and n not in destroyedNodes:
-               n.destroy(skeleton)
-               destroyedNodes.add(n)
-                
-   return theone.accept(skeleton)
+    energy_min = 100000.                # much larger than any possible energy
+    theone = None
+    for candi in candidates:
+        if not candi.illegal:
+            energy = candi.energy(skeleton, alpha)
+            if energy < energy_min:
+                energy_min = energy
+                theone = candi
+    # Before returning the chosen refinement, we need to remove any internal
+    # nodes created for the refinements that were not chosen.
+    destroyedNodes = set()
+    for candi in candidates:
+        if candi is not None and candi is not theone and candi.internalNodes:
+            for n in candi.internalNodes:
+                if n not in destroyedNodes and (theone is not None and
+                                            n not in theone.internalNodes):
+                    n.destroy(skeleton)
+                    destroyedNodes.add(n)
+    
+    return [] if theone is None else theone.accept(skeleton)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

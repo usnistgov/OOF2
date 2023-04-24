@@ -1003,25 +1003,38 @@ bool CMicrostructure::transitionPoint(const Coord &c0, const Coord &c1,
 // }
 // #endif // DEBUG
 
-double SegmentSection::length2() const {
-  return norm2(p1 - p0);
+double SegmentSection::pixelLength() const {
+  return sqrt(norm2(p1 - p0));
 }
 
+double SegmentSection::physicalLength() const {
+  return sqrt(norm2(ms->pixel2Physical(p1 - p0)));
+}
+
+Coord SegmentSection::physicalPt0() const {
+  return ms->pixel2Physical(p0);
+}
+
+Coord SegmentSection::physicalPt1() const {
+  return ms->pixel2Physical(p1);
+}
+  
+
 std::ostream &operator<<(std::ostream &os, const SegmentSection &s) {
-  return os << "SegmentSection(" << s.p0 << ", " << s.p1
+  return os << "SegmentSection(" << s.physicalPt0() << ", " << s.physicalPt1()
 	    << ", " << s.category << ", " << s.stepcategory << ")"
-	    << " length=" << sqrt(norm2(s.p0 - s.p1));
+	    << " length=" << sqrt(norm2(s.physicalPt0() - s.physicalPt1()));
 }
 
 // Find the distance in the comp direction spanned by two adjacent sections.
 static double spantwo(const SegmentSection *s0, const SegmentSection *s1,
 		      int comp)
 {
-  if(s0->p0 == s1->p1) {
-    return fabs(s0->p1[comp] - s1->p0[comp]);
+  if(s0->physicalPt0() == s1->physicalPt1()) {
+    return fabs(s0->physicalPt1()[comp] - s1->physicalPt0()[comp]);
   }
-  assert(s0->p1 == s1->p0);
-  return fabs(s0->p0[comp] - s1->p1[comp]);
+  assert(s0->physicalPt1() == s1->physicalPt0());
+  return fabs(s0->physicalPt0()[comp] - s1->physicalPt1()[comp]);
 }
 
 bool isint(double x) {
@@ -1036,9 +1049,11 @@ int getInitialCat(const CMicrostructure *ms, const Coord &pt0, const Coord &pt1)
   // pixel boundary and the segment goes to the left or down.
   double x0 = pt0[0];
   double y0 = pt0[1];
-  if(x0 > pt1[0] && isint(x0)) // going left
+  if(isint(x0) && (x0 > pt1[0] || (x0==pt1[0] && y0 < pt1[1])))
+    // going left from a pixel boundary or vertically up along a boundary
     x0 -= 0.5;
-  if(y0 > pt1[1] && isint(y0)) // going down
+  if(isint(y0) && (y0 >= pt1[1] || (y0 == pt1[1] && x0 > pt1[0])))
+    // going down from a pixel boundary or horizontally left along a boundary
     y0 -= 0.5;
   // We can't just call category(x0, y0) because that assumes the
   // coordinates are physical, not pixel.  That means that we have to
@@ -1063,7 +1078,7 @@ void CMicrostructure::segmentCats(const std::vector<SegmentSection> &sections,
   std::vector<double> catlength(ncategories, 0);
   for(int j=0; j<indices.size(); j++) {
     const SegmentSection &segj = sections[indices[j]];
-    catlength[segj.category] += sqrt(segj.length2());
+    catlength[segj.category] += segj.physicalLength(); 
   }
   // Find which category dominates the short sections, and their total
   // length.
@@ -1098,7 +1113,6 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 {
   // Get the pixels under the segment.
   bool flipped, dummy;
-  double minlen2 = minlength*minlength;
 
   // TODO PYTHON3: Now that sections is never returned directly, it
   // can probably be a std::vector<SegmentSection> and avoid the
@@ -1278,7 +1292,8 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 	throw ErrProgrammingError("Error in getSegmentSections",
 				  __FILE__, __LINE__);
       }
-      sections->push_back(new SegmentSection(curpt, pt, prevcat, stepcat));
+      sections->push_back(new SegmentSection(this, curpt, pt,
+					     prevcat, stepcat));
       curpt = pt;
       prevcat = cat;
     } // end if cat != prevcat
@@ -1290,13 +1305,14 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
   // same as the previous section's stairstep category.
   if(sections->size() > 0) {
     stepcat = sections->back()->stepcategory;
-    SegmentSection *lastsect = new SegmentSection(curpt, pt1, prevcat, stepcat);
+    SegmentSection *lastsect = new SegmentSection(this, curpt, pt1,
+						  prevcat, stepcat);
     sections->push_back(lastsect);
   }
   else {
     // There were no transition points found, so there can be no
     // stairsteps.  The value of stepcat is irrelevant.
-    SegmentSection *lastsect = new SegmentSection(pt0, pt1, prevcat, -1);
+    SegmentSection *lastsect = new SegmentSection(this, pt0, pt1, prevcat, -1);
     sections->push_back(lastsect);
   }
 
@@ -1412,7 +1428,8 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 	  // The sections from sec through nextpair-1 can be combined.  The
 	  // category is the stepcategory of any of the sections.
 	
-	  adaSections.emplace_back((*sections)[sec]->p0,
+	  adaSections.emplace_back(this,
+				   (*sections)[sec]->p0,
 				   (*sections)[nextpair-1]->p1,
 				   (*sections)[sec]->stepcategory,
 				   (*sections)[sec]->stepcategory);
@@ -1445,7 +1462,7 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
     // category.
     int lastcat = result->empty() ? -1 : result->back()->category;
     SegmentSection &section = adaSections[i];
-    if(section.length2() < minlen2) {
+    if(section.pixelLength() < minlength) {
       // This section is too short.  Store it and deal with it later.
       shortSections.push_back(i);
     }
@@ -1513,7 +1530,7 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 	  // section.
 	  // std::cerr << "CMicrostructure::getSegmentSections:"
 	  // 	    << " combined short sections are long enough" << std::endl;
-	  result->push_back(new SegmentSection(
+	  result->push_back(new SegmentSection(this,
 				       adaSections[shortSections.front()].p0,
 				       adaSections[shortSections.back()].p1,
 				       maxcat, maxcat));
@@ -1541,7 +1558,7 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
       {
 	// Make a new section from the total set of short sections,
 	// and append it.
-	result->push_back(new SegmentSection(
+	result->push_back(new SegmentSection(this,
 			     adaSections[shortSections.front()].p0,
 			     adaSections[shortSections.back()].p1,
 					   maxcat,
@@ -1562,6 +1579,27 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 double CMicrostructure::edgeHomogeneity(const Coord &c0, const Coord &c1) const
+{
+  std::vector<SegmentSection*> *sections = getSegmentSections(&c0, &c1, 0);
+  if(sections->size() == 1)
+    return 1.0;
+  std::vector<double> slengths(nCategories(), 0.0);
+  for(SegmentSection *s : *sections) {
+    slengths[s->category] += s->physicalLength();
+    delete s;
+  }
+  delete sections;
+
+  double lmax = 0.0;
+  for(double length : slengths)
+    if(lmax < length)
+      lmax = length;
+
+  return lmax/sqrt(norm2(c1 - c0));
+}
+
+double CMicrostructure::oldEdgeHomogeneity(const Coord &c0, const Coord &c1)
+  const
 {
   TransitionPointIterator tpIterator(this, c0, c1); 
   // Check to see if all of the pixels have the same category.  If
@@ -1610,6 +1648,7 @@ double CMicrostructure::edgeHomogeneity(const Coord &c0, const Coord &c1) const
 // #ifdef DEBUG
 //   std::cerr << "edgeHomogeneity: homogeneity=" << max/normdelta << std::endl;
 // #endif // DEBUG
+
   return max/normdelta;
 }
 

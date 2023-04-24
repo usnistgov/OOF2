@@ -77,13 +77,24 @@ public:
 };
 
 class SegmentSection {
+private:
+  Coord p0, p1;	
 public:
-  Coord p0, p1;			// end points in pixel units
   int category, stepcategory;
-  SegmentSection(const Coord &p0, const Coord &p1, int cat, int stepcat)
-    : p0(p0), p1(p1), category(cat), stepcategory(stepcat)
+  const CMicrostructure *ms;
+  SegmentSection(const CMicrostructure *ms,
+		 const Coord &p0, const Coord &p1, int cat, int stepcat)
+    : ms(ms),
+      p0(p0), p1(p1),
+      category(cat), stepcategory(stepcat)
   {}
-  double length2() const;	// length squared in pixel units
+  double pixelLength() const;	 // length squared in pixel units
+  double physicalLength() const; // length in physical units
+  Coord physicalPt0() const;
+  Coord physicalPt1() const;
+  Coord pixelPt0() const { return p0; }
+  Coord pixelPt1() const { return p1; }
+  friend class CMicrostructure;
 };
 
 std::ostream &operator<<(std::ostream&, const SegmentSection&);
@@ -224,6 +235,13 @@ public:
 			      Coord *result) const;
   bool transitionPoint(const Coord&, const Coord&, Coord *result) const;
   double edgeHomogeneity(const Coord&, const Coord&) const;
+
+  // oldEdgeHomogeneity uses older machinery to compute the
+  // homogeneity.  It doesn't handle stairsteps well.  It will be
+  // deleted after we're sure that the new machinery is better,
+  // including being sure that test failures are due to the expected
+  // differences in the two methods.
+  double oldEdgeHomogeneity(const Coord&, const Coord&) const; 
 
   double edgeHomogeneityCat(const Coord&, const Coord&, int* cat) const;
   bool transitionPointWithPoints_unbiased(const Coord*, const Coord*, Coord*) const;

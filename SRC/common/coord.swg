@@ -48,7 +48,7 @@ public:
   }
 }
 
-double dot(const Coord&, const Coord&);
+double dot(const Coord *Point, const Coord *Point);
 
 class ICoord {
 public:

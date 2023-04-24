@@ -283,32 +283,39 @@ class SkeletonInfoToolbox(toolbox.Toolbox):
             self.finishQuery(context, sgmt, "Segment", position)
             if debug.debug():
                 ms = context.getMicrostructure()
-                debug.fmsg("Segment: ", sgmt.nodes()[0].position(),
-                           sgmt.nodes()[1].position())
-                debug.fmsg(" ****** Forward segment sections")
-                sections = ms.getSegmentSections(sgmt.nodes()[0].position(),
-                                                 sgmt.nodes()[1].position(),
-                                                 3.0)
-                length = 0.
-                for section in sections:
-                    debug.fmsg("   SegmentSection", section.p0, section.p1,
-                               "category=", section.category, "length=",
-                               math.sqrt(section.length2()))
-                    length += math.sqrt(section.length2())
-                debug.fmsg("total length=", length,
-                           "segment length=", sgmt.length())
-                debug.fmsg(" ****** Reverse segment sections")
-                sections = ms.getSegmentSections(sgmt.nodes()[1].position(),
-                                                 sgmt.nodes()[0].position(),
-                                                 3.0)
-                length = 0.
-                for section in sections:
-                    debug.fmsg("   SegmentSection", section.p0, section.p1,
-                               "category=", section.category,
-                               "length=", math.sqrt(section.length2()))
-                    length += math.sqrt(section.length2())
-                debug.fmsg("total length=", length,
-                           "segment length=", sgmt.length())
+                c0 = sgmt.nodes()[0].position()
+                c1 = sgmt.nodes()[1].position()
+                debug.fmsg("Segment: ", c0, c1)
+                oldHomog = ms.oldEdgeHomogeneity(c0, c1)
+                newHomog0 = ms.edgeHomogeneity(c0, c1)
+                newHomog1 = ms.edgeHomogeneity(c1, c0)
+                debug.fmsg("homogeneity c0->c1=", newHomog0,
+                           " c1->c0=", newHomog1,
+                           " old=", oldHomog)
+                # debug.fmsg(" ****** Forward segment sections")
+                # sections = ms.getSegmentSections(sgmt.nodes()[0].position(),
+                #                                  sgmt.nodes()[1].position(),
+                #                                  3.0)
+                # length = 0.
+                # for section in sections:
+                #     debug.fmsg("   SegmentSection", section.p0, section.p1,
+                #                "category=", section.category, "length=",
+                #                section.physicalLength())
+                #     length += section.physicalLength()
+                # debug.fmsg("total length=", length,
+                #            "segment length=", sgmt.length())
+                # debug.fmsg(" ****** Reverse segment sections")
+                # sections = ms.getSegmentSections(sgmt.nodes()[1].position(),
+                #                                  sgmt.nodes()[0].position(),
+                #                                  3.0)
+                # length = 0.
+                # for section in sections:
+                #     debug.fmsg("   SegmentSection", section.p0, section.p1,
+                #                "category=", section.category,
+                #                "length=", section.physicalLength())
+                #     length += section.physicalLength()
+                # debug.fmsg("total length=", length,
+                #            "segment length=", sgmt.length())
                     
 
     def querySgmtByID(self, menuitem, index):
