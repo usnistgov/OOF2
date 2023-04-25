@@ -291,6 +291,40 @@ registeredclass.Registration(
     tip="Divide heterogeneous segments.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/check_hetero_segs.xml'))
 
+if debug.debug():
+    class CheckHeterogeneousEdgesOLD(RefinementTarget):
+        def __init__(self, threshold, choose_from):
+            self.threshold = threshold
+            self.choose_from = choose_from
+
+        def __call__(self, skeleton, context, divisions, markedEdges, criterion):
+            microstructure = skeleton.MS
+            prog = progress.findProgress("Refine")
+            segiter = self.choose_from.getSegments(context)
+            for segment in segiter:
+                if segment.oldHomogeneity(microstructure) < self.threshold:
+                    self.markSegment(segment, divisions, markedEdges)
+                if prog.stopped():
+                    return
+                prog.setFraction(segiter.fraction())
+                prog.setMessage(
+                    f"checked {segiter.nexamined()}/{segiter.ntotal()} segments")
+
+    registeredclass.Registration(
+        'OLD Heterogeneous Segments',
+        RefinementTarget,
+        CheckHeterogeneousEdgesOLD,
+        ordering=3.01,
+        params=[
+            parameter.FloatRangeParameter(
+                'threshold', (0.0, 1.0, 0.05),
+                value=0.9,
+                tip="Refine segments whose homogeneity is less than this."),
+            parameter.RegisteredParameter('choose_from', SegmentChooser,
+                                          tip='Segments to consider.')],
+        tip="Divide heterogeneous segments using the old homogeneity calculation.",
+    )
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class CheckSelectedEdges(RefinementTarget):

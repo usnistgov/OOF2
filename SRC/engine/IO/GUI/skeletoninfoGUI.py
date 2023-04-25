@@ -509,7 +509,7 @@ class SegmentMode(SkeletonInfoMode):
             ## TODO PYTHON3: Fix floating point formatting here and in
             ## all toolbox displays
             length = f"{segment.length():9.4g}" 
-            homogvals = segment.homogeneity(skeleton.MS)
+            homogvals = segment.homogeneity2(skeleton.MS)
             homog = [f"1 - {(1-h):8.6f}"
                      if (0.9999 < h < 1.0)
                      else f"{h:8.6f}"

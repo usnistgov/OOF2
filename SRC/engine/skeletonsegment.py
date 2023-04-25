@@ -53,14 +53,19 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
         return self._nodes[0].active(skeleton) or \
                self._nodes[1].active(skeleton)
 
-    def homogeneity(self, microstructure):
+    def homogeneity2(self, microstructure):
         # Segment homogeneity can be direction dependent.  Which value
         # is wanted depends on the circumstances, so this method
         # returns both.
         pos0 = self._nodes[0].position()
         pos1 = self._nodes[1].position()
+        ## TODO PYTHON3 OPT: These calls to edgeHomogeneity here will
+        ## both call CMicrostructure::segmentPixels, but second call
+        ## could reuse the results of the first.
         return (microstructure.edgeHomogeneity(pos0, pos1),
                 microstructure.edgeHomogeneity(pos1, pos0))
+    def homogeneity(self, microstructure):
+        return min(self.homogeneity2(microstructure))
     def oldHomogeneity(self, microstructure):
         pos0 = self._nodes[0].position()
         pos1 = self._nodes[1].position()
