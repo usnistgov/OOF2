@@ -447,6 +447,7 @@ class EdgeDisplay:
             poly = oofcanvas.CanvasPolygon.create()
             poly.setLineWidthInPixels(self.width)
             poly.setLineColor(clr)
+            poly.setLineJoin(oofcanvas.lineJoinBevel)
             poly.addPoints(polygon)
             self.canvaslayer.addItem(poly)
         
