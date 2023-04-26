@@ -117,7 +117,7 @@ class EdgeMarkings:
         if partners is not None:
             partnerKey = skeletonnode.canonical_order(partners[0], partners[1])
             if self.markings.get(partnerKey, 0) < ndivs:
-                self.markings[key] = ndivs
+                self.markings[partnerKey] = ndivs
 
     def getMark(self, node0, node1):
         key = skeletonnode.canonical_order(node0, node1)
