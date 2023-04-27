@@ -289,9 +289,14 @@ class SkeletonInfoToolbox(toolbox.Toolbox):
                 oldHomog = ms.oldEdgeHomogeneity(c0, c1)
                 newHomog0 = ms.edgeHomogeneity(c0, c1)
                 newHomog1 = ms.edgeHomogeneity(c1, c0)
-                debug.fmsg("homogeneity c0->c1=", newHomog0,
-                           " c1->c0=", newHomog1,
-                           " old=", oldHomog)
+                def printHomog(h):
+                    return f"{h}" if 0.99 < h < 1.0  else f"1-{1-h}"
+                if newHomog0 == newHomog1 == oldHomog:
+                    debug.fmsg(f"homogeneity={printHomog(newHomog0)} (all agree)")
+                else:
+                    debug.fmsg(f"homogeneity c0->c1={printHomog(newHomog0)}",
+                               f"c1->c0={printHomog(newHomog1)}",
+                               f"old={printHomog(oldHomog)}",)
                 # debug.fmsg(" ****** Forward segment sections")
                 # sections = ms.getSegmentSections(sgmt.nodes()[0].position(),
                 #                                  sgmt.nodes()[1].position(),

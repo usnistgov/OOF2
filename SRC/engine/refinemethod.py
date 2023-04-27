@@ -567,6 +567,10 @@ def rule222L(element, rotation, edgenodes, newSkeleton, alpha):
                      alpha)
 RefinementRule(liberalRuleSet, (2,2,2), rule222L)
 
+## TODO: Rules that mix bisection and trisection are commented out and
+## maybe should be deleted.  They could be used by SnapRefine but not
+## by Refine.
+
 ## #            2
 ## #            /\
 ## #           /  \
