@@ -324,7 +324,7 @@ class CheckHeterogeneousEdges2(SegmentRefinementTarget):
 
     def iterator(self, context):
         skel = context.getObject()
-        micro = skel.getMicrostructure()
+        micro = context.getMicrostructure()
         return skeleton.SkeletonSegmentIterator(
             skel,
             condition=lambda s: (s.active(skel) and
