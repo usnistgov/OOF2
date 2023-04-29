@@ -59,11 +59,11 @@ class SegmentRefinementMethod:
 
 class BisectionMarker(SegmentRefinementMethod):
     def markSegment(self, skeleton, node0, node1, segMarkings):
-        segMarkings.mark(SegmentMarks(node0, node1, 1/2))
+        segMarkings.insert(SegmentMarks(node0, node1, 1/2))
 
 class TrisectionMarker(SegmentRefinementMethod):
     def markSegment(self, skeleton, node0, node1, segMarkings):
-        segMarkings.mark(SegmentMarks(node0, node1, (1/3, 2/3)))
+        segMarkings.insert(SegmentMarks(node0, node1, (1/3, 2/3)))
 
 class TransitionPointMarker(SegmentRefinementMethod):
     def __init__(self, minlength):
@@ -145,7 +145,7 @@ class TransitionPointMarker(SegmentRefinementMethod):
                 newfracs.extend(fracs0[i0:])
             if i1 < len(fracs1):
                 newfracs.extend(fracs1[i1:])
-                
+
             segMarkings.update(node0, node1, newfracs)
 
             # If the nodes have periodic partners, the fractions will
@@ -159,26 +159,36 @@ class TransitionPointMarker(SegmentRefinementMethod):
 # Marks indicating where a segment should be divided. The nodes used
 # to define segments are nodes in the *old* Skeleton.
 
-## TODO PYTHON3: Do we need this class?  SegmentMarkings knows the
-## nodes since they're in the dict keys, and can store the fractions
-## as the value.  We'd have to use SegmentMarkings.positions(node0, node1)
-## instead of SegmentMarks.positions().
-
 class SegmentMarks:
     def __init__(self, node0, node1, fractions):
         self.node0 = node0
         self.node1 = node1
         self.fractions = fractions # mark is at (1-f)*node0 + f*node1
+    def key(self):
+        return skeletonnode.canonical_order(self.node0, self.node1)
     def reversed(self):
         return SegmentMarks(self.node1, self.node0,
                             [1-f for f in reversed(self.fractions)])
     def __len__(self):
         return len(self.fractions)
     def positions(self, node0, node1):
+        assert ((node0 is self.node0 and node1 is self.node1) or
+                (node1 is self.node0 and node0 is self.node1))
         p0 = self.node0.position()
         p1 = self.node1.position()
-        for f in self.fractions:
+        if node0 is self.node0:
+            fracs = self.fractions
+        else:
+            fracs = reversed(self.fractions)
+        for f in fracs:
             yield (1-f)*p0 + f*p1
+    def periodicPartnerMarks(self):
+        partners = self.node0.getPartnerPair(self.node1)
+        # It can happen that the partners of (n0, n1) are (n1, n0), in
+        # which case we don't do anything. (Maybe if the skeleton is
+        # 1x1 and fully periodic? That is not a likely situation.)
+        if partners and self.node0 != partners[1]:
+            return SegmentMarks(partners[0], partners[1], self.fractions)
     def reduceMarks(self, maxMarks):
         # Reduce the number of marks on this edge to at most maxMarks.
         if len(self.fractions) <= maxMarks:
@@ -187,13 +197,16 @@ class SegmentMarks:
             # Find the mark that's closest to the average, and use it.
             avg = sum(self.fractions)/len(self.fractions)
             closest = self.fractions[0]
+            delta = abs(closest - avg)
             for frac in self.fractions[1:]:
-                if abs(frac - avg) < abs(closest-avg):
+                diff = abs(frac - avg)
+                if diff < delta:
                     closest = frac
-            self.fractions = [frac]
+                    delta = diff
+            self.fractions = [closest]
         elif maxMarks == 2:
             # Choose the two fractions that are spaced most evenly.
-            # That will be the fractions fi and fj that minimize
+            # That will be the fractions fi and fj > fi that minimize
             #      fi**2 + (fj-fi)**2 + (1-fj)**2
             # which would be what you'd compute for the mean squared
             # deviation of the fractional section lengths, given that
@@ -239,6 +252,8 @@ class EmptyMarks:
         return 0
     def reduceMarks(self, maxMarks):
         pass
+    def __repr__(self):
+        return "EmptyMarks()"
 
 emptyMarks = EmptyMarks()
 
@@ -253,12 +268,11 @@ class SegmentMarkings:
     def insert(self, marks):
         # Insert the SegmentMarks object "marks" into this
         # SegmentMarkings set.  
-        key = skeletonnode.canonical_order(marks.node0, marks.node1)
+        key = marks.key()
         if key in self.markings:
             return True         # didn't insert, marks are already present
 
-        backwards = key[0] is marks.node1
-        if backwards:
+        if key[0] is marks.node1:
             self.markings[key] = marks.reversed()
         else:
             self.markings[key] = marks
@@ -268,24 +282,21 @@ class SegmentMarkings:
         # there is one.  We don't have to check that the partner's
         # marks have already been inserted -- if they had been, this
         # segment's marks would have been too.
-        partners = marks.node0.getPartnerPair(marks.node1)
-        # It can happen that the partners of (n0, n1) are (n1, n0), in
-        # which case we don't do anything. (Maybe if the skeleton is
-        # 1x1 and fully periodic? that it not a likely situation.)
-        if partners and marks.node0 != partners[1]:
-            partnerKey = skeletonnode.canonical_order(partners[0], partners[1])
-            if backwards:
-                self.markings[partnerKey] = marks
+        partnerMarks = marks.periodicPartnerMarks()
+        if partnerMarks is not None:
+            partnerKey = partnerMarks.key()
+            if partnerKey[0] is partnerMarks.node1:
+                self.markings[partnerKey] = partnerMarks.reversed()
             else:
-                self.markings[partnerKey] = marks.reversed()
+                self.markings[partnerKey] = partnerMarks
         return False
     def update(self, pt0, pt1, fractions):
-        key = skeletonnode.canonical_order(pt0, pt1)
-        self.markings[key] = SegmentMarks(pt0, pt1, fractions)
-    def fetch(self, pt0, pt1):
-        key = skeletonnode.canonical_order(pt0, pt1)
+        marks = SegmentMarks(pt0, pt1, fractions)
+        self.markings[marks.key()] = marks
+    def fetch(self, n0, n1):
+        key = skeletonnode.canonical_order(n0, n1)
         marks = self.markings.get(key, emptyMarks)
-        if key and key[0] is pt1:
+        if key[0] is n1:
             return marks.reversed()
         return marks
     def getMarks(self, element):
@@ -322,7 +333,7 @@ class SnapRefine2(refine.Refine):
         # Skeleton.  Its values are lists of new nodes in the new
         # Skeleton.  The values are inserted when getNewEdgeNodes is
         # called.
-        self.newEdgeNodes = {} 
+        newEdgeNodes = {} 
 
         # Use the RefinementTarget to mark the edges that should be
         # refined. 
@@ -356,7 +367,8 @@ class SnapRefine2(refine.Refine):
             # old Skeleton, but new nodes are created in the new
             # Skeleton.
             edgenodes = [
-                self.getNewEdgeNodes(nodes[0], nodes[1], emarks, newSkeleton)
+                self.getNewEdgeNodes(nodes[0], nodes[1], emarks, newSkeleton,
+                                     newEdgeNodes)
                 for emarks, nodes in zip(
                         marks, oldElement.segment_node_iterator())]
 
@@ -396,7 +408,7 @@ class SnapRefine2(refine.Refine):
 
         return newSkeleton
 
-    def getNewEdgeNodes(self, node0, node1, marks, newSkeleton):
+    def getNewEdgeNodes(self, node0, node1, marks, newSkeleton, newEdgeNodes):
         # Create new nodes on the edge joining the nodes corresponding
         # to node0 and node1 in the new skeleton.  node0 and node1 are
         # in the *old* skeleton.
@@ -405,7 +417,7 @@ class SnapRefine2(refine.Refine):
         key = skeletonnode.canonical_order(node0, node1)
         try:
             # Look for already created nodes
-            nodes = self.newEdgeNodes[key]
+            nodes = newEdgeNodes[key]
         except KeyError:
             # Nodes have not been created on this edge yet. 
             pt0 = node0.position()
@@ -414,7 +426,8 @@ class SnapRefine2(refine.Refine):
             # for the directed segment going from n0 to n1.
             nodes = [newSkeleton.newNodeFromPoint(pt)
                      for pt in marks.positions(node0, node1)]
-            self.newEdgeNodes[key] = nodes
+            newEdgeNodes[key] = nodes
+            
             # Create periodic nodes if necessary
             partners = node0.getPartnerPair(node1)
             # It can happen that partners contains the same two nodes
@@ -454,18 +467,12 @@ class SnapRefine2(refine.Refine):
                     nodes[i].addPartner(newnodepartner)
                     partnernodes[i] = newnodepartner
 
-                # The default order for the partner nodes may be
-                # different than the order for the corresponding nodes
-                # on the current edge, if the partner key is the
-                # reverse of this edge's key.
-                if key[0] not in partners[0].getPartners():
-                    partnernodes.reverse()
-                    
-                self.newEdgeNodes[partnerKey] = partnernodes
-
-        else:
+                newEdgeNodes[partnerKey] = partnernodes
+        else: # no exception in newEdgeNodes lookup
             # Nodes were already created on this edge.  They were
-            # created in the opposite order, though.
+            # created when this segment or its periodic partner was
+            # traversed in the other direction, so we need to return
+            # them in the opposite order.
             nodes.reverse()
 
         return nodes

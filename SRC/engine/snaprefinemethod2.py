@@ -97,6 +97,8 @@ class RefinementRule:
         self.function = function
         ruleset.addRule(self, signature)
     def apply(self, element, rotation, edgenodes, newSkeleton, alpha):
+        # debug.fmsg(
+        #     f"{element=} function={self.function.__name__} {edgenodes=}")
         return self.function(element, rotation, edgenodes, newSkeleton, alpha)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#    
@@ -108,19 +110,28 @@ class RefinementRule:
 # these base nodes.
 
 def baseNodes(element, rotation):
-    nnodes = element.nnodes()
-    return [element.nodes[(i+rotation)%nnodes].children[-1]
-            for i in range(nnodes)]
+    return map(lambda x: x.children[-1],
+               element.nodes[rotation:] + element.nodes[0:rotation])
+    ## TODO OPT: The old way (below) has moduluses in it, so I changed
+    ## it, but haven't actually checked that the new way (above) is
+    ## faster.
+    # nnodes = element.nnodes()
+    # return [element.nodes[(i+rotation)%nnodes].children[-1]
+    #         for i in range(nnodes)]
 
 class ProvisionalRefinement:
     def __init__(self, newbies = [], internalNodes = []):
         self.newbies = newbies   # new elements
         self.internalNodes = internalNodes
         self.illegal = False
+        # It is not an error if a ProvisionalRefinement contains
+        # illegal elements, if the refinement rule provides another
+        # ProvisionalRefinement that can be used instead.  But we do
+        # need to check.
         for i, element in enumerate(newbies):
             if element.illegal():
                 self.illegal = True
-                debug.fmsg("Illegal refinement:", element)
+                # debug.fmsg(f"Illegal refinement: {element}")
                 break
     def energy(self, skeleton, alpha):
         energy = 0.0
@@ -175,7 +186,7 @@ snapRefineRules = RefinementRuleSet('SnapRefine', 2)
 # ruleZero applies to both triangles and quads which don't need refining.
 
 def ruleZero(element, rotation, edgenodes, newSkeleton, alpha):
-    return (newSkeleton.newElement(nodes=baseNodes(element, rotation),
+    return (newSkeleton.newElement(nodes=list(baseNodes(element, rotation)),
                                    parents=[element]),)
 
 # def unrefinedelement(element, signature_info, newSkeleton):
