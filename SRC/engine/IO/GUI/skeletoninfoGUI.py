@@ -510,9 +510,9 @@ class SegmentMode(SkeletonInfoMode):
             ## all toolbox displays
             length = f"{segment.length():9.4g}" 
             homogvals = segment.homogeneity2(skeleton.MS)
-            homog = [f"1 - {(1-h):8.6f}"
+            homog = [f"1 - {(1-h):-8.6f}"
                      if (0.9999 < h < 1.0)
-                     else f"{h:8.6f}"
+                     else f"{h:-8.6f}"
                      for h in homogvals]
             self.updateGroup(segment)
 

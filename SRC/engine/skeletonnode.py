@@ -66,9 +66,9 @@ class SkeletonNode(skeletonselectable.SkeletonSelectable,
             self._remote_index = {}  # procID : remote index
         
     def __repr__(self):
-##        p = self.position()
-##        return "SkeletonNode#%d(%f, %f)" % (self.index, p.x, p.y)
-        return "SkeletonNode(%d)" % self.index
+        # p = self.position()
+        # return f"SkeletonNode({p.x}, {p.y}, [{self.index}])"
+        return f"SkeletonNode({self.index})"
 
     def repr_position(self):
         return self.position()
@@ -328,17 +328,14 @@ class PeriodicSkeletonNode(SkeletonNode):
     def aperiodicNeighborNodes(self, skeleton):
         return SkeletonNode.neighborNodes(self, skeleton)
  
-    # the function being overridden is in the skeletonselectable class
+    # The function being overridden is in the skeletonselectable class
     def makeSibling(self, newcomer):
         SkeletonNode.makeSibling(self, newcomer)
         partners = self.getPartnerPair(newcomer)
         if partners is not None:
             SkeletonNode.makeSibling(partners[0], partners[1])
 
-
-    # TODO 3D: Will need to make this work in 3D
-
-    # given two nodes (self & node), getPartnerPair returns their
+    # Given two nodes (self & node), getPartnerPair returns their
     # partners with the same periodicity.  That is, if self has a
     # partner in the +x direction and node has partners in both +x and
     # -y, then the +x partners of both are returned.
@@ -348,9 +345,10 @@ class PeriodicSkeletonNode(SkeletonNode):
         partner2 = None
         # This node can only be a partner of another node if the other
         # node is different, but has the same x or y position, or both.
-        if self == node or node.getPartners() == [] or \
-           (self.position().x != node.position().x and
-            self.position().y != node.position().y):
+        if (self == node or
+            not node.getPartners() or
+            (self.position().x != node.position().x and
+             self.position().y != node.position().y)):
             return None
         if len(self.getPartners()) == 1:
             partner1 = self.getPartners()[0]
@@ -366,7 +364,7 @@ class PeriodicSkeletonNode(SkeletonNode):
         else:
             return partner1, partner2
         
-    # helper function for getPartnerPair used in cases where self
+    # Helper function for getPartnerPair used in cases where self
     # has more than one partner (corner node)
     def getCorrectPartner(self, node):
         if self.position().x == node.position().x:
@@ -382,7 +380,9 @@ class PeriodicSkeletonNode(SkeletonNode):
                     return p
             
     def __repr__(self):
-        return "PeriodicSkeletonNode(%d)" % self.index
+        # p = self.position()
+        # return f"PeriodicSkeletonNode({p.x}, {p.y}, [{self.index}])"
+        return f"PeriodicSkeletonNode({self.index})"
 
     def getDirectedPartner(self, direction):
         if direction == 'x':
