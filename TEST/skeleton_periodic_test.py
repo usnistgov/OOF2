@@ -219,7 +219,8 @@ class OOF_Skeleton(unittest.TestCase):
             try:
                 mods = skel_modify_args[r.name()]
             except KeyError:
-                print("No data for skeleton modifier %s." % r.name(), file=sys.stderr)
+                print(f"No data for skeleton modifier {r.name()}",
+                      file=sys.stderr)
             else:
                 # Saved skeleton must be named "modtest".
                 for (startfile, compfile, kwargs) in mods:
@@ -534,58 +535,60 @@ def build_mod_args():
           ],
         "Snap Refine II" :
         [
-        ("modbase", "snaprefine_1",
-         { "targets" : CheckHomogeneity2(threshold=0.9),
-           "criterion" : Unconditionally(),
-           "min_distance" : 0.01,
-           }
-         ),
-        ("modgroups","snaprefine_2",
-         {"targets" : CheckElementsInGroup2(group='elementgroup'),
-          "criterion" : Unconditionally(),
-          "min_distance" : 1.0,
-          }
-         ),
-        ("modgroups2","snaprefine_3",
-         {"targets" : CheckAllElements2(),
-          "criterion" : Unconditionally(),
-          "min_distance" : 1.0,
-          }
-         ),
-        ("modgroups","snaprefine_4",
-         {"targets" : CheckAspectRatio2(threshold=1.5),
-          "criterion" : Unconditionally(),
-          "min_distance" : 0.01,
-          }
-         ),
-        ("modgroups2","snaprefine_5",
-         {"targets" : CheckHeterogeneousEdges2(threshold=1,
-                                              choose_from=FromAllSegments2()),
-          "criterion" : Unconditionally(),
-          "min_distance" : 1.0,
-          }
-         ),
-        ("modbase1x1","snaprefine_1x1",
-         { "targets" : CheckHomogeneity2(threshold=0.9),
-           "criterion" : Unconditionally(),
-           "min_distance" : 1.0,
-           }
-         )
+            ("modbase", "snaprefine_1",
+             { "targets" : CheckHomogeneity2(threshold=0.9),
+               "criterion" : Unconditionally(),
+               "min_distance" : 0.01,
+               "alpha": 0.5
+              }
+             ),
+            ("modgroups","snaprefine_2",
+             {"targets" : CheckElementsInGroup2(group='elementgroup'),
+              "criterion" : Unconditionally(),
+              "min_distance" : 1.0,
+              "alpha": 0.5
+              }
+             ),
+            ("modgroups2","snaprefine_3",
+             {"targets" : CheckAllElements2(),
+              "criterion" : Unconditionally(),
+              "min_distance" : 1.0,
+              "alpha": 0.5
+              }
+             ),
+            ("modgroups","snaprefine_4",
+             {"targets" : CheckAspectRatio2(threshold=1.5, only_quads=True),
+              "criterion" : Unconditionally(),
+              "min_distance" : .01,
+              "alpha": 0.5
+              }
+             ),
+            ("modgroups","snaprefine_4a",
+             {"targets" : CheckAspectRatio2(threshold=1.5, only_quads=True),
+              "criterion" : Unconditionally(),
+              "min_distance" : 2.0,
+              "alpha": 0.5
+              }
+             ),
+            ("modgroups2","snaprefine_5",
+             {"targets" :
+              CheckHeterogeneousEdges2(threshold=1,
+                                       choose_from=FromAllSegments2()),
+              "criterion" : Unconditionally(),
+              "min_distance" : 2.0,
+              "alpha": 0.5
+              }
+             ),
+            ("modbase1x1","snaprefine_1x1",
+             {"targets" : CheckHomogeneity2(threshold=0.9),
+              "criterion" : Unconditionally(),
+              "min_distance" : 1.0,
+              "alpha": 0.5
+              }
+             )
         ]
-        }
+    }
 
-    # skel_modify_args = {
-    #     "Snap Refine" :
-    #     [
-    #     ("modbase1x1","snaprefine_1x1",
-    #      { "targets" : CheckHomogeneity(threshold=0.9),
-    #        "criterion" : Unconditionally(),
-    #        "min_distance" : 1.0,
-    #        }
-    #      )
-    #     ]
-    # }
-    
 def initialize():
     # Modfiy arguments make use of classes which are not in the
     # namespace until after oof.run() has been called, so they can't
@@ -615,4 +618,4 @@ special_set = [
 
 test_set = skel_set + special_set
 
-# test_set = [OOF_Skeleton("Modify")]
+#test_set = [OOF_Skeleton("Modify")]
