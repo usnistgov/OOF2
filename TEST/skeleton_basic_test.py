@@ -509,7 +509,7 @@ def build_mod_args():
         ("modgroups","refine_5",
          {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
           "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
+          "degree" : Bisection(rule_set="liberal"),
           "alpha" : 0.5
           }
          ),
@@ -619,39 +619,70 @@ def build_mod_args():
         #For snaprefine_3 and snaprefine_5, if we used modgroups,
         #then there would be a difference in results between
         #32 and 64 bit machines.
+
         "Snap Refine" :
         [
         ("modbase", "snaprefine_1",
          { "targets" : CheckHomogeneity(threshold=0.9),
            "criterion" : Unconditionally(),
-           "min_distance" : 0.01,
+           "min_distance" : 0.01
            }
          ),
         ("modgroups","snaprefine_2",
          {"targets" : CheckElementsInGroup(group='elementgroup'),
           "criterion" : Unconditionally(),
-          "min_distance" : 1.0,
+          "min_distance" : 1.0
           }
          ),
         ("modgroups2","snaprefine_3",
          {"targets" : CheckAllElements(),
           "criterion" : Unconditionally(),
-          "min_distance" : 1.0,
+          "min_distance" : 1.0
           }
          ),
         ("modgroups","snaprefine_4",
-         {"targets" : CheckAspectRatio(threshold=1.5),
+         {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
           "criterion" : Unconditionally(),
-          "min_distance" : 0.01,
+          "min_distance" : 1
           }
          ),
         ("modgroups2","snaprefine_5",
          {"targets" : CheckHeterogeneousEdges(threshold=1,
                                               choose_from=FromAllSegments()),
           "criterion" : Unconditionally(),
-          "min_distance" : 1.0,
+          "min_distance" : 1.0
           }
-         )
+         ),
+            ("snaptest_quads", "snaprefine_6",
+             {"targets" : CheckAspectRatio(threshold=3.0, only_quads=True),
+              "criterion" : Unconditionally(),
+              "min_distance" : 1
+              }
+             ),
+            ("snaptest_quads", "snaprefine_7",
+             {"targets" : CheckAspectRatio(threshold=1.0, only_quads=False),
+              "criterion" : Unconditionally(),
+              "min_distance" : 1
+              }
+             ),
+            ("snaptest_triangles", "snaprefine_8",
+             {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
+              "criterion" : Unconditionally(),
+              "min_distance" : 1
+              }
+             ),
+            ("snaptest_quads", "snaprefine_7",
+             {"targets" : CheckAspectRatio(threshold=1.0, only_quads=False),
+              "criterion" : Unconditionally(),
+              "min_distance" : 1
+              }
+             ),
+            ("snaptest_triangles", "snaprefine_8",
+             {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
+              "criterion" : Unconditionally(),
+              "min_distance" : 1
+              }
+             ),
         ],
         "Fix Illegal Elements" :
         [
@@ -660,18 +691,27 @@ def build_mod_args():
     }
 
     # skel_modify_args = {
-    #     "Rationalize" :
-    #     [ ("modsecond", "rationalize",
-    #        {"targets" : AllElements(),
-    #         "criterion" : AverageEnergy(alpha=0.3),
-    #         "method" : SpecificRationalization(
-    #     rationalizers=[RemoveShortSide(ratio=5.0),
-    #                    QuadSplit(angle=150),
-    #                    RemoveBadTriangle(acute_angle=30,obtuse_angle=130)]),
-    #         "iterations" : 1
-    #         }
-    #        )
-    #       ],
+    #     "Snap Refine" :
+    #     [
+    #         ("snaptest_quads", "snaprefine_6",
+    #          {"targets" : CheckAspectRatio(threshold=3.0, only_quads=True),
+    #           "criterion" : Unconditionally(),
+    #           "min_distance" : 1
+    #           }
+    #          ),
+    #         ("snaptest_quads", "snaprefine_7",
+    #          {"targets" : CheckAspectRatio(threshold=1.0, only_quads=False),
+    #           "criterion" : Unconditionally(),
+    #           "min_distance" : 1
+    #           }
+    #          ),
+    #         ("snaptest_triangles", "snaprefine_8",
+    #          {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
+    #           "criterion" : Unconditionally(),
+    #           "min_distance" : 1
+    #           }
+    #          ),
+    #     ],
     # }
 
 def initialize():
