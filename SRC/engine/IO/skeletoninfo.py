@@ -290,7 +290,7 @@ class SkeletonInfoToolbox(toolbox.Toolbox):
                 newHomog0 = ms.edgeHomogeneity(c0, c1)
                 newHomog1 = ms.edgeHomogeneity(c1, c0)
                 def printHomog(h):
-                    return f"{h}" if 0.99 < h < 1.0  else f"1-{1-h}"
+                    return f"1-{1-h}" if 0.99 < h < 1.0  else f"{h}"
                 if newHomog0 == newHomog1 == oldHomog:
                     debug.fmsg(f"homogeneity={printHomog(newHomog0)} (all agree)")
                 else:
@@ -303,7 +303,8 @@ class SkeletonInfoToolbox(toolbox.Toolbox):
                 #                                  3.0)
                 # length = 0.
                 # for section in sections:
-                #     debug.fmsg("   SegmentSection", section.p0, section.p1,
+                #     debug.fmsg("   SegmentSection", section.physicalPt0(),
+                #                section.physicalPt1(),
                 #                "category=", section.category, "length=",
                 #                section.physicalLength())
                 #     length += section.physicalLength()
@@ -315,7 +316,8 @@ class SkeletonInfoToolbox(toolbox.Toolbox):
                 #                                  3.0)
                 # length = 0.
                 # for section in sections:
-                #     debug.fmsg("   SegmentSection", section.p0, section.p1,
+                #     debug.fmsg("   SegmentSection",
+                #                section.physicalPt0(), section.physicalPt1(),
                 #                "category=", section.category,
                 #                "length=", section.physicalLength())
                 #     length += section.physicalLength()

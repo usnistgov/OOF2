@@ -225,7 +225,7 @@ class SegmentMarks:
                         bestdev = deviation
                         fibest = fi
                         fjbest = fj
-            self.fractions = [fi, fj]
+            self.fractions = [fibest, fjbest]
         else:
             # TODO: This is even worse. Can it be improved?  Do we
             # need it?  It would only be used if we have rules for
@@ -375,7 +375,10 @@ class SnapRefine2(refine.Refine):
             # Apply refinement rules to create new elements
             newElements = self.rules[signature].apply(
                 oldElement, rotation, edgenodes, newSkeleton, self.alpha)
-            assert newElements, "Snap refinement failed!"
+            if not newElements:
+                debug.fmsg(f"{oldElement=}")
+                debug.fmsg(f"{signature=} {rotation=}")
+            assert newElements, "Snap Refine failed!"
 
             # If the old element's homogeneity is 1, it's safe to say that
             # new elements' homogeneities are 1.

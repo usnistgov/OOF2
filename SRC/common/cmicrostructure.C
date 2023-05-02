@@ -1078,7 +1078,7 @@ void CMicrostructure::segmentCats(const std::vector<SegmentSection> &sections,
   std::vector<double> catlength(ncategories, 0);
   for(int j=0; j<indices.size(); j++) {
     const SegmentSection &segj = sections[indices[j]];
-    catlength[segj.category] += segj.physicalLength(); 
+    catlength[segj.category] += segj.pixelLength(); 
   }
   // Find which category dominates the short sections, and their total
   // length.
@@ -1486,7 +1486,7 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 
 	// segmentCats returns the total length of the short sections
 	// and the dominant pixel category.
-	segmentCats(adaSections, shortSections,  totallength, maxcat);
+	segmentCats(adaSections, shortSections, totallength, maxcat);
 
 	if((maxcat == lastcat && maxcat == section.category) ||
 	   (totallength < minlength && lastcat == section.category)) {

@@ -27,6 +27,10 @@ class RefinementTarget2(registeredclass.RegisteredClass):
     tip = "Determine which Skeleton segments will be refined."
     discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/refinementtarget.xml')
 
+# ElementRefinementTarget marks all segments of the elements that
+# match the given criterion.  If you don't want to mark all segments,
+# use SegmentRefinementTarget instead.
+
 class ElementRefinementTarget(RefinementTarget2):
     def markElement(self, skeleton, element, marker, markedSegs):
         nnodes = element.nnodes()
@@ -134,11 +138,11 @@ class CheckElementsInGroup2(ElementRefinementTarget):
     def __init__(self, group):
         self.group = group
     def iterator(self, skeletoncontext):
-        elements = context.elementgroups.get_group(self.group)
-        skeleton = context.getObject()
+        elements = skeletoncontext.elementgroups.get_group(self.group)
+        skeleton = skeletoncontext.getObject()
         for element in elements:
-            if el.active(skeleton):
-                yield el
+            if element.active(skeleton):
+                yield element
             
     # def __call__(self, skeleton, context, divisions, markedEdges, criterion):
     #     prog = progress.findProgress("Refine")
@@ -431,7 +435,7 @@ class AspectSegmentIterator(skeleton.SkeletonSegmentIterator):
     def __init__(self, skel, threshold, only_quads, condition=lambda x: True):
         self.threshold = threshold
         self.only_quads = only_quads
-        SkeletonSegmentIterator.__init__(skel, condition)
+        skeleton.SkeletonSegmentIterator.__init__(self, skel, condition)
     def targets(self):
         for element in self.skeleton.activeElements():
             if (element.nnodes() == 4 or not self.only_quads):
@@ -439,7 +443,7 @@ class AspectSegmentIterator(skeleton.SkeletonSegmentIterator):
                                                               self.skeleton):
                     yield segment
 
-class CheckAspectRatio2(ElementRefinementTarget):
+class CheckAspectRatio2(SegmentRefinementTarget):
     def __init__(self, threshold, only_quads=True):
         self.threshold = threshold
         self.only_quads = only_quads

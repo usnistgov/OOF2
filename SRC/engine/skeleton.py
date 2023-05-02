@@ -2885,15 +2885,12 @@ class SkeletonIterator:
         self.condition = condition # predicate
         self.count = 0          # number examined
         self.nret = 0           # number returned
-        self._ntotal = self.total()
     def fraction(self):
-        return self.count/self._ntotal
+        return self.count/self.ntotal()
     def nexamined(self):
         return self.count
     def nreturned(self):
         return self.nret
-    def ntotal(self):
-        return self._ntotal
     def __iter__(self):
         for self.count, target in enumerate(self.targets()):
             if self.condition(target):
@@ -2902,13 +2899,13 @@ class SkeletonIterator:
     
 
 class SkeletonElementIterator(SkeletonIterator):
-    def total(self):
+    def ntotal(self):
         return self.skeleton.nelements()
     def targets(self):
         return self.skeleton.elements
 
 class SkeletonSegmentIterator(SkeletonIterator):
-    def total(self):
+    def ntotal(self):
         return len(self.skeleton.segments)
     def targets(self):
         return self.skeleton.segments.values()

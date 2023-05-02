@@ -47,7 +47,7 @@ class SkeletonElementBase:
         
     def __repr__(self):
 #        return "%s(%s)" % (self.__class__.__name__, id(self))
-#        return "%s(%s)" % (self.__class__.__name__, self.nodes)
+#        return f"{self.__class__.__name__}({self.nodes}, index={self.index})"
         return f"{self.__class__.__name__}{tuple(n.position() for n in self.nodes)}"
 
     def material(self, skeletonctxt):
