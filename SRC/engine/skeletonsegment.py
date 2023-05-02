@@ -44,11 +44,7 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
     def length(self):
         n0 = self.nodes()[0].position()
         n1 = self.nodes()[1].position()
-        if config.dimension() == 2:
-            return math.sqrt((n1.x-n0.x)*(n1.x-n0.x)+(n1.y-n0.y)*(n1.y-n0.y))
-        if config.dimension() == 3:
-            return math.sqrt((n1.x-n0.x)*(n1.x-n0.x)+
-                             (n1.y-n0.y)*(n1.y-n0.y)+(n1.z-n0.z)*(n1.z-n0.z))
+        return math.sqrt((n1.x-n0.x)*(n1.x-n0.x)+(n1.y-n0.y)*(n1.y-n0.y))
 
     def getIndex(self):
         return self.index
@@ -57,13 +53,34 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
         return self._nodes[0].active(skeleton) or \
                self._nodes[1].active(skeleton)
 
-    def homogeneity(self, microstructure):
+    def homogeneity2(self, microstructure):
+        # Segment homogeneity can be direction dependent.  Which value
+        # is wanted depends on the circumstances, so this method
+        # returns both.
         pos0 = self._nodes[0].position()
         pos1 = self._nodes[1].position()
-        return microstructure.edgeHomogeneity(pos0, pos1)
+        ## TODO PYTHON3? Should this check the homogeneity of the
+        ## periodic partner?  Probably not.  The refinement marking
+        ## should do that.
+        
+        ## TODO PYTHON3 OPT: These calls to edgeHomogeneity here will
+        ## both call CMicrostructure::segmentPixels, but second call
+        ## could reuse the results of the first.
+        return (microstructure.edgeHomogeneity(pos0, pos1),
+                microstructure.edgeHomogeneity(pos1, pos0))
+    def homogeneity(self, microstructure):
+        return min(self.homogeneity2(microstructure))
+    def oldHomogeneity(self, microstructure):
+        pos0 = self._nodes[0].position()
+        pos1 = self._nodes[1].position()
+        return microstructure.oldEdgeHomogeneity(pos0, pos1)
 
 
     def dominantPixel(self, microstructure):
+        ## TODO PYTHON3: Rewrite to use new edgeHomogeneity machinery.
+        ## Or delete it.  Is it ever used?  Outside of the old
+        ## snaprefine, this is the only place that edgeHomogeneityCat
+        ## is called, so that could be eliminated too.
         n0 = self.nodes()[0].position()
         n1 = self.nodes()[1].position()
         homog, cat = microstructure.edgeHomogeneityCat(n0, n1)
@@ -171,11 +188,6 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
             return True
         if p0.y == MS.size()[1] and p1.y == MS.size()[1]:
             return True
-        if config.dimension() == 3:
-            if p0.z == 0.0 and p1.z == 0.0:
-                return True
-            if p0.z == MS.size()[2] and p1.z == MS.size()[2]:
-                return True
         return False
 
     def material(self, skelctxt):
@@ -474,10 +486,6 @@ class SkeletonEdge:
                 "Incorrect node set in SkeletonEdge.")
     def reverse(self):
         self.direction *= -1
-
-    if config.dimension() == 3:
-        def getVtkLine(self):
-            return self.segment.getVtkLine()
 
     # Retrieve the nodes in the correct order.  Used for drawing.
     def get_nodes(self):

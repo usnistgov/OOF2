@@ -274,9 +274,7 @@ RefinementRule(liberalRuleSet, (1,1,0), rule110L)
 #   0      a      1
 # (and its two other symmetric counterparts).  This isn't
 # implemented here as it can be achieved through use of the
-# SwapEdges routine in 2D. For now, the tetrahedral rules do not
-# use this either in order to keep the face matching problem
-# simple.
+# SwapEdges routine in 2D.
 
 def rule111(element, rotation, edgenodes, newSkeleton, alpha):
     n0, n1, n2 = baseNodes(element, rotation)
@@ -568,6 +566,10 @@ def rule222L(element, rotation, edgenodes, newSkeleton, alpha):
                      (refine0, refine1, refine2, refine3, refine4),
                      alpha)
 RefinementRule(liberalRuleSet, (2,2,2), rule222L)
+
+## TODO: Rules that mix bisection and trisection are commented out and
+## maybe should be deleted.  They could be used by SnapRefine but not
+## by Refine.
 
 ## #            2
 ## #            /\

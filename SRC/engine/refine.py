@@ -102,7 +102,7 @@ registeredclass.Registration(
 
 class EdgeMarkings:
     # Class for storing and returning how many divisions should be
-    # performed on an edge.  Edges are defined by a pair of nodes.
+    # performed on each edge.  Edges are defined by a pair of nodes.
     def __init__(self):
         self.markings = {}
         
@@ -110,33 +110,18 @@ class EdgeMarkings:
         # arguments are the nodes defining the edge, and the number of
         # new nodes to add to that edge.
         key = skeletonnode.canonical_order(node0, node1)
-        try:
-            # Only mark an edge if it's not already marked for more
-            # divisions.
-            if self.markings[key] < ndivs:
-                self.markings[key] = ndivs
-        except KeyError:
+        if self.markings.get(key, 0) < ndivs:
             self.markings[key] = ndivs
-
         # mark the partner segment, if it exists
         partners = node0.getPartnerPair(node1)
         if partners is not None:
             partnerKey = skeletonnode.canonical_order(partners[0], partners[1])
-            try:
-                # Only mark an edge if it's not already marked for more
-                # divisions.
-                if self.markings[partnerKey] < ndivs:
-                    self.markings[partnerKey] = ndivs
-            except KeyError:
+            if self.markings.get(partnerKey, 0) < ndivs:
                 self.markings[partnerKey] = ndivs
-                
 
     def getMark(self, node0, node1):
         key = skeletonnode.canonical_order(node0, node1)
-        try:
-            return self.markings[key]
-        except KeyError:
-            return 0
+        return self.markings.get(key, 0)
 
     def getMarks(self, element):
         return [self.getMark(nodes[0], nodes[1]) 
@@ -344,9 +329,6 @@ class Refine(skeletonmodifier.SkeletonModifier):
             # Reversing them in place like this would be wrong if
             # the list weren't being used immediately, as it is in
             # Refine.apply() 
-            # don't do this in 3D because for now
-            # we are only doing bisection, and because order
-            # doesn't have the same meaning in 3d.
             nodes.reverse()
         except KeyError:
             nodes = [None]*ndivs
@@ -372,22 +354,22 @@ class Refine(skeletonmodifier.SkeletonModifier):
                 s = newSkeleton.MS.size()
                 n0pt=node0.position()
                 n1pt=node1.position()
-                # in 2D only one of the first four cases can be met,
-                # but in 3D a combination of two of the following six
-                # cases can be met and we must test that the
-                # appropriate periodicity is in the skeleton
                 partnerdict = {}
                 # Case 1: boundary at left edge or face
-                if n0pt.x==0 and n1pt.x==0 and newSkeleton.left_right_periodicity:
+                if (n0pt.x==0 and n1pt.x==0 and
+                    newSkeleton.left_right_periodicity):
                     partnerdict[0]=s[0]
                 # Case 2: boundary at right edge or face
-                elif n0pt.x==s[0] and n1pt.x==s[0] and newSkeleton.left_right_periodicity:
+                elif (n0pt.x==s[0] and n1pt.x==s[0] and
+                      newSkeleton.left_right_periodicity):
                     partnerdict[0]=0
                 # Case 3: boundary at bottom edge or face
-                if n0pt.y==0 and n1pt.y==0 and newSkeleton.top_bottom_periodicity:
+                if (n0pt.y==0 and n1pt.y==0 and
+                    newSkeleton.top_bottom_periodicity):
                     partnerdict[1]=s[1]
                 # Case 4: boundary at top edge or face
-                elif n0pt.y==s[1] and n1pt.y==s[1] and newSkeleton.top_bottom_periodicity:
+                elif (n0pt.y==s[1] and n1pt.y==s[1] and
+                      newSkeleton.top_bottom_periodicity):
                     partnerdict[1]=0
                     
                 for i in range(ndivs):
@@ -495,14 +477,14 @@ def findSignature(marks):
     # divided into more than arbitrary_factor segments in one
     # refinement operation.
     n = len(marks)
-    max = -1
+    maxkey = -1
     imax = None
     for i in range(n):
         key = marks[i]
         for j in range(1, n):
             key = arbitrary_factor*key + marks[(i+j)%n]
-        if key > max:
-            max = key
+        if key > maxkey:
+            maxkey = key
             imax = i
     return imax, tuple([marks[(i+imax)%n] for i in range(n)])
 

@@ -1557,6 +1557,11 @@ class Skeleton(SkeletonBase):
         self.cleanUp()
         return SkeletonElementIterator(self, lambda e: e.active(self))
 
+    def selectedElements(self): 
+        ## TODO PYTHON3: do this better, by looping over the selection object
+        self.cleanUp()
+        return SkeletonElementIterator(self, lambda e: e.isSelected())
+
     def activeNodes(self):
         self.cleanUp()
         return (n for n in self.nodes if n.active(self))
@@ -2880,15 +2885,12 @@ class SkeletonIterator:
         self.condition = condition # predicate
         self.count = 0          # number examined
         self.nret = 0           # number returned
-        self._ntotal = self.total()
     def fraction(self):
-        return self.count/self._ntotal
+        return self.count/self.ntotal()
     def nexamined(self):
         return self.count
     def nreturned(self):
         return self.nret
-    def ntotal(self):
-        return self._ntotal
     def __iter__(self):
         for self.count, target in enumerate(self.targets()):
             if self.condition(target):
@@ -2897,16 +2899,27 @@ class SkeletonIterator:
     
 
 class SkeletonElementIterator(SkeletonIterator):
-    def total(self):
+    def ntotal(self):
         return self.skeleton.nelements()
     def targets(self):
         return self.skeleton.elements
 
 class SkeletonSegmentIterator(SkeletonIterator):
-    def total(self):
+    def ntotal(self):
         return len(self.skeleton.segments)
     def targets(self):
         return self.skeleton.segments.values()
+
+class SkeletonSegmentGroupIterator(SkeletonIterator):
+    # Takes a SkeletonContext arg, not a Skeleton!
+    def __init__(self, context, groupname, condition=lambda x: True):
+        self.group = context.segmentgroups.get_group(groupname)
+        SkeletonIterator.__init__(self, context.getObject(),
+                                  groupname, condition)
+    def targets(self):
+        return self.group
+    def ntotal(self):
+        return len(self.group)
 
 ########################################################################
 
@@ -3015,7 +3028,7 @@ class ProvisionalChanges:
         # substitution of one element for another.
         self.seg_subs[old] = new
 
-    def moveNode(self, node, position, mobility=(1,1)):
+    def moveNode(self, node, position, mobility=(True,True)):
         self.movednodes.append(
             self.MoveNode(node=node, position=position, mobility=mobility))
 

@@ -30,7 +30,7 @@
 #include "common/pixelsetboundary.h"
 #include "common/random.h"
 
-using namespace std;
+using namespace std;		// TODO: Don't do this.
 
 // TODO: Are groups_attributes_lock and category_lock still required?
 // Shouldn't the locks in the Who class be sufficient?
@@ -406,82 +406,68 @@ void CMicrostructure::categorize() const {
 } // end CMicrostructure::categorize()
 
 unsigned int CMicrostructure::nCategories() const {
-  // std::cerr << "Acquire, nCategories." << std::endl;
   category_lock.acquire();
   if(!categorized)
     categorize();
   unsigned int res = ncategories;
   category_lock.release();
-  // std::cerr << "Release." << std::endl;
   return res;
 }
 
 int CMicrostructure::category(const ICoord *where) const {
-  // std::cerr << "Acquire, category1" << std::endl;
   category_lock.acquire();
   if(!categorized)
     categorize();
   int cat = categorymap[*where];
   category_lock.release();
-  // std::cerr << "Release." << std::endl;
   return cat;
 }
 
 int CMicrostructure::category(const ICoord &where) const {
-  // std::cerr << "Acquire, category2" << std::endl;
   category_lock.acquire();
   if(!categorized)
     categorize();
   int res = categorymap[where];
   category_lock.release();
-  // std::cerr << "Release." << std::endl;
+  return res;
+}
+
+int CMicrostructure::category(int x, int y) const {
+  category_lock.acquire();
+  if(!categorized)
+    categorize();
+  int res = categorymap[ICoord(x,y)];
+  category_lock.release();
   return res;
 }
 
 // Special version for finding the category of the pixel under an
 // arbitrary point.
 int CMicrostructure::category(const Coord &where) const {
-  // std::cerr << "Acquire, category3." << std::endl;
   category_lock.acquire();
   if(!categorized) 
     categorize();
   int res = categorymap[pixelFromPoint(where)];
   category_lock.release();
-  // std::cerr << "Release." << std::endl;
-  return res;
-}
-
-int CMicrostructure::category(int x, int y) const {
-  // std::cerr << "Acquire, category4" << std::endl;
-  category_lock.acquire();
-  if(!categorized)
-    categorize();
-  int res = categorymap[ICoord(x,y)];
-  category_lock.release();
-  // std::cerr << "Release." << std::endl;
   return res;
 }
 
 const ICoord &CMicrostructure::getRepresentativePixel(std::size_t category)
   const
 {
-  // std::cerr << "Acquire, getRepPixel." << std::endl;
   category_lock.acquire();
   if(!categorized)
     categorize();
   ICoord &res = representativePixels[category];
   category_lock.release();
-  // std::cerr << "Release." << std::endl;
   return res;
 }
 
 const Array<int> *CMicrostructure::getCategoryMap() const {
-  // std::cerr << "Acquire, getCategoryMap." << std::endl;
   category_lock.acquire();
   if(!categorized)
     categorize();
   category_lock.release();
-  // std::cerr << "Released, getCategoryMap." << std::endl;
   return &categorymap;
 }
 
@@ -574,7 +560,8 @@ static const ICoord southwest(-1, -1);
 
 std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
 						    const Coord &c1,
-						    bool &vertical_horizontal)
+						    bool &vertical_horizontal,
+						    bool &flipped)
   const
 {
   // Coordinates of endpoints in pixel space (real).
@@ -624,6 +611,9 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
   //  pixels should be "xxxxx".
   //  Followings will deal with this adjustment.
 
+  // The users of the pixel data may need to know if the order of the
+  // pixels has been flipped.
+  flipped = false;
 
   // This assumes we are traversing an element in counter clockwise
   // order.
@@ -669,6 +659,7 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
     std::vector<ICoord> *pixels = new std::vector<ICoord>(npix);
     int x = ip0(0);
     int y0 = (ip0(1) < ip1(1)) ? ip0(1) : ip1(1);
+    flipped = ip1(1) < ip0(1);
     for(int i=0; i<npix; i++)
       (*pixels)[i] = ICoord(x, y0+i);
     return pixels;
@@ -680,6 +671,7 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
     std::vector<ICoord> *pixels = new std::vector<ICoord>(npix);
     int y = ip0(1);
     int x0 = (ip0(0) < ip1(0)) ? ip0(0) : ip1(0);
+    flipped = ip1(0) < ip0(0);
     for(int i=0; i<npix; i++)
       (*pixels)[i] = ICoord(x0+i, y);
     return pixels;
@@ -701,6 +693,7 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
       Coord temp(p1);
       p1 = p0;
       p0 = temp;
+      flipped = true;
     }
     pixels->reserve(2*abs(id(0))); // biggest possible size
     double x0 = p0(0);
@@ -737,6 +730,7 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
       Coord temp(p1);
       p1 = p0;
       p0 = temp;
+      flipped = true;
     }
     pixels->reserve(2*abs(id(1)));
     double x0 = p0(0);
@@ -812,7 +806,7 @@ void CMicrostructure::markSegment(MarkInfo *mm,
 				  const Coord &c0, const Coord &c1) const
 {
   bool dummy;
-  const std::vector<ICoord> *pixels = segmentPixels(c0, c1, dummy);
+  const std::vector<ICoord> *pixels = segmentPixels(c0, c1, dummy, dummy);
 //   std::cerr << "CMicrostructure::markSegment: c0=" <<  c0 << " c1=" << c1 << std::endl;
   for(std::vector<ICoord>::const_iterator pxl=pixels->begin();
       pxl<pixels->end(); ++pxl)
@@ -997,14 +991,616 @@ bool CMicrostructure::transitionPoint(const Coord &c0, const Coord &c1,
       found1 = true;
   }
   return found1;
-
 }
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Utility functions used by CMicrostructure::getSegmentSections()
+
+// #ifdef DEBUG
+// double SegmentSection::span(int comp) const {
+//   return fabs((p1[comp] - p0[comp]));
+// }
+// #endif // DEBUG
+
+double SegmentSection::pixelLength() const {
+  return sqrt(norm2(p1 - p0));
+}
+
+double SegmentSection::physicalLength() const {
+  return sqrt(norm2(ms->pixel2Physical(p1 - p0)));
+}
+
+Coord SegmentSection::physicalPt0() const {
+  return ms->pixel2Physical(p0);
+}
+
+Coord SegmentSection::physicalPt1() const {
+  return ms->pixel2Physical(p1);
+}
+  
+
+std::ostream &operator<<(std::ostream &os, const SegmentSection &s) {
+  return os << "SegmentSection(" << s.physicalPt0() << ", " << s.physicalPt1()
+	    << ", " << s.category << ", " << s.stepcategory << ")"
+	    << " length=" << sqrt(norm2(s.physicalPt0() - s.physicalPt1()));
+}
+
+// Find the distance in the comp direction spanned by two adjacent sections.
+static double spantwo(const SegmentSection *s0, const SegmentSection *s1,
+		      int comp)
+{
+  if(s0->physicalPt0() == s1->physicalPt1()) {
+    return fabs(s0->physicalPt1()[comp] - s1->physicalPt0()[comp]);
+  }
+  assert(s0->physicalPt1() == s1->physicalPt0());
+  return fabs(s0->physicalPt0()[comp] - s1->physicalPt1()[comp]);
+}
+
+bool isint(double x) {
+  return floor(x) == x;
+}
+
+int getInitialCat(const CMicrostructure *ms, const Coord &pt0, const Coord &pt1)
+{
+  // Get the category to use at the beginning of the segment that goes
+  // from pt0 to pt1 (in pixel units).  It's not just category(pt0)
+  // because that can give the wrong answer if the point lies on a
+  // pixel boundary and the segment goes to the left or down.
+  double x0 = pt0[0];
+  double y0 = pt0[1];
+  if(isint(x0) && (x0 > pt1[0] || (x0==pt1[0] && y0 < pt1[1])))
+    // going left from a pixel boundary or vertically up along a boundary
+    x0 -= 0.5;
+  if(isint(y0) && (y0 >= pt1[1] || (y0 == pt1[1] && x0 > pt1[0])))
+    // going down from a pixel boundary or horizontally left along a boundary
+    y0 -= 0.5;
+  // We can't just call category(x0, y0) because that assumes the
+  // coordinates are physical, not pixel.  That means that we have to
+  // check for x and y on the left and upper boundaries of the
+  // microstructure too, the way that pixelFromPoint does.
+  ICoord sz = ms->sizeInPixels();
+  if(x0 >= sz[0]) x0 -= 1;
+  if(y0 >= sz[1]) y0 -= 1;
+  int cat = ms->category(ICoord(x0, y0));
+  return cat;
+}
+
+// Given a vector of SegmentSections, compute the sum of their lengths
+// and the dominant category.  indices indicates which sections to
+// include.
+
+void CMicrostructure::segmentCats(const std::vector<SegmentSection> &sections,
+				  const std::vector<int> &indices,
+				  double &totallength, int &category)
+  const
+{
+  std::vector<double> catlength(ncategories, 0);
+  for(int j=0; j<indices.size(); j++) {
+    const SegmentSection &segj = sections[indices[j]];
+    catlength[segj.category] += segj.pixelLength(); 
+  }
+  // Find which category dominates the short sections, and their total
+  // length.
+  double maxlen = -1;
+  category = -1;
+  totallength = 0.0;
+  for(int c=0; c<ncategories; c++) {
+    totallength += catlength[c];
+    if(catlength[c] > maxlen) {
+      category = c;
+      maxlen = catlength[c];
+    }
+  }
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Split a directed line segment (c0, c1) into sections such that each
+// section lies over pixels with a single category.  If a stairstep is
+// detected, treat it as a single section. Sections less than
+// minlength are merged with their neighbors if both neighbors are the
+// same category, or at the end of the segment. Return of list of
+// SegmentSection objects, which give the end points and category each
+// section.
+
+// TODO PYTHON3: Do we still need TransitionPointIterator?
+
+std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
+				  const Coord *c0, const Coord *c1,
+				  double minlength)
+  const
+{
+  // Get the pixels under the segment.
+  bool flipped, dummy;
+
+  // TODO PYTHON3: Now that sections is never returned directly, it
+  // can probably be a std::vector<SegmentSection> and avoid the
+  // pointers.
+  std::vector<SegmentSection*> *sections = new std::vector<SegmentSection*>;
+  std::vector<ICoord> *pixels = segmentPixels(*c0, *c1, dummy, flipped);
+
+  // Pixel-space coordinates of the ends of segment
+  Coord pt0(physical2Pixel(*c0));
+  Coord pt1(physical2Pixel(*c1));
+
+  bool vertical = (pt0[0] == pt1[0]);
+  double slope = 0.0;		// Only one of slope and invslope is used.
+  double invslope = 0.0;
+  if(!vertical) {
+    slope = (pt1[1] - pt0[1])/(pt1[0] - pt0[0]);
+    invslope = 1./slope;
+  }
+
+  // segmentPixels doesn't guarantee that the pixels are in order from
+  // c0 to c1.  If flipped is true, the pixels are in reverse order,
+  // so we iterate over them manually.
+  int npxls = pixels->size();
+  int i0 = flipped ? npxls-1 : 0; // initial pixel index
+  int i1 = flipped ? -1 : npxls;  // final pixel index
+  int idir = flipped ? -1 : 1;	  // pixel index increment
+
+  // Find the category of the starting point.  This is not just
+  // category(pt0), because if the segment starts on a boundary going
+  // left or down, we want the pixel to the left or below the starting
+  // point.
+  int prevcat = getInitialCat(this, pt0, pt1);
+  Coord curpt =  pt0;	      // starting point of the current section
+  ICoord prevpxl = (*pixels)[i0]; // previous pixel
+  // The step category is the category to assign to the segment if it
+  // is part of a stairstep boundary.  This is determined by how the
+  // segment ends meet the category boundary, and is not necessarily
+  // the same as the segment category.
+  int stepcat = -1;
+
+  // Loop over the pixels under the segment, looking for category
+  // changes.  Start at the second pixel (i0+idir) because we're
+  // looking for endpoints of sections.
+
+  for(int i=i0+idir; i!=i1; i+=idir) {
+    ICoord pxl = (*pixels)[i];	// the pixel to examine
+    int cat = category(pxl);
+    Coord pt;			// next transition point
+    if(cat != prevcat) {
+      // Find the actual intersection point of the segment and the
+      // previous pixel, in the direction of pt1.
+      ICoord delta = pxl - prevpxl; // Will be either x, -x, y, or -y
+      if(delta[0] == 1) {
+	// We've moved one pixel in the +x direction from the last
+	// pixel.  The transition point is on the left side of this
+	// pixel, x = pxl[0]
+	assert(delta[1] == 0 && !vertical);
+	pt = Coord(pxl[0],  pt0[1] + slope*(pxl[0] - pt0[0]));
+	if(slope > 0) {
+	  //           1
+	  //   +----+-/--+
+	  //   |....|/   |   Shaded pixel is prevpxl.
+	  //   |..../    |   Segment goes in the 01 direction
+	  //   |.../|    |
+	  //   +--/-+----+	  
+	  //     0
+	  stepcat = prevcat;
+	}
+	else {
+	  //     0       
+	  //   +--\-+----+
+	  //   |...\|    |  
+	  //   |....\    |
+	  //   |....|\   |
+	  //   +----+-\--+	  
+	  //           1
+	  stepcat = cat;
+	}
+      }
+      else if(delta[0] == -1) {
+	// Moving left.  The transition point is on the left side of
+	// the previous pixel, x = prevpxl[0].
+	assert(delta[1] == 0 && !vertical);
+	pt = Coord(prevpxl[0], pt0[1] + slope*(prevpxl[0] - pt0[0]));
+	if(slope > 0) {
+	  //           0
+	  //   +----+-/--+
+	  //   |    |/...| 
+	  //   |    /....| 
+	  //   |   /|....|
+	  //   +--/-+----+	  
+	  //     1
+	  stepcat = prevcat;
+	}
+	else {
+	  //     1       
+	  //   +--\-+----+
+	  //   |   \|....|  
+	  //   |    \....|
+	  //   |    |\...|
+	  //   +----+-\--+	  
+	  //           0
+	  stepcat = cat;
+	}
+      }
+      else if(delta[1] == 1) {
+	// Moving up one from the previous pixel.  Intersection is at
+	// the bottom of this pixel, y=pxl[1]
+	assert(delta[0] == 0);
+	if(vertical) {
+	  pt = Coord(pt0[0], pxl[1]);
+	  stepcat = -1;
+	}
+	else {
+	  pt = Coord(pt0[0] + invslope*(pxl[1] - pt0[1]), pxl[1]);
+	  if(slope > 0) {
+	    //    +----+ /1 	 
+	    //    |    |/	 	 
+	    //    |    /	 	 
+	    //    |   /|	 	 
+	    //    +--/-+	 	 
+	    //    |./..|	 	 
+	    //    |/...|	 	 
+	    //    /....|	 	 
+	    //  0/+----+
+	    stepcat = cat;
+	  }
+	  else {
+	    //  1\+----+    	 
+	    //    \    | 	 	 
+	    //    |\   |	 	 
+	    //    | \  |	 	 
+	    //    +--\-+	 	 
+	    //    |...\|	 	 
+	    //    |....\      Segment goes in
+	    //    |....|\     the 01 direction
+	    //    +----+ 0	
+	    stepcat = prevcat;
+	  }
+	}
+      }
+      else if(delta[1] == -1) {
+	// Moving down one from the previous pixel. Intersection is at
+	// the top of this pixel, y = prevpxl[1].
+	assert(delta[0] == 0);
+	if(vertical)
+	  pt = Coord(pt0[0], prevpxl[1]);
+	else {
+	  pt = Coord(pt0[0] + invslope*(prevpxl[1] - pt0[1]), prevpxl[1]);
+	  if(slope > 0) {
+	    //    +----+ /0 	 
+	    //    |....|/	 	 
+	    //    |..../	 	 
+	    //    |.../|	 	 
+	    //    +--/-+	 	 
+	    //    | /  |	 	 
+	    //    |/   |	 	 
+	    //    /    |	 	 
+	    //  1/+----+
+	    stepcat = cat;
+	  }
+	  else {
+	    //  0\+----+    	 
+	    //    \....| 	 	 
+	    //    |\...|	 	 
+	    //    |.\..|	 	 
+	    //    +--\-+	 	 
+	    //    |   \|	 	 
+	    //    |    \      Segment goes in
+	    //    |    |\     the 01 direction
+	    //    +----+ 1	
+	    stepcat = prevcat;
+	  }
+	}
+      }
+      else {
+	throw ErrProgrammingError("Error in getSegmentSections",
+				  __FILE__, __LINE__);
+      }
+      sections->push_back(new SegmentSection(this, curpt, pt,
+					     prevcat, stepcat));
+      curpt = pt;
+      prevcat = cat;
+    } // end if cat != prevcat
+    prevpxl = pxl;
+  } // end loop over segment pixels
+
+  // Add the final point.  There can be no more transition points.  If
+  // this section is part of a stairstep, its category must be the
+  // same as the previous section's stairstep category.
+  if(sections->size() > 0) {
+    stepcat = sections->back()->stepcategory;
+    SegmentSection *lastsect = new SegmentSection(this, curpt, pt1,
+						  prevcat, stepcat);
+    sections->push_back(lastsect);
+  }
+  else {
+    // There were no transition points found, so there can be no
+    // stairsteps.  The value of stepcat is irrelevant.
+    SegmentSection *lastsect = new SegmentSection(this, pt0, pt1, prevcat, -1);
+    sections->push_back(lastsect);
+  }
+
+  ICoord totalspan = (*pixels)[npxls-1] - (*pixels)[0];
+  delete pixels;
+
+  int nsections = sections->size();
+  // adaSections are ones where steps have been replaced with
+  // ramps. Since this is an intermediate result and won't outlive
+  // this routine or be exported to Python, it can be vector of
+  // SegmentSections, not a pointer to a vector of pointers to
+  // SegmentSections.
+  std::vector<SegmentSection> adaSections; 
+
+  // There are no stairsteps if the entire segment is horizontal or
+  // vertical or if there aren't enough sections.
+  // TODO PYTHON3: Should we eliminate stairsteps of only two
+  // sections?  It would probably be best to treat that as a special
+  // case.
+
+  if(nsections <= 2 || totalspan[0] == 0 || totalspan[1] == 0) {
+    // If there are no steps, there still might be short segment to be
+    // eliminated.  The code that does that, after the stairstep
+    // elimination, expects to get a vector of SegmentSections, not
+    // pointers, so we have to copy the list here.
+    for(SegmentSection *seg : *sections) 
+      adaSections.push_back(SegmentSection(*seg));
+  }
+  else {
+    // Eliminate stairstep sections.  A stairstep is a set of sections
+    // that alternate categories (A,B,A,[B...]), and in which
+    // transition points occupy rows or columns next to the second
+    // previous point.
+
+    // ....|....1    |    |    |
+    // ....|....|\   |    |    |     Sections (1,2) and (3,4) have category A
+    // ....|....| \  |    |    |     and sections (2,3) and (4,5) have
+    // ----+----+--2-+----+----+-    category B.
+    // ....|....|...\|    |    |  
+    // ....|....|....3    |    |     The whole section from 1 to 5 should
+    // ....|.B..|....|\   |  A |     be assigned category A, because A
+    // ----+----+----+-4--+----+     is on the left.
+    // ....|....|....|..\.|    | 
+    // ....|....|....|...\|    |     If the segment went the other way, the
+    // ....|....|....|....5....+     section from 5 to 1 would be category B.
+  
+    // 1 and 3 are exactly one pixel apart horizontally, and would be
+    // even if the boundary were steeper.  2 and 4 are exactly one
+    // pixel apart vertically, and would be even if the boundary were
+    // flatter.  (The pixel spacing is exactly 1.0 because of the way
+    // that the intersections were calculated.)
+
+    // If the horizontal distance between steps (the tread) is larger
+    // than the vertical distance (the riser) in pixel units, then the
+    // riser will be 1.0, and the sum of the y components of two
+    // adjacent sections will be 1.0.  If the riser is larger than the
+    // tread, then the sum of the x components will be one.  Since the
+    // angle is the same across the whole segment, the segment
+    // geometry tells whether to use the x or y components of the
+    // lengths of the sections.
+    Coord diff = pt1 - pt0;
+    int comp = fabs(diff[0]) > fabs(diff[1]) ? 1 : 0;
+
+
+    int startstep = 0;	 // index of first potential stairstep section
+    int sec = 0;	 // index of section we're examining
+
+    // Loop over sections, looking for stairsteps.  Each iteration
+    // skips sections that don't have the right size in the "comp"
+    // direction, and then combines the following sections into a
+    // single new section.  The comp-sizes of the sections must add
+    // pairwise to 1, starting with an integer comp-component, and the
+    // sections must alternate between two categories.
+    do {
+      // We're either at the beginning of the step search, or have just
+      // finished a set of stairs.  If the next sections don't have the
+      // right lengths, or if we're too close to the end of the section
+      // list to form a stairstep, just copy the sections to the result.
+
+      while(sec < nsections &&
+	    !(sec < nsections-2 &&
+	      isint((*sections)[sec]->p0[comp]) &&
+	      spantwo((*sections)[sec], (*sections)[sec+1], comp) == 1.0))
+	{
+	  adaSections.push_back(SegmentSection(*(*sections)[sec]));
+	  sec++;			// Go on to the next section.
+	}
+
+      if(sec < nsections-2) {
+	// The comp-components of this section and the next sum to
+	// one. Search for the end section.  Pairs of sections need to sum
+	// to 1 (in the comp direction) and their categories must
+	// alternate between two values.
+	int cat0 = (*sections)[sec]->category;
+	int cat1 = (*sections)[sec+1]->category;
+	int nextpair = sec + 2;
+	while(nextpair < nsections-2 &&
+	      isint((*sections)[nextpair+1]->p1[comp]) &&
+	      (*sections)[nextpair]->category == cat0 &&
+	      (*sections)[nextpair+1]->category == cat1 &&
+	      spantwo((*sections)[nextpair], (*sections)[nextpair+1],comp)==1.0)
+	  {
+	    nextpair += 2;
+	  }
+    
+	if(nextpair == sec + 2) {
+	  // We didn't find a step.  Add the two sections to the output
+	  // and look again.
+	  adaSections.push_back(SegmentSection(*(*sections)[sec]));
+	  adaSections.push_back(SegmentSection(*(*sections)[sec+1]));
+	}
+	else {
+	  // The sections from sec through nextpair-1 can be combined.  The
+	  // category is the stepcategory of any of the sections.
+	
+	  adaSections.emplace_back(this,
+				   (*sections)[sec]->p0,
+				   (*sections)[nextpair-1]->p1,
+				   (*sections)[sec]->stepcategory,
+				   (*sections)[sec]->stepcategory);
+	}
+	sec = nextpair;     // potential start of next stairstep
+      }
+
+    } while(sec < nsections);
+  } // end if there might have been stair steps
+
+  // Take one more pass through the new sections to eliminate ones
+  // that are shorter than minlength, and to see if the segments
+  // immediately before or after a stairstep can be joined to it.
+  // This can happen if a stair starts right after a long segment with
+  // the same category as the first step on the stair.  Copy the
+  // sections to the result vector.
+
+  nsections = adaSections.size();
+  std::vector<SegmentSection*> *result = new std::vector<SegmentSection*>;
+  result->reserve(nsections);
+  double totallength = 0;
+  int maxcat = -1;     // dominant category of a set of short sections
+  // Consecutive short sections are accumulated until a non-short
+  // section is found. shortSections contains the indices (in
+  // adaSections) of the current set of short sections.
+  std::vector<int> shortSections;
+  for(int i=0; i<adaSections.size(); i++) {
+    // lastcat is the category of the pixels under the previously
+    // found section.  Its default value, -1, is never a valid
+    // category.
+    int lastcat = result->empty() ? -1 : result->back()->category;
+    SegmentSection &section = adaSections[i];
+    if(section.pixelLength() < minlength) {
+      // This section is too short.  Store it and deal with it later.
+      shortSections.push_back(i);
+    }
+    else {
+      // This section is not too short.  Is it the first one after a
+      // stretch of one or more short sections?
+      if(shortSections.empty()) { // Previous sections were not short.
+	if(section.category == lastcat) {
+	  // This section is the same category as the previous one.
+	  // Extend previous section.
+	  result->back()->p1 = section.p1;
+	}
+	else {
+	  result->push_back(new SegmentSection(section));
+	}
+      }	// end if the previous segment was not short
+      else {
+	// This section is the first non-short one after a sequence of
+	// short ones.  Combine all the short ones and decide what to
+	// do with them.
+
+	// segmentCats returns the total length of the short sections
+	// and the dominant pixel category.
+	segmentCats(adaSections, shortSections, totallength, maxcat);
+
+	if((maxcat == lastcat && maxcat == section.category) ||
+	   (totallength < minlength && lastcat == section.category)) {
+	  // The combined short sections are the same category as the
+	  // current and previous long sections, so merge all of them.
+	  // This can't happen when result is empty, because lastcat
+	  // would be -1 then.
+	  result->back()->p1 = section.p1;
+	}
+	else if(maxcat == lastcat) {
+	  // Absorb the short sections into the previous section and
+	  // add the current section.  This also can't happen when
+	  // result is empty.
+	  result->back()->p1 = adaSections[shortSections.back()].p1;
+	  result->push_back(new SegmentSection(section));
+	}
+	else if(maxcat == section.category) {
+	  // Create a new section from the short ones and the current one.
+	  result->push_back(new SegmentSection(section));
+	  result->back()->p0 = adaSections[shortSections.front()].p0;
+	}
+	else if(totallength < minlength) {
+	  // the short sections don't match the category of either of
+	  // the long sections on either side, but are too short to
+	  // include.  Split them between the two long sections.
+	  Coord midpoint;
+	  if(result->size() > 0) {
+	    midpoint = 0.5*(result->back()->p1 + section.p0);
+	    result->back()->p1 = midpoint;
+	  }
+	  else {
+	    midpoint = adaSections[shortSections.front()].p0;
+	  }
+	  result->push_back(new SegmentSection(section));
+	  result->back()->p0 = midpoint;
+	}
+	else {
+	  // The assembled short sections are long enough to form
+	  // their own section, but don't match the category of the
+	  // long sections on either side.  Insert it and the new
+	  // section.
+	  // std::cerr << "CMicrostructure::getSegmentSections:"
+	  // 	    << " combined short sections are long enough" << std::endl;
+	  result->push_back(new SegmentSection(this,
+				       adaSections[shortSections.front()].p0,
+				       adaSections[shortSections.back()].p1,
+				       maxcat, maxcat));
+	  result->push_back(new SegmentSection(section));
+	}
+      }	// end if the previous section was short but this one isn't
+      
+      // After processing the long section and maybe incorporating
+      // short ones, get ready for the next batch of short ones.
+      shortSections.clear();
+      totallength = 0.0;
+      maxcat = -1;
+    } // end this section was not short
+  }   // end loop over sections
+
+  // If any short sections are left, they are at the end of the whole
+  // segment.
+  if(!shortSections.empty()) {
+    double totallength;
+    int maxcat;
+    segmentCats(adaSections, shortSections, totallength, maxcat);
+    if(result->empty() ||	   // no previous sections
+       (totallength > minlength && // or sum of lengths isn't still too short
+	maxcat != result->back()->category)) // and category doesn't match
+      {
+	// Make a new section from the total set of short sections,
+	// and append it.
+	result->push_back(new SegmentSection(this,
+			     adaSections[shortSections.front()].p0,
+			     adaSections[shortSections.back()].p1,
+					   maxcat,
+					   maxcat));
+    }
+    else {
+      // absorb short lengths into the last part of result.
+      result->back()->p1 = adaSections[shortSections.back()].p1;
+      }
+    } // end if there are shortSections left over
+    
+  for(SegmentSection *seg : *sections)
+    delete seg;
+  delete sections;
+  return result;
+} // end CMicrostructure::getSegmentSections
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 double CMicrostructure::edgeHomogeneity(const Coord &c0, const Coord &c1) const
 {
+  std::vector<SegmentSection*> *sections = getSegmentSections(&c0, &c1, 0);
+  if(sections->size() == 1)
+    return 1.0;
+  std::vector<double> slengths(nCategories(), 0.0);
+  for(SegmentSection *s : *sections) {
+    slengths[s->category] += s->physicalLength();
+    delete s;
+  }
+  delete sections;
 
+  double lmax = 0.0;
+  for(double length : slengths)
+    if(lmax < length)
+      lmax = length;
+
+  return lmax/sqrt(norm2(c1 - c0));
+}
+
+double CMicrostructure::oldEdgeHomogeneity(const Coord &c0, const Coord &c1)
+  const
+{
   TransitionPointIterator tpIterator(this, c0, c1); 
   // Check to see if all of the pixels have the same category.  If
   // they do, the homogeneity is 1.0.  It's *important* to do this
@@ -1052,6 +1648,7 @@ double CMicrostructure::edgeHomogeneity(const Coord &c0, const Coord &c1) const
 // #ifdef DEBUG
 //   std::cerr << "edgeHomogeneity: homogeneity=" << max/normdelta << std::endl;
 // #endif // DEBUG
+
   return max/normdelta;
 }
 
@@ -1132,10 +1729,11 @@ CMicrostructure::transitionPointWithPoints_unbiased(const Coord *c0,
 						    Coord *point) const
 {
   Coord cleft,cright;
-  bool bleft, bright, bverticalhorizontal;
-  
+  bool bleft, bright, bverticalhorizontal, dummy;
+
+  // TODO PYTHON3: This vector is never deleted!
   const std::vector<ICoord> *pixels = segmentPixels(*c0, *c1,
-						    bverticalhorizontal);
+						    bverticalhorizontal, dummy);
 
   // std::cerr << "transitionPointWithPoints_unbiased: pixels=";
   // for(ICoord pix : *pixels)
@@ -1156,7 +1754,7 @@ CMicrostructure::transitionPointWithPoints_unbiased(const Coord *c0,
   // 	    << " cleft=" << cleft << std::endl;
   if(bverticalhorizontal) {
     const std::vector<ICoord> *pixelsright =
-      segmentPixels(*c1, *c0, bverticalhorizontal);
+      segmentPixels(*c1, *c0, bverticalhorizontal, dummy);
     TransitionPointIterator tpIterator2(this, *c0, *c1, pixelsright);
     bright = transitionPointClosest(*c0, *c1, tpIterator2, &cright);
   }
@@ -1198,7 +1796,7 @@ TransitionPointIterator::TransitionPointIterator(
     p1(microstructure->physical2Pixel(c1))
 {
   bool dummy;
-  pixels = MS->segmentPixels(c0,c1,dummy);
+  pixels = MS->segmentPixels(c0,c1,dummy, dummy);
   begin();
 }
 

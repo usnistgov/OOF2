@@ -16,6 +16,12 @@ from ooflib.common import primitives
 from ooflib.common import enum
 from ooflib.common.IO import xmlmenudump
 
+# TODO PYTHON3: rules should return multiple choices and SnapRefine
+# can choose the best one, using ProvisionalElements.
+
+# TODO PYTHON3: The maxdelta2 argument isn't used in any of the
+# functions here.
+
 Point = primitives.Point
 onethird = 1./3.
 
@@ -40,11 +46,7 @@ class RefinementRuleSet:
     def __repr__(self):
         return "getRuleSet('%s')" % self.name()
     def addRule(self, rule, signature):
-        if config.dimension() == 2:
-            self.rules[signature] = rule
-        if config.dimension() == 3:
-            for sig in signature:
-                self.rules[sig] = rule
+        self.rules[signature] = rule
     def getRule(self, signature):
         try:
             return self.rules[signature]
@@ -89,13 +91,11 @@ class RefinementRule:
     def __init__(self, ruleset, signature, function):
         self.function = function
         ruleset.addRule(self, signature)
-    def apply(self, element, signature_info, cats, edgenodes, newSkeleton, maxdelta2):
-        if config.dimension() == 2:
-            # in 2D, the first member of the signature_info is the rotation
-            newels = self.function(element, signature_info[0], cats, edgenodes, newSkeleton, maxdelta2)
-        elif config.dimension() == 3:
-            newels = self.function(element, signature_info, cats, edgenodes, newSkeleton, maxdelta2)
-        return newels
+    def apply(self, element, signature_info, cats, edgenodes, newSkeleton
+              , maxdelta2):
+        # The first member of the signature_info is the rotation
+        return self.function(element, signature_info[0],
+                             cats, edgenodes, newSkeleton, maxdelta2)
 
 ##########################################
 
@@ -104,16 +104,11 @@ class RefinementRule:
 # sense) of the nodes of the old element, with the order shifted
 # around by the rotation.  The new refined elements will be built from
 # these base nodes.
-if config.dimension() == 2:
-    def baseNodes(element, rotation):
-        nnodes = element.nnodes()
-        return [element.nodes[(i+rotation)%nnodes].children[-1]
-                for i in range(nnodes)]
-elif config.dimension() == 3:
-    def baseNodes(element):
-        nnodes = element.nnodes()
-        return [element.nodes[i].children[-1]
-                for i in range(nnodes)]
+
+def baseNodes(element, rotation):
+    nnodes = element.nnodes()
+    return [element.nodes[(i+rotation)%nnodes].children[-1]
+            for i in range(nnodes)]
 
 ##class ProvisionalRefinement:
 ##    def __init__(self, newbies = [], internalNodes = []):
@@ -161,90 +156,30 @@ liberalRuleSet = RefinementRuleSet(
     parent='conservative',
     help="If there's a choice, choose the refinement that minimizes E, without trying to preserve topology.")
 
-#
-# Unmarked, unrefined element (triangle or quad)
-#
-def unrefinedelement(element, signature_info, newSkeleton):
-    if config.dimension() == 2:
-        bNodes = baseNodes(element, 0)
-    elif config.dimension() == 3:
-        bNodes = baseNodes(element)
-    el = newSkeleton.newElement(nodes=bNodes,
-                                parents=[element])
-    return (el,)
+#########################################
+
+# ruleZero applies to both triangles and quads which don't need refining.
+
+def ruleZero(element, rotation, cats, edgenodes, newSkeleton, maxdelta2):
+    return (newSkeleton.newElement(nodes=baseNodes(element, rotation),
+                                   parents=[element]),)
+
+# def unrefinedelement(element, signature_info, newSkeleton):
+#     if config.dimension() == 2:
+#         bNodes = baseNodes(element, 0)
+#     elif config.dimension() == 3:
+#         bNodes = baseNodes(element)
+#     el = newSkeleton.newElement(nodes=bNodes,
+#                                 parents=[element])
+#     return (el,)
 
 ##########################################
 
-# Unrefined triangle or
-#
-#          2
-#         /\
-#        / |\
-#       /  | \
-#     C/  ..  \B
-#     / .  a . \
-#    /.        .\
-#   /____________\
-#   0     A      1
-#
-# where "a" may be the center, or a transition point along the
-# line from one vertex to the midpoint of the opposite side
+# Unrefined triangle
 
-def rule000(element, rotation, cats, edgenodes, newSkeleton, maxdelta2):
-    n0, n1, n2 = baseNodes(element, rotation)
-    rcats=[cats[(i+rotation)%3] for i in range(3)]
-    A=rcats[0][0]
-    B=rcats[1][0]
-    C=rcats[2][0]
-    na=None
-    if A==B and B==C:
-        return (
-            newSkeleton.newElement(nodes=[n0, n1, n2],
-                                   parents=[element]),)
-    elif A!=B and B==C:
-        n2pt=n2.position()
-        n01Midpt=0.5*(n0.position()+n1.position())
-        transpt=newSkeleton.MS.transitionPointWithPoints_unbiased(n2pt,n01Midpt)
-        if transpt:
-            d2=(transpt-n2pt)**2
-            d01=(transpt-n01Midpt)**2
-        if transpt and d2>maxdelta2 and d01>maxdelta2:
-            na = newSkeleton.newNode(transpt.x, transpt.y)
-        else:
-            pos = element.center()
-            na = newSkeleton.newNode(pos.x, pos.y)
-    elif B!=C and C==A:
-        n0pt=n0.position()
-        n12Midpt=0.5*(n1.position()+n2.position())
-        transpt=newSkeleton.MS.transitionPointWithPoints_unbiased(n0pt,n12Midpt)
-        if transpt:
-            d0=(transpt-n0pt)**2
-            d12=(transpt-n12Midpt)**2
-        if transpt and d0>maxdelta2 and d12>maxdelta2:
-            na = newSkeleton.newNode(transpt.x, transpt.y)
-        else:
-            pos = element.center()
-            na = newSkeleton.newNode(pos.x, pos.y)
-    elif C!=A and A==B:
-        n1pt=n1.position()
-        n20Midpt=0.5*(n2.position()+n0.position())
-        transpt=newSkeleton.MS.transitionPointWithPoints(n1pt,n20Midpt)
-        if transpt:
-            d1=(transpt-n1pt)**2
-            d20=(transpt-n20Midpt)**2
-        if transpt and d1>maxdelta2 and d20>maxdelta2:
-            na = newSkeleton.newNode(transpt.x, transpt.y)
-        else:
-            pos = element.center()
-            na = newSkeleton.newNode(pos.x, pos.y)
-    else:
-        pos = element.center()
-        na = newSkeleton.newNode(pos.x, pos.y)
-    return (
-        newSkeleton.newElement(nodes=[na, n0, n1], parents=[element]),
-        newSkeleton.newElement(nodes=[na, n1, n2], parents=[element]),
-        newSkeleton.newElement(nodes=[na, n2, n0], parents=[element]))
-RefinementRule(conservativeRuleSet, (0,0,0), rule000)
+RefinementRule(conservativeRuleSet, (0,0,0), ruleZero)
+
+#########
 
 #          2
 #         /\
@@ -261,7 +196,7 @@ RefinementRule(conservativeRuleSet, (0,0,0), rule000)
 #         /\
 #        / |\
 #       /  | \
-#      /  b|  \
+#      /  b|  \       TODO: WHY?
 #     /   .|.  \
 #    /  .  |  . \
 #   /______|_____\
@@ -335,7 +270,7 @@ RefinementRule(conservativeRuleSet, (1,0,0), rule100)
 #          2
 #         /\
 #        /  \D
-#       /  . \
+#       /  . \         TODO: WHY?
 #     E/      b
 #     /     ./ \
 #    /      c.  \C
@@ -347,7 +282,7 @@ RefinementRule(conservativeRuleSet, (1,0,0), rule100)
 #          2
 #         /\
 #        /  \D
-#       /  . \
+#       /  . \        TODO: WHY?
 #     E/      b
 #     /     ./ \
 #    /     .c.  \C
@@ -425,7 +360,7 @@ RefinementRule(liberalRuleSet, (1,1,0), rule110)
 #         /\
 #       E/  \D
 #       /    \
-#      c______b
+#      c______b     TODO: WHY?
 #     / \.     \ 
 #   F/   \  .   \C
 #   /_____\ ___._\
@@ -437,8 +372,8 @@ RefinementRule(liberalRuleSet, (1,1,0), rule110)
 #         /\
 #       E/. \D
 #       / .  \
-#      c  .   b
-#     / \ .  / \ 
+#      c  .   b      TODO: WHY?
+#     / \ .  / \  
 #   F/   \. /   \C
 #   /_____\/_____\
 #   0  A   a  B   1
@@ -448,7 +383,7 @@ RefinementRule(liberalRuleSet, (1,1,0), rule110)
 #          2
 #         /\
 #       E/  \D
-#       /    \
+#       /    \       TODO: WHY?
 #      c_____ b
 #     /    . / \ 
 #   F/  .   /   \C
@@ -495,120 +430,10 @@ RefinementRule(conservativeRuleSet, (1,1,1), rule111)
 
 # Quads
 #
-# Unrefined quadrilateral or
-#    C
-# 3------2
-# |\    /|
-# | \  / |
-# | a\/  |
-#D|  /\  |B
-# | /  \ |
-# |/    \|
-# 0------1
-#    A
-#
-# (where "a" may be the center or a transition point
-# from the midpoint of one edge to the midpoint of
-# the opposite edge)
-#
-#    C
-# 3------2
-# |     /|
-# |    / |
-# |   /  |
-#D|  /   |B
-# | /    |
-# |/     |
-# 0------1
-#    A
-#
-#    C
-# 3------2
-# |\     |
-# | \    |
-# |  \   |
-#D|   \  |B
-# |    \ |
-# |     \|
-# 0------1
-#    A
+# Unrefined quadrilateral
+    
+RefinementRule(liberalRuleSet, (0,0,0,0), ruleZero)
 
-def rule0000(element, rotation, cats, edgenodes, newSkeleton, maxdelta2):
-    n0, n1, n2, n3 = baseNodes(element, rotation)
-    rcats=[cats[(i+rotation)%4] for i in range(4)]
-    A=rcats[0][0]
-    B=rcats[1][0]
-    C=rcats[2][0]
-    D=rcats[3][0]
-    if A==B and B==C and C==D:
-        return (
-            newSkeleton.newElement(nodes=[n0, n1, n2, n3],
-                                    parents=[element]),)
-    elif A!=B and B==C and  D==A:
-        return (
-            newSkeleton.newElement(nodes=[n0, n1, n3], parents=[element]),
-            newSkeleton.newElement(nodes=[n1, n2, n3], parents=[element]))
-    elif A==B and B!=C and C==D:
-        return (
-            newSkeleton.newElement(nodes=[n0, n1, n2], parents=[element]),
-            newSkeleton.newElement(nodes=[n0, n2, n3], parents=[element]))
-    elif A!=B and B==C and C==D:
-        n01Midpt=0.5*(n0.position()+n1.position())
-        n23Midpt=0.5*(n2.position()+n3.position())
-        transpt=newSkeleton.MS.transitionPointWithPoints_unbiased(n23Midpt,n01Midpt)
-        if transpt:
-            d23=(transpt-n23Midpt)**2
-            d01=(transpt-n01Midpt)**2
-        if transpt and d23>maxdelta2 and d01>maxdelta2:
-            na = newSkeleton.newNode(transpt.x, transpt.y)
-        else:
-            pos = element.frommaster(Point(0., 0.), rotation)
-            na = newSkeleton.newNode(pos.x, pos.y)
-    elif B!=C and C==D and D==A:
-        n12Midpt=0.5*(n1.position()+n2.position())
-        n30Midpt=0.5*(n3.position()+n0.position())
-        transpt=newSkeleton.MS.transitionPointWithPoints_unbiased(n30Midpt,n12Midpt)
-        if transpt:
-            d30=(transpt-n30Midpt)**2
-            d12=(transpt-n12Midpt)**2
-        if transpt and d30>maxdelta2 and d12>maxdelta2:
-            na = newSkeleton.newNode(transpt.x, transpt.y)
-        else:
-            pos = element.frommaster(Point(0., 0.), rotation)
-            na = newSkeleton.newNode(pos.x, pos.y)
-    elif C!=D and D==A and A==B:
-        n23Midpt=0.5*(n2.position()+n3.position())
-        n01Midpt=0.5*(n0.position()+n1.position())
-        transpt=newSkeleton.MS.transitionPointWithPoints_unbiased(n01Midpt,n23Midpt)
-        if transpt:
-            d01=(transpt-n01Midpt)**2
-            d23=(transpt-n23Midpt)**2
-        if transpt and d01>maxdelta2 and d23>maxdelta2:
-            na = newSkeleton.newNode(transpt.x, transpt.y)
-        else:
-            pos = element.frommaster(Point(0., 0.), rotation)
-            na = newSkeleton.newNode(pos.x, pos.y)
-    elif D!=A and A==B and B==C:
-        n30Midpt=0.5*(n3.position()+n0.position())
-        n12Midpt=0.5*(n1.position()+n2.position())
-        transpt=newSkeleton.MS.transitionPointWithPoints_unbiased(n12Midpt,n30Midpt)
-        if transpt:
-            d12=(transpt-n12Midpt)**2
-            d30=(transpt-n30Midpt)**2
-        if transpt and d12>maxdelta2 and d30>maxdelta2:
-            na = newSkeleton.newNode(transpt.x, transpt.y)
-        else:
-            pos = element.frommaster(Point(0., 0.), rotation)
-            na = newSkeleton.newNode(pos.x, pos.y)
-    else:
-        pos = element.frommaster(Point(0., 0.), rotation)
-        na = newSkeleton.newNode(pos.x, pos.y)
-    return (
-        newSkeleton.newElement(nodes=[na, n0, n1], parents=[element]),
-        newSkeleton.newElement(nodes=[na, n1, n2], parents=[element]),
-        newSkeleton.newElement(nodes=[na, n2, n3], parents=[element]),
-        newSkeleton.newElement(nodes=[na, n3, n0], parents=[element]))
-RefinementRule(liberalRuleSet, (0,0,0,0), rule0000)
 
 #            D
 #  3-------------------2
@@ -629,7 +454,7 @@ RefinementRule(liberalRuleSet, (0,0,0,0), rule0000)
 #  | \  .              |
 #  |  \   .            |
 #  |   \    .          |
-#  |    \     .        |
+#  |    \     .        |     TODO: WHY?
 #  |     \      .      |
 #  |      \       .    |
 #  |       \        .  |
@@ -653,7 +478,7 @@ RefinementRule(liberalRuleSet, (0,0,0,0), rule0000)
 #  |              .  / |
 #  |            .   /  |
 #  |          .    /   |
-#  |        .     /    |
+#  |        .     /    |    TODO: WHY?
 #  |      .      /     |
 #  |    .       /      |
 #  |  .        /       |
@@ -724,8 +549,8 @@ RefinementRule(liberalRuleSet, (1,0,0,0), rule1000)
 #  |\ .         |
 #  | \  .       |
 #  |  \   .     |
-#  |   \    .   |
-#  |    \     . b
+#  |   \    .   |    
+#  |    \     . b      TODO: WHY?  Use a3 or b3, but not both
 #  |     \     /|
 #  |      \   / |
 #  |       \ /  |
@@ -738,7 +563,7 @@ RefinementRule(liberalRuleSet, (1,0,0,0), rule1000)
 #  |         /|
 #  |        / |D
 #  |       /  |
-# F|      /   |
+# F|      /   |       
 #  |     /   /b
 #  |    /   / |
 #  |   /   /  |C

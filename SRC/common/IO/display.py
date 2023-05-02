@@ -78,6 +78,8 @@ class DisplayMethodParameter(parameter.RegisteredParameter):
 # attribute which lists the names of the WhoClasses that the
 # DisplayMethod accepts.
 
+layercounter = 0
+
 class DisplayMethod(registeredclass.RegisteredClass):
     registry = []
     def __init__(self):
@@ -96,8 +98,10 @@ class DisplayMethod(registeredclass.RegisteredClass):
     def build(self, gfxwindow):
         # Try to make the layer name unique, but don't try too hard.
         # It's only used for debugging.
+        global layercounter
         self.canvaslayer = gfxwindow.oofcanvas.newLayer(
-            self.short_name()+"_"+str(gfxwindow.oofcanvas.nLayers()))
+            self.short_name() + "_" + str(layercounter))
+        layercounter += 1
         if self.hidden:
             self.canvaslayer.hide()
         else:

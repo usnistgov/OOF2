@@ -30,8 +30,6 @@ typedef Array<int> NewArrayInt;
    // typemap(out) ArrayInt*
   int h = $1->height();
   int w = $1->width();
-  // assert(h >= PY_SSIZE_T_MIN && h <= PY_SSIZE_T_MAX);
-  // assert(w >= PY_SSIZE_T_MIN && w <= PY_SSIZE_T_MAX);
   $result = PyList_New((Py_ssize_t) h);
   for(int j=0; j<h; j++) {
     PyObject *row = PyList_New((Py_ssize_t) w);
@@ -46,8 +44,6 @@ typedef Array<int> NewArrayInt;
    // typemap(out) ArrayInt*
   int h = $1->height();
   int w = $1->width();
-  // assert(h >= PY_SSIZE_T_MIN && h <= PY_SSIZE_T_MAX);
-  // assert(w >= PY_SSIZE_T_MIN && w <= PY_SSIZE_T_MAX);
   $result = PyList_New((Py_ssize_t) h);
   for(int j=0; j<h; j++) {
     PyObject *row = PyList_New((Py_ssize_t) w);
@@ -98,12 +94,30 @@ typedef Array<int> NewArrayInt;
   Py_XDECREF(newval);
 }
 
+%nodefaultctor SegmentSection;
+
+class SegmentSection {
+public:
+  const int category;
+  double pixelLength();
+  double physicalLength();
+  Coord physicalPt0();
+  Coord physicalPt1();
+  Coord pixelPt0();
+  Coord pixelPt1();
+};
+
+ADD_REPR_GENERIC(SegmentSection);
+MAKE_LISTVEC_TYPEMAPS(SegmentSection);
+
 class CMicrostructure {
 public:
   CMicrostructure(const std::string &name, ICoord *Sequence, Coord *Sequence);
   ~CMicrostructure();
   void destroy(); 
   const std::string &name();
+  const Coord &sizeOfPixels();
+  Coord physical2Pixel(const Coord *Point);
   void rename(const std::string &name);
   TimeStamp &getTimeStamp();
   void setCurrentActiveArea(ActiveArea*);
@@ -126,10 +140,14 @@ public:
   bool transitionPointWithPoints(Coord *Point, Coord *Point,
 				 Coord *argout_Point);
   double edgeHomogeneity(const Coord &Point, const Coord &Point);
+  double oldEdgeHomogeneity(const Coord &Point, const Coord &Point);
   double edgeHomogeneityCat(const Coord &Point, const Coord &Point,
 			    int* int_argout);
   bool transitionPointWithPoints_unbiased(Coord *Point, Coord *Point,
 				 Coord *argout_Point);
+
+  SegmentSectionVec *getSegmentSections(const Coord* Point, const Coord *Point,
+					double);
 
 };
 

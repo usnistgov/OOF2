@@ -23,8 +23,6 @@
 #include "common/lock.h"
 #include "common/pixelgroup.h"
 #include "common/timestamp.h"
-//#include "common/pixelsetboundary.h"
-
 
 class ActiveArea;
 class CRectangle;
@@ -78,6 +76,28 @@ public:
   double getNormDelta() const;
 };
 
+class SegmentSection {
+private:
+  Coord p0, p1;	
+public:
+  int category, stepcategory;
+  const CMicrostructure *ms;
+  SegmentSection(const CMicrostructure *ms,
+		 const Coord &p0, const Coord &p1, int cat, int stepcat)
+    : ms(ms),
+      p0(p0), p1(p1),
+      category(cat), stepcategory(stepcat)
+  {}
+  double pixelLength() const;	 // length squared in pixel units
+  double physicalLength() const; // length in physical units
+  Coord physicalPt0() const;
+  Coord physicalPt1() const;
+  Coord pixelPt0() const { return p0; }
+  Coord pixelPt1() const { return p1; }
+  friend class CMicrostructure;
+};
+
+std::ostream &operator<<(std::ostream&, const SegmentSection&);
 
 class CMicrostructure {
 private:
@@ -120,6 +140,9 @@ private:
   mutable bool categorized;
   mutable unsigned int ncategories;
   void categorize() const;
+  void segmentCats(const std::vector<SegmentSection>&,
+		   const std::vector<int>&,
+		   double&, int&) const;
 
   // Lock to protect the sometimes-lengthy categorization process, and
   // functions which query the data it produces.  This lock protects
@@ -152,6 +175,7 @@ public:
   const ICoord &sizeInPixels() const { return pxlsize_; }
   const Coord &sizeOfPixels() const { return delta_; }
   Coord physical2Pixel(const Coord&) const; // real space to pixel coords
+  Coord physical2Pixel(const Coord *pt) const { return physical2Pixel(*pt); }
   Coord pixel2Physical(const ICoord&) const;
   Coord pixel2Physical(const Coord&) const;
   ICoord pixelFromPoint(const Coord&) const; // pixel containing the given point
@@ -179,11 +203,13 @@ public:
   const Array<int> *getCategoryMapRO() const; // changes no data
 
   unsigned int nCategories() const;
-  // Three different versions of this for convenience in calling it...
+  // Three, no four, no five different versions of this for
+  // convenience in calling it...
   int category(const ICoord *where) const;
   int category(const ICoord &where) const;
   int category(int x, int y) const;
   int category(const Coord &where) const; // Arbitrary physical-coord point.
+  int category(double x, double y) const { return category(Coord(x,y)); }
   void recategorize();
   const ICoord &getRepresentativePixel(std::size_t category) const;
   bool is_categorized() const { return categorized; }
@@ -192,7 +218,10 @@ public:
     return categoryBdys;
   }
 
-  std::vector<ICoord> *segmentPixels(const Coord&, const Coord&, bool&) const;
+  std::vector<ICoord> *segmentPixels(const Coord&, const Coord&, bool&, bool&)
+    const;
+  std::vector<SegmentSection*> *getSegmentSections(const Coord*, const Coord*,
+						   double) const;
   
   MarkInfo *beginMarking(const CRectangle&) const; // sets active subarray of markedpixels
   void markSegment(MarkInfo*, const Coord&, const Coord&) const;
@@ -206,6 +235,13 @@ public:
 			      Coord *result) const;
   bool transitionPoint(const Coord&, const Coord&, Coord *result) const;
   double edgeHomogeneity(const Coord&, const Coord&) const;
+
+  // oldEdgeHomogeneity uses older machinery to compute the
+  // homogeneity.  It doesn't handle stairsteps well.  It will be
+  // deleted after we're sure that the new machinery is better,
+  // including being sure that test failures are due to the expected
+  // differences in the two methods.
+  double oldEdgeHomogeneity(const Coord&, const Coord&) const; 
 
   double edgeHomogeneityCat(const Coord&, const Coord&, int* cat) const;
   bool transitionPointWithPoints_unbiased(const Coord*, const Coord*, Coord*) const;

@@ -1,7 +1,5 @@
-2.2.3
 
-* Meshes are drawn by default at their actual position.  The default
-  behavior can be changed in the settings menu.
+2.4.0
 
 * Upgrade to Python3 from Python2
 
@@ -14,6 +12,23 @@
   want to go ahead without completing a task, it's up to
   you. Detecting when the task was complete was error prone and
   confusing.
+
+* Added an element aspect ratio display to the Skeleton Info toolbox.
+
+* Changed the way that Snap Refine works, eliminating some unnecesary
+  new elements.
+
+* Changed the aspect ratio calculation used when deciding whether or
+  not to refine an element.
+
+2.2.3
+
+* Meshes are drawn by default at their actual position.  The default
+  behavior can be changed in the settings menu.
+
+* Version 1.0.3 of OOFCanvas is now required. This fixes a bug that
+  was causing the program to hang on some systems when a graphics
+  window was used while loading a script.
 
 2.2.1/2
 

@@ -387,10 +387,9 @@ class SkeletonPage(oofGUI.MainPage):
         self.sensitize()
             
     def deleteInfoBuffer(self):
-        buffer = self.skelinfo.get_buffer()
-        buffer.delete(buffer.get_start_iter(), buffer.get_end_iter())
-        buffer.insert(buffer.get_end_iter(),
-                      "No skeleton selected.\n")
+        bfr = self.skelinfo.get_buffer()
+        bfr.delete(bfr.get_start_iter(), bfr.get_end_iter())
+        bfr.insert(bfr.get_end_iter(), "No skeleton selected.\n")
 
     def writeInfoBuffer(self, nNodes, nElements, illegalcount, shapecounts,
                         homogIndex, left_right_periodicity,
@@ -398,46 +397,41 @@ class SkeletonPage(oofGUI.MainPage):
         # Called by update() to actually fill in the data on the
         # main thread.
         debug.mainthreadTest()
-        buffer = self.skelinfo.get_buffer()
-        buffer.delete(buffer.get_start_iter(), buffer.get_end_iter())
-        if illegalcount > 0 :
-            buffer.insert_with_tags(buffer.get_end_iter(),
-                                    "WARNING: %d ILLEGAL ELEMENT%s.\n" %
-                                    (illegalcount, "S"*(illegalcount!=1)),
-                                    self.boldTag)
-            buffer.insert(buffer.get_end_iter(),
-                          "Element data is unreliable.\n")
+        bfr = self.skelinfo.get_buffer()
+        bfr.delete(bfr.get_start_iter(), bfr.get_end_iter())
+        if illegalcount:
+            bfr.insert_with_tags(bfr.get_end_iter(),
+                                 "WARNING: %d ILLEGAL ELEMENT%s.\n" %
+                                 (illegalcount, "S"*(illegalcount!=1)),
+                                 self.boldTag)
+            bfr.insert(bfr.get_end_iter(),
+                       "Element data is unreliable.\n")
 
-            buffer.insert(buffer.get_end_iter(),
-                          "Remove %s before proceeding.\n\n"
-                          % itORthem[illegalcount!=1])
+            bfr.insert(bfr.get_end_iter(),
+                       "Remove %s before proceeding.\n\n"
+                       % itORthem[illegalcount!=1])
 
-        buffer.insert(buffer.get_end_iter(), "No. of Nodes: %d\n" % nNodes)
-        buffer.insert(buffer.get_end_iter(),
-                      "No. of Elements: %d\n" % nElements)
+        bfr.insert(bfr.get_end_iter(), "No. of Nodes: %d\n" % nNodes)
+        bfr.insert(bfr.get_end_iter(), "No. of Elements: %d\n" % nElements)
 
         for name in skeletonelement.ElementShapeType.names:
-            buffer.insert(buffer.get_end_iter(),
-                          "No. of %ss: %d\n" % (name, shapecounts[name]))
+            bfr.insert(bfr.get_end_iter(),
+                       "No. of %ss: %d\n" % (name, shapecounts[name]))
 
-        buffer.insert(buffer.get_end_iter(),
-                          "Left-Right Periodicity: %s\n" % left_right_periodicity)
-        buffer.insert(buffer.get_end_iter(),
-                          "Top-Bottom Periodicity: %s\n" % top_bottom_periodicity)
-        if config.dimension() == 3:
-            buffer.insert(buffer.get_end_iter(),
-                          "Front-Back Periodicity: %s\n" % front_back_periodicity)
+        bfr.insert(bfr.get_end_iter(),
+                   "Left-Right Periodicity: %s\n" % left_right_periodicity)
+        bfr.insert(bfr.get_end_iter(),
+                   "Top-Bottom Periodicity: %s\n" % top_bottom_periodicity)
             
 
         if homogIndex is not None:
-            buffer.insert(buffer.get_end_iter(),
-                          "Homogeneity Index: %s\n" % homogIndex)
+            bfr.insert(bfr.get_end_iter(),
+                       "Homogeneity Index: %s\n" % homogIndex)
         else:
-            buffer.insert(buffer.get_end_iter(),
-                          "Homogeneity Index: ????\n")
+            bfr.insert(bfr.get_end_iter(), "Homogeneity Index: ????\n")
 
         gtklogger.checkpoint("skeleton page info updated")
-
+        
     def new_skeleton_CB(self, gtkobj): # gtk callback for "New..." button
         paramset = [x for x in skeletonmenu.New.params if x.name!='microstructure']
         if parameterwidgets.getParameters(title='New skeleton',

@@ -678,7 +678,7 @@ class SegmentHomogeneity(SegmentSelectionModifier):
                 selected.append(segment)
         selection.start()
         selection.clear()
-        selection.select(selected)
+        selection.select(selected) # TODO PYTHON3: Can arg be an generator?
 
 registeredclass.Registration(
     'Select by Homogeneity',
@@ -691,6 +691,58 @@ registeredclass.Registration(
     tip="Select segments with homogeneity less than the given threshold.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/hetero_segments.xml'))
 
+if debug.debug():
+    class SegmentHomogeneityDiff(SegmentSelectionModifier):
+        def __init__(self, threshold=0.9):
+            self.threshold = threshold
+        def __call__(self, skeleton, selection):
+            selected = []
+            skel = skeleton.getObject()
+            for segment in skel.segment_iterator():
+                oldhom = segment.oldHomogeneity(skel.MS)
+                newhom = segment.homogeneity(skel.MS)
+                if oldhom < self.threshold and newhom >= self.threshold:
+                    selected.append(segment)
+            selection.start()
+            selection.clear()
+            selection.select(selected)
+
+    registeredclass.Registration(
+        'Select by Homogeneity Diff',
+        SegmentSelectionModifier,
+        SegmentHomogeneityDiff,
+        ordering=1.5,
+        params = [parameter.FloatRangeParameter('threshold', (0.0, 1.0, 0.01),
+                                                value=0.9,
+                                                tip='The threshold homogeneity.')],
+        tip="Select segments with old homogeneity less than the given threshold. and new homogeneity above it"
+    )
+
+    class SegmentOldHomogeneity(SegmentSelectionModifier):
+        def __init__(self, threshold=0.9):
+            self.threshold = threshold
+
+        def __call__(self, skeleton, selection):
+            selected = []
+            skel = skeleton.getObject()
+            for segment in skel.segment_iterator():
+                if segment.homogeneity(skel.MS) < self.threshold:
+                    selected.append(segment)
+            selection.start()
+            selection.clear()
+            selection.select(selected) # TODO PYTHON3: Can arg be an generator?
+
+    registeredclass.Registration(
+        'Select by Old Homogeneity',
+        SegmentSelectionModifier,
+        SegmentOldHomogeneity,
+        ordering=1.5,
+        params = [parameter.FloatRangeParameter('threshold', (0.0, 1.0, 0.01),
+                                                value=0.9,
+                                                tip='The threshold homogeneity.')],
+        tip="Select segments with OLD homogeneity less than the given threshold.")
+
+    
 #######################
 
 # Select the indicated group.

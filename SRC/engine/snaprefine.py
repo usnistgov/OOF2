@@ -11,7 +11,7 @@
 # This file implements "Snap Refine"
 # (was called "Intelligent Refine" (pun intended)).
 # New edge nodes are transition points.
-# The "ruleset" is always liberal in 2D but 3D only has a conservative ruleset for now.
+# The "ruleset" is always liberal.
 
 # Comment from the original refine.py
 # Refinement works in two stages.  First a RefinementTarget object (from
@@ -95,7 +95,8 @@ class SnapEdgeMarkings(refine.EdgeMarkings):
         return []
 
     # helper function for getSnapMarks 
-    def getPeriodicTransPtHelper(self, transptlistCandidates, c1, c2, v1, v2, node0, node1):
+    def getPeriodicTransPtHelper(self, transptlistCandidates,
+                                 c1, c2, v1, v2, node0, node1):
         n0pt=node0.position()
         n1pt=node1.position()
         key=skeletonnode.canonical_order(node0,node1)
@@ -158,56 +159,72 @@ class SnapEdgeMarkings(refine.EdgeMarkings):
             n0pt=node0.position()
             n1pt=node1.position()
             key=skeletonnode.canonical_order(node0,node1)
-            initmark=0
-            try:
-                initmark=self.markings[key]
-                # If the edges are marked then the element should be
-                # refined, even if we find no transition points.
-                numinitmarks+=initmark
-            except KeyError:
-                pass
+            initmark=self.markings.get(key, 0)
+
+            # If the edges are marked then the element should be
+            # refined, even if we find no transition points.
+            ## TODO: Why?  
+            numinitmarks+=initmark
+
             if initmark>0:
-                #print "initmark>0"
-                #Marked for bisection or trisection, find or retrieve new edge nodes.
+                # Marked for bisection or trisection, find or retrieve
+                # new edge nodes.
                 try:
-                    #See if we already created new edge nodes for this edge.
-                    transptnodelist = self.newEdgeNodes[key][:] # Make a list copy
+                    # See if we already created new edge nodes for this edge.
+                    transptnodelist = self.newEdgeNodes[key][:] # copy list
                     transptnodelist.reverse()
                 except KeyError:
                     #print "not already in edge nodes"
                     partners=node0.getPartnerPair(node1)
-                    #It can happen that partners contains the same two nodes (node1,node0)!
+                    # It can happen that partners contains the same
+                    # two nodes (node1,node0)!
                     if partners and node0!=partners[1]:
-    ############## Begin Periodic Skeleton Node Construction ###################
-                        partnerKey = skeletonnode.canonical_order(partners[0], partners[1])
-                        #If the edge nodes have periodic partners, then find the transition
-                        #points on the current edge and the partner edge. Get the pair of
-                        #transition points that is closest to the endpoints (imagine joining
-                        #together the two opposite edges).
+                        # Begin Periodic Skeleton Node Construction
+                        partnerKey = skeletonnode.canonical_order(partners[0],
+                                                                  partners[1])
+                        # If the edge nodes have periodic partners,
+                        # then find the transition points on the
+                        # current edge and the partner edge. Get the
+                        # pair of transition points that is closest to
+                        # the endpoints (imagine joining together the
+                        # two opposite edges).
                         n0pt_partner=partners[0].position()
                         n1pt_partner=partners[1].position()
-                        transptlistCandidates=self.getTransitionPoints(n0pt,n1pt)+\
-                                         self.getTransitionPoints(n0pt_partner,n1pt_partner)
+                        transptlistCandidates= \
+                            self.getTransitionPoints(n0pt,n1pt)+\
+                            self.getTransitionPoints(n0pt_partner,n1pt_partner)
                         size = self.newSkelMS.size()
                         if len(transptlistCandidates)>0:
-                            #Case 1: boundary at left edge or face
+                            # Case 1: boundary at left edge or face
                             if n0pt.x==0 and n1pt.x==0:
-                                transptnodelist = self.getPeriodicTransPtHelper(transptlistCandidates, 0, 1, 0, size[0], node0, node1)
-                            #Case 2: boundary at right edge or face
+                                transptnodelist = \
+                                    self.getPeriodicTransPtHelper(
+                                        transptlistCandidates,
+                                        0, 1, 0, size[0], node0, node1)
+                            # Case 2: boundary at right edge or face
                             elif n0pt.x==size[0] and n1pt.x==size[0]: 
-                                transptnodelist = self.getPeriodicTransPtHelper(transptlistCandidates, 0, 1, size[0], 0, node0, node1)
-                            #Case 3: boundary at bottom edge or face
+                                transptnodelist = \
+                                    self.getPeriodicTransPtHelper(
+                                        transptlistCandidates,
+                                        0, 1, size[0], 0, node0, node1)
+                            # Case 3: boundary at bottom edge or face
                             elif n0pt.y==0 and n1pt.y==0:
-                                transptnodelist = self.getPeriodicTransPtHelper(transptlistCandidates, 1, 0, 0, size[1], node0, node1)
-                            #Case 4: boundary at top edge or face
+                                transptnodelist = \
+                                    self.getPeriodicTransPtHelper(
+                                        transptlistCandidates,
+                                        1, 0, 0, size[1], node0, node1)
+                            # Case 4: boundary at top edge or face
                             elif n0pt.y==size[1] and n1pt.y==size[1]:
-                                transptnodelist = self.getPeriodicTransPtHelper(transptlistCandidates, 1, 0, size[1], 0, node0, node1)
+                                transptnodelist = \
+                                    self.getPeriodicTransPtHelper(
+                                        transptlistCandidates,
+                                        1, 0, size[1], 0, node0, node1)
 
                         else:
                             self.newEdgeNodes[key]=[]
                             self.newEdgeNodes[partnerKey]=[]
                             transptnodelist = []
-    ############## End Periodic Skeleton Node Construction ###################
+                        # End Periodic Skeleton Node Construction
                     else:
                         ## getTransitionPoints returns 0, 1, or 2
                         ## points.  If there are more than 2, it
@@ -252,7 +269,7 @@ class SnapEdgeMarkings(refine.EdgeMarkings):
                         n0pt,n1pt)
                     cats.append((catedge,))
                     transpts.append([])
-            else:
+            else:               # initmark == 0
                 marks.append(0)
                 homogedge,catedge=self.newSkelMS.edgeHomogeneityCat(n0pt,n1pt)
                 cats.append((catedge,))
@@ -279,9 +296,7 @@ class SnapRefine(refine.Refine):
     #########
 
     # TODO: This still overlaps quite a bit with refine.py - when
-    # moving this to C, we should try to clean this up somewhat, also,
-    # it would be good to have a signature scheme that works in both
-    # 2D and 3D.
+    # moving this to C, we should try to clean this up somewhat.
 
     def refinement(self, skeleton, newSkeleton, context, prog):
         maxdelta = max(newSkeleton.MS.sizeOfPixels())
@@ -304,8 +319,6 @@ class SnapRefine(refine.Refine):
         for ii in range(n):
             #print ii, n
             oldElement = elements[ii]
-            oldnnodes = oldElement.nnodes()
-            # For 2D:
             # Get list of number of subdivisions on each edge ("marks")
             (numinitmarks,marks,cats,edgenodes) = \
                       markedEdges.getSnapMarks(oldElement)
@@ -321,28 +334,20 @@ class SnapRefine(refine.Refine):
             signature = signature_info[1]
 
             # Create new elements
-            # TODO: It's annoying that we have a separate
-            # "unrefinedelement" method.  It would be cleaner if this
-            # were called automatically using the signature.  We
-            # should do this when we move things to C.
-            if numinitmarks>0:
-                newElements = self.rules[signature].apply(
-                    oldElement, signature_info, cats,
-                    edgenodes, newSkeleton, maxdelta2)
-                if debug.debug():
-                    for el in newElements:
-                        if el.illegal():
-                            debug.fmsg("oldElement=", oldElement)
-                            debug.fmsg([n.position() for n in oldElement.nodes])
-                            debug.fmsg("newElement=", el)
-                            debug.fmsg([n.position() for n in el.nodes])
-                            debug.fmsg("signature=", signature)
-                            debug.fmsg("rule=", self.rules[signature])
-                            raise ooferror.PyErrPyProgrammingError(
-                                "Illegal element created by SnapRefine")
-            else:
-                newElements = snaprefinemethod.unrefinedelement(
-                    oldElement, signature_info, newSkeleton)
+            newElements = self.rules[signature].apply(
+                oldElement, signature_info, cats,
+                edgenodes, newSkeleton, maxdelta2)
+            if debug.debug():
+                for el in newElements:
+                    if el.illegal():
+                        debug.fmsg("oldElement=", oldElement)
+                        debug.fmsg([n.position() for n in oldElement.nodes])
+                        debug.fmsg("newElement=", el)
+                        debug.fmsg([n.position() for n in el.nodes])
+                        debug.fmsg("signature=", signature)
+                        debug.fmsg("rule=", self.rules[signature])
+                        raise ooferror.PyErrPyProgrammingError(
+                            "Illegal element created by SnapRefine")
 
             # If the old element's homogeneity is 1, it's safe to say that
             # new elements' homogeneities are 1.

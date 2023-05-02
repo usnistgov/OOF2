@@ -48,6 +48,8 @@ public:
   }
 }
 
+double dot(const Coord *Point, const Coord *Point);
+
 class ICoord {
 public:
   ICoord(int x, int y);
