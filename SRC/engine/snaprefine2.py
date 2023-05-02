@@ -525,11 +525,12 @@ registeredclass.Registration(
             tip='Exclude certain elements.'),
         parameter.FloatRangeParameter(
             'min_distance',
-            (0.1, 10.0, 0.1),
+            (0.0, 10.0, 0.1),
             value=2.0,
             tip=
-"""Minimum distance of transition points along a given edge
-from each other and the end-points, in pixel units."""),
+"""Minimum spacing for transition points along a given edge
+from each other and the end-points, in pixel units.
+A value of at least 2 is recommended."""),
         skeletonmodifier.alphaParameter
             ],
     tip="Subdivide elements along pixel boundaries.",

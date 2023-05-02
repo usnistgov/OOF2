@@ -535,38 +535,38 @@ def build_mod_args():
         "Snap Refine II" :
         [
         ("modbase", "snaprefine_1",
-         { "targets" : CheckHomogeneity(threshold=0.9),
+         { "targets" : CheckHomogeneity2(threshold=0.9),
            "criterion" : Unconditionally(),
            "min_distance" : 0.01,
            }
          ),
         ("modgroups","snaprefine_2",
-         {"targets" : CheckElementsInGroup(group='elementgroup'),
+         {"targets" : CheckElementsInGroup2(group='elementgroup'),
           "criterion" : Unconditionally(),
           "min_distance" : 1.0,
           }
          ),
         ("modgroups2","snaprefine_3",
-         {"targets" : CheckAllElements(),
+         {"targets" : CheckAllElements2(),
           "criterion" : Unconditionally(),
           "min_distance" : 1.0,
           }
          ),
         ("modgroups","snaprefine_4",
-         {"targets" : CheckAspectRatio(threshold=1.5),
+         {"targets" : CheckAspectRatio2(threshold=1.5),
           "criterion" : Unconditionally(),
           "min_distance" : 0.01,
           }
          ),
         ("modgroups2","snaprefine_5",
-         {"targets" : CheckHeterogeneousEdges(threshold=1,
-                                              choose_from=FromAllSegments()),
+         {"targets" : CheckHeterogeneousEdges2(threshold=1,
+                                              choose_from=FromAllSegments2()),
           "criterion" : Unconditionally(),
           "min_distance" : 1.0,
           }
          ),
         ("modbase1x1","snaprefine_1x1",
-         { "targets" : CheckHomogeneity(threshold=0.9),
+         { "targets" : CheckHomogeneity2(threshold=0.9),
            "criterion" : Unconditionally(),
            "min_distance" : 1.0,
            }
