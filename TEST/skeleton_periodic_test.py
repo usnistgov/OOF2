@@ -532,7 +532,7 @@ def build_mod_args():
             }
            )
           ],
-        "Snap Refine" :
+        "Snap Refine II" :
         [
         ("modbase", "snaprefine_1",
          { "targets" : CheckHomogeneity(threshold=0.9),
