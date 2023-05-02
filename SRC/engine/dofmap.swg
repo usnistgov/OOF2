@@ -27,14 +27,17 @@ class DoFMap {
 public:
   DoFMap();
   ~DoFMap();
-  %new DoubleVec* extract(DoubleVec&);
+  %newobject extract;
+  DoubleVec* extract(DoubleVec&);
   void inject(DoubleVec&, DoubleVec&);
   int range();
   int domain();
-  %addmethods {
-    %new const std::string *__repr__() {
-      return new std::string(to_string(*self));
-    }
+};
+
+%extend DoFMap {
+  %newobject __repr__;
+  const std::string *__repr__() {
+    return new std::string(to_string(*self));
   }
 };
 
