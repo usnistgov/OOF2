@@ -32,6 +32,8 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
+## TODO PYTHON3: Fix keyboard mode
+
 class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def __init__(self, movenodetoolbox):
         debug.mainthreadTest()

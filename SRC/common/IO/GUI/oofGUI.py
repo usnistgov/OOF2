@@ -60,8 +60,7 @@ class oofGUI(widgetscope.WidgetScope):
         widgetscope.WidgetScope.__init__(self, None)
         self.gtk = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
         self.gtk.set_title(oofname)
-        initial_width, initial_height = map(int,
-                                            runtimeflags.geometry.split('x'))
+        initial_width, initial_height = runtimeflags.getGeometry()
         self.gtk.set_default_size(initial_width, initial_height)
         gtklogger.newTopLevelWidget(self.gtk, oofname)
         gtklogger.connect(self.gtk, "delete-event", self.deleteEventCB)

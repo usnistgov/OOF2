@@ -89,8 +89,7 @@ def remove_option(item, argument=None):
                                            (item, argument))
 
 def state_options_and_quit():
-    if config.dimension()==2:
-        main_options_string= """
+    main_options_string= """
 This is oof2 version %s.
 
 Usage: oof2 [options]
@@ -101,6 +100,7 @@ option      argument    description
 --help                   Display valid options and exit
 --version                Display version number and exit
 --gtk=      gtk options  Extra options for graphics mode
+--digits=   integer      Number of digits after the decimal point in the GUI
 --geometry  <width>x<height>  Size of the initial OOF2 window. 
 --seed=     integer      Provide a random number seed
 --quiet                  Quit quietly when done
@@ -108,23 +108,6 @@ option      argument    description
 --autoload               Automatically load everything in the EXTENSIONS directory""" \
     % oofversion.version
 
-    elif config.dimension()==3:
-        main_options_string= """
-This is oof3d version %s.
-
-Usage: oof3d [options]
-The options are:
-option      argument    description
---------------------------------------------------------------
---text                   Turn off graphics mode
---help                   Display valid options and exit
---version                Display version number and exit
---gtk=      gtk options  Extra options for graphics mode
---seed=     integer      Provide a random number seed
---quiet                  Quit quietly when done
---batch                  Quit immediately after running scripts (implies --text)
---autoload               Automatically load everything in the EXTENSIONS directory""" \
-    % oofversion.version
     
     devel_options_string = """
 --parallel               Start-up parallel processing mode """
@@ -197,6 +180,7 @@ def process_inline_options():
     global recording, replaying
     option_list = ['text', 'help', 'version', 'quiet', 'batch', 'no-rc',
                    'gtk=', 'unthreaded', 'socket=', 'script=', 'seed=',
+                   'digits=',
                    'data=', 'image=', 'import=', 'debug', 'command=',
                    'record=', 'rerecord=', 'replay=', 'replaydelay=',
                    'pathdir=', 'no-checkpoints', 'autoload', 'geometry=',
@@ -278,6 +262,9 @@ def process_inline_options():
             remove_option(opt[0])
         elif opt[0] in ('--geometry',):
             runtimeflags.geometry = opt[1]
+            remove_option(opt[0], opt[1])
+        elif opt[0] in ('--digits',):
+            runtimeflags.digits = opt[1]
             remove_option(opt[0], opt[1])
         elif opt[0] in ('--no-rc',):
             no_rc = True

@@ -19,6 +19,8 @@ from ooflib.common.IO.GUI import pixelinfoGUIplugin
 from ooflib.engine.IO import orientationmatrix
 from ooflib.orientationmap import pixelinfoplugin
 
+from ooflib.common.runtimeflags import digits
+
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -327,8 +329,8 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.refOrient = plugin.referenceOrientation
         self.refPoint = plugin.referencePoint
         self.refWidget.set(self.refOrient, interactive=False)
-        self.xtext.set_text(repr(self.refPoint.x))
-        self.ytext.set_text(repr(self.refPoint.y))
+        self.xtext.set_text(f"{self.refPoint.x:.{digits}g}")
+        self.ytext.set_text(f"{self.refPoint.y:.{digits}g}")
         self.stack.set_visible_child_name("refwidget")
         assert self.refOrient is not None
         self.updateMisorientation()
@@ -341,7 +343,7 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         else:
             misorientation = orient.misorientation(self.refOrient,
                                                    symmetry.schoenflies())
-            self.misorientationText.set_text(repr(misorientation))
+            self.misorientationText.set_text(f"{misorientation:.{digits}f}")
         self.sensitize()
 
     def getOrientPlugInData(self):

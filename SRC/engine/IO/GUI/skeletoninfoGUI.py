@@ -22,6 +22,7 @@ from ooflib.common.IO.GUI import toolboxGUI
 from ooflib.engine.IO import skeletoninfo
 
 from ooflib.common.utils import stringjoin
+from ooflib.common.runtimeflags import digits
 
 import gi
 gi.require_version("Gtk", "3.0")
@@ -130,17 +131,20 @@ class SkeletonInfoMode:
 
     def updateNodeList(self, chsr, objlist):
         # called only when Skeleton readlock has been obtained.
-        namelist = ["Node %d at (%s, %s)" % (obj.index, obj.position().x,
-                                             obj.position().y)
+        namelist = [(f"Node {obj.index} at "
+                     f"({obj.position().x:.{digits}g}, "
+                     f"{obj.position().y:.{digits}g})")
                     for obj in objlist]
+        
         mainthread.runBlock(chsr.update, (objlist, namelist))
 
     def updateNodeListAngle(self, chsr, element):
         # called only when Skeleton readlock has been obtained.
-        namelist = ["Node %d at (%s, %s) (angle: %s)" % \
-                   (node.index, node.position().x, node.position().y,
-                    element.getRealAngle(element.nodes.index(node)))
-                    for node in element.nodes]
+        namelist = [f"Node {node.index} at "
+                    f"({node.position().x:.{digits}g}, "
+                    f"{node.position().y:.{digits}g}) "
+                    f"(angle: {element.getRealAngle(i):.{digits}f})"
+                    for i,node in enumerate(element.nodes)]
         mainthread.runBlock(chsr.update, (element.nodes, namelist))
     
     def makeElementList(self, column, row):
@@ -178,9 +182,9 @@ class SkeletonInfoMode:
     
     def updateSegmentList(self, chsr, objlist):
         # called only when Skeleton readlock has been obtained.        
-        namelist = ["Segment %d, nodes (%d, %d) (length: %s)" %
-                    (obj.index, obj.nodes()[0].index, obj.nodes()[1].index,
-                     obj.length())
+        namelist = [f"Segment {obj.index}, "
+                    f"nodes ({obj.nodes()[0].index}, {obj.nodes()[1].index}) "
+                    f"(length: {obj.length():.{digits}g})"
                     for obj in objlist]
         mainthread.runBlock(chsr.update, (objlist, namelist))
 
@@ -264,8 +268,8 @@ class ElementMode(SkeletonInfoMode):
 
         container.context.begin_reading()
         try:
-            etype = repr(element.type())[1:-1] # strip quotes
-            eindex = repr(element.getIndex())
+            etype = f"{element.type()}"[1:-1] # strip quotes
+            eindex = f"{element.getIndex()}"
 
             self.updateNodeListAngle(self.nodes, element)
             # Clear the selection in the list of nodes if there's
@@ -278,7 +282,7 @@ class ElementMode(SkeletonInfoMode):
             # nothing in the peeker.
             self.syncPeeker(self.segs, "Segment")
 
-            earea = "%s" % element.area()
+            earea = f"{element.area():.{digits}g}"
 
             if not element.illegal():
                 domCat = element.dominantPixel(skeleton.MS)
@@ -287,12 +291,13 @@ class ElementMode(SkeletonInfoMode):
                 pixgrps = stringjoin(pixGrp, ", ")
                 # Change False to True in this line to get verbose
                 # output from the homogeneity calculation.
-                ehom = "%f" % element.homogeneity(skeleton.MS, False)
-                eshape = "%f" % element.energyShape()
+                ehom = f"{element.homogeneity(skeleton.MS, False):.{digits}f}"
+                eshape = f"{element.energyShape():.{digits}f}"
 
                 a2 = element.aspectRatio2()
                 if a2 > 0:
-                    aspect = "%f" % (1./math.sqrt(element.aspectRatio2()))
+                    aspect = \
+                        f"{(1./math.sqrt(element.aspectRatio2())):.{digits}g}"
                 else:
                     aspect = "infinity"
 
@@ -392,8 +397,8 @@ class NodeMode(SkeletonInfoMode):
         container.context.begin_reading()
         try:
             nindex = repr(node.getIndex())
-            npos = "(%s, %s)" % (node.position().x, node.position().y)
-            
+            npos = (f"({node.position().x:.{digits}g}, "
+                    f"{node.position().y:.{digits}g})")
             if node.movable_x() and node.movable_y():
                 nmob = "free"
             elif node.movable_x() and not node.movable_y():
@@ -506,13 +511,11 @@ class SegmentMode(SkeletonInfoMode):
             self.syncPeeker(self.nodes, "Node")
             self.updateElementList(self.elem, segment.getElements())
             self.syncPeeker(self.elem, "Element")
-            ## TODO PYTHON3: Fix floating point formatting here and in
-            ## all toolbox displays
-            length = f"{segment.length():9.4g}" 
+            length = f"{segment.length():.{digits}g}" 
             homogvals = segment.homogeneity2(skeleton.MS)
-            homog = [f"1 - {(1-h):-8.6f}"
-                     if (0.9999 < h < 1.0)
-                     else f"{h:-8.6f}"
+            homog = [f"1-{(1-h):.{digits}f}"
+                     if (0.999 < h < 1.0)
+                     else f"{h:.{digits}f}"
                      for h in homogvals]
             self.updateGroup(segment)
 

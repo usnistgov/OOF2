@@ -23,6 +23,8 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import widgetscope
 
+from ooflib.common.runtimeflags import digits
+
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -156,7 +158,10 @@ class GenericWidget(ParameterWidget):
         return None
     def set_value(self, newvalue):
         debug.mainthreadTest()
-        valuestr = repr(newvalue)
+        if isinstance(newvalue, float):
+            valuestr = f"{newvalue:.{digits}g}"
+        else:
+            valuestr = f"{newvalue}"
         self.signal.block()
         self.gtk.set_text(valuestr)
         self.signal.unblock()
@@ -345,8 +350,10 @@ class AutoWidget(ParameterWidget):
                     self.enterManualMode()
                 if isinstance(newvalue, StringType):
                     self.gtk.set_text(newvalue)
+                elif isinstance(newvalue, float):
+                    self.gtk.set_text(f"{newvalue:.{digits}g}")
                 else:
-                    self.gtk.set_text(repr(newvalue))
+                    self.gtk.set_text(f"{newvalue}")
         finally:
             self.deleteSignal.unblock()
         self.widgetChanged(1, interactive=0)

@@ -24,3 +24,6 @@ geometry="550x350"
 
 def getGeometry():
     return list(map(int, geometry.split('x')))
+
+
+digits = 5         # precision for floating point data in gui displays

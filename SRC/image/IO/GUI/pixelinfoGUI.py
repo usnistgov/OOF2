@@ -19,6 +19,8 @@ from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import pixelinfoGUIplugin
 
+from ooflib.common.runtimeflags import digits
+
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -146,9 +148,9 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
                           self.colorv.getBlue())
             if not self.rgb_selector.get_active():
                 (c1,c2,c3) = color.hsv_from_rgb(c1,c2,c3)
-            self.text1.set_text(repr(c1))
-            self.text2.set_text(repr(c2))
-            self.text3.set_text(repr(c3))
+            self.text1.set_text(f"{c1:.{digits}f}")
+            self.text2.set_text(f"{c2:.{digits}f}")
+            self.text3.set_text(f"{c3:.{digits}f}")
             
         else:
             self.text1.set_text("")
