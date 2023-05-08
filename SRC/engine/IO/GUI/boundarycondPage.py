@@ -356,7 +356,7 @@ class BoundaryCondPage(oofGUI.MainPage):
             if parameterwidgets.getParameters(
                     newnameparam,
                     parentwindow=self.gtk.get_toplevel(),
-                    title="Rename the boundary condition '%s'" % bcname):
+                    title=f"Rename the boundary condition '{bcname}'"):
                 menuitem.callWithDefaults(mesh=meshname, bc=bcname)
 
     def newBCs(self, mesh, bc=None, visible=True):

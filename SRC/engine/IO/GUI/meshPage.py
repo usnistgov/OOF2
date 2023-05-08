@@ -30,6 +30,8 @@ from ooflib.engine import meshstatus
 from ooflib.engine import skeletoncontext
 import ooflib.engine.mesh
 
+from ooflib.common.runtimeflags import digits 
+
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -369,13 +371,13 @@ class MeshPage(oofGUI.MainPage):
         textlines = []
         if themesh is not None:
             skel = themesh.getSkeleton()
-            textlines.append("Status: %s" % themesh.status.tag)
+            textlines.append(f"Status: {themesh.status.tag}")
             if themesh.outOfSync():
                 textlines.append("*** Mesh must be rebuilt! ***")
-            textlines.append("No. of Nodes:\t%d" % themesh.nnodes())
+            textlines.append(f"No. of Nodes:\t{themesh.nnodes()}")
             #Interface branch
-            textlines.append("No. of Elements:\t%d" % (themesh.nelements() +
-                                                       themesh.nedgements()))
+            nel = themesh.nelements() + themesh.nedgements()
+            textlines.append(f"No. of Elements:\t{nel}")
             masterelementenums = masterelement.getMasterElementEnums()
             corners = sorted(list(masterelementenums.keys())) # list of element geometries
             counts = [0]*(max(corners)+1)
@@ -383,17 +385,15 @@ class MeshPage(oofGUI.MainPage):
                 counts[elem.nnodes()] += 1
             counts[2]=themesh.nedgements() #Interface branch
             for ncorners in corners:
-                textlines.append("%d cornered element:\t%s (%d)"
-                                 % (ncorners, 
-                                    themesh.getMasterElementType(ncorners),
-                                    counts[ncorners]))
-            textlines.append("Time:\t%s" % themesh.getCurrentTime())
+                en = themesh.getMasterElementType(ncorners)
+                ec = counts[ncorners]
+                textlines.append(f"{ncorners} cornered element:\t {en} ({ec})")
+            textlines.append(f"Time:\t{themesh.getCurrentTime():.{digits}g}")
             textlines.append(
                 "Data Cache Type: %s" %
                 meshdatacache.getMeshDataCacheType(themesh.datacache))
             n = themesh.datacache.size()
-            textlines.append("Data Cache Size: %d time step%s" 
-                             % (n, "s"*(n!=1)))
+            textlines.append(f"Data Cache Size: {n} time step{'s'*(n!=1)}") 
         else:                           # no current mesh
             textlines.append("No mesh!")
         buffer = self.infoarea.get_buffer()
@@ -438,7 +438,7 @@ class MeshPage(oofGUI.MainPage):
 
     def deleteCB(self, *args):          # gtk button callback
         if reporter.query(
-                "Really delete %s?"%self.currentFullMeshName(),
+                f"Really delete {self.currentFullMeshName()}?",
                 "No", default="Yes",
                 parentwindow=self.gtk.get_toplevel()) == "Yes":
             meshmenu.Delete(mesh=self.currentFullMeshName())
@@ -464,9 +464,10 @@ class MeshPage(oofGUI.MainPage):
         namearg = menuitem.get_arg('name')
         curmeshpath = self.currentFullMeshName()
         namearg.value = labeltree.makePath(curmeshpath)[-1]
-        if parameterwidgets.getParameters(namearg,
-                                          parentwindow=self.gtk.get_toplevel(),
-                                          title='Rename mesh '+namearg.value):
+        if parameterwidgets.getParameters(
+                namearg,
+                parentwindow=self.gtk.get_toplevel(),
+                title=f'Rename mesh "{namearg.value}"'):
             menuitem.callWithDefaults(mesh=curmeshpath)
 
     def saveCB(self, *args):
@@ -475,7 +476,7 @@ class MeshPage(oofGUI.MainPage):
         params = [x for x in menuitem.params if x.name!="mesh"]
         if parameterwidgets.getParameters(ident='SaveMeshFromPage',
                                           parentwindow=self.gtk.get_toplevel(),
-                                          title='Save Mesh "%s"' % meshname,
+                                          title=f'Save Mesh "{meshname}"?',
                                           *params):
             menuitem.callWithDefaults(mesh=meshname)
 
@@ -540,7 +541,7 @@ class MeshPage(oofGUI.MainPage):
         if parameterwidgets.getParameters(
                 namearg,
                 parentwindow=self.gtk.get_toplevel(),
-                title="Rename subproblem " + namearg.value):
+                title=f'Rename subproblem "{namearg.value}"'):
             menuitem.callWithDefaults(subproblem=cursubprob)
 
     def subprobInfoCB(self, gtkobj):
@@ -549,7 +550,7 @@ class MeshPage(oofGUI.MainPage):
 
     def subprobDeleteCB(self, gtkobj):
         if reporter.query(
-                "Really delete %s" % self.currentFullSubProblemName(),
+                f'Really delete "{self.currentFullSubProblemName()}"',
                 "No", default="Yes",
                 parentwindow=self.gtk.get_toplevel()) == "Yes":
             mainmenu.OOF.Subproblem.Delete(

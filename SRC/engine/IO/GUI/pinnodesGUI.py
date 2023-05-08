@@ -21,6 +21,8 @@ from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
 from ooflib.engine.IO import pinnodes
 
+from ooflib.common.runtimeflags import digits
+
 from oofcanvas import oofcanvasgui
 
 import gi
@@ -210,8 +212,8 @@ And Ctrl-click to toggle.""")
 
     def showPosition(self, point):
         debug.mainthreadTest()
-        self.xtext.set_text("%-11.4g" % point[0])
-        self.ytext.set_text("%-11.4g" % point[1])
+        self.xtext.set_text(f"{point[0]:.{digits}g}")
+        self.ytext.set_text(f"{point[1]:.{digits}g}")
 
     def acceptEvent(self, eventtype):
         return eventtype in ('move', 'up')
@@ -266,16 +268,16 @@ And Ctrl-click to toggle.""")
 
     def move(self, x, y, button, shift, ctrl, data):
         debug.mainthreadTest()
-        self.xtext.set_text("%-11.4g" % x)
-        self.ytext.set_text("%-11.4g" % y)
+        self.xtext.set_text(f"{x:.{digits}g}")
+        self.ytext.set_text(f"{y:.{digits}g}")
         point = primitives.Point(x,y)
         if self.skeleton_context and point is not None:
             skel = self.skeleton_context.getObject()
             node = skel.nearestNode(point)
             if node:
                 pos = node.position()
-                self.nodextext.set_text("%-11.4g" % pos.x)
-                self.nodeytext.set_text("%-11.4g" % pos.y)
+                self.nodextext.set_text(f"{pos.x:.{digits}g}")
+                self.nodeytext.set_text(f"{pos.y:.{digits}g}")
                 self.set_pintext(node)
         else:
             self.nodextext.set_text('')

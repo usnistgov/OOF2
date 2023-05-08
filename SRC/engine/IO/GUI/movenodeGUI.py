@@ -25,6 +25,8 @@ from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
 from ooflib.engine.IO import movenode
 
+from ooflib.common.runtimeflags import digits 
+
 import oofcanvas
 from oofcanvas import oofcanvasgui
 
@@ -434,8 +436,10 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                         # acquired when the mouse went down.
                         homogeneity += element.homogeneity(skeleton.MS, False)
                         shapeenergy += element.energyShape()
-                    homogtext = "%-11.4g" % (homogeneity-self.homogeneity0)
-                    shapetext = "%-11.4g" % (shapeenergy-self.shapeenergy0)
+                    dh = homogeneity - self.homogeneity0
+                    homogtext = f"{dh:.{digits}f}"
+                    ds = shapeenergy - self.shapeenergy0
+                    shapetext = f"{ds:.{digits}f}"
                     labeltext = ""
                 mainthread.runBlock(self.move_info,
                                     (point, homogtext, shapetext, labeltext))

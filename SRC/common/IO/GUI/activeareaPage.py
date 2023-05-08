@@ -28,6 +28,8 @@ from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
 from ooflib.common.IO.GUI import whowidget
 
+from ooflib.common.runtimeflags import digits 
+
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -320,8 +322,8 @@ class ActiveAreaPage(oofGUI.MainPage):
                 if ms.getObject().activearea.getOverride():
                     msg = "OVERRIDE: all %d pixels are active" % mpxls
                 else:
-                    msg = "%d of %d pixels are active (%g%%)" % \
-                        (apxls, mpxls, 100.*apxls/mpxls)
+                    msg = (f"{apxls} of {mpxls} are active "
+                           f"({100*apxls/mpxls:.{digits}g})%")
             finally:
                 activearea.end_reading()
         else:

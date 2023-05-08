@@ -27,6 +27,7 @@ from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import regclassfactory
 from ooflib.common.IO.GUI import whowidget
 
+from ooflib.common.runtimeflags import digits
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -216,8 +217,8 @@ class SelectionPage(oofGUI.MainPage):
             finally:
                 selection.end_reading()
             mssize = ms.getObject().sizeInPixels()
-            msg = "%d of %d pixels selected (%g%%)" % \
-                (pssize, mssize[0]*mssize[1], 100.*pssize/(mssize[0]*mssize[1]))
+            msg = (f"{pssize} of {mssize[0]*mssize[1]} pixels selected "
+                   f"({pssize/(mssize[0]*mssize[1]):.{digits}g}%)")
         else:
             msg = "No Microstructure selected."
         mainthread.runBlock(self.psdata.get_buffer().set_text, (msg,))

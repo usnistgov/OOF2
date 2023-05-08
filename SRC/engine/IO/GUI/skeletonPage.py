@@ -28,6 +28,8 @@ from ooflib.engine import skeletoncontext
 from ooflib.engine import skeletonelement
 from ooflib.engine import skeletonmodifier
 
+from ooflib.common.runtimeflags import digits
+
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -411,8 +413,8 @@ class SkeletonPage(oofGUI.MainPage):
                        "Remove %s before proceeding.\n\n"
                        % itORthem[illegalcount!=1])
 
-        bfr.insert(bfr.get_end_iter(), "No. of Nodes: %d\n" % nNodes)
-        bfr.insert(bfr.get_end_iter(), "No. of Elements: %d\n" % nElements)
+        bfr.insert(bfr.get_end_iter(), f"No. of Nodes: {nNodes}\n") 
+        bfr.insert(bfr.get_end_iter(), f"No. of Elements: {nElements}\n")
 
         for name in skeletonelement.ElementShapeType.names:
             bfr.insert(bfr.get_end_iter(),
@@ -426,7 +428,7 @@ class SkeletonPage(oofGUI.MainPage):
 
         if homogIndex is not None:
             bfr.insert(bfr.get_end_iter(),
-                       "Homogeneity Index: %s\n" % homogIndex)
+                       f"Homogeneity Index: {homogIndex:.{digits}g}\n")
         else:
             bfr.insert(bfr.get_end_iter(), "Homogeneity Index: ????\n")
 

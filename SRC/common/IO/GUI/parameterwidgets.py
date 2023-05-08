@@ -123,7 +123,7 @@ class ParameterWidget:
 
     # For debugging. Redefine in derived classes to print more useful info.
     def dumpState(self, comment):
-        print(comment, "(%s)" % self.__class__.__name__, file=sys.stderr)
+        print(comment, f"({self.__class.__name__})", file=sys.stderr)
 
 # GenericWidget is a base class for several other widgets.  It can
 # also be created as an instance itself, but currently this is not
@@ -899,7 +899,7 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
             except Exception as exception:
                 exceptions.append(exception)
         if exceptions:
-            debug.fmsg("exceptions[0] ->%s<-", exceptions[0])
+            debug.fmsg(f"exceptions[0] ->{exceptions[0]}<-")
             raise exceptions[0]
     def vcheck(self, widgetnumber, validity):
         # callback for ('validity', widget).  This just stores the
@@ -918,7 +918,7 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
     def dumpValidity(self):
         debug.fmsg(list(zip([p.name for p in self.params], self.validities)))
     def dumpValues(self):
-        debug.fmsg(*["%s=%s" % (p.name, p.value) for p in self.params])
+        debug.fmsg(*[f"{p.name}={p.value}" for p in self.params])
     def dumpState(self, comment):
         for widget in self.widgets:
             try:

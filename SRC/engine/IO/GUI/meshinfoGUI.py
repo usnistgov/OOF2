@@ -28,6 +28,8 @@ from ooflib.engine.IO import meshinfo
 from ooflib.engine.IO.GUI import meshdataGUI
 import ooflib.engine.mesh
 
+from ooflib.common.runtimeflags import digits
+
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -160,9 +162,9 @@ class ElementMode(MeshInfoMode):
             self.material.set_text("<No material>")
 
     def updateNodeList(self, chsr, nodes):
-        namelist = ["%s %d at (%s, %s)" % 
-                    (node.classname(), node.index(),
-                     node.position().x, node.position().y)
+        namelist = [f"{node.classname()} {node.index()}"
+                    f" at ({node.position().x:.{digits}g},"
+                    f" {node.position().y:.{digits}g}"
                     for node in nodes]
         chsr.update(nodes, namelist)
 
@@ -221,8 +223,8 @@ class NodeMode(MeshInfoMode):
         
         self.index.set_text(repr(node.index()))
         self.type.set_text(node.classname())
-        self.pos.set_text("(%s, %s)" % (node.position().x, node.position().y))
-
+        self.pos.set_text(f"{node.position().x:.{digits}g}, "
+                          f"{node.position().y:.{digits}g}")
         fieldnames = node.fieldNames()
 
         # Find out which fields are defined at the node
@@ -306,7 +308,8 @@ class NodeMode(MeshInfoMode):
         for fld in self.fieldslisted:
             for fcomp in fld.components(planarity.ALL_INDICES):
                 e = self.fieldvalEntries[(fld, fcomp.integer())]
-                e.set_text("%-13.6g"%fld.value(femesh, node, fcomp.integer()))
+                val = fld.value(femesh, node, fcomp.integer())
+                e.set_text(f"{val:.{digits}g}")
 
     def updateNothing(self):
         debug.mainthreadTest()
@@ -431,9 +434,6 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.mouse_yposition = None
         self.mesh_xposition = None
         self.mesh_yposition = None
-        if config.dimension() == 3:
-            self.mouse_zposition = None
-            self.mesh_zposition = None
         
         self.sbcallbacks = [
             switchboard.requestCallbackMain((self.toolbox.gfxwindow(),
@@ -591,8 +591,6 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.mouse_yposition = None
         self.mesh_xposition = None
         self.mesh_yposition = None
-        if config.dimension() == 3:
-            self.mesh_zposition = None
 
     def changeModeWithObject(self, obj, mode):
         # Called from double-click callback on the node list.  Always
@@ -609,15 +607,12 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         
     def showPosition(self, mouse, mesh):
         debug.mainthreadTest()
-        self.xtext.set_text("%-13.6g" % mesh[0])
-        self.ytext.set_text("%-13.6g" % mesh[1])
+        self.xtext.set_text(f"{mesh[0]:.{digits}g}")
+        self.ytext.set_text(f"{mesh[1]:.{digits}g}")
         self.mouse_xposition = mouse[0]
         self.mouse_yposition = mouse[1]
         self.mesh_xposition = mesh[0]
         self.mesh_yposition = mesh[1]
-        if config.dimension() == 3:
-            self.ztext.set_text("%-13.6g" % mesh[2])
-            self.mesh_zposition = mesh[2]
         gtklogger.checkpoint(self.gfxwindow().name + " " +
                              self._name + " showed position")
 
@@ -629,9 +624,6 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.mouse_yposition = None
         self.mesh_xposition = None
         self.mesh_yposition = None
-        if config.dimension() == 3:
-            self.ztext.set_text("")
-            self.mesh_zposition = None
         gtklogger.checkpoint(self.gfxwindow().name + " " +
                              self._name + " cleared position")
 
@@ -647,8 +639,6 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.mouse_yposition = None
         self.mesh_xposition = None
         self.mesh_yposition = None
-        if config.dimension() == 3:
-            self.mesh_zposition = None
         for v in self.modeobjdict.values():
             v.clearQuery()
         self.toolbox.clearQuerier()

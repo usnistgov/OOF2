@@ -27,6 +27,8 @@ from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import skeletoncontext
 from ooflib.engine import skeletonselmodebase
 
+from ooflib.common.runtimeflags import digits
+
 from gi.repository import Gtk
 import sys
 
@@ -252,8 +254,9 @@ class SkeletonSelectionPage(oofGUI.MainPage):
         if skelcontext:
             n, m = self.selectionSizeAndMax()    # requires subthread
             if m > 0:
-                status_text = "%d %s%s selected (%g%%)." % \
-                    (n, self.activemode.name(), 's'*(n!=1), 100.*n/m)
+                status_text = (f"{n} of {m} "
+                               f"{self.activemode.name()}s selected "
+                               f"({100.*n/m:.{digits}g}%)")
             else:
                 status_text = "0 %s%s selected." % \
                     (self.activemode.name(), 's'*(n!=1))

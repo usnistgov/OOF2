@@ -530,7 +530,7 @@ class OutputPage(oofGUI.MainPage):
         name = self.currentOutputName()
         nameparam.set(name)
         if parameterwidgets.getParameters(nameparam,
-                                          title='Rename output "%s"'%name,
+                                          title=f'Rename output "{name}"',
                                           scope=self,
                                           parentwindow=self.gtk.get_toplevel()):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName(),
