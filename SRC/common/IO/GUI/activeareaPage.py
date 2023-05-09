@@ -323,7 +323,7 @@ class ActiveAreaPage(oofGUI.MainPage):
                     msg = "OVERRIDE: all %d pixels are active" % mpxls
                 else:
                     msg = (f"{apxls} of {mpxls} are active "
-                           f"({100*apxls/mpxls:.{digits}g})%")
+                           f"({100*apxls/mpxls:.{digits()}g})%")
             finally:
                 activearea.end_reading()
         else:

@@ -218,7 +218,7 @@ class SelectionPage(oofGUI.MainPage):
                 selection.end_reading()
             mssize = ms.getObject().sizeInPixels()
             msg = (f"{pssize} of {mssize[0]*mssize[1]} pixels selected "
-                   f"({pssize/(mssize[0]*mssize[1]):.{digits}g}%)")
+                   f"({pssize/(mssize[0]*mssize[1]):.{digits()}g}%)")
         else:
             msg = "No Microstructure selected."
         mainthread.runBlock(self.psdata.get_buffer().set_text, (msg,))

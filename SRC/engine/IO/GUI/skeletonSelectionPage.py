@@ -256,7 +256,7 @@ class SkeletonSelectionPage(oofGUI.MainPage):
             if m > 0:
                 status_text = (f"{n} of {m} "
                                f"{self.activemode.name()}s selected "
-                               f"({100.*n/m:.{digits}g}%)")
+                               f"({100.*n/m:.{digits()}g}%)")
             else:
                 status_text = "0 %s%s selected." % \
                     (self.activemode.name(), 's'*(n!=1))

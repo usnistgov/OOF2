@@ -212,8 +212,8 @@ And Ctrl-click to toggle.""")
 
     def showPosition(self, point):
         debug.mainthreadTest()
-        self.xtext.set_text(f"{point[0]:.{digits}g}")
-        self.ytext.set_text(f"{point[1]:.{digits}g}")
+        self.xtext.set_text(f"{point[0]:.{digits()}g}")
+        self.ytext.set_text(f"{point[1]:.{digits()}g}")
 
     def acceptEvent(self, eventtype):
         return eventtype in ('move', 'up')
@@ -268,16 +268,16 @@ And Ctrl-click to toggle.""")
 
     def move(self, x, y, button, shift, ctrl, data):
         debug.mainthreadTest()
-        self.xtext.set_text(f"{x:.{digits}g}")
-        self.ytext.set_text(f"{y:.{digits}g}")
+        self.xtext.set_text(f"{x:.{digits()}g}")
+        self.ytext.set_text(f"{y:.{digits()}g}")
         point = primitives.Point(x,y)
         if self.skeleton_context and point is not None:
             skel = self.skeleton_context.getObject()
             node = skel.nearestNode(point)
             if node:
                 pos = node.position()
-                self.nodextext.set_text(f"{pos.x:.{digits}g}")
-                self.nodeytext.set_text(f"{pos.y:.{digits}g}")
+                self.nodextext.set_text(f"{pos.x:.{digits()}g}")
+                self.nodeytext.set_text(f"{pos.y:.{digits()}g}")
                 self.set_pintext(node)
         else:
             self.nodextext.set_text('')

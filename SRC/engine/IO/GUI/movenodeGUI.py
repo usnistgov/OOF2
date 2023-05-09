@@ -437,9 +437,9 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                         homogeneity += element.homogeneity(skeleton.MS, False)
                         shapeenergy += element.energyShape()
                     dh = homogeneity - self.homogeneity0
-                    homogtext = f"{dh:.{digits}f}"
+                    homogtext = f"{dh:.{digits()}f}"
                     ds = shapeenergy - self.shapeenergy0
-                    shapetext = f"{ds:.{digits}f}"
+                    shapetext = f"{ds:.{digits()}f}"
                     labeltext = ""
                 mainthread.runBlock(self.move_info,
                                     (point, homogtext, shapetext, labeltext))

@@ -132,8 +132,8 @@ class SkeletonInfoMode:
     def updateNodeList(self, chsr, objlist):
         # called only when Skeleton readlock has been obtained.
         namelist = [(f"Node {obj.index} at "
-                     f"({obj.position().x:.{digits}g}, "
-                     f"{obj.position().y:.{digits}g})")
+                     f"({obj.position().x:.{digits()}g}, "
+                     f"{obj.position().y:.{digits()}g})")
                     for obj in objlist]
         
         mainthread.runBlock(chsr.update, (objlist, namelist))
@@ -141,9 +141,9 @@ class SkeletonInfoMode:
     def updateNodeListAngle(self, chsr, element):
         # called only when Skeleton readlock has been obtained.
         namelist = [f"Node {node.index} at "
-                    f"({node.position().x:.{digits}g}, "
-                    f"{node.position().y:.{digits}g}) "
-                    f"(angle: {element.getRealAngle(i):.{digits}f})"
+                    f"({node.position().x:.{digits()}g}, "
+                    f"{node.position().y:.{digits()}g}) "
+                    f"(angle: {element.getRealAngle(i):.{digits()}f})"
                     for i,node in enumerate(element.nodes)]
         mainthread.runBlock(chsr.update, (element.nodes, namelist))
     
@@ -184,7 +184,7 @@ class SkeletonInfoMode:
         # called only when Skeleton readlock has been obtained.        
         namelist = [f"Segment {obj.index}, "
                     f"nodes ({obj.nodes()[0].index}, {obj.nodes()[1].index}) "
-                    f"(length: {obj.length():.{digits}g})"
+                    f"(length: {obj.length():.{digits()}g})"
                     for obj in objlist]
         mainthread.runBlock(chsr.update, (objlist, namelist))
 
@@ -282,7 +282,7 @@ class ElementMode(SkeletonInfoMode):
             # nothing in the peeker.
             self.syncPeeker(self.segs, "Segment")
 
-            earea = f"{element.area():.{digits}g}"
+            earea = f"{element.area():.{digits()}g}"
 
             if not element.illegal():
                 domCat = element.dominantPixel(skeleton.MS)
@@ -291,13 +291,13 @@ class ElementMode(SkeletonInfoMode):
                 pixgrps = stringjoin(pixGrp, ", ")
                 # Change False to True in this line to get verbose
                 # output from the homogeneity calculation.
-                ehom = f"{element.homogeneity(skeleton.MS, False):.{digits}f}"
-                eshape = f"{element.energyShape():.{digits}f}"
+                ehom = f"{element.homogeneity(skeleton.MS, False):.{digits()}f}"
+                eshape = f"{element.energyShape():.{digits()}f}"
 
                 a2 = element.aspectRatio2()
                 if a2 > 0:
                     aspect = \
-                        f"{(1./math.sqrt(element.aspectRatio2())):.{digits}g}"
+                        f"{(1./math.sqrt(element.aspectRatio2())):.{digits()}g}"
                 else:
                     aspect = "infinity"
 
@@ -397,8 +397,8 @@ class NodeMode(SkeletonInfoMode):
         container.context.begin_reading()
         try:
             nindex = repr(node.getIndex())
-            npos = (f"({node.position().x:.{digits}g}, "
-                    f"{node.position().y:.{digits}g})")
+            npos = (f"({node.position().x:.{digits()}g}, "
+                    f"{node.position().y:.{digits()}g})")
             if node.movable_x() and node.movable_y():
                 nmob = "free"
             elif node.movable_x() and not node.movable_y():
@@ -511,11 +511,11 @@ class SegmentMode(SkeletonInfoMode):
             self.syncPeeker(self.nodes, "Node")
             self.updateElementList(self.elem, segment.getElements())
             self.syncPeeker(self.elem, "Element")
-            length = f"{segment.length():.{digits}g}" 
+            length = f"{segment.length():.{digits()}g}" 
             homogvals = segment.homogeneity2(skeleton.MS)
-            homog = [f"1-{(1-h):.{digits}f}"
+            homog = [f"1-{(1-h):.{digits()}f}"
                      if (0.999 < h < 1.0)
-                     else f"{h:.{digits}f}"
+                     else f"{h:.{digits()}f}"
                      for h in homogvals]
             self.updateGroup(segment)
 

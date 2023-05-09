@@ -148,9 +148,9 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
                           self.colorv.getBlue())
             if not self.rgb_selector.get_active():
                 (c1,c2,c3) = color.hsv_from_rgb(c1,c2,c3)
-            self.text1.set_text(f"{c1:.{digits}f}")
-            self.text2.set_text(f"{c2:.{digits}f}")
-            self.text3.set_text(f"{c3:.{digits}f}")
+            self.text1.set_text(f"{c1:.{digits()}f}")
+            self.text2.set_text(f"{c2:.{digits()}f}")
+            self.text3.set_text(f"{c3:.{digits()}f}")
             
         else:
             self.text1.set_text("")

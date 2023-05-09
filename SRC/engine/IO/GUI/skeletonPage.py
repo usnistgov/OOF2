@@ -428,7 +428,7 @@ class SkeletonPage(oofGUI.MainPage):
 
         if homogIndex is not None:
             bfr.insert(bfr.get_end_iter(),
-                       f"Homogeneity Index: {homogIndex:.{digits}g}\n")
+                       f"Homogeneity Index: {homogIndex:.{digits()}g}\n")
         else:
             bfr.insert(bfr.get_end_iter(), "Homogeneity Index: ????\n")
 

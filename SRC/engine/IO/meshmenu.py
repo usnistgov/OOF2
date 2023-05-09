@@ -66,6 +66,7 @@ meshmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
 
 settingsmenu = mainmenu.OOF.Settings.addItem(oofmenu.OOFMenuItem(
     'Mesh_Defaults',
+    ordering=5,
     help='Default values for Mesh parameters'))
 
 ####################

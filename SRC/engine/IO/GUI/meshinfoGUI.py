@@ -163,8 +163,8 @@ class ElementMode(MeshInfoMode):
 
     def updateNodeList(self, chsr, nodes):
         namelist = [f"{node.classname()} {node.index()}"
-                    f" at ({node.position().x:.{digits}g},"
-                    f" {node.position().y:.{digits}g}"
+                    f" at ({node.position().x:.{digits()}g},"
+                    f" {node.position().y:.{digits()}g}"
                     for node in nodes]
         chsr.update(nodes, namelist)
 
@@ -223,8 +223,8 @@ class NodeMode(MeshInfoMode):
         
         self.index.set_text(repr(node.index()))
         self.type.set_text(node.classname())
-        self.pos.set_text(f"{node.position().x:.{digits}g}, "
-                          f"{node.position().y:.{digits}g}")
+        self.pos.set_text(f"{node.position().x:.{digits()}g}, "
+                          f"{node.position().y:.{digits()}g}")
         fieldnames = node.fieldNames()
 
         # Find out which fields are defined at the node
@@ -309,7 +309,7 @@ class NodeMode(MeshInfoMode):
             for fcomp in fld.components(planarity.ALL_INDICES):
                 e = self.fieldvalEntries[(fld, fcomp.integer())]
                 val = fld.value(femesh, node, fcomp.integer())
-                e.set_text(f"{val:.{digits}g}")
+                e.set_text(f"{val:.{digits()}g}")
 
     def updateNothing(self):
         debug.mainthreadTest()
@@ -607,8 +607,8 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         
     def showPosition(self, mouse, mesh):
         debug.mainthreadTest()
-        self.xtext.set_text(f"{mesh[0]:.{digits}g}")
-        self.ytext.set_text(f"{mesh[1]:.{digits}g}")
+        self.xtext.set_text(f"{mesh[0]:.{digits()}g}")
+        self.ytext.set_text(f"{mesh[1]:.{digits()}g}")
         self.mouse_xposition = mouse[0]
         self.mouse_yposition = mouse[1]
         self.mesh_xposition = mesh[0]

@@ -291,6 +291,7 @@ settingsmenu = OOF.addItem(OOFMenuItem(
 
 fontmenu = settingsmenu.addItem(OOFMenuItem(
     "Fonts",
+    ordering=1,
     help="Set fonts used in the GUI."
     ))
 
@@ -331,6 +332,7 @@ def setTheme(menuitem, theme):
 settingsmenu.addItem(OOFMenuItem(
     "Theme",
     callback=setTheme,
+    ordering=2,
     params=[parameter.StringParameter('theme',
                                       tip="The name of a gnome theme.")],
     help="Set the look and feel of the graphical user interface.",
@@ -339,10 +341,12 @@ settingsmenu.addItem(OOFMenuItem(
 
 bufsizemenu = settingsmenu.addItem(OOFMenuItem(
     "UndoBuffer_Size",
+    ordering=8,
     help="Set the size of history buffers."))
 
 gfxdefaultsmenu = settingsmenu.addItem(OOFMenuItem(
     "Graphics_Defaults",
+    ordering=4,
     help="Set various default parameters for graphics displays.",
     discussion="""<para>
 
@@ -398,10 +402,23 @@ def _randomseed(menuitem, seed):
     crandom.rndmseed(seed)
 
 settingsmenu.addItem(oofmenu.OOFMenuItem(
-        'Random_Seed',
-        callback=_randomseed,
-        params=[parameter.IntParameter('seed', 17)]
-        ))
+    'Random_Seed',
+    callback=_randomseed,
+    ordering=3.5,
+    params=[parameter.IntParameter('seed', 17)]
+))
+
+def _setdigits(menuitem, digits):
+    runtimeflags.setDigits(digits)
+
+settingsmenu.addItem(oofmenu.OOFMenuItem(
+    'GUI_Digits',
+    callback=_setdigits,
+    ordering=3,
+    params=[parameter.NonNegativeIntParameter(
+        'digits', 5,
+        tip='Number of digits to show after the decimal point.')]
+))
 
 ################################
 

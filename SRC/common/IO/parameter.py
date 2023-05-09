@@ -578,6 +578,13 @@ class PositiveFloatParameter(FloatParameter):
     def valueDesc(self):
         return "A positive real number."
 
+class NonNegativeFloatParameter(FloatParameter):
+    def checker(self, x):
+        if not isinstance(x, (int, float)) or x < 0.0:
+            raiseTypeError(x, "a non-negative number")
+    def valueDesc(self):
+        return "A non-negative real number."
+
 class IntParameter(Parameter):
     types=(IntType,)
     def __init__(self, name, value=None, default=0, tip=None):
@@ -593,6 +600,15 @@ class IntParameter(Parameter):
     def valueDesc(self):
         return "Integer."
 
+class NonNegativeIntParameter(IntParameter):
+    def checker(self, x):
+        if not isinstance(x, int) or x < 0:
+            raiseTypeError(x, "a non-negative integer")
+    def valueDesc(self):
+        return "A non-negative integer."
+
+## TODO: Why isn't PositiveIntParameter derived from IntParameter?
+## See PositiveFloatParameter, above.
 class PositiveIntParameter(Parameter):
     def __init__(self, name, value=None, default=1, tip=None):
         Parameter.__init__(self, name, value=value, default=default, tip=tip)
@@ -608,7 +624,7 @@ class PositiveIntParameter(Parameter):
     def __repr__(self):
         return "PositiveIntParameter(%s,%s)" % (repr(self.name), repr(self.value))
     def valueDesc(self):
-        return "Positive integer."
+        return "A positive integer."
 
 class ListOfIntsParameter(Parameter):
     def __init__(self, name, value=None, default=[], tip=None):

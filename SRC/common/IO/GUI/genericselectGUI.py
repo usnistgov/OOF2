@@ -319,7 +319,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
                         m = selection.maxSize()
                         if m > 0:
                             # sizetextdata = "%d (%g%%)" % (n, 100.*n/m)
-                            sizetextdata = f"{n} ({100*n/m:.{digits}f}%)"
+                            sizetextdata = f"{n} ({100*n/m:.{digits()}f}%)"
                         else:
                             sizetextdata = "0"
                     finally:
@@ -436,14 +436,14 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
             sig.block()
         try:
             if 'down' in selectionMethodReg.events:
-                self.xdownentry.set_text(f"{points[0].x:.{digits}f}")
-                self.ydownentry.set_text(f"{points[0].y:.{digits}f}")
+                self.xdownentry.set_text(f"{points[0].x:.{digits()}f}")
+                self.ydownentry.set_text(f"{points[0].y:.{digits()}f}")
             else:
                 self.xdownentry.set_text('--')
                 self.ydownentry.set_text('--')
             if 'up' in selectionMethodReg.events:
-                self.xupentry.set_text(f"{points[-1].x:.{digits}f}")
-                self.yupentry.set_text(f"{points[-1].y:.{digits}f}")
+                self.xupentry.set_text(f"{points[-1].x:.{digits()}f}")
+                self.yupentry.set_text(f"{points[-1].y:.{digits()}f}")
             else:
                 self.xupentry.set_text('--')
                 self.yupentry.set_text('--')

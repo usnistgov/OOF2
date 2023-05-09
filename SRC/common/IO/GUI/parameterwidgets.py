@@ -159,7 +159,7 @@ class GenericWidget(ParameterWidget):
     def set_value(self, newvalue):
         debug.mainthreadTest()
         if isinstance(newvalue, float):
-            valuestr = f"{newvalue:.{digits}g}"
+            valuestr = f"{newvalue:.{digits()}g}"
         else:
             valuestr = f"{newvalue}"
         self.signal.block()
@@ -351,7 +351,7 @@ class AutoWidget(ParameterWidget):
                 if isinstance(newvalue, StringType):
                     self.gtk.set_text(newvalue)
                 elif isinstance(newvalue, float):
-                    self.gtk.set_text(f"{newvalue:.{digits}g}")
+                    self.gtk.set_text(f"{newvalue:.{digits()}g}")
                 else:
                     self.gtk.set_text(f"{newvalue}")
         finally:

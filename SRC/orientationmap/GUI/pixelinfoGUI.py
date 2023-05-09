@@ -329,8 +329,8 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.refOrient = plugin.referenceOrientation
         self.refPoint = plugin.referencePoint
         self.refWidget.set(self.refOrient, interactive=False)
-        self.xtext.set_text(f"{self.refPoint.x:.{digits}g}")
-        self.ytext.set_text(f"{self.refPoint.y:.{digits}g}")
+        self.xtext.set_text(f"{self.refPoint.x:.{digits()}g}")
+        self.ytext.set_text(f"{self.refPoint.y:.{digits()}g}")
         self.stack.set_visible_child_name("refwidget")
         assert self.refOrient is not None
         self.updateMisorientation()
@@ -343,7 +343,7 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         else:
             misorientation = orient.misorientation(self.refOrient,
                                                    symmetry.schoenflies())
-            self.misorientationText.set_text(f"{misorientation:.{digits}f}")
+            self.misorientationText.set_text(f"{misorientation:.{digits()}f}")
         self.sensitize()
 
     def getOrientPlugInData(self):

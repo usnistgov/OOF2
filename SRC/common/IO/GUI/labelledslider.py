@@ -13,6 +13,8 @@ from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO.GUI import gtklogger
 
+from ooflib.common import runtimeflags
+
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -256,6 +258,9 @@ class LabelledSlider:
             "focus=%s" % self.entry.has_focus(), file=sys.stderr)
 
 class FloatLabelledSlider(LabelledSlider):
+    def __init__(self, *args, **kwargs):
+        LabelledSlider.__init__(self, *args, **kwargs)
+        self.set_digits(runtimeflags.digits())
     def set_digits(self, digits):
         # Sets number of digits after the decimal place.
         debug.mainthreadTest()

@@ -388,7 +388,7 @@ class MeshPage(oofGUI.MainPage):
                 en = themesh.getMasterElementType(ncorners)
                 ec = counts[ncorners]
                 textlines.append(f"{ncorners} cornered element:\t {en} ({ec})")
-            textlines.append(f"Time:\t{themesh.getCurrentTime():.{digits}g}")
+            textlines.append(f"Time:\t{themesh.getCurrentTime():.{digits()}g}")
             textlines.append(
                 "Data Cache Type: %s" %
                 meshdatacache.getMeshDataCacheType(themesh.datacache))
