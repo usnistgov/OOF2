@@ -6,8 +6,10 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
+# Refine elements such that new nodes are always placed at transition
+# points, where the pixel category changes.
 
 # Refinement works in two stages.  First a RefinementTarget object (from
 # refinementtarget.py) checks the elements and marks edges for
@@ -15,199 +17,343 @@
 # used to actually refine the elements, according to how many times
 # each edge is marked.
 
-OBOSOLETE
-
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import coord
 from ooflib.SWIG.common import progress
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import enum
-from ooflib.common import units
-from ooflib.common import parallel_enable
 from ooflib.common import registeredclass
+from ooflib.common import units
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import refinementtarget
 from ooflib.engine import refinemethod
-from ooflib.engine import refinequadbisection
 from ooflib.engine import skeletonmodifier
-from ooflib.engine import skeletonsegment
 from ooflib.engine import skeletonnode
 
-SkeletonSegment = skeletonsegment.SkeletonSegment
+import itertools
+import math
 
-arbitrary_factor = 128          # used by findSignature().  Must be
-				# larger than the largest number of
-				# refinements of an edge.
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-################################
+# SegmentDivider takes a Segment and places refinement marks
+# on its edges.  Different kinds are used in different refinement
+# methods.
 
-# The RefinementDegree classes specify how many times edges are
-# divided initially by the RefinementTarget object, and also provide a
-# 'markExtras' routine that marks additional edges for division after
-# the check and mark stage.
+# Refine.refinement() calls RefinementTarget.__call__, for the
+# appropriate target type, passing in an appropriate
+# SegmentDivider as its "divider" arg.  The result is a
+# dictionary of SegmentMarks objects, keyed by the pairs of nodes at
+# the ends of the segment.  SegmentMarks contains the new nodes to add
+# the the segment.
 
-# Changes as of Mar 04.
-# Refinement Degree:
-# - TriSection
-# - BiSection
-# Each degree has two rule sets.
-# - Conservative: preserves topology, that is, if you refine a quad, you'll
-#                 get only quads.
-# - Liberal: MAY break topology
-
-class RefinementDegree(registeredclass.RegisteredClass):
+class SegmentDivider(registeredclass.RegisteredClass):
     registry = []
-    def markExtras(self, skeleton, markedEdges):
+
+class Bisection(SegmentDivider):
+    def markSegment(self, skeleton, node0, node1, segMarkings):
+        segMarkings.insert(SegmentMarks(node0, node1, (1/2,)))
+    def reduceMarks(self, maxMarks, markedSegs):
         pass
 
-    tip = "Number of subdivisions per segment."
-    discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/refinementdegree.xml')
-
-class Bisection1(RefinementDegree):
-    divisions = 1
-    def __init__(self, rule_set):
-        self.rule_set = rule_set
-    def markExtras(self, skeleton, markedEdges):
-        if self.rule_set.name == "conservative":
-            refinequadbisection.markExtras(skeleton, markedEdges)
-        
 registeredclass.Registration(
     'Bisection',
-    RefinementDegree,
-    Bisection1,
-    1,
-    params = [enum.EnumParameter('rule_set', refinemethod.RuleSet,
-                                 refinemethod.conservativeRuleSetEnum(),
-                                 tip='How to subdivide elements.')
-    ],
-    tip="Divide element edges into two.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/bisection.xml'))
+    SegmentDivider,
+    Bisection,
+    ordering=1,
+    tip="Divide segments in half.")
 
-class Trisection1(RefinementDegree):
-    divisions = 2
-    def __init__(self, rule_set):
-        self.rule_set = rule_set
+class Trisection(SegmentDivider):
+    def markSegment(self, skeleton, node0, node1, segMarkings):
+        segMarkings.insert(SegmentMarks(node0, node1, (1/3, 2/3)))
+    def reduceMarks(self, maxMarks, markedSegs):
+        pass
 
 registeredclass.Registration(
     'Trisection',
-    RefinementDegree,
-    Trisection1,
-    0,
-    params = [enum.EnumParameter('rule_set', refinemethod.RuleSet,
-                                 refinemethod.conservativeRuleSetEnum(),
-                                 tip='How to subdivide elements')
-              ],
-    tip="Gallia est omnis divisa in partes tres, as are the edges of the elements.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/trisection.xml'))
+    SegmentDivider,
+    Trisection,
+    ordering=2,
+    tip="Divide segments into thirds.")
 
-#################################
+class TransitionPoints(SegmentDivider):
+    def __init__(self, minlength):
+        self.minlength = minlength # min segment length in pixels
+    def markSegment(self, skeleton, node0, node1, segMarkings):
+        # Get transition points
+        micro = skeleton.MS
+        sections = micro.getSegmentSections(node0.position(), node1.position(),
+                                            self.minlength)
+        # if debug.debug():
+        #     if len(sections) > 1:
+        #         for section in sections:
+        #             if section.pixelLength() < self.minlength:
+        #                 debug.fmsg(f"node0={node0} {node0.position()}",
+        #                            f"node1={node1} {node1.position()}",
+        #                            f"sections={sections}")
+        #                 raise ooferror.PyErrPyProgrammingError(
+        #                     "section too short!")
 
-class EdgeMarkings:
-    # Class for storing and returning how many divisions should be
-    # performed on each edge.  Edges are defined by a pair of nodes.
+        # Compute fractions and categories
+        fractions = []
+        span = node1.position() - node0.position()
+        length = math.sqrt(span*span)
+        for section in sections[:-1]:
+            diff = section.physicalPt1() - node0.position()
+            fractions.append(math.sqrt(coord.dot(diff, diff))/length)
+        marks = SegmentMarks(node0, node1, fractions)
+
+        # Add the new marks to the set of all marks, and check for
+        # compatibility if they're already there.
+        if segMarkings.insert(marks):
+            # SegmentMarkings.insert returns True if the segment has
+            # already been marked.  If so, merge the old marks with
+            # the new, and update them in segMarkings.
+            
+            # Get the preexisting markings. fetch() ensures that the
+            # data goes from node0 to node1, the same way as the
+            # current data.
+            othermarks = segMarkings.fetch(node0, node1)
+            if len(marks) == len(othermarks) == 0:
+                return
+            
+            # Merge the fractions in this set of marks and the other
+            # set of marks into a single sorted list.  If a pair of
+            # fractions in the two lists are almost equal, just put
+            # the average value in.  There should not be any chance
+            # that one fraction in one list is close to two fractions
+            # in the other list, if getSegmentSections is working
+            # properly.
+            #
+            # minfrac defines what we mean by "too
+            # close". It should be greater than 1/plen (the fractional
+            # size of one pixel). A segment that is colinear with a
+            # pixel step will have intersection points in the two
+            # lists that differ by 1 pixel unit, but we don't want to
+            # treat them as two intersection points.
+
+            # ............| pixel boundary
+            # ............|                      If A and B are one
+            # ............|                      pixel apart, they
+            # ======A=====B=== element segment   aren't independent
+            # ......|                            intersection points
+            # ......| 
+            # ......| pixel boundary
+            #
+            pspan = micro.physical2Pixel(span) # span in pixel coords
+            plen = math.sqrt(pspan*pspan) # total segment size in pixel coords
+            minfrac = self.minlength/plen # merge fractions closer than this
+
+            newfracs = []
+            i0 = i1 = 0
+            while i0 < len(marks.fractions) and i1 < len(othermarks.fractions):
+                f0 = marks.fractions[i0]
+                f1 = othermarks.fractions[i1]
+                if abs(f1 - f0) <= minfrac:
+                    newfracs.append(0.5*(f0 + f1))
+                    i0 += 1
+                    i1 += 1
+                elif f0 < f1:
+                    newfracs.append(f0)
+                    i0 += 1
+                else:
+                    newfracs.append(f1)
+                    i1 += 1
+            # If we reached the end of one list, put the rest of the
+            # fractions in the other list into newfracs.
+            if i0 < len(marks.fractions):
+                newfracs.extend(marks.fractions[i0:])
+            if i1 < len(othermarks.fractions):
+                newfracs.extend(othermarks.fractions[i1:])
+
+            segMarkings.update(node0, node1, newfracs)
+
+            # If the nodes have periodic partners, the fractions will
+            # be the same on the periodic partner segment.
+            partners = node0.getPartnerPair(node1)
+            if partners and node0 != partners[1]:
+                segMarkings.update(partners[0], partners[1], newfracs)
+    def reduceMarks(self, maxMarks, markedSegs):
+        markedSegs.reduceMarks(maxMarks)
+
+registeredclass.Registration(
+    "TransitionPoints",
+    SegmentDivider,
+    TransitionPoints,
+    params = [
+        parameter.PositiveFloatParameter(
+            "minlength", value=2.0, default=2.0,
+            tip="Minimum refined segment length in pixel units.  A length of at least 2 is suggested.")],
+    tip="Divide segments at the intersections with pixel boundaries.",
+    ordering=3)
+        
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Marks indicating where a segment should be divided. The nodes used
+# to define segments are nodes in the *old* Skeleton.
+
+class SegmentMarks:
+    def __init__(self, node0, node1, fractions):
+        self.node0 = node0
+        self.node1 = node1
+        self.fractions = fractions # mark is at (1-f)*node0 + f*node1
+    def key(self):
+        return skeletonnode.canonical_order(self.node0, self.node1)
+    def reversed(self):
+        return SegmentMarks(self.node1, self.node0,
+                            [1-f for f in reversed(self.fractions)])
+    def __len__(self):
+        return len(self.fractions)
+    def positions(self, node0, node1):
+        assert ((node0 is self.node0 and node1 is self.node1) or
+                (node1 is self.node0 and node0 is self.node1))
+        p0 = self.node0.position()
+        p1 = self.node1.position()
+        if node0 is self.node0:
+            fracs = self.fractions
+        else:
+            fracs = reversed(self.fractions)
+        for f in fracs:
+            yield (1-f)*p0 + f*p1
+    def periodicPartnerMarks(self):
+        partners = self.node0.getPartnerPair(self.node1)
+        # It can happen that the partners of (n0, n1) are (n1, n0), in
+        # which case we don't do anything. (Maybe if the skeleton is
+        # 1x1 and fully periodic? That is not a likely situation.)
+        if partners and self.node0 != partners[1]:
+            return SegmentMarks(partners[0], partners[1], self.fractions)
+    def reduceMarks(self, maxMarks):
+        # Reduce the number of marks on this edge to at most maxMarks.
+        if len(self.fractions) <= maxMarks:
+            return
+        if maxMarks == 1:
+            # Find the mark that's closest to the average, and use it.
+            avg = sum(self.fractions)/len(self.fractions)
+            closest = self.fractions[0]
+            delta = abs(closest - avg)
+            for frac in self.fractions[1:]:
+                diff = abs(frac - avg)
+                if diff < delta:
+                    closest = frac
+                    delta = diff
+            self.fractions = [closest]
+        elif maxMarks == 2:
+            # Choose the two fractions that are spaced most evenly.
+            # That will be the fractions fi and fj > fi that minimize
+            #      fi**2 + (fj-fi)**2 + (1-fj)**2
+            # which would be what you'd compute for the mean squared
+            # deviation of the fractional section lengths, given that
+            # the average fractional section length is always 1/3.
+            bestdev = 10
+            fibest = None
+            fjbest = None
+            # TODO: This is an o(n^2) algorithm. Can it be improved?
+            for i in range(len(self.fractions)-1):
+                fi = self.fractions[i]
+                fi2 = fi*fi
+                for j in range(i+1, len(self.fractions)):
+                    fj = self.fractions[j]
+                    deviation = fi2 + (fj-fi)**2 + (1-fj)**2
+                    if deviation < bestdev:
+                        bestdev = deviation
+                        fibest = fi
+                        fjbest = fj
+            self.fractions = [fibest, fjbest]
+        else:
+            # TODO: This is even worse. Can it be improved?  Do we
+            # need it?  It would only be used if we have rules for
+            # tetrasecting (quadrisecting) edges.
+            bestsubset = None
+            bestdev = 10        # bigger than any deviation
+            for subset in itertools.combinations(self.fractions, maxMarks):
+                fsum = subset[0]**2 + (1-subset[-1])**2
+                for i in range(1,maxMarks):
+                    fsum += (subset[i] - subset[i-1])**2
+                if fsum < bestdev:
+                    bestdev = fsum
+                    bestsubset = subset
+            self.fractions = bestsubset
+    def __repr__(self):
+        return f"SegmentMarks({self.node0}, {self.node1}, {self.fractions})"
+
+class EmptyMarks:
+    def positions(self):
+        return []
+    def reversed(self):
+        return self
+    def __len__(self):
+        return 0
+    def reduceMarks(self, maxMarks):
+        pass
+    def __repr__(self):
+        return "EmptyMarks()"
+
+emptyMarks = EmptyMarks()
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Container for all the SegmentMarks in a refinement.  Each Segment
+# (identified by nodes in the old Skeleton) occurs only once.
+
+class SegmentMarkings:
     def __init__(self):
         self.markings = {}
-        
-    def mark(self, node0, node1, ndivs):
-        # arguments are the nodes defining the edge, and the number of
-        # new nodes to add to that edge.
-        key = skeletonnode.canonical_order(node0, node1)
-        if self.markings.get(key, 0) < ndivs:
-            self.markings[key] = ndivs
-        # mark the partner segment, if it exists
-        partners = node0.getPartnerPair(node1)
-        if partners is not None:
-            partnerKey = skeletonnode.canonical_order(partners[0], partners[1])
-            if self.markings.get(partnerKey, 0) < ndivs:
-                self.markings[partnerKey] = ndivs
+    def insert(self, marks):
+        # Insert the SegmentMarks object "marks" into this
+        # SegmentMarkings set.  
+        key = marks.key()
+        if key in self.markings:
+            return True         # didn't insert, marks are already present
 
-    def getMark(self, node0, node1):
-        key = skeletonnode.canonical_order(node0, node1)
-        return self.markings.get(key, 0)
+        if key[0] is marks.node1:
+            self.markings[key] = marks.reversed()
+        else:
+            self.markings[key] = marks
 
+        # Check for periodic partners.  When marks are inserted for a
+        # segment, they are also inserted for its periodic partner, if
+        # there is one.  We don't have to check that the partner's
+        # marks have already been inserted -- if they had been, this
+        # segment's marks would have been too.
+        partnerMarks = marks.periodicPartnerMarks()
+        if partnerMarks is not None:
+            partnerKey = partnerMarks.key()
+            if partnerKey[0] is partnerMarks.node1:
+                self.markings[partnerKey] = partnerMarks.reversed()
+            else:
+                self.markings[partnerKey] = partnerMarks
+        return False
+    def update(self, pt0, pt1, fractions):
+        marks = SegmentMarks(pt0, pt1, fractions)
+        self.markings[marks.key()] = marks
+    def fetch(self, n0, n1):
+        key = skeletonnode.canonical_order(n0, n1)
+        marks = self.markings.get(key, emptyMarks)
+        if key[0] is n1:
+            return marks.reversed()
+        return marks
     def getMarks(self, element):
-        return [self.getMark(nodes[0], nodes[1]) 
+        return [self.fetch(nodes[0], nodes[1])
                 for nodes in element.segment_node_iterator()]
-
-    def getNMarkedEdges(self, element):
-        marks = self.getMarks(element)
-        nmarks = 0
-        for m in marks:
-            if m: nmarks += 1
-        return nmarks
-
-
-    # parallel function
-    if parallel_enable.enabled():
-        def getSharedSegments(self):
-            pass  # Look in "refineParallel.py"
-
-class RefinementCriterion1(registeredclass.RegisteredClass):
-    registry = []
-
-    tip = "Restrict the set of Elements considered for refinement."
-    discussion = """<para>
-
-    Objects in the <classname>RefinementCriterion</classname> class
-    are used as values of the <varname>criterion</varname> parameter
-    when <link linkend='RegisteredClass-Refine'>refining</link>
-    &skels;.  Only &elems; that satisfy the criterion are considered
-    for refinement.
-
-    </para>"""
+    def reduceMarks(self, maxMarks):
+        for marking in self.markings.values():
+            marking.reduceMarks(maxMarks)
+        
+                               
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 
-class Unconditionally1(RefinementCriterion1):
-    def __call__(self, skeleton, element):
-        return 1
-registeredclass.Registration(
-    'Unconditional',
-    RefinementCriterion1,
-    Unconditionally1,
-    ordering=0,
-    tip='Consider all Elements for possible refinement.',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/unconditionally.xml')
-    )
-
-class MinimumArea1(RefinementCriterion1):
-    def __init__(self, threshold, units):
-        self.threshold = threshold
-        self.units = units
-    def __call__(self, skeleton, element):
-        if self.units == 'Pixel':
-            return element.area() > self.threshold*skeleton.MS.areaOfPixels()
-        elif self.units == 'Physical':
-            return element.area() > self.threshold
-        elif self.units == 'Fractional':
-            return element.area() > self.threshold*skeleton.MS.area()
-
-registeredclass.Registration(
-    'Minimum Area',
-    RefinementCriterion1,
-    MinimumArea1,
-    ordering=1,
-    params=[parameter.FloatParameter('threshold', 10,
-                                     tip="Minimum acceptable element area."),
-            enum.EnumParameter('units', units.Units, units.Units('Pixel'),
-                               tip='Units for the minimum area')],
-    tip='Only refine elements with area greater than the given threshold.',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/minimumarea.xml')
-    )
-
-
-###################################
-            
-class Refine1(skeletonmodifier.SkeletonModifier):
-    def __init__(self, targets, criterion, degree, alpha):
+class Refine(skeletonmodifier.SkeletonModifier):
+    def __init__(self, targets, criterion, divider, alpha=1):
         self.targets = targets      # RefinementTarget instance
         self.criterion = criterion  # Criterion for refinement
-        self.degree = degree        # RefinementDegree instance
+        self.divider = divider      # Method for dividing edges
         # alpha is used for deciding between different possible
         # refinements, using effective energy
         self.alpha = alpha 
-        # Available rules for the specified rule_set of refinement degree
-        self.rules = refinemethod.getRuleSet(self.degree.rule_set.name)
-    #########
+        # Available rules
+        self.rules = refinemethod.getRuleSet('Extensive')
 
     def apply(self, skeleton, context):
         prog = progress.getProgress("Refine", progress.DEFINITE)
@@ -224,62 +370,65 @@ class Refine1(skeletonmodifier.SkeletonModifier):
             return self.refinement(skeleton, newSkeleton, None, prog)
         finally:
             prog.finish()
-    
-    def refinement(self, skeleton, newSkeleton, context, prog):
-        # Copy the old skeleton, without copying the elements.
-##         newSkeleton = skeleton.improperCopy()
-        markedEdges = EdgeMarkings()
-        self.newEdgeNodes = {}          # allows sharing of new edge nodes
 
-        # Primary marking
-        self.targets(skeleton, context, self.degree.divisions, markedEdges,
+    def refinement(self, oldSkeleton, newSkeleton, context, prog):
+        markedSegs = SegmentMarkings()
+
+        # newEdgeNodes is a dict keyed by pairs of nodes in the old
+        # Skeleton.  Its values are lists of new nodes in the new
+        # Skeleton.  The values are inserted when getNewEdgeNodes is
+        # called.
+        newEdgeNodes = {} 
+
+        # Use the RefinementTarget to mark the edges that should be
+        # refined. 
+        self.targets(oldSkeleton, context, self.divider, markedSegs,
                      self.criterion)
-        # Additional marking
-        self.degree.markExtras(skeleton, markedEdges)
+
+        # Reduce the number of marks on edges to the number allowed by
+        # the refinement rules.  This is done via the divider, because
+        # it's not necessary for all division methods.
+        self.divider.reduceMarks(self.rules.maxMarks(), markedSegs)
+
+        # connectedsegs contains new segments that have had their
+        # parentage set.
+        connectedsegments = set() 
 
         # Refine elements and segments
-        segmentdict = {}                # which segments have been handled
-        n = len(skeleton.elements)
-        elements = skeleton.elements
-
-        for ii in range(n):
-            oldElement = elements[ii]
+        eliter = oldSkeleton.element_iterator()
+        for oldElement in eliter:
             oldnnodes = oldElement.nnodes()
-            # For 2D: Find the canonical order for the marks. (The
-            # order is ambiguous due to the arbitrary choice of the
-            # starting edge.  Finding the canonical order allows the
-            # refinement rule to be found in the rule table.)
-            # rotation (the first member of signature_info) is the
+            # Get list of subdivisions on each edge ("marks")
+            marks =  markedSegs.getMarks(oldElement)
+            # Find the canonical order for the marks. (The order is
+            # ambiguous due to the arbitrary choice of the starting
+            # edge.  Finding the canonical order allows the refinement
+            # rule to be found in the rule table.)  rotation is the
             # offset into the elements node list required to match the
             # refinement rule to the element's marked edges.
-            # signature is the canonical ordering of the marks.  For
-            # 3D: The signature info is simply a tuple listing the
-            # marked edges in order.  We can no longer use a canonical
-            # order and rotation since the ordering of the edges is no
-            # longer arbitrary.
-
-            # Get list of number of subdivisions on each edge ("marks")
-            marks = markedEdges.getMarks(oldElement)
-            signature_info = findSignature(marks)
-            # Create new nodes along the subdivided element edges
-            ## TODO: Why not use
-            ## for (i, nodes) in enumerate(oldElement.segment_node_iterator())
-            ## in the following?
+            # signature is the canonical ordering of the marks.
+            rotation, signature = findSignature(marks)
+            
+            # Create new nodes on segments.  The marks refer to the
+            # old Skeleton, but new nodes are created in the new
+            # Skeleton.
             edgenodes = [
-                self.getNewEdgeNodes(nodes[0], nodes[1], 
-                                     marks[i], newSkeleton, skeleton)
-                for nodes, i in zip(oldElement.segment_node_iterator(),
-                                    range(oldElement.getNumberOfEdges()))
-                ]
+                self.getNewEdgeNodes(nodes[0], nodes[1], emarks, newSkeleton,
+                                     newEdgeNodes)
+                for emarks, nodes in zip(
+                        marks, oldElement.segment_node_iterator())]
 
-            # Create new elements
-            signature = signature_info[1]
+            # Apply refinement rules to create new elements
             newElements = self.rules[signature].apply(
-                oldElement, signature_info, edgenodes, newSkeleton, self.alpha)
+                oldElement, rotation, edgenodes, newSkeleton, self.alpha)
+            if not newElements:
+                debug.fmsg(f"{oldElement=}")
+                debug.fmsg(f"{signature=} {rotation=}")
+            assert newElements, "Refinement failed!"
 
-            # If the old element's homogeneity is "1", it's safe to say that
-            # new elements' homogeneities are "1".
-            if oldElement.homogeneity(skeleton.MS, False) == 1.0:
+            # If the old element's homogeneity is 1, it's safe to say that
+            # new elements' homogeneities are 1.
+            if oldElement.homogeneity(oldSkeleton.MS, False) == 1.0:
                 for el in newElements:
                     el.copyHomogeneity(oldElement)
 
@@ -290,9 +439,9 @@ class Refine1(skeletonmodifier.SkeletonModifier):
             for newElement in newElements:
                 for segment in newElement.getSegments(newSkeleton):
                     # Only look at each segment once.
-                    if segment not in segmentdict:
-                        segmentdict[segment] = 1
-                        pseg = findParentSegment(skeleton, newElement,
+                    if segment not in connectedsegments:
+                        connectedsegments.add(segment)
+                        pseg = findParentSegment(oldSkeleton, newElement,
                                                  segment,
                                                  edgenodes)
                         if pseg:
@@ -300,105 +449,85 @@ class Refine1(skeletonmodifier.SkeletonModifier):
                             segment.add_parent(pseg)
             if prog.stopped():
                 return None
-            else:
-                prog.setFraction(1.0*(ii+1)/n)
-                prog.setMessage("%d/%d" % (ii+1, n))
-            
+            prog.setFraction(eliter.fraction())
+            prog.setMessage(f"{eliter.nexamined()}/{eliter.ntotal()} elements")
+       
         newSkeleton.cleanUp()
-
-        # Make sure not to keep a reference to anything in the
-        # Skeleton, or the Skeleton won't be deleted properly.  This
-        # Refine object might nto be deleted, since it's kept in a
-        # history buffer.
-        del self.newEdgeNodes
+        #print "end of refinement"
 
         return newSkeleton
 
-    ################
-    
-    def getNewEdgeNodes(self, node0, node1, ndivs, newSkeleton, oldSkeleton):
-        # Create ndivs new nodes between node0 and node1 in the
-        # skeleton.  node0 and node1 are from the old skeleton
-        if ndivs < 1:
+    def getNewEdgeNodes(self, node0, node1, marks, newSkeleton, newEdgeNodes):
+        # Create new nodes on the edge joining the nodes corresponding
+        # to node0 and node1 in the new skeleton.  node0 and node1 are
+        # in the *old* skeleton.
+        if len(marks) < 1:
             return []
         key = skeletonnode.canonical_order(node0, node1)
         try:
-            #Unlike in snaprefine.py, we don't make a list copy.
-            nodes = self.newEdgeNodes[key]
-            # Since this is the second time we're using this list
-            # of nodes, we must be looking at them from the other
-            # side, and the nodes should be in the opposite order.
-            # Reversing them in place like this would be wrong if
-            # the list weren't being used immediately, as it is in
-            # Refine.apply() 
-            nodes.reverse()
+            # Look for already created nodes
+            nodes = newEdgeNodes[key]
         except KeyError:
-            nodes = [None]*ndivs
-            p0 = node0.position()
-            p1 = node1.position()
-            delta = (p1 - p0)/(ndivs+1)
-            for i in range(ndivs):
-                pt = p0 + (i+1)*delta
-                nodes[i] = newSkeleton.newNodeFromPoint(pt)
-            self.newEdgeNodes[key] = nodes
-
-            ## Begin Periodic Skeleton Node Construction ###################
-            partners=node0.getPartnerPair(node1)
+            # Nodes have not been created on this edge yet. 
+            pt0 = node0.position()
+            pt1 = node1.position()
+            # marks.positions() returns positions in the correct order
+            # for the directed segment going from n0 to n1.
+            nodes = [newSkeleton.newNodeFromPoint(pt)
+                     for pt in marks.positions(node0, node1)]
+            newEdgeNodes[key] = nodes
+            
+            # Create periodic nodes if necessary
+            partners = node0.getPartnerPair(node1)
             # It can happen that partners contains the same two nodes
-            # (node1,node0), if the Skeleton is only one element wide!
-            if partners and node0!=partners[1]:
+            # (node1,node0). Maybe only in perverse situations, though.
+            if partners and node0 != partners[1]:
                 partnerKey = skeletonnode.canonical_order(partners[0],
                                                           partners[1])
-                # Make new edge nodes for the partner-edge.  ndivs for
-                # the current edge and the partner-edge must be the
-                # same.
-                nodespartner = [None]*ndivs
-                s = newSkeleton.MS.size()
-                n0pt=node0.position()
-                n1pt=node1.position()
+                # Make new edge nodes on the partner edge, using the
+                # same marks.
+                sz = newSkeleton.MS.size()
+                # partnerdict[c] = v means to set the c component of
+                # the new node positions to v
                 partnerdict = {}
-                # Case 1: boundary at left edge or face
-                if (n0pt.x==0 and n1pt.x==0 and
-                    newSkeleton.left_right_periodicity):
-                    partnerdict[0]=s[0]
-                # Case 2: boundary at right edge or face
-                elif (n0pt.x==s[0] and n1pt.x==s[0] and
-                      newSkeleton.left_right_periodicity):
-                    partnerdict[0]=0
-                # Case 3: boundary at bottom edge or face
-                if (n0pt.y==0 and n1pt.y==0 and
-                    newSkeleton.top_bottom_periodicity):
-                    partnerdict[1]=s[1]
-                # Case 4: boundary at top edge or face
-                elif (n0pt.y==s[1] and n1pt.y==s[1] and
-                      newSkeleton.top_bottom_periodicity):
-                    partnerdict[1]=0
-                    
-                for i in range(ndivs):
-                    pt = nodes[i].position()
-                    for c,v in partnerdict.items():
-                        pt[c]=v
-                    newnodepartner = newSkeleton.newNodeFromPoint(pt)
+                if newSkeleton.left_right_periodicity:
+                    if pt0.x == pt1.x == 0:
+                        # segment along left edge
+                        partnerdict[0] = sz[0]
+                    elif pt0.x == pt1.x == sz[0]:
+                        # segment along right edge
+                        partnerdict[0] = 0
+                if newSkeleton.top_bottom_periodicity:
+                    if pt0.y == pt1.y == 0:
+                        # segment along bottom edge
+                        partnerdict[1] = sz[1]
+                    elif pt0.y == pt1.y == sz[1]:
+                        # segment along top edge
+                        partnerdict[1] = 0
+                partnernodes = [None] * len(marks)
+                for i, pt in enumerate(marks.positions(node0, node1)):
+                    # Compute the location of the new node, which is
+                    # the same as the location of the old node, but
+                    # shifted to the other boundary via partnerdict.
+                    newpt = nodes[i].position()
+                    for c, v in partnerdict.items():
+                        newpt[c] = v
+                    newnodepartner = newSkeleton.newNodeFromPoint(newpt)
                     nodes[i].addPartner(newnodepartner)
-                    nodespartner[i] = newnodepartner
-                self.newEdgeNodes[partnerKey] = nodespartner
-                ## End Periodic Skeleton Node Construction ###################
+                    partnernodes[i] = newnodepartner
+
+                newEdgeNodes[partnerKey] = partnernodes
+        else: # no exception in newEdgeNodes lookup
+            # Nodes were already created on this edge.  They were
+            # created when this segment or its periodic partner was
+            # traversed in the other direction, so we need to return
+            # them in the opposite order.
+            nodes.reverse()
 
         return nodes
-    
-    # parallel fuctions
-    if parallel_enable.enabled():
-        def apply_parallel(self, skeleton, context):
-            newSkeleton = skeleton.improperCopy(skeletonpath=context.path())  # fresh=False
-            return self.refinement_parallel(skeleton, newSkeleton, context)
+        
 
-        def refinement_parallel(self, skeleton, newSkeleton, context):
-            pass  # Look in "refineParallel.py"
-
-        def shareCommonNodes(self, markedEdges, skeleton, newSkeleton):
-            pass  # Look in "refineParallel.py"
-    
-#################################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def findParentSegment(oldSkeleton, element, segment, edgenodes):
     n0, n1 = segment.nodes()            # nodes of the segment
@@ -448,6 +577,8 @@ def findParentSegment(oldSkeleton, element, segment, edgenodes):
         if freechild in edgenodes[prev]:
             return oldSkeleton.findSegment(parentnode, oldElement.nodes[prev])
                     
+                    
+
     elif p0 is None and p1 is None:
         # Neither new endpoint has a parent.  If the new endpoints are
         # consecutive nodes in the list of new nodes added to a parent
@@ -466,43 +597,109 @@ def findParentSegment(oldSkeleton, element, segment, edgenodes):
                                                    oldElement.nodes[(i+1)%
                                                                     nnodes])
 
-################################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+signature_base = 32
 
 def findSignature(marks):
-    # Given a list of subdivisions of sides (marks), rotate a
-    # canonical starting point for the list, so that it can be used as
-    # an index into a table of refinement functions.  For a list
+    # Given a list of SementMarks for each side of an element, rotate
+    # a canonical starting point for the list, so that it can be used
+    # as an index into a table of refinement functions.  For a list
     # [x,y,z], the canonical order is that which maximizes the number
-    # xyz in base arbitrary_factor.  This will fail if edges are ever
-    # divided into more than arbitrary_factor segments in one
-    # refinement operation.
-    n = len(marks)
+    # xyz in base signature_base.  This will fail if edges are ever
+    # divided into more than signature_base segments in one refinement
+    # operation.
+    n = len(marks)              # number of segments
     maxkey = -1
     imax = None
     for i in range(n):
-        key = marks[i]
-        for j in range(1, n):
-            key = arbitrary_factor*key + marks[(i+j)%n]
+        key = 0                 
+        for j in range(n):
+            key = signature_base*key + len(marks[(i+j)%n])
         if key > maxkey:
             maxkey = key
             imax = i
-    return imax, tuple([marks[(i+imax)%n] for i in range(n)])
+    return imax, tuple(len(marks[(i+imax)%n]) for i in range(n))
 
-####################
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+class RefinementCriterion(registeredclass.RegisteredClass):
+    registry = []
+
+    tip = "Restrict the set of Elements considered for refinement."
+    discussion = """<para>
+
+    Objects in the <classname>RefinementCriterion</classname> class
+    are used as values of the <varname>criterion</varname> parameter
+    when <link linkend='RegisteredClass-Refine'>refining</link>
+    &skels;.  Only &elems; that satisfy the criterion are considered
+    for refinement.
+
+    </para>"""
+
+
+class Unconditionally(RefinementCriterion):
+    def __call__(self, skeleton, element):
+        return 1
+registeredclass.Registration(
+    'Unconditional',
+    RefinementCriterion,
+    Unconditionally,
+    ordering=0,
+    tip='Consider all Elements for possible refinement.',
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/unconditionally.xml')
+)
+
+class MinimumArea(RefinementCriterion):
+    def __init__(self, threshold, units):
+        self.threshold = threshold
+        self.units = units
+    def __call__(self, skeleton, element):
+        if self.units == 'Pixel':
+            return element.area() > self.threshold*skeleton.MS.areaOfPixels()
+        elif self.units == 'Physical':
+            return element.area() > self.threshold
+        elif self.units == 'Fractional':
+            return element.area() > self.threshold*skeleton.MS.area()
 
 registeredclass.Registration(
-    'Refine1',
+    'Minimum Area',
+    RefinementCriterion,
+    MinimumArea,
+    ordering=1,
+    params=[parameter.FloatParameter('threshold', 10,
+                                     tip="Minimum acceptable element area."),
+            enum.EnumParameter('units', units.Units, units.Units('Pixel'),
+                               tip='Units for the minimum area')],
+    tip='Only refine elements with area greater than the given threshold.',
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/minimumarea.xml')
+)
+
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+registeredclass.Registration(
+    'Refine',
     skeletonmodifier.SkeletonModifier,
-    Refine1,
+    Refine,
     ordering=0,
-    params=[parameter.RegisteredParameter('targets',
-                                          refinementtarget.RefinementTarget,
-                                          tip='Target elements to be refined.'),
-            parameter.RegisteredParameter('criterion', RefinementCriterion1,
-                                          tip='Exclude certain elements.'),
-            parameter.RegisteredParameter('degree', RefinementDegree,
-                                    tip='Preferred way of subdividing a side.'),
-            skeletonmodifier.alphaParameter
+    params=[
+        parameter.RegisteredParameter(
+            'targets',
+            refinementtarget.RefinementTarget,
+            tip='Target elements to be refined.'),
+        parameter.RegisteredParameter(
+            'criterion',
+            RefinementCriterion,
+            tip='Exclude certain elements.'),
+        parameter.RegisteredParameter(
+            'divider',
+            SegmentDivider,
+            tip="How to divide the edges of the refined elements."),
+        skeletonmodifier.alphaParameter
             ],
-    tip="Subdivide elements.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/refine.xml'))
+    tip="Subdivide elements along pixel boundaries.",
+    ## TODO PYTHON3: Update docs!
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/refine.xml')
+)

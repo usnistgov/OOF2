@@ -54,12 +54,9 @@ import ooflib.engine.IO.meshmenu
 import ooflib.engine.IO.scheduledoutputmenu
 
 # skeleton and mesh modification stuff
-#import ooflib.engine.refine
-#import ooflib.engine.refinementtarget
 import ooflib.engine.rationalize
 import ooflib.engine.autoskeleton
-#import ooflib.engine.snaprefine
-import ooflib.engine.snaprefine2
+import ooflib.engine.refine
 import ooflib.engine.snapnode
 import ooflib.engine.edgeswap
 import ooflib.engine.splitquads
@@ -126,7 +123,7 @@ if parallel_enable.enabled():
     import ooflib.engine.IO.materialmenuIPC
     import ooflib.engine.IO.skeletonIPC
     import ooflib.engine.deputyParallel
-    import ooflib.engine.refineParallel
+    # import ooflib.engine.refineParallel
     import ooflib.engine.IO.meshIPC
     import ooflib.engine.IO.boundaryconditionIPC
     import ooflib.engine.IO.propertymenuIPC

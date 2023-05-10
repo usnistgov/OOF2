@@ -24,42 +24,63 @@ import math
 
 class RefinementTarget(registeredclass.RegisteredClass):
     registry = []
-
-    # Derived classes must override either __call__ or preprocess.
-    ## TODO PYTHON3: Is preprocess ever defined or called?
-    def preprocess(self, skeleton, divisions, markedEdges):
-        pass
-    def __call__(self, skeleton, context, divisions, markedEdges, criterion):
-        pass
-
-    def markSegment(self, segment, divisions, markedEdges):
-        markedEdges.mark(segment.nodes()[0], segment.nodes()[1], divisions)
-
-    def markElement(self, element, divisions, markedEdges):
-        nnodes = element.nnodes()
-        for i in range(nnodes):
-            markedEdges.mark(element.nodes[i], element.nodes[(i+1)%nnodes],
-                             divisions)
-    
-
     tip = "Determine which Skeleton segments will be refined."
     discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/refinementtarget.xml')
 
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+# ElementRefinementTarget marks all segments of the elements that
+# match the given criterion.  If you don't want to mark all segments,
+# use SegmentRefinementTarget instead.
 
-class CheckAllElements(RefinementTarget):     
-    def __call__(self, skeleton, context, divisions, markedEdges, criterion):
+class ElementRefinementTarget(RefinementTarget):
+    def markElement(self, skeleton, element, divider, markedSegs):
+        nnodes = element.nnodes()
+        for i in range(nnodes):
+            divider.markSegment(skeleton,
+                               element.nodes[i], element.nodes[(i+1)%nnodes],
+                               markedSegs)
+    def __call__(self, skeleton, context, divider, markedSegs, criterion):
         prog = progress.findProgress("Refine")
-        eliter = skeleton.activeElements()
-        for element in eliter:
+        ## TODO PYTHON3: Be sure that self.iterator returns a
+        ## SkeletonElementIterator so we can use fraction and ntotal
+        eliter = list(self.iterator(context)) # self.iterator is from subclass
+        for i, element in enumerate(eliter):
+            ## TODO: Do we need to check criterion here?  Can the
+            ## iterator do it?
             if criterion(skeleton, element):
-                self.markElement(element, divisions, markedEdges)
+                self.markElement(skeleton, element, divider, markedSegs)
             if prog.stopped():
                 return
-            prog.setFraction(eliter.fraction())
-            prog.setMessage(
-                f"checked {eliter.nexamined()}/{eliter.ntotal()}  elements")
+            prog.setFraction(i/len(eliter))#eliter.fraction())
+            prog.setMessage(f"checked {i}/{len(eliter)} elements")
+                #f"checked {eliter.nexamined()}/{eliter.ntotal()} elements")
+            
 
+class SegmentRefinementTarget(RefinementTarget):
+    def markSegment(self, skeleton, context, segment, divider, markedSegs):
+        divider.markSegment(skeleton,
+                           segment.nodes()[0], segment.nodes()[1], markedSegs)
+    def __call__(self, skeleton, context, divider, markedSegs, criterion):
+        prog = progress.findProgress("Refine")
+        segiter = self.iterator(context)
+        for segment in segiter:
+            ## TODO: Do we need to check criterion here?  Can the
+            ## iterator do it?
+            if criterion(skeleton, segment):
+                self.markSegment(skeleton, context, segment, divider,
+                                 markedSegs)
+            if prog.stopped():
+                return
+            prog.setFraction(segiter.fraction())
+            prog.setMessage(
+                f"checked {segiter.nexamined()}/{segiter.ntotal()} segments")
+        
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+class CheckAllElements(ElementRefinementTarget):
+    def iterator(self, skeletoncontext):
+        return skeletoncontext.getObject().activeElements()
+    
 registeredclass.Registration(
     'All Elements',
     RefinementTarget,
@@ -70,20 +91,13 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class CheckSelectedElements(RefinementTarget):
-    def __call__(self, skeleton, context, divisions, markedEdges, criterion):
-        prog = progress.findProgress("Refine")
-        elements = context.elementselection.retrieve()
-        n = len(elements)
-        for i, element in enumerate(elements):
-            if element.active(skeleton) and criterion(skeleton, element):
-                self.markElement(element, divisions, markedEdges)
-            if prog.stopped():
-                return
-            else:
-                prog.setFraction(1.0*(i+1)/n)
-                prog.setMessage("checked %d/%d selected elements" % (i+1, n))
-
+class CheckSelectedElements(ElementRefinementTarget):
+    def iterator(self, skeletoncontext):
+        skeleton = skeletoncontext.getObject()
+        for el in skeleton.selectedElements():
+            if el.active(skeleton):
+                yield el
+    
 registeredclass.Registration(
     'Selected Elements',
     RefinementTarget,
@@ -96,21 +110,16 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class CheckElementsInGroup(RefinementTarget):
+class CheckElementsInGroup(ElementRefinementTarget):
     def __init__(self, group):
         self.group = group
-    def __call__(self, skeleton, context, divisions, markedEdges, criterion):
-        prog = progress.findProgress("Refine")
-        elements = context.elementgroups.get_group(self.group)
-        n = len(elements)
-        for i, element in enumerate(elements):
-            if element.active(skeleton) and criterion(skeleton, element):
-                self.markElement(element, divisions, markedEdges)
-            if prog.stopped() :
-                return
-            prog.setFraction((i+1)/n)
-            prog.setMessage("checked %d/%d grouped elements" % (i+1, n))
-
+    def iterator(self, skeletoncontext):
+        elements = skeletoncontext.elementgroups.get_group(self.group)
+        skeleton = skeletoncontext.getObject()
+        for element in elements:
+            if element.active(skeleton):
+                yield element
+            
 registeredclass.Registration(
     'Elements In Group',
     RefinementTarget,
@@ -125,22 +134,16 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class CheckHomogeneity(RefinementTarget):
+class CheckHomogeneity(ElementRefinementTarget):
     def __init__(self, threshold):
         self.threshold = threshold
-        
-    def __call__(self, skeleton, context, divisions, markedEdges, criterion):
-        prog = progress.findProgress("Refine")
-        eliter = skeleton.activeElements()
+
+    def iterator(self, context):
+        skel = context.getObject()
+        eliter = skel.activeElements()
         for element in eliter:
-            if element.homogeneity(skeleton.MS, False) < self.threshold and \
-               criterion(skeleton, element):
-                self.markElement(element, divisions, markedEdges)
-            if prog.stopped() :
-                return
-            prog.setFraction(eliter.fraction())
-            prog.setMessage(
-                f"checked {eliter.nexamined()}/{eliter.ntotal()} elements")
+            if element.homogeneity(skel.MS, False) < self.threshold:
+                yield element
                 
 registeredclass.Registration(
     'Heterogeneous Elements',
@@ -258,23 +261,29 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class CheckHeterogeneousEdges(RefinementTarget):
+## TODO PYTHON3: These classes are oddly defined.
+## CheckHeterogeneousEdges uses a SegmentChooser to choose the set of
+## segments to consider.  The choices are SelectedElements,
+## SelectedSegments, and AllSegments.  But CheckSelectedEdges doesn't
+## use a SegmentChooser, although it could. CheckAllEdges with a
+## SegmentChooser could reproduce CheckSelectedSegments and
+## CheckSegmentGroup and Check...
+
+## TODO PYTHON3: The class names here are sometimes XXXXSegments and
+## sometimes XXXXEdges.  We should be consistent.
+
+class CheckHeterogeneousEdges(SegmentRefinementTarget):
     def __init__(self, threshold, choose_from):
         self.threshold = threshold
         self.choose_from = choose_from
-        
-    def __call__(self, skeleton, context, divisions, markedEdges, criterion):
-        microstructure = skeleton.MS
-        prog = progress.findProgress("Refine")
-        segiter = self.choose_from.getSegments(context)
-        for segment in segiter:
-            if segment.homogeneity(microstructure) < self.threshold:
-                self.markSegment(segment, divisions, markedEdges)
-            if prog.stopped():
-                return
-            prog.setFraction(segiter.fraction())
-            prog.setMessage(
-                f"checked {segiter.nexamined()}/{segiter.ntotal()} segments")
+
+    def iterator(self, context):
+        skel = context.getObject()
+        micro = context.getMicrostructure()
+        return skeleton.SkeletonSegmentIterator(
+            skel,
+            condition=lambda s: (s.active(skel) and
+                                 s.homogeneity(micro) < self.threshold))
 
 registeredclass.Registration(
     'Heterogeneous Segments',
@@ -291,55 +300,15 @@ registeredclass.Registration(
     tip="Divide heterogeneous segments.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/check_hetero_segs.xml'))
 
-if debug.debug():
-    class CheckHeterogeneousEdgesOLD(RefinementTarget):
-        def __init__(self, threshold, choose_from):
-            self.threshold = threshold
-            self.choose_from = choose_from
-
-        def __call__(self, skeleton, context, divisions, markedEdges, criterion):
-            microstructure = skeleton.MS
-            prog = progress.findProgress("Refine")
-            segiter = self.choose_from.getSegments(context)
-            for segment in segiter:
-                if segment.oldHomogeneity(microstructure) < self.threshold:
-                    self.markSegment(segment, divisions, markedEdges)
-                if prog.stopped():
-                    return
-                prog.setFraction(segiter.fraction())
-                prog.setMessage(
-                    f"checked {segiter.nexamined()}/{segiter.ntotal()} segments")
-
-    registeredclass.Registration(
-        'OLD Heterogeneous Segments',
-        RefinementTarget,
-        CheckHeterogeneousEdgesOLD,
-        ordering=3.01,
-        params=[
-            parameter.FloatRangeParameter(
-                'threshold', (0.0, 1.0, 0.05),
-                value=0.9,
-                tip="Refine segments whose homogeneity is less than this."),
-            parameter.RegisteredParameter('choose_from', SegmentChooser,
-                                          tip='Segments to consider.')],
-        tip="Divide heterogeneous segments using the old homogeneity calculation.",
-    )
-
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class CheckSelectedEdges(RefinementTarget):
-    def __call__(self, skeleton, context, divisions, markedEdges, criterion):
-        prog = progress.findProgress("Refine")
-        segments = context.segmentselection.retrieve()
-        n = len(segments)
-        for i, segment in enumerate(segments):
-            if segment.active(skeleton):
-                self.markSegment(segment, divisions, markedEdges)
-            if prog.stopped():
-                return
-            prog.setFraction((i+1)/n)
-            prog.setMessage("checked %d/%d segments" % (i+1, n))
-
+class CheckSelectedEdges(SegmentRefinementTarget):
+    def iterator(self, context):
+        skel = context.getObject()
+        return skeleton.SkeletonSegmentIterator(
+            skel,
+            condition=lambda s: (s.isSelected() and s.active(skel)))
+        
 registeredclass.Registration(
     'Selected Segments',
     RefinementTarget,
@@ -352,29 +321,21 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class CheckSegmentGroup(RefinementTarget):
+class CheckSegmentGroup(SegmentRefinementTarget):
     def __init__(self, group):
         self.group = group
-    def __call__(self, skeleton, context, divisions, markedEdges, criterion):
-        prog = progress.findProgress("Refine")
-        segments = context.segmentgroups.get_group(self.group)
-        n = len(segments)
-        for i, segment in enumerate(segments):
-            if segment.active(skeleton):
-                self.markSegment(segment, divisions, markedEdges)
-            if prog.stopped():
-                return
-            prog.setFraction((i+1)/n)
-            prog.setMessage("checked %d/%d segments" % (i+1, n))
-
-
+    def iterator(self, context):
+        return skeleton.SkeletonSegmentGroupIterator(
+            context, self.group,
+            condition=lambda s: s.active(skel))
+        
 registeredclass.Registration(
     'Segments in Group',
     RefinementTarget,
     CheckSegmentGroup,
     ordering=3.5,
-    params=[skeletongroupparams.SegmentGroupParameter('group',
-                                                      tip='Examine segments in this group')],
+    params=[skeletongroupparams.SegmentGroupParameter(
+        'group', tip='Examine segments in this group')],
     tip="Refine segments in a segment group",
     discussion="""<para>
     Refine a Skeleton by divided the segments in the given segment group.
@@ -383,26 +344,27 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class CheckAspectRatio(RefinementTarget):
-   def __init__(self, threshold, only_quads=True):
-       self.threshold = threshold
-       self.only_quads = only_quads
-   def __call__(self, skeleton, context, divisions, markedEdges, criterion):
-       prog = progress.findProgress("Refine")
-       eliter = skeleton.activeElements()
-       for element in eliter:
-           if (criterion(skeleton, element) and (element.nnodes() == 4 or
-                                                 not self.only_quads)):
-               for segment in element.getAspectRatioSegments(self.threshold,
-                                                             skeleton):
-                   if segment.active(skeleton):
-                       self.markSegment(segment, divisions, markedEdges)
-           if prog.stopped():
-               return
-           prog.setFraction(eliter.fraction())
-           prog.setMessage(
-               f"checked {eliter.nexamined()}/{eliter.ntotal()} elements")
+class AspectSegmentIterator(skeleton.SkeletonSegmentIterator):
+    def __init__(self, skel, threshold, only_quads, condition=lambda x: True):
+        self.threshold = threshold
+        self.only_quads = only_quads
+        skeleton.SkeletonSegmentIterator.__init__(self, skel, condition)
+    def targets(self):
+        for element in self.skeleton.activeElements():
+            if (element.nnodes() == 4 or not self.only_quads):
+                for segment in element.getAspectRatioSegments(self.threshold,
+                                                              self.skeleton):
+                    yield segment
 
+class CheckAspectRatio(SegmentRefinementTarget):
+    def __init__(self, threshold, only_quads=True):
+        self.threshold = threshold
+        self.only_quads = only_quads
+    def iterator(self, context):
+        skel = context.getObject()
+        return AspectSegmentIterator(skel, self.threshold, self.only_quads,
+                                     condition=lambda x: x.active(skel))
+       
 registeredclass.Registration(
     'Aspect Ratio',
     RefinementTarget,
