@@ -425,9 +425,11 @@ class ReservableList:
         self._length = 0
         if isinstance(vals, (list, tuple)):
             self._list[:len(vals)] = vals
+            self._length = len(vals)
         elif vals is not None:
             vlist = list(vals)
             self._list[:len(vlist)] = vlist
+            self._length = len(vlist)
     def __len__(self):
         return self._length
     def __getitem__(self, i):
