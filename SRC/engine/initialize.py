@@ -54,11 +54,11 @@ import ooflib.engine.IO.meshmenu
 import ooflib.engine.IO.scheduledoutputmenu
 
 # skeleton and mesh modification stuff
-import ooflib.engine.refine
-import ooflib.engine.refinementtarget
+#import ooflib.engine.refine
+#import ooflib.engine.refinementtarget
 import ooflib.engine.rationalize
 import ooflib.engine.autoskeleton
-import ooflib.engine.snaprefine
+#import ooflib.engine.snaprefine
 import ooflib.engine.snaprefine2
 import ooflib.engine.snapnode
 import ooflib.engine.edgeswap

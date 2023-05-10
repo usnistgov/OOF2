@@ -15,6 +15,8 @@
 # used to actually refine the elements, according to how many times
 # each edge is marked.
 
+OBOSOLETE
+
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import progress
 from ooflib.common import debug
@@ -140,7 +142,7 @@ class EdgeMarkings:
         def getSharedSegments(self):
             pass  # Look in "refineParallel.py"
 
-class RefinementCriterion(registeredclass.RegisteredClass):
+class RefinementCriterion1(registeredclass.RegisteredClass):
     registry = []
 
     tip = "Restrict the set of Elements considered for refinement."
@@ -155,19 +157,19 @@ class RefinementCriterion(registeredclass.RegisteredClass):
     </para>"""
 
 
-class Unconditionally(RefinementCriterion):
+class Unconditionally1(RefinementCriterion1):
     def __call__(self, skeleton, element):
         return 1
 registeredclass.Registration(
     'Unconditional',
-    RefinementCriterion,
-    Unconditionally,
+    RefinementCriterion1,
+    Unconditionally1,
     ordering=0,
     tip='Consider all Elements for possible refinement.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/unconditionally.xml')
     )
 
-class MinimumArea(RefinementCriterion):
+class MinimumArea1(RefinementCriterion1):
     def __init__(self, threshold, units):
         self.threshold = threshold
         self.units = units
@@ -181,8 +183,8 @@ class MinimumArea(RefinementCriterion):
 
 registeredclass.Registration(
     'Minimum Area',
-    RefinementCriterion,
-    MinimumArea,
+    RefinementCriterion1,
+    MinimumArea1,
     ordering=1,
     params=[parameter.FloatParameter('threshold', 10,
                                      tip="Minimum acceptable element area."),
@@ -195,7 +197,7 @@ registeredclass.Registration(
 
 ###################################
             
-class Refine(skeletonmodifier.SkeletonModifier):
+class Refine1(skeletonmodifier.SkeletonModifier):
     def __init__(self, targets, criterion, degree, alpha):
         self.targets = targets      # RefinementTarget instance
         self.criterion = criterion  # Criterion for refinement
@@ -446,8 +448,6 @@ def findParentSegment(oldSkeleton, element, segment, edgenodes):
         if freechild in edgenodes[prev]:
             return oldSkeleton.findSegment(parentnode, oldElement.nodes[prev])
                     
-                    
-
     elif p0 is None and p1 is None:
         # Neither new endpoint has a parent.  If the new endpoints are
         # consecutive nodes in the list of new nodes added to a parent
@@ -491,14 +491,14 @@ def findSignature(marks):
 ####################
 
 registeredclass.Registration(
-    'Refine',
+    'Refine1',
     skeletonmodifier.SkeletonModifier,
-    Refine,
+    Refine1,
     ordering=0,
     params=[parameter.RegisteredParameter('targets',
                                           refinementtarget.RefinementTarget,
                                           tip='Target elements to be refined.'),
-            parameter.RegisteredParameter('criterion', RefinementCriterion,
+            parameter.RegisteredParameter('criterion', RefinementCriterion1,
                                           tip='Exclude certain elements.'),
             parameter.RegisteredParameter('degree', RefinementDegree,
                                     tip='Preferred way of subdividing a side.'),

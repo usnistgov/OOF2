@@ -6,7 +6,9 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
+
+OBSOLETE
 
 # This file implements "Snap Refine"
 # (was called "Intelligent Refine" (pun intended)).
@@ -281,7 +283,7 @@ class SnapEdgeMarkings(refine.EdgeMarkings):
 
 ###################################
             
-class SnapRefine(refine.Refine):
+class SnapRefine1(refine.Refine1):
     #Unlike refine.py, alpha parameter not used (yet?)
     def __init__(self, targets, criterion, min_distance, alpha=1):
         self.targets = targets      # RefinementTarget instance
@@ -388,9 +390,9 @@ findSignature = refine.findSignature
 ####################
 
 registeredclass.Registration(
-    'Snap Refine',
+    'Snap Refine I',
     skeletonmodifier.SkeletonModifier,
-    SnapRefine,
+    SnapRefine1,
     ordering=400,
     params=[
         parameter.RegisteredParameter(
