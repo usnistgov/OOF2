@@ -269,6 +269,22 @@ RefinementRule(snapRefineRules, (1,1,0), rule110)
 #     /      \  /      \           /       |        \ 
 #    /________\/________\         /________|_________\
 #    0        a          1        0        a         1
+#
+#  TODO: Use this too?
+#              2           
+#             /|\           
+#            / | \          
+#           /  |  \         
+#          /   |   \        
+#       c /    |    \b      plus two other orientations
+#        /\    |    /\      
+#       /  \   |   /  \     
+#      /    \  |  /    \    
+#     /      \ | /      \   
+#    /________\|/________\  
+#    0         a          1 
+
+
 
 def rule111(element, rotation, edgenodes, newSkeleton, alpha):
     n0, n1, n2 = baseNodes(element, rotation)
@@ -1428,8 +1444,8 @@ def rule2220(element, rotation, edgenodes, newSkeleton, alpha):
     ne = edgenodes[(rotation+2)%4][0]
     nf = edgenodes[(rotation+2)%4][1]
     be = ne.position() - nb.position()
-    ng = newSkeleton.newNodeFromPoint(nb.position + 2/3*be)
-    nh = newSkeleton.newNodeFromPoint(nb.position + 1/3*be)
+    ng = newSkeleton.newNodeFromPoint(nb.position() + 2/3*be)
+    nh = newSkeleton.newNodeFromPoint(nb.position() + 1/3*be)
     refine0 = ProvisionalRefinement(
         [ProvisionalQuad(nodes=[n0, na, nf, n3], parents=[element]),
          ProvisionalQuad(nodes=[na, nb, ne, nf], parents=[element]),

@@ -32,13 +32,13 @@ class RefinementTarget2(registeredclass.RegisteredClass):
 # use SegmentRefinementTarget instead.
 
 class ElementRefinementTarget(RefinementTarget2):
-    def markElement(self, skeleton, element, marker, markedSegs):
+    def markElement(self, skeleton, element, divider, markedSegs):
         nnodes = element.nnodes()
         for i in range(nnodes):
-            marker.markSegment(skeleton,
+            divider.markSegment(skeleton,
                                element.nodes[i], element.nodes[(i+1)%nnodes],
                                markedSegs)
-    def __call__(self, skeleton, context, marker, markedSegs, criterion):
+    def __call__(self, skeleton, context, divider, markedSegs, criterion):
         prog = progress.findProgress("Refine")
         ## TODO PYTHON3: Be sure that self.iterator returns a
         ## SkeletonElementIterator so we can use fraction and ntotal
@@ -47,7 +47,7 @@ class ElementRefinementTarget(RefinementTarget2):
             ## TODO: Do we need to check criterion here?  Can the
             ## iterator do it?
             if criterion(skeleton, element):
-                self.markElement(skeleton, element, marker, markedSegs)
+                self.markElement(skeleton, element, divider, markedSegs)
             if prog.stopped():
                 return
             prog.setFraction(i/len(eliter))#eliter.fraction())
@@ -56,17 +56,18 @@ class ElementRefinementTarget(RefinementTarget2):
             
 
 class SegmentRefinementTarget(RefinementTarget2):
-    def markSegment(self, skeleton, context, segment, marker, markedSegs):
-        marker.markSegment(skeleton,
+    def markSegment(self, skeleton, context, segment, divider, markedSegs):
+        divider.markSegment(skeleton,
                            segment.nodes()[0], segment.nodes()[1], markedSegs)
-    def __call__(self, skeleton, context, marker, markedSegs, criterion):
+    def __call__(self, skeleton, context, divider, markedSegs, criterion):
         prog = progress.findProgress("Refine")
         segiter = self.iterator(context)
         for segment in segiter:
             ## TODO: Do we need to check criterion here?  Can the
             ## iterator do it?
             if criterion(skeleton, segment):
-                self.markSegment(skeleton, context, segment, marker, markedSegs)
+                self.markSegment(skeleton, context, segment, divider,
+                                 markedSegs)
             if prog.stopped():
                 return
             prog.setFraction(segiter.fraction())

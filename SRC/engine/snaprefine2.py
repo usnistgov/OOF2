@@ -28,7 +28,7 @@ from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import refinementtarget2
-from ooflib.engine import refinequadbisection
+#from ooflib.engine import refinequadbisection
 from ooflib.engine import skeleton
 from ooflib.engine import skeletonmodifier
 from ooflib.engine import skeletonsegment
@@ -41,31 +41,47 @@ import math
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# SegmentRefinementMethod takes a Segment and places refinement marks
+# SegmentDivider takes a Segment and places refinement marks
 # on its edges.  Different kinds are used in different refinement
 # methods.
 
 # [Snap]Refine.refinement() calls RefinementTarget.__call__, for the
 # appropriate target type, passing in an appropriate
-# SegmentRefinementMethod as its "marker" arg.  The result is a
+# SegmentDivider as its "divider" arg.  The result is a
 # dictionary of SegmentMarks objects, keyed by the pairs of nodes at
 # the ends of the segment.  SegmentMarks contains the new nodes to add
 # the the segment.
 
-epsilon = 1.e-6
+class SegmentDivider(registeredclass.RegisteredClass):
+    registry = []
 
-class SegmentRefinementMethod:
-    pass
-
-class BisectionMarker(SegmentRefinementMethod):
+class Bisection(SegmentDivider):
     def markSegment(self, skeleton, node0, node1, segMarkings):
-        segMarkings.insert(SegmentMarks(node0, node1, 1/2))
+        segMarkings.insert(SegmentMarks(node0, node1, (1/2,)))
+    def reduceMarks(self, maxMarks, markedSegs):
+        pass
 
-class TrisectionMarker(SegmentRefinementMethod):
+registeredclass.Registration(
+    'Bisection',
+    SegmentDivider,
+    Bisection,
+    ordering=1,
+    tip="Divide segments in half.")
+
+class Trisection(SegmentDivider):
     def markSegment(self, skeleton, node0, node1, segMarkings):
         segMarkings.insert(SegmentMarks(node0, node1, (1/3, 2/3)))
+    def reduceMarks(self, maxMarks, markedSegs):
+        pass
 
-class TransitionPointMarker(SegmentRefinementMethod):
+registeredclass.Registration(
+    'Trisection',
+    SegmentDivider,
+    Trisection,
+    ordering=2,
+    tip="Divide segments into thirds.")
+
+class TransitionPoints(SegmentDivider):
     def __init__(self, minlength):
         self.minlength = minlength # min segment length in pixels
     def markSegment(self, skeleton, node0, node1, segMarkings):
@@ -106,29 +122,38 @@ class TransitionPointMarker(SegmentRefinementMethod):
             if len(marks) == len(othermarks) == 0:
                 return
             
-            # See if there are marks in both lists that are within a
-            # fraction of a pixel of one another.  Use their average
-            # position and just add one mark to the result.  There
-            # should not be any chance that one fraction in one list
-            # is close to two fractions in the other list, if
-            # getSegmentSections is working properly.
+            # Merge the fractions in this set of marks and the other
+            # set of marks into a single sorted list.  If a pair of
+            # fractions in the two lists are almost equal, just put
+            # the average value in.  There should not be any chance
+            # that one fraction in one list is close to two fractions
+            # in the other list, if getSegmentSections is working
+            # properly.
+            #
+            # minfrac defines what we mean by "too
+            # close". It should be greater than 1/plen (the fractional
+            # size of one pixel). A segment that is colinear with a
+            # pixel step will have intersection points in the two
+            # lists that differ by 1 pixel unit, but we don't want to
+            # treat them as two intersection points.
 
-            # Put the fractions in this set of marks and
-            # the other set of marks in a single sorted list.  If a
-            # pair of fractions in the two lists is almost equal, just
-            # put the average value in.
+            # ............| pixel boundary
+            # ............|                      If A and B are one
+            # ............|                      pixel apart, they
+            # ======A=====B=== element segment   aren't independent
+            # ......|                            intersection points
+            # ......| 
+            # ......| pixel boundary
+            #
             pspan = micro.physical2Pixel(span) # span in pixel coords
             plen = math.sqrt(pspan*pspan) # total segment size in pixel coords
-            ## TODO PYTHON3? make the 1 in the following line settable.
-            minfrac = 1./plen # fractional distance between points 1 pixel apart
+            minfrac = 1.1/plen # fractions closer than this are merged
 
-            fracs0 = sorted(marks.fractions)
-            fracs1 = sorted(othermarks.fractions)
             newfracs = []
             i0 = i1 = 0
-            while i0 < len(fracs0) and i1 < len(fracs1):
-                f0 = fracs0[i0]
-                f1 = fracs1[i1]
+            while i0 < len(marks.fractions) and i1 < len(othermarks.fractions):
+                f0 = marks.fractions[i0]
+                f1 = othermarks.fractions[i1]
                 if abs(f1 - f0) <= minfrac:
                     newfracs.append(0.5*(f0 + f1))
                     i0 += 1
@@ -141,10 +166,10 @@ class TransitionPointMarker(SegmentRefinementMethod):
                     i1 += 1
             # If we reached the end of one list, put the rest of the
             # fractions in the other list into newfracs.
-            if i0 < len(fracs0):
-                newfracs.extend(fracs0[i0:])
-            if i1 < len(fracs1):
-                newfracs.extend(fracs1[i1:])
+            if i0 < len(marks.fractions):
+                newfracs.extend(marks.fractions[i0:])
+            if i1 < len(othermarks.fractions):
+                newfracs.extend(othermarks.fractions[i1:])
 
             segMarkings.update(node0, node1, newfracs)
 
@@ -153,7 +178,20 @@ class TransitionPointMarker(SegmentRefinementMethod):
             partners = node0.getPartnerPair(node1)
             if partners and node0 != partners[1]:
                 segMarkings.update(partners[0], partners[1], newfracs)
+    def reduceMarks(self, maxMarks, markedSegs):
+        markedSegs.reduceMarks(maxMarks)
 
+registeredclass.Registration(
+    "TransitionPoints",
+    SegmentDivider,
+    TransitionPoints,
+    params = [
+        parameter.PositiveFloatParameter(
+            "minlength", value=2.0, default=2.0,
+            tip="Minimum refined segment length in pixel units.  A length of at least 2 is suggested.")],
+    tip="Divide segments at the intersections with pixel boundaries.",
+    ordering=3)
+        
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Marks indicating where a segment should be divided. The nodes used
@@ -311,20 +349,15 @@ class SegmentMarkings:
 
 
 class SnapRefine2(refine.Refine):
-    def __init__(self, targets, criterion, min_distance, alpha=1):
+    def __init__(self, targets, criterion, divider, alpha=1):
         self.targets = targets      # RefinementTarget instance
         self.criterion = criterion  # Criterion for refinement
+        self.divider = divider      # Method for dividing edges
         # alpha is used for deciding between different possible
         # refinements, using effective energy
         self.alpha = alpha 
         # Available rules
         self.rules = snaprefinemethod2.getRuleSet('SnapRefine')
-
-        self.min_distance = min_distance
-
-        # Ultimately self.marker should be set in the subclass
-        # constructor.
-        self.marker = TransitionPointMarker(min_distance)
 
     def refinement(self, oldSkeleton, newSkeleton, context, prog):
         markedSegs = SegmentMarkings()
@@ -337,12 +370,13 @@ class SnapRefine2(refine.Refine):
 
         # Use the RefinementTarget to mark the edges that should be
         # refined. 
-        self.targets(oldSkeleton, context, self.marker, markedSegs,
+        self.targets(oldSkeleton, context, self.divider, markedSegs,
                      self.criterion)
 
         # Reduce the number of marks on edges to the number allowed by
-        # the refinement rules.
-        markedSegs.reduceMarks(self.rules.maxMarks())
+        # the refinement rules.  This is done via the divider, because
+        # it's not necessary for all division methods.
+        self.divider.reduceMarks(self.rules.maxMarks(), markedSegs)
 
         # connectedsegs contains new segments that have had their
         # parentage set.
@@ -523,14 +557,10 @@ registeredclass.Registration(
             'criterion',
             refine.RefinementCriterion,
             tip='Exclude certain elements.'),
-        parameter.FloatRangeParameter(
-            'min_distance',
-            (0.0, 10.0, 0.1),
-            value=2.0,
-            tip=
-"""Minimum spacing for transition points along a given edge
-from each other and the end-points, in pixel units.
-A value of at least 2 is recommended."""),
+        parameter.RegisteredParameter(
+            'divider',
+            SegmentDivider,
+            tip="How to divide the edges of the refined elements."),
         skeletonmodifier.alphaParameter
             ],
     tip="Subdivide elements along pixel boundaries.",

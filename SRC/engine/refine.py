@@ -61,7 +61,7 @@ class RefinementDegree(registeredclass.RegisteredClass):
     tip = "Number of subdivisions per segment."
     discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/refinementdegree.xml')
 
-class Bisection(RefinementDegree):
+class Bisection1(RefinementDegree):
     divisions = 1
     def __init__(self, rule_set):
         self.rule_set = rule_set
@@ -72,7 +72,7 @@ class Bisection(RefinementDegree):
 registeredclass.Registration(
     'Bisection',
     RefinementDegree,
-    Bisection,
+    Bisection1,
     1,
     params = [enum.EnumParameter('rule_set', refinemethod.RuleSet,
                                  refinemethod.conservativeRuleSetEnum(),
@@ -81,7 +81,7 @@ registeredclass.Registration(
     tip="Divide element edges into two.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/bisection.xml'))
 
-class Trisection(RefinementDegree):
+class Trisection1(RefinementDegree):
     divisions = 2
     def __init__(self, rule_set):
         self.rule_set = rule_set
@@ -89,7 +89,7 @@ class Trisection(RefinementDegree):
 registeredclass.Registration(
     'Trisection',
     RefinementDegree,
-    Trisection,
+    Trisection1,
     0,
     params = [enum.EnumParameter('rule_set', refinemethod.RuleSet,
                                  refinemethod.conservativeRuleSetEnum(),
