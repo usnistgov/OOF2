@@ -420,9 +420,14 @@ class OrderedSet:
 # aren't provided for slices.  __getitem__ is.)
 
 class ReservableList:
-    def __init__(self, n=0):
+    def __init__(self, n=0, vals=None):
         self._list = [None]*n
         self._length = 0
+        if isinstance(vals, (list, tuple)):
+            self._list[:len(vals)] = vals
+        elif vals is not None:
+            vlist = list(vals)
+            self._list[:len(vlist)] = vlist
     def __len__(self):
         return self._length
     def __getitem__(self, i):
@@ -495,6 +500,18 @@ class ReservableListIterator:
         self.index += 1
         return self.rlist[self.index-1]
     def __len__(self):
+        return len(self.rlist)
+    # These methods make ReservableListIterator act like
+    # SkeletonIterator, to make it usable with progress bars.  When
+    # Skeleton.element_iterator returns a SkeletonElementIterator,
+    # these might not be needed.
+    def fraction(self):
+        return self.index/len(self.rlist)
+    def nexamined(self):
+        return self.index
+    def nreturned(self):
+        return self.index
+    def ntotal(self):
         return len(self.rlist)
     
 

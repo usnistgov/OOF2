@@ -949,6 +949,8 @@ class Skeleton(SkeletonBase):
             self.element_index0 = element_index_base
 
     def reserveElements(self, n):
+        ## TODO PYTHON3: Why is this commented out?  Does
+        ## ReservableList work?  Should we get rid of it?
 #         self.elements.reserve(n)
         pass
 
@@ -973,12 +975,6 @@ class Skeleton(SkeletonBase):
 
         self._destroyed = True  # see NOTE above
 
- #        for el in self.elements:
- #            el.destroy(self)
- #        self.elements = []
- #        self.nodes = []
- #        self.hashedNodes = None
-        
         # Any data shared with deputies must not be deleted until the
         # deputies are done with it.
         if self.ndeputies() == 0:
@@ -1191,8 +1187,10 @@ class Skeleton(SkeletonBase):
             
     def cleanUp(self):
         if self.washMe:
-            self.elements = [e for e in self.elements if not hasattr(e, 'defunct')]
-            self.nodes = [n for n in self.nodes if not hasattr(n, 'defunct')]
+            self.elements = utils.ReservableList(
+                vals=(e for e in self.elements if not hasattr(e, 'defunct')))
+            self.nodes = utils.ReservableList(
+                vals=(n for n in self.nodes if not hasattr(n, 'defunct')))
             self.washMe = 0
 
     def getElement(self, index):
@@ -2689,17 +2687,14 @@ class Skeleton(SkeletonBase):
             # NOTE: skeledge.get_nodes() returns the nodes in the
             # order indicated by skeledge.direction.
             # skeledge.segment.get_nodes() returns the nodes already
-             # in canonical order (see skeletonsegment.py)
+            # in canonical order (see skeletonsegment.py)
             segkey=skeledge.segment.get_nodes()
             els=skeledge.segment.getElements()
             if len(els) == 1:
-                #seg_dict[segkey]=(matname,els[0],bdkey)
                 if els[0].nodesInOrder(*skeledge.get_nodes()):
-                    #seg_dict[segkey]=(matname,els[0],bdkey)
                     leftelem=els[0]
                     rightelem=None
                 else:
-                    #seg_dict[segkey]=(matname,els[1],bdkey)
                     leftelem=None
                     rightelem=els[0]
             else:
@@ -2719,11 +2714,9 @@ class Skeleton(SkeletonBase):
                 # (element e is to the 'left' of directed segment s)
                 #
                 if els[0].nodesInOrder(*skeledge.get_nodes()):
-                    #seg_dict[segkey]=(matname,els[0],bdkey)
                     leftelem=els[0]
                     rightelem=els[1]
                 else:
-                    #seg_dict[segkey]=(matname,els[1],bdkey)
                     leftelem=els[1]
                     rightelem=els[0]
             try:
