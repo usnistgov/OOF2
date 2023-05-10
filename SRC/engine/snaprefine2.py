@@ -11,7 +11,6 @@
 # Refine elements such that new nodes are always placed at transition
 # points, where the pixel category changes.
 
-# Comment from the original refine.py
 # Refinement works in two stages.  First a RefinementTarget object (from
 # refinementtarget.py) checks the elements and marks edges for
 # subdivision.  Then a RefinementRuleSet (from refinemethod.py) is
@@ -19,22 +18,26 @@
 # each edge is marked.
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import progress
 from ooflib.SWIG.common import coord
 from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import enum
-from ooflib.common import parallel_enable
+#from ooflib.common import parallel_enable
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import refinementtarget2
 #from ooflib.engine import refinequadbisection
-from ooflib.engine import skeleton
+#from ooflib.engine import skeleton
 from ooflib.engine import skeletonmodifier
-from ooflib.engine import skeletonsegment
+#from ooflib.engine import skeletonsegment
 from ooflib.engine import skeletonnode
-from ooflib.engine import refine
+#from ooflib.engine import refine
 from ooflib.engine import snaprefinemethod2
+from ooflib.common import units
+
+from ooflib.engine.skeleton import SkeletonElementIterator
 
 import itertools
 import math
@@ -147,7 +150,7 @@ class TransitionPoints(SegmentDivider):
             #
             pspan = micro.physical2Pixel(span) # span in pixel coords
             plen = math.sqrt(pspan*pspan) # total segment size in pixel coords
-            minfrac = 1.1/plen # fractions closer than this are merged
+            minfrac = self.minlength/plen # merge fractions closer than this
 
             newfracs = []
             i0 = i1 = 0
@@ -348,7 +351,7 @@ class SegmentMarkings:
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 
-class SnapRefine2(refine.Refine):
+class SnapRefine2(skeletonmodifier.SkeletonModifier):
     def __init__(self, targets, criterion, divider, alpha=1):
         self.targets = targets      # RefinementTarget instance
         self.criterion = criterion  # Criterion for refinement
@@ -358,6 +361,22 @@ class SnapRefine2(refine.Refine):
         self.alpha = alpha 
         # Available rules
         self.rules = snaprefinemethod2.getRuleSet('SnapRefine')
+
+    def apply(self, skeleton, context):
+        prog = progress.getProgress("Refine", progress.DEFINITE)
+        try:
+            newSkeleton = skeleton.improperCopy(skeletonpath=context.path())
+            return self.refinement(skeleton, newSkeleton, context, prog)
+        finally:
+            prog.finish()
+
+    def applyAMR(self, skeleton):       # for adaptive mesh refinement
+        prog = progress.getProgress("Refine", progress.DEFINITE)
+        try:
+            newSkeleton = skeleton.improperCopy(fresh=True)
+            return self.refinement(skeleton, newSkeleton, None, prog)
+        finally:
+            prog.finish()
 
     def refinement(self, oldSkeleton, newSkeleton, context, prog):
         markedSegs = SegmentMarkings()
@@ -383,7 +402,7 @@ class SnapRefine2(refine.Refine):
         connectedsegments = set() 
 
         # Refine elements and segments
-        eliter = skeleton.SkeletonElementIterator(oldSkeleton)
+        eliter = oldSkeleton.element_iterator()
         for oldElement in eliter:
             oldnnodes = oldElement.nnodes()
             # Get list of subdivisions on each edge ("marks")
@@ -515,9 +534,77 @@ class SnapRefine2(refine.Refine):
         return nodes
         
 
-#################################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-findParentSegment = refine.findParentSegment
+def findParentSegment(oldSkeleton, element, segment, edgenodes):
+    n0, n1 = segment.nodes()            # nodes of the segment
+    parents = n0.getParents()
+    if parents:
+        p0 = parents[-1]
+    else:
+        p0 = None
+        
+    parents = n1.getParents()
+    if parents:
+        p1 = parents[-1]
+    else:
+        p1 = None    
+    oldElement = element.getParents()[-1]
+    nnodes = oldElement.nnodes()
+
+    if p0 is not None and p1 is not None:
+        pseg = oldSkeleton.findSegment(p0, p1)
+        if pseg:
+            # Trivial case: the parent nodes define a segment in the
+            # parent skeleton.  That segment is this segment's parent.
+            return pseg
+        # Both nodes have parents, but the parent nodes don't define a
+        # segment in the old skeleton.  (This is unlikely to happen
+        # during refinement.)  The segment does not have a parent.
+        return None
+
+    elif p0 is not None or p1 is not None:
+        # Exactly one new endpoint has a parent in the old element.
+        # The other endpoint may lie on an old segment.  If that
+        # segment's other node is the parent of the new node, then
+        # that segment is the parent of this segment.
+        if p0 is None:
+            parentnode = p1
+            childnode = n1
+            freechild = n0
+        else:
+            parentnode = p0
+            childnode = n0
+            freechild = n1
+        nodeidx = oldElement.nodes.index(parentnode)
+        if freechild in edgenodes[nodeidx]:
+            next = (nodeidx+1)%nnodes
+            return oldSkeleton.findSegment(parentnode, oldElement.nodes[next])
+        prev = (nodeidx - 1 + nnodes) % nnodes
+        if freechild in edgenodes[prev]:
+            return oldSkeleton.findSegment(parentnode, oldElement.nodes[prev])
+                    
+                    
+
+    elif p0 is None and p1 is None:
+        # Neither new endpoint has a parent.  If the new endpoints are
+        # consecutive nodes in the list of new nodes added to a parent
+        # element segment, then that parent segment is the parent
+        # we're looking for.
+        for i in range(nnodes):
+            nodelist = edgenodes[i]
+            try:
+                which0 = nodelist.index(n0)
+                which1 = nodelist.index(n1)
+            except ValueError:
+                pass
+            else:
+                if abs(which0 - which1) == 1:
+                    return oldSkeleton.findSegment(oldElement.nodes[i],
+                                                   oldElement.nodes[(i+1)%
+                                                                    nnodes])
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 signature_base = 32
 
@@ -541,13 +628,69 @@ def findSignature(marks):
             imax = i
     return imax, tuple(len(marks[(i+imax)%n]) for i in range(n))
 
-####################
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+class RefinementCriterion(registeredclass.RegisteredClass):
+    registry = []
+
+    tip = "Restrict the set of Elements considered for refinement."
+    discussion = """<para>
+
+    Objects in the <classname>RefinementCriterion</classname> class
+    are used as values of the <varname>criterion</varname> parameter
+    when <link linkend='RegisteredClass-Refine'>refining</link>
+    &skels;.  Only &elems; that satisfy the criterion are considered
+    for refinement.
+
+    </para>"""
+
+
+class Unconditionally(RefinementCriterion):
+    def __call__(self, skeleton, element):
+        return 1
+registeredclass.Registration(
+    'Unconditional',
+    RefinementCriterion,
+    Unconditionally,
+    ordering=0,
+    tip='Consider all Elements for possible refinement.',
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/unconditionally.xml')
+)
+
+class MinimumArea(RefinementCriterion):
+    def __init__(self, threshold, units):
+        self.threshold = threshold
+        self.units = units
+    def __call__(self, skeleton, element):
+        if self.units == 'Pixel':
+            return element.area() > self.threshold*skeleton.MS.areaOfPixels()
+        elif self.units == 'Physical':
+            return element.area() > self.threshold
+        elif self.units == 'Fractional':
+            return element.area() > self.threshold*skeleton.MS.area()
 
 registeredclass.Registration(
-    'Snap Refine II',
+    'Minimum Area',
+    RefinementCriterion,
+    MinimumArea,
+    ordering=1,
+    params=[parameter.FloatParameter('threshold', 10,
+                                     tip="Minimum acceptable element area."),
+            enum.EnumParameter('units', units.Units, units.Units('Pixel'),
+                               tip='Units for the minimum area')],
+    tip='Only refine elements with area greater than the given threshold.',
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/minimumarea.xml')
+)
+
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+registeredclass.Registration(
+    'Refine',
     skeletonmodifier.SkeletonModifier,
     SnapRefine2,
-    ordering=400,
+    ordering=0,
     params=[
         parameter.RegisteredParameter(
             'targets',
@@ -555,7 +698,7 @@ registeredclass.Registration(
             tip='Target elements to be refined.'),
         parameter.RegisteredParameter(
             'criterion',
-            refine.RefinementCriterion,
+            RefinementCriterion,
             tip='Exclude certain elements.'),
         parameter.RegisteredParameter(
             'divider',
