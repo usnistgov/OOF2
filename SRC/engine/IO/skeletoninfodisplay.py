@@ -106,9 +106,9 @@ class SkeletonInfoDisplay(display.DisplayMethod):
 
 defaultSkelInfoQueryColor = color.RGBAColor(0.0, 0.5, 1.0, 1.0)
 defaultSkelInfoPeekColor = color.RGBAColor(1.0, 0.5, 0.5, 1.0)
-defaultSkelInfoNodeSize = 3
-defaultSkelInfoElemWidth = 3
-defaultSkelInfoSgmtWidth = 3
+defaultSkelInfoNodeSize = 4
+defaultSkelInfoElemWidth = 4
+defaultSkelInfoSgmtWidth = 4
 widthRange = (0, 10, 0.1)
 
 def _setSkelInfoParams(menuitem, query_color, peek_color, node_size,

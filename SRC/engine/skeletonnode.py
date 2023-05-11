@@ -66,9 +66,9 @@ class SkeletonNode(skeletonselectable.SkeletonSelectable,
             self._remote_index = {}  # procID : remote index
         
     def __repr__(self):
-        # p = self.position()
-        # return f"SkeletonNode({p.x}, {p.y}, [{self.index}])"
-        return f"SkeletonNode({self.index})"
+        p = self.position()
+        return f"SkeletonNode({p.x}, {p.y}, [{self.index}])"
+        # return f"SkeletonNode({self.index})"
 
     def repr_position(self):
         return self.position()
@@ -402,121 +402,99 @@ class PeriodicSkeletonNode(SkeletonNode):
     
 #######################################################
 
-if config.dimension()==2:
+class HashedNodes:
+    def __init__(self, size, skelsize):
+        self.size = size
+        n = size[0]*size[1]
+        self.scale = (1.0*self.size[0]/skelsize[0],
+                      1.0*self.size[1]/skelsize[1])
+        self.data = [[] for i in range(n)]
+        self.outofthebox = []
 
-    class HashedNodes:
-        def __init__(self, size, skelsize):
-            self.size = size
-##            if config.dimension() == 2:
-            n = size[0]*size[1]
-            self.scale = (1.0*self.size[0]/skelsize[0],
-                          1.0*self.size[1]/skelsize[1])
-##             elif config.dimension() == 3:
-##                 n = size[0]*size[1]*size[2]
-##                 self.scale = (1.0*self.size[0]/skelsize[0],
-##                               1.0*self.size[1]/skelsize[1],
-##                               1.0*self.size[2]/skelsize[2])
-            self.data = [[] for i in range(n)]
-            self.outofthebox = []
+    def getSize(self):
+        return self.size
 
-        def getSize(self):
-            return self.size
+    def getScale(self):
+        return self.scale
 
-        def getScale(self):
-            return self.scale
+    def properTile(self, point):
+        ix = int( point.x*self.scale[0] )
+        iy = int( point.y*self.scale[1] )
+        # When right or top skeleton edge was clicked ....
+        if ix==self.size[0]: ix -= 1
+        if iy==self.size[1]: iy -= 1
+        return primitives.iPoint(ix, iy)
 
-        def properTile(self, point):
-            ix = int( point.x*self.scale[0] )
-            iy = int( point.y*self.scale[1] )
-            # When right or top skeleton edge was clicked ....
-            if ix==self.size[0]: ix -= 1
-            if iy==self.size[1]: iy -= 1
-##            if config.dimension() == 2:
-            return primitives.iPoint(ix, iy)
-##             elif config.dimension() == 3:
-##                 iz = int( point.z*self.scale[2] )
-##                 if iz==self.size[2]: iz -= 1
-##                 return primitives.iPoint(ix, iy, iz)
+    def iterator(self):
+        return self.data
 
-        def iterator(self):
-            return self.data
+    def __setitem__(self, where, val):
+        self.data[self.size[0]*where.y + where.x] = val
 
-        def __setitem__(self, where, val):
-##            if config.dimension() == 2:
-            self.data[self.size[0]*where.y + where.x] = val
-##             elif config.dimension() == 3:
-##                 self.data[self.size[1]*self.size[0]*where.z + self.size[0]*where.y + where.x] = val
+    def __getitem__(self, where):
+        try:
+            return self.data[self.size[0]*where.y + where.x]
+        except IndexError:
+            return self.outofthebox
 
-        def __getitem__(self, where):
-            try:
-##                if config.dimension()==2 and (where.x>=0 and where.y>=0):
-                return self.data[self.size[0]*where.y + where.x]
-##                 elif config.dimension()==3 and (where.x>=0 and where.y>=0 and where.z>=0):
-##                     return self.data[self.size[1]*self.size[0]*where.z +
-##                                      self.size[0]*where.y + where.x]
-##             else:
-##                 return self.outofthebox
-            except IndexError:
-                return self.outofthebox
-            
-        def hash(self, skeleton):
-            # Putting nodes in corresponding tiles
-            for node in skeleton.nodes:
-                where = self.properTile(node.position())
-                self[where].append(node)
+    def hash(self, skeleton):
+        # Putting nodes in corresponding tiles
+        for node in skeleton.nodes:
+            where = self.properTile(node.position())
+            self[where].append(node)
 
-        def nearestNode(self, point):
-            where = self.properTile(point)
+    def nearestNode(self, point):
+        where = self.properTile(point)
 
-            count = 0  # No. of tile-bands containing nodes
-            iter = 1   # No. of tile-bands having been looked at
-            nodes = self[where][:]
-            while count < 2:   
-                # Initial check
-                if iter==1:
-                    if nodes: count += 1
-                # Additional band of tiles
-                addition = self.nextBand(
-                    ll=primitives.iPoint(where.x-iter, where.y-iter),
-                    ur=primitives.iPoint(where.x+iter, where.y+iter))
-                if addition:
-                    nodes += addition
-                    count += 1
-                else:
-                    if count==1:
-                        break  # No need to look for another band
-                # Ready for the next round
-                iter += 1
+        count = 0  # No. of tile-bands containing nodes
+        iter = 1   # No. of tile-bands having been looked at
+        nodes = self[where][:]
+        while count < 2:   
+            # Initial check
+            if iter==1:
+                if nodes: count += 1
+            # Additional band of tiles
+            addition = self.nextBand(
+                ll=primitives.iPoint(where.x-iter, where.y-iter),
+                ur=primitives.iPoint(where.x+iter, where.y+iter))
+            if addition:
+                nodes += addition
+                count += 1
+            else:
+                if count==1:
+                    break  # No need to look for another band
+            # Ready for the next round
+            iter += 1
 
-            # Find the nearest node among collected nodes
-            nearest = nodes[0]
-            mindist = (nearest.position() - point)**2
-            for node in nodes[1:]:
-                dd = (node.position() - point)**2
-                if dd < mindist:
-                    mindist = dd
-                    nearest = node
-            return nearest
+        # Find the nearest node among collected nodes
+        nearest = nodes[0]
+        mindist = (nearest.position() - point)**2
+        for node in nodes[1:]:
+            dd = (node.position() - point)**2
+            if dd < mindist:
+                mindist = dd
+                nearest = node
+        return nearest
 
-        def nextBand(self, ll=None, ur=None):
-            nodes = []
-            # Bottom
-            j = ll.y
-            for i in range(ll.x, ur.x+1):
-                nodes += self[primitives.iPoint(i,j)][:]
-            # Top
-            j = ur.y
-            for i in range(ll.x, ur.x+1):
-                nodes += self[primitives.iPoint(i,j)][:]
-            # Left
-            i = ll.x
-            for j in range(ll.y+1, ur.y):
-                nodes += self[primitives.iPoint(i,j)][:]
-            # Right
-            i = ur.x
-            for j in range(ll.y+1, ur.y):
-                nodes += self[primitives.iPoint(i,j)][:]
-            return nodes
+    def nextBand(self, ll=None, ur=None):
+        nodes = []
+        # Bottom
+        j = ll.y
+        for i in range(ll.x, ur.x+1):
+            nodes += self[primitives.iPoint(i,j)][:]
+        # Top
+        j = ur.y
+        for i in range(ll.x, ur.x+1):
+            nodes += self[primitives.iPoint(i,j)][:]
+        # Left
+        i = ll.x
+        for j in range(ll.y+1, ur.y):
+            nodes += self[primitives.iPoint(i,j)][:]
+        # Right
+        i = ur.x
+        for j in range(ll.y+1, ur.y):
+            nodes += self[primitives.iPoint(i,j)][:]
+        return nodes
 
 ###############################################################
     
