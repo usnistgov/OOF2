@@ -33,7 +33,6 @@ class RefinementRuleSet:
             self.parent = RefinementRuleSet.ruleDict[parent]
         else:
             self.parent = None
-        # updateRuleEnum(name, help) 
     def name(self):
         return self._name
     def help(self):
@@ -59,8 +58,6 @@ class RefinementRuleSet:
 def getRuleSet(name):
     return RefinementRuleSet.ruleDict[name]
 
-utils.OOFdefine('getRefineRuleSet', getRuleSet)
-
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # The large rule set includes all possible subdivisions of all
@@ -82,17 +79,25 @@ utils.OOFdefine('getRefineRuleSet', getRuleSet)
 ## one quad, but should automatically run SplitQuads after refining.
 
 quickRules = RefinementRuleSet(
-    'Quick', 2,
-    help="A small set of refinement rules. Quick to apply but maybe not giving great results."
+    'Quick',
+    maxMarks=2,
+    help="A small set of refinement rules. "
+    "Quick to apply but might give worse results."
 )
 
 largeRules = RefinementRuleSet(
-    'Large', 2, parent="Quick",
+    'Large',
+    maxMarks=2,
+    parent="Quick",
     help="All reasonable ways of subdividing elements."
 )
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 # The names of the refinement rule sets are stored in an Enum so that
-# the UI can handle them correctly.
+# the UI can handle them correctly.  This must come after the
+# RefinementRuleSet objects are created.  If any RefinementRuleSets
+# are created later, update the Enum with Enum.addEnumName.
 
 class RuleSet(enum.EnumClass(*[(r.name(), r.help())
                                for r in RefinementRuleSet.allRuleSets])):
@@ -102,27 +107,27 @@ utils.OOFdefine('RuleSet', RuleSet)
 RuleSet.tip = "Refinement rule sets."
 RuleSet.discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/enum/ruleset.xml')
 
-
-def updateRuleEnum(name, help=None):
-    enum.addEnumName(RuleSet, name, help)
-
 # This function is used to get the default value for the RuleSet
-# parameter in the refinement menu item.
+# parameter in the Refine menu item.  It will be the name of the first
+# RefinementRuleSet created.
+
 def defaultRuleSetEnum():
     return RuleSet(RefinementRuleSet.allRuleSets[0].name())
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Class for the rules in a RefinementRuleSet.
 
 class RefinementRule:
     def __init__(self, ruleset, signature, function):
         self.function = function
         ruleset.addRule(self, signature)
     def apply(self, element, rotation, edgenodes, newSkeleton, alpha):
-        # debug.fmsg(
-        #     f"{element=} function={self.function.__name__} {edgenodes=}")
         return self.function(element, rotation, edgenodes, newSkeleton, alpha)
 
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#    
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Utilities used by RefinementRule.function.
 
 # This function is called with an old element and an integer
 # 'rotation'.  It returns copies (children in the SkeletonSelectable
@@ -133,12 +138,10 @@ class RefinementRule:
 def baseNodes(element, rotation):
     return map(lambda x: x.children[-1],
                element.nodes[rotation:] + element.nodes[0:rotation])
-    ## TODO OPT: The old way (below) has moduluses in it, so I changed
-    ## it, but haven't actually checked that the new way (above) is
-    ## faster.
-    # nnodes = element.nnodes()
-    # return [element.nodes[(i+rotation)%nnodes].children[-1]
-    #         for i in range(nnodes)]
+
+# When there's more than one way to subdivide an element, create a
+# ProvisionalRefinement for each and pass them to theBetter(), which
+# will pick the best one.
 
 class ProvisionalRefinement:
     def __init__(self, newbies = [], internalNodes = []):
@@ -763,8 +766,6 @@ def rule1100(element, rotation, edgenodes, newSkeleton, alpha):
     na = edgenodes[rotation][0]
     nb = edgenodes[(rotation+1)%4][0]
     nc = newSkeleton.newNodeFromPoint(element.center())
-    debug.fmsg(f"{n0=} {n1=} {n2=} {n3=}")
-    debug.fmsg(f"{na=} {nb=} {nc=}")
     refine0 = ProvisionalRefinement(
         [ProvisionalQuad(nodes=[n0, na, nc, n3], parents=[element]),
          ProvisionalQuad(nodes=[na, n1, nb, nc], parents=[element]),

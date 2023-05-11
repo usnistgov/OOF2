@@ -345,15 +345,16 @@ class SegmentMarkings:
 
 
 class Refine(skeletonmodifier.SkeletonModifier):
-    def __init__(self, targets, criterion, divider, alpha=1):
+    def __init__(self, targets, criterion, divider, rules, alpha=1):
         self.targets = targets      # RefinementTarget instance
         self.criterion = criterion  # Criterion for refinement
         self.divider = divider      # Method for dividing edges
+        self.rules = rules          # Methods for dividing elements
         # alpha is used for deciding between different possible
         # refinements, using effective energy
         self.alpha = alpha 
         # Available rules
-        self.rules = refinemethod.getRuleSet('Quick')
+        self.ruleset = refinemethod.getRuleSet(self.rules.string())
 
     def apply(self, skeleton, context):
         prog = progress.getProgress("Refine", progress.DEFINITE)
@@ -388,11 +389,11 @@ class Refine(skeletonmodifier.SkeletonModifier):
         # Reduce the number of marks on edges to the number allowed by
         # the refinement rules.  This is done via the divider, because
         # it's not necessary for all division methods.
-        self.divider.reduceMarks(self.rules.maxMarks(), markedSegs)
+        self.divider.reduceMarks(self.ruleset.maxMarks(), markedSegs)
 
         # connectedsegs contains new segments that have had their
         # parentage set.
-        connectedsegments = set() 
+        connectedsegments = set()
 
         # Refine elements and segments
         eliter = oldSkeleton.element_iterator()
@@ -419,7 +420,7 @@ class Refine(skeletonmodifier.SkeletonModifier):
                         marks, oldElement.segment_node_iterator())]
 
             # Apply refinement rules to create new elements
-            newElements = self.rules[signature].apply(
+            newElements = self.ruleset[signature].apply(
                 oldElement, rotation, edgenodes, newSkeleton, self.alpha)
             if not newElements:
                 debug.fmsg(f"{oldElement=}")
@@ -705,6 +706,10 @@ registeredclass.Registration(
             'divider',
             SegmentDivider,
             tip="How to divide the edges of the refined elements."),
+        enum.EnumParameter(
+            'rules', refinemethod.RuleSet,
+            refinemethod.defaultRuleSetEnum(),
+            tip="The set of rules used to divide elements after their segments are divided."),
         skeletonmodifier.alphaParameter
             ],
     tip="Subdivide elements along pixel boundaries.",
