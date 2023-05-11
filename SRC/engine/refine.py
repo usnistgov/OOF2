@@ -353,7 +353,7 @@ class Refine(skeletonmodifier.SkeletonModifier):
         # refinements, using effective energy
         self.alpha = alpha 
         # Available rules
-        self.rules = refinemethod.getRuleSet('Extensive')
+        self.rules = refinemethod.getRuleSet('Quick')
 
     def apply(self, skeleton, context):
         prog = progress.getProgress("Refine", progress.DEFINITE)
@@ -425,6 +425,14 @@ class Refine(skeletonmodifier.SkeletonModifier):
                 debug.fmsg(f"{oldElement=}")
                 debug.fmsg(f"{signature=} {rotation=}")
             assert newElements, "Refinement failed!"
+
+            if debug.debug():
+                for el in newElements:
+                    if el.illegal():
+                        debug.fmsg("Illegal refined element!")
+                        debug.fmsg("    oldElement=", oldElement)
+                        debug.fmsg("    newElement=", newElement)
+                        debug.fmsg("    signature=", signature)
 
             # If the old element's homogeneity is 1, it's safe to say that
             # new elements' homogeneities are 1.
