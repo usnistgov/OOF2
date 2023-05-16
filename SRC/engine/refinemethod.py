@@ -171,22 +171,28 @@ class ProvisionalRefinement:
             if element.illegal():
                 self.illegal = True
                 break
-    def energy(self, skeleton, alpha):
-        # This does not use SkeletonElement.energyTotal, which woudl
+    def energy(self, skeleton, alpha, cache):
+        # This does not use SkeletonElement.energyTotal, which would
         # be the unweighted average energy of the new elements.
         # Instead, this is a combination of the area-weighted
         # homogeneities and the unweighted shape energies.  This way
         # small badly shaped elements are still prevented, but large
-        # homogeneous elements are preferred.  It shouldn't be
-        # favorable to subdivide a homogeneous element.
+        # homogeneous elements are preferred. 
         hsum = 0.0              # weighted sum of homogeneities
         ssum = 0.0              # sum of shape energies
         asum = 0.0              # sum of areas
         for element in self.newbies:
-            area = element.area()
+            try:
+                key = element.getPositionHash()
+                area, whomog, shape = cache[key]
+            except KeyError:
+                area = element.area()
+                whomog = area*element.homogeneity(skeleton.MS, False)
+                shape = element.energyShape()
+                cache[key] = (area, whomog, shape)
             asum += area
-            hsum += area*element.homogeneity(skeleton.MS, False)
-            ssum += element.energyShape()
+            hsum += whomog
+            ssum += shape
         return alpha*(1. - hsum/asum) + (1.-alpha)*ssum/len(self.newbies)
     def accept(self, skeleton):
         return [element.accept(skeleton) for element in self.newbies]
@@ -259,29 +265,27 @@ class ProvisionalRefinement:
                                       internalNodes=self.internalNodes))
         return refinements
 
-# TODO PYTHON3: In both theVeryBest and theBetter, cache subelement
-# energies, using the ProvisionalElement hash.  The same subelement
-# may occur in multiple candidates.
-
 def theVeryBest(skeleton, candidates, alpha):
     # Extend the list of candidates by subdividing the quads in the
     # given candidates.
     extended = []
     for candidate in candidates:
         extended.extend(candidate.subdivideQuads())
-    # debug.fmsg("original=", candidates)
-    # debug.fmsg("extended=", extended)
 
     # Loop over the extend set of ProvisionalRefinements, skipping
     # ones that have been seen already, and find the best one.
     seen = set()
     best_energy = 100000        # much larger than any possible energy
     best_refinement = None
+    # Some of the candidate refinements may contain the same
+    # subelements.  The cache allows the energy calculation to avoid
+    # recomputing the homogeneity and shape energy for those elements.
+    cache = {}
     for candidate in extended:
         if candidate not in seen:
             seen.add(candidate)
             if not candidate.illegal:
-                energy = candidate.energy(skeleton, alpha)
+                energy = candidate.energy(skeleton, alpha, cache)
                 if energy < best_energy:
                     best_energy = energy
                     best_refinement = candidate
@@ -307,9 +311,10 @@ def theVeryBest(skeleton, candidates, alpha):
 def theBetter(skeleton, candidates, alpha):
     energy_min = 100000.        # much larger than any possible energy
     theone = None
+    cache = {}
     for candi in candidates:
         if not candi.illegal:
-            energy = candi.energy(skeleton, alpha)
+            energy = candi.energy(skeleton, alpha, cache)
             if energy < energy_min:
                 energy_min = energy
                 theone = candi
