@@ -1052,7 +1052,8 @@ class Skeleton(SkeletonBase):
     ## TODO PYTHON3: Use SkeletonElementIterator?
     def element_iterator(self):         # for compatiblity w/ Element output
         self.cleanUp()
-        return iter(self.elements)
+        return SkeletonElementIterator(self)
+        # return iter(self.elements)
 
     ## TODO PYTHON3: Use SkeletonNodeIterator?
     def node_iterator(self):

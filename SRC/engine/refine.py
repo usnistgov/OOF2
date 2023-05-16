@@ -17,6 +17,16 @@
 # used to actually refine the elements, according to how many times
 # each edge is marked.
 
+## TODO PYTHON3: This currently doesn't deal with transition points at
+## element corners.  If there is a transition point at a corner, we
+## could use no more than one transition point on the adjacent edges,
+## and keep the number of rules down.  Can we treat the point at the
+## corner as the limit of a point *near* the corner, so that we can
+## use the same signature machinery?  The refinement rules would have
+## to notice that some quads become triangles and some triangles
+## disappear.  getProvisionalElement could detect non-unique nodes and
+## do the right thing.
+
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import coord
 from ooflib.SWIG.common import progress
