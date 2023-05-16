@@ -31,6 +31,8 @@
 #    tip = "A short help string."
 #    discussion = "<para>A much longer explanation.</para>"
 
+## TODO PYTHON3: Use the built-in enum.Enum class instead?
+
 
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug

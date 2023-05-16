@@ -96,6 +96,12 @@ class SkeletonElementBase:
                (1.-alpha)*self.energyShape()
 
     def getPositionHash(self):
+        ## TODO PYTHON3: This doesn't distinguish between an element
+        ## and illegal element with the same nodes in the wrong order.
+        ## Does that matter?  It could create the hash by cycling the
+        ## node list so that it starts with the node with the largest
+        ## position.  If nodes were always stored in that order, this
+        ## would be quick.
         sortedpositions = sorted([n.position() for n in self.nodes])
         hashable = []
         for pos in sortedpositions:
