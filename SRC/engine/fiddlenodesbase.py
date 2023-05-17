@@ -276,6 +276,9 @@ class FiddleNodesTargets(registeredclass.RegisteredClass):
     that move &nodes; around.
     </para> """
 
+## TODO PYTHON3: Add a target for pixel boundary nodes and non pixel
+## boundary nodes.  Would be very useful in Smooth.
+
 class AllNodes(FiddleNodesTargets):
     def __call__(self, context, prevnodes):
         if prevnodes:

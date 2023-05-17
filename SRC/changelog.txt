@@ -1,5 +1,5 @@
 
-2.4.0
+2.3.0
 
 * Upgrade to Python3 from Python2
 
@@ -15,11 +15,35 @@
 
 * Added an element aspect ratio display to the Skeleton Info toolbox.
 
-* Changed the way that Snap Refine works, eliminating some unnecesary
-  new elements.
-
 * Changed the aspect ratio calculation used when deciding whether or
   not to refine an element.
+
+* Changed the way in which segment homogeneity is computed.  The new
+  gives better (ie correct) results when a segment is following a
+  stair-stepped diagonal pixel boundary.
+  
+* The Refine and Snap Refine skeleton modifiers have been merged, and
+  work a bit differently than they did before.  The old Liberal and
+  Conservative options have been removed, so it's no longer possible
+  to restrict the refinement to just triangles or quads.  The new
+  Refine command has two new parameters:
+
+    * The "divider" parameter determines how element edges are
+      subdivided.  The choices are Bisection, Trisection, and
+      TransitionPoints.  Bisection and Trisection divides edges into
+      two or three equal segments.  TransitionPoints divides the edges
+      at the points where the pixel category changes (like the old
+      Snap Refine).  It will never divide an edge into more than three
+      segments.
+
+    * The "rules" parameter determines what refinement rules are
+      applied to the interior of the elements.  The Quick rule set
+      applies simple refinements and mostly doesn't search for the
+      best one.  The Large rule set considers many more possibilities,
+      and chooses the one with the lowest "energy".
+
+* The number of digits of floating point numbers displayed in the GUI
+  can be set with the "GUI Digits" item in the Settings menu.
 
 2.2.3
 
