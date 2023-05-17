@@ -184,10 +184,20 @@ assert tests.chooserCheck('OOF2:Skeleton Page:Microstructure', ['small.ppm'])
 assert tests.chooserCheck('OOF2:Skeleton Page:Skeleton', ['skeleton'])
 
 # Refine the Skeleton
-event(Gdk.EventType.BUTTON_PRESS,x= 4.0000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:degree:Trisection:rule_set').get_window())
-checkpoint toplevel widget mapped chooserPopup-rule_set
-findMenu(findWidget('chooserPopup-rule_set'), ['liberal']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-rule_set') # MenuItemLogger
+wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:divider:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:divider:RCFChooser').get_window())
+checkpoint toplevel widget mapped chooserPopup-RCFChooser
+findWidget('chooserPopup-RCFChooser').deactivate() # MenuLogger
+findMenu(findWidget('chooserPopup-RCFChooser'), ['Trisection']).activate() # MenuItemLogger
+deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
+wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:rules'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:rules').get_window())
+checkpoint toplevel widget mapped chooserPopup-rules
+findWidget('chooserPopup-rules').deactivate() # MenuLogger
+
+# event(Gdk.EventType.BUTTON_PRESS,x= 4.0000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:degree').get_window())
+# checkpoint toplevel widget mapped chooserPopup-rule_set
+# findMenu(findWidget('chooserPopup-rule_set'), ['Trisection']).activate() # MenuItemLogger
+# deactivatePopup('chooserPopup-divider') # MenuItemLogger
+#####
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:slider').get_adjustment().set_value( 9.0277777777778e-01)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:slider').get_adjustment().set_value( 9.1666666666667e-01)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:slider').get_adjustment().set_value( 9.7222222222222e-01)

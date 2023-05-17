@@ -783,12 +783,12 @@ assert tests.msgFloat(0, 0, 0)
 findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([3]))
 findWidget('OOF2:Boundary Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
-assert tests.msgFloat(0, -0.06666666666666736, 0)
+assert tests.msgFloat(0, -0.0666667, 0)
 
 findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([1]))
 findWidget('OOF2:Boundary Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
-assert tests.msgFloat(0, 0.066666666666669996, 0)
+assert tests.msgFloat(0, 0.0666667, 0)
 
 findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([2]))
 findWidget('OOF2:Boundary Analysis Page:Go').clicked()

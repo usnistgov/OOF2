@@ -165,7 +165,7 @@ deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('Dialog-Set an Output Schedule:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.Mesh.Scheduled_Output.Schedule.Set
 assert tests.sensitization3()
-assert tests.outputRowCheck(0, True, "GraphicsUpdate", "Absolute/Periodic(delay=0.0,interval=0.0)", "<Graphics Window>")
+assert tests.outputRowCheck(0, True, "GraphicsUpdate", "Absolute/Periodic(delay=0,interval=0)", "<Graphics Window>")
 
 # Add second output
 findWidget('OOF2:Scheduled Output Page:New').clicked()
@@ -180,7 +180,7 @@ findWidget('Dialog-Define a new Output:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.Mesh.Scheduled_Output.New
 assert tests.sensitization4()
 assert tests.outputRowSelection() == 1
-assert tests.outputRowCheck(0, True, "GraphicsUpdate", "Absolute/Periodic(delay=0.0,interval=0.0)", "<Graphics Window>")
+assert tests.outputRowCheck(0, True, "GraphicsUpdate", "Absolute/Periodic(delay=0,interval=0)", "<Graphics Window>")
 assert tests.outputRowCheck(1, True, "Displacement[x]//Direct Output", "---", "---")
 
 # Select gfx update
@@ -199,7 +199,7 @@ deactivatePopup('chooserPopup-target') # MenuItemLogger
 findWidget('Dialog-Copy an Output Schedule').resize(299, 182)
 findWidget('Dialog-Copy an Output Schedule:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.Mesh.Scheduled_Output.Schedule.Copy
-assert tests.outputRowCheck(1, True, "Displacement[x]//Direct Output", "Absolute/Periodic(delay=0.0,interval=0.0)", "---")
+assert tests.outputRowCheck(1, True, "Displacement[x]//Direct Output", "Absolute/Periodic(delay=0,interval=0)", "---")
 
 # Select second output
 findWidget('OOF2:Scheduled Output Page:list').get_selection().select_path(Gtk.TreePath([1]))
@@ -224,14 +224,14 @@ findWidget('Dialog-Set an Output Destination:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.Mesh.Scheduled_Output.Destination.Set
 assert tests.sensitization6()
 assert tests.outputRowSelection() == 1
-assert tests.outputRowCheck(1, True, "Displacement[x]//Direct Output", "Absolute/Periodic(delay=0.0,interval=0.0)", "abcde")
+assert tests.outputRowCheck(1, True, "Displacement[x]//Direct Output", "Absolute/Periodic(delay=0,interval=0)", "abcde")
 
 # Delete last output
 findWidget('OOF2:Scheduled Output Page:DeleteOutput').clicked()
 checkpoint OOF.Mesh.Scheduled_Output.Delete
 assert tests.sensitization8()
 assert tests.outputRowSelection() == None
-assert tests.outputRowCheck(0, True, "GraphicsUpdate", "Absolute/Periodic(delay=0.0,interval=0.0)", "<Graphics Window>")
+assert tests.outputRowCheck(0, True, "GraphicsUpdate", "Absolute/Periodic(delay=0,interval=0)", "<Graphics Window>")
 assert tests.nOutputRows() == 1
 
 # Create two outputs

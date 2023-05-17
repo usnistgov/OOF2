@@ -415,14 +415,10 @@ checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Selected Elements']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('OOF2:Skeleton Page:Pane').set_position(496)
-event(Gdk.EventType.BUTTON_PRESS,x= 7.6000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:degree:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 7.6000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:divider:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Bisection']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-event(Gdk.EventType.BUTTON_PRESS,x= 6.0000000000000e+01,y= 2.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:degree:Bisection:rule_set').get_window())
-checkpoint toplevel widget mapped chooserPopup-rule_set
-findMenu(findWidget('chooserPopup-rule_set'), ['liberal']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-rule_set') # MenuItemLogger
 findWidget('OOF2:Skeleton Page:Pane').set_position(498)
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized

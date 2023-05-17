@@ -425,7 +425,7 @@ assert tests.checkTBMode("OOF2 Graphics 1", "Element")
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInfo:NodeList').get_selection().select_path(Gtk.TreePath([0]))
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 1.0000000000000e+00)
 checkpoint contourmap info updated for Graphics_1
-assert tests.meshInfoElementTBCheck('OOF2 Graphics 1', 9, 'Q4_4', ['FuncNode 11 at (15.0, 24.0)', 'FuncNode 12 at (30.0, 24.0)', 'FuncNode 17 at (30.0, 45.0)', 'FuncNode 16 at (15.0, 45.0)'], 'cyan-material')
+assert tests.meshInfoElementTBCheck('OOF2 Graphics 1', 9, 'Q4_4', ['FuncNode 11 at (15, 24)', 'FuncNode 12 at (30, 24)', 'FuncNode 17 at (30, 45)', 'FuncNode 16 at (15, 45)'], 'cyan-material')
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInfo:NodeList').get_selection().select_path(Gtk.TreePath([1]))
 checkpoint contourmap info updated for Graphics_1
 tree=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInfo:NodeList')
