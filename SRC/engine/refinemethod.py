@@ -2570,7 +2570,7 @@ def rule2222q(element, rotation, edgenodes, newSkeleton, alpha):
     return (
         newSkeleton.newElement(nodes=[n0, na, nk, nh], parents=[element]),
         newSkeleton.newElement(nodes=[na, nb, nl, nk], parents=[element]),
-        newSkeleton.newSkeleton(nodes=[nb, n1, nc, nl], parents=[element]),
+        newSkeleton.newElement(nodes=[nb, n1, nc, nl], parents=[element]),
         newSkeleton.newElement(nodes=[nh, nk, ni, ng], parents=[element]),
         newSkeleton.newElement(nodes=[nk, nl, nj, ni], parents=[element]),
         newSkeleton.newElement(nodes=[nl, nc, nd, nj], parents=[element]),

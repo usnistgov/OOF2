@@ -135,23 +135,21 @@ registeredclass.Registration(
 
 ################################
 
-# RefinementTarget for AdaptiveMeshRefinement.  Marks all elements
+# RefinementTarget for AdaptiveMeshRefinement.  Returns all elements
 # that fail the error estimator test.
-class AdaptiveMeshRefine(refinementtarget.RefinementTarget):
+
+class AdaptiveMeshRefine(refinementtarget.ElementRefinementTarget):
     def __init__(self, subproblem, estimator):
         #self.mesh = mesh  # mesh
         self.subproblem = subproblem
         self.estimator = estimator  # ErrorEstimator instance
-            
-    def __call__(self, skeleton, context, divisions, markedEdges, criterion):
+    def iterator(self, skeletoncontext):
         subproblemobj = ooflib.engine.subproblemcontext.subproblems[
             self.subproblem].getObject()
-        femesh=subproblemobj.mesh
+        femesh = subproblemobj.mesh
         self.estimator.preprocess(subproblemobj)
-        prog = progress.findProgress("Refine")
-        eliter = skeleton.activeElements()
-        n = eliter.ntotal()
-        for i, element in enumerate(eliter):
+        skeleton = skeletoncontext.getObject()
+        for element in skeleton.activeElements():
             # If the refinement is done more than once from the skeleton
             # page (after a mesh has been created),
             # some of the new skeleton elements may not have
@@ -159,18 +157,11 @@ class AdaptiveMeshRefine(refinementtarget.RefinementTarget):
             # undefined. The second refinement could be done after
             # a new mesh is created from the first refinement.
             fe_element = femesh.getElement(element.meshindex)
-            if not subproblemobj.contains(fe_element):
-                continue
-            if not fe_element.material():
-                continue
-            if (self.estimator(fe_element, subproblemobj) and 
-                criterion(skeleton, element)):
-                self.markElement(element, divisions, markedEdges)
-            if prog.stopped() :
-                return
-            prog.setFraction(eliter.fraction())
-            prog.setMessage(f"checked {eliter.nexamined()}/{n} elements")
-
+            if (subproblemobj.contains(fe_element) and
+                fe_element.material() and
+                self.estimator(fe_element, subproblemobj)):
+                yield element
+                    
 #####################
 
 # A trivial WhoParameter for a smart widget.

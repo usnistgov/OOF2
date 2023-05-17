@@ -164,7 +164,7 @@ class ElementMode(MeshInfoMode):
     def updateNodeList(self, chsr, nodes):
         namelist = [f"{node.classname()} {node.index()}"
                     f" at ({node.position().x:.{digits()}g},"
-                    f" {node.position().y:.{digits()}g}"
+                    f" {node.position().y:.{digits()}g})"
                     for node in nodes]
         chsr.update(nodes, namelist)
 

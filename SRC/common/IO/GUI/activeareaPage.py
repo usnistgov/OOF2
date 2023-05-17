@@ -320,10 +320,10 @@ class ActiveAreaPage(oofGUI.MainPage):
                 pixstring="pixels"
                 apxls = mpxls - aasize
                 if ms.getObject().activearea.getOverride():
-                    msg = "OVERRIDE: all %d pixels are active" % mpxls
+                    msg = f"OVERRIDE: all {mpxls} pixels are active"
                 else:
-                    msg = (f"{apxls} of {mpxls} are active "
-                           f"({100*apxls/mpxls:.{digits()}g})%")
+                    msg = (f"{apxls} of {mpxls} pixels are active "
+                           f"({100*apxls/mpxls:.{digits()}g}%)")
             finally:
                 activearea.end_reading()
         else:

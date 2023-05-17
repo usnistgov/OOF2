@@ -26,7 +26,7 @@ def getGeometry():
     return list(map(int, geometry.split('x')))
 
 
-_digits = 5        # precision for floating point data in gui displays
+_digits = 6        # precision for floating point data in gui displays
 
 def digits():
     return _digits

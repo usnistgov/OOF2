@@ -318,8 +318,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
                         n = selection.size()
                         m = selection.maxSize()
                         if m > 0:
-                            # sizetextdata = "%d (%g%%)" % (n, 100.*n/m)
-                            sizetextdata = f"{n} ({100*n/m:.{digits()}f}%)"
+                            sizetextdata = f"{n} ({100*n/m:.{digits()}g}%)"
                         else:
                             sizetextdata = "0"
                     finally:
