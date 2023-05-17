@@ -33,6 +33,8 @@ from ooflib.common.IO.GUI import whowidget
 from ooflib.image import imagecontext
 from ooflib.image import imagemodifier
 
+from ooflib.common.runtimeflags import digits
+
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -256,20 +258,13 @@ class ImagePage(oofGUI.MainPage):
         if imagecontext:
             imagecontext.begin_reading()
             try:
-                if config.dimension() == 2:
-                    image = imagecontext.getObject()
-                    size = image.sizeInPixels()
-                    text += 'Pixel size: %dx%d\n' % (size.x, size.y)
-                    size = image.size()
-                    text += 'Physical size: %sx%s\n' % (size.x, size.y)
-                    if image.comment():
-                        text += '\nComments:\n%s\n' % image.comment()
-                elif config.dimension() == 3:
-                    image = imagecontext.getObject()
-                    size = image.sizeInPixels()
-                    text += 'Voxel size: %dx%dx%d\n' % (size.x, size.y, size.z)
-                    size = image.size()
-                    text += 'Physical size: %sx%sx%s\n' % (size.x, size.y, size.z)                    
+                image = imagecontext.getObject()
+                size = image.sizeInPixels()
+                text += f'Pixel size: {size.x} x {size.y}\n'
+                size = image.size()
+                text += f'Physical size: {size.x:.{digits()}g} x {size.y:.{digits()}g}\n'
+                if image.comment():
+                    text += '\nComments:\n%s\n' % image.comment()
             finally:
                 imagecontext.end_reading()
         mainthread.runBlock(self.displayImageInfo_thread, (text,))

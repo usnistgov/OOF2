@@ -264,7 +264,7 @@ def process_inline_options():
             runtimeflags.geometry = opt[1]
             remove_option(opt[0], opt[1])
         elif opt[0] in ('--digits',):
-            runtimeflags.digits = opt[1]
+            runtimeflags.setDigits(int(opt[1]))
             remove_option(opt[0], opt[1])
         elif opt[0] in ('--no-rc',):
             no_rc = True

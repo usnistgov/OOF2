@@ -416,7 +416,7 @@ settingsmenu.addItem(oofmenu.OOFMenuItem(
     callback=_setdigits,
     ordering=3,
     params=[parameter.NonNegativeIntParameter(
-        'digits', 5,
+        'digits', runtimeflags.digits(),
         tip='Number of digits to show after the decimal point.')]
 ))
 
