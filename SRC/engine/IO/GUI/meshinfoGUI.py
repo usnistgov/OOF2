@@ -223,8 +223,8 @@ class NodeMode(MeshInfoMode):
         
         self.index.set_text(repr(node.index()))
         self.type.set_text(node.classname())
-        self.pos.set_text(f"{node.position().x:.{digits()}g}, "
-                          f"{node.position().y:.{digits()}g}")
+        self.pos.set_text(f"({node.position().x:.{digits()}g}, "
+                          f"{node.position().y:.{digits()}g})")
         fieldnames = node.fieldNames()
 
         # Find out which fields are defined at the node
