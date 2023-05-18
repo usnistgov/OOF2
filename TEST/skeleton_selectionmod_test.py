@@ -46,7 +46,9 @@ class TestBase(unittest.TestCase):
             skeleton='microstructure:skeleton',
             modifier=Refine(targets=CheckSelectedElements(),
                             criterion=Unconditionally(),
-                            degree=Bisection(rule_set='liberal'),alpha=0.3))
+                            divider=Bisection(),
+                            rules='Quick',
+                            alpha=0.3))
         OOF.PixelSelection.Select_Element_Pixels(
             microstructure='microstructure', skeleton='microstructure:skeleton')
         OOF.Material.Assign(material='material',

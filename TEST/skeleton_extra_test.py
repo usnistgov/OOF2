@@ -204,7 +204,8 @@ class OOF_Skeleton_Extra(unittest.TestCase):
             skeleton="skeltest:skelextra",
             modifier=Refine(targets=CheckHomogeneity(threshold=0.9),
                             criterion=Unconditionally(),
-                            degree=Bisection(rule_set="conservative")))
+                            divider=Bisection(),
+                            rules='Large'))
         sk2 = self.sk_context.getObject()
 
         OOF.Skeleton.Undo(skeleton="skeltest:skelextra")
@@ -239,7 +240,8 @@ class OOF_Skeleton_Extra(unittest.TestCase):
             skeleton="skeltest:skelextra",
             modifier=Refine(targets=CheckHomogeneity(threshold=0.9),
                             criterion=Unconditionally(),
-                            degree=Bisection(rule_set="conservative")))
+                            divider=Bisection(),
+                            rules='Quick'))
         # Then undo the modification...
         OOF.Skeleton.Undo(skeleton="skeltest:skelextra")
         # And undo and redo the selection...

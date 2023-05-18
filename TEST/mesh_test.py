@@ -753,8 +753,9 @@ class OOF_Mesh_Special(OOF_Mesh_Base):
             skeleton='microstructure:skeleton',
             modifier=Refine(targets=CheckAllElements(),
                             criterion=Unconditionally(),
-                            degree=Bisection(rule_set='conservative'),
-                            alpha=0.29999999999999999))
+                            divider=Bisection(),
+                            rules='Quick',
+                            alpha=0.3))
         OOF.Mesh.Delete(mesh='microstructure:skeleton:mesh')
         # This line used to raise the exception:
         OOF.Microstructure.Delete(microstructure='microstructure')
@@ -832,7 +833,8 @@ class OOF_Mesh_Special(OOF_Mesh_Base):
             skeleton='microstructure:skeleton',
             modifier=Refine(targets=CheckSelectedElements(),
                             criterion=Unconditionally(),
-                            degree=Bisection(rule_set='conservative'),
+                            divider=Bisection(),
+                            rules='Quick',
                             alpha=0.3))
 
         # Check that mesh still has the same materials.
@@ -846,14 +848,14 @@ class OOF_Mesh_Special(OOF_Mesh_Base):
         
         # Check that the materials have been updated.
         mcounts = countMaterials(msh)
-        self.assertTrue(mcounts['material'] == 21 and mcounts['material<2>'] == 4)
+        self.assertTrue(mcounts['material'] == 23 and mcounts['material<2>'] == 4)
         self.assertTrue(not msh.outOfSync())
 
         OOF.Skeleton.Undo(skeleton='microstructure:skeleton')
         
         # Check that material counts have not yet been updated.
         mcounts = countMaterials(msh)
-        self.assertTrue(mcounts['material'] == 21 and mcounts['material<2>'] == 4)
+        self.assertTrue(mcounts['material'] == 23 and mcounts['material<2>'] == 4)
         self.assertTrue(msh.outOfSync())
 
         OOF.Mesh.Modify(
