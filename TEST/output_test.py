@@ -38,7 +38,16 @@ class OOF_Output(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
+    ## TODO NUMPY: pdf creation seems to be non-portable, even though
+    ## oofcanvas sets a particular pdf version number, so comparing
+    ## pdf files fails.  ** This test is commented out in test_set,
+    ## below. ** Perhaps it would be possible to compare pdfs by
+    ## converting them to a bitmap format, but then we'd have to
+    ## ensure that all users had the same conversion utilities.  A
+    ## better alternative might be to load the pdf images into a
+    ## Microstructure and compare them in line.  ImageMagick can read
+    ## pdf files.  Can skimage?
     @memorycheck.check("microstructure")
     def PDFOutput(self):
         from ooflib.common.IO import gfxmanager
@@ -1322,7 +1331,7 @@ class OOF_MiscOutput(OOF_Output):
 
 
 test_set = [
-    OOF_Output("PDFOutput"),
+    #OOF_Output("PDFOutput"),
     OOF_Output("PositionOutputs"),
     OOF_Output("ScalarOutputs"),
     OOF_Output("AggregateOutputs"),
