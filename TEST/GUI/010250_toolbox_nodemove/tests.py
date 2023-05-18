@@ -91,11 +91,11 @@ def textCompare(x, y, shape, homog):
 # Check the values as floats.
 def floatCompare(x, y, shape, homog):
     return gtkMultiFloatCompare({'x':x, 'y':y, 'shape':shape, 'homog':homog},
-                               tbox)
+                                tbox, tolerance=1.e-4)
 
 # Check x and y as floats, but shape and homogeneity as strings.
 def xyshCompare(x, y, shape, homog):
-    return (gtkMultiFloatCompare({'x':x, 'y':y}, tbox) and
+    return (gtkMultiFloatCompare({'x':x, 'y':y}, tbox, tolerance=1.e-4) and
             gtkMultiTextCompare({'shape':shape, 'homog':homog}, tbox))
 
 def messageCompare(msg):

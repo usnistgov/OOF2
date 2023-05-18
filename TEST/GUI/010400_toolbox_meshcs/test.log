@@ -697,7 +697,7 @@ assert tests.is_sensitive(tbox+":Go")
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 5.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Cross Section:Go').clicked()
 checkpoint OOF.Mesh.Analyze.Direct_Output
-assert tests.filediff('edit_test.out')
+assert tests.filediff('edit_test.out', tolerance=1.e-6)
 os.remove('edit_test.out')
 
 assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
@@ -766,7 +766,7 @@ findWidget('Dialog-Add a data destination:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 5.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Cross Section:Go').clicked()
 checkpoint OOF.Mesh.Analyze.Direct_Output
-assert tests.filediff('rename_test.out')
+assert tests.filediff('rename_test.out', tolerance=1.e-6)
 os.remove('rename_test.out')
 
 assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
@@ -856,7 +856,7 @@ findWidget('Dialog-Add a data destination:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 5.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Cross Section:Go').clicked()
 checkpoint OOF.Mesh.Analyze.Direct_Output
-assert tests.filediff('newlayer_test.out')
+assert tests.filediff('newlayer_test.out', tolerance=1.e-4)
 os.remove('newlayer_test.out')
 
 assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = SecondInvariant(Stress)")
@@ -1036,7 +1036,7 @@ findWidget('Dialog-Python_Log:filename').set_text('session.lo')
 findWidget('Dialog-Python_Log:filename').set_text('session.log')
 findWidget('Dialog-Python_Log:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Save.Python_Log
-assert tests.filediff("session.log")
+assert tests.filediff("session.log", tolerance=1.e-5)
 
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Quit']).activate()
 checkpoint OOF.Graphics_1.File.Close

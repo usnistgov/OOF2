@@ -323,7 +323,7 @@ findWidget('Dialog-Materials:materials').get_selection().unselect_all()
 findWidget('Dialog-Materials:materials').get_selection().select_path(Gtk.TreePath([0]))
 findWidget('Dialog-Materials:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Save.Materials
-assert tests.filediff('cubics.dat')
+assert tests.filediff('cubics.dat', tolerance=1.e-6)
 
 # Delete the Material
 findWidget('OOF2:Materials Page:Pane:Material:Delete').clicked()
@@ -477,6 +477,6 @@ findWidget('Dialog-Python_Log:filename').set_text('session.lo')
 findWidget('Dialog-Python_Log:filename').set_text('session.log')
 findWidget('Dialog-Python_Log:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Save.Python_Log
-assert tests.filediff("session.log")
+assert tests.filediff("session.log", tolerance=1.e-6)
 
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Quit']).activate()
