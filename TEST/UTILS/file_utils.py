@@ -191,14 +191,14 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
                 
             f1_text_items = floatpattern.split(f1_line)
             f2_text_items = floatpattern.split(f2_line)
-            f1_float_items = floatpattern.findall(f1_line)
-            f2_float_items = floatpattern.findall(f2_line)
+            f1_numerical_items = floatpattern.findall(f1_line)
+            f2_numerical_items = floatpattern.findall(f2_line)
 
             for (item1, item2) in zip(f1_text_items, f2_text_items):
                 if item1.strip() != item2.strip():
                     print_mismatch(f1_lineno, item1, item2)
             
-            for(item1, item2) in zip(f1_float_items, f2_float_items):
+            for(item1, item2) in zip(f1_numerical_items, f2_numerical_items):
                 try:
                     int1 = int(item1)
                     int2 = int(item2)
@@ -215,7 +215,9 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
                         # and relative error, which isn't usually a good
                         # idea, but is ok if the numbers being compared
                         # are more or less of order 1.
-                        ok = diff < reltol or diff < tolerance
+                        # Use <= instead of < so that diff==tolerance==0
+                        # is accepted!
+                        ok = diff <= reltol or diff <= tolerance
                         if not ok:
                             print_float_mismatch(f1_lineno, float1, float2)
                 else: # Integer conversion worked, do comparison.

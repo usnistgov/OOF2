@@ -210,7 +210,7 @@ def run(homedir):
     # changes if the time format changes.  Setting TZ here means that
     # the creation time will always include time zone information, and
     # will always use the same number of characters.
-    os.putenv("TZ", "Etc/UTC")
+    os.environ["TZ"] = "Etc/UTC"
 
     oof.run(no_interp=1)
 

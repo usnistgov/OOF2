@@ -101,7 +101,7 @@ def run_tests(dirs, rerecord, forever):
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def really_run_tests(homedir, dirs, rerecord):
-    nskipped = 0
+    skipped = []        # list of skipped directories, reported at the end
     nrun = 0
     for directory in dirs:
         originaldir = os.path.join(homedir, directory)
@@ -115,12 +115,12 @@ def really_run_tests(homedir, dirs, rerecord):
             return
         if os.path.exists(os.path.join(originaldir, 'SKIP')) and len(dirs) > 1:
             print(" **** Skipping", directory, "****", file=sys.stderr)
-            nskipped += 1
+            skipped.append(directory)
             continue
         if not os.path.exists(os.path.join(originaldir, TESTFILE)):
             print(" **** Skipping", directory, "(No log file!) ****",
                   file=sys.stderr)
-            nskipped += 1
+            skipped.append(directory)
             continue
 
         # Ok, everything's there.  Get ready to run this test.  Make a
@@ -174,7 +174,7 @@ def really_run_tests(homedir, dirs, rerecord):
 
         print("-------------------------", file=sys.stderr)
         print("--- Running %s" % ' '.join(cmd), file=sys.stderr)
-        os.putenv('OOFTESTDIR', directory)
+        os.environ["OOFTESTDIR"] = directory
         result = subprocess.call(cmd)
         print("--- Return value =", result, file=sys.stderr)
         if result < 0:
@@ -190,13 +190,22 @@ def really_run_tests(homedir, dirs, rerecord):
 
         cleanupscript = os.path.join(directory, 'cleanup.py')
         if os.path.exists(cleanupscript):
-            exec(compile(open(cleanupscript, "rb").read(), cleanupscript, 'exec'))
+            sys.path.append(directory)
+            sys.path.append(homedir)
+            sys.path.append("UTILS")
+            exec(
+                compile(
+                    open(cleanupscript, "rb").read(), cleanupscript, 'exec'),
+                globals(), locals())
 
         os.remove(testdir)
         nrun += 1
           
     print("%d test%s ran successfully!" % (nrun, "s"*(nrun!=1)), file=sys.stderr)
-    print("Skipped %d test%s." % (nskipped, "s"*(nskipped!=1)), file=sys.stderr)
+    print("Skipped %d test%s:" % (len(skipped), "s"*(len(skipped)!=1)),
+          file=sys.stderr)
+    for skipdir in skipped:
+        print(f"    {skipdir}", file=sys.stderr)
 
 excluded = ['CVS','TEST_DATA', 'examples']
 
