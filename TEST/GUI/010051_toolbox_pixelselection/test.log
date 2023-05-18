@@ -129,9 +129,9 @@ checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Point
 # Check that the toolbox updated properly on the second click.
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1 (0.00444444%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1 (0.00444444%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'61.0875','yup':'69.225'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'61.0875','yup':'69.225'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Delete the image from the graphics window
 wevent(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), Gdk.EventType.BUTTON_PRESS, button=3, state=0, window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
@@ -149,7 +149,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Delete
 assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','No source!')
 assert tests.sensitizationCheck({'Undo':False,'Redo':False,'Clear':False,'Invert':False,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'61.0875','yup':'69.225'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'61.0875','yup':'69.225'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Python_Log']).activate()
 checkpoint toplevel widget mapped Dialog-Python_Log

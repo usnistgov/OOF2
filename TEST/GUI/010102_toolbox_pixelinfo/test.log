@@ -199,7 +199,7 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustme
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 4.1610618765855e+02)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 4.3700000000000e+02)
 assert tests.checkReference(x=46, y=73, oclass="Abg", alpha=45, beta=105, gamma=0)
-assert tests.checkMisorientation("0.0")
+assert tests.checkMisorientation("0.0", tolerance=0)
 
 # Click on another point with a different orientation
 findGfxWindow('Graphics_1').simulateMouse('down', 120.9375, 75.525, 1, False, False)
@@ -218,7 +218,7 @@ checkpoint Graphics_1 Pixel Info updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
 # Check that misorientation=0, nothing else changed
-assert tests.checkMisorientation("0.0")
+assert tests.checkMisorientation("0.0", tolerance=0)
 assert tests.checkReference(x=46, y=73, oclass="Abg", alpha=45, beta=105, gamma=0)
 
 # Click on a point with no orientation
@@ -331,7 +331,7 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustme
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 3.0031718061674e+02)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 3.9464757709251e+02)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 4.3700000000000e+02)
-assert tests.checkMisorientation("0.0")
+assert tests.checkMisorientation("0.0", tolerance=0)
 
 # Hide the image
 findWidget('OOF2 Graphics 1').resize(1259, 646)
@@ -367,7 +367,7 @@ findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 3.2400000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 3.6000000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 4.3700000000000e+02)
-assert tests.checkMisorientation("0.0")
+assert tests.checkMisorientation("0.0", tolerance=0)
 
 # Delete the image layer
 findWidget('OOF2 Graphics 1').resize(1259, 646)

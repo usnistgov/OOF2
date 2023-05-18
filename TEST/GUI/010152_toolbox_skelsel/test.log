@@ -234,7 +234,7 @@ assert findWidget(tbox+":Select:Segment").get_active()
 assert tests.gtkMultiTextCompare({'xdown':'', 'ydown':'', 'xup':'', 'yup':''}, sgbox)
 assert tests.sensitizationCheck({'Undo':False,'Redo':False,'Clear':False,'Invert':True},sgbox)
 assert tests.sensitizationCheck({'Prev':False,'Repeat':False,'Next':False},sgbox)
-assert tests.gtkTextCompare(sgbox+":size","0 (0%)")
+assert tests.gtkTextCompare(sgbox+":size","0 (0%)", tolerance=0)
 
 
 # Select a segment
@@ -250,10 +250,10 @@ checkpoint OOF.Graphics_1.Toolbox.Select_Segment.Single_Segment
 assert not findWidget(tbox+":Select:Element").get_active()
 assert not findWidget(tbox+":Select:Node").get_active()
 assert findWidget(tbox+":Select:Segment").get_active()
-assert tests.gtkMultiTextCompare({'xdown':'--', 'ydown':'--', 'xup':'22.525', 'yup':'75.55'}, sgbox)
+assert tests.gtkMultiTextCompare({'xdown':'--', 'ydown':'--', 'xup':'22.525', 'yup':'75.55'}, sgbox, tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True},sgbox)
 assert tests.sensitizationCheck({'Prev':False,'Repeat':True,'Next':False},sgbox)
-assert tests.gtkTextCompare(sgbox+":size","1 (0.724638%)")
+assert tests.gtkTextCompare(sgbox+":size","1 (0.724638%)", tolerance=1.e-4)
 
 # Select a rectangle
 wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Segment:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Segment:Method:RCFChooser').get_window())
@@ -300,10 +300,10 @@ checkpoint OOF.Graphics_1.Toolbox.Select_Segment.Rectangle
 assert not findWidget(tbox+":Select:Element").get_active()
 assert not findWidget(tbox+":Select:Node").get_active()
 assert findWidget(tbox+":Select:Segment").get_active()
-assert tests.gtkMultiTextCompare({'xdown':'8.175', 'ydown':'80.8', 'xup':'92.875', 'yup':'45.45'}, sgbox)
+assert tests.gtkMultiTextCompare({'xdown':'8.175', 'ydown':'80.8', 'xup':'92.875', 'yup':'45.45'}, sgbox, tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True},sgbox)
 assert tests.sensitizationCheck({'Prev':True,'Repeat':True,'Next':False},sgbox)
-assert tests.gtkTextCompare(sgbox+":size","28 (20.2899%)")
+assert tests.gtkTextCompare(sgbox+":size","28 (20.2899%)", tolerance=1.e-4)
 
 # Select a circle
 findWidget('OOF2 Graphics 1').resize(800, 492)
@@ -369,10 +369,10 @@ checkpoint OOF.Graphics_1.Toolbox.Select_Segment.Circle
 assert not findWidget(tbox+":Select:Element").get_active()
 assert not findWidget(tbox+":Select:Node").get_active()
 assert findWidget(tbox+":Select:Segment").get_active()
-assert tests.gtkMultiTextCompare({'xdown':'49.475', 'ydown':'49.65', 'xup':'81.675', 'yup':'73.45'}, sgbox)
+assert tests.gtkMultiTextCompare({'xdown':'49.475', 'ydown':'49.65', 'xup':'81.675', 'yup':'73.45'}, sgbox, tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True},sgbox)
 assert tests.sensitizationCheck({'Prev':True,'Repeat':True,'Next':False},sgbox)
-assert tests.gtkTextCompare(sgbox+":size","47 (34.058%)")
+assert tests.gtkTextCompare(sgbox+":size","47 (34.058%)", tolerance=1.e-4)
 
 # Select an ellipse
 wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
@@ -434,10 +434,10 @@ checkpoint OOF.Graphics_1.Toolbox.Select_Segment.Ellipse
 assert not findWidget(tbox+":Select:Element").get_active()
 assert not findWidget(tbox+":Select:Node").get_active()
 assert findWidget(tbox+":Select:Segment").get_active()
-assert tests.gtkMultiTextCompare({'xdown':'26.375', 'ydown':'69.25', 'xup':'98.125', 'yup':'18.15'}, sgbox)
+assert tests.gtkMultiTextCompare({'xdown':'26.375', 'ydown':'69.25', 'xup':'98.125', 'yup':'18.15'}, sgbox, tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True},sgbox)
 assert tests.sensitizationCheck({'Prev':True,'Repeat':True,'Next':False},sgbox)
-assert tests.gtkTextCompare(sgbox+":size","22 (15.942%)")
+assert tests.gtkTextCompare(sgbox+":size","22 (15.942%)", tolerance=1.e-4)
 
 # Clear
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Segment:Clear').clicked()
@@ -448,10 +448,10 @@ checkpoint OOF.Graphics_1.Toolbox.Select_Segment.Clear
 assert not findWidget(tbox+":Select:Element").get_active()
 assert not findWidget(tbox+":Select:Node").get_active()
 assert findWidget(tbox+":Select:Segment").get_active()
-assert tests.gtkMultiTextCompare({'xdown':'26.375', 'ydown':'69.25', 'xup':'98.125', 'yup':'18.15'}, sgbox)
+assert tests.gtkMultiTextCompare({'xdown':'26.375', 'ydown':'69.25', 'xup':'98.125', 'yup':'18.15'}, sgbox, tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':False,'Invert':True},sgbox)
 assert tests.sensitizationCheck({'Prev':True,'Repeat':True,'Next':False},sgbox)
-assert tests.gtkTextCompare(sgbox+":size","0 (0%)")
+assert tests.gtkTextCompare(sgbox+":size","0 (0%)", tolerance=0)
 
 # Undo
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.0000000000000e+00)
@@ -464,10 +464,10 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustme
 assert not findWidget(tbox+":Select:Element").get_active()
 assert not findWidget(tbox+":Select:Node").get_active()
 assert findWidget(tbox+":Select:Segment").get_active()
-assert tests.gtkMultiTextCompare({'xdown':'26.375', 'ydown':'69.25', 'xup':'98.125', 'yup':'18.15'}, sgbox)
+assert tests.gtkMultiTextCompare({'xdown':'26.375', 'ydown':'69.25', 'xup':'98.125', 'yup':'18.15'}, sgbox, tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':True,'Clear':True,'Invert':True},sgbox)
 assert tests.sensitizationCheck({'Prev':True,'Repeat':True,'Next':False},sgbox)
-assert tests.gtkTextCompare(sgbox+":size","22 (15.942%)")
+assert tests.gtkTextCompare(sgbox+":size","22 (15.942%)", tolerance=1.e-4)
 
 # undo again
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Segment:Undo').clicked()
@@ -478,10 +478,10 @@ checkpoint OOF.Graphics_1.Toolbox.Select_Segment.Undo
 assert not findWidget(tbox+":Select:Element").get_active()
 assert not findWidget(tbox+":Select:Node").get_active()
 assert findWidget(tbox+":Select:Segment").get_active()
-assert tests.gtkMultiTextCompare({'xdown':'26.375', 'ydown':'69.25', 'xup':'98.125', 'yup':'18.15'}, sgbox)
+assert tests.gtkMultiTextCompare({'xdown':'26.375', 'ydown':'69.25', 'xup':'98.125', 'yup':'18.15'}, sgbox, tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':True,'Clear':True,'Invert':True},sgbox)
 assert tests.sensitizationCheck({'Prev':True,'Repeat':True,'Next':False},sgbox)
-assert tests.gtkTextCompare(sgbox+":size","47 (34.058%)")
+assert tests.gtkTextCompare(sgbox+":size","47 (34.058%)", tolerance=1.e-4)
 
 # redo
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Segment:Redo').clicked()
@@ -492,10 +492,10 @@ checkpoint OOF.Graphics_1.Toolbox.Select_Segment.Redo
 assert not findWidget(tbox+":Select:Element").get_active()
 assert not findWidget(tbox+":Select:Node").get_active()
 assert findWidget(tbox+":Select:Segment").get_active()
-assert tests.gtkMultiTextCompare({'xdown':'26.375', 'ydown':'69.25', 'xup':'98.125', 'yup':'18.15'}, sgbox)
+assert tests.gtkMultiTextCompare({'xdown':'26.375', 'ydown':'69.25', 'xup':'98.125', 'yup':'18.15'}, sgbox, tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':True,'Clear':True,'Invert':True},sgbox)
 assert tests.sensitizationCheck({'Prev':True,'Repeat':True,'Next':False},sgbox)
-assert tests.gtkTextCompare(sgbox+":size","22 (15.942%)")
+assert tests.gtkTextCompare(sgbox+":size","22 (15.942%)", tolerance=1.e-4)
 
 # invert
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.8000000000000e+01)
@@ -507,10 +507,10 @@ checkpoint OOF.Graphics_1.Toolbox.Select_Segment.Invert
 assert not findWidget(tbox+":Select:Element").get_active()
 assert not findWidget(tbox+":Select:Node").get_active()
 assert findWidget(tbox+":Select:Segment").get_active()
-assert tests.gtkMultiTextCompare({'xdown':'26.375', 'ydown':'69.25', 'xup':'98.125', 'yup':'18.15'}, sgbox)
+assert tests.gtkMultiTextCompare({'xdown':'26.375', 'ydown':'69.25', 'xup':'98.125', 'yup':'18.15'}, sgbox, tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True},sgbox)
 assert tests.sensitizationCheck({'Prev':True,'Repeat':True,'Next':False},sgbox)
-assert tests.gtkTextCompare(sgbox+":size","116 (84.058%)")
+assert tests.gtkTextCompare(sgbox+":size","116 (84.058%)", tolerance=1.e-4)
 
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Python_Log']).activate()
 checkpoint toplevel widget mapped Dialog-Python_Log

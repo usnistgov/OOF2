@@ -22,6 +22,8 @@ import string
 import sys
 import types
 
+from ooflib.common import debug
+
 ## TODO: The naming conventions for functions in this file are not at
 ## all consistent.
 
@@ -36,9 +38,9 @@ intpattern = re.compile("[0-9]+$")
 # tolerance.  If the tolerance is None or 0, the strings are compared
 # character-wise.
 
-def fp_string_compare(str1, str2, tolerance):
+def fp_string_compare(str1, str2, tolerance=None):
     try:
-        if not tolerance:
+        if tolerance is None:
             return str1 == str2
 
         s1_items = floatpattern.split(str1)
@@ -56,7 +58,7 @@ def fp_string_compare(str1, str2, tolerance):
               str1, str2, tolerance, file=sys.stderr)
         raise
 
-def fp_substring_compare(s1, s2, tolerance):
+def fp_substring_compare(s1, s2, tolerance=None):
     if intpattern.match(s1) and intpattern.match(s2):
         if int(s1) != int(s2):
             print("fp_substring_compare: int mismatch", \
@@ -82,8 +84,8 @@ def fp_substring_compare(s1, s2, tolerance):
 # doesn't use all of str1.  It checks to see if str2 appears at the
 # end of str1.
 
-def fp_string_compare_tail(str1, str2, tolerance):
-    if not tolerance:
+def fp_string_compare_tail(str1, str2, tolerance=None):
+    if tolerance is None:
         return str1.endswith(str2)
     s1_items = floatpattern.split(str1)
     s2_items = floatpattern.split(str2)
