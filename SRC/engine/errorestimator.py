@@ -19,6 +19,7 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import refinementtarget
+from ooflib.engine import skeleton
 from ooflib.engine.IO import meshparameters
 import ooflib.engine.mesh
 #AMR subproblem
@@ -144,24 +145,41 @@ class AdaptiveMeshRefine(refinementtarget.ElementRefinementTarget):
         self.subproblem = subproblem
         self.estimator = estimator  # ErrorEstimator instance
     def iterator(self, skeletoncontext):
-        subproblemobj = ooflib.engine.subproblemcontext.subproblems[
-            self.subproblem].getObject()
-        femesh = subproblemobj.mesh
-        self.estimator.preprocess(subproblemobj)
-        skeleton = skeletoncontext.getObject()
-        for element in skeleton.activeElements():
-            # If the refinement is done more than once from the skeleton
-            # page (after a mesh has been created),
-            # some of the new skeleton elements may not have
-            # corresponding mesh elements, i.e. element.meshindex is
-            # undefined. The second refinement could be done after
-            # a new mesh is created from the first refinement.
-            fe_element = femesh.getElement(element.meshindex)
-            if (subproblemobj.contains(fe_element) and
-                fe_element.material() and
-                self.estimator(fe_element, subproblemobj)):
-                yield element
-                    
+        return skeleton.SkeletonElementIterator(
+            skeletoncontext.getObject(),
+            AMRPredicate(self, skeletoncontext))
+        
+# Helper class for AdaptiveMeshRefine.  SkeletonElementIterator needs
+# a predicate functional that takes a single argument, but we need to
+# pass others to it. This could be avoided by putting
+# AMRPredicate.__call__ in AdaptiveMeshRefine, but that feels wrong.
+# Other RefinementTarget subclasses don't have __call__ methods.
+
+class AMRPredicate:
+    def __init__(self, amr, skelcontext):
+        self.skelctxt = skelcontext
+        self.subproblemobj = ooflib.engine.subproblemcontext.subproblems[
+            amr.subproblem].getObject()
+        self.femesh = self.subproblemobj.mesh
+        self.estimator = amr.estimator
+        self.estimator.preprocess(self.subproblemobj)
+    def __call__(self, element):
+        assert element.meshindex is not None
+        ## OLD COMMENT THAT MIGHT NOT BE RELEVANT ANY MORE
+        # If the refinement is done more than once from the skeleton
+        # page (after a mesh has been created),
+        # some of the new skeleton elements may not have
+        # corresponding mesh elements, i.e. element.meshindex is
+        # undefined. The second refinement could be done after
+        # a new mesh is created from the first refinement.
+        fe_element = self.femesh.getElement(element.meshindex)
+        return (element.active(self.skelctxt.getObject()) and
+                element.material(self.skelctxt) is not None and
+                self.subproblemobj.contains(fe_element) and
+                self.estimator(fe_element, self.subproblemobj))
+
+
+        
 #####################
 
 # A trivial WhoParameter for a smart widget.

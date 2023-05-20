@@ -49,7 +49,8 @@ class OOF_AMR(unittest.TestCase):
                         norm=L2ErrorNorm(),flux=Stress,threshold=10)
                     ),
                 criterion=Unconditionally(),
-                degree=Trisection(rule_set='conservative'),
+                divider=Trisection(),
+                rules='Quick',
                 alpha=0.3))
         # Because adaptive mesh refinement is susceptible to roundoff
         # errors, the number of elements after refinement is not
@@ -129,7 +130,8 @@ class OOF_AMR(unittest.TestCase):
                         norm=L2ErrorNorm(),flux=Stress,threshold=10)
                     ),
                             criterion=Unconditionally(),
-                            degree=Trisection(rule_set='conservative'),
+                            divider=Trisection(),
+                            rules='Quick',
                             alpha=0.29999999999999999))
         self.assertEqual(meshctxt.nelements(), 400)
         newNel = len(skelctxt.getObject().elements)

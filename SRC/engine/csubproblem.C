@@ -1604,9 +1604,8 @@ void CSubProblem::init_nodalfluxes() {
 
 // recover fluxes
 void CSubProblem::recover_fluxes() {
-  std::map<const int, NodalSCPatches*>::iterator iter;
   std::vector<Flux*> allfluxes = allFluxes();
-  for(iter=scpatches.begin(); iter!=scpatches.end(); iter++)
+  for(auto iter=scpatches.begin(); iter!=scpatches.end(); iter++)
     (iter->second)->recover_fluxes(allfluxes);
 }
 
@@ -1626,7 +1625,7 @@ DoubleVec *CSubProblem::get_recovered_flux(const Flux *fluks,
   DoubleVec *result = new DoubleVec(dim, 0.0);
   for(int i=0; i<dim; i++) {
     // interpolating the value
-    for(CleverPtr<ElementFuncNodeIterator>node(elem->funcnode_iterator());
+    for(CleverPtr<ElementFuncNodeIterator> node(elem->funcnode_iterator());
 	!node->end(); ++*node)
       {
 	double temp = recovered_fluxes[(node->node())->index()]->
@@ -1693,7 +1692,9 @@ void CSubProblem::zz_L2_estimate_sub(const Element *elem, const Flux *fluks,
 				     const MasterCoord &mc, const double &wt)
 {
   // flux(diff) vectors
-  DoubleVec *recovered = get_recovered_flux(fluks, elem, mc);
+  // The iterator calling this should not include empty elements.
+  assert(elem->material() != nullptr);
+    DoubleVec *recovered = get_recovered_flux(fluks, elem, mc);
   DoubleVec *feflux = fluks->evaluate( this->mesh, elem, mc );
   DoubleVec diff = *recovered - *feflux;
   error += (diff*diff) * wt;

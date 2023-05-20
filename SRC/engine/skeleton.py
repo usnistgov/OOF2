@@ -1049,7 +1049,6 @@ class Skeleton(SkeletonBase):
         self.cleanUp()
         return len(self.elements)
 
-    ## TODO PYTHON3: Use SkeletonElementIterator?
     def element_iterator(self):         # for compatiblity w/ Element output
         self.cleanUp()
         return SkeletonElementIterator(self)
@@ -2891,7 +2890,6 @@ class SkeletonIterator:
                 self.nret += 1
                 yield target
     
-
 class SkeletonElementIterator(SkeletonIterator):
     def ntotal(self):
         return self.skeleton.nelements()

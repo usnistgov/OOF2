@@ -42,7 +42,8 @@ class ElementRefinementTarget(RefinementTarget):
         prog = progress.findProgress("Refine")
         ## TODO PYTHON3: Be sure that self.iterator returns a
         ## SkeletonElementIterator so we can use fraction and ntotal
-        eliter = list(self.iterator(context)) # self.iterator is from subclass
+        ## Check all types of iterators that might be used here.
+        eliter = self.iterator(context) # self.iterator is from subclass
         for i, element in enumerate(eliter):
             ## TODO: Do we need to check criterion here?  Can the
             ## iterator do it?
@@ -50,9 +51,9 @@ class ElementRefinementTarget(RefinementTarget):
                 self.markElement(skeleton, element, divider, markedSegs)
             if prog.stopped():
                 return
-            prog.setFraction(i/len(eliter))#eliter.fraction())
-            prog.setMessage(f"checked {i}/{len(eliter)} elements")
-                #f"checked {eliter.nexamined()}/{eliter.ntotal()} elements")
+            prog.setFraction(eliter.fraction())
+            prog.setMessage(
+                f"checked {eliter.nexamined()}/{eliter.ntotal()} elements")
             
 
 class SegmentRefinementTarget(RefinementTarget):
