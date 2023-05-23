@@ -477,167 +477,194 @@ def build_mod_args():
     global skel_modify_args
     skel_modify_args = {
         "Refine" :
-        [
-        ("modbase", "refine_1",
-         { "targets" : CheckHomogeneity(threshold=0.9),
-           "criterion" : Unconditionally(),
-           "divider" : Trisection(),
-           "rules": "Quick",
-           "alpha" : 0.5
+        [("modbase", "refine_1",
+          { "targets" : CheckHomogeneity(threshold=0.9),
+            "criterion" : Unconditionally(),
+            "divider" : Trisection(),
+            "rules": "Quick",
+            "alpha" : 0.5
            }
-         ),
-        ("modbase", "refine_1L",
-         { "targets" : CheckHomogeneity(threshold=0.9),
-           "criterion" : Unconditionally(),
-           "divider" : Trisection(),
-           "rules": "Large",
-           "alpha" : 0.5
+          ),
+         ("modbase", "refine_1L",
+          { "targets" : CheckHomogeneity(threshold=0.9),
+            "criterion" : Unconditionally(),
+            "divider" : Trisection(),
+            "rules": "Large",
+            "alpha" : 0.5
            }
-         ),
-            ## TODO PYTHON3: Add homogeneity refinement test for a
-            ## initially triangular skeleton.
-        ("modbase", "refine_2",
-         { "targets" : CheckHomogeneity(threshold=0.9),
+          ),
+         ("modtriangle", "refine_7",
+          { "targets" : CheckHomogeneity(threshold=0.6),
+            "criterion" : Unconditionally(),
+            "divider" : Bisection(),
+            "rules" : "Quick",
+            "alpha" : 0.5
+           }
+          ),
+         ("modtriangle", "refine_7L",
+          { "targets" : CheckHomogeneity(threshold=0.6),
+            "criterion" : Unconditionally(),
+            "divider" : Bisection(),
+            "rules" : "Large",
+            "alpha" : 0.5
+           }
+          ),
+         ("modtriangle", "refine_8",
+          { "targets" : CheckHomogeneity(threshold=0.6),
+            "criterion" : Unconditionally(),
+            "divider" : Trisection(),
+            "rules" : "Quick",
+            "alpha" :  0.5
+           }
+          ),
+         ("modtriangle", "refine_8L",
+          { "targets" : CheckHomogeneity(threshold=0.6),
+            "criterion" : Unconditionally(),
+            "divider" : Trisection(),
+            "rules" : "Large",
+            "alpha" :  0.5
+           }
+          ),
+         ("modbase", "refine_2",
+          { "targets" : CheckHomogeneity(threshold=0.9),
+            "criterion" : Unconditionally(),
+            "divider" : Bisection(),
+            "rules" : "Quick",
+            "alpha" : 0.5
+           }
+          ),
+         ("modbase", "refine_2L",
+          { "targets" : CheckHomogeneity(threshold=0.9),
+            "criterion" : Unconditionally(),
+            "divider" : Bisection(),
+            "rules" : "Large",
+            "alpha" : 0.5
+           }
+          ),
+         ("modgroups","refine_3",
+          {"targets" : CheckElementsInGroup(group='elementgroup'),
            "criterion" : Unconditionally(),
            "divider" : Bisection(),
            "rules" : "Quick",
            "alpha" : 0.5
            }
-         ),
-        ("modbase", "refine_2L",
-         { "targets" : CheckHomogeneity(threshold=0.9),
+          ),
+         ("modgroups","refine_3L",
+          {"targets" : CheckElementsInGroup(group='elementgroup'),
            "criterion" : Unconditionally(),
            "divider" : Bisection(),
            "rules" : "Large",
            "alpha" : 0.5
            }
-         ),
-        ("modgroups","refine_3",
-         {"targets" : CheckElementsInGroup(group='elementgroup'),
-          "criterion" : Unconditionally(),
-          "divider" : Bisection(),
-          "rules" : "Quick",
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_3L",
-         {"targets" : CheckElementsInGroup(group='elementgroup'),
-          "criterion" : Unconditionally(),
-          "divider" : Bisection(),
-          "rules" : "Large",
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_4",
-         {"targets" : CheckAllElements(),
-          "criterion" : Unconditionally(),
-          "divider" : Bisection(),
-          "rules" : "Quick",
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_4L",
-         {"targets" : CheckAllElements(),
-          "criterion" : Unconditionally(),
-          "divider" : Bisection(),
-          "rules" : "Large",
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_5",
-         {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
-          "criterion" : Unconditionally(),
-          "divider" : Bisection(),
-          "rules" : "Quick",
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_5L",
-         {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
-          "criterion" : Unconditionally(),
-          "divider" : Bisection(),
-          "rules" : "Large",
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_6",
-         {"targets" : CheckHeterogeneousEdges(threshold=1,
-                                              choose_from=FromAllSegments()),
-          "criterion" : Unconditionally(),
-          "divider" : Bisection(),
-          "rules" : "Quick",
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_6L",
-         {"targets" : CheckHeterogeneousEdges(threshold=1,
-                                              choose_from=FromAllSegments()),
-          "criterion" : Unconditionally(),
-          "divider" : Bisection(),
-          "rules" : "Large",
-          "alpha" : 0.5
-          }
-         )
-        ],
-        "Relax" :
-        [
-        ("modbase", "relax",
-         { "alpha" : 0.5,
-           "gamma" : 0.5,
-           "iterations" : 1
+          ),
+         ("modgroups","refine_4",
+          {"targets" : CheckAllElements(),
+           "criterion" : Unconditionally(),
+           "divider" : Bisection(),
+           "rules" : "Quick",
+           "alpha" : 0.5
            }
-         )
-        ],
+          ),
+         ("modgroups","refine_4L",
+          {"targets" : CheckAllElements(),
+           "criterion" : Unconditionally(),
+           "divider" : Bisection(),
+           "rules" : "Large",
+           "alpha" : 0.5
+           }
+          ),
+         ("modgroups","refine_5",
+          {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
+           "criterion" : Unconditionally(),
+           "divider" : Bisection(),
+           "rules" : "Quick",
+           "alpha" : 0.5
+           }
+          ),
+         ("modgroups","refine_5L",
+          {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
+           "criterion" : Unconditionally(),
+           "divider" : Bisection(),
+           "rules" : "Large",
+           "alpha" : 0.5
+           }
+          ),
+         ("modgroups","refine_6",
+          {"targets" : CheckHeterogeneousEdges(threshold=1,
+                                               choose_from=FromAllSegments()),
+           "criterion" : Unconditionally(),
+           "divider" : Bisection(),
+           "rules" : "Quick",
+           "alpha" : 0.5
+           }
+          ),
+         ("modgroups","refine_6L",
+          {"targets" : CheckHeterogeneousEdges(threshold=1,
+                                               choose_from=FromAllSegments()),
+           "criterion" : Unconditionally(),
+           "divider" : Bisection(),
+           "rules" : "Large",
+           "alpha" : 0.5
+           }
+          )
+         ],
+        "Relax" :
+        [("modbase", "relax",
+          { "alpha" : 0.5,
+            "gamma" : 0.5,
+            "iterations" : 1
+           }
+          )
+         ],
         "Snap Nodes" :
-        [ ("modbase", "snapnodes",
-           { "targets" : SnapAll(),
-             "criterion" : AverageEnergy(alpha=1.)
-             }
-           )
-          ],
+        [("modbase", "snapnodes",
+          { "targets" : SnapAll(),
+            "criterion" : AverageEnergy(alpha=1.)
+           }
+          )
+         ],
         "Split Quads" :
         [ ("modbase", "splitquads",
            { "targets" : AllElements(),
              "criterion" : AverageEnergy(alpha=0.9),
              "split_how" : GeographicQ2T()
-             }
+            }
            )
-          ],
+         ],
         "Anneal" :
-        [
-        ("modbase", "anneal",
-         {"targets" : AllNodes(),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         ),
-        ("modgroups", "anneal_2",
-         {"targets" : NodesInGroup(group='nodegroup'),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         ),
-        ("modgroups", "anneal_3",
-         {"targets" : FiddleElementsInGroup(group='elementgroup'),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         ),
-        ("modgroups", "anneal_4",
-         {"targets" : FiddleHeterogeneousElements(threshold=0.95),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         )
-        ],
+        [("modbase", "anneal",
+          {"targets" : AllNodes(),
+           "criterion" : AverageEnergy(alpha=0.6),
+           "T" : 0.0,
+           "delta" : 1.0,
+           "iteration" : FixedIteration(iterations=5)            
+           }
+          ),
+         ("modgroups", "anneal_2",
+          {"targets" : NodesInGroup(group='nodegroup'),
+           "criterion" : AverageEnergy(alpha=0.6),
+           "T" : 0.0,
+           "delta" : 1.0,
+           "iteration" : FixedIteration(iterations=5)            
+           }
+          ),
+         ("modgroups", "anneal_3",
+          {"targets" : FiddleElementsInGroup(group='elementgroup'),
+           "criterion" : AverageEnergy(alpha=0.6),
+           "T" : 0.0,
+           "delta" : 1.0,
+           "iteration" : FixedIteration(iterations=5)            
+           }
+          ),
+         ("modgroups", "anneal_4",
+          {"targets" : FiddleHeterogeneousElements(threshold=0.95),
+           "criterion" : AverageEnergy(alpha=0.6),
+           "T" : 0.0,
+           "delta" : 1.0,
+           "iteration" : FixedIteration(iterations=5)            
+           }
+          )
+         ],
         "Smooth" :
         [ ("modsecond", "smooth",
            {"targets" : AllNodes(),
@@ -646,129 +673,128 @@ def build_mod_args():
             "iteration" : FixedIteration(iterations=5)
             }
            )
-          ],
+         ],
         "Swap Edges" :
         [ ("modsecond", "swapedges",
            {"targets" : AllElements(),
             "criterion" : AverageEnergy(alpha=0.3)
             }
            )
-          ],
+         ],
         "Merge Triangles" :
         [ ("modsecond", "mergetriangles",
            {"targets" : AllElements(),
             "criterion" : AverageEnergy(alpha=0.3)
             }
            )
-          ],
+         ],
         "Rationalize" :
-        [ ("modsecond", "rationalize",
-           {"targets" : AllElements(),
-            "criterion" : AverageEnergy(alpha=0.3),
-            "method" : SpecificRationalization(
-        rationalizers=[RemoveShortSide(ratio=5.0),
-                       QuadSplit(angle=150),
-                       RemoveBadTriangle(acute_angle=30,obtuse_angle=130)]),
-            "iterations" : 3
-            }
-           )
-          ],
+        [("modsecond", "rationalize",
+          {"targets" : AllElements(),
+           "criterion" : AverageEnergy(alpha=0.3),
+           "method" : SpecificRationalization(
+               rationalizers=[RemoveShortSide(ratio=5.0),
+                              QuadSplit(angle=150),
+                              RemoveBadTriangle(acute_angle=30,
+                                                obtuse_angle=130)]),
+           "iterations" : 3
+           }
+          )
+         ],
         #For snaprefine_3 and snaprefine_5, if we used modgroups,
         #then there would be a difference in results between
-        #32 and 64 bit machines.
+        #32 and 64 bit machines. (WHY? Is this still true?)
         "Snap Refine II" :
-        [
-            ("modbase", "snaprefine_1",
-             { "targets" : CheckHomogeneity(threshold=0.9),
-               "criterion" : Unconditionally(),
-               "min_distance" : 0.1,
-               "alpha" : 0.5
-              }
-             ),
-            ("modgroups","snaprefine_2",
-             {"targets" : CheckElementsInGroup(group='elementgroup'),
-              "criterion" : Unconditionally(),
-              "min_distance" : 1.0,
-               "alpha" : 0.5
-              }
-             ),
-            ("modgroups","snaprefine_2a",
-             {"targets" : CheckElementsInGroup(group='elementgroup'),
-              "criterion" : Unconditionally(),
-              "min_distance" : 2.0,
-               "alpha" : 0.5
-              }
-             ),
-            ("modgroups2","snaprefine_3",
-             {"targets" : CheckAllElements(),
-              "criterion" : Unconditionally(),
-              "min_distance" : 2.0,
-               "alpha" : 0.5
-              }
-             ),
-            ("modgroups","snaprefine_4",
-             {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
-              "criterion" : Unconditionally(),
-              "min_distance" : 1,
-               "alpha" : 0.5
-              }
-             ),
-            ("modgroups2","snaprefine_5",
-             {"targets" :
-              CheckHeterogeneousEdges(threshold=1,
-                                       choose_from=FromAllSegments()),
-              "criterion" : Unconditionally(),
-              "min_distance" : 2.0,
-               "alpha" : 0.5
-              }
-             ),
-            ("snaptest_quads", "snaprefine_6",
-             {"targets" : CheckAspectRatio(threshold=3.0, only_quads=True),
-              "criterion" : Unconditionally(),
-              "min_distance" : 1,
-               "alpha" : 0.5
-              }
-             ),
-            ("snaptest_quads", "snaprefine_7",
-             {"targets" : CheckAspectRatio(threshold=1.0, only_quads=False),
-              "criterion" : Unconditionally(),
-              "min_distance" : 1,
-               "alpha" : 0.5
-              }
-             ),
-            ("snaptest_triangles", "snaprefine_8",
-             {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
-              "criterion" : Unconditionally(),
-              "min_distance" : 1,
-               "alpha" : 0.5
-              }
-             ),
-            ("snaptest_quads", "snaprefine_7",
-             {"targets" : CheckAspectRatio(threshold=1.0, only_quads=False),
-              "criterion" : Unconditionally(),
-              "min_distance" : 1,
-               "alpha" : 0.5
-              }
-             ),
-            ("snaptest_triangles", "snaprefine_8",
-             {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
-              "criterion" : Unconditionally(),
-              "min_distance" : 1,
-               "alpha" : 0.5
-              }
-             ),
-            ("snaptest_triangles", "snaprefine_8a",
-             {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
-              "criterion" : Unconditionally(),
-              "min_distance" : 2,
-               "alpha" : 0.5
-              }
-             ),
-        ],
+        [("modbase", "snaprefine_1",
+          { "targets" : CheckHomogeneity(threshold=0.9),
+            "criterion" : Unconditionally(),
+            "min_distance" : 0.1,
+            "alpha" : 0.5
+           }
+          ),
+         ("modgroups","snaprefine_2",
+          {"targets" : CheckElementsInGroup(group='elementgroup'),
+           "criterion" : Unconditionally(),
+           "min_distance" : 1.0,
+           "alpha" : 0.5
+           }
+          ),
+         ("modgroups","snaprefine_2a",
+          {"targets" : CheckElementsInGroup(group='elementgroup'),
+           "criterion" : Unconditionally(),
+           "min_distance" : 2.0,
+           "alpha" : 0.5
+           }
+          ),
+         ("modgroups2","snaprefine_3",
+          {"targets" : CheckAllElements(),
+           "criterion" : Unconditionally(),
+           "min_distance" : 2.0,
+           "alpha" : 0.5
+           }
+          ),
+         ("modgroups","snaprefine_4",
+          {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
+           "criterion" : Unconditionally(),
+           "min_distance" : 1,
+           "alpha" : 0.5
+           }
+          ),
+         ("modgroups2","snaprefine_5",
+          {"targets" :
+           CheckHeterogeneousEdges(threshold=1,
+                                   choose_from=FromAllSegments()),
+           "criterion" : Unconditionally(),
+           "min_distance" : 2.0,
+           "alpha" : 0.5
+           }
+          ),
+         ("snaptest_quads", "snaprefine_6",
+          {"targets" : CheckAspectRatio(threshold=3.0, only_quads=True),
+           "criterion" : Unconditionally(),
+           "min_distance" : 1,
+           "alpha" : 0.5
+           }
+          ),
+         ("snaptest_quads", "snaprefine_7",
+          {"targets" : CheckAspectRatio(threshold=1.0, only_quads=False),
+           "criterion" : Unconditionally(),
+           "min_distance" : 1,
+           "alpha" : 0.5
+           }
+          ),
+         ("snaptest_triangles", "snaprefine_8",
+          {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
+           "criterion" : Unconditionally(),
+           "min_distance" : 1,
+           "alpha" : 0.5
+           }
+          ),
+         ("snaptest_quads", "snaprefine_7",
+          {"targets" : CheckAspectRatio(threshold=1.0, only_quads=False),
+           "criterion" : Unconditionally(),
+           "min_distance" : 1,
+           "alpha" : 0.5
+           }
+          ),
+         ("snaptest_triangles", "snaprefine_8",
+          {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
+           "criterion" : Unconditionally(),
+           "min_distance" : 1,
+           "alpha" : 0.5
+           }
+          ),
+         ("snaptest_triangles", "snaprefine_8a",
+          {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
+           "criterion" : Unconditionally(),
+           "min_distance" : 2,
+           "alpha" : 0.5
+           }
+          ),
+         ],
 
         "Fix Illegal Elements" :
-        [
-            ("illegal_skeleton", "illegal_fixed", {})
+        [("illegal_skeleton", "illegal_fixed", {})
         ]
     }
 
