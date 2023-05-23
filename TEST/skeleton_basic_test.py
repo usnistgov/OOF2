@@ -312,11 +312,13 @@ class OOF_Skeleton(unittest.TestCase):
         sk_context = skeletoncontext.skeletonContexts["skeltest:undotest"]
         sk_0 = sk_context.getObject()
         self.assertTrue(not sk_context.undoable())
-        OOF.Skeleton.Modify(skeleton="skeltest:undotest",
-                            modifier=Refine(
-            targets=CheckHomogeneity(threshold=0.9),
-            criterion=Unconditionally(),
-            degree=Trisection(rule_set="conservative")))
+        OOF.Skeleton.Modify(
+            skeleton="skeltest:undotest",
+            modifier=Refine(
+                targets=CheckHomogeneity(threshold=0.9),
+                criterion=Unconditionally(),
+                divider=Trisection(),
+                rules='Quick'))
         sk_1 = sk_context.getObject()
         self.assertTrue(sk_context.undoable())
         self.assertNotEqual(id(sk_0),id(sk_1))
@@ -335,11 +337,13 @@ class OOF_Skeleton(unittest.TestCase):
                                            left_right_periodicity=False))
         sk_context = skeletoncontext.skeletonContexts["skeltest:redotest"]
         sk_0 = sk_context.getObject()
-        OOF.Skeleton.Modify(skeleton="skeltest:redotest",
-                            modifier=Refine(
-            targets=CheckHomogeneity(threshold=0.9),
-            criterion=Unconditionally(),
-            degree=Trisection(rule_set="conservative")))
+        OOF.Skeleton.Modify(
+            skeleton="skeltest:redotest",
+            modifier=Refine(
+                targets=CheckHomogeneity(threshold=0.9),
+                criterion=Unconditionally(),
+                divider=Trisection(),
+                rules='Quick'))
         sk_1 = sk_context.getObject()
         OOF.Skeleton.Undo(skeleton="skeltest:redotest")
         sk_2 = sk_context.getObject()
@@ -477,35 +481,82 @@ def build_mod_args():
         ("modbase", "refine_1",
          { "targets" : CheckHomogeneity(threshold=0.9),
            "criterion" : Unconditionally(),
-           "degree" : Trisection(rule_set="conservative"),
+           "divider" : Trisection(),
+           "rules": "Quick",
            "alpha" : 0.5
            }
          ),
+        ("modbase", "refine_1L",
+         { "targets" : CheckHomogeneity(threshold=0.9),
+           "criterion" : Unconditionally(),
+           "divider" : Trisection(),
+           "rules": "Large",
+           "alpha" : 0.5
+           }
+         ),
+            ## TODO PYTHON3: Add homogeneity refinement test for a
+            ## initially triangular skeleton.
         ("modbase", "refine_2",
          { "targets" : CheckHomogeneity(threshold=0.9),
            "criterion" : Unconditionally(),
-           "degree" : Bisection(rule_set="conservative"),
+           "divider" : Bisection(),
+           "rules" : "Quick",
+           "alpha" : 0.5
+           }
+         ),
+        ("modbase", "refine_2L",
+         { "targets" : CheckHomogeneity(threshold=0.9),
+           "criterion" : Unconditionally(),
+           "divider" : Bisection(),
+           "rules" : "Large",
            "alpha" : 0.5
            }
          ),
         ("modgroups","refine_3",
          {"targets" : CheckElementsInGroup(group='elementgroup'),
           "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
+          "divider" : Bisection(),
+          "rules" : "Quick",
+          "alpha" : 0.5
+          }
+         ),
+        ("modgroups","refine_3L",
+         {"targets" : CheckElementsInGroup(group='elementgroup'),
+          "criterion" : Unconditionally(),
+          "divider" : Bisection(),
+          "rules" : "Large",
           "alpha" : 0.5
           }
          ),
         ("modgroups","refine_4",
          {"targets" : CheckAllElements(),
           "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
+          "divider" : Bisection(),
+          "rules" : "Quick",
+          "alpha" : 0.5
+          }
+         ),
+        ("modgroups","refine_4L",
+         {"targets" : CheckAllElements(),
+          "criterion" : Unconditionally(),
+          "divider" : Bisection(),
+          "rules" : "Large",
           "alpha" : 0.5
           }
          ),
         ("modgroups","refine_5",
          {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
           "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="liberal"),
+          "divider" : Bisection(),
+          "rules" : "Quick",
+          "alpha" : 0.5
+          }
+         ),
+        ("modgroups","refine_5L",
+         {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
+          "criterion" : Unconditionally(),
+          "divider" : Bisection(),
+          "rules" : "Large",
           "alpha" : 0.5
           }
          ),
@@ -513,7 +564,17 @@ def build_mod_args():
          {"targets" : CheckHeterogeneousEdges(threshold=1,
                                               choose_from=FromAllSegments()),
           "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
+          "divider" : Bisection(),
+          "rules" : "Quick",
+          "alpha" : 0.5
+          }
+         ),
+        ("modgroups","refine_6L",
+         {"targets" : CheckHeterogeneousEdges(threshold=1,
+                                              choose_from=FromAllSegments()),
+          "criterion" : Unconditionally(),
+          "divider" : Bisection(),
+          "rules" : "Large",
           "alpha" : 0.5
           }
          )
@@ -618,35 +679,35 @@ def build_mod_args():
         "Snap Refine II" :
         [
             ("modbase", "snaprefine_1",
-             { "targets" : CheckHomogeneity2(threshold=0.9),
+             { "targets" : CheckHomogeneity(threshold=0.9),
                "criterion" : Unconditionally(),
                "min_distance" : 0.1,
                "alpha" : 0.5
               }
              ),
             ("modgroups","snaprefine_2",
-             {"targets" : CheckElementsInGroup2(group='elementgroup'),
+             {"targets" : CheckElementsInGroup(group='elementgroup'),
               "criterion" : Unconditionally(),
               "min_distance" : 1.0,
                "alpha" : 0.5
               }
              ),
             ("modgroups","snaprefine_2a",
-             {"targets" : CheckElementsInGroup2(group='elementgroup'),
+             {"targets" : CheckElementsInGroup(group='elementgroup'),
               "criterion" : Unconditionally(),
               "min_distance" : 2.0,
                "alpha" : 0.5
               }
              ),
             ("modgroups2","snaprefine_3",
-             {"targets" : CheckAllElements2(),
+             {"targets" : CheckAllElements(),
               "criterion" : Unconditionally(),
               "min_distance" : 2.0,
                "alpha" : 0.5
               }
              ),
             ("modgroups","snaprefine_4",
-             {"targets" : CheckAspectRatio2(threshold=1.5, only_quads=True),
+             {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
               "criterion" : Unconditionally(),
               "min_distance" : 1,
                "alpha" : 0.5
@@ -654,50 +715,50 @@ def build_mod_args():
              ),
             ("modgroups2","snaprefine_5",
              {"targets" :
-              CheckHeterogeneousEdges2(threshold=1,
-                                       choose_from=FromAllSegments2()),
+              CheckHeterogeneousEdges(threshold=1,
+                                       choose_from=FromAllSegments()),
               "criterion" : Unconditionally(),
               "min_distance" : 2.0,
                "alpha" : 0.5
               }
              ),
             ("snaptest_quads", "snaprefine_6",
-             {"targets" : CheckAspectRatio2(threshold=3.0, only_quads=True),
+             {"targets" : CheckAspectRatio(threshold=3.0, only_quads=True),
               "criterion" : Unconditionally(),
               "min_distance" : 1,
                "alpha" : 0.5
               }
              ),
             ("snaptest_quads", "snaprefine_7",
-             {"targets" : CheckAspectRatio2(threshold=1.0, only_quads=False),
+             {"targets" : CheckAspectRatio(threshold=1.0, only_quads=False),
               "criterion" : Unconditionally(),
               "min_distance" : 1,
                "alpha" : 0.5
               }
              ),
             ("snaptest_triangles", "snaprefine_8",
-             {"targets" : CheckAspectRatio2(threshold=3.0, only_quads=False),
+             {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
               "criterion" : Unconditionally(),
               "min_distance" : 1,
                "alpha" : 0.5
               }
              ),
             ("snaptest_quads", "snaprefine_7",
-             {"targets" : CheckAspectRatio2(threshold=1.0, only_quads=False),
+             {"targets" : CheckAspectRatio(threshold=1.0, only_quads=False),
               "criterion" : Unconditionally(),
               "min_distance" : 1,
                "alpha" : 0.5
               }
              ),
             ("snaptest_triangles", "snaprefine_8",
-             {"targets" : CheckAspectRatio2(threshold=3.0, only_quads=False),
+             {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
               "criterion" : Unconditionally(),
               "min_distance" : 1,
                "alpha" : 0.5
               }
              ),
             ("snaptest_triangles", "snaprefine_8a",
-             {"targets" : CheckAspectRatio2(threshold=3.0, only_quads=False),
+             {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
               "criterion" : Unconditionally(),
               "min_distance" : 2,
                "alpha" : 0.5
@@ -753,4 +814,4 @@ special_set = [
 
 test_set = skel_set + special_set
 
-# test_set = [OOF_Skeleton("Modify")]
+test_set = [OOF_Skeleton("Modify")]

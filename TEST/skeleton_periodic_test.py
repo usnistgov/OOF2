@@ -238,11 +238,13 @@ class OOF_Skeleton(unittest.TestCase):
         sk_context = skeletoncontext.skeletonContexts["skeltest:undotest"]
         sk_0 = sk_context.getObject()
         self.assertTrue(not sk_context.undoable())
-        OOF.Skeleton.Modify(skeleton="skeltest:undotest",
-                            modifier=Refine(
-            targets=CheckHomogeneity(threshold=0.9),
-            criterion=Unconditionally(),
-            degree=Trisection(rule_set="conservative")))
+        OOF.Skeleton.Modify(
+            skeleton="skeltest:undotest",
+            modifier=Refine(
+                targets=CheckHomogeneity(threshold=0.9),
+                criterion=Unconditionally(),
+                divider=Bisection(),
+                rules="Quick"))
         sk_1 = sk_context.getObject()
         self.assertTrue(sk_context.undoable())
         self.assertNotEqual(id(sk_0),id(sk_1))
@@ -261,11 +263,13 @@ class OOF_Skeleton(unittest.TestCase):
                                            top_bottom_periodicity=True))
         sk_context = skeletoncontext.skeletonContexts["skeltest:redotest"]
         sk_0 = sk_context.getObject()
-        OOF.Skeleton.Modify(skeleton="skeltest:redotest",
-                            modifier=Refine(
-            targets=CheckHomogeneity(threshold=0.9),
-            criterion=Unconditionally(),
-            degree=Trisection(rule_set="conservative")))
+        OOF.Skeleton.Modify(
+            skeleton="skeltest:redotest",
+            modifier=Refine(
+                targets=CheckHomogeneity(threshold=0.9),
+                criterion=Unconditionally(),
+                divider=Bisection(),
+                rules='Quick'))
         sk_1 = sk_context.getObject()
         OOF.Skeleton.Undo(skeleton="skeltest:redotest")
         sk_2 = sk_context.getObject()
@@ -536,35 +540,35 @@ def build_mod_args():
         "Snap Refine II" :
         [
             ("modbase", "snaprefine_1",
-             { "targets" : CheckHomogeneity2(threshold=0.9),
+             { "targets" : CheckHomogeneity(threshold=0.9),
                "criterion" : Unconditionally(),
                "min_distance" : 0.01,
                "alpha": 0.5
               }
              ),
             ("modgroups","snaprefine_2",
-             {"targets" : CheckElementsInGroup2(group='elementgroup'),
+             {"targets" : CheckElementsInGroup(group='elementgroup'),
               "criterion" : Unconditionally(),
               "min_distance" : 1.0,
               "alpha": 0.5
               }
              ),
             ("modgroups2","snaprefine_3",
-             {"targets" : CheckAllElements2(),
+             {"targets" : CheckAllElements(),
               "criterion" : Unconditionally(),
               "min_distance" : 1.0,
               "alpha": 0.5
               }
              ),
             ("modgroups","snaprefine_4",
-             {"targets" : CheckAspectRatio2(threshold=1.5, only_quads=True),
+             {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
               "criterion" : Unconditionally(),
               "min_distance" : .01,
               "alpha": 0.5
               }
              ),
             ("modgroups","snaprefine_4a",
-             {"targets" : CheckAspectRatio2(threshold=1.5, only_quads=True),
+             {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
               "criterion" : Unconditionally(),
               "min_distance" : 2.0,
               "alpha": 0.5
@@ -572,15 +576,15 @@ def build_mod_args():
              ),
             ("modgroups2","snaprefine_5",
              {"targets" :
-              CheckHeterogeneousEdges2(threshold=1,
-                                       choose_from=FromAllSegments2()),
+              CheckHeterogeneousEdges(threshold=1,
+                                       choose_from=FromAllSegments()),
               "criterion" : Unconditionally(),
               "min_distance" : 2.0,
               "alpha": 0.5
               }
              ),
             ("modbase1x1","snaprefine_1x1",
-             {"targets" : CheckHomogeneity2(threshold=0.9),
+             {"targets" : CheckHomogeneity(threshold=0.9),
               "criterion" : Unconditionally(),
               "min_distance" : 1.0,
               "alpha": 0.5
