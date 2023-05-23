@@ -40,9 +40,6 @@ class ElementRefinementTarget(RefinementTarget):
                                markedSegs)
     def __call__(self, skeleton, context, divider, markedSegs, criterion):
         prog = progress.findProgress("Refine")
-        ## TODO PYTHON3: Be sure that self.iterator returns a
-        ## SkeletonElementIterator so we can use fraction and ntotal
-        ## Check all types of iterators that might be used here.
         eliter = self.iterator(context) # self.iterator is from subclass
         for i, element in enumerate(eliter):
             ## TODO: Do we need to check criterion here?  Can the
@@ -94,10 +91,7 @@ registeredclass.Registration(
 
 class CheckSelectedElements(ElementRefinementTarget):
     def iterator(self, skeletoncontext):
-        skeleton = skeletoncontext.getObject()
-        for el in skeleton.selectedElements():
-            if el.active(skeleton):
-                yield el
+        return skeletoncontext.getObject().selectedElements()
     
 registeredclass.Registration(
     'Selected Elements',
@@ -115,12 +109,10 @@ class CheckElementsInGroup(ElementRefinementTarget):
     def __init__(self, group):
         self.group = group
     def iterator(self, skeletoncontext):
-        elements = skeletoncontext.elementgroups.get_group(self.group)
-        skeleton = skeletoncontext.getObject()
-        for element in elements:
-            if element.active(skeleton):
-                yield element
-            
+        return skeleton.SkeletonElementGroupIterator(
+            skeletoncontext, self.group,
+            lambda e: e.active(skeletoncontext.getObject()))
+    
 registeredclass.Registration(
     'Elements In Group',
     RefinementTarget,
@@ -141,19 +133,21 @@ class CheckHomogeneity(ElementRefinementTarget):
 
     def iterator(self, context):
         skel = context.getObject()
-        eliter = skel.activeElements()
-        for element in eliter:
-            if element.homogeneity(skel.MS, False) < self.threshold:
-                yield element
-                
+        return skeleton.SkeletonElementIterator(
+            skel,
+            (lambda e: e.active(skel) and
+            e.homogeneity(skel.MS,False) < self.threshold))
+
 registeredclass.Registration(
     'Heterogeneous Elements',
     RefinementTarget,
     CheckHomogeneity,
     ordering=0,
-    params=[parameter.FloatRangeParameter('threshold', (0.0, 1.0, 0.05),
-                                          value=0.9,
-                                          tip='Refine elements whose homogeneity is less than this.')
+    params=[parameter.FloatRangeParameter(
+        'threshold',
+        (0.0, 1.0, 0.05),
+        value=0.9,
+        tip='Refine elements whose homogeneity is less than this.')
                              ],
     tip='Refine heterogeneous elements.',
     discussion=

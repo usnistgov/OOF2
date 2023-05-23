@@ -951,8 +951,8 @@ class Skeleton(SkeletonBase):
     def reserveElements(self, n):
         ## TODO PYTHON3: Why is this commented out?  Does
         ## ReservableList work?  Should we get rid of it?
-#         self.elements.reserve(n)
-        pass
+        self.elements.reserve(n)
+        #pass
 
     def reserveNodes(self, n):
         self.nodes.reserve(n)
@@ -1535,6 +1535,7 @@ class Skeleton(SkeletonBase):
         pass
 
     #######################
+    
     def weightedEnergyTotal(self, alpha):
         self.cleanUp()
         return reduce(lambda x,y: x+y,
@@ -1555,13 +1556,16 @@ class Skeleton(SkeletonBase):
         self.cleanUp()
         return SkeletonElementIterator(self, lambda e: e.active(self))
 
-    def selectedElements(self): 
+    def selectedElements(self, condition=lambda e: True): 
         ## TODO PYTHON3: do this better, by looping over the selection object
         self.cleanUp()
-        return SkeletonElementIterator(self, lambda e: e.isSelected())
+        return SkeletonElementIterator(
+            self, lambda e: condition(e) and e.isSelected())
 
     def activeNodes(self):
         self.cleanUp()
+        # TODO PYTHON3: Return a SkeletonNodeIterator
+        
         return (n for n in self.nodes if n.active(self))
 
     def activeSegments(self):
@@ -2908,6 +2912,15 @@ class SkeletonSegmentGroupIterator(SkeletonIterator):
         self.group = context.segmentgroups.get_group(groupname)
         SkeletonIterator.__init__(self, context.getObject(),
                                   groupname, condition)
+    def targets(self):
+        return self.group
+    def ntotal(self):
+        return len(self.group)
+
+class SkeletonElementGroupIterator(SkeletonIterator):
+    def __init__(self, context, groupname, condition=lambda x: True):
+        self.group = context.elementgroups.get_group(groupname)
+        SkeletonIterator.__init__(self, context.getObject(), condition)
     def targets(self):
         return self.group
     def ntotal(self):

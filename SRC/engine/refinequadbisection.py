@@ -15,6 +15,8 @@
 # N-marked element : element with N marked segment(s)
 # odd-marked element : element with odd number(s) of marked segment(s)
 
+OBSOLETE
+
 from ooflib.SWIG.common import crandom
 from ooflib.common import debug
 from ooflib.common.IO import reporter

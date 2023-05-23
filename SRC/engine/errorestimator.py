@@ -151,7 +151,7 @@ class AdaptiveMeshRefine(refinementtarget.ElementRefinementTarget):
         
 # Helper class for AdaptiveMeshRefine.  SkeletonElementIterator needs
 # a predicate functional that takes a single argument, but we need to
-# pass others to it. This could be avoided by putting
+# pass more data to it. This could be avoided by putting
 # AMRPredicate.__call__ in AdaptiveMeshRefine, but that feels wrong.
 # Other RefinementTarget subclasses don't have __call__ methods.
 
