@@ -324,7 +324,8 @@ class Skeleton_Boundary(unittest.TestCase):
             skeleton='skeltest:bdytest', 
             modifier=Refine(targets=CheckAllElements(),
                             criterion=Unconditionally(),
-                            degree=Bisection(rule_set='conservative'),
+                            divider=Bisection(),
+                            rules='Quick',
                             alpha=0.3))
         self.assertEqual(test_bdy.current_size(), 4)
         # Select a refined segment and remove it from the boundary

@@ -33,7 +33,7 @@ from .UTILS.file_utils import reference_file
 # the Modify tests.  Should be false unless you really know what
 # you're doing.  New reference files won't be generated unless the old
 # one is removed first, though.
-generate = False
+generate = True
 
 class OOF_Skeleton(unittest.TestCase):
     def setUp(self):
@@ -184,6 +184,7 @@ class OOF_Skeleton(unittest.TestCase):
             # Change the name back, so that tearDown won't complain.
             OOF.Microstructure.Rename(microstructure="reference",
                                       name="skeltest")
+            print("*** Saved new reference file as", fname)
         else:
             # Saving and reloading the Skeleton guarantees that node
             # indices match up with the reference skeleton.  Nodes are
@@ -410,35 +411,40 @@ def build_mod_args():
         ("modbase", "refine_1",
          { "targets" : CheckHomogeneity(threshold=0.9),
            "criterion" : Unconditionally(),
-           "degree" : Trisection(rule_set="conservative"),
+           "divider" : Trisection(),
+           "rules" : "Quick",
            "alpha" : 0.5
            }
          ),
         ("modbase", "refine_2",
          { "targets" : CheckHomogeneity(threshold=0.9),
            "criterion" : Unconditionally(),
-           "degree" : Bisection(rule_set="conservative"),
+           "divider" : Bisection(),
+           "rules" : "Quick",
            "alpha" : 0.5
            }
          ),
         ("modgroups","refine_3",
          {"targets" : CheckElementsInGroup(group='elementgroup'),
           "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
+          "divider" : Bisection(),
+          "rules" : "Quick",
           "alpha" : 0.5
           }
          ),
         ("modgroups","refine_4",
          {"targets" : CheckAllElements(),
           "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
+          "divider" : Bisection(),
+          "rules" : "Quick",
           "alpha" : 0.5
           }
          ),
         ("modgroups","refine_5",
          {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
           "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
+          "divider" : Bisection(),
+          "rules" : "Quick",
           "alpha" : 0.5
           }
          ),
@@ -446,7 +452,8 @@ def build_mod_args():
          {"targets" : CheckHeterogeneousEdges(threshold=1,
                                               choose_from=FromAllSegments()),
           "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
+          "divider" : Bisection(),
+          "rules" : "Quick",
           "alpha" : 0.5
           }
          )
