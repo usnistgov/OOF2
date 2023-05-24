@@ -633,8 +633,107 @@ def build_mod_args():
            "rules" : "Large",
            "alpha" : 0.5
            }
-          )
-         ## TODO PYTHON3: Add TransitionPoints Refinement tests.
+          ),
+         
+         # TransitionPoint Refinement tests, nee SnapRefine.  These
+         # use dict() instead of {} because I copied the arguments out
+         # of an oof2 log.
+         ("modbase", "snaprefine_1",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               criterion=Unconditionally(),
+               divider=TransitionPoints(minlength=0.1),
+               rules='Quick',
+               alpha=0.5)),
+         ("modbase", "snaprefine_1L",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               criterion=Unconditionally(),
+               divider=TransitionPoints(minlength=0.1),
+               rules='Large',
+               alpha=0.5)),
+         ("modtriangle", "snaprefine_1T",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               criterion=Unconditionally(),
+               divider=TransitionPoints(minlength=0.1),
+               rules='Quick',
+               alpha=0.5)),
+         ("modtriangle", "snaprefine_1LT",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               criterion=Unconditionally(),
+               divider=TransitionPoints(minlength=0.1),
+               rules='Large',
+               alpha=0.5)),
+         # snaprefine_2 is just like snaprefine_1 but has larger minlengths
+         ("modbase", "snaprefine_2",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               criterion=Unconditionally(),
+               divider=TransitionPoints(minlength=2.0),
+               rules='Quick',
+               alpha=0.5)),
+         ("modbase", "snaprefine_2L",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               criterion=Unconditionally(),
+               divider=TransitionPoints(minlength=2.0),
+               rules='Large',
+               alpha=0.5)),
+         ("modtriangle", "snaprefine_2T",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               criterion=Unconditionally(),
+               divider=TransitionPoints(minlength=5.0),
+               rules='Quick',
+               alpha=0.5)),
+         ("modtriangle", "snaprefine_2LT",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               criterion=Unconditionally(),
+               divider=TransitionPoints(minlength=5.0),
+               rules='Large',
+               alpha=0.5)),
+
+         # Mixed quads and triangles, checking homogeneity, for both
+         # quick and large rule sets.
+         ("modbase", "snaprefine_3",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               criterion=Unconditionally(),
+               divider=TransitionPoints(minlength=2.0),
+               rules='Quick',
+               alpha=0.5)),
+         ("modbase", "snaprefine_3L",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               criterion=Unconditionally(),
+               divider=TransitionPoints(minlength=2.0),
+               rules='Large',
+               alpha=0.5)),
+         
+         #  Checking aspect ratio
+         ("highaspect", "snaprefine_4",
+          dict(targets=CheckAspectRatio(threshold=5, only_quads=True),
+               criterion=Unconditionally(),
+               divider=TransitionPoints(minlength=2),
+               rules='Quick',
+               alpha=0.5)),
+         ("highaspect", "snaprefine_4a",
+          dict(targets=CheckAspectRatio(threshold=3, only_quads=True),
+               criterion=Unconditionally(),
+               divider=TransitionPoints(minlength=2),
+               rules='Quick',
+               alpha=0.5)),
+         ("highaspect", "snaprefine_4L",
+          dict(targets=CheckAspectRatio(threshold=5, only_quads=True),
+               criterion=Unconditionally(),
+               divider=TransitionPoints(minlength=2),
+               rules='Large',
+               alpha=0.5)),
+         ("highaspect", "snaprefine_4T",
+          dict(targets=CheckAspectRatio(threshold=5, only_quads=False),
+               criterion=Unconditionally(),
+               divider=TransitionPoints(minlength=2),
+               rules='Quick',
+               alpha=0.5)),
+         ("highaspect", "snaprefine_4TL",
+          dict(targets=CheckAspectRatio(threshold=5, only_quads=False),
+               criterion=Unconditionally(),
+               divider=TransitionPoints(minlength=2),
+               rules='Large',
+               alpha=0.5))
          ],
         "Relax" :
         [("modbase", "relax",
@@ -729,98 +828,6 @@ def build_mod_args():
            }
           )
          ],
-
-        # #For snaprefine_3 and snaprefine_5, if we used modgroups,
-        # #then there would be a difference in results between
-        # #32 and 64 bit machines. (WHY? Is this still true?)
-        # "Snap Refine II" :
-        # [("modbase", "snaprefine_1",
-        #   { "targets" : CheckHomogeneity(threshold=0.9),
-        #     "criterion" : Unconditionally(),
-        #     "min_distance" : 0.1,
-        #     "alpha" : 0.5
-        #    }
-        #   ),
-        #  ("modgroups","snaprefine_2",
-        #   {"targets" : CheckElementsInGroup(group='elementgroup'),
-        #    "criterion" : Unconditionally(),
-        #    "min_distance" : 1.0,
-        #    "alpha" : 0.5
-        #    }
-        #   ),
-        #  ("modgroups","snaprefine_2a",
-        #   {"targets" : CheckElementsInGroup(group='elementgroup'),
-        #    "criterion" : Unconditionally(),
-        #    "min_distance" : 2.0,
-        #    "alpha" : 0.5
-        #    }
-        #   ),
-        #  ("modgroups2","snaprefine_3",
-        #   {"targets" : CheckAllElements(),
-        #    "criterion" : Unconditionally(),
-        #    "min_distance" : 2.0,
-        #    "alpha" : 0.5
-        #    }
-        #   ),
-        #  ("modgroups","snaprefine_4",
-        #   {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
-        #    "criterion" : Unconditionally(),
-        #    "min_distance" : 1,
-        #    "alpha" : 0.5
-        #    }
-        #   ),
-        #  ("modgroups2","snaprefine_5",
-        #   {"targets" :
-        #    CheckHeterogeneousEdges(threshold=1,
-        #                            choose_from=FromAllSegments()),
-        #    "criterion" : Unconditionally(),
-        #    "min_distance" : 2.0,
-        #    "alpha" : 0.5
-        #    }
-        #   ),
-        #  ("snaptest_quads", "snaprefine_6",
-        #   {"targets" : CheckAspectRatio(threshold=3.0, only_quads=True),
-        #    "criterion" : Unconditionally(),
-        #    "min_distance" : 1,
-        #    "alpha" : 0.5
-        #    }
-        #   ),
-        #  ("snaptest_quads", "snaprefine_7",
-        #   {"targets" : CheckAspectRatio(threshold=1.0, only_quads=False),
-        #    "criterion" : Unconditionally(),
-        #    "min_distance" : 1,
-        #    "alpha" : 0.5
-        #    }
-        #   ),
-        #  ("snaptest_triangles", "snaprefine_8",
-        #   {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
-        #    "criterion" : Unconditionally(),
-        #    "min_distance" : 1,
-        #    "alpha" : 0.5
-        #    }
-        #   ),
-        #  ("snaptest_quads", "snaprefine_7",
-        #   {"targets" : CheckAspectRatio(threshold=1.0, only_quads=False),
-        #    "criterion" : Unconditionally(),
-        #    "min_distance" : 1,
-        #    "alpha" : 0.5
-        #    }
-        #   ),
-        #  ("snaptest_triangles", "snaprefine_8",
-        #   {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
-        #    "criterion" : Unconditionally(),
-        #    "min_distance" : 1,
-        #    "alpha" : 0.5
-        #    }
-        #   ),
-        #  ("snaptest_triangles", "snaprefine_8a",
-        #   {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
-        #    "criterion" : Unconditionally(),
-        #    "min_distance" : 2,
-        #    "alpha" : 0.5
-        #    }
-        #   ),
-        #  ],
 
         "Fix Illegal Elements" :
         [("illegal_skeleton", "illegal_fixed", {})
