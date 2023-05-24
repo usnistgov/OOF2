@@ -77,10 +77,10 @@ def _autoSkeletonMain(prog, name, microstructure,
                                  for i in range(config.dimension())])))
 
     # Magic number -- total number of lines executed is the number of
-    # refines plus the "New", the "SnapRefine", the two rationalize
-    # operations, the boundary node pinning, the smoothing, and the
-    # unpinning.  Total is seven. 
-    total_lines = nrefine + 7
+    # refines plus the "New", the "SnapRefine", the Rationalize, the
+    # boundary node pinning, the smoothing, and the unpinning.  Total
+    # is seven.
+    total_lines = nrefine + 6
     lcount = 0
 
     skelname = microstructure+":"+name
@@ -104,11 +104,6 @@ def _autoSkeletonMain(prog, name, microstructure,
     if prog.stopped():
         return
     
-
-    # some dimensionally dependent objects
-    the_rationalizers = [RemoveShortSide(ratio=5.0),
-                         QuadSplit(angle=150),
-                         RemoveBadTriangle(acute_angle=15,obtuse_angle=150)]
     for i in range(nrefine):
         OOF.Skeleton.Modify(
             skeleton=skelname,
@@ -123,10 +118,10 @@ def _autoSkeletonMain(prog, name, microstructure,
         if prog.stopped():
             return
 
-    # For SnapRefine, set the min_distance between nodes to be 1/10 of
-    # the pixel size.  This is arbitrary, but should be good enough.
-    # It's virtually zero on any meaningful physical scale, but not so
-    # small that round-off can create illegal elements.
+    # For TMFKA SnapRefine, set the min_distance between nodes to be
+    # 1/10 of the pixel size.  This is arbitrary, but should be good
+    # enough.  It's virtually zero on any meaningful physical scale,
+    # but not so small that round-off can create illegal elements.
     ## TODO PYTHON3: Should mindist be larger?  1.0?
     mindist = 0.1
     OOF.Skeleton.Modify(
@@ -137,30 +132,33 @@ def _autoSkeletonMain(prog, name, microstructure,
                         rules='Quick',
                         alpha=0.8))
     lcount += 1
-    prog.setFraction(float(lcount)/total_lines)
-    prog.setMessage("%d/%d operations" % (lcount, total_lines))
+    prog.setFraction(lcount/total_lines)
+    prog.setMessage(f"{lcount}/{total_lines} operations")
     if prog.stopped():
         return
     
-    for i in range(2):
-        OOF.Skeleton.Modify(
-            skeleton=skelname,
-            modifier=Rationalize(targets=AllElements(),
-                                 criterion=AverageEnergy(alpha=0.8),
-                                 method=SpecificRationalization(
-            rationalizers=the_rationalizers)
-                                 )
-            )
-        lcount += 1
-        prog.setFraction(float(lcount)/total_lines)
-        prog.setMessage("%d/%d operations" % (lcount, total_lines))
-        if prog.stopped():
-            return
+    OOF.Skeleton.Modify(
+        skeleton=skelname,
+        modifier=Rationalize(
+            targets=AllElements(),
+            criterion=AverageEnergy(alpha=0.8),
+            method=SpecificRationalization(
+                rationalizers=[
+                    RemoveShortSide(ratio=5.0),
+                    QuadSplit(angle=150),
+                    RemoveBadTriangle(acute_angle=15,obtuse_angle=150)]),
+            iterations=2
+        ))
+    lcount += 1
+    prog.setFraction(lcount/total_lines)
+    prog.setMessage(f"{lcount}/{total_lines} operations")
+    if prog.stopped():
+        return
         
     OOF.Skeleton.PinNodes.Pin_Internal_Boundary_Nodes(skeleton=skelname)
     lcount += 1
-    prog.setFraction(float(lcount)/total_lines)
-    prog.setMessage("%d/%d operations" % (lcount, total_lines))
+    prog.setFraction(lcount/total_lines)
+    prog.setMessage(f"{lcount}/{total_lines} operations")
     if prog.stopped():
         return
     
@@ -171,15 +169,15 @@ def _autoSkeletonMain(prog, name, microstructure,
                         T=0.0,
                         iteration=FixedIteration(iterations=5)))
     lcount += 1
-    prog.setFraction(float(lcount)/total_lines)
-    prog.setMessage("%d/%d operations" % (lcount, total_lines))
+    prog.setFraction(lcount/total_lines)
+    prog.setMessage(f"{lcount}/{total_lines} operations")
     if prog.stopped():
         return
     
     OOF.Skeleton.PinNodes.Undo(skeleton=skelname)
     lcount += 1
-    prog.setFraction(float(lcount)/total_lines)
-    prog.setMessage("%d/%d operations" % (lcount, total_lines))
+    prog.setFraction(lcount/total_lines)
+    prog.setMessage(f"{lcount}/{total_lines} operations")
 
     prog.finish()
     

@@ -251,7 +251,7 @@ class OOF_Skeleton(unittest.TestCase):
     ## TODO: doModify loads its own Skeleton and doesn't use the one
     ## loaded by setUp(), so it should be in a different TestCase
     ## subclass.
-    @memorycheck.check("skeltest")
+    @memorycheck.check("skeltest", "skelcomp")
     def doModify(self, registration, startfile, compfile, kwargs):
         import os
         from ooflib.SWIG.common import crandom
@@ -282,9 +282,6 @@ class OOF_Skeleton(unittest.TestCase):
         # Tolerance is 1.0e-13, 100x double-precision noise.
         self.assertEqual(sk1.compare(sk2, 1.0e-13), 0)
         os.remove("skeleton_mod_test")
-        OOF.Skeleton.Delete(skeleton="skeltest:modtest")
-        OOF.Skeleton.Delete(skeleton="skelcomp:reference")
-        OOF.Microstructure.Delete(microstructure="skelcomp")
 
     # This is a modify pass which may be considered preliminary -- the
     # only possible target is "AllNodes", because we do not yet know
@@ -350,6 +347,36 @@ class OOF_Skeleton(unittest.TestCase):
         OOF.Skeleton.Redo(skeleton="skeltest:redotest")
         self.assertEqual(id(sk_1),id(sk_context.getObject()))
         self.assertTrue(not sk_context.redoable())
+
+    @memorycheck.check("skeltest", "skelcomp")
+    def Autoskeleton(self):
+        from ooflib.engine import skeletoncontext
+        from ooflib.SWIG.common import crandom
+        crandom.rndmseed(17)
+        OOF.Skeleton.Auto(name='modtest',
+                          microstructure='skeltest',
+                          top_bottom_periodicity=False,
+                          left_right_periodicity=False,
+                          maxscale=150,
+                          minscale=10,
+                          units="Pixel",
+                          threshold=0.9)
+        # See comment in doModify.  This compares the skeleton to the
+        # expected one in the way that doModify does.
+        OOF.File.Save.Skeleton(
+            filename="skeleton_mod_test",
+            mode="w", format="ascii",
+            skeleton="skeltest:modtest")
+        OOF.Skeleton.Delete(skeleton="skeltest:modtest")
+        OOF.File.Load.Data(filename="skeleton_mod_test")
+        OOF.File.Load.Data(
+            filename=reference_file("skeleton_data", "autoskel"))
+        sk1 = skeletoncontext.skeletonContexts[
+            "skeltest:modtest"].getObject()
+        sk2 = skeletoncontext.skeletonContexts[
+            "skelcomp:reference"].getObject()
+        self.assertEqual(sk1.compare(sk2, 1.e-13), 0)
+        os.remove("skeleton_mod_test")
 
     def tearDown(self):
          pass
@@ -607,6 +634,7 @@ def build_mod_args():
            "alpha" : 0.5
            }
           )
+         ## TODO PYTHON3: Add TransitionPoints Refinement tests.
          ],
         "Relax" :
         [("modbase", "relax",
@@ -701,97 +729,98 @@ def build_mod_args():
            }
           )
          ],
-        #For snaprefine_3 and snaprefine_5, if we used modgroups,
-        #then there would be a difference in results between
-        #32 and 64 bit machines. (WHY? Is this still true?)
-        "Snap Refine II" :
-        [("modbase", "snaprefine_1",
-          { "targets" : CheckHomogeneity(threshold=0.9),
-            "criterion" : Unconditionally(),
-            "min_distance" : 0.1,
-            "alpha" : 0.5
-           }
-          ),
-         ("modgroups","snaprefine_2",
-          {"targets" : CheckElementsInGroup(group='elementgroup'),
-           "criterion" : Unconditionally(),
-           "min_distance" : 1.0,
-           "alpha" : 0.5
-           }
-          ),
-         ("modgroups","snaprefine_2a",
-          {"targets" : CheckElementsInGroup(group='elementgroup'),
-           "criterion" : Unconditionally(),
-           "min_distance" : 2.0,
-           "alpha" : 0.5
-           }
-          ),
-         ("modgroups2","snaprefine_3",
-          {"targets" : CheckAllElements(),
-           "criterion" : Unconditionally(),
-           "min_distance" : 2.0,
-           "alpha" : 0.5
-           }
-          ),
-         ("modgroups","snaprefine_4",
-          {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
-           "criterion" : Unconditionally(),
-           "min_distance" : 1,
-           "alpha" : 0.5
-           }
-          ),
-         ("modgroups2","snaprefine_5",
-          {"targets" :
-           CheckHeterogeneousEdges(threshold=1,
-                                   choose_from=FromAllSegments()),
-           "criterion" : Unconditionally(),
-           "min_distance" : 2.0,
-           "alpha" : 0.5
-           }
-          ),
-         ("snaptest_quads", "snaprefine_6",
-          {"targets" : CheckAspectRatio(threshold=3.0, only_quads=True),
-           "criterion" : Unconditionally(),
-           "min_distance" : 1,
-           "alpha" : 0.5
-           }
-          ),
-         ("snaptest_quads", "snaprefine_7",
-          {"targets" : CheckAspectRatio(threshold=1.0, only_quads=False),
-           "criterion" : Unconditionally(),
-           "min_distance" : 1,
-           "alpha" : 0.5
-           }
-          ),
-         ("snaptest_triangles", "snaprefine_8",
-          {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
-           "criterion" : Unconditionally(),
-           "min_distance" : 1,
-           "alpha" : 0.5
-           }
-          ),
-         ("snaptest_quads", "snaprefine_7",
-          {"targets" : CheckAspectRatio(threshold=1.0, only_quads=False),
-           "criterion" : Unconditionally(),
-           "min_distance" : 1,
-           "alpha" : 0.5
-           }
-          ),
-         ("snaptest_triangles", "snaprefine_8",
-          {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
-           "criterion" : Unconditionally(),
-           "min_distance" : 1,
-           "alpha" : 0.5
-           }
-          ),
-         ("snaptest_triangles", "snaprefine_8a",
-          {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
-           "criterion" : Unconditionally(),
-           "min_distance" : 2,
-           "alpha" : 0.5
-           }
-          ),
-         ],
+
+        # #For snaprefine_3 and snaprefine_5, if we used modgroups,
+        # #then there would be a difference in results between
+        # #32 and 64 bit machines. (WHY? Is this still true?)
+        # "Snap Refine II" :
+        # [("modbase", "snaprefine_1",
+        #   { "targets" : CheckHomogeneity(threshold=0.9),
+        #     "criterion" : Unconditionally(),
+        #     "min_distance" : 0.1,
+        #     "alpha" : 0.5
+        #    }
+        #   ),
+        #  ("modgroups","snaprefine_2",
+        #   {"targets" : CheckElementsInGroup(group='elementgroup'),
+        #    "criterion" : Unconditionally(),
+        #    "min_distance" : 1.0,
+        #    "alpha" : 0.5
+        #    }
+        #   ),
+        #  ("modgroups","snaprefine_2a",
+        #   {"targets" : CheckElementsInGroup(group='elementgroup'),
+        #    "criterion" : Unconditionally(),
+        #    "min_distance" : 2.0,
+        #    "alpha" : 0.5
+        #    }
+        #   ),
+        #  ("modgroups2","snaprefine_3",
+        #   {"targets" : CheckAllElements(),
+        #    "criterion" : Unconditionally(),
+        #    "min_distance" : 2.0,
+        #    "alpha" : 0.5
+        #    }
+        #   ),
+        #  ("modgroups","snaprefine_4",
+        #   {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
+        #    "criterion" : Unconditionally(),
+        #    "min_distance" : 1,
+        #    "alpha" : 0.5
+        #    }
+        #   ),
+        #  ("modgroups2","snaprefine_5",
+        #   {"targets" :
+        #    CheckHeterogeneousEdges(threshold=1,
+        #                            choose_from=FromAllSegments()),
+        #    "criterion" : Unconditionally(),
+        #    "min_distance" : 2.0,
+        #    "alpha" : 0.5
+        #    }
+        #   ),
+        #  ("snaptest_quads", "snaprefine_6",
+        #   {"targets" : CheckAspectRatio(threshold=3.0, only_quads=True),
+        #    "criterion" : Unconditionally(),
+        #    "min_distance" : 1,
+        #    "alpha" : 0.5
+        #    }
+        #   ),
+        #  ("snaptest_quads", "snaprefine_7",
+        #   {"targets" : CheckAspectRatio(threshold=1.0, only_quads=False),
+        #    "criterion" : Unconditionally(),
+        #    "min_distance" : 1,
+        #    "alpha" : 0.5
+        #    }
+        #   ),
+        #  ("snaptest_triangles", "snaprefine_8",
+        #   {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
+        #    "criterion" : Unconditionally(),
+        #    "min_distance" : 1,
+        #    "alpha" : 0.5
+        #    }
+        #   ),
+        #  ("snaptest_quads", "snaprefine_7",
+        #   {"targets" : CheckAspectRatio(threshold=1.0, only_quads=False),
+        #    "criterion" : Unconditionally(),
+        #    "min_distance" : 1,
+        #    "alpha" : 0.5
+        #    }
+        #   ),
+        #  ("snaptest_triangles", "snaprefine_8",
+        #   {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
+        #    "criterion" : Unconditionally(),
+        #    "min_distance" : 1,
+        #    "alpha" : 0.5
+        #    }
+        #   ),
+        #  ("snaptest_triangles", "snaprefine_8a",
+        #   {"targets" : CheckAspectRatio(threshold=3.0, only_quads=False),
+        #    "criterion" : Unconditionally(),
+        #    "min_distance" : 2,
+        #    "alpha" : 0.5
+        #    }
+        #   ),
+        #  ],
 
         "Fix Illegal Elements" :
         [("illegal_skeleton", "illegal_fixed", {})
@@ -799,15 +828,19 @@ def build_mod_args():
     }
 
     # skel_modify_args = {
-    #     "Relax" :
-    #     [
-    #     ("modbase", "relax",
-    #      { "alpha" : 0.5,
-    #        "gamma" : 0.5,
-    #        "iterations" : 1
+    #     "Rationalize" :
+    #     [("modsecond", "rationalize",
+    #       {"targets" : AllElements(),
+    #        "criterion" : AverageEnergy(alpha=0.3),
+    #        "method" : SpecificRationalization(
+    #            rationalizers=[RemoveShortSide(ratio=5.0),
+    #                           QuadSplit(angle=150),
+    #                           RemoveBadTriangle(acute_angle=30,
+    #                                             obtuse_angle=130)]),
+    #        "iterations" : 3
     #        }
-    #      )
-    #     ],
+    #       )
+    #      ],
     # }
 
     
@@ -827,6 +860,7 @@ skel_set = [
     OOF_Skeleton("Load"),
     OOF_Skeleton("Homogeneity"),
     OOF_Skeleton("Modify"),
+    OOF_Skeleton("Autoskeleton"),    
     OOF_Skeleton("Undo"),
     OOF_Skeleton("Redo")
     ]
@@ -840,4 +874,7 @@ special_set = [
 
 test_set = skel_set + special_set
 
-#test_set = [OOF_Skeleton("Modify")]
+# test_set = [
+#     OOF_Skeleton("Modify"),
+#     OOF_Skeleton("Autoskeleton")
+# ]
