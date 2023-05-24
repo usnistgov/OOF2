@@ -2237,7 +2237,7 @@ def rule2211(element, rotation, edgenodes, newSkeleton, alpha):
              getProvisionalElement(nodes=[na, nb, nc, nd], parents=[element]),
              getProvisionalElement(nodes=[nb, n1, nc], parents=[element]),
              getProvisionalElement(nodes=[nd, n2, ne, nf], parents=[element]),
-             getProvisionalElement(nodes=[ne, n3, nf])]),
+             getProvisionalElement(nodes=[ne, n3, nf], parents=[element])]),
         ProvisionalRefinement(  # (5)
             [getProvisionalElement(nodes=[n0, na, nf], parents=[element]),
              getProvisionalElement(nodes=[na, nb, ne, nf], parents=[element]),
