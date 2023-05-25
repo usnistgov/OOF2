@@ -26,6 +26,10 @@
 ## to notice that some quads become triangles and some triangles
 ## disappear.  getProvisionalElement could detect non-unique nodes and
 ## do the right thing.
+##
+## The TransitionPoints SegmentDivider is very good at creating
+## transition points at element corners, and then being unable to
+## remove them if the resulting edges are all homogeneous.
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import coord
@@ -657,10 +661,31 @@ class RefinementCriterion(registeredclass.RegisteredClass):
 
     </para>"""
 
+## TODO PYTHON3: Does MinimumArea actually work?  Fix it if necessary
+## and add some tests for it.  
+    
+## TODO PYTHON3: Make sense of how RefinementCriterion and related
+## classes are used.
+##
+## For Refinement, "criterion" can be either Unconditionally or
+## MinimumArea.  One of those two is ungrammatical.  Even then, the
+## criterion is just one more way of restricting the set of elements
+## to be refined.  "targets" serves the same purpose.  Why does
+## MinimumArea get separate treatment?  Like the other restrictions,
+## the minimum area condition is applied before the element is
+## refined.  Should it be applied afterwards, to reject refinements
+## that produce elements that are too small?  That at least would
+## explain the difference between it and "targets".
+##
+## The FiddleNodes classes also have a "criterion" parameter, but it's
+## a completely different SkelModCriterion object, which is a way of
+## choosing which moves to accept if more than one is possible.
+##
+## In neither case is the name "criterion" actually informative.
 
 class Unconditionally(RefinementCriterion):
     def __call__(self, skeleton, element):
-        return 1
+        return True
 registeredclass.Registration(
     'Unconditional',
     RefinementCriterion,
