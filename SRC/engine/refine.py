@@ -661,9 +661,6 @@ class RefinementCriterion(registeredclass.RegisteredClass):
 
     </para>"""
 
-## TODO PYTHON3: Does MinimumArea actually work?  Fix it if necessary
-## and add some tests for it.  
-    
 ## TODO PYTHON3: Make sense of how RefinementCriterion and related
 ## classes are used.
 ##

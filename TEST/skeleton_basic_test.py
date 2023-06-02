@@ -600,6 +600,14 @@ def build_mod_args():
            "alpha" : 0.5
            }
           ),
+         ("modgroups", "refine_4A",
+          { "targets" : CheckAllElements(),
+            "criterion" : MinimumArea(threshold=1.5, units='Physical'),
+            "divider" : Bisection(),
+            "rules": "Quick",
+            "alpha" : 0.5
+           }
+          ),
          ("modgroups","refine_5",
           {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
            "criterion" : Unconditionally(),
