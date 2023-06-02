@@ -45,6 +45,13 @@
 * The number of digits of floating point numbers displayed in the GUI
   can be set with the "GUI Digits" item in the Settings menu.
 
+* The "targets" parameter for the skeleton modifiers, Anneal, Smooth,
+  and Snap Refine can be applied to "Non-boundary Nodes", which will
+  preserve the positions of Skeleton nodes that have more than one
+  neighboring element category.  Annealing with targets set to
+  non-boundary nodes has the same effect as pinning internal boundary
+  nodes and the annealing.
+
 2.2.3
 
 * Meshes are drawn by default at their actual position.  The default

@@ -21,6 +21,7 @@ from ooflib.common.IO import reporter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import deputy
 from ooflib.engine import skeletonmodifier
+from ooflib.engine.IO import pbcparams
 from ooflib.engine.IO import skeletongroupparams
 from ooflib.engine.IO import skeletonmenu
 import math
@@ -276,9 +277,6 @@ class FiddleNodesTargets(registeredclass.RegisteredClass):
     that move &nodes; around.
     </para> """
 
-## TODO PYTHON3: Add a target for pixel boundary nodes and non pixel
-## boundary nodes.  Would be very useful in Smooth.
-
 class AllNodes(FiddleNodesTargets):
     def __call__(self, context, prevnodes):
         if prevnodes:
@@ -344,7 +342,41 @@ registeredclass.Registration(
     &nodes; in a given node group.
     </para> """)
 
-    
+class NonBoundaryNodes(FiddleNodesTargets):
+    def __init__(self, ignorePBC=False):
+        self.ignorePBC = ignorePBC
+    def __call__(self, context, prevnodes):
+        if prevnodes:
+            return prevnodes
+        skel = context.getObject()
+        for node in skel.node_iterator():
+            if node.active(skel):
+                if self.ignorePBC:
+                    elements = node.aperiodicNeighborElements()
+                else:
+                    elements = node.neighborElements()
+                category = None
+                for el in elements:
+                    cat = el.dominantPixel(skel.MS)
+                    if cat == category or category == None:
+                        category = cat
+                    else:
+                        # One of the neighbor elements has a different
+                        # category than the others, so this is a boundary
+                        # node.  Skip it.
+                        break
+                else:
+                    yield node
+                
+registeredclass.Registration(
+    'Non-boundary Nodes',
+    FiddleNodesTargets,
+    NonBoundaryNodes,
+    ordering=1.6,
+    params=[pbcparams.PBCBooleanParameter('ignorePBC', False,
+                                          tip='Ignore periodicity?')],
+    tip="Only move nodes that aren't on internal boundaries")
+                
 
 class FiddleSelectedElements(FiddleNodesTargets):
     def __call__(self, context, prevnodes):
@@ -363,7 +395,7 @@ class FiddleSelectedElements(FiddleNodesTargets):
 registeredclass.Registration(
     'Selected Elements',
     FiddleNodesTargets,
-    FiddleSelectedElements, 1.5,
+    FiddleSelectedElements, 2.0,
     tip="Try moving nodes of selected elements.",
     discussion="""<para>
     Apply a &node; motion <xref
@@ -393,7 +425,7 @@ registeredclass.Registration(
     'Heterogeneous Elements',
     FiddleNodesTargets,
     FiddleHeterogeneousElements,
-    ordering=2,
+    ordering=2.1,
     params = [
     parameter.FloatRangeParameter('threshold', (0.0, 1.0, 0.01), value=0.9,
                                   tip='Anneal elements with homogeneity below the specified threshold.')
