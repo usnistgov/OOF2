@@ -494,6 +494,9 @@ class OOF_Skeleton_Special(unittest.TestCase):
                     "h=", h, "delta=", h-h0, file=sys.stderr)
                 self.assertAlmostEqual(h0, h, 2)
 
+    def RefinementRuleCheck(self):
+        from ooflib.engine import refinemethod
+        self.assertTrue(refinemethod.checkRefinementRuleSets())
         
 # Data for the skeleton modifier tests.  This is a dictionary indexed by
 # skeleton modifier name, and for each modifier, there is a set of
@@ -885,6 +888,7 @@ special_set = [
     OOF_Skeleton_Special("RoundOff"),
     OOF_Skeleton_Special("CheckerBoard"),
     OOF_Skeleton_Special("MessyHomogeneity"),
+    OOF_Skeleton_Special("RefinementRuleCheck")
     ]
 
 test_set = skel_set + special_set

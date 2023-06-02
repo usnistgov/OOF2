@@ -40,6 +40,10 @@ class RefinementRuleSet:
     def __repr__(self):
         return "getRuleSet('%s')" % self.name()
     def addRule(self, rule, signature):
+        if signature in self.rules:
+            raise ooferror.PyErrPyProgrammingError(
+                f"Duplicate rule {signature} in rule set {self.name()}")
+            assert signature not in self.rules, "Duplicate refinement rule!"
         self.rules[signature] = rule
     def getRule(self, signature):
         try:
@@ -104,6 +108,28 @@ RuleSet.discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/enum/ruleset.xml')
 
 def defaultRuleSetEnum():
     return RuleSet(RefinementRuleSet.allRuleSets[0].name())
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Call checkRefinementRuleSets to make sure that all refinement rule
+# signatures are present in the rule sets.
+
+def checkRefinementRuleSets():
+    from ooflib.engine import refine
+    # Check that all refinement rules are present
+    for i0 in range(2):
+        for i1 in range(2):
+            for i2 in range(2):
+                marks = [[None]*i0, [None]*i1, [None]*i2]
+                rotation, signature = refine.findSignature(marks)
+                quickRules.getRule(signature)
+                largeRules.getRule(signature)
+                for i3 in range(2):
+                    qmarks = marks + [[None]*i3]
+                    rotation, signature = refine.findSignature(qmarks)
+                    quickRules.getRule(signature)
+                    largeRules.getRule(signature)
+    return True
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -1458,7 +1484,7 @@ def rule2100q(element, rotation, edgenodes, newSkeleton, alpha):
             newSkeleton.newElement(nodes=[na, nb, nc, n2], parents=[element]),
             newSkeleton.newElement(nodes=[nb, n1, nc], parents=[element]))
 
-RefinementRule(quickRules, (2,0,0,1), rule2001q)
+RefinementRule(quickRules, (2,1,0,0), rule2100q)
 
 ### 2101 ###
 
@@ -2281,25 +2307,6 @@ def rule2211q(element, rotation, edgenodes, newSkeleton, alpha):
     nd = edgenodes[(rotation+1)%4][1]
     ne = edgenodes[(rotation+2)%4][0]
     nf = edgenodes[(rotation+3)%4][0]
-    refinement = ProvisionalRefinement(
-        [getProvisionalElement(nodes=[n0, na, nf], parents=[element]),
-         getProvisionalElement(nodes=[na, nd, ne, nf], parents=[element]),
-         getProvisionalElement(nodes=[na, nb, nc, nd], parents=[element]),
-         getProvisionalElement(nodes=[nb, n1, nc], parents=[element]),
-         getProvisionalElement(nodes=[nd, n2, ne], parents=[element]),
-         getProvisionalElement(nodes=[ne, n3, nf], parents=[element])])
-    return theVeryBest(newSkeleton, (refinement,), alpha)
-
-RefinementRule(quickRules, (2,2,1,1), rule2211q)
-
-def rule2211q(element, rotation, edgenodes, newSkeleton, alpha):
-    n0, n1, n2, n3 = baseNodes(element, rotation)
-    na = edgenodes[rotation][0]
-    nb = edgenodes[rotation][1]
-    nc = edgenodes[(rotation+1)%4][0]
-    nd = edgenodes[(rotation+1)%4][1]
-    ne = edgenodes[(rotation+2)%4][0]
-    nf = edgenodes[(rotation+3)%4][0]
     return (newSkeleton.newElement(nodes=[n0, na, nf], parents=[element]),
             newSkeleton.newElement(nodes=[na, nd, ne, nf], parents=[element]),
             newSkeleton.newElement(nodes=[na, nb, nc, nd], parents=[element]),
@@ -2614,3 +2621,4 @@ def rule2222q(element, rotation, edgenodes, newSkeleton, alpha):
         newSkeleton.newElement(nodes=[nj, nd, n2, ne], parents=[element]))
 
 RefinementRule(quickRules, (2,2,2,2), rule2222q)
+
