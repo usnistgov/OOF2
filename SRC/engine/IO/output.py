@@ -489,7 +489,7 @@ class Output:
         return False
 
     def evaluate(self, mesh, elements, coords):
-        ## TODO PYTHON3? Use generators instead of lists.  Each input
+        ## TODO PYTHON3 LATER? Use generators instead of lists.  Each input
         ## will have to iterate over the same list of elements and
         ## coords, so either the loop over elements and coords will
         ## have to be the outside loop (shared by all inputs), or the

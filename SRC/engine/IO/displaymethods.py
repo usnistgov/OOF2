@@ -183,7 +183,7 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
                     edges = [element.perimeter()
                              for element in themesh.element_iterator()]
 
-                ## TODO PYTHON3: Can this all be done with generators
+                ## TODO PYTHON3 LATER: Can this all be done with generators
                 ## instead of lists?  Maybe if all edges were
                 ## evaluated at the same location, so that we wouldn't
                 ## have to iterate over the edges to know how big to

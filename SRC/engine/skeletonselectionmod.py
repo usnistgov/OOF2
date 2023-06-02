@@ -156,6 +156,8 @@ class SelectInternalBoundaryNodes(NodeSelectionModifier):
         skel = skeleton.getObject()
         nodelist = []
         for node in skel.nodes:
+            ## TODO PYTHON3: Make this work even if neighborElements
+            ## or aperiodicNeighborElements returns an iterator.
             if self.ignorePBC:
                 elements = node.aperiodicNeighborElements()
             else:
