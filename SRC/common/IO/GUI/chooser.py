@@ -13,6 +13,8 @@ from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
 
+import itertools
+
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -503,20 +505,16 @@ class ChooserListWidget(ChooserListWidgetBase):
         self.suppress_signals()
         old_obj = self.get_value()
         self.liststore.clear()
-        displist = list(displaylist)
-
-        if not objlist:
-            self.liststore.append(["None", None])
-            self.treeview.set_sensitive(False)
-        else:
-            self.treeview.set_sensitive(True)
-            for i, obj in enumerate(objlist):
-                try:
-                    dispname = displist[i]
-                except IndexError:
-                    self.liststore.append([obj, obj])
-                else:
-                    self.liststore.append([dispname, obj])
+        # Either objlist or displaylist could be a generator instead
+        # of an actual list.
+        empty = True
+        for obj, dispname in itertools.zip_longest(objlist, displaylist):
+            self.liststore.append([obj if dispname is None else dispname,
+                                   obj])
+            empty = False
+        self.treeview.set_sensitive(not empty)
+        if empty:
+            self.liststore.append(["None", None]) # Is this needed?
         try:
             index = self.find_obj_index(old_obj)
         except ValueError:
@@ -560,13 +558,9 @@ class MultiListWidget(ChooserListWidgetBase):
         self.suppress_signals()
         old_objs = self.get_value()
         self.liststore.clear()
-        displist = list(displaylist)
-        for i, obj in enumerate(objlist):
-            try:
-                dispname = displist[i]
-            except IndexError:
-                dispname = obj
-            self.liststore.append([obj, dispname])
+        for obj, dispname in itertools.zip_longest(objlist, displaylist):
+            self.liststore.append([obj if dispname is None else dispname,
+                                   obj])
         treeselection = self.treeview.get_selection()
         for obj in old_objs:
             try:

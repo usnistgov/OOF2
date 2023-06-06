@@ -138,11 +138,7 @@ class ElementMode(MeshInfoMode):
         self.type.set_text(element.masterelement().name())
         self.index.set_text(repr(element.get_index()))
 
-        ## We can't just pass element.node_iterator() in to
-        ## updateNodeList() because the iterator doesn't quite act
-        ## like a list.  The ChooserListWidget uses list.index(),
-        ## which the iterator doesn't have.
-        self.updateNodeList(self.nodes, list(element.node_iterator()))
+        self.updateNodeList(self.nodes, element.node_iterator())
 
         ## If a node is selected in the list, then it's been peeked at
         ## and should be highlighted.  The peeker might not be in the
@@ -162,10 +158,15 @@ class ElementMode(MeshInfoMode):
             self.material.set_text("<No material>")
 
     def updateNodeList(self, chsr, nodes):
-        namelist = [f"{node.classname()} {node.index()}"
+        # If nodes is a generator, we can't iterate over it to get
+        # namelist, becase chsr will need to iterate over it too, and
+        # it can only be iterated over once.  So convert it to a list.
+        # It will never be a large list.
+        nodes = list(nodes)
+        namelist = (f"{node.classname()} {node.index()}"
                     f" at ({node.position().x:.{digits()}g},"
                     f" {node.position().y:.{digits()}g})"
-                    for node in nodes]
+                    for node in nodes)
         chsr.update(nodes, namelist)
 
     def updateNothing(self):

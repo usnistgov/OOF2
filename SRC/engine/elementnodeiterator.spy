@@ -8,48 +8,30 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
+from ooflib.common import debug
+
 def _ElementNodeIterator___iter__(self):
-    return self
+    while not self.end():
+        yield self.node()
+        self.increment()
 
 ElementNodeIterator.__iter__ = _ElementNodeIterator___iter__
-
-def _ElementNodeIterator___next__(self):
-    if self.end():
-        raise StopIteration
-    ans = self.node()
-    self.increment()
-    return ans
-
-ElementNodeIterator.__next__ = _ElementNodeIterator___next__
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def _ElementFuncNodeIterator___iter__(self):
-    return self
+    while not self.end():
+        yield self.funcnode()
+        self.increment()
 
 ElementFuncNodeIterator.__iter__ = _ElementFuncNodeIterator___iter__
-
-def _ElementFuncNodeIterator___next__(self):
-    if self.end():
-        raise StopIteration
-    ans = self.funcnode()
-    self.increment()
-    return ans
-
-ElementFuncNodeIterator.__next__ = _ElementFuncNodeIterator___next__
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def _ElementCornerNodeIterator___iter__(self):
-    return self
+    while not self.end():
+        yield self.node()
+        self.increment()
 
 ElementCornerNodeIterator.__iter__ = _ElementCornerNodeIterator___iter__
 
-def _ElementCornerNodeIterator___next__(self):
-    if self.end():
-        raise StopIteration
-    ans = self.node()
-    self.increment()
-    return ans
-
-ElementCornerNodeIterator.__next__ = _ElementCornerNodeIterator___next__
