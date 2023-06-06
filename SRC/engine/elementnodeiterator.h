@@ -31,8 +31,9 @@ class ProtoNode;
 // Element, and is the base class for the specialized iterators, which
 // loop over subsets of the Nodes.
 
-// TODO PYTHON3: Make these into real C++ and python iterators?  A
-// more natural syntax would be
+// TODO PYTHON3: Make these into real C++ iterators?  (The python
+// iterators are already real iterators.)  A more natural syntax would
+// be
 //
 //  for(Node *node : element->nodes()) ...
 //  for(FuncNode *node : element->funcnodes()) ...
