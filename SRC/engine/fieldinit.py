@@ -25,6 +25,8 @@ import struct
 
 class FieldInit:
     def apply(self, femesh, field, time=None, singleFieldDef=False):
+        ## TODO PYTHON3: Rewrite to use standard iterator notation,
+        ## which MeshNodeIterator et al support.
         if singleFieldDef:
             # The purpose of calling node.fieldDefCount is to ensure
             # that we don't set the value of a field that is defined

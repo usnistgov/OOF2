@@ -8,6 +8,9 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+## TODO PYTHON3: Instead of defining __getitem__ and __next__, just
+## make __iter__ a generator function.
+
 def _NodeIterator___getitem__(self, idx):
     if self.end():
         raise IndexError

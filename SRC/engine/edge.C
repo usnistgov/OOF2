@@ -182,7 +182,7 @@ double EdgeNodeIterator::fraction() const
 {
   MasterCoord pos = ed->nlist[index_].mastercoord();
   MasterCoord interval = pos - ed->startpt();
-  // Positive assumption is OK becuase nodes come in sequence.
+  // Positive assumption is OK because nodes come in sequence.
   return sqrt(norm2(interval))/ed->master_length();
 }
 

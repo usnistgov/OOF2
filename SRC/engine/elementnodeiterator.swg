@@ -92,7 +92,7 @@ public:
 
 class ElementCornerNodeIterator : public ElementNodeIterator {
 public:
-  ElementFuncNodeIterator funcnode_iterator();
+  // ElementFuncNodeIterator funcnode_iterator();
   ElementExteriorNodeIterator exteriornode_iterator();
 };
 

@@ -18,6 +18,8 @@
 // TODO: Can this be simplified by using templates and/or mix-in
 // classes?
 
+// TODO PYTHON3: Make these into real STL-style iterators.  
+
 #ifndef MESHITERATOR_H
 #define MESHITERATOR_H
 

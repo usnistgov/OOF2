@@ -302,7 +302,7 @@ ElementMapNodeIterator Element::mapnode_iterator() const {
 // ElementFuncNodeIterator or an InterfaceElementFuncNodeIterator with
 // appropriate sidedness, according to context.  This uglifies some of
 // the loops.  TODO LATER: Making a templated clever pointer container
-// with deleation-on-scope-exit semantics might help to re-prettify
+// with deletion-on-scope-exit semantics might help to re-prettify
 // them.
 ElementFuncNodeIterator *Element::funcnode_iterator() const {
   return new ElementFuncNodeIterator(*this);
@@ -741,7 +741,7 @@ BoundaryEdge *Element::newBndyEdge(const FuncNode *n0, const FuncNode *n1)
 
   // put the endpoints and all intermediate FuncNodes in the BoundaryEdge
   BoundaryEdge *ed = new BoundaryEdge(this, medge->func_size());
-  ed->add_node(alpha.funcnode_iterator());
+  ed->add_node(alpha.efuncnode_iterator());
 
   int increment;
   if(forward)
@@ -754,7 +754,7 @@ BoundaryEdge *Element::newBndyEdge(const FuncNode *n0, const FuncNode *n1)
     ed->add_node(middle);
     middle += increment;
   }
-  ed->add_node(beta.funcnode_iterator());
+  ed->add_node(beta.efuncnode_iterator());
 
   return ed;
 }

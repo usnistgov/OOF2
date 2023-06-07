@@ -31,9 +31,9 @@ class ProtoNode;
 // Element, and is the base class for the specialized iterators, which
 // loop over subsets of the Nodes.
 
-// TODO PYTHON3: Make these into real C++ iterators?  (The python
-// iterators are already real iterators.)  A more natural syntax would
-// be
+// TODO PYTHON3 LATER: Make these into real C++ iterators.  (The
+// python versions are already real iterators -- see
+// elementnodeiterator.spy.)  A more natural syntax would be
 //
 //  for(Node *node : element->nodes()) ...
 //  for(FuncNode *node : element->funcnodes()) ...
@@ -42,8 +42,34 @@ class ProtoNode;
 // A difficulty with doing this is that the iterators, as currently
 // written, wrap around the list of nodes, which would not be
 // impossible to implement with STL type iterators, but would be
-// somewhat messy.  It looks like this is needed in
-// Element::newBndyEdge().
+// somewhat messy. 
+//
+// Where is the wraparound used?  If ElementNodeIterator::set_start()
+// has been called, the iteration doesn't start or stop in the
+// conventional spot.  set_start() is called only by the
+// ElementCornerNodeIterator methods funcnode_iterator(),
+// exteriornode_iterator(), and mapnode_iterator(), which convert a
+// corner node iterator into different kinds of node iterator.
+//
+// * MeshInfoDisplay uses exteriornode_iterator to get the nodes to
+//   draw, after getting a cornernode_iterator.  Not sure why it
+//   can't just get an exterior node iterator directly.  There is no
+//   Element::exteriornode_iterator() method, but there could be.
+//
+// * Element::newBndyEdge() calls exteriornode_iterator when searching
+//   for the intermediate funcnodes on an edge.  This could be done
+//   some other way.
+//
+// * mapnode_iterator() isn't used.
+//
+// * Element::newBndyEdge() also calls funcnode_iterator, but the
+//   iterators are used for node identification, not iteration, so the
+//   wraparound feature isn't important.  NOTE: I changed the name
+//   from funcnode_iterator to efuncnode_iterator, to ensure that I
+//   wasn't missing any calls.  There is a separate FEMesh method
+//   called funcnode_iterator.
+
+
 
 class ElementNodeIterator {	// for looping over all nodes
 protected:
@@ -209,8 +235,8 @@ public:
   virtual int mlistindex() const;
   FuncNode *funcnode() const;
   ElementCornerNodeIterator operator+(int) const;
-  ElementFuncNodeIterator funcnode_iterator() const;
-  ElementMapNodeIterator mapnode_iterator() const;
+  ElementFuncNodeIterator efuncnode_iterator() const;
+  // ElementMapNodeIterator mapnode_iterator() const;
   ElementExteriorNodeIterator exteriornode_iterator() const;
   virtual void print(std::ostream&) const;
 };
