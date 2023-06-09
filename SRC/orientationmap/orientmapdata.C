@@ -10,7 +10,7 @@
  */
 
 #include <oofconfig.h>
-#include "oofcanvas/oofcanvas.h"
+#include "oofcanvas.h"
 #include "common/ccolor.h"
 #include "engine/angle2color.h"
 #include "orientationmap/orientmapdata.h"

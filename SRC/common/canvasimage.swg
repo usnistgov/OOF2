@@ -24,7 +24,7 @@
 // oofcanvas.h in all swig C++ output files.
 
 %{
-  #include "oofcanvas/oofcanvas.h"
+  #include "oofcanvas.h"
   typedef OOFCanvas::CanvasImage CanvasImage;
   typedef OOFCanvas::CanvasImage NewCanvasImage;
 %}

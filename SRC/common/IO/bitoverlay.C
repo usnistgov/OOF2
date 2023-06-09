@@ -14,7 +14,7 @@
 #include "common/IO/bitoverlay.h"
 #include "common/trace.h"
 #include "common/tostring.h"
-#include "oofcanvas/oofcanvas.h"
+#include "oofcanvas.h"
 
 BitmapOverlay::BitmapOverlay(const Coord *size, const ICoord *isize)
   : fg(CColor(1., 1., 1., 1.)),
