@@ -25,33 +25,25 @@ import struct
 
 class FieldInit:
     def apply(self, femesh, field, time=None, singleFieldDef=False):
-        ## TODO PYTHON3: Rewrite to use standard iterator notation,
-        ## which MeshNodeIterator et al support.
         if singleFieldDef:
             # The purpose of calling node.fieldDefCount is to ensure
             # that we don't set the value of a field that is defined
             # in more than one subproblem when that field gets defined
             # on the second subproblem.  Doing so would wipe out a
             # value that might have been set by the first subproblem.
-            fniter = femesh.funcnode_iterator()
-            while not fniter.end():
-                node = fniter.node()
+            for node in femesh.funcnode_iterator():
                 if node.fieldDefCount(field)==1:
                     position = node.position()
                     for i in range(field.ndof()): # field component
                         field.setvalue(femesh, node, i,
                                        self.func(position, time, i))
-                fniter.increment()
         else:
-            fniter = femesh.funcnode_iterator()
-            while not fniter.end():
-                node = fniter.node()
+            for node in femesh.funcnode_iterator():
                 if node.hasField(field):
                     position = node.position()
                     for i in range(field.ndof()): # field component
                         field.setvalue(femesh, node, i,
                                        self.func(position, time, i))
-                fniter.increment()
 
 # The FieldInitParameter is not a simple RegisteredParameter because
 # it has to handle more than one RegisteredClass, for different

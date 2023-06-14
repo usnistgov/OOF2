@@ -40,6 +40,9 @@ from ooflib.common.IO.GUI import quit
 from ooflib.common.IO.GUI import widgetscope
 import ooflib.common.quit
 
+import oofcanvas
+oofcanvas.init_OOFCanvas(True)
+
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk

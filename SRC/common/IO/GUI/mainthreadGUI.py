@@ -61,16 +61,18 @@ class OOFIdleBlockCallback:
           self.kwargs = kwargs
           self.event = threading.Event()
           self.result = None
+          self.exception = None
           self.callingthread = threadstate.findThreadNumber()
      def __call__(self):
           # See comment in common.debug.fmsg() about putting
           # debug.fmsg() calls here.
           try:
                self.result = self.func(*self.args, **self.kwargs)
-          except Exception:
+          except Exception as exc:
                debug.fmsg("OOFIdleBlockCallback failed! func=", self.func,
                           "args=", self.args, "kwargs=", self.kwargs)
-               raise
+               # Save the exception to re-raise it on the calling thread.
+               self.exception = exc
           finally:
                Gdk.flush()
                self.event.set()
@@ -82,6 +84,8 @@ def runBlock_gui(func, args=(), kwargs={}):
         callbackobj.event.clear()
         GLib.idle_add(function=callbackobj, priority=GLib.PRIORITY_LOW)
         callbackobj.event.wait()
+        if callbackobj.exception is not None:
+             raise callbackobj.exception
         return callbackobj.result
     else:
         return func(*args, **kwargs)
