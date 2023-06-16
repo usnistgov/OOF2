@@ -115,6 +115,10 @@ public:
   MeshNodeContainer<MeshAllNodeIter> node_iterator_NEW() const;
   MeshNodeContainer<MeshFuncNodeIter> funcnode_iterator_NEW() const;
 
+  // For testing
+  void iterator_test_NEW() const;
+  void iterator_test_OLD() const;
+
   Node *newMapNode(const Coord&); // the only way to make a Node
   FuncNode *newFuncNode(const Coord&); // the only way to make a FuncNode
 

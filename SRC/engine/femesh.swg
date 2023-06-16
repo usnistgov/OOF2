@@ -82,11 +82,13 @@ public:
   void set_in_plane(Field&, bool);
 
   ElementIterator element_iterator();
-  // NodeIterator node_iterator();
-  // FuncNodeIterator funcnode_iterator();
+  NodeIterator node_iterator();
+  FuncNodeIterator funcnode_iterator();
 
   MeshAllNodeContainer node_iterator_NEW();
   MeshFuncNodeContainer funcnode_iterator_NEW();
+  void iterator_test_NEW();
+  void iterator_test_OLD();
 
   void set_rwlock(RWLock *rw);
   RWLock * get_rwlock();
