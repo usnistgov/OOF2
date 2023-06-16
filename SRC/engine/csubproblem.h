@@ -94,11 +94,15 @@ public:
   // Material assignments have changed,
   // MaterialSubProblem::redefined() should be called.
   virtual void redefined() {}
-
+  // TODO PYTHON3: Replace xxxx_iterator() functions to support
+  // STL-style iteration.
   virtual ElementIterator element_iterator() const = 0;
   virtual NodeIterator node_iterator() const = 0;
   virtual FuncNodeIterator funcnode_iterator() const = 0;
+
+
   virtual bool contains(const Element *) const = 0;
+  
   virtual bool containsNode(const Node *) const = 0;
 
   // Machinery to symmetrize the stiffness matrix
@@ -315,9 +319,6 @@ private:
 
   bool staticStepper_;
 
-  friend class SubProblemElementIterator;
-  friend class SubProblemFuncNodeIterator;
-  friend class SubProblemNodeIterator;
   friend long get_globalCSubProblemCount();
 
   //Adaptive Mesh Refinement stuff translocated from femesh.h

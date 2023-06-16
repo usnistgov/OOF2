@@ -16,6 +16,48 @@
 #include "engine/element.h"
 #include "engine/meshiterator.h"
 
+Node *MeshNodeIter::operator*() const {
+  return mesh->getNode(index);
+}
+
+int MeshAllNodeIter::size() const {
+  return mesh->nnodes();
+}
+
+int MeshFuncNodeIter::size() const {
+  return mesh->funcnode.size();
+}
+
+MeshAllNodeIter* MeshAllNodeIter::begin(const FEMesh* const mesh) {
+  return new MeshAllNodeIter(mesh);
+}
+
+MeshAllNodeIter* MeshAllNodeIter::end(const FEMesh* const mesh) {
+  return new MeshAllNodeIter(mesh, mesh->nnodes());
+}
+
+MeshFuncNodeIter *MeshFuncNodeIter::begin(const FEMesh* const mesh) {
+  return new MeshFuncNodeIter(mesh);
+}
+
+MeshFuncNodeIter *MeshFuncNodeIter::end(const FEMesh* const mesh) {
+  return new MeshFuncNodeIter(mesh, mesh->funcnode.size());
+}
+
+bool MeshNodeIter::operator!=(const MeshNodeIter &other) const {
+  return other.mesh != mesh || other.index != index;
+}
+
+// bool MeshAllNodeIter::operator!=(const MeshAllNodeIter &other) const {
+//   return other.mesh != mesh || other.index != index;
+// }
+
+// bool MeshFuncNodeIter::operator!=(const MeshFuncNodeIter &other) const {
+//   return other.mesh != mesh || other.index != index;
+// }
+
+///// OLD BELOW HERE
+
 NodeIterator::NodeIterator(const NodeIterator &other)
   : base(other.base->clone())
 {}

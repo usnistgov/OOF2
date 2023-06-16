@@ -31,6 +31,91 @@ class FuncNode;
 #include <ostream>
 #include <vector>
 
+template <class ITER, class OBJ>
+class IterP {
+private:
+  ITER *iter;
+public:
+  IterP(ITER *i) : iter(i) {}
+  ~IterP() { delete iter; }
+  IterP(IterP &&o) : iter(o.iter) { o.iter = nullptr; }
+  IterP(const IterP &o) : iter(o.iter->clone()) {}
+  OBJ* operator*() const { return **iter; }
+  IterP& operator++() { iter->operator++(); return *this; }
+  bool operator!=(const IterP &other) const { return *iter != *other.iter; }
+};
+
+// Subclasses of MeshNodeIter determine which nodes are iterated over.
+// They are the ITER in the IterP template.  Subclasses must have
+// *static* methods begin(FEMesh*) and end(FEMesh*) which return
+// instances of the subclass.
+
+class MeshNodeIter {
+protected:
+  std::vector<Node*>::size_type index;
+  const FEMesh* const mesh;
+public:
+  MeshNodeIter(const FEMesh* const mesh) : mesh(mesh), index(0) {}
+  MeshNodeIter(const FEMesh* const mesh, int i) : mesh(mesh), index(i) {}
+  virtual ~MeshNodeIter() {}
+  virtual MeshNodeIter *clone() const = 0;
+  bool operator!=(const MeshNodeIter &) const;
+  virtual int size() const = 0;
+  virtual MeshNodeIter &operator++() { index++; return *this; }
+  Node* operator*() const;
+};
+
+class MeshAllNodeIter : public MeshNodeIter {
+public:
+  MeshAllNodeIter(const FEMesh* const mesh) : MeshNodeIter(mesh) {}
+  MeshAllNodeIter(const FEMesh* const mesh, int i) : MeshNodeIter(mesh, i) {}
+  virtual MeshAllNodeIter* clone() const {
+    return new MeshAllNodeIter(mesh, index);
+  }
+  // virtual bool operator!=(const MeshAllNodeIter &o) const;
+  virtual int size() const;
+
+  static MeshAllNodeIter* begin(const FEMesh* const mesh);
+  static MeshAllNodeIter* end(const FEMesh* const mesh);
+};
+
+class MeshFuncNodeIter : public MeshNodeIter {
+public:
+  MeshFuncNodeIter(const FEMesh* const mesh) : MeshNodeIter(mesh) {}
+  MeshFuncNodeIter(const FEMesh* const mesh, int i) : MeshNodeIter(mesh, i) {}
+  virtual MeshFuncNodeIter* clone() const {
+    return new MeshFuncNodeIter(mesh, index);
+  }
+  // virtual bool operator!=(const MeshFuncNodeIter &o) const;
+  virtual int size() const;
+
+  static MeshFuncNodeIter* begin(const FEMesh* const mesh);
+  static MeshFuncNodeIter* end(const FEMesh* const mesh); 
+};
+
+// Instances of MeshNodeContainer<> are returned by
+// FEMesh::node_iterator, funcnode_iterator, etc.
+// TODO PYTHON3: I don't like the name MeshNodeContainer.  It should
+// be changed to MeshNodeIterator after the old NodeIterator classes
+// are removed.
+
+template <class ITER>
+class MeshNodeContainer {
+private:
+  const FEMesh* const mesh;
+public:
+  MeshNodeContainer(const FEMesh* const mesh) : mesh(mesh) {}
+  IterP<ITER, Node> begin() const {
+    return IterP<ITER, Node>(ITER::begin(mesh));
+  }
+  IterP<ITER, Node> end() const {
+    return IterP<ITER, Node>(ITER::end(mesh));
+  }
+};
+
+
+///// OLD BELOW HERE
+
 // Virtual base class for MeshNodeIterator and various types of
 // SubProblemNodeIterator.
 

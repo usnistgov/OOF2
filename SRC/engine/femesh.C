@@ -389,8 +389,16 @@ ElementIterator FEMesh::element_iterator() const {
   return ElementIterator(new MeshElementIterator(this));
 }
 
+MeshNodeContainer<MeshAllNodeIter> FEMesh::node_iterator_NEW() const {
+  return MeshNodeContainer<MeshAllNodeIter>(this);
+}
+
 NodeIterator FEMesh::node_iterator() const {
   return NodeIterator(new MeshNodeIterator(this));
+}
+
+MeshNodeContainer<MeshFuncNodeIter> FEMesh::funcnode_iterator_NEW() const {
+  return MeshNodeContainer<MeshFuncNodeIter>(this);
 }
 
 FuncNodeIterator FEMesh::funcnode_iterator() const {
@@ -428,34 +436,17 @@ FuncNode *FEMesh::getFuncNode(int i) const {
 // Finding the closest node to the mouse point.
 // Used in MeshInfo
 // TODO LATER: use hash table lookup here, instead of looping over all nodes.
-// Can use a vtk point locator object once the storage is set up
-#if DIM==2
-Node *FEMesh::closestNode(const double x, const double y)
-#elif DIM==3
-Node *FEMesh::closestNode(const double x, const double y, const double z=0)
-#endif
-{
-  double min=1.;   // (initial value provided to suppress compiler warnings)
-  Node *node, *thenode=0;
-  for(NodeIterator ni = node_iterator(); !ni.end(); ++ni) {
-    node = ni.node();
+
+Node *FEMesh::closestNode(const double x, const double y) {
+  double min = std::numeric_limits<double>::max();
+  Node *thenode = nullptr;
+  for(Node *node : node_iterator_NEW()) {
     double dx = node->position()(0) - x;
     double dy = node->position()(1) - y;
-#if DIM==2
     double dist = dx*dx + dy*dy;
-#elif DIM==3
-    double dz = node->position()(2) - z;
-    double dist = dx*dx + dy*dy + dz*dz;
-#endif
-    if (ni.begin()) {
+    if (dist <= min) {
       min = dist;
       thenode = node;
-    }
-    else {
-      if (dist <= min) {
-	min = dist;
-	thenode = node;
-      }
     }
   }
   return thenode;

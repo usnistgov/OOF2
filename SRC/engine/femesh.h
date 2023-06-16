@@ -21,6 +21,7 @@ class FEMesh;
 #include "engine/field.h"
 #include "engine/fieldeqnlist.h"
 #include "engine/materialset.h"
+#include "engine/meshiterator.h"
 #include <map>
 #include <set>
 #include <string>
@@ -45,6 +46,7 @@ class Node;
 class NodeIterator;
 class RWLock;
 class InterfaceElement;
+
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -110,6 +112,8 @@ public:
   ElementIterator element_iterator() const;
   NodeIterator node_iterator() const;
   FuncNodeIterator funcnode_iterator() const;
+  MeshNodeContainer<MeshAllNodeIter> node_iterator_NEW() const;
+  MeshNodeContainer<MeshFuncNodeIter> funcnode_iterator_NEW() const;
 
   Node *newMapNode(const Coord&); // the only way to make a Node
   FuncNode *newFuncNode(const Coord&); // the only way to make a FuncNode
@@ -272,6 +276,9 @@ private:
   friend class MeshDataCache;
   friend class MemoryDataCache;
   friend class DiskDataCache;
+
+  friend class MeshFuncNodeIter;
+  friend class MeshAllNodeIter;
 
   //AMR, moved to csubproblem
 // Adaptive Mesh Refinement stuff.
