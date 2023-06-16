@@ -92,7 +92,7 @@ FEMesh.clear_parent_mesh = _FEMesh_clear_parent_mesh
 
 # Field initialization from another Mesh
 def _FEMesh_init_field(self, old_skel, old_femesh, field):
-    for node in self.funcnode_iterator():
+    for node in self.funcnode_iterator_NEW():
         if node.hasField(field):
             position = node.position()
             el = old_skel.enclosingElement(position)

@@ -72,7 +72,6 @@ public:
   virtual MeshAllNodeIter* clone() const {
     return new MeshAllNodeIter(mesh, index);
   }
-  // virtual bool operator!=(const MeshAllNodeIter &o) const;
   virtual int size() const;
 
   static MeshAllNodeIter* begin(const FEMesh* const mesh);
@@ -86,7 +85,6 @@ public:
   virtual MeshFuncNodeIter* clone() const {
     return new MeshFuncNodeIter(mesh, index);
   }
-  // virtual bool operator!=(const MeshFuncNodeIter &o) const;
   virtual int size() const;
 
   static MeshFuncNodeIter* begin(const FEMesh* const mesh);
@@ -95,6 +93,7 @@ public:
 
 // Instances of MeshNodeContainer<> are returned by
 // FEMesh::node_iterator, funcnode_iterator, etc.
+
 // TODO PYTHON3: I don't like the name MeshNodeContainer.  It should
 // be changed to MeshNodeIterator after the old NodeIterator classes
 // are removed.
@@ -105,6 +104,14 @@ private:
   const FEMesh* const mesh;
 public:
   MeshNodeContainer(const FEMesh* const mesh) : mesh(mesh) {}
+
+  // begin() and end() are called from C++ and need to wrap the
+  // iterator pointer in IterP, which owns the pointer and will
+  // destroy it when it's done.  c_begin and c_end are called from
+  // python, and don't wrap the pointer because Python will take care
+  // of it.
+  ITER* c_begin() const { return ITER::begin(mesh); }
+  ITER* c_end() const { return ITER::end(mesh); }
   IterP<ITER, Node> begin() const {
     return IterP<ITER, Node>(ITER::begin(mesh));
   }

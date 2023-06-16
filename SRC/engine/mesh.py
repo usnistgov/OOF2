@@ -117,6 +117,16 @@ class SkeletonBuffer(ringbuffer.RingBuffer):
 
 ######################
 
+# def newmeshiter(femesh):
+#     n = 0
+#     for node in femesh.node_iterator_NEW():
+#         n += 1
+
+# def oldmeshiter(femesh):
+#     n = 0
+#     for node in femesh.node_iterator():
+#         n += 1
+
 class Mesh(whoville.Who):
     def __init__(self, name, classname, femesh, parent,
                  elementdict=None,
@@ -124,6 +134,21 @@ class Mesh(whoville.Who):
         whoville.Who.__init__(self, name, classname, femesh, parent)
         # Share the mesh-level lock with the contained femesh.
         femesh.set_rwlock(self.rwLock)
+
+        # # For testing the efficiency of the old and new mesh iteration
+        # # schemes.  The new one is like an STL iterator on the C++
+        # # side.
+        # if debug.debug():
+        #     import timeit
+        #     iters = 10
+        #     told = timeit.timeit(stmt="oldmeshiter(femesh)", number=iters,
+        #                        globals={"femesh":femesh,
+        #                                 "oldmeshiter":oldmeshiter})
+        #     tnew = timeit.timeit(stmt="newmeshiter(femesh)", number=iters,
+        #                        globals={"femesh":femesh,
+        #                                 "newmeshiter":newmeshiter})
+        #     debug.fmsg("told=", told)
+        #     debug.fmsg("tnew=", tnew)
 
         self.elementdict = elementdict
         self.materialfactory = materialfactory
@@ -994,8 +1019,8 @@ class Mesh(whoville.Who):
         othermesh = other.getObject()
 
         # compare node positions
-        mynodes = mymesh.node_iterator()
-        othernodes = othermesh.node_iterator()
+        mynodes = mymesh.node_iterator_NEW()
+        othernodes = othermesh.node_iterator_NEW()
         if mynodes.size() != othernodes.size():
             return "Wrong number of nodes"
         for mynode, othernode in zip(mynodes, othernodes):

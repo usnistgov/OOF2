@@ -435,7 +435,11 @@ FuncNode *FEMesh::getFuncNode(int i) const {
 
 // Finding the closest node to the mouse point.
 // Used in MeshInfo
-// TODO LATER: use hash table lookup here, instead of looping over all nodes.
+
+// TODO LATER: use hash table lookup here, instead of looping over all
+// nodes.  Or maybe find enclosing element and search its nodes and its
+// neighbors' nodes?  In perverse situations the closest node may be
+// many elements away.
 
 Node *FEMesh::closestNode(const double x, const double y) {
   double min = std::numeric_limits<double>::max();

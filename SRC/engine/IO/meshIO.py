@@ -70,7 +70,7 @@ subpmenu = OOF.LoadData.addItem(OOFMenuItem(
 
 def getNodeSets(femesh):
     nodesets = {}               # lists of nodes keyed by fieldSetID.
-    for node in femesh.funcnode_iterator():
+    for node in femesh.funcnode_iterator_NEW():
         fieldsetid = node.fieldSetID()
         try:
             nodesets[fieldsetid].append(node)

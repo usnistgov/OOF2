@@ -89,11 +89,12 @@
 // obtains by calling the C++ Field::components() method.  (There's a
 // little bit of swig renaming trickery involved so that the C++
 // components() method and the Python components() method can have the
-// same name but be different things.)  The index is a swigged
-// FieldIndex of the appropriate subclass, because FieldIndex is
-// derived from PythonExportable.  (Components and ComponentIterator
-// don't have be be PythonExportable, and there's no need in Python
-// for IndexP, ComponentIteratorP, or ComponentsP.)
+// same name but be different things. See the %rename statements in
+// field.swg) The index is a swigged FieldIndex of the appropriate
+// subclass, because FieldIndex is derived from PythonExportable.
+// (Components and ComponentIterator don't have be be
+// PythonExportable, and there's no need in Python for IndexP,
+// ComponentIteratorP, or ComponentsP.)
 
 #include <iostream>
 #include <string>

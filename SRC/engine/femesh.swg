@@ -15,8 +15,8 @@
 %module(package="ooflib.SWIG.engine") femesh
 
 %feature("valuewrapper") ElementIterator;
-%feature("valuewrapper") NodeIterator;
-%feature("valuewrapper") FuncNodeIterator;
+// %feature("valuewrapper") NodeIterator;
+// %feature("valuewrapper") FuncNodeIterator;
 
 %include "common/typemaps.swg"
 %import "common/cmicrostructure.swg"
@@ -36,8 +36,12 @@
 #include "engine/meshiterator.h"
 #include "engine/nodalequation.h"
 #include "engine/node.h"
-  #include "engine/flux.h"	// SWIGBUG
+#include "engine/flux.h"	// SWIGBUG
+
+typedef MeshNodeContainer<MeshAllNodeIter> MeshAllNodeContainer;
+typedef MeshNodeContainer<MeshFuncNodeIter> MeshFuncNodeContainer;
 %}
+
 
 class FEMesh {
 public:
@@ -78,8 +82,11 @@ public:
   void set_in_plane(Field&, bool);
 
   ElementIterator element_iterator();
-  NodeIterator node_iterator();
-  FuncNodeIterator funcnode_iterator();
+  // NodeIterator node_iterator();
+  // FuncNodeIterator funcnode_iterator();
+
+  MeshAllNodeContainer node_iterator_NEW();
+  MeshFuncNodeContainer funcnode_iterator_NEW();
 
   void set_rwlock(RWLock *rw);
   RWLock * get_rwlock();
