@@ -291,15 +291,18 @@ void CSubProblem::do_undefine_field(const Field &field) {
 // defined.  Called by meshmenu.copyMesh.
 
 void CSubProblem::acquire_field_data(Field &field, const CSubProblem *other) {
-  // TODO PYTHON3: Figure out how to get count() out of the new node iterators.
-  for(FuncNodeIterator i=funcnode_iterator_OLD(); !i.end(); ++i) {
-    for(int d=0; d<field.ndof(); ++d) {
-      if(i.node()->hasField(field)) {
-	field(i.node(), d)->value(mesh) =
-	  field(other->mesh->getFuncNode(i.count()), d)->value(other->mesh);
+  auto myFuncNodes = funcnode_iterator();
+  auto yourFuncNodes = other->funcnode_iterator();
+  for(auto i=myFuncNodes.begin(), j=yourFuncNodes.begin();
+      i!=myFuncNodes.end() && j!=yourFuncNodes.end();
+      ++i, ++j)
+    {
+      for(int d=0; d<field.ndof(); ++d) {
+	if((*i)->hasField(field)) {
+	  field(*i, d)->value(mesh) = field(*j, d)->value(other->mesh);
+	}
       }
     }
-  }
 }
 
 bool CSubProblem::is_defined_field(const Field &field) const {
