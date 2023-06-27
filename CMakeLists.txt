@@ -414,7 +414,8 @@ install(
   # PATTERN "*.dat"
   )
 
+# TODO PYTHON3: Install examples into <prefix>/share/oof2.
 
-## TODO: When creating a distribution, check that the various
+## TODO PYTHON3: When creating a distribution, check that the various
 ## typemaps.swg files are included.  They're not explicitly listed as
 ## source file elsewhere.

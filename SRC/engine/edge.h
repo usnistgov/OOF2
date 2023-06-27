@@ -102,6 +102,7 @@ public:
   
   bool edge_match(const FuncNode *, const FuncNode *);
 
+  // TODO PYTHON3: Use a real iterator.
   EdgeNodeIterator node_iterator() const;
   
   EdgeGaussPoint integrator(int) const;
