@@ -26,6 +26,7 @@ class CSubProblem;
 #include "engine/dofmap.h"
 #include "engine/femesh.h"
 #include "engine/materialset.h"
+#include "engine/meshiterator.h"
 
 #include <set>
 #include <string>
@@ -79,7 +80,7 @@ public:
   // called by the constructor because the constructor is called by a
   // RegisteredClass registration, before the mesh is known.
   void set_femesh(FEMesh *msh);
-  void set_nnodes(int);
+  void set_nnodes(int);		// n FUNC nodes
   FEMesh *mesh;
   FEMesh *get_mesh() const { return mesh; }
 
@@ -94,12 +95,21 @@ public:
   // Material assignments have changed,
   // MaterialSubProblem::redefined() should be called.
   virtual void redefined() {}
-  // TODO PYTHON3: Replace xxxx_iterator() functions to support
-  // STL-style iteration.
-  virtual ElementIterator element_iterator() const = 0;
-  virtual NodeIterator node_iterator() const = 0;
-  virtual FuncNodeIterator funcnode_iterator() const = 0;
 
+  virtual ElementIterator element_iterator() const = 0;
+  virtual NodeIterator node_iterator_OLD() const = 0;
+  virtual FuncNodeIterator funcnode_iterator_OLD() const = 0;
+
+  VContainerP<Node> node_iterator() const {
+    return VContainerP<Node>(c_node_iterator());
+  }
+  VContainerP<FuncNode> funcnode_iterator() const {
+    return VContainerP<FuncNode>(c_funcnode_iterator());
+  }
+  virtual VContainer<Node>* c_node_iterator() const = 0;
+  virtual VContainer<FuncNode>* c_funcnode_iterator() const = 0;
+
+  
 
   virtual bool contains(const Element *) const = 0;
   

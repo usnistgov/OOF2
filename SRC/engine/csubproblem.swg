@@ -47,6 +47,9 @@
 #include "engine/meshiterator.h"
 #include "engine/sparsemat.h"
 #include <vector>
+
+typedef VContainer<Node> VContainerNode;
+typedef VContainer<FuncNode> VContainerFuncNode;
 %}
 
 MAKE_LISTVEC_TYPEMAPS(Equation);
@@ -76,8 +79,13 @@ public:
   void redefined();
 
   ElementIterator element_iterator();
-  NodeIterator node_iterator();
-  FuncNodeIterator funcnode_iterator();
+  // NodeIterator node_iterator_OLD();
+  // FuncNodeIterator funcnode_iterator_OLD();
+
+  %rename(node_iterator) c_node_iterator;
+  %rename(funcnode_iterator) c_funcnode_iterator;
+  VContainerNode* c_node_iterator(); 
+  VContainerFuncNode* c_funcnode_iterator();
 
   %newobject new_linear_system;
   LinearizedSystem *new_linear_system(double);

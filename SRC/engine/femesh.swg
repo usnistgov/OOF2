@@ -37,9 +37,8 @@
 #include "engine/nodalequation.h"
 #include "engine/node.h"
 #include "engine/flux.h"	// SWIGBUG
-
-typedef MeshNodeContainer<MeshAllNodeIter> MeshAllNodeContainer;
-typedef MeshNodeContainer<MeshFuncNodeIter> MeshFuncNodeContainer;
+typedef VContainer<Node> VContainerNode;
+typedef VContainer<FuncNode> VContainerFuncNode;
 %}
 
 
@@ -82,11 +81,13 @@ public:
   void set_in_plane(Field&, bool);
 
   ElementIterator element_iterator();
-  NodeIterator node_iterator();
-  FuncNodeIterator funcnode_iterator();
+  NodeIterator node_iterator_OLD();
+  FuncNodeIterator funcnode_iterator_OLD();
 
-  MeshAllNodeContainer node_iterator_NEW();
-  MeshFuncNodeContainer funcnode_iterator_NEW();
+  %rename(node_iterator) c_node_iterator;
+  %rename(funcnode_iterator) c_funcnode_iterator;
+  VContainerNode* c_node_iterator();
+  VContainerFuncNode* c_funcnode_iterator();
   void iterator_test_NEW();
   void iterator_test_OLD();
 

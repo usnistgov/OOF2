@@ -140,8 +140,8 @@ void CSubProblem::activate_equation(Equation &eqn) {
 
     // Create NodalEquations for this Equation in each Node.  This
     // also updates the Nodes' EquationSets.
-    for(FuncNodeIterator ni=funcnode_iterator(); !ni.end(); ++ni) {
-      ni.node()->addEquation(mesh, eqn);
+    for(FuncNode *node : funcnode_iterator()) {
+      node->addEquation(mesh, eqn);
     }
     // Activate fluxes required for this Equation
     eqn.activate_fluxes(this);
@@ -152,8 +152,8 @@ void CSubProblem::deactivate_equation(Equation &eqn) {
   if(is_active_equation(eqn)) {
     int index = eqn.index();
     eqndata[index].active = false;
-    for(FuncNodeIterator ni=funcnode_iterator(); !ni.end(); ++ni) {
-      ni.node()->removeEquation(mesh, eqn);
+    for(FuncNode *node : funcnode_iterator()) {
+      node->removeEquation(mesh, eqn);
     }
     // perform garbage collection on the nodaleqn list
     mesh->clean_nodaleqn();
@@ -260,10 +260,10 @@ void CSubProblem::do_define_field(const Field &field) {
   FieldData &fdata = fielddata[index];
   if(!fdata.defined) {
     fdata.defined = true;
-    for(FuncNodeIterator ni=funcnode_iterator(); !ni.end(); ++ni) {
-//       std::cerr << "CSubProblem::do_define_field: adding " << field
-// 		<< " at node " << *ni.node() << std::endl;
-      ni.node()->addField(mesh, field);
+    for(FuncNode *node : funcnode_iterator()) {
+      // std::cerr << "CSubProblem::do_define_field: adding " << field
+      //           << " at node " << *ni.node() << std::endl;
+      node->addField(mesh, field);
     }
   }
 }
@@ -277,8 +277,8 @@ void CSubProblem::do_undefine_field(const Field &field) {
     std::vector<FieldData>::size_type index = field.index();
     if(index < fielddata.size()) {
       fielddata[index].defined = false;
-      for(FuncNodeIterator ni=funcnode_iterator(); !ni.end(); ++ni) {
-	ni.node()->removeField(mesh, field);
+      for(FuncNode *node : funcnode_iterator()) {
+	node->removeField(mesh, field);
       }
       mesh->clean_doflist();
     }
@@ -291,7 +291,8 @@ void CSubProblem::do_undefine_field(const Field &field) {
 // defined.  Called by meshmenu.copyMesh.
 
 void CSubProblem::acquire_field_data(Field &field, const CSubProblem *other) {
-  for(FuncNodeIterator i=funcnode_iterator(); !i.end(); ++i) {
+  // TODO PYTHON3: Figure out how to get count() out of the new node iterators.
+  for(FuncNodeIterator i=funcnode_iterator_OLD(); !i.end(); ++i) {
     for(int d=0; d<field.ndof(); ++d) {
       if(i.node()->hasField(field)) {
 	field(i.node(), d)->value(mesh) =
@@ -528,8 +529,7 @@ void CSubProblem::mapField(void *data,
 void CSubProblem::mapField_(const Field &field, const Field &tdfield,
 			    bool tddefined)
 {
-  for(FuncNodeIterator nd=funcnode_iterator(); !nd.end(); ++nd) {
-    FuncNode *node = nd.node();
+  for(FuncNode *node : funcnode_iterator()) {
     for(int i=0; i<field.ndof(); i++) { // loop over field components
       int dofindex = field(node, i)->dofindex(); // global index
       int eqnindex = global_dof2eqn_map[dofindex];
@@ -893,9 +893,7 @@ void CSubProblem::set_equation_mapping(
   global_dof2eqn_map.resize(mesh->dof.size(), -1);
 
   LocalMapDict localmaps;
-  for(FuncNodeIterator iter=funcnode_iterator(); !iter.end(); ++iter) {
-    FuncNode *node = iter.node();
-
+  for(FuncNode *node : funcnode_iterator()) {
     std::vector<NodalEquation*> &eqnlist = node->eqnlist;
     // Get the localmap, which indicates the conjugacy relations
     // between nodal equations and degrees of freedom in the Node.
@@ -1462,22 +1460,19 @@ void CSubProblem::NodalPositionSolution(double* temp_array)
 {
   //Display (X,Y:NodalValues) at the terminal
   //For testing, and can be called only after set_precombined_equation_mapping and solve
-  for(FuncNodeIterator ni=funcnode_iterator(); !ni.end(); ++ni)
-    //for(FuncNodeIterator ni(this); !ni.end(); ++ni)
-    {
-      FuncNode* pfn=ni.node();
-      std::cerr << "(x,y:nodalvalues)=(" << pfn->position()(0) << "," <<
-	pfn->position()(1) << ":";
-      //Search dof for the index of the dofs in FuncNode->doflist
-      for(std::vector<DegreeOfFreedom*>::iterator it=pfn->doflist.begin();
-	  it!=pfn->doflist.end();it++)
-	{
-	  int index=(find(mesh->dof.begin(),mesh->dof.end(),*it)-mesh->dof.begin());
-	  if(m_precombined_freedofmap[index]!=-1)
-	    std::cerr << temp_array[m_precombined_freedofmap[index]] << ",";
-	}
-      std::cerr << ")\n";
-    }
+  for(FuncNode *pfn : funcnode_iterator()) {
+    std::cerr << "(x,y:nodalvalues)=(" << pfn->position()(0) << "," <<
+      pfn->position()(1) << ":";
+    //Search dof for the index of the dofs in FuncNode->doflist
+    for(std::vector<DegreeOfFreedom*>::iterator it=pfn->doflist.begin();
+	it!=pfn->doflist.end();it++)
+      {
+	int index=(find(mesh->dof.begin(),mesh->dof.end(),*it)-mesh->dof.begin());
+	if(m_precombined_freedofmap[index]!=-1)
+	  std::cerr << temp_array[m_precombined_freedofmap[index]] << ",";
+      }
+    std::cerr << ")\n";
+  }
 
   // Do work like that of FEMesh::set_unknowns()
   for(std::vector<DegreeOfFreedom*>::size_type i=0; i<mesh->dof.size(); i++)
@@ -1529,9 +1524,8 @@ int CSubProblem::GatherNumNodes()
   // Get the number of nodes for this subproblem
   // Must be "owned" by the current process.
   int nOwned=0;
-  for(FuncNodeIterator ni=funcnode_iterator(); !ni.end(); ++ni)
+  for(FuncNode *pfn : funcnode_iterator())
     {
-      FuncNode* pfn=ni.node();
       if(pfn->isShared())
 	{
 	  if(mesh->m_nodesharemap[pfn]->_owns0)
@@ -1598,8 +1592,8 @@ std::vector<int> *CSubProblem::get_nodes_from_patch(const int assembly_node,
 
 // initialize "recovered_fluxes"
 void CSubProblem::init_nodalfluxes() {
-  for(FuncNodeIterator i=funcnode_iterator(); !i.end(); ++i)
-    recovered_fluxes[i.node()->index()] = new NodalFluxes();
+  for(FuncNode *node : funcnode_iterator())
+    recovered_fluxes[node->index()] = new NodalFluxes();
 }
 
 // recover fluxes

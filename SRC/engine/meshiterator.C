@@ -16,47 +16,55 @@
 #include "engine/element.h"
 #include "engine/meshiterator.h"
 
+// int MeshNodeIter::size() const {
+//   return mesh->nnodes();
+// }
+
 Node *MeshNodeIter::operator*() const {
   return mesh->getNode(index);
 }
 
-int MeshAllNodeIter::size() const {
-  return mesh->nnodes();
+// int MeshFuncNodeIter::size() const {
+//   return mesh->nfuncnodes();
+// }
+
+FuncNode *MeshFuncNodeIter::operator*() const {
+  return mesh->getFuncNode(index);
 }
 
-int MeshFuncNodeIter::size() const {
-  return mesh->funcnode.size();
+MeshIterator<Node>* MeshNodeContainer::c_begin() const {
+  return new MeshNodeIter(mesh);
 }
 
-MeshAllNodeIter* MeshAllNodeIter::begin(const FEMesh* const mesh) {
-  return new MeshAllNodeIter(mesh);
+MeshIterator<Node>* MeshNodeContainer::c_end() const {
+  return new MeshNodeIter(mesh, mesh->nnodes());
 }
 
-MeshAllNodeIter* MeshAllNodeIter::end(const FEMesh* const mesh) {
-  return new MeshAllNodeIter(mesh, mesh->nnodes());
-}
-
-MeshFuncNodeIter *MeshFuncNodeIter::begin(const FEMesh* const mesh) {
+MeshIterator<FuncNode>* MeshFuncNodeContainer::c_begin() const {
   return new MeshFuncNodeIter(mesh);
 }
 
-MeshFuncNodeIter *MeshFuncNodeIter::end(const FEMesh* const mesh) {
-  return new MeshFuncNodeIter(mesh, mesh->funcnode.size());
+MeshIterator<FuncNode>* MeshFuncNodeContainer::c_end() const {
+  return new MeshFuncNodeIter(mesh, mesh->nfuncnodes());
 }
 
-bool MeshNodeIter::operator!=(const MeshNodeIter &other) const {
-  return other.mesh != mesh || other.index != index;
+bool MeshNodeIter::operator!=(const MeshIterator<Node> &other) const {
+  const MeshNodeIter &o = dynamic_cast<const MeshNodeIter&>(other);
+  return o.mesh != mesh || o.index != index;
 }
 
-// bool MeshAllNodeIter::operator!=(const MeshAllNodeIter &other) const {
-//   return other.mesh != mesh || other.index != index;
-// }
+bool MeshFuncNodeIter::operator!=(const MeshIterator<FuncNode> &other) const {
+  const MeshFuncNodeIter &o = dynamic_cast<const MeshFuncNodeIter&>(other);
+  return o.mesh != mesh || o.index != index;
+}
 
-// bool MeshFuncNodeIter::operator!=(const MeshFuncNodeIter &other) const {
-//   return other.mesh != mesh || other.index != index;
-// }
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 ///// OLD BELOW HERE
+
+#ifdef OLDITERATORS
 
 NodeIterator::NodeIterator(const NodeIterator &other)
   : base(other.base->clone())
@@ -139,6 +147,8 @@ FuncNode *MeshFuncNodeIterator::node() const {
 FuncNodeIteratorBase *MeshFuncNodeIterator::clone() const {
   return new MeshFuncNodeIterator(*this);
 }
+
+#endif // OLDITERATORS
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

@@ -8,15 +8,17 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-def _MeshNodeContainer___iter__(self):
+from ooflib.common import debug
+
+def _VContainerNode___iter__(self):
     cbegin = self.c_begin()
     cend = self.c_end()
     while cbegin != cend:
         yield cbegin.node()
         cbegin.increment()
 
-MeshAllNodeContainer.__iter__ = _MeshNodeContainer___iter__
-MeshFuncNodeContainer.__iter__ = _MeshNodeContainer___iter__
+VContainerNode.__iter__ = _VContainerNode___iter__
+VContainerFuncNode.__iter__ = _VContainerNode___iter__
 
 # OLD BELOW HERE
 

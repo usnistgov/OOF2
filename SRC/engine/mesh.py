@@ -121,12 +121,12 @@ class SkeletonBuffer(ringbuffer.RingBuffer):
 
 def newmeshiter(femesh):
     n = 0
-    for node in femesh.node_iterator_NEW():
+    for node in femesh.node_iterator():
         n += 1
 
 def oldmeshiter(femesh):
     n = 0
-    for node in femesh.node_iterator():
+    for node in femesh.node_iterator_OLD():
         n += 1
 
 ##########
@@ -153,10 +153,10 @@ class Mesh(whoville.Who):
         #                       globals={"femesh":femesh,
         #                                "newmeshiter":newmeshiter})
         #     debug.fmsg("python new=", t)
-        #     t = timeit.timeit(stmt="femesh.iterator_test_OLD", number=iters,
+        #     t = timeit.timeit(stmt="femesh.iterator_test_OLD()", number=iters,
         #                       globals={"femesh":femesh})
         #     debug.fmsg("C++ old=", t)
-        #     t = timeit.timeit(stmt="femesh.iterator_test_NEW", number=iters,
+        #     t = timeit.timeit(stmt="femesh.iterator_test()", number=iters,
         #                       globals={"femesh":femesh})
         #     debug.fmsg("C++ new=", t)
             
@@ -1029,8 +1029,8 @@ class Mesh(whoville.Who):
         othermesh = other.getObject()
 
         # compare node positions
-        mynodes = mymesh.node_iterator_NEW()
-        othernodes = othermesh.node_iterator_NEW()
+        mynodes = mymesh.node_iterator()
+        othernodes = othermesh.node_iterator()
         if mynodes.size() != othernodes.size():
             return "Wrong number of nodes"
         for mynode, othernode in zip(mynodes, othernodes):

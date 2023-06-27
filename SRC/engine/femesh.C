@@ -323,6 +323,10 @@ int FEMesh::nnodes() const {
   return funcnode.size() + mapnode.size();
 }
 
+int FEMesh::nfuncnodes() const {
+  return funcnode.size();
+}
+
 void FEMesh::addElement(Element *el) {
   element.push_back(el);
   el->set_index(element.size()-1);
@@ -389,33 +393,48 @@ ElementIterator FEMesh::element_iterator() const {
   return ElementIterator(new MeshElementIterator(this));
 }
 
-MeshNodeContainer<MeshAllNodeIter> FEMesh::node_iterator_NEW() const {
-  return MeshNodeContainer<MeshAllNodeIter>(this);
-}
-
-NodeIterator FEMesh::node_iterator() const {
+#ifdef OLDITERATORS
+NodeIterator FEMesh::node_iterator_OLD() const {
   return NodeIterator(new MeshNodeIterator(this));
 }
 
-MeshNodeContainer<MeshFuncNodeIter> FEMesh::funcnode_iterator_NEW() const {
-  return MeshNodeContainer<MeshFuncNodeIter>(this);
-}
-
-FuncNodeIterator FEMesh::funcnode_iterator() const {
+FuncNodeIterator FEMesh::funcnode_iterator_OLD() const {
   return FuncNodeIterator(new MeshFuncNodeIterator(this));
 }
+#endif	// OLDITERATORS
+
+VContainerP<Node> FEMesh::node_iterator() const {
+  return VContainerP<Node>(c_node_iterator());
+}
+
+VContainer<Node>* FEMesh::c_node_iterator() const {
+  return new MeshNodeContainer(this, nnodes());
+}
+
+VContainerP<FuncNode> FEMesh::funcnode_iterator() const {
+  return VContainerP<FuncNode>(c_funcnode_iterator());
+}
+
+VContainer<FuncNode>* FEMesh::c_funcnode_iterator() const {
+  return new MeshFuncNodeContainer(this, nfuncnodes());
+}
+
 
 void FEMesh::iterator_test_NEW() const {
   int i = 0;
-  for(Node *node : node_iterator_NEW())
+  // for(auto it = node_iterator().begin(); it!=node_iterator().end(); ++it)
+  //   i += 1;
+  for(Node *node : node_iterator())
     i += 1;
 }
 
+#ifdef OLDITERATORS
 void FEMesh::iterator_test_OLD() const {
   int i = 0;
-  for(NodeIterator ni=node_iterator(); !ni.end(); ++ni)
+  for(NodeIterator ni=node_iterator_OLD(); !ni.end(); ++ni)
     i += 1;
 }
+#endif // OLDITERATORS
 
 // operator[] is deprecated...
 // FuncNode *FEMesh::operator[](const FuncNodeIterator &ni) const {
@@ -456,7 +475,7 @@ FuncNode *FEMesh::getFuncNode(int i) const {
 Node *FEMesh::closestNode(const double x, const double y) {
   double min = std::numeric_limits<double>::max();
   Node *thenode = nullptr;
-  for(Node *node : node_iterator_NEW()) {
+  for(Node *node : node_iterator()) {
     double dx = node->position()(0) - x;
     double dy = node->position()(1) - y;
     double dist = dx*dx + dy*dy;

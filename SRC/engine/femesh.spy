@@ -24,6 +24,7 @@ from ooflib.engine import profile
 from ooflib.engine import conjugate
 
 def _FEMesh_getNodes(self):
+    ## TODO PYTHON3: Should this be a generator function?
     nodes = list(range(self.nnodes())); # This should pre-allocate the space
     for index in nodes:
         nodes[index] = self.getNode(index)
@@ -92,7 +93,7 @@ FEMesh.clear_parent_mesh = _FEMesh_clear_parent_mesh
 
 # Field initialization from another Mesh
 def _FEMesh_init_field(self, old_skel, old_femesh, field):
-    for node in self.funcnode_iterator_NEW():
+    for node in self.funcnode_iterator():
         if node.hasField(field):
             position = node.position()
             el = old_skel.enclosingElement(position)

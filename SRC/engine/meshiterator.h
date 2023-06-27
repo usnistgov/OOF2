@@ -12,13 +12,70 @@
 
 #include <oofconfig.h>
 
-// Objects for looping over elements and nodes in FEMeshes and
-// CSubProblems.  There are generic interfaces for both.
+/*
+  Objects for looping over elements and nodes in FEMeshes and
+  CSubProblems.  There are generic interfaces for both.
 
-// TODO: Can this be simplified by using templates and/or mix-in
-// classes?
+  The iterators are now real STL-style iterators that can be used like
+  this:
 
-// TODO PYTHON3: Make these into real STL-style iterators.  
+    for(Node *node : subproblem->node_iterator()) { ... }
+
+  or
+  
+    for(auto iter=mesh.node_iterator().begin();
+        iter!=mesh.node_iterator().end(); iter++)
+	{
+           Node *node = *iter;
+           ...
+        }
+
+  or in Python:
+  
+     for node in subproblem.nodes():
+         ...
+  
+  FEMesh and all CSubProblem classes need the methods node_iterator(),
+  funcnode_iterator(), and element_iterator(). They return a
+  VContainerP<Node>, VContainerP<FuncNode>, or VContainerP<Element>.
+  "VContainer" is a Virtual container -- it doesn't actually contain
+  anything except a pointer to the FEMesh or CSubProblem, but it knows
+  how to iterate over the mesh or subproblem and therefore acts like a
+  container.  VContainerP<OBJ> wraps a pointer to a VContainer<OBJ>,
+  which provides virtual functions that support iteration, namely
+  begin(), end(), c_begin(), and c_end().  "VContainerP" is a pointer
+  to a virtual container.
+
+  [TODO PYTHON3?  Rename FEMesh::node_iterator(), et al. because the
+  functions don't actually return iterators.  Better names might be
+  nodes(), funcnodes(), and elements().]
+
+  The VContainer classes define c_begin() and c_end(), which return
+  *pointers* to new iterators. They're called by python via swig (the
+  "c_" in the name means it's the C++ part of the python iterator.)
+
+  In C++, iteration over a VContainer<OBJ> is done by its begin() and
+  end() methods, which return STL compatible forward iterators (more
+  or less).  begin() and end() wrap c_begin() and c_end() with an
+  IterP<OBJ> object, which just handles deallocation of the pointer.
+  Dereferencing an iterator or IterP in C++ produces a pointer to an
+  OBJ.
+ 
+  VContainerP<OBJ> does *not* need to be derived from a non-templated
+  base class, independent of OBJ.  We always know whether we're
+  iterating over Nodes, FuncNodes, or elements, so the template
+  argument is always known.
+
+  Different kinds of CSubProblems (and FEMesh) need to return
+  different types of VContainers, which will in turn return different
+  types of iterators.  The VContainers can be different because
+  they're wrapped by VContainerP, which makes virtual function calls
+  through the VContainer pointer.  This is necessary because they will
+  be used in situations in which the subproblem type isn't known:
+     CSubProblem *subp = ...; // base class pointer
+     for(auto iter=subp.nodes().begin(); ... )
+
+ */
 
 #ifndef MESHITERATOR_H
 #define MESHITERATOR_H
@@ -31,100 +88,182 @@ class FuncNode;
 #include <ostream>
 #include <vector>
 
-template <class ITER, class OBJ>
-class IterP {
-private:
-  ITER *iter;
+// Base class for all mesh iterators.  OBJ is the type of the contents
+// of the container being iterated over: Node, FuncNode, Element, etc.
+
+// This base class is provided so that IterP<> can use ++, !=, and *
+// operators.  Unfortunately, it means that those operators defined in
+// the derived classes must use generic argument types (eg
+// MeshIterator<Node>&) in operator!= instead of specific ones
+// (MeshNodeIterator&), which requires a dynamic_cast in the method
+// definition.  Returning a generic value from operator++ is less
+// bothersome.
+
+template <class OBJ>
+class MeshIterator { 
 public:
-  IterP(ITER *i) : iter(i) {}
-  ~IterP() { delete iter; }
-  IterP(IterP &&o) : iter(o.iter) { o.iter = nullptr; }
-  IterP(const IterP &o) : iter(o.iter->clone()) {}
-  OBJ* operator*() const { return **iter; }
-  IterP& operator++() { iter->operator++(); return *this; }
-  bool operator!=(const IterP &other) const { return *iter != *other.iter; }
+  virtual ~MeshIterator() {}
+  virtual MeshIterator<OBJ>& operator++() = 0;
+  virtual bool operator!=(const MeshIterator<OBJ>&) const = 0;
+  virtual OBJ* operator*() const = 0;
+  virtual MeshIterator<OBJ>* clone() const = 0;
+  // TODO PYTHON3:  Does this need to define int size() ?
 };
 
-// Subclasses of MeshNodeIter determine which nodes are iterated over.
-// They are the ITER in the IterP template.  Subclasses must have
-// *static* methods begin(FEMesh*) and end(FEMesh*) which return
-// instances of the subclass.
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-class MeshNodeIter {
+// Subclasses of MeshNodeIterator determine which nodes are iterated over.
+
+template <class NODE>
+class MeshNodeIterBase : public MeshIterator<NODE> {
 protected:
   std::vector<Node*>::size_type index;
   const FEMesh* const mesh;
 public:
-  MeshNodeIter(const FEMesh* const mesh) : mesh(mesh), index(0) {}
-  MeshNodeIter(const FEMesh* const mesh, int i) : mesh(mesh), index(i) {}
-  virtual ~MeshNodeIter() {}
-  virtual MeshNodeIter *clone() const = 0;
-  bool operator!=(const MeshNodeIter &) const;
-  virtual int size() const = 0;
-  virtual MeshNodeIter &operator++() { index++; return *this; }
-  Node* operator*() const;
+  MeshNodeIterBase(const FEMesh* const mesh) : mesh(mesh), index(0) {}
+  MeshNodeIterBase(const FEMesh* const mesh, int i) : mesh(mesh), index(i) {}
+  virtual ~MeshNodeIterBase() {}
 };
 
-class MeshAllNodeIter : public MeshNodeIter {
+class MeshNodeIter : public MeshNodeIterBase<Node> {
 public:
-  MeshAllNodeIter(const FEMesh* const mesh) : MeshNodeIter(mesh) {}
-  MeshAllNodeIter(const FEMesh* const mesh, int i) : MeshNodeIter(mesh, i) {}
-  virtual MeshAllNodeIter* clone() const {
-    return new MeshAllNodeIter(mesh, index);
+  MeshNodeIter(const FEMesh* const mesh) : MeshNodeIterBase(mesh) {}
+  MeshNodeIter(const FEMesh* const mesh, int i)
+    : MeshNodeIterBase(mesh, i)
+  {}
+  virtual MeshIterator<Node>* clone() const {
+    return new MeshNodeIter(mesh, index);
   }
-  virtual int size() const;
-
-  static MeshAllNodeIter* begin(const FEMesh* const mesh);
-  static MeshAllNodeIter* end(const FEMesh* const mesh);
+  virtual MeshIterator<Node>& operator++() { index++; return *this; }
+  virtual bool operator!=(const MeshIterator<Node>&) const;
+  virtual Node* operator*() const;
 };
 
-class MeshFuncNodeIter : public MeshNodeIter {
+class MeshFuncNodeIter : public MeshNodeIterBase<FuncNode> {
 public:
-  MeshFuncNodeIter(const FEMesh* const mesh) : MeshNodeIter(mesh) {}
-  MeshFuncNodeIter(const FEMesh* const mesh, int i) : MeshNodeIter(mesh, i) {}
-  virtual MeshFuncNodeIter* clone() const {
+  MeshFuncNodeIter(const FEMesh* const mesh) : MeshNodeIterBase(mesh) {}
+  MeshFuncNodeIter(const FEMesh* const mesh, int i)
+    : MeshNodeIterBase(mesh, i)
+  {}
+  virtual MeshIterator<FuncNode>* clone() const {
     return new MeshFuncNodeIter(mesh, index);
   }
-  virtual int size() const;
-
-  static MeshFuncNodeIter* begin(const FEMesh* const mesh);
-  static MeshFuncNodeIter* end(const FEMesh* const mesh); 
+  virtual MeshIterator<FuncNode>& operator++() { index++; return *this; }
+  virtual bool operator!=(const MeshIterator<FuncNode>&) const;
+  virtual FuncNode* operator*() const;
 };
 
-// Instances of MeshNodeContainer<> are returned by
-// FEMesh::node_iterator, funcnode_iterator, etc.
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// TODO PYTHON3: I don't like the name MeshNodeContainer.  It should
-// be changed to MeshNodeIterator after the old NodeIterator classes
-// are removed.
+// Smart-ish wrapper for iterators, so they can be used in for
+// statements without worrying about deallocation.  OBJ is Node,
+// FuncNode, or Element.
 
-template <class ITER>
-class MeshNodeContainer {
+// TODO PYTHON3: Should we just use CleverPtr for this?  CleverPtr
+// won't work if a copy constructor is needed.  It also requires
+// dereferencing on all method calls, so it's not a drop-in
+// replacement for MeshIterator<OBJ>.
+
+template <class OBJ>
+class IterP {
 private:
-  const FEMesh* const mesh;
+  MeshIterator<OBJ> *iter;
 public:
-  MeshNodeContainer(const FEMesh* const mesh) : mesh(mesh) {}
+  IterP(MeshIterator<OBJ> *i) : iter(i) {}
+  ~IterP() { delete iter; }
+  IterP(IterP &&o) : iter(o.iter) { o.iter = nullptr; }
+  IterP(const IterP &o) : iter(o.iter->clone()) {}
+  OBJ* operator*() const { return **iter; }
+  IterP<OBJ>& operator++() { iter->operator++(); return *this; }
+  bool operator!=(const IterP &other) const { return *iter != *other.iter; }
+};
 
-  // begin() and end() are called from C++ and need to wrap the
-  // iterator pointer in IterP, which owns the pointer and will
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// VContainers are lightweight objects that have begin() and end()
+// methods returning iterators.  They don't actually contain anything,
+// but they *act* like containers containing mesh objects, such as
+// nodes or elements.  Different types of containers can "contain"
+// different subsets of mesh objects by returning different types of
+// iterators.
+
+template <class OBJ>
+class VContainer {
+private:
+  int size_;
+public:
+  VContainer(int s) : size_(s) {}
+  virtual ~VContainer() {}
+  // begin() and end() are called from C++ and return an IterP which
+  // wraps an iterator pointer.  IterP owns the pointer and will
   // destroy it when it's done.  c_begin and c_end are called from
   // python, and don't wrap the pointer because Python will take care
   // of it.
-  ITER* c_begin() const { return ITER::begin(mesh); }
-  ITER* c_end() const { return ITER::end(mesh); }
-  IterP<ITER, Node> begin() const {
-    return IterP<ITER, Node>(ITER::begin(mesh));
-  }
-  IterP<ITER, Node> end() const {
-    return IterP<ITER, Node>(ITER::end(mesh));
-  }
+  virtual MeshIterator<OBJ>* c_begin() const = 0;
+  virtual MeshIterator<OBJ>* c_end() const = 0;
+  virtual int size() const { return size_; }
+  IterP<OBJ> begin() const { return IterP<OBJ>(c_begin()); }
+  IterP<OBJ> end() const { return IterP<OBJ>(c_end()); }
 };
 
+class MeshNodeContainer : public VContainer<Node> {
+protected:
+  const FEMesh* const mesh;
+public:
+  MeshNodeContainer(const FEMesh *const mesh, int size)
+    : VContainer<Node>(size), mesh(mesh)
+  {}
+  virtual MeshIterator<Node>* c_begin() const;
+  virtual MeshIterator<Node>* c_end() const;
+};
+
+class MeshFuncNodeContainer : public VContainer<FuncNode> {
+protected:
+  const FEMesh* const mesh;
+public:
+  MeshFuncNodeContainer(const FEMesh* const mesh, int size)
+    : VContainer<FuncNode>(size),
+      mesh(mesh)
+  {}
+  virtual MeshIterator<FuncNode>* c_begin() const;
+  virtual MeshIterator<FuncNode>* c_end() const;
+};
+
+// Smart-ish wrapper for virtual containers.
+
+template <class OBJ>
+class VContainerP {
+private:
+  VContainerP(const VContainerP<OBJ> &c) = delete;
+protected:
+  VContainer<OBJ> *container;
+public:
+  VContainerP(VContainer<OBJ> *cntnr) : container(cntnr) {}
+  ~VContainerP() { delete container; }
+  VContainerP(VContainerP<OBJ> &&c) : container(c.container) {
+    c.container = nullptr;
+  }
+  // VContainerP(const VContainerP<OBJ> &c) : container(c.container->clone()) {}
+  
+  MeshIterator<OBJ> *c_begin() const { return container->c_begin(); }
+  MeshIterator<OBJ> *c_end() const { return container->c_end(); }
+  IterP<OBJ> begin() const { return IterP<OBJ>(c_begin()); }
+  IterP<OBJ> end() const { return IterP<OBJ>(c_end()); }
+};
+
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 ///// OLD BELOW HERE
 
 // Virtual base class for MeshNodeIterator and various types of
 // SubProblemNodeIterator.
+
+#define OLDITERATORS
+#ifdef OLDITERATORS
 
 class NodeIteratorBase {
 public:
@@ -212,6 +351,8 @@ public:
   int count() const { return base->count(); }
   FuncNode *node() const { return base->node(); }
 };
+
+#endif // OLDITERATORS
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

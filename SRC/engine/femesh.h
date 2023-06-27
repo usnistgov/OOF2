@@ -110,10 +110,12 @@ public:
   CMicrostructure *get_microstructure() const { return microstructure; }
 
   ElementIterator element_iterator() const;
-  NodeIterator node_iterator() const;
-  FuncNodeIterator funcnode_iterator() const;
-  MeshNodeContainer<MeshAllNodeIter> node_iterator_NEW() const;
-  MeshNodeContainer<MeshFuncNodeIter> funcnode_iterator_NEW() const;
+  NodeIterator node_iterator_OLD() const;
+  FuncNodeIterator funcnode_iterator_OLD() const;
+  VContainer<Node>* c_node_iterator() const;
+  VContainer<FuncNode>* c_funcnode_iterator() const;
+  VContainerP<Node> node_iterator() const;
+  VContainerP<FuncNode> funcnode_iterator() const;
 
   // For testing
   void iterator_test_NEW() const;
@@ -195,6 +197,7 @@ public:
   void refreshInterfaceMaterials(PyObject *skeletoncontext);
 
   int nnodes() const;
+  int nfuncnodes() const;
   int nelements() const;
 
   // Is a field in-plane on this mesh?
@@ -270,8 +273,8 @@ private:
   friend class Equation::FindAllEquationWrappers;
   friend class Field::FindAllFieldWrappers;
   friend class MeshElementIterator;
-  friend class MeshFuncNodeIterator;
-  friend class MeshNodeIterator;
+  friend class MeshFuncNodeIterator; // OLD
+  friend class MeshNodeIterator;     // OLD
   friend class Node;
   friend class CSubProblem;
   friend class LinearizedSystem;
@@ -282,7 +285,7 @@ private:
   friend class DiskDataCache;
 
   friend class MeshFuncNodeIter;
-  friend class MeshAllNodeIter;
+  friend class MeshNodeIter;
 
   //AMR, moved to csubproblem
 // Adaptive Mesh Refinement stuff.

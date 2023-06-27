@@ -24,32 +24,22 @@
 #include "engine/node.h"
 #include "engine/flux.h"	// SWIGBUG
 
-  typedef MeshNodeContainer<MeshAllNodeIter> MeshAllNodeContainer;
-  typedef MeshNodeContainer<MeshFuncNodeIter> MeshFuncNodeContainer;
+typedef VContainer<Node> VContainerNode;
+typedef VContainer<FuncNode> VContainerFuncNode;
 %}
 
 // Constructors for these classes aren't swigged because the objects
 // should only be created by calling FEMesh::node_iterator, etc.
 
-%nodefaultctor MeshAllNodeIter;
-class MeshAllNodeIter {
+%nodefaultctor MeshNodeIter;
+class MeshNodeIter {
 public:
-  bool operator!=(const MeshAllNodeIter&);
+  bool operator!=(const MeshNodeIter&);
 };
 
-%extend MeshAllNodeIter {
+%extend MeshNodeIter {
   void increment() { ++(*$self); }
   Node* node() { return $self->operator*(); }
-}
-
-%nodefaultctor MeshAllNodeContainer;
-%feature("valuewrapper") MeshAllNodeContainer;
-class MeshAllNodeContainer {
-public:
-  %newobject c_begin;
-  %newobject c_end;
-  MeshAllNodeIter* c_begin();
-  MeshAllNodeIter* c_end();
 };
 
 %nodefaultctor MeshFuncNodeIter;
@@ -60,19 +50,30 @@ public:
 
 %extend MeshFuncNodeIter {
   void increment() { ++(*self); }
-  Node* node() { return $self->operator*(); }
+  FuncNode* node() { return $self->operator*(); }
 };
 
-%nodefaultctor MeshFuncNodeContainer;
-%feature("valuewrapper") MeshFuncNodeContainer;
-class MeshFuncNodeContainer {
+%nodefaultctor VContainerNode;
+%feature("valuewrapper") VContainerNode;
+class VContainerNode {
 public:
+  int size();
+  %newobject c_begin;
+  %newobject c_end;
+  MeshNodeIter* c_begin();
+  MeshNodeIter* c_end();
+};
+
+%nodefaultctor VContainerFuncNode;
+%feature("valuewrapper") VContainerFuncNode;
+class VContainerFuncNode {
+public:
+  int size();
   %newobject c_begin;
   %newobject c_end;
   MeshFuncNodeIter* c_begin();
   MeshFuncNodeIter* c_end();
 };
-
 
 // OLD BELOW HERE
 
