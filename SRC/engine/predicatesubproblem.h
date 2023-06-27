@@ -97,8 +97,9 @@ public:
   virtual bool contains(const Element*) const;
   virtual bool containsNode(const Node*) const;
 
-#ifdef OLDITERATORS
   friend class PredicateSubProblemElementIterator<PRDCT>;
+
+#ifdef OLDITERATORS
   friend class PSPNodeIteratorOLD<PRDCT>;
   friend class PSPFuncNodeIteratorOLD<PRDCT>;
 #endif // OLDITERATORS
@@ -330,80 +331,5 @@ VContainer<FuncNode>* PredicateSubProblem<PRDCT>::c_funcnode_iterator() const
 {
   return new PSPFuncNodeContainer<PRDCT>(this);
 }
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-#ifdef OLDITERATORS
-
-template <class PRDCT>
-class PSPNodeIteratorOLD : public NodeIteratorBase {
-private:
-  const PredicateSubProblem<PRDCT> *const subproblem;
-  std::set<Node*, NodeCompare> &nodes;
-  std::set<Node*, NodeCompare>::iterator iter;
-  int count_;
-public:
-  PSPNodeIteratorOLD(const PredicateSubProblem<PRDCT>*);
-  virtual Node *node() const { return *iter; }
-  virtual void operator++() { ++iter; ++count_; }
-  virtual bool begin() const { return iter == nodes.begin(); }
-  virtual bool end() const { return iter == nodes.end(); }
-  virtual int size() const { return nodes.size(); }
-  virtual NodeIteratorBase *clone() const {
-    return new PSPNodeIteratorOLD<PRDCT>(*this);
-  }
-};
-
-template <class PRDCT>
-PSPNodeIteratorOLD<PRDCT>::PSPNodeIteratorOLD(const PredicateSubProblem<PRDCT> *subp)
-  : subproblem(subp),
-    nodes(subp->nodes()),	// creates list of nodes, if necessary
-    iter(nodes.begin()),
-    count_(0)
-{}
-
-template <class PRDCT>
-NodeIterator PredicateSubProblem<PRDCT>::node_iterator_OLD() const {
-  return NodeIterator(new PSPNodeIteratorOLD<PRDCT>(this));
-}
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-template <class PRDCT>
-class PSPFuncNodeIteratorOLD : public FuncNodeIteratorBase {
-private:
-  const PredicateSubProblem<PRDCT> *const subproblem;
-  std::set<FuncNode*, NodeCompare> &funcnodes;
-  std::set<FuncNode*, NodeCompare>::iterator iter;
-  int count_;
-public:
-  PSPFuncNodeIteratorOLD(const PredicateSubProblem<PRDCT>*);
-  virtual FuncNode *node() const { return *iter; }
-  virtual void operator++() { ++iter; ++count_; }
-  virtual bool begin() const { return iter == funcnodes.begin(); }
-  virtual bool end() const { return iter == funcnodes.end(); }
-  virtual int size() const { return funcnodes.size(); }
-  int count() const { return count_; }
-  virtual FuncNodeIteratorBase *clone() const {
-    return new PSPFuncNodeIteratorOLD<PRDCT>(*this);
-  }
-};
-
-template <class PRDCT>
-PSPFuncNodeIteratorOLD<PRDCT>::PSPFuncNodeIteratorOLD(
-					const PredicateSubProblem<PRDCT> *subp)
-  : subproblem(subp),
-    funcnodes(subp->funcnodes()),
-    iter(funcnodes.begin()),
-    count_(0)
-{}
-
-template <class PRDCT>
-FuncNodeIterator PredicateSubProblem<PRDCT>::funcnode_iterator_OLD() const {
-  return FuncNodeIterator(new PSPFuncNodeIteratorOLD<PRDCT>(this));
-}
-#endif // OLDITERATORS
 
 #endif // PREDICATESUBPROBLEM_H

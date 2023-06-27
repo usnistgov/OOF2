@@ -393,16 +393,6 @@ ElementIterator FEMesh::element_iterator() const {
   return ElementIterator(new MeshElementIterator(this));
 }
 
-#ifdef OLDITERATORS
-NodeIterator FEMesh::node_iterator_OLD() const {
-  return NodeIterator(new MeshNodeIterator(this));
-}
-
-FuncNodeIterator FEMesh::funcnode_iterator_OLD() const {
-  return FuncNodeIterator(new MeshFuncNodeIterator(this));
-}
-#endif	// OLDITERATORS
-
 VContainerP<Node> FEMesh::node_iterator() const {
   return VContainerP<Node>(c_node_iterator());
 }
@@ -419,35 +409,11 @@ VContainer<FuncNode>* FEMesh::c_funcnode_iterator() const {
   return new MeshFuncNodeContainer(this, nfuncnodes());
 }
 
-
-void FEMesh::iterator_test_NEW() const {
-  int i = 0;
-  // for(auto it = node_iterator().begin(); it!=node_iterator().end(); ++it)
-  //   i += 1;
-  for(Node *node : node_iterator())
-    i += 1;
-}
-
-#ifdef OLDITERATORS
-void FEMesh::iterator_test_OLD() const {
-  int i = 0;
-  for(NodeIterator ni=node_iterator_OLD(); !ni.end(); ++ni)
-    i += 1;
-}
-#endif // OLDITERATORS
-
-// operator[] is deprecated...
-// FuncNode *FEMesh::operator[](const FuncNodeIterator &ni) const {
-//   return funcnode[ni.index];
-// }
-
-// Node *FEMesh::operator[](const NodeIterator &ni) const {
-//   return getNode(ni.index);
-// }
-
 // Caution: NodeIterator::index is not necessarily the same as
 // node.index().  The argument to FEMesh::getNode is the
 // NodeIterator::index.
+//  TODO PYTHON3: That comment refers to the old NodeIterator.  Is the
+//  comment obsolete?
 
 Node *FEMesh::getNode(int i) const {
 //   if(i >= int(funcnode.size() + mapnode.size())) {

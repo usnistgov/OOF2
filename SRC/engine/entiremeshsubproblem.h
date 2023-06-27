@@ -28,8 +28,6 @@ public:
   virtual VContainer<FuncNode>* c_funcnode_iterator() const;
 
   virtual ElementIterator element_iterator() const;
-  virtual NodeIterator node_iterator_OLD() const;
-  virtual FuncNodeIterator funcnode_iterator_OLD() const;
   virtual bool contains(const Element*) const;
   virtual bool containsNode(const Node*) const;
   virtual MaterialSet *getMaterials() const;

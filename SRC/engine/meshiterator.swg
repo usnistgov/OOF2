@@ -77,43 +77,6 @@ public:
 
 // OLD BELOW HERE
 
-// The .spy file adds __iter__ and __next__ methods to make these into
-// real iterators.
-
-// TODO PYTHON3: Find code that can be simplified because these
-// classes are real iterators.
-
-%nodefaultctor NodeIterator;
-
-class NodeIterator {
-public:
-  ~NodeIterator();
-  bool end();
-  int size();
-  Node *node();
-};
-
-%extend NodeIterator {
-  void increment() {
-    ++(*self);
-  }
-};
-
-%nodefaultctor FuncNodeIterator;
-
-class FuncNodeIterator {
-public:
-  ~FuncNodeIterator();
-  bool end();
-  int size();
-  FuncNode *node();
-};
-
-%extend FuncNodeIterator {
-  void increment() {
-    ++(*self);
-  }
-};
 
 %nodefaultctor ElementIterator;
 

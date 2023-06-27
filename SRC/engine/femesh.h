@@ -110,16 +110,10 @@ public:
   CMicrostructure *get_microstructure() const { return microstructure; }
 
   ElementIterator element_iterator() const;
-  NodeIterator node_iterator_OLD() const;
-  FuncNodeIterator funcnode_iterator_OLD() const;
   VContainer<Node>* c_node_iterator() const;
   VContainer<FuncNode>* c_funcnode_iterator() const;
   VContainerP<Node> node_iterator() const;
   VContainerP<FuncNode> funcnode_iterator() const;
-
-  // For testing
-  void iterator_test_NEW() const;
-  void iterator_test_OLD() const;
 
   Node *newMapNode(const Coord&); // the only way to make a Node
   FuncNode *newFuncNode(const Coord&); // the only way to make a FuncNode

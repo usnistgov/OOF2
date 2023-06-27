@@ -97,8 +97,6 @@ public:
   virtual void redefined() {}
 
   virtual ElementIterator element_iterator() const = 0;
-  virtual NodeIterator node_iterator_OLD() const = 0;
-  virtual FuncNodeIterator funcnode_iterator_OLD() const = 0;
 
   VContainerP<Node> node_iterator() const {
     return VContainerP<Node>(c_node_iterator());

@@ -81,15 +81,11 @@ public:
   void set_in_plane(Field&, bool);
 
   ElementIterator element_iterator();
-  NodeIterator node_iterator_OLD();
-  FuncNodeIterator funcnode_iterator_OLD();
 
   %rename(node_iterator) c_node_iterator;
   %rename(funcnode_iterator) c_funcnode_iterator;
   VContainerNode* c_node_iterator();
   VContainerFuncNode* c_funcnode_iterator();
-  void iterator_test_NEW();
-  void iterator_test_OLD();
 
   void set_rwlock(RWLock *rw);
   RWLock * get_rwlock();

@@ -22,59 +22,6 @@ VContainerFuncNode.__iter__ = _VContainerNode___iter__
 
 # OLD BELOW HERE
 
-## TODO PYTHON3: Instead of defining __getitem__ and __next__, just
-## make __iter__ a generator function.
-
-def _NodeIterator___getitem__(self, idx):
-    if self.end():
-        raise IndexError
-    ans = self.node()
-    self.increment()
-    return ans
-
-NodeIterator.__getitem__ = _NodeIterator___getitem__
-
-def _NodeIterator___iter__(self):
-    return self
-
-NodeIterator.__iter__ = _NodeIterator___iter__
-
-def _NodeIterator___next__(self):
-    if self.end():
-        raise StopIteration
-    val = self.node()
-    self.increment()
-    return val
-
-NodeIterator.__next__ = _NodeIterator___next__
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-def _FuncNodeIterator___getitem__(self,idx):
-    if self.end():
-        raise IndexError
-    ans = self.node()
-    self.increment()
-    return ans
-
-FuncNodeIterator.__getitem__ = _FuncNodeIterator___getitem__
-
-def _FuncNodeIterator___iter__(self):
-    return self
-
-FuncNodeIterator.__iter__ = _FuncNodeIterator___iter__
-
-def _FuncNodeIterator___next__(self):
-    if self.end():
-        raise StopIteration
-    val = self.node()
-    self.increment()
-    return val
-
-FuncNodeIterator.__next__ = _FuncNodeIterator___next__
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
 def _ElementIterator___getitem__(self, idx):
     if self.end():
         raise IndexError
