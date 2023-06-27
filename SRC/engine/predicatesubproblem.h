@@ -248,56 +248,30 @@ ElementIterator PredicateSubProblem<PRDCT>::element_iterator() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// Node and FuncNode iterators
-
-// TODO PYTHON3: Use IterP and PSPNodeIterator instead of
-// PSPNodeIterator and PSPNodeIterBase.
+// Node and FuncNode iterators, returned by c_begin and c_end in
+// PSPNodeContainer.
 
 template <class PRDCT, class NODE>
-class PSPNodeIterBase : public MeshIterator<NODE> {
+class PSPNodeIter : public MeshIterator<NODE> {
 protected:
   const PredicateSubProblem<PRDCT>* const subp;
   typename std::set<NODE*, NodeCompare>::iterator iter;
 public:
-  PSPNodeIterBase(const PredicateSubProblem<PRDCT> *const subp,
-		  typename std::set<NODE*, NodeCompare>::iterator iter)
+  PSPNodeIter(const PredicateSubProblem<PRDCT> *const subp,
+	      typename std::set<NODE*, NodeCompare>::iterator iter)
     : subp(subp),
       iter(iter)
   {}
-  virtual MeshIterator<NODE> *clone() const = 0;
   virtual bool operator!=(const MeshIterator<NODE> &o) const {
-    const PSPNodeIterBase<PRDCT, NODE>& other =
-      dynamic_cast<const PSPNodeIterBase<PRDCT, NODE>&>(o);
+    const PSPNodeIter<PRDCT, NODE>& other =
+      dynamic_cast<const PSPNodeIter<PRDCT, NODE>&>(o);
     return other.iter != iter;
   }
   virtual MeshIterator<NODE>& operator++() { ++iter; return *this; }
   virtual NODE* operator*() const { return *iter; }
-};
 
-template <class PRDCT>
-class PSPNodeIterator : public PSPNodeIterBase<PRDCT, Node>
-{
-public:
-  PSPNodeIterator(const PredicateSubProblem<PRDCT> *const subp,
-		  NodeSet::iterator iter)
-    : PSPNodeIterBase<PRDCT, Node>(subp, iter)
-  {}
-  virtual MeshIterator<Node>* clone() const {
-    return new PSPNodeIterator(*this);
-  }
-};
-
-template <class PRDCT>
-class PSPFuncNodeIterator
-  : public PSPNodeIterBase<PRDCT, FuncNode>
-{
-public:
-  PSPFuncNodeIterator(const PredicateSubProblem<PRDCT> *const subp,
-		      FuncNodeSet::iterator iter)
-    : PSPNodeIterBase<PRDCT, FuncNode>(subp, iter)
-  {}
-  virtual MeshIterator<FuncNode> *clone() const {
-    return new PSPFuncNodeIterator<PRDCT>(*this);
+  virtual MeshIterator<NODE>* clone() const {
+    return new PSPNodeIter<PRDCT, NODE>(*this);
   }
 };
 
@@ -315,12 +289,14 @@ public:
       subp(subp)
   {}
   virtual MeshIterator<Node>* c_begin() const {
-    return new PSPNodeIterator<PRDCT>(this->subp, this->subp->nodes().begin());
+    return new PSPNodeIter<PRDCT, Node>(this->subp,
+					this->subp->nodes().begin());
   }
   virtual MeshIterator<Node>* c_end() const {
-    return new PSPNodeIterator<PRDCT>(this->subp, this->subp->nodes().end());
-  }}
-;
+    return new PSPNodeIter<PRDCT, Node>(this->subp,
+					this->subp->nodes().end());
+  }
+};
 
 template <class PRDCT>
 class PSPFuncNodeContainer : public VContainer<FuncNode> {
@@ -332,12 +308,12 @@ public:
       subp(subp)
   {}
   virtual MeshIterator<FuncNode>* c_begin() const {
-    return new PSPFuncNodeIterator<PRDCT>(this->subp,
-					  this->subp->funcnodes().begin());
+    return new PSPNodeIter<PRDCT, FuncNode>(this->subp,
+					    this->subp->funcnodes().begin());
   }
   virtual MeshIterator<FuncNode>* c_end() const {
-    return new PSPFuncNodeIterator<PRDCT>(this->subp,
-					  this->subp->funcnodes().end());
+    return new PSPNodeIter<PRDCT, FuncNode>(this->subp,
+					    this->subp->funcnodes().end());
   }
 };
 
