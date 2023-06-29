@@ -42,7 +42,6 @@ class Coord;
 class DoFMap;
 class DoubleVec;
 class Element;
-class ElementIteratorOLD;
 class Equation;
 class FEMesh;
 class Field;
@@ -96,8 +95,6 @@ public:
   // Material assignments have changed,
   // MaterialSubProblem::redefined() should be called.
   virtual void redefined() {}
-
-  virtual ElementIteratorOLD element_iterator_OLD() const = 0;
 
   VContainerP<Node> node_iterator() const {
     return VContainerP<Node>(c_node_iterator());

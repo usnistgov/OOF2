@@ -129,26 +129,6 @@ public:
   MeshElementIter* c_end();
 };
 
-// OLD BELOW HERE
-
-
-%nodefaultctor ElementIteratorOLD;
-
-class ElementIteratorOLD {
-public:
-  ~ElementIteratorOLD();
-  bool end();
-  int size();
-  int count();
-  Element *element();
-};
-
-%extend ElementIteratorOLD {
-  void increment() {
-    ++(*self);
-  }
-};
-
 %pythoncode "engine/meshiterator.spy"
 
 #endif // MESHITERATOR_SWG

@@ -18,10 +18,6 @@ CEntireMeshSubProblem::CEntireMeshSubProblem() {}
 
 CEntireMeshSubProblem::~CEntireMeshSubProblem() {}
 
-ElementIteratorOLD CEntireMeshSubProblem::element_iterator_OLD() const {
-  return mesh->element_iterator_OLD();
-}
-
 VContainer<Node>* CEntireMeshSubProblem::c_node_iterator() const {
   return mesh->c_node_iterator();
 }

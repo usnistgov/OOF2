@@ -737,7 +737,7 @@ def _createInterfaceFloatBCs(self,subpctxt):
     for fbc in self._interfaceFloatBCs:
         fbc.remove_from_mesh()
     self._interfaceFloatBCs=[]
-    for edgement in self.edgement_iterator():
+    for edgement in self.interface_element_iterator():
         # For every field in the interface for which no boundary
         # condition has been specified, re-connect the fields by
         # providing node-wise FloatBCs with constant profiles equal to

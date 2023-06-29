@@ -30,27 +30,3 @@ def _VContainerElement___iter__(self):
 VContainerElement.__iter__ = _VContainerElement___iter__
 VContainerInterfaceElement.__iter__ = _VContainerElement___iter__
 
-# OLD BELOW HERE
-
-def _ElementIterator___getitem__(self, idx):
-    if self.end():
-        raise IndexError
-    ans = self.element()
-    self.increment()
-    return ans
-
-ElementIteratorOLD.__getitem__ = _ElementIterator___getitem__
-
-def _ElementIterator___iter__(self):
-    return self
-
-ElementIteratorOLD.__iter__ = _ElementIterator___iter__
-
-def _ElementIterator___next__(self):
-    if self.end():
-        raise StopIteration
-    val = self.element()
-    self.increment()
-    return val
-
-ElementIteratorOLD.__next__ = _ElementIterator___next__

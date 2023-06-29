@@ -25,9 +25,6 @@ template <class PRDCT> class PSPFuncNodeContainer;
 template <class PRDCT> class PSPElementContainer;
 template <class PRDCT> class PSPInterfaceElementContainer;
 
-template <class PRDCT> class PredicateSubProblemElementIteratorOLD;
-
-
 #include "engine/csubproblem.h"
 #include "engine/elementnodeiterator.h"
 #include "engine/femesh.h"
@@ -86,7 +83,6 @@ public:
   {}
   virtual ~PredicateSubProblem();
   virtual void redefined();
-  virtual ElementIteratorOLD element_iterator_OLD() const;
   // node_iterator and funcnode_iterator need to return pointers to
   // base class MeshNodeContainer objects, because virtual methods in
   // the containers are needed to return different types of iterators.
@@ -108,8 +104,6 @@ public:
   
   virtual bool contains(const Element*) const;
   virtual bool containsNode(const Node*) const;
-
-  friend class PredicateSubProblemElementIteratorOLD<PRDCT>;
 };
 
 template <class PRDCT>
@@ -190,85 +184,6 @@ EdgementSet &PredicateSubProblem<PRDCT>::edgements() const {
     }
   }
   return *edgements_;
-}
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-template <class PRDCT>
-class PredicateSubProblemElementIteratorOLD : public ElementIteratorBase {
-private:
-  const PredicateSubProblem<PRDCT> *subproblem;
-  MeshElementIteratorOLD iter;
-  int count_;
-  mutable int size_;
-  mutable bool size_computed_;
-  bool ok(const FEMesh *mesh, const Element *elem) const {
-    return subproblem->predicate(mesh, elem);
-  }
-public:
-  PredicateSubProblemElementIteratorOLD(const PredicateSubProblem<PRDCT> *subp);
-  PredicateSubProblemElementIteratorOLD(
-			    const PredicateSubProblemElementIteratorOLD<PRDCT>&);
-  virtual void operator++();
-  virtual bool end() const { return iter.end(); }
-  virtual int size() const;
-  virtual int count() const { return count_; }
-  virtual Element *element() const { return iter.element(); }
-  virtual ElementIteratorBase *clone() const {
-    return new PredicateSubProblemElementIteratorOLD<PRDCT>(*this);
-  }
-};
-
-template <class PRDCT>
-PredicateSubProblemElementIteratorOLD<PRDCT>::PredicateSubProblemElementIteratorOLD(
-			       const PredicateSubProblem<PRDCT> *subp)
-  : subproblem(subp),
-    iter(subp->mesh),
-    count_(0),
-    size_(0),
-    size_computed_(false)
-{
-  while(!iter.end() && !ok(subproblem->mesh, iter.element()))
-    ++iter;
-  if(!iter.end())
-    count_++;
-}
-
-template <class PRDCT>
-PredicateSubProblemElementIteratorOLD<PRDCT>::PredicateSubProblemElementIteratorOLD(
-		      const PredicateSubProblemElementIteratorOLD<PRDCT> &other)
-  : subproblem(other.subproblem),
-    iter(*dynamic_cast<MeshElementIteratorOLD*>(other.iter.clone())),
-    count_(other.count_),
-    size_(other.size_),
-    size_computed_(other.size_computed_)
-{}
-
-template <class PRDCT>
-void PredicateSubProblemElementIteratorOLD<PRDCT>::operator++() {
-  ++iter;
-  while(!iter.end() && !ok(subproblem->mesh, iter.element()))
-    ++iter;
-  if(!iter.end())
-    count_++;
-}
-
-template <class PRDCT>
-int PredicateSubProblemElementIteratorOLD<PRDCT>::size() const {
-  if(!size_computed_) {
-    size_computed_ = true;
-    size_ = 0;
-    for(ElementIteratorOLD i(subproblem->mesh->element_iterator_OLD()); !i.end(); ++i){
-      if(ok(subproblem->mesh, i.element()))
-	 size_++;
-    }
-  }
-  return size_;
-}
-
-template <class PRDCT>
-ElementIteratorOLD PredicateSubProblem<PRDCT>::element_iterator_OLD() const {
-  return ElementIteratorOLD(new PredicateSubProblemElementIteratorOLD<PRDCT>(this));
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

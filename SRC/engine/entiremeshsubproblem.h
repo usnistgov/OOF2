@@ -29,7 +29,6 @@ public:
   virtual VContainer<Element>* c_element_iterator() const;
   virtual VContainer<InterfaceElement>* c_interface_element_iterator() const;
 
-  virtual ElementIteratorOLD element_iterator_OLD() const;
   virtual bool contains(const Element*) const;
   virtual bool containsNode(const Node*) const;
   virtual MaterialSet *getMaterials() const;

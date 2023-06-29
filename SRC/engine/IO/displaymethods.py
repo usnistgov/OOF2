@@ -574,7 +574,7 @@ registeredclass.Registration(
 #         try:
 #             meshctxt.restoreCachedData(self.getTime(meshctxt, gfxwindow))
 #             if self.boundary==placeholder.every.IDstring:
-#                 for edgement in femesh.edgement_iterator():
+#                 for edgement in femesh.interface_element_iterator():
 #                     if self.material!=ANYstring:
 #                         if edgement.material():
 #                             matname=edgement.material().name()
@@ -587,7 +587,7 @@ registeredclass.Registration(
 #                         pts = self.where.evaluate(femesh, [edge], [[0.0, 1.0]])
 #                         device.draw_segment(primitives.Segment(pts[0], pts[1]))
 #             else:
-#                 for edgement in femesh.edgement_iterator():
+#                 for edgement in femesh.interface_element_iterator():
 #                     if self.material!=ANYstring:
 #                         if edgement.material():
 #                             matname=edgement.material().name()

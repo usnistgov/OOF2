@@ -14,10 +14,6 @@
 
 %module(package="ooflib.SWIG.engine") femesh
 
-%feature("valuewrapper") ElementIteratorOLD;
-// %feature("valuewrapper") NodeIterator;
-// %feature("valuewrapper") FuncNodeIterator;
-
 %include "common/typemaps.swg"
 %import "common/cmicrostructure.swg"
 %import "common/lock.swg"
@@ -76,13 +72,10 @@ public:
 
   void addInterfaceElement(InterfaceElement*);
   int nedgements();
-  ElementIteratorOLD edgement_iterator();
   void renameInterfaceElements(char* oldname, char* newname);
 
   bool in_plane(Field&);
   void set_in_plane(Field&, bool);
-
-  ElementIteratorOLD element_iterator_OLD();
 
   %rename(node_iterator) c_node_iterator;
   %rename(funcnode_iterator) c_funcnode_iterator;

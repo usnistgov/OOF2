@@ -388,10 +388,6 @@ MaterialSet *FEMesh::getAllMaterials() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-ElementIteratorOLD FEMesh::element_iterator_OLD() const {
-  return ElementIteratorOLD(new MeshElementIteratorOLD(this));
-}
-
 VContainerP<Element> FEMesh::element_iterator() const {
   return VContainerP<Element>(c_element_iterator());
 }
@@ -605,26 +601,19 @@ int FEMesh::nedgements() const
 {
   return edgement.size();
 }
-ElementIteratorOLD FEMesh::edgement_iterator() const
-{
-  return ElementIteratorOLD(new MeshInterfaceElementIteratorOLD(this));
-}
-
 // TODO INTERFACE: Called from FEMesh::refreshMaterials, but possibly
 // from elsewhere also.  Should this function just be in-line in
 // refreshMaterials, or is there a good reason for it to stand alone?
-void FEMesh::refreshInterfaceMaterials(PyObject *skelctxt)
-{
-  for(ElementIteratorOLD ei=edgement_iterator(); !ei.end(); ++ei) {
-    Element *el = ei.element();
-    const Material *om = el->material();
-    InterfaceElement *ed = dynamic_cast<InterfaceElement*>(el);
-    ed->refreshInterfaceMaterial(skelctxt);
-    const Material *nm = el->material();
-    if (nm != om) {
-      if (om) 
+void FEMesh::refreshInterfaceMaterials(PyObject *skelctxt) {
+
+  for(InterfaceElement *el : interface_element_iterator()) {
+    const Material *om = el->material(); // old material
+    el->refreshInterfaceMaterial(skelctxt);
+    const Material *nm = el->material(); // new material
+    if(nm != om) {
+      if(om)
 	removeMaterial(om);
-      if (nm)
+      if(nm)
 	addMaterial(nm);
     }
   }
@@ -633,6 +622,6 @@ void FEMesh::refreshInterfaceMaterials(PyObject *skelctxt)
 void FEMesh::renameInterfaceElements(const std::string &oldname,
 				     const std::string &newname)
 {
-  for(ElementIteratorOLD ei=edgement_iterator(); !ei.end(); ++ei)
-    ((InterfaceElement*)(ei.element()))->rename(oldname,newname);
+  for(InterfaceElement *edgement: interface_element_iterator())
+    edgement->rename(oldname, newname);
 }

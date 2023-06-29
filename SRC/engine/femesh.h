@@ -33,7 +33,6 @@ class DegreeOfFreedom;
 class DoFMap;
 class DoubleVec;
 class Element;
-///class ElementIteratorOLD;
 class Equation;
 class Field;
 class FuncNode;
@@ -118,8 +117,6 @@ public:
   VContainerP<Element> element_iterator() const;
   VContainerP<InterfaceElement> interface_element_iterator() const;
 
-  ElementIteratorOLD element_iterator_OLD() const;
-
   Node *newMapNode(const Coord&); // the only way to make a Node
   FuncNode *newFuncNode(const Coord&); // the only way to make a FuncNode
 
@@ -157,7 +154,6 @@ public:
   std::vector<InterfaceElement*> edgement;
   int nedgements() const;
   
-  ElementIteratorOLD edgement_iterator() const;
   void renameInterfaceElements(const std::string &oldname,
 			       const std::string &newname);
 
@@ -272,7 +268,6 @@ public:
 private:
   friend class Equation::FindAllEquationWrappers;
   friend class Field::FindAllFieldWrappers;
-  friend class MeshElementIteratorOLD;
   friend class Node;
   friend class CSubProblem;
   friend class LinearizedSystem;
