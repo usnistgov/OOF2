@@ -27,6 +27,7 @@ public:
   virtual VContainer<Node>* c_node_iterator() const;
   virtual VContainer<FuncNode>* c_funcnode_iterator() const;
   virtual VContainer<Element>* c_element_iterator() const;
+  virtual VContainer<InterfaceElement>* c_interface_element_iterator() const;
 
   virtual ElementIteratorOLD element_iterator_OLD() const;
   virtual bool contains(const Element*) const;

@@ -74,6 +74,30 @@ bool MeshElementIter::operator!=(const MeshIterator<Element> &other) const {
   return o.mesh != mesh || o.index != index;
 };
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+InterfaceElement *MeshInterfaceElementIter::operator*() const {
+  return mesh->edgement[index];
+}
+
+MeshIterator<InterfaceElement> *MeshInterfaceElementContainer::c_begin() const {
+  return new MeshInterfaceElementIter(mesh);
+}
+
+MeshIterator<InterfaceElement> *MeshInterfaceElementContainer::c_end() const {
+  return new MeshInterfaceElementIter(mesh, mesh->nedgements());
+}
+
+bool MeshInterfaceElementIter::operator!=(
+			  const MeshIterator<InterfaceElement> &other)
+  const
+{
+  const MeshInterfaceElementIter &o
+    = dynamic_cast<const MeshInterfaceElementIter&>(other);
+  return o.mesh != mesh || o.index != index;
+}
+							      
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

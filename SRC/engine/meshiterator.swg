@@ -27,6 +27,7 @@
 typedef VContainer<Node> VContainerNode;
 typedef VContainer<FuncNode> VContainerFuncNode;
 typedef VContainer<Element> VContainerElement;
+typedef VContainer<InterfaceElement> VContainerInterfaceElement;
 %}
 
 // Constructors for these classes aren't swigged because the objects
@@ -65,9 +66,24 @@ public:
   Element *element() { return $self->operator*(); }
 };
 
+%nodefaultctor MeshInterfaceElementIter;
+class MeshInterfaceElementIter {
+public:
+  bool operator!=(const MeshInterfaceElementIter&);
+};
+
+%extend MeshInterfaceElementIter {
+  void increment() { ++(*self); }
+  Element *element() { return $self->operator*(); } 
+};
+
 // In principle, swig can understand the VContainer template, but I
 // couldn't get it to work, so the subtypes are typedefed above and
 // swigged individually.
+
+// TODO PYTHON3? There's a lot of repetition here. Can we swig a base
+// class?  Currently VContainer<A> and VContainer<B> don't share a
+// base class.
 
 %nodefaultctor VContainerNode;
 %feature("valuewrapper") VContainerNode;
@@ -102,6 +118,16 @@ public:
   MeshElementIter* c_end();
 };
 
+%nodefaultctor VContainerInterfaceElement;
+%feature("valuewrapper") VContainerInterfaceElement;
+class VContainerInterfaceElement {
+public:
+  int size();
+  %newobject c_begin;
+  %newobject c_end;
+  MeshElementIter* c_begin();
+  MeshElementIter* c_end();
+};
 
 // OLD BELOW HERE
 

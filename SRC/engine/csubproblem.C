@@ -719,17 +719,16 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   memusage("endif _OPENMP (C)");
 
   //Interface branch
-  //TODO: Write an InterfaceElementIterator for the subproblem.
-  unsigned int n = mesh->edgement.size();
-  for(std::vector<InterfaceElement*>::size_type i=0; 
-      i<n && !progress->stopped(); i++) {
-    if(mesh->edgement[i]->isSubProblemInterfaceElement(this)) {
-      mesh->edgement[i]->make_linear_system( this, time, nlsolver, 
-					     *linearsystem );
-    }
-    progress->setFraction(double(i+1)/n);
-    progress->setMessage(to_string(i+1) + "/" + to_string(n) + " edges");
-  }
+  unsigned int n = mesh->nedgements();
+  counter = 0;
+  for(InterfaceElement *edgement : mesh->interface_element_iterator()) {
+    if(progress->stopped())
+      break;
+    edgement->make_linear_system(this, time, nlsolver, *linearsystem);
+    counter++;
+    progress->setFraction(counter/float(n));
+    progress->setMessage(to_string(counter) + "/" + to_string(n) + " edges");
+  }    
   progress->finish();
   if(progress->stopped()) {
     throw ErrInterrupted();
@@ -753,24 +752,28 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 void CSubProblem::post_process() {
   DefiniteProgress *progress =
     dynamic_cast<DefiniteProgress*>(getProgress("Postprocessing", DEFINITE));
-  int counter = 0;
+  unsigned int counter = 0;
   VContainerP<Element> eliter = element_iterator();
   int size = eliter.size();
-  for(auto el=eliter.begin(); el!=eliter.end(); ++el, ++counter) {
-    (*el)->post_process(this);
+  for(Element *element : element_iterator()) {
+    if(progress->stopped())
+      break;
+    element->post_process(this);
+    counter++;
     progress->setFraction(counter/float(size));
-    progress->setMessage(to_string(counter+1) + "/" + to_string(size)
-			 + " elements");
+    progress->setMessage(to_string(counter) + "/" + to_string(size) + " elements");
   }
 
   //Interface branch
-  //TODO: Write an InterfaceElementIterator for the subproblem.
-  unsigned int n = mesh->edgement.size();
-  for(std::vector<InterfaceElement*>::size_type i=0; i<n; i++) {
-    if(mesh->edgement[i]->isSubProblemInterfaceElement(this))
-	  mesh->edgement[i]->post_process(this);
-    progress->setFraction(double(i+1)/n);
-    progress->setMessage(to_string(i+1) + "/" + to_string(n) + " edges");
+  unsigned int n = mesh->nedgements();
+  counter = 0;
+  for(InterfaceElement *edgement : mesh->interface_element_iterator()) {
+    if(progress->stopped())
+      break;
+    edgement->post_process(this);
+    counter++;
+    progress->setFraction(counter/float(n));
+    progress->setMessage(to_string(counter) + "/" + to_string(n) + " edges");
   }
   progress->finish();
 }
@@ -939,15 +942,10 @@ MaterialSet *CSubProblem::getMaterials() const {
   }
 
   // Make sure to include surface materials in interfaces.
-  unsigned int ne = mesh->edgement.size();
-  for(std::vector<InterfaceElement*>::size_type i=0;
-      i<ne; ++i) { 
-    if(mesh->edgement[i]->isSubProblemInterfaceElement(this)) {
-      const Material *matl = mesh->edgement[i]->material();
-      if(matl) {
-	mset->insert(matl);
-      }
-    }
+  for(InterfaceElement *edgement : interface_element_iterator()) {
+    const Material *matl = edgement->material();
+    if(matl)
+      mset->insert(matl);
   }
   return mset;
 }

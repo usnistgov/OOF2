@@ -400,6 +400,14 @@ VContainer<Element>* FEMesh::c_element_iterator() const {
   return new MeshElementContainer(this, nelements());
 }
 
+VContainerP<InterfaceElement> FEMesh::interface_element_iterator() const {
+  return VContainerP<InterfaceElement>(c_interface_element_iterator());
+}
+
+VContainer<InterfaceElement>* FEMesh::c_interface_element_iterator() const {
+  return new MeshInterfaceElementContainer(this, nedgements());
+}
+
 VContainerP<Node> FEMesh::node_iterator() const {
   return VContainerP<Node>(c_node_iterator());
 }

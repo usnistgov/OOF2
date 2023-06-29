@@ -112,9 +112,11 @@ public:
   VContainer<Element>* c_element_iterator() const;
   VContainer<Node>* c_node_iterator() const;
   VContainer<FuncNode>* c_funcnode_iterator() const;
+  VContainer<InterfaceElement>* c_interface_element_iterator() const;
   VContainerP<Node> node_iterator() const;
   VContainerP<FuncNode> funcnode_iterator() const;
   VContainerP<Element> element_iterator() const;
+  VContainerP<InterfaceElement> interface_element_iterator() const;
 
   ElementIteratorOLD element_iterator_OLD() const;
 
@@ -154,6 +156,7 @@ public:
   void addInterfaceElement(InterfaceElement*);
   std::vector<InterfaceElement*> edgement;
   int nedgements() const;
+  
   ElementIteratorOLD edgement_iterator() const;
   void renameInterfaceElements(const std::string &oldname,
 			       const std::string &newname);
@@ -279,59 +282,9 @@ private:
   friend class MemoryDataCache;
   friend class DiskDataCache;
 
+  // TODO PYTHON3: Are these needed?
   friend class MeshFuncNodeIter;
   friend class MeshNodeIter;
-
-  //AMR, moved to csubproblem
-// Adaptive Mesh Refinement stuff.
-//public:
-//   // TODO: encapsulate all of the ZZ error estimation stuff, so that
-//   // we can switch estimators.
-
-//   // create & add a new CSCPatch pointer
-//   void init_scpatches(const std::vector<int>*);
-//   void add_scpatch(const int, const Material*, 
-// 		   const int,
-// 		   const std::vector<int>*,
-// 		   const std::vector<int>*,
-// 		   const int);
-//   // getting elements & nodes from the patch
-//   std::vector<int> *get_elements_from_patch(const int, const Material*);
-//   std::vector<int> *get_nodes_from_patch(const int, const Material*);
-//   // recovering flux(es)
-//   void init_nodalfluxes();
-//   void recover_fluxes();
-//   // adding recovered flux
-//   void add_this_flux(const Material*, const Flux*,
-// 		     const Node*, VECTOR_D*);
-//   // recovered flux at a given point
-//   VECTOR_D *get_recovered_flux(const Flux*, const Element*,
-// 			       const MasterCoord&);
-//   // reporting recovered fluxes at a given point -- debug purpose
-//   void report_recovered_fluxes(const Element*, const Coord*);
-//   // estimating error
-//   double zz_L2_estimate(const Element*, const Flux*);
-//   void zz_L2_estimate_sub(const Element*, const Flux*,
-// 			  const int&, double&, double&,
-// 			  const MasterCoord&, const double&);
-//   DoubleVec *zz_L2_weights(const Flux*,
-// 				     const double&, const double&);
-//   void zz_L2_weights_sub(const Element*, const Flux*,
-// 			  const int&, double&,
-// 			  const MasterCoord&, const double&);
-//   void setDefaultSubProblem(CSubProblem*);
-//private:
-//   // Storage for CSCPatch's (keyed an assembly node)
-//   // NodalSCPatches contains as many CSCPatches as no. of Materials
-//   // at the assembly node.
-//   std::map<const int, NodalSCPatches*> scpatches;
-//   // Storage for SCpatch Recovered Fluxes
-//   std::map<const int, NodalFluxes*> recovered_fluxes;
-  // The default subproblem is passed in so that the above routines
-  // can use it.  This is a temporary hack, only to be used while AMR
-  // is being done in the FEMesh instead of the CSubProblem.
-//   CSubProblem *defaultSubProblem;
-
 };				// FEMesh
 
 long get_globalFEMeshCount();

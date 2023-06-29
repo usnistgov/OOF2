@@ -28,6 +28,7 @@ def _VContainerElement___iter__(self):
         cbegin.increment()
 
 VContainerElement.__iter__ = _VContainerElement___iter__
+VContainerInterfaceElement.__iter__ = _VContainerElement___iter__
 
 # OLD BELOW HERE
 

@@ -42,13 +42,14 @@ class Coord;
 class DoFMap;
 class DoubleVec;
 class Element;
-class ElementIterator;
+class ElementIteratorOLD;
 class Equation;
 class FEMesh;
 class Field;
 class Flux;
 class FuncNode;
 class FuncNodeIterator;
+class InterfaceElement;
 class LinearizedSystem;
 class Lock;
 class Material;
@@ -107,10 +108,14 @@ public:
   VContainerP<Element> element_iterator() const {
     return VContainerP<Element>(c_element_iterator());
   }
+  VContainerP<InterfaceElement> interface_element_iterator() const {
+    return VContainerP<InterfaceElement>(c_interface_element_iterator());
+  }
   
   virtual VContainer<Node>* c_node_iterator() const = 0;
   virtual VContainer<FuncNode>* c_funcnode_iterator() const = 0;
   virtual VContainer<Element>* c_element_iterator() const = 0;
+  virtual VContainer<InterfaceElement>* c_interface_element_iterator() const=0;
   
   virtual bool contains(const Element *) const = 0;
   virtual bool containsNode(const Node *) const = 0;

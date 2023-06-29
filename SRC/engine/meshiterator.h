@@ -79,10 +79,11 @@
 #ifndef MESHITERATOR_H
 #define MESHITERATOR_H
 
-class CSubProblem;
+class Element;
 class FEMesh;
-class Node;
 class FuncNode;
+class InterfaceElement;
+class Node;
 
 #include <ostream>
 #include <vector>
@@ -174,6 +175,23 @@ public:
   virtual Element *operator*() const;
 };
 
+class MeshInterfaceElementIter : public MeshNodeIterBase<InterfaceElement> {
+public:
+  MeshInterfaceElementIter(const FEMesh* const mesh) : MeshNodeIterBase(mesh) {}
+  MeshInterfaceElementIter(const FEMesh* const mesh, int i)
+    : MeshNodeIterBase(mesh, i)
+  {}
+  virtual MeshIterator<InterfaceElement>* clone() const {
+    return new MeshInterfaceElementIter(mesh, index);
+  }
+  virtual MeshIterator<InterfaceElement>& operator++() {
+    index++;
+    return *this;
+  }
+  virtual bool operator!=(const MeshIterator<InterfaceElement>&) const;
+  virtual InterfaceElement *operator*() const;
+};
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Smart-ish wrapper for iterators, so they can be used in for
@@ -212,7 +230,7 @@ public:
 template <class OBJ>
 class VContainer {
 private:
-  int size_;
+  int size_;			// TODO PYTHON3: Use unsigned int.
 public:
   VContainer(int s) : size_(s) {}
   virtual ~VContainer() {}
@@ -260,6 +278,17 @@ public:
   {}
   virtual MeshIterator<Element>* c_begin() const;
   virtual MeshIterator<Element>* c_end() const;
+};
+
+class MeshInterfaceElementContainer : public VContainer<InterfaceElement> {
+protected:
+  const FEMesh* const mesh;
+public:
+  MeshInterfaceElementContainer(const FEMesh *const mesh, int size)
+    : VContainer<InterfaceElement>(size), mesh(mesh)
+  {}
+  virtual MeshIterator<InterfaceElement>* c_begin() const;
+  virtual MeshIterator<InterfaceElement>* c_end() const;
 };
 
 // Smart-ish wrapper for virtual containers.

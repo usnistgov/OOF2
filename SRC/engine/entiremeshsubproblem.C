@@ -34,6 +34,11 @@ VContainer<Element>* CEntireMeshSubProblem::c_element_iterator() const {
   return mesh->c_element_iterator();
 }
 
+VContainer<InterfaceElement>*
+CEntireMeshSubProblem::c_interface_element_iterator() const {
+  return mesh->c_interface_element_iterator();
+}
+
 bool CEntireMeshSubProblem::contains(const Element*) const {
   return true;
 }
