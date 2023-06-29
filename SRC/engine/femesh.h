@@ -33,7 +33,7 @@ class DegreeOfFreedom;
 class DoFMap;
 class DoubleVec;
 class Element;
-class ElementIterator;
+///class ElementIteratorOLD;
 class Equation;
 class Field;
 class FuncNode;
@@ -109,11 +109,14 @@ public:
   virtual ~FEMesh();
   CMicrostructure *get_microstructure() const { return microstructure; }
 
-  ElementIterator element_iterator() const;
+  VContainer<Element>* c_element_iterator() const;
   VContainer<Node>* c_node_iterator() const;
   VContainer<FuncNode>* c_funcnode_iterator() const;
   VContainerP<Node> node_iterator() const;
   VContainerP<FuncNode> funcnode_iterator() const;
+  VContainerP<Element> element_iterator() const;
+
+  ElementIteratorOLD element_iterator_OLD() const;
 
   Node *newMapNode(const Coord&); // the only way to make a Node
   FuncNode *newFuncNode(const Coord&); // the only way to make a FuncNode
@@ -151,7 +154,7 @@ public:
   void addInterfaceElement(InterfaceElement*);
   std::vector<InterfaceElement*> edgement;
   int nedgements() const;
-  ElementIterator edgement_iterator() const;
+  ElementIteratorOLD edgement_iterator() const;
   void renameInterfaceElements(const std::string &oldname,
 			       const std::string &newname);
 
@@ -266,9 +269,7 @@ public:
 private:
   friend class Equation::FindAllEquationWrappers;
   friend class Field::FindAllFieldWrappers;
-  friend class MeshElementIterator;
-  friend class MeshFuncNodeIterator; // OLD
-  friend class MeshNodeIterator;     // OLD
+  friend class MeshElementIteratorOLD;
   friend class Node;
   friend class CSubProblem;
   friend class LinearizedSystem;

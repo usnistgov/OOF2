@@ -18,13 +18,13 @@
 #define PREDICATESUBPROBLEM_H
 
 template <class PRDCT> class PredicateSubProblem;
-template <class PRDCT> class PredicateSubProblemElementIterator; // OLD
-template <class PRDCT> class PSPNodeIteratorOLD;
 template <class PRDCT> class PSPNodeIterator;
-template <class PRDCT> class PSPFuncNodeIteratorOLD;
 template <class PRDCT> class PSPFuncNodeIterator;
 template <class PRDCT> class PSPNodeContainer;
 template <class PRDCT> class PSPFuncNodeContainer;
+template <class PRDCT> class PSPElementContainer;
+
+template <class PRDCT> class PredicateSubProblemElementIteratorOLD;
 
 
 #include "engine/csubproblem.h"
@@ -34,22 +34,24 @@ template <class PRDCT> class PSPFuncNodeContainer;
 #include <iostream>
 #include <set>
 
-// NodeCompare is used as the Comparison operator for std::sets of
-// Node*s and FuncNode*s.  It's not strictly necessary, but if it's
-// not used, then the sets are ordered by the values of the Node*
-// pointers, which may not be reproducible from run to run, which
-// might hinder debugging.  Using NodeCompare guarantees that
-// iterators over the sets of Nodes will return the same Node ordering
-// each time.
+// IndexLT is used as the Comparison operator for std::sets of
+// pointers to Nodes, FuncNodes, and Elements.  It's not strictly
+// necessary, but if it's not used, then the sets are ordered by the
+// values of the *pointers* , which may not be reproducible from run
+// to run, which might hinder testing and debugging.  Using IndexLT
+// guarantees that iterators over the sets will return the same
+// ordering each time.
 
-struct NodeCompare {
-  bool operator()(const Node* n1, const Node* n2) const {
+template<class OBJ>
+struct IndexLT {
+  bool operator()(const OBJ* n1, const OBJ* n2) const {
     return n1->index() < n2->index();
   }
 };
 
-typedef std::set<Node*, NodeCompare> NodeSet;
-typedef std::set<FuncNode*, NodeCompare> FuncNodeSet;
+typedef std::set<Node*, IndexLT<Node>> NodeSet;
+typedef std::set<FuncNode*, IndexLT<FuncNode>> FuncNodeSet;
+typedef std::set<Element*, IndexLT<Element>> ElementSet;
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -66,21 +68,20 @@ protected:
 private:
   mutable NodeSet *nodes_;
   mutable FuncNodeSet *funcnodes_;
+  mutable ElementSet *elements_;
   NodeSet &nodes() const;
   FuncNodeSet &funcnodes() const;
+  ElementSet &elements() const;
 public:
   PredicateSubProblem(const PRDCT &p)
     : predicate(p),
-      nodes_(0),
-      funcnodes_(0)
+      nodes_(nullptr),
+      funcnodes_(nullptr),
+      elements_(nullptr)
   {}
   virtual ~PredicateSubProblem();
   virtual void redefined();
-  virtual ElementIterator element_iterator() const;
-#ifdef OLDITERATORS
-  virtual NodeIterator node_iterator_OLD() const;
-  virtual FuncNodeIterator funcnode_iterator_OLD() const;
-#endif // OLDITERATORS
+  virtual ElementIteratorOLD element_iterator_OLD() const;
   // node_iterator and funcnode_iterator need to return pointers to
   // base class MeshNodeContainer objects, because virtual methods in
   // the containers are needed to return different types of iterators.
@@ -88,21 +89,19 @@ public:
   // that the iterators are wrapped by IterP.
   virtual VContainer<Node>* c_node_iterator() const;
   virtual VContainer<FuncNode>* c_funcnode_iterator() const;
+  virtual VContainer<Element>* c_element_iterator() const;
   friend class PSPNodeContainer<PRDCT>;
   friend class PSPFuncNodeContainer<PRDCT>;
+  friend class PSPElementContainer<PRDCT>;
 
   int nnodes() const { return nodes().size(); }
   int nfuncnodes() const { return funcnodes().size(); }
+  int nelements() const { return elements().size(); }
   
   virtual bool contains(const Element*) const;
   virtual bool containsNode(const Node*) const;
 
-  friend class PredicateSubProblemElementIterator<PRDCT>;
-
-#ifdef OLDITERATORS
-  friend class PSPNodeIteratorOLD<PRDCT>;
-  friend class PSPFuncNodeIteratorOLD<PRDCT>;
-#endif // OLDITERATORS
+  friend class PredicateSubProblemElementIteratorOLD<PRDCT>;
 };
 
 template <class PRDCT>
@@ -128,53 +127,58 @@ template <class PRDCT>
 void PredicateSubProblem<PRDCT>::redefined() {
   if(nodes_) delete nodes_;
   if(funcnodes_) delete funcnodes_;
-  nodes_ = 0;
-  funcnodes_ = 0;
+  nodes_ = nullptr;
+  funcnodes_ = nullptr;
+  elements_ = nullptr;
 }
 
 template <class PRDCT>
 NodeSet &PredicateSubProblem<PRDCT>::nodes() const {
-  if(nodes_ == 0) {
+  if(nodes_ == nullptr) {
     nodes_ = new NodeSet;
-    for(ElementIterator
-	  ei(const_cast<PredicateSubProblem<PRDCT>*>(this)->element_iterator());
-	!ei.end(); ++ei)
-      {
-	for(ElementNodeIterator n(ei.element()->node_iterator()); !n.end(); ++n)
-	  {
-	    nodes_->insert(n.node());
-	  }
+    for(Element *element : element_iterator()) {
+      for(ElementNodeIterator n(element->node_iterator()); !n.end(); ++n) {
+	nodes_->insert(n.node());
       }
+    }
   }
   return *nodes_;
 }
 
 template <class PRDCT>
 FuncNodeSet &PredicateSubProblem<PRDCT>::funcnodes() const {
-  if(funcnodes_ == 0) {
+  if(funcnodes_ == nullptr) {
     funcnodes_ = new FuncNodeSet;
-    for(ElementIterator
-	  ei(const_cast<PredicateSubProblem<PRDCT>*>(this)->element_iterator());
-	!ei.end(); ++ei)
-      {
-	for(CleverPtr<ElementFuncNodeIterator> n(ei.element()->
-						 funcnode_iterator()); 
-	    !n->end(); ++*n)
-	  {
-	    funcnodes_->insert(n->funcnode());
-	  }
-      }
+    for(Element *element : element_iterator()) {
+      for(CleverPtr<ElementFuncNodeIterator> n(element->funcnode_iterator());
+	  !n->end(); ++*n)
+	{
+	  funcnodes_->insert(n->funcnode());
+	}
+    }
   }
   return *funcnodes_;
+}
+
+template <class PRDCT>
+ElementSet &PredicateSubProblem<PRDCT>::elements() const {
+  if(elements_ == nullptr) {
+    elements_ = new ElementSet;
+    for(Element *element : mesh->element_iterator()) {
+      if(this->predicate(mesh, element))
+	elements_->insert(element);
+    }
+  }
+  return *elements_;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 template <class PRDCT>
-class PredicateSubProblemElementIterator : public ElementIteratorBase {
+class PredicateSubProblemElementIteratorOLD : public ElementIteratorBase {
 private:
   const PredicateSubProblem<PRDCT> *subproblem;
-  MeshElementIterator iter;
+  MeshElementIteratorOLD iter;
   int count_;
   mutable int size_;
   mutable bool size_computed_;
@@ -182,21 +186,21 @@ private:
     return subproblem->predicate(mesh, elem);
   }
 public:
-  PredicateSubProblemElementIterator(const PredicateSubProblem<PRDCT> *subp);
-  PredicateSubProblemElementIterator(
-			    const PredicateSubProblemElementIterator<PRDCT>&);
+  PredicateSubProblemElementIteratorOLD(const PredicateSubProblem<PRDCT> *subp);
+  PredicateSubProblemElementIteratorOLD(
+			    const PredicateSubProblemElementIteratorOLD<PRDCT>&);
   virtual void operator++();
   virtual bool end() const { return iter.end(); }
   virtual int size() const;
   virtual int count() const { return count_; }
   virtual Element *element() const { return iter.element(); }
   virtual ElementIteratorBase *clone() const {
-    return new PredicateSubProblemElementIterator<PRDCT>(*this);
+    return new PredicateSubProblemElementIteratorOLD<PRDCT>(*this);
   }
 };
 
 template <class PRDCT>
-PredicateSubProblemElementIterator<PRDCT>::PredicateSubProblemElementIterator(
+PredicateSubProblemElementIteratorOLD<PRDCT>::PredicateSubProblemElementIteratorOLD(
 			       const PredicateSubProblem<PRDCT> *subp)
   : subproblem(subp),
     iter(subp->mesh),
@@ -211,17 +215,17 @@ PredicateSubProblemElementIterator<PRDCT>::PredicateSubProblemElementIterator(
 }
 
 template <class PRDCT>
-PredicateSubProblemElementIterator<PRDCT>::PredicateSubProblemElementIterator(
-		      const PredicateSubProblemElementIterator<PRDCT> &other)
+PredicateSubProblemElementIteratorOLD<PRDCT>::PredicateSubProblemElementIteratorOLD(
+		      const PredicateSubProblemElementIteratorOLD<PRDCT> &other)
   : subproblem(other.subproblem),
-    iter(*dynamic_cast<MeshElementIterator*>(other.iter.clone())),
+    iter(*dynamic_cast<MeshElementIteratorOLD*>(other.iter.clone())),
     count_(other.count_),
     size_(other.size_),
     size_computed_(other.size_computed_)
 {}
 
 template <class PRDCT>
-void PredicateSubProblemElementIterator<PRDCT>::operator++() {
+void PredicateSubProblemElementIteratorOLD<PRDCT>::operator++() {
   ++iter;
   while(!iter.end() && !ok(subproblem->mesh, iter.element()))
     ++iter;
@@ -230,11 +234,11 @@ void PredicateSubProblemElementIterator<PRDCT>::operator++() {
 }
 
 template <class PRDCT>
-int PredicateSubProblemElementIterator<PRDCT>::size() const {
+int PredicateSubProblemElementIteratorOLD<PRDCT>::size() const {
   if(!size_computed_) {
     size_computed_ = true;
     size_ = 0;
-    for(ElementIterator i(subproblem->mesh->element_iterator()); !i.end(); ++i){
+    for(ElementIteratorOLD i(subproblem->mesh->element_iterator_OLD()); !i.end(); ++i){
       if(ok(subproblem->mesh, i.element()))
 	 size_++;
     }
@@ -243,8 +247,8 @@ int PredicateSubProblemElementIterator<PRDCT>::size() const {
 }
 
 template <class PRDCT>
-ElementIterator PredicateSubProblem<PRDCT>::element_iterator() const {
-  return ElementIterator(new PredicateSubProblemElementIterator<PRDCT>(this));
+ElementIteratorOLD PredicateSubProblem<PRDCT>::element_iterator_OLD() const {
+  return ElementIteratorOLD(new PredicateSubProblemElementIteratorOLD<PRDCT>(this));
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -256,10 +260,10 @@ template <class PRDCT, class NODE>
 class PSPNodeIter : public MeshIterator<NODE> {
 protected:
   const PredicateSubProblem<PRDCT>* const subp;
-  typename std::set<NODE*, NodeCompare>::iterator iter;
+  typename std::set<NODE*, IndexLT<NODE>>::iterator iter;
 public:
   PSPNodeIter(const PredicateSubProblem<PRDCT> *const subp,
-	      typename std::set<NODE*, NodeCompare>::iterator iter)
+	      typename std::set<NODE*, IndexLT<NODE>>::iterator iter)
     : subp(subp),
       iter(iter)
   {}
@@ -318,18 +322,41 @@ public:
   }
 };
 
-//// Subproblem methods that return the containers
+template <class PRDCT>
+class PSPElementContainer : public VContainer<Element> {
+protected:
+  const PredicateSubProblem<PRDCT>* const subp;
+public:
+  PSPElementContainer(const PredicateSubProblem<PRDCT>* const subp)
+    : VContainer<Element>(subp->nelements()),
+      subp(subp)
+  {}
+  virtual MeshIterator<Element>* c_begin() const {
+    return new PSPNodeIter<PRDCT, Element>(this->subp,
+					   this->subp->elements().begin());
+  }
+  virtual MeshIterator<Element>* c_end() const {
+    return new PSPNodeIter<PRDCT, Element>(this->subp,
+					   this->subp->elements().end());
+  }
+};
+
+// Subproblem methods that return the containers
 
 template <class PRDCT>
-VContainer<Node>* PredicateSubProblem<PRDCT>::c_node_iterator() const
-{
+VContainer<Node>* PredicateSubProblem<PRDCT>::c_node_iterator() const {
   return new PSPNodeContainer<PRDCT>(this);
 }
   
 template <class PRDCT>
-VContainer<FuncNode>* PredicateSubProblem<PRDCT>::c_funcnode_iterator() const
-{
+VContainer<FuncNode>* PredicateSubProblem<PRDCT>::c_funcnode_iterator() const {
   return new PSPFuncNodeContainer<PRDCT>(this);
 }
+
+template <class PRDCT>
+VContainer<Element>* PredicateSubProblem<PRDCT>::c_element_iterator() const {
+  return new PSPElementContainer<PRDCT>(this);
+}
+  
 
 #endif // PREDICATESUBPROBLEM_H

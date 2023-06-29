@@ -20,6 +20,15 @@ def _VContainerNode___iter__(self):
 VContainerNode.__iter__ = _VContainerNode___iter__
 VContainerFuncNode.__iter__ = _VContainerNode___iter__
 
+def _VContainerElement___iter__(self):
+    cbegin = self.c_begin()
+    cend = self.c_end()
+    while cbegin != cend:
+        yield cbegin.element()
+        cbegin.increment()
+
+VContainerElement.__iter__ = _VContainerElement___iter__
+
 # OLD BELOW HERE
 
 def _ElementIterator___getitem__(self, idx):
@@ -29,12 +38,12 @@ def _ElementIterator___getitem__(self, idx):
     self.increment()
     return ans
 
-ElementIterator.__getitem__ = _ElementIterator___getitem__
+ElementIteratorOLD.__getitem__ = _ElementIterator___getitem__
 
 def _ElementIterator___iter__(self):
     return self
 
-ElementIterator.__iter__ = _ElementIterator___iter__
+ElementIteratorOLD.__iter__ = _ElementIterator___iter__
 
 def _ElementIterator___next__(self):
     if self.end():
@@ -43,4 +52,4 @@ def _ElementIterator___next__(self):
     self.increment()
     return val
 
-ElementIterator.__next__ = _ElementIterator___next__
+ElementIteratorOLD.__next__ = _ElementIterator___next__

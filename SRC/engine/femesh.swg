@@ -14,7 +14,7 @@
 
 %module(package="ooflib.SWIG.engine") femesh
 
-%feature("valuewrapper") ElementIterator;
+%feature("valuewrapper") ElementIteratorOLD;
 // %feature("valuewrapper") NodeIterator;
 // %feature("valuewrapper") FuncNodeIterator;
 
@@ -39,6 +39,7 @@
 #include "engine/flux.h"	// SWIGBUG
 typedef VContainer<Node> VContainerNode;
 typedef VContainer<FuncNode> VContainerFuncNode;
+typedef VContainer<Element> VContainerElement;
 %}
 
 
@@ -74,18 +75,20 @@ public:
 
   void addInterfaceElement(InterfaceElement*);
   int nedgements();
-  ElementIterator edgement_iterator();
+  ElementIteratorOLD edgement_iterator();
   void renameInterfaceElements(char* oldname, char* newname);
 
   bool in_plane(Field&);
   void set_in_plane(Field&, bool);
 
-  ElementIterator element_iterator();
+  ElementIteratorOLD element_iterator_OLD();
 
   %rename(node_iterator) c_node_iterator;
   %rename(funcnode_iterator) c_funcnode_iterator;
+  %rename(element_iterator) c_element_iterator;
   VContainerNode* c_node_iterator();
   VContainerFuncNode* c_funcnode_iterator();
+  VContainerElement* c_element_iterator();
 
   void set_rwlock(RWLock *rw);
   RWLock * get_rwlock();

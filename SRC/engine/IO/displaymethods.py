@@ -298,14 +298,11 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
         ## is very slow to fail.  Find a cleverer way to select which
         ## elements to search.
         ellist = []
-        ei = femesh.element_iterator()
-        while not ei.end():
-            el = ei.element()
+        for el in femesh.element_iterator():
             if not (el.material() is None and hideEmpty):
                 distance2 = (self.where.evaluate(
                     femesh, [el],[[el.center()]])[0] - pos)**2
                 ellist.append( (distance2, el) )
-            ei.increment()
         ellist.sort(key=lambda x: x[0])
 
         smallestdist = None
@@ -673,13 +670,9 @@ class SkeletonMaterialDisplay(MaterialDisplay, SkeletonDisplayMethod):
         SkeletonDisplayMethod.__init__(self)
     def materials(self, gfxwindow, skelctxt):
         skel = skelctxt.getObject()
-        return [ element.material(skelctxt)
-                 for element in skel.element_iterator()]
+        return (element.material(skelctxt)
+                for element in skel.element_iterator())
     
-    # def materials(self, gfxwindow, themesh):
-    #     return [element.material(themesh)
-    #             for element in themesh.element_iterator()]
-
 class MeshMaterialDisplay(MaterialDisplay, MeshDisplayMethod):
     def __init__(self, when, where):
         self.where = where.clone()
@@ -689,10 +682,9 @@ class MeshMaterialDisplay(MaterialDisplay, MeshDisplayMethod):
         # of elements with an assigned material, this should only
         # return the non-trivial materials.
         themesh = meshctxt.getObject()
-        allmats = [element.material()
-                   for element in themesh.element_iterator()]
+        allmats = (element.material() for element in themesh.element_iterator())
         if gfxwindow.settings.hideEmptyElements:
-            return [_f for _f in allmats if _f]
+            return (mat for mat in allmats if mat)
         return allmats
     def getTimeStamp(self, gfxwindow):
         return max(MaterialDisplay.getTimeStamp(self, gfxwindow),

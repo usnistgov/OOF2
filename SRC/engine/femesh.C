@@ -345,8 +345,7 @@ int FEMesh::nelements() const {
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 void FEMesh::refreshMaterials(PyObject *skeletoncontext) {
-  for(ElementIterator ei=element_iterator(); !ei.end(); ++ei) {
-    Element *element = ei.element();
+  for(Element *element : element_iterator()) {
     const Material *oldmat = element->material();
     element->refreshMaterial(skeletoncontext);
     const Material *newmat = element->material();
@@ -389,8 +388,16 @@ MaterialSet *FEMesh::getAllMaterials() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-ElementIterator FEMesh::element_iterator() const {
-  return ElementIterator(new MeshElementIterator(this));
+ElementIteratorOLD FEMesh::element_iterator_OLD() const {
+  return ElementIteratorOLD(new MeshElementIteratorOLD(this));
+}
+
+VContainerP<Element> FEMesh::element_iterator() const {
+  return VContainerP<Element>(c_element_iterator());
+}
+
+VContainer<Element>* FEMesh::c_element_iterator() const {
+  return new MeshElementContainer(this, nelements());
 }
 
 VContainerP<Node> FEMesh::node_iterator() const {
@@ -590,9 +597,9 @@ int FEMesh::nedgements() const
 {
   return edgement.size();
 }
-ElementIterator FEMesh::edgement_iterator() const
+ElementIteratorOLD FEMesh::edgement_iterator() const
 {
-  return ElementIterator(new MeshInterfaceElementIterator(this));
+  return ElementIteratorOLD(new MeshInterfaceElementIteratorOLD(this));
 }
 
 // TODO INTERFACE: Called from FEMesh::refreshMaterials, but possibly
@@ -600,7 +607,7 @@ ElementIterator FEMesh::edgement_iterator() const
 // refreshMaterials, or is there a good reason for it to stand alone?
 void FEMesh::refreshInterfaceMaterials(PyObject *skelctxt)
 {
-  for(ElementIterator ei=edgement_iterator(); !ei.end(); ++ei) {
+  for(ElementIteratorOLD ei=edgement_iterator(); !ei.end(); ++ei) {
     Element *el = ei.element();
     const Material *om = el->material();
     InterfaceElement *ed = dynamic_cast<InterfaceElement*>(el);
@@ -618,6 +625,6 @@ void FEMesh::refreshInterfaceMaterials(PyObject *skelctxt)
 void FEMesh::renameInterfaceElements(const std::string &oldname,
 				     const std::string &newname)
 {
-  for(ElementIterator ei=edgement_iterator(); !ei.end(); ++ei)
+  for(ElementIteratorOLD ei=edgement_iterator(); !ei.end(); ++ei)
     ((InterfaceElement*)(ei.element()))->rename(oldname,newname);
 }

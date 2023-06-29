@@ -18,8 +18,8 @@ CEntireMeshSubProblem::CEntireMeshSubProblem() {}
 
 CEntireMeshSubProblem::~CEntireMeshSubProblem() {}
 
-ElementIterator CEntireMeshSubProblem::element_iterator() const {
-  return mesh->element_iterator();
+ElementIteratorOLD CEntireMeshSubProblem::element_iterator_OLD() const {
+  return mesh->element_iterator_OLD();
 }
 
 VContainer<Node>* CEntireMeshSubProblem::c_node_iterator() const {
@@ -30,16 +30,9 @@ VContainer<FuncNode>* CEntireMeshSubProblem::c_funcnode_iterator() const {
   return mesh->c_funcnode_iterator();
 }
 
-
-#ifdef OLDITERATORS
-NodeIterator CEntireMeshSubProblem::node_iterator_OLD() const {
-  return mesh->node_iterator_OLD();
+VContainer<Element>* CEntireMeshSubProblem::c_element_iterator() const {
+  return mesh->c_element_iterator();
 }
-
-FuncNodeIterator CEntireMeshSubProblem::funcnode_iterator_OLD() const {
-  return mesh->funcnode_iterator_OLD();
-}
-#endif // OLDITERATORS
 
 bool CEntireMeshSubProblem::contains(const Element*) const {
   return true;

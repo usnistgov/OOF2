@@ -96,7 +96,7 @@ public:
   // MaterialSubProblem::redefined() should be called.
   virtual void redefined() {}
 
-  virtual ElementIterator element_iterator() const = 0;
+  virtual ElementIteratorOLD element_iterator_OLD() const = 0;
 
   VContainerP<Node> node_iterator() const {
     return VContainerP<Node>(c_node_iterator());
@@ -104,13 +104,15 @@ public:
   VContainerP<FuncNode> funcnode_iterator() const {
     return VContainerP<FuncNode>(c_funcnode_iterator());
   }
+  VContainerP<Element> element_iterator() const {
+    return VContainerP<Element>(c_element_iterator());
+  }
+  
   virtual VContainer<Node>* c_node_iterator() const = 0;
   virtual VContainer<FuncNode>* c_funcnode_iterator() const = 0;
-
+  virtual VContainer<Element>* c_element_iterator() const = 0;
   
-
   virtual bool contains(const Element *) const = 0;
-  
   virtual bool containsNode(const Node *) const = 0;
 
   // Machinery to symmetrize the stiffness matrix

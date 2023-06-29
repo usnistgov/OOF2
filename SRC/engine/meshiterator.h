@@ -98,6 +98,12 @@ class FuncNode;
 // definition.  Returning a generic value from operator++ is less
 // bothersome.
 
+// TODO? A lot of the complication here could be eliminated if we
+// didn't want the SubProblem iterators to share a common base class
+// and interface with the Mesh iterators.  SubProblem iteration can be
+// more complicated because a SubProblem's nodes and elements aren't
+// necessarily stored in a simple std::vector.
+
 template <class OBJ>
 class MeshIterator { 
 public:
@@ -106,17 +112,19 @@ public:
   virtual bool operator!=(const MeshIterator<OBJ>&) const = 0;
   virtual OBJ* operator*() const = 0;
   virtual MeshIterator<OBJ>* clone() const = 0;
-  // TODO PYTHON3:  Does this need to define int size() ?
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Subclasses of MeshNodeIterator determine which nodes are iterated over.
 
+// TODO PYTHON3: Change the names of the base classes now that they're
+// used for both Nodes and Elements.
+
 template <class NODE>
 class MeshNodeIterBase : public MeshIterator<NODE> {
 protected:
-  std::vector<Node*>::size_type index;
+  typename std::vector<NODE*>::size_type index;
   const FEMesh* const mesh;
 public:
   MeshNodeIterBase(const FEMesh* const mesh) : mesh(mesh), index(0) {}
@@ -152,16 +160,30 @@ public:
   virtual FuncNode* operator*() const;
 };
 
+class MeshElementIter : public MeshNodeIterBase<Element> {
+public:
+  MeshElementIter(const FEMesh* const mesh) : MeshNodeIterBase(mesh) {}
+  MeshElementIter(const FEMesh* const mesh, int i)
+    : MeshNodeIterBase(mesh, i)
+  {}
+  virtual MeshIterator<Element>* clone() const {
+    return new MeshElementIter(mesh, index);
+  }
+  virtual MeshIterator<Element>& operator++() { index++; return *this; }
+  virtual bool operator!=(const MeshIterator<Element>&) const;
+  virtual Element *operator*() const;
+};
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Smart-ish wrapper for iterators, so they can be used in for
 // statements without worrying about deallocation.  OBJ is Node,
 // FuncNode, or Element.
 
-// TODO PYTHON3: Should we just use CleverPtr for this?  CleverPtr
-// won't work if a copy constructor is needed.  It also requires
-// dereferencing on all method calls, so it's not a drop-in
-// replacement for MeshIterator<OBJ>.
+// TODO: Should we just use CleverPtr for this?  CleverPtr won't work
+// if a copy constructor is needed.  It also requires dereferencing on
+// all method calls, so it's not a drop-in replacement for
+// MeshIterator<OBJ>.
 
 template <class OBJ>
 class IterP {
@@ -229,6 +251,17 @@ public:
   virtual MeshIterator<FuncNode>* c_end() const;
 };
 
+class MeshElementContainer : public VContainer<Element> {
+protected:
+  const FEMesh* const mesh;
+public:
+  MeshElementContainer(const FEMesh *const mesh, int size)
+    : VContainer<Element>(size), mesh(mesh)
+  {}
+  virtual MeshIterator<Element>* c_begin() const;
+  virtual MeshIterator<Element>* c_end() const;
+};
+
 // Smart-ish wrapper for virtual containers.
 
 template <class OBJ>
@@ -243,14 +276,13 @@ public:
   VContainerP(VContainerP<OBJ> &&c) : container(c.container) {
     c.container = nullptr;
   }
-  // VContainerP(const VContainerP<OBJ> &c) : container(c.container->clone()) {}
   
   MeshIterator<OBJ> *c_begin() const { return container->c_begin(); }
   MeshIterator<OBJ> *c_end() const { return container->c_end(); }
   IterP<OBJ> begin() const { return IterP<OBJ>(c_begin()); }
   IterP<OBJ> end() const { return IterP<OBJ>(c_end()); }
+  int size() const { return container->size(); }
 };
-
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -269,13 +301,13 @@ public:
   virtual ElementIteratorBase *clone() const = 0;
 };
 
-class MeshElementIterator : public ElementIteratorBase {
+class MeshElementIteratorOLD : public ElementIteratorBase {
 private:
   const FEMesh * const mesh;
   std::vector<Element*>::size_type index;
 public:
-  MeshElementIterator(const FEMesh *const);
-  virtual ~MeshElementIterator() {}
+  MeshElementIteratorOLD(const FEMesh *const);
+  virtual ~MeshElementIteratorOLD() {}
   virtual void operator++();
   virtual bool end() const;
   virtual int size() const;
@@ -285,13 +317,13 @@ public:
 };
 
 //Interface branch
-class MeshInterfaceElementIterator : public ElementIteratorBase {
+class MeshInterfaceElementIteratorOLD : public ElementIteratorBase {
 private:
   const FEMesh * const mesh;
   std::vector<Element*>::size_type index;
 public:
-  MeshInterfaceElementIterator(const FEMesh *const);
-  virtual ~MeshInterfaceElementIterator() {}
+  MeshInterfaceElementIteratorOLD(const FEMesh *const);
+  virtual ~MeshInterfaceElementIteratorOLD() {}
   virtual void operator++();
   virtual bool end() const;
   virtual int size() const;
@@ -300,13 +332,13 @@ public:
   virtual ElementIteratorBase *clone() const;
 };
 
-class ElementIterator {
+class ElementIteratorOLD {
 private:
   ElementIteratorBase *base;
 public:
-  ElementIterator(ElementIteratorBase *base) : base(base) {}
-  ~ElementIterator();
-  ElementIterator(const ElementIterator&);
+  ElementIteratorOLD(ElementIteratorBase *base) : base(base) {}
+  ~ElementIteratorOLD();
+  ElementIteratorOLD(const ElementIteratorOLD&);
   void operator++() { base->operator++(); }
   bool end() const { return base->end(); }
   int size() const { return base->size(); }

@@ -619,8 +619,8 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   // parallel directive can only work on for loops with forms
   // like: for (int i = val; i < n; i++)
   std::vector<Element*> elements;
-  for (ElementIterator ei = element_iterator(); !ei.end(); ++ei)
-    elements.push_back(ei.element());
+  for(Element *el : element_iterator())
+    elements.push_back(el);
 
   int nTds;     // number of threads
   int cntEle;   // count of elements that have been called
@@ -700,19 +700,19 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   int counter = 0; 
   memusage("Start ElementIterator for loop (C)");
 
-  for(ElementIterator ei=element_iterator(); !ei.end() && !progress->stopped();
-      ++ei)
-  {
-     if(counter % 1000 == 0) {
+  VContainerP<Element> eliter = element_iterator();
+  int nel = eliter.size();
+  for(auto el=eliter.begin(); el!=eliter.end() && !progress->stopped();
+      ++el, counter++) 
+    {
+      if(counter % 1000 == 0) {
 	memusage("ElementIterator for loop % 1000 step (C)");
-        }
+      }
 
-    ei.element()->make_linear_system( this, time, nlsolver, *linearsystem );
-    progress->setFraction( float(ei.count()+1)/float(ei.size()) );
-    progress->setMessage(to_string(ei.count()+1) + "/" + to_string(ei.size())
-  		   + " elements");
-     counter++;
-
+      (*el)->make_linear_system( this, time, nlsolver, *linearsystem );
+      progress->setFraction(float(counter+1)/nel);
+      progress->setMessage(to_string(counter+1) + "/" + to_string(nel)
+			   + " elements");
   }
 #endif // HAVE_OPENMP
 
@@ -753,10 +753,13 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 void CSubProblem::post_process() {
   DefiniteProgress *progress =
     dynamic_cast<DefiniteProgress*>(getProgress("Postprocessing", DEFINITE));
-  for(ElementIterator ei=element_iterator(); !ei.end(); ++ei) {
-    ei.element()->post_process(this);
-    progress->setFraction(float(ei.count()+1)/float(ei.size()));
-    progress->setMessage(to_string(ei.count()+1) + "/" + to_string(ei.size())
+  int counter = 0;
+  VContainerP<Element> eliter = element_iterator();
+  int size = eliter.size();
+  for(auto el=eliter.begin(); el!=eliter.end(); ++el, ++counter) {
+    (*el)->post_process(this);
+    progress->setFraction(counter/float(size));
+    progress->setMessage(to_string(counter+1) + "/" + to_string(size)
 			 + " elements");
   }
 
@@ -928,8 +931,8 @@ void CSubProblem::set_equation_mapping(
 
 MaterialSet *CSubProblem::getMaterials() const {
   MaterialSet *mset = new MaterialSet;
-  for(ElementIterator ei=element_iterator(); !ei.end(); ++ei) {
-    const Material *matl = ei.element()->material();
+  for(Element *el : element_iterator()) {
+    const Material *matl = el->material();
     if(matl) {
       mset->insert(matl);
     }
@@ -1711,8 +1714,7 @@ DoubleVec *CSubProblem::zz_L2_weights(const Flux *fluks,
   bool first = true;
   int order=0;			// initialized to suppress compiler warnings
   double min=0, max=0;		// will be reinitialized below
-  for(ElementIterator i=element_iterator(); !i.end(); ++i) {
-    Element *elem = i.element();
+  for(Element *elem : element_iterator()) {
     if(first)
       order = 2*elem->shapefun_degree();
     double value = 0.0;

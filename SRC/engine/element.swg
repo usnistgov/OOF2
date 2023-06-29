@@ -91,7 +91,7 @@ public:
   void dump_exterior(); // debugging
 
   void set_index(int);
-  const int get_index() const;
+  int get_index() const;
   int shapefun_degree() const;
   int dshapefun_degree() const;
   int mapfun_degree() const;

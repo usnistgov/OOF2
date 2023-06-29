@@ -26,6 +26,7 @@
 
 typedef VContainer<Node> VContainerNode;
 typedef VContainer<FuncNode> VContainerFuncNode;
+typedef VContainer<Element> VContainerElement;
 %}
 
 // Constructors for these classes aren't swigged because the objects
@@ -53,6 +54,21 @@ public:
   FuncNode* node() { return $self->operator*(); }
 };
 
+%nodefaultctor MeshElementIter;
+class MeshElementIter {
+public:
+  bool operator!=(const MeshElementIter&);
+};
+
+%extend MeshElementIter {
+  void increment() { ++(*self); }
+  Element *element() { return $self->operator*(); }
+};
+
+// In principle, swig can understand the VContainer template, but I
+// couldn't get it to work, so the subtypes are typedefed above and
+// swigged individually.
+
 %nodefaultctor VContainerNode;
 %feature("valuewrapper") VContainerNode;
 class VContainerNode {
@@ -75,21 +91,33 @@ public:
   MeshFuncNodeIter* c_end();
 };
 
+%nodefaultctor VContainerElement;
+%feature("valuewrapper") VContainerElement;
+class VContainerElement {
+public:
+  int size();
+  %newobject c_begin;
+  %newobject c_end;
+  MeshElementIter* c_begin();
+  MeshElementIter* c_end();
+};
+
+
 // OLD BELOW HERE
 
 
-%nodefaultctor ElementIterator;
+%nodefaultctor ElementIteratorOLD;
 
-class ElementIterator {
+class ElementIteratorOLD {
 public:
-  ~ElementIterator();
+  ~ElementIteratorOLD();
   bool end();
   int size();
   int count();
   Element *element();
 };
 
-%extend ElementIterator {
+%extend ElementIteratorOLD {
   void increment() {
     ++(*self);
   }
