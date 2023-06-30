@@ -97,10 +97,10 @@ public:
   friend class PSPElementContainer<PRDCT>;
   friend class PSPInterfaceElementContainer<PRDCT>;
 
-  int nnodes() const { return nodes().size(); }
-  int nfuncnodes() const { return funcnodes().size(); }
-  int nelements() const { return elements().size(); }
-  int nedgements() const { return edgements().size(); }
+  unsigned int nnodes() const { return nodes().size(); }
+  unsigned int nfuncnodes() const { return funcnodes().size(); }
+  unsigned int nelements() const { return elements().size(); }
+  unsigned int nedgements() const { return edgements().size(); }
   
   virtual bool contains(const Element*) const;
   virtual bool containsNode(const Node*) const;

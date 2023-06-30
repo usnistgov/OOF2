@@ -117,6 +117,23 @@ class SkeletonBuffer(ringbuffer.RingBuffer):
 
 ######################
 
+## For comparing the speed of the old and new mesh iterators
+
+def newmeshiter(femesh):
+    n = 0
+    for node in femesh.funcnode_iterator_simple():
+        n += 1
+    print("newmeshiter", n)
+    
+def oldmeshiter(femesh):
+    n = 0
+    for node in femesh.funcnode_iterator():
+        n += 1
+    print("oldmeshiter", n)
+
+##########
+
+
 class Mesh(whoville.Who):
     def __init__(self, name, classname, femesh, parent,
                  elementdict=None,
@@ -125,6 +142,29 @@ class Mesh(whoville.Who):
         # Share the mesh-level lock with the contained femesh.
         femesh.set_rwlock(self.rwLock)
 
+        # For testing the efficiency of the old and new mesh iteration
+        # schemes.  The new one is like an STL iterator on the C++
+        # side.
+        if debug.debug():
+            # for node in femesh.funcnode_iterator_simple():
+            #     debug.fmsg("node=", node)
+            import timeit
+            iters = 10
+            t = timeit.timeit(stmt="oldmeshiter(femesh)", number=iters,
+                              globals={"femesh":femesh,
+                                       "oldmeshiter":oldmeshiter})
+            debug.fmsg("python old=", t)
+            t = timeit.timeit(stmt="newmeshiter(femesh)", number=iters,
+                              globals={"femesh":femesh,
+                                       "newmeshiter":newmeshiter})
+            debug.fmsg("python new=", t)
+            t = timeit.timeit(stmt="femesh.iterator_test_OLD()", number=iters,
+                              globals={"femesh":femesh})
+            debug.fmsg("C++ old=", t)
+            t = timeit.timeit(stmt="femesh.iterator_test_NEW()", number=iters,
+                              globals={"femesh":femesh})
+            debug.fmsg("C++ new=", t)
+        
         self.elementdict = elementdict
         self.materialfactory = materialfactory
         femesh.set_parent_mesh(self)

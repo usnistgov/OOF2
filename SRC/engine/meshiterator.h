@@ -15,6 +15,11 @@
   Objects for looping over elements and nodes in FEMeshes and
   CSubProblems.  There are generic interfaces for both.
 
+  The point of this is to provide a uniform interface when iterating
+  over the components of a FEMesh, even when the objects being
+  returned aren't stored in a simple std::vector or std::set.
+  However, it may not be worth the effort...
+
   The iterators are now real STL-style iterators that can be used like
   this:
 
@@ -74,7 +79,19 @@
      CSubProblem *subp = ...; // base class pointer
      for(auto iter=subp.nodes().begin(); ... )
 
- */
+  TODO PYTHON3:  The VContainer machinery involves a lot of virtual
+  functions and dynamic casts, which is why just looping over
+  funcnodes is about 4 times faster in C++ if we use unadorned
+  std::vector iteration. (See FEMesh::funcnode_iterator_simple().)
+  However, the time difference between the two versions in Python is
+  negligible.  Since the iterator itself ought to use less time than
+  the body of the iteration, it's not clear that it's worth switching
+  to the simpler scheme, which would give up a lot of the uniformity
+  of the VContainer method.
+
+*/
+
+
 
 #ifndef MESHITERATOR_H
 #define MESHITERATOR_H
@@ -125,18 +142,20 @@ public:
 template <class NODE>
 class MeshNodeIterBase : public MeshIterator<NODE> {
 protected:
-  typename std::vector<NODE*>::size_type index;
+  unsigned int index;
   const FEMesh* const mesh;
 public:
   MeshNodeIterBase(const FEMesh* const mesh) : mesh(mesh), index(0) {}
-  MeshNodeIterBase(const FEMesh* const mesh, int i) : mesh(mesh), index(i) {}
+  MeshNodeIterBase(const FEMesh* const mesh, unsigned int i)
+    : mesh(mesh), index(i)
+  {}
   virtual ~MeshNodeIterBase() {}
 };
 
 class MeshNodeIter : public MeshNodeIterBase<Node> {
 public:
   MeshNodeIter(const FEMesh* const mesh) : MeshNodeIterBase(mesh) {}
-  MeshNodeIter(const FEMesh* const mesh, int i)
+  MeshNodeIter(const FEMesh* const mesh, unsigned int i)
     : MeshNodeIterBase(mesh, i)
   {}
   virtual MeshIterator<Node>* clone() const {
@@ -150,7 +169,7 @@ public:
 class MeshFuncNodeIter : public MeshNodeIterBase<FuncNode> {
 public:
   MeshFuncNodeIter(const FEMesh* const mesh) : MeshNodeIterBase(mesh) {}
-  MeshFuncNodeIter(const FEMesh* const mesh, int i)
+  MeshFuncNodeIter(const FEMesh* const mesh, unsigned int i)
     : MeshNodeIterBase(mesh, i)
   {}
   virtual MeshIterator<FuncNode>* clone() const {
@@ -164,7 +183,7 @@ public:
 class MeshElementIter : public MeshNodeIterBase<Element> {
 public:
   MeshElementIter(const FEMesh* const mesh) : MeshNodeIterBase(mesh) {}
-  MeshElementIter(const FEMesh* const mesh, int i)
+  MeshElementIter(const FEMesh* const mesh, unsigned int i)
     : MeshNodeIterBase(mesh, i)
   {}
   virtual MeshIterator<Element>* clone() const {
@@ -178,7 +197,7 @@ public:
 class MeshInterfaceElementIter : public MeshNodeIterBase<InterfaceElement> {
 public:
   MeshInterfaceElementIter(const FEMesh* const mesh) : MeshNodeIterBase(mesh) {}
-  MeshInterfaceElementIter(const FEMesh* const mesh, int i)
+  MeshInterfaceElementIter(const FEMesh* const mesh, unsigned int i)
     : MeshNodeIterBase(mesh, i)
   {}
   virtual MeshIterator<InterfaceElement>* clone() const {
@@ -230,9 +249,9 @@ public:
 template <class OBJ>
 class VContainer {
 private:
-  int size_;			// TODO PYTHON3: Use unsigned int.
+  unsigned int size_;
 public:
-  VContainer(int s) : size_(s) {}
+  VContainer(unsigned int s) : size_(s) {}
   virtual ~VContainer() {}
   // begin() and end() are called from C++ and return an IterP which
   // wraps an iterator pointer.  IterP owns the pointer and will
@@ -241,7 +260,7 @@ public:
   // of it.
   virtual MeshIterator<OBJ>* c_begin() const = 0;
   virtual MeshIterator<OBJ>* c_end() const = 0;
-  virtual int size() const { return size_; }
+  virtual unsigned int size() const { return size_; }
   IterP<OBJ> begin() const { return IterP<OBJ>(c_begin()); }
   IterP<OBJ> end() const { return IterP<OBJ>(c_end()); }
 };
@@ -250,7 +269,7 @@ class MeshNodeContainer : public VContainer<Node> {
 protected:
   const FEMesh* const mesh;
 public:
-  MeshNodeContainer(const FEMesh *const mesh, int size)
+  MeshNodeContainer(const FEMesh *const mesh, unsigned int size)
     : VContainer<Node>(size), mesh(mesh)
   {}
   virtual MeshIterator<Node>* c_begin() const;
@@ -261,7 +280,7 @@ class MeshFuncNodeContainer : public VContainer<FuncNode> {
 protected:
   const FEMesh* const mesh;
 public:
-  MeshFuncNodeContainer(const FEMesh* const mesh, int size)
+  MeshFuncNodeContainer(const FEMesh* const mesh, unsigned int size)
     : VContainer<FuncNode>(size),
       mesh(mesh)
   {}
@@ -273,7 +292,7 @@ class MeshElementContainer : public VContainer<Element> {
 protected:
   const FEMesh* const mesh;
 public:
-  MeshElementContainer(const FEMesh *const mesh, int size)
+  MeshElementContainer(const FEMesh *const mesh, unsigned int size)
     : VContainer<Element>(size), mesh(mesh)
   {}
   virtual MeshIterator<Element>* c_begin() const;
@@ -284,7 +303,7 @@ class MeshInterfaceElementContainer : public VContainer<InterfaceElement> {
 protected:
   const FEMesh* const mesh;
 public:
-  MeshInterfaceElementContainer(const FEMesh *const mesh, int size)
+  MeshInterfaceElementContainer(const FEMesh *const mesh, unsigned int size)
     : VContainer<InterfaceElement>(size), mesh(mesh)
   {}
   virtual MeshIterator<InterfaceElement>* c_begin() const;
@@ -310,7 +329,7 @@ public:
   MeshIterator<OBJ> *c_end() const { return container->c_end(); }
   IterP<OBJ> begin() const { return IterP<OBJ>(c_begin()); }
   IterP<OBJ> end() const { return IterP<OBJ>(c_end()); }
-  int size() const { return container->size(); }
+  unsigned int size() const { return container->size(); }
 };
 
 #endif // MESHITERATOR_H

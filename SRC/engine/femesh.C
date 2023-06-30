@@ -404,6 +404,12 @@ VContainer<InterfaceElement>* FEMesh::c_interface_element_iterator() const {
   return new MeshInterfaceElementContainer(this, nedgements());
 }
 
+// TODO PYTHON3: FEMesh::node_iterator is never used in C++.  That
+// means that the complications arising from iterating over two
+// vectors in C++ aren't an issue.  It's called from python in
+// Mesh.compare() and SubproblemContxt.nnodes().
+// CSubProblem::node_iterator is called in _CSubProblem_create_bdy_node_map.
+
 VContainerP<Node> FEMesh::node_iterator() const {
   return VContainerP<Node>(c_node_iterator());
 }
@@ -416,9 +422,30 @@ VContainerP<FuncNode> FEMesh::funcnode_iterator() const {
   return VContainerP<FuncNode>(c_funcnode_iterator());
 }
 
+// This is faster than funcnode_iterator.
+const std::vector<FuncNode*>& FEMesh::funcnode_iterator_simple() const {
+  return funcnode;
+}
+
 VContainer<FuncNode>* FEMesh::c_funcnode_iterator() const {
   return new MeshFuncNodeContainer(this, nfuncnodes());
 }
+
+void FEMesh::iterator_test_NEW() const {
+  int i = 0;
+  for(FuncNode *node : funcnode_iterator_simple())
+    i += 1;
+  std::cerr << "FEMesh::iterator_test_NEW: " << i << std::endl;
+}
+
+void FEMesh::iterator_test_OLD() const {
+  int i = 0;
+  for(FuncNode *node: funcnode_iterator())
+    i += 1;
+  std::cerr << "FEMesh::iterator_test_OLD: " << i << std::endl;
+}
+
+
 
 // Caution: NodeIterator::index is not necessarily the same as
 // node.index().  The argument to FEMesh::getNode is the
@@ -426,18 +453,18 @@ VContainer<FuncNode>* FEMesh::c_funcnode_iterator() const {
 //  TODO PYTHON3: That comment refers to the old NodeIterator.  Is the
 //  comment obsolete?
 
-Node *FEMesh::getNode(int i) const {
+Node *FEMesh::getNode(unsigned int i) const {
 //   if(i >= int(funcnode.size() + mapnode.size())) {
 //     std::cerr << "FEMesh::getNode: i=" << i << " fn=" << funcnode.size() 
 // 	      << " mn=" << mapnode.size() << std::endl;
 //   }
-  assert(i < int(funcnode.size() + mapnode.size()));
-  if(i < int(funcnode.size()))
+  assert(i < funcnode.size() + mapnode.size());
+  if(i < funcnode.size())
     return funcnode[i];
   return mapnode[i - funcnode.size()];
 }
 
-FuncNode *FEMesh::getFuncNode(int i) const {
+FuncNode *FEMesh::getFuncNode(unsigned int i) const {
   return funcnode[i];
 }
 

@@ -117,6 +117,10 @@ public:
   VContainerP<Element> element_iterator() const;
   VContainerP<InterfaceElement> interface_element_iterator() const;
 
+  const std::vector<FuncNode*>& funcnode_iterator_simple() const;
+  void iterator_test_NEW() const;
+  void iterator_test_OLD() const;
+
   Node *newMapNode(const Coord&); // the only way to make a Node
   FuncNode *newFuncNode(const Coord&); // the only way to make a FuncNode
 
@@ -160,8 +164,8 @@ public:
   // Caution: NodeIterator::index is not necessarily the same as
   // node.index().  The argument to FEMesh::getNode() is the
   // NodeIterator::index.
-  Node *getNode(int) const;
-  FuncNode *getFuncNode(int) const;
+  Node *getNode(unsigned int) const;
+  FuncNode *getFuncNode(unsigned int) const;
 
   // Temporary function for finding the closest node.
 #if DIM==3

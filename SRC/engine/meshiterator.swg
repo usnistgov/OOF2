@@ -28,6 +28,9 @@ typedef VContainer<Node> VContainerNode;
 typedef VContainer<FuncNode> VContainerFuncNode;
 typedef VContainer<Element> VContainerElement;
 typedef VContainer<InterfaceElement> VContainerInterfaceElement;
+
+typedef std::vector<FuncNode*> FuncNodeVector;
+typedef std::vector<FuncNode*>::iterator FuncNodeIterator;
 %}
 
 // Constructors for these classes aren't swigged because the objects
@@ -127,6 +130,32 @@ public:
   %newobject c_end;
   MeshElementIter* c_begin();
   MeshElementIter* c_end();
+};
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// More direct access, at the expense of flexibility and API uniformity.
+
+// TODO PYTHON3: Generate this code automatically with a swig macro
+// for different kinds of vectors and sets.
+
+%nodefaultctor FuncNodeIterator;
+class FuncNodeIterator {
+
+};
+
+%extend FuncNodeIterator {
+  void increment() { ++(*self); }
+  FuncNode *funcnode() { return $self->operator*(); }
+  bool __ne__(const FuncNodeIterator &other) { return *self != other; }
+};
+
+%nodefaultctor FuncNodeVector;
+%feature("valuewrapper") FuncNodeVector;
+class FuncNodeVector {
+public:
+  FuncNodeIterator begin();
+  FuncNodeIterator end();
 };
 
 %pythoncode "engine/meshiterator.spy"

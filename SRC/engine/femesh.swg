@@ -37,8 +37,9 @@ typedef VContainer<Node> VContainerNode;
 typedef VContainer<FuncNode> VContainerFuncNode;
 typedef VContainer<Element> VContainerElement;
 typedef VContainer<InterfaceElement> VContainerInterfaceElement;
-%}
 
+typedef std::vector<FuncNode*> FuncNodeVector;
+%}
 
 class FEMesh {
 public:
@@ -85,6 +86,10 @@ public:
   VContainerFuncNode* c_funcnode_iterator();
   VContainerElement* c_element_iterator();
   VContainerInterfaceElement* c_interface_element_iterator();
+
+  FuncNodeVector& funcnode_iterator_simple();
+  void iterator_test_NEW();
+  void iterator_test_OLD();
 
   void set_rwlock(RWLock *rw);
   RWLock * get_rwlock();
