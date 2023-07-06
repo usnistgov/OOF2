@@ -131,6 +131,17 @@ def oldmeshiter(femesh):
         n += 1
     print("oldmeshiter", n)
 
+def copymeshiter(femesh):
+    n = 0
+    for node in femesh.funcnodes():
+        n += 1
+    print("copymeshiter", n)
+def subcopymeshiter(femesh):
+    n = 0
+    for node in femesh.funcnodes_sub():
+        n += 1
+    print("copymeshiter", n)
+
 ##########
 
 
@@ -150,20 +161,32 @@ class Mesh(whoville.Who):
             #     debug.fmsg("node=", node)
             import timeit
             iters = 10
-            t = timeit.timeit(stmt="oldmeshiter(femesh)", number=iters,
-                              globals={"femesh":femesh,
-                                       "oldmeshiter":oldmeshiter})
-            debug.fmsg("python old=", t)
-            t = timeit.timeit(stmt="newmeshiter(femesh)", number=iters,
-                              globals={"femesh":femesh,
-                                       "newmeshiter":newmeshiter})
-            debug.fmsg("python new=", t)
-            t = timeit.timeit(stmt="femesh.iterator_test_OLD()", number=iters,
+            # t = timeit.timeit(stmt="oldmeshiter(femesh)", number=iters,
+            #                   globals={"femesh":femesh,
+            #                            "oldmeshiter":oldmeshiter})
+            # debug.fmsg("python old=", t)
+            # t = timeit.timeit(stmt="newmeshiter(femesh)", number=iters,
+            #                   globals={"femesh":femesh,
+            #                            "newmeshiter":newmeshiter})
+            # debug.fmsg("python new=", t)
+            # t = timeit.timeit(stmt="copymeshiter(femesh)", number=iters,
+            #                   globals={"femesh":femesh,
+            #                            "copymeshiter":copymeshiter})
+            # debug.fmsg("python copy=", t)
+            # t = timeit.timeit(stmt="subcopymeshiter(femesh)", number=iters,
+            #                   globals={"femesh":femesh,
+            #                            "subcopymeshiter":subcopymeshiter})
+            # debug.fmsg("python sub copy=", t)
+            t = timeit.timeit(stmt="femesh.iterator_test_container()",
+                              number=iters,
                               globals={"femesh":femesh})
-            debug.fmsg("C++ old=", t)
-            t = timeit.timeit(stmt="femesh.iterator_test_NEW()", number=iters,
+            debug.fmsg("C++ VContainer=", t)
+            t = timeit.timeit(stmt="femesh.iterator_test_fast()", number=iters,
                               globals={"femesh":femesh})
             debug.fmsg("C++ new=", t)
+            t = timeit.timeit(stmt="femesh.iterator_test_double()", number=iters,
+                              globals={"femesh":femesh})
+            debug.fmsg("C++ double=", t)
         
         self.elementdict = elementdict
         self.materialfactory = materialfactory

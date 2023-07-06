@@ -17,6 +17,7 @@
 #include "engine/meshiterator.h"
 
 Node *MeshNodeIter::operator*() const {
+  // getNode(index) returns funcnode[index] or mapnode[index-nfuncnodes]  
   return mesh->getNode(index);
 }
 

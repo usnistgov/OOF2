@@ -136,12 +136,16 @@ public:
 
 // More direct access, at the expense of flexibility and API uniformity.
 
-// TODO PYTHON3: Generate this code automatically with a swig macro
-// for different kinds of vectors and sets.
+// TODO PYTHON3? Generate this code automatically with a swig macro
+// for different kinds of vectors and sets.  Actually, it's slower
+// than copying the whole vector to a Python list in a single swig
+// typemap call, so don't do it unless copying the vector uses too
+// much memory.
 
 %nodefaultctor FuncNodeIterator;
 class FuncNodeIterator {
-
+  // None of the C++ methods of FuncNodeIterator have to be swigged
+  // directly.
 };
 
 %extend FuncNodeIterator {

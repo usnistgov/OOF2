@@ -24,10 +24,10 @@ public:
   virtual ~CEntireMeshSubProblem();
   virtual void redefined() {}
 
-  virtual VContainer<Node>* c_node_iterator() const;
-  virtual VContainer<FuncNode>* c_funcnode_iterator() const;
-  virtual VContainer<Element>* c_element_iterator() const;
-  virtual VContainer<InterfaceElement>* c_interface_element_iterator() const;
+  virtual const DoubleIterator<Node, FuncNode, Node>* node_iterator() const;
+  virtual const std::vector<FuncNode*>& funcnode_iterator() const;
+  virtual const std::vector<Element*>& element_iterator() const;
+  virtual const std::vector<InterfaceElement*>& interface_element_iterator() const;
 
   virtual bool contains(const Element*) const;
   virtual bool containsNode(const Node*) const;

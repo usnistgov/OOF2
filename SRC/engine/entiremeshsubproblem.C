@@ -18,19 +18,22 @@ CEntireMeshSubProblem::CEntireMeshSubProblem() {}
 
 CEntireMeshSubProblem::~CEntireMeshSubProblem() {}
 
-VContainer<Node>* CEntireMeshSubProblem::c_node_iterator() const {
-  return mesh->c_node_iterator();
+const DoubleIterator<Node, FuncNode, Node>*
+CEntireMeshSubProblem::node_iterator()
+  const
+{
+  return mesh->node_iterator();
 }
 
-VContainer<FuncNode>* CEntireMeshSubProblem::c_funcnode_iterator() const {
+const std::vector<FuncNode*>& CEntireMeshSubProblem::funcnode_iterator() const {
   return mesh->c_funcnode_iterator();
 }
 
-VContainer<Element>* CEntireMeshSubProblem::c_element_iterator() const {
+const std::vector<Element*>& CEntireMeshSubProblem::element_iterator() const {
   return mesh->c_element_iterator();
 }
 
-VContainer<InterfaceElement>*
+const std::vector<InterfaceElement*>&
 CEntireMeshSubProblem::c_interface_element_iterator() const {
   return mesh->c_interface_element_iterator();
 }

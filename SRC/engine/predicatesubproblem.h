@@ -20,10 +20,10 @@
 template <class PRDCT> class PredicateSubProblem;
 template <class PRDCT> class PSPNodeIterator;
 template <class PRDCT> class PSPFuncNodeIterator;
-template <class PRDCT> class PSPNodeContainer;
-template <class PRDCT> class PSPFuncNodeContainer;
-template <class PRDCT> class PSPElementContainer;
-template <class PRDCT> class PSPInterfaceElementContainer;
+// template <class PRDCT> class PSPNodeContainer;
+// template <class PRDCT> class PSPFuncNodeContainer;
+// template <class PRDCT> class PSPElementContainer;
+// template <class PRDCT> class PSPInterfaceElementContainer;
 
 #include "engine/csubproblem.h"
 #include "engine/elementnodeiterator.h"
@@ -65,14 +65,15 @@ class PredicateSubProblem : public CSubProblem {
 protected:
   PRDCT predicate; // Not a reference!. PredicateSubProblem has own copy.
 private:
-  mutable NodeSet *nodes_;
-  mutable FuncNodeSet *funcnodes_;
-  mutable ElementSet *elements_;
-  mutable EdgementSet *edgements_;
-  NodeSet &nodes() const;
-  FuncNodeSet &funcnodes() const;
-  ElementSet &elements() const;
-  EdgementSet &edgements() const;
+  mutable std::vector<Node*> *nodes_;
+  mutable std::vector<FuncNode*> *funcnodes_;
+  mutable std::vector<Element*> *elements_;
+  mutable std::vector<InterfaceElement*> *edgements_;
+  
+  std::vector<Node*>& nodes() const;
+  std::vector<FuncNode*>& funcnodes() const;
+  std::vector<Element*>& elements() const;
+  std::vector<InterfaceElement*>& edgements() const;
 public:
   PredicateSubProblem(const PRDCT &p)
     : predicate(p),
@@ -83,19 +84,26 @@ public:
   {}
   virtual ~PredicateSubProblem();
   virtual void redefined();
-  // node_iterator and funcnode_iterator need to return pointers to
-  // base class MeshNodeContainer objects, because virtual methods in
-  // the containers are needed to return different types of iterators.
-  // So the containers need to be wrapped by ContainerP the same way
-  // that the iterators are wrapped by IterP.
-  virtual VContainer<Node>* c_node_iterator() const;
-  virtual VContainer<FuncNode>* c_funcnode_iterator() const;
-  virtual VContainer<Element>* c_element_iterator() const;
-  virtual VContainer<InterfaceElement>* c_interface_element_iterator() const;
-  friend class PSPNodeContainer<PRDCT>;
-  friend class PSPFuncNodeContainer<PRDCT>;
-  friend class PSPElementContainer<PRDCT>;
-  friend class PSPInterfaceElementContainer<PRDCT>;
+  // // node_iterator and funcnode_iterator need to return pointers to
+  // // base class MeshNodeContainer objects, because virtual methods in
+  // // the containers are needed to return different types of iterators.
+  // // So the containers need to be wrapped by ContainerP the same way
+  // // that the iterators are wrapped by IterP.
+  // virtual VContainer<Node>* c_node_iterator() const;
+  // virtual VContainer<FuncNode>* c_funcnode_iterator() const;
+  // virtual VContainer<Element>* c_element_iterator() const;
+  // virtual VContainer<InterfaceElement>* c_interface_element_iterator() const;
+  // friend class PSPNodeContainer<PRDCT>;
+  // friend class PSPFuncNodeContainer<PRDCT>;
+  // friend class PSPElementContainer<PRDCT>;
+  // friend class PSPInterfaceElementContainer<PRDCT>;
+
+  virtual const std::vector<Node*>& node_iterator() const;
+  virtual const std::vector<FuncNode*>& funcnode_iterator() const;
+  virtual const std::vector<Element*>& element_iterator() const;
+  virtual const std::vector<InterfaceElement*>& interface_element_iterator()
+    const;
+
 
   unsigned int nnodes() const { return nodes().size(); }
   unsigned int nfuncnodes() const { return funcnodes().size(); }
@@ -108,8 +116,10 @@ public:
 
 template <class PRDCT>
 PredicateSubProblem<PRDCT>::~PredicateSubProblem() {
-  if(nodes_) delete nodes_;
-  if(funcnodes_) delete funcnodes_;
+  delete nodes_;
+  delete funcnodes_;
+  delete elements_;
+  delete edgements_;
 }
 
 template <class PRDCT>
@@ -120,68 +130,75 @@ bool PredicateSubProblem<PRDCT>::contains(const Element *element) const {
 template <class PRDCT>
 bool PredicateSubProblem<PRDCT>::containsNode(const Node *node) const {
   Node *nd = const_cast<Node*>(node);
-  NodeSet &nds = nodes();
+  auto &nds = nodes();
   NodeSet::iterator i=nds.find(nd);
   return i != nds.end();
 }
 
 template <class PRDCT>
 void PredicateSubProblem<PRDCT>::redefined() {
-  if(nodes_) delete nodes_;
-  if(funcnodes_) delete funcnodes_;
+  delete nodes_;
+  delete funcnodes_;
+  delete elements_;
+  delete edgements_;
   nodes_ = nullptr;
   funcnodes_ = nullptr;
   elements_ = nullptr;
+  edgements_ = nullptr;
 }
 
 template <class PRDCT>
-NodeSet &PredicateSubProblem<PRDCT>::nodes() const {
+std::vector<Node*>& PredicateSubProblem<PRDCT>::node_iterator() const {
   if(nodes_ == nullptr) {
-    nodes_ = new NodeSet;
+    NodeSet nds;
     for(Element *element : element_iterator()) {
       for(ElementNodeIterator n(element->node_iterator()); !n.end(); ++n) {
-	nodes_->insert(n.node());
+	nds.insert(n.node());
       }
     }
+    nodes_ = new std::vector<Node*>(nds.begin(), nds.end());
   }
   return *nodes_;
 }
 
 template <class PRDCT>
-FuncNodeSet &PredicateSubProblem<PRDCT>::funcnodes() const {
+std:vector<FuncNode*>& PredicateSubProblem<PRDCT>::funcnode_iterator() const {
   if(funcnodes_ == nullptr) {
-    funcnodes_ = new FuncNodeSet;
+    FuncNodeSet nds;
     for(Element *element : element_iterator()) {
       for(CleverPtr<ElementFuncNodeIterator> n(element->funcnode_iterator());
 	  !n->end(); ++*n)
 	{
-	  funcnodes_->insert(n->funcnode());
+	  nds.insert(n->funcnode());
 	}
     }
+    funcnodes_ = new std::vector<FuncNode*>(nds.begin(), nds.end());
   }
   return *funcnodes_;
 }
 
 template <class PRDCT>
-ElementSet &PredicateSubProblem<PRDCT>::elements() const {
+std::vector<Element*>& PredicateSubProblem<PRDCT>::element_iterator() const {
   if(elements_ == nullptr) {
-    elements_ = new ElementSet;
+    elements_ = new std::vector<Element*>;
     for(Element *element : mesh->element_iterator()) {
       if(this->predicate(mesh, element))
-	elements_->insert(element);
+	elements_->push_back(element);
     }
   }
   return *elements_;
 }
 
 template <class PRDCT>
-EdgementSet &PredicateSubProblem<PRDCT>::edgements() const {
+std::vector<InterfaceElement*>&
+PredicateSubProblem<PRDCT>::interface_element_iterator() const {
   if(edgements_ == nullptr) {
-    edgements_ = new EdgementSet;
+    EdgementSet edges;
     for(InterfaceElement *edgement : mesh->interface_element_iterator()) {
       if(edgement->isSubProblemInterfaceElement(this))
-	edgements_->insert(edgement);
+	edges.insert(edgement);
     }
+    edgements_ = new std::vector<InterfaceElement*>(edges.begin(), edges.end());
   }
   return *edgements_;
 }

@@ -33,13 +33,30 @@
 #include "engine/nodalequation.h"
 #include "engine/node.h"
 #include "engine/flux.h"	// SWIGBUG
-typedef VContainer<Node> VContainerNode;
-typedef VContainer<FuncNode> VContainerFuncNode;
-typedef VContainer<Element> VContainerElement;
-typedef VContainer<InterfaceElement> VContainerInterfaceElement;
+// typedef VContainer<Node> VContainerNode;
+// typedef VContainer<FuncNode> VContainerFuncNode;
+// typedef VContainer<Element> VContainerElement;
+// typedef VContainer<InterfaceElement> VContainerInterfaceElement;
 
 typedef std::vector<FuncNode*> FuncNodeVector;
 %}
+
+%typemap(out) DoubleIteratorFuncNodeNode* {
+  unsigned int size1 = $1->vec1.size();
+  unsigned int size2 = $1->vec2.size();
+  $result = PyList_New((Py_ssize_t) (size1 + size2));
+  for(unsigned int i=0; i<size1; i++) {
+    PyObject *tmp = $1->vec1[i]->pythonObject(false);
+    PyList_SET_ITEM($result, (Py_ssize_t) i, tmp);
+  }
+  for(unsigned int i=0; i<size2; i++) {
+    PyObject *tmp = $1->vec2[i]->pythonObject(false);
+    PyList_SET_ITEM($result, (Py_ssize_t)(size1 + 1), tmp);
+  }
+};
+
+MAKE_LISTVEC_TYPEMAPS(FuncNode);
+MAKE_LISTVEC_TYPEMAPS(Element);
 
 class FEMesh {
 public:
@@ -78,18 +95,30 @@ public:
   bool in_plane(Field&);
   void set_in_plane(Field&, bool);
 
-  %rename(node_iterator) c_node_iterator;
-  %rename(funcnode_iterator) c_funcnode_iterator;
-  %rename(element_iterator) c_element_iterator;
-  %rename(interface_element_iterator) c_interface_element_iterator;
-  VContainerNode* c_node_iterator();
-  VContainerFuncNode* c_funcnode_iterator();
-  VContainerElement* c_element_iterator();
-  VContainerInterfaceElement* c_interface_element_iterator();
+  // %rename(node_iterator) c_node_iterator;
+  // %rename(funcnode_iterator) c_funcnode_iterator;
+  // %rename(element_iterator) c_element_iterator;
+  // %rename(interface_element_iterator) c_interface_element_iterator;
+  // VContainerNode* c_node_iterator();
+  // VContainerFuncNode* c_funcnode_iterator();
+  // VContainerElement* c_element_iterator();
+  // VContainerInterfaceElement* c_interface_element_iterator();
 
-  FuncNodeVector& funcnode_iterator_simple();
+  // The FuncNodeRefVec typemap, created by MAKE_LISTVEC_TYPEMAPS,
+  // copies a C++ vector of FuncNode pointers into a Python list,
+  // without using PythonExportable and without taking ownership of
+  // the objects.
+  FuncNodeRefVec& funcnode_iterator();
+  ElementRefVec& element_iterator();
+  InterfaceElementRefVec& interface_element_iterator();
+  // TODO: Typemap for DoubleIterator that converts both vectors into
+  // a single list.
+  %newobject node_iterator;
+  DoubleIteratorFuncNodeNode* node_iterator();
+  
   void iterator_test_NEW();
   void iterator_test_OLD();
+  void iterator_test_double();
 
   void set_rwlock(RWLock *rw);
   RWLock * get_rwlock();

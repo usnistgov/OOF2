@@ -96,24 +96,55 @@ public:
   // MaterialSubProblem::redefined() should be called.
   virtual void redefined() {}
 
-  VContainerP<Node> node_iterator() const {
-    return VContainerP<Node>(c_node_iterator());
-  }
-  VContainerP<FuncNode> funcnode_iterator() const {
-    return VContainerP<FuncNode>(c_funcnode_iterator());
-  }
-  VContainerP<Element> element_iterator() const {
-    return VContainerP<Element>(c_element_iterator());
-  }
-  VContainerP<InterfaceElement> interface_element_iterator() const {
-    return VContainerP<InterfaceElement>(c_interface_element_iterator());
-  }
+  //  TODO PYTHON3: Different types of subproblems need different
+  //  kinds of iterators.  CEntireMeshSubProblem needs DoubleIterator
+  //  for nodes, std::vector::iterator for everything else.
+  //  PredicateSubProblem should use std::set::iterator for
+  //  everything.  Forcing the iteration to be done via a wrapper
+  //  class that supports different iterator types (eg VContainer)
+  //  imposes a heavy virtual function calling overhead and is slow.
+  //  Can the iteration be done *by* the CSubProblem subclass instead?
+  //
+  //     node_iterator is never used in C++ except in
+  //     FEMesh::closestNode, where it could be replaced.
+  //
+  //     _CSubProblem_create_bdy_node_map uses
+  //     CSubProblem.node_iterator in python.  It could easily use two
+  //     separate iterators, one for funcnodes and one for mapnodes.
+  //     It's not clear if it ought to be including map nodes anyway.
+  //
+  //     element_iterator is used heavily in
+  //     CSubProblem::make_linear_system.
+  //
+  //     There's no real need for the FEMesh and CSubProblem iterators
+  //     to be the same.  We never generically act on something that
+  //     could be either a mesh or a subproblem.  But
+  //     EntireMeshSubProblem lets the FEMesh do its iteration, so
+  //     it's convenient in that case.
+  //
+  //   The one hangup is that the predicate subproblem iterators
+  //   naturally iterate over sets, and the EntireMeshSubProblem
+  //   iterator naturally iterates over a vector, since the FEMesh
+  //   stores everything in vectors.
+
+  // VContainerP<Node> node_iterator() const {
+  //   return VContainerP<Node>(c_node_iterator());
+  // }
+  // VContainerP<FuncNode> funcnode_iterator() const {
+  //   return VContainerP<FuncNode>(c_funcnode_iterator());
+  // }
+  // VContainerP<Element> element_iterator() const {
+  //   return VContainerP<Element>(c_element_iterator());
+  // }
+  // VContainerP<InterfaceElement> interface_element_iterator() const {
+  //   return VContainerP<InterfaceElement>(c_interface_element_iterator());
+  // }
   
-  virtual VContainer<Node>* c_node_iterator() const = 0;
-  virtual VContainer<FuncNode>* c_funcnode_iterator() const = 0;
-  virtual VContainer<Element>* c_element_iterator() const = 0;
-  virtual VContainer<InterfaceElement>* c_interface_element_iterator() const=0;
-  
+  virtual const std::vector<Node*>& node_iterator() const = 0;
+  virtual const std::vector<FuncNode*>& funcnode_iterator() const = 0;
+  virtual const std::vector<Element*>& element_iterator() const = 0;
+  virtual const std::vector<InterfaceElement*>& interface_element_iterator() const=0;
+   
   virtual bool contains(const Element *) const = 0;
   virtual bool containsNode(const Node *) const = 0;
 

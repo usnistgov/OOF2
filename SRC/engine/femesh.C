@@ -388,61 +388,86 @@ MaterialSet *FEMesh::getAllMaterials() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-VContainerP<Element> FEMesh::element_iterator() const {
-  return VContainerP<Element>(c_element_iterator());
+// TODO: Use STL iterators for element_iterator and funcnode_iterator,
+// and DoubleIterator for node_iterator.  Use STL iterators on cached
+// vectors for subproblem 
+
+const std::vector<Element*> &FEMesh::element_iterator() const {
+  return element;
 }
 
-VContainer<Element>* FEMesh::c_element_iterator() const {
-  return new MeshElementContainer(this, nelements());
+const std::vector<InterfaceElement*>& FEMesh::interface_element_iterator() const
+{
+  return edgement;
 }
 
-VContainerP<InterfaceElement> FEMesh::interface_element_iterator() const {
-  return VContainerP<InterfaceElement>(c_interface_element_iterator());
+const std::vector<FuncNode*>& FEMesh::funcnode_iterator() const {
+  return funcnode;
 }
 
-VContainer<InterfaceElement>* FEMesh::c_interface_element_iterator() const {
-  return new MeshInterfaceElementContainer(this, nedgements());
+const DoubleIterator<Node, FuncNode, Node>* FEMesh::node_iterator() const {
+  return new DoubleIterator<Node, FuncNode, Node>(funcnode, mapnode);
 }
+
+// VContainerP<Element> FEMesh::element_iterator_container() const {
+//    return VContainerP<Element>(c_element_iterator());
+// }
+
+// VContainer<Element>* FEMesh::c_element_iterator() const {
+//   return new MeshElementContainer(this, nelements());
+// }
+
+// VContainerP<InterfaceElement> FEMesh::interface_element_iterator_container()
+//   const
+// {
+//   return VContainerP<InterfaceElement>(c_interface_element_iterator());
+// }
+
+// VContainer<InterfaceElement>* FEMesh::c_interface_element_iterator() const {
+//   return new MeshInterfaceElementContainer(this, nedgements());
+// }
 
 // TODO PYTHON3: FEMesh::node_iterator is never used in C++.  That
 // means that the complications arising from iterating over two
 // vectors in C++ aren't an issue.  It's called from python in
-// Mesh.compare() and SubproblemContxt.nnodes().
+// Mesh.compare() and SubproblemContext.nnodes().
 // CSubProblem::node_iterator is called in _CSubProblem_create_bdy_node_map.
 
-VContainerP<Node> FEMesh::node_iterator() const {
-  return VContainerP<Node>(c_node_iterator());
-}
+// VContainerP<Node> FEMesh::node_iterator_container() const {
+//   return VContainerP<Node>(c_node_iterator());
+// }
 
-VContainer<Node>* FEMesh::c_node_iterator() const {
-  return new MeshNodeContainer(this, nnodes());
-}
+// VContainer<Node>* FEMesh::c_node_iterator() const {
+//   return new MeshNodeContainer(this, nnodes());
+// }
 
-VContainerP<FuncNode> FEMesh::funcnode_iterator() const {
-  return VContainerP<FuncNode>(c_funcnode_iterator());
-}
+// VContainerP<FuncNode> FEMesh::funcnode_iterator_container() const {
+//   return VContainerP<FuncNode>(c_funcnode_iterator());
+// }
 
-// This is faster than funcnode_iterator.
-const std::vector<FuncNode*>& FEMesh::funcnode_iterator_simple() const {
-  return funcnode;
-}
+// VContainer<FuncNode>* FEMesh::c_funcnode_iterator() const {
+//   return new MeshFuncNodeContainer(this, nfuncnodes());
+// }
 
-VContainer<FuncNode>* FEMesh::c_funcnode_iterator() const {
-  return new MeshFuncNodeContainer(this, nfuncnodes());
-}
-
-void FEMesh::iterator_test_NEW() const {
+void FEMesh::iterator_test_fast() const {
   int i = 0;
-  for(FuncNode *node : funcnode_iterator_simple())
+  for(FuncNode *node : funcnode_iterator())
     i += 1;
   std::cerr << "FEMesh::iterator_test_NEW: " << i << std::endl;
 }
 
 void FEMesh::iterator_test_OLD() const {
   int i = 0;
-  for(FuncNode *node: funcnode_iterator())
+  for(Node *node: node_iterator())
     i += 1;
   std::cerr << "FEMesh::iterator_test_OLD: " << i << std::endl;
+}
+
+void FEMesh::iterator_test_double() const {
+  int i = 0;
+  for(Node *node : node_iterator_double())
+    i += 1;
+  std::cerr << "FEMesh::iterator_test_double: " << i << std::endl;
 }
 
 
@@ -479,6 +504,9 @@ FuncNode *FEMesh::getFuncNode(unsigned int i) const {
 Node *FEMesh::closestNode(const double x, const double y) {
   double min = std::numeric_limits<double>::max();
   Node *thenode = nullptr;
+  // TODO PYTHON3: Loop over mapnodes and funcnodes separately, so
+  // that we don't need to create a iterator class that handles the
+  // two vectors.
   for(Node *node : node_iterator()) {
     double dx = node->position()(0) - x;
     double dy = node->position()(1) - y;

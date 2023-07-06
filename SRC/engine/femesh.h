@@ -108,18 +108,25 @@ public:
   virtual ~FEMesh();
   CMicrostructure *get_microstructure() const { return microstructure; }
 
-  VContainer<Element>* c_element_iterator() const;
-  VContainer<Node>* c_node_iterator() const;
-  VContainer<FuncNode>* c_funcnode_iterator() const;
-  VContainer<InterfaceElement>* c_interface_element_iterator() const;
-  VContainerP<Node> node_iterator() const;
-  VContainerP<FuncNode> funcnode_iterator() const;
-  VContainerP<Element> element_iterator() const;
-  VContainerP<InterfaceElement> interface_element_iterator() const;
+  // Slow iterators that have advantage of using generic code. It
+  // makes more of a difference in CSubProblem than here in FEMesh.
+  // VContainer<Element>* c_element_iterator() const;
+  // VContainer<Node>* c_node_iterator() const;
+  // VContainer<FuncNode>* c_funcnode_iterator() const;
+  // VContainer<InterfaceElement>* c_interface_element_iterator() const;
+  // VContainerP<Node> node_iterator_container() const;
+  // VContainerP<FuncNode> funcnode_iterator_container() const;
+  // VContainerP<Element> element_iterator_container() const;
+  // VContainerP<InterfaceElement> interface_element_iterator_container() const;
 
-  const std::vector<FuncNode*>& funcnode_iterator_simple() const;
+  // Faster iterators:
+  const std::vector<Element*>& element_iterator() const;
+  const std::vector<FuncNode*>& funcnode_iterator() const;
+  const DoubleIterator<Node, FuncNode, Node>* node_iterator() const;
+  const std::vector<InterfaceElement*>& interface_element_iterator() const;
   void iterator_test_NEW() const;
   void iterator_test_OLD() const;
+  void iterator_test_double() const;
 
   Node *newMapNode(const Coord&); // the only way to make a Node
   FuncNode *newFuncNode(const Coord&); // the only way to make a FuncNode
@@ -166,6 +173,8 @@ public:
   // NodeIterator::index.
   Node *getNode(unsigned int) const;
   FuncNode *getFuncNode(unsigned int) const;
+
+  std::vector<FuncNode*>* funcnodes() { return &funcnode; }
 
   // Temporary function for finding the closest node.
 #if DIM==3

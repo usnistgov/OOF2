@@ -332,4 +332,83 @@ public:
   unsigned int size() const { return container->size(); }
 };
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Iterate over two vectors in succession.  The vectors contain
+// pointers to objects of types TYPE1 and TYPE2, which share a base
+// class BASE.  Dereferencing returns a BASE*.  Use it like:
+//   std::vector<TYPE1*> vec1;
+//   std::vector<TYPE2*> vec2;
+//   for(BASE *base : DoubleIterator<BASE, TYPE1, TYPE2>(vec1, vec2)) {...}
+
+
+// This about 30 times faster than using MeshNodeContainer and
+// MeshNodeIter to iterate over all of the Nodes, and about 30 times
+// slower than iterating over FEMesh::funcnode with STL iterators
+// directly (in a mesh with no map nodes).
+
+template <class BASE, class TYPE1, class TYPE2>
+class DoubleIter {
+private:
+  typename std::vector<TYPE1*>::const_iterator iter1;
+  typename std::vector<TYPE1*>::const_iterator end1;
+  typename std::vector<TYPE2*>::const_iterator iter2;
+  typename std::vector<TYPE2*>::const_iterator end2;
+  bool doing1;
+public:
+  DoubleIter(const std::vector<TYPE1*> &vec1,
+	     const std::vector<TYPE2*> &vec2,
+	     bool start)
+    : iter1(start? vec1.begin() : vec1.end()),
+      end1(vec1.end()),
+      iter2(start? vec2.begin() : vec2.end()),
+      end2(vec2.end()),
+      doing1(start)
+  {
+  }
+  DoubleIter& operator++() {
+    if(doing1) {
+      ++iter1;
+      if(iter1 == end1) {
+	doing1 = false;
+      }
+    }
+    else {
+      ++iter2;
+    }
+    return *this;
+  }
+  bool operator!=(const DoubleIter<BASE, TYPE1, TYPE2> &other) const {
+    return other.iter1!=iter1 || other.iter2!=iter2 && other.doing1!=doing1;
+  }
+
+  BASE* operator*() const {
+    if(doing1)
+      return dynamic_cast<BASE*>(*iter1);
+    else
+      return dynamic_cast<BASE*>(*iter2);
+  }
+  
+};
+
+template <class BASE, class TYPE1, class TYPE2>
+class DoubleIterator {
+public:
+  typedef DoubleIter<BASE, TYPE1, TYPE2> iterator;
+
+  const std::vector<TYPE1*>& vec1;
+  const std::vector<TYPE2*>& vec2;
+
+  DoubleIterator(const std::vector<TYPE1*> &vec1,
+		 const std::vector<TYPE2*> &vec2)
+    : vec1(vec1), vec2(vec2)
+  {}
+  iterator begin() const {
+    return DoubleIter<BASE, TYPE1, TYPE2>(vec1, vec2, true);
+  }
+  iterator end() const {
+    return DoubleIter<BASE, TYPE1, TYPE2>(vec1, vec2, false);
+  }
+};
+
 #endif // MESHITERATOR_H
