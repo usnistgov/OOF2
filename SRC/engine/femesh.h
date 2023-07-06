@@ -110,6 +110,7 @@ public:
   ElementIterator element_iterator() const;
   NodeIterator node_iterator() const;
   FuncNodeIterator funcnode_iterator() const;
+  void iterator_test() const;
 
   Node *newMapNode(const Coord&); // the only way to make a Node
   FuncNode *newFuncNode(const Coord&); // the only way to make a FuncNode

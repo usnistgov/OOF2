@@ -117,6 +117,13 @@ class SkeletonBuffer(ringbuffer.RingBuffer):
 
 ######################
 
+def oldmeshiter(femesh):
+    n = 0
+    for node in femesh.funcnode_iterator():
+        n += 1
+    print("oldmeshiter", n)
+
+
 class Mesh(whoville.Who):
     def __init__(self, name, classname, femesh, parent,
                  elementdict=None,
@@ -124,6 +131,17 @@ class Mesh(whoville.Who):
         whoville.Who.__init__(self, name, classname, femesh, parent)
         # Share the mesh-level lock with the contained femesh.
         femesh.set_rwlock(self.rwLock)
+
+        if debug.debug():
+            import timeit
+            iters = 10
+            t = timeit.timeit(stmt="oldmeshiter(femesh)", number=iters,
+                              globals={"femesh":femesh,
+                                       "oldmeshiter":oldmeshiter})
+            debug.fmsg("python old", t)
+            t = timeit.timeit(stmt="femesh.iterator_test()", number=iters,
+                              globals={"femesh":femesh})
+            debug.fmsg("C++ old", t)
 
         self.elementdict = elementdict
         self.materialfactory = materialfactory

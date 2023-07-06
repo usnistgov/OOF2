@@ -397,6 +397,12 @@ FuncNodeIterator FEMesh::funcnode_iterator() const {
   return FuncNodeIterator(new MeshFuncNodeIterator(this));
 }
 
+void FEMesh::iterator_test() const {
+  int i=0;
+  for(FuncNodeIterator ni=funcnode_iterator(); !ni.end(); ++ni)
+    i += 1;
+}
+
 // operator[] is deprecated...
 // FuncNode *FEMesh::operator[](const FuncNodeIterator &ni) const {
 //   return funcnode[ni.index];

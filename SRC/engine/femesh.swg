@@ -80,6 +80,7 @@ public:
   ElementIterator element_iterator();
   NodeIterator node_iterator();
   FuncNodeIterator funcnode_iterator();
+  void iterator_test();
 
   void set_rwlock(RWLock *rw);
   RWLock * get_rwlock();
