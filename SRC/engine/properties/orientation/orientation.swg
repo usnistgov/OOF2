@@ -32,7 +32,6 @@
 
 %typemap(in) COrientation * {
   PyObject *py_orient = PyObject_GetAttrString($input,"corient");
-  // TODO PYTHON3: Check this!
   SWIG_ConvertPtr(py_orient, (void**) &$1, $1_descriptor, 0);
 }
 

@@ -46,16 +46,6 @@ inline double max(double x, double y)
   return (x > y ? x : y);
 }
 
-// TODO PYTHON3: Move this to pyutils.C since it might be useful elsewhere.
-static std::string getPyStringData(PyObject *obj, const char *attr) {
-  PyObject *str = PyObject_GetAttrString(obj, attr);
-  if(!str)
-    pythonErrorRelay();
-  std::string result = pyStringAsString(str);
-  Py_DECREF(str);
-  return result;
-}
-
 // It appears the PyObject* can't be const, because
 // PyObject_GetAttrString doesn't take a const argument.
 
@@ -70,34 +60,12 @@ Property::Property(const std::string &nm, PyObject *registration)
   Py_INCREF(registration_);
 }
 
-// Note: There appears to be some kind of bug somewhere involving
-// property registration reference counts -- if the incref/decref is
-// left out of this code, then at apparently-random points, all the
-// property *registration* entries associated with properties placed
-// in materials via "newMaterial" calls will lose all their data
-// members.  The incref/decref here is certainly correct, but probably
-// not the real answer, since several other references to registration
-// entries exist (e.g. in the PropertyRegistration object's ".data"
-// LabelTree, and the PropertyPtr class's "registry" list), so the
-// reference count should always be at least 2 even in the absence of
-// an incref in the Property class.
-//
-//   The observed behavior might be caused by the PropertyRegistration's
-// (Python) destructor getting called too early somehow, demolishing
-// the attributes but not removing the reference, if for instance
-// there were some kind of bug in the Python 2.1.2 and 2.1.3
-// interpreters.  Additional circumstantial evidence for this is that
-// the bug has never occurred in Python 2.2.
 Property::~Property()
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   Py_DECREF(registration_);
 }
 
-// Additional note on the mystery bug mentioned above: It can be
-// induced by making exactly two calls to this routine from the
-// registration retrieval block in MaterialManager.new_material.  One,
-// three, or four calls are OK -- that's as many as I tried.
 PyObject *Property::registration() const {
   PYTHON_THREAD_BEGIN_BLOCK;
   Py_INCREF(registration_);

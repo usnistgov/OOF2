@@ -255,18 +255,16 @@ void PyPropertyMethods::py_output(Property *prop,
     if(result == NULL)
       pythonErrorRelay();
 
-    if(result != Py_None) {	// TODO PYTHON3: Do we need this check?
-      // Convert result to a C++ object
-      OutputVal *cresult;
-      if(!SWIG_IsOK(SWIG_ConvertPtr(result, (void**) &cresult,
-				    ((SwigPyObject*) result)->ty, 0)))
-	{
-	  throw ErrProgrammingError(
-			    "Python output() does not return an OutputVal",
-			    __FILE__, __LINE__);
-	}
-      *oval = *cresult;
-    }
+    // Convert result to a C++ object
+    OutputVal *cresult;
+    if(!SWIG_IsOK(SWIG_ConvertPtr(result, (void**) &cresult,
+				  ((SwigPyObject*) result)->ty, 0)))
+      {
+	throw ErrProgrammingError(
+			  "Python output() did not return an OutputVal",
+			  __FILE__, __LINE__);
+      }
+    *oval = *cresult;
     Py_XDECREF(result);
   }
 }
@@ -751,14 +749,8 @@ PyPropertyElementData::PyPropertyElementData(const std::string & name,
   Py_INCREF(_data);
 }
 
-// For the particular case of PyObject *'s, simple member 
-// retrieval through SWIG doesn't appear to work -- you have to 
-// override SWIG's conversion-to-pointer-string to get the actual
-// Python object out.  This function has the appropriate typemap
-// defined in pypropertywrapper.swg. // TODO PYTHON3: Check this.
 PyObject *PyPropertyElementData::data() {
   PYTHON_THREAD_BEGIN_BLOCK;
-  // Hacky extra incref.  TODO PYTHON3: Check this too.
   Py_INCREF(_data);
   return _data;
 }

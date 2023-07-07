@@ -37,7 +37,6 @@
   // }
   FETCH_CLASS(ooflib.common.enum, EnumBase);
   if(PyObject_IsInstance($input, EnumBaseClass)) {
-    // TODO PYTHON3: I'm not at all sure that this is correct.
     PyObject *enum_name = PyObject_GetAttrString($input, "name");
     PyObject *ustr = PyUnicode_AsEncodedString(enum_name, "UTF-8", "replace");
     s.assign(PyBytes_AsString(ustr));

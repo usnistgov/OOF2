@@ -18,7 +18,7 @@
 #include <string>
 
 std::string pyStringAsString(PyObject*);
-
+std::string getPyStringData(PyObject*, const char*);
 std::string repr(PyObject*);
 std::string repr_nolock(PyObject*);
 

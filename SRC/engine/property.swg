@@ -12,9 +12,9 @@
 #ifndef PROPERTIES_SWG
 #define PROPERTIES_SWG
 
-// TODO PYTHON3: "property" is a bad choice for a module name in
-// Python.  It's not a reserved word, so it's legal, but it might be
-// confusing (at best).
+// TODO: "property" is a bad choice for a module name in Python.  It's
+// not a reserved word, so it's legal, but it might be confusing (at
+// best).
 
 %module(package="ooflib.SWIG.engine") property
 %include "common/typemaps.swg"

@@ -34,6 +34,19 @@ std::string pyStringAsString(PyObject *str) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+// Extract a string attribute from an object.
+
+std::string getPyStringData(PyObject *obj, const char *attr) {
+  PyObject *str = PyObject_GetAttrString(obj, attr);
+  if(!str)
+    pythonErrorRelay();
+  std::string result = pyStringAsString(str);
+  Py_DECREF(str);
+  return result;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 // Call the __repr__ of the given object.  Use the nolock version in
 // situations (such as inside typemaps) where the python global
 // interpreter lock does not need to be acquired.
