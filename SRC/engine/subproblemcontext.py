@@ -255,17 +255,17 @@ class SubProblemContext(whoville.Who):
         return self.getParent().getMicrostructure()
 
     def nelements(self):
-        return self.getObject().element_iterator().size()
+        return self.getObject().elements().size()
 
     def nnodes(self):
-        return self.getObject().node_iterator().size()
+        return self.getObject().nodes().size()
 
     def nfuncnodes(self):
-        return self.getObject().funcnode_iterator().size()
+        return self.getObject().funcnodes().size()
 
     def area(self):
         a = 0.0
-        for element in self.element_iterator():
+        for element in self.elements():
             a += element.area()
         return a
 

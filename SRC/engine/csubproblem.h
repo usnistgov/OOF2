@@ -96,23 +96,23 @@ public:
   // MaterialSubProblem::redefined() should be called.
   virtual void redefined() {}
 
-  VContainerP<Node> node_iterator() const {
-    return VContainerP<Node>(c_node_iterator());
+  VContainerP<Node> nodes() const {
+    return VContainerP<Node>(c_nodes());
   }
-  VContainerP<FuncNode> funcnode_iterator() const {
-    return VContainerP<FuncNode>(c_funcnode_iterator());
+  VContainerP<FuncNode> funcnodes() const {
+    return VContainerP<FuncNode>(c_funcnodes());
   }
-  VContainerP<Element> element_iterator() const {
-    return VContainerP<Element>(c_element_iterator());
+  VContainerP<Element> elements() const {
+    return VContainerP<Element>(c_elements());
   }
-  VContainerP<InterfaceElement> interface_element_iterator() const {
-    return VContainerP<InterfaceElement>(c_interface_element_iterator());
+  VContainerP<InterfaceElement> interface_elements() const {
+    return VContainerP<InterfaceElement>(c_interface_elements());
   }
   
-  virtual VContainer<Node>* c_node_iterator() const = 0;
-  virtual VContainer<FuncNode>* c_funcnode_iterator() const = 0;
-  virtual VContainer<Element>* c_element_iterator() const = 0;
-  virtual VContainer<InterfaceElement>* c_interface_element_iterator() const=0;
+  virtual VContainer<Node>* c_nodes() const = 0;
+  virtual VContainer<FuncNode>* c_funcnodes() const = 0;
+  virtual VContainer<Element>* c_elements() const = 0;
+  virtual VContainer<InterfaceElement>* c_interface_elements() const=0;
   
   virtual bool contains(const Element *) const = 0;
   virtual bool containsNode(const Node *) const = 0;

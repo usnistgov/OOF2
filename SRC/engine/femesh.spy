@@ -84,7 +84,7 @@ FEMesh.clear_parent_mesh = _FEMesh_clear_parent_mesh
 
 # Field initialization from another Mesh
 def _FEMesh_init_field(self, old_skel, old_femesh, field):
-    for node in self.funcnode_iterator():
+    for node in self.funcnodes():
         if node.hasField(field):
             position = node.position()
             el = old_skel.enclosingElement(position)
@@ -728,7 +728,7 @@ def _createInterfaceFloatBCs(self,subpctxt):
     for fbc in self._interfaceFloatBCs:
         fbc.remove_from_mesh()
     self._interfaceFloatBCs=[]
-    for edgement in self.interface_element_iterator():
+    for edgement in self.interface_elements():
         # For every field in the interface for which no boundary
         # condition has been specified, re-connect the fields by
         # providing node-wise FloatBCs with constant profiles equal to

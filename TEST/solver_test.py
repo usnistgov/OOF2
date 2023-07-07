@@ -104,7 +104,7 @@ class OOF_StaticIsoElastic(SaveableMeshTest):
         # DOFs.
         from ooflib.engine import mesh
         msh_obj = mesh.meshes["solve_test:skeleton:mesh"].getObject()
-        for fn in msh_obj.funcnode_iterator():
+        for fn in msh_obj.funcnodes():
             delta = fn.displaced_position(msh_obj)-solution[fn.index()]
             self.assertAlmostEqual(delta**2, 0.0, 6)
         del msh_obj
@@ -795,7 +795,7 @@ class OOF_1x1ElasticDynamic(SaveableMeshTest):
         # Check that all displacements are zero.
         from ooflib.engine import mesh
         msh_obj = mesh.meshes['microstructure:skeleton:mesh'].getObject()
-        for fn in msh_obj.funcnode_iterator():
+        for fn in msh_obj.funcnodes():
             dispx = Displacement.value(msh_obj, fn, 0)
             dispy = Displacement.value(msh_obj, fn, 1)
             rr = dispx*dispx + dispy*dispy

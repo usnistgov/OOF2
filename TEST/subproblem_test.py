@@ -18,12 +18,12 @@ from .UTILS.file_utils import reference_file
 
 def count_nodes(subproblem):
     n = 0
-    for node in subproblem.getObject().node_iterator():
+    for node in subproblem.getObject().nodes():
         n += 1
     return n
 
 def count_funcnodes(subproblem):
-    return len(list(subproblem.getObject().funcnode_iterator()))
+    return len(list(subproblem.getObject().funcnodes()))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

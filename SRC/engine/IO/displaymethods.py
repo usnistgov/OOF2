@@ -176,12 +176,12 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
             else:
                 if gfxwindow.settings.hideEmptyElements:
                     edges = [element.perimeter()
-                             for element in themesh.element_iterator()
+                             for element in themesh.elements()
                              if element.material() is not None]
                 else:
                     # edges is a list of lists of Edges
                     edges = [element.perimeter()
-                             for element in themesh.element_iterator()]
+                             for element in themesh.elements()]
 
                 ## TODO PYTHON3 LATER: Can this all be done with generators
                 ## instead of lists?  Maybe if all edges were
@@ -298,7 +298,7 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
         ## is very slow to fail.  Find a cleverer way to select which
         ## elements to search.
         ellist = []
-        for el in femesh.element_iterator():
+        for el in femesh.elements():
             if not (el.material() is None and hideEmpty):
                 distance2 = (self.where.evaluate(
                     femesh, [el],[[el.center()]])[0] - pos)**2
@@ -522,7 +522,7 @@ class PerimeterDisplay(MeshDisplayMethod):
             segs = oofcanvas.CanvasSegments.create()
             segs.setLineWidthInPixels(self.width)
             segs.setLineColor(color.canvasColor(self.color))
-            for element in femesh.element_iterator():
+            for element in femesh.elements():
                 el_edges = element.perimeter()
                 for edge in el_edges:
                     if element.exterior(edge.startpt(), edge.endpt()):
@@ -574,7 +574,7 @@ registeredclass.Registration(
 #         try:
 #             meshctxt.restoreCachedData(self.getTime(meshctxt, gfxwindow))
 #             if self.boundary==placeholder.every.IDstring:
-#                 for edgement in femesh.interface_element_iterator():
+#                 for edgement in femesh.interface_elements():
 #                     if self.material!=ANYstring:
 #                         if edgement.material():
 #                             matname=edgement.material().name()
@@ -587,7 +587,7 @@ registeredclass.Registration(
 #                         pts = self.where.evaluate(femesh, [edge], [[0.0, 1.0]])
 #                         device.draw_segment(primitives.Segment(pts[0], pts[1]))
 #             else:
-#                 for edgement in femesh.interface_element_iterator():
+#                 for edgement in femesh.interface_elements():
 #                     if self.material!=ANYstring:
 #                         if edgement.material():
 #                             matname=edgement.material().name()
@@ -682,7 +682,7 @@ class MeshMaterialDisplay(MaterialDisplay, MeshDisplayMethod):
         # of elements with an assigned material, this should only
         # return the non-trivial materials.
         themesh = meshctxt.getObject()
-        allmats = (element.material() for element in themesh.element_iterator())
+        allmats = (element.material() for element in themesh.elements())
         if gfxwindow.settings.hideEmptyElements:
             return (mat for mat in allmats if mat)
         return allmats

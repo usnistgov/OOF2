@@ -140,7 +140,7 @@ void CSubProblem::activate_equation(Equation &eqn) {
 
     // Create NodalEquations for this Equation in each Node.  This
     // also updates the Nodes' EquationSets.
-    for(FuncNode *node : funcnode_iterator()) {
+    for(FuncNode *node : funcnodes()) {
       node->addEquation(mesh, eqn);
     }
     // Activate fluxes required for this Equation
@@ -152,7 +152,7 @@ void CSubProblem::deactivate_equation(Equation &eqn) {
   if(is_active_equation(eqn)) {
     int index = eqn.index();
     eqndata[index].active = false;
-    for(FuncNode *node : funcnode_iterator()) {
+    for(FuncNode *node : funcnodes()) {
       node->removeEquation(mesh, eqn);
     }
     // perform garbage collection on the nodaleqn list
@@ -260,7 +260,7 @@ void CSubProblem::do_define_field(const Field &field) {
   FieldData &fdata = fielddata[index];
   if(!fdata.defined) {
     fdata.defined = true;
-    for(FuncNode *node : funcnode_iterator()) {
+    for(FuncNode *node : funcnodes()) {
       // std::cerr << "CSubProblem::do_define_field: adding " << field
       //           << " at node " << *ni.node() << std::endl;
       node->addField(mesh, field);
@@ -277,7 +277,7 @@ void CSubProblem::do_undefine_field(const Field &field) {
     std::vector<FieldData>::size_type index = field.index();
     if(index < fielddata.size()) {
       fielddata[index].defined = false;
-      for(FuncNode *node : funcnode_iterator()) {
+      for(FuncNode *node : funcnodes()) {
 	node->removeField(mesh, field);
       }
       mesh->clean_doflist();
@@ -291,8 +291,8 @@ void CSubProblem::do_undefine_field(const Field &field) {
 // defined.  Called by meshmenu.copyMesh.
 
 void CSubProblem::acquire_field_data(Field &field, const CSubProblem *other) {
-  auto myFuncNodes = funcnode_iterator();
-  auto yourFuncNodes = other->funcnode_iterator();
+  auto myFuncNodes = funcnodes();
+  auto yourFuncNodes = other->funcnodes();
   for(auto i=myFuncNodes.begin(), j=yourFuncNodes.begin();
       i!=myFuncNodes.end() && j!=yourFuncNodes.end();
       ++i, ++j)
@@ -532,7 +532,7 @@ void CSubProblem::mapField(void *data,
 void CSubProblem::mapField_(const Field &field, const Field &tdfield,
 			    bool tddefined)
 {
-  for(FuncNode *node : funcnode_iterator()) {
+  for(FuncNode *node : funcnodes()) {
     for(int i=0; i<field.ndof(); i++) { // loop over field components
       int dofindex = field(node, i)->dofindex(); // global index
       int eqnindex = global_dof2eqn_map[dofindex];
@@ -619,7 +619,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   // parallel directive can only work on for loops with forms
   // like: for (int i = val; i < n; i++)
   std::vector<Element*> elements;
-  for(Element *el : element_iterator())
+  for(Element *el : elements())
     elements.push_back(el);
 
   int nTds;     // number of threads
@@ -700,7 +700,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   int counter = 0; 
   memusage("Start ElementIterator for loop (C)");
 
-  VContainerP<Element> eliter = element_iterator();
+  VContainerP<Element> eliter = elements();
   int nel = eliter.size();
   for(auto el=eliter.begin(); el!=eliter.end() && !progress->stopped();
       ++el, counter++) 
@@ -721,7 +721,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   //Interface branch
   unsigned int n = mesh->nedgements();
   counter = 0;
-  for(InterfaceElement *edgement : mesh->interface_element_iterator()) {
+  for(InterfaceElement *edgement : mesh->interface_elements()) {
     if(progress->stopped())
       break;
     edgement->make_linear_system(this, time, nlsolver, *linearsystem);
@@ -753,9 +753,8 @@ void CSubProblem::post_process() {
   DefiniteProgress *progress =
     dynamic_cast<DefiniteProgress*>(getProgress("Postprocessing", DEFINITE));
   unsigned int counter = 0;
-  VContainerP<Element> eliter = element_iterator();
-  int size = eliter.size();
-  for(Element *element : element_iterator()) {
+  int size = elements().size();
+  for(Element *element : elements()) {
     if(progress->stopped())
       break;
     element->post_process(this);
@@ -767,7 +766,7 @@ void CSubProblem::post_process() {
   //Interface branch
   unsigned int n = mesh->nedgements();
   counter = 0;
-  for(InterfaceElement *edgement : mesh->interface_element_iterator()) {
+  for(InterfaceElement *edgement : mesh->interface_elements()) {
     if(progress->stopped())
       break;
     edgement->post_process(this);
@@ -902,7 +901,7 @@ void CSubProblem::set_equation_mapping(
   global_dof2eqn_map.resize(mesh->dof.size(), -1);
 
   LocalMapDict localmaps;
-  for(FuncNode *node : funcnode_iterator()) {
+  for(FuncNode *node : funcnodes()) {
     std::vector<NodalEquation*> &eqnlist = node->eqnlist;
     // Get the localmap, which indicates the conjugacy relations
     // between nodal equations and degrees of freedom in the Node.
@@ -934,7 +933,7 @@ void CSubProblem::set_equation_mapping(
 
 MaterialSet *CSubProblem::getMaterials() const {
   MaterialSet *mset = new MaterialSet;
-  for(Element *el : element_iterator()) {
+  for(Element *el : elements()) {
     const Material *matl = el->material();
     if(matl) {
       mset->insert(matl);
@@ -942,7 +941,7 @@ MaterialSet *CSubProblem::getMaterials() const {
   }
 
   // Make sure to include surface materials in interfaces.
-  for(InterfaceElement *edgement : interface_element_iterator()) {
+  for(InterfaceElement *edgement : interface_elements()) {
     const Material *matl = edgement->material();
     if(matl)
       mset->insert(matl);
@@ -956,7 +955,7 @@ MaterialSet *CSubProblem::getMaterials() const {
 // iterators, which I'm too lazy to write just now.
 
 // void CSubProblem::dump_dof() const {
-//   for(FuncNodeIterator i=funcnode_iterator(); !i.end(); ++i) {
+//   for(FuncNodeIterator i=funcnodes(); !i.end(); ++i) {
 //     const FuncNode &node = *i.node();
 //     std::cout << "node = " << node << std::endl;
 //     for(std::vector<Field*>::size_type f=0; f<Field::all().size(); f++) {
@@ -982,7 +981,7 @@ MaterialSet *CSubProblem::getMaterials() const {
 
 
 // void CSubProblem::dump_eqn() const {
-//   for(FuncNodeIterator i=funcnode_iterator(); !i.end(); ++i) {
+//   for(FuncNodeIterator i=funcnodes(); !i.end(); ++i) {
 //     const FuncNode &node = *i.node();
 //     std::cout << "node = " << node << std::endl;
 //     for(std::vector<Equation*>::size_type e=0;e<Equation::all().size();e++){
@@ -1464,7 +1463,7 @@ void CSubProblem::NodalPositionSolution(double* temp_array)
 {
   //Display (X,Y:NodalValues) at the terminal
   //For testing, and can be called only after set_precombined_equation_mapping and solve
-  for(FuncNode *pfn : funcnode_iterator()) {
+  for(FuncNode *pfn : funcnodes()) {
     std::cerr << "(x,y:nodalvalues)=(" << pfn->position()(0) << "," <<
       pfn->position()(1) << ":";
     //Search dof for the index of the dofs in FuncNode->doflist
@@ -1528,7 +1527,7 @@ int CSubProblem::GatherNumNodes()
   // Get the number of nodes for this subproblem
   // Must be "owned" by the current process.
   int nOwned=0;
-  for(FuncNode *pfn : funcnode_iterator())
+  for(FuncNode *pfn : funcnodes())
     {
       if(pfn->isShared())
 	{
@@ -1596,7 +1595,7 @@ std::vector<int> *CSubProblem::get_nodes_from_patch(const int assembly_node,
 
 // initialize "recovered_fluxes"
 void CSubProblem::init_nodalfluxes() {
-  for(FuncNode *node : funcnode_iterator())
+  for(FuncNode *node : funcnodes())
     recovered_fluxes[node->index()] = new NodalFluxes();
 }
 
@@ -1712,7 +1711,7 @@ DoubleVec *CSubProblem::zz_L2_weights(const Flux *fluks,
   bool first = true;
   int order=0;			// initialized to suppress compiler warnings
   double min=0, max=0;		// will be reinitialized below
-  for(Element *elem : element_iterator()) {
+  for(Element *elem : elements()) {
     if(first)
       order = 2*elem->shapefun_degree();
     double value = 0.0;

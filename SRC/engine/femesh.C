@@ -345,7 +345,7 @@ int FEMesh::nelements() const {
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 void FEMesh::refreshMaterials(PyObject *skeletoncontext) {
-  for(Element *element : element_iterator()) {
+  for(Element *element : elements()) {
     const Material *oldmat = element->material();
     element->refreshMaterial(skeletoncontext);
     const Material *newmat = element->material();
@@ -388,46 +388,46 @@ MaterialSet *FEMesh::getAllMaterials() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-VContainerP<Element> FEMesh::element_iterator() const {
-  return VContainerP<Element>(c_element_iterator());
+VContainerP<Element> FEMesh::elements() const {
+  return VContainerP<Element>(c_elements());
 }
 
-VContainer<Element>* FEMesh::c_element_iterator() const {
+VContainer<Element>* FEMesh::c_elements() const {
   return new MeshElementContainer(this, nelements());
 }
 
-VContainerP<InterfaceElement> FEMesh::interface_element_iterator() const {
-  return VContainerP<InterfaceElement>(c_interface_element_iterator());
+VContainerP<InterfaceElement> FEMesh::interface_elements() const {
+  return VContainerP<InterfaceElement>(c_interface_elements());
 }
 
-VContainer<InterfaceElement>* FEMesh::c_interface_element_iterator() const {
+VContainer<InterfaceElement>* FEMesh::c_interface_elements() const {
   return new MeshInterfaceElementContainer(this, nedgements());
 }
 
-// TODO: FEMesh::node_iterator is never used in C++.  That means that
+// TODO: FEMesh::nodes() is never used in C++.  That means that
 // the complications arising from iterating over two vectors in C++
 // aren't an issue.  It's called from python in Mesh.compare() and
-// SubproblemContxt.nnodes().  CSubProblem::node_iterator is called in
+// SubproblemContxt.nnodes().  CSubProblem::nodes is called in
 // _CSubProblem_create_bdy_node_map.
 
-VContainerP<Node> FEMesh::node_iterator() const {
-  return VContainerP<Node>(c_node_iterator());
+VContainerP<Node> FEMesh::nodes() const {
+  return VContainerP<Node>(c_nodes());
 }
 
-VContainer<Node>* FEMesh::c_node_iterator() const {
+VContainer<Node>* FEMesh::c_nodes() const {
   return new MeshNodeContainer(this, nnodes());
 }
 
-VContainerP<FuncNode> FEMesh::funcnode_iterator() const {
-  return VContainerP<FuncNode>(c_funcnode_iterator());
+VContainerP<FuncNode> FEMesh::funcnodes() const {
+  return VContainerP<FuncNode>(c_funcnodes());
 }
 
-// This is faster than funcnode_iterator.
-const std::vector<FuncNode*>& FEMesh::funcnode_iterator_fast() const {
+// This is faster than FEMesh::funcnodes().
+const std::vector<FuncNode*>& FEMesh::funcnodes_fast() const {
   return funcnode;
 }
 
-VContainer<FuncNode>* FEMesh::c_funcnode_iterator() const {
+VContainer<FuncNode>* FEMesh::c_funcnodes() const {
   return new MeshFuncNodeContainer(this, nfuncnodes());
 }
 
@@ -462,7 +462,7 @@ FuncNode *FEMesh::getFuncNode(unsigned int i) const {
 Node *FEMesh::closestNode(const double x, const double y) {
   double min = std::numeric_limits<double>::max();
   Node *thenode = nullptr;
-  for(Node *node : node_iterator()) {
+  for(Node *node : nodes()) {
     double dx = node->position()(0) - x;
     double dy = node->position()(1) - y;
     double dist = dx*dx + dy*dy;
@@ -616,7 +616,7 @@ int FEMesh::nedgements() const
 // refreshMaterials, or is there a good reason for it to stand alone?
 void FEMesh::refreshInterfaceMaterials(PyObject *skelctxt) {
 
-  for(InterfaceElement *el : interface_element_iterator()) {
+  for(InterfaceElement *el : interface_elements()) {
     const Material *om = el->material(); // old material
     el->refreshInterfaceMaterial(skelctxt);
     const Material *nm = el->material(); // new material
@@ -632,6 +632,6 @@ void FEMesh::refreshInterfaceMaterials(PyObject *skelctxt) {
 void FEMesh::renameInterfaceElements(const std::string &oldname,
 				     const std::string &newname)
 {
-  for(InterfaceElement *edgement: interface_element_iterator())
+  for(InterfaceElement *edgement: interface_elements())
     edgement->rename(oldname, newname);
 }

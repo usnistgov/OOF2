@@ -107,7 +107,7 @@ class EntireMesh(Domain):
         return True
 
     def get_elements(self):
-        return self.femesh.element_iterator()
+        return self.femesh.elements()
 
 registeredclass.Registration(
     'Entire Mesh',

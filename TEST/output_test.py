@@ -125,9 +125,8 @@ class OOF_Output(unittest.TestCase):
                 # so we do these directly.  Evaluate each element at
                 # mastercoord (0,0).
 
-                elset = meshobj.element_iterator()
                 reslist = []
-                for lmnt in elset:
+                for lmnt in meshobj.elements():
                     reslist += outputclone.evaluate(
                         meshobj, [lmnt],
                         [[mastercoord.MasterCoord(0.0,0.0)]])

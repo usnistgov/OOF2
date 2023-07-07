@@ -190,7 +190,7 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
         #Cancellation of Generalized Force BCs and surface tension
         #property should be perfect.
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             delta = fn.displaced_position(meshobj) - fn.position()
             self.assertAlmostEqual(delta**2, 0.0, 6)
 
@@ -206,7 +206,7 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                        stepsize=0)
 
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             delta = fn.displaced_position() - fn.position()
             self.assertAlmostEqual(delta**2, 0.0, 6)
 
@@ -244,7 +244,7 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                                 preconditioner=ILUPreconditioner())))
 
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             delta = fn.displaced_position() - fn.position()
             self.assertAlmostEqual(delta**2, 0.0, 6)
 
@@ -286,7 +286,7 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                                 preconditioner=ILUPreconditioner())))
 
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             delta = fn.displaced_position() - fn.position()
             self.assertAlmostEqual(delta**2, 0.0, 6)
 
@@ -356,7 +356,7 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
 
         meshobj=meshctxt.getObject()
         numup=0
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             #Check that half of the nodes shifted up by 10 units.
             delta = fn.displaced_position() - fn.position()
             self.assertAlmostEqual(delta.x, 0.0, 6)
@@ -404,7 +404,7 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
 
         meshobj=meshctxt.getObject()
         numup=0
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             #Check that half of the nodes shifted up by 10 units.
             delta = fn.displaced_position() - fn.position()
             self.assertAlmostEqual(delta.x, 0.0, 6)
@@ -580,7 +580,7 @@ class OOF_InterfaceTest2(unittest.TestCase):
         meshobj=meshctxt.getObject()
         nodelist=[]
         numjumps=0
-        for edgement in meshobj.edgement_iterator():
+        for edgement in meshobj.interface_elements():
             if edgement.name()!='boundary':
                 continue
             ei=edgement.node_iterator()
@@ -814,11 +814,11 @@ class OOF_InterfaceTest3(unittest.TestCase):
         #Make a table of the solutions, then compare
         solutiondict={}
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             solutiondict[(fn.position().x,fn.position().y)] = \
                 fn.displaced_position()
         meshobj2=meshctxt2.getObject()
-        for fn in meshobj2.funcnode_iterator():
+        for fn in meshobj2.funcnodes():
             s2=fn.displaced_position()
             s1=solutiondict[(fn.position().x,fn.position().y)]
             self.assertAlmostEqual(s1.x, s2.x, 6)
@@ -853,11 +853,11 @@ class OOF_InterfaceTest3(unittest.TestCase):
         #Make a table of the solutions, then compare
         solutiondict={}
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             solutiondict[(fn.position().x,fn.position().y)] = \
                 fn.displaced_position()
         meshobj2=meshctxt2.getObject()
-        for fn in meshobj2.funcnode_iterator():
+        for fn in meshobj2.funcnodes():
             s2=fn.displaced_position()
             s1=solutiondict[(fn.position().x,fn.position().y)]
             self.assertAlmostEqual(s1.x, s2.x, 6)
@@ -961,11 +961,11 @@ class OOF_InterfaceTest3(unittest.TestCase):
         #Make a table of the solutions, then compare
         solutiondict={}
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             solutiondict[(fn.position().x,fn.position().y)] = \
                 Temperature.value(fn,0)
         meshobj2=meshctxt2.getObject()
-        for fn in meshobj2.funcnode_iterator():
+        for fn in meshobj2.funcnodes():
             s2=Temperature.value(fn,0)
             s1=solutiondict[(fn.position().x,fn.position().y)]
             self.assertAlmostEqual(s1, s2, 6)
@@ -1000,11 +1000,11 @@ class OOF_InterfaceTest3(unittest.TestCase):
         #Make a table of the solutions, then compare
         solutiondict={}
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             solutiondict[(fn.position().x,fn.position().y)] = \
                 Temperature.value(fn,0)
         meshobj2=meshctxt2.getObject()
-        for fn in meshobj2.funcnode_iterator():
+        for fn in meshobj2.funcnodes():
             s2=Temperature.value(fn,0)
             s1=solutiondict[(fn.position().x,fn.position().y)]
             self.assertAlmostEqual(s1, s2, 6)

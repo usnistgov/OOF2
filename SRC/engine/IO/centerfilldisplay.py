@@ -44,7 +44,7 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
         meshctxt = self.who.resolve(gfxwindow)
         themesh = meshctxt.mesh()
         polygons = self.polygons(gfxwindow, meshctxt)
-        elements = tuple(themesh.element_iterator())
+        elements = tuple(themesh.elements())
         evaluationpoints = [[el.center()] for el in elements]
         values = list(map(float,
                      self.what.evaluate(themesh, elements, evaluationpoints)))

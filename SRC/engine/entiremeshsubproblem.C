@@ -18,21 +18,21 @@ CEntireMeshSubProblem::CEntireMeshSubProblem() {}
 
 CEntireMeshSubProblem::~CEntireMeshSubProblem() {}
 
-VContainer<Node>* CEntireMeshSubProblem::c_node_iterator() const {
-  return mesh->c_node_iterator();
+VContainer<Node>* CEntireMeshSubProblem::c_nodes() const {
+  return mesh->c_nodes();
 }
 
-VContainer<FuncNode>* CEntireMeshSubProblem::c_funcnode_iterator() const {
-  return mesh->c_funcnode_iterator();
+VContainer<FuncNode>* CEntireMeshSubProblem::c_funcnodes() const {
+  return mesh->c_funcnodes();
 }
 
-VContainer<Element>* CEntireMeshSubProblem::c_element_iterator() const {
-  return mesh->c_element_iterator();
+VContainer<Element>* CEntireMeshSubProblem::c_elements() const {
+  return mesh->c_elements();
 }
 
 VContainer<InterfaceElement>*
-CEntireMeshSubProblem::c_interface_element_iterator() const {
-  return mesh->c_interface_element_iterator();
+CEntireMeshSubProblem::c_interface_elements() const {
+  return mesh->c_interface_elements();
 }
 
 bool CEntireMeshSubProblem::contains(const Element*) const {

@@ -121,13 +121,13 @@ class SkeletonBuffer(ringbuffer.RingBuffer):
 
 # def newmeshiter(femesh):
 #     n = 0
-#     for node in femesh.funcnode_iterator_fast():
+#     for node in femesh.funcnodes_fast():
 #         n += 1
 #     print("newmeshiter", n)
     
 # def oldmeshiter(femesh):
 #     n = 0
-#     for node in femesh.funcnode_iterator():
+#     for node in femesh.funcnodes():
 #         n += 1
 #     print("oldmeshiter", n)
 
@@ -1032,8 +1032,8 @@ class Mesh(whoville.Who):
         othermesh = other.getObject()
 
         # compare node positions
-        mynodes = mymesh.node_iterator()
-        othernodes = othermesh.node_iterator()
+        mynodes = mymesh.nodes()
+        othernodes = othermesh.nodes()
         if mynodes.size() != othernodes.size():
             return "Wrong number of nodes"
         for mynode, othernode in zip(mynodes, othernodes):
@@ -1105,10 +1105,10 @@ class Mesh(whoville.Who):
                                 % subpname)
 
                         # Create a sorted list of nodes, because
-                        # funcnode_iterator doesn't return them in a
+                        # funcnodes() doesn't return them in a
                         # guaranteed order
-                        mynodeiter = subp.funcnode_iterator()
-                        othernodeiter = osubp.funcnode_iterator()
+                        mynodeiter = subp.funcnodes()
+                        othernodeiter = osubp.funcnodes()
                         mynodes = list(mynodeiter)
                         othernodes = list(othernodeiter)
                         mynodes.sort(key=_nodekey)

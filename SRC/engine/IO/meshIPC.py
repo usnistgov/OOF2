@@ -110,7 +110,7 @@ def collect_pieces(femesh):
     #  which are unique but may have gaps)
     nodedict = {}
     i = 0
-    for node in femesh.node_iterator():
+    for node in femesh.nodes():
         nodedict[node.index()] = i
         i += 1
 
@@ -129,7 +129,7 @@ def collect_pieces(femesh):
     myCoords = reduce(
         lambda x,y: x+y, [[nd.position().x,
                            nd.position().y]
-                          for nd in femesh.node_iterator()]
+                          for nd in femesh.nodes()]
         )
     
     coordSizes = [i*2 for i in nnodes]
@@ -147,14 +147,14 @@ def collect_pieces(femesh):
                   for i in range(_size) ]
     
     # element connectivity signature
-    myEConSigs = [len(el.perimeter()) for el in femesh.element_iterator()]
+    myEConSigs = [len(el.perimeter()) for el in femesh.elements()]
     #RCL: One gets this for allEConSigs: [[elnnodes0,elnnodes1,...],[elnnodes0',elnnodes1',...],...]
     allEConSigs = mpitools.Allgather_IntVec(myEConSigs, size_known=nelems)
 
     # element connectivity
     #RCL: nodedict must be a map to the 0-based indices of the nodes
     myECons = [ [nodedict[nd.index()] for nd in el.node_iterator()]
-                for el in femesh.element_iterator()]
+                for el in femesh.elements()]
     myECons = reduce(lambda x,y: x+y, myECons)
 
     #RCL: conSizes looks like [[elnnodes0+elnnodes1+...],[elnnodes0'+elnnodes1'+...],...]

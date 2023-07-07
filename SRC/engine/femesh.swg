@@ -78,14 +78,14 @@ public:
   bool in_plane(Field&);
   void set_in_plane(Field&, bool);
 
-  %rename(node_iterator) c_node_iterator;
-  %rename(funcnode_iterator) c_funcnode_iterator;
-  %rename(element_iterator) c_element_iterator;
-  %rename(interface_element_iterator) c_interface_element_iterator;
-  VContainerNode* c_node_iterator();
-  VContainerFuncNode* c_funcnode_iterator();
-  VContainerElement* c_element_iterator();
-  VContainerInterfaceElement* c_interface_element_iterator();
+  %rename(nodes) c_nodes;
+  %rename(funcnodes) c_funcnodes;
+  %rename(elements) c_elements;
+  %rename(interface_elements) c_interface_elements;
+  VContainerNode* c_nodes();
+  VContainerFuncNode* c_funcnodes();
+  VContainerElement* c_elements();
+  VContainerInterfaceElement* c_interface_elements();
 
   void set_rwlock(RWLock *rw);
   RWLock * get_rwlock();

@@ -70,7 +70,7 @@ subpmenu = OOF.LoadData.addItem(OOFMenuItem(
 
 def getNodeSets(femesh):
     nodesets = {}               # lists of nodes keyed by fieldSetID.
-    for node in femesh.funcnode_iterator():
+    for node in femesh.funcnodes():
         fieldsetid = node.fieldSetID()
         try:
             nodesets[fieldsetid].append(node)
@@ -800,7 +800,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
     i = 1
     # use only those nodes that are associated with elements that have
     # a material
-    for el in femesh.element_iterator():
+    for el in femesh.elements():
         if el.material():
             for node in el.node_iterator():
                 if nodedict.setdefault(node.position(), i) == i:
@@ -814,7 +814,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
     # mouths. May be inefficient.)
     materiallist=utils.OrderedDict()
     masterElementDict=utils.OrderedDict()
-    for el in femesh.element_iterator():
+    for el in femesh.elements():
         ematerial = el.material()
         emasterelement = el.masterelement()
         if ematerial:
@@ -879,7 +879,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
 % (repr(ename),masterElementDict[ename.name()].nnodes())]
             # Trivia: C stands for Continuum, PS for Plane Stress (PE
             # - Plane strain)
-            for el in femesh.element_iterator():
+            for el in femesh.elements():
                 if el.material():
                     if el.masterelement().name()==ename.name():
                         listbuf2=["%d" % (elementdict[el.get_index()])]
@@ -950,7 +950,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
         buffer+="*ELSET, ELSET=%s\n" % matname
         listbuf=[]
         i=0
-        for el in femesh.element_iterator():
+        for el in femesh.elements():
             if el.material():
                 if el.material().name()==matname:
                     if i>0 and i%16==0:

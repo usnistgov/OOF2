@@ -69,12 +69,12 @@ public:
   void requirePrecompute();
   void redefined();
 
-  %rename(node_iterator) c_node_iterator;
-  %rename(funcnode_iterator) c_funcnode_iterator;
-  %rename(element_iterator) c_element_iterator;
-  VContainerNode* c_node_iterator(); 
-  VContainerFuncNode* c_funcnode_iterator();
-  VContainerElement *c_element_iterator();
+  %rename(nodes) c_nodes;
+  %rename(funcnodes) c_funcnodes;
+  %rename(elements) c_elements;
+  VContainerNode* c_nodes(); 
+  VContainerFuncNode* c_funcnodes();
+  VContainerElement *c_elements();
 
   %newobject new_linear_system;
   LinearizedSystem *new_linear_system(double);

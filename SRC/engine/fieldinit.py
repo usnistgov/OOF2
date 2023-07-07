@@ -31,14 +31,14 @@ class FieldInit:
             # in more than one subproblem when that field gets defined
             # on the second subproblem.  Doing so would wipe out a
             # value that might have been set by the first subproblem.
-            for node in femesh.funcnode_iterator():
+            for node in femesh.funcnodes():
                 if node.fieldDefCount(field)==1:
                     position = node.position()
                     for i in range(field.ndof()): # field component
                         field.setvalue(femesh, node, i,
                                        self.func(position, time, i))
         else:
-            for node in femesh.funcnode_iterator():
+            for node in femesh.funcnodes():
                 if node.hasField(field):
                     position = node.position()
                     for i in range(field.ndof()): # field component

@@ -34,7 +34,7 @@ typedef std::vector<FuncNode*>::iterator FuncNodeIterator;
 %}
 
 // Constructors for these classes aren't swigged because the objects
-// should only be created by calling FEMesh::node_iterator, etc.
+// should only be created by calling FEMesh::nodes(), etc.
 
 %nodefaultctor MeshNodeIter;
 class MeshNodeIter {

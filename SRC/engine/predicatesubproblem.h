@@ -69,10 +69,10 @@ private:
   mutable FuncNodeSet *funcnodes_;
   mutable ElementSet *elements_;
   mutable EdgementSet *edgements_;
-  NodeSet &nodes() const;
-  FuncNodeSet &funcnodes() const;
-  ElementSet &elements() const;
-  EdgementSet &edgements() const;
+  NodeSet &node_cache() const;
+  FuncNodeSet &funcnode_cache() const;
+  ElementSet &element_cache() const;
+  EdgementSet &edgement_cache() const;
 public:
   PredicateSubProblem(const PRDCT &p)
     : predicate(p),
@@ -83,24 +83,24 @@ public:
   {}
   virtual ~PredicateSubProblem();
   virtual void redefined();
-  // node_iterator and funcnode_iterator need to return pointers to
-  // base class MeshNodeContainer objects, because virtual methods in
-  // the containers are needed to return different types of iterators.
-  // So the containers need to be wrapped by ContainerP the same way
-  // that the iterators are wrapped by IterP.
-  virtual VContainer<Node>* c_node_iterator() const;
-  virtual VContainer<FuncNode>* c_funcnode_iterator() const;
-  virtual VContainer<Element>* c_element_iterator() const;
-  virtual VContainer<InterfaceElement>* c_interface_element_iterator() const;
+  // nodes() and funcnodes() need to return pointers to base class
+  // MeshNodeContainer objects, because virtual methods in the
+  // containers are needed to return different types of iterators.  So
+  // the containers need to be wrapped by ContainerP the same way that
+  // the iterators are wrapped by IterP.
+  virtual VContainer<Node>* c_nodes() const;
+  virtual VContainer<FuncNode>* c_funcnodes() const;
+  virtual VContainer<Element>* c_elements() const;
+  virtual VContainer<InterfaceElement>* c_interface_elements() const;
   friend class PSPNodeContainer<PRDCT>;
   friend class PSPFuncNodeContainer<PRDCT>;
   friend class PSPElementContainer<PRDCT>;
   friend class PSPInterfaceElementContainer<PRDCT>;
 
-  unsigned int nnodes() const { return nodes().size(); }
-  unsigned int nfuncnodes() const { return funcnodes().size(); }
-  unsigned int nelements() const { return elements().size(); }
-  unsigned int nedgements() const { return edgements().size(); }
+  unsigned int nnodes() const { return node_cache().size(); }
+  unsigned int nfuncnodes() const { return funcnode_cache().size(); }
+  unsigned int nelements() const { return element_cache().size(); }
+  unsigned int nedgements() const { return edgement_cache().size(); }
   
   virtual bool contains(const Element*) const;
   virtual bool containsNode(const Node*) const;
@@ -120,7 +120,7 @@ bool PredicateSubProblem<PRDCT>::contains(const Element *element) const {
 template <class PRDCT>
 bool PredicateSubProblem<PRDCT>::containsNode(const Node *node) const {
   Node *nd = const_cast<Node*>(node);
-  NodeSet &nds = nodes();
+  NodeSet &nds = node_cache();
   NodeSet::iterator i=nds.find(nd);
   return i != nds.end();
 }
@@ -135,10 +135,10 @@ void PredicateSubProblem<PRDCT>::redefined() {
 }
 
 template <class PRDCT>
-NodeSet &PredicateSubProblem<PRDCT>::nodes() const {
+NodeSet &PredicateSubProblem<PRDCT>::node_cache() const {
   if(nodes_ == nullptr) {
     nodes_ = new NodeSet;
-    for(Element *element : element_iterator()) {
+    for(Element *element : elements()) {
       for(ElementNodeIterator n(element->node_iterator()); !n.end(); ++n) {
 	nodes_->insert(n.node());
       }
@@ -148,10 +148,10 @@ NodeSet &PredicateSubProblem<PRDCT>::nodes() const {
 }
 
 template <class PRDCT>
-FuncNodeSet &PredicateSubProblem<PRDCT>::funcnodes() const {
+FuncNodeSet &PredicateSubProblem<PRDCT>::funcnode_cache() const {
   if(funcnodes_ == nullptr) {
     funcnodes_ = new FuncNodeSet;
-    for(Element *element : element_iterator()) {
+    for(Element *element : elements()) {
       for(CleverPtr<ElementFuncNodeIterator> n(element->funcnode_iterator());
 	  !n->end(); ++*n)
 	{
@@ -163,10 +163,10 @@ FuncNodeSet &PredicateSubProblem<PRDCT>::funcnodes() const {
 }
 
 template <class PRDCT>
-ElementSet &PredicateSubProblem<PRDCT>::elements() const {
+ElementSet &PredicateSubProblem<PRDCT>::element_cache() const {
   if(elements_ == nullptr) {
     elements_ = new ElementSet;
-    for(Element *element : mesh->element_iterator()) {
+    for(Element *element : mesh->elements()) {
       if(this->predicate(mesh, element))
 	elements_->insert(element);
     }
@@ -175,10 +175,10 @@ ElementSet &PredicateSubProblem<PRDCT>::elements() const {
 }
 
 template <class PRDCT>
-EdgementSet &PredicateSubProblem<PRDCT>::edgements() const {
+EdgementSet &PredicateSubProblem<PRDCT>::edgement_cache() const {
   if(edgements_ == nullptr) {
     edgements_ = new EdgementSet;
-    for(InterfaceElement *edgement : mesh->interface_element_iterator()) {
+    for(InterfaceElement *edgement : mesh->interface_elements()) {
       if(edgement->isSubProblemInterfaceElement(this))
 	edgements_->insert(edgement);
     }
@@ -230,11 +230,11 @@ public:
   {}
   virtual MeshIterator<Node>* c_begin() const {
     return new PSPNodeIter<PRDCT, Node>(this->subp,
-					this->subp->nodes().begin());
+					this->subp->node_cache().begin());
   }
   virtual MeshIterator<Node>* c_end() const {
     return new PSPNodeIter<PRDCT, Node>(this->subp,
-					this->subp->nodes().end());
+					this->subp->node_cache().end());
   }
 };
 
@@ -249,11 +249,11 @@ public:
   {}
   virtual MeshIterator<FuncNode>* c_begin() const {
     return new PSPNodeIter<PRDCT, FuncNode>(this->subp,
-					    this->subp->funcnodes().begin());
+					    this->subp->funcnode_cache().begin());
   }
   virtual MeshIterator<FuncNode>* c_end() const {
     return new PSPNodeIter<PRDCT, FuncNode>(this->subp,
-					    this->subp->funcnodes().end());
+					    this->subp->funcnode_cache().end());
   }
 };
 
@@ -268,11 +268,11 @@ public:
   {}
   virtual MeshIterator<Element>* c_begin() const {
     return new PSPNodeIter<PRDCT, Element>(this->subp,
-					   this->subp->elements().begin());
+					   this->subp->element_cache().begin());
   }
   virtual MeshIterator<Element>* c_end() const {
     return new PSPNodeIter<PRDCT, Element>(this->subp,
-					   this->subp->elements().end());
+					   this->subp->element_cache().end());
   }
 };
 
@@ -288,35 +288,35 @@ public:
   virtual MeshIterator<InterfaceElement>* c_begin() const {
     return new PSPNodeIter<PRDCT, InterfaceElement>(
 				    this->subp,
-				    this->subp->edgements().begin());
+				    this->subp->edgement_cache().begin());
   }
   virtual MeshIterator<InterfaceElement>* c_end() const {
     return new PSPNodeIter<PRDCT, InterfaceElement>(
 				    this->subp,
-				    this->subp->edgements().end());
+				    this->subp->edgement_cache().end());
   }
 };
 
 // Subproblem methods that return the containers
 
 template <class PRDCT>
-VContainer<Node>* PredicateSubProblem<PRDCT>::c_node_iterator() const {
+VContainer<Node>* PredicateSubProblem<PRDCT>::c_nodes() const {
   return new PSPNodeContainer<PRDCT>(this);
 }
   
 template <class PRDCT>
-VContainer<FuncNode>* PredicateSubProblem<PRDCT>::c_funcnode_iterator() const {
+VContainer<FuncNode>* PredicateSubProblem<PRDCT>::c_funcnodes() const {
   return new PSPFuncNodeContainer<PRDCT>(this);
 }
 
 template <class PRDCT>
-VContainer<Element>* PredicateSubProblem<PRDCT>::c_element_iterator() const {
+VContainer<Element>* PredicateSubProblem<PRDCT>::c_elements() const {
   return new PSPElementContainer<PRDCT>(this);
 }
 
 template <class PRDCT>
 VContainer<InterfaceElement>*
-PredicateSubProblem<PRDCT>::c_interface_element_iterator() const {
+PredicateSubProblem<PRDCT>::c_interface_elements() const {
   return new PSPInterfaceElementContainer<PRDCT>(this);
 }
   

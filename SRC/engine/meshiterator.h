@@ -23,12 +23,12 @@
   The iterators are now real STL-style iterators that can be used like
   this:
 
-    for(Node *node : subproblem->node_iterator()) { ... }
+    for(Node *node : subproblem->nodes()) { ... }
 
   or
   
-    for(auto iter=mesh.node_iterator().begin();
-        iter!=mesh.node_iterator().end(); iter++)
+    for(auto iter=mesh.nodes().begin();
+        iter!=mesh.nodes().end(); iter++)
 	{
            Node *node = *iter;
            ...
@@ -39,16 +39,16 @@
      for node in subproblem.nodes():
          ...
   
-  FEMesh and all CSubProblem classes need the methods node_iterator(),
-  funcnode_iterator(), and element_iterator(). They return a
-  VContainerP<Node>, VContainerP<FuncNode>, or VContainerP<Element>.
-  "VContainer" is a Virtual container -- it doesn't actually contain
-  anything except a pointer to the FEMesh or CSubProblem, but it knows
-  how to iterate over the mesh or subproblem and therefore acts like a
-  container.  VContainerP<OBJ> wraps a pointer to a VContainer<OBJ>,
-  which provides virtual functions that support iteration, namely
-  begin(), end(), c_begin(), and c_end().  "VContainerP" is a pointer
-  to a virtual container.
+  FEMesh and all CSubProblem classes need the methods nodes(),
+  funcnodes(), and elements(). They return a VContainerP<Node>,
+  VContainerP<FuncNode>, or VContainerP<Element>.  "VContainer" is a
+  Virtual container -- it doesn't actually contain anything except a
+  pointer to the FEMesh or CSubProblem, but it knows how to iterate
+  over the mesh or subproblem and therefore acts like a container.
+  VContainerP<OBJ> wraps a pointer to a VContainer<OBJ>, which
+  provides virtual functions that support iteration, namely begin(),
+  end(), c_begin(), and c_end().  "VContainerP" is a pointer to a
+  virtual container.
 
   [TODO PYTHON3?  Rename FEMesh::node_iterator(), et al. because the
   functions don't actually return iterators.  Better names might be
@@ -82,7 +82,7 @@
   TODO PYTHON3: The VContainer machinery involves a lot of virtual
   functions and dynamic casts, which is why just looping over
   funcnodes is about 4 times faster in C++ if we use unadorned
-  std::vector iteration. (See FEMesh::funcnode_iterator_fast().)
+  std::vector iteration. (See FEMesh::funcnodes_fast().)
   However, the time difference between the two versions in Python is
   negligible.  Since the iterator itself ought to use a lot less time
   than the body of the iteration, it's not clear that it's worth
@@ -122,7 +122,7 @@ class Node;
 //
 // See the last commit on the new-mesh-iterators branch for an attempt
 // at simplifying some of the iterators.  For example,
-// FEMesh::funcnode_iterator could simply return the funcnode vector,
+// FEMesh::funcnodes could simply return the funcnode vector,
 // and it would be much faster than what is done here.  However,
 // problems arise when going that route, because, for example, some
 // subproblems want to loop over vectors and some over sets, and

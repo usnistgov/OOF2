@@ -506,7 +506,7 @@ class OOF_NLPlaneStress(unittest.TestCase):
         msh = mesh.meshes["microstructure:skeleton:mesh"]
         msh_obj = msh.getObject()
         dispz = field.getField("Displacement_z")
-        for node in msh_obj.funcnode_iterator():
+        for node in msh_obj.funcnodes():
             vals = [dispz.value(msh_obj, node, i) for i in range(3)]
             self.assertTrue(vals[0] == 0.0 and vals[1] == 0 and
                          math.fabs(vals[2]+0.05) < 1.e-13)

@@ -108,16 +108,16 @@ public:
   virtual ~FEMesh();
   CMicrostructure *get_microstructure() const { return microstructure; }
 
-  VContainer<Element>* c_element_iterator() const;
-  VContainer<Node>* c_node_iterator() const;
-  VContainer<FuncNode>* c_funcnode_iterator() const;
-  VContainer<InterfaceElement>* c_interface_element_iterator() const;
-  VContainerP<Node> node_iterator() const;
-  VContainerP<FuncNode> funcnode_iterator() const;
-  VContainerP<Element> element_iterator() const;
-  VContainerP<InterfaceElement> interface_element_iterator() const;
+  VContainer<Element>* c_elements() const;
+  VContainer<Node>* c_nodes() const;
+  VContainer<FuncNode>* c_funcnodes() const;
+  VContainer<InterfaceElement>* c_interface_elements() const;
+  VContainerP<Node> nodes() const;
+  VContainerP<FuncNode> funcnodes() const;
+  VContainerP<Element> elements() const;
+  VContainerP<InterfaceElement> interface_elements() const;
 
-  const std::vector<FuncNode*>& funcnode_iterator_fast() const;
+  const std::vector<FuncNode*>& funcnodes_fast() const;
 
   Node *newMapNode(const Coord&); // the only way to make a Node
   FuncNode *newFuncNode(const Coord&); // the only way to make a FuncNode

@@ -259,7 +259,7 @@ class OOF_Mesh_Extra(OOF_Mesh_FieldEquation):
             initializer=FuncScalarFieldInit(function="x*y"))
         OOF.Mesh.Apply_Field_Initializers(mesh="meshtest:skeleton:fe_test")
         # Check the center of each element.
-        for e in self.msh_obj.element_iterator():
+        for e in self.msh_obj.elements():
             m_coord = MasterCoord(0.0,0.0)
             lab_coord = e.from_master(MasterCoord(0.0,0.0))
             o = e.outputField(self.msh_obj, Temperature, MasterCoord(0.0,0.0))
@@ -278,7 +278,7 @@ class OOF_Mesh_Extra(OOF_Mesh_FieldEquation):
         OOF.Mesh.Apply_Field_Initializers(mesh="meshtest:skeleton:mesh<2>")
         # Check the center of each element in the copied mesh.
         other_msh_obj = mesh.meshes["meshtest:skeleton:mesh<2>"].getObject()
-        for e in other_msh_obj.element_iterator():
+        for e in other_msh_obj.elements():
             m_coord = MasterCoord(0.0,0.0)
             lab_coord = e.from_master(MasterCoord(0.0,0.0))
             o = e.outputField(other_msh_obj, Temperature, MasterCoord(0.0,0.0))
@@ -903,7 +903,7 @@ class OOF_Mesh_Special(OOF_Mesh_Base):
 def countMaterials(meshctxt):
     counts = {}
     total = 0
-    for e in meshctxt.getObject().element_iterator():
+    for e in meshctxt.getObject().elements():
         total += 1
         m = e.material()
         if m:

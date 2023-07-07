@@ -115,7 +115,7 @@ class ContourDisplay(ZDisplay):
         ## TODO OPT: Rework this to use generators instead of passing
         ## lists around.  It may be faster for large meshes.
         nodepoints = []
-        for element in mesh.element_iterator():
+        for element in mesh.elements():
             master = element.masterelement()
             el_mpos = []                # master coords of nodes in this element
             for n in range(master.nnodes()):
@@ -125,7 +125,7 @@ class ContourDisplay(ZDisplay):
         # Evaluate the function at the nodes
 
         values = [float(x) for x in 
-                  what.evaluate(mesh, mesh.element_iterator(), nodepoints)]
+                  what.evaluate(mesh, mesh.elements(), nodepoints)]
         # Get function values grouped by element
         evalues = utils.unflatten(nodepoints, values)
 
@@ -133,7 +133,7 @@ class ContourDisplay(ZDisplay):
         # values cached somewhere, and can they be reused?
         
 ##        vmax = max(values)
-##        for (vals, element) in zip(evalues, mesh.element_iterator()):
+##        for (vals, element) in zip(evalues, mesh.elements()):
 ##            if vmax in vals:
 ##                debug.fmsg('max found in element', element, vals)
 ##                break
@@ -192,7 +192,7 @@ class PlainContourDisplay(ContourDisplay):
             # nodes of each element.
             clevels, evalues = self.find_levels(mesh, self.what)
             ecount = 0
-            for element in mesh.element_iterator():
+            for element in mesh.elements():
                 if (not gfxwindow.settings.hideEmptyElements) or \
                        ( element.material() is not None ) :
                     (contours, elmin, elmax)  = contour.findContours(
@@ -307,7 +307,7 @@ class FilledContourDisplay(ContourDisplay):
             offset = -minval*factor
             ecount = 0
             # TODO: we might want to use itertools here
-            for element, values in zip(mesh.element_iterator(), evalues):
+            for element, values in zip(mesh.elements(), evalues):
                 if ( not gfxwindow.settings.hideEmptyElements ) or \
                        ( element.material() is not None ) :
                     (contours, elmin, elmax) = contour.findContours(
