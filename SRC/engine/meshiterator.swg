@@ -84,10 +84,6 @@ public:
 // couldn't get it to work, so the subtypes are typedefed above and
 // swigged individually.
 
-// TODO PYTHON3? There's a lot of repetition here. Can we swig a base
-// class?  Currently VContainer<A> and VContainer<B> don't share a
-// base class.
-
 %nodefaultctor VContainerNode;
 %feature("valuewrapper") VContainerNode;
 class VContainerNode {

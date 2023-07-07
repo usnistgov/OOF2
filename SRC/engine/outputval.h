@@ -229,8 +229,9 @@ class ListOutputVal;
 // index ListOutputVal, but it doesn't really belong in FieldIndex
 // because the in_plane method doesn't make any sense for it.  We're
 // over-using the FieldIndex class.
-// TODO PYTHON3: OutputVal should use some other kind of Index, and
-// FieldIndex should be derived from that.
+//
+// TODO PYTHON3 LATER: OutputVal should use some other kind of Index,
+// and FieldIndex should be derived from that.
 
 class ListOutputValIndex : public FieldIndex {
 protected:
