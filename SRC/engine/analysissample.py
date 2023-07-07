@@ -324,9 +324,11 @@ class ElementSampleSet(SampleSet):
     def make_samples(self, domain):
         self.sample_list = []
         els = domain.get_elements()
+        didsomething = False
         for e in els:
+            didsomething = True
             self.sample_list.append(ElementSample(e))
-        return len(els) > 0
+        return didsomething
     def integrate(self, domain, output, power=1):
         if self.order==automatic.automatic:
             order=2            # TODO: Do something cleverer here.

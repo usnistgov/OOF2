@@ -14,16 +14,6 @@
 
 %module(package="ooflib.SWIG.engine") csubproblem
 
-// Because CSubProblem has methods that return these iterators (which
-// are lightweight objects) by value and they don't have default
-// constructors, we have to make sure that swig uses the value wrapper
-// mechanism.  It's supposed to realize that automatically, but
-// somehow isn't.  These lines must precede the importation of the
-// class definitions.
-%feature("valuewrapper") ElementIterator;
-%feature("valuewrapper") NodeIterator;
-%feature("valuewrapper") FuncNodeIterator;
-
 %include "common/typemaps.swg"
 %import "common/doublevec.swg"
 %import "common/lock.swg"
@@ -47,6 +37,10 @@
 #include "engine/meshiterator.h"
 #include "engine/sparsemat.h"
 #include <vector>
+
+typedef VContainer<Node> VContainerNode;
+typedef VContainer<FuncNode> VContainerFuncNode;
+typedef VContainer<Element> VContainerElement;
 %}
 
 MAKE_LISTVEC_TYPEMAPS(Equation);
@@ -75,9 +69,12 @@ public:
   void requirePrecompute();
   void redefined();
 
-  ElementIterator element_iterator();
-  NodeIterator node_iterator();
-  FuncNodeIterator funcnode_iterator();
+  %rename(node_iterator) c_node_iterator;
+  %rename(funcnode_iterator) c_funcnode_iterator;
+  %rename(element_iterator) c_element_iterator;
+  VContainerNode* c_node_iterator(); 
+  VContainerFuncNode* c_funcnode_iterator();
+  VContainerElement *c_element_iterator();
 
   %newobject new_linear_system;
   LinearizedSystem *new_linear_system(double);

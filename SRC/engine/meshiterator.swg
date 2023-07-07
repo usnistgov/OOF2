@@ -22,65 +22,114 @@
 #include "engine/element.h"
 #include "engine/meshiterator.h"
 #include "engine/node.h"
-  #include "engine/flux.h"	// SWIGBUG
+#include "engine/flux.h"	// SWIGBUG
+
+typedef VContainer<Node> VContainerNode;
+typedef VContainer<FuncNode> VContainerFuncNode;
+typedef VContainer<Element> VContainerElement;
+typedef VContainer<InterfaceElement> VContainerInterfaceElement;
+
+typedef std::vector<FuncNode*> FuncNodeVector;
+typedef std::vector<FuncNode*>::iterator FuncNodeIterator;
 %}
 
 // Constructors for these classes aren't swigged because the objects
 // should only be created by calling FEMesh::node_iterator, etc.
 
-// The .spy file adds __iter__ and __next__ methods to make these into
-// real iterators.
-
-// TODO PYTHON3: Find code that can be simplified because these
-// classes are real iterators.
-
-%nodefaultctor NodeIterator;
-
-class NodeIterator {
+%nodefaultctor MeshNodeIter;
+class MeshNodeIter {
 public:
-  ~NodeIterator();
-  bool end();
-  int size();
-  Node *node();
+  bool operator!=(const MeshNodeIter&);
 };
 
-%extend NodeIterator {
-  void increment() {
-    ++(*self);
-  }
+%extend MeshNodeIter {
+  void increment() { ++(*$self); }
+  Node* node() { return $self->operator*(); }
 };
 
-%nodefaultctor FuncNodeIterator;
-
-class FuncNodeIterator {
+%nodefaultctor MeshFuncNodeIter;
+class MeshFuncNodeIter {
 public:
-  ~FuncNodeIterator();
-  bool end();
-  int size();
-  FuncNode *node();
+  bool operator!=(const MeshFuncNodeIter&);
 };
 
-%extend FuncNodeIterator {
-  void increment() {
-    ++(*self);
-  }
+%extend MeshFuncNodeIter {
+  void increment() { ++(*self); }
+  FuncNode* node() { return $self->operator*(); }
 };
 
-%nodefaultctor ElementIterator;
-
-class ElementIterator {
+%nodefaultctor MeshElementIter;
+class MeshElementIter {
 public:
-  ~ElementIterator();
-  bool end();
-  int size();
-  int count();
-  Element *element();
+  bool operator!=(const MeshElementIter&);
 };
 
-%extend ElementIterator {
-  void increment() {
-    ++(*self);
-  }
+%extend MeshElementIter {
+  void increment() { ++(*self); }
+  Element *element() { return $self->operator*(); }
+};
+
+%nodefaultctor MeshInterfaceElementIter;
+class MeshInterfaceElementIter {
+public:
+  bool operator!=(const MeshInterfaceElementIter&);
+};
+
+%extend MeshInterfaceElementIter {
+  void increment() { ++(*self); }
+  Element *element() { return $self->operator*(); } 
+};
+
+// In principle, swig can understand the VContainer template, but I
+// couldn't get it to work, so the subtypes are typedefed above and
+// swigged individually.
+
+// TODO PYTHON3? There's a lot of repetition here. Can we swig a base
+// class?  Currently VContainer<A> and VContainer<B> don't share a
+// base class.
+
+%nodefaultctor VContainerNode;
+%feature("valuewrapper") VContainerNode;
+class VContainerNode {
+public:
+  int size();
+  %newobject c_begin;
+  %newobject c_end;
+  MeshNodeIter* c_begin();
+  MeshNodeIter* c_end();
+};
+
+%nodefaultctor VContainerFuncNode;
+%feature("valuewrapper") VContainerFuncNode;
+class VContainerFuncNode {
+public:
+  int size();
+  %newobject c_begin;
+  %newobject c_end;
+  MeshFuncNodeIter* c_begin();
+  MeshFuncNodeIter* c_end();
+};
+
+%nodefaultctor VContainerElement;
+%feature("valuewrapper") VContainerElement;
+class VContainerElement {
+public:
+  int size();
+  %newobject c_begin;
+  %newobject c_end;
+  MeshElementIter* c_begin();
+  MeshElementIter* c_end();
+};
+
+%nodefaultctor VContainerInterfaceElement;
+%feature("valuewrapper") VContainerInterfaceElement;
+class VContainerInterfaceElement {
+public:
+  int size();
+  %newobject c_begin;
+  %newobject c_end;
+  MeshElementIter* c_begin();
+  MeshElementIter* c_end();
 };
 
 %pythoncode "engine/meshiterator.spy"

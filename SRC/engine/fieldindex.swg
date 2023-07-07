@@ -89,6 +89,9 @@ ADD_REPR_GENERIC(SymTensorIndex);
 ADD_REPR_GENERIC(ComponentIteratorP);
 
 %{
+  // TODO PYTHON3: What's the point of this typedef?  Is it leftover
+  // from the conversion to the current field index scheme?  Should
+  // methods swigged as returning NewFieldIndex be using %newobject?
   typedef FieldIndex NewFieldIndex;
 %}
 

@@ -132,8 +132,17 @@ public:
   // Post-equilibrium processing.
   void post_process(CSubProblem *) const;
 
+  // The index is not the same as the position in the FEMesh's lists.
+  // The mesh has separate lists for elements and interface elements.
+  // The index is unique across both lists.
   void set_index(int);
-  const int &get_index() const;
+  int get_index() const;	// TODO: This had returned const int&.  Why?
+   // TODO: to allow Elements to be iterated over using the same
+   // meshiterator machinery used by Nodes, Element needs an index()
+   // method.  It already had a get_index() method, which is now
+   // redundant and should be replaced with index() whereever it's
+   // used.
+  int index() const { return get_index(); }
 
   int nnodes() const;
   int nmapnodes() const;

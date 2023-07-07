@@ -87,7 +87,7 @@ void Element::set_index(int i) {
   index_=i;
 }
 
-const int &Element::get_index() const {
+int Element::get_index() const {
   return index_;
 }
 

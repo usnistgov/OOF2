@@ -14,6 +14,19 @@ import unittest, os
 from . import memorycheck
 from .UTILS.file_utils import reference_file
 
+# Utility functions to test the iterators in meshiterator.*.
+
+def count_nodes(subproblem):
+    n = 0
+    for node in subproblem.getObject().node_iterator():
+        n += 1
+    return n
+
+def count_funcnodes(subproblem):
+    return len(list(subproblem.getObject().funcnode_iterator()))
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 # Basic subproblem operations
 
 class OOF_Subproblem(unittest.TestCase):
@@ -80,6 +93,10 @@ class OOF_Subproblem(unittest.TestCase):
         self.assertEqual(subp1.nelements(), 4)
         self.assertEqual(subp1.nnodes(), 9)
         self.assertEqual(subp1.nfuncnodes(), 9)
+        self.assertEqual(count_nodes(subp0), 25)
+        self.assertEqual(count_funcnodes(subp0), 25)
+        self.assertEqual(count_nodes(subp1), 9)
+        self.assertEqual(count_funcnodes(subp1), 9)
 
     @memorycheck.check('subptest')
     def Delete(self):
@@ -194,6 +211,8 @@ class OOF_Subproblem(unittest.TestCase):
         subp = subproblemcontext.subproblems['subptest:skeleton:mesh:sub1']
         self.assertEqual(subp.nelements(), 4)
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class OOF_Subproblem_Varieties(unittest.TestCase):
     def setUp(self):
         global mesh
@@ -239,19 +258,26 @@ class OOF_Subproblem_Varieties(unittest.TestCase):
                             pixels='spot1')
         OOF.Subproblem.New(name='matspot1', mesh='small.ppm:skeleton:mesh',
                            subproblem=MaterialSubProblem(material='material'))
-        self.assertTrue(self.get_subproblem('matspot1').nelements() == 114)
-        self.assertTrue(self.get_subproblem('matspot1').nnodes() == 138)
+        subp = self.get_subproblem('matspot1')
+        self.assertEqual(subp.nelements(), 114)
+        self.assertEqual(subp.nnodes(), 138)
+        self.assertEqual(count_nodes(subp), 138)
         OOF.Material.Assign(material='material', microstructure='small.ppm',
                             pixels='spot2')
-        self.assertTrue(self.get_subproblem('matspot1').nelements() == 178)
-        self.assertTrue(self.get_subproblem('matspot1').nnodes() == 208)
+        self.assertEqual(subp.nelements(), 178)
+        self.assertEqual(subp.nnodes(), 208)
+        self.assertEqual(count_nodes(subp), 208)
+
         OOF.Material.Delete(name="material")
 
     @memorycheck.check('small.ppm')
     def PixelGroup(self):
         OOF.Subproblem.New(name='spot1', mesh='small.ppm:skeleton:mesh',
                            subproblem=PixelGroupSubProblem(group='spot1'))
-        self.assertTrue(self.get_subproblem('spot1').nelements() == 114)
+        subp = self.get_subproblem('spot1')
+        self.assertEqual(subp.nelements(), 114)
+        self.assertEqual(count_nodes(subp), 138)
+        self.assertEqual(count_funcnodes(subp), 138)
 
     @memorycheck.check('small.ppm')
     def Union(self):
@@ -274,10 +300,16 @@ class OOF_Subproblem_Varieties(unittest.TestCase):
         OOF.Graphics_1.File.Close()
         OOF.PixelGroup.RemoveSelection(microstructure='small.ppm',
                                        group='spot1')
-        self.assertTrue(self.get_subproblem('spot1').nelements() == 68)
-        self.assertTrue(self.get_subproblem('spot1').nnodes() == 97)
-        self.assertTrue(self.get_subproblem('union').nelements() == 132)
-        self.assertTrue(self.get_subproblem('union').nnodes() == 167)
+        subp1 = self.get_subproblem('spot1')
+        subpu = self.get_subproblem('union')
+        self.assertEqual(subp1.nelements(), 68)
+        self.assertEqual(subp1.nnodes(), 97)
+        self.assertEqual(subpu.nelements(), 132)
+        self.assertEqual(subpu.nnodes(), 167)
+        self.assertEqual(count_nodes(subp1), 97)
+        self.assertEqual(count_funcnodes(subp1), 97)
+        self.assertEqual(count_nodes(subpu), 167)
+        self.assertEqual(count_funcnodes(subpu), 167)
         # Check that dependent subproblems are removed when their
         # dependencies are removed.
         OOF.Subproblem.Delete(subproblem='small.ppm:skeleton:mesh:spot1')
@@ -297,9 +329,10 @@ class OOF_Subproblem_Varieties(unittest.TestCase):
         OOF.Subproblem.New(
             name='intersection', mesh='small.ppm:skeleton:mesh',
             subproblem=IntersectionSubProblem(
-            one='small.ppm:skeleton:mesh:spot1',
-            another='small.ppm:skeleton:mesh:spot2'))
-        self.assertTrue(self.get_subproblem('intersection').nelements() == 42)
+                one='small.ppm:skeleton:mesh:spot1',
+                another='small.ppm:skeleton:mesh:spot2'))
+        self.assertEqual(self.get_subproblem('intersection').nelements(), 42)
+        self.assertEqual(count_nodes(self.get_subproblem('intersection')), 59)
 
     @memorycheck.check('small.ppm')
     def Xor(self):
@@ -310,9 +343,10 @@ class OOF_Subproblem_Varieties(unittest.TestCase):
         OOF.Subproblem.New(
             name='xor', mesh='small.ppm:skeleton:mesh',
             subproblem=XorSubProblem(
-            one='small.ppm:skeleton:mesh:spot1',
-            another='small.ppm:skeleton:mesh:spot2'))
-        self.assertTrue(self.get_subproblem('xor').nelements() == 136)
+                one='small.ppm:skeleton:mesh:spot1',
+                another='small.ppm:skeleton:mesh:spot2'))
+        self.assertEqual(self.get_subproblem('xor').nelements(), 136)
+        self.assertEqual(count_nodes(self.get_subproblem('xor')), 181)
 
     @memorycheck.check('small.ppm')
     def Complement(self):
@@ -322,15 +356,16 @@ class OOF_Subproblem_Varieties(unittest.TestCase):
             name='comp', mesh='small.ppm:skeleton:mesh',
             subproblem=ComplementSubProblem(
             complement_of='small.ppm:skeleton:mesh:spot1'))
-        self.assertTrue(self.get_subproblem('comp').nelements() == 286)
-        self.assertTrue(self.get_subproblem('comp').nnodes() == 342)
+        self.assertEqual(self.get_subproblem('comp').nelements(), 286)
+        self.assertEqual(self.get_subproblem('comp').nnodes(), 342)
+        self.assertEqual(count_nodes(self.get_subproblem('comp')), 342)
         # Check that adding more pixels to the pixel group changes the
         # complement subproblem.
         OOF.PixelSelection.Select_Group(microstructure='small.ppm',
                                         group='spot2')
         OOF.PixelGroup.AddSelection(microstructure='small.ppm', group='spot1')
-        self.assertTrue(self.get_subproblem('comp').nelements() == 222)
-        self.assertTrue(self.get_subproblem('comp').nnodes() == 284)
+        self.assertEqual(self.get_subproblem('comp').nelements(), 222)
+        self.assertEqual(self.get_subproblem('comp').nnodes(), 284)
         
         # Check that dependent subproblems are removed when their
         # dependencies are removed.
@@ -346,7 +381,10 @@ class OOF_Subproblem_Varieties(unittest.TestCase):
     def Entire(self):
         OOF.Subproblem.New(name='entire', mesh='small.ppm:skeleton:mesh',
                            subproblem=EntireMeshSubProblem())
-        self.assertTrue(self.get_subproblem("entire").nelements() == 400)
+        self.assertEqual(self.get_subproblem("entire").nelements(), 400)
+        self.assertEqual(count_nodes(self.get_subproblem("entire")), 441)
+        self.assertEqual(count_funcnodes(self.get_subproblem("entire")), 441)
+                         
 
 class OOF_Subproblem_FieldEquation(OOF_Subproblem):
     def setUp(self):

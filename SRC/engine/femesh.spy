@@ -23,14 +23,6 @@ from ooflib.engine import bdycondition
 from ooflib.engine import profile
 from ooflib.engine import conjugate
 
-def _FEMesh_getNodes(self):
-    nodes = list(range(self.nnodes())); # This should pre-allocate the space
-    for index in nodes:
-        nodes[index] = self.getNode(index)
-    return nodes
-
-FEMesh.getNodes = _FEMesh_getNodes
-
 # Over-ride for the FEMesh initializer.  FEMesh objects are only
 # created in Python, and never returned from C++ to Python.  That
 # means that the extra data added by the initializer here can be
@@ -736,7 +728,7 @@ def _createInterfaceFloatBCs(self,subpctxt):
     for fbc in self._interfaceFloatBCs:
         fbc.remove_from_mesh()
     self._interfaceFloatBCs=[]
-    for edgement in self.edgement_iterator():
+    for edgement in self.interface_element_iterator():
         # For every field in the interface for which no boundary
         # condition has been specified, re-connect the fields by
         # providing node-wise FloatBCs with constant profiles equal to

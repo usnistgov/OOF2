@@ -667,6 +667,24 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 // TYPE is defined should be %imported into the file where it's used,
 // and the %import will ignore the C++ code containing the typedefs.
 
+// It is possible to add a typemap that doesn't actually create a
+// Python list, but instead swigs the C++ vector's iterators.  This
+// was tried, but it was much slower than copying vector to a list,
+// since it requires swig calls for every list item.  But if memory is
+// an issue, that would be good approach.  To do that, swig the
+// vector, exposing only its begin and end methods, which return
+// iterators. The iterators need operator++, operator!=, and operator*
+// defined in python and renamed "increment", "dereference", and
+// __ne__.  Then monkeypatch an __iter__ method on the swigged vector
+// that looks like this:
+//   def _vector___iter__(self):
+//      here = self.begin()
+//      end = self.end()
+//      while here != end:
+//         yield here.dereference()
+//         here.increment()
+// The current code does *not* do this.
+
 %define MAKE_LISTVEC_TYPEMAPS(TYPE)
 
 %{

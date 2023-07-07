@@ -106,16 +106,8 @@ class EntireMesh(Domain):
     def contains(self, pt):
         return True
 
-    # Returns a list of all the elements.  This maybe should return the
-    # iterator, to save memory?  The number of elements could be large.
     def get_elements(self):
-        el_list = []
-        iter = self.femesh.element_iterator()
-        while not iter.end():
-            el_list.append(iter.element())
-            iter.increment()
-        return el_list
-        
+        return self.femesh.element_iterator()
 
 registeredclass.Registration(
     'Entire Mesh',
@@ -374,7 +366,7 @@ class ElementGroup(Domain):
         else:
             skel_els = self.skelcontext.elementgroups.get_groupFromSkeleton(
                 self.elements, self.skeleton)
-        return [self.femesh.getElement(s.meshindex) for s in skel_els]
+        return (self.femesh.getElement(s.meshindex) for s in skel_els)
 
     def get_bounds(self):
         first = 1
