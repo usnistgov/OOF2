@@ -65,16 +65,28 @@ public:
   Flux *flux();
 };
 
+%pythonappend NaturalEquation::NaturalEquation %{
+  finishConstruction(self)
+%}
+
 // Natural equations don't require a flux.
 class NaturalEquation : public Equation {
 public:
   NaturalEquation(char *name, int dim);
 };
 
+%pythonappend DivergenceEquation::DivergenceEquation %{
+  finishConstruction(self)
+%}
+
 class DivergenceEquation : public FluxEquation {
 public:
   DivergenceEquation(char *name, Flux &flux, int dim);
 };
+
+%pythonappend PlaneFluxEquation::PlaneFluxEquation %{
+  finishConstruction(self)
+%}
 
 class PlaneFluxEquation : public FluxEquation {
 public:

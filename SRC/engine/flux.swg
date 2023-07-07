@@ -51,6 +51,10 @@ ADD_REPR(Flux, repr);
     return self->objectid() == other->objectid();
   }
 };
+
+%pythonappend VectorFlux::VectorFlux %{
+  finishConstruction(self)
+%}
   
 class VectorFlux : public Flux {
 public:
@@ -58,6 +62,10 @@ public:
 };
 
 ADD_REPR(VectorFlux, repr);
+
+%pythonappend SymmetricTensorFlux::SymmetricTensorFlux %{
+  finishConstruction(self)
+%}
 
 class SymmetricTensorFlux : public Flux {
 public:

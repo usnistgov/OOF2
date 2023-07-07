@@ -13,6 +13,7 @@ from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.SWIG.engine import fieldindex
 from ooflib.SWIG.engine import planarity
+from ooflib.SWIG.common import switchboard
 
 Field.__repr__ = Field.name
 CompoundField.__repr__ = CompoundField.name
@@ -51,6 +52,7 @@ allCompoundFields = utils.OrderedDict()
 
 def newField(fld):
     _allFields[fld.name()] = fld
+    utils.OOFdefine(fld.name(), fld)
 
 def newCompoundField(fld):
     newField(fld)
@@ -63,6 +65,18 @@ utils.OOFdefine('getField', getField)
 
 def allFields():
     return list(_allFields.values())
+
+# finishConstruction is called after the swigged constructors for all
+# of the Field subclasses.  It's installed by %pythonappend lines in
+# field.swg.
+def finishConstruction(fld):
+    newCompoundField(fld)
+    newField(fld.c_time_derivative())
+    newField(fld.c_out_of_plane())
+    newField(fld.c_out_of_plane_time_derivative())
+    # "new field" must be sent after the field is defined in the OOF
+    #  namespace by newField and newCompoundField
+    switchboard.notify("new field")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

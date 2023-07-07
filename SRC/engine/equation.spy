@@ -10,6 +10,7 @@
 
 from ooflib.common import debug
 from ooflib.common import utils
+from ooflib.SWIG.common import switchboard
 
 def _Equation___hash_(self):
     return self.objectid()
@@ -47,6 +48,13 @@ def allEquations():
 # Equation.getEquation is a static C++ method.
 getEquation = Equation.getEquation
 utils.OOFdefine('getEquation', Equation.getEquation)
+
+# finishConstruction is called after the swigged constructors for all
+# of the Equation subclasses.  It's installed by %pythonappend lines in
+# equation.swg.
+def finishConstruction(eqn):
+    utils.OOFdefine(eqn.name(), eqn)
+    switchboard.notify("new equation")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

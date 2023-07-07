@@ -11,6 +11,7 @@
 from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.SWIG.engine import planarity
+from ooflib.SWIG.common import switchboard
 
 def _Flux___hash__(self):
     return self.objectid()
@@ -49,6 +50,13 @@ def getFlux(which):
     return allFluxes[which]
 
 utils.OOFdefine('getFlux', getFlux)
+
+# finishConstruction is called after the swigged constructors for all
+# of the Flux subclasses.  It's installed by %pythonappend lines in
+# flux.swg.
+def finishConstruction(flx):
+    utils.OOFdefine(flx.name(), flx)
+    switchboard.notify("new flux")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

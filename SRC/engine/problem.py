@@ -21,75 +21,24 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.engine import conjugate
 from ooflib.engine import propertyregistration
 
-#=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=#
+# Define instances of Fields, Fluxes, and Equations and the conjugacy
+# relations among them.
 
-# Call this for all new CompoundFields.
-
-## TODO PYTHON3: Rationalize the names of the functions here.
-## newField used to be advertiseField, but it really does more than
-## that, so I changed it to newField.  If the "advertise" methods were
-## called from the Field, Flux, and Equation constructors it would
-## make more sense.
-
-def newField(fld):
-    field.newCompoundField(fld)
-    _advertise(fld)
-
-    field.newField(_advertise(fld.c_time_derivative()))
-    field.newField(_advertise(fld.c_out_of_plane()))
-    field.newField(_advertise(fld.c_out_of_plane_time_derivative()))
-
-    # "new field" is sent here, instead of from the Field constructor,
-    # because it must be called *after* the field is defined in the
-    # OOF namespace.
-    switchboard.notify("new field")
-    return fld
-
-def _advertise(obj):
-    utils.OOFdefine(obj.name(), obj)
-    return obj
-
-def advertiseFlux(flx):
-    _advertise(flx)
-    switchboard.notify("new flux")
-    return flx
-
-def advertiseEquation(eqn):
-    _advertise(eqn)
-    switchboard.notify("new equation")
-    return eqn
-
-def advertise(obj):
-    # This code is ugly, but at least it's compact.
-    ## TODO PYTHON3: Do this from the Field, Flux, etc. constructors?
-    if isinstance(obj, field.Field):
-        return newField(obj)
-    if isinstance(obj, flux.Flux):
-        return advertiseFlux(obj)
-    if isinstance(obj, equation.Equation):
-        return advertiseEquation(obj)
-    raise ooferror.PyErrPyProgrammingError(
-        "Don't know what to do with %s!"% obj)
+# The constructors for all of the objects also export them into the
+# main OOF2 namespace.
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Define a field.  This creates an object named 'Temperature' in the
-# OOF namespace.
-Temperature = advertise(field.ScalarField('Temperature'))
+# Define a field.
+Temperature = field.ScalarField('Temperature')
 # Define a flux
-Heat_Flux = advertise(flux.VectorFlux('Heat_Flux'))
+Heat_Flux = flux.VectorFlux('Heat_Flux')
 # And equations
-HeatBalanceEquation = advertise(equation.DivergenceEquation(
-    'Heat_Eqn',
-    Heat_Flux,
-    1
-    ))
-
-HeatOutOfPlane = advertise(equation.PlaneFluxEquation(
-    'Plane_Heat_Flux', Heat_Flux, 1))
+HeatBalanceEquation = equation.DivergenceEquation('Heat_Eqn', Heat_Flux, 1)
+HeatOutOfPlane = equation.PlaneFluxEquation('Plane_Heat_Flux', Heat_Flux, 1)
 
 ## this creates the Displacement, Stress, and Mechanical Equilibrium equations
-Displacement = advertise(field.TwoVectorField('Displacement'))
+Displacement = field.TwoVectorField('Displacement')
 ## When we started using Eigen's matrix solvers, we learned that we
 ## had been constructing *negative* definite matrices for the force
 ## balance equation.  The previous CG solver worked with them, but
@@ -98,34 +47,29 @@ Displacement = advertise(field.TwoVectorField('Displacement'))
 ## To make this sign change invisible to users, Stress is marked
 ## "negate" here via the second constructor argument.
 
-Stress = advertise(flux.SymmetricTensorFlux('Stress', True))
+Stress = flux.SymmetricTensorFlux('Stress', True)
 
-ForceBalanceEquation = advertise(equation.DivergenceEquation(
-    'Force_Balance',
-    Stress,
-    config.dimension()
-    ))
+ForceBalanceEquation = equation.DivergenceEquation(
+    'Force_Balance', Stress, config.dimension())
 
-ForcesOutOfPlane = advertise(equation.PlaneFluxEquation('Plane_Stress',
-                                                        Stress, 3))
+ForcesOutOfPlane = equation.PlaneFluxEquation('Plane_Stress', Stress, 3)
 
 
 ## Define electrostatic potential
-Voltage = advertise(field.ScalarField('Voltage'))
+Voltage = field.ScalarField('Voltage')
 ## Define total polarization vector
-Total_Polarization = advertise(flux.VectorFlux('Total_Polarization'))
+Total_Polarization = flux.VectorFlux('Total_Polarization')
 ## Differential form of Coulomb's Law
-CoulombEquation = advertise(equation.DivergenceEquation(
-    'Coulomb_Eqn', Total_Polarization, 1))
-PolarizationOutOfPlane = advertise(equation.PlaneFluxEquation(
-    'InPlanePolarization', Total_Polarization, 1))
+CoulombEquation = equation.DivergenceEquation(
+    'Coulomb_Eqn', Total_Polarization, 1)
+PolarizationOutOfPlane = equation.PlaneFluxEquation(
+    'InPlanePolarization', Total_Polarization, 1)
 
 
 # Plasticity -- start with the yield equation.
 # TODO: Make hidden equations.
 
-# YieldEquation = advertise(equation.NaturalEquation(
-#     'Yield_Eqn',1))
+# YieldEquation = equation.NaturalEquation('Yield_Eqn',1)
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

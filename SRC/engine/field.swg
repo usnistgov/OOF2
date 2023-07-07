@@ -162,6 +162,10 @@ int countFields();
 CompoundField *getCompoundFieldByIndex(int);
 int countCompoundFields();
 
+%pythonappend ScalarField::ScalarField %{
+  finishConstruction(self)
+%}
+
 class ScalarField : public CompoundField, public Field {
 public:
   ScalarField(char *name);
@@ -169,17 +173,29 @@ public:
 };
 
 
+%pythonappend TwoVectorField::TwoVectorField %{
+  finishConstruction(self)
+%}
+
 class TwoVectorField : public CompoundField, public Field {
 public:
   TwoVectorField(char *name);
   const std::string &classname();
 };
 
+%pythonappend ThreeVectorField::ThreeVectorField %{
+  finishConstruction(self)
+%}
+
 class ThreeVectorField : public CompoundField, public Field {
 public:
   ThreeVectorField(char *name);
   const std::string &classname();
 };
+
+%pythonappend SymmetricTensorField::SymmetricTensorField %{
+  finishConstruction(self)
+%}
 
 class SymmetricTensorField : public Field {
 public:
