@@ -21,8 +21,8 @@
 #include "engine/outputval.h"
 #include "common/tostring.h"
 #include <vector>
-  // TODO PYTHON3: What is the point of these typedefs?  Should
-  // %newobject be used?
+// Typemaps for NewOutputVal and NewFieldindex are defined by the
+// PYTHONEXPORTABLE swig macro.
 typedef OutputVal NewOutputVal;
 typedef FieldIndex NewFieldIndex;
 %}
