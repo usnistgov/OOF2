@@ -404,11 +404,11 @@ VContainer<InterfaceElement>* FEMesh::c_interface_element_iterator() const {
   return new MeshInterfaceElementContainer(this, nedgements());
 }
 
-// TODO PYTHON3: FEMesh::node_iterator is never used in C++.  That
-// means that the complications arising from iterating over two
-// vectors in C++ aren't an issue.  It's called from python in
-// Mesh.compare() and SubproblemContxt.nnodes().
-// CSubProblem::node_iterator is called in _CSubProblem_create_bdy_node_map.
+// TODO: FEMesh::node_iterator is never used in C++.  That means that
+// the complications arising from iterating over two vectors in C++
+// aren't an issue.  It's called from python in Mesh.compare() and
+// SubproblemContxt.nnodes().  CSubProblem::node_iterator is called in
+// _CSubProblem_create_bdy_node_map.
 
 VContainerP<Node> FEMesh::node_iterator() const {
   return VContainerP<Node>(c_node_iterator());
@@ -431,11 +431,10 @@ VContainer<FuncNode>* FEMesh::c_funcnode_iterator() const {
   return new MeshFuncNodeContainer(this, nfuncnodes());
 }
 
-// Caution: NodeIterator::index is not necessarily the same as
+// Caution: MeshNodeIter::index is not necessarily the same as
 // node.index().  The argument to FEMesh::getNode is the
-// NodeIterator::index.
-//  TODO PYTHON3: That comment refers to the old NodeIterator.  Is the
-//  comment obsolete?
+// MeshNodeIter::index.  Node::index() is just used to distinguish
+// nodes from one another.
 
 Node *FEMesh::getNode(unsigned int i) const {
 //   if(i >= int(funcnode.size() + mapnode.size())) {

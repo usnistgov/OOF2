@@ -30,10 +30,7 @@ MeshIterator<Node>* MeshNodeContainer::c_end() const {
 
 bool MeshNodeIter::operator!=(const MeshIterator<Node> &other) const {
   const MeshNodeIter &o = dynamic_cast<const MeshNodeIter&>(other);
-  // TODO PYTHON3: for purposes of looping, comparing the mesh
-  // pointers here is unnecessary.  Would it save any time, or does
-  // the dynamic cast dominate the inefficiency?
-  return o.mesh != mesh || o.index != index;
+  return o.index != index;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -52,7 +49,7 @@ MeshIterator<FuncNode>* MeshFuncNodeContainer::c_end() const {
 
 bool MeshFuncNodeIter::operator!=(const MeshIterator<FuncNode> &other) const {
   const MeshFuncNodeIter &o = dynamic_cast<const MeshFuncNodeIter&>(other);
-  return o.mesh != mesh || o.index != index;
+  return o.index != index;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -71,7 +68,7 @@ MeshIterator<Element> *MeshElementContainer::c_end() const {
 
 bool MeshElementIter::operator!=(const MeshIterator<Element> &other) const {
   const MeshElementIter &o = dynamic_cast<const MeshElementIter&>(other);
-  return o.mesh != mesh || o.index != index;
+  return o.index != index;
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -94,5 +91,5 @@ bool MeshInterfaceElementIter::operator!=(
 {
   const MeshInterfaceElementIter &o
     = dynamic_cast<const MeshInterfaceElementIter&>(other);
-  return o.mesh != mesh || o.index != index;
+  return o.index != index;
 }

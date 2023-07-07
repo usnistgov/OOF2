@@ -91,7 +91,6 @@ def _new_group(menuitem, skeleton, name):
         groupset.addGroup(name)
 
 # Create groups from pixel groups.
-## TODO: Write some tests for this.
 
 def _auto_group(menuitem, skeleton):
     skelc = whoville.getClass('Skeleton')[skeleton]
@@ -108,7 +107,6 @@ def _auto_group(menuitem, skeleton):
         newgrps = [name for name in groupnames if not groupset.isGroup(name)]
         groupset.addGroup(*newgrps)
         # Find objects to add to groups
-        ## TODO PYTHON3: Does this work?  Is the arg correct for new iterators?
         for obj in menuitem.iterator(skelc.getObject().sheriffSkeleton()):
             cat = obj.dominantPixel(ms) # dominant pxl category
             repPix = ms.getRepresentativePixel(cat) # representative pixel

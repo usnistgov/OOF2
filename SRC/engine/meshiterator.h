@@ -79,19 +79,17 @@
      CSubProblem *subp = ...; // base class pointer
      for(auto iter=subp.nodes().begin(); ... )
 
-  TODO PYTHON3:  The VContainer machinery involves a lot of virtual
+  TODO PYTHON3: The VContainer machinery involves a lot of virtual
   functions and dynamic casts, which is why just looping over
   funcnodes is about 4 times faster in C++ if we use unadorned
   std::vector iteration. (See FEMesh::funcnode_iterator_fast().)
   However, the time difference between the two versions in Python is
-  negligible.  Since the iterator itself ought to use less time than
-  the body of the iteration, it's not clear that it's worth switching
-  to the simpler scheme, which would give up a lot of the uniformity
-  of the VContainer method.
+  negligible.  Since the iterator itself ought to use a lot less time
+  than the body of the iteration, it's not clear that it's worth
+  switching to the simpler scheme, which would give up a lot of the
+  uniformity of the VContainer method.
 
 */
-
-
 
 #ifndef MESHITERATOR_H
 #define MESHITERATOR_H
@@ -132,11 +130,18 @@ class Node;
 // iterators.  Since the iteration machinery takes much less time than
 // the loop bodies, it's probably not worth worrying about this.
 
+// MeshIterator<OBJ> is the (poorly named) base class for iterators
+// over the OBJs in a FEMesh *or* CSubProblem.
+
 template <class OBJ>
 class MeshIterator { 
 public:
   virtual ~MeshIterator() {}
   virtual MeshIterator<OBJ>& operator++() = 0;
+  // operator!= should compare the state of the iterators, but it
+  // doesn't have to check that they're iterating over the same mesh.
+  // The result of comparing iterators on different meshes is
+  // undefined.
   virtual bool operator!=(const MeshIterator<OBJ>&) const = 0;
   virtual OBJ* operator*() const = 0;
   virtual MeshIterator<OBJ>* clone() const = 0;
@@ -144,29 +149,28 @@ public:
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// Subclasses of MeshNodeIterator determine which nodes are iterated over.
+// MeshIterBase<OBJ> is the base class for iterators over the OBJs in
+// a FEMesh, not a CSubProblem.  Subclasses determine which types of
+// nodes are included.
 
-// TODO PYTHON3: Change the names of the base classes now that they're
-// used for both Nodes and Elements.
-
-template <class NODE>
-class MeshNodeIterBase : public MeshIterator<NODE> {
+template <class OBJ>
+class MeshIterBase : public MeshIterator<OBJ> {
 protected:
   unsigned int index;
   const FEMesh* const mesh;
 public:
-  MeshNodeIterBase(const FEMesh* const mesh) : mesh(mesh), index(0) {}
-  MeshNodeIterBase(const FEMesh* const mesh, unsigned int i)
+  MeshIterBase(const FEMesh* const mesh) : mesh(mesh), index(0) {}
+  MeshIterBase(const FEMesh* const mesh, unsigned int i)
     : mesh(mesh), index(i)
   {}
-  virtual ~MeshNodeIterBase() {}
+  virtual ~MeshIterBase() {}
 };
 
-class MeshNodeIter : public MeshNodeIterBase<Node> {
+class MeshNodeIter : public MeshIterBase<Node> {
 public:
-  MeshNodeIter(const FEMesh* const mesh) : MeshNodeIterBase(mesh) {}
+  MeshNodeIter(const FEMesh* const mesh) : MeshIterBase(mesh) {}
   MeshNodeIter(const FEMesh* const mesh, unsigned int i)
-    : MeshNodeIterBase(mesh, i)
+    : MeshIterBase(mesh, i)
   {}
   virtual MeshIterator<Node>* clone() const {
     return new MeshNodeIter(mesh, index);
@@ -176,11 +180,11 @@ public:
   virtual Node* operator*() const;
 };
 
-class MeshFuncNodeIter : public MeshNodeIterBase<FuncNode> {
+class MeshFuncNodeIter : public MeshIterBase<FuncNode> {
 public:
-  MeshFuncNodeIter(const FEMesh* const mesh) : MeshNodeIterBase(mesh) {}
+  MeshFuncNodeIter(const FEMesh* const mesh) : MeshIterBase(mesh) {}
   MeshFuncNodeIter(const FEMesh* const mesh, unsigned int i)
-    : MeshNodeIterBase(mesh, i)
+    : MeshIterBase(mesh, i)
   {}
   virtual MeshIterator<FuncNode>* clone() const {
     return new MeshFuncNodeIter(mesh, index);
@@ -190,11 +194,11 @@ public:
   virtual FuncNode* operator*() const;
 };
 
-class MeshElementIter : public MeshNodeIterBase<Element> {
+class MeshElementIter : public MeshIterBase<Element> {
 public:
-  MeshElementIter(const FEMesh* const mesh) : MeshNodeIterBase(mesh) {}
+  MeshElementIter(const FEMesh* const mesh) : MeshIterBase(mesh) {}
   MeshElementIter(const FEMesh* const mesh, unsigned int i)
-    : MeshNodeIterBase(mesh, i)
+    : MeshIterBase(mesh, i)
   {}
   virtual MeshIterator<Element>* clone() const {
     return new MeshElementIter(mesh, index);
@@ -204,11 +208,11 @@ public:
   virtual Element *operator*() const;
 };
 
-class MeshInterfaceElementIter : public MeshNodeIterBase<InterfaceElement> {
+class MeshInterfaceElementIter : public MeshIterBase<InterfaceElement> {
 public:
-  MeshInterfaceElementIter(const FEMesh* const mesh) : MeshNodeIterBase(mesh) {}
+  MeshInterfaceElementIter(const FEMesh* const mesh) : MeshIterBase(mesh) {}
   MeshInterfaceElementIter(const FEMesh* const mesh, unsigned int i)
-    : MeshNodeIterBase(mesh, i)
+    : MeshIterBase(mesh, i)
   {}
   virtual MeshIterator<InterfaceElement>* clone() const {
     return new MeshInterfaceElementIter(mesh, index);
@@ -226,11 +230,6 @@ public:
 // Smart-ish wrapper for iterators, so they can be used in for
 // statements without worrying about deallocation.  OBJ is Node,
 // FuncNode, or Element.
-
-// TODO: Should we just use CleverPtr for this?  CleverPtr won't work
-// if a copy constructor is needed.  It also requires dereferencing on
-// all method calls, so it's not a drop-in replacement for
-// MeshIterator<OBJ>.
 
 template <class OBJ>
 class IterP {

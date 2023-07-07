@@ -57,108 +57,6 @@ bool operator==(const Node &n1, const Node &n2)
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// void FuncNode::addField(FEMesh *mesh, const Field &field) {
-// //   Trace("FuncNode::addField " + field.name() + " " + to_string(index()) 
-// // 	+ " Pos: " + to_string(pos));
-
-//   if(fieldset.add(&field, mesh)) {
-//     // Field is new to this Node (ie, no other SubProblem has added it)
-//     // TODO: Do we have to initialize it here?  How would we know?
-//     doflist.reserve(doflist.size() + field.ndof());
-//     for(int i=0; i<field.ndof(); i++) {
-//       DegreeOfFreedom *dof = mesh->createDoF();
-// //       std::cerr << "FuncNode::addField: " << field
-// // 		<< " dof=" << dof->dofindex()
-// //  		<< " comp=" << i << " pos=" << pos << std::endl;
-//       doflist.push_back(dof);
-// #ifdef HAVE_MPI
-//       if(isShared())
-// 	mesh->m_dofnodemap[dof] = this;
-// #endif // HAVE_MPI
-//     }
-//   }
-// }
-
-// void FuncNode::removeField(FEMesh *mesh, const Field &field) {
-// //    Trace("FuncNode::removeField " + field.name() + " " + to_string(index())
-// // 	 + " Pos: " + to_string(pos));
-
-//   // Remove degrees of freedom from doflist, if no SubProblems are
-//   // using them anymore.
-
-//   int offset = fieldset.offset(&field);
-//   if(fieldset.remove(&field, mesh)) {
-//   //    std::cerr << "FuncNode::removeField: removing " << field << " from " << *this << std::endl;
-//     // This SubProblem is the only one remaining that was using the Field
-//     std::vector<DegreeOfFreedom*>::iterator start = doflist.begin() + offset;
-//     std::vector<DegreeOfFreedom*>::iterator end = start + field.ndof();
-//     for(std::vector<DegreeOfFreedom*>::iterator i=start; i<end; ++i) {
-//       mesh->removeDoF(*i);
-// #ifdef HAVE_MPI
-//       // No need to check if the key is in the map (but why not check anyway?)
-//       if(isShared())
-// 	mesh->m_dofnodemap.erase(*i);
-// #endif // HAVE_MPI
-//     }
-//     doflist.erase(start, end);
-//   }
-// }
-
-// bool FuncNode::hasField(const Field &field) const {
-//   return fieldset.contains(&field);
-// }
-
-// int FuncNode::fieldDefCount(const Field &field) const {
-//   return fieldset.listed(&field);
-// }
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// void FuncNode::addEquation(FEMesh *mesh, const Equation &eqn) {
-// //   Trace("FuncNode::addEquation " + eqn.name() + " " + to_string(index())
-// // 	+ " Pos: " + to_string(pos));
-//   if(equationset.add(&eqn, mesh)) {
-//     // Equation is new to this Node (ie, no other SubProblem has added it)
-//     eqnlist.reserve(eqnlist.size() + eqn.dim());
-//     for(int i=0; i<eqn.dim(); i++) {
-//       NodalEquation *ne = mesh->createNodalEqn();
-//       eqnlist.push_back(ne);
-// //       std::cerr << "FuncNode::addEquation: " << eqn
-// // 		<< " idx=" << ne->ndq_index()
-// // 		<< " comp=" << i << " pos=" << pos << std::endl;
-// #ifdef HAVE_MPI
-//       if(isShared())
-// 	mesh->m_eqnnodemap[ne] = this; // TODO MPI: Move to SubProblem?
-// #endif // HAVE_MPI
-//     }
-//   }
-// }
-
-// void FuncNode::removeEquation(FEMesh *mesh, const Equation &eqn) {
-// //   Trace("FuncNode::removeEquation " + eqn.name() + " " + to_string(index())
-// // 	+ " Pos: " + to_string(pos));
-//   int offset = equationset.offset(&eqn);
-//   if(equationset.remove(&eqn, mesh)) {
-//     std::vector<NodalEquation*>::iterator start = eqnlist.begin() + offset;
-//     std::vector<NodalEquation*>::iterator end = start + eqn.dim();
-//     for(std::vector<NodalEquation*>::iterator i=start; i<end; ++i) {
-//       mesh->removeNodalEqn(*i);
-// #ifdef HAVE_MPI
-//       // No need to check if the key is in the map
-//       if(isShared())
-// 	mesh->m_eqnnodemap.erase(*i);
-// #endif
-//     }
-//     eqnlist.erase(start, end);
-//   }
-// }
-
-// bool FuncNode::hasEquation(const Equation &eqn) const {
-//   return equationset.contains(&eqn);
-// }
-
-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//
-
 Coord FuncNode::displaced_position(const FEMesh *mesh) const {
 #if DIM==2
   static TwoVectorField *displcmnt = 0;
@@ -182,7 +80,7 @@ Coord FuncNode::displaced_position(const FEMesh *mesh) const {
   return pos;
 }
 
-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Representational stuff -- mostly for debugging
 
@@ -206,7 +104,7 @@ const std::string *FuncNode::ctor() const {
   return new std::string("newFuncNode(Coord" + to_string(position()) + ")");
 }
 
-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 std::ostream &operator<<(std::ostream &os, const Node &node) {
   os << "[" << node.index() << "] " << node.pos;

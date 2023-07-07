@@ -102,7 +102,6 @@ public:
   
   bool edge_match(const FuncNode *, const FuncNode *);
 
-  // TODO PYTHON3: Use a real iterator.
   EdgeNodeIterator node_iterator() const;
   
   EdgeGaussPoint integrator(int) const;
@@ -115,25 +114,9 @@ public:
   friend class EdgeGaussPoint;
 };
 
-// Derive EdgeNodeIterator from ElementNodeIteratorBase, provide
-// same functionality to re-use the machinery from before.
-//
-// Operate on the existing node list.
-// Instantiate by: ElementNodeIterator it ???
-// class EdgeNodeIterator : public ElementFuncNodeIterator {
-// private:
-//   const BoundaryEdge *ed;
-// public:
-//   EdgeNodeIterator(const BoundaryEdge *edge)
-//     : ed(edge),
-//       ElementFuncNodeIterator(*edge->el)
-//   {}
-//   virtual ~EdgeNodeIterator() {}
-//   EdgeNodeIterator &operator+=(int);
-//   virtual ShapeFunctionIndex sf_index() const;
-//   virtual const FuncNode *funcnode() const;
-//   virtual int localindex(const FEMesh*, const Field&, const FieldIndex&) const;
-// };  
+// TODO PYTHON3 LATER: Turn EdgeNodeIterator into a real iterator,
+// after ElementNodeIterator is converted.  ElementNodeIterator is a
+// base class.
 
 class EdgeNodeIterator : public ElementShapeFuncIterator {
 private:
