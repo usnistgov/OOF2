@@ -117,7 +117,7 @@ public:
   VContainerP<Element> element_iterator() const;
   VContainerP<InterfaceElement> interface_element_iterator() const;
 
-  const std::vector<FuncNode*>& funcnode_iterator_simple() const;
+  const std::vector<FuncNode*>& funcnode_iterator_fast() const;
   void iterator_test_NEW() const;
   void iterator_test_OLD() const;
 
@@ -280,10 +280,6 @@ private:
   friend class MeshDataCache;
   friend class MemoryDataCache;
   friend class DiskDataCache;
-
-  // TODO PYTHON3: Are these needed?
-  friend class MeshFuncNodeIter;
-  friend class MeshNodeIter;
 };				// FEMesh
 
 long get_globalFEMeshCount();

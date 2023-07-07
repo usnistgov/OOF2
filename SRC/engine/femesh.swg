@@ -87,10 +87,6 @@ public:
   VContainerElement* c_element_iterator();
   VContainerInterfaceElement* c_interface_element_iterator();
 
-  FuncNodeVector& funcnode_iterator_simple();
-  void iterator_test_NEW();
-  void iterator_test_OLD();
-
   void set_rwlock(RWLock *rw);
   RWLock * get_rwlock();
 

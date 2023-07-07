@@ -82,7 +82,7 @@
   TODO PYTHON3:  The VContainer machinery involves a lot of virtual
   functions and dynamic casts, which is why just looping over
   funcnodes is about 4 times faster in C++ if we use unadorned
-  std::vector iteration. (See FEMesh::funcnode_iterator_simple().)
+  std::vector iteration. (See FEMesh::funcnode_iterator_fast().)
   However, the time difference between the two versions in Python is
   negligible.  Since the iterator itself ought to use less time than
   the body of the iteration, it's not clear that it's worth switching
@@ -121,6 +121,16 @@ class Node;
 // and interface with the Mesh iterators.  SubProblem iteration can be
 // more complicated because a SubProblem's nodes and elements aren't
 // necessarily stored in a simple std::vector.
+//
+// See the last commit on the new-mesh-iterators branch for an attempt
+// at simplifying some of the iterators.  For example,
+// FEMesh::funcnode_iterator could simply return the funcnode vector,
+// and it would be much faster than what is done here.  However,
+// problems arise when going that route, because, for example, some
+// subproblems want to loop over vectors and some over sets, and
+// there's no common base class for vector iterators and set
+// iterators.  Since the iteration machinery takes much less time than
+// the loop bodies, it's probably not worth worrying about this.
 
 template <class OBJ>
 class MeshIterator { 

@@ -23,15 +23,6 @@ from ooflib.engine import bdycondition
 from ooflib.engine import profile
 from ooflib.engine import conjugate
 
-def _FEMesh_getNodes(self):
-    ## TODO PYTHON3: Should this be a generator function?
-    nodes = list(range(self.nnodes())); # This should pre-allocate the space
-    for index in nodes:
-        nodes[index] = self.getNode(index)
-    return nodes
-
-FEMesh.getNodes = _FEMesh_getNodes
-
 # Over-ride for the FEMesh initializer.  FEMesh objects are only
 # created in Python, and never returned from C++ to Python.  That
 # means that the extra data added by the initializer here can be

@@ -32,15 +32,15 @@ VContainerInterfaceElement.__iter__ = _VContainerElement___iter__
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# FuncNodeVector is just a typedef for std::vector<FuncNode>.  Swig
-# does *not* convert it to a python vector, but it adds an __iter__
-# method so that its entries can be accessed.
+# # FuncNodeVector is just a typedef for std::vector<FuncNode>.  Swig
+# # does *not* convert it to a python vector, but it adds an __iter__
+# # method so that its entries can be accessed.
 
-def _FuncNodeVector___iter__(self):
-    begin = self.begin()
-    end = self.end()
-    while begin != end:
-        yield begin.funcnode()
-        begin.increment()
+# def _FuncNodeVector___iter__(self):
+#     begin = self.begin()
+#     end = self.end()
+#     while begin != end:
+#         yield begin.funcnode()
+#         begin.increment()
 
-FuncNodeVector.__iter__ = _FuncNodeVector___iter__
+# FuncNodeVector.__iter__ = _FuncNodeVector___iter__

@@ -423,29 +423,13 @@ VContainerP<FuncNode> FEMesh::funcnode_iterator() const {
 }
 
 // This is faster than funcnode_iterator.
-const std::vector<FuncNode*>& FEMesh::funcnode_iterator_simple() const {
+const std::vector<FuncNode*>& FEMesh::funcnode_iterator_fast() const {
   return funcnode;
 }
 
 VContainer<FuncNode>* FEMesh::c_funcnode_iterator() const {
   return new MeshFuncNodeContainer(this, nfuncnodes());
 }
-
-void FEMesh::iterator_test_NEW() const {
-  int i = 0;
-  for(FuncNode *node : funcnode_iterator_simple())
-    i += 1;
-  std::cerr << "FEMesh::iterator_test_NEW: " << i << std::endl;
-}
-
-void FEMesh::iterator_test_OLD() const {
-  int i = 0;
-  for(FuncNode *node: funcnode_iterator())
-    i += 1;
-  std::cerr << "FEMesh::iterator_test_OLD: " << i << std::endl;
-}
-
-
 
 // Caution: NodeIterator::index is not necessarily the same as
 // node.index().  The argument to FEMesh::getNode is the
