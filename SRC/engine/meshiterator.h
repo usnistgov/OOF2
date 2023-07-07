@@ -50,10 +50,6 @@
   end(), c_begin(), and c_end().  "VContainerP" is a pointer to a
   virtual container.
 
-  [TODO PYTHON3?  Rename FEMesh::node_iterator(), et al. because the
-  functions don't actually return iterators.  Better names might be
-  nodes(), funcnodes(), and elements().]
-
   The VContainer classes define c_begin() and c_end(), which return
   *pointers* to new iterators. They're called by python via swig (the
   "c_" in the name means it's the C++ part of the python iterator.)
@@ -79,16 +75,14 @@
      CSubProblem *subp = ...; // base class pointer
      for(auto iter=subp.nodes().begin(); ... )
 
-  TODO PYTHON3: The VContainer machinery involves a lot of virtual
-  functions and dynamic casts, which is why just looping over
-  funcnodes is about 4 times faster in C++ if we use unadorned
-  std::vector iteration. (See FEMesh::funcnodes_fast().)
-  However, the time difference between the two versions in Python is
-  negligible.  Since the iterator itself ought to use a lot less time
-  than the body of the iteration, it's not clear that it's worth
-  switching to the simpler scheme, which would give up a lot of the
-  uniformity of the VContainer method.
-
+  The VContainer machinery involves a lot of virtual functions and
+  dynamic casts, which is why just looping over funcnodes is about 4
+  times faster in C++ if we use unadorned std::vector iteration. (See
+  FEMesh::funcnodes_fast().)  However, the time difference between the
+  two versions in Python is negligible.  Since the iterator itself
+  ought to use a lot less time than the body of the iteration, it's
+  not clear that it's worth switching to the simpler scheme, which
+  would give up a lot of the uniformity of the VContainer method.
 */
 
 #ifndef MESHITERATOR_H
