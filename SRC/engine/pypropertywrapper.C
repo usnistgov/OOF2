@@ -46,13 +46,13 @@ PyPropertyMethods::~PyPropertyMethods() {
 
 //=\\=//=\\=//
 
-void PyPropertyMethods::py_precompute(Property *prop, FEMesh *mesh) {
+void PyPropertyMethods::py_precompute(FEMesh *mesh) {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "precompute")) {
     // The function isn't defined in the derived class.  Call the
     // base class method instead.
     PyErr_Clear();
-    prop->Property::precompute(mesh);
+    dynamic_cast<Property*>(this)->Property::precompute(mesh);
   }
   else {
     PyObject *method = PyUnicode_FromString("precompute");
@@ -68,10 +68,10 @@ void PyPropertyMethods::py_precompute(Property *prop, FEMesh *mesh) {
 
 //=\\=//=\\=//
 
-void PyPropertyMethods::py_cross_reference(Property *prop, Material *mat) {
+void PyPropertyMethods::py_cross_reference(Material *mat) {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, (char*) "cross_reference")) {
-    prop->Property::cross_reference(mat);
+    dynamic_cast<Property*>(this)->Property::cross_reference(mat);
   }
   else {
     PyObject *method = PyUnicode_FromString("cross_reference");
@@ -89,12 +89,12 @@ void PyPropertyMethods::py_cross_reference(Property *prop, Material *mat) {
 
 //=\\=//=\\=//
 
-void PyPropertyMethods::py_begin_element(Property *prop, const CSubProblem *m,
+void PyPropertyMethods::py_begin_element(const CSubProblem *m,
 					 const Element *el)
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "begin_element")) {
-    prop->Property::begin_element(m, el);
+    dynamic_cast<Property*>(this)->Property::begin_element(m, el);
   }
   else {
     PyObject *method = PyUnicode_FromString("begin_element");
@@ -112,12 +112,12 @@ void PyPropertyMethods::py_begin_element(Property *prop, const CSubProblem *m,
   }
 }
 
-void PyPropertyMethods::py_end_element(Property *prop, const CSubProblem *m,
+void PyPropertyMethods::py_end_element(const CSubProblem *m,
 				       const Element *el)
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "end_element")) {
-    prop->Property::end_element(m, el);
+    dynamic_cast<Property*>(this)->Property::end_element(m, el);
   }
   else {
     PyObject *method = PyUnicode_FromString("end_element");
@@ -193,13 +193,11 @@ void PyFluxProperty::end_point(const FEMesh *m, const Element *el,
 
 //=\\=//=\\=//
 
-void PyPropertyMethods::py_post_process(const Property *prop, CSubProblem *m,
-					const Element *el)
-  const
+void PyPropertyMethods::py_post_process(CSubProblem *m, const Element *el) const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "post_process")) {
-    prop->Property::post_process(m, el);
+    dynamic_cast<const Property*>(this)->Property::post_process(m, el);
   }
   else {
     PyObject *method = PyUnicode_FromString("post_process");
@@ -226,16 +224,18 @@ void PyPropertyMethods::py_post_process(const Property *prop, CSubProblem *m,
 // function, which returns void.  In Python, the OutputVal is
 // returned.
 
-void PyPropertyMethods::py_output(Property *prop,
-				  FEMesh *mesh, const Element *el,
+// PyPropertyMethods::py_output is not const because Property::output
+// is not const.  TODO: Why is Property::output not const?
+
+void PyPropertyMethods::py_output(FEMesh *mesh, const Element *el,
 				  const PropertyOutput *propout,
 				  const MasterPosition &pos,
 				  OutputVal *oval)
-  const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "output")) {
-    prop->Property::output(mesh, el, propout, pos, oval);
+    dynamic_cast<Property*>(this)->Property::output(
+					    mesh, el, propout, pos, oval);
   }
   else {
     PyObject *method = PyUnicode_FromString("output");
@@ -271,12 +271,12 @@ void PyPropertyMethods::py_output(Property *prop,
 
 //=\\=//=\\=//
 
-bool PyPropertyMethods::py_constant_in_space(const Property *prop) const {
+bool PyPropertyMethods::py_constant_in_space() const {
   bool c_result;
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "constant_in_space")) {
     throw ErrUserError("constant_in_space method is missing from Property "
-		       + prop->name());
+		       + dynamic_cast<const Property*>(this)->name());
   }
   // TODO: Use PyObject_CallMethodNoArgs in Python 3.9 and later
   PyObject *method = PyUnicode_FromString("constant_in_space");
@@ -293,13 +293,10 @@ bool PyPropertyMethods::py_constant_in_space(const Property *prop) const {
 
 //=\\=//=\\=//
 
-bool PyPropertyMethods::is_symmetric_K(const Property *prop,
-				       const CSubProblem *subp)
-  const
-{
+bool PyPropertyMethods::is_symmetric_K(const CSubProblem *subp) const {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "is_symmetric_K")) {
-    return prop->Property::is_symmetric_K(subp);
+    return dynamic_cast<const Property*>(this)->Property::is_symmetric_K(subp);
   }
   PyObject *method = PyUnicode_FromString("is_symmetric_K");
   PyObject *subpp = NEWSWIGPTR(subp, "CSubProblem");
@@ -315,13 +312,10 @@ bool PyPropertyMethods::is_symmetric_K(const Property *prop,
   return c_result;
 }
 
-bool PyPropertyMethods::is_symmetric_C(const Property *prop,
-				       const CSubProblem *subp)
-  const
-{
+bool PyPropertyMethods::is_symmetric_C(const CSubProblem *subp) const {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, (char*) "is_symmetric_C")) {
-    return prop->Property::is_symmetric_C(subp);
+    return dynamic_cast<const Property*>(this)->Property::is_symmetric_C(subp);
   }
   PyObject *method = PyUnicode_FromString("is_symmetric_C");
   PyObject *subpp = NEWSWIGPTR(subp, "CSubProblem");
@@ -337,13 +331,10 @@ bool PyPropertyMethods::is_symmetric_C(const Property *prop,
   return c_result;
 }
 
-bool PyPropertyMethods::is_symmetric_M(const Property *prop,
-				       const CSubProblem *subp)
-  const
-{
+bool PyPropertyMethods::is_symmetric_M(const CSubProblem *subp) const {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "is_symmetric_M")) {
-    return prop->Property::is_symmetric_M(subp);
+    return dynamic_cast<const Property*>(this)->Property::is_symmetric_M(subp);
   }
   PyObject *method = PyUnicode_FromString("is_symmetric_M");
   PyObject *subpp = NEWSWIGPTR(subp, "CSubProblem");
@@ -362,7 +353,6 @@ bool PyPropertyMethods::is_symmetric_M(const Property *prop,
 
 int PyPhysicalPropertyMethods::py_integration_order(
 					    PyObject *referent,
-					    const PhysicalProperty *prop,
 					    const CSubProblem *subp, 
 					    const Element *el)
   const
@@ -370,7 +360,7 @@ int PyPhysicalPropertyMethods::py_integration_order(
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent, "integration_order")) {
     throw ErrUserError("integration_order method is missing from Property " 
-		       + prop->name());
+		       + dynamic_cast<const Property*>(this)->name());
   }
   PyObject *method = PyUnicode_FromString("integration_order");
   PyObject *subpp = NEWSWIGPTR(subp, "CSubProblem");

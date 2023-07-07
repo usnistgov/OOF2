@@ -38,35 +38,29 @@ public:
   // A "py_" prefix was added to these method names to keep the clang
   // compiler from complaining about hidden overloaded virtual
   // functions.
-  virtual void py_precompute(Property*, FEMesh*);
-  virtual void py_cross_reference(Property*, Material*);
-  virtual void py_begin_element(Property*, const CSubProblem*, const Element*);
-  virtual void py_end_element(Property*, const CSubProblem*, const Element*);
-  virtual void py_post_process(const Property*, CSubProblem *, const Element*)
+  virtual void py_precompute(FEMesh*);
+  virtual void py_cross_reference(Material*);
+  virtual void py_begin_element(const CSubProblem*, const Element*);
+  virtual void py_end_element(const CSubProblem*, const Element*);
+  virtual void py_post_process(CSubProblem *, const Element*)
     const;
-  virtual bool py_constant_in_space(const Property*) const;
-  virtual void py_output(Property*, FEMesh*,
-			 const Element*,
-			 const PropertyOutput*,
-			 const MasterPosition&, OutputVal*) const;
-  bool is_symmetric_K(const Property*, const CSubProblem*) const;
-  bool is_symmetric_C(const Property*, const CSubProblem*) const;
-  bool is_symmetric_M(const Property*, const CSubProblem*) const;
+  virtual bool py_constant_in_space() const;
+  virtual void py_output(FEMesh*, const Element*, const PropertyOutput*,
+			 const MasterPosition&, OutputVal*);
+  bool is_symmetric_K(const CSubProblem*) const;
+  bool is_symmetric_C(const CSubProblem*) const;
+  bool is_symmetric_M(const CSubProblem*) const;
 protected:
   PyObject *referent_;		// pointer to the actual Python Property object
 };
 
 class PyPhysicalPropertyMethods {
 public:
-  virtual int py_integration_order(PyObject*, const PhysicalProperty*,
-				const CSubProblem*, const Element*) const;
+  virtual int py_integration_order(
+		   PyObject*, const CSubProblem*, const Element*) const;
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// TODO PYTHON3: Why do some of the PyPropertyMethods methods have a
-// Property* argument?  Can't we get it from *this, maybe with a
-// dynamic cast?
 
 class PyFluxProperty : public FluxProperty,
 		       public PyPropertyMethods, 
@@ -91,49 +85,45 @@ public:
 			   const Flux*, const MasterPosition&,
 			   double time, SmallSystem*) const;
 
-  // TODO: The clang compiler on OS X Lion emits lots of warnings
-  // about hidden overloaded virtual functions here.  Find out if the
-  // warnings have to be taken seriously.
   virtual void precompute(FEMesh *m) {
-    PyPropertyMethods::py_precompute(this, m);
+    PyPropertyMethods::py_precompute(m);
   }
   virtual void cross_reference(Material *m) { 
-    PyPropertyMethods::py_cross_reference(this, m);
+    PyPropertyMethods::py_cross_reference(m);
   }
   virtual void begin_element(const CSubProblem *sb, const Element *e) {
-    PyPropertyMethods::py_begin_element(this, sb, e);
+    PyPropertyMethods::py_begin_element(sb, e);
   }
   virtual void end_element(const CSubProblem *sb, const Element *e) {
-    PyPropertyMethods::py_end_element(this, sb, e);
+    PyPropertyMethods::py_end_element(sb, e);
   }
   virtual void begin_point(const FEMesh *m, const Element *e,
 			   const Flux *f, const MasterPosition &p);
   virtual void end_point(const FEMesh *m, const Element *e,
 			 const Flux *f, const MasterPosition &p);
   virtual void post_process(CSubProblem *sb, const Element *e) const {
-    PyPropertyMethods::py_post_process(this, sb, e);
+    PyPropertyMethods::py_post_process(sb, e);
   }
   virtual bool constant_in_space() const {
-    return PyPropertyMethods::py_constant_in_space(this);
+    return PyPropertyMethods::py_constant_in_space();
   }
   virtual void output(FEMesh *m, const Element *e, 
 		      const PropertyOutput *po,
 		      const MasterPosition &p, OutputVal *ov)
   {
-    PyPropertyMethods::py_output(this, m, e, po, p, ov);
+    PyPropertyMethods::py_output(m, e, po, p, ov);
   }
   virtual int integration_order(const CSubProblem *sb, const Element *e) const {
-    return PyPhysicalPropertyMethods::py_integration_order(referent_, this,
-							   sb, e);
+    return PyPhysicalPropertyMethods::py_integration_order(referent_, sb, e);
   }
   bool is_symmetric_K(const CSubProblem *sb) const {
-    return PyPropertyMethods::is_symmetric_K(this, sb);
+    return PyPropertyMethods::is_symmetric_K(sb);
   }
   bool is_symmetric_C(const CSubProblem *sb) const  {
-    return PyPropertyMethods::is_symmetric_C(this, sb);
+    return PyPropertyMethods::is_symmetric_C(sb);
   }
   bool is_symmetric_M(const CSubProblem *sb) const {
-    return PyPropertyMethods::is_symmetric_M(this, sb);
+    return PyPropertyMethods::is_symmetric_M(sb);
   }
 };
 
@@ -167,41 +157,40 @@ public:
 				       const MasterPosition&,
 					double time, SmallSystem*) const;
   virtual void precompute(FEMesh *m) {
-    PyPropertyMethods::py_precompute(this, m);
+    PyPropertyMethods::py_precompute(m);
   }
   virtual void cross_reference(Material *m) { 
-    PyPropertyMethods::py_cross_reference(this, m);
+    PyPropertyMethods::py_cross_reference(m);
   }
   virtual void begin_element(const CSubProblem *sb, const Element *e) {
-    PyPropertyMethods::py_begin_element(this, sb, e);
+    PyPropertyMethods::py_begin_element(sb, e);
   }
   virtual void end_element(const CSubProblem *sb, const Element *e) {
-    PyPropertyMethods::py_end_element(this, sb, e);
+    PyPropertyMethods::py_end_element(sb, e);
   }
   virtual void post_process(CSubProblem *sb, const Element *e) const {
-    PyPropertyMethods::py_post_process(this, sb, e);
+    PyPropertyMethods::py_post_process(sb, e);
   }
   virtual bool constant_in_space() const {
-    return PyPropertyMethods::py_constant_in_space(this);
+    return PyPropertyMethods::py_constant_in_space();
   }
   virtual void output(FEMesh *m, const Element *e, 
 		      const PropertyOutput *po,
 		      const MasterPosition &p, OutputVal *ov)
   {
-    PyPropertyMethods::py_output(this, m, e, po, p, ov);
+    PyPropertyMethods::py_output(m, e, po, p, ov);
   }
   virtual int integration_order(const CSubProblem *sb, const Element *e) const {
-    return PyPhysicalPropertyMethods::py_integration_order(referent_, this,
-							   sb, e);
+    return PyPhysicalPropertyMethods::py_integration_order(referent_, sb, e);
   }
   bool is_symmetric_K(const CSubProblem *sb) const {
-    return PyPropertyMethods::is_symmetric_K(this, sb);
+    return PyPropertyMethods::is_symmetric_K(sb);
   }
   bool is_symmetric_C(const CSubProblem *sb) const  {
-    return PyPropertyMethods::is_symmetric_C(this, sb);
+    return PyPropertyMethods::is_symmetric_C(sb);
   }
   bool is_symmetric_M(const CSubProblem *sb) const {
-    return PyPropertyMethods::is_symmetric_M(this, sb);
+    return PyPropertyMethods::is_symmetric_M(sb);
   }
 };
 
