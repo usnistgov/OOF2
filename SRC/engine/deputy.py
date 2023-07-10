@@ -202,7 +202,6 @@ class DeputyProvisionalChanges:
         self.movednodes = []  # list of MoveNode objects
         self.elements = set()    # Elements involved.
         self.cachedDeltaE = None  # Energy difference
-        self.cachedDeltaEBound = None  # Energy difference
         self.cachedIllegal = None  # Illegality
         self.cachedNewHomogeneity = {}  # Homogeneity objs, Keyed by element
 
@@ -296,32 +295,10 @@ class DeputyProvisionalChanges:
                     newE += (alpha*h1+(1.-alpha)*s1)
                 nelements += len(self.parallelHomog0)
                 
-            # Averaged energy differnce due to the change
+            # Averaged energy difference due to the change
             self.cachedDeltaE = (newE - oldE)/nelements
             
         return self.cachedDeltaE
-
-    def deltaEBound(self, deputy, alpha):
-        # Return the maximum possible deltaE -- assuming all elements
-        # become homogenous after the change
-        if self.cachedDeltaEBound is None:
-            # Energy before the change
-            oldE = 0.0
-            for element in self.elBefore():
-                oldE += element.energyTotal(deputy, alpha)
-            oldE /= len(self.elBefore())
-            # Move nodes accordingly to simulate the change
-            self.makeNodeMove(deputy)
-            # Energy after the change
-            newE = 0.0
-            for element in self.elAfter():
-                newE += (1.-alpha)*element.energyShape()
-            newE /= len(self.elAfter())
-            # Move node back
-            self.moveNodeBack(deputy)
-            # Energy differnce due to the change
-            self.cachedDeltaEBound = newE - oldE        
-        return self.cachedDeltaEBound
 
     def accept(self, deputy):
         for mvnode in self.movednodes:

@@ -296,43 +296,6 @@ registeredclass.Registration(
     tip = 'Accept the change, if any, that improves the average energy the most.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/average_energy.xml'))
 
-
-#class AverageEnergyBestOf(SkelModCriterion):
-#    def __init__(self, alpha, num):
-#        self.alpha = alpha
-#        self.num = num
-    # Finds the best available change(lowering average energy the most)
-    # that is legal.
-#    def __call__(self, changes, skel):
-#        bestE = 0.0
-#        bestchange = None
-#        changesconsidered = []
-#        for change in changes:
-#            if not (change is None or change.illegal(skel) or change.deltaEBound(skel, self.alpha) >= 0):
-#                changesconsidered.append(change)
-#        if len(changesconsidered) > self.num:
-#            changesconsidered = changesconsidered[:self.num]
-#        for change in changesconsidered:
-#            diff = change.deltaE(skel, self.alpha)  # energy difference
-#            if diff <= bestE:
-#                bestchange = change
-#                bestE = diff
-#                    
-#        for change in changes:
-#            if change is not None and change is not bestchange:
-#                change.removeAddedNodes(skel)
-#        return bestchange
-
-#registeredclass.Registration(
-#    'Average Energy Best Of',
-#    SkelModCriterion,
-#    AverageEnergyBestOf,
-#    ordering=4,
-#    params=[alphaParameter, parameter.IntParameter('num', value=5, tip="number of possibilities to consider")],
-#    tip = 'Accept the change, if any, that improves the average energy the most.  Limit the number of possibilities considered.',
-#    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/average_energy.xml'))
-
-
 # Accept any modification as long as it stays in the legal boundaries
 class Unconditional(SkelModCriterion):
     def __init__(self, alpha):

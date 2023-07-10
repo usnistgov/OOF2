@@ -3096,33 +3096,10 @@ class ProvisionalChanges:
             newE /= len(self.elAfter())
             # Move node back
             self.moveNodeBack(skeleton)
-            # Energy differnce due to the change
+            # Energy difference due to the change
             self.cachedDeltaE = newE - oldE
         return self.cachedDeltaE
 
-    def deltaEBound(self, skeleton, alpha):
-        # TODO: Obsolete?  Can't find a caller for this.
-        # Return the maximum possible deltaE -- assuming all elements
-        # become homogenous after the change
-        if self.cachedDeltaEBound is None:
-            # Energy before the change
-            oldE = 0.0
-            for element in self.elBefore():
-                oldE += element.energyTotal(self.skeleton, alpha)
-            oldE /= len(self.elBefore())
-            # Move nodes accordingly to simulate the change
-            self.makeNodeMove(self.skeleton)
-            # Energy after the change
-            newE = 0.0
-            for element in self.elAfter():
-                newE += (1.-alpha)*element.energyShape()+alpha
-            newE /= len(self.elAfter())
-            # Move node back
-            self.moveNodeBack(self.skeleton)
-            # Energy differnce due to the change
-            self.cachedDeltaEBound = newE - oldE        
-        return self.cachedDeltaEBound
-            
     def accept(self, skeleton):
         # Create actual elements to replace the provisional ones.  The
         # actual elements replace their predecessors in the
