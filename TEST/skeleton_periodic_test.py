@@ -449,7 +449,7 @@ def build_mod_args():
           }
          ),
         ("modgroups","refine_6",
-         {"targets" : CheckHeterogeneousEdges(threshold=1,
+         {"targets" : CheckHeterogeneousSegments(threshold=1,
                                               choose_from=FromAllSegments()),
           "criterion" : Unconditionally(),
           "divider" : Bisection(),
@@ -583,7 +583,7 @@ def build_mod_args():
              ),
             ("modgroups2","snaprefine_5",
              {"targets" :
-              CheckHeterogeneousEdges(threshold=1,
+              CheckHeterogeneousSegments(threshold=1,
                                        choose_from=FromAllSegments()),
               "criterion" : Unconditionally(),
               "min_distance" : 2.0,

@@ -42,8 +42,6 @@ class ElementRefinementTarget(RefinementTarget):
         prog = progress.findProgress("Refine")
         eliter = self.iterator(context) # self.iterator is from subclass
         for i, element in enumerate(eliter):
-            ## TODO: Do we need to check criterion here?  Can the
-            ## iterator do it?
             if criterion(skeleton, element):
                 self.markElement(skeleton, element, divider, markedSegs)
             if prog.stopped():
@@ -61,8 +59,6 @@ class SegmentRefinementTarget(RefinementTarget):
         prog = progress.findProgress("Refine")
         segiter = self.iterator(context)
         for segment in segiter:
-            ## TODO: Do we need to check criterion here?  Can the
-            ## iterator do it?
             if criterion(skeleton, segment):
                 self.markSegment(skeleton, context, segment, divider,
                                  markedSegs)
@@ -184,7 +180,7 @@ registeredclass.Registration(
     tip="Examine all segments.",
     discussion= """<para>
     When choosing <link
-    linkend='RegisteredClass-CheckHeterogeneousEdges'>heterogeneous</link>
+    linkend='RegisteredClass-CheckHeterogeneousSegments'>heterogeneous</link>
     &sgmts; to <link linkend='RegisteredClass-Refine'>refine</link>,
     consider all &sgmts; of the &skel;.
     </para>""")
@@ -212,7 +208,7 @@ registeredclass.Registration(
     tip="Examine selected segments.",
     discussion= """<para>
     When choosing <link
-    linkend='RegisteredClass-CheckHeterogeneousEdges'>heterogeneous</link>
+    linkend='RegisteredClass-CheckHeterogeneousSegments'>heterogeneous</link>
     &sgmts; to <link linkend='RegisteredClass-Refine'>refine</link>,
     consider only the currently selected &sgmts;.
     </para>""")
@@ -249,25 +245,115 @@ registeredclass.Registration(
     tip="Examine segments from segments of currently selected elements.",
     discussion= """<para>
     When choosing <link
-    linkend='RegisteredClass-CheckHeterogeneousEdges'>heterogeneous</link>
+    linkend='RegisteredClass-CheckHeterogeneousSegments'>heterogeneous</link>
     &sgmts; to <link linkend='RegisteredClass-Refine'>refine</link>,
     consider only the edges of the currently selected &elems;.
     </para>""")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-## TODO PYTHON3: These classes are oddly defined.
-## CheckHeterogeneousEdges uses a SegmentChooser to choose the set of
-## segments to consider.  The choices are SelectedElements,
+## TODO LATER: These classes are oddly defined.
+## CheckHeterogeneousSegments uses a SegmentChooser to choose the set
+## of segments to consider.  The choices are SelectedElements,
 ## SelectedSegments, and AllSegments.  But CheckSelectedEdges doesn't
 ## use a SegmentChooser, although it could. CheckAllEdges with a
 ## SegmentChooser could reproduce CheckSelectedSegments and
 ## CheckSegmentGroup and Check...
+##
+## In fact, there could be a top level Elements option, with an
+## ElementChooser parameter that switches between All Elements,
+## Selected Elements, Selected Segments, and Element Group.  A top
+## level Segments option would have a SegmentChooser with equivalent
+## options.
 
-## TODO PYTHON3: The class names here are sometimes XXXXSegments and
-## sometimes XXXXEdges.  We should be consistent.
+# Currently implemented/2.2.2/2.1.19 scheme
+#
+# Refine
+#   targets
+#     Heterogeneous Elements
+#        threshold
+#     Selected Elements
+#     Elements in Group
+#       group name
+#     All Elements
+#     Aspect Ratio
+#       threshold
+#       only_quads
+#     Heterogeneous Segments
+#       threshold (0-1)
+#       choose from            <--- Why doesn't Het. Elements have this option?
+#          Selected Elements
+#          Selected Segments
+#          All Segments
+#     Selected Segments
+#     Segments in Group
+#       group name
+#     AMR
+#   criterion  (Unconditional or Minimum Area)
+#   divider (Bisection, Trisection, or Transition Points)
+#   rules (Quick, Large)
+#   alpha (0-1)
 
-class CheckHeterogeneousEdges(SegmentRefinementTarget):
+# Potential new scheme:
+#
+# Refine
+#   targets
+#     Elements
+#        All
+#        Heterogeneous
+#        Selected
+#        Group
+#           group name
+#        From Selected Segments
+#        Aspect Ratio
+#          threshold
+#          only_quads
+#        AMR?
+#     Segments
+#        All
+#        Heterogeneous
+#        Selected
+#        Group
+#           Name
+#        From Selected Elements
+#   criterion  (Unconditional or Minimum Area)
+#   divider (Bisection, Trisection, or Transition Points)
+#   rules (Quick, Large)
+#   alpha (0-1)
+#
+# But that doesn't have the useful functionality of hte choose from option.
+
+# Maybe the better thing would be to have a bunch of checkboxes to
+# select which criteria to use.  The current "criterion" argument
+# would be deleted.  Objects would be refined if they meet all of the
+# chosen criteria.
+#
+# Refine
+#   targets
+#     Elements
+#       * all
+#       * homogeneity < threshold
+#       * group == name
+#       * selected
+#       * area > min
+#       * aspect ratio > min
+#       * AMR
+#       * has a selected segment
+#       * has a selected node
+#     Segments
+#       * all
+#       * homogeneity < threshold
+#       * group = name
+#       * selected
+#       * has a selected element
+#       * has a selected node
+#
+# "all" would be automatically selected if none of the other criteria
+# are chosen.  Checking "all" would deselect the other criteria, and
+# vice versa.  Deselecting "all" would put the widget in an illegal
+# state and desensitize the OK button.
+
+class CheckHeterogeneousSegments(SegmentRefinementTarget):
     def __init__(self, threshold, choose_from):
         self.threshold = threshold
         self.choose_from = choose_from
@@ -283,7 +369,7 @@ class CheckHeterogeneousEdges(SegmentRefinementTarget):
 registeredclass.Registration(
     'Heterogeneous Segments',
     RefinementTarget,
-    CheckHeterogeneousEdges,
+    CheckHeterogeneousSegments,
     ordering=3,
     params=[
         parameter.FloatRangeParameter(
