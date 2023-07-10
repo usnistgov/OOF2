@@ -320,13 +320,13 @@ def format(line, width):
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
 # Ordered dictionary class.  Before Python 3.7, dictionaries didn't
-# return items in the order in which they were added, so we had an
-# dict subclass that had to redefined most dict operations.  As of
-# Python 3.7, we can just use dict, except that we sometimes need to
-# reorder elements, so OrderedDict adds a reorder() method.  (The old
-# version also had a replace() method, but that doesn't seem to be
-# used anywhere.  It's also not necessary -- assigning to an existing
-# key in a post-3.7 dict doesn't change the order of the keys.)
+# return items in the order in which they were added, so we had a dict
+# subclass that redefined most dict operations.  As of Python 3.7, we
+# can just use dict, except that we sometimes need to reorder
+# elements, so OrderedDict adds a reorder() method.  (The old version
+# also had a replace() method, but that doesn't seem to be used
+# anywhere.  It's also not necessary -- assigning to an existing key
+# in a post-3.7 dict doesn't change the order of the keys.)
 
 class OrderedDict(dict):
     def reorder(self, keylist):
