@@ -96,19 +96,33 @@ class SkeletonElementBase:
                (1.-alpha)*self.energyShape()
 
     def getPositionHash(self):
-        ## TODO PYTHON3: This doesn't distinguish between an element
-        ## and illegal element with the same nodes in the wrong order.
-        ## Does that matter?  It could create the hash by cycling the
-        ## node list so that it starts with the node with the largest
-        ## position.  If nodes were always stored in that order, this
-        ## would be quick.
-        sortedpositions = sorted([n.position() for n in self.nodes])
-        hashable = []
-        for pos in sortedpositions:
-            for i in range(2):
-                hashable.append(pos[i])
-        return hash(tuple(hashable))
+        # Get a hash value for an element that depends only on the
+        # position of its nodes.  This is used when caching
+        # homogeneities that were computed on provisional elements.
+        # We can't count on the nodes being in the same order or
+        # having the same indices when revisiting an element, so we
+        # need to base the hash on just the node positions.  We do
+        # want to ensure that the nodes are connected in the same way,
+        # though, so the hash is not simply derived from a sorted list
+        # of node positions.  Instead, we list the positions starting
+        # with the node with the largest position.  If two nodes have
+        # the same position, this might fail, but the consequences of
+        # failing are small -- an illegal element's homogeneity might
+        # be recomputed.
 
+        positions = [n.position() for n in self.nodes]
+        # Find the node with the largest position.
+        maxpos = None
+        maxi = -1
+        for i, pos in enumerate(positions):
+            if maxpos is None or pos > maxpos:
+                maxpos = pos
+                maxi = i
+        hashable = ([(pos[0], pos[1]) for pos in positions[maxi:self.nnodes()]]
+                    +
+                    [(pos[0], pos[1]) for pos in positions[0:maxi]])
+        return hash(tuple(hashable))
+        
 ##########################
         
 class SkeletonElement(SkeletonElementBase,
