@@ -949,10 +949,7 @@ class Skeleton(SkeletonBase):
             self.element_index0 = element_index_base
 
     def reserveElements(self, n):
-        ## TODO PYTHON3: Why is this commented out?  Does
-        ## ReservableList work?  Should we get rid of it?
         self.elements.reserve(n)
-        #pass
 
     def reserveNodes(self, n):
         self.nodes.reserve(n)
@@ -1045,30 +1042,22 @@ class Skeleton(SkeletonBase):
         self.cleanUp()
         return len(self.nodes)
                                    
-    def nelements(self):                # for compatiblity w/ Element output
+    def nelements(self): 
         self.cleanUp()
         return len(self.elements)
 
-    def element_iterator(self):         # for compatiblity w/ Element output
+    def nsegments(self):
         self.cleanUp()
+        return len(self.segments)
+
+    def element_iterator(self):
         return SkeletonElementIterator(self)
-        # return iter(self.elements)
 
-    ## TODO PYTHON3: Use SkeletonNodeIterator?
     def node_iterator(self):
-        self.cleanUp()
-        return iter(self.nodes)
+        return SkeletonNodeIterator(self)
 
-    ## TODO PYTHON3: Use SkeletonSegmentIterator?
     def segment_iterator(self):
-        self.cleanUp()
-        return self.segments.values()
-
-    # This returns the position in the skeleton's node list
-    # which is not the same as node.getIndex()
-    # Is this used?
-##     def getNodeIndex(self, node):
-##         return self.nodes.index(node)
+        return SkeletonSegmentIterator(self)
 
     def notPinnedNodes(self):
         return [n for n in self.node_iterator() if not n.pinned()]
@@ -1564,9 +1553,7 @@ class Skeleton(SkeletonBase):
 
     def activeNodes(self):
         self.cleanUp()
-        # TODO PYTHON3: Return a SkeletonNodeIterator
-        
-        return (n for n in self.nodes if n.active(self))
+        return SkeletonNodeIterator(self, lambda n: n.active(self))
 
     def activeSegments(self):
         self.cleanUp()
@@ -2877,7 +2864,7 @@ class Skeleton(SkeletonBase):
 # in that set for which the given condition is true.
 
 class SkeletonIterator:
-    def __init__(self, skeleton, condition=lambda x: True):
+    def __init__(self, skeleton, condition=None):
         self.skeleton = skeleton
         self.condition = condition # predicate
         self.count = 0          # number examined
@@ -2889,10 +2876,21 @@ class SkeletonIterator:
     def nreturned(self):
         return self.nret
     def __iter__(self):
-        for self.count, target in enumerate(self.targets()):
-            if self.condition(target):
+        if self.condition is not None:
+            for self.count, target in enumerate(self.targets()):
+                if self.condition(target):
+                    self.nret += 1
+                    yield target
+        else:
+            for self.count, target in enumerate(self.targets()):
                 self.nret += 1
                 yield target
+                
+class SkeletonNodeIterator(SkeletonIterator):
+    def ntotal(self):
+        return self.skeleton.nnodes()
+    def targets(self):
+        return self.skeleton.nodes
     
 class SkeletonElementIterator(SkeletonIterator):
     def ntotal(self):
@@ -2902,7 +2900,7 @@ class SkeletonElementIterator(SkeletonIterator):
 
 class SkeletonSegmentIterator(SkeletonIterator):
     def ntotal(self):
-        return len(self.skeleton.segments)
+        return self.skeleton.nsegments()
     def targets(self):
         return self.skeleton.segments.values()
 
