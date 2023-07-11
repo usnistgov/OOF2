@@ -470,32 +470,17 @@ class SegFromSelectedElements(SegmentSelectionModifier):
         segments = set()
         skel = context.getObject()
         for element in context.elementselection.retrieve():
-            el_segments = element.getSegments(skel)
-            for seg in el_segments:
+            for seg in element.getSegments(skel):
                 segments.add(seg)
-#             for i in range(element.nnodes()):
-#                 n0 = element.nodes[i]
-#                 n1 = element.nodes[(i+1)%element.nnodes()]
-#                 seg = skel.findSegment(n0, n1)
-#                 segments[seg] = None
         return list(segments)   # TODO: Leave as a set?
 
     def getBoundarySegments(self, context):
         bound = []
         skel = context.getObject()
         for element in context.elementselection.retrieve():
-            el_segments = element.getSegments(skel)
-            for seg in el_segments:
-#                 segments[seg] = None
-#             for i in range(element.nnodes()):
-#                 n0 = element.nodes[i]
-#                 n1 = element.nodes[(i+1)%element.nnodes()]
-#                 seg = skel.findSegment(n0, n1)
+            for seg in element.getSegments(skel): 
                 # A segment is on the boundary of the selection if it
                 # belongs to only one element.
-                # TODO 3D: In 3D we'll need to get the faces that have
-                # only one element, but this will have to wait until
-                # we have face selections.
                 n = 0
                 for el in seg.getElements():
                     if el.selected: n += 1

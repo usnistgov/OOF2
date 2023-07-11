@@ -181,7 +181,8 @@ class SkeletonInfoMode:
         return chsr
     
     def updateSegmentList(self, chsr, objlist):
-        # called only when Skeleton readlock has been obtained.        
+        # called only when Skeleton readlock has been obtained.
+        objlist = list(objlist)
         namelist = [f"Segment {obj.index}, "
                     f"nodes ({obj.nodes()[0].index}, {obj.nodes()[1].index}) "
                     f"(length: {obj.length():.{digits()}g})"

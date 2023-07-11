@@ -492,15 +492,12 @@ class SkeletonBase:
     
     # Utility function, finds all the intersections of passed-in
     # segment (a primitives.Segment object) with the passed-in
-    # skeleton element.  Needs the skeleton object in order to extract
-    # skeleton segments. Actually returns a dictionary, indexed by
+    # skeleton element.  Actually returns a dictionary, indexed by
     # points, whose values are lists of the intersecting segments, as
     # a tuple, (intersection-point, next-element)
     def _get_intersections_with_element(self, local_seg, skel_el):
-        skel_segs = skel_el.getSegments(self)
         isec_set = {}
-        #
-        for s in skel_segs:
+        for s in skel_el.getSegments(self): 
             nds = s.nodes()
             c1 = nds[0].position()
             c2 = nds[1].position()
@@ -1865,8 +1862,7 @@ class Skeleton(SkeletonBase):
                             "inconsistent neighborNodes for node",
                             node.index, " and element", element.index)
                         sane = False
-                segs = element.getSegments(self)
-                if None in segs:
+                if None in element.getSegments(self):
                     reporter.report("Element", element.index,
                                     "is missing a segment")
                     sane = False
@@ -3111,8 +3107,8 @@ class ProvisionalChanges:
             old, new = pair
             newelement = new.accept(self.skeleton)
             pair[1] = newelement
-            oldsegments = old.getSegments(self.skeleton)
-            newsegments = newelement.getSegments(self.skeleton)
+            oldsegments = list(old.getSegments(self.skeleton))
+            newsegments = list(newelement.getSegments(self.skeleton))
             assert len(oldsegments) == len(newsegments)
             for oldseg, newseg in zip(oldsegments, newsegments):
                 for parent in oldseg.getParents():

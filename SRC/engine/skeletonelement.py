@@ -192,13 +192,10 @@ class SkeletonElement(SkeletonElementBase,
     #     return self.element
 
     def getSegments(self, skeleton):
-        ## TODO PYTHON3: Can this be a generator?
-        segments = []
         lastnode = self.nodes[-1]
         for node in self.nodes:
-            segments.append(skeleton.findSegment(node, lastnode))
+            yield skeleton.findSegment(node, lastnode)
             lastnode = node
-        return segments
 
     #Interface branch
     #Get the segment opposite seg1 and that is incident on node1.
