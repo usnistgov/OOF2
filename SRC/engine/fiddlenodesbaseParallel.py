@@ -334,7 +334,7 @@ class FiddleNodesParallel:
     def activeProcess(self, index):
         node = self.skeleton.getNodeWithIndex(index)
         
-        change = deputy.DeputyProvisionalChanges()
+        change = deputy.DeputyProvisionalChanges(self.skeleton)
         move_to = self.mover(self.skeleton, node)
         change.moveNode(node,
                         move_to,
@@ -358,7 +358,7 @@ class FiddleNodesParallel:
         # receiving illegality from shared processes
         illegal = mpitools.Irecv_Bools(shared,
                                        tag=self.illegal_channel)
-        if True in illegal or change.illegal(self.skeleton):
+        if True in illegal or change.illegal():
             self.moveBack(node)
             return
         else:  # continue
@@ -384,7 +384,7 @@ class FiddleNodesParallel:
         if bestchange is not None:
             self.stay(node, bestchange)
         elif self.T > 0. and not self.criterion.hopeless():
-            diffE = change.deltaE(self.skeleton, self.alpha)
+            diffE = change.deltaE(self.alpha)
             if math.exp(-diffE/self.T) > crandom.rndm():
                 self.stay(node, change)
             else:
@@ -395,8 +395,8 @@ class FiddleNodesParallel:
         
     def stay(self, node, change):
         self.nok += 1
-        self.deltaE += change.deltaE(self.skeleton, self.alpha)
-        change.accept(self.skeleton)
+        self.deltaE += change.deltaE(self.alpha)
+        change.accept()
         if node.isShared():
             mpitools.Isend_Bool(True, node.sharedWith(),
                                 tag=self.verdict_channel)
@@ -410,7 +410,7 @@ class FiddleNodesParallel:
     def soloProcess(self, index):
 ##        REPORT("WORKING SOLO ON NODE #", index)
         node = self.skeleton.getNodeWithIndex(index)
-        change = deputy.DeputyProvisionalChanges()
+        change = deputy.DeputyProvisionalChanges(self.skeleton)
         change.moveNode(node,
                         self.mover(self.skeleton, node),
                         self.skeleton)  # moved
@@ -419,7 +419,7 @@ class FiddleNodesParallel:
         if bestchange is not None:
             self.stay(node, bestchange)
         elif self.T > 0. and not self.criterion.hopeless():
-            diffE = change.deltaE(self.skeleton, self.alpha)
+            diffE = change.deltaE(self.alpha)
             if math.exp(-diffE/self.T) > crandom.rndm():
                 self.stay(node, change)
             else:
@@ -553,7 +553,7 @@ class SnapParallel(FiddleNodesParallel):
 
         changes = []
         for mc in move_candidates:
-            change = deputy.DeputyProvisionalChanges()
+            change = deputy.DeputyProvisionalChanges(self.skeleton)
             change.moveNode(node, mc, self.skeleton)  # moved the node
 
             # Building data to be sent to sharers.
@@ -574,7 +574,7 @@ class SnapParallel(FiddleNodesParallel):
             # receiving illegality from shared processes
             illegal = mpitools.Irecv_Bools(shared,
                                            tag=self.illegal_channel)
-            legal = True not in illegal and not change.illegal(self.skeleton)
+            legal = True not in illegal and not change.illegal()
             mpitools.Isend_Bool(legal, shared, tag=self.verdict_channel)
             if not legal:
                 continue
@@ -598,8 +598,8 @@ class SnapParallel(FiddleNodesParallel):
         bestchange = self.criterion(changes, self.skeleton)
         if bestchange is not None:
             self.nok += 1
-            self.deltaE += bestchange.deltaE(self.skeleton, self.alpha)
-            bestchange.accept(self.skeleton)
+            self.deltaE += bestchange.deltaE(self.alpha)
+            bestchange.accept()
             mpitools.Isend_Bool(True, shared, tag=self.verdict_channel)
             theindex = changes.index(bestchange)
             x = move_candidates[theindex].x
@@ -618,7 +618,7 @@ class SnapParallel(FiddleNodesParallel):
         changes = []
 
         for mc in move_candidates:
-            change = deputy.DeputyProvisionalChanges()
+            change = deputy.DeputyProvisionalChanges(self.skeleton)
             change.moveNode(node, mc, self.skeleton)  # moved the node
             changes.append(change)
 
@@ -626,8 +626,8 @@ class SnapParallel(FiddleNodesParallel):
         bestchange = self.criterion(changes, self.skeleton)
         if bestchange is not None:
             self.nok += 1
-            self.deltaE += bestchange.deltaE(self.skeleton, self.alpha)
-            bestchange.accept(self.skeleton)
+            self.deltaE += bestchange.deltaE(self.alpha)
+            bestchange.accept()
         else:
             self.nbad += 1
 ##        REPORT("DONE SOLO ON NODE #", index)

@@ -212,9 +212,8 @@ class SplitQuads(skeletonmodifier.SkeletonModifier):
                     bestchange = self.criterion(changes, skel)
                     if bestchange is not None:
                         done += 1
-                        savedE += bestchange.deltaE(skel,
-                                                    self.criterion.alpha)
-                        bestchange.accept(skel)                
+                        savedE += bestchange.deltaE(self.criterion.alpha)
+                        bestchange.accept()                
                 if prog.stopped():  
                     return None
                 prog.setFraction(1.0*(i+1)/nel)

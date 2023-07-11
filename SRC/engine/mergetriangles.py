@@ -66,9 +66,8 @@ class MergeTriangles(skeletonmodifier.SkeletonModifier):
                     bestchange = self.criterion(changes, skel)
                     if bestchange is not None:
                         done += 2
-                        savedE += bestchange.deltaE(skel,
-                                                    self.criterion.alpha)
-                        bestchange.accept(skel)
+                        savedE += bestchange.deltaE(self.criterion.alpha)
+                        bestchange.accept()
                         # Now that these two are merged, we need to indicate
                         # that these are not to be looked at again.
                         for e in bestchange.removed:

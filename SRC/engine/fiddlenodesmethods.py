@@ -292,16 +292,15 @@ class SnapAnneal(FiddleNodes, skeletonmodifier.SkeletonModifier):
                 changes = []
                 for tp in tps:
                     if tp:
-                        change = deputy.DeputyProvisionalChanges()
+                        change = deputy.DeputyProvisionalChanges(skeleton)
                         change.moveNode(node, tp, skeleton)
                         changes.append(change)
                     
                 bestchange = self.criterion(changes, skeleton)
                 if bestchange is not None:
                     self.nok += 1
-                    self.deltaE += bestchange.deltaE(skeleton,
-                                                     self.criterion.alpha)
-                    bestchange.accept(skeleton)
+                    self.deltaE += bestchange.deltaE(self.criterion.alpha)
+                    bestchange.accept()
                 else:
                     self.nbad += 1
                         

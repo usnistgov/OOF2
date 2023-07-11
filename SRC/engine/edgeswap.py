@@ -94,9 +94,8 @@ class SwapEdges(skeletonmodifier.SkeletonModifier):
                 bestchange = self.criterion(changes, skel)
                 if bestchange is not None:
                     done += 2
-                    savedE += bestchange.deltaE(skel,
-                                                self.criterion.alpha)
-                    bestchange.accept(skel)
+                    savedE += bestchange.deltaE(self.criterion.alpha)
+                    bestchange.accept()
                     # Newly created elements from swap should not be
                     # looked at again, not to mention the original pair
                     for elephant in bestchange.removed:

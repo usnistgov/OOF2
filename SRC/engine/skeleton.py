@@ -2963,11 +2963,6 @@ def simpleSkeleton(name, ms, nx, ny, skeleton_geometry):
 
 ###########################
 
-## TODO: Remove the 'skeleton' argument in all ProvisionalChanges
-## methods, because self.skeleton can now be used instead.  It's
-## probably necessary to give DeputyProvisionalChanges a self.skeleton
-## as well.
-
 class ProvisionalChanges:
     def __init__(self, skeleton):
         self.skeleton = skeleton        # Skeleton object. Not context.
@@ -2995,7 +2990,7 @@ class ProvisionalChanges:
         s += ")"
         return s
     
-    def removeAddedNodes(self, skeleton):
+    def removeAddedNodes(self):
         # redefined by subclasses that add nodes
         pass
             
@@ -3056,57 +3051,57 @@ class ProvisionalChanges:
                         self.after.append(nbr)
         return self.after
 
-    def makeNodeMove(self, skeleton):
+    def makeNodeMove(self):
         for mvnode in self.movednodes:
             mvnode.node.moveTo(mvnode.position)
 
-    def moveNodeBack(self, skeleton):
+    def moveNodeBack(self):
         for mvnode in self.movednodes:
             mvnode.node.moveBack()        
 
-    def illegal(self, skeleton):
+    def illegal(self):
         # Will this change produce any illegal elements?
-        self.makeNodeMove(skeleton) # Move nodes to simulate the change
+        self.makeNodeMove()     # Move nodes to simulate the change
         try:
             # Check elements
             for element in self.elAfter():
                 if element.illegal():
                     return True
         finally:
-            self.moveNodeBack(skeleton) # Move nodes back
+            self.moveNodeBack() # Move nodes back
         return False
 
-    def deltaE(self, skeleton, alpha):
+    def deltaE(self, alpha):
         # Return the change in energy per element if this move were to
         # be accepted.
         if self.cachedDeltaE is None:
             # Energy before the change
             oldE = 0.0
             for element in self.elBefore():
-                oldE += element.energyTotal(skeleton, alpha)
+                oldE += element.energyTotal(self.skeleton, alpha)
             oldE /= len(self.elBefore())
             # Move nodes accordingly to simulate the change
-            self.makeNodeMove(skeleton)
+            self.makeNodeMove()
             # Energy after the change
             newE = 0.0
             for element in self.elAfter():
                 # TODO OPT?: perhaps using cachedHomogeneities as in
                 # the deputy would be helpful here too
-                newE += element.energyTotal(skeleton, alpha)
+                newE += element.energyTotal(self.skeleton, alpha)
             newE /= len(self.elAfter())
             # Move node back
-            self.moveNodeBack(skeleton)
+            self.moveNodeBack()
             # Energy difference due to the change
             self.cachedDeltaE = newE - oldE
         return self.cachedDeltaE
 
-    def accept(self, skeleton):
+    def accept(self):
         # Create actual elements to replace the provisional ones.  The
         # actual elements replace their predecessors in the
         # ProvisionalChanges object, so that they're available to the
         # calling routine.
-        ## TODO: Remove argument and use self.skeleton instead?
-        self.inserted = [element.accept(skeleton) for element in self.inserted]
+        self.inserted = [element.accept(self.skeleton)
+                         for element in self.inserted]
         for mvnode in self.movednodes:
             mvnode.node.moveTo(mvnode.position)
             if mvnode.mobility:
@@ -3114,10 +3109,10 @@ class ProvisionalChanges:
                 mvnode.node.setMobilityY(mvnode.mobility[1])
         for pair in self.substitutions:
             old, new = pair
-            newelement = new.accept(skeleton)
+            newelement = new.accept(self.skeleton)
             pair[1] = newelement
-            oldsegments = old.getSegments(skeleton)
-            newsegments = newelement.getSegments(skeleton)
+            oldsegments = old.getSegments(self.skeleton)
+            newsegments = newelement.getSegments(self.skeleton)
             assert len(oldsegments) == len(newsegments)
             for oldseg, newseg in zip(oldsegments, newsegments):
                 for parent in oldseg.getParents():
@@ -3126,15 +3121,15 @@ class ProvisionalChanges:
             # Call Skeleton.removeElements only *after* the segment
             # parents have been reestablished, because removing the
             # elements may remove the segments from the skeleton.
-            skeleton.removeElements(old)
+            self.skeleton.removeElements(old)
         for old in self.seg_subs:
             new_segs = self.seg_subs[old]
             for node0, node1 in new_segs:
-                new = skeleton.getSegment(node0, node1)
+                new = self.skeleton.getSegment(node0, node1)
                 for parent in old.getParents():
                     new.add_parent(parent)
                     parent.add_child(new)
-        skeleton.removeElements(*self.removed)
+        self.skeleton.removeElements(*self.removed)
 
 class ProvisionalInsertion(ProvisionalChanges):
     def __init__(self, skeleton):
@@ -3144,27 +3139,25 @@ class ProvisionalInsertion(ProvisionalChanges):
     def addNode(self, node):
         self.addedNodes.append(node)
         
-    def removeAddedNodes(self, skeleton):
-        ## TODO: Remove argument and use self.skeleton instead?
+    def removeAddedNodes(self):
         for n in self.addedNodes:
-            n.destroy(skeleton)
+            n.destroy(self.skeleton)
 
 class ProvisionalMerge(ProvisionalChanges):
     def __init__(self, skeleton, node0, node1):
         ProvisionalChanges.__init__(self, skeleton)
         self.node0 = node0
         self.node1 = node1
-    def accept(self, skeleton):
-        ## TODO: Remove argument and use self.skeleton instead?
+    def accept(self):
         self.node0.makeSibling(self.node1)
-        ProvisionalChanges.accept(self, skeleton)
+        ProvisionalChanges.accept(self)
 
 class ProvisionalMerges(ProvisionalChanges):
     def __init__(self, skeleton, *pairs):
         ProvisionalChanges.__init__(self, skeleton)
         self.pairs = pairs
-    def accept(self, skeleton):
+    def accept(self):
         for pair in self.pairs:
             pair[0].makeSibling(pair[1])
-        ProvisionalChanges.accept(self, skeleton)
+        ProvisionalChanges.accept(self)
 

@@ -198,7 +198,8 @@ class DeputySkeleton(skeleton.SkeletonBase):
 
 # It will only take care of node move changes.
 class DeputyProvisionalChanges:
-    def __init__(self):
+    def __init__(self, deputyskel):
+        self.deputy = deputyskel
         self.movednodes = []  # list of MoveNode objects
         self.elements = set()    # Elements involved.
         self.cachedDeltaE = None  # Energy difference
@@ -228,36 +229,29 @@ class DeputyProvisionalChanges:
     def elAfter(self):
         return self.elements
 
-    def makeNodeMove(self, deputy):
+    def makeNodeMove(self):
         for mvnode in self.movednodes:
-            deputy.moveNodeTo(mvnode.node, mvnode.position)
-#         if config.dimension()==3:
-#             for element in self.elements:
-#                 element.updateVtkCellPoints()
+            self.deputy.moveNodeTo(mvnode.node, mvnode.position)
 
-    def moveNodeBack(self, deputy):
+    def moveNodeBack(self):
         for mvnode in self.movednodes:
-            deputy.moveNodeBack(mvnode.node)
-#         if config.dimension()==3:
-#             for element in mvnode.node.neighborElements():
-#                 element.updateVtkCellPoints()
-        
+            self.deputy.moveNodeBack(mvnode.node)
 
-    def illegal(self, deputy):
+    def illegal(self):
         # Will this change produce any illegal elements?
         if self.cachedIllegal is None:
-            self.makeNodeMove(deputy)
+            self.makeNodeMove()
             for element in self.elements:
                 if element.illegal():
-                    self.moveNodeBack(deputy)
+                    self.moveNodeBack()
                     self.cachedIllegal = 1
                     break
             else:
-                self.moveNodeBack(deputy)
+                self.moveNodeBack()
                 self.cachedIllegal = 0
         return self.cachedIllegal
 
-    def deltaE(self, deputy, alpha):
+    def deltaE(self, alpha):
         # Return the change in energy per element if this move were to
         # be accepted.
         if self.cachedDeltaE is None:
@@ -265,24 +259,24 @@ class DeputyProvisionalChanges:
             # Energy before the change
             oldE = 0.0
             for el in self.elements:
-                oldE += el.energyTotal(deputy, alpha)
+                oldE += el.energyTotal(self.deputy, alpha)
             # Move nodes accordingly to simulate the change
-            self.makeNodeMove(deputy)
+            self.makeNodeMove()
             # Energy after the change
             newE = 0.0
             for el in self.elements:
                 key = el.getPositionHash()
                 try:
-                    homogeneity = deputy.cachedHomogeneities[key]
+                    homogeneity = self.deputy.cachedHomogeneities[key]
                     el.setHomogeneityData(homogeneity)
                 except KeyError:
-                    el.findHomogeneityAndDominantPixel(deputy.MS, False);
+                    el.findHomogeneityAndDominantPixel(self.deputy.MS, False);
                     homogeneity = el.getHomogeneityData()
-                    deputy.cachedHomogeneities[key] = homogeneity
-                newE += el.energyTotal(deputy, alpha)
+                    self.deputy.cachedHomogeneities[key] = homogeneity
+                newE += el.energyTotal(self.deputy, alpha)
                 self.cachedNewHomogeneity[el] = homogeneity
             # Move node back
-            self.moveNodeBack(deputy)
+            self.moveNodeBack()
 
             # In parallel-mode, deltaE's from other processes
             # have to be considered too.
@@ -300,9 +294,9 @@ class DeputyProvisionalChanges:
             
         return self.cachedDeltaE
 
-    def accept(self, deputy):
+    def accept(self):
         for mvnode in self.movednodes:
-            deputy.moveNodeTo(mvnode.node, mvnode.position)
+            self.deputy.moveNodeTo(mvnode.node, mvnode.position)
         for el, cached in self.cachedNewHomogeneity.items():
             el.setHomogeneityData(cached)
 
@@ -313,7 +307,7 @@ class DeputyProvisionalChanges:
         self.parallelShape0 = shape0
         self.parallelShape1 = shape1
 
-    def removeAddedNodes(self, skeleton):
+    def removeAddedNodes(self):
         # should be defined in a common base class for
         # DeputyProvisionalChanges and ProvisionalChanges
         pass

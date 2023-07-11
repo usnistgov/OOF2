@@ -574,25 +574,24 @@ class FiddleNodes:
         prog = self.makeProgress()
         try:
             for node in self.activenodes:
-                change = deputy.DeputyProvisionalChanges()
+                change = deputy.DeputyProvisionalChanges(skeleton)
                 change.moveNode(node, self.movedPosition(skeleton, node),
                                 skeleton)
                 bestchange = self.criterion([change], skeleton)
 
                 if bestchange is not None:
                     self.nok += 1
-                    self.deltaE += bestchange.deltaE(skeleton,
-                                                     self.criterion.alpha)
-                    bestchange.accept(skeleton)
+                    self.deltaE += bestchange.deltaE(self.criterion.alpha)
+                    bestchange.accept()
                 # Failed to meet the specified criterion ... but
                 elif (self.T>0.0 and 
-                      not change.illegal(skeleton) and 
+                      not change.illegal() and 
                       not self.criterion.hopeless()):
-                    diffE = change.deltaE(skeleton, self.criterion.alpha)
+                    diffE = change.deltaE(self.criterion.alpha)
                     if math.exp(-diffE/self.T) > crandom.rndm():
                         self.nok += 1
                         self.deltaE += diffE
-                        change.accept(skeleton)
+                        change.accept()
                     else:
                         self.nbad += 1
                 else:

@@ -67,7 +67,7 @@ class Rationalizer(registeredclass.RegisteredClass):
                     done += bestchange.nRemoved()
                     # Accepting the change converts provisional
                     # elements to actual elements.
-                    bestchange.accept(skel)
+                    bestchange.accept()
                     for elephant in bestchange.removed:
                         processed.add(elephant)
                     for oldel, newel in bestchange.substitutions:

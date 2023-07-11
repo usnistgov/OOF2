@@ -220,7 +220,7 @@ class LimitedSkelModCriterion(SkelModCriterion):
         for el in change.elBefore():
             homog_before[el] = el.homogeneity(skel.MS, False)
             shape_before[el] = el.energyShape()
-        change.makeNodeMove(skel)
+        change.makeNodeMove()
         for el in change.elAfter():
             key = el.getPositionHash()
             try:
@@ -231,7 +231,7 @@ class LimitedSkelModCriterion(SkelModCriterion):
                 skel.cachedHomogeneities[key] = homogeneity            
             homog_after[el] = el.homogeneity(skel.MS, False)
             shape_after[el] = el.energyShape()
-        change.moveNodeBack(skel)
+        change.moveNodeBack()
         # In parallel-mode, changes from other processes also need
         # to be considered.
         if parallel_enable.enabled():
@@ -276,15 +276,15 @@ class AverageEnergy(SkelModCriterion):
         bestE = 0.0
         bestchange = None
         for change in changes:
-            if not (change is None or change.illegal(skel)):
-                diff = change.deltaE(skel, self.alpha)  # energy difference
+            if not (change is None or change.illegal()):
+                diff = change.deltaE(self.alpha)  # energy difference
                 if diff < bestE:
                     bestchange = change
                     bestE = diff
                     
         for change in changes:
             if change is not None and change is not bestchange:
-                change.removeAddedNodes(skel)
+                change.removeAddedNodes()
         return bestchange
 
 registeredclass.Registration(
@@ -306,13 +306,13 @@ class Unconditional(SkelModCriterion):
         bestE = None
         bestchange = None
         for change in changes:
-            if not (change is None or change.illegal(skel)):
+            if not (change is None or change.illegal()):
                 # Reads ... are  you the first non-trivial in the list?
                 if bestE is None and bestchange is None:
                     bestchange = change
-                    bestE = change.deltaE(skel, self.alpha)
+                    bestE = change.deltaE(self.alpha)
                 else:
-                    diff = change.deltaE(skel, self.alpha)
+                    diff = change.deltaE(self.alpha)
                     if diff < bestE:
                         bestchange = change
                         bestE = diff
@@ -320,7 +320,7 @@ class Unconditional(SkelModCriterion):
             if change is bestchange:
                 continue
             if change is not None:
-                change.removeAddedNodes(skel)
+                change.removeAddedNodes()
         return bestchange
 
 registeredclass.Registration(
@@ -340,16 +340,16 @@ class LimitedAverageEnergy(LimitedSkelModCriterion):
         bestE = 0.0
         bestchange = None
         for change in changes:
-            if not (change is None or change.illegal(skel)) and \
+            if not (change is None or change.illegal()) and \
                self.withinTheLimit(change, skel):
-                diff = change.deltaE(skel, self.alpha)  # energy difference
+                diff = change.deltaE(self.alpha)  # energy difference
                 if diff < bestE:
                     bestchange = change
                     bestE = diff
 
         for change in changes:
             if change is not bestchange:
-                change.removeAddedNodes(skel)
+                change.removeAddedNodes()
         return bestchange
 
 registeredclass.Registration(
@@ -381,21 +381,21 @@ class LimitedUnconditional(LimitedSkelModCriterion):
         bestE = None
         bestchange = None
         for change in changes:
-            if not (change is None or change.illegal(skel)) and \
+            if not (change is None or change.illegal()) and \
                self.withinTheLimit(change, skel):
                 # Reads ... is this the first non-trivial one in the list?
                 if bestE is None and bestchange is None:
                     bestchange = change
-                    bestE = change.deltaE(skel, self.alpha)
+                    bestE = change.deltaE(self.alpha)
                 else:
-                    diff = change.deltaE(skel, self.alpha)
+                    diff = change.deltaE(self.alpha)
                     if diff < bestE:
                         bestchange = change
                         bestE = diff
 
         for change in changes:
             if change is not bestchange:
-                change.removeAddedNodes(skel)
+                change.removeAddedNodes()
         return bestchange
     
 registeredclass.Registration(

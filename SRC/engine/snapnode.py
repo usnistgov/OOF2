@@ -380,13 +380,13 @@ class NodeSnapper:
         # Moving!
         changes = []
         for ml in movelist:
-            changes.append(deputy.DeputyProvisionalChanges())
+            changes.append(deputy.DeputyProvisionalChanges(skel))
             for (node, destination) in ml:
                 changes[-1].moveNode(node, destination, skel) 
         # Pick the best change, and move the nodes.
         bestchange = criterion(changes, skel)
         if bestchange is not None:
-            bestchange.accept(skel)
+            bestchange.accept()
             # Make sure that these nodes won't be moved again during
             # this application of SnapNodes.
             for mn in bestchange.movednodes:
