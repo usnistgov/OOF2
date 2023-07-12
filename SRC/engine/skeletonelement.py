@@ -110,6 +110,13 @@ class SkeletonElementBase:
         # failing are small -- an illegal element's homogeneity might
         # be recomputed.
 
+        ## OLD VERSION
+        # sortedpositions = sorted([n.position() for n in self.nodes])
+        # hashable = []
+        # for pos in sortedpositions:
+        #     for i in range(2):
+        #         hashable.append(pos[i])
+
         positions = [n.position() for n in self.nodes]
         # Find the node with the largest position.
         maxpos = None
