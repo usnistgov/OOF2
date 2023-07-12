@@ -403,10 +403,6 @@ class Refine(skeletonmodifier.SkeletonModifier):
         self.targets(oldSkeleton, context, self.divider, markedSegs,
                      self.criterion)
 
-        f = open("dumpmarks", "w")
-        markedSegs.dump(f)
-        f.close()
-
         # Reduce the number of marks on edges to the number allowed by
         # the refinement rules.  This is done via the divider, because
         # it's not necessary for all division methods.
@@ -483,8 +479,7 @@ class Refine(skeletonmodifier.SkeletonModifier):
             prog.setMessage(f"{eliter.nexamined()}/{eliter.ntotal()} elements")
        
         newSkeleton.cleanUp()
-        #print "end of refinement"
-
+        
         return newSkeleton
 
     def getNewEdgeNodes(self, node0, node1, marks, newSkeleton, newEdgeNodes):
