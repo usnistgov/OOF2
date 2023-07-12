@@ -523,38 +523,6 @@ def build_mod_args():
             "alpha" : 0.5
            }
           ),
-         ("modtriangle", "refine_7",
-          { "targets" : CheckHomogeneity(threshold=0.6),
-            "criterion" : Unconditionally(),
-            "divider" : Bisection(),
-            "rules" : "Quick",
-            "alpha" : 0.5
-           }
-          ),
-         ("modtriangle", "refine_7L",
-          { "targets" : CheckHomogeneity(threshold=0.6),
-            "criterion" : Unconditionally(),
-            "divider" : Bisection(),
-            "rules" : "Large",
-            "alpha" : 0.5
-           }
-          ),
-         ("modtriangle", "refine_8",
-          { "targets" : CheckHomogeneity(threshold=0.6),
-            "criterion" : Unconditionally(),
-            "divider" : Trisection(),
-            "rules" : "Quick",
-            "alpha" :  0.5
-           }
-          ),
-         ("modtriangle", "refine_8L",
-          { "targets" : CheckHomogeneity(threshold=0.6),
-            "criterion" : Unconditionally(),
-            "divider" : Trisection(),
-            "rules" : "Large",
-            "alpha" :  0.5
-           }
-          ),
          ("modbase", "refine_2",
           { "targets" : CheckHomogeneity(threshold=0.9),
             "criterion" : Unconditionally(),
@@ -645,7 +613,39 @@ def build_mod_args():
            "alpha" : 0.5
            }
           ),
-         
+         ("modtriangle", "refine_7",
+          { "targets" : CheckHomogeneity(threshold=0.6),
+            "criterion" : Unconditionally(),
+            "divider" : Bisection(),
+            "rules" : "Quick",
+            "alpha" : 0.5
+           }
+          ),
+         ("modtriangle", "refine_7L",
+          { "targets" : CheckHomogeneity(threshold=0.6),
+            "criterion" : Unconditionally(),
+            "divider" : Bisection(),
+            "rules" : "Large",
+            "alpha" : 0.5
+           }
+          ),
+         ("modtriangle", "refine_8",
+          { "targets" : CheckHomogeneity(threshold=0.6),
+            "criterion" : Unconditionally(),
+            "divider" : Trisection(),
+            "rules" : "Quick",
+            "alpha" :  0.5
+           }
+          ),
+         ("modtriangle", "refine_8L",
+          { "targets" : CheckHomogeneity(threshold=0.6),
+            "criterion" : Unconditionally(),
+            "divider" : Trisection(),
+            "rules" : "Large",
+            "alpha" :  0.5
+           }
+          ),
+
          # TransitionPoint Refinement tests, nee SnapRefine.  These
          # use dict() instead of {} because I copied the arguments out
          # of an oof2 log.
@@ -845,28 +845,26 @@ def build_mod_args():
         ]
     }
 
-    ## These tests fail on the M1 Mac.
-    # TODO PYTHON3: Fix this
-    print("NOT RUNNING THE FULL SET OF SKELETON MODIFICATION TESTS")
-    skel_modify_args = {
-        "Refine" :
-        [
-          ("modtriangle", "refine_8L",
-           { "targets" : CheckHomogeneity(threshold=0.6),
-            "criterion" : Unconditionally(),
-            "divider" : Trisection(),
-            "rules" : "Large",
-            "alpha" :  0.5
-           }
-          ),
-         # ("modtriangle", "snaprefine_1LT",
-         #  dict(targets=CheckHomogeneity(threshold=0.9),
-         #       criterion=Unconditionally(),
-         #       divider=TransitionPoints(minlength=0.1),
-         #       rules='Large',
-         #       alpha=0.5)),
-         ],
-    }
+    # print("NOT RUNNING THE FULL SET OF SKELETON MODIFICATION TESTS")
+    # skel_modify_args = {
+    #     "Refine" :
+    #     [
+    #       ("modtriangle", "refine_8L",
+    #        { "targets" : CheckHomogeneity(threshold=0.6),
+    #         "criterion" : Unconditionally(),
+    #         "divider" : Trisection(),
+    #         "rules" : "Large",
+    #         "alpha" :  0.5
+    #        }
+    #       ),
+    #      ("modtriangle", "snaprefine_1LT",
+    #       dict(targets=CheckHomogeneity(threshold=0.9),
+    #            criterion=Unconditionally(),
+    #            divider=TransitionPoints(minlength=0.1),
+    #            rules='Large',
+    #            alpha=0.5)),
+    #      ],
+    # }
 
     
 
@@ -900,6 +898,6 @@ special_set = [
 
 test_set = skel_set + special_set
 
-test_set = [
-    OOF_Skeleton("Modify"),
-]
+# test_set = [
+#     OOF_Skeleton("Modify"),
+# ]
