@@ -353,6 +353,9 @@ class SegmentMarkings:
     def reduceMarks(self, maxMarks):
         for marking in self.markings.values():
             marking.reduceMarks(maxMarks)
+    def dump(self, phile):
+        for key, marks in self.markings.items():
+            print(f"{key}: {marks}", file=phile)
         
                                
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -476,8 +479,7 @@ class Refine(skeletonmodifier.SkeletonModifier):
             prog.setMessage(f"{eliter.nexamined()}/{eliter.ntotal()} elements")
        
         newSkeleton.cleanUp()
-        #print "end of refinement"
-
+        
         return newSkeleton
 
     def getNewEdgeNodes(self, node0, node1, marks, newSkeleton, newEdgeNodes):

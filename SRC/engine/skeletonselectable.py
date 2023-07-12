@@ -780,6 +780,7 @@ class Selection(SelectionBase):
         ## TODO PYTHON3: This is the only one of the selection
         ## operations that doesn't work if objlist is a generator.
         ## Can it be rewritten?
+        objlist = list(objlist) # so that "o not in objlist" works
         for o in self.all_objects():
             if o.active(skeleton) and o.selected and o not in objlist:
                 o.deselect(clist, plist)

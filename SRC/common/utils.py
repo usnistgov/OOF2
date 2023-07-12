@@ -573,13 +573,7 @@ def countmatches(pattern, dirname, matchfunction=matchpattern):
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
-def _find_machine_epsilon():
-    eps = 1.0
-    while 1.0 + eps/2. != 1.0:
-        eps = eps/2.
-    return eps
-
-machine_epsilon = _find_machine_epsilon()
+machine_epsilon = sys.float_info.epsilon
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 

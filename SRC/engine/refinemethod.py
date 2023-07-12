@@ -282,6 +282,23 @@ class ProvisionalRefinement:
                                       internalNodes=self.internalNodes))
         return refinements
 
+## If there are equivalent candidates, then the differences in their
+## energies will be just numerical error.  Different processors might
+## select different candidates.  This can make tests fail.
+##
+## In one test (refine_8L in skeleton_basic_test.py), rule (2,2,2)
+## produced 108(!) candidates, with low energies
+##   0.111058330288752 48, 0.111058330288752 56, 0.111058330288752 59
+## on the M1 MacBook, and
+##   0.111058330288752 45, 0.111058330288752 59, 0.111058330288752 62
+## on an Intel IMac. (Spaces inserted to show deviations.)  They agree
+## to 15 digits, but the lowest energy is different.
+##
+## If we ignore energy differences less than some epsilon and always
+## choose the first occurrence of the lowest energy, then all systems
+## will choose the same best candidate.
+epsilon = 1.e-10
+
 def theVeryBest(skeleton, candidates, alpha):
     # Extend the list of candidates by subdividing the quads in the
     # given candidates.
@@ -303,10 +320,9 @@ def theVeryBest(skeleton, candidates, alpha):
             seen.add(candidate)
             if not candidate.illegal:
                 energy = candidate.energy(skeleton, alpha, cache)
-                if energy < best_energy:
+                if energy < best_energy - epsilon: # See comment above
                     best_energy = energy
                     best_refinement = candidate
-
     # Remove any internal nodes created by refinements that weren't
     # chosen.  The extra refinments added by splitting quads don't add
     # any new internal nodes, so we only have to loop over the
@@ -332,7 +348,7 @@ def theBetter(skeleton, candidates, alpha):
     for candi in candidates:
         if not candi.illegal:
             energy = candi.energy(skeleton, alpha, cache)
-            if energy < energy_min:
+            if energy < energy_min - epsilon: # See comment above
                 energy_min = energy
                 theone = candi
     # Before returning the chosen refinement, we need to remove any internal
@@ -759,7 +775,7 @@ RefinementRule(quickRules, (2,2,1), rule221q)
 #          /  \                   /  \        
 #        e/____\d               e/    \d       The first refinement in 
 #        /\    /\               /\    /\       this row will be generated
-#       /  \  /  \             /  \  /  \      automatially from the others.
+#       /  \  /  \             /  \  /  \      automatically from the others.
 #     f/____\g____\c         f/____\g____\c   
 #     /\    /\    /\         /     /\     \   
 #    /  \  /  \  /  \       /     /  \     \  

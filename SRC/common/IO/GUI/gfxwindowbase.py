@@ -116,8 +116,11 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         if self.selectedLayer is not None:
             selection = self.layerListView.get_selection()
             model, treeiter = selection.get_selected()
-            path = model.get_path(treeiter)
-            self.layerListView.scroll_to_cell(path)
+            # I'm not sure exactly how, but when loading a script it's
+            # possible for treeiter to be None here.
+            if treeiter is not None:
+                path = model.get_path(treeiter)
+                self.layerListView.scroll_to_cell(path)
 
     # Callbacks for the TreeView for the Layer List.
     ##################################################
