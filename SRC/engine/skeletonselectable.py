@@ -727,6 +727,11 @@ class Selection(SelectionBase):
         return (clist, plist)
     
     # The Four Selection Operations.
+
+    ## TODO PYTHON3: The argument to select(), deselect(), and
+    ## toggle() can be a generator.  Check all calls to them and see
+    ## if they can be simplified.
+    
     def select(self, objlist):
         (clist, plist) = self.trackerlist()
         skeleton = self.skeletoncontext.getObject()
@@ -771,7 +776,10 @@ class Selection(SelectionBase):
     # Selects objects from already selected ones
     def selectSelected(self, objlist):
         (clist, plist) = self.trackerlist()
-        skeleton = self.skeletoncontext.getObject()        
+        skeleton = self.skeletoncontext.getObject()
+        ## TODO PYTHON3: This is the only one of the selection
+        ## operations that doesn't work if objlist is a generator.
+        ## Can it be rewritten?
         for o in self.all_objects():
             if o.active(skeleton) and o.selected and o not in objlist:
                 o.deselect(clist, plist)
