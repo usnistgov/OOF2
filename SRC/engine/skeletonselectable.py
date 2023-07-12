@@ -777,20 +777,17 @@ class Selection(SelectionBase):
     def selectSelected(self, objlist):
         (clist, plist) = self.trackerlist()
         skeleton = self.skeletoncontext.getObject()
-        ## TODO PYTHON3: This is the only one of the selection
-        ## operations that doesn't work if objlist is a generator.
-        ## Can it be rewritten?
-        objlist = list(objlist) # so that "o not in objlist" works
-        for o in self.all_objects():
-            if o.active(skeleton) and o.selected and o not in objlist:
+        deselect = self.retrieve() - set(objlist)
+        for o in deselect:
+            if o.active(skeleton):
                 o.deselect(clist, plist)
         self.timestamp.increment()
 
     def clear(self):
         (clist, plist) = self.trackerlist()
         skeleton = self.skeletoncontext.getObject()
-        for o in self.all_objects():
-            if o.active(skeleton) and o.selected:
+        for o in list(self.retrieve()):
+            if o.active(skeleton):
                 o.deselect(clist, plist)
         self.timestamp.increment()
 
