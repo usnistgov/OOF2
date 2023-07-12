@@ -353,6 +353,9 @@ class SegmentMarkings:
     def reduceMarks(self, maxMarks):
         for marking in self.markings.values():
             marking.reduceMarks(maxMarks)
+    def dump(self, phile):
+        for key, marks in self.markings.items():
+            print(f"{key}: {marks}", file=phile)
         
                                
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -399,6 +402,10 @@ class Refine(skeletonmodifier.SkeletonModifier):
         # refined. 
         self.targets(oldSkeleton, context, self.divider, markedSegs,
                      self.criterion)
+
+        f = open("dumpmarks", "w")
+        markedSegs.dump(f)
+        f.close()
 
         # Reduce the number of marks on edges to the number allowed by
         # the refinement rules.  This is done via the divider, because

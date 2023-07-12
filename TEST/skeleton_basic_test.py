@@ -859,12 +859,12 @@ def build_mod_args():
             "alpha" :  0.5
            }
           ),
-         ("modtriangle", "snaprefine_1LT",
-          dict(targets=CheckHomogeneity(threshold=0.9),
-               criterion=Unconditionally(),
-               divider=TransitionPoints(minlength=0.1),
-               rules='Large',
-               alpha=0.5)),
+         # ("modtriangle", "snaprefine_1LT",
+         #  dict(targets=CheckHomogeneity(threshold=0.9),
+         #       criterion=Unconditionally(),
+         #       divider=TransitionPoints(minlength=0.1),
+         #       rules='Large',
+         #       alpha=0.5)),
          ],
     }
 
