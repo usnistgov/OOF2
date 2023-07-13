@@ -155,9 +155,14 @@ class OOF_PoleFigureTest(unittest.TestCase):
         self.checkPoleFigures('orientmap2', nBins=60,
                               colorMap=colormap.SpectralMap())
 
-test_set = [
-    OOF_PoleFigureTest("FromMap0"),
-    OOF_PoleFigureTest("FromProperty0"),
-    OOF_PoleFigureTest("FromMap1"),
-    OOF_PoleFigureTest("FromMap2")
-]
+## All tests are commented out because pdf generation is not portable.
+## Pdfs generated on different systems are different, and not just in
+## their time stamp.  TODO: Figure out how to compare pdfs portably.
+# test_set = [
+#     OOF_PoleFigureTest("FromMap0"),
+#     OOF_PoleFigureTest("FromProperty0"),
+#     OOF_PoleFigureTest("FromMap1"),
+#     OOF_PoleFigureTest("FromMap2")
+# ]
+
+test_set = []
