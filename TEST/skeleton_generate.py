@@ -33,12 +33,15 @@ def generate():
             print("No data for skeleton modifier %s." % r.name())
         else:
             # Saved skeleton must be named "modtest".
-            for (startfile, destfile, kwargs) in mods:
+            for (startfile, destfile, kwargs, *commands) in mods:
                 OOF.File.Load.Data(
                     filename=os.path.join("skeleton_data", startfile))
                 mod = r(**kwargs)
                 random.seed(17)
                 crandom.rndmseed(17)
+                if commands:
+                    for cmd in commands:
+                        exec(cmd)
                 OOF.Skeleton.Modify(skeleton="skeltest:modtest",
                                     modifier=mod)
                 OOF.Microstructure.Rename(microstructure="skeltest",
@@ -61,45 +64,28 @@ skel_modify_args = {}
 def build_mod_args():
     global skel_modify_args
     skel_modify_args = {
-        "Refine" :
-    [
-          ("modgroups","refine_4L",
-          {"targets" : CheckAllElements(),
-           "criterion" : Unconditionally(),
-           "divider" : Bisection(),
-           "rules" : "Large",
-           "alpha" : 0.5
-           }
+        "Snap Nodes" :
+        [
+         ("modbase", "snapnodes_2",
+          {"targets" : SnapSelected(),
+           "criterion" : AverageEnergy(alpha=0.9)
+           },
+          "OOF.ElementGroup.Auto_Group(skeleton='skeltest:modtest')",
+          "OOF.ElementSelection.Select_Group(skeleton='skeltest:modtest', group='RGBColor(red=0.0,green=0.9882352941176471,blue=0.0)')"
           ),
-         ("modtriangle", "refine_7L",
-          { "targets" : CheckHomogeneity(threshold=0.6),
-            "criterion" : Unconditionally(),
-            "divider" : Bisection(),
-            "rules" : "Large",
-            "alpha" : 0.5
-           }
+         ("modbase", "snapnodes_3",
+          {"targets" : SnapSelectedNodes(),
+           "criterion" : AverageEnergy(alpha=0.9)
+           },
+          "OOF.NodeGroup.Auto_Group(skeleton='skeltest:modtest')",
+          "OOF.NodeSelection.Select_Group(skeleton='skeltest:modtest', group='RGBColor(red=0.0,green=0.9882352941176471,blue=0.0)')"
           ),
-         ("modtriangle", "refine_8L",
-          { "targets" : CheckHomogeneity(threshold=0.6),
-            "criterion" : Unconditionally(),
-            "divider" : Trisection(),
-            "rules" : "Large",
-            "alpha" :  0.5
+         ("modbase", "snapnodes_4",
+          {"targets" : SnapHeterogenous(threshold=0.9),
+           "criterion" : AverageEnergy(alpha=0.9)
            }
-          ),
-         ("modtriangle", "snaprefine_1LT",
-          dict(targets=CheckHomogeneity(threshold=0.9),
-               criterion=Unconditionally(),
-               divider=TransitionPoints(minlength=0.1),
-               rules='Large',
-               alpha=0.5)),
-         ("modtriangle", "snaprefine_2LT",
-          dict(targets=CheckHomogeneity(threshold=0.9),
-               criterion=Unconditionally(),
-               divider=TransitionPoints(minlength=5.0),
-               rules='Large',
-               alpha=0.5)),
-   ],
+          )
+         ],
     }
 
 

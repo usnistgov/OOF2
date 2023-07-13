@@ -252,13 +252,16 @@ class OOF_Skeleton(unittest.TestCase):
     ## loaded by setUp(), so it should be in a different TestCase
     ## subclass.
     @memorycheck.check("skeltest", "skelcomp")
-    def doModify(self, registration, startfile, compfile, kwargs):
+    def doModify(self, registration, startfile, compfile, kwargs, commands):
         import os
         from ooflib.SWIG.common import crandom
         # Loaded skeleton must be named "modtest".
         OOF.File.Load.Data(filename=reference_file("skeleton_data", startfile))
         mod = registration(**kwargs)
         crandom.rndmseed(17)
+        if commands:
+            for cmd in commands:
+                exec(cmd)
         OOF.Skeleton.Modify(skeleton="skeltest:modtest", modifier=mod)
         skelc = skeletoncontext.skeletonContexts["skeltest:modtest"]
         self.assertTrue(skelc.getObject().sanity_check())
@@ -295,8 +298,8 @@ class OOF_Skeleton(unittest.TestCase):
                 print("No data for skeleton modifier %s." % r.name(), file=sys.stderr)
             else:
                 print("Testing", r.name(), file=sys.stderr)
-                for (startfile, compfile, kwargs) in mods:
-                    self.doModify(r, startfile, compfile, kwargs)
+                for (startfile, compfile, kwargs, *commands) in mods:
+                    self.doModify(r, startfile, compfile, kwargs, commands)
 
     @memorycheck.check("skeltest")
     def Undo(self):
@@ -758,6 +761,25 @@ def build_mod_args():
         [("modbase", "snapnodes",
           { "targets" : SnapAll(),
             "criterion" : AverageEnergy(alpha=1.)
+           }
+          )
+         ("modbase", "snapnodes_2",
+          {"targets" : SnapSelected(),
+           "criterion" : AverageEnergy(alpha=0.9)
+           },
+          "OOF.ElementGroup.Auto_Group(skeleton='skeltest:modtest')",
+          "OOF.ElementSelection.Select_Group(skeleton='skeltest:modtest', group='RGBColor(red=0.0,green=0.9882352941176471,blue=0.0)')"
+          ),
+         ("modbase", "snapnodes_3",
+          {"targets" : SnapSelectedNodes(),
+           "criterion" : AverageEnergy(alpha=0.9)
+           },
+          "OOF.NodeGroup.Auto_Group(skeleton='skeltest:modtest')",
+          "OOF.NodeSelection.Select_Group(skeleton='skeltest:modtest', group='RGBColor(red=0.0,green=0.9882352941176471,blue=0.0)')"
+          ),
+         ("modbase", "snapnodes_4",
+          {"targets" : SnapHeterogenous(threshold=0.9),
+           "criterion" : AverageEnergy(alpha=0.9)
            }
           )
          ],
