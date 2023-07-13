@@ -1047,14 +1047,14 @@ class Skeleton(SkeletonBase):
         self.cleanUp()
         return len(self.segments)
 
-    def element_iterator(self):
-        return SkeletonElementIterator(self)
+    def element_iterator(self, *args, **kwargs):
+        return SkeletonElementIterator(self, *args, **kwargs)
 
-    def node_iterator(self):
-        return SkeletonNodeIterator(self)
+    def node_iterator(self, *args, *kwargs):
+        return SkeletonNodeIterator(self, *args, **kwargs)
 
-    def segment_iterator(self):
-        return SkeletonSegmentIterator(self)
+    def segment_iterator(self, *args, **kwargs):
+        return SkeletonSegmentIterator(self, *args, **kwargs)
 
     def notPinnedNodes(self):
         return [n for n in self.node_iterator() if not n.pinned()]
@@ -2859,6 +2859,11 @@ class Skeleton(SkeletonBase):
 # The things actually returned by the SkeletonIterator are the things
 # in that set for which the given condition is true.
 
+# TODO: Defining fraction() is not really all that useful because
+# there are some cases in which we could be iterating over either a
+# SkeletonIterator or a set or list, so we can't rely on fraction
+# being defined.
+
 class SkeletonIterator:
     def __init__(self, skeleton, condition=None):
         self.skeleton = skeleton
@@ -2881,6 +2886,8 @@ class SkeletonIterator:
             for self.count, target in enumerate(self.targets()):
                 self.nret += 1
                 yield target
+    def __len__(self):
+        return self.ntotal()
                 
 class SkeletonNodeIterator(SkeletonIterator):
     def ntotal(self):

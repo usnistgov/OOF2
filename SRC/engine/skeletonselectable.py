@@ -726,12 +726,9 @@ class Selection(SelectionBase):
             del plist[0]
         return (clist, plist)
     
-    # The Four Selection Operations.
+    # The Four Selection Operations.  The objlist parameter doesn't
+    # have to be a list, it just has to be iterable.
 
-    ## TODO PYTHON3: The argument to select(), deselect(), and
-    ## toggle() can be a generator.  Check all calls to them and see
-    ## if they can be simplified.
-    
     def select(self, objlist):
         (clist, plist) = self.trackerlist()
         skeleton = self.skeletoncontext.getObject()

@@ -108,11 +108,8 @@ class SnapHeterogenous(SnapNodeTargets):
         
     def __call__(self, context):
         skel = context.getObject()
-        elements = []
-        for elem in skel.element_iterator():
-            if elem.homogeneity(skel.MS, False) < self.threshold:
-                elements.append(elem)
-        return elements
+        return skel.element_iterator(
+            lambda e: (e.homogeneity(skel.MS, False) < self.threshold))
 
 registeredclass.Registration(
     'Heterogeneous Elements',
@@ -148,7 +145,7 @@ class SnapSelectedNodes(SnapNodeTargets):
         self.molested_nodes = []
     def __call__(self, context):
         elements = set()
-        all_nodes = {} # Keyed by nodes -- 0 means move, 1 means pin. 
+        all_nodes = {} # Keyed by nodes -- 0 means move, 1 means pin.
         skel = context.getObject()
         nodes = context.nodeselection.retrieveInOrder()
         for n in nodes:
@@ -165,16 +162,15 @@ class SnapSelectedNodes(SnapNodeTargets):
         for (node, p) in all_nodes.items():
             if p==1:
                 if not node.pinned():
-                    node.setPinned(1)
+                    node.setPinned(True)
                     self.molested_nodes.append(node)
             
         return elements
-            
 
     # Use this hook to unpin the nodes we changed.
     def cleanSelection(self):
         for n in self.molested_nodes:
-            n.setPinned(0)
+            n.setPinned(False)
         self.molested_nodes=[]
         
 
@@ -234,7 +230,7 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
         ## omitted.  Also, the progress bars in the loop below can use
         ## the SkeletonElementIterator methods and loop can use "for
         ## element in elements".
-        elements = list(self.targets(context))
+        elements = self.targets(context)
 
         # Big try-finally block to ensure that
         # self.targets.cleanSelection() gets called if something goes

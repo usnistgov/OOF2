@@ -41,7 +41,7 @@ class ElementRefinementTarget(RefinementTarget):
     def __call__(self, skeleton, context, divider, markedSegs, criterion):
         prog = progress.findProgress("Refine")
         eliter = self.iterator(context) # self.iterator is from subclass
-        for i, element in enumerate(eliter):
+        for element in eliter:
             if criterion(skeleton, element):
                 self.markElement(skeleton, element, divider, markedSegs)
             if prog.stopped():
