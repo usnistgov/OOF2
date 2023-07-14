@@ -64,27 +64,19 @@ skel_modify_args = {}
 def build_mod_args():
     global skel_modify_args
     skel_modify_args = {
-        "Snap Nodes" :
+        "Refine" :
         [
-         ("modbase", "snapnodes_2",
-          {"targets" : SnapSelected(),
-           "criterion" : AverageEnergy(alpha=0.9)
-           },
-          "OOF.ElementGroup.Auto_Group(skeleton='skeltest:modtest')",
-          "OOF.ElementSelection.Select_Group(skeleton='skeltest:modtest', group='RGBColor(red=0.0,green=0.9882352941176471,blue=0.0)')"
-          ),
-         ("modbase", "snapnodes_3",
-          {"targets" : SnapSelectedNodes(),
-           "criterion" : AverageEnergy(alpha=0.9)
-           },
-          "OOF.NodeGroup.Auto_Group(skeleton='skeltest:modtest')",
-          "OOF.NodeSelection.Select_Group(skeleton='skeltest:modtest', group='RGBColor(red=0.0,green=0.9882352941176471,blue=0.0)')"
-          ),
-         ("modbase", "snapnodes_4",
-          {"targets" : SnapHeterogenous(threshold=0.9),
-           "criterion" : AverageEnergy(alpha=0.9)
-           }
-          )
+            ("modbase_groups", "refine_9",
+             dict(targets=CheckSegmentsInGroup(group='#00fc00'),
+               criterion=Unconditionally(),
+               divider=Bisection(),
+               rules='Quick',alpha=0.3)),
+         ("modbase_groups", "refine_9L",
+          dict(targets=CheckSegmentsInGroup(group='#00fc00'),
+               criterion=Unconditionally(),
+               divider=Bisection(),
+               rules='Large',alpha=0.3)),
+
          ],
     }
 

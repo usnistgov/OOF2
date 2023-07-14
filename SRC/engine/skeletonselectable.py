@@ -808,24 +808,12 @@ class ElementSelection(Selection):
     def mode(self):
         return skeletonselmodebase.getMode("Element")
     def retrieveInOrder(self, condition=lambda x: True):
-        return ElSelInOrderIter(self, condition)
+        return self.skeletoncontext.getObject().element_iterator(
+            lambda e : e.selected and condition(e))
     def maxSize(self):
         return self.skeletoncontext.getObject().nelements()
     def __len__(self):
         return self.skeletoncontext.getObject().nelements()
-
-class ElSelInOrderIter:
-    def __init__(self, elementselection, condition):
-        self.elementSelection = elementselection
-        self.condition = condition
-    def __len__(self):
-        return self.elementSelection.size()
-    def __iter__(self):
-        skel = self.elementSelection.skeletoncontext.getObject()
-        for e in skel.element_iterator():
-            if e.selected and self.condition(e):
-                yield e
-
 
 class SegmentSelection(Selection):
     def all_objects(self):
@@ -835,26 +823,13 @@ class SegmentSelection(Selection):
     def maxSize(self):
         return len(self.all_objects())
     
-
 class NodeSelection(Selection):
     def all_objects(self):
         return self.skeletoncontext.getObject().nodes
     def mode(self):
         return skeletonselmodebase.getMode("Node")
     def retrieveInOrder(self, condition=lambda x: True):
-        debug.fmsg()
-        return NodeSelInOrderIter(self, condition)
+        return self.skeletoncontext.getObject().node_iterator(
+            lambda n : n.selected and condition(n))
     def maxSize(self):
         return len(self.skeletoncontext.getObject().nodes)
-
-class NodeSelInOrderIter:
-    def __init__(self, nodeselection, condition):
-        self.nodeSelection = nodeselection
-        self.condition = condition
-    def __len__(self):
-        return self.nodeSelection.size()
-    def __iter__(self):
-        skel = self.nodeSelection.skeletoncontext.getObject()
-        for n in skel.node_iterator():
-            if n.selected and self.condition(n):
-                yield n

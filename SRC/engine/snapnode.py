@@ -165,7 +165,7 @@ class SnapSelectedNodes(SnapNodeTargets):
                     node.setPinned(True)
                     self.molested_nodes.append(node)
             
-        return elements
+        return progress.ContainerIterator(elements)
 
     # Use this hook to unpin the nodes we changed.
     def cleanSelection(self):
@@ -225,20 +225,14 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
         movedict = {}                   # dict of all moves, keyed by element
         movelists = {}         # dict of lists of all moves, keyed by priority
 
-        ## TODO PYTHON3: When Skeleton.element_iterator returns a
-        ## SkeletonElementIterator, the "list" in the next line can be
-        ## omitted.  Also, the progress bars in the loop below can use
-        ## the SkeletonElementIterator methods and loop can use "for
-        ## element in elements".
-        elements = self.targets(context)
+        eliter = self.targets(context)
 
         # Big try-finally block to ensure that
         # self.targets.cleanSelection() gets called if something goes
         # wrong.
         try:
             stored_tps = {}  # keyed by node pair
-            nel = len(elements)
-            for i, element in enumerate(elements):
+            for element in eliter:
                 if element.homogeneity(skel.MS, False) == 1.0:
                     continue  # no need to even look at it!
                 if element.active(oldskeleton):
@@ -264,8 +258,9 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
                             movelists[nodemotion.priority] = [nodemotion]
                 if prog.stopped() :
                     return None
-                prog.setFraction((i+1)/nel)
-                prog.setMessage("examined %d/%d elements" % (i+1, nel))
+                prog.setFraction(eliter.fraction())
+                prog.setMessage(
+                    f"examined {eliter.nexamined()}/{eliter.ntotal()} elements")
             # end loop over elements
             
             # Perform node motions in random order within their

@@ -402,10 +402,11 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class CheckSegmentGroup(SegmentRefinementTarget):
+class CheckSegmentsInGroup(SegmentRefinementTarget):
     def __init__(self, group):
         self.group = group
     def iterator(self, context):
+        skel = context.getObject()
         return skeleton.SkeletonSegmentGroupIterator(
             context, self.group,
             condition=lambda s: s.active(skel))
@@ -413,7 +414,7 @@ class CheckSegmentGroup(SegmentRefinementTarget):
 registeredclass.Registration(
     'Segments in Group',
     RefinementTarget,
-    CheckSegmentGroup,
+    CheckSegmentsInGroup,
     ordering=3.5,
     params=[skeletongroupparams.SegmentGroupParameter(
         'group', tip='Examine segments in this group')],

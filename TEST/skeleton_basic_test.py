@@ -648,6 +648,17 @@ def build_mod_args():
             "alpha" :  0.5
            }
           ),
+         ("modbase_groups", "refine_9",
+          dict(targets=CheckSegmentsInGroup(group='#00fc00'),
+               criterion=Unconditionally(),
+               divider=Bisection(),
+               rules='Quick',alpha=0.3)),
+         ("modbase_groups", "refine_9L",
+          dict(targets=CheckSegmentsInGroup(group='#00fc00'),
+               criterion=Unconditionally(),
+               divider=Bisection(),
+               rules='Large',alpha=0.3)),
+             
 
          # TransitionPoint Refinement tests, nee SnapRefine.  These
          # use dict() instead of {} because I copied the arguments out
@@ -869,22 +880,31 @@ def build_mod_args():
 
     # print("NOT RUNNING THE FULL SET OF SKELETON MODIFICATION TESTS")
     # skel_modify_args = {
-    #     "Refine" :
-    #     [
-    #       ("modtriangle", "refine_8L",
-    #        { "targets" : CheckHomogeneity(threshold=0.6),
-    #         "criterion" : Unconditionally(),
-    #         "divider" : Trisection(),
-    #         "rules" : "Large",
-    #         "alpha" :  0.5
+    #     "Snap Nodes" :
+    #     [("modbase", "snapnodes",
+    #       { "targets" : SnapAll(),
+    #         "criterion" : AverageEnergy(alpha=1.)
     #        }
     #       ),
-    #      ("modtriangle", "snaprefine_1LT",
-    #       dict(targets=CheckHomogeneity(threshold=0.9),
-    #            criterion=Unconditionally(),
-    #            divider=TransitionPoints(minlength=0.1),
-    #            rules='Large',
-    #            alpha=0.5)),
+    #      ("modbase", "snapnodes_2",
+    #       {"targets" : SnapSelected(),
+    #        "criterion" : AverageEnergy(alpha=0.9)
+    #        },
+    #       "OOF.ElementGroup.Auto_Group(skeleton='skeltest:modtest')",
+    #       "OOF.ElementSelection.Select_Group(skeleton='skeltest:modtest', group='RGBColor(red=0.0,green=0.9882352941176471,blue=0.0)')"
+    #       ),
+    #      ("modbase", "snapnodes_3",
+    #       {"targets" : SnapSelectedNodes(),
+    #        "criterion" : AverageEnergy(alpha=0.9)
+    #        },
+    #       "OOF.NodeGroup.Auto_Group(skeleton='skeltest:modtest')",
+    #       "OOF.NodeSelection.Select_Group(skeleton='skeltest:modtest', group='RGBColor(red=0.0,green=0.9882352941176471,blue=0.0)')"
+    #       ),
+    #      ("modbase", "snapnodes_4",
+    #       {"targets" : SnapHeterogenous(threshold=0.9),
+    #        "criterion" : AverageEnergy(alpha=0.9)
+    #        }
+    #       )
     #      ],
     # }
 
