@@ -281,49 +281,6 @@ class SkeletonInfoToolbox(toolbox.Toolbox):
             reporter.report("Avoid clicking OUTSIDE of a skeleton.")
         else:
             self.finishQuery(context, sgmt, "Segment", position)
-            # if debug.debug():
-            #     ms = context.getMicrostructure()
-            #     c0 = sgmt.nodes()[0].position()
-            #     c1 = sgmt.nodes()[1].position()
-            #     # debug.fmsg("Segment: ", c0, c1)
-            #     oldHomog = ms.oldEdgeHomogeneity(c0, c1)
-            #     newHomog0 = ms.edgeHomogeneity(c0, c1)
-            #     newHomog1 = ms.edgeHomogeneity(c1, c0)
-            #     def printHomog(h):
-            #         return f"1-{1-h}" if 0.99 < h < 1.0  else f"{h}"
-            #     if newHomog0 == newHomog1 == oldHomog:
-            #         debug.fmsg(f"homogeneity={printHomog(newHomog0)} (all agree)")
-            #     else:
-            #         debug.fmsg(f"homogeneity c0->c1={printHomog(newHomog0)}",
-            #                    f"c1->c0={printHomog(newHomog1)}",
-            #                    f"old={printHomog(oldHomog)}",)
-                    
-            #     debug.fmsg(" ****** Forward segment sections")
-            #     sections = ms.getSegmentSections(sgmt.nodes()[0].position(),
-            #                                      sgmt.nodes()[1].position(),
-            #                                      3.0)
-            #     length = 0.
-            #     for section in sections:
-            #         debug.fmsg("   SegmentSection", section.physicalPt0(),
-            #                    section.physicalPt1(),
-            #                    "category=", section.category, "length=",
-            #                    section.physicalLength())
-            #         length += section.physicalLength()
-            #     debug.fmsg("total length=", length,
-            #                "segment length=", sgmt.length())
-            #     debug.fmsg(" ****** Reverse segment sections")
-            #     sections = ms.getSegmentSections(sgmt.nodes()[1].position(),
-            #                                      sgmt.nodes()[0].position(),
-            #                                      3.0)
-            #     length = 0.
-            #     for section in sections:
-            #         debug.fmsg("   SegmentSection",
-            #                    section.physicalPt0(), section.physicalPt1(),
-            #                    "category=", section.category,
-            #                    "length=", section.physicalLength())
-            #         length += section.physicalLength()
-            #     debug.fmsg("total length=", length,
-            #                "segment length=", sgmt.length())
 
     def querySgmtByID(self, menuitem, index):
         context = self.getSkeletonContext()

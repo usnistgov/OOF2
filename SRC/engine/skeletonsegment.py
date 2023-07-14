@@ -70,11 +70,6 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
                 microstructure.edgeHomogeneity(pos1, pos0))
     def homogeneity(self, microstructure):
         return min(self.homogeneity2(microstructure))
-    def oldHomogeneity(self, microstructure):
-        pos0 = self._nodes[0].position()
-        pos1 = self._nodes[1].position()
-        return microstructure.oldEdgeHomogeneity(pos0, pos1)
-
 
     def dominantPixel(self, microstructure):
         ## TODO PYTHON3: Rewrite to use new edgeHomogeneity machinery.
