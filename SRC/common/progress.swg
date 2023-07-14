@@ -82,4 +82,6 @@ Progress *getProgress(char*, ProgressType);
 Progress *findProgress(char*);
 Progress *findProgressByID(int);
 
+%pythoncode "common/progress.spy"
+
 #endif // PROGRESS_SWG

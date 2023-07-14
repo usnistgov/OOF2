@@ -1050,7 +1050,7 @@ class Skeleton(SkeletonBase):
     def element_iterator(self, *args, **kwargs):
         return SkeletonElementIterator(self, *args, **kwargs)
 
-    def node_iterator(self, *args, *kwargs):
+    def node_iterator(self, *args, **kwargs):
         return SkeletonNodeIterator(self, *args, **kwargs)
 
     def segment_iterator(self, *args, **kwargs):
@@ -2852,42 +2852,12 @@ class Skeleton(SkeletonBase):
 ########################################################################
 
 # SkeletonIterator classes are used for iterating over the elements of
-# a Skeleton or a subset of them.  They have the benefits of a simple
-# generator while also giving information about how the iteration is
-# progressing.  Subclasses must define self.targets(), which returns
-# an iterable object that returns the set of things to be examined.
-# The things actually returned by the SkeletonIterator are the things
-# in that set for which the given condition is true.
+# a Skeleton or a subset of them.  
 
-# TODO: Defining fraction() is not really all that useful because
-# there are some cases in which we could be iterating over either a
-# SkeletonIterator or a set or list, so we can't rely on fraction
-# being defined.
-
-class SkeletonIterator:
+class SkeletonIterator(progress.ProgressIterator):
     def __init__(self, skeleton, condition=None):
         self.skeleton = skeleton
-        self.condition = condition # predicate
-        self.count = 0          # number examined
-        self.nret = 0           # number returned
-    def fraction(self):
-        return self.count/self.ntotal()
-    def nexamined(self):
-        return self.count
-    def nreturned(self):
-        return self.nret
-    def __iter__(self):
-        if self.condition is not None:
-            for self.count, target in enumerate(self.targets()):
-                if self.condition(target):
-                    self.nret += 1
-                    yield target
-        else:
-            for self.count, target in enumerate(self.targets()):
-                self.nret += 1
-                yield target
-    def __len__(self):
-        return self.ntotal()
+        progress.ProgressIterator.__init__(self, condition)
                 
 class SkeletonNodeIterator(SkeletonIterator):
     def ntotal(self):
@@ -2911,8 +2881,7 @@ class SkeletonSegmentGroupIterator(SkeletonIterator):
     # Takes a SkeletonContext arg, not a Skeleton!
     def __init__(self, context, groupname, condition=lambda x: True):
         self.group = context.segmentgroups.get_group(groupname)
-        SkeletonIterator.__init__(self, context.getObject(),
-                                  groupname, condition)
+        SkeletonIterator.__init__(self, context.getObject(), condition)
     def targets(self):
         return self.group
     def ntotal(self):
