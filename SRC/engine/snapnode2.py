@@ -45,6 +45,7 @@ from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import progress
 from ooflib.common import debug
 from ooflib.common import registeredclass
+from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
 from ooflib.common.IO import xmlmenudump
@@ -113,7 +114,6 @@ class NearestPoints:
     def __repr__(self):
         return f"NearestPoints({self._transitions})"
         
-            
 
 class SnapNodes2(skeletonmodifier.SkeletonModifier):
     def __init__(self, targets, criterion):
@@ -141,7 +141,8 @@ class SnapNodes2(skeletonmodifier.SkeletonModifier):
         usednodes = set()
 
         try:
-            for i, node0 in enumerate(targetnodes):
+            nodeiter = utils.ReorderableIterator(targetnodes)
+            for i, node0 in enumerate(nodeiter):
                 for node1 in node0.neighborNodes(skel):
                     segment = skel.findSegment(node0, node1)
                     if segment not in usedsegments:
@@ -175,6 +176,8 @@ class SnapNodes2(skeletonmodifier.SkeletonModifier):
                             for node in movednodes:
                                 usednodes.add(node)
                                 tpcache[node].invalidateAll(tpcache)
+                                if node != node0:
+                                    nodeiter.prioritize(node)
 
                 prog.setFraction((i+1)/ntotal)
                 prog.setMessage(f"Snapped {i+1}/{ntotal} nodes")

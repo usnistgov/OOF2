@@ -515,7 +515,38 @@ class ReservableListIterator:
         return self.index
     def ntotal(self):
         return len(self.rlist)
-    
+
+#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
+
+# Use ReorderableIterator to iterate over a list and to give priority
+# to certain elements on the fly.
+#
+#    iter = ReorderableIterator(some_finite_iterable)
+#    for x in iter:
+#        iter.prioritize(y)  # y will be returned next
+#        ...
+#
+# It doesn't check that y is actually in the list!
+
+class ReorderableIterator:
+    def __init__(self, data):
+        self.data = list(data)  # FIFO
+        self.prioritized = []   # LIFO
+        self.returned = set()
+    def __iter__(self):
+        while self.data or self.prioritized:
+            if self.prioritized:
+                x = self.prioritized.pop()
+                if x not in self.returned:
+                    self.returned.add(x)
+                    yield x
+            else:
+                x = self.data.pop(0)
+                if x not in self.returned:
+                    self.returned.add(x)
+                    yield x
+    def prioritize(self, x):
+        self.prioritized.append(x)
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
