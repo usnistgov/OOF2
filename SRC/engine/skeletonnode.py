@@ -27,35 +27,6 @@ class SkeletonNode(skeletonselectable.SkeletonSelectable,
     def __init__(self, x, y, index):
         skeletonselectable.SkeletonSelectable.__init__(self, index)
         cskeleton.CSkeletonNode.__init__(self, x, y)
-        self.dimIndependentInit(index)
-
-    # elif config.dimension() == 3:
-    #     def __init__(self, x, y, z, points, index):
-    #         skeletonselectable.SkeletonSelectable.__init__(self, index)
-    #         cskeleton.CSkeletonNode.__init__(self, x, y, z, points, index)
-    #         self.dimIndependentInit(index)
-
-    #     def moveTo(self, point):
-    #         # TODO 3D: this could be cleaned up if the elements were stored in C
-    #         # See note in cskeleton.C
-    #         cskeleton.CSkeletonNode.moveTo(self, point)
-    #         for element in self._elements:
-    #             element.updateVtkCellPoints()
-
-    #     def unconstrainedMoveTo(self, point):
-    #         # TODO 3D: this could be cleaned up if the elements were stored in C
-    #         # See note in cskeleton.C
-    #         cskeleton.CSkeletonNode.unconstrainedMoveTo(self, point)
-    #         for element in self._elements:
-    #             element.updateVtkCellPoints()
-
-    #     def moveBy(self, delta):
-    #         cskeleton.CSkeletonNode.moveBy(self, delta)
-    #         for element in self._elements:
-    #             element.updateVtkCellPoints()
-             
-
-    def dimIndependentInit(self, index):
         self._elements = []
         self.ID = object_id.ObjectID()
         
@@ -64,7 +35,7 @@ class SkeletonNode(skeletonselectable.SkeletonSelectable,
             self._owners = []  # only for the initial Skeleton
             self._shared_with = []  # except me
             self._remote_index = {}  # procID : remote index
-        
+
     def __repr__(self):
         p = self.position()
         return f"SkeletonNode({p.x}, {p.y}, [{self.index}])"

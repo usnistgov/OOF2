@@ -265,6 +265,7 @@ registeredclass.Registration(
     SnapMovePosition,
     ordering=2)
 
+## TODO PYTHON3: Fix SnapAnneal and add tests for it.
 
 class SnapAnneal(FiddleNodes, skeletonmodifier.SkeletonModifier):
     def __init__(self, targets, criterion, T, iteration):
