@@ -470,7 +470,7 @@ def build_mod_args():
         "Snap Nodes" :
         [ ("modbase", "snapnodes",
            { "targets" : SnapAll(),
-             "criterion" : AverageEnergy(alpha=1.)
+             "criterion" : AverageEnergy(alpha=0.8)
              }
            )
           ],
