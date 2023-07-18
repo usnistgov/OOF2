@@ -71,6 +71,21 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
     def homogeneity(self, microstructure):
         return min(self.homogeneity2(microstructure))
 
+    def dominantPixel(self, microstructure):
+        sections = microstructure.getSegmentSections(self._nodes[0].position(),
+                                                     self._nodes[1].position(),
+                                                     0.0)
+        lengths = [0.0]*microstructure.nCategories();
+        for section in sections:
+            lengths[section.category] += section.physicalLength()
+        maxlen = -1
+        maxcat = None
+        for cat, length in enumerate(lengths):
+            if length > maxlen:
+                maxlen = length
+                maxcat = cat
+        return maxcat
+
     def nodes(self):
         return self._nodes
 
