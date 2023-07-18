@@ -267,6 +267,13 @@ registeredclass.Registration(
             
 #############################################################
 
+# FiddleNodesTargets determine which nodes are moved. They have a
+# __call__ method that takes the *previous* set of active nodes as an
+# argument.  If it's non-empty, it can be just returned.  This allows
+# the target object to ensure that the same set of nodes are used on
+# each iteration (if desired).  For example, this prevents a node that
+# temporarily moves outside of the current ActiveArea to keep moving.
+
 class FiddleNodesTargets(registeredclass.RegisteredClass):
     registry = []
     tip = "Set target Nodes for Skeleton modifiers."
@@ -564,8 +571,9 @@ class FiddleNodes:
         self.totalE = skeleton.energyTotal(self.criterion.alpha)
         self.nok = self.nbad = 0
         self.deltaE = 0.
-        # TODO: If the Skeleton is periodic and a node and its partner
-        # are both active, only one of them should be in activenodes.
+        
+        ## TODO: If the Skeleton is periodic and a node and its partner
+        ## are both active, only one of them should be in activenodes.
         self.activenodes = list(self.targets(context, self.activenodes))
         crandom.shuffle(self.activenodes)
         j = 0
