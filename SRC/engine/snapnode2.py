@@ -191,6 +191,16 @@ class SnapNodes2(skeletonmodifier.SkeletonModifier):
 # The SnapNodeTargets2 classes have a __call__ method that returns an
 # iterable of SkeletonNodes.
 
+## TODO PYTHON3 LATER: Does SnapNodes really need its own set of
+## Target classes?  Different kinds of skeleton modifiers require
+## different things from their Target classes, but the fundamental
+## choices that the classes make are the same, as well as their
+## appearance to the user.  All of the Target classes should have
+## methods for supporting all of the modifiers, and none of those
+## methods should be called __call__.  There might be some Targets
+## that are inappropriate for some modifiers, so perhaps the
+## modifiers' registrations could list the acceptable targets classes.
+
 class SnapNodeTargets2(registeredclass.RegisteredClass):
     registry = []
 
