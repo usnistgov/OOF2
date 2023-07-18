@@ -797,10 +797,15 @@ class Selection(SelectionBase):
 # selection manipulation routines can send the correct switchboard
 # signals.  They are also distinguished by their method for getting
 # all of the objects in the current skeleton, which is needed by
-# "invert".  The "retrieveInOrder" function is used by certain
-# Skeleton modification routines that need predictability in debug
-# mode.  It ensures that the objects are returned in the same order
-# each time.
+# "invert".
+
+# The "retrieveInOrder" methods are used by certain Skeleton
+# modification routines that need predictability for testing. They
+# ensure that the objects are returned in the same order each time.
+# (They're required because the selections are stored as sets, which
+# don't guarantee reproducible iteration order.)  They work by
+# iterating over all objects in the Skeleton (in known order) and
+# returning the selected ones.
 
 class ElementSelection(Selection):
     def all_objects(self):
@@ -820,6 +825,9 @@ class SegmentSelection(Selection):
         return list(self.skeletoncontext.getObject().segments.values())
     def mode(self):
         return skeletonselmodebase.getMode("Segment")
+    def retrieveInOrder(self, condition=lambda x: True):
+        return self.skeletoncontext.getObject().segment_iterator(
+            lambda s : s.selected and condition(s))
     def maxSize(self):
         return len(self.all_objects())
     

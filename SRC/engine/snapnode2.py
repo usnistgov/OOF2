@@ -197,30 +197,36 @@ class SnapNodeTargets2(registeredclass.RegisteredClass):
 class SnapAll2(SnapNodeTargets2):
     def __call__(self, context):
         skel = context.getObject()
-        return context.getObject().node_iterator(lambda n: n.active(skel))
+        return context.getObject().node_iterator(
+            lambda n: n.active(skel) and n.movable())
 
 registeredclass.Registration(
     'All Nodes',
     SnapNodeTargets2,
     SnapAll2,
     0,
-    tip="Snap all nodes.",
+    tip="Try to move all nodes to pixel boundaries.",
     discussion="""<para>
     All &nodes; of the &skel; are <varname>targets</varname> of <xref
     linkend='RegisteredClass-SnapNodes'/>.
     </para>""")
 
+#=--=##=--=##=--=#
+
 class SnapSelectedNodes2(SnapNodeTargets2):
     def __call__(self, context):
         skel = context.getObject()
-        return context.nodeselection.retrieveInOrder(lambda n: n.active(skel))
+        return context.nodeselection.retrieveInOrder(
+            lambda n: n.active(skel) and n.movable())
 
 registeredclass.Registration(
     'Selected Nodes',
     SnapNodeTargets2,
     SnapSelectedNodes2,
-    1,
-    tip="Snap selected nodes.")
+    ordering=1,
+    tip="Try to move the selected nodes to pixel boundaries.")
+
+#=--=##=--=##=--=#
 
 class SnapHeterogeneousElements2(SnapNodeTargets2):
     def __init__(self, threshold):
@@ -230,20 +236,85 @@ class SnapHeterogeneousElements2(SnapNodeTargets2):
         elements = skel.element_iterator(
             lambda e: (e.active(skel) and e.homogeneity(skel.MS,False)
                        < self.threshold))
-        nodes = set()
+        nodes = utils.OrderedSet()
         for element in elements:
-            nodes.update(element.nodes())
+            nodes.update(n for n in element.nodes if n.movable())
         return nodes
 
-## TODO: Finish these.
-class SnapHeterogeneousSegments2(SnapNodeTargets2):
-    pass
+registeredclass.Registration(
+    'Heterogeneous Elements',
+    SnapNodeTargets2,
+    SnapHeterogeneousElements2,
+    params = [parameter.FloatRangeParameter(
+        'threshold', (0.0, 1.0, 0.01),
+        value=0.9,
+        tip='Move nodes in elements whose homogeneity is less than this.')],
+    ordering=2,
+    tip="Try to move nodes in heterogeneous elements to pixel boundaries.")
+
+#=--=##=--=##=--=#
 
 class SnapSelectedElements2(SnapNodeTargets2):
-    pass
+    def __call__(self, context):
+        skel = context.getObject()
+        els = context.elementselection.retrieveInOrder(lambda e: e.active(skel))
+        nodes = utils.OrderedSet()
+        for element in els:
+            nodes.update(n for n in element.nodes if n.movable())
+        return nodes
+
+registeredclass.Registration(
+    'Selected Elements',
+    SnapNodeTargets2,
+    SnapSelectedElements2,
+    ordering=3,
+    tip="Try to move the nodes in the selected elements to pixel boundaries.")
+
+#=--=##=--=##=--=#
+
+class SnapHeterogeneousSegments2(SnapNodeTargets2):
+    def __init__(self, threshold):
+        self.threshold = threshold
+    def __call__(self, context):
+        skel = context.getObject()
+        segs = skel.segment_iterator(
+            lambda s: (s.active(skel) and
+                       s.homogeneity(skel.MS) < self.threshold))
+        nodes = utils.OrderedSet()
+        for segment in segs:
+            nodes.update(n for n in segment.nodes() if n.movable())
+        return nodes
+
+registeredclass.Registration(
+    'Heterogeneous Segments',
+    SnapNodeTargets2,
+    SnapHeterogeneousSegments2,
+    ordering=4,
+    params=[
+        parameter.FloatRangeParameter(
+            'threshold', (0.0, 1.0, 0.01),
+            value=0.9,
+            tip='Move nodes in elements whose homogeneity is less than this.')],
+    tip="Try to move nodes on heterogeneous segments to pixel boundaries.")
+
+#=--=##=--=##=--=#
 
 class SnapSelectedSegments2(SnapNodeTargets2):
-    pass
+    def __call__(self, context):
+        skel = context.getObject()
+        segs = context.segmentselection.retrieveInOrder(
+            lambda s: s.active(skel))
+        nodes = utils.OrderedSet()
+        for segment in segs:
+            nodes.update(n for n in segment.nodes() if n.movable)
+        return nodes
+
+registeredclass.Registration(
+    'Selected Segments',
+    SnapNodeTargets2,
+    SnapSelectedSegments2,
+    ordering=5,
+    tip="Try to move nodes on selected segments to pixel boundaries.")
     
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
