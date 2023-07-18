@@ -303,17 +303,6 @@ class Microstructure(cmicrostructure.CMicrostructure):
     def __repr__(self):
         return "getMicrostructure(%s)" % repr(self.name())
 
-    def transitionPointWithPoints(self, c0, c1):
-        okay, point = cmicrostructure.CMicrostructure.transitionPointWithPoints(self, c0, c1)
-        if okay:
-            return point
-
-    #For SnapRefine
-    def transitionPointWithPoints_unbiased(self, c0, c1):
-        okay, point = cmicrostructure.CMicrostructure.transitionPointWithPoints_unbiased(self, c0, c1)
-        if okay:
-            return point
-
 class MicrostructureContext(whoville.Who):
     def getMicrostructure(self):
         return self.getObject()

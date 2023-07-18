@@ -14,8 +14,9 @@ import os
 import re
 import sys
 
-# Flag that says whether to generate missing reference data files.
-# Should be false unless you really know what you're doing.
+# Flag that says whether to generate missing reference data files in
+# fp_file_compare and pdf_compare.  Should be false unless you really
+# know what you're doing.
 generate=False
 # Max number to report from one file.
 maxerrors = 10
