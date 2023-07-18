@@ -164,7 +164,6 @@ public:
   // the dominant pixel category.
   void setHomogeneous(int);
 
-  bool transitionPoint(CMicrostructure&, int, Coord*) const;
   virtual double energyShape() const = 0;
 
   friend long get_globalElementCount();

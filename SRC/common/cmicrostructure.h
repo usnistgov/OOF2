@@ -47,35 +47,6 @@ private:
   }
 };
 
-
-class TransitionPointIterator {
-private:
-  const CMicrostructure *MS;
-  const std::vector<ICoord> *pixels;
-  std::vector<ICoord>::const_iterator pixel;
-  Coord p0, p1, currentTransPoint;
-  int prevcat, nextcat;
-  bool infiniteSlope;
-  double slope, invslope, x0, y0; 
-
-public:
-  TransitionPointIterator(const CMicrostructure*, const Coord&, const Coord&); 
-  TransitionPointIterator(const CMicrostructure*, const Coord&, const Coord&,
-			  const std::vector<ICoord>*); 
-  ~TransitionPointIterator();
-  void begin(); 
-  void operator++();
-  Coord current() const { return currentTransPoint; }
-  bool end() const { return pixel>=pixels->end(); }
-  std::size_t numPixels() const { return pixels->size(); }
-  int getPrevcat() const { return prevcat; }
-  int getNextcat() const { return nextcat; }
-  // The first and last points of the segment.
-  Coord first() const;
-  Coord last() const;
-  double getNormDelta() const;
-};
-
 class SegmentSection {
 private:
   Coord p0, p1;	
@@ -230,21 +201,7 @@ public:
   std::vector<ICoord> *markedPixels(MarkInfo*) const;
   void endMarking(MarkInfo*) const;
 
-  bool transitionPointWithPoints(const Coord*, const Coord*, Coord*) const;
-  bool transitionPointClosest(const Coord&, const Coord&, TransitionPointIterator&,
-			      Coord *result) const;
-  bool transitionPoint(const Coord&, const Coord&, Coord *result) const;
   double edgeHomogeneity(const Coord&, const Coord&) const;
-
-  // oldEdgeHomogeneity uses older machinery to compute the
-  // homogeneity.  It doesn't handle stairsteps well.  It will be
-  // deleted after we're sure that the new machinery is better,
-  // including being sure that test failures are due to the expected
-  // differences in the two methods.
-  double oldEdgeHomogeneity(const Coord&, const Coord&) const; 
-
-  double edgeHomogeneityCat(const Coord&, const Coord&, int* cat) const;
-  bool transitionPointWithPoints_unbiased(const Coord*, const Coord*, Coord*) const;
 
   friend long get_globalMicrostructureCount();
 };

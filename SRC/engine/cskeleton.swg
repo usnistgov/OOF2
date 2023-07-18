@@ -82,7 +82,6 @@ public:
   HomogeneityData getHomogeneityData();
   void setHomogeneityData(HomogeneityData&);
   void setHomogeneous(int);
-  bool transitionPoint(CMicrostructure&, int, Coord *argout_Point);
 };
 
 class CSkeletonTriangle : public CSkeletonElement {

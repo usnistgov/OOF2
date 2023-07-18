@@ -137,15 +137,7 @@ public:
   ArrayInt *getCategoryMap();
   NewArrayInt *getCategoryMapRO();
   ICoord getRepresentativePixel(int category);
-  bool transitionPointWithPoints(Coord *Point, Coord *Point,
-				 Coord *argout_Point);
   double edgeHomogeneity(const Coord &Point, const Coord &Point);
-  double oldEdgeHomogeneity(const Coord &Point, const Coord &Point);
-  double edgeHomogeneityCat(const Coord &Point, const Coord &Point,
-			    int* int_argout);
-  bool transitionPointWithPoints_unbiased(Coord *Point, Coord *Point,
-				 Coord *argout_Point);
-
   SegmentSectionVec *getSegmentSections(const Coord* Point, const Coord *Point,
 					double);
 

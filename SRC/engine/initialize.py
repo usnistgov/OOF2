@@ -58,7 +58,6 @@ import ooflib.engine.rationalize
 import ooflib.engine.autoskeleton
 import ooflib.engine.refine
 import ooflib.engine.snapnode
-import ooflib.engine.snapnode2
 import ooflib.engine.edgeswap
 import ooflib.engine.splitquads
 import ooflib.engine.rationalshort

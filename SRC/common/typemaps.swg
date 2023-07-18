@@ -1031,49 +1031,5 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
   restoreSignals;
  }
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// Typemap used by the transitionPoint functions to pass out both its
-// status and the transition point, if valid.
-
-// This scheme for handling argout parameters by concatenating tuples
-// is from https://www.swig.org/Doc4.0/Python.html#Python_nn61.
-
-%typemap(argout) Coord *argout_Point {
-  // typemap(argout) Coord *argout_Point
-  // Get the Point class
-  FETCH_CLASS(ooflib.common.primitives, Point);
-  // Create a Point object from the Coord
-  PyObject *point = PyObject_CallFunction(PointClass, "dd",
-					  (*$1)(0), (*$1)(1));
-  if(!$result || $result == Py_None) {
-    // Nothing else is being returned (yet).
-    $result = point;
-  }
-  else {
-    // Something else is already being returned.
-    if(!PyTuple_Check($result)) {
-      // The previously returned object is not a tuple.  Create a
-      // tuple and put the old result into it.
-      PyObject *other = $result;
-      $result = PyTuple_New(1);
-      PyTuple_SET_ITEM($result, 0, other); // steals a reference
-    }
-    // Add the new output to the tuple, by concatenating tuples.
-    PyObject *temptuple = PyTuple_New(1);
-    PyTuple_SET_ITEM(temptuple, 0, point); // steals a reference
-    PyObject *oldresult = $result;
-    $result = PySequence_Concat(oldresult, temptuple);
-    Py_XDECREF(temptuple);
-    Py_XDECREF(oldresult);
-  }
- }
-
-%typemap(in, numinputs=0) Coord *argout_Point (Coord tmp) {
-  // typemap(in, numinputs=0) Coord *argout_Point
-  $1 = &tmp;
- }
-
-
 #endif // COMMONTYPEMAPS_SWG
 

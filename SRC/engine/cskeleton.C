@@ -474,19 +474,6 @@ HomogeneityData CSkeletonElement::c_homogeneity(const CMicrostructure &ms,
   return HomogeneityData(homogeneity, category);
 }
 
-// Find the point along edge i where the pixel category in the
-// Microstructure changes.  Return true iff there's just one such
-// point.
-bool CSkeletonElement::transitionPoint(CMicrostructure &microstructure, int i,
-				       Coord *point)
-  const
-{
-  return microstructure.transitionPoint(nodes[i]->position(),
-					nodes[(i+1)%nnodes()]->position(),
-					point);
-}
-
-
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 CSkeletonQuad::CSkeletonQuad(CSkeletonNode *n0, CSkeletonNode *n1,

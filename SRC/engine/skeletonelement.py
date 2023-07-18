@@ -80,13 +80,6 @@ class SkeletonElementBase:
         nx, ny = microstructure.sizeInPixels()
         return self.underlying_pixels(microstructure) # C++
 
-    def transitionPoint(self, skeleton, edgeno):
-        ok, point = \
-            cskeleton.CSkeletonElement.transitionPoint(self, skeleton.MS,
-                                                       edgeno)
-        if ok:
-            return point
-    
     def energyTotal(self, skeleton, alpha):
         if alpha == 0.0:
             return self.energyShape()

@@ -71,16 +71,6 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
     def homogeneity(self, microstructure):
         return min(self.homogeneity2(microstructure))
 
-    def dominantPixel(self, microstructure):
-        ## TODO PYTHON3: Rewrite to use new edgeHomogeneity machinery.
-        ## Or delete it.  Is it ever used?  Outside of the old
-        ## snaprefine, this is the only place that edgeHomogeneityCat
-        ## is called, so that could be eliminated too.
-        n0 = self.nodes()[0].position()
-        n1 = self.nodes()[1].position()
-        homog, cat = microstructure.edgeHomogeneityCat(n0, n1)
-        return cat
-
     def nodes(self):
         return self._nodes
 
