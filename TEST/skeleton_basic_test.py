@@ -769,31 +769,38 @@ def build_mod_args():
           )
          ],
         "Snap Nodes" :
-        [("modbase", "snapnodes",
-          { "targets" : SnapAll(),
-            "criterion" : AverageEnergy(alpha=1.)
-           }
+        [("modbase_groups", "snapnodes_0",
+          dict(targets=SnapAll(),
+               criterion=AverageEnergy(alpha=0.8))),
+         ("modbase_groups", "snapnodes_0a",
+          dict(targets=SnapAll(),
+               criterion=AverageEnergy(alpha=0.5))),
+         ("modbase_groups", "snapnodes_1",
+          dict(targets=SnapSelectedNodes(),
+               criterion=AverageEnergy(alpha=0.8)),
+          "OOF.NodeSelection.Select_Group(skeleton='skeltest:modtest', group='#f8fc00')"),
+         ("modbase_groups", "snapnodes_1a",
+          dict(targets=SnapSelectedNodes(),
+               criterion=AverageEnergy(alpha=1.0)),
+          "OOF.NodeSelection.Select_Group(skeleton='skeltest:modtest', group='#f8fc00')"
           ),
-         ("modbase", "snapnodes_2",
-          {"targets" : SnapSelected(),
-           "criterion" : AverageEnergy(alpha=0.9)
-           },
-          "OOF.ElementGroup.Auto_Group(skeleton='skeltest:modtest')",
-          "OOF.ElementSelection.Select_Group(skeleton='skeltest:modtest', group='RGBColor(red=0.0,green=0.9882352941176471,blue=0.0)')"
+         ("modbase_groups", "snapnodes_2",
+          dict(targets=SnapHeterogeneousElements(threshold=0.9),
+               criterion=AverageEnergy(alpha=0.8))),
+         ("modbase_groups", "snapnodes_3",
+          dict(targets=SnapSelectedElements(),
+               criterion=AverageEnergy(alpha=0.8)),
+          "OOF.ElementSelection.Select_Group(skeleton='skeltest:modtest', group='#00fc00')"
           ),
-         ("modbase", "snapnodes_3",
-          {"targets" : SnapSelectedNodes(),
-           "criterion" : AverageEnergy(alpha=0.9)
-           },
-          "OOF.NodeGroup.Auto_Group(skeleton='skeltest:modtest')",
-          "OOF.NodeSelection.Select_Group(skeleton='skeltest:modtest', group='RGBColor(red=0.0,green=0.9882352941176471,blue=0.0)')"
-          ),
-         ("modbase", "snapnodes_4",
-          {"targets" : SnapHeterogenous(threshold=0.9),
-           "criterion" : AverageEnergy(alpha=0.9)
-           }
+         ("modbase_groups", "snapnodes_4",
+          dict(targets=SnapHeterogeneousSegments(threshold=0.9),
+               criterion=AverageEnergy(alpha=0.8))),
+         ("modbase_groups", "snapnodes_5",
+          dict(targets=SnapSelectedSegments(),criterion=AverageEnergy(alpha=0.8)),
+          "OOF.SegmentSelection.Select_Group(skeleton='skeltest:modtest', group='#f8fc00')"
           )
          ],
+
         "Split Quads" :
         [ ("modbase", "splitquads",
            { "targets" : AllElements(),
