@@ -59,13 +59,9 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
         # returns both.
         pos0 = self._nodes[0].position()
         pos1 = self._nodes[1].position()
-        ## TODO PYTHON3? Should this check the homogeneity of the
-        ## periodic partner?  Probably not.  The refinement marking
-        ## should do that.
-        
-        ## TODO PYTHON3 OPT: These calls to edgeHomogeneity here will
-        ## both call CMicrostructure::segmentPixels, but second call
-        ## could reuse the results of the first.
+        ## TODO PYTHON3 OPT: These calls to edgeHomogeneity will both
+        ## call CMicrostructure::segmentPixels, but second call could
+        ## reuse the results of the first.
         return (microstructure.edgeHomogeneity(pos0, pos1),
                 microstructure.edgeHomogeneity(pos1, pos0))
     def homogeneity(self, microstructure):

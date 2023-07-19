@@ -1,7 +1,7 @@
 
 2.3.0
 
-* Upgrade to Python3 from Python2
+* Upgrade to Python3 from Python2.
 
 * Use cmake for building.
 
@@ -20,7 +20,9 @@
 
 * Changed the way in which segment homogeneity is computed.  The new
   gives better (ie correct) results when a segment is following a
-  stair-stepped diagonal pixel boundary.
+  stair-stepped diagonal pixel boundary.  When a segment follows a
+  pixel boundary, it's possible for the homogeneity to be different on
+  the two sides of the segment.
   
 * The Refine and Snap Refine skeleton modifiers have been merged, and
   work a bit differently than they did before.  The old Liberal and
@@ -51,6 +53,12 @@
   neighboring element category.  Annealing with targets set to
   non-boundary nodes has the same effect as pinning internal boundary
   nodes and the annealing.
+
+* The Snap Nodes skeleton modifier has been rewritten and does a
+  better job than it used to.
+
+* The Snap Anneal skeleton modifier has been removed. It was mostly
+  redundant with Snap Nodes.
 
 2.2.3
 
