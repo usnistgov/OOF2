@@ -12,6 +12,8 @@ project(oof2 VERSION 2.3.0)
 set(DESIRED_SWIGVERSION 4.1 CACHE STRING "Choose 4.0 or 4.1")
 set(DESIRED_PYVERSION 3.10 CACHE STRING "Python3 version number")
 
+include(GNUInstallDirs)
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # OOF2/SRC subdirectories containing python files to install.  The
@@ -37,10 +39,7 @@ set(ooflibs
   oof2orientationmap
   )
 
-# executable python scripts to install, after changing @PYEXEC@ to the
-# full path name of the desired python version.
-## TODO PYTHON3: Just use Python3_EXECUTABLE instead of PYEXEC.  We
-## don't need PYEXEC.
+# executable python scripts to install
 
 set(oofscripts
   oof2
@@ -198,7 +197,6 @@ find_package(
   Python3 ${DESIRED_PYVERSION} EXACT
   COMPONENTS Interpreter Development)
 set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
-set(PYEXEC ${Python3_EXECUTABLE})
 
 # message("Python3 is ${Python3_EXECUTABLE}")
 # message("Python3_INCLUDE_DIRS is ${Python3_INCLUDE_DIRS}")
@@ -362,7 +360,7 @@ install(
   oof2engine
   oof2image
   oof2orientationmap
-  DESTINATION lib)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Install python files from SRC subdirectories, excluding SWIG output
 
@@ -372,7 +370,6 @@ foreach(pydir ${oofdirs})
     FILES_MATCHING
     PATTERN "*.py"
     PATTERN EXTRA EXCLUDE
-    PATTERN DIR.py EXCLUDE # TODO: delete this line after DIR.py files go away
     )
 endforeach()
 
@@ -383,15 +380,13 @@ file(TOUCH ${PROJECT_BINARY_DIR}/__init__.py)
 install(
   FILES
   ${PROJECT_BINARY_DIR}/__init__.py
-  DESTINATION
-  ${PYDEST}
+  DESTINATION ${PYDEST}
   )
 
 install(
   FILES
   ${PROJECT_BINARY_DIR}/__init__.py
-  DESTINATION
-  ${PYDEST}/ooflib
+  DESTINATION ${PYDEST}/ooflib
   )
   
 # Install the start up and test wrapper scripts
@@ -401,7 +396,7 @@ install(
   ${CMAKE_BINARY_DIR}/oof2
   ${CMAKE_BINARY_DIR}/oof2-test
   ${CMAKE_BINARY_DIR}/oof2-guitest
-  DESTINATION bin)
+  DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # Install the TEST and GUITEST directories and their data
 
@@ -414,8 +409,12 @@ install(
   # PATTERN "*.dat"
   )
 
-# TODO PYTHON3: Install examples into <prefix>/share/oof2.
+# Install examples into <prefix>/share/oof2/examples
+install(
+  DIRECTORY examples
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/oof2
+  )
 
 ## TODO PYTHON3: When creating a distribution, check that the various
 ## typemaps.swg files are included.  They're not explicitly listed as
-## source file elsewhere.
+## source files elsewhere.
