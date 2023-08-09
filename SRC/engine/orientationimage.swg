@@ -16,11 +16,14 @@
 
 %include "common/typemaps.swg"
 %include "common/canvasimage.swg"
+%import "common/ccolor.swg"
+%import "common/coord.swg"
 %import "common/abstractimage.swg"
 %import "engine/angle2color.swg"
 
 %{
 #include "common/ccolor.h"
+#include "common/geometry.h"
 #include "engine/angle2color.h"
 #include "engine/orientationimage.h"
 %}

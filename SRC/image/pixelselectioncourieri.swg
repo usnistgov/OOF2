@@ -18,6 +18,7 @@
 %import "common/burn.swg"
 %import "common/ccolor.swg"
 %import "common/colordifference.swg"
+%import "common/coord.swg"
 %import "common/pixelselectioncourier.swg"
 
 %{

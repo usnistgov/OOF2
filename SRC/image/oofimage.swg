@@ -21,6 +21,7 @@
 %import "common/abstractimage.swg"
 %import "common/boolarray.swg"
 %import "common/ccolor.swg"
+%import "common/coord.swg"
 %import "common/doublearray.swg"
 %import "common/ooferror.swg"
 %import "common/timestamp.swg"

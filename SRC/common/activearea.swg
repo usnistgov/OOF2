@@ -16,6 +16,7 @@
 
 %include "common/typemaps.swg"
 %import "common/cmicrostructure.swg"
+%import "common/coord.swg"
 %import "common/cpixelselection.swg"
 %import "common/pixelattribute.swg"
 

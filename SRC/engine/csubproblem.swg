@@ -15,6 +15,7 @@
 %module(package="ooflib.SWIG.engine") csubproblem
 
 %include "common/typemaps.swg"
+%import "common/coord.swg"
 %import "common/doublevec.swg"
 %import "common/lock.swg"
 %import "engine/element.swg"

@@ -15,6 +15,7 @@
 %module(package="ooflib.SWIG.engine") pixelselectioncouriere
 
 %include "common/typemaps.swg"
+%import "common/coord.swg"
 %import "common/pixelselectioncourier.swg"
 
 %{

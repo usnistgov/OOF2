@@ -17,6 +17,7 @@
 %include "common/typemaps.swg"
 %include "common/canvasimage.swg"
 %import "common/abstractimage.swg"
+%import "common/ccolor.swg"
 %import "common/coord.swg"
 %import "common/pixelattribute.swg"
 %import "common/timestamp.swg"

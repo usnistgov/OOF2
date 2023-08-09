@@ -14,16 +14,6 @@
 
 // This file must be %included in every other swig file.
 
-// TODO PYTHON3: This file should contain only generic typemaps and
-// typemap-generating macros.  It should *not* contain anything that
-// generates code directly (such as %{ ... %} blocks), except for what
-// is needed by the %exception typemap.
-//
-// Move all of the class-specific typemaps into the .swg files that
-// define the types.  The swig files that needs those typemaps will
-// also need the class definitions, so they can %import the files
-// containing the typemaps. 
-
 // TODO PYTHON3: Swig's -builtin doesn't work because it's not
 // compatible with the %exception typemap.  If there's ever a fix for
 // that, go through all the swigged classes and use python slots
@@ -34,66 +24,10 @@
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// In these comments, "[x]" means a Python list of objects of type x
-
-// GENERIC TYPEMAPS
-// TODO PYTHON3: Update these lists
-
-// out:     std::string*   -> PyUnicode
-// newfree: std::string*
-// out:     std::string&   -> PyUnicode
-// out:     std::string    -> PyUnicode  ** do not use, makes extra copy **
-// in:      PyUnicode -> std::string&
-// in:      PyUnicode -> std::string*
-// in:      PyUnicode -> std::string
-
-// in:      RGBAColor (or similar) -> CColor
-// out:     CColor -> RGBAColor
-
-// in: [double] -> const std::vector<double>&
-// in: [double] -> const std::vector<double>*
-// out: std::vector<double>& -> [double]
-// out: std::vector<double>* -> [double]
-// out: std::vector<double>  -> [double]
-
-// in: [long] -> const std::vector<INT>&     for INT = int, unsigned char
-// in: [long] -> const std::vector<INT>*
-// out: std::vector<INT>& -> [long]
-// out: std::vector<INT>* -> [long]
-
-
-// out: std::vector<Coord*>* -> [Coord]  (transfers ownership)
-// out: CoordRefVec (aka std::vector<Coord*>*) -> [Coord] (no transfer)
-// in: [Coord] -> std::vector<Coord*>*
-// out: std::vector<ICoord>* -> [iPoint]
-// in: [string] -> std::vector<std::string>*
-// out: std::vector<std::string>* -> [string]
-
-// Passing objects out as objects rather than pointers or references
-// forces them to be copied an extra time, and maybe should be
-// avoided.
-// out: ICoord -> iPoint
-// out: Coord -> Point
-
-// NAMED TYPEMAPS
-
-// in: PyObject *PythonCallable: PyObject* -> PyObject*  no translation
-// in: std::vector<double> &iterable: <iterable> -> const std::vector<double>&
-// in: std::vector<double> *iterable: <iterable> -> const std::vector<double>*
-// in: std::vector<char*> *argv:  [string] -> std::vector<char*>*
-// in: std::vector<Coord>* PointList: [Point] -> std::vector<Coord*>
-// in: std::vector<ICoord> *iPointList [iPoint] -> std::vector<ICoord>*
-// in: Coord *Point:  Point -> Coord
-// in: ICoord *iPoint: iPoint -> ICoord
-// in: ICoord *Sequence:  PySequence of length 2 -> ICoord
-// in: Coord *Sequence:   PySequence of length 2 -> Coord
-
-
 %{
 #define SWIG_FILE_WITH_INIT
 #include <oofconfig.h>
 #include "common/cdebug.h"
-#include "common/geometry.h"
 #include "common/ooferror.h"
 #include "common/pythonlock.h"
 #include "common/pyutils.h"
@@ -122,6 +56,8 @@
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
+// Swig macros for adding __repr__s to C++ classes.
+
 // ADD_REPR(class, func) adds a __repr__ to the swigged class.  The
 // new __repr__ will call the given C++ class method, which must
 // return a new std::string*.  The func must be swigged if using
@@ -133,15 +69,16 @@
 
 // ADD_REPR_GENERIC uses the to_string template (from
 // common/tostring.h, not std::to_string) instead of a class method,
-// so it's useful as long as the class has defined operator<<.  It
+// so it's useful as long as the class has defines operator<<.  It
 // should come before the class declaration in the swig file if the
 // swig file hasn't already #included common/tostring.h.
 // TODO PYTHON3? Implement it for -builtin.
 
 // Note that it's not sufficient to add a __repr__ to a base class and
 // hope to have it used for the derived classes.  Swig will override
-// it with a generic uninformative __repr__ in the derived classes
-// unless a __repr__ is explicitly created for them.
+// the base class __repr__ with a generic uninformative __repr__ in
+// the derived classes unless a __repr__ is explicitly created for
+// them.
 
 #ifdef SWIGPYTHON_BUILTIN
 %define ADD_REPR(CLASS, FUNC)
@@ -232,6 +169,8 @@
 %enddef				// PYTHONEXPORTABLE
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
+// Typemaps for strings and vectors of strings.
 
 %typemap(out) std::string* {
   // typemap(out) std::string*
@@ -327,9 +266,6 @@ std::string {
   $1 = &svec;
  }
 
-//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-
-
 %typemap(newfree) std::vector<std::string>* {
   // typemap(newfree) std::vector<std::string>*
   delete $1;
@@ -343,41 +279,11 @@ std::string {
     std::cerr << "pythonCallable typemap: arg = " << repr_nolock($input)
 	      << std::endl;
     PyErr_SetString(PyExc_TypeError,
-		    "in '$symname', expected a callback python object");
+		    "in '$symname', expected a callable python object");
     SWIG_fail;
   }
   $1 = $input;
  }
-
-//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-
-// TODO LATER:  Investigate whether all colors should be SWIG'd CColors.
-
-%typemap(in) CColor* (CColor clr) {
-  // typemap(in) CColor*  -- converts Python color to C++ CColor
-  PyObject *red = PyObject_CallMethod($input, "getRed", NULL);
-  PyObject *grn = PyObject_CallMethod($input, "getGreen", NULL);
-  PyObject *blu = PyObject_CallMethod($input, "getBlue", NULL);
-  PyObject *alf = PyObject_CallMethod($input, "getAlpha", NULL);
-  clr.setRed(PyFloat_AsDouble(red));
-  clr.setGreen(PyFloat_AsDouble(grn));
-  clr.setBlue(PyFloat_AsDouble(blu));
-  clr.setAlpha(PyFloat_AsDouble(alf));
-  Py_XDECREF(red);
-  Py_XDECREF(grn);
-  Py_XDECREF(blu);
-  Py_XDECREF(alf);
-  $1 = &clr;
-}
-
-%typemap(out) CColor {
-  // typemap(out) CColor -- converts C++ CColor to Python RGBAColor
-  FETCH_CLASS(ooflib.common.color, RGBAColor);
-  $result = PyObject_CallFunction(RGBAColorClass, "dddd",
-				  $1.getRed(), $1.getGreen(),
-				  $1.getBlue(), $1.getAlpha());
-  
-}
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
@@ -419,10 +325,12 @@ std::string {
 
 
 // This converts a Python iterable object, containing ints or floats,
-// to a std::vector of doubles.  TODO: Converting to a C++ iterator
-// might be useful.  The C++ iterator would have to keep a reference
-// to the Python iterator and call PyIter_Next.  An advantage would be
-// that no vector would need to be made.
+// to a std::vector of doubles.
+
+// TODO: If copying the data uses too much memory, converting to a C++
+// iterator might be useful.  The C++ iterator would have to keep a
+// reference to the Python iterator and call PyIter_Next.  It would be
+// slow.
 
 %typemap(in) const std::vector<double> &iterable (std::vector<double> vec) {
   // typemap(int) std::vector<double> &iterable
@@ -446,8 +354,10 @@ std::string {
 
 %typemap(in) const std::vector<double> *iterable = const std::vector<double> &iterable;
 
-// Convert a std::vector<double>& to a list of doubles.
-// TODO: convert a std::vector<double> to a python iterator?
+// Convert a std::vector<double>& to a list of doubles.  Conversion to
+// a python iterator is not recommended unless there are memory
+// constraints, because iterating would require a lot of swig API
+// calls.
 
 %typemap(out) std::vector<double>* {
   // typemap(out) std::vector<double>*
@@ -530,10 +440,12 @@ std::string {
  }
 
 // This converts a Python iterable object, containing ints,
-// to a std::vector of ints.  TODO: Converting to a C++ iterator
-// might be useful.  The C++ iterator would have to keep a reference
-// to the Python iterator and call PyIter_Next.  An advantage would be
-// that no vector would need to be made.
+// to a std::vector of ints.
+
+// TODO? Converting to a C++ iterator might be useful.  The C++
+// iterator would have to keep a reference to the Python iterator and
+// call PyIter_Next.  An advantage would be that no vector would need
+// to be made.
 
 %typemap(in) std::vector<TYPE> &iterable (std::vector<TYPE> vec) {
   // typemap(in) std::vector<TYPE> &iterable (via MAKE_INTVEC_TYPEMAPS)
@@ -772,218 +684,6 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
  }
 
 %enddef // MAKE_LISTVEC_TYPEMAPS
-
-//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-
-// std::vector<Coord>*  <-->  [Point]
-
-%typemap(in) std::vector<Coord> *PointList (std::vector<Coord> v) {
-  // typemap(in) std::vector<Coord>*
-  if(!PyList_Check($input)) {
-    PyErr_SetString(PyExc_TypeError,
-		    "in method '$symname', expecting list of Points.");
-    SWIG_fail;
-  }
-  std::vector<Coord>::size_type sz = PyList_Size($input);
-  v.resize(sz);
-  for(std::vector<Coord>::size_type i=0; i<sz; i++) {
-    PyObject *point = PyList_GET_ITEM($input, (Py_ssize_t) i);
-    if(!point)
-      SWIG_fail;
-    PyObject *px = PyObject_GetAttrString(point, "x");
-    if(!px)
-      SWIG_fail;
-    v[i][0] = PyFloat_AsDouble(px);
-    Py_XDECREF(px);
-    PyObject *py = PyObject_GetAttrString(point, "y");
-    if(!py)
-      return NULL;
-    v[i](1) = PyFloat_AsDouble(py);
-    Py_XDECREF(py);
-  }
-  $1 = &v;
-}
-
-%typemap(out) std::vector<Coord>* {
-  // typemap(out) std::vector<Coord>*
-  std::vector<Coord>::size_type sz = $1->size();
-  FETCH_CLASS(ooflib.common.primitives, Point);
-  $result = PyList_New((Py_ssize_t) sz);
-  for(std::vector<Coord>::size_type i=0; i<sz; i++) {
-    const Coord &c = (*$1)[i];
-    PyObject *point = PyObject_CallFunction(PointClass, "dd", c(0), c(1));
-    PyList_SET_ITEM($result, (Py_ssize_t) i, point); // Steals reference.
-  }
-}
-
-%typemap(newfree) std::vector<Coord>* {
-  delete $1;
-}
-
-//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-
-// std::vector<ICoord>*  <-->  [iPoint] 
-
-%typemap(in) std::vector<ICoord> *iPointList (std::vector<ICoord> v) {
-  // typemap(in) std::vector<ICoord>* iPointList
-  if(!PyList_Check($input)) {
-    PyErr_SetString(PyExc_TypeError,
-		    "in method '$symname', expecting list of iPoints.");
-    SWIG_fail;
-  }
-  std::vector<ICoord>::size_type sz = PyList_Size($input);
-  v.resize(sz);
-  for(std::vector<ICoord>::size_type i=0; i<sz; i++) {
-    PyObject *point = PyList_GET_ITEM($input, (Py_ssize_t) i);
-    if(!point)
-      SWIG_fail;
-    PyObject *px = PyObject_GetAttrString(point, "x");
-    if(!px)
-      SWIG_fail;
-    v[i][0] = PyLong_AsLong(px);
-    Py_XDECREF(px);
-    PyObject *py = PyObject_GetAttrString(point, "y");
-    if(!py)
-      return NULL;
-    v[i](1) = PyLong_AsLong(py);
-    Py_XDECREF(py);
-  }
-  $1 = &v;
- }
-
-%typemap(out) std::vector<ICoord>* {
-  // typemap(out) std::vector<ICoord>*
-  std::vector<ICoord>::size_type sz = $1->size();
-  FETCH_CLASS(ooflib.common.primitives, iPoint);
-  $result = PyList_New((Py_ssize_t) sz);
-  for(std::vector<ICoord>::size_type i=0; i<sz; i++) {
-    const ICoord &c = (*$1)[i];
-    PyObject *ipoint = PyObject_CallFunction(iPointClass, "ii", c(0), c(1));
-    PyList_SET_ITEM($result, (Py_ssize_t) i, ipoint); // Steals reference.
-  }
- }
-
-%typemap(newfree) std::vector<ICoord>* {
-  // typemap(newfree) std::vector<ICoord>*
-  delete $1;
-}
-
-//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-
-// C++ ICoord --> Python iPoint
-// C++ Coord  --> Python Point
-
-// TODO: Are these typemaps necessary?  We can handle Coords directly
-// in Python, and do so in lots of places in the code.  Including this
-// typemap means that we're mixing Coords and Points in a mostly
-// uncontrolled fashion.  For example, 2*coord.Coord(1.,2.) returns a
-// Point, not a Coord, because this typemap is applied to the result
-// of Coord.__rmul__()
-
-// Also, these typemaps make an extra copy of the object they're
-// wrapping.  If possible, returning a const reference is preferable.
-
-// Coord and ICoord don't have a swigged default constructor, so swig
-// thinks it has to use the SwigValueWrapper mechanism when a function
-// returns a Coord or ICoord by value.  The classes *do* have default
-// constructors in C++, so we need to tell swig not to use
-// SwigValueWrapper.  Using SwigValueWrapper messes up the typemaps.
-%feature("novaluewrapper") Coord;
-%feature("novaluewrapper") ICoord;
-
-%typemap(out) ICoord {
-  // typemap(out) ICoord
-  FETCH_CLASS(ooflib.common.primitives, iPoint);
-  $result = PyObject_CallFunction(iPointClass, "ii", ($1)(0), ($1)(1));
- }
-
-%typemap(out) Coord {
-  // typemap(out) Coord
-  FETCH_CLASS(ooflib.common.primitives, Point);
-  $result = PyObject_CallFunction(PointClass, "dd", ($1)(0), ($1)(1));
- }
-
-// Python iPoint --> C++ ICoord*
-// Python  Point --> C++ Coord*
-
-%typemap(in) ICoord *iPoint (ICoord ic) {
-  // typemap(in) ICoord *iPoint
-  PyObject *x = PyObject_GetAttrString($input, "x");
-  if(!x) {
-    PyErr_SetString(PyExc_TypeError, "in '$symname', expected an iPoint.");
-    SWIG_fail;
-  }
-  PyObject *y = PyObject_GetAttrString($input, "y");
-  if(!y) {
-    PyErr_SetString(PyExc_TypeError, "in '$symname', expected an iPoint.");
-    SWIG_fail;
-  }
-  ic(0) = PyLong_AsLong(x);
-  ic(1) = PyLong_AsLong(y);
-  Py_XDECREF(x);
-  Py_XDECREF(y);
-  $1 = &ic;
- }
-
-%typemap(in) Coord *Point (Coord c) {
-  // typemap(in) Coord *Point
-  PyObject *x = PyObject_GetAttrString($input, "x");
-  if(!x) {
-    PyErr_SetString(PyExc_TypeError, "in '$symname', expected a Point.");
-    SWIG_fail;
-  }
-  PyObject *y = PyObject_GetAttrString($input, "y");
-  if(!y) {
-    PyErr_SetString(PyExc_TypeError, "in '$symname', expected a Point.");
-    SWIG_fail;
-  }
-  c(0) = PyFloat_AsDouble(x);
-  c(1) = PyFloat_AsDouble(y);
-  Py_XDECREF(x);
-  Py_XDECREF(y);
-  $1 = &c;
- }
-
-%typemap(in) const Coord &Point = Coord *Point;
-
-//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-
-// Coord *Sequence: Python 2-tuple --> C++ Coord
-// ICoord *Sequence: Python 2-tuple --> C++ ICoord
-
-// TODO: Change the name of the typemaps. "Sequence" is too vague
-
-%typemap(in) Coord *Sequence (Coord c) {
-  // typemap(in) Coord *Sequence
-  if(!(PySequence_Check($input) && PySequence_Length($input) == 2)) {
-    PyErr_SetString(PyExc_TypeError,
-		    "in '$symname', expected sequence of length 2.");
-    SWIG_fail;
-  }
-  PyObject *x = PySequence_GetItem($input, (Py_ssize_t) 0);
-  PyObject *y = PySequence_GetItem($input, (Py_ssize_t) 1);
-  c(0) = PyFloat_AsDouble(x);
-  c(1) = PyFloat_AsDouble(y);
-  Py_XDECREF(x);
-  Py_XDECREF(y);
-  $1 = &c;
- }
-
-%typemap(in) ICoord *Sequence (ICoord ic) {
-  // typemap(in) Coord *Sequence
-  if(!(PySequence_Check($input) && PySequence_Length($input) == 2)) {
-    PyErr_SetString(PyExc_TypeError,
-		    "in '$symname', expected sequence of length 2.");
-    SWIG_fail;
-  }
-  PyObject *x = PySequence_GetItem($input, (Py_ssize_t) 0);
-  PyObject *y = PySequence_GetItem($input, (Py_ssize_t) 1);
-  ic(0) = PyLong_AsLong(x);
-  ic(1) = PyLong_AsLong(y);
-  Py_XDECREF(x);
-  Py_XDECREF(y);
-  $1 = &ic;
- }
 
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 

@@ -20,6 +20,36 @@
 #include "common/ccolor.h"
 %}
 
+// TODO LATER:  Investigate whether all colors should be SWIG'd CColors.
+
+%typemap(in) CColor* (CColor clr) {
+  // typemap(in) CColor*  -- converts Python color to C++ CColor
+  PyObject *red = PyObject_CallMethod($input, "getRed", NULL);
+  PyObject *grn = PyObject_CallMethod($input, "getGreen", NULL);
+  PyObject *blu = PyObject_CallMethod($input, "getBlue", NULL);
+  PyObject *alf = PyObject_CallMethod($input, "getAlpha", NULL);
+  clr.setRed(PyFloat_AsDouble(red));
+  clr.setGreen(PyFloat_AsDouble(grn));
+  clr.setBlue(PyFloat_AsDouble(blu));
+  clr.setAlpha(PyFloat_AsDouble(alf));
+  Py_XDECREF(red);
+  Py_XDECREF(grn);
+  Py_XDECREF(blu);
+  Py_XDECREF(alf);
+  $1 = &clr;
+}
+
+%typemap(out) CColor {
+  // typemap(out) CColor -- converts C++ CColor to Python RGBAColor
+  FETCH_CLASS(ooflib.common.color, RGBAColor);
+  $result = PyObject_CallFunction(RGBAColorClass, "dddd",
+				  $1.getRed(), $1.getGreen(),
+				  $1.getBlue(), $1.getAlpha());
+  
+}
+
+//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
 class CColor {
 public:
   double getRed();

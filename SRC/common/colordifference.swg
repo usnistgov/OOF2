@@ -15,6 +15,8 @@
 %module(package="ooflib.SWIG.common") colordifference
 
 %include "common/typemaps.swg"
+%import "common/ccolor.swg"
+
 %{
 #include "common/colordifference.h"
 %}
