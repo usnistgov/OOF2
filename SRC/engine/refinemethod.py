@@ -156,10 +156,6 @@ def baseNodes(element, rotation):
     return map(lambda x: x.children[-1],
                element.nodes[rotation:] + element.nodes[0:rotation])
 
-# When there's more than one way to subdivide an element, create a
-# ProvisionalRefinement for each and pass them to theBetter(), which
-# will pick the best one.
-
 class _QuadHandler(enum.EnumClass("NONE", "LEFT", "RIGHT")):
     pass
 
@@ -299,6 +295,12 @@ class ProvisionalRefinement:
 ## will choose the same best candidate.
 epsilon = 1.e-10
 
+# When there's more than one way to subdivide an element, create a
+# ProvisionalRefinement for each and pass them to theVeryBest() or
+# theBetter(), which will pick the best one.  The difference is that
+# theVeryBest() will also consider refinements that subdivide the
+# quads in each candidate.
+
 def theVeryBest(skeleton, candidates, alpha):
     # Extend the list of candidates by subdividing the quads in the
     # given candidates.
@@ -338,9 +340,6 @@ def theVeryBest(skeleton, candidates, alpha):
                     destroyedNodes.add(node)
     return [] if best_refinement is None else best_refinement.accept(skeleton)
     
-
-# theBetter is like theVeryBest, but it doesn't extend the list of
-# candidate refinements by subdividing quads.
 def theBetter(skeleton, candidates, alpha):
     energy_min = 100000.        # much larger than any possible energy
     theone = None

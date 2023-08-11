@@ -1543,7 +1543,10 @@ class Skeleton(SkeletonBase):
         return SkeletonElementIterator(self, lambda e: e.active(self))
 
     def selectedElements(self, condition=lambda e: True): 
-        ## TODO PYTHON3: do this better, by looping over the selection object
+        # Looping over the selection object would be neater and
+        # faster, but the elements wouldn't be returned in a
+        # deterministic order.  This effectively does what
+        # ElementSelection.retrieveInOrder() does.
         self.cleanUp()
         return SkeletonElementIterator(
             self, lambda e: condition(e) and e.isSelected())

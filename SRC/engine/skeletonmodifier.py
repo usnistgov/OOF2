@@ -199,10 +199,10 @@ registeredclass.Registration(
 
 class SkelModCriterion(registeredclass.RegisteredClass):
     registry = []
-    def __call__(self, changes, skel):
-        # Child classes must provide __call__ method with
-        # ProvisionalChanges, Skeleton as arguments
-        pass    
+    # def __call__(self, changes, skel):
+    #     # Child classes must provide __call__ method with
+    #     # ProvisionalChanges, Skeleton as arguments
+    #     pass    
     def hopeless(self):
         return 0
     
