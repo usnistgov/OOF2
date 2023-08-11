@@ -552,13 +552,10 @@ static const ICoord southwest(-1, -1);
 // Return a list (vector) of pixels underlying a segment.  It's the
 // responsibility of the caller to delete the vector.
 
-// TODO: Should segmentPixels should just return a std::vector, not a
-// std::vector*, using the C++11 move constructor in std::vector?
-
-std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
-						    const Coord &c1,
-						    bool &vertical_horizontal,
-						    bool &flipped)
+std::vector<ICoord> CMicrostructure::segmentPixels(const Coord &c0,
+						   const Coord &c1,
+						   bool &vertical_horizontal,
+						   bool &flipped)
   const
 {
   // Coordinates of endpoints in pixel space (real).
@@ -647,35 +644,39 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
   ICoord id = ip1 - ip0;	// distance between pixel endpoints
 
   if(id(0) == 0 && id(1) == 0) { // segment is entirely within one pixel
-    return new std::vector<ICoord>(1, ip0);
+    return std::vector<ICoord>(1, ip0);
   }
   
   if(id(0) == 0) {	
     // Segment is contained within a single column of pixels.
     int npix = abs(id(1)) + 1;
-    std::vector<ICoord> *pixels = new std::vector<ICoord>(npix);
+    std::vector<ICoord> pixels(npix);
     int x = ip0(0);
     int y0 = (ip0(1) < ip1(1)) ? ip0(1) : ip1(1);
     flipped = ip1(1) < ip0(1);
     for(int i=0; i<npix; i++)
-      (*pixels)[i] = ICoord(x, y0+i);
+      pixels[i] = ICoord(x, y0+i);
     return pixels;
   }
   
   if(id(1) == 0) {	
     // Segment is contained within a single row of pixels.
     int npix = abs(id(0)) + 1;
-    std::vector<ICoord> *pixels = new std::vector<ICoord>(npix);
+    std::vector<ICoord> pixels(npix);
     int y = ip0(1);
     int x0 = (ip0(0) < ip1(0)) ? ip0(0) : ip1(0);
     flipped = ip1(0) < ip0(0);
     for(int i=0; i<npix; i++)
-      (*pixels)[i] = ICoord(x0+i, y);
+      pixels[i] = ICoord(x0+i, y);
     return pixels;
   }
 
-  // segment is diagonal
-  std::vector<ICoord> *pixels = new std::vector<ICoord>;
+  // Segment is diagonal.
+
+  std::vector<ICoord> pixels;
+
+  // Is it bigger in the x or y direction?  That determines whether
+  // we loop over rows or columns below.
   Coord pd = p1 - p0;
   // It's important to use pd and not id when deciding which range is
   // bigger!  If the integer ranges are equal but the real y range is
@@ -692,11 +693,12 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
       p0 = temp;
       flipped = true;
     }
-    pixels->reserve(2*abs(id(0))); // biggest possible size
+    
+    pixels.reserve(2*abs(id(0))); // biggest possible size
     double x0 = p0(0);
     double y0 = p0(1);
     double slope = (p1(1) - y0)/(p1(0) - x0);
-    pixels->push_back(ip0);
+    pixels.push_back(ip0);
     // Iterate over columns of pixels.  Compute the y intercepts at
     // the boundaries between the columns (ie, integer values of x).
     // Whenever the integer part of the y intercept changes, we need
@@ -707,15 +709,15 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
       int y = int(floor(y0 + slope*(x-x0)));
       if(y >=0 && y < maxy) {
 	if(y != lasty)
-	  pixels->push_back(ICoord(x-1, y));
-	pixels->push_back(ICoord(x,y));
+	  pixels.push_back(ICoord(x-1, y));
+	pixels.push_back(ICoord(x,y));
       }
       lasty = y;
     }
     // The last pixel may not have been included yet, if there's one
     // more y intercept change to come, so make sure it's included.
-    if(pixels->back() != ip1)
-      pixels->push_back(ip1);
+    if(pixels.back() != ip1)
+      pixels.push_back(ip1);
   } // fabs(pd(0)) >= fabs(pd(1))
   else {
     // fabs(pd(1)) > fabs(pd(0))
@@ -729,29 +731,29 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
       p0 = temp;
       flipped = true;
     }
-    pixels->reserve(2*abs(id(1)));
+    pixels.reserve(2*abs(id(1)));
     double x0 = p0(0);
     double y0 = p0(1);
     double slope = (p1(0) - x0)/(p1(1) - y0); // dx/dy
-    pixels->push_back(ip0);
+    pixels.push_back(ip0);
     int lastx = ip0(0);
     // iterate over rows of pixels
     for(int y=ip0(1)+1; y<=ip1(1); ++y) {
       int x = int(floor(x0 + slope*(y-y0)));
       if(x >= 0 && x < maxx) {
 	if(x != lastx)
-	  pixels->push_back(ICoord(x, y-1));
-	pixels->push_back(ICoord(x,y));
+	  pixels.push_back(ICoord(x, y-1));
+	pixels.push_back(ICoord(x,y));
       }
       lastx = x;
     }
-    if(pixels->back() != ip1)
-      pixels->push_back(ip1);
+    if(pixels.back() != ip1)
+      pixels.push_back(ip1);
   }
 // #ifdef DEBUG
 //   // Check that the pixels abut each other properly
-//   for(unsigned int i=1; i<pixels->size(); i++) {
-//     ICoord diff = (*pixels)[i] - (*pixels)[i-1];
+//   for(unsigned int i=1; i<pixels.size(); i++) {
+//     ICoord diff = pixels[i] - pixels[i-1];
 //     if(diff != east && diff != west && diff != north && diff != south) {
 //       std::cerr << "CMicrostructure::segmentPixels: p0=" << p0
 // 		<< " p1=" << p1 << std::endl;
@@ -803,17 +805,10 @@ void CMicrostructure::markSegment(MarkInfo *mm,
 				  const Coord &c0, const Coord &c1) const
 {
   bool dummy;
-  const std::vector<ICoord> *pixels = segmentPixels(c0, c1, dummy, dummy);
-//   std::cerr << "CMicrostructure::markSegment: c0=" <<  c0 << " c1=" << c1 << std::endl;
-  for(std::vector<ICoord>::const_iterator pxl=pixels->begin();
-      pxl<pixels->end(); ++pxl)
-    {
-//       std::cerr << "CMicrostructure::markSegment: pxl=" << *pxl << std::endl;
-      mm->markedregion.set(*pxl);
-    }
-//   std::cerr << "CMicrostructure:markSegment: deleting pixels" << std::endl;
-  delete pixels;
-//   std::cerr << "CMicrostructure::markSegment: done" << std::endl;
+  const std::vector<ICoord> pixels(segmentPixels(c0, c1, dummy, dummy));
+  for(const ICoord &pxl : pixels) {
+    mm->markedregion.set(pxl);
+  }
 }
 
 
@@ -1034,7 +1029,7 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
   bool flipped, dummy;
 
   std::vector<SegmentSection> sections;
-  std::vector<ICoord> *pixels = segmentPixels(*c0, *c1, dummy, flipped);
+  std::vector<ICoord> pixels(segmentPixels(*c0, *c1, dummy, flipped));
 
   // Pixel-space coordinates of the ends of segment
   Coord pt0(physical2Pixel(*c0));
@@ -1051,7 +1046,7 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
   // segmentPixels doesn't guarantee that the pixels are in order from
   // c0 to c1.  If flipped is true, the pixels are in reverse order,
   // so we iterate over them manually.
-  int npxls = pixels->size();
+  int npxls = pixels.size();
   int i0 = flipped ? npxls-1 : 0; // initial pixel index
   int i1 = flipped ? -1 : npxls;  // final pixel index
   int idir = flipped ? -1 : 1;	  // pixel index increment
@@ -1062,7 +1057,7 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
   // point.
   int prevcat = getInitialCat(this, pt0, pt1);
   Coord curpt =  pt0;	      // starting point of the current section
-  ICoord prevpxl = (*pixels)[i0]; // previous pixel
+  ICoord prevpxl = pixels[i0]; // previous pixel
   // The step category is the category to assign to the segment if it
   // is part of a stairstep boundary.  This is determined by how the
   // segment ends meet the category boundary, and is not necessarily
@@ -1074,7 +1069,7 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
   // looking for endpoints of sections.
 
   for(int i=i0+idir; i!=i1; i+=idir) {
-    ICoord pxl = (*pixels)[i];	// the pixel to examine
+    ICoord pxl = pixels[i];	// the pixel to examine
     int cat = category(pxl);
     Coord pt;			// next transition point
     if(cat != prevcat) {
@@ -1228,8 +1223,7 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
     sections.emplace_back(this, pt0, pt1, prevcat, -1);
   }
 
-  ICoord totalspan = (*pixels)[npxls-1] - (*pixels)[0];
-  delete pixels;
+  ICoord totalspan = pixels[npxls-1] - pixels[0];
 
   int nsections = sections.size();
   // adaSections are ones where steps have been replaced with

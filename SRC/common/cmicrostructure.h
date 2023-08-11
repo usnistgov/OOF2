@@ -189,7 +189,7 @@ public:
     return categoryBdys;
   }
 
-  std::vector<ICoord> *segmentPixels(const Coord&, const Coord&, bool&, bool&)
+  std::vector<ICoord> segmentPixels(const Coord&, const Coord&, bool&, bool&)
     const;
   std::vector<SegmentSection*> *getSegmentSections(const Coord*, const Coord*,
 						   double) const;
