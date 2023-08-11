@@ -316,8 +316,7 @@ class OOF_Skeleton(unittest.TestCase):
             skeleton="skeltest:undotest",
             modifier=Refine(
                 targets=CheckHomogeneity(threshold=0.9),
-                criterion=Unconditionally(),
-                divider=Trisection(),
+                divider=Trisection(minlength=0),
                 rules='Quick'))
         sk_1 = sk_context.getObject()
         self.assertTrue(sk_context.undoable())
@@ -341,8 +340,7 @@ class OOF_Skeleton(unittest.TestCase):
             skeleton="skeltest:redotest",
             modifier=Refine(
                 targets=CheckHomogeneity(threshold=0.9),
-                criterion=Unconditionally(),
-                divider=Trisection(),
+                divider=Trisection(minlength=0),
                 rules='Quick'))
         sk_1 = sk_context.getObject()
         OOF.Skeleton.Undo(skeleton="skeltest:redotest")
@@ -512,88 +510,70 @@ def build_mod_args():
         "Refine" :
         [("modbase", "refine_1",
           { "targets" : CheckHomogeneity(threshold=0.9),
-            "criterion" : Unconditionally(),
-            "divider" : Trisection(),
+            "divider" : Trisection(minlength=0),
             "rules": "Quick",
             "alpha" : 0.5
            }
           ),
          ("modbase", "refine_1L",
           { "targets" : CheckHomogeneity(threshold=0.9),
-            "criterion" : Unconditionally(),
-            "divider" : Trisection(),
+            "divider" : Trisection(minlength=0),
             "rules": "Large",
             "alpha" : 0.5
            }
           ),
          ("modbase", "refine_2",
           { "targets" : CheckHomogeneity(threshold=0.9),
-            "criterion" : Unconditionally(),
-            "divider" : Bisection(),
+            "divider" : Bisection(minlength=0),
             "rules" : "Quick",
             "alpha" : 0.5
            }
           ),
          ("modbase", "refine_2L",
           { "targets" : CheckHomogeneity(threshold=0.9),
-            "criterion" : Unconditionally(),
-            "divider" : Bisection(),
+            "divider" : Bisection(minlength=0),
             "rules" : "Large",
             "alpha" : 0.5
            }
           ),
          ("modgroups","refine_3",
           {"targets" : CheckElementsInGroup(group='elementgroup'),
-           "criterion" : Unconditionally(),
-           "divider" : Bisection(),
+           "divider" : Bisection(minlength=0),
            "rules" : "Quick",
            "alpha" : 0.5
            }
           ),
          ("modgroups","refine_3L",
           {"targets" : CheckElementsInGroup(group='elementgroup'),
-           "criterion" : Unconditionally(),
-           "divider" : Bisection(),
+           "divider" : Bisection(minlength=0),
            "rules" : "Large",
            "alpha" : 0.5
            }
           ),
          ("modgroups","refine_4",
           {"targets" : CheckAllElements(),
-           "criterion" : Unconditionally(),
-           "divider" : Bisection(),
+           "divider" : Bisection(minlength=0),
            "rules" : "Quick",
            "alpha" : 0.5
            }
           ),
          ("modgroups","refine_4L",
           {"targets" : CheckAllElements(),
-           "criterion" : Unconditionally(),
-           "divider" : Bisection(),
+           "divider" : Bisection(minlength=0),
            "rules" : "Large",
            "alpha" : 0.5
            }
           ),
-         ("modgroups", "refine_4A",
-          { "targets" : CheckAllElements(),
-            "criterion" : MinimumArea(threshold=1.5, units='Physical'),
-            "divider" : Bisection(),
-            "rules": "Quick",
-            "alpha" : 0.5
-           }
-          ),
          ("modgroups","refine_5",
           {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
-           "criterion" : Unconditionally(),
-           "divider" : Bisection(),
+           "divider" : Bisection(minlength=0),
            "rules" : "Quick",
            "alpha" : 0.5
            }
           ),
          ("modgroups","refine_5L",
           {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
-           "criterion" : Unconditionally(),
-           "divider" : Bisection(),
+           "divider" : Bisection(minlength=0),
            "rules" : "Large",
            "alpha" : 0.5
            }
@@ -601,8 +581,7 @@ def build_mod_args():
          ("modgroups","refine_6",
           {"targets" : CheckHeterogeneousSegments(threshold=1,
                                                choose_from=FromAllSegments()),
-           "criterion" : Unconditionally(),
-           "divider" : Bisection(),
+           "divider" : Bisection(minlength=0),
            "rules" : "Quick",
            "alpha" : 0.5
            }
@@ -610,53 +589,46 @@ def build_mod_args():
          ("modgroups","refine_6L",
           {"targets" : CheckHeterogeneousSegments(threshold=1,
                                                choose_from=FromAllSegments()),
-           "criterion" : Unconditionally(),
-           "divider" : Bisection(),
+           "divider" : Bisection(minlength=0),
            "rules" : "Large",
            "alpha" : 0.5
            }
           ),
          ("modtriangle", "refine_7",
           { "targets" : CheckHomogeneity(threshold=0.6),
-            "criterion" : Unconditionally(),
-            "divider" : Bisection(),
+            "divider" : Bisection(minlength=0),
             "rules" : "Quick",
             "alpha" : 0.5
            }
           ),
          ("modtriangle", "refine_7L",
           { "targets" : CheckHomogeneity(threshold=0.6),
-            "criterion" : Unconditionally(),
-            "divider" : Bisection(),
+            "divider" : Bisection(minlength=0),
             "rules" : "Large",
             "alpha" : 0.5
            }
           ),
          ("modtriangle", "refine_8",
           { "targets" : CheckHomogeneity(threshold=0.6),
-            "criterion" : Unconditionally(),
-            "divider" : Trisection(),
+            "divider" : Trisection(minlength=0),
             "rules" : "Quick",
             "alpha" :  0.5
            }
           ),
          ("modtriangle", "refine_8L",
           { "targets" : CheckHomogeneity(threshold=0.6),
-            "criterion" : Unconditionally(),
-            "divider" : Trisection(),
+            "divider" : Trisection(minlength=0),
             "rules" : "Large",
             "alpha" :  0.5
            }
           ),
          ("modbase_groups", "refine_9",
           dict(targets=CheckSegmentsInGroup(group='#00fc00'),
-               criterion=Unconditionally(),
-               divider=Bisection(),
+               divider=Bisection(minlength=0),
                rules='Quick',alpha=0.3)),
          ("modbase_groups", "refine_9L",
           dict(targets=CheckSegmentsInGroup(group='#00fc00'),
-               criterion=Unconditionally(),
-               divider=Bisection(),
+               divider=Bisection(minlength=0),
                rules='Large',alpha=0.3)),
              
 
@@ -665,50 +637,42 @@ def build_mod_args():
          # of an oof2 log.
          ("modbase", "snaprefine_1",
           dict(targets=CheckHomogeneity(threshold=0.9),
-               criterion=Unconditionally(),
                divider=TransitionPoints(minlength=0.1),
                rules='Quick',
                alpha=0.5)),
          ("modbase", "snaprefine_1L",
           dict(targets=CheckHomogeneity(threshold=0.9),
-               criterion=Unconditionally(),
                divider=TransitionPoints(minlength=0.1),
                rules='Large',
                alpha=0.5)),
          ("modtriangle", "snaprefine_1T",
           dict(targets=CheckHomogeneity(threshold=0.9),
-               criterion=Unconditionally(),
                divider=TransitionPoints(minlength=0.1),
                rules='Quick',
                alpha=0.5)),
          ("modtriangle", "snaprefine_1LT",
           dict(targets=CheckHomogeneity(threshold=0.9),
-               criterion=Unconditionally(),
                divider=TransitionPoints(minlength=0.1),
                rules='Large',
                alpha=0.5)),
          # snaprefine_2 is just like snaprefine_1 but has larger minlengths
          ("modbase", "snaprefine_2",
           dict(targets=CheckHomogeneity(threshold=0.9),
-               criterion=Unconditionally(),
                divider=TransitionPoints(minlength=2.0),
                rules='Quick',
                alpha=0.5)),
          ("modbase", "snaprefine_2L",
           dict(targets=CheckHomogeneity(threshold=0.9),
-               criterion=Unconditionally(),
                divider=TransitionPoints(minlength=2.0),
                rules='Large',
                alpha=0.5)),
          ("modtriangle", "snaprefine_2T",
           dict(targets=CheckHomogeneity(threshold=0.9),
-               criterion=Unconditionally(),
                divider=TransitionPoints(minlength=5.0),
                rules='Quick',
                alpha=0.5)),
          ("modtriangle", "snaprefine_2LT",
           dict(targets=CheckHomogeneity(threshold=0.9),
-               criterion=Unconditionally(),
                divider=TransitionPoints(minlength=5.0),
                rules='Large',
                alpha=0.5)),
@@ -717,13 +681,11 @@ def build_mod_args():
          # quick and large rule sets.
          ("modbase", "snaprefine_3",
           dict(targets=CheckHomogeneity(threshold=0.9),
-               criterion=Unconditionally(),
                divider=TransitionPoints(minlength=2.0),
                rules='Quick',
                alpha=0.5)),
          ("modbase", "snaprefine_3L",
           dict(targets=CheckHomogeneity(threshold=0.9),
-               criterion=Unconditionally(),
                divider=TransitionPoints(minlength=2.0),
                rules='Large',
                alpha=0.5)),
@@ -731,31 +693,26 @@ def build_mod_args():
          #  Checking aspect ratio
          ("highaspect", "snaprefine_4",
           dict(targets=CheckAspectRatio(threshold=5, only_quads=True),
-               criterion=Unconditionally(),
                divider=TransitionPoints(minlength=2),
                rules='Quick',
                alpha=0.5)),
          ("highaspect", "snaprefine_4a",
           dict(targets=CheckAspectRatio(threshold=3, only_quads=True),
-               criterion=Unconditionally(),
                divider=TransitionPoints(minlength=2),
                rules='Quick',
                alpha=0.5)),
          ("highaspect", "snaprefine_4L",
           dict(targets=CheckAspectRatio(threshold=5, only_quads=True),
-               criterion=Unconditionally(),
                divider=TransitionPoints(minlength=2),
                rules='Large',
                alpha=0.5)),
          ("highaspect", "snaprefine_4T",
           dict(targets=CheckAspectRatio(threshold=5, only_quads=False),
-               criterion=Unconditionally(),
                divider=TransitionPoints(minlength=2),
                rules='Quick',
                alpha=0.5)),
          ("highaspect", "snaprefine_4TL",
           dict(targets=CheckAspectRatio(threshold=5, only_quads=False),
-               criterion=Unconditionally(),
                divider=TransitionPoints(minlength=2),
                rules='Large',
                alpha=0.5))

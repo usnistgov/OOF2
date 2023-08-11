@@ -64,10 +64,18 @@ import math
 
 class SegmentDivider(registeredclass.RegisteredClass):
     registry = []
+    def __init__(self, minlength):
+        self.minlength = minlength
+        self.minLength2 = minlength*minlength
+
+minLengthParam = parameter.NonNegativeFloatParameter(
+    "minlength", value=2.0, default=2.0,
+    tip="Minimum refined segment length in pixel units.  A length of at least 2 is suggested.")
 
 class Bisection(SegmentDivider):
     def markSegment(self, skeleton, node0, node1, segMarkings):
-        segMarkings.insert(SegmentMarks(node0, node1, (1/2,)))
+        if (node0.position() - node1.position()).norm2() >= 4*self.minLength2:
+            segMarkings.insert(SegmentMarks(node0, node1, (1/2,)))
     def reduceMarks(self, maxMarks, markedSegs):
         pass
 
@@ -76,11 +84,13 @@ registeredclass.Registration(
     SegmentDivider,
     Bisection,
     ordering=1,
+    params = [minLengthParam],
     tip="Divide segments in half.")
 
 class Trisection(SegmentDivider):
     def markSegment(self, skeleton, node0, node1, segMarkings):
-        segMarkings.insert(SegmentMarks(node0, node1, (1/3, 2/3)))
+        if (node0.position() - node1.position()).norm2() >= 9*self.minLength2:
+            segMarkings.insert(SegmentMarks(node0, node1, (1/3, 2/3)))
     def reduceMarks(self, maxMarks, markedSegs):
         pass
 
@@ -89,11 +99,10 @@ registeredclass.Registration(
     SegmentDivider,
     Trisection,
     ordering=2,
+    params=[minLengthParam],
     tip="Divide segments into thirds.")
 
 class TransitionPoints(SegmentDivider):
-    def __init__(self, minlength):
-        self.minlength = minlength # min segment length in pixels
     def markSegment(self, skeleton, node0, node1, segMarkings):
         # Get transition points
         micro = skeleton.MS
@@ -195,10 +204,7 @@ registeredclass.Registration(
     "TransitionPoints",
     SegmentDivider,
     TransitionPoints,
-    params = [
-        parameter.PositiveFloatParameter(
-            "minlength", value=2.0, default=2.0,
-            tip="Minimum refined segment length in pixel units.  A length of at least 2 is suggested.")],
+    params = [minLengthParam],
     tip="Divide segments at the intersections with pixel boundaries.",
     ordering=3)
         
@@ -362,9 +368,8 @@ class SegmentMarkings:
 
 
 class Refine(skeletonmodifier.SkeletonModifier):
-    def __init__(self, targets, criterion, divider, rules, alpha=1):
+    def __init__(self, targets, divider, rules, alpha=1):
         self.targets = targets      # RefinementTarget instance
-        self.criterion = criterion  # Criterion for refinement
         self.divider = divider      # Method for dividing edges
         self.rules = rules          # Methods for dividing elements
         # alpha is used for deciding between different possible
@@ -400,8 +405,7 @@ class Refine(skeletonmodifier.SkeletonModifier):
 
         # Use the RefinementTarget to mark the edges that should be
         # refined. 
-        self.targets(oldSkeleton, context, self.divider, markedSegs,
-                     self.criterion)
+        self.targets(oldSkeleton, context, self.divider, markedSegs)
 
         # Reduce the number of marks on edges to the number allowed by
         # the refinement rules.  This is done via the divider, because
@@ -649,79 +653,6 @@ def findSignature(marks):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class RefinementCriterion(registeredclass.RegisteredClass):
-    registry = []
-
-    tip = "Restrict the set of Elements considered for refinement."
-    discussion = """<para>
-
-    Objects in the <classname>RefinementCriterion</classname> class
-    are used as values of the <varname>criterion</varname> parameter
-    when <link linkend='RegisteredClass-Refine'>refining</link>
-    &skels;.  Only &elems; that satisfy the criterion are considered
-    for refinement.
-
-    </para>"""
-
-## TODO PYTHON3: Make sense of how RefinementCriterion and related
-## classes are used.
-##
-## For Refinement, "criterion" can be either Unconditionally or
-## MinimumArea.  One of those two is ungrammatical.  Even then, the
-## criterion is just one more way of restricting the set of elements
-## to be refined.  "targets" serves the same purpose.  Why does
-## MinimumArea get separate treatment?  Like the other restrictions,
-## the minimum area condition is applied before the element is
-## refined.  Should it be applied afterwards, to reject refinements
-## that produce elements that are too small?  That at least would
-## explain the difference between it and "targets".
-##
-## The FiddleNodes classes also have a "criterion" parameter, but it's
-## a completely different SkelModCriterion object, which is a way of
-## choosing which moves to accept if more than one is possible.
-##
-## In neither case is the name "criterion" actually informative.
-
-class Unconditionally(RefinementCriterion):
-    def __call__(self, skeleton, element):
-        return True
-registeredclass.Registration(
-    'Unconditional',
-    RefinementCriterion,
-    Unconditionally,
-    ordering=0,
-    tip='Consider all Elements for possible refinement.',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/unconditionally.xml')
-)
-
-class MinimumArea(RefinementCriterion):
-    def __init__(self, threshold, units):
-        self.threshold = threshold
-        self.units = units
-    def __call__(self, skeleton, element):
-        if self.units == 'Pixel':
-            return element.area() > self.threshold*skeleton.MS.areaOfPixels()
-        elif self.units == 'Physical':
-            return element.area() > self.threshold
-        elif self.units == 'Fractional':
-            return element.area() > self.threshold*skeleton.MS.area()
-
-registeredclass.Registration(
-    'Minimum Area',
-    RefinementCriterion,
-    MinimumArea,
-    ordering=1,
-    params=[parameter.FloatParameter('threshold', 10,
-                                     tip="Minimum acceptable element area."),
-            enum.EnumParameter('units', units.Units, units.Units('Pixel'),
-                               tip='Units for the minimum area')],
-    tip='Only refine elements with area greater than the given threshold.',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/minimumarea.xml')
-)
-
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
 registeredclass.Registration(
     'Refine',
     skeletonmodifier.SkeletonModifier,
@@ -733,10 +664,6 @@ registeredclass.Registration(
             refinementtarget.RefinementTarget,
             tip='Target elements to be refined.'),
         parameter.RegisteredParameter(
-            'criterion',
-            RefinementCriterion,
-            tip='Exclude certain elements.'),
-        parameter.RegisteredParameter(
             'divider',
             SegmentDivider,
             tip="How to divide the edges of the refined elements."),
@@ -746,7 +673,7 @@ registeredclass.Registration(
             tip="The set of rules used to divide elements after their segments are divided."),
         skeletonmodifier.alphaParameter
             ],
-    tip="Subdivide elements along pixel boundaries.",
+    tip="Subdivide elements.",
     ## TODO PYTHON3: Update docs!
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/refine.xml')
 )

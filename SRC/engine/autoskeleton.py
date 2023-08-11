@@ -108,8 +108,7 @@ def _autoSkeletonMain(prog, name, microstructure,
         OOF.Skeleton.Modify(
             skeleton=skelname,
             modifier=Refine(targets=CheckHomogeneity(threshold=threshold),
-                            criterion=Unconditionally(),
-                            divider=Bisection(),
+                            divider=Bisection(minlength=0),
                             rules='Quick',
                             alpha=0.8))
         lcount += 1
@@ -127,7 +126,6 @@ def _autoSkeletonMain(prog, name, microstructure,
     OOF.Skeleton.Modify(
         skeleton=skelname,
         modifier=Refine(targets=CheckHomogeneity(threshold=threshold),
-                        criterion=Unconditionally(),
                         divider=TransitionPoints(minlength=mindist),
                         rules='Quick',
                         alpha=0.8))

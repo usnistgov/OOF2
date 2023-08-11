@@ -243,7 +243,6 @@ class OOF_Skeleton(unittest.TestCase):
             skeleton="skeltest:undotest",
             modifier=Refine(
                 targets=CheckHomogeneity(threshold=0.9),
-                criterion=Unconditionally(),
                 divider=Bisection(),
                 rules="Quick"))
         sk_1 = sk_context.getObject()
@@ -268,7 +267,6 @@ class OOF_Skeleton(unittest.TestCase):
             skeleton="skeltest:redotest",
             modifier=Refine(
                 targets=CheckHomogeneity(threshold=0.9),
-                criterion=Unconditionally(),
                 divider=Bisection(),
                 rules='Quick'))
         sk_1 = sk_context.getObject()
@@ -408,200 +406,192 @@ def build_mod_args():
     skel_modify_args = {
         "Refine" :
         [
-        ("modbase", "refine_1",
-         { "targets" : CheckHomogeneity(threshold=0.9),
-           "criterion" : Unconditionally(),
-           "divider" : Trisection(),
-           "rules" : "Quick",
-           "alpha" : 0.5
-           }
-         ),
-        ("modbase", "refine_2",
-         { "targets" : CheckHomogeneity(threshold=0.9),
-           "criterion" : Unconditionally(),
-           "divider" : Bisection(),
-           "rules" : "Quick",
-           "alpha" : 0.5
-           }
-         ),
-        ("modgroups","refine_3",
-         {"targets" : CheckElementsInGroup(group='elementgroup'),
-          "criterion" : Unconditionally(),
-          "divider" : Bisection(),
-          "rules" : "Quick",
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_4",
-         {"targets" : CheckAllElements(),
-          "criterion" : Unconditionally(),
-          "divider" : Bisection(),
-          "rules" : "Quick",
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_5",
-         {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
-          "criterion" : Unconditionally(),
-          "divider" : Bisection(),
-          "rules" : "Quick",
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_6",
-         {"targets" : CheckHeterogeneousSegments(threshold=1,
-                                              choose_from=FromAllSegments()),
-          "criterion" : Unconditionally(),
-          "divider" : Bisection(),
-          "rules" : "Quick",
-          "alpha" : 0.5
-          }
-         )
-        ],
-        "Relax" :
-        [
-        ("modbase", "relax",
-         { "alpha" : 0.5,
-           "gamma" : 0.5,
-           "iterations" : 1
-           }
-         )
-        ],
-        "Snap Nodes" :
-        [ ("modbase", "snapnodes",
-           { "targets" : SnapAll(),
-             "criterion" : AverageEnergy(alpha=0.8)
-             }
-           )
-          ],
-        "Anneal" :
-        [
-        ("modbase", "anneal",
-         {"targets" : AllNodes(),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         ),
-        ("modgroups", "anneal_2",
-         {"targets" : NodesInGroup(group='nodegroup'),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         ),
-        ("modgroups", "anneal_3",
-         {"targets" : FiddleElementsInGroup(group='elementgroup'),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         ),
-        ("modgroups", "anneal_4",
-         {"targets" : FiddleHeterogeneousElements(threshold=0.95),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         )
-        ],
-        "Smooth" :
-        [ ("modgroups", "smooth",
-           {"targets" : AllNodes(),
-            "criterion" : AverageEnergy(alpha=0.3),
-            "T" : 0.0,
-            "iteration" : FixedIteration(iterations=5)
-            }
-           )
-          ],
-        "Swap Edges" :
-        [ ("modgroups", "swapedges",
-           {"targets" : AllElements(),
-            "criterion" : AverageEnergy(alpha=0.3)
-            }
-           )
-          ],
-        "Merge Triangles" :
-        [ ("modgroups", "mergetriangles",
-           {"targets" : AllElements(),
-            "criterion" : AverageEnergy(alpha=0.3)
-            }
-           )
-          ],
-        "Rationalize" :
-        [ ("modgroups", "rationalize",
-           {"targets" : AllElements(),
-            "criterion" : AverageEnergy(alpha=0.3),
-            "method" : SpecificRationalization(
-        rationalizers=[RemoveShortSide(ratio=5.0),
-                       QuadSplit(angle=150),
-                       RemoveBadTriangle(acute_angle=30,obtuse_angle=130)]),
-            "iterations" : 3
-            }
-           )
-          ],
-        "Snap Refine II" :
-        [
+            ("modbase", "refine_1",
+             { "targets" : CheckHomogeneity(threshold=0.9),
+               "divider" : Trisection(minlength=0),
+               "rules" : "Quick",
+               "alpha" : 0.5
+              }
+             ),
+            ("modbase", "refine_2",
+             { "targets" : CheckHomogeneity(threshold=0.9),
+               "divider" : Bisection(minlength=0),
+               "rules" : "Quick",
+               "alpha" : 0.5
+              }
+             ),
+            ("modgroups","refine_3",
+             {"targets" : CheckElementsInGroup(group='elementgroup'),
+              "divider" : Bisection(minlength=0),
+              "rules" : "Quick",
+              "alpha" : 0.5
+              }
+             ),
+            ("modgroups","refine_4",
+             {"targets" : CheckAllElements(),
+              "divider" : Bisection(minlength=0),
+              "rules" : "Quick",
+              "alpha" : 0.5
+              }
+             ),
+            ("modgroups","refine_5",
+             {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
+              "divider" : Bisection(minlength=0),
+              "rules" : "Quick",
+              "alpha" : 0.5
+              }
+             ),
+            ("modgroups","refine_6",
+             {"targets" : CheckHeterogeneousSegments(
+                 threshold=1, choose_from=FromAllSegments()),
+              "divider" : Bisection(minlength=0),
+              "rules" : "Quick",
+              "alpha" : 0.5
+              }
+             ),
+            # Old SnapRefine tests
             ("modbase", "snaprefine_1",
              { "targets" : CheckHomogeneity(threshold=0.9),
-               "criterion" : Unconditionally(),
-               "min_distance" : 0.01,
+               "divider" : TransitionPoints(minlength=0.01),
+               "rules" : 'Quick',
                "alpha": 0.5
               }
              ),
-            ("modgroups","snaprefine_2",
+            ("modgroups", "snaprefine_2",
              {"targets" : CheckElementsInGroup(group='elementgroup'),
-              "criterion" : Unconditionally(),
-              "min_distance" : 1.0,
+              "divider" : TransitionPoints(minlength=1.0),
               "alpha": 0.5
               }
              ),
-            ("modgroups2","snaprefine_3",
+            ("modgroups2", "snaprefine_3",
              {"targets" : CheckAllElements(),
-              "criterion" : Unconditionally(),
-              "min_distance" : 1.0,
+              "divider" : TransitionPoints(minlength=1.0),
               "alpha": 0.5
               }
              ),
-            ("modgroups","snaprefine_4",
+            ("modgroups", "snaprefine_4",
              {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
-              "criterion" : Unconditionally(),
-              "min_distance" : .01,
+              "divider" : TransitionPoints(minlength=0.01),
               "alpha": 0.5
               }
              ),
-            ("modgroups","snaprefine_4a",
+            ("modgroups", "snaprefine_4a",
              {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
-              "criterion" : Unconditionally(),
-              "min_distance" : 2.0,
+              "divider" : TransitionPoints(minlength=2.0),
               "alpha": 0.5
               }
              ),
-            ("modgroups2","snaprefine_5",
+            ("modgroups2", "snaprefine_5",
              {"targets" :
               CheckHeterogeneousSegments(threshold=1,
-                                       choose_from=FromAllSegments()),
-              "criterion" : Unconditionally(),
-              "min_distance" : 2.0,
+                                         choose_from=FromAllSegments()),
+              "divider" : TransitionPoints(minlength=2.0),
               "alpha": 0.5
               }
              ),
-            ("modbase1x1","snaprefine_1x1",
+            ("modbase1x1", "snaprefine_1x1",
              {"targets" : CheckHomogeneity(threshold=0.9),
-              "criterion" : Unconditionally(),
-              "min_distance" : 1.0,
+              "divider" : TransitionPoints(minlength=1.0),
               "alpha": 0.5
               }
              )
-        ]
+        ],
+        "Relax" :
+        [
+            ("modbase", "relax",
+             { "alpha" : 0.5,
+               "gamma" : 0.5,
+               "iterations" : 1
+              }
+             )
+        ],
+        "Snap Nodes" :
+        [
+            ("modbase", "snapnodes",
+             { "targets" : SnapAll(),
+               "criterion" : AverageEnergy(alpha=0.8)
+              }
+             )
+        ],
+        "Anneal" :
+        [
+            ("modbase", "anneal",
+             {"targets" : AllNodes(),
+              "criterion" : AverageEnergy(alpha=0.6),
+              "T" : 0.0,
+              "delta" : 1.0,
+              "iteration" : FixedIteration(iterations=5)            
+              }
+             ),
+            ("modgroups", "anneal_2",
+             {"targets" : NodesInGroup(group='nodegroup'),
+              "criterion" : AverageEnergy(alpha=0.6),
+              "T" : 0.0,
+              "delta" : 1.0,
+              "iteration" : FixedIteration(iterations=5)            
+              }
+             ),
+            ("modgroups", "anneal_3",
+             {"targets" : FiddleElementsInGroup(group='elementgroup'),
+              "criterion" : AverageEnergy(alpha=0.6),
+              "T" : 0.0,
+              "delta" : 1.0,
+              "iteration" : FixedIteration(iterations=5)            
+              }
+             ),
+            ("modgroups", "anneal_4",
+             {"targets" : FiddleHeterogeneousElements(threshold=0.95),
+              "criterion" : AverageEnergy(alpha=0.6),
+              "T" : 0.0,
+              "delta" : 1.0,
+              "iteration" : FixedIteration(iterations=5)            
+              }
+             )
+        ],
+        "Smooth" :
+        [
+            ("modgroups", "smooth",
+             {"targets" : AllNodes(),
+              "criterion" : AverageEnergy(alpha=0.3),
+              "T" : 0.0,
+              "iteration" : FixedIteration(iterations=5)
+              }
+             )
+        ],
+        "Swap Edges" :
+        [
+            ("modgroups", "swapedges",
+             {"targets" : AllElements(),
+              "criterion" : AverageEnergy(alpha=0.3)
+              }
+             )
+        ],
+        "Merge Triangles" :
+        [
+            ("modgroups", "mergetriangles",
+             {"targets" : AllElements(),
+              "criterion" : AverageEnergy(alpha=0.3)
+              }
+             )
+        ],
+        "Rationalize" :
+        [
+            ("modgroups", "rationalize",
+             {"targets" : AllElements(),
+              "criterion" : AverageEnergy(alpha=0.3),
+              "method" : SpecificRationalization(
+                  rationalizers=[
+                      RemoveShortSide(ratio=5.0),
+                      QuadSplit(angle=150),
+                      RemoveBadTriangle(acute_angle=30,obtuse_angle=130)]),
+              "iterations" : 3
+              }
+             )
+        ],
     }
 
 def initialize():
-    # Modfiy arguments make use of classes which are not in the
+    # Modify arguments make use of classes which are not in the
     # namespace until after oof.run() has been called, so they can't
     # be used at import-time.
     build_mod_args()

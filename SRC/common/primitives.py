@@ -19,14 +19,12 @@ from ooflib.common.IO import parameter
 import math
 import struct
 
+# Point represents a point in 2 dimensions.  It is more or less
+# redundant with Coord, but doesn't have the overhead of calling C++
+# routines for simple operations.  Python graphics routines should
+# generally be prepared to receive either Point or Coord.
+
 class Point:
-    """
-    Point class represents a point in 2 dimensions.  It is more or
-    less redundant with oofcpp.Coord, but doesn't have the overhead of
-    calling C++ routines for simple operations.  Python graphics
-    routines should generally be prepared to receive either Point or
-    oofcpp.Coord.
-    """
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -69,6 +67,7 @@ class Point:
         return self.x*other.y - self.y*other.x
 
     # Power defined only for squaring -- finds the squared magnitude.
+    # TODO: It's better to use Point.norm2.  Is this used?
     def __pow__(self, other):
         if other!=2:
             raise ValueError(
@@ -90,6 +89,9 @@ class Point:
 
     def __truediv__(self, other):
         return Point(self.x/other, self.y/other)
+
+    def norm2(self):
+        return self.x*self.x + self.y*self.y
 
     def __hash__(self):
         # Comparison operators are written in terms of __getitem__ so that

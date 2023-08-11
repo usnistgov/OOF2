@@ -44,6 +44,13 @@
       best one.  The Large rule set considers many more possibilities,
       and chooses the one with the lowest "energy".
 
+  The "criterion" parameter has been removed.  It allowed you to
+  exclude elements below a certain area.  It was inconsistent with the
+  "criterion" parameter in other skeleton modifiers.  Instead, there
+  is a "minlength" subparameter in the divider.  Existing element
+  edges will not be subdivided into segments less than minlength (but
+  new internal edges may be shorter).
+
 * The number of digits of floating point numbers displayed in the GUI
   can be set with the "GUI Digits" item in the Settings menu.
 

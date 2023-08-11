@@ -27,23 +27,22 @@ class RefinementTarget(registeredclass.RegisteredClass):
     tip = "Determine which Skeleton segments will be refined."
     discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/refinementtarget.xml')
 
-# ElementRefinementTarget marks all segments of the elements that
-# match the given criterion.  If you don't want to mark all segments,
-# use SegmentRefinementTarget instead.
+# ElementRefinementTarget marks all segments of a set of elements.  If
+# you don't want to mark all segments of an element, use
+# SegmentRefinementTarget instead.
 
 class ElementRefinementTarget(RefinementTarget):
     def markElement(self, skeleton, element, divider, markedSegs):
         nnodes = element.nnodes()
         for i in range(nnodes):
             divider.markSegment(skeleton,
-                               element.nodes[i], element.nodes[(i+1)%nnodes],
-                               markedSegs)
-    def __call__(self, skeleton, context, divider, markedSegs, criterion):
+                                element.nodes[i], element.nodes[(i+1)%nnodes],
+                                markedSegs)
+    def __call__(self, skeleton, context, divider, markedSegs):
         prog = progress.findProgress("Refine")
         eliter = self.iterator(context) # self.iterator is from subclass
         for element in eliter:
-            if criterion(skeleton, element):
-                self.markElement(skeleton, element, divider, markedSegs)
+            self.markElement(skeleton, element, divider, markedSegs)
             if prog.stopped():
                 return
             prog.setFraction(eliter.fraction())
@@ -52,16 +51,14 @@ class ElementRefinementTarget(RefinementTarget):
             
 
 class SegmentRefinementTarget(RefinementTarget):
-    def markSegment(self, skeleton, context, segment, divider, markedSegs):
-        divider.markSegment(skeleton,
-                           segment.nodes()[0], segment.nodes()[1], markedSegs)
-    def __call__(self, skeleton, context, divider, markedSegs, criterion):
+    def markSegment(self, skeleton, segment, divider, markedSegs):
+        divider.markSegment(skeleton, segment.nodes()[0], segment.nodes()[1],
+                            markedSegs)
+    def __call__(self, skeleton, context, divider, markedSegs):
         prog = progress.findProgress("Refine")
         segiter = self.iterator(context)
         for segment in segiter:
-            if criterion(skeleton, segment):
-                self.markSegment(skeleton, context, segment, divider,
-                                 markedSegs)
+            self.markSegment(skeleton, segment, divider, markedSegs)
             if prog.stopped():
                 return
             prog.setFraction(segiter.fraction())
@@ -266,7 +263,7 @@ registeredclass.Registration(
 ## level Segments option would have a SegmentChooser with equivalent
 ## options.
 
-# Currently implemented/2.2.2/2.1.19 scheme
+# Currently implemented/2.3.x scheme
 #
 # Refine
 #   targets
@@ -291,6 +288,7 @@ registeredclass.Registration(
 #     AMR
 #   criterion  (Unconditional or Minimum Area)
 #   divider (Bisection, Trisection, or Transition Points)
+#      minlength
 #   rules (Quick, Large)
 #   alpha (0-1)
 
@@ -316,17 +314,17 @@ registeredclass.Registration(
 #        Group
 #           Name
 #        From Selected Elements
-#   criterion  (Unconditional or Minimum Area)
+#   minimum_length
 #   divider (Bisection, Trisection, or Transition Points)
+#      minlength
 #   rules (Quick, Large)
 #   alpha (0-1)
 #
-# But that doesn't have the useful functionality of hte choose from option.
+# But that doesn't have the useful functionality of the choose from option.
 
 # Maybe the better thing would be to have a bunch of checkboxes to
-# select which criteria to use.  The current "criterion" argument
-# would be deleted.  Objects would be refined if they meet all of the
-# chosen criteria.
+# select which criteria to use.  Objects would be refined if they meet
+# all of the chosen criteria.
 #
 # Refine
 #   targets
@@ -347,6 +345,8 @@ registeredclass.Registration(
 #       * selected
 #       * has a selected element
 #       * has a selected node
+#  divider (Bisection, Trisection, or Transition Points)
+#     minlength
 #
 # "all" would be automatically selected if none of the other criteria
 # are chosen.  Checking "all" would deselect the other criteria, and
