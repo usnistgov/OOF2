@@ -418,6 +418,8 @@ findWidget('OOF2:Skeleton Page:Pane').set_position(496)
 event(Gdk.EventType.BUTTON_PRESS,x= 7.6000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:divider:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Bisection']).activate() # MenuItemLogger
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:divider:Bisection:minlength').set_text('')
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:divider:Bisection:minlength').set_text('0')
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('OOF2:Skeleton Page:Pane').set_position(498)
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()

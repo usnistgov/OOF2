@@ -202,6 +202,10 @@ findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogen
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:slider').get_adjustment().set_value( 9.1666666666667e-01)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:slider').get_adjustment().set_value( 9.7222222222222e-01)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:slider').get_adjustment().set_value( 1.0000000000000e+00)
+
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:divider:Trisection:minlength').set_text('')
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:divider:Trisection:minlength').set_text('0')
+
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set_text('0.')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set_text('0.7')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set_text('0.75')
