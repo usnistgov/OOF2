@@ -45,8 +45,7 @@ class TestBase(unittest.TestCase):
         OOF.Skeleton.Modify(
             skeleton='microstructure:skeleton',
             modifier=Refine(targets=CheckSelectedElements(),
-                            criterion=Unconditionally(),
-                            divider=Bisection(),
+                            divider=Bisection(minlength=0.0),
                             rules='Quick',
                             alpha=0.3))
         OOF.PixelSelection.Select_Element_Pixels(

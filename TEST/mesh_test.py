@@ -752,8 +752,7 @@ class OOF_Mesh_Special(OOF_Mesh_Base):
         OOF.Skeleton.Modify(
             skeleton='microstructure:skeleton',
             modifier=Refine(targets=CheckAllElements(),
-                            criterion=Unconditionally(),
-                            divider=Bisection(),
+                            divider=Bisection(minlength=0.0),
                             rules='Quick',
                             alpha=0.3))
         OOF.Mesh.Delete(mesh='microstructure:skeleton:mesh')
@@ -832,8 +831,7 @@ class OOF_Mesh_Special(OOF_Mesh_Base):
         OOF.Skeleton.Modify(
             skeleton='microstructure:skeleton',
             modifier=Refine(targets=CheckSelectedElements(),
-                            criterion=Unconditionally(),
-                            divider=Bisection(),
+                            divider=Bisection(minlength=0.0),
                             rules='Quick',
                             alpha=0.3))
 

@@ -323,8 +323,7 @@ class Skeleton_Boundary(unittest.TestCase):
         OOF.Skeleton.Modify(
             skeleton='skeltest:bdytest', 
             modifier=Refine(targets=CheckAllElements(),
-                            criterion=Unconditionally(),
-                            divider=Bisection(),
+                            divider=Bisection(minlength=0.0),
                             rules='Quick',
                             alpha=0.3))
         self.assertEqual(test_bdy.current_size(), 4)

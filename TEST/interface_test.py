@@ -453,32 +453,38 @@ class OOF_InterfaceTest2(unittest.TestCase):
             x_elements=2, y_elements=2,
             skeleton_geometry=QuadSkeleton(left_right_periodicity=False,
                                            top_bottom_periodicity=False))
+
+        ## TODO: This test has not been used since the Refine method
+        ## was updated.  The reference files are certainly out of
+        ## date. The Refine parameters may need to be tweaked.
         OOF.Skeleton.Modify(
             skeleton='serendipity.png:skeleton',
             modifier=Refine(
                 targets=CheckHomogeneity(threshold=0.90000000000000002),
-                criterion=Unconditionally(),
-                degree=Bisection(rule_set='liberal'),
+                divider=Bisection(minlength=0),
+                rules="Quick",
                 alpha=0.80000000000000004))
         OOF.Skeleton.Modify(
             skeleton='serendipity.png:skeleton',
             modifier=Refine(
                 targets=CheckHomogeneity(threshold=0.90000000000000002),
-                criterion=Unconditionally(),
-                degree=Bisection(rule_set='liberal'),
+                divider=Bisection(minlength=0),
+                rules="Quick",
                 alpha=0.80000000000000004))
         OOF.Skeleton.Modify(
             skeleton='serendipity.png:skeleton',
             modifier=Refine(
                 targets=CheckHomogeneity(threshold=0.90000000000000002),
-                criterion=Unconditionally(),
-                degree=Bisection(rule_set='liberal'),
+                divider=Bisection(minlength=0),
+                rules="Quick",
                 alpha=0.80000000000000004))
         OOF.Skeleton.Modify(
             skeleton='serendipity.png:skeleton',
-            modifier=SnapRefine(
-                targets=CheckHomogeneity(threshold=0.90000000000000002),
-                criterion=Unconditionally(),min_distance=0.01))
+            modifier=Refine(
+                targets=CheckHomogeneity(threshold=0.9),
+                divider=TransitionPoint(minlength=0),
+                rules="Quick",
+                alpha=0.5))
         OOF.Skeleton.Modify(
             skeleton='serendipity.png:skeleton',
             modifier=Rationalize(

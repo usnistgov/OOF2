@@ -48,8 +48,7 @@ class OOF_AMR(unittest.TestCase):
                     estimator=ZZ_Estimator(
                         norm=L2ErrorNorm(),flux=Stress,threshold=10)
                     ),
-                criterion=Unconditionally(),
-                divider=Trisection(),
+                divider=Trisection(minlength=0.0),
                 rules='Quick',
                 alpha=0.3))
         # Because adaptive mesh refinement is susceptible to roundoff
@@ -124,15 +123,15 @@ class OOF_AMR(unittest.TestCase):
             target='el_shape.png:skeleton:mesh:subproblem')
         OOF.Skeleton.Modify(
             skeleton='el_shape.png:skeleton',
-            modifier=Refine(targets=AdaptiveMeshRefine(
+            modifier=Refine(
+                targets=AdaptiveMeshRefine(
                     subproblem='el_shape.png:skeleton:mesh:subproblem',
                     estimator=ZZ_Estimator(
                         norm=L2ErrorNorm(),flux=Stress,threshold=10)
-                    ),
-                            criterion=Unconditionally(),
-                            divider=Trisection(),
-                            rules='Quick',
-                            alpha=0.29999999999999999))
+                ),
+                divider=Trisection(minlength=0.0),
+                rules='Quick',
+                alpha=0.3))
         self.assertEqual(meshctxt.nelements(), 400)
         newNel = len(skelctxt.getObject().elements)
         self.assertTrue(newNel > 400)

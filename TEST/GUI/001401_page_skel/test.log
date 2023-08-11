@@ -99,30 +99,13 @@ findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogen
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:slider').get_adjustment().set_value( 5.8333333333333e-01)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:slider').get_adjustment().set_value( 5.6944444444444e-01)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:slider').get_adjustment().set_value( 5.5555555555556e-01)
-event(Gdk.EventType.BUTTON_PRESS,x= 1.0500000000000e+02,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:criterion:RCFChooser').get_window())
-checkpoint toplevel widget mapped chooserPopup-RCFChooser
-findMenu(findWidget('chooserPopup-RCFChooser'), ['Minimum Area']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2').resize(782, 578)
-event(Gdk.EventType.BUTTON_PRESS,x= 4.6000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:criterion:Minimum Area:units').get_window())
-checkpoint toplevel widget mapped chooserPopup-units
-findMenu(findWidget('chooserPopup-units'), ['Physical']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-units') # MenuItemLogger
 
-# event(Gdk.EventType.BUTTON_PRESS,x= 1.0800000000000e+02,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:degree:RCFChooser').get_window())
-# checkpoint toplevel widget mapped chooserPopup-RCFChooser
-# findMenu(findWidget('chooserPopup-RCFChooser'), ['Bisection']).activate() # MenuItemLogger
-# deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:divider:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:divider:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findWidget('chooserPopup-RCFChooser').deactivate() # MenuLogger
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Bisection']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 
-# event(Gdk.EventType.BUTTON_PRESS,x= 7.8000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:degree:Bisection:rule_set').get_window())
-# checkpoint toplevel widget mapped chooserPopup-rule_set
-# findMenu(findWidget('chooserPopup-rule_set'), ['liberal']).activate() # MenuItemLogger
-# deactivatePopup('chooserPopup-rule_set') # MenuItemLogger
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:slider').get_adjustment().set_value( 2.9059829059829e-01)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:slider').get_adjustment().set_value( 3.0769230769231e-01)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:slider').get_adjustment().set_value( 3.2478632478632e-01)
