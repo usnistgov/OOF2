@@ -2,7 +2,7 @@ OOF.Microstructure.New(name='microstructure', width=1, height=1, width_in_pixels
 OOF.Settings.Graphics_Defaults.New_Layer_Policy(policy='Single')
 OOF.Windows.Graphics.New()
 OOF.Skeleton.New(name='skeleton', microstructure='microstructure', x_elements=4, y_elements=4, skeleton_geometry=QuadSkeleton(left_right_periodicity=False,top_bottom_periodicity=False))
-OOF.Skeleton.Modify(skeleton='microstructure:skeleton', modifier=Refine(targets=CheckAllElements(),criterion=Unconditionally(),divider=Bisection(),rules='Quick',alpha=0.3))
+OOF.Skeleton.Modify(skeleton='microstructure:skeleton', modifier=Refine(targets=CheckAllElements(),divider=Bisection(minlength=0),rules='Quick',alpha=0.3))
 OOF.Skeleton.Undo(skeleton='microstructure:skeleton')
 OOF.Graphics_1.Toolbox.Select_Element.Single_Element(skeleton='microstructure:skeleton', points=[Point(0.14062109,0.64375157)], shift=False, ctrl=False)
 OOF.Skeleton.Redo(skeleton='microstructure:skeleton')
