@@ -9,17 +9,17 @@
 # oof_manager@nist.gov.
 
 ## A Segment-based snap node method instead of an Element-based
-## method.  That is, loop over Segments instead of Elements.  For both
-## Nodes in a Segment, find the possible transition points on *all*
-## Segments that contain each Node (picking the closest one if there
-## are multiple transition points on a Segment).  Then examine all
-## possible pair-wise moves of the two nodes, as well as the single
-## node moves.
+## method.  That is, it loops over Segments instead of Elements.  For
+## both Nodes in a Segment, it finds the possible transition points on
+## *all* Segments that contain either Node (picking the closest one if
+## there are multiple transition points on a Segment).  Then it
+## examines all possible pair-wise moves of the two nodes, as well as
+## the single node moves.
 
-## The proposed method can do something that the current algorithm
-## can't, namely aligning a Segment that crosses a material boundary
-## to the boundary in one step.  The current algorithm can only align
-## such a segment in two steps, because the transition points on the
+## This method can do something that the previous algorithm couldn't,
+## namely aligning a Segment that crosses a material boundary to the
+## boundary in one step.  The old algorithm could only align such a
+## segment in two steps, because the transition points on the
 ## neighboring segments are in different elements.  If the
 ## intermediate configuration has a high energy, the alignment won't
 ## occur.
@@ -37,6 +37,23 @@
 # ------B-------C------  element boundary
 # ......|.......|......
 
+# Also, after nodes are moved, their neighboring nodes are moved to
+# the head of the list of nodes to be considered next. This helps to
+# ensure that two segments at different parts of a material boundary
+# aren't snapped incompatibly:
+
+#       |       |     |      |     
+#       |       |     |      |     
+# ------A-------B-----C------D-----   If AB is snapped to QR and
+#       |       |     |      |        GH is snapped to ST, then there 
+#       |       |     |      |        would be no way to snap BC or FG 
+# ......Q.......R.....S......T.....   onto the material boundary RS.
+# ......|.......|.....|......|.....
+# ......|.......|.....|......|.....   But if BC is addressed after AB
+# ......|.......|.....|......|.....   this situation is avoided, because
+# ......|.......|.....|......|.....   C fill be snapped to S before G is
+# ------E-------F-----G------H-----   moved.
+# ......|.......|.....|......|.....
 
 
 from ooflib.SWIG.common import config
@@ -176,6 +193,15 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
                             for node in movednodes:
                                 usednodes.add(node)
                                 tpcache[node].invalidateAll(tpcache)
+                                # If node1 was moved, put it at the
+                                # head of the list of nodes to be
+                                # moved.  This allows makes it less
+                                # likely that two segments on the same
+                                # pixel boundary will be snapped
+                                # incompatibly.
+                                ## TODO PYTHON3 LATER: Should the
+                                ## *neighbors* of the moved nodes be
+                                ## prioritized instead?
                                 if node != node0:
                                     nodeiter.prioritize(node)
 

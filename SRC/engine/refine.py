@@ -69,7 +69,7 @@ class SegmentDivider(registeredclass.RegisteredClass):
         self.minLength2 = minlength*minlength
 
 minLengthParam = parameter.NonNegativeFloatParameter(
-    "minlength", value=2.0, default=2.0,
+    "minlength", value=2.0,
     tip="Minimum refined segment length in pixel units.  A length of at least 2 is suggested.")
 
 class Bisection(SegmentDivider):

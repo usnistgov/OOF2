@@ -787,11 +787,12 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def drawable(self):
         # Can any layer be drawn?  Used when testing the gui.
-        ## TODO: Does this need a lock?  The gtk2 version had a
-        ## separate SLock that controlled access to the list of
-        ## layers, and it was acquired here.  This is called from the
-        ## main thread during gui tests, and can't use self.gfxlock,
-        ## because that's not an SLock.
+        ## TODO: Does this need a lock?  I haven't seen any gui
+        ## testing errors that might be due to a missing lock.  The
+        ## gtk2 version had a separate SLock that controlled access to
+        ## the list of layers, and it was acquired here.  This is
+        ## called from the main thread during gui tests, and can't use
+        ## self.gfxlock, because that's not an SLock.
         for layer in self.layers:
             if not layer.incomputable(self):
                 return True
@@ -1386,13 +1387,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def freezeLayer(self, menuitem, n):
         self.layers[n].freeze(self)
-        # TODO: This signal is not caught.   Does freezing work?
-        switchboard.notify((self, 'layers frozen'))
         self.sensitize_menus()
     def unfreezeLayer(self, menuitem, n):
         self.layers[n].unfreeze(self)
-        # TODO: This signal is not caught.   Does freezing work?
-        switchboard.notify((self, 'layers frozen'))
         self.sensitize_menus()
         self.draw()
 
