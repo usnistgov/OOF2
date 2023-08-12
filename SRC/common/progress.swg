@@ -12,7 +12,7 @@
 #ifndef PROGRESS_SWG
 #define PROGRESS_SWG
 
-%module progress
+%module(package="ooflib.SWIG.common") progress
 %include "common/typemaps.swg"
 
 %{
@@ -25,9 +25,9 @@ enum ProgressType {
   INDEFINITE
 };
 
-Progress *getProgress(char*, ProgressType);
-Progress *findProgress(char*);
-Progress *findProgressByID(int);
+// Don't create default constructors for any of the Progress classes.
+// They're always created in C++ by the getProgress() function.
+%nodefaultctor;
 
 class Progress {
 public:
@@ -40,21 +40,25 @@ public:
   bool finished();
   void stop();
   bool stopped();
-  void setMessage(char*);
+  void setMessage(const std::string&);
   void setFraction(double);
-  %new string *message();
-  const string &name();
+  %newobject message;
+  std::string *message();
+  const std::string &name();
   int id();
   void acquireThreadLock();
   void releaseThreadLock();
   void disconnectBar(PyObject*);
-  %addmethods {
-    bool __eq__(Progress *other) {
-      return self->id() == other->id();
-    }
-    int __hash__() {
-      return self->id();
-    }
+};
+
+PYTHONEXPORTABLE(Progress);
+
+%extend Progress {
+  bool __eq__(Progress *other) {
+    return self->id() == other->id();
+  }
+  int __hash__() {
+    return self->id();
   }
 };
 
@@ -66,12 +70,18 @@ class DefiniteProgress : public Progress {
 class LogDefiniteProgress : public DefiniteProgress {
 public:
   void setRange(double, double);
-}
+};
 
 class IndefiniteProgress : public Progress {
 public:
   void pulse();
   unsigned long pulsecount();
 };
+
+Progress *getProgress(char*, ProgressType);
+Progress *findProgress(char*);
+Progress *findProgressByID(int);
+
+%pythoncode "common/progress.spy"
 
 #endif // PROGRESS_SWG

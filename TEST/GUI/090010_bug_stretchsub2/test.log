@@ -561,12 +561,12 @@ checkpoint Solver page sensitized
 checkpoint OOF.Subproblem.Disable_Solution
 
 # Specify a solver for the second subproblem (basic static)
-findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_vadjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_vadjustment().set_value( 4.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_vadjustment().set_value( 9.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_vadjustment().set_value( 1.2000000000000e+01)
-findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_vadjustment().set_value( 1.6000000000000e+01)
-findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_vadjustment().set_value( 2.0000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_property('vadjustment').set_value( 4.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_property('vadjustment').set_value( 9.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_property('vadjustment').set_value( 1.2000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_property('vadjustment').set_value( 1.6000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_property('vadjustment').set_value( 2.0000000000000e+01)
 findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList').get_selection().select_path(Gtk.TreePath([2]))
 checkpoint Solver page sensitized
 tree=findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList')

@@ -28,10 +28,10 @@ def outputDump(file):
     _catalogPaths(positions, xmlids, 'Output-Position-')
     _catalogPaths(aggregates, xmlids, 'Output-Aggregates-')
 
-    print >> file, "<section id='Section-Output'>"
-    print >> file, " <title>Outputs</title>"
-    print >> file, "<!--this section produced by SRC/engine/IO/xmloutputs.py-->"
-    print >> file, """
+    print("<section id='Section-Output'>", file=file)
+    print(" <title>Outputs</title>", file=file)
+    print("<!--this section produced by SRC/engine/IO/xmloutputs.py-->", file=file)
+    print("""
     <para>
      The <classname>Output</classname> classes provide ways of
      extracting data from <link
@@ -63,30 +63,29 @@ def outputDump(file):
        point.  They are used as the <varname>what</varname> argument
        in the contour plotting commands, for example.
        <itemizedlist spacing='compact'>
-       """
-    paths = [(o.getPath(),o) for o in scalars]
-    paths.sort()
+       """, file=file)
+    paths = sorted([(o.getPath(),o) for o in scalars])
     for path,o in paths:
         xmlmenudump.xmlIndexEntry(path, "Scalar Output", xmlids[o])
-        print >> file, " <listitem><simpara><link linkend='%s'>" % xmlids[o]
-        print >> file, "  <classname>%s</classname>" % path
-        print >> file, " </link></simpara></listitem>"
-    print >> file, """
+        print(" <listitem><simpara><link linkend='%s'>" % xmlids[o], file=file)
+        print("  <classname>%s</classname>" % path, file=file)
+        print(" </link></simpara></listitem>", file=file)
+    print("""
        </itemizedlist>
       </para></listitem>
       <listitem><para id='Section-Output-Position'>
        <classname>PositionOutputs</classname>:
        These are Outputs whose result is a position.  They are used as the
        <varname>where</varname> argument in plotting commands.
-        <itemizedlist spacing='compact'>"""
+        <itemizedlist spacing='compact'>""", file=file)
     paths = [(o.getPath(),o) for o in positions]
     paths.sort()
     for path,o in paths:
         xmlmenudump.xmlIndexEntry(path, "Position Output", xmlids[o])
-        print >> file, " <listitem><simpara><link linkend='%s'>" % xmlids[o]
-        print >> file, "  <classname>%s</classname>" % path
-        print >> file, " </link></simpara></listitem>"
-    print >> file, """
+        print(" <listitem><simpara><link linkend='%s'>" % xmlids[o], file=file)
+        print("  <classname>%s</classname>" % path, file=file)
+        print(" </link></simpara></listitem>", file=file)
+    print("""
        </itemizedlist>
       </para></listitem>
       <listitem><para id='Section-Output-Aggregate'>
@@ -100,80 +99,79 @@ def outputDump(file):
        Viewer</link>.  Many of the <link
        linkend='Section-Output-Scalar'><classname>ScalarOutputs</classname></link>
        are also <classname>AggregateOutputs</classname>.
-       <itemizedlist spacing='compact'> """
+       <itemizedlist spacing='compact'> """, file=file)
     paths = [(o.getPath(),o) for o in aggregates]
     paths.sort()
     for path,o in paths:
         xmlmenudump.xmlIndexEntry(path, "Aggregate Output", xmlids[o])
-        print >> file, "<listitem><simpara><link linkend='%s'>" % xmlids[o]
-        print >> file, " <classname>%s</classname>" % path
-        print >> file, " </link></simpara></listitem>"
-    print >> file, """
+        print("<listitem><simpara><link linkend='%s'>" % xmlids[o], file=file)
+        print(" <classname>%s</classname>" % path, file=file)
+        print(" </link></simpara></listitem>", file=file)
+    print("""
        </itemizedlist>
 
       </para></listitem>
      </itemizedlist>
      
     </para>
-    """
+    """, file=file)
 
     # for i in range(len(allOutputs)):
     #     if i==0 or (allOutputs[i] is not allOutputs[i-1]):
     #         o = allOutputs[i]
-    for o,xmlid in xmlids.items():
+    for o,xmlid in list(xmlids.items()):
             path = o.getPath()
             # xmlid = xmlids[path]
-            print >> file, "<refentry id='%s' role='Output'>" % xmlid
-            print >> file, " <refnamediv>"
-            print >> file, "  <refname>%s</refname>" % path
+            print("<refentry id='%s' role='Output'>" % xmlid, file=file)
+            print(" <refnamediv>", file=file)
+            print("  <refname>%s</refname>" % path, file=file)
             try:
-                print >> file, " <refpurpose>%s</refpurpose>" % xmlmenudump.getHelp(o)
+                print(" <refpurpose>%s</refpurpose>" % xmlmenudump.getHelp(o), file=file)
             except AttributeError:
-                print >> file, " <refpurpose>MISSING TIP STRING: %s</refpurpose>" % xmlid
-            print >> file, " </refnamediv>"
-            print >> file, " <refsynopsisdiv>"
-            print >> file, "  <title>Output Categories</title>"
-            print >> file, "  <itemizedlist spacing='compact'>"
+                print(" <refpurpose>MISSING TIP STRING: %s</refpurpose>" % xmlid, file=file)
+            print(" </refnamediv>", file=file)
+            print(" <refsynopsisdiv>", file=file)
+            print("  <title>Output Categories</title>", file=file)
+            print("  <itemizedlist spacing='compact'>", file=file)
             if o in scalars:
-                print >> file, "<listitem><simpara><link linkend='Section-Output-Scalar'><classname>ScalarOutput</classname></link></simpara></listitem>"
+                print("<listitem><simpara><link linkend='Section-Output-Scalar'><classname>ScalarOutput</classname></link></simpara></listitem>", file=file)
             if o in positions:
-                print >> file, "<listitem><simpara><link linkend='Section-Output-Position'><classname>PositionOutput</classname></link></simpara></listitem>"
+                print("<listitem><simpara><link linkend='Section-Output-Position'><classname>PositionOutput</classname></link></simpara></listitem>", file=file)
             if o in aggregates:
-                print >> file, "<listitem><simpara><link linkend='Section-Output-Aggregate'><classname>AggregateOutput</classname></link></simpara></listitem>"
-            print >> file, "  </itemizedlist>"
-            print >> file, " </refsynopsisdiv>"
-            params = o.getSettableParams().values()
+                print("<listitem><simpara><link linkend='Section-Output-Aggregate'><classname>AggregateOutput</classname></link></simpara></listitem>", file=file)
+            print("  </itemizedlist>", file=file)
+            print(" </refsynopsisdiv>", file=file)
+            params = list(o.getSettableParams().values())
             if params:
-                print >> file, " <refsect1>"
-                print >> file, "  <title>Parameters</title>"
-                print >> file, "  <variablelist>"
+                print(" <refsect1>", file=file)
+                print("  <title>Parameters</title>", file=file)
+                print("  <variablelist>", file=file)
                 for param in params:
                     xmlmenudump.process_param(param)
-                    print >> file, "   <varlistentry>"
-                    print >> file, "    <term><varname>%s</varname></term>" \
-                          % param.name
-                    print >> file, "    <listitem>"
+                    print("   <varlistentry>", file=file)
+                    print("    <term><varname>%s</varname></term>" \
+                          % param.name, file=file)
+                    print("    <listitem>", file=file)
                     try:
                         tip = xmlmenudump.getHelp(param)
                     except AttributeError:
                         tip = "MISSING TIP STRING: %s" % param.name
-                    print >> file, "     <simpara>%s <emphasis>Type</emphasis>: %s</simpara>" \
-                          % (tip, param.valueDesc())
-                    print >> file, "     </listitem>"
-                    print >> file, "   </varlistentry>"
-                print >> file, "  </variablelist>"
-                print >> file, " </refsect1>"
-            print >> file, " <refsect1>"
-            print >> file, "  <title>Description</title>"
+                    print("     <simpara>%s <emphasis>Type</emphasis>: %s</simpara>" \
+                          % (tip, param.valueDesc()), file=file)
+                    print("     </listitem>", file=file)
+                    print("   </varlistentry>", file=file)
+                print("  </variablelist>", file=file)
+                print(" </refsect1>", file=file)
+            print(" <refsect1>", file=file)
+            print("  <title>Description</title>", file=file)
             try:
-                print >> file, xmlmenudump.getDiscussion(o)
+                print(xmlmenudump.getDiscussion(o), file=file)
             except AttributeError:
-                print >> file, \
-                      "<simpara>MISSING DISCUSSION: Output %s</simpara>" % path
-            print >> file, " </refsect1>"
+                print("<simpara>MISSING DISCUSSION: Output %s</simpara>" % path, file=file)
+            print(" </refsect1>", file=file)
             
-            print >> file, "</refentry>"
+            print("</refentry>", file=file)
             
-    print >> file, "</section>"         # End of Outputs 
+    print("</section>", file=file)         # End of Outputs 
 
 xmlmenudump.addSection(outputDump, 2)

@@ -12,23 +12,23 @@
 #ifndef MATERIALSUBPROBLEM_SWG
 #define MATERIALSUBPROBLEM_SWG
 
-%module materialsubproblem
+%module(package="ooflib.SWIG.engine") materialsubproblem
 
-%include "engine/typemaps.swg"
-%extern "engine/csubproblem.swg"
-%extern "engine/material.swg"
-%pragma(python) include="engine/materialsubproblem.spy"
-%pragma(python) code="from ooflib.SWIG.engine.csubproblem import CSubProblemPtr"
-%pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
+%include "common/typemaps.swg"
+%import "engine/csubproblem.swg"
+%import "engine/material.swg"
 
 %{
 #include "engine/material.h"
 #include "engine/materialsubproblem.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 class CMaterialSubProblem : public CSubProblem {
 public:
   CMaterialSubProblem(Material*);
 };
+
+%pythoncode "engine/materialsubproblem.spy"
 
 #endif // MATERIALSUBPROBLEM_SWG

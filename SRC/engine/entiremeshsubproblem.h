@@ -23,9 +23,12 @@ public:
   CEntireMeshSubProblem();
   virtual ~CEntireMeshSubProblem();
   virtual void redefined() {}
-  virtual ElementIterator element_iterator() const;
-  virtual NodeIterator node_iterator() const;
-  virtual FuncNodeIterator funcnode_iterator() const;
+
+  virtual VContainer<Node>* c_nodes() const;
+  virtual VContainer<FuncNode>* c_funcnodes() const;
+  virtual VContainer<Element>* c_elements() const;
+  virtual VContainer<InterfaceElement>* c_interface_elements() const;
+
   virtual bool contains(const Element*) const;
   virtual bool containsNode(const Node*) const;
   virtual MaterialSet *getMaterials() const;

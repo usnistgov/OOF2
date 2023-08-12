@@ -16,10 +16,10 @@ from ooflib.common import debug
 from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
-from gi.repository import Gtk
-import math
-import types
 
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 # An array of input things.  Exactly which kind of input thing is
 # determined by the paramtype argument, which must be a Parameter
@@ -57,10 +57,10 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
 
         # Labels.
         for r in range(self.rows):
-            lbl = Gtk.Label(' %d ' % (r+1), halign=Gtk.Align.END)
+            lbl = Gtk.Label(label=' %d ' % (r+1), halign=Gtk.Align.END)
             self.table.attach(lbl, 0, r+1, 1, 1)
         for c in range(self.cols):
-            lbl = Gtk.Label(`c+1`)
+            lbl = Gtk.Label(label=repr(c+1))
             self.table.attach(lbl, c+1, 0, 1, 1)
 
         for r in range(self.rows):
@@ -82,7 +82,7 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
     def floatChangeCB(self, interactive):
         self.widgetChanged(1, interactive)
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         parameterwidgets.ParameterWidget.cleanUp(self)
 
     # Turn the Gtk.Entry 'changed' signal on and off.  Used to
@@ -124,10 +124,10 @@ class SymmetricMatrixInputBase(MatrixInputBase):
 
         # Do labels first.
         for r in range(self.rows):
-            lbl = Gtk.Label(' %d ' % (r+1), halign=Gtk.Align.END)
+            lbl = Gtk.Label(label=' %d ' % (r+1), halign=Gtk.Align.END)
             self.table.attach(lbl, 0, r+1, 1, 1)
         for c in range(self.cols):
-            lbl = Gtk.Label(`c+1`)
+            lbl = Gtk.Label(label=repr(c+1))
             self.table.attach(lbl, c+1, 0, 1, 1)
 
         # Now put the actual widgets in.

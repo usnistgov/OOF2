@@ -8,12 +8,12 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import widgetlogger
-import logutils
-import loggers
-
-import string, sys
+from . import widgetlogger
+from . import logutils
+from . import loggers
 
 class MenuItemLogger(widgetlogger.WidgetLogger):
     classes = (Gtk.MenuItem,)

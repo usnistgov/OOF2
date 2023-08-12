@@ -12,14 +12,13 @@
 #ifndef TIMESTAMP_SWG
 #define TIMESTAMP_SWG
 
-%module timestamp
+%module(package="ooflib.SWIG.common") timestamp
 %include "common/typemaps.swg"
 
 %{
 #include "common/timestamp.h"
 #include "common/tostring.h"
 %}
-%pragma(python) include="timestamp.spy"
 
 class TimeStamp {
 public:
@@ -30,24 +29,29 @@ public:
   unsigned long epoch();	// for debugging
   TimeStamp clone();
   TimeStamp cloneAndIncrement();
-  %addmethods {
-    void increment() {
-      ++(*self);
-    }
-    int __cmp__(TimeStamp &other) {
-      if (*self < other) return -1;
-      if (*self > other) return 1;
-      return 0;
-    }
-    %new const string *__repr__() {
-      return new std::string(tostring(*self));
-    }
+};
+
+%extend TimeStamp {
+  void increment() {
+    ++(*self);
+  }
+
+  bool __lt__(const TimeStamp &other) {
+    return *self < other;
+  }
+
+  bool __gt__(const TimeStamp &other) {
+    return *self > other;
   }
 };
 
+ADD_REPR_GENERIC(TimeStamp);
+
+// bool operator<(const TimeStamp&, const TimeStamp&);
+// bool operator>(const TimeStamp&, const TimeStamp&);
+
 //double cputime();
 
-%readonly
-TimeStamp timeZero;
+const TimeStamp timeZero;
 
 #endif // TIMESTAMP_SWG

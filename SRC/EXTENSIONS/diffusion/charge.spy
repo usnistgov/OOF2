@@ -33,8 +33,7 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 reg = PropertyRegistration(
     'Migration:Charge:Isotropic',
     IsoCurrent,
-    "ooflib.SWIG.EXTENSIONS.diffusion.charge",
-    ordering=98,
+    98,
     params=[parameter.FloatParameter('K',
                                      1.0, tip=parameter.emptyTipString)],
     propertyType="Current",
@@ -51,7 +50,7 @@ reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
 reg = PropertyRegistration(
     'Migration:Charge:Anisotropic:Triclinic',
     AnisoCurrent,
-    "ooflib.SWIG.EXTENSIONS.diffusion.charge",105,
+    105,
     [symmmatrix.TriclinicRank2TensorParameter(
     'K',
     symmmatrix.TriclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
@@ -70,7 +69,7 @@ reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
 reg = PropertyRegistration(
     'Migration:Charge:Anisotropic:Monoclinic',
     AnisoCurrent,
-    "ooflib.SWIG.EXTENSIONS.diffusion.charge",104,
+    104,
     [symmmatrix.MonoclinicRank2TensorParameter(
     'K',
     symmmatrix.MonoclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
@@ -89,7 +88,7 @@ reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
 reg = PropertyRegistration(
     'Migration:Charge:Anisotropic:Orthorhombic',
     AnisoCurrent,
-    "ooflib.SWIG.EXTENSIONS.diffusion.charge",103,
+    103,
     [symmmatrix.OrthorhombicRank2TensorParameter(
     'K',
     symmmatrix.OrthorhombicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
@@ -108,7 +107,7 @@ reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
 reg = PropertyRegistration(
     'Migration:Charge:Anisotropic:Tetragonal',
     AnisoCurrent,
-    "ooflib.SWIG.EXTENSIONS.diffusion.charge",101,
+    101,
     [symmmatrix.TetragonalRank2TensorParameter(
     'K',
     symmmatrix.TetragonalRank2Tensor(xx=1.0, zz=0.5),
@@ -127,7 +126,7 @@ reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
 reg = PropertyRegistration(
     'Migration:Charge:Anisotropic:Trigonal',
     AnisoCurrent,
-    "ooflib.SWIG.EXTENSIONS.diffusion.charge",102,
+    102,
     [symmmatrix.TrigonalRank2TensorParameter(
     'K',
     symmmatrix.TrigonalRank2Tensor(xx=1.0, zz=0.5),
@@ -146,7 +145,7 @@ reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
 reg = PropertyRegistration(
     'Migration:Charge:Anisotropic:Hexagonal',
     AnisoCurrent,
-    "ooflib.SWIG.EXTENSIONS.diffusion.charge",100,
+    100,
     [symmmatrix.HexagonalRank2TensorParameter(
     'K',
     symmmatrix.HexagonalRank2Tensor(xx=1.0, zz=0.5),
@@ -165,7 +164,7 @@ reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
 reg = PropertyRegistration(
     'Migration:Charge:Anisotropic:Cubic',
     AnisoCurrent,
-    "ooflib.SWIG.EXTENSIONS.diffusion.charge",99,
+    99,
     [symmmatrix.CubicRank2TensorParameter(
             'K',
             symmmatrix.CubicRank2Tensor(xx=1.0),

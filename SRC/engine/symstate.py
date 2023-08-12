@@ -13,19 +13,17 @@
 # the subproblem's self.matrix_symmetry attribute, and are set in
 # conjugate.py's check_symmetry function.
 
-import types
-
 SYMMETRIC="Symmetric"
 ASYMMETRIC="Asymmetric"
 INCONSISTENT="Symmetry unknown"
 
-class SymState(object):
+class SymState:
     def __init__(self, tag=INCONSISTENT):
         self.tag = tag
     def __repr__(self):
         return self.tag
     def __eq__(self, other):
-        if type(other) is types.StringType:
+        if isinstance(other, (str, bytes)):
             return self.tag == other
         return self.tag == other.tag
     def reset(self):

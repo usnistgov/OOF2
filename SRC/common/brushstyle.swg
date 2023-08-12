@@ -12,15 +12,14 @@
 #ifndef BRUSHSTYLE_SWG
 #define BRUSHSTYLE_SWG
 
-%module brushstyle
+%module(package="ooflib.SWIG.common") brushstyle
 
 %include "common/typemaps.swg"
 %{
 #include "common/brushstyle.h"
 %}
 
-%pragma(python) include="brushstyle.spy"
-
+%nodefaultctor BrushStyle;
 class BrushStyle {};
 
 class CircleBrush: public BrushStyle {
@@ -35,4 +34,7 @@ public:
   ~SquareBrush();
 };
 
+%pythoncode "common/brushstyle.spy"
+
 #endif // BRUSHSTYLE_SWG
+

@@ -29,14 +29,12 @@ class DataPoint:
         return self.angle.abg()
     def __repr__(self):
         return "(%s, %s)" % (self.position[0], self.position[1])
-    def __cmp__(self, other):
-        sy = self.position[1]
-        oy = other.position[1]
-        if sy < oy:
-            return -1
-        if sy > oy:
-            return 1
-        return cmp(self.position[0], other.position[0])
+    def __lt__(self, other):
+        if not isinstance(other, DataPoint):
+            return NotImplemented
+        return (self.position[1] < other.position[1]
+                or (self.position[1] == other.position[1] and
+                    self.position[0] < other.position[0]))
 
 ## getrows() splits a list of DataPoints into lists in which x is
 ## monotonically increasing.
@@ -62,7 +60,7 @@ class TSLreaderBase(orientmapdata.OrientMapReader):
         self.phaselists = {}
         orientmapdata.OrientMapReader.__init__(self)
     def read(self, filename):
-        tslfile = file(filename, "r")
+        tslfile = open(filename, "r")
         prog = progress.getProgress(os.path.basename(filename),
                                     progress.DEFINITE)
         try:
@@ -94,7 +92,7 @@ class TSLreaderBase(orientmapdata.OrientMapReader):
         for row in rows:
             count += 1
             if len(row) != nx:
-                raise ooferror.ErrUserError(
+                raise ooferror.PyErrUserError(
                     "Orientation map data appears to be incomplete.\n"
                     "len(row 0)=%d len(row %d)=%d" % (nx, count, len(row)))
 
@@ -156,8 +154,7 @@ class TSLreaderBase(orientmapdata.OrientMapReader):
     ## postProcess is called after the orientation data has been
     ## assigned to a Microstructure.
     def postProcess(self, microstructure):
-        phasenames = self.phaselists.keys()
-        phasenames.sort()
+        phasenames = sorted(list(self.phaselists.keys()))
         for phasename in phasenames:
             orientmapdata.addPixelsToGroup(microstructure, phasename,
                                            self.phaselists[phasename])
@@ -183,18 +180,18 @@ class TSLreader(TSLreaderBase):
             else:                       # line[0] != '#'
                 substrings = line.split()
                 if len(substrings) < 5:
-                    raise ooferror.ErrUserError(
+                    raise ooferror.PyErrUserError(
                         "Too few numbers in line %d of %s" 
                         % (count, tslfile.name))
-                values = map(float, substrings[:5])
+                values = list(map(float, substrings[:5]))
                 if angletype == "radians":
                     angles = values[:3]
                     angles[0] = angles[0] - math.radians(self.angle_offset)
                 elif angletype == "degrees":
                     angles[0] = angles[0] - self.angle_offset
-                    angles = map(math.radians, values[:3])
+                    angles = list(map(math.radians, values[:3]))
                 else:
-                    raise ooferror.ErrDataFileError(
+                    raise ooferror.PyErrDataFileError(
                         "Angle type not specified in TSL data file")
                 data.append(DataPoint(
                     primitives.Point(values[3], values[4]), # position
@@ -238,14 +235,14 @@ class TSLreader2(TSLreaderBase):
             else:               # line is not a header line
                 substrings = line.split()
                 if len(substrings) < 5:
-                    raise ooferror.ErrUserError(
+                    raise ooferror.PyErrUserError(
                         "Not enough columns in line %d of %s"
                         % (count, tslfile.name))
                 if len(substrings) >= 8:
                     phase = substrings[7]
                 else:
                     phase = 'phase0'
-                values = map(float, substrings[:5])
+                values = list(map(float, substrings[:5]))
                 position = primitives.Point(values[3], values[4])
                 angles = values[:3]
                 angles[0] = angles[0] - math.radians(self.angle_offset)

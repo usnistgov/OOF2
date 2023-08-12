@@ -17,9 +17,9 @@
 #include "engine/material.h"
 #include "engine/ooferror.h"
 #include "engine/orientationimage.h"
-#include "engine/property/orientation/orientation.h"
+#include "engine/properties/orientation/orientation.h"
 
-#include "oofcanvas/oofcanvas.h"
+#include <oofcanvas.h>
 
 OrientationImage::OrientationImage(CMicrostructure *microstructure,
 				   const Angle2Color *colorscheme,

@@ -18,9 +18,8 @@
 
 import re
 import sys
-import types
 
-import logutils
+from . import logutils
 
 # _loggerDir is a sorted list of (gtk class, GtkLogger class)
 # pairs.  The list is sorted so that each gtk class comes before its
@@ -69,8 +68,7 @@ class GtkLoggerMetaClass(type):
                 _loggerDir.append((klass, cls))
                 
 
-class GtkLogger(object):
-    __metaclass__ = GtkLoggerMetaClass
+class GtkLogger(object, metaclass=GtkLoggerMetaClass):
     def location(self, obj, *args):
         ## location() returns a string that can be evaluated by Python
         ## to return the given object.  The string specifies the
@@ -116,19 +114,19 @@ def signalLogger(obj, signal, logger, *args):
         try:
             records = logger.record(obj, signal, *args)
         except (logutils.GtkLoggerTopFailure,
-                logutils.GtkLoggerException), exc:
-            print >> sys.stderr, "Can't log %s (%s): %s" \
-                % (obj.__class__.__name__, signal, exc)
+                logutils.GtkLoggerException) as exc:
+            print("Can't log %s (%s): %s" \
+                % (obj.__class__.__name__, signal, exc), file=sys.stderr)
         else:
             if records is GtkLogger.ignore:
                 pass
             elif records is not None:
-                assert type(records) is types.ListType
+                assert isinstance(records, list)
                 for record in records:
                     writeLine(record)
             else:
                 if logutils.debugLevel() >= 1:
-                    print >> sys.stderr, "No record function for", obj, signal
+                    print("No record function for", obj, signal, file=sys.stderr)
     return False                        # propagate events
 
 # Code that needs to insert something into the log file can just call
@@ -136,10 +134,10 @@ def signalLogger(obj, signal, logger, *args):
 # write without checking, when rerecording a log file for example.
 
 def _writeline(line):
-    print >> logutils.logfile(), line
+    print(line, file=logutils.logfile())
     logutils.logfile().flush()
     if logutils.debugLevel() >= 2:
-        print >> sys.stderr, "//////", line
+        print("//////", line, file=sys.stderr)
 
 def writeLine(line):
     if logutils.recording() and not logutils.replaying():

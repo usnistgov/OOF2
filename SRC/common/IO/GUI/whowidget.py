@@ -31,8 +31,10 @@ from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import string
 
 
 class WhoWidgetBase:
@@ -126,7 +128,7 @@ class WhoWidgetBase:
                     condition=lambda x:
                             self.condition(x) and whoville.excludeProxies(x),
                     sort=self.sort)
-            except KeyError, exc:
+            except KeyError as exc:
                 names = []
             else:
                 names = [p[0] for p in paths]
@@ -195,7 +197,7 @@ class WhoWidgetBase:
             gtkwid.destroy()
         
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         self.sbcallbacks = []
         self.gtk = []
         self.widgets = []
@@ -256,7 +258,7 @@ class WhoWidget(WhoWidgetBase):
             return self.currentPath[0]
         if '' in self.currentPath[:depth]:
             return None
-        return string.join(self.currentPath[:depth], ':')
+        return ':'.join(self.currentPath[:depth])
     def isValid(self):
         if self.currentPath[0] in self.proxy_names:
             return True
@@ -284,7 +286,7 @@ class NewWhoWidget(WhoWidgetBase):
         debug.mainthreadTest()
         if self.widgets and self.widgets[-1]:
             self.currentPath[-1] = self.widgets[-1].get_value()
-        return string.join(self.currentPath, ':')
+        return ':'.join(self.currentPath)
     def isValid(self):
         debug.mainthreadTest()
         if self.widgets and self.widgets[-1]:

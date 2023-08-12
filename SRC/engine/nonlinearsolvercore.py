@@ -15,7 +15,7 @@
 from ooflib.SWIG.common import doublevec
 from ooflib.SWIG.common import progress
 from ooflib.SWIG.engine import cnonlinearsolver
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.engine import matrixmethod
 
@@ -193,7 +193,7 @@ class NLSolver(cnonlinearsolver.CNonlinearSolver):
         # raise error if line search did not converge in maxiter # of
         # iterations
         if (i == maxiter) and (res_norm > (1-alpha*s)*res_norm0):
-           raise ooferror2.ErrConvergenceFailure(
+           raise ooferror.PyErrConvergenceFailure(
                'Nonlinear solver - step size search', maxiter)
 
         return s, residual
@@ -317,12 +317,12 @@ class Newton(NLSolver):
             if prog.stopped():
                 prog.setMessage("Newton solver interrupted")
                 #progress.finish()
-                raise ooferror2.ErrInterrupted();
+                raise ooferror.PyErrInterrupted();
         finally:
             prog.finish()
         # raise error if Newton's method did not converge in maximum_iterations
         if i >= self.maximum_iterations and res_norm > target_res:
-            raise ooferror2.ErrConvergenceFailure(
+            raise ooferror.PyErrConvergenceFailure(
                 'Nonlinear solver - Newton iterations', self.maximum_iterations)
         # debug.fmsg("final values=", values)
         # debug.fmsg("-------------------")
@@ -410,7 +410,7 @@ class Picard(NLSolver):
             if prog.stopped():
                 prog.setMessage("Picard solver interrupted")
                 #prog.finish()
-                raise ooferror2.ErrInterrupted()
+                raise ooferror.PyErrInterrupted()
         finally:
             prog.finish()
 
@@ -418,7 +418,7 @@ class Picard(NLSolver):
         # raise error if Picard's iterations did not converge in
         # maximum_iterations
         if i >= self.maximum_iterations and res_norm > target_res:
-             raise ooferror2.ErrConvergenceFailure(
+             raise ooferror.PyErrConvergenceFailure(
                  'Nonlinear solver - Picard iterations',
                  self.maximum_iterations)
         return i, res_norm
@@ -484,7 +484,8 @@ def backtracking_step(data, soln, update, res_norm0, precompute,
 
     # raise error if line search did not converge in maxiter # of iterations
     if (i >= maxiter) and (res_norm > res_norm0):
-       raise ooferror2.ErrConvergenceFailure('Nonlinear solver - step size search', maxiter)
+       raise ooferror.PyErrConvergenceFailure(
+           'Nonlinear solver - step size search', maxiter)
 
     return s;
 
@@ -584,6 +585,6 @@ def backtracking_step(data, soln, update, res_norm0, precompute,
 
 #     # raise error if nonlinear PCG did not converge in maxiter # of iterations
 #     if (i >= maxiter) and (res_norm > (relTol * res_norm0 + absTol)):
-#          raise ooferror2.ErrConvergenceFailure('NL solver - Conjugate Gradient iterations', maxiter)
+#          raise ooferror.PyErrConvergenceFailure('NL solver - Conjugate Gradient iterations', maxiter)
 
 # #### End of function (nonlin_pcg_solver)

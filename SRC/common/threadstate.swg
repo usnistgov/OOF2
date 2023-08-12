@@ -12,10 +12,10 @@
 #ifndef THREADSTATE_SWG
 #define THREADSTATE_SWG
 
-%module threadstate
+%module(package="ooflib.SWIG.common") threadstate
+
 %include "common/typemaps.swg"
-%extern "common/progress.swg"
-%pragma(python) include="common/threadstate.spy"
+%import "common/progress.swg"
 
 %{
 #include "common/threadstate.h"
@@ -23,16 +23,16 @@
 #include "common/tostring.h"
 %}
 
+ADD_REPR(ThreadID, get_IDstr);
+
 class ThreadID {
 public:
   ThreadID();
-  %addmethods {
-    bool __eq__(ThreadID &right) {
-      return operator==(*self,right);
-    }
-    %new const string *__repr__() {
-      return new std::string(tostring(self->get_ID()));
-    }
+};
+
+%extend ThreadID {
+  bool __eq__(ThreadID &right) {
+    return operator==(*self,right);
   }
 };
 
@@ -42,16 +42,18 @@ class ThreadState {
   ~ThreadState();
   const ThreadID & get_thread_ID();
   int id();
-  %new StringVec *getProgressNames();
+  %newobject getProgressNames;
+  std::vector<std::string> *getProgressNames();
   Progress *getProgress(char*, ProgressType);
   Progress *findProgress(char*);
   void impedeProgress();
   void acquireProgressLock();
   void releaseProgressLock();
-  %addmethods {
-    int __eq__(ThreadState &right) {
-      return operator==(*self,right);
-    }
+};
+
+%extend ThreadState {
+  int __eq__(ThreadState &right) {
+    return operator==(*self,right);
   }
 };
 
@@ -75,6 +77,9 @@ void testcancel();
 
 Progress *getProgress(char *name, ProgressType);
 
+%pythoncode %{
+  initThreadState()
+%}
 
 #endif // THREADSTATE_SWG
 

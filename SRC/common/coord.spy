@@ -12,13 +12,8 @@ from ooflib.SWIG.common import config
 from ooflib.common.IO import parameter
 from ooflib.common import primitives
 
-if config.dimension() == 2:
-    CoordPtr.__repr__ = lambda self:"Coord(%s,%s)" % (self[0],self[1])
-    ICoordPtr.__repr__ = lambda self: "ICoord(%d,%d)" % (self[0], self[1])
-elif config.dimension() == 3:
-    CoordPtr.__repr__ = lambda self:"Coord(%s,%s,%s)" % (self[0],self[1],self[2])
-    ICoordPtr.__repr__ = lambda self: "ICoord(%d,%d,%d)" % (self[0], self[1],self[2])
-    
+Coord.__repr__ = lambda self:"Coord(%s,%s)" % (self[0],self[1])
+ICoord.__repr__ = lambda self: "ICoord(%d,%d)" % (self[0], self[1])
 
 # Add argument checking to the swigged getitem method.
 def _Coord___getitem__(self, indx):
@@ -26,27 +21,26 @@ def _Coord___getitem__(self, indx):
         raise IndexError
     return self.getitem(indx)
 
-CoordPtr.__getitem__ = _Coord___getitem__
+Coord.__getitem__ = _Coord___getitem__
 
+def _Coord___lt__(self, other):
+    try:
+        return (self[0] < other[0] or
+                (self[0] == other[0] and self[1] < other[1]))
+    except:
+        return NotImplemented
 
-
-def _Coord___cmp__(self, other):
-    if not isinstance(other, CoordPtr): return -1
-    if self[0] < other[0]: return -1
-    if self[0] > other[0]: return 1
-    if self[1] < other[1]: return -1
-    if self[1] > other[1]: return 1
-    if config.dimension == 3:
-        if self[2] < other[2]: return -1
-        if self[2] > other[2]: return 1
-    return 0
-
-CoordPtr.__cmp__ = _Coord___cmp__
+Coord.__lt__ = _Coord___lt__
 
 def _Coord___hash__(self):
     return hash((self[0], self[1]))
 
-CoordPtr.__hash__ = _Coord___hash__
+Coord.__hash__ = _Coord___hash__
+
+def _Coord___sub__(self, other):
+    return Coord(self[0]-other[0], self[1]-other[1])
+
+Coord.__sub__ = _Coord___sub__
 
 class CoordParameter(parameter.Parameter):
     types=(primitives.Point, Coord)

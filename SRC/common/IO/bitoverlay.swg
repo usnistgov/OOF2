@@ -12,25 +12,20 @@
 #ifndef BITOVERLAY_SWG
 #define BITOVERLAY_SWG
 
-%module bitoverlay
+%module(package="ooflib.SWIG.common.IO") bitoverlay
+
 %include "common/typemaps.swg"
 %include "common/canvasimage.swg"
+%import "common/coord.swg"
+%import "common/timestamp.swg"
+%import "common/ccolor.swg"
+%import "common/abstractimage.swg"
 
 %{
 #include "common/IO/bitoverlay.h"
-#include "oofcanvas/canvasimage.h"
 %}
-%extern "common/coord.swg"
-%extern "common/timestamp.swg"
-%extern "common/ccolor.swg"
-%extern "common/abstractimage.swg"
 
-%pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
-%pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
-%pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
    
-%pragma(python) include="bitoverlay.spy"
-
 class BitmapOverlay : public AbstractImage {
 public:
   BitmapOverlay(Coord *Point, ICoord *iPoint);
@@ -47,13 +42,16 @@ public:
   void setColor(CColor*);
   CColor getBG();
   CColor getFG();
-  NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
   
   Coord size();
   ICoord sizeInPixels();
   bool empty();
-  %new ICoordVec *pixels(int v);	// all pixels whose value==v
+  %newobject pixels;
+  std::vector<ICoord> *pixels(int v);	// all pixels whose value==v
   TimeStamp &getTimeStamp();
 };
+
+ADD_REPR(BitmapOverlay, repr);
 
 #endif // BITOVERLAY_SWG

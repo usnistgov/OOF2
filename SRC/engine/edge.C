@@ -54,7 +54,7 @@ double Edge::master_length() const {
 // Take a vector of doubles, each of which is a number between 0 and 
 // one, and for each input value, output the corresponding real coordinate
 // of the element.
-std::vector<Coord*> *Edge::position_(const std::vector<double> *x) const {
+std::vector<Coord*> *Edge::position(const std::vector<double> *x) const {
   int size = x->size();
   std::vector<Coord*> *res = new std::vector<Coord*>(size);
   for(int i=0; i<size; i++) {
@@ -182,7 +182,7 @@ double EdgeNodeIterator::fraction() const
 {
   MasterCoord pos = ed->nlist[index_].mastercoord();
   MasterCoord interval = pos - ed->startpt();
-  // Positive assumption is OK becuase nodes come in sequence.
+  // Positive assumption is OK because nodes come in sequence.
   return sqrt(norm2(interval))/ed->master_length();
 }
 

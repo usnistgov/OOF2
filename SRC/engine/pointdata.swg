@@ -12,12 +12,18 @@
 #ifndef POINTDATA_SWG
 #define POINTDATA_SWG
 
-%include "engine/typemaps.swg"
-%extern "engine/field.swg"
+%module(package="ooflib.SWIG.engine") pointdata
+
+%include "common/typemaps.swg"
+%import "engine/field.swg"
 
 %{
 #include "engine/pointdata.h"
+  #include "engine/flux.h"	// SWIGBUG
+  #include "engine/node.h"	// SWIGBUG
 %}
+
+%nodefaultctor PointData;
 
 class PointData {
 public:

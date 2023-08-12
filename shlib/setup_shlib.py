@@ -19,7 +19,7 @@
 import sys
 import distutils.dist
 import distutils.command
-import build_shlib
+from . import build_shlib
 from distutils.command import build
 from distutils.command import build_ext
 
@@ -89,7 +89,7 @@ build_ext.build_ext = BuildExt
 ## Install 'install_shlib' as a distutils installation command
 
 from distutils.command import install
-import install_shlib
+from . import install_shlib
 
 distutils.command.__all__.append('install_shlib')
 sys.modules['distutils.command.install_shlib'] = install_shlib

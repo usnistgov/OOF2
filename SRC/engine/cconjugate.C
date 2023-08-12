@@ -25,6 +25,10 @@ CConjugatePair::CConjugatePair(const Equation *eqn, const FieldIndex *eqncomp,
 {
 }
 
+const std::string &CConjugatePair::get_field_name() const {
+  return field_->name();
+}
+
 
 bool operator==(const CConjugatePair &a, const CConjugatePair &b) {
   return (a.get_field() == b.get_field() &&

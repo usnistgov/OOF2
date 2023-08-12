@@ -1,0 +1,195 @@
+Python command line options that might be useful
+
+-builtin      Create built-in types instead of proxy classes 
+-extranative  Create extranative wrappers for C++ std containers ??
+-threads        
+-O            Optimizations -fastdispatch -fastproxy -fvirtual
+              -builtin is faster than -fastproxy though.
+-py3          Use Python3
+-relativeimport 
+
+Run swig with -DSWIG_TYPE_TABLE=oof2 in OOF2, =oofcanvas in OOFCanvas.
+http://www.swig.org/Doc4.0/Modules.html#Modules_nn2
+
+If multiple modules contain cvar, only one can be imported. Change the
+name of cvar with -globals.
+
+Enums and constants can be defined in swig.  Use #define, %constant,
+or enum.
+
+Can swig const members of a class or structure, or use %immutable to
+make members read only.  (How is %immutable different from const?)
+
+Pointer members (char* only, or all types) of a struct are assumed to
+be dynamically allocated and old value will be deallocated when
+changed. Use typemaps for different behavior.
+
+Null C++ pointers are None in python
+
+Swig can handle overloaded function definitions -- no need to create
+new fn names to wrap.  But is there an efficiency cost?  Resolution is
+done at run time in C++ but using the Python API.  It also can't
+distinguish between ptrs and references.
+
+Use %template(name) to tell swig to wrap a particular instance of a
+template and give it the given name.
+
+-builtin should be a lot faster than proxy classes.  But reverse
+ binary operators (__radd__, __rmul__, etc) can't be defined for them.
+ Can use #ifdef SWIGPYTHON_BUILTIN to check if -builtin is being used.
+
+Module import order is important to make sure that base classes are
+initialized before derived classes when using builtin.  Use %import
+"base.swg" in derived.swg to ensure it.
+
+Each swig file must have a %module line that matches the file name,
+unless we do something fancy with cmake.  Swig uses %module to
+determine the name of the python file that it creates, but cmake
+assumes that the name is the same as the swig file name, with .py
+instead of .swg.
+
+The %module line needs to list the installed package too, eg:
+  %module(package="ooflib.SWIG.common") ccolor
+otherwise the proper import paths won't be created in other swig
+files.  Python3 assumes all import paths are absolute (ie, relative to
+some path in PYTHONPATH, not relative to the current directory).
+
+Use python slots.  operator+ is much faster than a function call.
+operator+=, operator==, operator<, etc, are automatically converted to
+slot operators.
+We only add __hash__ to Progress and CSubproblem, but it's slottable
+too.
+
+Use %newobject instead of %new.  %new is deprecated.
+%newobject doesn't work if there's also an out typemap in
+effect. (WTF?)  The out typemap will have to delete the source.
+
+Use %pythoncode to include python blocks from .swg into python output
+file, either with %pythoncode %{ <code> %} or %pythoncode "file.py".
+Replace %pragma(python) code = "..." with %pythoncode %{ ... %}.
+Change %pragma(python) include = "file" to %pythoncode "file", and
+move it to the end of the .swg file.
+
+Use the full path (from SRC) for the files included by %pythoncode.
+If one .swg file %imports another, it will try to find the %pythoncode
+files, even though it won't actually use it (%import only gets type
+info).  Since the %imported file might be in a different directory,
+swig might not be able to find the file if the path is relative to the
+location of the imported file.
+
+Use %pythonprepend and %pythonappend to insert python code before and
+after a swigged method (or function?).  Doesn't work with -builtin!
+
+Use %extend to add C++ methods to the python version of a class.
+Doesn't work with -builtin.
+
+Swigged functions can now have default arguments.
+
+Typemaps can apply to a sequence of arguments.
+Typemaps can be defined to work on more than one type.
+Typemaps can be copied to apply to other types.
+Typemap matching pays attention to type modifiers.
+Use $1 instead of $target in "in" typemaps.  If typemap applies to a
+  sequence of args, use $2, etc.
+Use $input instead of $source in "in" typemaps.
+Use $1 instead of $source in "out" typemaps.
+Use $result instead of $target in "out" typemaps.
+"out" typemaps can be used to fetch class members.
+
+Use %exception instead of %except, and $action instead of $function
+inside it.  Can also use %catches to catch exceptions from methods
+that declare their exceptions with "throw".
+
+Remove "python" from typemap declarations.
+
+An "out" typemap operating on an object, not a pointer or reference,
+still makes an extra copy of the object, but it's no longer necessary
+to delete the copy manually in the typemap.
+
+Swig now understands namespaces, sort of.
+common/typemaps.swg now includes typemaps for std::string instead of
+string, but that means that all of the other swg files need to also
+use std::string instead of string.
+
+Use %pythoncode %{ ... %} inside a class in the swig file to add a
+python method to the python part of a swigged class (eg, to override
+the swig-generated repr).
+
+If swig can't tell that a base class is abstract, it will try to
+create a constructor even if the constructor isn't in the swig file.
+Use %nodefaultctor to prevent it from doing that.
+
+Instead of returning 0 from a typemap when it fails, use the SWIG_fail
+macro.
+
+Instead of %typemap(ignore), use %typemap(in, numinputs=0).
+
+
+--------------------
+
+When swig %imports a swig file B.swg into A.swg, it generates entries 
+for all of the types defined in B in the type info tables in A.cxx,
+which then requires that A.cxx also #includes the C++ headers for
+those types.  That is fine, if A actually uses the types.  The
+trouble is that when B is %imported, the files that B %imports are
+also imported, ad nauseum.  There can be a lot of irrelevant types
+imported into A.
+
+Because %import does not copy code from %{ ... %} blocks in the 
+imported file, header files listed in B wil not be automatically
+included in A.cxx.  Using %include instead of %import isn't an 
+option because then swig would generate code in A.cxx for all of 
+the classes in B.swg, which we don't want.  We also don't want A.cxx
+to include irrelevant header files, because that will slow down
+recompilation.
+
+The solution (at least I think it's a solution) is to ensure that
+second-order %imports don't occur.  The %import statements in a
+swig file should be enclose in
+  #ifndef NOSECONDIMPORTS
+  #define NOSECONDIMPORTS
+    // %import statements here
+  #endif 
+This is *not* the usual #ifndef that prevents header files from
+being loaded twice, because the string "NOSECONDIMPORTS" is the 
+same in all swig files.
+
+If a swig file really does need a file that would have been picked up
+by a second order %import, it will have to list it explicitly instead.
+When compiling A.cxx produces an error that some irrelevant type
+isn't defined, make sure that all of the %imported swig files are
+using NOSECONDIMPORTS.
+
+--------------------
+
+// with optimal
+SWIGINTERN PyObject *_wrap_returnstring(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  
+  if (!SWIG_Python_UnpackTuple(args, "returnstring", 0, 0, 0)) SWIG_fail;
+  {
+    // Still  makes an extra copy
+    const std::string &str = returnstring();
+    resultobj = PyString_FromString(str.c_str()); // std::string typemap
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+// without optimal
+SWIGINTERN PyObject *_wrap_returnstring(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "returnstring", 0, 0, 0)) SWIG_fail;
+  result = returnstring();
+  {
+    // Still  makes an extra copy
+    const std::string &str = result;
+    resultobj = PyString_FromString(str.c_str()); // std::string typemap
+  }
+  return resultobj;
+fail:
+  return NULL;
+}

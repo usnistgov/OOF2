@@ -22,9 +22,6 @@ from ooflib.common import utils
 from ooflib.common.IO import formatchars
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine.IO import outputClones
-import math
-import string
-import types
 
 ## TODO: For direct output, it would be useful to have separate output
 ## files for each time step.  Perhaps if the output file name
@@ -88,13 +85,13 @@ class OneLineDataOperation(DataOperation):
 
     def printResults(self, time, results, destination):
         if formatchars.showTime():
-            print >> destination, time, 
+            print(time, end=' ', file=destination) 
         for x in results:
-            print >> destination, x,
-        print >> destination
+            print(x, end=' ', file=destination)
+        print(file=destination)
 
     def colNames(self, output):
-        raise ooferror.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             "OneLineDataOperation subclass %s forgot to define colNames()" 
             % self.__class__.__name__)
 
@@ -121,23 +118,23 @@ class DirectOutput(DataOperation):
         header = sampling.get_col_names()
 
         if formatchars.showTime():
-            destination.comment("time:", `time`)
+            destination.comment("time:", repr(time))
             
         for (s,v) in olist:
             tags = s.columnData(header)
             if len(tags)==1:
                 for t in tags[0]: # tags[0] is a list of strings
-                    print >> destination, t,
+                    print(t, end=' ', file=destination)
                 for x in v.value_list():
-                    print >> destination, x,
-                print >> destination
+                    print(x, end=' ', file=destination)
+                print(file=destination)
             else: # Multiple values -- do above for each tag-val pair.
                 for (tag, val) in zip(tags, v):
                     for t in tag:
-                        print >> destination, t,
+                        print(t, end=' ', file=destination)
                     for x in val.value_list():
-                        print >> destination, x,
-                    print >> destination
+                        print(x, end=' ', file=destination)
+                    print(file=destination)
 
 # "Direct Output" is special, in that the corresponding auto-generated
 # menu item is used directly in the meshcstoolboxGUI code -- if the
@@ -159,12 +156,14 @@ def _getMoments(sampling, domain, output, exponents):
     moments = []
     for exponent in exponents:
         # If exponent is 0, this call doesn't really evaluate the output.
+        ## TODO: Integrate all powers at once, so that output isn't
+        ## re-evaluated for each.
         integrals = sampling.integrate(domain, output, power=exponent)
         # Convert the list to an iterator so that we don't have to
         # work hard to initialize the sum to the right kind of zero
         # (eg, 0 or OutputVal.zero()).
         integraliter = iter(integrals)
-        sample, sum = integraliter.next()
+        sample, sum = next(integraliter)
         for sample, value in integraliter:
             sum += value
 
@@ -181,10 +180,10 @@ def _arithmeticOutputFilter(output):
 # There are constraints on the output types of the output objects that
 # can be processed by these functions -- they must either be Floats,
 # or they must be composite objects for which __add__ and __sub__
-# operate component-wise, __mul__ and __div__ take scalar operands,
+# operate component-wise, __mul__ and __truediv__ take scalar operands,
 # and for which point-wise operations "component_square" and
 # "component_sqrt" are defined.  This is currently true of all
-# OutputValPtr subclasses, including SymmMatrix3.
+# OutputVal subclasses, including SymmMatrix3.
 
 # RangeOutput is registered with direct=True because it doesn't modify
 # the Output values, although it doesn't print them all.
@@ -207,7 +206,7 @@ def _rangeOutputFilter(output):
     # that are either ScalarOutputVals or ConcatenatedOutputVals of
     # ScalarOutputVals.
     op = output.outputInstance()
-    return (isinstance(op, outputval.ScalarOutputValPtr) or
+    return (isinstance(op, outputval.ScalarOutputVal) or
             (isinstance(op, outputClones.ConcatenatedOutputVal) and
              _rangeOutputFilter(output.resolveAlias('first').value) and
              _rangeOutputFilter(output.resolveAlias('second').value)))
@@ -347,8 +346,8 @@ DataOperationRegistration(
 ############################ MPI #########################################
 
 ## TODO: The MPI-enabled functions here have not been updated for
-## doing time-dependent analysis.  They're commented out so that
-## they're not mistaken for working code.
+## doing time-dependent analysis, or for Python 3. They're commented
+## out so that they're not mistaken for working code.
 
 # if parallel_enable.enabled():
 #     from ooflib.SWIG.common import mpitools
@@ -424,7 +423,7 @@ DataOperationRegistration(
 #             output_header = header + olist[0][1].label_list()
 
 #         #print >> destination, comment_character + \
-#         #      string.join(output_header, sep_string)
+#         #      sep_string.join(output_header)
 #         outputstringlist=[getCommentChar() + sep_string.join(output_header)]
 #         if otype == types.FloatType:
 #             # For floating-point values, iterate over the list, and
@@ -434,14 +433,14 @@ DataOperationRegistration(
 #                 tags = s.columnData(header)
 #                 if len(tags)==1:
 #                     #print >> destination, \
-#                     #      string.join(tags[0]+[`v`], sep_string)
+#                     #      sep_string.join(tags[0]+[`v`])
 #                     outputstringlist.append(
 #                         sep_string.join(tags[0]+[`v`])
 #                         )
 #                 else:
 #                     for (tag, vstring) in zip(tags, [`val` for val in v]):
 #                         #print >> destination, \
-#                         #      string.join(tag+[vstring], sep_string)
+#                         #      sep_string.join(tag+[vstring])
 #                         outputstringlist.append(
 #                             sep_string.join(tag+[vstring])
 #                             )
@@ -453,16 +452,14 @@ DataOperationRegistration(
 #                 if len(tags)==1:
 #                     vlist = v.value_list()
 #                     #print >> destination, \
-#                     #      string.join(tags[0] + [`x` for x in vlist],
-#                     #                  sep_string)
+#                     #      sep_string.join(tags[0] + [`x` for x in vlist])
 #                     outputstringlist.append(
 #                         sep_string.join(tags[0] + [`x` for x in vlist]))
 #                 else: # Multiple values -- do above for each tag-val pair.
 #                     for (tag, val) in zip(tags, v):
 #                         vlist = val.value_list()
 #                         #print >> destination, \
-#                         #      string.join(tag + [`x` for x in vlist],
-#                         #                  sep_string)
+#                         #      sep_string.join(tag + [`x` for x in vlist])
 #                         outputstringlist.append(
 #                             sep_string.join(tag + [`x` for x in vlist]))
 #         #Send output to front end (process/rank 0)

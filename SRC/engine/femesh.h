@@ -10,19 +10,18 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef FEMESH_H
 #define FEMESH_H
 
-class FEMesh;
+#include <oofconfig.h>
 
-#include <Python.h>
+class FEMesh;
 
 #include "engine/equation.h"
 #include "engine/field.h"
 #include "engine/fieldeqnlist.h"
 #include "engine/materialset.h"
+#include "engine/meshiterator.h"
 #include <map>
 #include <set>
 #include <string>
@@ -34,7 +33,6 @@ class DegreeOfFreedom;
 class DoFMap;
 class DoubleVec;
 class Element;
-class ElementIterator;
 class Equation;
 class Field;
 class FuncNode;
@@ -43,13 +41,11 @@ struct DoFCompare;
 struct NodalEqnCompare;
 class MasterCoord;
 class NodalEquation;
-//AMR, moved to csubproblem
-//class NodalFluxes;
-//class NodalSCPatches;
 class Node;
 class NodeIterator;
 class RWLock;
 class InterfaceElement;
+
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -99,9 +95,7 @@ public:
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-class FEMesh {    // : public PythonExportable<FEMesh> {
-  // FEMesh used to be derived from PythonExportable so that it could
-  // be used as an argument in switchboard messages.
+class FEMesh { 
 private:
   CMicrostructure * microstructure;
   RWLock *rwlock;
@@ -113,12 +107,17 @@ public:
   FEMesh(CMicrostructure *);
   virtual ~FEMesh();
   CMicrostructure *get_microstructure() const { return microstructure; }
-  virtual const std::string &classname() const;
-  virtual const std::string &modulename() const;
 
-  ElementIterator element_iterator() const;
-  NodeIterator node_iterator() const;
-  FuncNodeIterator funcnode_iterator() const;
+  VContainer<Element>* c_elements() const;
+  VContainer<Node>* c_nodes() const;
+  VContainer<FuncNode>* c_funcnodes() const;
+  VContainer<InterfaceElement>* c_interface_elements() const;
+  VContainerP<Node> nodes() const;
+  VContainerP<FuncNode> funcnodes() const;
+  VContainerP<Element> elements() const;
+  VContainerP<InterfaceElement> interface_elements() const;
+
+  const std::vector<FuncNode*>& funcnodes_fast() const;
 
   Node *newMapNode(const Coord&); // the only way to make a Node
   FuncNode *newFuncNode(const Coord&); // the only way to make a FuncNode
@@ -156,15 +155,15 @@ public:
   void addInterfaceElement(InterfaceElement*);
   std::vector<InterfaceElement*> edgement;
   int nedgements() const;
-  ElementIterator edgement_iterator() const;
+  
   void renameInterfaceElements(const std::string &oldname,
 			       const std::string &newname);
 
   // Caution: NodeIterator::index is not necessarily the same as
   // node.index().  The argument to FEMesh::getNode() is the
   // NodeIterator::index.
-  Node *getNode(int) const;
-  FuncNode *getFuncNode(int) const;
+  Node *getNode(unsigned int) const;
+  FuncNode *getFuncNode(unsigned int) const;
 
   // Temporary function for finding the closest node.
 #if DIM==3
@@ -196,6 +195,7 @@ public:
   void refreshInterfaceMaterials(PyObject *skeletoncontext);
 
   int nnodes() const;
+  int nfuncnodes() const;
   int nelements() const;
 
   // Is a field in-plane on this mesh?
@@ -270,9 +270,6 @@ public:
 private:
   friend class Equation::FindAllEquationWrappers;
   friend class Field::FindAllFieldWrappers;
-  friend class MeshElementIterator;
-  friend class MeshFuncNodeIterator;
-  friend class MeshNodeIterator;
   friend class Node;
   friend class CSubProblem;
   friend class LinearizedSystem;
@@ -281,57 +278,6 @@ private:
   friend class MeshDataCache;
   friend class MemoryDataCache;
   friend class DiskDataCache;
-
-  //AMR, moved to csubproblem
-// Adaptive Mesh Refinement stuff.
-//public:
-//   // TODO: encapsulate all of the ZZ error estimation stuff, so that
-//   // we can switch estimators.
-
-//   // create & add a new CSCPatch pointer
-//   void init_scpatches(const std::vector<int>*);
-//   void add_scpatch(const int, const Material*, 
-// 		   const int,
-// 		   const std::vector<int>*,
-// 		   const std::vector<int>*,
-// 		   const int);
-//   // getting elements & nodes from the patch
-//   std::vector<int> *get_elements_from_patch(const int, const Material*);
-//   std::vector<int> *get_nodes_from_patch(const int, const Material*);
-//   // recovering flux(es)
-//   void init_nodalfluxes();
-//   void recover_fluxes();
-//   // adding recovered flux
-//   void add_this_flux(const Material*, const Flux*,
-// 		     const Node*, VECTOR_D*);
-//   // recovered flux at a given point
-//   VECTOR_D *get_recovered_flux(const Flux*, const Element*,
-// 			       const MasterCoord&);
-//   // reporting recovered fluxes at a given point -- debug purpose
-//   void report_recovered_fluxes(const Element*, const Coord*);
-//   // estimating error
-//   double zz_L2_estimate(const Element*, const Flux*);
-//   void zz_L2_estimate_sub(const Element*, const Flux*,
-// 			  const int&, double&, double&,
-// 			  const MasterCoord&, const double&);
-//   DoubleVec *zz_L2_weights(const Flux*,
-// 				     const double&, const double&);
-//   void zz_L2_weights_sub(const Element*, const Flux*,
-// 			  const int&, double&,
-// 			  const MasterCoord&, const double&);
-//   void setDefaultSubProblem(CSubProblem*);
-//private:
-//   // Storage for CSCPatch's (keyed an assembly node)
-//   // NodalSCPatches contains as many CSCPatches as no. of Materials
-//   // at the assembly node.
-//   std::map<const int, NodalSCPatches*> scpatches;
-//   // Storage for SCpatch Recovered Fluxes
-//   std::map<const int, NodalFluxes*> recovered_fluxes;
-  // The default subproblem is passed in so that the above routines
-  // can use it.  This is a temporary hack, only to be used while AMR
-  // is being done in the FEMesh instead of the CSubProblem.
-//   CSubProblem *defaultSubProblem;
-
 };				// FEMesh
 
 long get_globalFEMeshCount();

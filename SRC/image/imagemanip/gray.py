@@ -2,7 +2,6 @@ from image import imagemodifier
 from common import registeredclass
 from common.IO import parameter
 from SWIG.image.imagemanip import gray
-from types import *
 
 class grayModifier(imagemodifier.ImageModifier):
     def __init__(self):

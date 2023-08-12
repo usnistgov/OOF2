@@ -21,8 +21,12 @@ from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
 from ooflib.engine.IO import pinnodes
 
+from ooflib.common.runtimeflags import digits
+
 from oofcanvas import oofcanvasgui
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class PinnedNodesToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
@@ -36,7 +40,7 @@ class PinnedNodesToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
         infoframe = Gtk.Frame()
         mainbox.pack_start(infoframe, expand=False, fill=False, padding=0)
-        info = Gtk.Label("""Click a node to pin it,
+        info = Gtk.Label(label="""Click a node to pin it,
 Shift-click to unpin it,
 And Ctrl-click to toggle.""")
         infoframe.add(info)
@@ -46,11 +50,11 @@ And Ctrl-click to toggle.""")
                               vexpand=False, valign=Gtk.Align.START)
         mainbox.pack_start(self.table, expand=False, fill=False, padding=0)
 
-        label = Gtk.Label('Mouse', hexpand=False,
+        label = Gtk.Label(label='Mouse', hexpand=False,
                           halign=Gtk.Align.END, valign=Gtk.Align.CENTER)
         self.table.attach(label, 0,0, 1,2)
 
-        label = Gtk.Label('x=', hexpand=False, halign=Gtk.Align.END)
+        label = Gtk.Label(label='x=', hexpand=False, halign=Gtk.Align.END)
         self.table.attach(label, 1,0, 1,1)
         self.xtext = Gtk.Entry(editable=False,
                                hexpand=True, halign=Gtk.Align.FILL)
@@ -59,7 +63,7 @@ And Ctrl-click to toggle.""")
         self.table.attach(self.xtext, 2,0, 1,1)
         self.xtext.set_tooltip_text("x position of the mouse")
 
-        label = Gtk.Label('y=', hexpand=False, halign=Gtk.Align.END)
+        label = Gtk.Label(label='y=', hexpand=False, halign=Gtk.Align.END)
         self.table.attach(label, 1,1, 1,1)
         self.ytext = Gtk.Entry(editable=False,
                                hexpand=True, halign=Gtk.Align.FILL)
@@ -73,11 +77,11 @@ And Ctrl-click to toggle.""")
                           vexpand=False, valign=Gtk.Align.CENTER),
                     0,2, 3,1)
 
-        label = Gtk.Label("Node", hexpand=False,
+        label = Gtk.Label(label="Node", hexpand=False,
                           halign=Gtk.Align.END, valign=Gtk.Align.CENTER)
         self.table.attach(label, 0,3, 1,2)
 
-        label = Gtk.Label('x=', hexpand=False, halign=Gtk.Align.END)
+        label = Gtk.Label(label='x=', hexpand=False, halign=Gtk.Align.END)
         self.table.attach(label, 1,3, 1,1)
         self.nodextext = Gtk.Entry(editable=False,
                                    hexpand=True, halign=Gtk.Align.FILL)
@@ -85,7 +89,7 @@ And Ctrl-click to toggle.""")
         self.nodextext.set_width_chars(12)
         self.table.attach(self.nodextext, 2,3, 1,1)
 
-        label = Gtk.Label('y=', hexpand=False, halign=Gtk.Align.END)
+        label = Gtk.Label(label='y=', hexpand=False, halign=Gtk.Align.END)
         self.table.attach(label, 1,4, 1,1)
         self.nodeytext = Gtk.Entry(editable=False,
                                    hexpand=True, halign=Gtk.Align.FILL)
@@ -130,13 +134,13 @@ And Ctrl-click to toggle.""")
                         homogeneous=True, spacing=2)
         modbox.pack_end(bbox2, expand=False, fill=False, padding=0)
 
-        self.unpinallbutton = Gtk.Button("Unpin All")
+        self.unpinallbutton = Gtk.Button(label="Unpin All")
         gtklogger.setWidgetName(self.unpinallbutton, 'UnPinAll')
         gtklogger.connect(self.unpinallbutton, "clicked", self.unpinallCB)
         self.unpinallbutton.set_tooltip_text("Unpin all the pinned nodes.")
         bbox2.pack_start(self.unpinallbutton, expand=True, fill=True, padding=0)
 
-        self.invertbutton = Gtk.Button("Invert")
+        self.invertbutton = Gtk.Button(label="Invert")
         gtklogger.setWidgetName(self.invertbutton, 'Invert')
         gtklogger.connect(self.invertbutton, "clicked", self.invertCB)
         self.invertbutton.set_tooltip_text(
@@ -183,7 +187,7 @@ And Ctrl-click to toggle.""")
         toolboxGUI.GfxToolbox.activate(self)
         self.gfxwindow().setMouseHandler(self)
         self.oldMotionFlag = self.gfxwindow().allowMotionEvents(
-            oofcanvasgui.motionAlways)
+            oofcanvasgui.MotionAllowed_ALWAYS)
         self.sbcallbacks = [
             switchboard.requestCallbackMain(('who changed', 'Skeleton'),
                                             self.skelChanged),
@@ -204,12 +208,12 @@ And Ctrl-click to toggle.""")
         toolboxGUI.GfxToolbox.deactivate(self)
         self.gfxwindow().removeMouseHandler()
         self.gfxwindow().allowMotionEvents(self.oldMotionFlag)
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
 
     def showPosition(self, point):
         debug.mainthreadTest()
-        self.xtext.set_text("%-11.4g" % point[0])
-        self.ytext.set_text("%-11.4g" % point[1])
+        self.xtext.set_text(f"{point[0]:.{digits()}g}")
+        self.ytext.set_text(f"{point[1]:.{digits()}g}")
 
     def acceptEvent(self, eventtype):
         return eventtype in ('move', 'up')
@@ -264,16 +268,16 @@ And Ctrl-click to toggle.""")
 
     def move(self, x, y, button, shift, ctrl, data):
         debug.mainthreadTest()
-        self.xtext.set_text("%-11.4g" % x)
-        self.ytext.set_text("%-11.4g" % y)
+        self.xtext.set_text(f"{x:.{digits()}g}")
+        self.ytext.set_text(f"{y:.{digits()}g}")
         point = primitives.Point(x,y)
         if self.skeleton_context and point is not None:
             skel = self.skeleton_context.getObject()
             node = skel.nearestNode(point)
             if node:
                 pos = node.position()
-                self.nodextext.set_text("%-11.4g" % pos.x)
-                self.nodeytext.set_text("%-11.4g" % pos.y)
+                self.nodextext.set_text(f"{pos.x:.{digits()}g}")
+                self.nodeytext.set_text(f"{pos.y:.{digits()}g}")
                 self.set_pintext(node)
         else:
             self.nodextext.set_text('')

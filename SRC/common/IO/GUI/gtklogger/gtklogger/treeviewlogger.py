@@ -8,10 +8,12 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import adopteelogger
-import loggers
-import widgetlogger
+from . import adopteelogger
+from . import loggers
+from . import widgetlogger
 
 # Loggers for various components of a TreeView.
 

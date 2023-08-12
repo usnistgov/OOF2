@@ -14,15 +14,6 @@
 #include "engine/ooferror.h"
 #include <iostream>
 
-const std::string ErrNoSuchField::pythonequiv() const {
-  return "ErrNoSuchField(\"" + field + "\")";
-}
-
-const std::string ErrDuplicateField::pythonequiv() const {
-  return "ErrDuplicateField('" + field + "','"
-    + newtype + "','" + oldtype + "')";
-}
-
 ErrNoSuchProperty::ErrNoSuchProperty(const std::string &mat,
 				     const std::string &prop)
   : ErrUserErrorBase<ErrNoSuchProperty>(
@@ -31,20 +22,11 @@ ErrNoSuchProperty::ErrNoSuchProperty(const std::string &mat,
     propname(prop)
 {} 
 
-const std::string ErrNoSuchProperty::pythonequiv() const {
-  return "ErrNoSuchProperty('" + material + "', '" + propname + "')";
-}
-
-
 ErrConvergenceFailure::ErrConvergenceFailure(const std::string &op, int n)
   : ErrUserErrorBase<ErrConvergenceFailure>(
 	    op + " failed to converge in " + tostring(n) + " steps"),
       operation(op), nsteps(n)
 {}
-
-const std::string ErrConvergenceFailure::pythonequiv() const {
-  return "ErrConvergenceFailure('" + operation + "'," + tostring(nsteps)+")";
-}
 
 ErrTimeStepTooSmall::ErrTimeStepTooSmall(double timestep)
   : ErrUserErrorBase<ErrTimeStepTooSmall>(
@@ -53,12 +35,53 @@ ErrTimeStepTooSmall::ErrTimeStepTooSmall(double timestep)
     timestep(timestep)
 {}
 
-const std::string ErrTimeStepTooSmall::pythonequiv() const {
-  return "ErrTimeStepTooSmall(" + tostring(timestep) + ")";
-}
-
 ErrBadMaterial::ErrBadMaterial(const std::string &name)
   : ErrUserErrorBase<ErrBadMaterial>(
 		     "Material \"" + name + "\" is badly formed."),
     name(name)
 {}
+
+const std::string &ErrNoSuchField::classname() const {
+  static std::string s("ErrNoSuchField");
+  return s;
+}
+
+const std::string &ErrDuplicateField::classname() const {
+  static std::string s("ErrDuplicateField");
+  return s;
+}
+
+const std::string &ErrNoSuchProperty::classname() const {
+  static std::string s("ErrNoSuchProperty");
+  return s;
+}
+
+const std::string &ErrPropertyMissing::classname() const {
+  static std::string s("ErrPropertyMissing");
+  return s;
+}
+
+const std::string &ErrRedundantProperty::classname() const {
+  static std::string s("ErrRedundantProperty");
+  return s;
+}
+
+const std::string &ErrBadMaterial::classname() const {
+  static std::string s("ErrBadMaterial");
+  return s;
+}
+
+const std::string &ErrConvergenceFailure::classname() const {
+  static std::string s("ErrConvergenceFailure");
+  return s;
+}
+
+const std::string &ErrTimeStepTooSmall::classname() const {
+  static std::string s("ErrTimeStepTooSmall");
+  return s;
+}
+
+const std::string &ErrInvalidDestination::classname() const {
+  static std::string s("ErrInvalidDestination");
+  return s;
+}

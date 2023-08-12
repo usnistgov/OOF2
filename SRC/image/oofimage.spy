@@ -8,10 +8,8 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-#TODO: which imports are needed, which aren't.
-from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
-from ooflib.common import parallel_enable
+#from ooflib.common import parallel_enable
 from ooflib.common import primitives
 from ooflib.image import imagecontext
 import os
@@ -51,7 +49,7 @@ def readImage(filename, **kwargs):
 
 def _getTimeStamp_optional_args(self, *args):
     return self._getTimeStamp()
-OOFImagePtr.getTimeStamp = _getTimeStamp_optional_args
+OOFImage.getTimeStamp = _getTimeStamp_optional_args
 
 def getImage(imagename):
     ## returns the actual image
@@ -74,23 +72,10 @@ def redoable(imagename):
     return imagecontext.imageContexts[imagename].redoable()
 
 
-ooferror.registerErrorClass(ImageMagickError)
+# # Parallel image send/recv
+# if parallel_enable.enabled():
+#     def Send_Image(image, destinations, tag=0):
+#         _Send_Image(image, destinations, tag)
 
-
-# Super-cautious destructor for SWIG'd OOFImage class.
-# Works around a SWIG bug.
-
-def oofimage_ptr_del(self, destruct=oofimagec.delete_OOFImage):
-    if getattr(self, 'thisown', 0):
-        destruct(self)
-
-OOFImagePtr.__del__ = oofimage_ptr_del
-
-
-# Parallel image send/recv
-if parallel_enable.enabled():
-    def Send_Image(image, destinations, tag=0):
-        _Send_Image(image, destinations, tag)
-
-    def Recv_Image(origin, tag=0):
-        return _Recv_Image(origin, tag)
+#     def Recv_Image(origin, tag=0):
+#         return _Recv_Image(origin, tag)

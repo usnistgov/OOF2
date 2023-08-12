@@ -72,6 +72,7 @@ class TestProp(pypropertywrapper.PyPropertyWrapper):
         dshapedx = funcnodeiterator.dshapefunction(0,masterpos)
         dshapedy = funcnodeiterator.dshapefunction(1,masterpos)
         fluxcomp = Stress.iterator(planarity.ALL_INDICES)
+        ## TODO PYTHON3: Use real iterators
         while not fluxcomp.end():
             fieldcomp = Displacement.iterator(planarity.IN_PLANE)
             while not fieldcomp.end():

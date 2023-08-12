@@ -20,7 +20,7 @@ class InvariantParameterWidget(regclassfactory.RegisteredClassFactory):
             lambda w: isinstance(w, meshparamwidgets.InvariandWidget))
         self.findInvariand()
         regclassfactory.RegisteredClassFactory.__init__(
-            self, invariant.InvariantPtr.registry, scope=scope, name=name,
+            self, invariant.Invariant.registry, scope=scope, name=name,
             **kwargs)
         if value is not None:
             self.set(value, interactive=0)

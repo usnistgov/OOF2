@@ -6,36 +6,32 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
-def _ElementNodeIterator___getitem__(self, idx):
-    if self.end():
-        raise IndexError
-    ans = self.node()
-    self.increment()
-    return ans
+from ooflib.common import debug
 
-ElementNodeIteratorPtr.__getitem__ = _ElementNodeIterator___getitem__
+def _ElementNodeIterator___iter__(self):
+    while not self.end():
+        yield self.node()
+        self.increment()
 
+ElementNodeIterator.__iter__ = _ElementNodeIterator___iter__
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def _ElementFuncNodeIterator___getitem__(self, idx):
-    if self.end():
-        raise IndexError
-    ans = self.funcnode()
-    self.increment()
-    return ans
+def _ElementFuncNodeIterator___iter__(self):
+    while not self.end():
+        yield self.funcnode()
+        self.increment()
 
-ElementFuncNodeIteratorPtr.__getitem__ = _ElementFuncNodeIterator___getitem__
+ElementFuncNodeIterator.__iter__ = _ElementFuncNodeIterator___iter__
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+def _ElementCornerNodeIterator___iter__(self):
+    while not self.end():
+        yield self.node()
+        self.increment()
 
-def _ElementCornerNodeIterator___getitem__(self, idx):
-    if self.end():
-        raise IndexError
-    ans = self.node()
-    self.increment()
-    return ans
-
-ElementCornerNodeIteratorPtr.__getitem__ = _ElementCornerNodeIterator___getitem__
+ElementCornerNodeIterator.__iter__ = _ElementCornerNodeIterator___iter__
 

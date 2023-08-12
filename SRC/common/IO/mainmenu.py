@@ -12,7 +12,7 @@
 #  The main oof menu -- with recording capability and so forth.
 
 # Lots of miscellaneous commands are defined in this file because they
-# don't to merit a file of their own.
+# don't merit a file of their own.
 
 ## TODO: Add a command that resets everything, deletes all
 ## Microstructures, resets the factory settings for Properties, etc.
@@ -35,7 +35,7 @@ from ooflib.common.IO import reporter
 from ooflib.common.IO import scriptloader
 from ooflib.common.IO.gfxmanager import gfxManager
 from ooflib.common.IO import xmlmenudump
-from types import StringType, FloatType, IntType
+
 import code
 import sys
 import tempfile
@@ -73,7 +73,7 @@ tmplogfile = os.fdopen(fd, 'w')
 
 def _tmplog(s):
     if tmplogfile:
-        print >> tmplogfile, s
+        print(s, file=tmplogfile)
         tmplogfile.flush()
     
 OOF.addLogger(oofmenu.MenuLogger(_tmplog))
@@ -102,6 +102,7 @@ _filemenu = OOF.addItem(OOFMenuItem(
 
 _loadmenu = _filemenu.addItem(OOFMenuItem(
     'Load',
+    ordering = 0,
     help="Commands for loading datafiles and scripts.",
     discussion="<para>Commands to load datafiles and scripts.</para>"))
 
@@ -124,7 +125,7 @@ class PScriptLoader(scriptloader.ScriptLoader):
             self,
             filename=filename,
             locals=sys.modules['__main__'].__dict__,
-            **kwargs)  
+            **kwargs)
     def progress(self, current, total):
         self.prog.setFraction((1.0*current)/total)
         if current <= total:
@@ -153,19 +154,16 @@ def loadscript(menuitem, filename):
             # batch mode, the shell error status won't be set unless a
             # new exception is raised here.  The old exception has
             # already been handled by the time we get to this point.
-            # interp.error[0] is the class of the exception.
-            # interp.error[1] is its value.
+            # interp.error is the result of sys.exc_info() when the
+            # error occurred.
             errorname = interp.error[0].__name__
             if errorname.lower()[0] in "aeiou":
                 article = "an"
             else:
                 article = "a"
-            raise ooferror.ErrUserError(
-                "Script '%s' raised %s %s exception" %
-                (filename, article, interp.error[0].__name__)
-                # "Script '%s' raised %s %s exception: %s" %
-                # (filename, article, interp.error[0].__name__, interp.error[1])
-                )
+            raise ooferror.PyErrUserError(
+                f"Script {filename} raised {article} "
+                f"{interp.error[0].__name__} exception")
         debug.fmsg('finished reading', filename)
 
 _loadmenu.addItem(OOFMenuItem(
@@ -206,9 +204,7 @@ _startupmenu.addItem(OOFMenuItem(
 def loaddata(menuitem, filename):
     if filename is not None:
         from ooflib.common.IO import datafile
-        debug.fmsg('loading', filename)
         datafile.readDataFile(filename, OOF.LoadData)
-        debug.fmsg('done loading', filename)
 
 _loadmenu.addItem(OOFMenuItem(
     'Data',
@@ -245,8 +241,10 @@ def saveLog(menuitem, filename, mode):
     menuitem.root().saveLog(file)
     file.close()
 
-_savemenu = _filemenu.addItem(
-    OOFMenuItem('Save', help='Create data files and scripts.'))
+_savemenu = _filemenu.addItem(OOFMenuItem(
+    'Save',
+    ordering=1,
+    help='Create data files and scripts.'))
 
 _savemenu.addItem(OOFMenuItem(
     'Python_Log',
@@ -274,6 +272,7 @@ _filemenu.addItem(OOFMenuItem(
     'Quit',
     callback=quitCmd,
     accel='q',
+    ordering=10000,
     help="Don't give up so easily!",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/quit.xml'),
     threadable = oofmenu.UNTHREADABLE,
@@ -292,6 +291,7 @@ settingsmenu = OOF.addItem(OOFMenuItem(
 
 fontmenu = settingsmenu.addItem(OOFMenuItem(
     "Fonts",
+    ordering=1,
     help="Set fonts used in the GUI."
     ))
 
@@ -332,6 +332,7 @@ def setTheme(menuitem, theme):
 settingsmenu.addItem(OOFMenuItem(
     "Theme",
     callback=setTheme,
+    ordering=2,
     params=[parameter.StringParameter('theme',
                                       tip="The name of a gnome theme.")],
     help="Set the look and feel of the graphical user interface.",
@@ -340,10 +341,12 @@ settingsmenu.addItem(OOFMenuItem(
 
 bufsizemenu = settingsmenu.addItem(OOFMenuItem(
     "UndoBuffer_Size",
+    ordering=8,
     help="Set the size of history buffers."))
 
 gfxdefaultsmenu = settingsmenu.addItem(OOFMenuItem(
     "Graphics_Defaults",
+    ordering=4,
     help="Set various default parameters for graphics displays.",
     discussion="""<para>
 
@@ -393,18 +396,29 @@ gfxdefaultsmenu.addItem(OOFMenuItem(
 
     </para>"""))
 
-import random
 from ooflib.SWIG.common import crandom
 
 def _randomseed(menuitem, seed):
-    random.seed(seed)
     crandom.rndmseed(seed)
 
 settingsmenu.addItem(oofmenu.OOFMenuItem(
-        'Random_Seed',
-        callback=_randomseed,
-        params=[parameter.IntParameter('seed', 17)]
-        ))
+    'Random_Seed',
+    callback=_randomseed,
+    ordering=3.5,
+    params=[parameter.IntParameter('seed', 17)]
+))
+
+def _setdigits(menuitem, digits):
+    runtimeflags.setDigits(digits)
+
+settingsmenu.addItem(oofmenu.OOFMenuItem(
+    'GUI_Digits',
+    callback=_setdigits,
+    ordering=3,
+    params=[parameter.NonNegativeIntParameter(
+        'digits', runtimeflags.digits(),
+        tip='Number of digits to show after the decimal point.')]
+))
 
 ################################
 
@@ -416,6 +430,7 @@ _annotatelogmenu = _filemenu.addItem(OOFMenuItem(
     help="Write a message to the log file",
     discussion="<para>Write info directly to the log file.</para>",
     callback = _annotatelogmenucallback,
+    ordering=200,
     params=[parameter.StringParameter(name="message"),]
     ))
 
@@ -443,7 +458,7 @@ _windowmenu.addItem(OOFMenuItem(
 # The Console is a no-op in text mode.
 
 def consolation(menuitem):
-    print "There, there, I'm sure everything will be fine."
+    print("There, there, I'm sure everything will be fine.")
 
 _windowmenu.addItem(OOFMenuItem(
     'Console',
@@ -479,16 +494,6 @@ _graphicsmenu.addItem(OOFMenuItem("New",
                                   discussion="<para>Create a new <link linkend='Chapter-Graphics'>Graphics Window</link>.</para>"))
 
 _windowmenu.addItem(_graphicsmenu)
-
-_windowmenu.addItem(OOFMenuItem(
-    'Layer_Editor',
-    callback=dummy,
-    help="Open or raise the Layer Editor window.",
-    discussion="""<para>
-Raise the <link linkend='Section-Graphics-LayerEditor'>Layer
-Editor</link> window, if it has already been opened. If not, open it.
-</para>"""
-    ))
 
 _windowmenu.addItem(OOFMenuItem(
     'Activity_Viewer',
@@ -754,6 +759,13 @@ errmenu.addItem(OOFMenuItem('PyError', callback=_pyerror,
                              threadable=oofmenu.THREADABLE,
                              help='Do not taunt PyError.'))
 
+def _pyerror2(menuitem):
+    raise ooferror.PyErrPyProgrammingError("Do not!")
+
+errmenu.addItem(OOFMenuItem('PyError2', callback=_pyerror2,
+                            threadable=oofmenu.THREADABLE,
+                            help='Do not taunt PyError!'))
+
 def _cerror(menuitem):
     cdebug.throwException()
 
@@ -774,7 +786,7 @@ errmenu.addItem(OOFMenuItem("CPyCError", callback=_cpycerror,
 
 
 def loop(menuitem):
-    while 1:
+    while True:
         pass
     debug.fmsg("What am I doing here?")
 
@@ -800,17 +812,17 @@ lockmenu = debugmenu.addItem(OOFMenuItem("LockTest", no_doc=True,
 def _py_read(menuitem, seconds):
     global rw
     rw.read_acquire()
-    print "Got read permission for %d seconds." % seconds
+    print("Got read permission for %d seconds." % seconds)
     time.sleep(seconds)
-    print "Releasing read."
+    print("Releasing read.")
     rw.read_release()
 
 def _py_write(menuitem, seconds):
     global rw
     rw.write_acquire()
-    print "Got write permission for %d seconds." % seconds
+    print("Got write permission for %d seconds." % seconds)
     time.sleep(seconds)
-    print "Releasing write."
+    print("Releasing write.")
     rw.write_release()
 
 lockmenu.addItem(OOFMenuItem('RWLock_read', callback=_py_read,
@@ -840,7 +852,7 @@ lockmenu.addItem(OOFMenuItem('Wait', callback=_wait,
 
 
 def _random(menuitem, n):
-    print >> sys.stderr, [crandom.irndm() for i in range(n)]
+    print([crandom.irndm() for i in range(n)], file=sys.stderr)
 
 debugmenu.addItem(OOFMenuItem(
         'Random',

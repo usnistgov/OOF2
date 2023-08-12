@@ -12,71 +12,52 @@
 #include <oofconfig.h>
 #include <string>
 
-#include "switchboard.h"
-#include "ooferror.h"
-#include "trace.h"
+#include "common/ooferror.h"
 #include "common/pythonlock.h"
+#include "common/pyutils.h"
+#include "common/switchboard.h"
+#include "common/trace.h"
 
 static PyObject *notifier = 0;
 
 void init_switchboard_api(PyObject *pyNotify) {
   // Called just once, passing switchboard.cnotify.
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_XINCREF(pyNotify);
-  releasePyLock(pystate);
   notifier = pyNotify;
 }
 
 void switchboard_notify(const std::string &msg) {
   if(notifier != 0) {
-    PyGILState_STATE pystate = acquirePyLock();
-    PyObject *arg = Py_BuildValue((char*) "(s)", msg.c_str());
-    PyObject *result = PyObject_CallObject(notifier, arg);
+    PYTHON_THREAD_BEGIN_BLOCK;
+    PyObject *result = PyObject_CallFunction(notifier, "s", msg.c_str());
     if(!result) {
-      releasePyLock(pystate);
-      pythonErrorRelay();
+      pythonErrorRelay();	// raises an exception
     }
-    Py_XDECREF(arg);
-    Py_XDECREF(result);
-    releasePyLock(pystate);
-    /*
-      READ THIS: There is a risk that Acquire/Release locks the main
-      thread if this switchboard_notify attempts to execute a callback
-      in this child thread (the calling thread), if the callback takes
-      a significant amount of time.
-    */
-    // I think that the above comment is misleading.  The GUI can
-    // appear to be stalled while some switchboard callback is
-    // executing.  This isn't the same thing as being
-    // deadlocked. --SAL
+    else {
+      Py_XDECREF(result);
+    }
   }
 }
 
 void switchboard_notify(const OOFMessage &msg) {
   if(notifier != 0) {
+    PYTHON_THREAD_BEGIN_BLOCK;
     PyObject *pmsg = msg.pythonObject();
     if(!pmsg)
       pythonErrorRelay();
-    PyGILState_STATE pystate = acquirePyLock();
-    PyObject *result = PyObject_CallFunction(notifier, (char*) "O", pmsg);
+    PyObject *result = PyObject_CallFunction(notifier, "O", pmsg);
     if(!result) {
-      releasePyLock(pystate);
-      pythonErrorRelay();
+      pythonErrorRelay();	// raises an exception
     }
     Py_XDECREF(pmsg);
     Py_XDECREF(result);
-    releasePyLock(pystate);
-  
-    /*
-      READ ABOVE.
-    */
   }
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 const std::string OOFMessage::classname_("OOFMessage");
-const std::string OOFMessage::modulename_("ooflib.SWIG.common.switchboard");
 
 OOFMessage::OOFMessage(const std::string &msgname)
   : msgname(msgname)
@@ -86,6 +67,7 @@ OOFMessage::OOFMessage(const std::string &msgname)
 const std::string &OOFMessage::name() const { return msgname; }
 
 void OOFMessage::addarg(const PythonExportableBase &arggh) {
+  PYTHON_THREAD_BEGIN_BLOCK;
   PyObject *arg = arggh.pythonObject();
   if(!arg)
     pythonErrorRelay();
@@ -93,10 +75,12 @@ void OOFMessage::addarg(const PythonExportableBase &arggh) {
 }
 
 void OOFMessage::addarg(const std::string &strng) {
-  args.push_back(PyString_FromString(strng.c_str()));
+  PYTHON_THREAD_BEGIN_BLOCK;
+  args.push_back(PyUnicode_FromString(strng.c_str()));
 }
 
 void OOFMessage::addarg(int val) {
+  PYTHON_THREAD_BEGIN_BLOCK;
   args.push_back(PyLong_FromLong(val));
 }
 
@@ -106,4 +90,9 @@ int OOFMessage::nargs() const {
 
 PyObject *OOFMessage::getarg(int i) const {
   return args[i];
+}
+
+std::ostream &operator<<(std::ostream &os, const OOFMessage &msg) {
+  os << "OOFMessage(" << msg.name();
+  return os;
 }

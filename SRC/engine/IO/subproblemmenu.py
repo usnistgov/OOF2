@@ -177,7 +177,7 @@ def _edit_subproblem(menuitem, name, subproblem):
 ##        return
     oldsubp = ooflib.engine.subproblemcontext.subproblems[name]
     if oldsubp.name() == ooflib.engine.mesh.defaultSubProblemName:
-        raise ooferror.ErrUserError("You can't edit the default Subproblem!")
+        raise ooferror.PyErrUserError("You can't edit the default Subproblem!")
     meshctxt = oldsubp.getParent()
     oldsubp.reserve()
     oldsubp.begin_writing()
@@ -260,7 +260,7 @@ def _rename_subproblem(menuitem, subproblem, name):
     oldpath = labeltree.makePath(subproblem)
     subprob = ooflib.engine.subproblemcontext.subproblems[oldpath]
     if subprob.name() == ooflib.engine.mesh.defaultSubProblemName:
-        raise ooferror.ErrUserError("You can't rename the default Subproblem!")
+        raise ooferror.PyErrUserError("You can't rename the default Subproblem!")
     subprob.reserve()
     subprob.begin_writing()
     try:
@@ -289,7 +289,7 @@ def _delete_subproblem(menuitem, subproblem):
         return
     subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
     if subpctxt.name() == ooflib.engine.mesh.defaultSubProblemName:
-        raise ooferror.ErrUserError("You can't delete the default Subproblem!")
+        raise ooferror.PyErrUserError("You can't delete the default Subproblem!")
     subpctxt.reserve()
     subpctxt.begin_writing()
     try:
@@ -634,7 +634,7 @@ eqnmenu.addItem(oofmenu.OOFMenuItem(
 
 def _copyFieldState(menuitem, source, target):
     if source == target:
-        raise ooferror.ErrUserError('Source and target must differ!')
+        raise ooferror.PyErrUserError('Source and target must differ!')
     if parallel_enable.enabled():
         ipcsubpmenu.Copy_Field_State(source=source,target=target)
         return
@@ -735,7 +735,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
 
 def _copyEquationState(menuitem, source, target):
     if source == target:
-        raise ooferror.ErrUserError('Source and target must differ!')
+        raise ooferror.PyErrUserError('Source and target must differ!')
     if parallel_enable.enabled():
         ipcsubpmenu.Copy_Equation_State(source=source,target=target)
         return
@@ -949,7 +949,7 @@ def _checkSymmetry(subproblem, material, fn, symmetric):
     subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
     mat = materialmanager.getMaterial('material')
     if fn(subpctxt, mat) != symmetric:
-        raise ooferror.ErrPyProgrammingError("symmetry check failed")
+        raise ooferror.PyErrPyProgrammingError("symmetry check failed")
 
 def _checkSymmetryK(menuitem, subproblem, material, symmetric):
     _checkSymmetry(subproblem,

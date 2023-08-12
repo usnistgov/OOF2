@@ -11,7 +11,6 @@
 
 #include <oofconfig.h>
 
-
 // Declare a Trace object at the entry point to a function, and the
 // given string will be printed when the function is called.
 
@@ -20,9 +19,9 @@
 
 #include <string>
 
-// Trace_t is not meant to be used if DEBUG is not defined, but we
-// can't define it within the #ifdef DEBUG block because then the
-// swigged code for trace_enable() in trace.swg won't compile.
+// To keep swig and python happy, the Trace_t class is defined even if
+// it's not used.  The Trace_t class is never instantiated if DEBUG is
+// not defined.
 
 class Trace_t {
 private:

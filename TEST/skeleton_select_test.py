@@ -17,8 +17,8 @@
 # tests also work.
 
 import unittest, os
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 # Graphical selection stuff.
 # OOF.Graphics_1.Toolbox.Select_Element,
@@ -96,7 +96,7 @@ class Direct_Element_Selection(Direct_Skeleton_Selection):
         self.assertEqual(len(e_set),8)
         index_list = [26,27,34,35,42,43,50,51]
         for e in e_set:
-            self.assert_( e.index in index_list)
+            self.assertTrue( e.index in index_list)
             index_list.remove(e.index)
 
     @memorycheck.check("skeltest")
@@ -111,7 +111,7 @@ class Direct_Element_Selection(Direct_Skeleton_Selection):
         self.assertEqual(len(e_set),4)
         index_list = [26,27,34,35]
         for e in e_set:
-            self.assert_( e.index in index_list)
+            self.assertTrue( e.index in index_list)
             index_list.remove(e.index)
 
     @memorycheck.check("skeltest")
@@ -126,7 +126,7 @@ class Direct_Element_Selection(Direct_Skeleton_Selection):
         self.assertEqual(len(e_set),6)
         index_list = [26,27,34,35,42,43]
         for e in e_set:
-            self.assert_( e.index in index_list)
+            self.assertTrue( e.index in index_list)
             index_list.remove(e.index)
 
     @memorycheck.check("skeltest")
@@ -141,7 +141,7 @@ class Direct_Element_Selection(Direct_Skeleton_Selection):
         self.assertEqual(len(e_set),14)
         index_list = [16,17,24,25,26,27,28,32,33,34,35,36,41,42]
         for e in e_set:
-            self.assert_( e.index in index_list)
+            self.assertTrue( e.index in index_list)
             index_list.remove(e.index)
 
     # The actual selection dictionary for the whole skeleton-context's
@@ -156,10 +156,10 @@ class Direct_Element_Selection(Direct_Skeleton_Selection):
         self.selection_menu.Invert(skeleton="skeltest:skelselect")
         e_set = self.e_selection.retrieve()
         self.assertEqual(len(e_set), 63)
-        index_set = range(64)
+        index_set = list(range(64))
         index_set.remove(9)
         for e in e_set:
-            self.assert_( e.index in index_set)
+            self.assertTrue( e.index in index_set)
             index_set.remove(e.index)
         
     @memorycheck.check("skeltest")
@@ -237,7 +237,7 @@ class Direct_Segment_Selection(Direct_Skeleton_Selection):
         s_set = self.s_selection.retrieve()
         self.assertEqual(len(s_set),len(index_list))
         for s in s_set:
-            self.assert_( s.index in index_list)
+            self.assertTrue( s.index in index_list)
             index_list.remove(s.index)
 
     @memorycheck.check("skeltest")
@@ -252,7 +252,7 @@ class Direct_Segment_Selection(Direct_Skeleton_Selection):
         s_set = self.s_selection.retrieve()
         self.assertEqual(len(s_set),len(index_list))
         for s in s_set:
-            self.assert_( s.index in index_list)
+            self.assertTrue( s.index in index_list)
             index_list.remove(s.index)
 
     @memorycheck.check("skeltest")
@@ -268,7 +268,7 @@ class Direct_Segment_Selection(Direct_Skeleton_Selection):
         s_set = self.s_selection.retrieve()
         self.assertEqual(len(s_set),len(index_list))
         for s in s_set:
-            self.assert_( s.index in index_list)
+            self.assertTrue( s.index in index_list)
             index_list.remove(s.index)
 
     # The actual selection dictionary for the whole skeleton-context's
@@ -283,10 +283,10 @@ class Direct_Segment_Selection(Direct_Skeleton_Selection):
         self.selection_menu.Invert(skeleton="skeltest:skelselect")
         s_set = self.s_selection.retrieve()
         self.assertEqual(len(s_set), 143)
-        index_set = range(144)
+        index_set = list(range(144))
         index_set.remove(29)
         for s in s_set:
-            self.assert_( s.index in index_set)
+            self.assertTrue( s.index in index_set)
             index_set.remove(s.index)
         
     @memorycheck.check("skeltest")
@@ -365,7 +365,7 @@ class Direct_Node_Selection(Direct_Skeleton_Selection):
         index_list = [29, 30, 31, 38, 39, 40, 47, 48, 49,
                       56, 57, 58, 65, 66, 67]
         for n in n_set:
-            self.assert_( n.index in index_list)
+            self.assertTrue( n.index in index_list)
             index_list.remove(n.index)
 
     @memorycheck.check("skeltest")
@@ -380,7 +380,7 @@ class Direct_Node_Selection(Direct_Skeleton_Selection):
         self.assertEqual(len(n_set),10)
         index_list = [29, 30, 31, 37, 38, 39, 40, 47, 48, 49]
         for n in n_set:
-            self.assert_( n.index in index_list)
+            self.assertTrue( n.index in index_list)
             index_list.remove(n.index)
 
     @memorycheck.check("skeltest")
@@ -395,7 +395,7 @@ class Direct_Node_Selection(Direct_Skeleton_Selection):
         self.assertEqual(len(n_set), 13)
         index_list = [29, 30, 31, 38, 39, 40, 47, 48, 49, 56, 57, 58, 66]
         for n in n_set:
-            self.assert_( n.index in index_list)
+            self.assertTrue( n.index in index_list)
             index_list.remove(n.index)
 
     # The actual selection dictionary for the whole skeleton-context's
@@ -410,10 +410,10 @@ class Direct_Node_Selection(Direct_Skeleton_Selection):
         self.selection_menu.Invert(skeleton="skeltest:skelselect")
         n_set = self.n_selection.retrieve()
         self.assertEqual(len(n_set), 80)
-        index_set = range(81)
+        index_set = list(range(81))
         index_set.remove(19)
         for n in n_set:
-            self.assert_( n.index in index_set)
+            self.assertTrue( n.index in index_set)
             index_set.remove(n.index)
         
     @memorycheck.check("skeltest")
@@ -476,9 +476,9 @@ class Direct_Pin_Nodes(Direct_Skeleton_Selection):
         self.assertEqual(self.sk_context.pinnednodes.npinned(), 1)
         for n in self.sk_context.getObject().nodes:
             if n.index == 20:
-                self.assert_(n.pinned())
+                self.assertTrue(n.pinned())
             else:
-                self.assert_(not n.pinned())
+                self.assertTrue(not n.pinned())
 
     @memorycheck.check("skeltest")
     def UnPin(self):
@@ -493,9 +493,9 @@ class Direct_Pin_Nodes(Direct_Skeleton_Selection):
         self.assertEqual(self.sk_context.pinnednodes.npinned(), 1)
         for n in self.sk_context.getObject().nodes:
             if n.index==21:
-                self.assert_(n.pinned())
+                self.assertTrue(n.pinned())
             else:
-                self.assert_(not n.pinned())
+                self.assertTrue(not n.pinned())
 
     @memorycheck.check("skeltest")
     def TogglePin(self):
@@ -510,9 +510,9 @@ class Direct_Pin_Nodes(Direct_Skeleton_Selection):
         self.assertEqual(self.sk_context.pinnednodes.npinned(), 1)
         for n in self.sk_context.getObject().nodes:
             if n.index==21:
-                self.assert_(n.pinned())
+                self.assertTrue(n.pinned())
             else:
-                self.assert_(not n.pinned())
+                self.assertTrue(not n.pinned())
 
     @memorycheck.check("skeltest")
     def Undo(self):
@@ -553,9 +553,9 @@ class Direct_Pin_Nodes(Direct_Skeleton_Selection):
         # Ensure that only node 20 is unpinned.
         for n in self.sk_context.getObject().nodes:
             if n.index==20:
-                self.assert_(not n.pinned())
+                self.assertTrue(not n.pinned())
             else:
-                self.assert_(n.pinned())
+                self.assertTrue(n.pinned())
 
 
 
@@ -573,11 +573,11 @@ class Skeleton_PinNodes(Direct_Skeleton_Selection):
             skeleton="skeltest:skelselect")
         # Verify that the right node is pinned.
         node = self.sk_context.getObject().getNode(10)
-        self.assert_(node.pinned())
+        self.assertTrue(node.pinned())
         # Verify that no others are.
         for n in self.sk_context.getObject().nodes:
             if n.index != 10:
-                self.assert_(not n.pinned())
+                self.assertTrue(not n.pinned())
                 
     @memorycheck.check("skeltest")
     def UnPin_Node_Selection(self):
@@ -592,7 +592,7 @@ class Skeleton_PinNodes(Direct_Skeleton_Selection):
         OOF.Graphics_1.Toolbox.Select_Node.Clear(
             skeleton="skeltest:skelselect")
         for n in self.sk_context.getObject().nodes:
-            self.assert_(not n.pinned())
+            self.assertTrue(not n.pinned())
 
     @memorycheck.check("skeltest")
     def Pin_Internal_Boundary_Nodes(self):
@@ -624,9 +624,9 @@ class Skeleton_PinNodes(Direct_Skeleton_Selection):
             skeleton="skeltest:skelselect")
         for n in self.sk_context.getObject().nodes:
             if n.index==10 or n.index==11:
-                self.assert_(n.pinned())
+                self.assertTrue(n.pinned())
             else:
-                self.assert_(not n.pinned())
+                self.assertTrue(not n.pinned())
 
     @memorycheck.check("skeltest")
     def Pin_Selected_Elements(self):
@@ -641,9 +641,9 @@ class Skeleton_PinNodes(Direct_Skeleton_Selection):
             skeleton="skeltest:skelselect")
         for n in self.sk_context.getObject().nodes:
             if n.index in [10,11,12,19,21,28,29,30]:
-                self.assert_(n.pinned())
+                self.assertTrue(n.pinned())
             else:
-                self.assert_(not n.pinned())
+                self.assertTrue(not n.pinned())
 
     # Just select directly -- assumes the pinnodes toolbox has been
     # tested, and that the skeleton is automatically in the graphics
@@ -685,9 +685,9 @@ class Skeleton_PinNodes(Direct_Skeleton_Selection):
         # Ensure that only node 20 is unpinned.
         for n in self.sk_context.getObject().nodes:
             if n.index==20:
-                self.assert_(not n.pinned())
+                self.assertTrue(not n.pinned())
             else:
-                self.assert_(n.pinned())
+                self.assertTrue(n.pinned())
         
 
 # PinNodes:
@@ -706,7 +706,7 @@ class Skeleton_Element_Group(Direct_Element_Selection):
     def New_Group(self):
         OOF.ElementGroup.New_Group(skeleton="skeltest:skelselect",
                                    name="testgroup")
-        self.assert_(self.e_groups.isGroup("testgroup"))
+        self.assertTrue(self.e_groups.isGroup("testgroup"))
         self.assertEqual(len(self.e_groups.get_group("testgroup")), 0)
 
     def populate_test_group(self):
@@ -735,7 +735,7 @@ class Skeleton_Element_Group(Direct_Element_Selection):
         OOF.ElementGroup.Add_to_Group(skeleton="skeltest:skelselect",
                                       group="testgroup")
         eset0 = self.e_groups.get_group("testgroup")
-        self.assert_( 9 in [e.index for e in eset0] )
+        self.assertTrue( 9 in [e.index for e in eset0] )
         self.selection_menu.Undo(skeleton="skeltest:skelselect")
         OOF.ElementGroup.Remove_from_Group(skeleton="skeltest:skelselect",
                                            group="testgroup")
@@ -750,7 +750,7 @@ class Skeleton_Element_Group(Direct_Element_Selection):
         OOF.ElementGroup.Copy_Group(skeleton="skeltest:skelselect",
                                     group="testgroup",
                                     new_name="testcopy")
-        self.assert_(self.e_groups.isGroup("testcopy"))
+        self.assertTrue(self.e_groups.isGroup("testcopy"))
         e_set1 = self.e_groups.get_group("testcopy")
         self.assertNotEqual(id(e_set0), id(e_set1))
         self.assertEqual(len(e_set0),len(e_set1))
@@ -764,7 +764,7 @@ class Skeleton_Element_Group(Direct_Element_Selection):
         e_set0 = self.e_groups.get_group("testgroup")
         OOF.ElementGroup.Delete_Group(skeleton="skeltest:skelselect",
                                     group="testgroup")
-        self.assert_(not self.e_groups.isGroup("testgroup"))
+        self.assertTrue(not self.e_groups.isGroup("testgroup"))
 
     @memorycheck.check("skeltest")
     def Rename_Group(self):
@@ -773,8 +773,8 @@ class Skeleton_Element_Group(Direct_Element_Selection):
         OOF.ElementGroup.Rename_Group(skeleton="skeltest:skelselect",
                                       group="testgroup",
                                       new_name="testrename")
-        self.assert_(not self.e_groups.isGroup("testgroup"))
-        self.assert_(self.e_groups.isGroup("testrename"))
+        self.assertTrue(not self.e_groups.isGroup("testgroup"))
+        self.assertTrue(self.e_groups.isGroup("testrename"))
         e_set1 = self.e_groups.get_group("testrename")
         self.assertEqual(id(e_set0), id(e_set1))
 
@@ -843,11 +843,11 @@ class Skeleton_Element_Group(Direct_Element_Selection):
         # material.
         for elem in self.e_groups.get_group("testgroup1"):
             material = elem.material(self.sk_context)
-            self.assert_(material is not None)
+            self.assertTrue(material is not None)
             self.assertEqual(material.name(), "material1")
         # Check that the non-overlapping group has no materials
         for elem in self.e_groups.get_group("testgroup3"):
-            self.assert_(elem.material(self.sk_context) is None)
+            self.assertTrue(elem.material(self.sk_context) is None)
             
         # Remove material
         OOF.ElementGroup.Remove_Material(skeleton="skeltest:skelselect",
@@ -868,7 +868,7 @@ class Skeleton_Element_Group(Direct_Element_Selection):
         # material.
         for elem in self.e_groups.get_group("testgroup2"):
             material = elem.material(self.sk_context)
-            self.assert_(material is not None)
+            self.assertTrue(material is not None)
             self.assertEqual(material.name(), "material2")
         # Check that one element in the first group has had its
         # material overwritten by the second group's material.
@@ -880,7 +880,7 @@ class Skeleton_Element_Group(Direct_Element_Selection):
         self.assertEqual(matnames.count("material1"), 3)
         # Check that the non-overlapping group has no materials
         for elem in self.e_groups.get_group("testgroup3"):
-            self.assert_(elem.material(self.sk_context) is None)
+            self.assertTrue(elem.material(self.sk_context) is None)
 
         # Remove material from testgroup2
         OOF.ElementGroup.Remove_Material(skeleton="skeltest:skelselect",
@@ -889,7 +889,7 @@ class Skeleton_Element_Group(Direct_Element_Selection):
         # original material.
         for elem in self.e_groups.get_group("testgroup1"):
             material = elem.material(self.sk_context)
-            self.assert_(material is not None)
+            self.assertTrue(material is not None)
             self.assertEqual(material.name(), "material1")
         # Check that one element in testgroup2 is material1, and the
         # others are None.
@@ -902,7 +902,7 @@ class Skeleton_Element_Group(Direct_Element_Selection):
         
         # Check the non-overlapping group again, just to be sure.
         for elem in self.e_groups.get_group("testgroup3"):
-            self.assert_(elem.material(self.sk_context) is None)
+            self.assertTrue(elem.material(self.sk_context) is None)
         
         OOF.Material.Delete(name='material1')
         OOF.Material.Delete(name='material2')
@@ -914,10 +914,10 @@ class Skeleton_Element_Group(Direct_Element_Selection):
 
         names = ["group%d" %i for i in range(8)]
         for name in names:
-            self.assert_(self.e_groups.isGroup(name))
+            self.assertTrue(self.e_groups.isGroup(name))
 
         lensGroups = [len(self.e_groups.get_group(name)) for name in names]
-        self.assert_(sorted(lensGroups) == [1, 2, 7, 8, 8 ,9, 14, 15])
+        self.assertTrue(sorted(lensGroups) == [1, 2, 7, 8, 8 ,9, 14, 15])
 
         OOF.ElementGroup.Clear_All(skeleton='skeltest:skelselect')
         for name in names:
@@ -925,7 +925,7 @@ class Skeleton_Element_Group(Direct_Element_Selection):
 
         OOF.ElementGroup.Delete_All(skeleton='skeltest:skelselect')
         for name in names:
-            self.assert_(not self.e_groups.isGroup(name))
+            self.assertTrue(not self.e_groups.isGroup(name))
 
 
 class Skeleton_Segment_Group(Direct_Segment_Selection):
@@ -933,7 +933,7 @@ class Skeleton_Segment_Group(Direct_Segment_Selection):
     def New_Group(self):
         OOF.SegmentGroup.New_Group(skeleton="skeltest:skelselect",
                                    name="testgroup")
-        self.assert_(self.s_groups.isGroup("testgroup"))
+        self.assertTrue(self.s_groups.isGroup("testgroup"))
         self.assertEqual(len(self.s_groups.get_group("testgroup")), 0)
 
     def populate_test_group(self):
@@ -962,7 +962,7 @@ class Skeleton_Segment_Group(Direct_Segment_Selection):
         OOF.SegmentGroup.Add_to_Group(skeleton="skeltest:skelselect",
                                       group="testgroup")
         sset0 = self.s_groups.get_group("testgroup")
-        self.assert_( 29 in [s.index for s in sset0] )
+        self.assertTrue( 29 in [s.index for s in sset0] )
         self.selection_menu.Undo(skeleton="skeltest:skelselect")
         OOF.SegmentGroup.Remove_from_Group(skeleton="skeltest:skelselect",
                                            group="testgroup")
@@ -977,7 +977,7 @@ class Skeleton_Segment_Group(Direct_Segment_Selection):
         OOF.SegmentGroup.Copy_Group(skeleton="skeltest:skelselect",
                                     group="testgroup",
                                     new_name="testcopy")
-        self.assert_(self.s_groups.isGroup("testcopy"))
+        self.assertTrue(self.s_groups.isGroup("testcopy"))
         s_set1 = self.s_groups.get_group("testcopy")
         self.assertNotEqual(id(s_set0), id(s_set1))
         self.assertEqual(len(s_set0),len(s_set1))
@@ -991,7 +991,7 @@ class Skeleton_Segment_Group(Direct_Segment_Selection):
         s_set0 = self.s_groups.get_group("testgroup")
         OOF.SegmentGroup.Delete_Group(skeleton="skeltest:skelselect",
                                     group="testgroup")
-        self.assert_(not self.s_groups.isGroup("testgroup"))
+        self.assertTrue(not self.s_groups.isGroup("testgroup"))
 
     @memorycheck.check("skeltest")
     def Rename_Group(self):
@@ -1000,8 +1000,8 @@ class Skeleton_Segment_Group(Direct_Segment_Selection):
         OOF.SegmentGroup.Rename_Group(skeleton="skeltest:skelselect",
                                       group="testgroup",
                                       new_name="testrename")
-        self.assert_(not self.s_groups.isGroup("testgroup"))
-        self.assert_(self.s_groups.isGroup("testrename"))
+        self.assertTrue(not self.s_groups.isGroup("testgroup"))
+        self.assertTrue(self.s_groups.isGroup("testrename"))
         s_set1 = self.s_groups.get_group("testrename")
         self.assertEqual(id(s_set0), id(s_set1))
 
@@ -1034,10 +1034,10 @@ class Skeleton_Segment_Group(Direct_Segment_Selection):
 
         names = ["group%d" %i for i in range(8)]
         for name in names:
-            self.assert_(self.s_groups.isGroup(name))
+            self.assertTrue(self.s_groups.isGroup(name))
 
         lensGroups = [len(self.s_groups.get_group(name)) for name in names]
-        self.assert_(sorted(lensGroups) == [3, 9, 17, 18, 18, 22, 27, 30])
+        self.assertTrue(sorted(lensGroups) == [3, 9, 17, 18, 18, 22, 27, 30])
 
         OOF.SegmentGroup.Clear_All(skeleton='skeltest:skelselect')
         for name in names:
@@ -1045,14 +1045,14 @@ class Skeleton_Segment_Group(Direct_Segment_Selection):
 
         OOF.SegmentGroup.Delete_All(skeleton='skeltest:skelselect')
         for name in names:
-            self.assert_(not self.s_groups.isGroup(name))
+            self.assertTrue(not self.s_groups.isGroup(name))
 
 class Skeleton_Node_Group(Direct_Node_Selection):
     @memorycheck.check("skeltest")
     def New_Group(self):
         OOF.NodeGroup.New_Group(skeleton="skeltest:skelselect",
                                    name="testgroup")
-        self.assert_(self.n_groups.isGroup("testgroup"))
+        self.assertTrue(self.n_groups.isGroup("testgroup"))
         self.assertEqual(len(self.n_groups.get_group("testgroup")), 0)
 
     def populate_test_group(self):
@@ -1081,7 +1081,7 @@ class Skeleton_Node_Group(Direct_Node_Selection):
         OOF.NodeGroup.Add_to_Group(skeleton="skeltest:skelselect",
                                       group="testgroup")
         nset0 = self.n_groups.get_group("testgroup")
-        self.assert_( 20 in [n.index for n in nset0] )
+        self.assertTrue( 20 in [n.index for n in nset0] )
         self.selection_menu.Undo(skeleton="skeltest:skelselect")
         OOF.NodeGroup.Remove_from_Group(skeleton="skeltest:skelselect",
                                            group="testgroup")
@@ -1096,7 +1096,7 @@ class Skeleton_Node_Group(Direct_Node_Selection):
         OOF.NodeGroup.Copy_Group(skeleton="skeltest:skelselect",
                                     group="testgroup",
                                     new_name="testcopy")
-        self.assert_(self.n_groups.isGroup("testcopy"))
+        self.assertTrue(self.n_groups.isGroup("testcopy"))
         n_set1 = self.n_groups.get_group("testcopy")
         self.assertNotEqual(id(n_set0), id(n_set1))
         self.assertEqual(len(n_set0),len(n_set1))
@@ -1110,7 +1110,7 @@ class Skeleton_Node_Group(Direct_Node_Selection):
         n_set0 = self.n_groups.get_group("testgroup")
         OOF.NodeGroup.Delete_Group(skeleton="skeltest:skelselect",
                                     group="testgroup")
-        self.assert_(not self.n_groups.isGroup("testgroup"))
+        self.assertTrue(not self.n_groups.isGroup("testgroup"))
 
     @memorycheck.check("skeltest")
     def Rename_Group(self):
@@ -1119,8 +1119,8 @@ class Skeleton_Node_Group(Direct_Node_Selection):
         OOF.NodeGroup.Rename_Group(skeleton="skeltest:skelselect",
                                       group="testgroup",
                                       new_name="testrename")
-        self.assert_(not self.n_groups.isGroup("testgroup"))
-        self.assert_(self.n_groups.isGroup("testrename"))
+        self.assertTrue(not self.n_groups.isGroup("testgroup"))
+        self.assertTrue(self.n_groups.isGroup("testrename"))
         n_set1 = self.n_groups.get_group("testrename")
         self.assertEqual(id(n_set0), id(n_set1))
 
@@ -1153,10 +1153,10 @@ class Skeleton_Node_Group(Direct_Node_Selection):
         
         names = ["group%d" %i for i in range(8)]
         for name in names:
-            self.assert_(self.n_groups.isGroup(name))
+            self.assertTrue(self.n_groups.isGroup(name))
 
         lensGroups = [len(self.n_groups.get_group(name)) for name in names]
-        self.assert_(sorted(lensGroups) == [3, 4, 10, 10 ,11, 13, 15, 15])
+        self.assertTrue(sorted(lensGroups) == [3, 4, 10, 10 ,11, 13, 15, 15])
 
         OOF.NodeGroup.Clear_All(skeleton='skeltest:skelselect')
         for name in names:
@@ -1164,7 +1164,7 @@ class Skeleton_Node_Group(Direct_Node_Selection):
 
         OOF.NodeGroup.Delete_All(skeleton='skeltest:skelselect')
         for name in names:
-            self.assert_(not self.n_groups.isGroup(name))
+            self.assertTrue(not self.n_groups.isGroup(name))
 
 
 element_set = [

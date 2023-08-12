@@ -64,17 +64,17 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import timestamp
 from ooflib.common import debug
 from ooflib.common import utils
-from types import *
-import string
 import struct
 
-class Registration(object):
+from ooflib.common.utils import stringjoin
+
+class Registration:
     def __init__(self, name, registeredclass, subclass, ordering,
                  params=[], secret=0, tip=None, discussion=None, **kwargs):
 
         self._name = name
         self.subclass = subclass
-        if type(registeredclass) in (ListType, TupleType):
+        if isinstance(registeredclass, (list, tuple)):
             self.registeredclasses = tuple(registeredclass[:])
         else:
             self.registeredclasses = (registeredclass,)
@@ -127,10 +127,10 @@ class Registration(object):
     def setDefaultParams(self, values):
         # Given a list or dictionary of values, set the values of the
         # Parameters.
-        if type(values) == type([]):
+        if isinstance(values, type([])):
             for param, value in zip(self.params, values):
                 param.value = value
-        elif type(values) == type({}):
+        elif isinstance(values, type({})):
             for param in self.params:
                 param.value = values[param.name]
 
@@ -143,24 +143,23 @@ class Registration(object):
     def getParamValues(self):
         # Return a list of the values of the parameters.
         return [ p.value for p in self.params ]
-            
-    def __cmp__(self, other):
-        if isinstance(other, Registration):
-            if self.ordering < other.ordering: return -1
-            if self.ordering > other.ordering: return 1
-            if self._name < other._name: return -1
-            if self._name > other._name: return 1
-            return 0
-        return -1
+
+    def __lt__(self, other):
+        try:
+            return (self.ordering < other.ordering or
+                    (self.ordering == other.ordering and
+                     self._name < other._name))
+        except:
+            return NotImplemented
     
     # Set any parameters that you can from the keyword arguments,
     # and then create an instance of the RegisteredClass.
     def __call__(self,**kwargs):
         # Check for extra arguments
         paramnames = [p.name for p in self.params]
-        for argname in kwargs.keys():
+        for argname in list(kwargs.keys()):
             if argname not in paramnames:
-                raise ooferror.ErrUserError(
+                raise ooferror.PyErrUserError(
                     "Unexpected argument '%s' in %s constructor"
                     % (argname, self.subclass.__name__))
         pdict = {}
@@ -171,22 +170,22 @@ class Registration(object):
                 pass
             pdict[p.name] = p.value
         try:
-            object = self.subclass(**pdict)
+            obj = self.subclass(**pdict)
         except TypeError:
             debug.fmsg("Error creating", self.subclass)
             debug.fmsg("got arguments=", pdict)
             debug.fmsg("expected arguments=", self.params)
             raise
         
-        if not hasattr(object, 'timestamp'):
-            object.timestamp = timestamp.TimeStamp()
-        return object
+        if not hasattr(obj, 'timestamp'):
+            obj.timestamp = timestamp.TimeStamp()
+        return obj
 
     def __repr__(self):
         return "%s('%s', subclass=%s, ordering=%s, params=%s)" % \
                (self.__class__.__name__,
                 self.name(), self.subclass.__name__,
-                `self.ordering`, `self.params`)
+                repr(self.ordering), repr(self.params))
 
 class ConvertibleRegistration(Registration):
     def __init__(self, name, registeredclasses, subclass, ordering,
@@ -209,16 +208,16 @@ class ConvertibleRegistration(Registration):
         ## TODO: Remove the 1st arg from from_base?
         # 'base' is an instance of the base subclass of the
         # ConvertibleRegisteredClass.
-        self.setDefaultParams(self.from_base(self, base))
+        self.setDefaultParams(self.from_base(base))
             
     def __repr__(self):
         t = "%s('%s', subclass=%s, ordering=%s, params=%s)"
         return t % (self.__class__.__name__,
                     self.name(), self.subclass.__name__,
-                    `self.ordering`, `self.params`)
+                    repr(self.ordering), repr(self.params))
                
     
-class RegisteredClass(object):
+class RegisteredClass:
 #     def getRegistrationIndex(self):
 #         # Return the position of this object's subclass in the list of
 #         # all subclasses (ie in the registry).
@@ -292,7 +291,7 @@ class RegisteredClass(object):
     def paramrepr(self):
         values = self.getParamValues()
         names = [p.name for p in self.getRegistration().params]
-        return string.join(['%s=%s' % (name, `value`)
+        return stringjoin(['%s=%s' % (name, repr(value))
                            for (name, value) in zip(names, values)], ',')
 
     def shortparamrepr(self):
@@ -303,7 +302,7 @@ class RegisteredClass(object):
             try:
                 valreprs.append(val.shortrepr())
             except AttributeError:
-                valreprs.append(`val`)
+                valreprs.append(repr(val))
         return ','.join(['%s=%s' % (name, valrepr)
                          for (name, valrepr) in zip(names, valreprs)])
 
@@ -332,7 +331,7 @@ class RegisteredClass(object):
 ## unnecessary since Registration.__init__ checks for uniqueness in
 ## the OOF namespace.
 ##        classname = self.__class__.__name__
-##        modulename = string.split(self.__module__, '.')[-1]
+##        modulename = stringsplit(self.__module__, '.')[-1]
 ##        return '%s.%s(%s)' % (modulename, classname, self.paramrepr())
 
     def shortrepr(self):
@@ -353,7 +352,7 @@ class RegisteredClass(object):
                 repstrings.append(struct.pack('>i', nonekey))
             else:
                 repstrings.append(param.binaryRepr(datafile, value))
-        return string.join(repstrings, '')
+        return b''.join(repstrings)
     def getTimeStamp(self):
         # The timestamp is created by Registration.__call__.
         return self.timestamp

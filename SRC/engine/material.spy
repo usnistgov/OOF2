@@ -10,80 +10,33 @@
 # oof_manager@nist.gov.
 
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.engine import ooferror2
-from ooflib.SWIG.engine import properties
+from ooflib.SWIG.engine import ooferror
+from ooflib.SWIG.engine import property
 from ooflib.common import debug
-from ooflib.common import enum
-from ooflib.common import runtimeflags
 from ooflib.common import utils
 from ooflib.common.IO import oofmenu
-import string, copy
+import copy
+
+from ooflib.engine import materialtype
 
 
-if runtimeflags.surface_mode:
-    class MaterialType(enum.EnumClass(
-        ('bulk',
-         'A bulk material. Normal bulk properties can be added only to this type of material.'),
-        ('interface', 'An interface material. Interface properties can be added only to this type of material.')
-        )
-                       ):
-        tip = "Types of &oof2; materials."
-        discussion = """<para>
-        
-        Types of &oof2; materials.
-        Certain properties can only be assigned to certain types of materials.
-        Bulk materials can be assigned to bulk elements, while interface materials
-        can be assigned to edge elements.
-        
-        </para>"""
+oldMaterial__init__ = Material.__init__
 
-else:
-    # If surface mode is not set, build the enum without the
-    # "interface" member.
-    class MaterialType(enum.EnumClass(
-        ('bulk',
-         'A bulk material. Normal bulk properties can be added only to this type of material.'))):
-        tip = "Types of &oof2; materials."
-        discussion = """<para>
-        
-        Types of &oof2; materials.
-        Certain properties can only be assigned to certain types of materials.
-        Bulk materials can be assigned to bulk elements.
-        
-        </para>"""
-
-
-utils.OOFdefine('MaterialType', MaterialType)
-
-MATERIALTYPE_BULK = MaterialType("bulk")
-
-if runtimeflags.surface_mode:
-    MATERIALTYPE_INTERFACE = MaterialType("interface")
-
-
-def _Material___init__(self, name, materialtype=MATERIALTYPE_BULK):
-    self.this = materialc.new_Material(name, materialtype.string())
-    self.thisown = 1
+def _Material___init__(self, name, mattype=materialtype.MATERIALTYPE_BULK):
+    oldMaterial__init__(self, name, mattype)
     self.consistency_state = [] # empty if material is consistent
 
     # addProperty and removeProperty maintain a Python list of
     # property instances, which ensures that there exists a Python
     # reference to each property in a material.  Reference-count
     # manipulations are not required in the C++ code.
-    self.proplist = []
+    self.properties = []
 
 Material.__init__ = _Material___init__
 
-##_old__del__ = Material.__del__
-##def _Material___del__(self):
-##    switchboard.removeCallback(self.sbcallback)
-##    _old__del__(self)
-
-##Material.__del__ = _Material___del__
-
 def _Material_addProperty(self, prop):
     self.add1Property(prop)
-    self.proplist.append(prop)
+    self.properties.append(prop)
     self.cross_reference()
 
 Material.addProperty = _Material_addProperty
@@ -92,15 +45,15 @@ def _Material_removeProperty_(self, *properties):
     for prop in properties:
         # Exception thrown by C++ code if the property is not present.
         self.remove1Property(prop)  # remove from C++ list
-        self.proplist.remove(prop)
+        self.properties.remove(prop)
     self.cross_reference()
 
 Material.removeProperty = _Material_removeProperty_
 
-def _Material_properties(self):
-    return [self.getProperty(i) for i in range(self.nProperties())]
+# def _Material_properties(self):
+#     return [self.getProperty(i) for i in range(self.nProperties())]
 
-MaterialPtr.properties = _Material_properties
+# Material.properties = _Material_properties
 
 ###########
 
@@ -117,17 +70,17 @@ MaterialPtr.properties = _Material_properties
 def _Material_cross_reference(self):
     self.clear_xref()
     self.consistency_state = []
-    for prop in self.properties():
+    for prop in self.properties: 
         try:
             prop.bookkeeping(self)
-        except ooferror2.ErrRedundantProperty, exc:
+        except ooferror.PyErrRedundantProperty as exc:
             self.consistency_state.append(
                 "Property '%s' is a redundant property of type '%s'."
                 % (prop.name(), exc.get_tag()))
-    for prop in self.properties():
+    for prop in self.properties: 
         try:
             prop.c_cross_reference(self)
-        except ooferror2.ErrNoSuchProperty, exc:
+        except ooferror.PyErrNoSuchProperty as exc:
             self.consistency_state.append(exc.summary())
     self.set_consistency(self.self_consistent()) # sets C++ flag
             
@@ -135,17 +88,17 @@ Material.cross_reference = _Material_cross_reference
 
 def _Material_selfconsistent(self):
     return self.consistency_state == []
-MaterialPtr.self_consistent = _Material_selfconsistent
+Material.self_consistent = _Material_selfconsistent
 
 def _Material_consistency_messages(self):
     return self.consistency_state
-MaterialPtr.consistency_messages = _Material_consistency_messages
+Material.consistency_messages = _Material_consistency_messages
 
 ###########
 
 def _Material_precompute(self, subproblem, fields):
     # subproblem is a CSubProblem subclass instance, not a SubProblemContext.
-    for prop in self.properties():
+    for prop in self.properties:
         prop.cache_active(subproblem, prop.is_active(subproblem))
         if prop.currently_active(subproblem):
             prop.c_precompute(subproblem.mesh)
@@ -158,7 +111,7 @@ Material.precompute = _Material_precompute
 #     for prop in self.properties():
 #         try:
 #             prop.precompute(mesh)
-#         except ooferror2.ErrNoSuchField:
+#         except ooferror.PyErrNoSuchField:
 #             pass
 #
 # Material.precompute_all_properties = _Material_precompute_all_properties
@@ -170,40 +123,40 @@ Material.precompute = _Material_precompute
 def _Material_nonlinear(self, subproblem, fields):
     ## TODO: Remove the 'fields' arg.  This is called in
     ## SubProblemContext.nonlinear(), and possibly elsewhere.
-    for p in self.properties():
+    for p in self.properties:
         if p.currently_active(subproblem):
             if p.currently_nonlinear(subproblem):
                 return True
     return False
 
-MaterialPtr.nonlinear = _Material_nonlinear
+Material.nonlinear = _Material_nonlinear
 
 def _Material_second_order_field(self, subproblem, field, eqns):
-    for p in self.properties():
+    for p in self.properties:
         if p.currently_active(subproblem):
             r = p.registration()
             if field in r.second_order_fields(*eqns):
                 return True
     return False
 
-MaterialPtr.is_second_order_field = _Material_second_order_field
+Material.is_second_order_field = _Material_second_order_field
 
 
 def _Material_timeDependent(self, subproblem, fields):
-    for p in self.properties():
+    for p in self.properties:
         if p.currently_active(subproblem):
             r = p.registration()
             if r.timeDependent(fields):
                 return True
     return False
 
-MaterialPtr.timeDependent = _Material_timeDependent
+Material.timeDependent = _Material_timeDependent
 
 
 def _Material__symmetric(self, subprobctxt, fn):
     subprobctxt.solver_precompute()
     subproblem = subprobctxt.getObject()
-    for p in self.properties():
+    for p in self.properties:
         if p.currently_active(subproblem):
             if not fn(p, subproblem):
                 return False
@@ -212,17 +165,17 @@ Material._is_symmetric = _Material__symmetric
 
 def _Material_symmetric_K(self, subproblem):
     return self._is_symmetric(subproblem,
-                              properties.PropertyPtr.c_is_symmetric_K)
+                              property.Property.c_is_symmetric_K)
 Material.is_symmetric_K = _Material_symmetric_K
 
 def _Material_symmetric_C(self, subproblem):
     return self._is_symmetric(subproblem, 
-                              properties.PropertyPtr.c_is_symmetric_C)
+                              property.Property.c_is_symmetric_C)
 Material.is_symmetric_C = _Material_symmetric_C
 
 def _Material_symmetric_M(self, subproblem):
     return self._is_symmetric(subproblem,
-                              properties.PropertyPtr.c_is_symmetric_M)
+                              property.Property.c_is_symmetric_M)
 Material.is_symmetric_M = _Material_symmetric_M
 
 
@@ -233,46 +186,40 @@ Material.is_symmetric_M = _Material_symmetric_M
 # gets wrapped in different objects each time it's returned.
 
 def _Material__eq__(self, other):
-    return isinstance(other, MaterialPtr) and other.name() == self.name()
-MaterialPtr.__eq__ = _Material__eq__
+    return isinstance(other, Material) and other.name() == self.name()
+Material.__eq__ = _Material__eq__
 
 def _Material__ne__(self, other):
     return not self.__eq__(other)
-MaterialPtr.__ne__ = _Material__ne__
+Material.__ne__ = _Material__ne__
 
 def _Material__hash__(self):
     return hash(self.name())
-MaterialPtr.__hash__ = _Material__hash__
+Material.__hash__ = _Material__hash__
 
 ######
 
 def _Material___repr_(self):
     out = ["Material('" + self.name() + "'"]
-    for prop in self.properties():
-        out.append(`prop`)
-    out = string.join(out, ",\n\t")
+    for prop in self.properties:
+        out.append(repr(prop))
+    out = utils.stringjoin(out, ",\n\t")
     return out + ")"
 
-MaterialPtr.__repr__ = _Material___repr_
+Material.__repr__ = _Material___repr_
 
 def _Material_copy_(self, newname):
     m = Material(newname)
-    for p in [copy.deepcopy(p) for p in self.properties()]:
+    for p in [copy.deepcopy(p) for p in self.properties]:
         m.addProperty(p)
         
     return m
         
-MaterialPtr.copy = _Material_copy_
+Material.copy = _Material_copy_
 
 ##############################
 
 # Create the singleton material attribute registration object.
 # The (swig'd) constructor adds it to the global list of attributes.
 attributeReg = MaterialAttributeRegistration()
-
-###################
-
-# _old_getMaterials = getMaterials
-# def getMaterials(microstructure):
-#     return map(MaterialPtr, _old_getMaterials(microstructure))
 

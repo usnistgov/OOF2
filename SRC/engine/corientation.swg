@@ -12,19 +12,19 @@
 #ifndef CORIENTATION_SWG
 #define CORIENTATION_SWG
 
-%module corientation
+%module(package="ooflib.SWIG.engine") corientation
+
 %include "common/typemaps.swg"
-%extern "engine/outputval.swg"
-%extern "engine/IO/propertyoutput.swg"
+%import "engine/fieldindex.swg"
+%import "engine/outputval.swg"
+%import "engine/IO/propertyoutput.swg"
 
 %{
 #include "engine/corientation.h"
 #include "common/tostring.h"
 %}
 
-%pragma(python) include="corientation.spy"
-%pragma(python) code="from ooflib.SWIG.engine.outputval import NonArithmeticOutputValPtr"
-%pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import NonArithmeticPropertyOutputInitPtr"
+%nodefaultctor COrientation;
 
 class COrientation : public NonArithmeticOutputVal {
 public:
@@ -37,19 +37,40 @@ public:
   COrientAxis axis();
   COrientRodrigues rodrigues();
   double misorientation(COrientation&, char*);
+  ComponentsP components();
+};
 
-  %addmethods {
-    bool __eq__(COrientation *other) {
-      return self->abg() == other->abg();
-    }
-    bool __ne__(COrientation *other) {
-      return self->abg() != other->abg();
-    }
-    %new const string *__repr__() {
-      return new std::string(tostring(*self));
-    }
+%extend COrientation {
+  bool __eq__(COrientation *other) {
+    return self->abg() == other->abg();
+  }
+  bool __ne__(COrientation *other) {
+    return self->abg() != other->abg();
   }
 };
+
+// OIndex is a template defined in corientation.h.  I think that we
+// should be able to swig the instantiated templates like this:
+//   template <class ORIENT> class OIndex : public FieldIndex {};
+//   %nodefaultctor OIndex<COrientABG>;
+//   %template(OIndex_COrientABG) OIndex<COrientABG>;
+// which would create a python class called OIndex_whatever for each
+// COrientation class whatever.  However, that doesn't work (at least
+// with swig 4.1.0).  When I tried it,
+// PythonExportable::pythonObject() returned a swig object of unknown
+// type.  So instead, this macro does it the ugly way, hiding the
+// template from swig.
+
+%define ORIENTATION_INDEX(CLASS)
+ // Create a swigged class named OIndex_CLASS that stands in for OIndex<CLASS>
+  %{
+  typedef OIndex<CLASS> OIndex_##CLASS;
+  %}
+  %nodefaultctor OIndex_##CLASS;
+  class OIndex_##CLASS : public FieldIndex {};
+%enddef
+
+ADD_REPR_GENERIC(COrientation);
 
 class COrientABG : public COrientation {
 public:
@@ -58,15 +79,16 @@ public:
   double alpha();
   double beta();
   double gamma();
-  %addmethods {
-    COrientABG __neg__() {
-      return -(*self);
-    }
-    %new const string *__repr__() {
-      return new std::string(tostring(*self));
-    }
+};
+
+%extend COrientABG {
+  COrientABG __neg__() {
+    return -(*self);
   }
 };
+
+ADD_REPR_GENERIC(COrientABG);
+ORIENTATION_INDEX(COrientABG);
 
 class COrientBunge : public COrientation {
 public:
@@ -75,12 +97,10 @@ public:
   double phi1();
   double theta();
   double phi2();
-  %addmethods {
-    %new const string *__repr__() {
-      return new std::string(tostring(*self));
-    }
-  }
 };
+
+ADD_REPR_GENERIC(COrientBunge);
+ORIENTATION_INDEX(COrientBunge);
 
 class COrientQuaternion : public COrientation {
 public:
@@ -90,12 +110,10 @@ public:
   double e1() const;
   double e2() const;
   double e3() const;
-  %addmethods {
-    %new const string *__repr__() {
-      return new std::string(tostring(*self));
-    }
-  }
 };
+
+ADD_REPR_GENERIC(COrientQuaternion);
+ORIENTATION_INDEX(COrientQuaternion);
 
 class COrientX : public COrientation {
 public:
@@ -104,12 +122,10 @@ public:
   double phi();
   double theta();
   double psi();
-  %addmethods {
-    %new const string *__repr__() {
-      return new std::string(tostring(*self));
-    }
-  }
 };
+
+ADD_REPR_GENERIC(COrientX);
+ORIENTATION_INDEX(COrientX);
 
 class COrientXYZ : public COrientation {
 public:
@@ -118,12 +134,10 @@ public:
   double phi();
   double theta();
   double psi();
-  %addmethods {
-    %new const string *__repr__() {
-      return new std::string(tostring(*self));
-    }
-  }
 };
+
+ADD_REPR_GENERIC(COrientXYZ);
+ORIENTATION_INDEX(COrientXYZ);
 
 class COrientAxis : public COrientation {
 public:
@@ -133,12 +147,10 @@ public:
   double x();
   double y();
   double z();
-  %addmethods {
-    %new const string *__repr__() {
-      return new std::string(tostring(*self));
-    }
-  }
 };
+
+ADD_REPR_GENERIC(COrientAxis);
+ORIENTATION_INDEX(COrientAxis);
 
 class COrientRodrigues : public COrientation {
 public:
@@ -147,18 +159,16 @@ public:
   double r1();
   double r2();
   double r3();
-  %addmethods {
-    %new const string *__repr__() {
-      return new std::string(tostring(*self));
-    }
-  }
 };
+
+ADD_REPR_GENERIC(COrientRodrigues);
+ORIENTATION_INDEX(COrientRodrigues);
 
 class OrientationPropertyOutputInit : public NonArithmeticPropertyOutputInit {
 public:
   OrientationPropertyOutputInit();
 };
 
-
+%pythoncode "engine/corientation.spy"
 
 #endif	// CORIENTATION_SWG

@@ -40,6 +40,11 @@ from ooflib.common.IO.GUI import quit
 from ooflib.common.IO.GUI import widgetscope
 import ooflib.common.quit
 
+import oofcanvas
+oofcanvas.init_OOFCanvas(True)
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 allPages = {}                           # dictionary of pages keyed by name
@@ -56,25 +61,26 @@ class oofGUI(widgetscope.WidgetScope):
     def __init__(self):
         debug.mainthreadTest()
         widgetscope.WidgetScope.__init__(self, None)
-        self.gtk = Gtk.Window(Gtk.WindowType.TOPLEVEL)
+        self.gtk = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
         self.gtk.set_title(oofname)
-        initial_width, initial_height = map(int,
-                                            runtimeflags.geometry.split('x'))
+        initial_width, initial_height = runtimeflags.getGeometry()
         self.gtk.set_default_size(initial_width, initial_height)
         gtklogger.newTopLevelWidget(self.gtk, oofname)
         gtklogger.connect(self.gtk, "delete-event", self.deleteEventCB)
         gtklogger.connect_passive(self.gtk, "configure-event")
         self.gtk.connect("destroy", self.destroyCB)
         guitop.setTop(self)
-        
-        map(self.addStyle, gtkutils.styleStrings)
+
+        for sty in gtkutils.styleStrings:
+            self.addStyle(sty)
         
         self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
                                spacing=2, margin=5)
         self.gtk.add(self.mainbox)
 
         self.menubar = Gtk.MenuBar()
-        self.mainbox.pack_start(self.menubar, expand=False, fill=False, padding=0)
+        self.mainbox.pack_start(self.menubar, expand=False, fill=False,
+                                padding=0)
         accelgrp = Gtk.AccelGroup()
         self.gtk.add_accel_group(accelgrp)
 
@@ -97,7 +103,7 @@ class oofGUI(widgetscope.WidgetScope):
         self.historian = historian.Historian(self.historianCB,
                                              self.sensitizeHistory)
 
-        label = Gtk.Label('Task:')
+        label = Gtk.Label(label='Task:')
         chooserBox.pack_start(label, expand=False, fill=False, padding=2)
         
         self.prevHistoryButton = gtkutils.StockButton('go-first-symbolic')
@@ -158,7 +164,7 @@ class oofGUI(widgetscope.WidgetScope):
         styleContext = self.gtk.get_style_context()
         screen = self.gtk.get_screen()
         styleProvider = Gtk.CssProvider()
-        styleProvider.load_from_data(stylestring)
+        styleProvider.load_from_data(stylestring.encode())
         styleContext.add_provider_for_screen(
             screen, styleProvider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)

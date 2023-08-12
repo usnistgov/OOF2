@@ -28,8 +28,12 @@ from ooflib.common.IO.GUI import toolboxGUI
 
 import oofcanvas
 from oofcanvas import oofcanvasgui
+from ooflib.common.runtimeflags import digits
 
 import sys
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from gi.repository import Gdk
 
@@ -107,7 +111,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         gtklogger.connect(self.clearbutton, 'clicked', self.clearCB)
         self.clearbutton.set_tooltip_text("Unselect all objects.")
 
-        self.invertbutton = Gtk.Button('Invert')
+        self.invertbutton = Gtk.Button(label='Invert')
         gtklogger.setWidgetName(self.invertbutton, "Invert")
         hbox.pack_start(self.invertbutton, expand=True, fill=True, padding=0)
         gtklogger.connect(self.invertbutton, 'clicked', self.invertCB)
@@ -125,8 +129,8 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         
         table = Gtk.Grid(row_spacing=1, column_spacing=1)
         vbox.pack_start(table, expand=False, fill=False, padding=0)
-        table.attach(Gtk.Label('down'), 0,0, 1,1)
-        table.attach(Gtk.Label('up'),   0,1, 1,1)
+        table.attach(Gtk.Label(label='down'), 0,0, 1,1)
+        table.attach(Gtk.Label(label='up'),   0,1, 1,1)
 
         self.xdownentry = Gtk.Entry()
         self.ydownentry = Gtk.Entry()
@@ -183,7 +187,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                        spacing=2, margin=2)
         outerbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        hbox.pack_start(Gtk.Label('Selection size: '),
+        hbox.pack_start(Gtk.Label(label='Selection size: '),
                         expand=False, fill=False, padding=0)
         self.sizetext = Gtk.Entry()
         gtklogger.setWidgetName(self.sizetext, 'size')
@@ -207,7 +211,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.setInfo()
         self.gfxwindow().setMouseHandler(self)
         self.motionFlag = self.gfxwindow().allowMotionEvents(
-            oofcanvasgui.motionMouseDown)
+            oofcanvasgui.MotionAllowed_MOUSEDOWN)
 
     def deactivate(self):
         self.gfxwindow().setRubberBand(None)
@@ -215,7 +219,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.gfxwindow().allowMotionEvents(self.motionFlag)
 
     def close(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        list(map(switchboard.removeCallback, self.sbcallbacks))
         toolboxGUI.GfxToolbox.close(self)
 
     def getSourceName(self):
@@ -314,7 +318,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
                         n = selection.size()
                         m = selection.maxSize()
                         if m > 0:
-                            sizetextdata = "%d (%g%%)" % (n, 100.*n/m)
+                            sizetextdata = f"{n} ({100*n/m:.{digits()}g}%)"
                         else:
                             sizetextdata = "0"
                     finally:
@@ -381,7 +385,8 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
                             utils.OOFeval(self.yupentry.get_text()),
                             utils.OOFeval(self.zupentry.get_text()))                      
             except:        # Shouldn't happen, if sensitization is working
-                raise "Can't evaluate coordinates!"
+                raise ooferror.PyErrPyProgrammingError(
+                    "Can't evaluate coordinates!")
             actual_who = self.getSource()
             if actual_who:
                 self.selectionMethodFactory.set_defaults()
@@ -430,14 +435,14 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
             sig.block()
         try:
             if 'down' in selectionMethodReg.events:
-                self.xdownentry.set_text(("%-8g" % points[0].x).rstrip())
-                self.ydownentry.set_text(("%-8g" % points[0].y).rstrip())
+                self.xdownentry.set_text(f"{points[0].x:.{digits()}f}")
+                self.ydownentry.set_text(f"{points[0].y:.{digits()}f}")
             else:
                 self.xdownentry.set_text('--')
                 self.ydownentry.set_text('--')
             if 'up' in selectionMethodReg.events:
-                self.xupentry.set_text(("%-8g" % points[-1].x).rstrip())
-                self.yupentry.set_text(("%-8g" % points[-1].y).rstrip())
+                self.xupentry.set_text(f"{points[-1].x:.{digits()}f}")
+                self.yupentry.set_text(f"{points[-1].y:.{digits()}f}")
             else:
                 self.xupentry.set_text('--')
                 self.yupentry.set_text('--')

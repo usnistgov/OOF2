@@ -12,7 +12,7 @@ from ooflib.SWIG.common import latticesystem
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.image import pixelselectioncourieri
 from ooflib.SWIG.orientationmap import orientmapdata
-from ooflib.SWIG.orientationmap import pixeldifferentiator
+from ooflib.SWIG.orientationmap import pixeldifferentiatoro
 from ooflib.SWIG.orientationmap import pixelselectioncouriero
 from ooflib.common import debug
 from ooflib.common import pixelselectionmethod
@@ -26,7 +26,7 @@ class OrientationSelector(pixelselectionmethod.SelectionMethod):
         ms = immidge.getMicrostructure()
         orientationmap = orientmapdata.getOrientationMap(ms)
         if orientationmap is None:
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "The Microstructure has no orientation map.")
         pt = ms.pixelFromPoint(pointlist[0])
         orientation = orientationmap.angle(pt) # a swigged COrientABG
@@ -75,12 +75,12 @@ class OrientationBurn(pixelselectionmethod.SelectionMethod):
         ms = immidge.getMicrostructure()
         orientationmap = orientmapdata.getOrientationMap(ms)
         if orientationmap is None:
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "The Microstructure has no orientation map.")
         startpt = ms.pixelFromPoint(points[0])
         selectionctxt = ms.pixelselection.getObject()
         if selectionctxt.checkpixel(startpt):
-            od = pixeldifferentiator.OrientationDifferentiator(
+            od = pixeldifferentiatoro.OrientationDifferentiator(
                 mspath,
                 self.local_flammability,
                 self.global_flammability,

@@ -1,6 +1,5 @@
 // -*- C++ -*-
 
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -13,14 +12,16 @@
 #ifndef INVARIANT_SWG
 #define INVARIANT_SWG
 
-%module invariant
+%module(package="ooflib.SWIG.engine") invariant
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
+
 %{
 #include "engine/invariant.h"
 #include "common/ooferror.h"
 %}
-%pragma(python) include="engine/invariant.spy"
+
+%nodefaultctor Invariant;
 
 class Invariant {
 public:
@@ -61,14 +62,14 @@ public:
   VonMises();
 };
 
-%typemap(python, in) EigenValueRank* (EigenValueRank rank) {
-  // $source is a Python EigenValueRank, which is a subclass of
+%typemap(in) EigenValueRank* (EigenValueRank rank) {
+  // $input is a Python EigenValueRank, which is a subclass of
   // enum.Enum and defined in invariant.spy.  We're converting it to a
   // C++ EigenValueRank, which is just an enum defined in invariant.h.
   // This routine relies on the order in which the Python
   // EigenValueRank values were listed in the class definition.
-  
-  int indx = PyInt_AsLong(PyObject_CallMethod($source,(char*) "index", NULL));
+
+  int indx = PyLong_AsLong(PyObject_CallMethod($input, (char*) "index", NULL));
   switch(indx) {
   case 0:
     rank = MAX_EIGENVALUE;
@@ -80,14 +81,18 @@ public:
     rank = MIN_EIGENVALUE;
     break;
   default:
-    throw ErrProgrammingError("Bad EigenValueRank!", __FILE__, __LINE__);
+    PyErr_SetString(PyExc_TypeError,
+		    "in '$symname', bad EigenValueRank");
+    SWIG_fail;
   }
-  $target = &rank;
+  $1 = &rank;
 }
 
 class Eigenvalue : public Invariant {
 public:
   Eigenvalue(EigenValueRank*);
 };
+
+%pythoncode "engine/invariant.spy"
 
 #endif // INVARIANT_SWG

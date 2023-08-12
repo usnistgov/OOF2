@@ -17,10 +17,11 @@ template <class T>
 class CleverPtr {
 private:
   T *val;
-  CleverPtr(const CleverPtr<T>&); // Unimplemented private copy constructor.
+  CleverPtr(const CleverPtr<T>&) = delete;
 public:
   CleverPtr(T *x) : val(x) {}
   ~CleverPtr() { delete val; }
+  CleverPtr(CleverPtr<T> &&other) { val = other.val; other.val = nullptr; }
   T* operator->() const { return val; }
   // "value" returns the enclosed pointer, whereas "*" dereferences
   // the enclosed pointer.

@@ -26,6 +26,8 @@ from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.image.IO import imagemenu  # ensures that OOFMenuItems exist
 from ooflib.image import imagecontext
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 def newMSfromImage(button):

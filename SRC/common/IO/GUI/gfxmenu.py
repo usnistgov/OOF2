@@ -15,14 +15,16 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.oofmenu import *
 
-from gi.repository import Gdk
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+from gi.repository import Gdk
 
 def gtkOOFMenu(menu, accelgroup=None, parentwindow=None):
     # Function to turn an OOFMenu into Gtk.  The leading GtkMenuItem
     # is returned.
     debug.mainthreadTest()
-    base = Gtk.MenuItem(utils.underscore2space(menu.name))
+    base = Gtk.MenuItem(label=utils.underscore2space(menu.name))
     menu.parentwindow = parentwindow
     gtklogger.setWidgetName(base, menu.name)
     new_gtkmenu = Gtk.Menu()
@@ -72,7 +74,7 @@ def gtkOOFMenuBar(menu, bar=None, accelgroup=None, parentwindow=None):
 
 #######################
 
-class MenuCallBackWrapper(object):
+class MenuCallBackWrapper:
     def __init__(self, menuitem, popup=False):
         self.menuitem = menuitem # An OOFMenuItem, not a GtkMenuItem
         self.popup = popup
@@ -139,7 +141,7 @@ def _OOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
     debug.mainthreadTest()
     if not (self.secret or self.getOption('cli_only')):
 
-        new_gtkitem = Gtk.MenuItem(self.menuItemName()) 
+        new_gtkitem = Gtk.MenuItem(label=self.menuItemName()) 
         gtklogger.setWidgetName(new_gtkitem, self.name)
         try:
             self.gtkitem.append(new_gtkitem)
@@ -149,9 +151,13 @@ def _OOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
         new_gtkitem.connect("destroy", self.gtkitem_destroyed)
         
         parent_menu.insert(new_gtkitem, self.gui_order())
-        if self.help_menu:
-            base.gtkhelpmenu = 1
-            new_gtkitem.set_right_justified(True)
+
+        ## Right justification of help menus is "now considered a bad
+        ## idea" according to the gtk documentation, and
+        ## MenuItem.set_right_justified is deprecated.
+        # if self.help_menu:
+        #     base.gtkhelpmenu = 1
+        #     new_gtkitem.set_right_justified(True)
 
         if (self.callback is None and self.gui_callback is None 
             and self.children_visible()):
@@ -253,11 +259,13 @@ def _addItem_thread(self, item):
     self.enable_parent_gui()
     
     try:
-        map(lambda x: x.show_all(), self.gtkmenu)
+        for x in self.gtkmenu:
+            x.show_all()
     except AttributeError:
         pass
     try:
-        map(lambda x: x.show_all(), self.gtkitem)
+        for x in self.gtkitem:
+            x.show_all()
     except AttributeError:
         pass
     return item
@@ -290,7 +298,7 @@ def _CheckOOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
                                     popup=False):
     debug.mainthreadTest()
     if not (self.secret or self.getOption('cli_only')):
-        new_gtkitem = Gtk.CheckMenuItem(self.menuItemName())
+        new_gtkitem = Gtk.CheckMenuItem(label=self.menuItemName())
         gtklogger.setWidgetName(new_gtkitem, self.name)
         try:
             self.gtkitem.append(new_gtkitem)
@@ -345,7 +353,7 @@ def _CheckOOFMenuItem___call__(self, active):
 
 def _setactive(gtkitem, handler, active):
     debug.mainthreadTest()
-    for (i,h) in map(None, gtkitem, handler):
+    for (i,h) in zip(gtkitem, handler):
         h.block()
         i.set_active(active)
         h.unblock()

@@ -68,7 +68,7 @@ class CMicrostructure;
 // Microstructure but not to a pixel.
 
 // 2. PxlAttributeRegistration is a PythonExportable class, so
-// subclasses must define classname() and modulename() functions.
+// subclasses must define classname().
 
 // 3. The subclass must be swigged.
 

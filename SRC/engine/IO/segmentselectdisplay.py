@@ -36,7 +36,7 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
             selection = skel.segmentselection.retrieve()
             if selection:
                 # First draw a slightly fatter segment in white
-                segs = oofcanvas.CanvasSegments()
+                segs = oofcanvas.CanvasSegments.create()
                 segs.setLineColor(
                     oofcanvas.white.opacity(self.color.getAlpha()))
                 segs.setLineWidthInPixels(1.4*self.line_width)
@@ -46,7 +46,7 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
                     segs.addSegment(pt0, pt1)
                 self.canvaslayer.addItem(segs)
                 # Then draw with the given color and width
-                segs = oofcanvas.CanvasSegments()
+                segs = oofcanvas.CanvasSegments.create()
                 segs.setLineColor(color.canvasColor(self.color))
                 segs.setLineWidthInPixels(self.line_width)
                 for s in skel.segmentselection.retrieve():

@@ -14,8 +14,9 @@ import os
 import re
 import sys
 
-# Flag that says whether to generate missing reference data files.
-# Should be false unless you really know what you're doing.
+# Flag that says whether to generate missing reference data files in
+# fp_file_compare and pdf_compare.  Should be false unless you really
+# know what you're doing.
 generate=False
 # Max number to report from one file.
 maxerrors = 10
@@ -29,17 +30,17 @@ silent = False
 def print_header():
     global filename1, filename2, silent
     if not silent:
-        print >> sys.stderr, "Error comparing files", \
-            os.path.abspath(filename1), os.path.abspath(filename2)
+        print("Error comparing files", \
+            os.path.abspath(filename1), os.path.abspath(filename2), file=sys.stderr)
 
 def print_mismatch(line, v1, v2):
     global errorcount
     if errorcount==0:
         print_header()
     if errorcount == maxerrors and not silent:
-        print >> sys.stderr, "[Skipping further errors]"
+        print("[Skipping further errors]", file=sys.stderr)
     if errorcount < maxerrors and not silent:
-        print >> sys.stderr, "   line %5d: %s != %s" % (line+1, v1, v2)
+        print("   line %5d: %s != %s" % (line+1, v1, v2), file=sys.stderr)
     errorcount += 1
 
 def print_float_mismatch(line, v1, v2):
@@ -47,13 +48,12 @@ def print_float_mismatch(line, v1, v2):
     if errorcount==0:
         print_header()
     if errorcount == maxerrors and not silent:
-        print >> sys.stderr, "[Skipping further errors]"
+        print("[Skipping further errors]", file=sys.stderr)
     if errorcount < maxerrors and not silent:
-        print >> sys.stderr, \
-            "   line %5d: %-16.9g != %-16.9g  (diff=% 8g, % .2g%%)" \
+        print("   line %5d: %-16.9g != %-16.9g  (diff=% 8g, % .2g%%)" \
             % (line+1, v1, v2,
                v1-v2,
-               100.*(v1-v2)/(0.5*(abs(v1) + abs(v2))))
+               100.*(v1-v2)/(0.5*(abs(v1) + abs(v2)))), file=sys.stderr)
     errorcount += 1
 
 def print_int_mismatch(line, v1, v2):
@@ -61,9 +61,9 @@ def print_int_mismatch(line, v1, v2):
     if errorcount==0:
         print_header()
     if errorcount == maxerrors and not silent:
-        print >> sys.stderr, "[Skipping further errors]"
+        print("[Skipping further errors]", file=sys.stderr)
     if errorcount < maxerrors and not silent:
-        print >> sys.stderr, "   line %5d: %16d != %16d" % (line+1, v1, v2)
+        print("   line %5d: %16d != %16d" % (line+1, v1, v2), file=sys.stderr)
     errorcount += 1
 
 def conversion_error(line, v1, v2):
@@ -71,8 +71,8 @@ def conversion_error(line, v1, v2):
     if not errorcount:
         print_header()
     if not silent:
-        print >> sys.stderr, ("   line %5d: %s // %s  (conversion error!)"
-                              % (line+1, v1, v2))
+        print(("   line %5d: %s // %s  (conversion error!)"
+                              % (line+1, v1, v2)), file=sys.stderr)
     errorcount += 1
         
 def eof_error(line, filename):
@@ -80,8 +80,8 @@ def eof_error(line, filename):
     if not errorcount:
         print_header()
     if not silent:
-        print >> sys.stderr, ("   Line %5d: Premature EOF in file %s!" 
-                              % (line+1, filename))
+        print(("   Line %5d: Premature EOF in file %s!" 
+                              % (line+1, filename)), file=sys.stderr)
     errorcount += 1
 
 def too_many_lines(filename, nlines):
@@ -89,8 +89,8 @@ def too_many_lines(filename, nlines):
     if not errorcount:
         print_header()
     if not silent:
-        print >> sys.stderr, ("  Too many lines in file %s!  Expected %d."
-                              % (filename, nlines))
+        print(("  Too many lines in file %s!  Expected %d."
+                              % (filename, nlines)), file=sys.stderr)
     errorcount += 1
 
 def too_few_lines(filename, nlines):
@@ -98,8 +98,8 @@ def too_few_lines(filename, nlines):
     if not errorcount:
         print_header()
     if not silent:
-        print >> sys.stderr, ("  Too few lines in file %s!  Expected %d."
-                              % (filename, nlines))
+        print(("  Too few lines in file %s!  Expected %d."
+                              % (filename, nlines)), file=sys.stderr)
     errorcount += 1
 
 # set_reference_dir can be called to change the directory in which
@@ -134,7 +134,7 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
     # creating explicit groups in the regexp itself. The explicit
     # groups cause split and match to be annoying.
     floatpattern = re.compile(
-        "[-+]?(?:\d+(?:\.\d*)?|\d*\.\d+)(?:[eE][-+]?\d+)?")
+        r"[-+]?(?:\d+(?:\.\d*)?|\d*\.\d+)(?:[eE][-+]?\d+)?")
 
     ## TODO: Delete pdfmode?  It's not used, and pdf_compare(), below,
     ## is better when comparing pdf files created by cairo.
@@ -142,22 +142,22 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
     # Pattern for detecting PDF date strings, which should not be
     # compared.  This looks for a non-digit or beginning of a line,
     # followed by exactly 14 digits, followed by 'Z'.
-    datepattern = re.compile("(?:\D|^)\d{14}Z")
+    datepattern = re.compile(r"(?:\D|^)\d{14}Z")
     # Pattern for detecting the time as printed by datetime.today().
-    timepattern = re.compile("\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\.\d*")
+    timepattern = re.compile(r"\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\.\d*")
 
     try:
         file2 = reference_file(file2)
-        f2 = file(file2, "r")
+        f2 = open(file2, "r")
     except:
         if generate:
-            print >> sys.stderr, "\nMoving file %s to %s.\n" % (file1, file2)
+            print("\nMoving file %s to %s.\n" % (file1, file2), file=sys.stderr)
             os.rename(file1,file2)
             return True
         else:
             raise
 
-    f1 = file(file1, "r")
+    f1 = open(file1, "r")
 
     global errorcount, filename1, filename2, silent
     filename1 = file1           # store in globals
@@ -171,7 +171,7 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
             if nlines is not None and f1_lineno == nlines:
                 too_many_lines(filename1, nlines)
             try:
-                f2_line = f2.next()
+                f2_line = next(f2)
             except StopIteration:
                 eof_error(f1_lineno, filename2)
                 break
@@ -192,14 +192,14 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
                 
             f1_text_items = floatpattern.split(f1_line)
             f2_text_items = floatpattern.split(f2_line)
-            f1_float_items = floatpattern.findall(f1_line)
-            f2_float_items = floatpattern.findall(f2_line)
+            f1_numerical_items = floatpattern.findall(f1_line)
+            f2_numerical_items = floatpattern.findall(f2_line)
 
             for (item1, item2) in zip(f1_text_items, f2_text_items):
                 if item1.strip() != item2.strip():
                     print_mismatch(f1_lineno, item1, item2)
             
-            for(item1, item2) in zip(f1_float_items, f2_float_items):
+            for(item1, item2) in zip(f1_numerical_items, f2_numerical_items):
                 try:
                     int1 = int(item1)
                     int2 = int(item2)
@@ -216,7 +216,9 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
                         # and relative error, which isn't usually a good
                         # idea, but is ok if the numbers being compared
                         # are more or less of order 1.
-                        ok = diff < reltol or diff < tolerance
+                        # Use <= instead of < so that diff==tolerance==0
+                        # is accepted!
+                        ok = diff <= reltol or diff <= tolerance
                         if not ok:
                             print_float_mismatch(f1_lineno, float1, float2)
                 else: # Integer conversion worked, do comparison.
@@ -227,7 +229,7 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
 
         # Is there more to read from file 2?
         try:
-            f2_line = f2.next()
+            f2_line = next(f2)
         except StopIteration:
             moref2 = False
         else:
@@ -249,19 +251,19 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
         
         if errorcount > 0:
             if not silent:
-                print >> sys.stderr, ("%d error%s in file comparison!" %
-                                      (errorcount, "s"*(errorcount!=1)))
+                print(("%d error%s in file comparison!" %
+                                      (errorcount, "s"*(errorcount!=1))), file=sys.stderr)
             return False
 
         if not silent:
-            print >> sys.stderr, "Files", filename1, "and", filename2, "agree."
+            print("Files", filename1, "and", filename2, "agree.", file=sys.stderr)
         return True
     finally:
         f1.close()
         f2.close()
 
-pdfTimeStamp = r"/CreationDate \(D:[0-9]*Z\)"
-pdfProducer = r"/Producer \(cairo [0-9\.]* \(https?://cairographics\.org\)\)"
+pdfTimeStamp = rb"/CreationDate \(D:[0-9]*Z\)"
+pdfProducer = rb"/Producer \(cairo [0-9\.]* \(https?://cairographics\.org\)\)"
 
 def pdf_compare(file1, file2, quiet=False):
     # Compare two files byte by byte, allowing them to differ by a pdf
@@ -276,18 +278,31 @@ def pdf_compare(file1, file2, quiet=False):
     # possibly with a different version number:
     #   /Producer (cairo 1.16.0 (https://cairographics.org))
 
+    # If file2 is a tuple of filenames, compare to each of them, and
+    # return true if any one of them works.
+    if type(file2) is tuple:
+        for f2 in file2:
+            if pdf_compare(file1, f2, quiet=True):
+                if not quiet:
+                    print("Files", file1, "and", f2, "agree", file=sys.stderr)
+                return True
+        if not quiet:
+            print("File", file1, "does not match any of", file2,
+                  file=sys.stderr)
+        return False
+
     try:
         file2 = reference_file(file2)
-        f2 = open(file2, "r")
+        f2 = open(file2, "rb")
     except:
         if generate:
-            print >> sys.stderr, "\nMoving file %s to %s.\n" % (file1, file2)
+            print("\nMoving file %s to %s.\n" % (file1, file2), file=sys.stderr)
             os.rename(file1,file2)
             return True
         else:
             raise
 
-    f1 = open(file1, "r")
+    f1 = open(file1, "rb")
     chars1 = f1.read()
     chars2 = f2.read()
     f1.close()
@@ -303,7 +318,7 @@ def pdf_compare(file1, file2, quiet=False):
         if timeSearch1 is None or timeSearch2 is None:
             # Timestamp was only found in one file.
             if not quiet:
-                print "File mismatch:", file1, file2
+                print(f"File mismatch: {file1} {file2}", file=sys.stderr)
             return False
         ranges1.append((timeSearch1.start(), timeSearch1.end()))
         ranges2.append((timeSearch2.start(), timeSearch2.end()))
@@ -312,7 +327,7 @@ def pdf_compare(file1, file2, quiet=False):
     if prodSearch1 is not None or prodSearch2 is not None:
         if prodSearch1 is None or prodSearch2 is None:
             if not quiet:
-                print "File mismatch:", file1, file2
+                print(f"File mismatch: {file1} {file2}", file=sys.stderr)
             return False
         ranges1.append((prodSearch1.start(), prodSearch1.end()))
         ranges2.append((prodSearch2.start(), prodSearch2.end()))
@@ -321,10 +336,10 @@ def pdf_compare(file1, file2, quiet=False):
     ranges2.sort()
     if subStrCompare(chars1, ranges1, chars2, ranges2):
         if not quiet:
-            print >> sys.stderr, "Files", file1, "and", file2, "agree"
+            print("Files", file1, "and", file2, "agree", file=sys.stderr)
         return True
     if not quiet:
-        print >> sys.stderr, "File mismatch:", file1, file2
+        print("File mismatch:", file1, file2, file=sys.stderr)
     return False
 
 def subStrCompare(chars1, ranges1, chars2, ranges2):
@@ -338,21 +353,21 @@ def subStrCompare(chars1, ranges1, chars2, ranges2):
         # Check that the substring [last1, r1[0]] in chars1 is the
         # same as [last2, r2[0]] in chars2.
         if r1[0]-last1 != r2[0]-last2:
-            print >> sys.stderr, "Substring length mismatch"
+            print("Substring length mismatch", file=sys.stderr)
             return False
         for i in range(r1[0]-last1):
             if chars1[last1+i] != chars2[last2+i]:
-                print >> sys.stderr, "Substring mismatch"
+                print("Substring mismatch", file=sys.stderr)
                 return False
         last1 = r1[1]
         last2 = r2[1]
     # Check the substrings after the last excluded range.
     if len(chars1)-last1 != len(chars2)-last2:
-        print >> sys.stderr, "Final substring length mismatch"
+        print("Final substring length mismatch", file=sys.stderr)
         return False
     for i in range(len(chars1)-last1):
         if chars1[last1+i] != chars2[last2+i]:
-            print >>sys.stderr, "Final substring mismatch"
+            print("Final substring mismatch", file=sys.stderr)
             return False
     return True
 
@@ -360,16 +375,16 @@ def compare_last(filename, numbers, tolerance=1.e-10):
     # The last line of the given file contains a bunch of numbers
     # separated by commas.  Check that the numbers in the file are
     # within tolerance of the tuple 'numbers'.
-    phile = file(filename, "r")
+    phile = open(filename, "r")
     filenumbers = eval(phile.readlines()[-1])
     if len(numbers) != len(filenumbers):
-        print >> sys.stderr, "*** Expected", len(numbers), "numbers.  Got",\
-            len(philenumbers)
+        print("*** Expected", len(numbers), "numbers.  Got",\
+            len(philenumbers), file=sys.stderr)
         return False
     for (x, y) in zip(numbers, filenumbers):
         if math.fabs(x-y) > tolerance:
-            print >> sys.stderr, "*** Expected", numbers
-            print >> sys.stderr, "***    Found", filenumbers 
+            print("*** Expected", numbers, file=sys.stderr)
+            print("***    Found", filenumbers, file=sys.stderr) 
             return False
     return True
         
@@ -398,8 +413,8 @@ if __name__ == "__main__":
     option_list = ['tolerance=', 'pdf', 'comment', 'max=']
     try:
         optlist, args = getopt.getopt(sys.argv[1:], 'c:t:pm:', option_list)
-    except getopt.error, message:
-        print message
+    except getopt.error as message:
+        print(message)
         sys.exit()
 
     for opt in optlist:
@@ -415,6 +430,6 @@ if __name__ == "__main__":
     ok = fp_file_compare(args[0], args[1], tolerance=tolerance,
                          comment=commentchar, pdfmode=pdf)
     if not ok:
-        print 'Files differ.'
+        print('Files differ.')
         sys.exit(1)
     sys.exit(0)

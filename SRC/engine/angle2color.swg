@@ -12,12 +12,15 @@
 #ifndef ANGLE2COLOR_SWG
 #define ANGLE2COLOR_SWG
 
-%module angle2color
+%module(package="ooflib.SWIG.engine") angle2color
+
 %include "common/typemaps.swg"
+
 %{
 #include "engine/angle2color.h"
 %}
-%pragma(python) include="angle2color.spy"
+
+%nodefaultctor Angle2Color;
 
 class Angle2Color {};
 
@@ -40,5 +43,7 @@ class Axis2HSV : public Angle2Color {
 public:
   Axis2HSV();
 };
+
+%pythoncode "engine/angle2color.spy"
 
 #endif // ANGLE2COLOR_SWG

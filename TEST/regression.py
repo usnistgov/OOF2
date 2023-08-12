@@ -8,13 +8,11 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-
-
 # Top-level regression test file for the OOF application.  Knows about
 # all the test suites in this directory, and what order to run them in
 # in order to get a proper regression test.
 
-import sys, imp, os, getopt, copy, unittest
+import sys, os, getopt, copy, unittest
 
 test_module_names = [
     "fundamental_test",
@@ -80,19 +78,22 @@ def run_modules(test_module_names, oofglobals, backwards):
         test_module_names.reverse()
     for m in test_module_names:
         try:
-            exec "import " + m + " as test_module"
+            ldict = {}
+            exec(f"from oof2.TEST import {m} as test_module", globals(), ldict)
+            test_module = ldict["test_module"]
         except ImportError:
-            print >> sys.stderr, "Import error."
+            print(f"Import error: {m}", file=sys.stderr)
+            print(f"path is {sys.path}")
         else:
-            print "Running test module %s." % m
+            print("Running test module %s." % m)
             # Make sure all the goodies in the OOF namespace are available.
             test_module.__dict__.update(oofglobals)
             if hasattr(test_module, "initialize"):
                 test_module.initialize()
             for t in test_module.test_set:
                 global testcount
-                print >> sys.stderr, "\n *** Running test %d: %s ***\n" % \
-                    (testcount, t.id())
+                print("\n *** Running test %d: %s ***\n" % \
+                    (testcount, t.id()), file=sys.stderr)
                 testcount += 1
                 res = logan.run(t)
                 if not res.wasSuccessful():
@@ -103,9 +104,8 @@ def run_modules(test_module_names, oofglobals, backwards):
     return True
 
 def printhelp():
-    print >> sys.stderr, "Usage : %s [options] [test names]" % os.path.split(sys.argv[0])[1]
-    print >> sys.stderr, \
-"""Options are:
+    print("Usage : %s [options] [test names]" % os.path.split(sys.argv[0])[1], file=sys.stderr)
+    print("""Options are:
    --list             List test names in order, but don't run any of them.
    --from=  testname  Start with the given test.
    --after= testname  Start after the given test.
@@ -117,7 +117,7 @@ def printhelp():
    --help             Print this message.
 The options --from, --after, and --to cannot be used if test names are 
 explicitly listed after the options.
-"""
+""", file=sys.stderr)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -128,8 +128,8 @@ def run(homedir):
                                   ["from=", "after=", "to=", "oofargs=",
                                    "forever", "debug", "backwards",
                                    "help", "list"])
-    except getopt.GetoptError, err:
-        print str(err)
+    except getopt.GetoptError as err:
+        print(str(err))
         printhelp()
         sys.exit(2)
 
@@ -144,7 +144,7 @@ def run(homedir):
     for o,v in opts:
         if o in ("-f", "--from"):
             if startaftergiven:
-                print >> sys.stderr, "You can't use both --from and --after."
+                print("You can't use both --from and --after.", file=sys.stderr)
                 sys.exit(1)
             v = stripdotpy(v)
             test_module_names = test_module_names[test_module_names.index(v):]
@@ -152,7 +152,7 @@ def run(homedir):
             startaftergiven = True
         if o in ("-a", "--after"):
             if startaftergiven:
-                print >> sys.stderr, "You can't use both --from and --after."
+                print("You can't use both --from and --after.", file=sys.stderr)
                 sys.exit(1)
             v = stripdotpy(v)
             test_module_names = \
@@ -173,7 +173,7 @@ def run(homedir):
         elif o == "--backwards":
             backwards = True
         elif o == "--list":
-            print "\n".join(test_module_names)
+            print("\n".join(test_module_names))
             sys.exit(0)
         elif o == "--help":
             printhelp()
@@ -181,7 +181,7 @@ def run(homedir):
 
     if fromtogiven:
         if args:
-            print "You can't explicitly list the tests *and* use --from, --after, or --to."
+            print("You can't explicitly list the tests *and* use --from, --after, or --to.")
             sys.exit(1)
     elif args:
         test_module_names = [stripdotpy(a) for a in args]
@@ -192,10 +192,11 @@ def run(homedir):
 
     try:
         import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
+        if oof2.__file__ not in sys.path:
+            sys.path.append(os.path.dirname(oof2.__file__))
         from ooflib.common import oof
     except ImportError:
-        print "OOF is not correctly installed on this system."
+        print("OOF is not correctly installed on this system.")
         sys.exit(4)
 
     sys.argv.extend(["--text", "--quiet", "--seed=17"])
@@ -209,7 +210,7 @@ def run(homedir):
     # changes if the time format changes.  Setting TZ here means that
     # the creation time will always include time zone information, and
     # will always use the same number of characters.
-    os.putenv("TZ", "Etc/UTC")
+    os.environ["TZ"] = "Etc/UTC"
 
     oof.run(no_interp=1)
 
@@ -221,11 +222,12 @@ def run(homedir):
     import tempfile
     sys.path[0] = os.path.realpath(sys.path[0])
     tmpdir = tempfile.mkdtemp(prefix='oof2temp_')
-    print >> sys.stderr, "Using temp dir", tmpdir
+    print("Using temp dir", tmpdir, file=sys.stderr)
     os.chdir(tmpdir)
     # Tell file_utils where the home directory is, since reference
-    # files are named relative to it.
-    from UTILS import file_utils
+    # files are named relative to it.  See comment in
+    # fundamental_test.py about using the absolute path name here.
+    from oof2.TEST.UTILS import file_utils
     file_utils.set_reference_dir(homedir)
 
     # utils.OOFglobals() returns OOF namespace objects that we will be
@@ -243,16 +245,19 @@ def run(homedir):
             ok = False
             while run_modules(test_module_names, oofglobals, backwards):
                 count += 1
-                print >> sys.stderr, "******* Finished", count, \
-                    "iteration%s"%("s"*(count>1)), "*******"
+                print("******* Finished", count, \
+                    "iteration%s"%("s"*(count>1)), "*******", file=sys.stderr)
         else:
             ok = run_modules(test_module_names, oofglobals, backwards)
     finally:
         if ok:
-            print >> sys.stderr, "All tests completed successfully!"
-            os.rmdir(tmpdir)
+            print("All tests completed successfully!", file=sys.stderr)
+            if not debug:
+                os.rmdir(tmpdir)
+            else:
+                print("Temp dir", tmpdir, "was not removed.", file=sys.stderr)
         else:
-            print >> sys.stderr, "Test failed. Temp dir", tmpdir, "was not removed."
+            print("Test failed. Temp dir", tmpdir, "was not removed.", file=sys.stderr)
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

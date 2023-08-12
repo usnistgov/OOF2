@@ -51,8 +51,8 @@ def _copywrapper(menuitem, property, new_name):
     else:
         try:
             AllProperties.new_prop(property, new_name)
-        except ooferror.ErrUserError, e:
-            print e
+        except ooferror.PyErrUserError as e:
+            print(e)
 
 OOF.Property.addItem(oofmenu.OOFMenuItem(
     'Copy',
@@ -85,8 +85,8 @@ def _deletewrapper(menuitem, property):
     else:
         try:
             AllProperties.delete(property)
-        except ooferror.ErrUserError, e:
-            print e
+        except ooferror.PyErrUserError as e:
+            print(e)
     switchboard.notify("redraw")
 
 

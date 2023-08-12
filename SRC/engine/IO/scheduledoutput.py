@@ -9,7 +9,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.common import registeredclass
@@ -71,7 +71,7 @@ class ScheduledOutput(registeredclass.RegisteredClass):
         self.scheduleType = None
     def setDestination(self, destination):
         if not isinstance(destination, self.getRegistration().destinationClass):
-            raise ooferror2.ErrInvalidDestination()
+            raise ooferror.PyErrInvalidDestination()
         self.destination = destination
     def deleteDestination(self, meshctxt):
         self.finish(meshctxt)
@@ -286,8 +286,8 @@ class StepStatistics(ScheduledOutput):
             if dev2 < 0.0:      # roundoff
                 dev2 = 0.0
             self.destination.printHeadersIfNeeded(self)
-            print >> self.destination, avgstep, math.sqrt(dev2), \
-                self.minstep, self.maxstep, self.nsteps
+            print(avgstep, math.sqrt(dev2), \
+                self.minstep, self.maxstep, self.nsteps, file=self.destination)
         ScheduledOutput.finish(self, meshcontext)
     def printHeaders(self, destination):
         destination.comment(

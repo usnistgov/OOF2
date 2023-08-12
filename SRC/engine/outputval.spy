@@ -13,118 +13,118 @@ from ooflib.common import debug
 
 _labels = ["X-component", "Y-component", "Z-component"]
 
-# Header and representation data for OutputValPtr classes ---
+# Header and representation data for OutputVal classes ---
 # used by analysis machinery to format the output.
 
 # Return appropriate subset of "X", "Y", "Z" if size is less than
 # three, otherwise return numeric component indices starting from 1.
-def _VectorOutputValPtr_label_list(self):
+def _VectorOutputVal_label_list(self):
     s = self.size()
     if s <= len(_labels):
         return _labels[:s]
     else:
-        return [`x`+'-component' for x in range(1,s+1)]
+        return [repr(x)+'-component' for x in range(1,s+1)]
 
-VectorOutputValPtr.label_list = _VectorOutputValPtr_label_list
+VectorOutputVal.label_list = _VectorOutputVal_label_list
 
-def _ScalarOutputValPtr_label_list(self):
+def _ScalarOutputVal_label_list(self):
     return ["Value"]
 
-ScalarOutputValPtr.label_list = _ScalarOutputValPtr_label_list
+ScalarOutputVal.label_list = _ScalarOutputVal_label_list
 
 
 #################################################################
 
-# Arithmetic operations for the OutputValPtr subclasses.  These must
+# Arithmetic operations for the OutputVal subclasses.  These must
 # create a new object which Python has ownership of, otherwise data
 # can get lost.  
 
-def _VectorOutputValPtr___add__(self, other):
+def _VectorOutputVal___add__(self, other):
     res = self.clone()
     res._add(other)
     return res
 
-VectorOutputValPtr.__add__ = _VectorOutputValPtr___add__
-VectorOutputValPtr.__radd__ = _VectorOutputValPtr___add__
+VectorOutputVal.__add__ = _VectorOutputVal___add__
+VectorOutputVal.__radd__ = _VectorOutputVal___add__
 
 
-def _VectorOutputValPtr___sub__(self, other):
+def _VectorOutputVal___sub__(self, other):
     res = self.clone()
     res._sub(other)
     return res
 
-VectorOutputValPtr.__sub__ = _VectorOutputValPtr___sub__
+VectorOutputVal.__sub__ = _VectorOutputVal___sub__
 
-def _ScalarOutputValPtr___add__(self, other):
+def _ScalarOutputVal___add__(self, other):
     res = ScalarOutputVal(self.value())
     res._add(other)
     return res
 
-ScalarOutputValPtr.__add__ = _ScalarOutputValPtr___add__
-ScalarOutputValPtr.__radd__ = _ScalarOutputValPtr___add__
+ScalarOutputVal.__add__ = _ScalarOutputVal___add__
+ScalarOutputVal.__radd__ = _ScalarOutputVal___add__
 
 
-def _ScalarOutputValPtr___sub__(self, other):
+def _ScalarOutputVal___sub__(self, other):
     res = ScalarOutputVal(self.value())
     res._sub(other)
     return res
 
-ScalarOutputValPtr.__sub__ = _ScalarOutputValPtr___sub__
+ScalarOutputVal.__sub__ = _ScalarOutputVal___sub__
 
 def _OutputVal___pow__(self, power):
     bozo = self.clone()
     bozo.component_pow(power)
     return bozo
 
-OutputValPtr.__pow__ = _OutputVal___pow__
+OutputVal.__pow__ = _OutputVal___pow__
 
 
 # Multiplication and division only defined for scalar operands, of course.
 
-def _VectorOutputValPtr___mul__(self, other):
+def _VectorOutputVal___mul__(self, other):
     res = self.clone()
     res._mul(other)
     return res
 
-VectorOutputValPtr.__mul__ = _VectorOutputValPtr___mul__
-VectorOutputValPtr.__rmul__ = _VectorOutputValPtr___mul__
+VectorOutputVal.__mul__ = _VectorOutputVal___mul__
+VectorOutputVal.__rmul__ = _VectorOutputVal___mul__
 
 
-def _VectorOutputValPtr___div__(self, other):
+def _VectorOutputVal___truediv__(self, other):
     res = self.clone()
     res._mul(1.0/other)
     return res
 
-VectorOutputValPtr.__div__ = _VectorOutputValPtr___div__
+VectorOutputVal.__truediv__ = _VectorOutputVal___truediv__
 
 
-def _ScalarOutputValPtr___mul__(self, other):
+def _ScalarOutputVal___mul__(self, other):
     res = ScalarOutputVal(self.value())
     res._mul(other)
     return res
 
-ScalarOutputValPtr.__mul__ = _ScalarOutputValPtr___mul__
-ScalarOutputValPtr.__rmul__ = _ScalarOutputValPtr___mul__
+ScalarOutputVal.__mul__ = _ScalarOutputVal___mul__
+ScalarOutputVal.__rmul__ = _ScalarOutputVal___mul__
 
 
-def _ScalarOutputValPtr___div__(self, other):
+def _ScalarOutputVal___truediv__(self, other):
     res = ScalarOutputVal(self.value())
     res._mul(1.0/other)
     return res
 
-ScalarOutputValPtr.__div__ = _ScalarOutputValPtr___div__
+ScalarOutputVal.__truediv__ = _ScalarOutputVal___truediv__
 
 # We need rdiv as well as div in order to compute 1/ScalarOutputVal.
-def _ScalarOutputValPtr__rdiv__(self, other):
+def _ScalarOutputVal__rtruediv__(self, other):
     return other * (1.0/self.value())
 
-ScalarOutputValPtr.__rdiv__ = _ScalarOutputValPtr__rdiv__
+ScalarOutputVal.__rtruediv__ = _ScalarOutputVal__rtruediv__
     
 ##############################
 
 # Range is only meaningful for scalars.
 
-def _ScalarOutputValPtr_expandRange(self, vmin, vmax):
+def _ScalarOutputVal_expandRange(self, vmin, vmax):
     v = self.value()
     if vmin is not None:
         vmin = min(vmin, v)
@@ -136,19 +136,19 @@ def _ScalarOutputValPtr_expandRange(self, vmin, vmax):
         vmax = v
     return (vmin, vmax)
 
-ScalarOutputValPtr.expandRange = _ScalarOutputValPtr_expandRange
+ScalarOutputVal.expandRange = _ScalarOutputVal_expandRange
 
-def _ScalarOutputValPtr_initRange(self):
+def _ScalarOutputVal_initRange(self):
     return None
 
-ScalarOutputValPtr.initRange = _ScalarOutputValPtr_initRange
+ScalarOutputVal.initRange = _ScalarOutputVal_initRange
 
 ##############################
 
 def _OutputValue___repr__(self):
-    return `self.valuePtr()`
+    return repr(self.valuePtr())
 
-OutputValuePtr.__repr__ = _OutputValue___repr__
+OutputValue.__repr__ = _OutputValue___repr__
 
 
 def _OutputValue__add__(self):
@@ -156,14 +156,14 @@ def _OutputValue__add__(self):
     res._add(other)
     return res
 
-OutputValuePtr.__add__ = _OutputValue__add__
+OutputValue.__add__ = _OutputValue__add__
 
 def _OutputValue__mul__(self,other):
     res = OutputValue(self)
     res._mul(other)
     return res
 
-OutputValuePtr.__mul__ = _OutputValue__mul__
+OutputValue.__mul__ = _OutputValue__mul__
 
 ##############################
 
@@ -173,4 +173,16 @@ from ooflib.common.IO import parameter
 ## for Outputs.
 
 class OutputValParameter(parameter.Parameter):
-    types=(OutputValPtr,)
+    types=(OutputVal,)
+
+##############################
+
+def _OutputVal_components(self):
+    comps = self.c_components()
+    beginp = comps.begin()
+    endp = comps.end()
+    while beginp != endp:
+        yield beginp.current()
+        beginp.increment()
+
+OutputVal.components = _OutputVal_components

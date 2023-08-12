@@ -1,6 +1,3 @@
-checkpoint toplevel widget mapped OOF2
-checkpoint page installed Introduction
-checkpoint toplevel widget mapped OOF2 Activity Viewer
 # -*- python -*-
 
 # This software was produced by NIST, an agency of the U.S. government,
@@ -12,6 +9,11 @@ checkpoint toplevel widget mapped OOF2 Activity Viewer
 # oof_manager@nist.gov.
 
 import tests
+from ooflib.engine.IO.GUI.skeletonBoundaryPage import separator_proxy
+
+checkpoint toplevel widget mapped OOF2
+checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 findWidget('OOF2').resize(782, 511)
@@ -173,7 +175,7 @@ checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.New
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
 checkpoint toplevel widget mapped Dialog-New Graphics Layer
 findWidget('Dialog-New Graphics Layer').resize(215, 193)
@@ -195,7 +197,7 @@ checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.New
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+01)
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findWidget('OOF2 Messages 1').resize(410, 130)
 findWidget('Skeleton Boundaries:Next').clicked()
@@ -214,7 +216,7 @@ event(Gdk.EventType.BUTTON_PRESS,x= 1.1100000000000e+02,y= 1.4000000000000e+01,b
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['ByDominantPixel']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.4000000000000e+01)
 findGfxWindow('Graphics_1').simulateMouse('down', 66.625, 65.75, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 66.625, 65.75, 1, False, False)
 checkpoint Graphics_1 Element sensitized
@@ -244,8 +246,8 @@ checkpoint Graphics_1 Element sensitized
 checkpoint Graphics_1 Element sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Hide
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+01)
 event(Gdk.EventType.BUTTON_PRESS,x= 1.8000000000000e+01,y= 6.0000000000000e+00,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 findCellRenderer(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), col=0, rend=0).emit('toggled', Gtk.TreePath(10))
 checkpoint Move Node toolbox writable changed
@@ -262,8 +264,8 @@ checkpoint Graphics_1 Element sensitized
 checkpoint Graphics_1 Element sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Show
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+01)
 event(Gdk.EventType.BUTTON_PRESS,x= 2.3000000000000e+01,y= 3.3000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 findCellRenderer(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), col=0, rend=0).emit('toggled', Gtk.TreePath(14))
 checkpoint Graphics_1 Skeleton Info sensitized
@@ -279,9 +281,9 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Hide
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path(Gtk.TreePath([14]))
 checkpoint OOF.Graphics_1.Layer.Select
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
 findWidget('Skeleton Boundaries:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 8.9000000000000e+01,y= 2.3000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
@@ -313,7 +315,7 @@ checkpoint boundary page updated
 checkpoint boundary page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Boundary.Construct
-assert tests.chooserListCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['top', 'right', 'bottom', 'left', 'red_circle', None, 'topleft', 'bottomleft', 'topright', 'bottomright'])
+assert tests.chooserListCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['top', 'right', 'bottom', 'left', 'red_circle', separator_proxy, 'topleft', 'bottomleft', 'topright', 'bottomright'])
 assert tests.chooserListStateCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['red_circle'])
 findWidget('Skeleton Boundaries:Next').clicked()
 findWidget('Skeleton Boundaries:Next').clicked()
@@ -330,8 +332,8 @@ checkpoint Graphics_1 Element sensitized
 checkpoint Graphics_1 Element sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Show
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
 findWidget('Skeleton Boundaries:Next').clicked()
 findGfxWindow('Graphics_1').simulateMouse('down', 22.525, 42.3, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 22.525, 41.95, 1, False, False)
@@ -396,7 +398,7 @@ checkpoint boundary page updated
 checkpoint boundary page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Boundary.Construct
-assert tests.chooserListCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['top', 'right', 'bottom', 'left', 'red_circle', None, 'topleft', 'bottomleft', 'topright', 'bottomright', 'red_circle<2>'])
+assert tests.chooserListCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['top', 'right', 'bottom', 'left', 'red_circle', separator_proxy, 'topleft', 'bottomleft', 'topright', 'bottomright', 'red_circle<2>'])
 assert tests.chooserListStateCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['red_circle<2>'])
 findWidget('Skeleton Boundaries:Next').clicked()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Select:Node').clicked()
@@ -693,7 +695,7 @@ checkpoint boundary page updated
 checkpoint boundary page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Boundary.Construct
-assert tests.chooserListCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['top', 'right', 'bottom', 'left', 'red_circle', 'white_cyan', None, 'topleft', 'bottomleft', 'topright', 'bottomright', 'red_circle<2>'])
+assert tests.chooserListCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['top', 'right', 'bottom', 'left', 'red_circle', 'white_cyan', separator_proxy, 'topleft', 'bottomleft', 'topright', 'bottomright', 'red_circle<2>'])
 assert tests.chooserListStateCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['white_cyan'])
 findWidget('Skeleton Boundaries:Next').clicked()
 findWidget('Skeleton Boundaries:Next').clicked()

@@ -11,8 +11,8 @@
 # Test suite for the menu commands under OOF.Microstructure.*
 
 import unittest, os, filecmp
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 class Microstructure_Extra(unittest.TestCase):
     def setUp(self):
@@ -50,7 +50,7 @@ class Microstructure_Extra(unittest.TestCase):
         OOF.File.Save.Microstructure(filename="rich_save_test",
                                      mode="w", format="ascii",
                                      microstructure="rich")
-        self.assert_(filecmp.cmp("rich_save_test",
+        self.assertTrue(filecmp.cmp("rich_save_test",
                                  reference_file("ms_data","rich_ms")))
         os.remove("rich_save_test")
 

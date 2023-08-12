@@ -28,6 +28,10 @@ from ooflib.engine.IO import meshinfo
 from ooflib.engine.IO.GUI import meshdataGUI
 import ooflib.engine.mesh
 
+from ooflib.common.runtimeflags import digits
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 ## TODO: Add a SegmentMode that will display interface materials.
@@ -60,7 +64,7 @@ class MeshInfoMode:
     
     def labelmaster(self, column, row, labeltext, width=1, height=1):
         debug.mainthreadTest()
-        label = Gtk.Label(labeltext, halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label=labeltext, halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, column, row, width, height)
 
     def entrymaster(self, column, row, editable=False, width=1, height=1):
@@ -127,19 +131,14 @@ class ElementMode(MeshInfoMode):
             
     def updateSomething(self, container):
         debug.mainthreadTest()
-        element = container.object
+        element = container.obj
         femesh = container.context.femesh()
         coord = container.mesh_position
         
         self.type.set_text(element.masterelement().name())
-        self.index.set_text(`element.get_index()`)
+        self.index.set_text(repr(element.get_index()))
 
-        ## We can't just pass element.node_iterator() in to
-        ## updateNodeList() because the iterator doesn't quite act
-        ## like a list.  The ChooserListWidget uses list.index(),
-        ## which the iterator doesn't have.
-        self.updateNodeList(self.nodes,
-                            [node for node in element.node_iterator()])
+        self.updateNodeList(self.nodes, element.node_iterator())
 
         ## If a node is selected in the list, then it's been peeked at
         ## and should be highlighted.  The peeker might not be in the
@@ -159,10 +158,15 @@ class ElementMode(MeshInfoMode):
             self.material.set_text("<No material>")
 
     def updateNodeList(self, chsr, nodes):
-        namelist = ["%s %d at (%s, %s)" % 
-                    (node.classname(), node.index(),
-                     node.position().x, node.position().y)
-                    for node in nodes]
+        # If nodes is a generator, we can't iterate over it to get
+        # namelist, becase chsr will need to iterate over it too, and
+        # it can only be iterated over once.  So convert it to a list.
+        # It will never be a large list.
+        nodes = list(nodes)
+        namelist = (f"{node.classname()} {node.index()}"
+                    f" at ({node.position().x:.{digits()}g},"
+                    f" {node.position().y:.{digits()}g})"
+                    for node in nodes)
         chsr.update(nodes, namelist)
 
     def updateNothing(self):
@@ -215,13 +219,13 @@ class NodeMode(MeshInfoMode):
 
     def updateSomething(self, container):
         debug.mainthreadTest()
-        node = container.object
+        node = container.obj
         femesh = container.context.femesh()
         
-        self.index.set_text(`node.index()`)
+        self.index.set_text(repr(node.index()))
         self.type.set_text(node.classname())
-        self.pos.set_text("(%s, %s)" % (node.position().x, node.position().y))
-
+        self.pos.set_text(f"({node.position().x:.{digits()}g}, "
+                          f"{node.position().y:.{digits()}g})")
         fieldnames = node.fieldNames()
 
         # Find out which fields are defined at the node
@@ -257,7 +261,7 @@ class NodeMode(MeshInfoMode):
                 # self.fieldvalWidgets.add(sep)
                 # self.table.attach(sep, 0,3, fldrow,fldrow+1,xoptions=gtk.FILL)
                 # fldrow += 1
-                flabel = Gtk.Label(fld.name(),
+                flabel = Gtk.Label(label=fld.name(),
                                   halign=Gtk.Align.END, hexpand=False)
                 self.fieldvalWidgets.add(flabel)
                 self.table.attach_next_to(flabel, prevRowWidget,
@@ -268,11 +272,10 @@ class NodeMode(MeshInfoMode):
                 # component is attached to the right of the field
                 # name, but the rest are attached below the first.
                 lastComponent = None
-                fcomp = fld.iterator(planarity.ALL_INDICES)
                 prevRowWidget = flabel
-                while not fcomp.end():
+                for fcomp in fld.components(planarity.ALL_INDICES):
                     # row = fldrow + fcomp.integer()
-                    label = Gtk.Label(" " + fcomp.shortrepr()+"=")
+                    label = Gtk.Label(label=" " + fcomp.shortrepr()+"=")
                     self.fieldvalWidgets.add(label)
                     if lastComponent:
                         self.table.attach_next_to(label, lastComponent,
@@ -292,7 +295,6 @@ class NodeMode(MeshInfoMode):
                                               1, 1)
                     # self.table.attach(e, 2,3, row,row+1,
                     #                   xoptions=gtk.EXPAND|gtk.FILL)
-                    fcomp.next()
 
                 sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
                 self.table.attach_next_to(sep, flabel, Gtk.PositionType.BOTTOM,
@@ -305,12 +307,10 @@ class NodeMode(MeshInfoMode):
 
         # Fill in the field values in the table.
         for fld in self.fieldslisted:
-            fcomp = fld.iterator(planarity.ALL_INDICES)
-            while not fcomp.end():
+            for fcomp in fld.components(planarity.ALL_INDICES):
                 e = self.fieldvalEntries[(fld, fcomp.integer())]
-                e.set_text("%-13.6g"%fld.value(femesh, node, fcomp.integer()))
-                fcomp.next()
-            
+                val = fld.value(femesh, node, fcomp.integer())
+                e.set_text(f"{val:.{digits()}g}")
 
     def updateNothing(self):
         debug.mainthreadTest()
@@ -347,7 +347,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
                        halign=Gtk.Align.CENTER)
         clickbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        hbox.pack_start(Gtk.Label("Click on an: ", halign=Gtk.Align.END),
+        hbox.pack_start(Gtk.Label(label="Click on an: ", halign=Gtk.Align.END),
                         expand=False, fill=False, padding=0)
 
         self.modebuttons = []
@@ -370,7 +370,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.table = Gtk.Grid(row_spacing=2, column_spacing=2, margin=2)
         clickbox.pack_start(self.table, expand=False, fill=False, padding=0)
 
-        label = Gtk.Label('x=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='x=', halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, 0,0, 1,1)
         self.xtext = Gtk.Entry(editable=False, hexpand=True,
                                halign=Gtk.Align.FILL)
@@ -378,7 +378,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.xtext.set_width_chars(13)
         self.table.attach(self.xtext, 1,0, 1,1)
         self.xtext.set_tooltip_text("x coordinate of the mouse click on the undisplaced Mesh")
-        label = Gtk.Label('y=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='y=', halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, 0,1, 1,1)
         self.ytext = Gtk.Entry(editable=False, hexpand=True,
                                halign=Gtk.Align.FILL)
@@ -423,10 +423,10 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.clear.set_tooltip_text("Clear the current query.")
         buttonbox.pack_start(self.clear, expand=True, fill=True, padding=0)
 
-        self.next = gtkutils.nextButton()
-        self.next.set_tooltip_text("Go to the next object.")
-        gtklogger.connect(self.next, 'clicked', self.nextQuery)
-        buttonbox.pack_start(self.next, expand=False, fill=False, padding=0)
+        self.nextb = gtkutils.nextButton()
+        self.nextb.set_tooltip_text("Go to the next object.")
+        gtklogger.connect(self.nextb, 'clicked', self.nextQuery)
+        buttonbox.pack_start(self.nextb, expand=False, fill=False, padding=0)
 
         self.mainbox.show_all()
         self.sensitize()
@@ -435,9 +435,6 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.mouse_yposition = None
         self.mesh_xposition = None
         self.mesh_yposition = None
-        if config.dimension() == 3:
-            self.mouse_zposition = None
-            self.mesh_zposition = None
         
         self.sbcallbacks = [
             switchboard.requestCallbackMain((self.toolbox.gfxwindow(),
@@ -475,7 +472,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         if not self.toolbox.querier:
             return
         # See if there's anything to update
-        if self.toolbox.querier.object:
+        if self.toolbox.querier.obj:
             # Change mode if needed.
             self.handleMode(self.toolbox.querier.targetname)
             self.showPosition(self.toolbox.querier.mouse_position,
@@ -536,7 +533,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         debug.mainthreadTest()
         self.clear.set_sensitive(self.clearable())
         self.prev.set_sensitive(self.prev_able())
-        self.next.set_sensitive(self.next_able())
+        self.nextb.set_sensitive(self.next_able())
 
         gtklogger.checkpoint(self.gfxwindow().name + " " +
                              self._name + " sensitized")
@@ -562,7 +559,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def close(self):
         if self.modeobj:
             self.modeobj.destroy()
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         toolboxGUI.GfxToolbox.close(self)
 
     def acceptEvent(self, eventtype):
@@ -595,33 +592,28 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.mouse_yposition = None
         self.mesh_xposition = None
         self.mesh_yposition = None
-        if config.dimension() == 3:
-            self.mesh_zposition = None
 
-    def changeModeWithObject(self, object, mode):
+    def changeModeWithObject(self, obj, mode):
         # Called from double-click callback on the node list.  Always
         # switches modes, so it always issues a menu command.
         self.blockAutoQuery()
         self.changeModeAndSetButton(mode)
         if mode.targetname == "Element":
             pos = self.toolbox.meshlayer.displaced_from_undisplaced(
-                self.toolbox.gfxwindow(), object.center())
+                self.toolbox.gfxwindow(), obj.center())
         elif mode.targetname == "Node":
             pos = self.toolbox.meshlayer.displaced_from_undisplaced(
-                self.toolbox.gfxwindow(), object.position())
+                self.toolbox.gfxwindow(), obj.position())
         self.modeobj.menucmd()(position=pos)
         
     def showPosition(self, mouse, mesh):
         debug.mainthreadTest()
-        self.xtext.set_text("%-13.6g" % mesh[0])
-        self.ytext.set_text("%-13.6g" % mesh[1])
+        self.xtext.set_text(f"{mesh[0]:.{digits()}g}")
+        self.ytext.set_text(f"{mesh[1]:.{digits()}g}")
         self.mouse_xposition = mouse[0]
         self.mouse_yposition = mouse[1]
         self.mesh_xposition = mesh[0]
         self.mesh_yposition = mesh[1]
-        if config.dimension() == 3:
-            self.ztext.set_text("%-13.6g" % mesh[2])
-            self.mesh_zposition = mesh[2]
         gtklogger.checkpoint(self.gfxwindow().name + " " +
                              self._name + " showed position")
 
@@ -633,9 +625,6 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.mouse_yposition = None
         self.mesh_xposition = None
         self.mesh_yposition = None
-        if config.dimension() == 3:
-            self.ztext.set_text("")
-            self.mesh_zposition = None
         gtklogger.checkpoint(self.gfxwindow().name + " " +
                              self._name + " cleared position")
 
@@ -651,8 +640,6 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.mouse_yposition = None
         self.mesh_xposition = None
         self.mesh_yposition = None
-        if config.dimension() == 3:
-            self.mesh_zposition = None
         for v in self.modeobjdict.values():
             v.clearQuery()
         self.toolbox.clearQuerier()

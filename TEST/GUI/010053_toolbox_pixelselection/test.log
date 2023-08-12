@@ -88,7 +88,7 @@ checkpoint toplevel widget mapped chooserPopup-category
 findMenu(findWidget('chooserPopup-category'), ['Image']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-category') # MenuItemLogger
 findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
@@ -109,7 +109,7 @@ wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Me
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Rectangle']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.0000000000000e+01)
 findGfxWindow('Graphics_1').simulateMouse('down', 19.6125, 92.325, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 19.6125, 91.8, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 19.6125, 89.175, 1, False, False)
@@ -183,7 +183,7 @@ checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Circle
 assert tests.pixelSelectionSize(3067)
 
 # Undo the circle selection
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Undo').clicked()
 checkpoint microstructure page sensitized
 checkpoint pixel page updated

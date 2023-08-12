@@ -21,11 +21,12 @@
 ## component.  Perhaps there should be an advanced mode that lets
 ## users choose the non-obvious pairings.
 
-from ooflib.SWIG.engine import equation
-from ooflib.SWIG.engine import ooferror2
-from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import lock
+from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import boundarycond
+from ooflib.SWIG.engine import equation
+from ooflib.SWIG.engine import ooferror
+from ooflib.SWIG.engine import planarity
 from ooflib.common import debug
 from ooflib.common import labeltree
 from ooflib.common import registeredclass
@@ -40,7 +41,7 @@ from ooflib.engine import profile
 from ooflib.engine import skeletoncontext
 from ooflib.engine.IO import meshparameters
 import ooflib.engine.mesh
-import string
+
 #Interface branch
 from ooflib.engine.IO import materialparameter
 
@@ -111,6 +112,8 @@ class BC(registeredclass.RegisteredClass):
         return self is other
     def name(self):
         return self._name
+    def __hash__(self):
+        return hash(self._name)
 
     def femesh(self):
         # self.meshctxt is set, when "add_to_mesh" is called.
@@ -355,7 +358,7 @@ class DirichletBC(BC):
             # SubProblems), then Field.dof() will fail.  In that case,
             # there's nothing to do -- the bc can't be applied.
             dof = self.field.dof(node, fldcomp)
-        except ooferror2.ErrNoSuchField:
+        except ooferror.PyErrNoSuchField:
             return
 
         value = self.profile(location)
@@ -383,7 +386,7 @@ class DirichletBC(BC):
         fldcomp = self.field.getIndex(self.field_component).integer()
         try:
             dof = self.field.dof(node, fldcomp)
-        except ooferror2.ErrNoSuchField:
+        except ooferror.PyErrNoSuchField:
             return
         value = self.profile(location)
         self.field.setvalue(subproblem.mesh, node, fldcomp, value)
@@ -399,8 +402,8 @@ class DirichletBC(BC):
 
     def display(self):
         return "Dirichlet / %s[%s] / %s[%s]" % (
-            `self.field`, self.field_component,
-            `self.equation`, self.eqn_component)
+            repr(self.field), self.field_component,
+            repr(self.equation), self.eqn_component)
     
 registeredclass.Registration(
     "Dirichlet",
@@ -475,10 +478,10 @@ class ForceBC(BC):
             value = self.profile(location)
             boundarycond.applyForceBC(subproblem, linsys, self.equation,
                                       node, eqnindex, value)
-        except ooferror2.ErrNoSuchField: # eqn not active at that node
+        except ooferror.PyErrNoSuchField: # eqn not active at that node
             pass
     def display(self):
-        return "Force / %s" % `self.equation`
+        return "Force / %s" % repr(self.equation)
 
 
 registeredclass.Registration(
@@ -646,7 +649,7 @@ class FloatBCBase(BC):
                     self.root.dofIndex = \
                         self.field.dof(node, fldcomp).dofindex()
                     return
-                except ooferror2.ErrNoSuchField:
+                except ooferror.PyErrNoSuchField:
                     pass
                     
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -667,7 +670,6 @@ class FloatBCBase(BC):
 
         eqncomp = self.equation.getIndex(self.eqn_component).integer()
 
-
         if self.root.applicator is None:  
             # This FloatBC has not yet been applied to any node.  Try
             # to apply it to this node.
@@ -677,7 +679,7 @@ class FloatBCBase(BC):
                 # All other dofs in this FloatBC refer to it.
                 self.root.dofmappingIndex = linearsystem.getSubproblemDoFIndex(
                     node, self.field, fldcomp)
-            except ooferror2.ErrNoSuchField:
+            except ooferror.PyErrNoSuchField:
                 # Field doesn't exist at this node -- just go on as if
                 # nothing had happened.  *Don't* set
                 # self.root.applicator!  Let some other node be the
@@ -735,7 +737,7 @@ class FloatBCBase(BC):
                                              self.root.eqnmappingIndex,
                                              self.root.derivmappingIndex,
                                              self.root.profileStart)
-            except ooferror2.ErrNoSuchField:
+            except ooferror.PyErrNoSuchField:
                 # Field or Eqn isn't defined at the node
                 pass
 
@@ -755,7 +757,7 @@ class FloatBCBase(BC):
         for node, location in locations:
             try:
                 dof = self.field.dof(node, fcomp)
-            except ooferror2.ErrNoSuchField:
+            except ooferror.PyErrNoSuchField:
                 pass
             else:
                 location.set_time(time)
@@ -777,7 +779,7 @@ class FloatBCBase(BC):
         for node, location in locations:
             try:
                 dof = self.field.dof(node, fcomp)
-            except ooferror2.ErrNoSuchField:
+            except ooferror.PyErrNoSuchField:
                 pass
             else:
                 location.set_time(time)
@@ -855,9 +857,9 @@ class FloatBCBase(BC):
 
     def display(self):
         # Exclamations, because it shouldn't ever be displayed.
-        return "FloatBCBase!!! / %s[%s] / %s[%s]" % (`self.field`,
+        return "FloatBCBase!!! / %s[%s] / %s[%s]" % (repr(self.field),
                                                      self.field_component,
-                                                     `self.equation`,
+                                                     repr(self.equation),
                                                      self.eqn_component)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -874,9 +876,9 @@ class FloatBC(FloatBCBase):
         return self.field.time_derivative()
 
     def display(self):
-        return "Float / %s[%s] / %s[%s]" % (`self.field`,
+        return "Float / %s[%s] / %s[%s]" % (repr(self.field),
                                             self.field_component,
-                                            `self.equation`,
+                                            repr(self.equation),
                                             self.eqn_component)
     def preinitialize(self):
         self.initialized = False
@@ -910,7 +912,7 @@ class FloatBC(FloatBCBase):
                 fldcomp = self.field.getIndex(self.field_component).integer()
                 try:
                     dof = self.field.dof(node, fldcomp)
-                except ooferror2.ErrNoSuchField:
+                except ooferror.PyErrNoSuchField:
                     continue
                 location.set_time(time)
                 val = (self.profile(location) +
@@ -943,7 +945,7 @@ class FloatBC(FloatBCBase):
                     if td is not None:
                         self.field.time_derivative().setvalue(
                             self.femesh(), node, fldcomp, td)
-                except ooferror2.ErrNoSuchField:
+                except ooferror.PyErrNoSuchField:
                     pass
             self.initialized = True
             # Set the values of DoFs in FloatBCs that intersect this
@@ -968,7 +970,7 @@ class FloatBC(FloatBCBase):
                 if td is not None:
                     self.field.time_derivative().setvalue(
                         self.femesh(), node, fldcomp, td)
-            except ooferror2.ErrNoSuchField:
+            except ooferror.PyErrNoSuchField:
                 pass
         self.initialized = True
         for (bc, offset) in intersections[self]:
@@ -1157,31 +1159,26 @@ def _build_oops(field, eqn, boundary):
     # that happens, this ".flux" de-reference should be made more
     # robust.
     dflux = eqn.flux()
-    for e in equation.allEquations:
-        if isinstance(e, equation.PlaneFluxEquationPtr):
-            if e.flux()==dflux:
+    for e in equation.allEquations():
+        if isinstance(e, equation.PlaneFluxEquation):
+            if e.flux() == dflux:
                 if not oop_eqn:
                     oop_eqn = e
                 else:
-                    raise ooferror2.ErrSetupError(
+                    raise ooferror.PyErrSetupError(
                         "Equation %s has multiple plane-flux equations." % \
-                        `eqn`)
+                        repr(eqn))
             
     if not oop_eqn:
         # If no plane-flux equation can be found, silently fail.
         return []
 
-    field_itr = oop_field.iterator_all()
-    eqn_itr = oop_eqn.iterator_all()
-
-    while not field_itr.end():
-        new_oop = OutOfPlaneBC(field, oop_field, field_itr.shortstring(),
-                               oop_eqn, eqn_itr.shortstring(),
+    for fcomp, ecomp in zip(oop_field.components(planarity.ALL_INDICES),
+                           oop_eqn.components()):
+        new_oop = OutOfPlaneBC(field, oop_field, fcomp.shortrepr(),
+                               oop_eqn, ecomp.shortrepr(),
                                boundary)
         res.append(new_oop)
-        field_itr.next()
-        eqn_itr.next()
-
     return res
 
 
@@ -1206,9 +1203,9 @@ class OutOfPlaneBC(FloatBCBase):
 
     def display(self):
         # Exclamation marks again, because this should never be displayed.
-        return "OutOfPlaneBC!!!! / %s[%s] %s[%s]" %  (`self.field`,
+        return "OutOfPlaneBC!!!! / %s[%s] %s[%s]" %  (repr(self.field),
                                                       self.field_component,
-                                                      `self.equation`,
+                                                      repr(self.equation),
                                                       self.eqn_component)
     
     # OutOfPlaneBC objects don't have registrations, because there's
@@ -1221,6 +1218,10 @@ class OutOfPlaneBC(FloatBCBase):
     def __hash__(self):
         return hash((self.compound_field, self.field, self.equation))
 
+    def __repr__(self):
+        return "OutOfPlaneBC(%s, %s, %s, '%s')" % (
+            self.compound_field, self.field, self.field_component,
+            self.boundary)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -1236,7 +1237,7 @@ class OutOfPlaneBC(FloatBCBase):
 class PeriodicBC(BC):
     def __init__(self, field, equation, boundary, user_enable=True):
         ## TODO: There is a good reason that PeriodicBC is derived
-        ## from BC but doesn't call PeriodicBC's __init__.  If anyone
+        ## from BC but doesn't call BC's __init__.  If anyone
         ## remembers the reason, please add a comment explaining it.
 
         self.field = field
@@ -1245,8 +1246,8 @@ class PeriodicBC(BC):
         self.boundary = boundary
         # Periodic boundary conditions must keep track of exactly two
         # boundaries. The string returned by the widget will be two
-        # names separated by a space
-        self.boundaries = string.splitfields(self.boundary)
+        # names separated by a space.
+        self.boundaries = self.boundary.split()
 
         self.boundary_obj = None
         self._name = None
@@ -1340,9 +1341,9 @@ class PeriodicBC(BC):
 
             # Create floatBC with constant profile
 
-            field_comp_itr = self.field.iterator_all()
-            eqn_comp_itr = self.equation.iterator_all()
-            while (not field_comp_itr.end()):
+            for fcomp, ecomp in zip(
+                    self.field.components(planarity.ALL_INDICES),
+                    self.equation.components()):
                 
                 # TODO: There's a slight storage efficiency to be
                 # gained by sharing the trivial profile between all
@@ -1353,8 +1354,8 @@ class PeriodicBC(BC):
                 # assignment statement outside these two loops.
 
                 newprofile = profile.ConstantProfile(0)
-                newbc = FloatBC(self.field, field_comp_itr.shortstring(),
-                                self.equation, eqn_comp_itr.shortstring(),
+                newbc = FloatBC(self.field, fcomp.shortrepr(),
+                                self.equation, ecomp.shortrepr(),
                                 newprofile, bdy.name(),
                                 visible=False, subordinate=True)
 
@@ -1367,10 +1368,6 @@ class PeriodicBC(BC):
                 newbc.add_to_mesh(aux_bc_name, self.mesh)
                 self.floatBCs.append(newbc)
                 
-                field_comp_itr.next()
-                eqn_comp_itr.next()
-
-                
             # Add the out-of-plane BCs, via the handy helper function.
             oopbcs = _build_oops(self.field, self.equation, bdy.name())
 
@@ -1380,7 +1377,6 @@ class PeriodicBC(BC):
                 bc.add_to_mesh(oop_name, self.mesh)
 
             self.floatBCs += oopbcs
-            
 
     def remove_auxiliary_BCs(self):
         for bc in self.floatBCs:
@@ -1445,7 +1441,7 @@ class PeriodicBC(BC):
                subproblem.is_active_equation(self.equation)
 
     def display(self):
-        return "Periodic / %s / %s" % (`self.field`,`self.equation`)
+        return "Periodic / %s / %s" % (repr(self.field),repr(self.equation))
 
       
 registeredclass.Registration(
@@ -1551,10 +1547,10 @@ class NeumannBC(BC):
             applicator.integrate(flux_locator, self.profile,
                                  self.normal, time)
         else:
-            raise ooferror2.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 'Attempt to invoke NeumannBC on inactive flux: %s ' % self.flux)
     def display(self):
-        return "Neumann / %s" % `self.flux`
+        return "Neumann / %s" % repr(self.flux)
 
 # NeumannBC doesn't make sense to apply point-wise, use the ForceBC for
 # that.  ForceBC's are specified in terms of equations and components,
@@ -1627,11 +1623,11 @@ class JumpBC(BC):
 ##        try:
 ##            boundarycond.applyForceBC(subproblem, self.equation,
 ##                                      node, eqnindex, value)
-##        except ooferror2.ErrNoSuchField: # eqn not active at that node
+##        except ooferror.PyErrNoSuchField: # eqn not active at that node
 ##            pass
     def display(self):
         return ("JumpBC / %s[%s] / jumpvalue=%s / independent=%s" 
-                % (`self.field`,
+                % (repr(self.field),
                    self.field_component,
                    self.jump_value,
                    self.independent))

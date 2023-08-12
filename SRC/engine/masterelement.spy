@@ -11,17 +11,42 @@
 from ooflib.common import enum
 from ooflib.common import debug
 
-# Global function that gets the master element array from C and wraps
-# it in the right Python shadow object.  While doing so, it does some
-# precomputation in MasterElementPtr.__init__().
+# Global function that gets the master element array from C.  While
+# doing so, it does some precomputation in MasterElement.__init__().
 
 _masterElementDict = {}
 
 def getMasterElementDict():
+    ## TODO: Each time this is called, it fetches the list of master
+    ## elements from C++ and checks to see if there are any new ones.
+    ## This seems inefficient.  If we just required all MasterElement
+    ## classes to register themselves when first imported, we could
+    ## wrap them and put them in _masterElementDict then, and not have
+    ## to fetch the list all the time.
     lst = masterElementList()
     for me in lst:
-        me = MasterElementPtr(me)
+        # This is where the singleton instance of each MasterElement
+        # type is created in Python.  The C++ singletons when the
+        # python wrapper files were loaded, by the *init() calls in
+        # the SRC/engine/elements/*.spy files.
         if me.name() not in _masterElementDict:
+            # Make lists of nodes that have to be created -- these are
+            # in a dictionary indexed by the edge number, plus a
+            # special entry indexed by the string 'interior'.  Corner
+            # nodes are entirely omitted from the indexing scheme
+            # because they're created automatically.
+            me.protodic = {'interior':[]}
+            for i in range(me.nsides()):
+                me.protodic[i] = []
+            for i in range(me.nnodes()):
+                proto = me.get_protonode(i)
+                n = proto.nedges() # number of edges this node is on
+                if n == 0:
+                    me.protodic['interior'].append(proto)
+                elif n == 1:
+                    edgeno = proto.getedge(0)
+                    me.protodic[edgeno].append(proto)
+                
             _masterElementDict[me.name()] = me
     return _masterElementDict
 
@@ -62,13 +87,12 @@ def getMasterElementEnums():
             enumclass._sorted = 0
     for enumclass in _masterElementEnumDict.values():
         if not enumclass._sorted:
-            enumclass.names.sort(melcompare)
+            enumclass.names.sort(key=melcomparisionkey)
             enumclass._sorted = 1
     return _masterElementEnumDict
 
 def getMasterElementGeometries():
-    keys = getMasterElementEnums().keys()
-    keys.sort()
+    keys = sorted(list(getMasterElementEnums().keys()))
     return keys
 
 def getMasterElementEnumClasses():
@@ -83,44 +107,8 @@ def getMasterElementsFromEnumClass(enumclass):
     edict = getMasterElementDict()
     return [edict[name] for name in enumclass.names]
         
-
-def melcompare(a, b):
-    # MasterElement comparison function for determining the order in
-    # which the elements are listed in the UI.
+def melcomparisionkey(elem):
+    # For sorting MasterElement names to determine their position in the GUI.
     edict = getMasterElementDict()
-    ela = edict[a]
-    elb = edict[b]
-    if ela.nnodes() < elb.nnodes(): return -1
-    if ela.nnodes() > elb.nnodes(): return 1
-    if ela.nmapnodes() < elb.nmapnodes(): return -1
-    if ela.nmapnodes() > elb.nmapnodes(): return 1
-    if ela.nfuncnodes() > elb.nfuncnodes(): return -1
-    if ela.nfuncnodes() < elb.nfuncnodes(): return 1
-    return 0
-
-########################
-
-# Make lists of nodes that have to be created -- these are in a
-# dictionary indexed by the edge number, plus a special entry indexed
-# by the string 'interior'.  Corner nodes are entirely omitted from
-# the indexing scheme because they're created automatically.
-
-def _MasterElementPtr___init__(self,this):
-    self.this = this
-    self.thisown = 0
-    self.protodic = {'interior':[]}
-    for i in range(self.nsides()):
-        self.protodic[i] = []
-    for i in range(self.nnodes()):
-        proto = self.get_protonode(i)
-        n = proto.nedges()              # number of edges this node is on
-        if n == 0:
-            self.protodic['interior'].append(proto)
-        elif n == 1:
-            edgeno = proto.getedge(0)
-            self.protodic[edgeno].append(proto)
-                
-MasterElementPtr.__init__ = _MasterElementPtr___init__
-
-from ooflib.SWIG.engine.element import ElementPtr
-from ooflib.SWIG.engine.mastercoord import MasterCoordPtr
+    el = edict[elem]
+    return (el.nnodes(), el.nmapnodes(), el.nfuncnodes())

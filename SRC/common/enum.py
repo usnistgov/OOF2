@@ -31,12 +31,16 @@
 #    tip = "A short help string."
 #    discussion = "<para>A much longer explanation.</para>"
 
+## TODO PYTHON3? Derive this from the built-in enum.Enum class?  The
+## built-in class doesn't support help strings or subclassing, so it
+## wouldn't be a trivial conversion.
+
 
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
+from ooflib.common import utils
 from ooflib.common.IO import parameter
 import struct
-import types
 
 class EnumBase: pass
 
@@ -67,25 +71,23 @@ def EnumClass(*args):
         # problem by allowing them to be compared with strings.
         
         def __repr__(self):
-            return `self.name`
-        def __cmp__(self, other):
-            if type(other) == types.InstanceType:
-                # Comparison between objects in a class hierarchy is allowed.
-                if not (issubclass(other.__class__,self.__class__) or
-                        issubclass(self.__class__,other.__class__)):
-                    # classes aren't related, so the objects can't be equal
-                    if self.__class__ < other.__class__: return -1
-                    if self.__class__ > other.__class__: return 1
-                # Classes are identical or related by inheritance. 
-                if self.name < other.name: return -1
-                if self.name > other.name: return 1
-                return 0
-            # See comment above about comparison with strings.
-            elif type(other) == types.StringType:
-                if self.name < other: return -1
-                if self.name > other: return 1
-                return 0
-            return 1
+            return repr(self.name)
+        def __eq__(self, other):
+            if isinstance(other, str):
+                return self.name == other
+            if isinstance(other, EnumBase):
+                # If one enum class is an extension of another enum
+                # class, then it's possible to compare an object in
+                # one class with an object the another.  Checking that
+                # they're in the same class is insufficient.
+                ## TODO: We should really check that they don't share
+                ## a common base class (other than EnumBase).
+                if (issubclass(self.__class__, other.__class__) or
+                    issubclass(other.__class__, self.__class__)):
+                    return self.name == other.name
+            return False
+        def __ne__(self, other):
+            return not self.__eq__(other)
         def string(self):
             return self.name
         def index(self):
@@ -100,7 +102,7 @@ def EnumClass(*args):
     Enum.names = []
     Enum.helpdict = {}
     for arg in args:
-        if type(arg) is types.StringType:
+        if isinstance(arg, (str, bytes)):
             Enum.names.append(arg)
         else:
             Enum.names.append(arg[0])
@@ -127,7 +129,7 @@ def subClassEnum(baseclass, *args):
         helpdict = {}
     Enum.helpdict.update(baseclass.helpdict)
     for arg in args:
-        if type(arg) is types.StringType:
+        if isinstance(arg, (str, bytes)):
             Enum.names.append(arg)
         else:
             Enum.names.append(arg[0])
@@ -146,24 +148,24 @@ class EnumParameter(parameter.Parameter):
         if value is None or isinstance(value, self.enumclass):
             self._set(value)
             return
-        if type(value) is types.StringType and value in self.enumclass.names:
+        if isinstance(value, (str, bytes)) and value in self.enumclass.names:
             self._set(self.enumclass(value))
             return
         raise parameter.ParameterMismatch(
             'Invalid Enum value %s.  Choices are: %s' %
-            (`value`, self.enumclass.names))
+            (repr(value), self.enumclass.names))
     def clone(self):
         return self.__class__(self.name, self.enumclass, self.value,
                              self.default, self.tip)
     structfmt = '>i'
     structlen = struct.calcsize(structfmt)
     def binaryRepr(self, datafile, value):
-        return  struct.pack(EnumParameter.structfmt, len(value.name)) + \
-               value.name
+        return  (struct.pack(EnumParameter.structfmt, len(value.name))
+                 + bytes(value.name, "UTF-8"))
     def binaryRead(self, parser):
         b = parser.getBytes(EnumParameter.structlen)
         (length,) = struct.unpack(EnumParameter.structfmt, b)
-        return self.enumclass(parser.getBytes(length))
+        return self.enumclass(parser.getBytes(length).decode())
     def classRepr(self):
         return "Enum(%s)" % self.enumclass.__name__
     def valueDesc(self):
@@ -173,7 +175,7 @@ class EnumParameter(parameter.Parameter):
 
 class ListOfEnumsParameter(parameter.Parameter):
     def __init__(self, name, enumclasses, value=None, default=None, tip=None):
-        if type(enumclasses) == types.ListType or type(enumclasses) is types.TupleType:
+        if isinstance(enumclasses, list) or isinstance(enumclasses, tuple):
             self.enumclasses = enumclasses
         else:
             self.enumclasses = [enumclasses]
@@ -182,24 +184,24 @@ class ListOfEnumsParameter(parameter.Parameter):
         self._value = value
         self.timestamp.increment()
     def classnames(self):
-        return `[x.__name__ for x in self.enumclasses]`
+        return repr([x.__name__ for x in self.enumclasses])
     def set(self, value):
         if value is None:
             self._set(value)
         else:
-            if type(value) is not types.ListType:
+            if not isinstance(value, list):
                 parameter.raiseTypeError(
-                    'list of objects from' + `self.classnames()`, value)
+                    'list of objects from' + repr(self.classnames()), value)
             convertedval = []
             for e in value:
-                if type(e) is types.StringType: # string representation of enum
+                if isinstance(e, (str, bytes)): # string representation of enum
                     for ec in self.enumclasses:
                         if e in ec.names:
                             convertedval.append(ec(e))
                             break
                     else:
                         parameter.raiseTypeError(
-                            'list of objects from' + `self.classnames()`, value)
+                            'list of objects from' + repr(self.classnames()), value)
                 else:                   # not a string
                     for ec in self.enumclasses:
                         if isinstance(e, ec):
@@ -207,7 +209,7 @@ class ListOfEnumsParameter(parameter.Parameter):
                             break
                     else:
                         parameter.raiseTypeError(
-                            'list of objects from' + `self.classnames()`, value)
+                            'list of objects from' + repr(self.classnames()), value)
             self._set(convertedval)
     def clone(self):
         return self.__class__(self.name, self.enumclasses, self.value,
@@ -227,24 +229,24 @@ if __name__ == '__main__':
     try:
         c = TestEnum('wrong!')
     except ValueError:
-        print "couldn't create c!"
+        print("couldn't create c!")
 
-    print a
-    print b
+    print(a)
+    print(b)
 
     hey = AnotherEnum('hey')
     bb = AnotherEnum('B')
-    print hey
-    print bb
+    print(hey)
+    print(bb)
 
     one = ThirdEnum('1')
     two = ThirdEnum('2')
     One = ThirdEnum('1')
-    print one
-    print two
+    print(one)
+    print(two)
 
-    print 'one < two: ', one < two
-    print 'one > two: ', one > two
-    print 'one == two:', one == two
-    print 'one == One:', one == One 
-    print 'bb == b:', bb == b
+    print(('one < two: ', one < two))
+    print(('one > two: ', one > two))
+    print(('one == two:', one == two))
+    print(('one == One:', one == One)) 
+    print(('bb == b:', bb == b))

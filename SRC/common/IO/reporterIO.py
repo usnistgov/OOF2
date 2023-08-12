@@ -23,7 +23,7 @@ def saveMessages(menuitem, filename, mode, **messagetypes):
     file = open(filename, mode.string())
     for message in reporter.messagemanager.all_messages():
         if messagetypes[message[1]]:
-            print >> file, message[0]
+            print(message[0], file=file)
     file.close()
 
 mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(

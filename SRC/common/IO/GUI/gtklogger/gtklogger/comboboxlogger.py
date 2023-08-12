@@ -8,9 +8,10 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import widgetlogger
+from . import widgetlogger
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import types
 
 class ComboBoxLogger(widgetlogger.WidgetLogger):
     classes = (Gtk.ComboBox,)
@@ -18,7 +19,7 @@ class ComboBoxLogger(widgetlogger.WidgetLogger):
         if signal == 'changed':
             index = obj.get_active()
             val = obj.get_model()[index][0]
-            if type(val) is types.StringType:
+            if isinstance(val, (str, bytes)):
                 return ["setComboBox(%s, '%s')" % 
                         (self.location(obj, args), val)]
             else:

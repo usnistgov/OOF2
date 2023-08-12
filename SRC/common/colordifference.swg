@@ -12,15 +12,17 @@
 #ifndef COLORDIFFERENCE_SWG
 #define COLORDIFFERENCE_SWG
 
-%module colordifference
+%module(package="ooflib.SWIG.common") colordifference
+
 %include "common/typemaps.swg"
+%import "common/ccolor.swg"
+
 %{
 #include "common/colordifference.h"
 %}
 
-%pragma(python) include="colordifference.spy"
-
-class ColorDifference {}
+%nodefaultctor ColorDifference;
+class ColorDifference {};
 
 class DeltaRGB: public ColorDifference {
 public:
@@ -42,5 +44,7 @@ public:
   ~DeltaHSV();
   bool contains(const CColor &c1, const CColor &c2) const;
 };
+
+%pythoncode "common/colordifference.spy"
 
 #endif // COLORDIFFERENCE_SWG

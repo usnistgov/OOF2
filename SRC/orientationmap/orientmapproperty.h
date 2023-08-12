@@ -15,7 +15,7 @@
 #define ORIENTMAPPROPERTY_H
 
 #include "engine/property.h"
-#include "engine/property/orientation/orientation.h"
+#include "engine/properties/orientation/orientation.h"
 #include "orientationmap/orientmapdata.h"
 
 class CMicrostructure;

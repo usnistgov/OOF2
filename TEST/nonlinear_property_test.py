@@ -12,11 +12,11 @@
 # problems with exact solutions.
 
 import unittest, os
-import memorycheck
+from . import memorycheck
 import math
-from UTILS import file_utils
+from .UTILS import file_utils
 reference_file = file_utils.reference_file
-from exact_solns import *
+from .exact_solns import *
 #file_utils.generate = True
 
 class RotatingSquare(unittest.TestCase):
@@ -43,7 +43,7 @@ class RotatingSquare(unittest.TestCase):
             domain=SinglePoint(point=Point(1,0)),
             sampling=DiscretePointSampleSet(show_x=True,show_y=True),
             destination=OutputStream(filename='rotate.out',mode='w'))
-        self.assert_(file_utils.compare_last(
+        self.assertTrue(file_utils.compare_last(
                 'rotate.out',
                 [1, 0, 1/sqrt(2.)-1, 1/sqrt(2.)]))
         OOF.Mesh.Analyze.Direct_Output(
@@ -53,7 +53,7 @@ class RotatingSquare(unittest.TestCase):
             domain=SinglePoint(point=Point(0,1)),
             sampling=DiscretePointSampleSet(show_x=True,show_y=True),
             destination=OutputStream(filename='rotate.out',mode='w'))
-        self.assert_(file_utils.compare_last(
+        self.assertTrue(file_utils.compare_last(
                 'rotate.out',
                 [0, 1, -1/sqrt(2.), 1/sqrt(2.)-1]))
         file_utils.remove('rotate.out')
@@ -82,7 +82,7 @@ class RotatingSquare(unittest.TestCase):
             mesh='microstructure:skeleton:mesh', time=0)
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh', endtime=1.0)
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
             'rotate.out',
             os.path.join('mesh_data', 'rotatingsquare1.out'),
             tolerance=1.e-8))
@@ -515,9 +515,9 @@ class NonlinearPropertyTest(unittest.TestCase):
 
         L2_error = computeScalarErrorL2( soln_func, mesh_obj, field_ptr,
                                          self.numX, self.numY, time=self.time )
-        print "L2 error: ", L2_error
+        print("L2 error: ", L2_error)
 
-        self.assert_( L2_error < 4.e-2 )
+        self.assertTrue( L2_error < 4.e-2 )
 
 
     @memorycheck.check("microstructure")
@@ -933,9 +933,9 @@ class NonlinearPropertyTest(unittest.TestCase):
 
         L2_error = computeVector2DErrorL2( soln_func, mesh_obj, field_ptr,
                                            self.numX, self.numY, time=self.time )
-        print "L2 error: ", L2_error
+        print("L2 error: ", L2_error)
 
-        self.assert_( L2_error < 1.e-2 )
+        self.assertTrue( L2_error < 1.e-2 )
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

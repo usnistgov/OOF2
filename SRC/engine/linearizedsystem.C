@@ -215,8 +215,7 @@ void LinearizedSystem::resetFFlags(const Field &field, const Field &tdfield,
   bool active = subproblem->is_active_field(field);
   DoFState fieldstate = active? FREEFIELD : FIXEDFIELD;
   DoFState derivstate = active? FREEDERIV : FIXEDDERIV;
-  for(FuncNodeIterator nd=subproblem->funcnode_iterator(); !nd.end(); ++nd) {
-    FuncNode *node = nd.node();
+  for(FuncNode *node : subproblem->funcnodes()) {
     for(int i=0; i<field.ndof(); i++) {
       int dofindex = subproblem->mesh2subpDoFMap[field(node,i)->dofindex()];
       dofstates_[dofindex] = fieldstate;
@@ -727,9 +726,7 @@ void LinearizedSystem::dumpFields(const std::string &filename) const {
 
 void LinearizedSystem::do_dumpFields(ostream &os) const {
   std::set<int> fieldsets;
-  for(FuncNodeIterator iter=subproblem->funcnode_iterator();!iter.end();++iter)
-    {
-      FuncNode *node = iter.node();
+  for(FuncNode *node : subproblem->funcnodes()) {
       if(fieldsets.find(node->fieldSetID()) == fieldsets.end()) {
 	fieldsets.insert(node->fieldSetID());
 	os << " " << node->fieldset << std::endl;

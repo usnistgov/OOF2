@@ -22,7 +22,7 @@
 #include "EXTENSIONS/diffusion/diffusion.h"
 #include "engine/fieldindex.h"
 #include "engine/material.h"
-#include "engine/property/orientation/orientation.h"
+#include "engine/properties/orientation/orientation.h"
 #include "engine/smallsystem.h"
 #include "engine/nodalequation.h"
 #include "engine/outputval.h"
@@ -47,10 +47,8 @@ Mobility::Mobility(PyObject *reg, const std::string &nm)
 int Diffusion::integration_order(const CSubProblem *subp,
 					    const Element *el) const
 {
-#if DIM==2
   if(concentration->in_plane(subp))
     return el->dshapefun_degree();
-#endif
   return el->shapefun_degree();
 }
 
@@ -75,16 +73,15 @@ void Diffusion::static_flux_value(const FEMesh  *mesh,
   for (SpaceIndex i=0; i<DIM; ++i){
     ArithmeticOutputValue outputVal =
       element->outputFieldDeriv( mesh, *concentration, &i, pt );
-    fieldGradient[i] = outputVal[0];
+    fieldGradient[i] = outputVal[ScalarFieldIndex()];
   }
 
-#if DIM==2  // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane field
+  // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane field
   if ( !concentration->in_plane(mesh) ){
     ArithmeticOutputValue outputVal
       = element->outputField( mesh, *concentration->out_of_plane(), pt );
-    fieldGradient[2] = outputVal[0];
+    fieldGradient[2] = outputVal[ScalarFieldIndex()];
   }
-#endif
 
   // now compute the flux elements by the following summation
   //    flux_i = cond(i,j) * dT_j
@@ -93,11 +90,12 @@ void Diffusion::static_flux_value(const FEMesh  *mesh,
 
   const SymmMatrix3 cond( conductivitytensor( mesh, element, pt ) );
 
-  for(VectorFieldIterator i; !i.end(); ++i)
-    fluxdata->flux_vector_element( i ) -= cond( i.integer(), 0 ) * fieldGradient[0] +
-                                          cond( i.integer(), 1 ) * fieldGradient[1] +
-                                          cond( i.integer(), 2 ) * fieldGradient[2];
-
+  for(IndexP i : flux->components(ALL_INDICES))
+    fluxdata->flux_vector_element( i ) -=
+      cond( i.integer(), 0 ) * fieldGradient[0] +
+      cond( i.integer(), 1 ) * fieldGradient[1] +
+      cond( i.integer(), 2 ) * fieldGradient[2];
+  
 } // end of 'Diffusion::static_flux_value'
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -124,9 +122,6 @@ void Diffusion::flux_matrix(const FEMesh  *mesh,
   double sf   = j.shapefunction( pt );
   double dsf0 = j.dshapefunction( 0, pt );
   double dsf1 = j.dshapefunction( 1, pt );
-#if DIM==3
-  double dsf2 = j.dshapefunction( 2, pt );
-#endif
 
   const SymmMatrix3 cond( conductivitytensor( mesh, el, pt ) );
 
@@ -134,8 +129,7 @@ void Diffusion::flux_matrix(const FEMesh  *mesh,
   // the flux is in-plane, because the out-of-plane components of
   // the flux matrix are used to construct the constraint equation.
 
-  for(VectorFieldIterator i; !i.end(); ++i){
-#if DIM==2
+  for(IndexP i : flux->components(ALL_INDICES)) {
     // in-plane concentration gradient contributions
     fluxdata->stiffness_matrix_element( i, concentration, j ) -=
                   cond(i.integer(), 0) * dsf0 + cond(i.integer(), 1) * dsf1;
@@ -144,14 +138,6 @@ void Diffusion::flux_matrix(const FEMesh  *mesh,
     if(!concentration->in_plane(mesh))
       fluxdata->stiffness_matrix_element(i, concentration->out_of_plane(), j)
                                           -= cond(i.integer(), 2) * sf;
-
-#elif DIM==3
-    fluxdata->stiffness_matrix_element( i, concentration, j ) -=
-                              cond( i.integer(), 0 ) * dsf0 +
-                              cond( i.integer(), 1 ) * dsf1 +
-                              cond( i.integer(), 2 ) * dsf2;
-#endif
-
   }
 } // end of 'Diffusion::flux_matrix'
 
@@ -164,7 +150,7 @@ void Mobility::first_time_deriv_matrix(const FEMesh *mesh,
 					SmallSystem *eqdata) const {
 
   double shapeFuncVal = eni.shapefunction( mpos );
-  for(IteratorP eqncomp = eqn->iterator(); !eqncomp.end(); ++eqncomp) {
+  for(IndexP eqncomp : eqn->components()) {
     // Kinetic coefficient is unity.
     eqdata->damping_matrix_element(eqncomp,concentration,eqncomp,eni) += \
       shapeFuncVal;
@@ -247,7 +233,6 @@ int AtomFluxJumpTest::integration_order(const CSubProblem* s,
 
 void AtomFluxJumpTest::begin_element(const CSubProblem *sp,
 				    const Element *e) {
-  std::cerr << "AtomFluxJumpTest::begin_element called." << std::endl;
   
   Coord increment, left_normal, right_normal;
   std::vector<const Node*> span;
@@ -266,17 +251,10 @@ void AtomFluxJumpTest::begin_element(const CSubProblem *sp,
 
   e->setDataByName(new CoordElementData("left normal", left_normal));
   e->setDataByName(new CoordElementData("right normal", right_normal));
-
-  std::cerr << "AtomFluxJumpTest: left normal :" << left_normal << std::endl;
-  std::cerr << "AtomFluxJumpTest: right normal:" << right_normal << std::endl;
-  
-  std::cerr << "AtomFluxJumpTest: begin_element exiting." << std::endl;
 }
 
 void AtomFluxJumpTest::end_element(const CSubProblem *sp,
 				  const Element *e) {
-  std::cerr << "AtomFluxJumpTest::end_element called." << std::endl;
-
   // Delete the element-specific data.
 
   int ed = e->getIndexByName("left normal");
@@ -352,17 +330,10 @@ void AtomFluxJumpTest::force_deriv_matrix(const FEMesh* mesh,
 					  double time, SmallSystem *eqndata) 
   const 
 {
-  std::cerr << "AtomFluxJumpTest::force_deriv_matrix called." << std::endl;
-  
   FuncNode *left,*right;
 
   left = dynamic_cast<FuncNode*>(efi.leftnode());
   right = dynamic_cast<FuncNode*>(efi.rightnode());
-
-  std::cerr << "Left: " << *left << std::endl; 
-
-  std::cerr << "Right: " << *right << std::endl;
-
 }
 
 void AtomFluxJumpTest::force_value(const FEMesh* mesh, const Element* element,
@@ -370,8 +341,6 @@ void AtomFluxJumpTest::force_value(const FEMesh* mesh, const Element* element,
 				   const MasterPosition& gpt,
 				   double time, SmallSystem *eqndata) const
 {
-  std::cerr << "AtomFluxJumpTest::force_value called." << std::endl;
-  
   const InterfaceElement *ie = dynamic_cast<const InterfaceElement*>(element);
   if (ie->side()==LEFT) {
     eqndata->force_vector_element(0) -= 1.0;

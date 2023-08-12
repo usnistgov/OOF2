@@ -11,4 +11,4 @@
 
 from ooflib.SWIG.common import config
 
-import wrappers
+from . import wrappers

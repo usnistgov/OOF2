@@ -12,7 +12,8 @@
 #ifndef DOUBLEARRAY_SWG
 #define DOUBLEARRAY_SWG
 
-%module doublearray
+%module(package="ooflib.SWIG.common") doublearray
+
 %include "common/typemaps.swg"
 
 %{
@@ -21,6 +22,7 @@
 
 class DoubleArray {
 public:
+  DoubleArray(int, int);
   ~DoubleArray();
   ICoord size();
 };

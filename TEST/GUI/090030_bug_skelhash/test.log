@@ -117,7 +117,7 @@ checkpoint toplevel widget mapped chooserPopup-category
 findMenu(findWidget('chooserPopup-category'), ['Skeleton']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-category') # MenuItemLogger
 findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 checkpoint Move Node toolbox writable changed
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Move Nodes sensitized

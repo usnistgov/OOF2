@@ -63,7 +63,7 @@ registeredclass.Registration(
 _allStreams = utils.OrderedDict() # All BaseOutputStreams, keyed by filename
 _streamsLock = lock.SLock()       # Controls access to _allStreams
 
-class BaseOutputStream(object):
+class BaseOutputStream:
     def __init__(self, filename, mode, openfile):
         self.filename = filename
         self.file = None
@@ -77,7 +77,7 @@ class BaseOutputStream(object):
         # previous write.
         self.lastOutput = None
         self.lastargs = None
-        self.seplast = True     # was the last thing written a separator?
+        self.beginline = True   # begin a new line of output?
         self.nOpen = 0          # net number of times this has been opened
         self.everOpened = False # has this been opened in this oof2 session?
         self.lock = lock.SLock() # controls access by OutputStreams
@@ -98,7 +98,6 @@ class BaseOutputStream(object):
                 del _allStreams[self.filename]
         finally:
             self.lock.release()
-        switchboard.notify("output destinations changed")
     def open(self):
         self.lock.acquire()
         try:
@@ -163,24 +162,28 @@ class BaseOutputStream(object):
             self.lastOutput = output
             self.lastargs = (args, kwargs)
     def write(self, text):
-        # When an object with a "write" method is used as the argument
-        # of "print >>", write is called once for each printed string,
-        # once for each space between printed strings, and once for
-        # the newline at the end.
-        if text == " " and not self.seplast:
-            self.file.write(formatchars.getSeparator())
-            self.seplast = True
-        elif text == "\n":
-            self.file.write(text)
-            self.seplast = True
+        # When an object with a "write" method is used as "file"
+        # argument of print(), it is called once for each printed
+        # string, once for each space between printed strings, and
+        # once for the newline at the end.  Since we're inserting our
+        # own separators between printed items, just ignore the spaces
+        # and insert separators before each item, except at the
+        # beginning of a line.
+        if text == ' ':
+            pass
+        elif text == '\n':
+            self.file.write('\n')
+            self.beginline = True
         else:
+            if not self.beginline:
+                self.file.write(formatchars.getSeparator())
             self.file.write(text)
-            self.seplast = False
+            self.beginline = False
     def comment(self, *args):
         self.file.write(" ".join([formatchars.getCommentChar()] + 
                                  [x for x in args] ))
         self.file.write("\n")
-        self.seplast = False
+        self.beginline = True
 
 def rewindStream(filename):
     stream = _allStreams[filename]
@@ -190,7 +193,7 @@ def rewindStream(filename):
 
 # TextOutputDestination is an intermediate baseclass for
 # OutputDestinations that produce some sort of human readable text
-# (ie, not OOF2 data files which might be ascii).  This includes the
+# (ie, not OOF2 data files which might be binary).  This includes the
 # results of Analysis operations.  There are two subclasses:
 # OutputStream, which writes to a file, and MessageWindowStream, which
 # writes to the OOF2 Message Window.
@@ -214,7 +217,6 @@ class TextOutputDestination(OutputDestination):
     def close(self):
         self.basestream.close()
 
-
 # OutputStream directs output to a file, specified by a file name and
 # mode. If two OutputStreams have the same filename but different
 # modes, the *last* mode specified is used.  TODO: Make sure that the
@@ -229,7 +231,7 @@ class OutputStream(TextOutputDestination):
             try:
                 basestream = _allStreams[filename]
             except KeyError:
-                basestream = BaseOutputStream(filename, mode, file)
+                basestream = BaseOutputStream(filename, mode, open)
             else:
                 basestream.mode = mode
         finally:

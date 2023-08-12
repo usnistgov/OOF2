@@ -12,4 +12,4 @@
 ## within the oof2 source directory without complicating the gtklogger
 ## setup.py script.
 
-from gtklogger import *
+from .gtklogger import *

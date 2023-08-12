@@ -13,8 +13,6 @@ from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 import struct
-import types
-
 
 # String-based function object used by boundary profiles -- user types
 # in a string, and one of these objects gets built.  Profiles'
@@ -64,7 +62,7 @@ class ProfileFunctionParameterBase(parameter.Parameter):
                                          value=value,
                                          default=default, tip=tip)
     def set(self, value):
-        if type(value) is types.StringType:
+        if isinstance(value, (str, bytes)):
             self._value = self.profileClass(value)
         elif isinstance(value, self.profileClass):
             self._value = value
@@ -72,15 +70,15 @@ class ProfileFunctionParameterBase(parameter.Parameter):
             self._value = None
         else:
             raise parameter.ParameterMismatch(
-                'Got ' + `value` + ' for Parameter ' + self.name)
+                'Got ' + repr(value) + ' for Parameter ' + self.name)
         self.timestamp.increment()
     def binaryRepr(self, datafile, value):
         length = len(value.funcstr)
-        return struct.pack('>i', length) + value.funcstr
+        return struct.pack('>i', length) + bytes(value.funcstr, "UTF-8")
     def binaryRead(self, parser):
         b = parser.getBytes(struct.calcsize('>i'))
         (length,) = struct.unpack('>i', b)
-        return self.profileClass(parser.getBytes(length))
+        return self.profileClass(parser.getBytes(length).decode())
     def valueDesc(self):
         return ("A <link linkend='Object-ProfileFunction'><classname>" +
                 self.profileClass.__name__ + "</classname></link> object.")

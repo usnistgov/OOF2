@@ -268,7 +268,7 @@ checkpoint toplevel widget mapped chooserPopup-TBChooser
 findMenu(findWidget('chooserPopup-TBChooser'), ['Viewer']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.7000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.7000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Viewer:Zoom:Fill').clicked()
 checkpoint OOF.Graphics_1.Settings.Zoom.Fill_Window
 wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
@@ -277,7 +277,7 @@ findMenu(findWidget('chooserPopup-TBChooser'), ['Mesh Info']).activate() # MenuI
 checkpoint Graphics_1 Mesh Info sensitized
 deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(227)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 0.0000000000000e+00)
 
 # Query an Element
 findGfxWindow('Graphics_1').simulateMouse('down', 17.024793, 95.110193, 1, False, False)
@@ -343,32 +343,32 @@ assert tests.sensitizationCheck({'NewDataViewer':True,'Prev':True,'Clear':True,'
 assert tests.gtkMultiTextCompare({'index':'90','type':'FuncNode','position':'(20, 80)'},tbox+":NodeInfo",tolerance=1.e-6)
 
 # Previous
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 6.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.6000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 2.4000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 3.5000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 4.6000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 5.9000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 7.1000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 7.8000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 8.9000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 9.9000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.0800000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.1500000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.1900000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.2400000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.2900000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.3600000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.4000000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.4200000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.4500000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.4900000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.5300000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.5600000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.5900000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.6000000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.6200000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 6.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 3.5000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 4.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 5.9000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 7.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 7.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 8.9000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 9.9000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.0800000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.1500000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.1900000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.2400000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.2900000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.3600000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.4000000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.4200000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.4500000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.4900000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.5300000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.5600000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.5900000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.6000000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.6200000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:Prev').clicked()
 checkpoint Graphics_1 Mesh Info showed position
 checkpoint Graphics_1 Mesh Info updated
@@ -386,7 +386,7 @@ checkpoint Graphics_1 Mesh Info showed position
 checkpoint Graphics_1 Mesh Info updated
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint contourmap info updated for Graphics_1
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 5.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 5.6000000000000e+01)
 # "Previous" took us to element mode.  Note that the switch to element
 # mode there was implicit, not from the user.
 assert findWidget(tbox+":Click:Element").get_active()
@@ -401,7 +401,7 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:Clear').clicked
 checkpoint contourmap info updated for Graphics_1
 checkpoint Graphics_1 Mesh Info cleared position
 checkpoint Graphics_1 Mesh Info cleared
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 assert findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+':Click:Node').get_active()
 assert tests.gtkMultiTextCompare({'X':'','Y':''},tbox+":Click")
@@ -427,7 +427,7 @@ assert tests.chooserListCheck(tbox+':ElementInfo:NodeList',["FuncNode 67 at (10,
 # Select a node in the node list
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInfo:NodeList').get_selection().select_path(Gtk.TreePath([1]))
 checkpoint contourmap info updated for Graphics_1
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 5.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 5.0000000000000e+00)
 assert findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+':Click:Node').get_active()
 assert tests.gtkMultiTextCompare({'X':'16.6842','Y':'68.2923'},tbox+":Click",tolerance=1.e-6)
@@ -445,7 +445,7 @@ checkpoint Graphics_1 Mesh Info updated
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Mesh_Info.QueryNode
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 1.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 1.0000000000000e+00)
 assert not findWidget(tbox+":Click:Element").get_active()
 assert findWidget(tbox+':Click:Node').get_active()
 assert tests.gtkMultiTextCompare({'X':'20','Y':'60'},tbox+":Click",tolerance=1.e-6)
@@ -453,23 +453,23 @@ assert tests.sensitizationCheck({'NewDataViewer':True,'Prev':True,'Clear':True,'
 assert tests.gtkMultiTextCompare({'index':'68','type':'FuncNode','position':'(20, 60)'},tbox+":NodeInfo",tolerance=1.e-6)
 
 # Open a data viewer
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 3.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.9000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 2.8000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 3.7000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 4.6000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 5.4000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 6.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 7.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 8.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 9.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.0300000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.1700000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.3100000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.4500000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.5900000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.6200000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 3.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.9000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 2.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 3.7000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 4.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 5.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 6.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 7.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 8.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 9.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.0300000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.1700000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.3100000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.4500000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.5900000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.6200000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:NewDataViewer').clicked()
 checkpoint Mesh_Data_1 position updated
 checkpoint Mesh_Data_1 time updated

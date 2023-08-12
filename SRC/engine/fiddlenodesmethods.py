@@ -10,6 +10,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common import parallel_enable
@@ -21,8 +22,8 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.engine import deputy
 from ooflib.engine import fiddlenodesbase
 from ooflib.engine import skeletonmodifier
-import random
-import types
+
+from functools import reduce
 
 
 FiddleNodes = fiddlenodesbase.FiddleNodes
@@ -35,21 +36,11 @@ class AnnealMovePosition(fiddlenodesbase.FiddleNodesMovePosition):
         self.delta = delta
 
     def __call__(self, skeleton, node):
-        if config.dimension() == 2:
-            px, py = skeleton.MS.sizeOfPixels()
-            dx = random.gauss(0.0, self.delta*px)
-            dy = random.gauss(0.0, self.delta*py)
-            return primitives.Point(node.position()[0]+dx,
-                                    node.position()[1]+dy)
-        elif config.dimension() == 3:
-            px, py, pz = skeleton.MS.sizeOfPixels()
-            dx = random.gauss(0.0, self.delta*px)
-            dy = random.gauss(0.0, self.delta*py)
-            dz = random.gauss(0.0, self.delta*pz)
-           
-            return primitives.Point(node.position()[0]+dx,
-                                    node.position()[1]+dy,
-                                    node.position()[2]+dz)
+        px, py = skeleton.MS.sizeOfPixels()
+        dx = crandom.gauss(0.0, self.delta*px)
+        dy = crandom.gauss(0.0, self.delta*py)
+        return primitives.Point(node.position()[0]+dx,
+                                node.position()[1]+dy)
         
     
 registeredclass.Registration(
@@ -200,159 +191,3 @@ registeredclass.Registration(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/smooth.xml'))
 
 
-#################################################
-
-# "Snap"(temporary name) is similar to SnapNodes but it's strictly
-# node-based: find all transition points and pick the best one.
-
-class SnapMovePosition(fiddlenodesbase.FiddleNodesMovePosition):
-    def __call__(self, skeleton, node):
-        if parallel_enable.enabled():
-            if node.isShared():  # Implicitly, it's mine too.
-                return self.active(skeleton, node)
-        return self.default(skeleton, node)
-
-    def default(self, skeleton, node):  # default transition points
-        point0 = skeleton.nodePosition(node)
-        neighbors = node.neighborNodes(skeleton)
-        transitions = []
-        for nbr in neighbors:
-            # sgmt = skeleton.findSegment(node, nbr) # used?
-            point1 = skeleton.nodePosition(nbr)
-            transitions.append(
-                skeleton.MS.transitionPointWithPoints(point0, point1))
-        return transitions
-
-    def addition(self, skeleton, node, points):
-        point0 = skeleton.nodePosition(node)
-        transitions = []
-        for p in points:
-            transitions.append(
-                skeleton.MS.transitionPointWithPoints(point0, p))
-        return transitions
-
-    # not updated for 3d
-    if parallel_enable.enabled():
-        def active(self, skeleton, node):
-            from ooflib.SWIG.common import mpitools
-            shared = node.sharedWith()
-            # receiving coords
-            opposite_ends = mpitools.Irecv_DoubleVecs(shared)
-            opposite_ends = reduce(lambda x,y: x+y, opposite_ends)
-            # create a list of points
-            end_points = []
-            for i in range(len(opposite_ends)/2):
-                x = opposite_ends[2*i]
-                y = opposite_ends[2*i+1]
-                end_points.append(primitives.Point(x, y))
-            # move candidates
-            move_candidates = self.default(skeleton, node)  # list of points
-            move_candidates += self.addition(skeleton, node, end_points)
-            # returns non-trivial ones
-            return [mc for mc in move_candidates if mc]
-
-        def passive(self, skeleton, node, stopper):
-            from ooflib.SWIG.common import mpitools
-            _rank = mpitools.Rank()
-            # now, find all neighboring nodes
-            neighbors = node.neighborNodes(skeleton)
-            # among these, collect ones of which I'm the master.
-            neighbors = [n for n in neighbors if _rank == n.master()]
-            if neighbors:
-                coords = [[skeleton.nodePosition(n).x,
-                           skeleton.nodePosition(n).y] for n in neighbors]
-                coords = reduce(lambda x,y: x+y, coords)
-            else:
-                coords = []
-            # send the nodes
-            mpitools.Send_DoubleVec(coords, stopper)
-    
-
-registeredclass.Registration(
-    'Snap Move Position',
-    fiddlenodesbase.FiddleNodesMovePosition,
-    SnapMovePosition,
-    ordering=2)
-
-
-class SnapAnneal(FiddleNodes, skeletonmodifier.SkeletonModifier):
-    def __init__(self, targets, criterion, T, iteration):
-        FiddleNodes.__init__(self, targets, criterion, T, iteration)
-        self.intro = "preparing to snap skeleton...      "
-        self.header = "Snapping skeleton: "
-        self.outro = "Snapping done: "
-        self.movedPosition = SnapMovePosition()
-
-
-    def coreProcess(self, context):
-        skeleton = context.getObject()
-        prog = self.makeProgress()
-        self.totalEnergy = skeleton.energyTotal(self.criterion.alpha)
-        self.nok = self.nbad = 0
-        self.deltaE = 0.
-        activenodes = self.targets(context)
-        random.shuffle(activenodes)
-        j = 0
-        context.begin_writing()
-        try:
-            for node in activenodes:
-                # obtain transition points
-                tps = self.movedPosition(skeleton, node)
-                changes = []
-                for tp in tps:
-                    if tp:
-                        change = deputy.DeputyProvisionalChanges()
-                        change.moveNode(node, tp, skeleton)
-                        changes.append(change)
-                    
-                bestchange = self.criterion(changes, skeleton)
-                if bestchange is not None:
-                    self.nok += 1
-                    self.deltaE += bestchange.deltaE(skeleton,
-                                                     self.criterion.alpha)
-                    bestchange.accept(skeleton)
-                else:
-                    self.nbad += 1
-                        
-                if prog.stopped():
-                    return
-            skeleton.timestamp.increment()
-        finally:
-            context.end_writing()
-            switchboard.notify("redraw")
-
-if parallel_enable.enabled():
-    from ooflib.engine import fiddlenodesbaseParallel
-    SnapAnneal.coreProcess_parallel = fiddlenodesbaseParallel._snapCoreProcess
-    
-            
-registeredclass.Registration(
-    'Snap Anneal',
-    skeletonmodifier.SkeletonModifier,
-    SnapAnneal,
-    ordering=300,
-    params=[parameter.RegisteredParameter('targets', FiddleNodesTargets,
-                                          tip='Which nodes to move.'),
-            parameter.RegisteredParameter('criterion',
-                                          skeletonmodifier.SkelModCriterion,
-                                          tip = 'Acceptance criterion'),
-            parameter.FloatParameter('T', value = 0.0,
-                                     tip='Failed moves will be accepted if T>0 and exp(-diffE/T) > r, where diffE is the energy gained and r is a random number between 0 and 1.'),
-            parameter.RegisteredParameter('iteration', IterationManager,
-                                          tip='Iteration method.')
-    ],
-    tip='Snap nodes to pixel boundaries and randomly accept the moves that meet the acceptance criterion.',
-    discussion="""<para>
-
-    <classname>SnapAnneal</classname> is a combination of the
-    <xref linkend="RegisteredClass-SnapNodes"/> and
-    <xref linkend="RegisteredClass-Anneal"/>
-    <xref linkend="RegisteredClass-SkeletonModifier"/>s.   It addresses
-    each &node; in turn, and tries to move it to a nearby pixel boundary.
-    A move is accepted or rejected <emphasis>randomly</emphasis> according
-    to the same criteria used by
-    <xref linkend="RegisteredClass-Anneal"/>. If the parameter
-    <varname>T</varname> is non-zero, some moves that violate the criterion
-    will be accepted.
-
-    </para>""")

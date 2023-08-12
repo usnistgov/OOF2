@@ -50,7 +50,9 @@ import weakref
 class GenericGroupSet:
     def __init__(self, skeletoncontext, objects=None, groupset=[]):
         self.skeletoncontext = skeletoncontext
-        self.groups = utils.OrderedSet(groupset)
+        # self.groups contains the names of the groups, in the order
+        # in which they were created.
+        self.groups = utils.OrderedSet(groupset) 
 
         # self.objects is a reference to the list of objects in the
         # Skeleton from which the members of the group are chosen.  It
@@ -73,12 +75,14 @@ class GenericGroupSet:
             ]
 
     def destroy(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         # Break circular references
         del self.groups 
         del self.objects
 
     # When new skeletons are pushed on, create the required groups.
+    # Called by the switchboard when a new Skeleton is pushed onto the
+    # SkeletonContext.
     def new_skeleton(self, context, oldskeleton, newskeleton):
         if context==self.skeletoncontext:
             newtracker = newskeleton.newGroupTracker(self)
@@ -98,13 +102,14 @@ class GenericGroupSet:
         
     # Add a name or names to the list of known groups. 
     def addGroup(self, *names):
-        if names:
-            for name in names:
-                self.groups.add(name)
-                for t in self.tracker.values():
-                    t.add_group(name)
-            switchboard.notify("groupset member added", self.skeletoncontext,
-                               self, names[-1])
+        if not names:
+            return
+        for name in names:
+            self.groups.add(name)
+            for t in self.tracker.values():
+                t.add_group(name)
+        switchboard.notify("groupset member added", self.skeletoncontext,
+                           self, names[-1])
 
     # Remove a name or names from the list of known groups.
     def removeGroup(self, *names):
@@ -131,10 +136,6 @@ class GenericGroupSet:
     def sizeOfGroup(self, name):
         current_tracker = self.tracker[self.skeletoncontext.getObject()]
         return current_tracker.get_group_size(name)
-
-    # Set your list of known names from another group object.
-    def nameCopy(self, other):
-        self.groups = other.groups.copy()
 
     # Access the list of group names -- GUI will want this.
     def allGroups(self):
@@ -263,7 +264,9 @@ class GenericMaterialGroupSet(GenericGroupSet):
             mesh.refreshMaterials(self.skeletoncontext)
         switchboard.notify("redraw")
     def removeMatlCB(self, material):
-        for grpname, (matl, ts) in self.materials.items():
+        # Loop over a copy of materials.items() because removeMaterial
+        # will change the dict.
+        for grpname, (matl, ts) in list(self.materials.items()):
             if matl is material.actual:
                 self.removeMaterial(grpname)
     def getMaterialAndTime(self, group):
@@ -279,8 +282,7 @@ class GenericMaterialGroupSet(GenericGroupSet):
     def getAllMaterials(self):
         # Returns a list of (groupname, materialname) tuples in the
         # order in which the materials were assigned.
-        stuff = [(t, (g, m)) for (g, (m,t)) in self.materials.items()]
-        stuff.sort()            # sorts by timestamp t
+        stuff = sorted([(t, (g, m)) for (g, (m,t)) in self.materials.items()])
         return [x[1] for x in stuff]
 
 
@@ -299,9 +301,10 @@ class GenericMaterialGroupSet(GenericGroupSet):
 
 class GroupTracker:
     def __init__(self):
-        self.data = {}
+        self.data = {}      # sets of selectables, keyed by group name
     def add_group(self, name):
-        self.data[name]=set()
+        # Use an ordered set here so that tests are reproducible.
+        self.data[name] = utils.OrderedSet()
     def clear_group(self, name):
         for e in self.data[name]:
             e.remove_group_from_local(name)
@@ -317,10 +320,10 @@ class GroupTracker:
         for e in elist:
             e.remove_group_from_local(oldname)
             e.add_group_to_local(newname)
-    def add(self, name, object):
-        self.data[name].add(object)
-    def remove(self, name, object):
-        self.data[name].remove(object)
+    def add(self, name, obj):
+        self.data[name].add(obj)
+    def remove(self, name, obj):
+        self.data[name].remove(obj)
     def addDown(self, group, selectable, clist):
         selectable.addDown(group, clist)
     def addUp(self, group, selectable, plist):
@@ -351,10 +354,9 @@ class NodeGroupSet(GenericGroupSet):
     def __init__(self, skeletoncontext):
         GenericGroupSet.__init__(self, skeletoncontext)
 
-    def new_objects(self, context):
-        if context == self.skeletoncontext:
-            self.objects = self.skeletoncontext.getObject().nodes
-            self.relay()
+    def new_objects(self):
+        self.objects = self.skeletoncontext.getObject().nodes
+        self.relay()
 
     def get_selection(self):
         return self.skeletoncontext.nodeselection.retrieve()
@@ -370,10 +372,9 @@ class SegmentGroupSet(GenericGroupSet):
     def __init__(self, skeletoncontext):
         GenericGroupSet.__init__(self, skeletoncontext)
 
-    def new_objects(self, context):
-        if context == self.skeletoncontext:
-            self.objects = self.skeletoncontext.getObject().segments.values()
-            self.relay()
+    def new_objects(self):
+        self.objects = list(self.skeletoncontext.getObject().segments.values())
+        self.relay()
 
     def get_selection(self):
         return self.skeletoncontext.segmentselection.retrieve()
@@ -389,10 +390,9 @@ class ElementGroupSet(GenericMaterialGroupSet):
     def __init__(self, skeletoncontext):
         GenericMaterialGroupSet.__init__(self, skeletoncontext)
 
-    def new_objects(self, context):
-        if context == self.skeletoncontext:
-            self.objects = self.skeletoncontext.getObject().elements
-            self.relay()
+    def new_objects(self):
+        self.objects = self.skeletoncontext.getObject().elements
+        self.relay()
 
     def get_selection(self):
         return self.skeletoncontext.elementselection.retrieve()

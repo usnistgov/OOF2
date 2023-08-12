@@ -20,8 +20,6 @@ from ooflib.engine import subproblemcontext
 from ooflib.engine.IO.GUI import meshparamwidgets
 import ooflib.engine.mesh
 
-import string
-
 skeletonContexts = skeletoncontext.skeletonContexts
 
 class AMRWhoParameterWidget(whowidget.WhoParameterWidget):
@@ -74,7 +72,7 @@ class AMRWhoParameterWidget(whowidget.WhoParameterWidget):
         self.widgetCB(False)
 
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         whowidget.WhoParameterWidgetBase.cleanUp(self)
                         
 def _AMRWhoParameter_makeWidget(self, scope=None, **kwargs):
@@ -163,6 +161,8 @@ errorestimator.AMRWhoParameter.makeWidget = _AMRWhoParameter_makeWidget
 
 ##################################
 
+# from ooflib.common.utils import stringsplit
+
 # class MeshSkeletonParameterWidget(parameterwidgets.ParameterWidget):
 #     def __init__(self, scope=None, name=None):
 #         self.meshwidget = scope.findWidget(
@@ -194,7 +194,7 @@ errorestimator.AMRWhoParameter.makeWidget = _AMRWhoParameter_makeWidget
 #         self.updateWidget()
 #     def selection(self, gtkobj, name):
 #         self.value = name
-#         index = int(string.split(name)[-1])
+#         index = int(stringsplit(name)[-1])
 #         validity = self.mesh.skeleton_buffer.current() is not \
 #                    self.mesh.skeleton_buffer[index]
 #         self.widgetChanged(validity=validity, interactive=1)

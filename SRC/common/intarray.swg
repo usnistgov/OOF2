@@ -12,10 +12,10 @@
 #ifndef INTARRAY_SWG
 #define INTARRAY_SWG
 
-%module intarray
+%module(package="ooflib.SWIG.common") intarray
+
 %include "common/typemaps.swg"
-%extern "common/coord.swg"
- //%pragma(python) code="from ooflib.SWIG.common.intarray import IntArrayPtr"
+%import "common/coord.swg"
 
 %{
 #include "common/intarray.h"
@@ -23,10 +23,10 @@
 
 class IntArray {
 public:
-//  IntArray(ICoord*,int);
+  IntArray(int, int);
   ~IntArray();
   ICoord size();
 };
 
-%new IntArray makeIntArray(ICoord *iPoint,int);
+IntArray makeIntArray(ICoord *iPoint,int);
 #endif // INTARRAY_SWG

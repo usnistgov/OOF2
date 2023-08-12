@@ -10,6 +10,7 @@
 # oof_manager@nist.gov.
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import progress
 from ooflib.common import registeredclass
@@ -23,7 +24,6 @@ elif config.dimension() == 3:
 from ooflib.engine import skeletonmodifier
 from ooflib.engine import skeletonelement
 from ooflib.engine.IO import skeletonmenu
-import random
 
 #          /|\             /\
 #         / | \           /  \
@@ -51,7 +51,7 @@ class MergeTriangles(skeletonmodifier.SkeletonModifier):
             prog = progress.getProgress("Merge", progress.DEFINITE)
             skel = oldskeleton.properCopy(skeletonpath=context.path())
             elements = self.targets(skel, context, copy=1)
-            random.shuffle(elements)
+            crandom.shuffle(elements)
             # A dict. keyed by element to prevent considering merging
             # element which does not exist any more.
             processed = {}  # Merged triangles
@@ -66,9 +66,8 @@ class MergeTriangles(skeletonmodifier.SkeletonModifier):
                     bestchange = self.criterion(changes, skel)
                     if bestchange is not None:
                         done += 2
-                        savedE += bestchange.deltaE(skel,
-                                                    self.criterion.alpha)
-                        bestchange.accept(skel)
+                        savedE += bestchange.deltaE(self.criterion.alpha)
+                        bestchange.accept()
                         # Now that these two are merged, we need to indicate
                         # that these are not to be looked at again.
                         for e in bestchange.removed:

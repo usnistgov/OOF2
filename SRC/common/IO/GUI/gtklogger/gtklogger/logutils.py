@@ -16,17 +16,18 @@
 # for them (so they're not really global variables...).  This helps to
 # avoid import loops, because this files doesn't import anything else.
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import string
 import sys
 import weakref
 
-import checkpoint
+from . import checkpoint
 
 
 class GtkLoggerException(Exception):
     def __init__(self, *args):
-        self.msg = string.join(args, ' ')
+        self.msg = ' '.join(args)
     def __str__(self):
         return self.msg
 
@@ -122,7 +123,7 @@ def isTopLevelWidget(obj):
     return obj in topwidgets.values()
 
 def getTopWidgetNames():
-    return topwidgets.keys()[:]
+    return list(topwidgets.keys())
 
 # Top-level widgets (mostly Gtk.Windows) must have their names
 # assigned by newTopLevelWidget() instead of setWidgetName().
@@ -212,18 +213,17 @@ def _findAllWidgets(top):
             childpaths.extend(_findAllWidgets(child))
     if topname:
         childpaths = [topname] + \
-                     [string.join([topname, path], ':') for path in childpaths]
+                     [':'.join([topname, path]) for path in childpaths]
     return childpaths
 
 # dumpAllWidgets prints the paths and widgets of all named widgets
 # under and including the given widget.
 def dumpAllWidgets(topname):
-    aw = findAllWidgets(topname)[:]
-    aw.sort()
+    aw = sorted(findAllWidgets(topname))
     basepath = ':'.join(topname.split(':')[:-1])
     for name in aw:
-        print >> sys.stderr, "dumpAllWidgets:", name, findWidget(basepath
-                                                                 + ':' + name)
+        print("dumpAllWidgets:", name, findWidget(basepath
+                                                                 + ':' + name), file=sys.stderr)
 
 ##############################
 
@@ -352,14 +352,4 @@ def _get_parent(widget):
     except AttributeError:
         return  None
 
-
-###
-
-_allexceptions = [Exception]
-
-def add_exception(excclass):
-    _allexceptions.append(excclass)
-
-def exceptions():
-    return tuple(_allexceptions)
 

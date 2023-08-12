@@ -16,11 +16,6 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import skeletoncontext
 from ooflib.engine.IO import skeletongroupparams
-import random
-
-## TODO: Many functions in this file use dictionaries where they ought
-## to use sets.
-
 
 def _undo(menuitem, skeleton):
     skelcontext = skeletoncontext.skeletonContexts[skeleton]
@@ -127,12 +122,12 @@ class PinSelectedSegments(PinNodesModifier):
     def __call__(self, skeleton):
         skelcontext = skeletoncontext.skeletonContexts[skeleton]
         pinnednodes = skelcontext.pinnednodes
-        nodes = {}
+        nodes = set()
         for segment in skelcontext.segmentselection.retrieve():
-            nodes[segment.nodes()[0]] = None
-            nodes[segment.nodes()[1]] = None
+            nodes.add(segment.nodes()[0])
+            nodes.add(segment.nodes()[1])
         pinnednodes.start()
-        pinnednodes.pin(nodes.keys())
+        pinnednodes.pin(nodes)
         pinnednodes.signal()
 
 registeredclass.Registration(
@@ -154,14 +149,14 @@ class PinSelectedElements(PinNodesModifier):
         self.boundary = boundary
 
     def getAllNodes(self, context):
-        nodes = {}
+        nodes = set()
         for element in context.elementselection.retrieve():
             for nd in element.nodes:
-                nodes[nd] = None
-        return nodes.keys()
+                nodes.add(nd)
+        return nodes
 
     def getBoundaryNodes(self, context):
-        bound = {}
+        bound = set()
         for element in context.elementselection.retrieve():
             for i in range(element.nnodes()):
                 n0 = element.nodes[i]
@@ -173,17 +168,12 @@ class PinSelectedElements(PinNodesModifier):
                 for el in seg.getElements():
                     if el.selected: n += 1
                 if n == 1:
-                    bound[n0] = None
-                    bound[n1] = None
-        return bound.keys()
+                    bound.add(n0)
+                    bound.add(n1)
+        return bound
 
     def getInternalNodes(self, context, allnodes):
-        bound = self.getBoundaryNodes(context)
-        internal = []
-        for nd in allnodes:
-            if nd not in bound:
-                internal.append(nd)
-        return internal
+        return allnodes - self.getBoundaryNodes(context)
 
     def __call__(self, skeleton):
         skelcontext = skeletoncontext.skeletonContexts[skeleton]

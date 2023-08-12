@@ -12,9 +12,10 @@
 #ifndef ELEMENT_H
 #define ELEMENT_H
 
+#include <oofconfig.h>
+
 class Element;
 class MasterElement;
-#include <Python.h>
 
 #include "common/coord.h"
 #include "common/pythonexportable.h"
@@ -60,7 +61,6 @@ public:
   ElementData(const std::string &nm);
   virtual ~ElementData() {}
   virtual const std::string &classname() const = 0;
-  virtual const std::string &modulename() const = 0;
   const std::string &name() const { return name_; }
 };
 
@@ -132,8 +132,17 @@ public:
   // Post-equilibrium processing.
   void post_process(CSubProblem *) const;
 
+  // The index is not the same as the position in the FEMesh's lists.
+  // The mesh has separate lists for elements and interface elements.
+  // The index is unique across both lists.
   void set_index(int);
-  const int &get_index() const;
+  int get_index() const;	// TODO: This had returned const int&.  Why?
+   // TODO: to allow Elements to be iterated over using the same
+   // meshiterator machinery used by Nodes, Element needs an index()
+   // method.  It already had a get_index() method, which is now
+   // redundant and should be replaced with index() whereever it's
+   // used.
+  int index() const { return get_index(); }
 
   int nnodes() const;
   int nmapnodes() const;
@@ -204,12 +213,7 @@ public:
   void delData(int i) const;
   void clearData() const; // Clears the whole structure.  Do not use.
 
-
-  // Function to return a bunch of gausspoints, for doing integration
-  // in Python.  This is probably temporary.
-  std::vector<GaussPoint*>* integration_points(int order) const;
-
-  GaussPointIterator integrator(int order) const;
+  GaussPointIntegrator integrator(int order) const;
   // int ngauss(int order);	// number of gauss points used at this order
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -253,7 +257,6 @@ public:
 //   void begin_material_computation(FEMesh*) const;
 //   void end_material_computation(FEMesh*) const;
 
-#if DIM==2
   // Identify the edge between the two given nodes as an exterior edge.
   void set_exterior(const Node&, const Node&);
 
@@ -262,7 +265,7 @@ public:
   // to a boundary where boundary conditions apply).
   bool exterior(const MasterCoord &, const MasterCoord&) const;
   void dump_exterior() const; // debugging
-#endif
+
   // Edge machinery below this line.
 
   // Retrieve an edge from the edgelist if present, or create
@@ -286,9 +289,7 @@ public:
 
   // A routine which returns Edge objects corresponding to all of the
   // edges of the element -- used to draw the element.
-#if DIM==2
   std::vector<Edge*> *perimeter() const;
-#endif
 
   friend std::ostream &operator<<(std::ostream&, const Element&);
 
@@ -371,14 +372,12 @@ class CoordElementData : public ElementData {
 private:
   const Coord coord_;
   static std::string class_;
-  static std::string module_;
 public:
   CoordElementData(const std::string &nm, 
 		   const Coord c) : ElementData(nm),coord_(c) 
   {}
   virtual ~CoordElementData() {}
   virtual const std::string &classname() const { return class_; }
-  virtual const std::string &modulename() const { return module_; }
   const Coord &coord() const { return coord_; }
 };
 

@@ -58,7 +58,6 @@ from ooflib.common.IO import menuparser
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 import struct
-import types
 
 OOF = mainmenu.OOF
 
@@ -135,7 +134,7 @@ class BinaryDataFile:
             self.startCmd(OOF.LoadData.ObjKey)
             if obj is None:
                 self.argument('obj', 'None')
-            elif type(obj) is types.ClassType:
+            elif isinstance(obj, type):
                 self.argument('obj', obj.__name__)
             else:
                 try:
@@ -211,7 +210,7 @@ class BinaryMenuParser(menuparser.MenuParserMode):
         # menu arg is not used, since full path is stored in file
         try:
             b = self.getBytes(cmdsize)
-        except ooferror.ErrDataFileError: # no bytes to read
+        except ooferror.PyErrDataFileError: # no bytes to read
             return
         (key,) = struct.unpack(cmdformat, b)
         return self.cmdmap[key]
@@ -219,7 +218,11 @@ class BinaryMenuParser(menuparser.MenuParserMode):
     def getArguments(self, menuitem):
         argdict = {}
         for param in menuitem.params:
-            argdict[param.name] = param.binaryRead(self)
+            val = param.binaryRead(self)
+            if isinstance(val, bytes):
+                argdict[param.name] = val.decode()
+            else:
+                argdict[param.name] = val
         return (), argdict
 
 

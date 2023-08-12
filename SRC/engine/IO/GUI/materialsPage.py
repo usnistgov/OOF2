@@ -28,6 +28,7 @@ from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import materialmanager
+from ooflib.engine import materialtype
 from ooflib.engine import propertyregistration
 
 AllProperties = propertyregistration.AllProperties
@@ -35,8 +36,9 @@ AllProperties = propertyregistration.AllProperties
 #Interface branch
 from ooflib.engine.IO import interfaceparameters
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import types, string
 
 OOF = mainmenu.OOF
 
@@ -189,8 +191,9 @@ class PropertyPane:
         currentmat=self.parent.currentMaterial()
         
         if runtimeflags.surface_mode:
-            isInterfaceMat=(currentmat is not None and
-                            currentmat.type()==material.MATERIALTYPE_INTERFACE)
+            isInterfaceMat=(
+                currentmat is not None and
+                currentmat.type()==materialtype.MATERIALTYPE_INTERFACE)
         else:
             isInterfaceMat=False
             
@@ -198,7 +201,7 @@ class PropertyPane:
                          self.current_property[1].interfaceCompatibility() != 
                          interfaceparameters.COMPATIBILITY_BULK_ONLY)
         isBulkMat=(currentmat is not None and 
-                   currentmat.type()==material.MATERIALTYPE_BULK)
+                   currentmat.type()==materialtype.MATERIALTYPE_BULK)
         isBulkProp= (sensitivity and 
                      self.current_property[1].interfaceCompatibility() !=
                      interfaceparameters.COMPATIBILITY_INTERFACE_ONLY)
@@ -255,7 +258,8 @@ class PropertyPane:
             self.sensitize()
             gtklogger.checkpoint("property deselected")
         else:
-            raise ooferror.ErrPyProgrammingError("Inconsistent selection state")
+            raise ooferror.PyErrPyProgrammingError(
+                "Inconsistent selection state")
         
     def proptreeCB(self, signal, treenode): # GfxLabelTree callback
         prop_name = treenode.path()
@@ -391,7 +395,7 @@ class MaterialPane:
             update_callback=self.newMatSelection,
             name="MaterialList",
             border_width=2)
-        hbox.pack_start(Gtk.Label("Material:"),
+        hbox.pack_start(Gtk.Label(label="Material:"),
                         expand=False, fill=False, padding=0)
         hbox.pack_start(self.materialName.gtk,
                         expand=True, fill=True, padding=0)
@@ -403,7 +407,7 @@ class MaterialPane:
             border_width=2)
         vbox.pack_start(self.matproplist.gtk, expand=True, fill=True, padding=0)
 
-        self.removebutton = Gtk.Button('Remove Property from Material',
+        self.removebutton = Gtk.Button(label='Remove Property from Material',
                                        border_width=2)
         gtklogger.setWidgetName(self.removebutton, "RemoveProperty")
         vbox.pack_start(self.removebutton, expand=False, fill=False, padding=0)
@@ -422,7 +426,7 @@ class MaterialPane:
         vbox.pack_start(assigngrid, expand=False, fill=False, padding=0)
         
         # Assign materials to pixels
-        self.assignbutton = Gtk.Button('Assign to Pixels...',
+        self.assignbutton = Gtk.Button(label='Assign to Pixels...',
                                        hexpand=True,
                                        border_width=2)
         gtklogger.setWidgetName(self.assignbutton, "Assign")
@@ -433,7 +437,7 @@ class MaterialPane:
         assigngrid.attach(self.assignbutton, 0,0, 1,1)
         
         # Remove materials from pixels
-        self.removematbutton = Gtk.Button('Remove from Pixels...',
+        self.removematbutton = Gtk.Button(label='Remove from Pixels...',
                                           hexpand=True,
                                           border_width=2)
         gtklogger.setWidgetName(self.removematbutton, "RemoveMaterial")
@@ -445,9 +449,9 @@ class MaterialPane:
 
         if runtimeflags.surface_mode:
             # Assign material to interface
-            self.assigninterfacebutton = Gtk.Button('Assign to interface...',
-                                                    hexpand=True,
-                                                    border_width=2)
+            self.assigninterfacebutton = Gtk.Button(
+                label='Assign to interface...',
+                hexpand=True, border_width=2)
             gtklogger.setWidgetName(self.assigninterfacebutton,
                                     "AssignInterface")
             self.assigninterfacebutton.set_tooltip_text(
@@ -457,9 +461,9 @@ class MaterialPane:
                               self.on_interface_assign)
         
             # Remove material from interface
-            self.removeinterfacebutton = Gtk.Button('Remove from interface...',
-                                                    hexpand=True,
-                                                    border_width=2)
+            self.removeinterfacebutton = Gtk.Button(
+                label='Remove from interface...',
+                hexpand=True, border_width=2)
             gtklogger.setWidgetName(self.removeinterfacebutton,
                                     "RemoveInterface")
             self.removeinterfacebutton.set_tooltip_text(
@@ -504,8 +508,7 @@ class MaterialPane:
     def updatePropList(self):
         matl = self.currentMaterial()
         if matl is not None:
-            props = matl.properties()
-            self.matproplist.update([prop.name() for prop in props])
+            self.matproplist.update([prop.name() for prop in matl.properties])
             self.matproplist.set_selection(self.parent.current_property_name())
         else:
             self.matproplist.update([])
@@ -596,7 +599,7 @@ class MaterialPane:
 
     def on_assignment(self, button):    # gtk callback
         menuitem = OOF.Material.Assign
-        params = filter(lambda x: x.name != 'material', menuitem.params)
+        params = [x for x in menuitem.params if x.name != 'material']
         materialname = self.currentMaterialName()
         if parameterwidgets.getParameters(
                 parentwindow=self.parent.gtk.get_toplevel(),
@@ -614,7 +617,7 @@ class MaterialPane:
     #Interface branch
     def on_interface_assign(self, button):
         menuitem=OOF.Material.Interface.Assign
-        params = filter(lambda x: x.name != 'material', menuitem.params)
+        params = [x for x in menuitem.params if x.name != 'material']
         materialname = self.currentMaterialName()
         if parameterwidgets.getParameters(
                 parentwindow=self.parent.gtk.get_toplevel(),
@@ -633,7 +636,7 @@ class MaterialPane:
         # Save a single material
         menuitem = OOF.File.Save.Materials
         materialname = self.currentMaterialName()
-        params = filter(lambda x: x.name != "materials", menuitem.params)
+        params = [x for x in menuitem.params if x.name != "materials"]
         if parameterwidgets.getParameters(
                 parentwindow=self.parent.gtk.get_toplevel(),
                 title='Save Material "%s"' % materialname,
@@ -679,7 +682,7 @@ class MaterialPane:
         self.assignbutton.set_sensitive(
             mat_selected and nmicros > 0 and
             self.currentMaterial() is not None and
-            self.currentMaterial().type() == material.MATERIALTYPE_BULK)
+            self.currentMaterial().type() == materialtype.MATERIALTYPE_BULK)
         self.removematbutton.set_sensitive(nmicros > 0)
 
         self.removebutton.set_sensitive(self.currentPropertyName() is not None)
@@ -690,7 +693,7 @@ class MaterialPane:
 #             mat_selected and
 #             nmicros > 0 and
 #             self.currentMaterial().type()==
-#             material.MATERIALTYPE_INTERFACE)
+#             materialtype.MATERIALTYPE_INTERFACE)
 #         self.removeinterfacebutton.set_sensitive(nmicros > 0)
 
     ##############
@@ -731,7 +734,7 @@ def _save_prop(menuitem):
     global materialspage
     propname = materialspage.current_property_name()
     if propname:
-        params = filter(lambda x: x.name!="property", menuitem.params)
+        params = [x for x in menuitem.params if x.name!="property"]
         if parameterwidgets.getParameters(ident='PropMenu',
                                           title='Save Property',
                                           parentwindow=oofGUI.gui.gtk,

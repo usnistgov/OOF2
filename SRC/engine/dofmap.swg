@@ -12,31 +12,36 @@
 #ifndef DOFMAP_SWG
 #define DOFMAP_SWG
 
-%module dofmap
-%include "engine/typemaps.swg"
-%extern "common/doublevec.swg"
+%module(package="ooflib.SWIG.engine") dofmap
+
+%include "common/typemaps.swg"
+%import "common/doublevec.swg"
+
 %{
 #include "common/doublevec.h"
 #include "common/tostring.h"
 #include "engine/dofmap.h"
 %}
 
-%pragma(python) code="from ooflib.SWIG.common.doublevec import DoubleVecPtr"
-
 class DoFMap {
 public:
   DoFMap();
   ~DoFMap();
-  %new DoubleVec* extract(DoubleVec&);
+  %newobject extract;
+  DoubleVec* extract(DoubleVec&);
   void inject(DoubleVec&, DoubleVec&);
   int range();
   int domain();
-  %addmethods {
-    %new const string *__repr__() {
-      return new std::string(tostring(*self));
-    }
-  }
 };
+
+ADD_REPR_GENERIC(DoFMap);
+
+// %extend DoFMap {
+//   %newobject __repr__;
+//   const std::string *__repr__() {
+//     return new std::string(to_string(*self));
+//   }
+// };
 
 DoFMap compose(DoFMap&, DoFMap&);
 DoFMap concat(DoFMap&, DoFMap&);

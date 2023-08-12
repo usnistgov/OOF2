@@ -15,9 +15,12 @@ fieldlist = 'OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers'
 
 def listCheck(*names):
     fields = treeViewColValues(fieldlist, 0)
-    for field, name in map(None, treeViewColValues(fieldlist, 0), names):
+    if len(fields) != len(names):
+        print("Wrong number of columns!", file=sys.stderr)
+        return False
+    for field, name in zip(fields, names):
         if field.name() != name:
-            print >> sys.stderr, field.name(), "!=", name
+            print(field.name(), "!=", name, file=sys.stderr)
             return False
     return True
 

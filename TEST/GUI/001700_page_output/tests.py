@@ -176,24 +176,24 @@ def outputRowCheck(rowNo, active, outputname, schedule, destination):
     if active != output.active:
         return False
     if outputname != output.name():
-        print >> sys.stderr, "Expected output '%s', got '%s'" % \
-            (outputname, output.name())
+        print("Expected output '%s', got '%s'" % \
+            (outputname, output.name()), file=sys.stderr)
         return False
     if ((output.schedule is None and schedule != '---') or
         (output.schedule is not None and
          schedule != (output.scheduleType.shortrepr() + "/" +
                       output.schedule.shortrepr()))):
-        print >> sys.stderr, "Expected schedule '%s', got '%s'" % \
+        print("Expected schedule '%s', got '%s'" % \
             (schedule, ('---' if output.schedule is None else
                         output.scheduleType.shortrepr() +"/" +
-                        output.schedule.shortrepr()))
+                        output.schedule.shortrepr())), file=sys.stderr)
         return False
     if ((output.destination is None and destination != '---') or
         (output.destination is not None and
          destination != output.destination.shortrepr())):
         
-        print >> sys.stderr, "Expected destination '%s', got '%s'" % \
+        print("Expected destination '%s', got '%s'" % \
             (destination, ('---' if output.destination is None
-                           else output.destination.shortrepr()))
+                           else output.destination.shortrepr())), file=sys.stderr)
         return False
     return True

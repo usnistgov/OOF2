@@ -16,8 +16,9 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.engine.IO import meshmenu
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import string
 
 # Widget for the MasterElementTypesParameter, whose value is a list of
 # MasterElement enumerators, one for each MasterElement topology.  The
@@ -67,7 +68,7 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
             self.mapchooser = chooser.ChooserWidget(
                 [], callback=self.orderCB, name="Map",
                 hexpand=True, halign=Gtk.Align.FILL)
-            label = Gtk.Label('mapping order', halign=Gtk.Align.END)
+            label = Gtk.Label(label='mapping order', halign=Gtk.Align.END)
             label.set_tooltip_text(
                 'Polynomial order of the functions used to map master elements'
                 ' to physical space.')
@@ -78,7 +79,8 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
             self.funchooser = chooser.ChooserWidget(
                 [], callback=self.orderCB, name="Func",
                 hexpand=True, halign=Gtk.Align.FILL)
-            label = Gtk.Label('interpolation order:', halign=Gtk.Align.END)
+            label = Gtk.Label(label='interpolation order:',
+                              halign=Gtk.Align.END)
             label.set_tooltip_text(
                 'Polynomial order of the functions used to interpolate'
                 ' within elements.')
@@ -90,7 +92,7 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
             row = 2
             self.classwidgets = []
             for geometry, elclass in zip(elgeometries, elclasses):
-                label = Gtk.Label(`geometry`+'-cornered element:',
+                label = Gtk.Label(label=repr(geometry)+'-cornered element:',
                                   halign=Gtk.Align.END)
                 label.set_tooltip_text(
                         'Type of finite element to use for %d cornered'
@@ -113,13 +115,12 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
                 el = masterelement.getMasterElementFromEnum(elclass(elname))
                 maporderdict[el.map_order()] = 1
                 funorderdict[el.fun_order()] = 1
-        maporders = maporderdict.keys()
-        maporders.sort()
-        funorders = funorderdict.keys()
+        maporders = sorted(list(maporderdict.keys()))
+        funorders = list(funorderdict.keys())
         funorders.sort()
         # List the orders in the widgets
-        self.mapchooser.update([`order` for order in maporders])
-        self.funchooser.update([`order` for order in funorders])
+        self.mapchooser.update([repr(order) for order in maporders])
+        self.funchooser.update([repr(order) for order in funorders])
         try:
             current_map = int(self.mapchooser.get_value())
             current_fun = int(self.funchooser.get_value())
@@ -150,8 +151,8 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
         # and funchooser accordingly.  This assumes that all enums in
         # value correspond to elements with the same orders.
         el = masterelement.getMasterElementFromEnum(value[0])
-        self.mapchooser.set_state(`el.map_order()`)
-        self.funchooser.set_state(`el.fun_order()`)
+        self.mapchooser.set_state(repr(el.map_order()))
+        self.funchooser.set_state(repr(el.fun_order()))
         self.build(interactive=0)
         for val, (elclass, ewidget) in zip(value, self.classwidgets):
             ewidget.set_state(val.name)

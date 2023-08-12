@@ -26,7 +26,6 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.engine import skeletoncontext
 from ooflib.engine import skeletonsegment # for the segSequence function.
 from ooflib.engine.IO import skeletongroupparams
-import types
 import math
 #Interface branch
 from ooflib.engine.IO import interfaceparameters
@@ -77,7 +76,7 @@ class BoundaryConstructor(registeredclass.RegisteredClass):
 def _segset2seglist(seg_set, direction, skel):
 
     if len(seg_set)==0:
-        raise ooferror.ErrUserError(
+        raise ooferror.PyErrUserError(
             "Attempt to sequence null segment set.")
     
     (seg_list, node_list, winding_number) = skeletonsegment.segSequence(seg_set)
@@ -124,7 +123,7 @@ def _segset2seglist(seg_set, direction, skel):
         else:
             # User specified clockwise or counterclockwise for a
             # non-loop segment set.  This is an error.
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "Clockwise or counterclockwise is for closed loops.")
 
     # Use the total area swept out by vectors from the origin to the
@@ -158,7 +157,7 @@ def _segset2seglist(seg_set, direction, skel):
                 seg_list.reverse()
         else:
             # User specified an endpoint orientation on a loop.
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "Closed loops need clockwise or counterclockwise direction.")
 
     return (startnode, seg_list)
@@ -169,11 +168,11 @@ def _segset2seglist(seg_set, direction, skel):
 
 # Convert a group name and skeleton context into an actual list of segments.
 def segments_from_seg_aggregate(skelcontext, group):
-  if group == placeholder.selection:
-      seg_set = skelcontext.segmentselection.retrieve()
-  else:
-      seg_set = skelcontext.segmentgroups.get_group(group)
-  return seg_set
+    if group == placeholder.selection:
+        seg_set = skelcontext.segmentselection.retrieve()
+    else:
+        seg_set = skelcontext.segmentgroups.get_group(group)
+    return seg_set
 
 # Build an edge boundary from a segment set.
 class EdgeFromSegments(BoundaryConstructor):
@@ -243,7 +242,8 @@ def segments_from_el_aggregate(skelcontext, group):
     # now post process to see if any remaining segments coincide
     # on the periodic boundaries.
     # perhaps partnered segments would be useful for this?
-    for s in seg_set.keys():    # NOT 'for s in seg_set'.  seg_set changes.
+    # (seg_set changes, so make copy of keys before looping.)
+    for s in list(seg_set.keys()):
         nodes = s.get_nodes()
         partners = nodes[0].getPartnerPair(nodes[1])
         if partners is not None:
@@ -252,7 +252,7 @@ def segments_from_el_aggregate(skelcontext, group):
                 del seg_set[ps]
                 del seg_set[s]
 
-    return seg_set.keys()
+    return list(seg_set.keys())
 
 if config.dimension() == 2:                
     class EdgeFromElements(BoundaryConstructor):
@@ -492,15 +492,14 @@ def _right_traverse_step(segment, node, node_dict):
 class IncompletePath(Exception): pass
 
 def _right_traverse(node, segment, node_dict):
-    nodelist = node_dict.keys()[:] # TODO: Is [:] needed?  keys()
-                                   # returns an independent list.
+    nodelist = list(node_dict.keys())
     nodelist.remove(node)
     for partner in node.getPartners():
         nodelist.remove(partner)
     seglist = []
     trailing_node = segment.get_other_node(node)
     
-    while 1:
+    while True:
         seglist.append(segment)
         try:
             nodelist.remove(trailing_node)
@@ -713,8 +712,8 @@ class PointFromSegments(BoundaryConstructor):
         for s in segments:
             nodes[s.nodes()[0]]=s
             nodes[s.nodes()[1]]=s
-                
-        skelcontext.createPointBoundary(name, nodes.keys() )
+
+        skelcontext.createPointBoundary(name, nodes.keys())
 
 registeredclass.Registration(
     "Point boundary from segments",
@@ -753,8 +752,7 @@ class PointFromElements(BoundaryConstructor):
                     nodes.add(n0)
                     nodes.add(n1)
 
-        skelcontext.createPointBoundary(name,
-                                        list(nodes)) # TODO: Leave as set?
+        skelcontext.createPointBoundary(name, nodes) 
 
 registeredclass.Registration("Point boundary from elements",
                              BoundaryConstructor,

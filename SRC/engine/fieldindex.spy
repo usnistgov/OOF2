@@ -9,49 +9,12 @@
 # oof_manager@nist.gov. 
 
 from ooflib.common import debug
-#import string
 
-# Defining __repr__ here doesn't work, because the derived classes
-# will override it.
-
-def _shortrepr(self):
-    return self.shortstring()
-
-FieldIndex.shortrepr = _shortrepr
-FieldIterator.shortrepr = _shortrepr
-IndexPPtr.shortrepr = _shortrepr
-IteratorPPtr.shortrepr = _shortrepr
-
-#############
-
-# def IteratorP_next(self):
-#     if self.end():
-#         raise StopIteration
-#     self.increment()
-
-# IteratorPPtr.next = IteratorP_next
-
-#############
-
-# Super-cautious destructors, to avoid complaints at shut-down time.
-# Code recommended by SWIG authors in mailing list at
-# <http://mailman.cs.uchicago.edu/pipermail/swig/2002-April.txt>,
-# look for message with subject: [Swig] Shadow class as a global
-
-def iteratorp_ptr_del(self, destruct=fieldindexc.delete_IteratorP):
-    if getattr(self, 'thisown', 0):
-        destruct(self)
-
-IteratorPPtr.__del__ = iteratorp_ptr_del
-
-def indexp_ptr_del(self, destruct=fieldindexc.delete_IndexP):
-    if getattr(self, 'thisown', 0):
-        destruct(self)
+def _SymTensorIJComponents__iter__(self):
+    beginp = self.begin()
+    endp = self.end()
+    while beginp != endp:
+        yield beginp.fieldindex()
+        beginp.increment()
         
-IndexPPtr.__del__ = indexp_ptr_del
-
-def fieldindex_ptr_del(self, destruct=fieldindexc.delete_FieldIndex):
-    if getattr(self, 'thisown', 0):
-        destruct(self)
-
-FieldIndexPtr.__del__ = fieldindex_ptr_del
+SymTensorIJComponents.__iter__ = _SymTensorIJComponents__iter__

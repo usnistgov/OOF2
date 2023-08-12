@@ -29,9 +29,9 @@ import ooflib.SWIG.engine.field
 import ooflib.engine.IO.meshmenu
 import ooflib.engine.mesh
 
-from gi.repository import GObject
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import string
 
 allCompoundFields = ooflib.SWIG.engine.field.allCompoundFields
 
@@ -66,19 +66,21 @@ class FieldPage(oofGUI.MainPage):
         self.subpwidget = whowidget.WhoWidget(
             ooflib.engine.subproblemcontext.subproblems, scope=self)
         switchboard.requestCallbackMain(self.subpwidget, self.subpwidgetCB)
-        label = Gtk.Label("Microstructure=", halign=Gtk.Align.END)
+        label = Gtk.Label(label="Microstructure=", halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.subpwidget.gtk[0],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label="Skeleton=",
+                          halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.subpwidget.gtk[1],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label("Mesh=", halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label="Mesh=", halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.subpwidget.gtk[2],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label("SubProblem=", halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label="SubProblem=",
+                          halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.subpwidget.gtk[3],
                              expand=False, fill=False, padding=0)
@@ -106,7 +108,7 @@ class FieldPage(oofGUI.MainPage):
         scroll.add(self.fieldtable)
         self.build_fieldTable()
 
-        self.copyfieldbutton = Gtk.Button("Copy Field State...",
+        self.copyfieldbutton = Gtk.Button(label="Copy Field State...",
                                           halign=Gtk.Align.CENTER,
                                           hexpand=False)
         vbox.pack_start(self.copyfieldbutton,
@@ -135,7 +137,7 @@ class FieldPage(oofGUI.MainPage):
         self.eqnbuttons = {}
         self.build_eqnTable()
 
-        self.copyeqnbutton = Gtk.Button("Copy Equation State...",
+        self.copyeqnbutton = Gtk.Button(label="Copy Equation State...",
                                         halign=Gtk.Align.CENTER,
                                         hexpand=False)
         vbox.pack_start(self.copyeqnbutton,
@@ -184,10 +186,10 @@ class FieldPage(oofGUI.MainPage):
         # self.fieldtable.set_col_spacing(0, 3)
         row = 0
         for fname, fld in allCompoundFields.items():
-            label = Gtk.Label(fname, halign=Gtk.Align.END, hexpand=False)
+            label = Gtk.Label(label=fname, halign=Gtk.Align.END, hexpand=False)
             self.fieldtable.attach(label, 0,row, 1,1)
 
-            button = Gtk.CheckButton('defined', hexpand=False)
+            button = Gtk.CheckButton(label='defined', hexpand=False)
             gtklogger.setWidgetName(button, fname+" defined")
             signal = gtklogger.connect(button, 'clicked',
                                        self.fieldDefineCB, fld)
@@ -195,7 +197,7 @@ class FieldPage(oofGUI.MainPage):
             self.fieldtable.attach(button, 2,row, 1,1)
             self.setFieldDefineTip(button, fld)
 
-            button = Gtk.CheckButton('active', hexpand=False)
+            button = Gtk.CheckButton(label='active', hexpand=False)
             gtklogger.setWidgetName(button, fname+" active")
             signal = gtklogger.connect(button, 'clicked',
                                        self.fieldActiveCB, fld)
@@ -203,7 +205,7 @@ class FieldPage(oofGUI.MainPage):
             self.fieldtable.attach(button, 3,row, 1,1)
             self.setFieldActiveTip(button, fld)
 
-            button = Gtk.CheckButton('in-plane')
+            button = Gtk.CheckButton(label='in-plane')
             gtklogger.setWidgetName(button, fname + " in-plane")
             signal = gtklogger.connect(button, 'clicked',
                                        self.fieldInPlaneCB, fld)
@@ -305,23 +307,20 @@ class FieldPage(oofGUI.MainPage):
         debug.mainthreadTest()
         self.eqntable.foreach(Gtk.Widget.destroy) # clear the table
         self.eqnbuttons = {}
-        eqlist = equation.allEquations
-        row=0
-        for eqn in eqlist:
-            label = Gtk.Label(utils.underscore2space(eqn.name()),
+        for row, eqn in enumerate(equation.allEquations()):
+            label = Gtk.Label(label=utils.underscore2space(eqn.name()),
                               halign=Gtk.Align.END)
             self.eqntable.attach(label, 0,row, 1,1)
-            button = Gtk.CheckButton('active')
+            button = Gtk.CheckButton(label='active')
             gtklogger.setWidgetName(button, eqn.name() + " active")
             signal = gtklogger.connect(button, 'clicked', self.eqnButtonCB, eqn)
             self.eqnbuttons[(eqn.name(), "active")] = ButtonSignal(button,
                                                                    signal)
             button.set_tooltip_text('Active equations will be solved.')
             self.eqntable.attach(button, 2,row, 1,1)
-            row += 1
         self.eqntable.attach(
             Gtk.Separator(orientation=Gtk.Orientation.VERTICAL),
-            1,0, 1,len(eqlist))
+            1,0, 1,equation.countEquations())
 
     def newEquationCB(self):  # Switchboard, "new equation".
         self.build_eqnTable()
@@ -413,7 +412,7 @@ class FieldPage(oofGUI.MainPage):
                     self.fieldbuttons[(fname, "active")].set(0)
                     if config.dimension() == 2:
                         self.fieldbuttons[(fname, "inplane")].set(0)
-            for eqn in equation.allEquations:
+            for eqn in equation.allEquations():
                 active = subp.is_active_equation(eqn)
                 self.eqnbuttons[(eqn.name(),"active")].set(active)
         else:                           # no current subproblem

@@ -29,14 +29,18 @@ class Element;
 //  Element *el;
 //  double sum1 = 0, sum2 = 0;
 //  int order = ....; // see below
-//  for(GaussPointIntegrator g=el->integrator(order); !g.end(); ++g) {
-//
-//     sum1 += f(g)*g.weight(); // IF f can be evaluated at gauss points, like
-//                               // shapefunctions can
-//
-//     sum2 += f(g.coord())*g.weight();  // IF f can only be evaluated at
-//                                         // real space coordinates  
+//  for(GaussPoint g : el->integrator(order)) {
+//     MasterCoord &m = g;
+//     Coord p = g.coord();
+//     double weight = g.weight();
+//     ...
 //  }
+//
+// In Python, loop over Gauss points with
+//   for g in element.integrator(order):
+//      mastercoord = g
+//      realcoord = g.coord()
+//      weight = g.weight()
 
 // The MasterElement classes contain lists of GaussPtData objects
 // (actually a vector of GaussPtTables).  When an Element creates a
@@ -102,24 +106,7 @@ private:
   friend class ShapeFunction;
   friend class GaussPointIterator;
   friend std::ostream& operator<<(std::ostream &o, const GaussPoint&);
-}; 
-
-class GaussPointIterator {
-public:
-  GaussPointIterator(const Element*, int);
-  bool end() const;
-  void operator++();
-  int index() const;
-  int order() const;
-  GaussPoint gausspoint() const;
-  GaussPoint *gausspointptr() const;
-private:
-  const Element *element;
-  const GaussPtTable &gptable;
-  std::vector<GaussPtData>::size_type currentpt;
 };
-
-
 
 // Table of Gauss points for a single order of integration
 class GaussPtTable {
@@ -133,6 +120,44 @@ public:
   std::vector<GaussPtData>::size_type size() const { return gpdata.size(); }
   int order() const { return order_; }
   void addpoint(const MasterCoord&, double); // used by master element only
+};
+
+// GaussPointIterator and GaussPointIntegrator are For STL-like
+// looping over Gauss points, eg:
+//
+//      for(GaussPoint gpt : element->integrator(order)) { ... }
+// or
+//      for(GaussPointIterator gpi=element->integrator(order).begin();
+//          gpi != element->integrator(order).end();
+//          ++gpi) { ... }
+
+class GaussPointIterator {
+private:
+  const Element *element;
+  const GaussPtTable &gptable;
+  std::vector<GaussPtData>::size_type currentpt;
+public:
+  GaussPointIterator(const Element *el, const GaussPtTable &gptable, int i)
+    : element(el),
+      gptable(gptable),
+      currentpt(i)
+  {}
+  void operator++() { ++currentpt; }
+  GaussPoint *gausspointptr() const;
+  GaussPoint operator*() const;
+  bool operator!=(const GaussPointIterator &other) const {
+    return currentpt != other.currentpt;
+  }
+};
+
+class GaussPointIntegrator {
+private:
+  const Element *element;
+  const GaussPtTable &gptable;
+public:
+  GaussPointIntegrator(const Element *element, int order);
+  GaussPointIterator begin() const;
+  GaussPointIterator end() const;
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

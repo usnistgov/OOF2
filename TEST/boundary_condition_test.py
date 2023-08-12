@@ -13,8 +13,8 @@
 # boundary conditions.
 
 import unittest, os
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 # Flag that says whether to generate missing reference data files for
 # the Modify tests.  Should be false unless you really know what
@@ -288,8 +288,8 @@ class OOF_BCTest(unittest.TestCase):
                               boundary='right'))
 
         # make sure an inconsistent loop raises an error
-        from ooflib.SWIG.engine import ooferror2
-        self.assertRaises(ooferror2.ErrSetupError,
+        from ooflib.SWIG.engine import ooferror
+        self.assertRaises(ooferror.PyErrSetupError,
                           OOF.Mesh.Solve, mesh="bc_test:skeleton:mesh",
                           endtime=0.0)
 
@@ -312,7 +312,7 @@ class OOF_BCTest(unittest.TestCase):
                                             name='bc<6>')
         OOF.Mesh.Boundary_Conditions.Enable(mesh='bc_test:skeleton:mesh',
                                             name='bc<5>')
-        self.assertRaises(ooferror2.ErrSetupError,
+        self.assertRaises(ooferror.PyErrSetupError,
                           OOF.Mesh.Solve, mesh='bc_test:skeleton:mesh',
                           endtime=0.0)
 
@@ -567,7 +567,7 @@ class OOF_BCTest(unittest.TestCase):
                     tolerance=1e-13,
                     max_iterations=1000)))
         from ooflib.SWIG.common import ooferror
-        self.assertRaises(ooferror.ErrWarning,
+        self.assertRaises(ooferror.PyErrWarning,
                           OOF.Mesh.Solve,
                           mesh='bc_test:skeleton:mesh',
                           endtime=0.0)
@@ -603,7 +603,7 @@ class OOF_BCTest(unittest.TestCase):
                     tolerance=1e-13,
                     max_iterations=1000)))
         from ooflib.SWIG.common import ooferror
-        self.assertRaises(ooferror.ErrUserError,
+        self.assertRaises(ooferror.PyErrUserError,
                           OOF.Mesh.Solve,
                           mesh='bc_test:skeleton:mesh',
                           endtime=0.0)

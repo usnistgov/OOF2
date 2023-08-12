@@ -11,8 +11,8 @@
 # Test suite for the menu commands under OOF.Mesh.*
 
 import unittest, os
-from UTILS import file_utils
-import memorycheck
+from .UTILS import file_utils
+from . import memorycheck
 
 reference_file = file_utils.reference_file
 
@@ -124,11 +124,11 @@ class OOF_Mesh_FieldEquation(OOF_Mesh):
 
     @memcheck
     def DefineField(self):
-        self.assert_(not Temperature.is_defined(self.subp))
+        self.assertTrue(not Temperature.is_defined(self.subp))
         OOF.Mesh.Field.Define(mesh="meshtest:skeleton:fe_test",
                               field=Temperature)
-        self.assert_(Temperature.is_defined(self.subp))
-        self.assert_(not Displacement.is_defined(self.subp))
+        self.assertTrue(Temperature.is_defined(self.subp))
+        self.assertTrue(not Displacement.is_defined(self.subp))
         
     @memcheck
     def UndefineField(self):
@@ -136,20 +136,20 @@ class OOF_Mesh_FieldEquation(OOF_Mesh):
                               field=Temperature)
         OOF.Mesh.Field.Undefine(mesh="meshtest:skeleton:fe_test",
                                 field=Temperature)
-        self.assert_(not Temperature.is_defined(self.subp))
-        self.assert_(not Displacement.is_defined(self.subp))
+        self.assertTrue(not Temperature.is_defined(self.subp))
+        self.assertTrue(not Displacement.is_defined(self.subp))
         
         
     @memcheck
     def ActivateField(self):
         OOF.Mesh.Field.Define(mesh="meshtest:skeleton:fe_test",
                               field=Temperature)
-        self.assert_(not Temperature.is_active(self.subp))
+        self.assertTrue(not Temperature.is_active(self.subp))
         OOF.Mesh.Field.Activate(mesh="meshtest:skeleton:fe_test",
                                 field=Temperature)
-        self.assert_(Temperature.is_active(self.subp))
-        self.assert_(not Displacement.is_defined(self.subp))
-        self.assert_(not Displacement.is_active(self.subp))
+        self.assertTrue(Temperature.is_active(self.subp))
+        self.assertTrue(not Displacement.is_defined(self.subp))
+        self.assertTrue(not Displacement.is_active(self.subp))
         
 
     @memcheck
@@ -160,9 +160,9 @@ class OOF_Mesh_FieldEquation(OOF_Mesh):
                                 field=Temperature)
         OOF.Mesh.Field.Deactivate(mesh="meshtest:skeleton:fe_test",
                                   field=Temperature)
-        self.assert_(not Temperature.is_active(self.subp))
-        self.assert_(not Displacement.is_defined(self.subp))
-        self.assert_(not Displacement.is_active(self.subp))
+        self.assertTrue(not Temperature.is_active(self.subp))
+        self.assertTrue(not Displacement.is_defined(self.subp))
+        self.assertTrue(not Displacement.is_active(self.subp))
 
 
     @memcheck
@@ -171,10 +171,10 @@ class OOF_Mesh_FieldEquation(OOF_Mesh):
                               field=Temperature)
         OOF.Mesh.Field.Activate(mesh="meshtest:skeleton:fe_test",
                                 field=Temperature)
-        self.assert_(not self.msh_obj.in_plane(Temperature))
+        self.assertTrue(not self.msh_obj.in_plane(Temperature))
         OOF.Mesh.Field.In_Plane(mesh="meshtest:skeleton:fe_test",
                                 field=Temperature)
-        self.assert_(self.msh_obj.in_plane(Temperature))
+        self.assertTrue(self.msh_obj.in_plane(Temperature))
 
     @memcheck
     def Out_of_PlaneField(self):
@@ -186,16 +186,16 @@ class OOF_Mesh_FieldEquation(OOF_Mesh):
                                 field=Temperature)
         OOF.Mesh.Field.Out_of_Plane(mesh="meshtest:skeleton:fe_test",
                                     field=Temperature)
-        self.assert_(not self.msh_obj.in_plane(Temperature))
+        self.assertTrue(not self.msh_obj.in_plane(Temperature))
 
 
     @memcheck
     def ActivateEquation(self):
-        self.assert_(not self.subp.is_active_equation(Heat_Eqn))
+        self.assertTrue(not self.subp.is_active_equation(Heat_Eqn))
         OOF.Mesh.Equation.Activate(mesh="meshtest:skeleton:fe_test",
                                    equation=Heat_Eqn)
-        self.assert_(self.subp.is_active_equation(Heat_Eqn))
-        self.assert_(not self.subp.is_active_equation(Force_Balance))
+        self.assertTrue(self.subp.is_active_equation(Heat_Eqn))
+        self.assertTrue(not self.subp.is_active_equation(Force_Balance))
 
     @memcheck
     def DeactivateEquation(self):
@@ -203,7 +203,7 @@ class OOF_Mesh_FieldEquation(OOF_Mesh):
                                    equation=Heat_Eqn)
         OOF.Mesh.Equation.Deactivate(mesh="meshtest:skeleton:fe_test",
                                      equation=Heat_Eqn)
-        self.assert_(not self.subp.is_active_equation(Heat_Eqn))
+        self.assertTrue(not self.subp.is_active_equation(Heat_Eqn))
 
 # Mesh ops that have no real meaning unless fields and equations exist
 # on them.  Same setup/teardown as OOF_Mesh_FieldEquation.
@@ -221,14 +221,14 @@ class OOF_Mesh_Extra(OOF_Mesh_FieldEquation):
                      element_types=['T3_3','Q4_4'])
         subp = subproblemcontext.subproblems[
             'meshtest:skeleton:fe_copy_test:default'].getObject()
-        self.assert_(not Temperature.is_defined(subp))
-        self.assert_(not Temperature.is_active(subp))
-        self.assert_(not Displacement.is_defined(subp))
+        self.assertTrue(not Temperature.is_defined(subp))
+        self.assertTrue(not Temperature.is_active(subp))
+        self.assertTrue(not Displacement.is_defined(subp))
         OOF.Mesh.Copy_Field_State(source="meshtest:skeleton:fe_test",
                                   target="meshtest:skeleton:fe_copy_test")
-        self.assert_(Temperature.is_defined(subp))
-        self.assert_(Temperature.is_active(subp))
-        self.assert_(Displacement.is_defined(subp))
+        self.assertTrue(Temperature.is_defined(subp))
+        self.assertTrue(Temperature.is_active(subp))
+        self.assertTrue(Displacement.is_defined(subp))
         OOF.Mesh.Delete(mesh="meshtest:skeleton:fe_copy_test")
         
 
@@ -241,11 +241,11 @@ class OOF_Mesh_Extra(OOF_Mesh_FieldEquation):
                      element_types=['T3_3','Q4_4'])
         subp = subproblemcontext.subproblems[
             'meshtest:skeleton:fe_copy_test:default'].getObject()
-        self.assert_(not subp.is_active_equation(Heat_Eqn))
+        self.assertTrue(not subp.is_active_equation(Heat_Eqn))
         OOF.Mesh.Copy_Equation_State(source="meshtest:skeleton:fe_test",
                                      target="meshtest:skeleton:fe_copy_test")
-        self.assert_(subp.is_active_equation(Heat_Eqn))
-        self.assert_(not subp.is_active_equation(Force_Balance))
+        self.assertTrue(subp.is_active_equation(Heat_Eqn))
+        self.assertTrue(not subp.is_active_equation(Force_Balance))
         
     @memcheck
     def Initialize(self):
@@ -259,7 +259,7 @@ class OOF_Mesh_Extra(OOF_Mesh_FieldEquation):
             initializer=FuncScalarFieldInit(function="x*y"))
         OOF.Mesh.Apply_Field_Initializers(mesh="meshtest:skeleton:fe_test")
         # Check the center of each element.
-        for e in self.msh_obj.element_iterator():
+        for e in self.msh_obj.elements():
             m_coord = MasterCoord(0.0,0.0)
             lab_coord = e.from_master(MasterCoord(0.0,0.0))
             o = e.outputField(self.msh_obj, Temperature, MasterCoord(0.0,0.0))
@@ -278,7 +278,7 @@ class OOF_Mesh_Extra(OOF_Mesh_FieldEquation):
         OOF.Mesh.Apply_Field_Initializers(mesh="meshtest:skeleton:mesh<2>")
         # Check the center of each element in the copied mesh.
         other_msh_obj = mesh.meshes["meshtest:skeleton:mesh<2>"].getObject()
-        for e in other_msh_obj.element_iterator():
+        for e in other_msh_obj.elements():
             m_coord = MasterCoord(0.0,0.0)
             lab_coord = e.from_master(MasterCoord(0.0,0.0))
             o = e.outputField(other_msh_obj, Temperature, MasterCoord(0.0,0.0))
@@ -639,7 +639,7 @@ class OOF_Mesh_SaveLoad(OOF_Mesh_FieldEquation):
         OOF.File.Save.Mesh(filename="mesh_save_test",
                            mode="w", format="ascii",
                            mesh="meshtest:skeleton:save_test")
-        self.assert_(
+        self.assertTrue(
             file_utils.fp_file_compare(
                 "mesh_save_test",
                 os.path.join("mesh_data", "saved_mesh"),
@@ -652,10 +652,10 @@ class OOF_Mesh_SaveLoad(OOF_Mesh_FieldEquation):
         OOF.File.Load.Data(filename=reference_file("mesh_data", "saved_mesh"))
         msh = mesh.meshes["meshtest:skeleton:save_test"]
         subp = msh.get_default_subproblem().getObject()
-        self.assert_(Temperature.is_defined(subp))
-        self.assert_(Temperature.is_active(subp))
-        self.assert_(subp.is_active_equation(Heat_Eqn))
-        self.assert_(subp.is_active_equation(Plane_Heat_Flux))
+        self.assertTrue(Temperature.is_defined(subp))
+        self.assertTrue(Temperature.is_active(subp))
+        self.assertTrue(subp.is_active_equation(Heat_Eqn))
+        self.assertTrue(subp.is_active_equation(Plane_Heat_Flux))
         bc1 = msh.getBdyCondition("high")
         bc2 = msh.getBdyCondition("low")
         self.assertEqual(bc1.__class__, bdycondition.DirichletBC)
@@ -752,9 +752,9 @@ class OOF_Mesh_Special(OOF_Mesh_Base):
         OOF.Skeleton.Modify(
             skeleton='microstructure:skeleton',
             modifier=Refine(targets=CheckAllElements(),
-                            criterion=Unconditionally(),
-                            degree=Bisection(rule_set='conservative'),
-                            alpha=0.29999999999999999))
+                            divider=Bisection(minlength=0.0),
+                            rules='Quick',
+                            alpha=0.3))
         OOF.Mesh.Delete(mesh='microstructure:skeleton:mesh')
         # This line used to raise the exception:
         OOF.Microstructure.Delete(microstructure='microstructure')
@@ -825,20 +825,20 @@ class OOF_Mesh_Special(OOF_Mesh_Base):
         
         # Check initial material assignments.
         mcounts = countMaterials(msh)
-        self.assert_(mcounts['material'] == 15 and mcounts['material<2>'] == 1)
+        self.assertTrue(mcounts['material'] == 15 and mcounts['material<2>'] == 1)
 
         # Refine the Skeleton.
         OOF.Skeleton.Modify(
             skeleton='microstructure:skeleton',
             modifier=Refine(targets=CheckSelectedElements(),
-                            criterion=Unconditionally(),
-                            degree=Bisection(rule_set='conservative'),
+                            divider=Bisection(minlength=0.0),
+                            rules='Quick',
                             alpha=0.3))
 
         # Check that mesh still has the same materials.
         mcounts = countMaterials(msh)
-        self.assert_(mcounts['material'] == 15 and mcounts['material<2>'] == 1)
-        self.assert_(msh.outOfSync())
+        self.assertTrue(mcounts['material'] == 15 and mcounts['material<2>'] == 1)
+        self.assertTrue(msh.outOfSync())
 
         # Propagate the refinement to the Mesh.
         OOF.Mesh.Modify(
@@ -846,31 +846,31 @@ class OOF_Mesh_Special(OOF_Mesh_Base):
         
         # Check that the materials have been updated.
         mcounts = countMaterials(msh)
-        self.assert_(mcounts['material'] == 21 and mcounts['material<2>'] == 4)
-        self.assert_(not msh.outOfSync())
+        self.assertTrue(mcounts['material'] == 23 and mcounts['material<2>'] == 4)
+        self.assertTrue(not msh.outOfSync())
 
         OOF.Skeleton.Undo(skeleton='microstructure:skeleton')
         
         # Check that material counts have not yet been updated.
         mcounts = countMaterials(msh)
-        self.assert_(mcounts['material'] == 21 and mcounts['material<2>'] == 4)
-        self.assert_(msh.outOfSync())
+        self.assertTrue(mcounts['material'] == 23 and mcounts['material<2>'] == 4)
+        self.assertTrue(msh.outOfSync())
 
         OOF.Mesh.Modify(
             mesh='microstructure:skeleton:mesh', modifier=RebuildMesh())
 
         # Check that mesh has 16 elements and one material<2> element
         mcounts = countMaterials(msh)
-        self.assert_(mcounts['material'] == 15 and mcounts['material<2>'] == 1)
-        self.assert_(not msh.outOfSync())
+        self.assertTrue(mcounts['material'] == 15 and mcounts['material<2>'] == 1)
+        self.assertTrue(not msh.outOfSync())
         
         # Remove explicitly assigned material and check that the mesh
         # is updated autmatically.
         OOF.ElementGroup.Remove_Material(
             skeleton='microstructure:skeleton', group='elementgroup')
         mcounts = countMaterials(msh)
-        self.assert_(mcounts['material'] == 16)
-        self.assert_(not msh.outOfSync())
+        self.assertTrue(mcounts['material'] == 16)
+        self.assertTrue(not msh.outOfSync())
         OOF.Graphics_1.File.Close()
 
         OOF.Material.Delete(name="material")
@@ -885,7 +885,7 @@ class OOF_Mesh_Special(OOF_Mesh_Base):
                            mesh='solve_test:skeleton:mesh')
         # Use fp_file_compare because it can ignore dates in files,
         # and the abaqus output contains the date in the header.
-        self.assert_(
+        self.assertTrue(
             file_utils.fp_file_compare(
                 'solveable.abq',
                 os.path.join('mesh_data', 'solveable.abq'),
@@ -901,7 +901,7 @@ class OOF_Mesh_Special(OOF_Mesh_Base):
 def countMaterials(meshctxt):
     counts = {}
     total = 0
-    for e in meshctxt.getObject().element_iterator():
+    for e in meshctxt.getObject().elements():
         total += 1
         m = e.material()
         if m:

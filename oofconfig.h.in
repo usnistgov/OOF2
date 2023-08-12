@@ -1,0 +1,15 @@
+// This file was created automatically by the oof2 setup script.
+// Do not edit it.  Re-run cmake or ccmake to change the options
+
+#ifndef OOFCONFIG_H
+#define OOFCONFIG_H
+
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+
+#cmakedefine DEBUG
+#define DIM 2
+
+#cmakedefine HAVE_SSTREAM 
+
+#endif // OOFCONFIG_H

@@ -12,54 +12,71 @@
 #ifndef FLUX_SWG
 #define FLUX_SWG
 
-%module flux
+%module(package="ooflib.SWIG.engine") flux
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
+%import "engine/fieldindex.swg"
+%import "engine/outputval.swg"
+%import "engine/planarity.swg"
+
 %{
 #include "engine/flux.h"
+#include "engine/outputval.h"
 %}
 
-%pragma(python) include="engine/flux.spy"
-%extern "engine/fieldindex.swg"
-%pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
-%pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
-%extern "engine/outputval.swg"
-%pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValuePtr"
+PYTHONEXPORTABLE(Flux);
+MAKE_LISTVEC_TYPEMAPS(Flux);
 
-
+%nodefaultctor Flux;
+%rename(c_components) Flux::components;
+%rename(c_divergenceComponents) Flux::divergenceComponents;
+%rename(c_outOfPlaneComponents) Flux::outOfPlaneComponents;
 
 class Flux {
 public:
   int ndof();
   int divergence_dim();
-  const string &name();
+  const std::string &name();
   int objectid();
-
-  IteratorP iterator(Planarity p);
-  IteratorP divergence_iterator();
-  %addmethods {
-    // iterator_all is used in situations in which it's not known if
-    // we're iterating over a Field, Flux, or Equation.
-    // Equation::iterator doesn't take an argument.
-    IteratorP iterator_all() {
-      return self->iterator(ALL_INDICES);
-    }
-  }
-  IndexP componenttype();
   ArithmeticOutputValue newOutputValue();
+  ComponentsP components(Planarity) const;
+  ComponentsP divergenceComponents() const;
+  ComponentsP outOfPlaneComponents() const;
 };
+
+ADD_REPR(Flux, repr);
+
+%extend Flux {
+  bool __eq__(Flux *other) {
+    return self->objectid() == other->objectid();
+  }
+};
+
+%pythonappend VectorFlux::VectorFlux %{
+  finishConstruction(self)
+%}
   
 class VectorFlux : public Flux {
 public:
   VectorFlux(char *name);
 };
 
+ADD_REPR(VectorFlux, repr);
+
+%pythonappend SymmetricTensorFlux::SymmetricTensorFlux %{
+  finishConstruction(self)
+%}
+
 class SymmetricTensorFlux : public Flux {
 public:
   SymmetricTensorFlux(char *name, bool negate);
 };
 
+ADD_REPR(SymmetricTensorFlux, repr);
+
 Flux *getFluxByIndex(int);
 int countFluxes();
+
+%pythoncode "engine/flux.spy"
 
 #endif // FLUX_SWG

@@ -289,7 +289,12 @@ findMenu(findWidget('chooserPopup-Skeleton'), ['skeleton<2>']).activate() # Menu
 deactivatePopup('chooserPopup-Skeleton') # MenuItemLogger
 findWidget('OOF2:Boundary Conditions Page:Condition:New').clicked()
 checkpoint toplevel widget mapped Dialog-New Boundary Condition
-findWidget('Dialog-New Boundary Condition').resize(353, 330)
+findWidget('Dialog-New Boundary Condition').resize(356, 369)
+wevent(findWidget('Dialog-New Boundary Condition:condition:Dirichlet:boundary'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Boundary Condition:condition:Dirichlet:boundary').get_window())
+checkpoint toplevel widget mapped chooserPopup-boundary
+findWidget('chooserPopup-boundary').deactivate() # MenuLogger
+findMenu(findWidget('chooserPopup-boundary'), ['bottom']).activate() # MenuItemLogger
+deactivatePopup('chooserPopup-boundary') # MenuItemLogger
 findWidget('Dialog-New Boundary Condition:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized

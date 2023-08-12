@@ -46,7 +46,7 @@ class DisplayMethodParameterWidget(regclassfactory.RegisteredClassFactory):
         self.whoclassname = self.whoclasswidget.get_value()
         self.update(self.registry)
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         regclassfactory.RegisteredClassFactory.cleanUp(self)
     def includeRegistration(self, registration):
         return self.whoclassname in registration.whoclasses

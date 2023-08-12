@@ -8,8 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-# TODO 3D: we can get rid of the separation between in plane and out of plane.
-
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
@@ -22,73 +20,25 @@ from ooflib.common import utils
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import conjugate
 from ooflib.engine import propertyregistration
-import sys
-import types
 
-def _advertise(obj):
-    utils.OOFdefine(obj.name(), obj)
-    return obj
+# Define instances of Fields, Fluxes, and Equations and the conjugacy
+# relations among them.
 
-def advertiseField(fld):
-    field.newCompoundField(fld)
-    _advertise(fld)
-    td = _advertise(fld.time_derivative())
-    field.newField(td)
-    if config.dimension() == 2:
-        field.newField(_advertise(fld.out_of_plane()))
-        field.newField(_advertise(fld.out_of_plane_time_derivative()))
-    # "new field" is sent here, instead of from the Field constructor,
-    # because it must be called *after* the field is defined in the
-    # OOF namespace.
-    switchboard.notify("new field")
-    return fld
-
-def advertiseFlux(flx):
-    _advertise(flx)
-    switchboard.notify("new flux")
-    return flx
-
-def advertiseEquation(eqn):
-    _advertise(eqn)
-    switchboard.notify("new equation")
-    return eqn
-
-def advertise(obj):
-    # This code is ugly, but at least it's compact.  It's not much
-    # uglier than the previous version, which required other code to
-    # call advertiseField, et al, directly.
-    if isinstance(obj, field.FieldPtr):
-        return advertiseField(obj)
-    if isinstance(obj, flux.FluxPtr):
-        return advertiseFlux(obj)
-    if isinstance(obj, equation.EquationPtr):
-        return advertiseEquation(obj)
-    raise ooferror.ErrPyProgrammingError("Don't know what to do with %s!"% obj)
+# The constructors for all of the objects also export them into the
+# main OOF2 namespace.
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Define a field.  This creates an object named 'Temperature' in the
-# OOF namespace.
-Temperature = advertise(field.ScalarField('Temperature'))
+# Define a field.
+Temperature = field.ScalarField('Temperature')
 # Define a flux
-Heat_Flux = advertise(flux.VectorFlux('Heat_Flux'))
+Heat_Flux = flux.VectorFlux('Heat_Flux')
 # And equations
-HeatBalanceEquation = advertise(equation.DivergenceEquation(
-    'Heat_Eqn',
-    Heat_Flux,
-    1
-    ))
-
-if config.dimension() == 2:
-    HeatOutOfPlane = advertise(equation.PlaneFluxEquation(
-            'Plane_Heat_Flux', Heat_Flux, 1))
+HeatBalanceEquation = equation.DivergenceEquation('Heat_Eqn', Heat_Flux, 1)
+HeatOutOfPlane = equation.PlaneFluxEquation('Plane_Heat_Flux', Heat_Flux, 1)
 
 ## this creates the Displacement, Stress, and Mechanical Equilibrium equations
-if config.dimension() == 2:
-    Displacement = advertise(field.TwoVectorField('Displacement'))
-elif config.dimension() == 3:
-    Displacement = advertise(field.ThreeVectorField('Displacement'))
-
+Displacement = field.TwoVectorField('Displacement')
 ## When we started using Eigen's matrix solvers, we learned that we
 ## had been constructing *negative* definite matrices for the force
 ## balance equation.  The previous CG solver worked with them, but
@@ -97,37 +47,29 @@ elif config.dimension() == 3:
 ## To make this sign change invisible to users, Stress is marked
 ## "negate" here via the second constructor argument.
 
-Stress = advertise(flux.SymmetricTensorFlux('Stress', True))
+Stress = flux.SymmetricTensorFlux('Stress', True)
 
-ForceBalanceEquation = advertise(equation.DivergenceEquation(
-    'Force_Balance',
-    Stress,
-    config.dimension()
-    ))
+ForceBalanceEquation = equation.DivergenceEquation(
+    'Force_Balance', Stress, config.dimension())
 
-if config.dimension() == 2:
-    ForcesOutOfPlane = \
-        advertise(equation.PlaneFluxEquation('Plane_Stress',
-                                             Stress, 3))
+ForcesOutOfPlane = equation.PlaneFluxEquation('Plane_Stress', Stress, 3)
 
 
 ## Define electrostatic potential
-Voltage = advertise(field.ScalarField('Voltage'))
+Voltage = field.ScalarField('Voltage')
 ## Define total polarization vector
-Total_Polarization = advertise(flux.VectorFlux('Total_Polarization'))
+Total_Polarization = flux.VectorFlux('Total_Polarization')
 ## Differential form of Coulomb's Law
-CoulombEquation = advertise(equation.DivergenceEquation(
-    'Coulomb_Eqn', Total_Polarization, 1))
-if config.dimension() == 2:
-    PolarizationOutOfPlane = advertise(equation.PlaneFluxEquation(
-            'InPlanePolarization', Total_Polarization, 1))
+CoulombEquation = equation.DivergenceEquation(
+    'Coulomb_Eqn', Total_Polarization, 1)
+PolarizationOutOfPlane = equation.PlaneFluxEquation(
+    'InPlanePolarization', Total_Polarization, 1)
 
 
 # Plasticity -- start with the yield equation.
 # TODO: Make hidden equations.
 
-# YieldEquation = advertise(equation.NaturalEquation(
-#     'Yield_Eqn',1))
+# YieldEquation = equation.NaturalEquation('Yield_Eqn',1)
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -150,38 +92,32 @@ v = fieldindex.VectorFieldIndex(1)
 fx = fieldindex.VectorFieldIndex(0)
 fy = fieldindex.VectorFieldIndex(1)
 
-if config.dimension() == 2:
-    # fx is conjugate to u and fy is conjugate to v for Elasticity
-    conjugate.conjugatePair("Elasticity", ForceBalanceEquation, [fx, fy],
-                        Displacement, [u, v]) 
+# fx is conjugate to u and fy is conjugate to v for Elasticity
+conjugate.conjugatePair("Elasticity", ForceBalanceEquation, [fx, fy],
+                    Displacement, [u, v]) 
 
-    ## out-of-plane compoments
+## out-of-plane compoments
 
-    ## The available out-of-plane components of stress are $\sigma_{zz},
-    ## \sigma_{zy}, \sigma_{zx}$, in *that* order, (0, 1, 2).  The
-    ## out-of-plane displacement is (\frac{\partial u}{\partial z},
-    ## \frac{\partial v}{partial z}, \frac{\partial w}{\partial z}.
+## The available out-of-plane components of stress are $\sigma_{zz},
+## \sigma_{zy}, \sigma_{zx}$, in *that* order, (0, 1, 2).  The
+## out-of-plane displacement is (\frac{\partial u}{\partial z},
+## \frac{\partial v}{partial z}, \frac{\partial w}{\partial z}.
 
-    u_xz = fieldindex.VectorFieldIndex(0)
-    u_yz = fieldindex.VectorFieldIndex(1)
-    u_zz = fieldindex.VectorFieldIndex(2)
-    sigma_xz = fieldindex.OutOfPlaneSymTensorIndex(2,0)
-    sigma_yz = fieldindex.OutOfPlaneSymTensorIndex(2,1)
-    sigma_zz = fieldindex.OutOfPlaneSymTensorIndex(2,2)
+u_xz = fieldindex.VectorFieldIndex(0)
+u_yz = fieldindex.VectorFieldIndex(1)
+u_zz = fieldindex.VectorFieldIndex(2)
+sigma_xz = fieldindex.OutOfPlaneSymTensorIndex(2,0)
+sigma_yz = fieldindex.OutOfPlaneSymTensorIndex(2,1)
+sigma_zz = fieldindex.OutOfPlaneSymTensorIndex(2,2)
 
-    ## \sigma_{zz} is conjugate to \frac{\partial w}{\partial z}
-    ## \sigma_{xz} is conjugate to \frac{\partial u}{\partial z}
-    ## \sigma_{yz} is conjugate to \frac{\partial v}{\partial z}
+## \sigma_{zz} is conjugate to \frac{\partial w}{\partial z}
+## \sigma_{xz} is conjugate to \frac{\partial u}{\partial z}
+## \sigma_{yz} is conjugate to \frac{\partial v}{\partial z}
 
-    conjugate.conjugatePair("Elasticity",
-                            ForcesOutOfPlane, [sigma_zz, sigma_xz, sigma_yz],
-                            Displacement.out_of_plane(), [u_zz, u_xz, u_yz])
+conjugate.conjugatePair("Elasticity",
+                        ForcesOutOfPlane, [sigma_zz, sigma_xz, sigma_yz],
+                        Displacement.out_of_plane(), [u_zz, u_xz, u_yz])
 
-elif config.dimension() == 3:
-    w = fieldindex.VectorFieldIndex(2)
-    fz = fieldindex.VectorFieldIndex(2)
-    conjugate.conjugatePair("Elasticity", ForceBalanceEquation, [fx, fy, fz],
-                            Displacement, [u, v, w])
 
 ###############################################################
 ##
@@ -194,16 +130,15 @@ DivJ = fieldindex.ScalarFieldIndex()
 
 conjugate.conjugatePair("ThermalConductivity", HeatBalanceEquation, DivJ,
                         Temperature, T)
- ## $\nabla \cdot \vec{J}$ is conjugate to T
+## $\nabla \cdot \vec{J}$ is conjugate to T
 
 ## out-of-plane components, $\frac{\partial T}{\partial z}$
-if config.dimension() == 2:
-    T_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
-    J_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+T_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+J_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
 
-    conjugate.conjugatePair("ThermalConductivity", HeatOutOfPlane, J_z,
-                            Temperature.out_of_plane(), T_z)
- ##  $J_{z}$ is conjugate to $\frac{\partial T}{\partial z}$
+conjugate.conjugatePair("ThermalConductivity", HeatOutOfPlane, J_z,
+                        Temperature.out_of_plane(), T_z)
+##  $J_{z}$ is conjugate to $\frac{\partial T}{\partial z}$
 
 ###############################################################
 ##
@@ -220,14 +155,13 @@ conjugate.conjugatePair("DielectricPermittivity",
  ## $\nabla \cdot \vec{D}$ is conjugate to D
 
 ## out-of-plane components, $\frac{\partial D}{\partial z}$
-if config.dimension() == 2:
-    phi_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
-    D_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+phi_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+D_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
 
-    conjugate.conjugatePair("DielectricPermittivity",
-                            PolarizationOutOfPlane, D_z,
-                            Voltage.out_of_plane(), phi_z)
- ##  $D_{z}$ is conjugate to $\frac{\partial phi}{\partial z}$
+conjugate.conjugatePair("DielectricPermittivity",
+                        PolarizationOutOfPlane, D_z,
+                        Voltage.out_of_plane(), phi_z)
+##  $D_{z}$ is conjugate to $\frac{\partial phi}{\partial z}$
 
 
 
@@ -238,13 +172,13 @@ if config.dimension() == 2:
 # xmldump generates the manual page for the built-in physics.
 
 def xmldump(phile):
-    print >> phile, "<section id='Section-Builtin'>"
-    print >> phile, " <title>Built-In Physics: Fields, Fluxes, Equations, and Properties</title>"
-    print >> phile, """<para>
+    print("<section id='Section-Builtin'>", file=phile)
+    print(" <title>Built-In Physics: Fields, Fluxes, Equations, and Properties</title>", file=phile)
+    print("""<para>
     &oof2; is designed to be extendible, so it is easy to add new
     &properties;, &fields;, &fluxes;, and &equations;.  That means
     that the following lists of <emphasis>built-in</emphasis>
-    objects may not be complete.  </para>"""
+    objects may not be complete.  </para>""", file=phile)
 
     # Property documentation.  propdict is a dictionary listing the
     # Properties that contribute to each Equation and Flux, or use
@@ -252,213 +186,213 @@ def xmldump(phile):
     propdict = propertyregistration.xmldocs(phile)
 
     # Fields
-    print >> phile, "<section id='Section-Fields'>"
-    print >> phile, "<title>Fields</title>"
-    print >> phile, """<para>
+    print("<section id='Section-Fields'>", file=phile)
+    print("<title>Fields</title>", file=phile)
+    print("""<para>
 
 This list contains all of the predefined &fields; in &oof2;.  Click on
 a &field; to see a brief description and a list of all &properties;
 that use the &field;.
 
-</para>"""
-    print >> phile, "<itemizedlist>"
+</para>""", file=phile)
+    print("<itemizedlist>", file=phile)
     # List of Fields.
     for fld in field.allCompoundFields.values():
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "<link linkend='Field-%s'><varname>%s</varname></link>"\
-            % (fld.name(), fld.name())
-        print >> phile, "</simpara></listitem>"
-    print >> phile, "</itemizedlist>"
+        print("<listitem><simpara>", file=phile)
+        print("<link linkend='Field-%s'><varname>%s</varname></link>"\
+            % (fld.name(), fld.name()), file=phile)
+        print("</simpara></listitem>", file=phile)
+    print("</itemizedlist>", file=phile)
     # Reference page for each Field.
-    for fld in field.allCompoundFields.values():
+    for fld in list(field.allCompoundFields.values()):
         name = fld.name()
         xmlmenudump.xmlIndexEntry(name, 'Field', 'Field-%s' % name)
-        print >> phile, "<refentry xreflabel='%s' id='Field-%s'>" % (name, name)
-        print >> phile, " <refnamediv>"
-        print >> phile, "  <refname>%s</refname>" % name
-        print >> phile, "  <refpurpose></refpurpose>"
-        print >> phile, " </refnamediv>"
-        print >> phile, " <refsect1>"
-        print >> phile, "  <title>Details</title>"
-        print >> phile, "  <itemizedlist>"
-        print >> phile, "   <listitem><simpara>"
-        print >> phile, "     Class: <classname>%s</classname>" % fld.__class__.__name__
-        print >> phile, "   </simpara></listitem>"
-        print >> phile, "   <listitem><simpara>"
-        print >> phile, "     Dimension: ", fld.ndof()
-        print >> phile, "   </simpara></listitem>"
+        print("<refentry xreflabel='%s' id='Field-%s'>" % (name, name), file=phile)
+        print(" <refnamediv>", file=phile)
+        print("  <refname>%s</refname>" % name, file=phile)
+        print("  <refpurpose></refpurpose>", file=phile)
+        print(" </refnamediv>", file=phile)
+        print(" <refsect1>", file=phile)
+        print("  <title>Details</title>", file=phile)
+        print("  <itemizedlist>", file=phile)
+        print("   <listitem><simpara>", file=phile)
+        print("     Class: <classname>%s</classname>" % fld.__class__.__name__, file=phile)
+        print("   </simpara></listitem>", file=phile)
+        print("   <listitem><simpara>", file=phile)
+        print("     Dimension: ", fld.ndof(), file=phile)
+        print("   </simpara></listitem>", file=phile)
 
         try:
             properties = propdict[fld]
         except KeyError:
             pass
         else:
-            print >> phile, "<listitem><para>"
-            print >> phile, "<varname>%s</varname> is used by the following &properties;:" % name
-            print >> phile, "<itemizedlist>"
+            print("<listitem><para>", file=phile)
+            print("<varname>%s</varname> is used by the following &properties;:" % name, file=phile)
+            print("<itemizedlist>", file=phile)
             for prop in properties:
-                print >> phile, "<listitem><simpara>"
-                print >> phile, "<xref linkend='Property-%s'/>" % (
-                    prop.name().replace(':', '-'))
-                print >> phile, "</simpara></listitem>"
-            print >> phile, "</itemizedlist>"
-            print >> phile, "</para></listitem>"
+                print("<listitem><simpara>", file=phile)
+                print("<xref linkend='Property-%s'/>" % (
+                    prop.name().replace(':', '-')), file=phile)
+                print("</simpara></listitem>", file=phile)
+            print("</itemizedlist>", file=phile)
+            print("</para></listitem>", file=phile)
             
-        print >> phile, "  </itemizedlist>"
-        print >> phile, "</refsect1> <!-- Details -->"
+        print("  </itemizedlist>", file=phile)
+        print("</refsect1> <!-- Details -->", file=phile)
 
-        print >> phile, "<refsect1>"
-        print >> phile, "<title>Description</title>"
+        print("<refsect1>", file=phile)
+        print("<title>Description</title>", file=phile)
         try:
-            src = file("DISCUSSIONS/engine/builtin/field-%s.xml" % name, "r")
+            src = open("DISCUSSIONS/engine/builtin/field-%s.xml" % name, "r")
         except IOError:
-            print >> phile, "<para>MISSING DISCUSSION for %s</para>" % name
+            print("<para>MISSING DISCUSSION for %s</para>" % name, file=phile)
         else:
-            print >> phile, src.read()
+            print(src.read(), file=phile)
             src.close()
-        print >> phile, "</refsect1>"
-        print >> phile, "</refentry> <!-- %s -->" % fld.name()
-    print >> phile, "</section> <!-- Fields -->"
+        print("</refsect1>", file=phile)
+        print("</refentry> <!-- %s -->" % fld.name(), file=phile)
+    print("</section> <!-- Fields -->", file=phile)
 
     # Fluxes
-    print >> phile, "<section id='Section-Fluxes'>"
-    print >> phile, "<title>Fluxes</title>"
-    print >> phile, """<para>
+    print("<section id='Section-Fluxes'>", file=phile)
+    print("<title>Fluxes</title>", file=phile)
+    print("""<para>
 This list contains all of the predefined &fluxes; in &oof2;.  Click on
 a &flux; to see a brief description and a list of all &properties;
 that contribute to the &flux;.
-</para>"""
+</para>""", file=phile)
     # List of Fluxes
-    print >> phile, "<itemizedlist>"
+    print("<itemizedlist>", file=phile)
     for flx in flux.allFluxes:
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "<link linkend='Flux-%s'><varname>%s</varname></link>"\
-            % (flx.name(), flx.name())
-        print >> phile, "</simpara></listitem>"
-    print >> phile, "</itemizedlist>"
+        print("<listitem><simpara>", file=phile)
+        print("<link linkend='Flux-%s'><varname>%s</varname></link>"\
+            % (flx.name(), flx.name()), file=phile)
+        print("</simpara></listitem>", file=phile)
+    print("</itemizedlist>", file=phile)
     # Reference page for each Flux
     for flx in flux.allFluxes:
         name = flx.name()
         xmlmenudump.xmlIndexEntry(name, 'Flux', 'Flux-%s' % name)
-        print >> phile, "<refentry xreflabel='%s' id='Flux-%s'>" % (name, name)
-        print >> phile, "<refnamediv>"
-        print >> phile, "<refname>%s</refname>" % name
-        print >> phile, "<refpurpose></refpurpose>"
-        print >> phile, "</refnamediv>"
-        print >> phile, "<refsect1>"
-        print >> phile, "<title>Details</title>"
-        print >> phile, "<itemizedlist>"
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "Class: <classname>%s</classname>" % (
-            flx.__class__.__name__[:-3]) # strip 'Ptr'
-        print >> phile, "</simpara></listitem>"
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "Dimension: ", flx.ndof()
-        print >> phile, "</simpara></listitem>"
+        print("<refentry xreflabel='%s' id='Flux-%s'>" % (name, name), file=phile)
+        print("<refnamediv>", file=phile)
+        print("<refname>%s</refname>" % name, file=phile)
+        print("<refpurpose></refpurpose>", file=phile)
+        print("</refnamediv>", file=phile)
+        print("<refsect1>", file=phile)
+        print("<title>Details</title>", file=phile)
+        print("<itemizedlist>", file=phile)
+        print("<listitem><simpara>", file=phile)
+        print("Class: <classname>%s</classname>" % (
+            flx.__class__.__name__), file=phile) 
+        print("</simpara></listitem>", file=phile)
+        print("<listitem><simpara>", file=phile)
+        print("Dimension: ", flx.ndof(), file=phile)
+        print("</simpara></listitem>", file=phile)
         try:
             properties = propdict[flx]
         except KeyError:
             pass
         else:
-            print >> phile, "<listitem><simpara>"
-            print >> phile, "The following &properties; contribute to <varname>%s</varname>:" % name
-            print >> phile, "<itemizedlist>"
+            print("<listitem><simpara>", file=phile)
+            print("The following &properties; contribute to <varname>%s</varname>:" % name, file=phile)
+            print("<itemizedlist>", file=phile)
             for prop in properties:
-                print >> phile, "<listitem><simpara>"
-                print >> phile, "<xref linkend='Property-%s'/>" % (
-                    prop.name().replace(':', '-'))
-                print >> phile, "</simpara></listitem>"
-            print >> phile, "</itemizedlist>"
-            print >> phile, "</simpara></listitem>"
+                print("<listitem><simpara>", file=phile)
+                print("<xref linkend='Property-%s'/>" % (
+                    prop.name().replace(':', '-')), file=phile)
+                print("</simpara></listitem>", file=phile)
+            print("</itemizedlist>", file=phile)
+            print("</simpara></listitem>", file=phile)
 
-        print >> phile, "</itemizedlist>"
-        print >> phile, "</refsect1> <!-- Details -->"
-        print >> phile, "<refsect1>"
-        print >> phile, "<title>Description</title>"
+        print("</itemizedlist>", file=phile)
+        print("</refsect1> <!-- Details -->", file=phile)
+        print("<refsect1>", file=phile)
+        print("<title>Description</title>", file=phile)
         try:
-            src = file('DISCUSSIONS/engine/builtin/flux-%s.xml' % name, "r")
+            src = open('DISCUSSIONS/engine/builtin/flux-%s.xml' % name, "r")
         except IOError:
-            print >> phile, "<para>MISSING DISSCUSSION FOR %s</para>" % name
+            print("<para>MISSING DISSCUSSION FOR %s</para>" % name, file=phile)
         else:
-            print >> phile, src.read()
+            print(src.read(), file=phile)
             src.close()
-        print >> phile, "</refsect1> <!--Description-->"
-        print >> phile, "</refentry>"
-    print >> phile, "</section> <!-- Fluxes -->"
+        print("</refsect1> <!--Description-->", file=phile)
+        print("</refentry>", file=phile)
+    print("</section> <!-- Fluxes -->", file=phile)
 
-    print >> phile, "<section id='Section-Equations'>"
-    print >> phile, "<title>Equations</title>"
-    print >> phile, """<para>
+    print("<section id='Section-Equations'>", file=phile)
+    print("<title>Equations</title>", file=phile)
+    print("""<para>
 This is a list of all of the predefined &equations; in &oof2;.  Click
 on an &equation; to see a description and a list of all &properties;
 that contribute to the &equation;.
-</para>"""
+</para>""", file=phile)
     # List of Equations
-    print >> phile, "<itemizedlist>"
-    for eqn in equation.allEquations:
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "<link linkend='Equation-%s'><varname>%s</varname></link>" % (eqn.name(), eqn.name())
-        print >> phile, "</simpara></listitem>"
-    print >> phile, "</itemizedlist>"
+    print("<itemizedlist>", file=phile)
+    for eqn in equation.allEquations():
+        print("<listitem><simpara>", file=phile)
+        print("<link linkend='Equation-%s'><varname>%s</varname></link>" % (eqn.name(), eqn.name()), file=phile)
+        print("</simpara></listitem>", file=phile)
+    print("</itemizedlist>", file=phile)
     # Reference page for each Equation
     links = {'PlaneFluxEquation' : 'Section-Concepts-Mesh-Equation-PlaneFlux',
              'DivergenceEquation' : 'Section-Concepts-Mesh-Equation-Divergence'}
-    for eqn in equation.allEquations:
+    for eqn in equation.allEquations():
         name = eqn.name()
         xmlmenudump.xmlIndexEntry(name, 'Equation', 'Equation-%s' % name)
-        classname = eqn.__class__.__name__[:-3] # strip off 'Ptr'
-        print >> phile, "<refentry xreflabel='%s' id='Equation-%s'>" % (
-            name, name)
-        print >> phile, "<refnamediv>"
-        print >> phile, "<refname>%s</refname>" % name
-        print >> phile, "<refpurpose></refpurpose>"
-        print >> phile, "</refnamediv>"
-        print >> phile, "<refsect1>"
-        print >> phile, "<title>Details</title>"
-        print >> phile, "<itemizedlist>"
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "Type: <link linkend='%s'><classname>%s</classname></link>" % (links[classname], classname)
-        print >> phile, "</simpara></listitem>"
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "Flux: <link linkend='Flux-%s'><varname>%s</varname></link>" % (eqn.fluxname(), eqn.fluxname())
-        print >> phile, "</simpara></listitem>"
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "Dimension:", eqn.ndof()
-        print >> phile, "</simpara></listitem>"
+        classname = eqn.__class__.__name__
+        print("<refentry xreflabel='%s' id='Equation-%s'>" % (
+            name, name), file=phile)
+        print("<refnamediv>", file=phile)
+        print("<refname>%s</refname>" % name, file=phile)
+        print("<refpurpose></refpurpose>", file=phile)
+        print("</refnamediv>", file=phile)
+        print("<refsect1>", file=phile)
+        print("<title>Details</title>", file=phile)
+        print("<itemizedlist>", file=phile)
+        print("<listitem><simpara>", file=phile)
+        print("Type: <link linkend='%s'><classname>%s</classname></link>" % (links[classname], classname), file=phile)
+        print("</simpara></listitem>", file=phile)
+        print("<listitem><simpara>", file=phile)
+        print("Flux: <link linkend='Flux-%s'><varname>%s</varname></link>" % (eqn.fluxname(), eqn.fluxname()), file=phile)
+        print("</simpara></listitem>", file=phile)
+        print("<listitem><simpara>", file=phile)
+        print("Dimension:", eqn.ndof(), file=phile)
+        print("</simpara></listitem>", file=phile)
         try:
             properties = propdict[eqn]
         except KeyError:
             pass
         else:
-            print >> phile, "<listitem><simpara>"
-            print >> phile, "The following &properties; make direct contributions to this &equation;:"
-            print >> phile, "<itemizedlist>"
+            print("<listitem><simpara>", file=phile)
+            print("The following &properties; make direct contributions to this &equation;:", file=phile)
+            print("<itemizedlist>", file=phile)
             for prop in properties:
-                print >> phile, "<listitem><simpara>"
-                print >> phile, "<xref linkend='Property-%s'/>" % (
-                    prop.name().replace(':','-'))
-                print >> phile, "</simpara></listitem>"
-            print >> phile, "</itemizedlist>"
-            print >> phile, "Other &properties; make indirect contributions to the &equation; through the <link linkend='Flux-%s'><classname>%s</classname></link>." % (eqn.fluxname(), eqn.fluxname())
-            print >> phile, "</simpara></listitem>"
-        print >> phile, "</itemizedlist>"
-        print >> phile, "</refsect1> <!-- Details -->"
-        print >> phile, "<refsect1>"
-        print >> phile, "<title>Description</title>"
+                print("<listitem><simpara>", file=phile)
+                print("<xref linkend='Property-%s'/>" % (
+                    prop.name().replace(':','-')), file=phile)
+                print("</simpara></listitem>", file=phile)
+            print("</itemizedlist>", file=phile)
+            print("Other &properties; make indirect contributions to the &equation; through the <link linkend='Flux-%s'><classname>%s</classname></link>." % (eqn.fluxname(), eqn.fluxname()), file=phile)
+            print("</simpara></listitem>", file=phile)
+        print("</itemizedlist>", file=phile)
+        print("</refsect1> <!-- Details -->", file=phile)
+        print("<refsect1>", file=phile)
+        print("<title>Description</title>", file=phile)
         try:
-            src = file("DISCUSSIONS/engine/builtin/eqn-%s.xml" % name, "r")
+            src = open("DISCUSSIONS/engine/builtin/eqn-%s.xml" % name, "r")
         except IOError:
-            print >> phile, "<para>MISSING DISCUSSION FOR %s</para>" % name
+            print("<para>MISSING DISCUSSION FOR %s</para>" % name, file=phile)
         else:
-            print >> phile, src.read()
+            print(src.read(), file=phile)
             src.close()
-        print >> phile, "</refsect1> <!-- Description-->"
+        print("</refsect1> <!-- Description-->", file=phile)
         
-        print >> phile, "</refentry>"
+        print("</refentry>", file=phile)
         
-    print >> phile, "</section> <!-- Equations -->"
+    print("</section> <!-- Equations -->", file=phile)
 
-    print >> phile, "</section> <!-- Built-In Physics -->"
+    print("</section> <!-- Built-In Physics -->", file=phile)
     
 
 xmlmenudump.addSection(xmldump, 5)

@@ -15,9 +15,11 @@
 # N-marked element : element with N marked segment(s)
 # odd-marked element : element with odd number(s) of marked segment(s)
 
+OBSOLETE
+
+from ooflib.SWIG.common import crandom
 from ooflib.common import debug
 from ooflib.common.IO import reporter
-import random
 
 def makeOddList(skeleton, markedEdges):
     # Make a list of odd-marked elements from skeleton.elements
@@ -171,7 +173,7 @@ def markExtras(skeleton, markedEdges):
     oddlist = makeOddList(skeleton, markedEdges)
     repeat = 0  # How many times it's repeating itself to get things resolved.
     
-    random.shuffle(oddlist)
+    crandom.shuffle(oddlist)
     while oddlist:
         element = oddlist[-1]
         ninfo = NeighborInfo(element, skeleton, markedEdges)

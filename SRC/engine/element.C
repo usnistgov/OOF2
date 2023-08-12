@@ -13,9 +13,9 @@
 #include "common/cleverptr.h"
 #include "common/doublevec.h"
 #include "common/ooferror.h"
+#include "common/oofswigruntime.h"
 #include "common/printvec.h"
 #include "common/pythonlock.h"
-#include "common/swiglib.h"
 #include "common/tostring.h"
 #include "common/trace.h"
 #include "engine/cnonlinearsolver.h"
@@ -37,10 +37,6 @@
 #include <string>
 #include <vector>
 
-#if DIM==3
-#include "vtk-5.0/vtkMath.h"
-#endif
-
 // ElementData constructors.
 ElementData::ElementData(const std::string &nm)
   : name_(nm)
@@ -61,23 +57,21 @@ Element::Element(PyObject *skelel, const MasterElement &me,
 //   for(int i=0; i<nn; i++) {
 //     nodelist[i] = (*nl)[i];
 //   }
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   if(skeleton_element!=Py_None)
     {
-      SWIG_GetPtrObj(skeleton_element, (void **)&cskeleton_element, "_CSkeletonElement_p");
+      SWIG_ConvertPtr(skeleton_element, (void**) &cskeleton_element,
+		      ((SwigPyObject*) skeleton_element)->ty, 0);
       Py_XINCREF(skeleton_element);
     }
-  releasePyLock(pystate);
 }
 
 Element::~Element() {
   for(unsigned int i=0; i<edgeset.size(); i++)
     delete edgeset[i];
-
   delete exterior_edges;
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_XDECREF(skeleton_element);
-  releasePyLock(pystate);
 }
 
 const std::string *Element::repr() const {
@@ -93,7 +87,7 @@ void Element::set_index(int i) {
   index_=i;
 }
 
-const int &Element::get_index() const {
+int Element::get_index() const {
   return index_;
 }
 
@@ -112,28 +106,22 @@ int Element::nexteriorfuncnodes() const { return master.nexteriorfuncnodes(); }
 // need to ask their SkeletonElements for the new Material.
 
 void Element::refreshMaterial(PyObject *skeletoncontext) {
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    // Call skeletonelement.material(skeletoncontext)
-    PyObject *pymat = PyObject_CallMethod(skeleton_element, (char*) "material",
-					  (char*) "O", skeletoncontext);
-    if(!pymat) {
-      pythonErrorRelay();
-    }
-    if(pymat == Py_None) {
-      matl = 0;
-    }
-    else {
-      // Extract the C++ Material* from the Python object.
-      SWIG_GetPtrObj(pymat, (void**)(&matl), "_Material_p");
-      Py_XDECREF(pymat);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  // Call skeletonelement.material(skeletoncontext)
+  PyObject *pymat = PyObject_CallMethod(skeleton_element, (char*) "material",
+					(char*) "O", skeletoncontext);
+  if(!pymat) {
+    pythonErrorRelay();
   }
-  catch (...) {
-    releasePyLock(pystate);
-    throw;
+  if(pymat == Py_None) {
+    matl = 0;
   }
-  releasePyLock(pystate);
+  else {
+    // Extract the C++ Material* from the Python object.
+    SWIG_ConvertPtr(pymat, (void**) &matl,
+		    ((SwigPyObject*) pymat)->ty, 0);
+    Py_XDECREF(pymat);
+  }
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -159,8 +147,7 @@ void Element::make_linear_system(const CSubProblem *const subproblem,
     // TODO OPT MAYBE: Use different integration orders for different
     // equations and properties.  That might make precomputations
     // difficult.
-    for(GaussPointIterator gpt = integrator(iorder);
-	!gpt.end();++gpt) {
+    for(GaussPoint gpt : integrator(iorder)) {
       mat->make_linear_system( subproblem, this, gpt, dofmap, time,
 			       nlsolver, system );
     }    
@@ -189,16 +176,14 @@ void InterfaceElement::make_linear_system(const CSubProblem *const subproblem,
 
     current_side = LEFT;
     // std::cerr << "InterfaceElement::make_linear_system, left-side gp loop." << std::endl;
-    for(GaussPointIterator gpt = integrator(iorder);
-	!gpt.end();++gpt) {
+    for(GaussPoint gpt : integrator(iorder)) {
       mat->make_linear_system( subproblem, this, gpt, dofmap, time,
 			       nlsolver, system );
     }    
 
     current_side = RIGHT;
     // std::cerr << "InterfaceElement::make_linear_system, right-side gp loop." << std::endl;
-    for(GaussPointIterator gpt = integrator(iorder);
-	!gpt.end();++gpt) {
+    for(GaussPoint gpt : integrator(iorder)) {
       mat->make_linear_system( subproblem, this, gpt, dofmap, time,
 			       nlsolver, system );
     }
@@ -317,7 +302,7 @@ ElementMapNodeIterator Element::mapnode_iterator() const {
 // ElementFuncNodeIterator or an InterfaceElementFuncNodeIterator with
 // appropriate sidedness, according to context.  This uglifies some of
 // the loops.  TODO LATER: Making a templated clever pointer container
-// with deleation-on-scope-exit semantics might help to re-prettify
+// with deletion-on-scope-exit semantics might help to re-prettify
 // them.
 ElementFuncNodeIterator *Element::funcnode_iterator() const {
   return new ElementFuncNodeIterator(*this);
@@ -332,11 +317,7 @@ ElementCornerNodeIterator Element::cornernode_iterator() const {
 // conversion between real coordinates and master element coordinates
 
 Coord Element::from_master(const MasterPosition &mc) const {
-#if DIM==2
   Coord p(0., 0.);
-#elif DIM==3
-  Coord p(0., 0., 0.);
-#endif
   for(ElementMapNodeIterator n=mapnode_iterator(); !n.end(); ++n) {
     p += n.shapefunction(mc) * n.node()->position();
   }
@@ -349,11 +330,7 @@ static const int maxiter = 100;	// should also be settable by user
 MasterCoord Element::to_master(const Coord &x) const {
   // Use Newton's method to solve from_master(xi) - x = 0 for xi.
   // xi -> xi + J^-1 * (x - from_master(xi))
-#if DIM == 2
   MasterCoord xi(0, 0);
-#elif DIM == 3
-  MasterCoord xi(0, 0, 0);
-#endif
   Coord dx = x - from_master(xi);
   int iter = 0;
   do {				// Newton iteration
@@ -362,20 +339,11 @@ MasterCoord Element::to_master(const Coord &x) const {
       for(SpaceIndex j=0; j<DIM; ++j)
 	jac[i][j] = jacobian(i, j, xi);
 
-#if DIM==2
     double dj = jac[0][0]*jac[1][1] - jac[0][1]*jac[1][0];
     dj = 1./dj;
     // xi --> xi + J^-1*(x - from_master(xi))
     xi(0) += ( jac[1][1]*dx(0) - jac[0][1]*dx(1))*dj;
     xi(1) += (-jac[1][0]*dx(0) + jac[0][0]*dx(1))*dj;
-#elif DIM==3
-    double invjac[DIM][DIM];
-    vtkMath::Invert3x3(jac,invjac);
-    // xi --> xi + J^-1*(x - from_master(xi))
-    xi(0) += ( invjac[0][0]*dx(0) + invjac[0][1]*dx(1) + invjac[0][2]*dx(2) );
-    xi(1) += ( invjac[1][0]*dx(0) + invjac[1][1]*dx(1) + invjac[1][2]*dx(2) );
-    xi(2) += ( invjac[2][0]*dx(0) + invjac[2][1]*dx(1) + invjac[2][2]*dx(2) );
-#endif // DIM==3
     dx = x - from_master(xi);	// reevaluate rhs
   } while((norm2(dx) > tolerancesq) && (++iter < maxiter));
   return xi;
@@ -395,9 +363,6 @@ const MasterCoord &Element::getMasterSCpoint(int i) const {
 double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const GaussPoint &g)
   const
 {
-
-#if DIM==2
-
   //         | J11  -J01 |
   //  J^-1 = |           | / |J|
   //         |-J10   J00 |
@@ -415,28 +380,11 @@ double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const GaussPoint &g)
   }
   return sum;
 
-#elif DIM==3
-
-  // typing out a closed form in code is messy for 3d
-  // TODO 3D: it might be worth it to type it out eventually as this is inefficient
-  double m[DIM][DIM], inverse[DIM][DIM];
-  int ii, jj;
-  for(ii=0; ii<DIM; ++ii) {
-    for(jj=0; jj<DIM; ++jj) {
-      m[ii][jj] = jacobian(ii,jj,g);
-    }
-  }
-  double dj = vtkMath::Determinant3x3(m);
-  vtkMath::Invert3x3(m,inverse);
-  return dj*inverse[i][j];
-
-#endif
 }
 
 double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const MasterCoord &mc)
   const
 {
-#if DIM==2
   double sum = 0;
   if(i == j) {
     int ii = 1 - i;
@@ -448,21 +396,6 @@ double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const MasterCoord &mc)
       sum -= (ni.node()->position())(i) * ni.masterderiv(j, mc);
   }
   return sum;
-
-#elif DIM==3
-
-  double m[DIM][DIM], inverse[DIM][DIM];
-  int ii, jj;
-  for(ii=0; ii<DIM; ++ii) {
-    for(jj=0; jj<DIM; ++jj) {
-      m[ii][jj] = jacobian(ii,jj,mc);
-    }
-  }
-  double dj = vtkMath::Determinant3x3(m);
-  vtkMath::Invert3x3(m,inverse);
-  return dj*inverse[i][j];
-
-#endif
 }
 
 
@@ -724,7 +657,7 @@ std::vector<int> Element::localDoFmap() const {
   for(std::vector<Field*>::size_type fi=0; fi< Field::all().size(); fi++) {
     Field &field = *Field::all()[fi];
     // Field components.
-    for(IteratorP fcomp=field.iterator(ALL_INDICES); !fcomp.end(); ++fcomp) {
+    for(IndexP fcomp : field.components(ALL_INDICES)) {
       // Nodes
       for(CleverPtr<ElementFuncNodeIterator> node(funcnode_iterator());
 	  !node->end(); ++*node)
@@ -751,7 +684,7 @@ void Element::localDoFs(const FEMesh *mesh, DoubleVec &doflist) const
   for(std::vector<Field*>::size_type fi=0; fi<Field::all().size(); fi++) {
     Field &field = *Field::all()[fi];
     // loop over field components
-    for(IteratorP fcomp=field.iterator(ALL_INDICES); !fcomp.end(); ++fcomp) {
+    for(IndexP fcomp : field.components(ALL_INDICES)) {
       // loop over nodes
       for(CleverPtr<ElementFuncNodeIterator> node(funcnode_iterator());
 	  !node->end(); ++*node)
@@ -789,7 +722,6 @@ BoundaryEdge *Element::newBndyEdge(const FuncNode *n0, const FuncNode *n1)
     throw ErrUserError("Element::newBndyEdge: Nodes not corners of element");
   }
   bool forward;
-#if DIM == 2
   ElementCornerNodeIterator beta = alpha + 1;
   if(*beta.node() == *n1) {
     // second node is in front of first
@@ -803,23 +735,14 @@ BoundaryEdge *Element::newBndyEdge(const FuncNode *n0, const FuncNode *n1)
     }
     forward = false;		// it was behind
   }
-#elif DIM == 3
-  ElementCornerNodeIterator beta = cornernode_iterator();
-  while((*beta.node() != *n1) && !beta.end()) {
-    ++beta;
-  }
-  if(beta.end()) {
-    throw ErrUserError("Element::newBndyEdge: Nodes not corners of element");
-  }
-#endif
 
   // find out which edge of the masterelement contains alpha and beta
   const MasterEdge *medge = masterelement().masteredge(alpha, beta);
 
   // put the endpoints and all intermediate FuncNodes in the BoundaryEdge
   BoundaryEdge *ed = new BoundaryEdge(this, medge->func_size());
-  ed->add_node(alpha.funcnode_iterator());
-#if DIM==2 // TODO 3D: will have to add edge nodes another way for 3D when we do quadratic elements
+  ed->add_node(alpha.efuncnode_iterator());
+
   int increment;
   if(forward)
     increment = 1;
@@ -831,27 +754,26 @@ BoundaryEdge *Element::newBndyEdge(const FuncNode *n0, const FuncNode *n1)
     ed->add_node(middle);
     middle += increment;
   }
-#endif
-  ed->add_node(beta.funcnode_iterator());
+  ed->add_node(beta.efuncnode_iterator());
 
   return ed;
 }
 
 BoundaryEdge *Element::getBndyEdge(const FuncNode *n0, const FuncNode *n1) {
-  BoundaryEdge *ed;
-
-//   Trace("Element::getBndyEdge " + tostring(*n0) + " " + tostring(*n1));
+  BoundaryEdge *ed = find_b_edge(n0, n1);
+//   Trace("Element::getBndyEdge " + to_string(*n0) + " " + to_string(*n1));
   // find_edge will correctly detect nullness of the edgelist.
-  if( (ed=find_b_edge(n0,n1))==0 ) {
-    ed=newBndyEdge(n0,n1);
-    if(ed!=0) {
+  if(ed == nullptr) {
+    ed = newBndyEdge(n0, n1);
+    if(ed != nullptr) {
       add_b_edge(ed);
       return ed;
     }
-    else
+    else {
+      // Probable cause is that the input nodes are not adjacent
+      // corners in the derived element type.
       throw ErrUserError("Element::getBndyEdge: Unable to make edge.");
-    // Probable cause is that the input nodes are not adjacent
-    // corners in the derived element type.
+    }
   }
   return ed; // Otherwise return the non-null result from find_edge.
 }
@@ -877,7 +799,6 @@ void Element::add_b_edge(BoundaryEdge *ed_in) {
   edgeset.push_back(ed_in);
 }
 
-#if DIM==2
 std::vector<Edge*> *Element::perimeter() const {
   std::vector<Edge*> *brim = new std::vector<Edge*>(master.nedges());
   for(ElementCornerNodeIterator it=cornernode_iterator(); !it.end(); ++it) {
@@ -886,21 +807,11 @@ std::vector<Edge*> *Element::perimeter() const {
   }
   return brim;
 }
-#endif
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-std::vector<GaussPoint*>* Element::integration_points(int order) const {
-  std::vector<GaussPoint*>* r = new std::vector<GaussPoint*>;
-  for(GaussPointIterator g = integrator(order); !g.end(); ++g) {
-    r->push_back(g.gausspointptr());
-  }
-  return r;
-}
-
-
-GaussPointIterator Element::integrator(int order) const {
-  return GaussPointIterator(this, (order < 0 ? 0 : order));
+GaussPointIntegrator Element::integrator(int order) const {
+  return GaussPointIntegrator(this, order);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -923,8 +834,8 @@ int Element::ndof() const {
 
 double Element::area() const {
   double a = 0.0;
-  for(GaussPointIterator gpt = integrator(0); !gpt.end(); ++gpt) {
-    a += gpt.gausspoint().weight();
+  for(GaussPoint gpt : integrator(0)) {
+    a += gpt.weight();
   }
   return a;
 }
@@ -935,7 +846,6 @@ MasterCoord Element::center() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-#if DIM==2
 bool Element::exterior(const MasterCoord &a, const MasterCoord &b) const {
   // Are points a and b on the same exterior edge?
   if(!exterior_edges)
@@ -968,7 +878,7 @@ void Element::dump_exterior() const {  // debugging
       i<exterior_edges->size(); i++)
     std::cerr << "   " << (*exterior_edges)[i] << std::endl;
 }
-#endif
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 std::ostream &operator<<(std::ostream &os, const Element &el) {
@@ -1008,20 +918,19 @@ InterfaceElement::InterfaceElement(PyObject *leftskelel,
     _interfacenames(*pInterfacenames),
     current_side(LEFT)
 {
-  PyGILState_STATE pystate = acquirePyLock();
   if(rightskelel!=Py_None)
     {
-      SWIG_GetPtrObj(rightskelel, (void **)&cskeleton_element2, "_CSkeletonElement_p");
+      PYTHON_THREAD_BEGIN_BLOCK;
+      SWIG_ConvertPtr(rightskelel, (void**) &cskeleton_element2,
+		      ((SwigPyObject*) rightskelel)->ty, 0);
       Py_XINCREF(skeleton_element2);
     }
-  releasePyLock(pystate);
 }
 
 InterfaceElement::~InterfaceElement()
 {
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_XDECREF(skeleton_element2);
-  releasePyLock(pystate);
 }
 
 
@@ -1041,41 +950,29 @@ std::vector<std::string>* InterfaceElement::namelist() const
   return ptmp;
 }
 
-//Called by FEMesh::refreshInterfaceMaterials, which is called by
-//mesh.py->refreshMaterials
+// Called by FEMesh::refreshInterfaceMaterials, which is called by
+// mesh.py->refreshMaterials
 void InterfaceElement::refreshInterfaceMaterial(PyObject *skeletoncontext)
 {
-  PyGILState_STATE pystate = acquirePyLock();
-  try
-    {
-      // Call skeleton.getInterfaceMaterial(skeleton_element, segmentordernumber)
-      PyObject *pymat;
-      pymat=PyObject_CallMethod(skeletoncontext, (char*) "getInterfaceMaterial",
-				(char*) "s", name().c_str());
-      if(!pymat)
-	{
-	  pythonErrorRelay();
-	}
-      if(pymat == Py_None)
-	{
-	  setMaterial(0);
-	}
-      else
-	{
-	  // Extract the C++ Material* from the Python object.
-	  const Material* tmp;
-	  //SWIG_GetPtrObj(pymat, (void**)(&matl), "_Material_p");
-	  SWIG_GetPtrObj(pymat, (void**)(&tmp), "_Material_p");
-	  setMaterial(tmp);
-	  Py_XDECREF(pymat);
-	}
-    }
-  catch (...)
-    {
-      releasePyLock(pystate);
-      throw;
-    }
-  releasePyLock(pystate);
+  PYTHON_THREAD_BEGIN_BLOCK;
+  // Call skeleton.getInterfaceMaterial(skeleton_element, segmentordernumber)
+  PyObject *pymat;
+  pymat = PyObject_CallMethod(skeletoncontext, "getInterfaceMaterial",
+			      "s", name().c_str());
+  if(!pymat) {
+    pythonErrorRelay();
+  }
+  if(pymat == Py_None) {
+    setMaterial(0);
+  }
+  else {
+    // Extract the C++ Material* from the Python object.
+    const Material* tmp;
+    //	  SWIG_GetPtrObj(pymat, (void**)(&tmp), "_Material_p");
+    SWIG_ConvertPtr(pymat, (void**) &tmp, ((SwigPyObject*) pymat)->ty, 0);
+    setMaterial(tmp);
+    Py_XDECREF(pymat);
+  }
 }
 
 bool InterfaceElement::isSubProblemInterfaceElement(const CSubProblem* pSubProblem) const
@@ -1170,4 +1067,4 @@ std::ostream &operator<<(std::ostream &os, const InterfaceElement &ed)
 //////////////////////////////////////////////////////////////////////////
 
 std::string CoordElementData::class_("CoordElementData");
-std::string CoordElementData::module_("ooflib.SWIG.engine.element");
+//std::string CoordElementData::module_("ooflib.SWIG.engine.element");

@@ -28,7 +28,12 @@ from ooflib.engine import skeletoncontext
 from ooflib.engine import skeletonelement
 from ooflib.engine import skeletonmodifier
 
+from ooflib.common.runtimeflags import digits
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+gi.require_version("Pango", "1.0")
 from gi.repository import Pango
 
 # Define some convenience variables.
@@ -51,11 +56,12 @@ class SkeletonPage(oofGUI.MainPage):
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.skelwidget = whowidget.WhoWidget(whoville.getClass('Skeleton'),
                                               scope=self)
-        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        label = Gtk.Label(label='Microstructure=', halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[0],
                              expand=True, fill=True, padding=0)
-        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label='Skeleton=',
+                          halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[1],
                              expand=True, fill=True, padding=0)
@@ -73,7 +79,7 @@ class SkeletonPage(oofGUI.MainPage):
             "Create a new skeleton from the current microstructure.")
         bbox.pack_start(self.newbutton, expand=True, fill=True, padding=0)
         
-        self.simplebutton = Gtk.Button('Simple...')
+        self.simplebutton = Gtk.Button(label='Simple...')
         gtklogger.setWidgetName(self.simplebutton, "Simple")
         gtklogger.connect(self.simplebutton, 'clicked', self.simple_skeleton_CB)
         self.simplebutton.set_tooltip_text(
@@ -83,7 +89,7 @@ class SkeletonPage(oofGUI.MainPage):
             " jagged, which may cause errors in finite element solutions.")
         bbox.pack_start(self.simplebutton, expand=True, fill=True, padding=0)
 
-        self.autobutton = Gtk.Button('Auto...')
+        self.autobutton = Gtk.Button(label='Auto...')
         gtklogger.setWidgetName(self.autobutton, 'Auto')
         gtklogger.connect(self.autobutton, 'clicked', self.autoCB)
         self.autobutton.set_tooltip_text(
@@ -383,10 +389,9 @@ class SkeletonPage(oofGUI.MainPage):
         self.sensitize()
             
     def deleteInfoBuffer(self):
-        buffer = self.skelinfo.get_buffer()
-        buffer.delete(buffer.get_start_iter(), buffer.get_end_iter())
-        buffer.insert(buffer.get_end_iter(),
-                      "No skeleton selected.\n")
+        bfr = self.skelinfo.get_buffer()
+        bfr.delete(bfr.get_start_iter(), bfr.get_end_iter())
+        bfr.insert(bfr.get_end_iter(), "No skeleton selected.\n")
 
     def writeInfoBuffer(self, nNodes, nElements, illegalcount, shapecounts,
                         homogIndex, left_right_periodicity,
@@ -394,49 +399,43 @@ class SkeletonPage(oofGUI.MainPage):
         # Called by update() to actually fill in the data on the
         # main thread.
         debug.mainthreadTest()
-        buffer = self.skelinfo.get_buffer()
-        buffer.delete(buffer.get_start_iter(), buffer.get_end_iter())
-        if illegalcount > 0 :
-            buffer.insert_with_tags(buffer.get_end_iter(),
-                                    "WARNING: %d ILLEGAL ELEMENT%s.\n" %
-                                    (illegalcount, "S"*(illegalcount!=1)),
-                                    self.boldTag)
-            buffer.insert(buffer.get_end_iter(),
-                          "Element data is unreliable.\n")
+        bfr = self.skelinfo.get_buffer()
+        bfr.delete(bfr.get_start_iter(), bfr.get_end_iter())
+        if illegalcount:
+            bfr.insert_with_tags(bfr.get_end_iter(),
+                                 "WARNING: %d ILLEGAL ELEMENT%s.\n" %
+                                 (illegalcount, "S"*(illegalcount!=1)),
+                                 self.boldTag)
+            bfr.insert(bfr.get_end_iter(),
+                       "Element data is unreliable.\n")
 
-            buffer.insert(buffer.get_end_iter(),
-                          "Remove %s before proceeding.\n\n"
-                          % itORthem[illegalcount!=1])
+            bfr.insert(bfr.get_end_iter(),
+                       "Remove %s before proceeding.\n\n"
+                       % itORthem[illegalcount!=1])
 
-        buffer.insert(buffer.get_end_iter(), "No. of Nodes: %d\n" % nNodes)
-        buffer.insert(buffer.get_end_iter(),
-                      "No. of Elements: %d\n" % nElements)
+        bfr.insert(bfr.get_end_iter(), f"No. of Nodes: {nNodes}\n") 
+        bfr.insert(bfr.get_end_iter(), f"No. of Elements: {nElements}\n")
 
         for name in skeletonelement.ElementShapeType.names:
-            buffer.insert(buffer.get_end_iter(),
-                          "No. of %ss: %d\n" % (name, shapecounts[name]))
+            bfr.insert(bfr.get_end_iter(),
+                       "No. of %ss: %d\n" % (name, shapecounts[name]))
 
-        buffer.insert(buffer.get_end_iter(),
-                          "Left-Right Periodicity: %s\n" % left_right_periodicity)
-        buffer.insert(buffer.get_end_iter(),
-                          "Top-Bottom Periodicity: %s\n" % top_bottom_periodicity)
-        if config.dimension() == 3:
-            buffer.insert(buffer.get_end_iter(),
-                          "Front-Back Periodicity: %s\n" % front_back_periodicity)
+        bfr.insert(bfr.get_end_iter(),
+                   "Left-Right Periodicity: %s\n" % left_right_periodicity)
+        bfr.insert(bfr.get_end_iter(),
+                   "Top-Bottom Periodicity: %s\n" % top_bottom_periodicity)
             
 
         if homogIndex is not None:
-            buffer.insert(buffer.get_end_iter(),
-                          "Homogeneity Index: %s\n" % homogIndex)
+            bfr.insert(bfr.get_end_iter(),
+                       f"Homogeneity Index: {homogIndex:.{digits()}g}\n")
         else:
-            buffer.insert(buffer.get_end_iter(),
-                          "Homogeneity Index: ????\n")
+            bfr.insert(bfr.get_end_iter(), "Homogeneity Index: ????\n")
 
         gtklogger.checkpoint("skeleton page info updated")
-
+        
     def new_skeleton_CB(self, gtkobj): # gtk callback for "New..." button
-        paramset = filter(lambda x: x.name!='microstructure',
-                          skeletonmenu.New.params)
+        paramset = [x for x in skeletonmenu.New.params if x.name!='microstructure']
         if parameterwidgets.getParameters(title='New skeleton',
                                           parentwindow=self.gtk.get_toplevel(),
                                           *paramset):
@@ -444,16 +443,14 @@ class SkeletonPage(oofGUI.MainPage):
                 microstructure=self.currentMSName())
 
     def simple_skeleton_CB(self, gtkobj): # gtk callback for "Simple..." button
-        paramset = filter(lambda x: x.name!='microstructure',
-                          skeletonmenu.Simple.params)
+        paramset = [x for x in skeletonmenu.Simple.params if x.name!='microstructure']
         if parameterwidgets.getParameters(title='Simple skeleton',
                                           parentwindow=self.gtk.get_toplevel(),
                                           *paramset):
             skeletonmenu.Simple.callWithDefaults(
                 microstructure=self.currentMSName())
     def autoCB(self, gtkobj):           # gtk callback for "Auto..." button
-        paramset = filter(lambda x: x.name!='microstructure',
-                          skeletonmenu.Auto.params)
+        paramset = [x for x in skeletonmenu.Auto.params if x.name!='microstructure']
         if parameterwidgets.getParameters(title='Automatic skeleton',
                                           parentwindow=self.gtk.get_toplevel(),
                                           *paramset):
@@ -581,7 +578,7 @@ class SkeletonPage(oofGUI.MainPage):
     def save_skeletonCB(self, button):
         menuitem = mainmenu.OOF.File.Save.Skeleton
         skelname = self.skelwidget.get_value()
-        params = filter(lambda x: x.name!="skeleton", menuitem.params)
+        params = [x for x in menuitem.params if x.name!="skeleton"]
         if parameterwidgets.getParameters(parentwindow=self.gtk.get_toplevel(),
                                           title='Save Skeleton "%s"' % skelname,
                                           *params):

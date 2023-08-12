@@ -15,7 +15,7 @@
 
 import unittest, os
 
-from UTILS import file_utils
+from .UTILS import file_utils
 reference_file = file_utils.reference_file
 # Flag that says whether to generate missing reference data files.
 # Should be false unless you really know what you're doing.
@@ -102,7 +102,7 @@ class AnisoTest(unittest.TestCase):
             endtime=0.0)
         OOF.File.Save.Mesh(filename='mesh.dat', mode='w', format='ascii',
                            mesh='microstructure:skeleton:mesh')
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
             'mesh.dat',
             os.path.join('aniso_data', 'elasticity1.dat'),
             tolerance))
@@ -115,7 +115,7 @@ class AnisoTest(unittest.TestCase):
             endtime=0.0)
         OOF.File.Save.Mesh(filename='mesh.dat', mode='w', format='ascii',
                            mesh='microstructure:skeleton:mesh')
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
             'mesh.dat',
             os.path.join('aniso_data', 'elasticity2.dat'),
             tolerance))
@@ -179,7 +179,7 @@ class AnisoTest(unittest.TestCase):
             endtime=0.0)
         OOF.File.Save.Mesh(filename='mesh1.dat', mode='w', format='ascii',
                            mesh='microstructure:skeleton:mesh')
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
             'mesh1.dat',
             os.path.join('aniso_data', 'stressfreestrain1.dat'),
             tolerance))
@@ -190,7 +190,7 @@ class AnisoTest(unittest.TestCase):
             endtime=0.0)
         OOF.File.Save.Mesh(filename='mesh2.dat', mode='w', format='ascii',
                            mesh='microstructure:skeleton:mesh')
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
             'mesh2.dat',
             os.path.join('aniso_data', 'stressfreestrain2.dat'),
             tolerance))
@@ -251,7 +251,7 @@ class AnisoTest(unittest.TestCase):
             endtime=0.0)
         OOF.File.Save.Mesh(filename='mesh.dat', mode='w', format='ascii',
                            mesh='microstructure:skeleton:mesh')
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
             'mesh.dat',
             os.path.join('aniso_data', 'heatcond1.dat'),
             tolerance))
@@ -263,7 +263,7 @@ class AnisoTest(unittest.TestCase):
             endtime=0.0)
         OOF.File.Save.Mesh(filename='mesh.dat', mode='w', format='ascii',
                            mesh='microstructure:skeleton:mesh')
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
             'mesh.dat',
             os.path.join('aniso_data', 'heatcond2.dat'),
             tolerance))

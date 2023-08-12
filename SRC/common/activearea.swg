@@ -12,31 +12,29 @@
 #ifndef ACTIVEAREA_SWG
 #define ACTIVEAREA_SWG
 
-%module activearea
+%module(package="ooflib.SWIG.common") activearea
+
 %include "common/typemaps.swg"
+%import "common/cmicrostructure.swg"
+%import "common/coord.swg"
+%import "common/cpixelselection.swg"
+%import "common/pixelattribute.swg"
 
 %{
-#include <oofconfig.h>
 #include "common/activearea.h"
 #include "common/ooferror.h"
 %}
-%pragma(python) include="activearea.spy"
-%extern "common/cmicrostructure.swg"
-%extern "common/cpixelselection.swg"
-%extern "common/pixelattribute.swg"
-   
-%pragma(python) code="from ooflib.SWIG.common.cpixelselection import CPixelSelectionPtr"
-%pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
 
 class ActiveArea : public CPixelSelection {
 public:
   ActiveArea(ICoord *iPoint, Coord *Point, CMicrostructure*);
   ~ActiveArea();
-  %new ActiveArea *clone();
+  %newobject clone;
+  ActiveArea *clone();
   bool isActive(ICoord *iPoint);
   void override(bool);
   bool getOverride();
-  void add_pixels(ICoordVec *iPointList);
+  void add_pixels(std::vector<ICoord> *iPointList);
 };
 
 class ActiveAreasAttributeRegistration : public PxlAttributeRegistration {
@@ -50,9 +48,12 @@ class ActiveAreaList {
 public:
   void add(char *);
   void remove(char *);
-  %new StringVec *getNames() const;
+  %newobject getNames;
+  std::vector<std::string> *getNames() const;
 };
 
 ActiveAreaList *areaListFromPixel(CMicrostructure*, ICoord *iPoint);
+
+%pythoncode "common/activearea.spy"
 
 #endif // ACTIVEAREA_SWG

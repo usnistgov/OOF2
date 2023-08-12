@@ -18,7 +18,7 @@ checkpoint page installed Introduction
 findWidget('OOF2').resize(782, 511)
 checkpoint OOF.File.LoadStartUp.Script
 checkpoint toplevel widget mapped Error
-assert generics.errorMsg("NameError: global name 'y' is not defined\n\nErrUserError: Script 'TEST_DATA/pyerror.py' raised a NameError exception")
+assert generics.errorMsg("NameError: name 'y' is not defined\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/pyerror.py raised a NameError exception")
 
 findWidget('Error').resize(266, 198)
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
@@ -54,7 +54,7 @@ findWidget('Dialog-Script:filename').set_text('TEST_DATA/pyerror.py')
 findWidget('Dialog-Script:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Load.Script
 checkpoint toplevel widget mapped Error
-assert generics.errorMsg("NameError: global name 'y' is not defined\n\nErrUserError: Script 'TEST_DATA/pyerror.py' raised a NameError exception")
+assert generics.errorMsg("NameError: name 'y' is not defined\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/pyerror.py raised a NameError exception")
 findWidget('Error').resize(266, 198)
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
 assert utils.OOFeval('teststring') == 'ok'

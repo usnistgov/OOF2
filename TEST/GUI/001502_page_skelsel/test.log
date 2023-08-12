@@ -145,7 +145,7 @@ event(Gdk.EventType.BUTTON_PRESS,x= 7.1000000000000e+01,y= 8.0000000000000e+00,b
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Rectangle']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.4000000000000e+01)
 findGfxWindow('Graphics_1').simulateMouse('down', 0.052967693, 0.9417731, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 0.052967693, 0.93826697, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 0.049461558, 0.92774856, 1, False, False)
@@ -451,8 +451,8 @@ checkpoint Graphics_1 Element sensitized
 checkpoint Graphics_1 Element sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.New
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
 
 # Select a bunch of pixels
 event(Gdk.EventType.BUTTON_PRESS,x= 8.8000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
@@ -466,7 +466,7 @@ event(Gdk.EventType.BUTTON_PRESS,x= 7.9000000000000e+01,y= 1.8000000000000e+01,b
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Circle']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.0000000000000e+01)
 findGfxWindow('Graphics_1').simulateMouse('down', 0.19671926, 0.79802154, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 0.20022539, 0.79802154, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 0.20373153, 0.79802154, 1, False, False)
@@ -784,7 +784,7 @@ checkpoint Graphics_1 Element sensitized
 checkpoint selection info updated Element
 deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(265)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 3.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 3.0000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Select:Node').clicked()
 checkpoint Graphics_1 Node sensitized
 checkpoint selection info updated Node
@@ -1202,8 +1202,8 @@ checkpoint Solver page sensitized
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Skeleton.Delete
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 event(Gdk.EventType.BUTTON_PRESS,x= 9.0000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton Selection']).activate() # MenuItemLogger
@@ -1251,8 +1251,8 @@ checkpoint Solver page sensitized
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Skeleton.Delete
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 event(Gdk.EventType.BUTTON_PRESS,x= 4.9000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton Selection']).activate() # MenuItemLogger

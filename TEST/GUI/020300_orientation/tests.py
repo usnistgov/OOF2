@@ -15,5 +15,5 @@ def checkOrientation(orClass, **kwargs):
     try:
         return checkOrientationWidget(widgetbase, orClass, **kwargs)
     except AttributeError:
-        print gtklogger.findAllWidgets(widgetbase)
+        print(gtklogger.findAllWidgets(widgetbase))
         raise

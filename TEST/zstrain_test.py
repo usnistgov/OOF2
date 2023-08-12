@@ -9,8 +9,8 @@
 # oof_manager@nist.gov. 
 
 import unittest, os
-import memorycheck
-from UTILS import file_utils
+from . import memorycheck
+from .UTILS import file_utils
 #file_utils.generate = True
 
 
@@ -108,7 +108,7 @@ class OOF_ZStrain(unittest.TestCase):
             domain=SinglePoint(point=Point(0.1,0.1)),
             sampling=DiscretePointSampleSet(show_x=True,show_y=True),
             destination=OutputStream(filename='artest.dat',mode='a'))
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
             'artest.dat',
             os.path.join('mesh_data','archeck.dat'),
             1.e-8))

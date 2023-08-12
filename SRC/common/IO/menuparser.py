@@ -33,7 +33,6 @@ from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common import utils
 import os
-import stat
 import sys
 
 class MenuParser:
@@ -61,7 +60,7 @@ class MenuParser:
             return 0
         args, kwargs = self.mode.getArguments(menuitem)
         if args:
-            raise ooferror.ErrDataFileError(
+            raise ooferror.PyErrDataFileError(
                 "All arguments to menu commands must be keyword arguments!")
         menuitem.parser = self
         menuitem(**kwargs)
@@ -86,25 +85,49 @@ class InputSource:
     def getBytes(self, n):
         pass
 
+## TODO PYTHON3? There maybe should be separate FileInput classes for
+## ascii and binary files.  The binary ones should be opened in 'rb'
+## mode and the ascii ones in 'r' mode.  The binary FileInput will
+## have getBytes() and the ascii one will have getLine().  Maybe.  One
+## problem with the current setup is that the lines retrieved by
+## file.readline() are bytes objects, not strings, if the file was
+## opened with the 'b' option.  When they're echoed to the screen in
+## debug mode they look ugly, with an extra 'b' and quotation marks.
+## The trouble with doing this is that we don't know whether a file
+## should be binary or not until after the first line is read.
+
 class FileInput(InputSource):
     def __init__(self, filename):
         self.filename = filename
         self.file = open(filename, 'rb')
         self.bytecount = 0
-        self.totalbytes = os.stat(filename)[stat.ST_SIZE]
+        self.totalbytes = os.stat(filename).st_size
     def getLine(self):
         line = self.file.readline()
         self.bytecount += len(line)
-        debug.msg("%s: %s" %(self.filename, line[:min(len(line)-1, 100)]))
+        if debug.debug():
+            displaylen = 80     # chars to display per line
+            if isinstance(line, bytes):
+                dline = line.decode() # for display in debug mode
+            if len(dline) <= displaylen:
+                shortline = dline
+            else:
+                taillen = 5     # chars to show at end of line
+                dots = "..."
+                j = displaylen - taillen - len(dots)
+                shortline = dline[0:j] + dots + dline[-taillen-1:-1]
+            debug.msg(f"{self.filename}: {shortline}")
         return line
     def getBytes(self, n):
         b = self.file.read(n)
         self.bytecount += len(b)
         if len(b) != n:
-            raise ooferror.ErrDataFileError(
+            raise ooferror.PyErrDataFileError(
                 "Premature EOF at byte %d! (%d missing)" %
                 (self.bytecount, n-len(b)))
         return b
+    def close(self):
+        self.file.close()
 
 class ProgFileInput(FileInput):
     ## FileInput with a ProgressBar
@@ -119,14 +142,14 @@ class ProgFileInput(FileInput):
     def getLine(self):
         if self.progress.stopped():
             self._error = True
-            raise ooferror.ErrDataFileError("Interrupted!")
+            raise ooferror.PyErrDataFileError("Interrupted!")
         line = FileInput.getLine(self)
         self.reportProgress()
         return line
     def getBytes(self, n):
         if self.progress.stopped():
             self._error = True
-            raise ooferror.ErrDataFileError("Interrupted!")
+            raise ooferror.PyErrDataFileError("Interrupted!")
         b = FileInput.getBytes(self, n)
         self.reportProgress()
         return b
@@ -156,8 +179,9 @@ class MenuParserMode:
     def __init__(self, masterparser):
         pass
     def getMenuItem(self, menu):
-        raise "Somebody forgot to define %s.getMenuItem()" \
-              % self.__class__.__name__
+        raise PyErrUserError(
+            f"Somebody forgot to define {self.__class__.__name__}.getMenuItem()"
+        )
     def getArguments(self, menuitem):
         # Returns a tuple containing the name of the argument and its
         # value.  It doesn't return the *string* containing the value,
@@ -190,11 +214,11 @@ ENDINDEX = ']'
 def legalname(name):
     a = name[0]
     if not (a.isalpha() or a == "_"):
-        return 0
-    for x in a[1:]:
-        if not (x.isalnum() or x == "_"):
-            return 0
-    return 1
+        return False
+    for c in name[1:]:
+        if not (c.isalnum() or c == "_"):
+            return False
+    return True
 
 def string2number(strng):
     try:
@@ -226,7 +250,7 @@ class AsciiMenuParser(MenuParserMode):
         self.storedTokens = []
 
     def fetchLine(self):
-        self.buffer = self.masterparser.getLine()
+        self.buffer = self.masterparser.getLine().decode("UTF-8")
         self.bufpos = 0
         self.buflen = len(self.buffer)
 
@@ -243,7 +267,7 @@ class AsciiMenuParser(MenuParserMode):
         self.storedTokens.append(token)
 
     def skipSpace(self):
-        while  self.bufpos < self.buflen and self.buffer[self.bufpos].isspace():
+        while self.bufpos < self.buflen and self.buffer[self.bufpos].isspace():
             self.bufpos += 1
 
     def clearBuffer(self):
@@ -296,7 +320,7 @@ class AsciiMenuParser(MenuParserMode):
     def processQuote(self):
         quotechar = self.buffer[self.bufpos]
         quote = ""
-        while 1:
+        while True:
             # look for closing quote
             end = self.bufpos + 1
             while end < self.buflen and self.buffer[end] != quotechar:
@@ -305,7 +329,8 @@ class AsciiMenuParser(MenuParserMode):
                 quote += self.buffer[self.bufpos:end]
                 self.fetchLine() # look at next line
                 if not self.buffer:
-                    raise ooferror.ErrDataFileError("unmatched quotation marks")
+                    raise ooferror.PyErrDataFileError(
+                        "unmatched quotation marks")
             else:                       # found closing quote
                 quote += self.buffer[self.bufpos:end+1]
                 self.bufpos = end + 1
@@ -335,7 +360,7 @@ class AsciiMenuParser(MenuParserMode):
             return None                 # EOF
         if self.state is AsciiMenuParser.state_idle:
             if not legalname(token):
-                raise ooferror.ErrDataFileError("Illegal command: '%s'" % token)
+                raise ooferror.PyErrDataFileError(f"Illegal command: '{token}'")
             self.state = AsciiMenuParser.state_cmd
             return token
         if self.state is AsciiMenuParser.state_cmd:
@@ -353,10 +378,10 @@ class AsciiMenuParser(MenuParserMode):
         kwargs = {}
         if self.state is not AsciiMenuParser.state_arg:
             return args, kwargs
-        while 1:
+        while True:
             token0 = self.nextToken()
             if token0 is None:
-                raise ooferror.ErrDataFileError("Premature EOF in data file?")
+                raise ooferror.PyErrDataFileError("Premature EOF in data file?")
             if token0 in endSequence:
                 # Does no checking for matching () or [] pairs!
                 self.parendepth -= 1
@@ -371,8 +396,8 @@ class AsciiMenuParser(MenuParserMode):
                 args.append(self.getArgumentValue(token0))
             else:                       # key word argument
                 if not legalname(token0):
-                    raise ooferror.ErrDataFileError(
-                        "Illegal argument name: '%s'" % token0)
+                    raise ooferror.PyErrDataFileError(
+                        f"Illegal argument name: '{token0}'")
                 token2 = self.nextToken()
                 kwargs[token0] = self.getArgumentValue(token2)
             
@@ -406,8 +431,8 @@ class AsciiMenuParser(MenuParserMode):
         try:
             argval = utils.OOFeval_r(token)
         except KeyError:
-            raise ooferror.ErrDataFileError("Incomprehensible argument: %s"
-                                            % token)
+            raise ooferror.PyErrDataFileError(
+                f"Incomprehensible argument: {token}")
 
         # If it's a function, the next token is an open paren.
         nexttoken = self.nextToken()

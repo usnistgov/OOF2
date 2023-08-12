@@ -19,6 +19,7 @@
 class ArithmeticOutputValue;
 class EdgeSet;
 class FEMesh;
+class Field;
 class Flux;
 
 ArithmeticOutputValue integrateFlux(const FEMesh*, const Flux*, const EdgeSet*);

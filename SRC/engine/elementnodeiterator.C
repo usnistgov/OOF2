@@ -323,7 +323,7 @@ ElementCornerNodeIterator ElementCornerNodeIterator::operator+(int n) const {
   return result;
 }
 
-ElementFuncNodeIterator ElementCornerNodeIterator::funcnode_iterator() const {
+ElementFuncNodeIterator ElementCornerNodeIterator::efuncnode_iterator() const {
   // create an ElementFuncNodeIterator that starts at the current node
   ElementFuncNodeIterator fni(element_);
   const ProtoNode *pnode = protonode();
@@ -349,17 +349,17 @@ ElementExteriorNodeIterator ElementCornerNodeIterator::exteriornode_iterator()
   return eni;
 }
 
-ElementMapNodeIterator ElementCornerNodeIterator::mapnode_iterator() const {
-  ElementMapNodeIterator mni(element_);
-  const ProtoNode *pnode = protonode();
-  while(mni.protonode() != pnode && !mni.end())
-    ++mni;
-  if(mni.end())
-    throw ErrProgrammingError("Unable to convert a cornernode to a map node",
-			      __FILE__, __LINE__);
-  mni.set_start();
-  return mni;
-}
+// ElementMapNodeIterator ElementCornerNodeIterator::mapnode_iterator() const {
+//   ElementMapNodeIterator mni(element_);
+//   const ProtoNode *pnode = protonode();
+//   while(mni.protonode() != pnode && !mni.end())
+//     ++mni;
+//   if(mni.end())
+//     throw ErrProgrammingError("Unable to convert a cornernode to a map node",
+// 			      __FILE__, __LINE__);
+//   mni.set_start();
+//   return mni;
+// }
 
 FuncNode *ElementCornerNodeIterator::funcnode() const {
   return dynamic_cast<FuncNode*>(node());

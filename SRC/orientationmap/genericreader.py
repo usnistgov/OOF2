@@ -23,21 +23,19 @@ from ooflib.engine.IO import orientationmatrix
 import math
 import os.path
 
-class DataPoint(object):
+class DataPoint:
     def __init__(self, position, angletuple, groups):
         self.position = position
         self.angletuple = angletuple
         self.groups = groups    # list of groups to which this pixel belongs
     def __repr__(self):
         return "(%s, %s)" % (self.position[0], self.position[1])
-    def __cmp__(self, other):
-        sy = self.position[1]
-        oy = other.position[1]
-        if sy < oy:
-            return -1
-        if sy > oy:
-            return 1
-        return cmp(self.position[0], other.position[0])
+    def __lt__(self, other):
+        if not isinstance(other, DataPoint):
+            return NotImplemented
+        return (self.position[1] < other.position[1]
+                or (self.position[1] == other.position[1] and
+                    self.position[0] < other.position[0]))
 
 ## getrows() splits a list of DataPoints into lists in which x is
 ## monotonically increasing.
@@ -87,7 +85,7 @@ class GenericReader(orientmapdata.OrientMapReader):
         self.groupmembers = {}  # lists of coords for each group
         orientmapdata.OrientMapReader.__init__(self)
     def read(self, filename):
-        datafile = file(filename, "r")
+        datafile = open(filename, "r")
         prog = progress.getProgress(os.path.basename(filename),
                                     progress.DEFINITE)
         try:
@@ -120,7 +118,7 @@ class GenericReader(orientmapdata.OrientMapReader):
         for row in rows:
             count += 1
             if len(row) != nx:
-                raise ooferror.ErrUserError(
+                raise ooferror.PyErrUserError(
                     "Orientation map data appears to be incomplete.\n"
                     "len(row 0)=%d len(row %d)=%d" % (nx, count, len(row)))
             for point in row:
@@ -200,7 +198,6 @@ class GenericReader(orientmapdata.OrientMapReader):
         nAngleComps = len(reg.params)
 
         xycol0 = self.xy_column - 1   # UI uses fortran indexing
-        xycol1 = xycol0 + 2           # TODO: Are there 3D EBSD files?
         acol0 = self.angle_column - 1 # UI uses fortran indexing
         acol1 = acol0 + nAngleComps
 
@@ -209,7 +206,7 @@ class GenericReader(orientmapdata.OrientMapReader):
         # information will be used to skip the header lines at the top
         # of the file.
 
-        for i in xrange(len(lines)-1, -1, -1):
+        for i in range(len(lines)-1, -1, -1):
             line = lines[i].strip()
             if line and line[0] != self.comment_character:
                 words = self.separator.split(line)
@@ -219,16 +216,16 @@ class GenericReader(orientmapdata.OrientMapReader):
                 
         # Loop over the lines in reverse, and stop at the first one
         # that can't be handled.  That will be the last header line.
-        for i in xrange(lastline, -1, -1):
+        for i in range(lastline, -1, -1):
             line = lines[i]
             if line[0] != self.comment_character:  # Skip comments
                 cols = self.separator.split(line)
                 if len(cols) != nwords:
                     break
                 try:
-                    angletuple = map(float, cols[acol0:acol1])
+                    angletuple = tuple(map(float, cols[acol0:acol1]))
                     position = primitives.Point(
-                        *map(float, cols[xycol0:xycol1]))
+                        float(cols[xycol0]), float(cols[xycol0+1]))
                 except ValueError: # Ran into the header.  Quit reading.
                     break
                 grps = [template.replace('%s', cols[gcol-1])
@@ -247,8 +244,7 @@ class GenericReader(orientmapdata.OrientMapReader):
     ## postProcess is called after the orientation data has been
     ## assigned to a Microstructure.
     def postProcess(self, microstructure):
-        groupnames = self.groupmembers.keys()
-        groupnames.sort()
+        groupnames = sorted(list(self.groupmembers.keys()))
         for groupname in groupnames:
             orientmapdata.addPixelsToGroup(microstructure, groupname,
                                            self.groupmembers[groupname])

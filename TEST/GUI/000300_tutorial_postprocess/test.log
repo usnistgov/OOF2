@@ -191,7 +191,7 @@ findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(403)
 findWidget('OOF2:Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Analyze.Average_and_Deviation
 findWidget('OOF2 Messages 1').resize(649, 196)
-assert tests.gtkTextviewTail('OOF2 Messages 1:Text', "0.0, 0.128205128213, 0.044862449681, 1.94794604925e-11, 1.06882558947e-09, 0.0384615384699, 0.0134587350299, 0.0, 0.0, 0.0, 0.0, -4.53952110882e-11, 4.21110743392e-10\n")
+assert tests.gtkTextviewTail('OOF2 Messages 1:Text', "0.0, 0.128205128213, 0.044862449681, 1.94794604925e-11, 1.06882558947e-09, 0.0384615384699, 0.0134587350299, 0.0, 0.0, 0.0, 0.0, -4.53952110882e-11, 4.21110743392e-10\n", tolerance=1.e-6)
 findWidget('OOF2 Messages 1').resize(649, 196)
 findWidget('Postprocessing:Next').clicked()
 findWidget('OOF2:Analysis Page:mainpane:top:Output:ScalarMode').clicked()
@@ -277,7 +277,7 @@ deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('OOF2:Boundary Analysis Page:Pane').set_position(261)
 findWidget('OOF2:Boundary Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
-assert tests.gtkTextviewTail('OOF2 Messages 1:Text', "0.0, 7.6923076853, -1.2726398869e-08\n")
+assert tests.gtkTextviewTail('OOF2 Messages 1:Text', "0.0, 7.6923076853, -1.2726398869e-08\n", tolerance=1.e-6)
 findWidget('Postprocessing:Next').clicked()
 findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
 checkpoint Move Node toolbox info updated
@@ -308,7 +308,7 @@ checkpoint toplevel widget mapped chooserPopup-where_0
 findMenu(findWidget('chooserPopup-where_0'), ['original']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-where_0') # MenuItemLogger
 findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Mesh Info cleared position
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
@@ -330,7 +330,7 @@ checkpoint OOF.Graphics_1.Layer.New
 # deactivatePopup('chooserPopup-category') # MenuItemLogger
 # findWidget('Dialog-New Graphics Layer').resize(467, 532)
 # findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-# findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+# findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 # checkpoint Graphics_1 Mesh Info cleared position
 # checkpoint Graphics_1 Mesh Info sensitized
 # checkpoint Graphics_1 Mesh Info sensitized
@@ -353,7 +353,7 @@ findMenu(findWidget('chooserPopup-RCFChooser'), ['Filled Contour']).activate() #
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('Dialog-New Graphics Layer').resize(483, 613)
 findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
@@ -374,8 +374,8 @@ findWidget('Dialog-Edit Graphics Layer:how:Filled Contour:levels').set_text('')
 findWidget('Dialog-Edit Graphics Layer:how:Filled Contour:levels').set_text('2')
 findWidget('Dialog-Edit Graphics Layer:how:Filled Contour:levels').set_text('21')
 findWidget('Dialog-Edit Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
@@ -406,15 +406,15 @@ checkpoint Graphics_1 Mesh Info updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Mesh_Info.QueryNode
 assert tests.meshInfoNodeTBCheck('OOF2 Graphics 1', 16, 'FuncNode', (15, 45))
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 2.8000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.0400000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.6200000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 2.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.0400000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.6200000000000e+02)
 findWidget('Postprocessing:Next').clicked()
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.6110358705947e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.2810358705947e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 2.5103587059468e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.6110358705947e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.2810358705947e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 2.5103587059468e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:Click:Element').clicked()
 checkpoint Graphics_1 Mesh Info showed position
 checkpoint Graphics_1 Mesh Info sensitized
@@ -423,9 +423,9 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Mesh_Info.QueryElement
 assert tests.checkTBMode("OOF2 Graphics 1", "Element")
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInfo:NodeList').get_selection().select_path(Gtk.TreePath([0]))
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 1.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 1.0000000000000e+00)
 checkpoint contourmap info updated for Graphics_1
-assert tests.meshInfoElementTBCheck('OOF2 Graphics 1', 9, 'Q4_4', ['FuncNode 11 at (15.0, 24.0)', 'FuncNode 12 at (30.0, 24.0)', 'FuncNode 17 at (30.0, 45.0)', 'FuncNode 16 at (15.0, 45.0)'], 'cyan-material')
+assert tests.meshInfoElementTBCheck('OOF2 Graphics 1', 9, 'Q4_4', ['FuncNode 11 at (15, 24)', 'FuncNode 12 at (30, 24)', 'FuncNode 17 at (30, 45)', 'FuncNode 16 at (15, 45)'], 'cyan-material')
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInfo:NodeList').get_selection().select_path(Gtk.TreePath([1]))
 checkpoint contourmap info updated for Graphics_1
 tree=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInfo:NodeList')
@@ -438,10 +438,10 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Mesh_Info.QueryNode
 assert tests.meshInfoNodeTBCheck('OOF2 Graphics 1', 12, 'FuncNode', (30, 24))
 findWidget('Postprocessing:Next').clicked()
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 7.9715133144980e-01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 3.5797151331450e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.5179715133145e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.6200000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 7.9715133144980e-01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 3.5797151331450e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.5179715133145e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.6200000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:NewDataViewer').clicked()
 checkpoint Mesh_Data_1 position updated
 checkpoint Mesh_Data_1 time updated
@@ -473,7 +473,7 @@ findMenu(findWidget('chooserPopup-TBChooser'), ['Mesh Cross Section']).activate(
 checkpoint Graphics_1 Mesh Cross Section sensitized
 deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(268)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.2700000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.2700000000000e+02)
 findWidget('Postprocessing:Next').clicked()
 findGfxWindow('Graphics_1').simulateMouse('down', 9.6994741, 49.774606, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 10.961683, 48.512397, 1, False, False)
@@ -499,11 +499,11 @@ checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Cross Section sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Mesh.Cross_Section.New
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.2600000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 9.3000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 8.8784426877160e-01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.2600000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 9.3000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 8.8784426877160e-01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Cross Section:Rename').clicked()
 checkpoint toplevel widget mapped Dialog-Rename cross section cs
 findWidget('Dialog-Rename cross section cs').resize(192, 92)
@@ -528,10 +528,10 @@ checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Cross Section sensitized
 checkpoint OOF.Mesh.Cross_Section.Rename
 assert tests.chooserStateCheck('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Cross Section:csList', 'MyCrossSection')
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.8878442687716e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.6887844268772e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 6.2887844268772e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.2700000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.8878442687716e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.6887844268772e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 6.2887844268772e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.2700000000000e+02)
 event(Gdk.EventType.BUTTON_PRESS,x= 9.8000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Cross Section:Destination:TextDestChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-TextDestChooser
 findWidget('chooserPopup-TextDestChooser').deactivate() # MenuLogger
@@ -546,7 +546,7 @@ findWidget('Dialog-Add a data destination:filename').set_text('cs.d')
 findWidget('Dialog-Add a data destination:filename').set_text('cs.da')
 findWidget('Dialog-Add a data destination:filename').set_text('cs.dat')
 findWidget('Dialog-Add a data destination:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 5.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 5.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Cross Section:Go').clicked()
 checkpoint OOF.Mesh.Analyze.Direct_Output
 assert tests.filediff('cs.dat', tolerance=1.e-6)

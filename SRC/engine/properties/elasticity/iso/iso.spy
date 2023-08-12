@@ -1,0 +1,40 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+from ooflib.common.IO import parameter
+from ooflib.common.IO import xmlmenudump
+from ooflib.engine import problem
+from ooflib.engine import propertyregistration
+from ooflib.engine.IO import isocijkl
+
+PropertyRegistration = propertyregistration.PropertyRegistration
+
+class IsoElasticityProp(CIsoElasticityProp):
+    def __init__(self, registration, name, cijkl):
+        CIsoElasticityProp.__init__(self, registration, self, name,
+                                    cijkl.tensorForm())
+
+# Property class registration code
+reg = IsotropicElasticity = PropertyRegistration(
+    "Mechanical:Elasticity:Isotropic", IsoElasticityProp,
+    10,
+    [isocijkl.IsotropicCijklParameter('cijkl',
+                          isocijkl.IsotropicRank4TensorCij(c11=1.0, c12=0.5),
+                                            tip=parameter.emptyTipString)],
+    outputs=["Energy", "Material Constants:Mechanical:Elastic Modulus C"],
+    propertyType="Elasticity",
+    tip='Isotropic linear elasticity.',
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/property/isoelastic.xml')
+)
+
+reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Displacement],
+             time_derivs=[0])
+

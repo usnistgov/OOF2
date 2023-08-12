@@ -8,7 +8,10 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import adopteelogger
+from . import adopteelogger
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class AdjustmentLogger(adopteelogger.AdopteeLogger):

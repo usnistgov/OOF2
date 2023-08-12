@@ -12,22 +12,29 @@
 #ifndef FREEDOM_SWG
 #define FREEDOM_SWG
 
-%include "engine/typemaps.swg"
-%extern "engine/femesh.swg"
+%module(package="ooflib.SWIG.engine") freedom
+
+%include "common/typemaps.swg"
+%import "engine/femesh.swg"
 
 %{
 #include "engine/freedom.h"
+  #include "engine/edge.h"	// SWIGBUG
+  #include "engine/equation.h"	// SWIGBUG
+  #include "engine/flux.h"	// SWIGBUG
 %}
+
+%nodefaultctor DegreeOfFreedom;
 
 class DegreeOfFreedom {
 public:
   double value(FEMesh*);
   int dofindex();
+};
 
-  %addmethods {
-    void increment(FEMesh *mesh, double x) {
-      self->value(mesh) += x;
-    }
+%extend DegreeOfFreedom {
+  void increment(FEMesh *mesh, double x) {
+    self->value(mesh) += x;
   }
 };
 

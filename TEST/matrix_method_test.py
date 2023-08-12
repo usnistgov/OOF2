@@ -10,7 +10,7 @@ import unittest, os
 import time
 import sys
 
-from UTILS import file_utils
+from .UTILS import file_utils
 fp_file_compare = file_utils.fp_file_compare
 reference_file = file_utils.reference_file
 datadir = 'matrix_data'
@@ -187,7 +187,7 @@ class BCTest(unittest.TestCase):
 
     def solve(self, solver):
         matrix = loadMatrix("bctest.mtx")
-        self.assert_(matrix.is_symmetric(1.e-12))
+        self.assertTrue(matrix.is_symmetric(1.e-12))
         rhs = loadVector("bctest.rhs")
         solution = doublevec.DoubleVec(0)
         solver.solveMatrix(matrix, rhs, solution)

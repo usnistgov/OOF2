@@ -12,13 +12,33 @@
 #ifndef MASTERCOORD_SWG
 #define MASTERCOORD_SWG
 
-%module mastercoord
-%include "engine/typemaps.swg"
+%module(package="ooflib.SWIG.engine") mastercoord
+
+%include "common/typemaps.swg"
 
 %{
 #include "engine/mastercoord.h"
 %}
-%pragma(python) include="mastercoord.spy"
+
+%typemap(in) MasterCoord *Point (MasterCoord mc) {
+  // typemap(in) MasterCoord *Point
+  PyObject *xobj = PySequence_GetItem($input, 0);
+  PyObject *yobj = PySequence_GetItem($input, 1);
+  if(!xobj || !yobj) {
+    PyErr_SetString(
+	    PyExc_TypeError,
+	    "in method '$symname'.  Argument must have 0 and 1 components.");
+    SWIG_fail;
+  }
+
+  mc(0) = PyFloat_AsDouble(xobj);
+  mc(1) = PyFloat_AsDouble(yobj);
+  Py_XDECREF(xobj);
+  Py_XDECREF(yobj);
+  $1 = &mc;
+}
+
+%nodefaultctor MasterPosition;
 
 class MasterPosition {
 public:
@@ -27,31 +47,31 @@ public:
 
 class MasterCoord : public MasterPosition {
 public:
-#ifndef DIM_3
   MasterCoord(double x1, double x2);
-#else
-  MasterCoord(double x1, double x2, double x3);
-#endif
   ~MasterCoord();
-  %addmethods {
-    double __getitem__(int i) {
-      return (*self)(i);
-    }
-    MasterCoord __add__(MasterCoord &other) {
-      return *self + other;
-    }
-    MasterCoord __sub__(MasterCoord &other) {
-      return *self - other;
-    }
-    MasterCoord __mul__(double a) {
-      return a*(*self);
-    }
-    MasterCoord __div__(double a) {
-      return *self/a;
-    }
+};
+
+%extend MasterCoord {
+  double __getitem__(int i) {
+    return (*self)(i);
+  }
+  MasterCoord __add__(MasterCoord &other) {
+    return *self + other;
+  }
+  MasterCoord __sub__(MasterCoord &other) {
+    return *self - other;
+  }
+  MasterCoord __mul__(double a) {
+    return a*(*self);
+  }
+  MasterCoord __truediv__(double a) {
+    return *self/a;
   }
 };
 
+MAKE_LISTVEC_TYPEMAPS(MasterCoord);
+
+%pythoncode "engine/mastercoord.spy"
 
 #endif // MASTERCOORD_SWG
 

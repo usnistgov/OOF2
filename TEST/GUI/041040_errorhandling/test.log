@@ -20,7 +20,8 @@ checkpoint page installed Introduction
 findWidget('OOF2').resize(782, 511)
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(527, 234)
-assert tests.syntaxErrorMsg('  File "TEST_DATA/syntaxerror.py", line 2\n    \'Twas brillig, and the slithy toves did gyre and gimble in the wabe.\n                                                                       ^\nSyntaxError: EOL while scanning string literal')
+## TODO PYTHON3: Add versions of the error message for Python 3.8 and 3.9.
+assert tests.errorMsgTest()
 
 findWidget('OOF2').resize(782, 545)
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
@@ -35,7 +36,7 @@ findWidget('Dialog-Script:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Load.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(527, 234)
-assert tests.syntaxErrorMsg('TEST_DATA/syntaxerror.py", line 2\n    \'Twas brillig, and the slithy toves did gyre and gimble in the wabe.\n                                                                       ^\nSyntaxError: EOL while scanning string literal')
+assert tests.errorMsgTest()
 
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
 assert tests.noExecution()

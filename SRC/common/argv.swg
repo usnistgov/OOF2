@@ -12,7 +12,7 @@
 #ifndef ARGV_SWG
 #define ARGV_SWG
 
-%module argv
+%module(package="ooflib.SWIG.common") argv
 
 %include "common/typemaps.swg"
 
@@ -20,6 +20,6 @@
 #include "common/argv.h"
 %}
 
-void init_argv(CharPtrVec *argv);
+void init_argv(std::vector<char*> *argv);
 
 #endif // ARGV_SWG

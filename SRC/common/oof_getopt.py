@@ -79,7 +79,7 @@ def getopt(args, shortopts, longopts = []):
     """
 
     opts = []
-    if type(longopts) == type(""):
+    if isinstance(longopts, type("")):
         longopts = [longopts]
     else:
         longopts = list(longopts)
@@ -208,4 +208,4 @@ def short_has_arg(opt, shortopts):
 
 if __name__ == '__main__':
     import sys
-    print getopt(sys.argv[1:], "a:b", ["alpha=", "beta"])
+    print(getopt(sys.argv[1:], "a:b", ["alpha=", "beta"]))

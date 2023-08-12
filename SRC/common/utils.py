@@ -12,11 +12,12 @@
 from ooflib.SWIG.common import lock
 from ooflib.common import debug
 
+import itertools
 import os
-import string
 import subprocess
 import sys
 import types
+from functools import reduce
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
@@ -45,34 +46,6 @@ def pairs(lst):
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
     
-# Function to return 1 if the argument is indexable and 0 otherwise
-# def isIndexable(x):
-#     try:
-#         len(x) # I suppose one could imagine python optimizing this away!
-#         return 1
-#     except TypeError:
-#         return 0
-#     except AttributeError:
-#         return 0
-
-#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
-    
-## Commented out because it's not used at the moment.  This can be
-## done better by using sets and/or itertools.
-
-# # Used by boundary-condition consistency check to see if small tuples
-# # overlap.  Returns a possibly-empty tuple of the intersecting
-# # components.
-# def tupleIntersect(x,y):
-#     result = ()  # Empty tuple.
-#     for xvalue in x:
-#         for yvalue in y:
-#             if xvalue == yvalue:
-#                 result+=(xvalue,)
-#     return result
-
-#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
-
 # Function to take a list of lists and flatten it into a single list.
 def flatten(lols):
     result = []
@@ -88,7 +61,7 @@ def flatten(lols):
 def flatten_all(lols):
     result = []
     for l in lols:
-        if type(l) is types.ListType or type(l) is types.TupleType:
+        if isinstance(l, list) or isinstance(l, tuple):
             result += flatten_all(l)
         else:
             result.append(l)
@@ -106,7 +79,7 @@ def unflatten(template, datalist):
 def _do_unflatten(template, datalist, which):
     result = []
     for obj in template:
-        if type(obj) == types.ListType or type(obj) == types.TupleType:
+        if isinstance(obj, list) or isinstance(obj, tuple):
             sublist, which = _do_unflatten(obj, datalist, which)
             result.append(sublist)
         else:
@@ -136,75 +109,41 @@ def flatten1(lols):
 # returned.
 
 def degenerate(liszt):
-    if type(liszt) is types.GeneratorType:
-        return [x for x in liszt]
+    if isinstance(liszt, types.GeneratorType):
+        return list(liszt)
     return liszt
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
-# Get a list of the classes to which an object or class belongs.  Just
-# for debugging.
+# Get a list of the classes to which an object or class belongs.
+## TODO: Don't do this. Use inspect.getmro().
 
 def classes(c):
-    if type(c) == types.InstanceType: # only for old-style classes
-        return classes(c.__class__)
-    if type(c) == types.ClassType: # only for old-style classes
-        if not c.__bases__:
+    if isinstance(c, type):
+        if not c.__bases__ or c.__bases__ == (object,):
             return [c]
         return [c] +  flatten(map(classes, c.__bases__))
-    # Might be a new style class
-    try:
-        # TODO: Is this test needed?  It's in a try/except block
-        # because it may blow up if c has operator== defined.
-        if c == object:
-            return []
-    except:
-        pass
-    if type(c) == types.TypeType:
-        if c.__bases__ == (object,):
-            return [c]
-        return [c] + flatten(map(classes, c.__bases__))
-    try:
-        cls = c.__class__
-    except AttributeError:
-        return []              # not a class or an instance of a class
-    return classes(cls)
-
-# Get the *names* of the classes to which an object or class belongs.
-# This loses namespace information, so it's not as robust as using
-# classes().  But it's more readable.
-def classnames(c):
-    return [cl.__name__ for cl in classes(c)]
+    return classes(c.__class__)
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
 # Using PrintableClass as a metaclass allows a class (not the
 # instances of the class!) to be printed cleanly. Instead of 
-# class A(object):
+# class A:
 #   pass
-# print A
+# print(A)
 # ---->  <class '__main__.module.classname'> 
 # use
-# class A(object):
-#   __metaclass__ = PrintableClass
-# print A
+# class A(metaclass=PrintableClass):
+#   pass
+# print(A)
 # ---->  A
 
 class PrintableClass(type):
-    def __init__(cls, name, bases, dict):
-        super(PrintableClass, cls).__init__(name, bases, dict)
     def __str__(cls):
         return cls.__name__
     def __repr__(cls):
         return cls.__name__
-
-#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
-
-# Replaced by skeletonnode.canonicalorder, which queries indices.
-# def canonicalorder(p0, p1):
-#     if p0 < p1:
-#         return (p0, p1)
-#     return (p1, p0)
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
@@ -227,7 +166,7 @@ def OOFeval(expr):
     return eval(expr, mainmodule.__dict__)
 
 def OOFexecfile(file):
-    execfile(file, mainmodule.__dict__)
+    exec(compile(open(file, "rb").read(), file, 'exec'), mainmodule.__dict__)
 
 # Run a function as if it were defined in the main namespace.
 def OOFrun(func, *args, **kwargs):
@@ -235,17 +174,17 @@ def OOFrun(func, *args, **kwargs):
     # from main namespace.  The function's original dict is loaded
     # *after* the main namespace, so that it can override main space
     # definitions if necessary.
-    fg = func.func_globals.copy()
-    func.func_globals.clear()
-    func.func_globals.update(mainmodule.__dict__)
-    func.func_globals.update(fg)
+    fg = func.__globals__.copy()
+    func.__globals__.clear()
+    func.__globals__.update(mainmodule.__dict__)
+    func.__globals__.update(fg)
     
     func(*args, **kwargs)
 
     # Restore the original globals dict, so that future calls aren't
     # messed up.
-    func.func_globals.clear()
-    func.func_globals.update(fg)
+    func.__globals__.clear()
+    func.__globals__.update(fg)
 
 # Define an existing object in the main oof namespace.
 def OOFdefine(name, obj):
@@ -259,15 +198,6 @@ def OOFeval_r(expr):
     if expr == 'None':
         return None
     return mainmodule.__dict__[expr]
-
-#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
-
-### Parse an argument list, e.g. from inside an "eval" when the
-### arguments arrive in string form.  IS THIS USED?
-
-    
-##def argback(*args,**kwargs):
-##    return {"tuple":args, "dictionary":kwargs}
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
@@ -292,7 +222,7 @@ _uniqueNameLock = lock.SLock()
 
 def uniqueName(name, othernames, exclude=None):
     _uniqueNameLock.acquire()
-    others = othernames[:]
+    others = list(othernames)   # othernames might be an iterator
     try:
         if exclude is not None:
             try:
@@ -307,7 +237,7 @@ def uniqueName(name, othernames, exclude=None):
         basename = re.split('<[0-9]+>$', name)[0]
         # Find any existing names of the form 'basename<number>'.
         expr = re.compile("^" + re.escape(basename) + "<[0-9]+>$")
-        matches = filter(expr.match, others)
+        matches = list(filter(expr.match, others))
         if matches:
             # Find largest existing "<number>".
             suffixes = [x[len(basename)+1:-1] for x in matches]
@@ -333,7 +263,7 @@ def menUniqueName(name, othernames):
         basename = re.split('_[0-9]+$', name)[0]
         # Find any existing names of the form 'basename_number'.
         expr = re.compile("^" + re.escape(basename) + "_[0-9]+$")
-        matches = filter(expr.match, othernames)
+        matches = list(filter(expr.match, othernames))
         if matches:
             # Find largest existing "number".
             suffixes = [x[len(basename)+1:] for x in matches]
@@ -375,11 +305,11 @@ def screenwidth():
 # length width.  Returns a list of strings guaranteed to be shorter
 # than width, provided there are some spaces in there somewhere.
 def format(line, width):
-    linelist = [string.strip(ell) for ell in line.split("\n")]
+    linelist = [stringstrip(ell) for ell in line.split("\n")]
     outlist = []
     for str in linelist:
         while len(str) > width:
-            breakpoint = string.rfind(str," ",0,width)
+            breakpoint = stringrfind(str," ",0,width)
             outlist.append(str[0:breakpoint])
             str = str[breakpoint+1:]
         else:
@@ -389,61 +319,30 @@ def format(line, width):
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
-# Minimal ordered dictionary class.  If more functionality is
-# required, get someone else's code off the web.  This class just
-# ensures that the objects are returned in the order in which they
-# were added.
-
-
-# The optional constructor argument is a list (not a dict!) of (key,
-# value) pairs, in the order in which they should appear in the OrderedDict.
+# Ordered dictionary class.  Before Python 3.7, dictionaries didn't
+# return items in the order in which they were added, so we had a dict
+# subclass that redefined most dict operations.  As of Python 3.7, we
+# can just use dict, except that we sometimes need to reorder
+# elements, so OrderedDict adds a reorder() method.  (The old version
+# also had a replace() method, but that doesn't seem to be used
+# anywhere.  It's also not necessary -- assigning to an existing key
+# in a post-3.7 dict doesn't change the order of the keys.)
 
 class OrderedDict(dict):
-    def __init__(self, items=None):
-        dict.__init__(self)
-        self._keys = []
-        if items:
-            for key, val in items:
-                self.__setitem__(key, val)
-    def __setitem__(self, key, value):
-        dict.__setitem__(self, key, value)
-        if key not in self._keys:
-            self._keys.append(key)
-    def __delitem__(self, key):
-        dict.__delitem__(self, key)
-        self._keys.remove(key)
-    def clear(self):
-        self._keys = []
-        dict.clear(self)
-    def keys(self):
-        return self._keys
-    def values(self):
-        return [dict.__getitem__(self, key) for key in self._keys]
-    def items(self):
-        return [(key, dict.__getitem__(self, key)) for key in self._keys]
     def reorder(self, keylist):
-        # Make sure that our keys are in the order given by keylist.
-        # keylist must contain all of our keys, but may contain more.
-
-        ## Check for keys in self._keys that aren't in keylist
-        unlisted = [key for key in self._keys if key not in keylist]
-
-        self._keys = [key for key in keylist if key in self._keys] + unlisted
-    def __eq__(self, other):
-        return (isinstance(other, OrderedDict)
-                and self._keys == other._keys
-                and super(OrderedDict, self).__eq__(other))
-    def iterkeys(self):
-        return iter(self._keys)
-    def replace(self, oldkey, newkey, newval):
-        i = self._keys.index(oldkey)
-        self._keys[i] = newkey
-        dict.__delitem__(self, oldkey)
-        dict.__setitem__(self, newkey, newval)
+        # Make sure that our keys are in the order given by
+        # keylist. Any of our keys that aren't in keylist are inserted
+        # at the end.  Any keys in keylist that aren't in our keys are
+        # ignored.
+        olddict = {k:v for k,v in self.items()}
+        unlisted = [k for k in olddict if k not in keylist]
+        self.clear()
+        for k in itertools.chain(keylist, unlisted):
+            try:
+                self[k] = olddict[k]
+            except KeyError:
+                pass
         
-
-import itertools
-
 class OrderedSet:
     def __init__(self, iterable=None):
         self.data = OrderedDict()
@@ -455,7 +354,7 @@ class OrderedSet:
     def __contains__(self, item):
         return item in self.data
     def __iter__(self):
-        return self.data.iterkeys()
+        return iter(self.data.keys())
     def add(self, item):
         self.data[item] = 1
     def remove(self, item):
@@ -466,7 +365,8 @@ class OrderedSet:
         except KeyError:
             pass
     def replace(self, old, new):
-        self.data.replace(old, new, 1)
+        oldkeys = self.data.keys()
+        self.data = OrderedDict({(new if k==old else k) : 1 for k in oldkeys});
     def clear(self):
         self.data = OrderedDict()
     def union(self, other):
@@ -474,12 +374,16 @@ class OrderedSet:
         for item in other:
             result.add(item)
         return result
+    def update(self, *others):
+        for st in others:
+            for obj in st:
+                self.data[obj] = 1
     def __or__(self, other):
         if not isinstance(other, OrderedSet):
             return NotImplemented
         return self.union(other)
     def intersection(self, other):
-        common = itertools.ifilter(other.data.has_key, self)
+        common = filter(lambda x: x in other.data, self)
         return self.__class__(common)
     def __and__(self, other):
         if not isinstance(other, OrderedSet):
@@ -488,14 +392,23 @@ class OrderedSet:
     def copy(self):
         return OrderedSet(self)
     def __repr__(self):
-        return '%s(%r)' % (self.__class__.__name__, self.data.keys())
+        return '%s(%r)' % (self.__class__.__name__, list(self.data.keys()))
     def __eq__(self, other):
         return self.data == other.data
     def __ne__(self, other):
         return self.data != other.data
     def __add__(self, other):
         return self.union(other)
-
+    def __isub__(self, other):  # ie, self -= other
+        if isinstance(other, OrderedSet):
+            for x in other.data:
+                try:
+                    del self.data[x]
+                except KeyError:
+                    pass
+            return self
+        return NotImplemented
+    
     __str__ = __repr__
         
         
@@ -506,15 +419,21 @@ class OrderedSet:
 # slice operations that a real list would. (__del__ and __setitem__
 # aren't provided for slices.  __getitem__ is.)
 
-
 class ReservableList:
-    def __init__(self, n=0):
+    def __init__(self, n=0, vals=None):
         self._list = [None]*n
         self._length = 0
+        if isinstance(vals, (list, tuple)):
+            self._list[:len(vals)] = vals
+            self._length = len(vals)
+        elif vals is not None:
+            vlist = list(vals)
+            self._list[:len(vlist)] = vlist
+            self._length = len(vlist)
     def __len__(self):
         return self._length
     def __getitem__(self, i):
-        if type(i) is types.SliceType:
+        if isinstance(i, slice):
             start, stop, step = i.indices(self._length)
             # No need to check bounds on slices.
             return self._list[start:stop:step]
@@ -553,7 +472,7 @@ class ReservableList:
         self._length += 1
     def __delitem__(self, i):
         oldsize = len(self._list)
-        if type(i) is types.IntType and i >= self._length or i<-self._length+1:
+        if isinstance(i, int) and i >= self._length or i<-self._length+1:
             raise IndexError(i, "is out of range")
         del self._list[i]
         self._length -= oldsize - len(self._list)
@@ -568,6 +487,66 @@ class ReservableList:
             self._list.sort()
         else:
             self._list[:self._length] = sorted(self._list[:self._length])
+    def __iter__(self):
+        return ReservableListIterator(self)
+
+class ReservableListIterator:
+    def __init__(self, rlist):
+        self.rlist = rlist
+        self.index = 0
+    def __iter__(self):
+        return self
+    def __next__(self):
+        if self.index >= len(self.rlist):
+            raise StopIteration
+        self.index += 1
+        return self.rlist[self.index-1]
+    def __len__(self):
+        return len(self.rlist)
+    # These methods make ReservableListIterator act like
+    # SkeletonIterator, to make it usable with progress bars.  When
+    # Skeleton.element_iterator returns a SkeletonElementIterator,
+    # these might not be needed.
+    def fraction(self):
+        return self.index/len(self.rlist)
+    def nexamined(self):
+        return self.index
+    def nreturned(self):
+        return self.index
+    def ntotal(self):
+        return len(self.rlist)
+
+#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
+
+# Use ReorderableIterator to iterate over a list and to give priority
+# to certain elements on the fly.
+#
+#    iter = ReorderableIterator(some_finite_iterable)
+#    for x in iter:
+#        iter.prioritize(y)  # y will be returned next
+#        ...
+#
+# It doesn't check that y is actually in the list!
+
+class ReorderableIterator:
+    def __init__(self, data):
+        self.data = list(data)  # FIFO
+        self.prioritized = []   # LIFO
+        self.returned = set()
+    def __iter__(self):
+        while self.data or self.prioritized:
+            if self.prioritized:
+                x = self.prioritized.pop()
+                if x not in self.returned:
+                    self.returned.add(x)
+                    yield x
+            else:
+                x = self.data.pop(0)
+                if x not in self.returned:
+                    self.returned.add(x)
+                    yield x
+    def prioritize(self, x):
+        self.prioritized.append(x)
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
@@ -581,7 +560,7 @@ def matchpattern(pattern, filename):
     # "*" in file pattern matching, in re's it is greedy, so we
     # need to replace it with ".*?".  We also need to escape the
     # string.
-    escaped_pattern = string.replace(re.escape(os.path.basename(pattern)),"\\*",".*?")
+    escaped_pattern = stringreplace(re.escape(os.path.basename(pattern)),"\\*",".*?")
     match = re.match(escaped_pattern, filename)
     if match is None:
         return False
@@ -597,7 +576,7 @@ def matchvtkpattern(pattern, filename):
     # "*" in file pattern matching, in re's it is greedy, so we
     # need to replace it with ".*?".  We also need to escape the
     # string.
-    escaped_pattern = string.replace(re.escape(os.path.basename(pattern)),"\\*","[0-9]*")
+    escaped_pattern = stringreplace(re.escape(os.path.basename(pattern)),"\\*","[0-9]*")
     match = re.match(escaped_pattern, filename)
     if match is None:
         return False
@@ -625,28 +604,7 @@ def countmatches(pattern, dirname, matchfunction=matchpattern):
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
-def _find_machine_epsilon():
-    eps = 1.0
-    while 1.0 + eps/2. != 1.0:
-        eps = eps/2.
-    return eps
-
-machine_epsilon = _find_machine_epsilon()
-
-#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
-
-# Built-in all() isn't defined in python < 2.5.
-## TODO: Remove this if we stop supporting 2.4.
-
-try:
-    all
-except NameError:
-    def all(iterable):
-        for element in iterable:
-            if not element:
-                return False
-        return True
-    __builtins__['all'] = all
+machine_epsilon = sys.float_info.epsilon
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
@@ -658,7 +616,7 @@ memfile = None
 
 def startMemoryMonitor(filename):
     global memfile
-    memfile = file(filename, "w")
+    memfile = open(filename, "w")
     memusage("startMemoryMonitor")
 
 def stopMemoryMonitor():
@@ -670,7 +628,7 @@ def stopMemoryMonitor():
 def get_memusage_str():
     pid = os.getpid()
     if sys.platform == 'darwin':
-        vmmap = subprocess.check_output(["vmmap", "-summary", `pid`])
+        vmmap = subprocess.check_output(["vmmap", "-summary", repr(pid)])
         lines = vmmap.split('\n')
         # The trouble here is that the output from vmmap requires some
         # parsing, and I don't know if whatever is done here will be
@@ -690,7 +648,7 @@ def get_memusage_str():
         # there's only one contribution.
 
     elif sys.platform == 'linux2':
-        pmap = subprocess.check_output(["pmap", `pid`])
+        pmap = subprocess.check_output(["pmap", repr(pid)])
         # pmap contains a long string with embedded newlines. It ends with
         # "\n total XXXXXK\n" where XXXXX is the number we want.
         mem = pmap.rsplit('\n')[-2].split()[1][:-1]
@@ -702,17 +660,58 @@ def get_memusage():
     
 def memusage(comment):
     if memfile:
-        print >> memfile, get_memusage_str(), '#', comment
+        print(get_memusage_str(), '#', comment, file=memfile)
         memfile.flush()
 
 # Make memusage available in OOF scripts
 OOFdefine('memusage', memusage)
 OOFdefine('get_memusage', get_memusage)
 
+#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
+
+## Hacks to make switching from Python2 easier.
+
+# Functions that used to be in the string module are now just string
+# methods.  Defining these functions here lets us simply delete a "."
+# whereever the old function was used, [eg change string.join(strings,
+# sep) to stringjoin(strings, sep)] which is faster to do and less
+# error-prone.
+
+## TODO? Get rid of these functions and call the string methods directly.
+
+def stringjoin(strngs, sep):
+    return sep.join(strngs)
+
+def stringfind(source, target, *args, **kwargs):
+    return source.find(target, *args, **kwargs)
+
+def stringrfind(source, target, *args, **kwargs):
+    return source.rfind(target, *args, **kwargs)
+
+def stringsplit(source, *args, **kwargs):
+    return source.split(*args, **kwargs)
+
+def stringreplace(strng, old, new, *args, **kwargs):
+    return strng.replace(old, new, *args, **kwargs)
+
+def stringstrip(strng, *args, **kwargs):
+    return strng.strip(*args, **kwargs)
+
+def stringlstrip(strng, *args, **kwargs):
+    return strng.lstrip(*args, **kwargs)
+
+def stringrstrip(strng, *args, **kwargs):
+    return strng.rstrip(*args, **kwargs)
+
+#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
+
+def printAsString(*args, **kwargs):
+    strings = ((a if type(a) is str else a.decode()) for a in args)
+    print(*strings, **kwargs)
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
 if __name__=='__main__':
     l0 = [0, [1,2],[3,[4]], 5]
     l1 = ['zero', 'one', 'two', 'three', 'four', 'five']
-    print unflatten(l0, l1)
+    print(unflatten(l0, l1))

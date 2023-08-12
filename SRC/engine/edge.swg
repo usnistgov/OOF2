@@ -12,26 +12,33 @@
 #ifndef EDGE_SWG
 #define EDGE_SWG
 
-%module edge
-%include "engine/typemaps.swg"
-%pragma(python) include="edge.spy"
-%extern "engine/field.swg"
-// %extern "engine/csubproblem.swg"
-%extern "engine/node.swg"
-%extern "engine/element.swg"
+%module(package="ooflib.SWIG.engine") edge
+
+%include "common/typemaps.swg"
+%import "common/coord.swg"
+%import "engine/field.swg"
+%import "engine/node.swg"
+%import "engine/element.swg"
+%import "engine/mastercoord.swg"
+%import "engine/outputval.swg"
 
 %{
 #include "engine/edge.h"
+#include "engine/outputval.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
+MAKE_LISTVEC_TYPEMAPS(Coord);
 
 class Edge {
 public:
   Edge(const Element *, const FuncNode*, const FuncNode*);
   ~Edge();
-  %new CoordVec* position_(DoubleList*);
-  %new ArithmeticOutputValueVec *outputFields(const FEMesh*, const Field&,
-					      DoubleList*);
+  %newobject position_;
+  CoordVec* position(const std::vector<double>*);
+  %newobject outputFields;
+  ArithmeticOutputValueVec *outputFields(const FEMesh*, const Field&,
+					 const std::vector<double>*);
   int order();
   MasterCoord startpt();
   MasterCoord endpt();

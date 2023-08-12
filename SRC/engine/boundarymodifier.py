@@ -61,7 +61,7 @@ class BoundaryModifierRegistration(registeredclass.Registration):
         elif issubclass(regclass, EdgeBoundaryModifier):
             self.modifiertype = EdgeBoundaryModifier
         else:
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Attempt to register unknown type of boundary modifier.")
 
 

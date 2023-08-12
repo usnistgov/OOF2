@@ -9,16 +9,15 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef CDEBUG_H
 #define CDEBUG_H
 
+#include <oofconfig.h>
+
 // Routines used to catch C++ signals and dump the current Python
 // stack before bailing out.  These are not used except when OOF2 is
-// built with --debug.
+// built with --debug.  Plus some other handy debugging methods.
 
-#include <Python.h>
 #include <vector>
 #include <string>
 

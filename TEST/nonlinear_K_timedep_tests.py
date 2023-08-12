@@ -10,8 +10,8 @@
 
 import unittest 
 import os
-import memorycheck
-import exact_solns
+from . import memorycheck
+from . import exact_solns
 
 class NonlinearTimedependentTest(unittest.TestCase):
     def setUp(self):
@@ -202,8 +202,8 @@ class NonlinearTimedependentTest(unittest.TestCase):
         mesh_obj = mesh.meshes["microstructure:skeleton:mesh"].getObject()
         L2_error = exact_solns.computeScalarErrorL2(
             soln, mesh_obj, Temperature, self.numX, self.numY, time=time)
-        print >> sys.stderr, "L2 error = %g" % L2_error
-        self.assert_((L2_error < tolerance) == expected)
+        print("L2 error = %g" % L2_error, file=sys.stderr)
+        self.assertTrue((L2_error < tolerance) == expected)
 
     def uniformTest(self, stepper, solver, time,
                     nsteps, tolerance,

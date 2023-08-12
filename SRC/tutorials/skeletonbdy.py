@@ -27,278 +27,177 @@ TutorialClass(
     TutoringItem(
     subject="Introduction",
     comments=
-    
-    """This tutorial is a simple interactive walkthrough explaining
-    how to construct boundaries in skeletons.
+"""This tutorial is a simple interactive walkthrough explaining how to construct boundaries in skeletons.
 
-    Skeleton boundaries are the places to which boundary conditions
-    are applied.  Boundaries created in a skeleton are automatically
-    propagated to previous and later BOLD(modifications) of the skeleton,
-    and are also created in all of the finite-element BOLD(meshes)
-    associated with each of these modifications."""  
+Skeleton boundaries are the places to which boundary conditions are applied.  Boundaries created in a skeleton are automatically propagated to previous and later <b>modifications</b> of the skeleton, and are also created in all of the finite-element <b>meshes</b> associated with each of these modifications."""  
     ),
       
     TutoringItem(
     subject="Default Boundaries",
+    comments=
+"""When an initial Skeleton is created, it automatically constructs <b>8</b> default boundaries, <b>4</b> at each corner and <b>4</b> at each bounding edge of the skeleton.  These boundaries will be properly preserved throughout the skeleton modification processes.
 
-    comments="""When an initial Skeleton is created, it automatically
-    constructs BOLD(8) default boundaries, BOLD(4) at each corner and
-    BOLD(4) at each bounding edge of the skeleton.  These boundaries
-    will be properly preserved throughout the skeleton modification
-    processes.
-
-    If you need to apply boundary conditions to places other than
-    these, you need to create boundaries yourself, which you will
-    learn how to do in this tutorial."""  ),
+If you need to apply boundary conditions to places other than these, you need to create boundaries yourself, which you will learn how to do in this tutorial."""
+    ),
 
     TutoringItem(
     subject="Point Boundaries and Edge Boundaries",
     comments=
-
-    """OOF2 provides two kinds of boundaries, BOLD(point boundaries)
-    and BOLD(edge boundaries).  A point boundary is merely a
-    collection of one or more nodes. An edge boundary is a collection
-    of one or more segments with a specified direction."""  ),
+"""OOF2 provides two kinds of boundaries, <b>point boundaries</b> and <b>edge boundaries</b>.  A point boundary is merely a collection of one or more nodes. An edge boundary is a collection of one or more segments with a specified direction."""
+    ),
 
     TutoringItem(
     subject="Sample Skeleton",
-    comments= """Let us load a sample skeleton.  Locate the file
-    BOLD(two_circles.skeleton) within the
-    share/oof2/examples directory in your OOF2 installation.
+    comments=
+"""Let us load a sample skeleton.  Locate the file <b>two_circles.skeleton</b> within the share/oof2/examples directory in your OOF2 installation.
 
-    Choose BOLD(Load/Data) from the BOLD(File) menu in the main OOF2
-    window.  Open the file BOLD(two_circles.skeleton).
+Choose <b>Load/Data</b> from the <b>File</b> menu in the main OOF2 window.  Open the file <b>two_circles.skeleton</b>.
 
-    Open a graphics window, if you haven't yet.  Create new layers for
-    the Image and the Skeleton (displayed by Edges).  """,
-        
-    signal = ("new who", "Skeleton")
+Open a graphics window, if you haven't yet.  Create new layers for the Image and the Skeleton (displayed by Edges).  """,
     ),
 
     TutoringItem(
     subject="Three Boundaries to Create",
     comments=
+"""We'll create three additional boundaries in this skeleton.
 
-    """We'll create three additional boundaries in this skeleton.
+1. A clockwise edge boundary along the circumference of the <b>red</b> circle.
 
-    1. A clockwise edge boundary along the circumference of
-    the BOLD(red) circle.
+2. A point boundary along the circumference of the <b>yellow</b> circle.
 
-    2. A point boundary along the circumference of the BOLD(yellow) circle.
+3. An edge boundary directed left-to-right along the interface between <b>white</b> and <b>cyan</b> layers.
 
-    3. An edge boundary directed left-to-right along the interface
-    between BOLD(white) and BOLD(cyan) layers.
+The typical process of creating boundaries involves two simple steps. Select source objects such as nodes (for point boundaries) and segments (for edge boundaries) and create a boundary (with a given direction, if needed).
 
-    The typical process of creating boundaries involves
-    two simple steps. Select source objects such as nodes
-    (for point boundaries) and segments (for edge boundaries) and
-    create a boundary (with a given direction, if needed).
-
-    You'll need to know how to select objects efficiently to minimize
-    the effort involved."""
+You'll need to know how to select objects efficiently to minimize the effort involved."""
     ),
 
     TutoringItem(
     subject="Selecting Elements by Dominant Pixel",
     comments=
+"""Let us create the first boundary.
+
+Open the <b>Skeleton Selection</b> toolbox from the graphics window.  Make sure that the toolbox is in <b>Element</b> mode and select <b>ByDominantPixel</b> from the pull-down menu for the parameter <b>Method</b>.
+
+Click on any <b>red</b> pixel to select all the elements inside the circle.
+
+There should be 105 selected elements (shown at the bottom of the toolbox).
     
-    """Let us create the first boundary.
-
-    Open the BOLD(Skeleton Selection) toolbox from
-    the graphics window.  Make sure that the toolbox is in BOLD(Element)
-    mode and select BOLD(ByDominantPixel) from the pull-down menu
-    for the parameter BOLD(Method).
-
-    Click on any BOLD(red) pixel to select all the elements inside
-    the circle.
-
-    There should be 105 selected elements (shown at the bottom of
-    the toolbox).
-    
-    (The color change for the selected elements is subtle, because the
-    red for selected elements is too similar to the red in the image.
-    You can temporarily hide the image using the check box in the
-    layer list to make the selection more apparent.  You can also edit
-    the display method for selected elements and change their color,
-    by first selecting BOLD(List All Layers) in the BOLD(Settings)
-    menu.)
+(The color change for the selected elements is subtle, because the red for selected elements is too similar to the red in the image. You can temporarily hide the image using the check box in the layer list to make the selection more apparent.  You can also edit the display method for selected elements and change their color, by first selecting <b>List All Layers</b> in the <b>Settings</b> menu.)
 
     """,
-    signal = "changed element selection"
     ),
 
     TutoringItem(
     subject="Edge Boundary from Selected Elements",
     comments=
+"""Open the <b>Skeleton Boundaries</b> page in the main OOF2 window.
 
-    """Open the BOLD(Skeleton Boundaries) page in the main OOF2 window.
+Click <b>New...</b> in the <b>Boundaries</b> pane on the left side of the page to bring up a boundary builder.
 
-    Click BOLD(New...) in the BOLD(Boundaries) pane on the left
-    side of the page to bring up a boundary builder.
+Type in <b>red_circle</b> for the name of the boundary.
 
-    Type in BOLD(red_circle) for the name of the boundary.
+Select <b>Edge boundary from elements</b> and select <b>&lt;selection&gt;</b> for the parameter <b>group</b>.  Set <b>direction</b> to be <b>Clockwise</b>.
 
-    Select BOLD(Edge boundary from elements) and select BOLD(<selection>)
-    for the parameter BOLD(group).  Set BOLD(direction) to be
-    BOLD(Clockwise).
-
-    Click BOLD(OK) to create the boundary.""",
-    signal = "new boundaries for tutorial"
+Click <b>OK</b> to create the boundary.""",
     ),
 
     TutoringItem(
     subject="Boundary Display",
     comments=
+"""The newly created boundary should be listed and selected in the boundary list in the left side of the <b>Skeleton Boundaries</b> page.
 
-    """The newly created boundary should be listed and selected in the
-    boundary list in the left side of the BOLD(Skeleton Boundaries)
-    page.
+Its details are listed in the right side of the page.
 
-    Its details are listed in the right side of the page.
-
-    The new boundary is displayed in the graphics window with orange arrows.
-    """
+The new boundary is displayed in the graphics window with orange arrows. """
     ),
 
     TutoringItem(
     subject="Second Boundary",
     comments=
+"""Next is the point boundary along the perimeter of the <b>yellow</b> circle.  This one can be constructed in a similar way as the first one.
 
-    """Next is the point boundary along the perimeter of the
-    BOLD(yellow) circle.  This one can be constructed in a similar way
-    as the first one.
-
-    Just for the sake of practice, let's try a less simple way."""
+Just for the sake of practice, let's try a less simple way."""
     ),
 
     TutoringItem(
     subject="Elements by Dominant Pixel",
     comments=
+"""In the <b>Skeleton Selection</b> toolbox in the graphics window, select <b>ByDominantPixel</b> for the <b>Element</b> selection method.
 
-    """In the BOLD(Skeleton Selection) toolbox in the graphics window,
-    select BOLD(ByDominantPixel) for the BOLD(Element) selection method.
-
-    Click on any BOLD(yellow) pixel in the circle.  You should see that
-    BOLD(66) elements inside the yellow circle have been selected""",
-    signal = "changed element selection"
+Click on any <b>yellow</b> pixel in the circle.  You should see that <b>66</b> elements inside the yellow circle have been selected""",
     ),
 
     TutoringItem(
     subject="Selecting Nodes from Selected Elements",
     comments=
+"""Open the <b>Skeleton Selection</b> task page in the main OOF2 window.
 
-    """Open the BOLD(Skeleton Selection) task page in the main OOF2
-    window.
+Select <b>Nodes</b> for the <b>Selection Mode</b>, and pick <b>Select from Selected Elements</b> for the parameter <b>Method</b>.  From two available options, turn only <b>boundary</b> on so that only the nodes along the boundary of the selected elements will be selected.
 
-    Select BOLD(Nodes) for the BOLD(Selection Mode), and pick
-    BOLD(Select from Selected Elements) for the parameter
-    BOLD(Method).  From two available options, turn only
-    BOLD(boundary) on so that only the nodes along the boundary of the
-    selected elements will be selected.
-
-    Click BOLD(OK) to make a selection.  The selected nodes will be
-    displayed as BOLD(blue) dots in the graphics window.""",
-    signal = "changed node selection"
+Click <b>OK</b> to make a selection.  The selected nodes will be displayed as <b>blue</b> dots in the graphics window.""",
     ),
 
     TutoringItem(
     subject="Point Boundary from Selected Nodes",
     comments=
+"""Go back to the <b>Skeleton Boundaries</b> page and click <b>New...</b>.
 
-    """Go back to the BOLD(Skeleton Boundaries) page and click
-    BOLD(New...).
+In the boundary builder, give the name <b>yellow_circle</b> for the boundary.
 
-    In the boundary builder, give the name
-    BOLD(yellow_circle) for the boundary.
+Select <b>Point boundary from nodes</b> for boundary building method and select <b>&lt;selection&gt;</b> for the parameter <b>group</b>.
 
-    Select BOLD(Point boundary from nodes) for boundary building
-    method and select BOLD(<selection>) for the parameter
-    BOLD(group).
-
-    Click BOLD(OK) to create the boundary.""",
-    signal = "new boundaries for tutorial"
+Click <b>OK</b> to create the boundary.""",
     ),
 
     TutoringItem(
     subject="Boundary Displayed",
     comments=
+"""You should see the boundary information displayed in the page.  If you clear the node selection, you will see the boundary marked with orange dots in the graphics window.
 
-    """You should see the boundary information displayed in the page.  If
-    you clear the node selection, you will see the boundary marked
-    with orange dots in the graphics window.
-
-    If done correctly, the boundary should contain BOLD(31)
-    points(nodes)."""
+If done correctly, the boundary should contain <b>31</b> points(nodes)."""
     ),
 
     TutoringItem(
     subject="Third Boundary",
     comments=
+"""The third boundary is the edge between the white and the cyan material.
 
-    """The third boundary is the edge between the white and the cyan
-    material.
+First, we need to select all the segments along the boundary.  In the <b>Skeleton Selection</b> toolbox in the graphics window, click <b>Segment</b> in the upper part of the toolbox to start selecting segments.
 
-    First, we need to select all the segments along the boundary.  In
-    the BOLD(Skeleton Selection) toolbox in the graphics window, click
-    BOLD(Segment) in the upper part of the toolbox to start selecting
-    segments.
+Select <b>Rectangle</b> for the selection method.  This will let you select all the segments that are completely inside a rectangular box drawn on the canvas.
 
-    Select BOLD(Rectangle) for the selection method.  This will
-    let you select all the segments that are completely
-    inside a rectangular box drawn on the canvas.
+Click and drag the mouse to carefully draw a rectangle that surrounds all the segments along the interface.
 
-    Click and drag the mouse to carefully draw a rectangle that
-    surrounds all the segments along the interface.
+The selected segments should be displayed as thick <b>green</b> lines.  Properly done, <b>36</b> segments should be selected.
 
-    The selected segments should be displayed as thick BOLD(green)
-    lines.  Properly done, BOLD(36) segments should be selected.
-
-    You can always BOLD(Clear) the selection and repeat the process.
-    If needed, click and drag while holding the BOLD(shift) (addition)
-    or BOLD(ctrl) (toggle) modifier keys.  It may help to BOLD(Zoom)
-    the window, using either the BOLD(Viewer) toolbox or the
-    BOLD(Settings/Zoom) menu.""",
-    
-    signal = "changed segment selection"
+You can always <b>Clear</b> the selection and repeat the process. If needed, click and drag while holding the <b>shift</b> (addition) or <b>ctrl</b> (toggle) modifier keys.  It may help to <b>Zoom</b> the window, using either the <b>Viewer</b> toolbox or the <b>Settings/Zoom</b> menu.""",
     ),
 
     TutoringItem(
     subject="Edge Boundary from Selected Segments",
     comments=
+"""Go back to the <b>Skeleton Boundaries</b> page, and click <b>New...</b>.  Give the boundary a name, <b>white_cyan</b>.  Select <b>Edge boundary from segments</b> with <b>&lt;selection&gt;</b> selected for the parameter <b>group</b>.
 
-    """Go back to the BOLD(Skeleton Boundaries) page, and click
-    BOLD(New...).  Give the boundary a name, BOLD(white_cyan).  Select
-    BOLD(Edge boundary from segments) with BOLD(<selection>) selected
-    for the parameter BOLD(group).
-
-    Set the direction to be BOLD(Left to right) and click BOLD(OK).""",
-    signal = "new boundaries for tutorial"
+Set the direction to be <b>Left to right</b> and click <b>OK</b>.""",
     ),
 
     TutoringItem(
     subject="Viewing and Manipulating Boundaries",
     comments=
+"""Boundaries, once created, can be modified, renamed, and even deleted in the <b>Skeleton Boundaries</b> page.
 
-    """Boundaries, once created, can be modified, renamed, and even
-    deleted in the BOLD(Skeleton Boundaries) page.
-
-    Clicking on a boundary name in the list in the BOLD(Boundaries)
-    pane selects the boundary.  Its name is highlighted in the list
-    and the boundary is displayed in the graphics window.
-    Control-clicking on a selected boundary name deselects it.  The
-    BOLD(Modify), BOLD(Rename), and BOLD(Delete) buttons act on the
-    currently selected boundary.""" ),
+Clicking on a boundary name in the list in the <b>Boundaries</b> pane selects the boundary.  Its name is highlighted in the list and the boundary is displayed in the graphics window. Control-clicking on a selected boundary name deselects it.  The <b>Modify</b>, <b>Rename</b>, and <b>Delete</b> buttons act on the currently selected boundary."""
+    ),
 
     TutoringItem(
     subject="Fin",
     comments=
-
-    """So far, we've covered most of important features concerning
-    skeleton boundaries.
+"""So far, we've covered most of important features concerning skeleton boundaries.
     
-    Further details, if needed, may be found in the manual.
+Further details, if needed, may be found in the manual.
     
-    Thanks for trying out the tutorial."""
+Thanks for trying out the tutorial."""
     )
     
     ])

@@ -28,8 +28,6 @@ from ooflib.engine.IO import contourdisplay
 from ooflib.engine.IO import displaymethods
 from ooflib.engine.IO import output
 from ooflib.engine.IO import outputDefs
-from types import *
-import sys
 
 import oofcanvas
 
@@ -46,10 +44,10 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
         meshctxt = self.who.resolve(gfxwindow)
         themesh = meshctxt.mesh()
         polygons = self.polygons(gfxwindow, meshctxt)
-        elements = tuple(themesh.element_iterator())
+        elements = tuple(themesh.elements())
         evaluationpoints = [[el.center()] for el in elements]
-        values = map(float,
-                     self.what.evaluate(themesh, elements, evaluationpoints))
+        values = list(map(float,
+                     self.what.evaluate(themesh, elements, evaluationpoints)))
         max_value = max(values)
         min_value = min(values)
 
@@ -57,9 +55,9 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
         # end of this, contour_levels, contour_max, and contour_min
         # must be set from self.min, self.max, and self.levels,
         # provided by the user.
-        if type(self.levels)==TupleType:
+        if isinstance(self.levels, tuple):
             self.contour_levels = list(self.levels).sort()
-        elif type(self.levels)==ListType: 
+        elif isinstance(self.levels, list): 
             self.contour_levels = self.levels[:].sort()
 
 
@@ -75,7 +73,7 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
             self.contour_max = float(self.max)
             
         # If levels is an int, then make that many evenly-spaced levels.
-        if type(self.levels)==IntType:
+        if isinstance(self.levels, int):
             if self.levels == 1:
                 self.contour_levels = [0.5*(self.contour_max
                                             + self.contour_min)]
@@ -111,7 +109,7 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
 
                      cmap_value = ((last_v-self.contour_min)/
                                    (self.contour_max-self.contour_min))
-                poly = oofcanvas.CanvasPolygon()
+                poly = oofcanvas.CanvasPolygon.create()
                 poly.setFillColor(
                     color.canvasColor(self.colormap(cmap_value)))
                 poly.addPoints(polygon)
@@ -140,7 +138,7 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
                     # otherwise, the canvas bounds are wrong.
                     r_low = low-self.contour_min
                     r_high = high-self.contour_min
-                    rect = oofcanvas.CanvasRectangle((0, r_low),
+                    rect = oofcanvas.CanvasRectangle.create((0, r_low),
                                                      (width, r_high))
                     # In the collapsed case, height can be zero.  This is
                     # not hugely informative, but should be handled without

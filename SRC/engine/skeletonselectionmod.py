@@ -22,13 +22,10 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import pixelgroupparam
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
-if config.dimension() == 2:
-    from ooflib.engine import skeletonelement
+from ooflib.engine import skeletonelement
 from ooflib.engine.IO import materialparameter
 from ooflib.engine.IO import pbcparams
 from ooflib.engine.IO import skeletongroupparams
-import random
-import types
 #Interface branch
 from ooflib.engine.IO import interfaceparameters
 
@@ -98,7 +95,7 @@ class NodeFromSelectedElements(NodeSelectionModifier):
         for element in context.elementselection.retrieve():
             for nd in element.nodes:
                 nodes.add(nd)
-        return list(nodes)      # TODO: Leave as a set?
+        return nodes
 
     def getBoundaryNodes(self, context):
         # A segment is on the boundary of the selection if it
@@ -117,15 +114,7 @@ class NodeFromSelectedElements(NodeSelectionModifier):
             segnodes = seg.nodes()
             nodes.add(segnodes[0])
             nodes.add(segnodes[1])
-        return list(nodes)      # TODO: Leave as a set?
-
-    def getInternalNodes(self, context, allnodes):
-        bound = self.getBoundaryNodes(context)
-        internal = []
-        for nd in allnodes:
-            if nd not in bound:
-                internal.append(nd)
-        return internal
+        return nodes
 
     def __call__(self, skeleton, selection):
         if self.internal and self.boundary:
@@ -134,7 +123,8 @@ class NodeFromSelectedElements(NodeSelectionModifier):
             selected = self.getBoundaryNodes(skeleton)
         elif self.internal and not self.boundary:
             allnodes = self.getAllNodes(skeleton)
-            selected = self.getInternalNodes(skeleton, allnodes)
+            bdynodes = self.getBoundaryNodes(skeleton)
+            selected = allnodes - bdynodes # set difference
         else:
             selected = []
         selection.start()
@@ -152,25 +142,34 @@ registeredclass.Registration('Select from Selected Elements',
 
 #######################
 
+# Select nodes that belong to elements of two or more pixel
+# categories.
+
 class SelectInternalBoundaryNodes(NodeSelectionModifier):
     def __init__(self, ignorePBC=False):
         self.ignorePBC = ignorePBC
-    def __call__(self, skeleton, selection):
+    def iterator(self, skeleton):
         skel = skeleton.getObject()
-        nodelist = []
-        for node in skel.nodes:
+        for node in skel.node_iterator():
             if self.ignorePBC:
                 elements = node.aperiodicNeighborElements()
             else:
                 elements = node.neighborElements()
-            cat = elements[0].dominantPixel(skel.MS)
-            for element in elements[1:]:
-                if cat != element.dominantPixel(skel.MS):
-                    nodelist.append(node)
+            # Do all of the elements have the same category?
+            cat = None
+            for element in elements:
+                if cat is None:
+                    cat = element.dominantPixel(skel.MS)
+                elif cat != element.dominantPixel(skel.MS):
+                    # No, they don't.  Return this node and go on to
+                    # the next.
+                    yield node
                     break
+                
+    def __call__(self, skeleton, selection):
         selection.start()
         selection.clear()
-        selection.select(nodelist)
+        selection.select(self.iterator(skeleton))
                     
 registeredclass.Registration(
     'Select Internal Boundaries',
@@ -430,10 +429,10 @@ class NodeIntersectGroup(NodeSelectionModifier):
         self.group = group
     def __call__(self, skeleton, selection):
         nlist = skeleton.nodegroups.get_group(self.group)
-        ilist = filter(lambda x: x.selected, nlist)
+        selected = skeleton.nodeselection.retrieve()
         selection.start()
         selection.clear()
-        selection.select(ilist)
+        selection.select(selected.intersection(nlist))
 
 registeredclass.Registration(
     'Intersect Group',
@@ -471,46 +470,23 @@ class SegFromSelectedElements(SegmentSelectionModifier):
         segments = set()
         skel = context.getObject()
         for element in context.elementselection.retrieve():
-            el_segments = element.getSegments(skel)
-            for seg in el_segments:
+            for seg in element.getSegments(skel):
                 segments.add(seg)
-#             for i in range(element.nnodes()):
-#                 n0 = element.nodes[i]
-#                 n1 = element.nodes[(i+1)%element.nnodes()]
-#                 seg = skel.findSegment(n0, n1)
-#                 segments[seg] = None
-        return list(segments)   # TODO: Leave as a set?
+        return segments
 
     def getBoundarySegments(self, context):
-        bound = []
+        bound = set()
         skel = context.getObject()
         for element in context.elementselection.retrieve():
-            el_segments = element.getSegments(skel)
-            for seg in el_segments:
-#                 segments[seg] = None
-#             for i in range(element.nnodes()):
-#                 n0 = element.nodes[i]
-#                 n1 = element.nodes[(i+1)%element.nnodes()]
-#                 seg = skel.findSegment(n0, n1)
+            for seg in element.getSegments(skel): 
                 # A segment is on the boundary of the selection if it
                 # belongs to only one element.
-                # TODO 3D: In 3D we'll need to get the faces that have
-                # only one element, but this will have to wait until
-                # we have face selections.
                 n = 0
                 for el in seg.getElements():
                     if el.selected: n += 1
                 if n == 1:
-                    bound.append(seg)
+                    bound.add(seg)
         return bound
-
-    def getInternalSegments(self, context, allsegs):
-        bound = self.getBoundarySegments(context)
-        internal = []
-        for seg in allsegs:
-            if seg not in bound:
-                internal.append(seg)
-        return internal
 
     def __call__(self, skeleton, selection):
         if self.internal and self.boundary:
@@ -519,7 +495,8 @@ class SegFromSelectedElements(SegmentSelectionModifier):
             selected = self.getBoundarySegments(skeleton)
         elif self.internal and not self.boundary:
             allsegs = self.getAllSegments(skeleton)
-            selected = self.getInternalSegments(skeleton, allsegs)
+            bdysegs = self.getBoundarySegments(skeleton)
+            selected = allsegs - bdysegs # set difference
         else:
             selected = []
         selection.start()
@@ -541,22 +518,23 @@ registeredclass.Registration(
 class SelectInternalBoundarySegments(SegmentSelectionModifier):
     def __init__(self, ignorePBC=False):
         self.ignorePBC = ignorePBC
-    def __call__(self, skeleton, selection):
+    def iterator(self, skeleton):
         skel = skeleton.getObject()
-        seglist = []
-        for segment in skel.segments.values():
-            elements = segment.getElements()
-            if len(elements) == 2 and elements[0].dominantPixel(skel.MS) != \
-                   elements[1].dominantPixel(skel.MS):
-                seglist.append(segment)
-            elif not self.ignorePBC and len(elements) == 1:
+        for segment in skel.segment_iterator():
+            els = segment.getElements()
+            if (len(els) == 2 and
+                els[0].dominantPixel(skel.MS) != els[1].dominantPixel(skel.MS)):
+                yield segment
+            elif not self.ignorePBC and len(els) == 1:
                 p = segment.getPartner(skel)
-                if p and (p.getElements()[0].dominantPixel(skel.MS) !=
-                          elements[0].dominantPixel(skel.MS)):
-                    seglist.append(segment)
+                if (p and p.getElements()[0].dominantPixel(skel.MS) !=
+                    els[0].dominantPixel(skel.MS)):
+                    yield segment
+                    
+    def __call__(self, skeleton, selection):
         selection.start()
         selection.clear()
-        selection.select(seglist)
+        selection.select(self.iterator(skeleton))
 
 registeredclass.Registration(
     'Select Internal Boundary Segments',
@@ -573,22 +551,22 @@ registeredclass.Registration(
 class SelectInterfaceSegments(SegmentSelectionModifier):
     def __init__(self, interface):
         self.interface = interface
-    def __call__(self, skeleton, selection):
+    def iterator(self, skeleton):
         skel = skeleton.getObject()
         interfacemsplugin=skel.MS.getPlugIn("Interfaces")
         try:
             interfacedef=interfacemsplugin.namedinterfaces[self.interface]
         except KeyError:
             #Should not happen
-            raise ooferror.ErrPyProgrammingError("Interface not found!")
-        seglist = []
+            raise ooferror.PyErrPyProgrammingError("Interface not found!")
         for segment in skel.segments.values():
             yes,side1elem=interfacedef.isInterfaceSegment(segment,skel)
             if yes:
-                seglist.append(segment)
+                yield segment
+    def __call__(self, skeleton, selection):
         selection.start()
         selection.clear()
-        selection.select(seglist)
+        selection.select(self.iterator(skeleton))
 
 registeredclass.Registration(
     'Select Interface Segments',
@@ -596,8 +574,9 @@ registeredclass.Registration(
     SelectInterfaceSegments,
     ordering=8,
     params=[
-    interfaceparameters.InterfacesParameter('interface',
-                                            tip='Select segments in this interface.')],
+    interfaceparameters.InterfacesParameter(
+        'interface',
+        tip='Select segments in this interface.')],
     tip="Select segments from an interface definition.",
     discussion="""<para>
 
@@ -616,7 +595,7 @@ class SelectNamedBoundarySegments(SegmentSelectionModifier):
         edges = bdy.boundary(skeleton.getObject()).edges
         selection.start()
         selection.clear()
-        selection.select([edge.segment for edge in edges])
+        selection.select(edge.segment for edge in edges)
 
 registeredclass.Registration(
     'Select Named Boundary',
@@ -640,16 +619,16 @@ registeredclass.Registration(
 #######################
 
 class SelectPeriodicPartnerSegments(SegmentSelectionModifier):
-    def __call__(self, skeleton, selection):
-        oldsegs = skeleton.segmentselection.retrieve()
-        newsegs = set()
+    def iterator(self, skeleton):
+        oldsegs = list(skeleton.segmentselection.retrieve())
         skel = skeleton.getObject()
         for seg in oldsegs:
             partner = seg.getPartner(skel)
             if partner:
-                newsegs.add(partner)
+                yield partner
+    def __call__(self, skeleton, selection):                
         selection.start()
-        selection.select(newsegs)
+        selection.select(self.iterator(skeleton))
 
 registeredclass.Registration(
     'Select Periodic Partners',
@@ -672,16 +651,15 @@ registeredclass.Registration(
 class SegmentHomogeneity(SegmentSelectionModifier):
     def __init__(self, threshold=0.9):
         self.threshold = threshold
-
-    def __call__(self, skeleton, selection):
-        selected = []
+    def iterator(self, skeleton):
         skel = skeleton.getObject()
         for segment in skel.segment_iterator():
             if segment.homogeneity(skel.MS) < self.threshold:
-                selected.append(segment)
+                yield segment
+    def __call__(self, skeleton, selection):
         selection.start()
         selection.clear()
-        selection.select(selected)
+        selection.select(self.iterator(skeleton))
 
 registeredclass.Registration(
     'Select by Homogeneity',
@@ -789,7 +767,7 @@ class SegmentIntersectGroup(SegmentSelectionModifier):
         self.group = group
     def __call__(self, skeleton, selection):
         slist = skeleton.segmentgroups.get_group(self.group)
-        ilist = filter(lambda x: x.selected, slist)
+        ilist = [x for x in slist if x.selected]
         selection.start()
         selection.clear()
         selection.select(ilist)
@@ -820,61 +798,58 @@ class ElementSelectionModifier(registeredclass.RegisteredClass):
 
 #######################
 
-if config.dimension() == 2:
+class ByElementType(ElementSelectionModifier):
+    def __init__(self, shape):
+        self.shape = shape
+    def iterator(self, skeleton):
+        for element in skeleton.getObject().element_iterator():
+            if element.type() == self.shape:
+                yield element
+    def __call__(self, skeleton, selection):
+        selection.start()
+        selection.clear()
+        selection.select(self.iterator(skeleton))
 
-    class ByElementType(ElementSelectionModifier):
-        def __init__(self, shape):
-            self.shape = shape
-
-        def __call__(self, skeleton, selection):
-            selected = []
-            for element in skeleton.getObject().element_iterator():
-                if element.type() == self.shape:
-                    selected.append(element)
-            selection.start()
-            selection.clear()
-            selection.select(selected)
-
-    registeredclass.Registration(
-        'Select by Element Type',
-        ElementSelectionModifier,
-        ByElementType,
-        ordering=1,
-        params = [
-        enum.EnumParameter('shape', skeletonelement.ElementShapeType,
-                           skeletonelement.ElementShapeType('triangle'),
-                           tip="Element shape.")],
-        tip='Select elements by shape.',
-        discussion="""<para>
-        <command>Select_By_Element_Type</command> selects all &elems; of a
-        given topology, <foreignphrase>i.e,</foreignphrase> triangular or
-        quadrilateral.
-        </para>""")
+registeredclass.Registration(
+    'Select by Element Type',
+    ElementSelectionModifier,
+    ByElementType,
+    ordering=1,
+    params = [
+    enum.EnumParameter('shape', skeletonelement.ElementShapeType,
+                       skeletonelement.ElementShapeType('triangle'),
+                       tip="Element shape.")],
+    tip='Select elements by shape.',
+    discussion="""<para>
+    <command>Select_By_Element_Type</command> selects all &elems; of a
+    given topology, <foreignphrase>i.e,</foreignphrase> triangular or
+    quadrilateral.
+    </para>""")
 
 #######################
 
 class ByElementMaterial(ElementSelectionModifier):
     def __init__(self, material):
         self.material = material
-    def __call__(self, skeleton, selection):
-        selected = []
+    def iterator(self, skeleton):
         skel = skeleton.getObject()
         if self.material == '<Any>':
             for element in skel.element_iterator():
                 if element.material(skeleton) is not None:
-                    selected.append(element)
+                    yield element
         elif self.material == '<None>':
             for element in skel.element_iterator():
                 if element.material(skeleton) is None:
-                    selected.append(element)
+                    yield element
         else:
             for element in skel.element_iterator():
                 matl = element.material(skeleton)
                 if matl is not None and matl.name() == self.material:
-                    selected.append(element)
+                    yield element
+    def __call__(self, skeleton, selection):
         selection.start()
         selection.clear()
-        selection.select(selected)
+        selection.select(self.iterator(skeleton))
 
 registeredclass.Registration(
     'Select by Material',
@@ -892,15 +867,15 @@ class ElementHomogeneity(ElementSelectionModifier):
     def __init__(self, threshold=0.9):
         self.threshold = threshold
 
-    def __call__(self, skeleton, selection):
-        selected = []
+    def iterator(self, skeleton):
         skel = skeleton.getObject()
         for element in skel.element_iterator():
             if element.homogeneity(skel.MS, False) < self.threshold:
-                selected.append(element)
+                yield element
+    def __call__(self, skeleton, selection):
         selection.start()
         selection.clear()
-        selection.select(selected)
+        selection.select(self.iterator(skeleton))
 
 registeredclass.Registration(
     'Select by Homogeneity',
@@ -919,14 +894,14 @@ registeredclass.Registration(
 class ElementShapeEnergy(ElementSelectionModifier):
     def __init__(self, threshold = 0.8):
         self.threshold = threshold
-    def __call__(self, skeleton, selection):
-        selected = []
+    def iterator(self, skeleton):
         for element in skeleton.getObject().element_iterator():
             if element.energyShape() > self.threshold:
-                selected.append(element)
+                yield element
+    def __call__(self, skeleton, selection):
         selection.start()
         selection.clear()
-        selection.select(selected)
+        selection.select(self.iterator(skeleton))
 
 registeredclass.Registration(
     'Select by Shape Energy',
@@ -934,22 +909,73 @@ registeredclass.Registration(
     ElementShapeEnergy,
     ordering=3,
     params = [
-    parameter.FloatRangeParameter('threshold', (0.0, 1.0, 0.01), value=0.8,
-                                  tip='Select Elements with shape-energy greater than this.')],
+    parameter.FloatRangeParameter(
+        'threshold', (0.0, 1.0, 0.01), value=0.8,
+        tip='Select Elements with shape-energy greater than this.')],
     tip="Select elements by shape-energy. The greater the shape-energy the uglier the element.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/element_by_shape.xml'))
 
 #######################
 
-class ElementIllegal(ElementSelectionModifier):
-    def __call__(self, skeleton, selection):
-        selected = []
+class ElementAspectRatio(ElementSelectionModifier):
+    def __init__(self, threshold, only_quads, only_refineable):
+        self.threshold = threshold
+        self.only_refineable = only_refineable
+        self.only_quads = only_quads
+    def iterator(self, skeleton):
+        # aspectRatio2 return the square of the inverse aspect ratio,
+        # so compare it to 1/threshold^2, and use <.
+        t2 = 1./(self.threshold * self.threshold)
         for element in skeleton.getObject().element_iterator():
-            if element.illegal():
-                selected.append(element)
+            if element.nnodes() == 3:
+                if not self.only_quads:
+                    if element.aspectRatio2() < t2:
+                        yield element
+            else:               # quads
+                if element.aspectRatio2() < t2:
+                    if self.only_refineable:
+                        # Only select elements whose two longest edges
+                        # are not adjacent.
+                        lengths = element.getEdgeLengthsList()
+                        sortlen = sorted([(lengths[i], i) for i in range(4)])
+                        longest = sortlen[3][1] # index of longest edge
+                        nextlongest = sortlen[2][1]
+                        diff = longest - nextlongest
+                        if diff == 2 or diff == -2:
+                            yield element
+                    else:
+                        yield element
+    def __call__(self, skeleton, selection):
         selection.start()
         selection.clear()
-        selection.select(selected)
+        selection.select(self.iterator(skeleton))
+
+registeredclass.Registration(
+    'Select by Aspect Ratio',
+    ElementSelectionModifier,
+    ElementAspectRatio,
+    ordering=3.5,
+    params=[
+        parameter.PositiveFloatParameter(
+            'threshold', value=5,
+            tip="Select Elements with an aspect ratio greater than this."),
+        parameter.BooleanParameter(
+            'only_quads', value=True,
+            tip="Select only quads, or both quads and triangles?"),
+        parameter.BooleanParameter(
+            'only_refineable', value=True,
+            tip="Only select quads with opposing long edges.")
+    ],
+    tip="Select elements with a minimum ratio of longest to shortest adjacent edges."
+    )
+
+#######################
+
+class ElementIllegal(ElementSelectionModifier):
+    def __call__(self, skeleton, selection):
+        selection.start()
+        selection.clear()
+        selection.select(skeleton.getObject().illegalElements())
 
 registeredclass.Registration(
     'Select Illegal Elements',
@@ -1135,7 +1161,7 @@ class ElementIntersectGroup(ElementSelectionModifier):
         self.group = group
     def __call__(self, skeleton, selection):
         elist = skeleton.elementgroups.get_group(self.group)
-        ilist = filter(lambda x: x.selected, elist)
+        ilist = [x for x in elist if x.selected]
         selection.start()
         selection.clear()
         selection.select(ilist)
@@ -1160,8 +1186,7 @@ registeredclass.Registration(
 class ElementByPixelGroup(ElementSelectionModifier):
     def __init__(self, group):
         self.group = group
-    def __call__(self, skeleton, selection):
-        selected = []
+    def iterator(self, skeleton):
         ms = skeleton.getMicrostructure()
         skel = skeleton.getObject()
         pxlgrp = ms.findGroup(self.group)
@@ -1169,10 +1194,11 @@ class ElementByPixelGroup(ElementSelectionModifier):
             where = ms.getRepresentativePixel(element.dominantPixel(skel.MS))
             grpnames = pixelgroup.pixelGroupNames(ms, where)
             if self.group in grpnames:
-                selected.append(element)
+                yield element
+    def __call__(self, skeleton, selection):
         selection.start()
         selection.clear()
-        selection.select(selected)
+        selection.select(self.iterator(skeleton))
 
 registeredclass.Registration(
     'Select by Pixel Group',

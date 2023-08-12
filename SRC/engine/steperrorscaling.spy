@@ -11,14 +11,14 @@
 from ooflib.common import cregisteredclass
 from ooflib.common.IO import xmlmenudump
 
-cregisteredclass.registerCClass(StepErrorScalingPtr)
-StepErrorScalingPtr.tip = "Ways to compute the error for a time step."
-StepErrorScalingPtr.discussion = xmlmenudump.loadFile(
+cregisteredclass.registerCClass(StepErrorScaling)
+StepErrorScaling.tip = "Ways to compute the error for a time step."
+StepErrorScaling.discussion = xmlmenudump.loadFile(
     'DISCUSSIONS/engine/reg/steperrorscaling.xml')
 
 cregisteredclass.Registration(
     "Relative",
-    StepErrorScalingPtr,
+    StepErrorScaling,
     RelativeErrorScaling,
     ordering=0,
     tip="Errors are scaled by the field magnitude.",
@@ -26,7 +26,7 @@ cregisteredclass.Registration(
 
 cregisteredclass.Registration(
     "Absolute",
-    StepErrorScalingPtr,
+    StepErrorScaling,
     AbsoluteErrorScaling,
     ordering=1,
     tip="Errors are not scaled.",
@@ -34,7 +34,7 @@ cregisteredclass.Registration(
 
 cregisteredclass.Registration(
     "XOver",
-    StepErrorScalingPtr,
+    StepErrorScaling,
     XOverErrorScaling,
     ordering=2,
     tip="Errors are scaled by the field magnitude, except near zero-crossings.",
@@ -42,7 +42,7 @@ cregisteredclass.Registration(
 
 cregisteredclass.Registration(
     "Global",
-    StepErrorScalingPtr,
+    StepErrorScaling,
     GlobalErrorScaling,
     ordering=3,
     tip="Errors are scaled so that the integral over time is constant.",

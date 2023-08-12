@@ -110,7 +110,7 @@ class install_shlib(Command):
                                             stderr=subprocess.PIPE)
                     stdoutdata, stderrdata = proc.communicate()
                     if stderrdata:
-                        print >> sys.stderr, stderrdata
+                        print(stderrdata, file=sys.stderr)
                         raise DistutilsExecError(
                             "Command failed: " + " ".join(cmd))
                     

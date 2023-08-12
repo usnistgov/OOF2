@@ -17,7 +17,7 @@ def pixelSelectionSize(n):
     size = int(txt.split(' ')[0])
     if size == n:
         return True
-    print >> sys.stderr, "Wrong pixel selection size. Expected %d, got %d" \
-        % (n, size)
+    print("Wrong pixel selection size. Expected %d, got %d" \
+        % (n, size), file=sys.stderr)
     return False
 

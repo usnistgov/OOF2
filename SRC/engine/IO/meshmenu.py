@@ -45,12 +45,10 @@ from ooflib.engine.IO import meshparameters
 from ooflib.engine.IO import skeletonIO
 from ooflib.engine.IO import subproblemmenu
 
-
 if parallel_enable.enabled():
     from ooflib.engine.IO import meshIPC
+
 import ooflib.engine.mesh
-import types
-import string
 
 SyncMeshParameter = ooflib.engine.mesh.SyncMeshParameter
 
@@ -68,6 +66,7 @@ meshmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
 
 settingsmenu = mainmenu.OOF.Settings.addItem(oofmenu.OOFMenuItem(
     'Mesh_Defaults',
+    ordering=5,
     help='Default values for Mesh parameters'))
 
 ####################
@@ -263,7 +262,7 @@ def copyMesh(menuitem, mesh, name, copy_field, copy_equation, copy_bc):
         newmesh.begin_writing()
         try:
             copiedmesh = skelpath+[copiedmeshname]
-            copiedmeshfullname = string.join(copiedmesh,":")
+            copiedmeshfullname = utils.stringjoin(copiedmesh,":")
             for subpctxt in basemesh.subproblems():
                 newsubpctxt = subpctxt.clone(newmesh, copy_field, copy_equation,
                                              notifications)
@@ -277,9 +276,10 @@ def copyMesh(menuitem, mesh, name, copy_field, copy_equation, copy_bc):
             if copy_field:
                 for field in newmesh.all_subproblem_fields():
                     if basemesh.femesh().in_plane(field):
-                        newmesh.set_in_plane_field(field, 1)
-                        notifications.add(("field inplane",
-                                           copiedmeshfullname, field.name(), 1))
+                        newmesh.set_in_plane_field(field, True)
+                        notifications.add(
+                            ("field inplane", copiedmeshfullname, field.name(),
+                             True))
                     try:
                         initializer = basemesh.initializers[field]
                     except KeyError:
@@ -336,7 +336,7 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
 
 def _copyFieldState(menuitem, source, target):
     if source == target:
-        raise ooferror.ErrUserError('Source and target must differ!')
+        raise ooferror.PyErrUserError('Source and target must differ!')
     if parallel_enable.enabled():
         meshIPC.ipcmeshmenu.Copy_Field_State(source=source,target=target)
         return
@@ -448,7 +448,7 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
 
 def _copyEquationState(menuitem, source, target):
     if source == target:
-        raise ooferror.ErrUserError('Source and target must differ!')
+        raise ooferror.PyErrUserError('Source and target must differ!')
     if parallel_enable.enabled():
         meshIPC.ipcmeshmenu.Copy_Equation_State(source=source,target=target)
         return
@@ -719,11 +719,12 @@ def _inPlaneField(menuitem, mesh, field):
         meshcontext.reserve()
         meshcontext.begin_writing()
         try:
-            meshcontext.set_in_plane_field(field, 1)
+            meshcontext.set_in_plane_field(field, True)
         finally:
             meshcontext.end_writing()
             meshcontext.cancel_reservation()
-        switchboard.notify("field inplane", meshcontext.path(), field.name(), 1)
+        switchboard.notify("field inplane", meshcontext.path(), field.name(),
+                           True)
         meshcontext.changed("Field planarity changed.")
 #         meshcontext.setStatus(meshstatus.Unsolved("Field planarity changed"))
 
@@ -735,12 +736,12 @@ def _outOfPlaneField(menuitem, mesh, field):
         meshcontext.reserve()
         meshcontext.begin_writing()
         try:
-            meshcontext.set_in_plane_field(field, 0)
+            meshcontext.set_in_plane_field(field, False)
         finally:
             meshcontext.end_writing()
             meshcontext.cancel_reservation()
         switchboard.notify("field inplane", meshcontext.path(),
-                           field.name(), 0)
+                           field.name(), False)
         meshcontext.changed("Field planarity changed.")
 #         meshcontext.setStatus(meshstatus.Unsolved("Field planarity changed"))
 
@@ -1321,7 +1322,7 @@ def saveMesh(menuitem, filename, mode, format, mesh):
     meshcontext.begin_reading()
     try:
         if meshcontext.outOfSync():
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "The Mesh must be rebuilt before it can be saved.")
         meshpath = labeltree.makePath(mesh)
         skelpath = meshpath[:2]
@@ -1452,10 +1453,10 @@ settingsmenu.addItem(oofmenu.OOFMenuItem(
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 
-from ooflib.SWIG.engine import properties
+from ooflib.SWIG.engine import property
 
 def _numericalDiff(menuitem, epsilon):
-    properties.cvar.deriv_eps = epsilon
+    property.cvar.deriv_eps = epsilon
 
 settingsmenu.addItem(oofmenu.OOFMenuItem(
         "Numerical_Differentiation",
@@ -1463,7 +1464,7 @@ settingsmenu.addItem(oofmenu.OOFMenuItem(
         params=[
             parameter.FloatParameter(
                 "epsilon",
-                properties.cvar.deriv_eps,
+                property.cvar.deriv_eps,
                 tip="Increment for numerical differentiation")],
         help="Set the increment used for approximate derivatives when exact derivatives are not available.",
         discussion=xmlmenudump.loadFile(
@@ -1562,8 +1563,8 @@ def _solve(menuitem, mesh, endtime):
     meshctxt.begin_writing()
     try:
         if not meshctxt.status.solvable:
-            raise ooferror.ErrUserError('Mesh is not solvable! '
-                                        + meshctxt.status.getDetails())
+            raise ooferror.PyErrUserError('Mesh is not solvable! '
+                                          + meshctxt.status.getDetails())
         # install latest data and prevent data cache from restoring
         # old data.
         meshctxt.restoreLatestData() # a no-op, if nothing has been cached yet

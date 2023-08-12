@@ -13,13 +13,16 @@
 #ifndef ABSTRACTIMAGE_SWG
 #define ABSTRACTIMAGE_SWG
 
-%module abstractimage
+%module(package="ooflib.SWIG.common") abstractimage
+
 %include "common/typemaps.swg"
 
 %{
 #include "common/abstractimage.h"
 #include "common/coord.h"
 %}
+
+%nodefaultctor AbstractImage;
 
 class AbstractImage {
 public:

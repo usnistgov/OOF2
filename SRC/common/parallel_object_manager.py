@@ -45,7 +45,7 @@ class ParallelObjectManager:
     def reset_counter(self):
         global global_counter
         while global_counter>0 :
-            if self.obj_dict.has_key(global_counter-1) == 1:
+            if (global_counter-1 in self.obj_dict) == 1:
                 return
             else:
                 global_counter -= 1

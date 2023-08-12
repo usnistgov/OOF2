@@ -53,8 +53,6 @@ from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
-from types import *
-import string
 import struct
 
 
@@ -65,7 +63,7 @@ whoClasses = []
 # can all be turned on and off by setting _debuglocks.
 _debuglocks = False
 
-class Who(object):
+class Who:
     ## A Who is a wrapper/container to administer objects of the
     ## same type. Subclasses and instances of this class are
     ## referred to as <something>Context or <something>Who.
@@ -148,12 +146,12 @@ class Who(object):
     def requestCallback(self, *args):
         self.switchboardCallbacks.append(switchboard.requestCallback(*args))
     def remove(self):
-        ## TODO LATER: PARALLELIZE THIS FUNCTION
         self._obj = None
         # This can't set parent=None, because self should be locked
         # when this function is called.  If we set parent=None here,
         # then the parent won't be unlocked when self is unlocked.
-        map(switchboard.removeCallback, self.switchboardCallbacks)
+        for cb in self.switchboardCallbacks:
+            switchboard.removeCallback(cb)
         self.switchboardCallbacks = [] # removes possible circular references 
     def defunct(self):
         return self._obj is None
@@ -602,12 +600,12 @@ class WhoClass:
     def __getitem__(self, which):
         obj = self.members[which].object
         if obj is None:
-            raise KeyError, "There is no %s named %s!" % (self.name(), which)
+            raise KeyError("There is no %s named %s!" % (self.name(), which))
         return obj
 
     # Return a list of all the names currently known, beginning at
     # "base" in the LabelTree.  Names of Who objects for which
-    # condition(object) is false are omitted.
+    # condition(obj) is false are omitted.
     def keys(self, base=None, condition=lambda x:1, sort=None):
         if not base:
             klist = self.members.leafpaths(condition)
@@ -650,9 +648,9 @@ class WhoClass:
                 count += 1
     def __repr__(self):
         return 'WhoClass(%s)' % self.name()
-    def __cmp__(self, other):
+    def __lt__(self, other):
         # comparing names is good enough, because WhoClass names are unique.
-        return cmp(self.name(), other.name())
+        return self.name() < other.name()
 
 class WhoDoUndoClass(WhoClass):
     def __init__(self, name, ordering, parentClass=None,
@@ -725,14 +723,14 @@ class WhoParameter(parameter.Parameter):
     def checker(self, x):
         # x must be the name of a Who instance of the correct
         # WhoClass.
-        if not (type(x) == StringType and 
+        if not (isinstance(x, str) and 
                 labeltree.makePath(x) in self.whoclass.keys()):
             debug.fmsg("Unexpected WhoParameter value:", x, type(x))
             raise TypeError("Expected the name of a %s instance."
                             % self.whoclass)
     def __repr__(self):
         return 'WhoParameter(%s, %s, %s, %s)' % (self.name, self.whoclass,
-                                                 `self.value`, self.tip)
+                                                 repr(self.value), self.tip)
     def clone(self):
         return self.__class__(self.name, self.whoclass, value=self.value,
                               default=self.default, tip=self.tip)
@@ -740,11 +738,12 @@ class WhoParameter(parameter.Parameter):
     structfmt = '>i'
     structlen = struct.calcsize(structfmt)
     def binaryRepr(self, datafile, value):
-        return struct.pack(WhoParameter.structfmt, len(value)) + value
+        return (struct.pack(WhoParameter.structfmt, len(value))
+                + bytes(value, "UTF-8"))
     def binaryRead(self, parser):
         b = parser.getBytes(WhoParameter.structlen)
         (length,) = struct.unpack(WhoParameter.structfmt, b)
-        return parser.getBytes(length)
+        return parser.getBytes(length).decode()
     def classRepr(self):
         return "%s(%s)" % (self.__class__.__name__, self.whoclass.name())
     def valueDesc(self):
@@ -785,14 +784,11 @@ class AutoWhoNameParameter(parameter.RestrictedAutomaticNameParameter):
             self.__class__.__name__,
             self.name, self.resolver, self.truevalue, self.tip)
 
-# A NewWhoParameter can be set to the name an existing Who object, or
-# a new name.  Its widget presents a list of existing objects and a
+# A NewWhoParameter can be set to the name of an existing Who object,
+# or a new name.  Its widget presents a list of existing objects and a
 # place to type in a new name.
 class NewWhoParameter(parameter.RestrictedStringParameter):
     def __init__(self, name, whoclass, value=None, default=None, tip=None):
-        if type(whoclass)!=InstanceType:
-            raise ValueError(
-                "WhoParameter requires a WhoClass or Who instance.")
         if isinstance(whoclass, Who):
             self.whoclass = whoclass.getClass()
         elif isinstance(whoclass, WhoClass):
@@ -822,7 +818,7 @@ class WhoClassParameter(parameter.StringParameter):
                                  self.condition, self.tip)
     def checker(self, x):
         if x and getClass(x) is None:
-            raise TypeError("Expected a WhoClass name. Got %s" % `x`)
+            raise TypeError("Expected a WhoClass name. Got %s" % repr(x))
     def valueDesc(self):
         return "The name of a class of OOF2 objects (eg, <userinput>'Microstructure'</userinput> or <userinput>'Skeleton'</userinput>)."
         

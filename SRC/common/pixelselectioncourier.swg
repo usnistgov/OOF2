@@ -12,24 +12,21 @@
 #ifndef PIXELSELECTIONCOURIER_SWG
 #define PIXELSELECTIONCOURIER_SWG
 
-%module pixelselectioncourier
+%module(package="ooflib.SWIG.common") pixelselectioncourier
 
 %include "common/typemaps.swg"
-%extern "common/coord.swg"
+%import "common/coord.swg"
 
 %{
 #include "common/pixelselectioncourier.h"
 #include "common/tostring.h"
 %}
 
-class PixelSelectionCourier {
-public:
-  %addmethods {
-    %new const string *repr() {	// for debugging
-      return new std::string(tostring(*self));
-    }
-  }
-};
+%nodefaultctor PixelSelectionCourier;
+
+class PixelSelectionCourier {};
+
+ADD_REPR_GENERIC(PixelSelectionCourier);
 
 class PointSelection : public PixelSelectionCourier {
 public:
@@ -37,13 +34,11 @@ public:
   ~PointSelection();
 };
 
-#ifndef DIM_3
 class BrushSelection : public PixelSelectionCourier {
 public:
-  BrushSelection(CMicrostructure*, BrushStyle*, PointVec *PointList);
+  BrushSelection(CMicrostructure*, BrushStyle*, std::vector<Coord> *PointList);
   ~BrushSelection();
 };
-#endif
 
 class RectangleSelection : public PixelSelectionCourier {
 public:
@@ -76,7 +71,6 @@ public:
   ~IntersectSelection();
 };
 
-#ifndef DIM_3
 class DespeckleSelection : public PixelSelectionCourier {
 public:
   DespeckleSelection(CMicrostructure*, PixelSet*, int);
@@ -100,6 +94,5 @@ public:
   ShrinkSelection(CMicrostructure*, PixelSet*, double);
   ~ShrinkSelection();
 };
-#endif // DIM_3
 
 #endif // PIXELSELECTIONCOURIER_SWG

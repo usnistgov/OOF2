@@ -1,0 +1,2 @@
+add_subdirectory(surfacetension)
+add_subdirectory(surfacetest)

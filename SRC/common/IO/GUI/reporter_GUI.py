@@ -10,7 +10,6 @@
 
 # Message window, and the GUI part of the error reporting machinery.
 
-from gi.repository import Gtk
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
@@ -18,6 +17,7 @@ from ooflib.common import debug
 from ooflib.common import excepthook
 from ooflib.common import mainthread
 from ooflib.common import thread_enable
+from ooflib.common import utils
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import reporter
@@ -27,9 +27,12 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import subWindow
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
 import os
-import string
-import sys
 import time
 import traceback
 
@@ -89,7 +92,7 @@ class MessageWindow(subWindow.SubWindow):
         self.button_dict = {}
         self.signal_dict = {}
         for m in reporter.messageclasses:
-            button = Gtk.CheckButton(m)
+            button = Gtk.CheckButton(label=m)
             gtklogger.setWidgetName(button, m)
             buttonbox.pack_end(button, fill=False, expand=False, padding=0)
             self.signal_dict[m] = gtklogger.connect(button, "clicked",
@@ -140,7 +143,8 @@ class MessageWindow(subWindow.SubWindow):
         global _message_window_auto_open
         allMessageWindows.remove(self)
         _message_window_auto_open = False
-        map(switchboard.removeCallback, self.sbcbs)
+        for sb in self.sbcbs:
+            switchboard.removeCallback(sb)
         OOF.Windows.Messages.removeItem(self.windows_menu_name)
 
     def draw(self):
@@ -226,25 +230,25 @@ reporter.messagemanager.gui_mode = True
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class WarningPopUp(object):
+class WarningPopUp:
     # Argument "message" is a single string for the second GtkLabel.
     def __init__(self, message):
         debug.mainthreadTest()
         self.gtk = gtklogger.Dialog(title="%s Warning"%subWindow.oofname(),
-                                    parent=guitop.top().gtk)
+                                    transient_for=guitop.top().gtk)
         gtklogger.newTopLevelWidget(self.gtk, "Warning")
 
         vbox = self.gtk.get_content_area()
         vbox.set_spacing(3)
 
-        vbox.pack_start(Gtk.Label("WARNING"),
+        vbox.pack_start(Gtk.Label(label="WARNING"),
                                  expand=False, fill=False, padding=0)
-        vbox.pack_start(Gtk.Label(message),
+        vbox.pack_start(Gtk.Label(label=message),
                                  expand=False, fill=False, padding=0)
         button = gtkutils.StockButton("gtk-ok", "OK")
         self.gtk.add_action_widget(button, Gtk.ResponseType.OK)
 
-        disable_button = Gtk.Button("Disable warnings")
+        disable_button = Gtk.Button(label="Disable warnings")
         self.gtk.add_action_widget(disable_button, Gtk.ResponseType.REJECT)
 
         disable_button.set_tooltip_text(
@@ -277,8 +281,9 @@ switchboard.requestCallbackMain("messagemanager warning", _warning_pop_up)
 # The error pop up optionally allows you to view the traceback,
 # and save it to a file.  The file is automatically named.
 
-class ErrorPopUp(object):
+class ErrorPopUp:
     def __init__(self, e_type, value, tbacklist):
+        # tbacklist is a traceback class object
         debug.mainthreadTest()
         
         errorstrings = []     # list of strings
@@ -297,13 +302,14 @@ class ErrorPopUp(object):
                 [line.rstrip() for line in
                  traceback.format_exception_only(e_type, value)])
 
-            if isinstance(value, ooferror.ErrErrorPtr):
-                moreinfo = value.details()
+            if isinstance(value, ooferror.PyOOFError):
+                moreinfo = value.cexcept.details()
                 if moreinfo:
                     errorstrings.append(moreinfo)
             errorstrings.append("") # blank line
             if tbacklist:
-                self.tracebacks.append(traceback.format_list(tbacklist))
+                self.tracebacks.append(
+                    traceback.format_list(traceback.extract_tb(tbacklist)))
 
         _savedExceptions = []
 
@@ -312,8 +318,8 @@ class ErrorPopUp(object):
         self.datestampstring = time.strftime("%Y %b %d %H:%M:%S %Z")
         self.gtk = gtklogger.Dialog(
             title="%s Error" % subWindow.oofname(),
-            flags=Gtk.DialogFlags.MODAL,
-            parent=guitop.top().gtk,
+            modal=True,
+            transient_for=guitop.top().gtk,
             border_width=3)
         self.gtk.set_keep_above(True) # might not work
         gtklogger.newTopLevelWidget(self.gtk, "Error")
@@ -321,8 +327,8 @@ class ErrorPopUp(object):
         vbox = self.gtk.get_content_area()
         vbox.set_spacing(3)
 
-        classname = string.split(str(e_type),'.')[-1]
-        vbox.pack_start(Gtk.Label("ERROR"),
+        classname = utils.stringsplit(str(e_type),'.')[-1]
+        vbox.pack_start(Gtk.Label(label="ERROR"),
                                  expand=False, fill=False, padding=0)
 
         self.errframe = Gtk.Frame()
@@ -345,7 +351,7 @@ class ErrorPopUp(object):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
                        homogeneous=True)
         vbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        self.tracebutton = Gtk.Button("View Traceback")
+        self.tracebutton = Gtk.Button(label="View Traceback")
         gtklogger.setWidgetName(self.tracebutton, "ViewTraceback")
         gtklogger.connect(self.tracebutton, "clicked", self.trace)
         hbox.pack_start(self.tracebutton, expand=False, fill=False, padding=0)
@@ -361,7 +367,7 @@ class ErrorPopUp(object):
         okbut.set_can_default(True)
         self.gtk.add_action_widget(okbut,
                                    Gtk.ResponseType.OK)
-        self.gtk.add_action_widget(Gtk.Button("Abort"),
+        self.gtk.add_action_widget(Gtk.Button(label="Abort"),
                                    Gtk.ResponseType.CLOSE)
         self.gtk.set_default_response(Gtk.ResponseType.OK)
 
@@ -435,7 +441,7 @@ class ErrorPopUp(object):
         fname = "traceback_oof."+str(os.getpid())
         errbuf = self.errbox.get_buffer()
         try:
-            fobj = file(fname, "a+")
+            fobj = open(fname, "a+")
             fobj.write("%s\n\n" % self.datestampstring)
             
             tbuf = self.tracepane.get_buffer()
@@ -490,15 +496,8 @@ def gui_printTraceBack(e_type, e_value, tbacklist):
             from ooflib.common.IO.GUI import quit
             # The first argument to doQueryQuit is the window that the
             # Quit dialog box will appear in front of.
-            if not mainthread.runBlock(quit.doQueryQuit,
-                                       (guitop.top().gtk,),
-                                       kwargs=dict(exitstatus=1)):
-                sys.exc_clear() # quitting was cancelled
-        else:
-            # Not aborting.  Clear the exception because it can
-            # contain references to objects and prevent garbage
-            # collection.
-            sys.exc_clear()
+            mainthread.runBlock(quit.doQueryQuit,
+                                (guitop.top().gtk,), kwargs=dict(exitstatus=1))
 
 excepthook.displayTraceBack = gui_printTraceBack
 

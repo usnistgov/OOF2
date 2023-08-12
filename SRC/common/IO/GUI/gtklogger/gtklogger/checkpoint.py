@@ -15,7 +15,7 @@
 ## executing code.  There is no constraint on the order in which
 ## checkpoints are reached when running in threaded mode.
 
-import logutils
+from . import logutils
 import sys
 
 _checkpointdict = {}
@@ -31,10 +31,10 @@ def checkpoint(comment):
     _checkpointlock.acquire()
     try:
         if logutils.recording():        # recording
-            print >> logutils.logfile(), "checkpoint", comment
+            print("checkpoint", comment, file=logutils.logfile())
             logutils.logfile().flush()
             if logutils.debugLevel() >= 2:
-                print >> sys.stderr, "////// checkpoint", comment
+                print("////// checkpoint", comment, file=sys.stderr)
         if logutils.replaying():
             try:
                 _checkpointdict[comment] += 1
@@ -81,7 +81,7 @@ def checkpoint_count(comment, n=0):          # for debugging
     _checkpointlock.acquire()
     try:
         count = _checkpointdict.get(comment, 0)
-        print "****** checkpoint_count", comment, count
+        print("****** checkpoint_count", comment, count)
         if count != n:
             raise CheckPointException(comment)
     finally:

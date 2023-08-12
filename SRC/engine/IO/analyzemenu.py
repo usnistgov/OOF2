@@ -10,7 +10,7 @@
 
 
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.common import parallel_enable
@@ -107,8 +107,8 @@ def _ops_callback(menuitem, mesh, time, data, domain, sampling, destination,
 
     direct = getattr(menuitem.data, 'direct', False)
     if not (direct or data.allowsArithmetic()):
-        raise ooferror2.ErrUserError("Output '" + data.name +
-                                    "' can only be used with Direct output")
+        raise ooferror.PyErrUserError("Output '" + data.name +
+                                      "' can only be used with Direct output")
 
     # Set the mesh in the domain, then run the operation.
     domain.set_mesh(mesh)

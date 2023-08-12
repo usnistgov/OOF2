@@ -12,8 +12,10 @@ from ooflib.SWIG.common import config
 from ooflib.common import oofversion
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import oofGUI
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-from gi.repository import Pango
 
 from ooflib.common.IO.words import words
 # words['Credits'], words['Disclaimer'], and words['Copyright']
@@ -77,7 +79,7 @@ class IntroPage(oofGUI.MainPage):
         vbox.pack_start(buttonbox, expand=False, fill=False, padding=0)
 
         self.labels = ['Welcome', 'Credits', 'Copyright', 'Disclaimer']
-        self.buttons = [Gtk.ToggleButton(x) for x in self.labels]
+        self.buttons = [Gtk.ToggleButton(label=x) for x in self.labels]
         for button, label in zip(self.buttons, self.labels):
             buttonbox.pack_start(button, expand=True, fill=True, padding=0)
             gtklogger.setWidgetName(button, label)

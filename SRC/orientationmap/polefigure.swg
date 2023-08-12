@@ -12,16 +12,16 @@
 #ifndef POLEFIGURE_SWG
 #define POLEFIGURE_SWG
 
-%module polefigure
+%module(package="ooflib.SWIG.orientationmap") polefigure
+
 %include "common/typemaps.swg"
-%extern "engine/crystalsymmetry.swg"
-%extern "common/direction.swg"
+%import "engine/crystalsymmetry.swg"
+%import "common/direction.swg"
 
 %{
+#include "common/direction.h"
 #include "orientationmap/polefigure.h"
 %}
-
-%pragma(python) include = "polefigure.spy"
 
 class PoleFigure {
 public:
@@ -35,6 +35,8 @@ public:
   double minValue();
   double maxValue();
 };
+
+%pythoncode "orientationmap/polefigure.spy"
 
 #endif // POLEFIGURE_SWG
 

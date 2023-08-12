@@ -14,8 +14,9 @@ from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import profilefunction
-import string, types, struct
+import struct
 
+from ooflib.common.utils import stringjoin
 
 # Object for aggregating location information for boundaries. 
 # All profile __call__ methods take one of these as an argument.
@@ -42,8 +43,8 @@ class Location:
                   'distance', 'fraction', 'time']:
             val = getattr(self, s)
             if val is not None:
-                attrlist.append("%s=%s" % (s, `val`) )
-        result += string.join(attrlist, ", ") + ")"
+                attrlist.append("%s=%s" % (s, repr(val)) )
+        result += stringjoin(attrlist, ", ") + ")"
         return result
                                 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -90,18 +91,19 @@ class Profile(registeredclass.RegisteredClass):
 # ProfileX, ProfileXT, or ProfileXTd, as well as from Profile.
 # ProfileX, etc, aren't derived from Profile so that the concrete
 # Profile subclasses can share code without creating messy multiple
-# inheritance relationships.
+# inheritance relationships.  (For example, ConstantProfile is derived
+# from all of Profile, ProfileX, ProfileXT, and ProfileXTd.)
 
 #  Space-dependent profiles.
 
-class ProfileX(object):
+class ProfileX:
     tip="Space-dependent boundary condition profiles."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/profilex.xml')
     registry = []
 
 # Space- and time-dependent profiles.
 
-class ProfileXT(object):
+class ProfileXT:
     tip="Space- and time-dependent boundary condition profiles."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/profilext.xml')
     registry = []
@@ -109,7 +111,7 @@ class ProfileXT(object):
 # Space- and time-dependent profiles, for which time derivative
 # information is provided.
 
-class ProfileXTd(object):
+class ProfileXTd:
     tip="Space- and time-dependent boundary condition profiles, with derivatives."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/profilextd.xml')
     registry = []
@@ -138,7 +140,7 @@ class _ContinuumProfileX(Profile):
         return self.function(*self.funcargs(location))
     # Output.
     def description(self):
-        return `self.function`
+        return repr(self.function)
     def equiv(self,other):
         return (other.__class__==self.__class__ and
                 self.function == other.function)
@@ -279,10 +281,10 @@ class ConstantProfile(Profile, ProfileX, ProfileXT, ProfileXTd):
         return 0
     
     def description(self):
-        return `self.value`
+        return repr(self.value)
     
     def __repr__(self):
-        return "ConstantProfile(value=%s)" % `self.value`
+        return "ConstantProfile(value=%s)" % repr(self.value)
 
 
 registeredclass.Registration(
@@ -315,7 +317,7 @@ class LinearProfile(Profile, ProfileX, ProfileXT, ProfileXTd):
         return 0
 
     def description(self):
-        return "[%s->%s]" % (`self.start`, `self.end`)
+        return "[%s->%s]" % (repr(self.start), repr(self.end))
 ##    def __repr__(self):
 ##        return "LinearProfile(start=%s, end=%s)" % (`self.start`, `self.end`)
         
@@ -370,15 +372,15 @@ class FluxProfileSet:
                 return True
         return False
     def description(self):
-        return "(%s)" % string.join([x.description() for x in self.data],", ")
+        return "(%s)" % stringjoin([x.description() for x in self.data],", ")
     def __repr__(self):
         # The FluxProfileSetParameter accepts lists of Profiles or a
         # single Profile, so there's no need to write out
         # 'FluxProfileSet([<profiles>])'
         if len(self) == 1:
-            return `self.data[0]`
+            return repr(self.data[0])
         else:
-            return `self.data`
+            return repr(self.data)
 
 utils.OOFdefine('FluxProfileSet', FluxProfileSet)
 
@@ -388,7 +390,7 @@ class FluxProfileSetParameter(parameter.Parameter):
         if isinstance(x, ProfileXT) or isinstance(x, FluxProfileSet):
             return
         # A list or tuple of Profiles is allowed
-        if type(x) in (types.ListType, types.TupleType):
+        if type(x) in (list, tuple):
             for y in x:
                 if not isinstance(y, ProfileXT):
                     parameter.raiseTypeError('List or tuple of '+ type(y),
@@ -398,20 +400,20 @@ class FluxProfileSetParameter(parameter.Parameter):
     def set(self, value):
         if isinstance(value, FluxProfileSet):
             self._value = value
-        elif type(value) in (types.ListType, types.TupleType):
+        elif type(value) in (list, tuple):
             self._value = FluxProfileSet(value)
         elif isinstance(value, Profile):
             self._value = FluxProfileSet([value])
         else:
             raise parameter.ParameterMismatch(
-                'Got ' + `value` + ' for Parameter ' + self.name)
+                'Got ' + repr(value) + ' for Parameter ' + self.name)
 
     def binaryRepr(self, datafile, value):
         n = len(value)
         strs = [struct.pack(">i",n)]
         for p in value.get_profiles():
             strs.append(p.binaryRepr(datafile))
-        return string.join(strs, "")
+        return b"".join(strs)
     
     def binaryRead(self, parser):
         b = parser.getBytes(struct.calcsize(">i"))

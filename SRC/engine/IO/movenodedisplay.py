@@ -17,7 +17,6 @@ from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
-import types
 
 import oofcanvas
 
@@ -31,7 +30,7 @@ class MoveNodeDisplay(display.DisplayMethod):
         toolbox = gfxwindow.getToolboxByName("Move_Nodes")
         node = toolbox.selectednode.node()
         if node and toolbox.selectednode.visible:
-            dot = oofcanvas.CanvasDot(node.position(), self.size)
+            dot = oofcanvas.CanvasDot.create(node.position(), self.size)
             dot.setFillColor(color.canvasColor(self.color))
             self.canvaslayer.addItem(dot)
 

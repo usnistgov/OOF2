@@ -21,6 +21,8 @@ from ooflib.engine import subproblemcontext
 from ooflib.engine.IO import boundaryconditionmenu
 import ooflib.engine.mesh
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import GObject
 from gi.repository import Gtk
 
@@ -56,15 +58,16 @@ class BoundaryCondPage(oofGUI.MainPage):
 
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               callback=self.meshCB, scope=self)
-        label = Gtk.Label("Microstructure=", halign=Gtk.Align.END)
+        label = Gtk.Label(label="Microstructure=", halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[0],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label="Skeleton=",
+                          halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[1],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label("Mesh=", halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label="Mesh=", halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[2],
                              expand=False, fill=False, padding=0)
@@ -84,41 +87,41 @@ class BoundaryCondPage(oofGUI.MainPage):
                             margin=2)
         bcbuildbox.pack_start(bcbuttons, expand=False, fill=False, padding=0)
         
-        self.bcNew = Gtk.Button("New...")
+        self.bcNew = Gtk.Button(label="New...")
         gtklogger.setWidgetName(self.bcNew, 'New')
         gtklogger.connect(self.bcNew, "clicked", self.bcNew_CB)
         self.bcNew.set_tooltip_text(
             "Create a new boundary condition in the current mesh.")
         bcbuttons.pack_start(self.bcNew, expand=True, fill=True, padding=0)
 
-        self.bcRename = Gtk.Button("Rename...")
+        self.bcRename = Gtk.Button(label="Rename...")
         gtklogger.setWidgetName(self.bcRename, 'Rename')
         gtklogger.connect(self.bcRename, 'clicked', self.bcRename_CB)
         self.bcRename.set_tooltip_text(
             "Rename the selected boundary condition.")
         bcbuttons.pack_start(self.bcRename, expand=True, fill=True, padding=0)
 
-        self.bcEdit = Gtk.Button("Edit...")
+        self.bcEdit = Gtk.Button(label="Edit...")
         gtklogger.setWidgetName(self.bcEdit, 'Edit')
         gtklogger.connect(self.bcEdit, 'clicked', self.bcEdit_CB)
         self.bcEdit.set_tooltip_text("Edit the selected boundary condition.")
         bcbuttons.pack_start(self.bcEdit, expand=True, fill=True, padding=0)
 
-        self.bcCopy = Gtk.Button("Copy...")
+        self.bcCopy = Gtk.Button(label="Copy...")
         gtklogger.setWidgetName(self.bcCopy, 'Copy')
         gtklogger.connect(self.bcCopy, 'clicked', self.bcCopy_CB)
         self.bcCopy.set_tooltip_text(
             "Copy the selected boundary condition to another mesh.")
         bcbuttons.pack_start(self.bcCopy, expand=True, fill=True, padding=0)
 
-        self.bcCopyAll = Gtk.Button("Copy All...")
+        self.bcCopyAll = Gtk.Button(label="Copy All...")
         gtklogger.setWidgetName(self.bcCopyAll, 'CopyAll')
         gtklogger.connect(self.bcCopyAll, 'clicked', self.bcCopyAll_CB)
         self.bcCopyAll.set_tooltip_text(
             "Copy all the boundary conditions to another mesh.")
         bcbuttons.pack_start(self.bcCopyAll, expand=True, fill=True, padding=0)
         
-        self.bcDel = Gtk.Button("Delete")
+        self.bcDel = Gtk.Button(label="Delete")
         gtklogger.setWidgetName(self.bcDel, 'Delete')
         gtklogger.connect(self.bcDel, "clicked", self.bcDel_CB)
         self.bcDel.set_tooltip_text("Remove the selected boundary condition.")
@@ -353,7 +356,7 @@ class BoundaryCondPage(oofGUI.MainPage):
             if parameterwidgets.getParameters(
                     newnameparam,
                     parentwindow=self.gtk.get_toplevel(),
-                    title="Rename the boundary condition '%s'" % bcname):
+                    title=f"Rename the boundary condition '{bcname}'"):
                 menuitem.callWithDefaults(mesh=meshname, bc=bcname)
 
     def newBCs(self, mesh, bc=None, visible=True):
@@ -389,9 +392,9 @@ class BCList:
         debug.mainthreadTest()
         self.bcliststore = Gtk.ListStore(GObject.TYPE_STRING,
                                          GObject.TYPE_PYOBJECT)
-        self.sortedlist = Gtk.TreeModelSort(self.bcliststore)
+        self.sortedlist = Gtk.TreeModelSort(model=self.bcliststore)
         self.gtk = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
-        self.treeview = Gtk.TreeView(self.sortedlist)
+        self.treeview = Gtk.TreeView(model=self.sortedlist)
         self.gtk.add(self.treeview)
         gtklogger.setWidgetName(self.treeview, "BCList")
 
@@ -532,17 +535,33 @@ class BCList:
     def doubleClickCB(self, treeview, path, col):
         self.parent.bcEdit_CB()
 
+    # sortByNameFn and sortByBdyFn are passed to
+    # Gtk.TreeModelSort.set_sort_func(), and return -1, 0, or 1
+    # depending on whether iter1 is less than, equal to, or greater
+    # than iter2, like the lost lamented cmp() function.
     def sortByNameFn(self, model, iter1, iter2, data):
-        return cmp(model[iter1][0], model[iter2][0])
+        m1 = model[iter1][0]
+        m2 = model[iter2][0]
+        if m1 < m2:
+            return -1
+        if m1 > m2:
+            return 1
+        return 0
 
     def sortByBdyFn(self, model, iter1, iter2, data):
         bc1 = model[iter1][1]
         bc2 = model[iter2][1]
         # I don't understand how bc1 or bc2 can be None, but they
-        # sometimes are, so we need to check for.  What we do when one
-        # of them is None doesn't seem to matter.
+        # sometimes are, so we need to check for it.  What we do when
+        # one of them is None doesn't seem to matter.
         if bc1 is not None and bc2 is not None:
-            return cmp(bc1.bdy_string(), bc2.bdy_string())
+            s1 = bc1.bdy_string()
+            s2 = bc2.bdy_string()
+            if s1 < s2:
+                return -1
+            if s1 > s2:
+                return 1
+            return 0
         if bc1 == bc2:          # both None
             return 0
         if bc1 is None:

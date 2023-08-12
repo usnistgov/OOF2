@@ -12,15 +12,14 @@
 #ifndef PIXELSELECTIONCOURIERI_SWG
 #define PIXELSELECTIONCOURIERI_SWG
 
-%module pixelselectioncourieri
+%module(package="ooflib.SWIG.image") pixelselectioncourieri
 
 %include "common/typemaps.swg"
-%extern "common/burn.swg"
-%extern "common/ccolor.swg"
-%extern "common/colordifference.swg"
-%extern "common/pixelselectioncourier.swg"
-%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
-%pragma(python) code="from ooflib.SWIG.common.pixelselectioncourier import PixelSelectionCourierPtr"
+%import "common/burn.swg"
+%import "common/ccolor.swg"
+%import "common/colordifference.swg"
+%import "common/coord.swg"
+%import "common/pixelselectioncourier.swg"
 
 %{
 #include "image/pixelselectioncourieri.h"

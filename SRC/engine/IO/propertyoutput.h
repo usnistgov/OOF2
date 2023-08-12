@@ -9,12 +9,10 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef PROPERTYOUTPUT_H
 #define PROPERTYOUTPUT_H
 
-#include <Python.h>
+#include <oofconfig.h>
 
 class PropertyOutput;
 class PropertyOutputValInit;
@@ -47,11 +45,8 @@ class Property;
 // all the Properties' output() methods.
 
 class PropertyOutputInit : public PythonExportable<PropertyOutputInit> {
-private:
-  static const std::string modulename_;
 public:
   virtual ~PropertyOutputInit() {}
-  virtual const std::string &modulename() const { return modulename_; }
   virtual PropertyOutput *instantiate(const std::string&, PyObject*) const = 0;
 };
 
@@ -106,13 +101,11 @@ protected:
   PyObject* params_;
   const int index_;
   const PropertyOutputValInit *initializer;
-  static const std::string modulename_;
 public:
   PropertyOutput(const std::string &name, PyObject *params);
   virtual ~PropertyOutput();
   void setInitializer(const PropertyOutputValInit *init) { initializer = init; }
   const std::string &name() const { return name_; }
-  virtual const std::string &modulename() const { return modulename_; }
   int index() const { return index_; }
   // The getXXXXParam methods retrieve the values of the Python
   // parameters defined in the PropertyOutputRegistration.  The 'name'
@@ -120,10 +113,12 @@ public:
   // that's what Python expects to get.
   double getFloatParam(const char *name) const;
   int getIntParam(const char *name) const;
+
   // These getXXXXParam methods return pointers to new strings.  It
   // would be more convenient for them to return std::strings, but
-  // then they can't be swigged.  See the comment in the string
-  // typemap in commmon/typemaps.swg.
+  // then they can't be swigged without making an extra copy.  See the
+  // comment in the string typemap in commmon/typemaps.swg.
+
   const std::string *getStringParam(const char *name) const;
   const std::string *getEnumParam(const char *name) const;
   const std::string *getRegisteredParamName(const char *name) const;

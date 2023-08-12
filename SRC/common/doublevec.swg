@@ -12,15 +12,13 @@
 #ifndef DOUBLEVEC_SWG
 #define DOUBLEVEC_SWG
 
-%module doublevec
+%module(package="ooflib.SWIG.common") doublevec
+
 %include "common/typemaps.swg"
 
 %{
-#include <string>
 #include "common/doublevec.h"
 %}
-
-%pragma(python) include="doublevec.spy"
 
 class DoubleVec {
 public:
@@ -41,8 +39,9 @@ public:
   const std::string str() const;
 };
 
-%addmethods DoubleVec {
-  %new const string* __repr__() {
+%extend DoubleVec {
+  %newobject __repr__;
+  const std::string* __repr__() {
      return new std::string((*self).str());
   }
 
@@ -50,7 +49,8 @@ public:
     *self = *x;
   }
 
-  %new DoubleVec *clone() {
+  %newobject clone;
+  DoubleVec *clone() {
     return new DoubleVec(*self);
   }
 
@@ -67,6 +67,8 @@ public:
   void load(const char *filename) {
     load_vec(*self, std::string(filename));
   }
-}
+};
+
+%pythoncode "common/doublevec.spy"
 
 #endif // DOUBLEVEC_SWG

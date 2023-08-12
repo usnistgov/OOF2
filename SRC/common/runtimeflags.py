@@ -23,4 +23,14 @@ useFakeFileSelector = 'sometimes' # use only in gui test mode
 geometry="550x350"
 
 def getGeometry():
-    return map(int, geometry.split('x'))
+    return list(map(int, geometry.split('x')))
+
+
+_digits = 6        # precision for floating point data in gui displays
+
+def digits():
+    return _digits
+
+def setDigits(n):
+    global _digits
+    _digits = n

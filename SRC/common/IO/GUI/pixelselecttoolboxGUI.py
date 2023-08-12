@@ -23,6 +23,8 @@ from ooflib.common.IO.GUI import regclassfactory
 
 from oofcanvas import oofcanvasgui
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 ## TODO: Fix these bugs:
@@ -85,7 +87,8 @@ class PixelSelectToolboxGUI(genericselectGUI.GenericSelectToolboxGUI):
 
     def deactivate(self):
         genericselectGUI.GenericSelectToolboxGUI.deactivate(self)
-        map(switchboard.removeCallback, self.activecallbacks)
+        for cb in self.activecallbacks:
+            switchboard.removeCallback(cb)
         self.activecallbacks = []
 
     def getSource(self):

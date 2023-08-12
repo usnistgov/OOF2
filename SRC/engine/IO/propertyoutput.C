@@ -13,6 +13,7 @@
 
 #include "common/printvec.h"	// for debugging
 #include "common/pythonlock.h"
+#include "common/pyutils.h"
 #include "engine/IO/propertyoutput.h"
 #include "engine/corientation.h"
 #include "engine/element.h"
@@ -36,8 +37,6 @@
 // PropertyOutputContribution class?  Each subclass will have to have
 // a singleton instance which will be swigged.
 
-const std::string PropertyOutput::modulename_(
-			      "ooflib.SWIG.engine.IO.propertyoutput");
 const std::string ArithmeticPropertyOutput::classname_(
 				       "ArithmeticPropertyOutput");
 const std::string NonArithmeticPropertyOutput::classname_(
@@ -86,15 +85,13 @@ PropertyOutput::PropertyOutput(const std::string &name, PyObject *params)
     index_(getPropertyOutputReg(name)->index()),
     initializer(nullptr)
 {
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_XINCREF(params_);
-  releasePyLock(pystate);
 }
 
 PropertyOutput::~PropertyOutput() {
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_XDECREF(params_);
-  releasePyLock(pystate);
 }
 
 std::vector<NonArithmeticOutputValue> *
@@ -185,149 +182,102 @@ ArithmeticPropertyOutput::evaluate(FEMesh *mesh, Element *element,
 
 double PropertyOutput::getFloatParam(const char *name) const {
   double x;
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    // params_ is a dictionary
-    PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
-    if(!obj)
-      pythonErrorRelay();
-    x = PyFloat_AsDouble(obj);
-    Py_XDECREF(obj);
-  }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
-  }
-  releasePyLock(pystate);
+  PYTHON_THREAD_BEGIN_BLOCK;
+  // params_ is a dictionary
+  PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
+  if(!obj)
+    pythonErrorRelay();
+  x = PyFloat_AsDouble(obj);
+  Py_XDECREF(obj);
   return x;
 }
 
 int PropertyOutput::getIntParam(const char *name) const {
   int x;
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    // params_ is a dictionary
-    PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
-    if(!obj)
-      pythonErrorRelay();
-    x = PyInt_AsLong(obj);
-    Py_XDECREF(obj);
-  }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
-  }
-  releasePyLock(pystate);
+  PYTHON_THREAD_BEGIN_BLOCK;
+  // params_ is a dictionary
+  PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
+  if(!obj)
+    pythonErrorRelay();
+  x = PyInt_AsLong(obj);
+  Py_XDECREF(obj);
   return x;
 }
 
 std::vector<std::string>*
 PropertyOutput::getListOfStringsParam(const char *name) const {
   std::vector<std::string> *x = new std::vector<std::string>;
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    // params_ is a dictionary
-    PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
-    if(!obj)
+  PYTHON_THREAD_BEGIN_BLOCK;
+  // params_ is a dictionary
+  PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
+  if(!obj)
+    pythonErrorRelay();
+  // obj is a Python list or tuple
+  assert(PySequence_Check(obj));
+  Py_ssize_t n = PySequence_Size(obj);
+  for(Py_ssize_t i=0; i<n; i++) {
+    PyObject *item = PySequence_GetItem(obj, i);
+    if(!item)
       pythonErrorRelay();
-    // obj is a Python list or tuple
-    assert(PySequence_Check(obj));
-    Py_ssize_t n = PySequence_Size(obj);
-    for(Py_ssize_t i=0; i<n; i++) {
-      PyObject *item = PySequence_GetItem(obj, i);
-      if(!item)
-	pythonErrorRelay();
-      x->emplace_back(PyString_AsString(item));
-      Py_XDECREF(item);
-    }
-    Py_XDECREF(obj);
+    x->emplace_back(pyStringAsString(item));
+    Py_XDECREF(item);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
-  }
-  releasePyLock(pystate);
+  Py_XDECREF(obj);
   return x;
 }
 
 const std::string *PropertyOutput::getStringParam(const char *name) const {
-  std::string *x = new std::string;
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    // params_ is a dictionary
-    PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
-    if(!obj)
-      pythonErrorRelay();
-    *x = PyString_AsString(obj);
-    Py_XDECREF(obj);
-  }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
-  }
-  releasePyLock(pystate);
+  PYTHON_THREAD_BEGIN_BLOCK;
+  // params_ is a dictionary
+  PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
+  if(!obj)
+    pythonErrorRelay();
+  const std::string *x = new std::string(pyStringAsString(obj));
+  Py_XDECREF(obj);
   return x;
 }
 
 const std::string *PropertyOutput::getEnumParam(const char *name) const {
-  std::string *x = new std::string;
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    // params_ is a dictionary
-    PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
-    if(!obj) {
-      pythonErrorRelay();
-    }
-    PyObject *str = PyObject_GetAttrString(obj, (char*) "name");
-    if(!str) {
-      Py_XDECREF(obj);
-      pythonErrorRelay();
-    }
-    *x = PyString_AsString(str);
-    Py_XDECREF(str);
+   PYTHON_THREAD_BEGIN_BLOCK;
+  // params_ is a dictionary
+  PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
+  if(!obj) {
+    pythonErrorRelay();
+  }
+  PyObject *str = PyObject_GetAttrString(obj, (char*) "name");
+  if(!str) {
     Py_XDECREF(obj);
+    pythonErrorRelay();
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
-  }
-  releasePyLock(pystate);
+  std::string *x = new std::string(pyStringAsString(str));
+  Py_XDECREF(str);
+  Py_XDECREF(obj);
   return x;
 }
 
 const std::string *PropertyOutput::getRegisteredParamName(const char *name)
   const
 {
-  std::string *x = new std::string;
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    // Get the parameter out of the dictionary
-    PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
-    if(!obj)
-      pythonErrorRelay();
-    // Call the parameter's "name" function"
-    PyObject *str = PyObject_CallMethod(obj, (char*) "name", 0);
-    if(!str) {
-      Py_XDECREF(obj);
-      pythonErrorRelay();
-    }
-    *x = PyString_AsString(str);
-    Py_XDECREF(str);
+  PYTHON_THREAD_BEGIN_BLOCK;
+  // Get the parameter out of the dictionary
+  PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
+  if(!obj)
+    pythonErrorRelay();
+  // Call the parameter's "name" function"
+  PyObject *str = PyObject_CallMethod(obj, (char*) "name", 0);
+  if(!str) {
     Py_XDECREF(obj);
+    pythonErrorRelay();
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
-  }
-  releasePyLock(pystate);
+  const std::string *x = new std::string(pyStringAsString(str));
+  Py_XDECREF(str);
+  Py_XDECREF(obj);
   return x;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-const std::string PropertyOutputInit::modulename_(
-				 "ooflib.SWIG.engine.IO.propertyoutput");
 const std::string ArithmeticPropertyOutputInit::classname_(
 					   "ArithmeticPropertyOutputInit");
 const std::string NonArithmeticPropertyOutputInit::classname_(

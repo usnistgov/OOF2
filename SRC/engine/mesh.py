@@ -20,7 +20,7 @@ from ooflib.SWIG.common import timestamp
 from ooflib.SWIG.engine import entiremeshsubproblem
 from ooflib.SWIG.engine import material
 from ooflib.SWIG.engine import meshdatacache
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import labeltree
 from ooflib.common import parallel_enable
@@ -36,6 +36,7 @@ from ooflib.engine import skeletoncontext
 from ooflib.engine import bdycondition
 
 import math, sys
+from functools import reduce
 
 # TODO OPT: Move switchboard.notify calls out of this file and put
 # them in menu items, or other appropriate places. 
@@ -116,6 +117,23 @@ class SkeletonBuffer(ringbuffer.RingBuffer):
 
 ######################
 
+## For comparing the speed of mesh iterators
+
+# def newmeshiter(femesh):
+#     n = 0
+#     for node in femesh.funcnodes_fast():
+#         n += 1
+#     print("newmeshiter", n)
+    
+# def oldmeshiter(femesh):
+#     n = 0
+#     for node in femesh.funcnodes():
+#         n += 1
+#     print("oldmeshiter", n)
+
+##########
+
+
 class Mesh(whoville.Who):
     def __init__(self, name, classname, femesh, parent,
                  elementdict=None,
@@ -124,6 +142,27 @@ class Mesh(whoville.Who):
         # Share the mesh-level lock with the contained femesh.
         femesh.set_rwlock(self.rwLock)
 
+        # # For testing the efficiency of the old and new mesh iteration
+        # # schemes.  The new one is like an STL iterator on the C++
+        # # side.
+        # if debug.debug():
+        #     import timeit
+        #     iters = 10
+        #     t = timeit.timeit(stmt="oldmeshiter(femesh)", number=iters,
+        #                       globals={"femesh":femesh,
+        #                                "oldmeshiter":oldmeshiter})
+        #     debug.fmsg("python old=", t)
+        #     t = timeit.timeit(stmt="newmeshiter(femesh)", number=iters,
+        #                       globals={"femesh":femesh,
+        #                                "newmeshiter":newmeshiter})
+        #     debug.fmsg("python new=", t)
+        #     t = timeit.timeit(stmt="femesh.iterator_test_OLD()", number=iters,
+        #                       globals={"femesh":femesh})
+        #     debug.fmsg("C++ old=", t)
+        #     t = timeit.timeit(stmt="femesh.iterator_test_NEW()", number=iters,
+        #                       globals={"femesh":femesh})
+        #     debug.fmsg("C++ new=", t)
+        
         self.elementdict = elementdict
         self.materialfactory = materialfactory
         femesh.set_parent_mesh(self)
@@ -341,7 +380,7 @@ class Mesh(whoville.Who):
 
     def destroy(self):
         global meshes
-        for bc in self.bdyconditions.values():
+        for bc in list(self.bdyconditions.values()):
             if not bc.subordinate:
                 self.rmBdyCondition(bc)
 #         self.cross_sections.destroy()
@@ -389,8 +428,8 @@ class Mesh(whoville.Who):
         from ooflib.engine import subproblemcontext
         path = self.path()
         if not path:
-            raise ooferror2.ErrPyProgrammingError("No path to mesh '%s'!?"
-                                                 % self.name())
+            raise ooferror.PyErrPyProgrammingError("No path to mesh '%s'!?"
+                                                   % self.name())
         subpaths = subproblemcontext.subproblems.keys(base=path)
         ## subpaths is a list of relative paths of length 1.
         return [s[0] for s in subpaths]
@@ -488,19 +527,18 @@ class Mesh(whoville.Who):
                 return True
         return False
 
-    if config.dimension() == 2:
-        def set_in_plane_field(self, field, inplane):
-            self.getObject().set_in_plane(field, inplane)
-            ## Activate the out-of-plane field in all subproblems only if
-            ## this field is active and not in-plane.
-            zfield = field.out_of_plane()
-            for s in self.subproblems():
-                subp = s.getObject()
-                if inplane:
-                    subp.deactivate_field(zfield)
-                else:
-                    if subp.is_active_field(field):
-                        subp.activate_field(zfield)
+    def set_in_plane_field(self, field, inplane):
+        self.getObject().set_in_plane(field, inplane)
+        ## Activate the out-of-plane field in all subproblems only if
+        ## this field is active and not in-plane.
+        zfield = field.out_of_plane()
+        for s in self.subproblems():
+            subp = s.getObject()
+            if inplane:
+                subp.deactivate_field(zfield)
+            else:
+                if subp.is_active_field(field):
+                    subp.activate_field(zfield)
 
     def precompute_all_subproblems(self):
         for s in self.subproblems():
@@ -605,12 +643,12 @@ class Mesh(whoville.Who):
 
         # Periodic boundary conditions apply to two mesh boundaries
         periodic_names = []
-        for i in xrange(len(names)):
+        for i in range(len(names)):
             edgeInfo0 = self.getBoundary(names[i]).whichPeriodicEdge(self)
             if edgeInfo0:
                 # search rest of list for the opposite boundary with
                 # opposite direction
-                for j in xrange(i+1,len(names)):
+                for j in range(i+1,len(names)):
                     edgeInfo1 = self.getBoundary(names[j]).whichPeriodicEdge(
                         self)
                     if (edgeInfo1 and edgeInfo0[0]==edgeInfo1[0] and
@@ -684,12 +722,12 @@ class Mesh(whoville.Who):
             try:
                 boundary_obj0 = self.getBoundary(boundaries[0])
             except:
-                raise ooferror2.ErrSetupError(
+                raise ooferror.PyErrSetupError(
                     "There is no boundary named '%s'!" % boundaries[0])
             try:
                 boundary_obj1 = self.getBoundary(boundaries[1])
             except:
-                raise ooferror2.ErrSetupError(
+                raise ooferror.PyErrSetupError(
                     "There is no boundary named '%s'!" % boundaries[1])
 
             realmesh = self.getObject()
@@ -697,7 +735,7 @@ class Mesh(whoville.Who):
             nodes1 = boundary_obj1.edgeset.nodes()[:]
             nodes1.reverse()
             self.periodicPointBoundaries[name] = []
-            for i in xrange(len(nodes0)):
+            for i in range(len(nodes0)):
                 ## TODO: Can this be done without using a tolerance?
                 ## Using topological information from Skeleton and
                 ## MasterElement instead?
@@ -711,7 +749,7 @@ class Mesh(whoville.Who):
                     bdy.addNode(nodes1[i])
                     self.periodicPointBoundaries[name].append(bdy)
                 else:
-                    raise ooferror2.ErrSetupError(
+                    raise ooferror.PyErrSetupError(
                         "Nodes along periodic edge boundaries do not match up")
 
         return self.periodicPointBoundaries[name]
@@ -792,7 +830,7 @@ class Mesh(whoville.Who):
         # This is called for every node pair in a periodic BC, so it
         # shouldn't do anything too expensive.
         if name in self.bdyconditions:
-            raise ooferror2.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Duplicate boundary condition name %s." % name )
         else:
             self.bdyconditions[name]=bc
@@ -819,8 +857,8 @@ class Mesh(whoville.Who):
         try:
             bc = self.bdyconditions[oldname]
         except KeyError:
-            raise ooferror2.ErrSetupError("Can't find boundary condition %s!"
-                                         % oldname)
+            raise ooferror.PyErrSetupError("Can't find boundary condition %s!"
+                                           % oldname)
         newname = utils.uniqueName(newname, self.allBndyCondNames(),
                                    exclude = oldname)
         if newname != oldname:
@@ -850,10 +888,10 @@ class Mesh(whoville.Who):
         self.bdys_changed()
 
     def allBoundaryConds(self):
-        return self.bdyconditions.items()
+        return list(self.bdyconditions.items())
 
     def allBndyCondNames(self):
-        return self.bdyconditions.keys()
+        return list(self.bdyconditions.keys())
 
     def getBdyCondition(self, name):
         return self.bdyconditions[name]
@@ -950,7 +988,7 @@ class Mesh(whoville.Who):
         # Field definitions have changed in a subproblem.  If a field
         # isn't defined in *any* subproblems, remove its initializer.
         definedfields = self.all_subproblem_fields()
-        for field, initializer in self.initializers.items():
+        for field, initializer in list(self.initializers.items()):
             if field not in definedfields:
                 self.remove_initializer(field)
 
@@ -994,18 +1032,14 @@ class Mesh(whoville.Who):
         othermesh = other.getObject()
 
         # compare node positions
-        mynodes = mymesh.node_iterator()
-        othernodes = othermesh.node_iterator()
-        while not (mynodes.end() or othernodes.end()):
-            mynode = mynodes.node()
-            othernode = othernodes.node()
+        mynodes = mymesh.nodes()
+        othernodes = othermesh.nodes()
+        if mynodes.size() != othernodes.size():
+            return "Wrong number of nodes"
+        for mynode, othernode in zip(mynodes, othernodes):
             if (mynode.position() - othernode.position())**2 > tol2:
                 return "Node outside of tolerance, %s" % \
                        mynode.position() - othernode.position()
-            mynodes.next()
-            othernodes.next()
-        if not (mynodes.end() and othernodes.end()):
-            return "Wrong number of nodes"
 
         # compare subproblems
         mysubprobs = self.subproblems()
@@ -1014,10 +1048,8 @@ class Mesh(whoville.Who):
             return "Wrong number of subproblems"
         # subproblem order may be different.  Check names before
         # comparing subproblems.
-        subpnames = [s.name() for s in mysubprobs]
-        osubpnames = [s.name() for s in othersubprobs]
-        subpnames.sort()
-        osubpnames.sort()
+        subpnames = sorted([s.name() for s in mysubprobs])
+        osubpnames = sorted([s.name() for s in othersubprobs])
         if subpnames != osubpnames:
             return "Subproblem names don't match: %s!=%s" % (subpnames,
                                                              osubpnames)
@@ -1033,8 +1065,8 @@ class Mesh(whoville.Who):
         othertimes = set(other.cachedTimes())
         othertimes.add(othertime)
         if times != othertimes:
-            print >> sys.stderr, "times=", times
-            print >> sys.stderr, "othertimes=", othertimes
+            print("times=", times, file=sys.stderr)
+            print("othertimes=", othertimes, file=sys.stderr)
             return "Cached times differ"
 
 
@@ -1059,36 +1091,28 @@ class Mesh(whoville.Who):
                         osubp = osubpctxt.getObject()
                         # Check that the same Fields are defined on
                         # the subproblems
-                        fields = subpctxt.all_compound_fields()
-                        ofields = osubpctxt.all_compound_fields()
-                        fields.sort()
-                        ofields.sort()
+                        fields = sorted(subpctxt.all_compound_fields())
+                        ofields = sorted(osubpctxt.all_compound_fields())
                         if fields != ofields:
                             return ("Fields don't match in subproblem "
                                 + subpname)
 
                         # Check that the subproblems have the same
                         # sets of nodes
-                        mynodeiter = subp.funcnode_iterator()
-                        othernodeiter = osubp.funcnode_iterator()
-                        if mynodeiter.size() != othernodeiter.size():
+                        if subpctxt.nfuncnodes() != osubpctxt.nfuncnodes():
                             return (
                                 "Different numbers of nodes in subproblem %s"
                                 % subpname)
 
                         # Create a sorted list of nodes, because
-                        # funcnode_iterator doesn't return them in a
+                        # funcnodes() doesn't return them in a
                         # guaranteed order
-                        mynodes = []
-                        othernodes = []
-                        while not mynodeiter.end():
-                            mynodes.append(mynodeiter.node())
-                            mynodeiter.next()
-                        while not othernodeiter.end():
-                            othernodes.append(othernodeiter.node())
-                            othernodeiter.next()
-                        mynodes.sort(_nodesorter)
-                        othernodes.sort(_nodesorter)
+                        mynodeiter = subp.funcnodes()
+                        othernodeiter = osubp.funcnodes()
+                        mynodes = list(mynodeiter)
+                        othernodes = list(othernodeiter)
+                        mynodes.sort(key=_nodekey)
+                        othernodes.sort(key=_nodekey)
 
                         for field in fields:
                             # Check field state
@@ -1096,13 +1120,13 @@ class Mesh(whoville.Who):
                                 != osubp.is_active_field(field)):
                                 return ("Field activity differs for %s"
                                         " on subproblem %s" % 
-                                        (`field`, subpname))
+                                        (repr(field), subpname))
                             if config.dimension() == 2:
                                 if (mymesh.in_plane(field)
                                     != othermesh.in_plane(field)):
                                     return (
                                         "Field planarity differs for %s on"
-                                        " subproblem %s" % (`field`, subpname))
+                                        " subproblem %s" % (repr(field), subpname))
                                 oop = (not mymesh.in_plane(field) and
                                        field.out_of_plane())
 
@@ -1131,14 +1155,14 @@ class Mesh(whoville.Who):
                                                 for i in range(field.ndof())])
                                     return ("%s values differ for"
                                             " subproblem %s" %
-                                            (`field`, subpname))
+                                            (repr(field), subpname))
                                 if config.dimension() == 2:
                                     if (oop and (_fielddiff(oop, mymesh, mynode,
                                                            othermesh, othernode)
                                                  > tol2)):
                                         return ("Out-of-plane %s values"
                                                 " differ for subproblem %s",
-                                                (`field`, subpname))
+                                                (repr(field), subpname))
 
 
                 finally:
@@ -1281,12 +1305,10 @@ class Mesh(whoville.Who):
         if self.outOfSync() and not resync:
             return
         self.status = statusobj # a MeshStatus object
-        errors = filter(None,
-                        [subproblem.checkSolvability()
+        errors = [_f for _f in [subproblem.checkSolvability()
                          for subproblem in self.subproblems()
                          if  subproblem.time_stepper is not None] +
-                        self.checkBdyConditions()
-                        )
+                        self.checkBdyConditions() if _f]
         if errors:
             self.status = meshstatus.Unsolvable('\n'.join(errors))
         switchboard.notify("mesh status changed", self)
@@ -1324,8 +1346,8 @@ def _fielddiff(field, meshA, nodeA, meshB, nodeB):
     diffs = [x-y for x,y in zip(fieldA, fieldB)]
     sqdiffs = reduce(lambda x,y: x+y*y, diffs, 0.0)/len(diffs)
     return sqdiffs
-def _nodesorter(nodeA, nodeB):
-    return cmp(nodeA.position(), nodeB.position())
+def _nodekey(node):
+    return node.position()
 
 ##################
 defaultSubProblemName = "default"

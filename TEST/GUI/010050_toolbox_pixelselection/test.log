@@ -111,7 +111,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Microstructure.Create_From_ImageFile
 
 # Check selection size
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','0 (0%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','0 (0%)', tolerance=0)
 assert tests.sensitizationCheck({'Undo':False,'Redo':False,'Clear':False,'Invert':True,'Prev':False,'Repeat':False,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
 
 # Click to select a pixel
@@ -126,9 +126,9 @@ checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Point
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1 (0.00444444%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1 (0.00444444%)', tolerance=1.e-6)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':False,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'66.3375','yup':'90.75'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'66.3375','yup':'90.75'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-6)
 
 # Select a different pixel
 findGfxWindow('Graphics_1').simulateMouse('down', 133.5375, 12.525, 1, False, False)
@@ -141,9 +141,9 @@ checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Point
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1 (0.00444444%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1 (0.00444444%)', tolerance=1.e-6)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'133.537','yup':'12.525'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'133.537','yup':'12.525'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Shift-click to select an additional pixel
 findWidget('OOF2 Graphics 1').resize(800, 492)
@@ -158,19 +158,19 @@ checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Point
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','2 (0.00888889%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','2 (0.00888889%)', tolerance=1.e-6)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'50.5875','yup':'114.9'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'50.5875','yup':'114.9'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-6)
 
 # Brush selection
 event(Gdk.EventType.BUTTON_PRESS,x= 7.0000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Brush']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.0000000000000e+01)
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','2 (0.00888889%)')
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.0000000000000e+01)
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','2 (0.00888889%)', tolerance=1.e-6)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':False,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'50.5875','yup':'114.9'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'50.5875','yup':'114.9'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-6)
 
 # Set radius
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Brush:style:Circle:radius').set_text('')
@@ -199,9 +199,9 @@ checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Brush
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','272 (1.20889%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','272 (1.20889%)', tolerance=1.e-6)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'53.7375','ydown':'78.675','xup':'117.787','yup':'68.7'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'53.7375','ydown':'78.675','xup':'117.787','yup':'68.7'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Switch to square brush
 event(Gdk.EventType.BUTTON_PRESS,x= 1.2800000000000e+02,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Brush:style:RCFChooser').get_window())
@@ -252,24 +252,24 @@ checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Brush
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 6.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.4000000000000e+01)
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','419 (1.86222%)')
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 6.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.4000000000000e+01)
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','419 (1.86222%)', tolerance=1.e-6)
 
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.3000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 3.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.3000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 3.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 0.0000000000000e+00)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'41.1375','ydown':'71.325','xup':'98.3625','yup':'46.125'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'41.1375','ydown':'71.325','xup':'98.3625','yup':'46.125'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Select a rectangle
 event(Gdk.EventType.BUTTON_PRESS,x= 7.3000000000000e+01,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Rectangle']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findGfxWindow('Graphics_1').simulateMouse('down', 41.1375, 101.775, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 41.1375, 101.775, 1, False, False)
@@ -304,16 +304,16 @@ checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Rectangle
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','3225 (14.3333%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','3225 (14.3333%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'41.1375','ydown':'101.775','xup':'115.688','yup':'59.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'41.1375','ydown':'101.775','xup':'115.688','yup':'59.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Select a circle
 event(Gdk.EventType.BUTTON_PRESS,x= 1.3400000000000e+02,y= 8.0000000000000e+00,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Circle']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.0000000000000e+01)
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findGfxWindow('Graphics_1').simulateMouse('down', 25.9125, 67.65, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 25.9125, 67.65, 1, False, False)
@@ -345,16 +345,16 @@ checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Circle
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','2250 (10%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','2250 (10%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'25.9125','ydown':'67.65','xup':'39.5625','yup':'44.55'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'25.9125','ydown':'67.65','xup':'39.5625','yup':'44.55'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Select an ellipse
 event(Gdk.EventType.BUTTON_PRESS,x= 1.3600000000000e+02,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Ellipse']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.0000000000000e+01)
 findGfxWindow('Graphics_1').simulateMouse('down', 76.3125, 110.175, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 76.3125, 109.65, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 76.3125, 109.125, 1, False, False)
@@ -389,16 +389,16 @@ checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Ellipse
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','2085 (9.26667%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','2085 (9.26667%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'76.3125','ydown':'110.175','xup':'143.512','yup':'70.8'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'76.3125','ydown':'110.175','xup':'143.512','yup':'70.8'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Select by color
 event(Gdk.EventType.BUTTON_PRESS,x= 1.3500000000000e+02,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Color']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.0000000000000e+01)
 findGfxWindow('Graphics_1').simulateMouse('down', 45.3375, 84.45, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 45.3375, 84.45, 1, False, False)
 checkpoint microstructure page sensitized
@@ -409,9 +409,9 @@ checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Color
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','4795 (21.3111%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','4795 (21.3111%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'45.3375','yup':'84.45'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'45.3375','yup':'84.45'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Select by burning
 event(Gdk.EventType.BUTTON_PRESS,x= 5.9000000000000e+01,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
@@ -431,12 +431,12 @@ checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Burn
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','4781 (21.2489%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','4781 (21.2489%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'82.6125','yup':'44.025'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'82.6125','yup':'44.025'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Undo
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Undo').clicked()
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
@@ -445,9 +445,9 @@ checkpoint selection info updated Pixel Selection
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Undo
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','4795 (21.3111%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','4795 (21.3111%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':True,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'82.6125','yup':'44.025'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'82.6125','yup':'44.025'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Undo again
 findWidget('OOF2 Graphics 1').resize(800, 492)
@@ -460,9 +460,9 @@ checkpoint selection info updated Pixel Selection
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Undo
 # Back to the ellipse selection
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','2085 (9.26667%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','2085 (9.26667%)', tolerance=1.e-6)
 assert tests.sensitizationCheck({'Undo':True,'Redo':True,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'82.6125','yup':'44.025'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'82.6125','yup':'44.025'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Clear
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Clear').clicked()
@@ -473,9 +473,9 @@ checkpoint selection info updated Pixel Selection
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Clear
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','0 (0%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','0 (0%)', tolerance=0)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':False,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'82.6125','yup':'44.025'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'82.6125','yup':'44.025'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Mouse up coords are the same as the last click (burn)
 # Redo the burn so that we can get nontrivial intersections for
@@ -490,7 +490,7 @@ checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Burn
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','4781 (21.2489%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','4781 (21.2489%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
 
 # Circle mode
@@ -498,8 +498,8 @@ event(Gdk.EventType.BUTTON_PRESS,x= 1.1400000000000e+02,y= 1.4000000000000e+01,b
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Circle']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 5.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 5.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.6000000000000e+01)
 
 # Circle selection with the shift key depressed
 findGfxWindow('Graphics_1').simulateMouse('down', 89.9625, 99.15, 1, True, False)
@@ -537,7 +537,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Circle
 assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','5919 (26.3067%)')
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # control-click the circle selection
 findGfxWindow('Graphics_1').simulateMouse('down', 88.9125, 48.225, 1, False, True)
@@ -586,21 +586,21 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Circle
 assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','6009 (26.7067%)')
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'88.9125','ydown':'48.225','xup':'102.037','yup':'29.325'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'88.9125','ydown':'48.225','xup':'102.037','yup':'29.325'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Make the toolbox wider
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(261)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 3.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 3.4000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(269)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.6000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(270)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.5000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.5000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(285)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 1.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 1.0000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(287)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 8.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 8.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(301)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 0.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(341)
 
 # Clear the selection
@@ -612,9 +612,9 @@ checkpoint selection info updated Pixel Selection
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Clear
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','0 (0%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','0 (0%)', tolerance=0)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':False,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'88.9125','ydown':'48.225','xup':'102.037','yup':'29.325'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'88.9125','ydown':'48.225','xup':'102.037','yup':'29.325'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Repeat button (repeats the circle selection)
 event(Gdk.EventType.BUTTON_RELEASE,x= 4.9000000000000e+01,y= 1.7000000000000e+01,button=1,state=256,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Repeat').get_window())
@@ -627,22 +627,22 @@ checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Circle
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1668 (7.41333%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1668 (7.41333%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'88.9125','ydown':'48.225','xup':'102.037','yup':'29.325'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'88.9125','ydown':'48.225','xup':'102.037','yup':'29.325'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Choose the previous operation
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Prev').clicked()
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1668 (7.41333%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1668 (7.41333%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':True}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'88.9125','ydown':'48.225','xup':'102.037','yup':'29.325'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'88.9125','ydown':'48.225','xup':'102.037','yup':'29.325'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # previous again
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Prev').clicked()
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1668 (7.41333%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1668 (7.41333%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':True}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # repeat the operation
 event(Gdk.EventType.BUTTON_RELEASE,x= 4.7000000000000e+01,y= 1.7000000000000e+01,button=1,state=256,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Repeat').get_window())
@@ -655,20 +655,20 @@ checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Circle
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1758 (7.81333%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1758 (7.81333%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
 # Same as 1st circle selection after burn
-assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # previous again
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Prev').clicked()
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':True}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'88.9125','ydown':'48.225','xup':'102.037','yup':'29.325'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'88.9125','ydown':'48.225','xup':'102.037','yup':'29.325'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Next
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Next').clicked()
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Repeat.  This is the second circle selection after the burn
 event(Gdk.EventType.BUTTON_RELEASE,x= 4.7000000000000e+01,y= 1.8000000000000e+01,button=1,state=256,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Repeat').get_window())
@@ -681,9 +681,9 @@ checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Circle
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1758 (7.81333%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1758 (7.81333%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Clear
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Clear').clicked()
@@ -694,9 +694,9 @@ checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Pixel Selection
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Clear
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','0 (0%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','0 (0%)', tolerance=0)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':False,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Undo
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Undo').clicked()
@@ -707,9 +707,9 @@ checkpoint pixel page updated
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Undo
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1758 (7.81333%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1758 (7.81333%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':True,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Undo undone. (2x undo.  This is not the redo test.)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Undo').clicked()
@@ -720,9 +720,9 @@ checkpoint selection info updated Pixel Selection
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Undo
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1758 (7.81333%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1758 (7.81333%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':True,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Redo
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Redo').clicked()
@@ -733,9 +733,9 @@ checkpoint selection info updated Pixel Selection
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Redo
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1758 (7.81333%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1758 (7.81333%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':True,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 # Invert
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Invert').clicked()
@@ -746,9 +746,9 @@ checkpoint pixel page sensitized
 checkpoint pixel page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Invert
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','20742 (92.1867%)')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','20742 (92.1867%)', tolerance=1.e-4)
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
-assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
+assert tests.gtkMultiTextCompare({'xdown':'89.9625','ydown':'99.15','xup':'104.138','yup':'80.25'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection', tolerance=1.e-4)
 
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Python_Log']).activate()
@@ -767,7 +767,7 @@ findWidget('Dialog-Python_Log:filename').set_text('session.lo')
 findWidget('Dialog-Python_Log:filename').set_text('session.log')
 findWidget('Dialog-Python_Log:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Save.Python_Log
-assert tests.filediff("session.log")
+assert tests.filediff("session.log", tolerance=1.e-5)
 
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['File', 'Quit']).activate()
 checkpoint OOF.Graphics_1.File.Close

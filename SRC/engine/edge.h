@@ -70,10 +70,8 @@ public:
   double lab_length();
   double master_length() const; 
 
-  // Functions to support output to the GUI. The underscore in the
-  // name is because this is meant to be called by a wrapper
-  // function from Python.  The wrapper gets to be named "position".
-  std::vector<Coord*>* position_(const std::vector<double>*) const;
+  // Functions to support output to the GUI. 
+  std::vector<Coord*>* position(const std::vector<double>*) const;
   // Evaluate a Field at a bunch of positions along the edge.  The
   // positions are doubles between 0 and 1.
   std::vector<ArithmeticOutputValue>* outputFields(
@@ -116,25 +114,9 @@ public:
   friend class EdgeGaussPoint;
 };
 
-// Derive EdgeNodeIterator from ElementNodeIteratorBase, provide
-// same functionality to re-use the machinery from before.
-//
-// Operate on the existing node list.
-// Instantiate by: ElementNodeIterator it ???
-// class EdgeNodeIterator : public ElementFuncNodeIterator {
-// private:
-//   const BoundaryEdge *ed;
-// public:
-//   EdgeNodeIterator(const BoundaryEdge *edge)
-//     : ed(edge),
-//       ElementFuncNodeIterator(*edge->el)
-//   {}
-//   virtual ~EdgeNodeIterator() {}
-//   EdgeNodeIterator &operator+=(int);
-//   virtual ShapeFunctionIndex sf_index() const;
-//   virtual const FuncNode *funcnode() const;
-//   virtual int localindex(const FEMesh*, const Field&, const FieldIndex&) const;
-// };  
+// TODO PYTHON3 LATER: Turn EdgeNodeIterator into a real iterator,
+// after ElementNodeIterator is converted.  ElementNodeIterator is a
+// base class.
 
 class EdgeNodeIterator : public ElementShapeFuncIterator {
 private:

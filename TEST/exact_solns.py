@@ -435,7 +435,7 @@ def computeScalarErrorL2(soln_func,mesh,field,numX=1,numY=1,numZ=1,time=0.0):
     hz = 1. / numZ
 
     total_error = 0.
-    for node in mesh.funcnode_iterator():
+    for node in mesh.funcnodes():
         value = field.value( mesh, node, 0 )
         x = node.position().x
         y = node.position().y
@@ -457,7 +457,7 @@ def computeVector2DErrorL2(soln_func,mesh,field,numX=1,numY=1,numZ=1,time=0.0):
     hz = 1. / numZ
 
     total_error = 0.
-    for node in mesh.funcnode_iterator():
+    for node in mesh.funcnodes():
         value = ( field.value( mesh, node, 0 ),
                   field.value( mesh, node, 1 ) )
         x = node.position().x
@@ -479,7 +479,7 @@ def computeVector3DErrorL2(soln_func,mesh,field,numX=1,numY=1,numZ=1,time=0.0):
     hz = 1. / numZ
 
     total_error = 0.
-    for node in mesh.funcnode_iterator():
+    for node in mesh.funcnodes():
         value = ( field.value( mesh, node, 0 ),
                   field.value( mesh, node, 1 ),
                   field.value( mesh, node, 2 ) )

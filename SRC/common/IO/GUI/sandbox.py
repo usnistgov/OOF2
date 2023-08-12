@@ -12,6 +12,8 @@
 # environment.  The menu item for opening the sandbox only appears in
 # debug mode.  No real OOF2 code is in this file.
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GObject, Gdk
 
 from ooflib.common.IO.GUI import subWindow
@@ -46,7 +48,7 @@ class SandBox(subWindow.SubWindow):
                                 expand=True, fill=True, padding=0)
 
         liszt = Gtk.ListStore(GObject.TYPE_STRING)
-        self.treeview = Gtk.TreeView(liszt)
+        self.treeview = Gtk.TreeView(model=liszt)
         gtklogger.setWidgetName(self.treeview, "tree")
         self.mainbox.pack_start(self.treeview,
                                 expand=True, fill=True, padding=0)
@@ -58,7 +60,7 @@ class SandBox(subWindow.SubWindow):
         gtklogger.connect(self.treeview, 'button-press-event',
                           self.treeViewButtonCB)
 
-        button = Gtk.Button("Button")
+        button = Gtk.Button(label="Button")
         self.mainbox.pack_start(button, expand=False, fill=True, padding=0)
         gtklogger.connect(button, 'clicked', self.buttonCB)
 
@@ -126,10 +128,10 @@ class SandBox(subWindow.SubWindow):
         menu.append(item)
         return item
     def buttonmenuCB(self, menuitem, name):
-        print "buttonmenuCB:", name
+        print("buttonmenuCB:", name)
         dialog = Gtk.Dialog()
         button = dialog.add_button("Push", 0)
         response = dialog.run()
-        print "response=", response
+        print("response=", response)
         dialog.close()
         

@@ -27,8 +27,8 @@
 
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import GObject
 from gi.repository import Gtk
+from gi.repository import GLib
 import sys
 import re
 
@@ -59,7 +59,7 @@ actions = []
 # endcomment matches possible comments appended to log lines
 endcomment = r"\s*#?.*$"
 
-class ReplaceLine(object):
+class ReplaceLine:
     def __init__(self, regexp, regexpprev=None, groups=[]):
         self.regexp = re.compile(regexp)
         if regexpprev is None:
@@ -143,14 +143,14 @@ actions.append(
 # GtkTextBuffer that displays the lines, because the text buffer has
 # the option of showing the filtered-out lines.
 
-class LogProcessor(object):
+class LogProcessor:
     def __init__(self, logfilename):
         self.logfilename = logfilename
         self.inbuf = ""
         self.lines = []           # The list of lines
         self.strikeThrough = True # TODO: make this settable in the GUI
 
-        window = Gtk.Window(Gtk.WindowType.TOPLEVEL,
+        window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL,
                             title="gtklogger:" + logfilename)
         window.connect('delete-event', self.quit)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, margin=5)
@@ -178,17 +178,17 @@ class LogProcessor(object):
         commentbox.pack_start(self.commentText,
                               expand=True, fill=True, padding=0)
         
-        self.commentButton = Gtk.Button("Comment")
+        self.commentButton = Gtk.Button(label="Comment")
         commentbox.pack_start(self.commentButton, expand=False, fill=False,
                               padding=0)
         self.commentButton.connect('clicked', self.commentCB)
 
-        self.clearButton = Gtk.Button('Clear')
+        self.clearButton = Gtk.Button(label='Clear')
         commentbox.pack_start(self.clearButton, expand=False, fill=False,
                               padding=0)
         self.clearButton.connect('clicked', self.clearCB)
 
-        GObject.io_add_watch(sys.stdin, GObject.IO_IN, self.inputHandler)
+        GLib.io_add_watch(sys.stdin, GLib.IO_IN, self.inputHandler)
 
         window.show_all()
         
@@ -264,9 +264,9 @@ class LogProcessor(object):
         self.addLine("# " + self.commentText.get_text())
 
     def writeLog(self):
-        logfile = file(self.logfilename, "w")
+        logfile = open(self.logfilename, "w")
         for line in self.lines:
-            print >> logfile, line
+            print(line, file=logfile)
         logfile.close()
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

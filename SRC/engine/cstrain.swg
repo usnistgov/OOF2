@@ -12,54 +12,35 @@
 #ifndef CSTRAIN_SWG
 #define CSTRAIN_SWG
 
-%module cstrain
-%include "engine/typemaps.swg"
+%module(package="ooflib.SWIG.engine") cstrain
+
+%include "common/typemaps.swg"
+%import "engine/IO/propertyoutput.swg"
+
 %{
 #include "engine/cstrain.h"
 #include "engine/IO/propertyoutput.h"
+#include "engine/symmmatrix.h"
 %}
 
-%extern "engine/IO/propertyoutput.swg"
-%pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import PropertyOutputValInitPtr"
-  
-
-%pragma(python) include="cstrain.spy"
 
 class POInitGeometricStrain : public PropertyOutputValInit {
 public:
   POInitGeometricStrain();
 };
 
-%typemap(python,ignore) SymmMatrix3 *OUT (SymmMatrix3 *tmp) {
-  // typemap(python, ignore) SymmMatrix3 *OUT
-    tmp = new SymmMatrix3();
-    $target = tmp;
-}
+%newobject getGeometricStrain;
 
-%typemap(python,argout) SymmMatrix3 *OUT {
-  // typemap(python, argout) SymmMatrix3 *OUT
-  static PyObject *symmMatrix3Class = 0;
-  static PyObject *pyOne;
-  if(!symmMatrix3Class) {
-    PyObject *module = PyImport_ImportModule("ooflib.SWIG.engine.symmmatrix");
-    symmMatrix3Class = PyObject_GetAttrString(module, "SymmMatrix3Ptr");
-    Py_XDECREF(module);
-    if(!symmMatrix3Class) return 0;
-    pyOne = PyInt_FromLong(1);
+%inline %{
+  SymmMatrix3 *getGeometricStrain(const FEMesh *mesh, const Element *el,
+				  const MasterPosition &pos, bool nonlinear)
+  {
+    SymmMatrix3 *strain = new SymmMatrix3();
+    findGeometricStrain(mesh, el, pos, strain, nonlinear);
+    return strain;
   }
-  char _stemp[128];
-  SWIG_MakePtr(_stemp, (char*)($source), "_SymmMatrix3_p");
-  PyObject *swigthis = Py_BuildValue("(s)", _stemp);
-  PyObject *mtx = PyObject_CallObject(symmMatrix3Class, swigthis);
-  Py_XDECREF(swigthis);
-  PyObject_SetAttrString(mtx, "thisown", pyOne);
-  $target = mtx;
-}
+%}
 
-void findGeometricStrain(FEMesh*, Element*, MasterPosition&, SymmMatrix3 *OUT,
-			 bool);
-
-%typemap(python,argout) SymmMatrix3 *OUT {}
-%typemap(python,ignore) SymmMatrix3 *OUT {}
+%pythoncode "engine/cstrain.spy"
 
 #endif // CSTRAIN_SWG

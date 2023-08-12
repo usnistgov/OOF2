@@ -645,7 +645,7 @@ checkpoint Materials page updated
 checkpoint OOF.Material.Add_property
 
 # Orthorhombic
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 1.0000000000000e+00)
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 getTree('PropertyTree').simulateSelect('Mechanical:Elasticity:Anisotropic:Orthorhombic')
 checkpoint Materials page updated
@@ -1216,13 +1216,13 @@ checkpoint OOF.Material.Delete
 
 # Before reloading the Material, change one entry in each Cij so that
 # we can tell that reading the Material resets them.
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 3.0000000000000e+00)
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 4.0000000000000e+00)
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 5.0000000000000e+00)
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 6.0000000000000e+00)
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 7.0000000000000e+00)
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_property('vadjustment').set_value( 3.0000000000000e+00)
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_property('vadjustment').set_value( 4.0000000000000e+00)
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_property('vadjustment').set_value( 5.0000000000000e+00)
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_property('vadjustment').set_value( 6.0000000000000e+00)
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_property('vadjustment').set_value( 7.0000000000000e+00)
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 getTree('PropertyTree').simulateSelect('Mechanical:Elasticity:Anisotropic:Hexagonal')
 checkpoint Materials page updated

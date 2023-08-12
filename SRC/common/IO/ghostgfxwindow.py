@@ -12,6 +12,9 @@
 # graphics window.  The actual graphics window, GfxWindow, is derived
 # from GhostGfxWindow and overrides some of its functions.
 
+## TODO: If the window is empty, write "This window intentionally left
+## blank" w/ instructions on what to do.
+
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import ooferror
@@ -36,17 +39,17 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import placeholder
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
-from types import *
 import copy
 import os.path
-import string
 import sys
+import traceback
+import types
 
 import oofcanvas
 
+# TODO: These are used inconsistently.  Don't define the local variables. 
 FloatParameter = parameter.FloatParameter
 IntParameter = parameter.IntParameter
-StringParameter = parameter.StringParameter
 
 OOF = mainmenu.OOF
 OOFMenuItem = oofmenu.OOFMenuItem
@@ -70,6 +73,9 @@ class NewLayerPolicy(enum.EnumClass(
 class OutputImageFormat(enum.EnumClass(
         "pdf", "png")):
     pass
+
+if debug.debug():
+    enum.addEnumName(OutputImageFormat, "datadump")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -101,12 +107,12 @@ class GfxSettings:
             # the methods via the dictionary, they're not recognized
             # as methods, and we have to check for FunctionType
             # instead of MethodType or UnboundMethodType.
-            if key[0] != '_' and type(val) is not FunctionType:
+            if key[0] != '_' and not isinstance(val, types.FunctionType):
                 self.__dict__[key] = val
                 self.timestamps[key] = timestamp.TimeStamp()
     def __setattr__(self, attr, val):
         self.__dict__[attr] = val       # local value
-        GfxSettings.__dict__[attr] = val # default value
+        setattr(GfxSettings, attr, val) # default value
         self.timestamps[attr].increment()
     def getTimeStamp(self, attr):
         return self.timestamps[attr]
@@ -120,7 +126,7 @@ class GfxSettings:
 # signal.
 
 def defineGfxSetting(name, val):
-    GfxSettings.__dict__[name] = val
+    exec(f"GfxSettings.{name} = val") # what's the right way to do this?
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -731,7 +737,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         
         # Create toolboxes.
         self.toolboxes = []
-        map(self.newToolboxClass, toolbox.toolboxClasses)
+        for tbc in toolbox.toolboxClasses:
+            self.newToolboxClass(tbc)
 
         self.sensitize_menus()
 
@@ -780,11 +787,12 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def drawable(self):
         # Can any layer be drawn?  Used when testing the gui.
-        ## TODO: Does this need a lock?  The gtk2 version had a
-        ## separate SLock that controlled access to the list of
-        ## layers, and it was acquired here.  This is called from the
-        ## main thread during gui tests, and can't use self.gfxlock,
-        ## because that's not an SLock.
+        ## TODO: Does this need a lock?  I haven't seen any gui
+        ## testing errors that might be due to a missing lock.  The
+        ## gtk2 version had a separate SLock that controlled access to
+        ## the list of layers, and it was acquired here.  This is
+        ## called from the main thread during gui tests, and can't use
+        ## self.gfxlock, because that's not an SLock.
         for layer in self.layers:
             if not layer.incomputable(self):
                 return True
@@ -992,7 +1000,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             clone = self.gfxmanager.openWindow(clone=1)
             clone.settings = copy.deepcopy(self.settings)
             for layer in self.layers:
-                clone.incorporateLayer(layer, )
+                clone.incorporateLayer(layer)
                 clone.deselectLayer(clone.selectedLayerNumber())
             if self.selectedLayer is not None:
                 clone.selectLayer(self.layerID(self.selectedLayer))
@@ -1172,8 +1180,10 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                         layer.drawIfNecessary(self)
                     except subthread.StopThread:
                         return
-                    except (Exception, ooferror.ErrErrorPtr), exc:
+                    except Exception as exc:
                         debug.fmsg('Exception while drawing!', exc)
+                        if debug.debug():
+                            traceback.print_exc()
                         raise
         finally:
             self.releaseGfxLock()
@@ -1185,10 +1195,12 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             assert not self.oofcanvas.empty()
             if format == "pdf":
                 if not self.oofcanvas.saveAsPDF(filename, pixels, background):
-                    raise ooferror.ErrUserError("Cannot save canvas!")
+                    raise ooferror.PyErrUserError("Cannot save canvas!")
             elif format == "png":
                 if not self.oofcanvas.saveAsPNG(filename, pixels, background):
-                    raise ooferror.ErrUserError("Cannot save canvas!")
+                    raise ooferror.PyErrUserError("Cannot save canvas!")
+            elif format == "datadump":
+                self.oofcanvas.datadump(filename)
 
     def saveCanvasRegion(self, menuitem, filename, format, overwrite,
                          pixels, background, lowerleft, upperright):
@@ -1198,11 +1210,11 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             if format == "pdf":
                 if not self.oofcanvas.saveRegionAsPDF(
                         filename, pixels, background, lowerleft, upperright):
-                    raise ooferror.ErrUserError("Cannot save canvas region!")
+                    raise ooferror.PyErrUserError("Cannot save canvas region!")
             elif format == "png":
                 if not self.oofcanvas.saveRegionAsPNG(
                         filename, pixels, background, lowerleft, upperright):
-                    raise ooferror.ErrUserError("Cannot save canvas region!")
+                    raise ooferror.PyErrUserError("Cannot save canvas region!")
 
     def saveContourmap(self, menuitem, filename, format, overwrite, pixels):
         assert self.current_contourmap_method is not None
@@ -1218,12 +1230,12 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             if format == "pdf":
                 if not self.contourmapdata.canvas.saveAsPDF(
                         filename, pixels, False):
-                    raise ooferror.ErrUserError(
+                    raise ooferror.PyErrUserError(
                         "Cannot save canvas contour map!")
             elif format == "png":
                 if not self.contourmapdata.canvas.saveAsPNG(
                     filename, pixels, False):
-                    raise ooferror.ErrUserError(
+                    raise ooferror.PyErrUserError(
                         "Cannot save canvas contour map!")
 
     ###############################
@@ -1325,7 +1337,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                     self.layers.append(layer)
                 else:
                     for i in reversed(range(len(self.layers))):
-                        if display.layercomparator(layer, self.layers[i]) >= 0:
+                        if (layer.layerordering() >=
+                            self.layers[i].layerordering()):
                             # The new layer belongs above layer i.
                             self.layers[i+1:i+1] = [layer]
                             break
@@ -1344,7 +1357,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     def sortedLayers(self):
         # Are the layers in a canonical order?
         for i in range(1, len(self.layers)):
-            if display.layercomparator(self.layers[i-1], self.layers[i]) > 0:
+            if (self.layers[i-1].layerordering() >
+                self.layers[i].layerordering()):
                 return False
         return True
             
@@ -1373,13 +1387,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def freezeLayer(self, menuitem, n):
         self.layers[n].freeze(self)
-        # TODO: This signal is not caught.   Does freezing work?
-        switchboard.notify((self, 'layers frozen'))
         self.sensitize_menus()
     def unfreezeLayer(self, menuitem, n):
         self.layers[n].unfreeze(self)
-        # TODO: This signal is not caught.   Does freezing work?
-        switchboard.notify((self, 'layers frozen'))
         self.sensitize_menus()
         self.draw()
 
@@ -1463,7 +1473,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.lowerLayerBy(n, howfar)
 
     def reorderLayers(self, menuitem):
-        self.layers.sort(display.layercomparator)
+        self.layers.sort(key=lambda x: x.layerordering())
         self.layersHaveChanged()
 
     def listedLayers(self):             # for testing
@@ -1484,8 +1494,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                 when = layer.getParamValue('when')
                 if when is placeholder.latest:
                     times.update(layer.animationTimes(self))
-        times = list(times)
-        times.sort()
+        times = sorted(times)
         return times
 
     def latestTime(self):
@@ -1498,7 +1507,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         for i, layer in enumerate(self.layers):
             if not layer.empty():
                 fname = filename + '%02d' % i + ".png"
-                print "Saving layer", layer.short_name(), "as", fname
+                print("Saving layer", layer.short_name(), "as", fname)
                 layer.canvaslayer.writeToPNG(fname)
             
 
@@ -1600,7 +1609,7 @@ def _setDefaultGfxSize(menuitem, width, height):
     GhostGfxWindow.initial_height = height
 
 mainmenu.gfxdefaultsmenu.addItem(oofmenu.OOFMenuItem(
-    'Window',
+    'Window_Size',
     callback=_setDefaultGfxSize,
     ordering=0,
     params=[parameter.IntParameter('width',

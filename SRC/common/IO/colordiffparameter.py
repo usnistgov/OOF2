@@ -8,7 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import types
 from ooflib.SWIG.common import colordifference
 from ooflib.common.IO import parameter
 
@@ -17,5 +16,5 @@ class ColorDifferenceParameter(parameter.RegisteredParameter):
     def __init__(self, name, value=colordifference.deltargb(0.0, 0.0, 0.0),
                  default=colordifference.deltargb(0.0, 0.0, 0.0), tip=None):
         parameter.RegisteredParameter.__init__(
-            self, name, colordifference.ColorDifferencePtr, 
+            self, name, colordifference.ColorDifference, 
             value=value, default=default, tip=tip)

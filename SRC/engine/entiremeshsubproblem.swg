@@ -12,17 +12,14 @@
 #ifndef ENTIREMESHSUBPROBLEM_SWG
 #define ENTIREMESHSUBPROBLEM_SWG
 
-%module entiremeshsubproblem
+%module(package="ooflib.SWIG.engine") entiremeshsubproblem
 
-%include "engine/typemaps.swg"
-%extern "engine/csubproblem.swg"
-%pragma(python) code="from ooflib.SWIG.engine.csubproblem import CSubProblemPtr"
-%pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
-%pragma(python) include="engine/entiremeshsubproblem.spy"
-
+%include "common/typemaps.swg"
+%import "engine/csubproblem.swg"
 
 %{
 #include "engine/entiremeshsubproblem.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 class CEntireMeshSubProblem : public CSubProblem {
@@ -31,5 +28,6 @@ public:
   ~CEntireMeshSubProblem();
 };
 
-#endif // ENTIREMESHSUBPROBLEM_SWG
+%pythoncode "engine/entiremeshsubproblem.spy"
 
+#endif // ENTIREMESHSUBPROBLEM_SWG

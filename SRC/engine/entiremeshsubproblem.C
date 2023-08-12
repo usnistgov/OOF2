@@ -14,24 +14,25 @@
 #include "engine/meshiterator.h"
 #include "engine/entiremeshsubproblem.h"
 
-CEntireMeshSubProblem::CEntireMeshSubProblem() {
-//   std::cerr << "** Creating CEntireMeshSubProblem **" << this << std::endl;
+CEntireMeshSubProblem::CEntireMeshSubProblem() {}
+
+CEntireMeshSubProblem::~CEntireMeshSubProblem() {}
+
+VContainer<Node>* CEntireMeshSubProblem::c_nodes() const {
+  return mesh->c_nodes();
 }
 
-CEntireMeshSubProblem::~CEntireMeshSubProblem() {
-//   std::cerr << "** Destroying CEntireMeshSubProblem **" << this << std::endl;
+VContainer<FuncNode>* CEntireMeshSubProblem::c_funcnodes() const {
+  return mesh->c_funcnodes();
 }
 
-ElementIterator CEntireMeshSubProblem::element_iterator() const {
-  return mesh->element_iterator();
+VContainer<Element>* CEntireMeshSubProblem::c_elements() const {
+  return mesh->c_elements();
 }
 
-NodeIterator CEntireMeshSubProblem::node_iterator() const {
-  return mesh->node_iterator();
-}
-
-FuncNodeIterator CEntireMeshSubProblem::funcnode_iterator() const {
-  return mesh->funcnode_iterator();
+VContainer<InterfaceElement>*
+CEntireMeshSubProblem::c_interface_elements() const {
+  return mesh->c_interface_elements();
 }
 
 bool CEntireMeshSubProblem::contains(const Element*) const {

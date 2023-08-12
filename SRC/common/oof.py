@@ -1,3 +1,4 @@
+# -*- python -*-
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
@@ -7,7 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-import sys, os, types, string, random, code
+import sys, os
 
 # g++ code won't correctly resolve dynamic casts in shared libraries
 # unless RTLD_GLOBAL is set when the library is loaded.  See
@@ -38,7 +39,6 @@ from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import ooferror
 from ooflib.common import autoload
 from ooflib.common import debug
-from ooflib.common import garbage
 from ooflib.common import mainthread
 from ooflib.common import oof_getopt as getopt
 from ooflib.common import oofversion
@@ -49,7 +49,9 @@ from ooflib.common import thread_enable
 from ooflib.common.IO import automatic
 from ooflib.common.IO import reporter
 from ooflib.common.IO import progressbar
-            
+
+from ooflib.common.utils import stringjoin
+
 ########################################
 
 # Option processing:
@@ -83,12 +85,11 @@ def remove_option(item, argument=None):
     # This should never happen.  getopt has already checked that the
     # options are well formed, so there should be nothing
     # unrecognizable in the list.
-    raise ooferror.ErrPyProgrammingError("Failed to remove option: %s %s" %
-                                         (item, argument))
+    raise ooferror.PyErrPyProgrammingError("Failed to remove option: %s %s" %
+                                           (item, argument))
 
 def state_options_and_quit():
-    if config.dimension()==2:
-        main_options_string= """
+    main_options_string= """
 This is oof2 version %s.
 
 Usage: oof2 [options]
@@ -99,6 +100,7 @@ option      argument    description
 --help                   Display valid options and exit
 --version                Display version number and exit
 --gtk=      gtk options  Extra options for graphics mode
+--digits=   integer      Number of digits after the decimal point in the GUI
 --geometry  <width>x<height>  Size of the initial OOF2 window. 
 --seed=     integer      Provide a random number seed
 --quiet                  Quit quietly when done
@@ -106,23 +108,6 @@ option      argument    description
 --autoload               Automatically load everything in the EXTENSIONS directory""" \
     % oofversion.version
 
-    elif config.dimension()==3:
-        main_options_string= """
-This is oof3d version %s.
-
-Usage: oof3d [options]
-The options are:
-option      argument    description
---------------------------------------------------------------
---text                   Turn off graphics mode
---help                   Display valid options and exit
---version                Display version number and exit
---gtk=      gtk options  Extra options for graphics mode
---seed=     integer      Provide a random number seed
---quiet                  Quit quietly when done
---batch                  Quit immediately after running scripts (implies --text)
---autoload               Automatically load everything in the EXTENSIONS directory""" \
-    % oofversion.version
     
     devel_options_string = """
 --parallel               Start-up parallel processing mode """
@@ -153,15 +138,15 @@ The following options are for debugging:
 --no-fakefileselector    Don't use the fake file selector in gui tests.
 --fakefileselector       Use the fake file selector even outside of gui tests.
 """
-    print main_options_string,
+    print(main_options_string, end=' ')
     if config.devel()>=1:
-        print devel_options_string,
-    print data_options_string
-    print debug_options_string
+        print(devel_options_string, end=' ')
+    print(data_options_string)
+    print(debug_options_string)
     sys.exit(1)
 
 def state_version_and_quit():
-    print "This is oof2 version %s." % oofversion.version
+    print("This is oof2 version %s." % oofversion.version)
     sys.exit(1)
 
 ##
@@ -195,6 +180,7 @@ def process_inline_options():
     global recording, replaying
     option_list = ['text', 'help', 'version', 'quiet', 'batch', 'no-rc',
                    'gtk=', 'unthreaded', 'socket=', 'script=', 'seed=',
+                   'digits=',
                    'data=', 'image=', 'import=', 'debug', 'command=',
                    'record=', 'rerecord=', 'replay=', 'replaydelay=',
                    'pathdir=', 'no-checkpoints', 'autoload', 'geometry=',
@@ -204,9 +190,9 @@ def process_inline_options():
         option_list += ['parallel']
     try:
         (optlist, args) = getopt.getopt(sys.argv[1:], '', option_list)
-    except getopt.error, message:
+    except getopt.error as message:
         # Malformed arguments have been found.  Exit.
-        print message
+        print(message)
         state_options_and_quit()
 
     for opt in optlist:
@@ -277,6 +263,9 @@ def process_inline_options():
         elif opt[0] in ('--geometry',):
             runtimeflags.geometry = opt[1]
             remove_option(opt[0], opt[1])
+        elif opt[0] in ('--digits',):
+            runtimeflags.setDigits(int(opt[1]))
+            remove_option(opt[0], opt[1])
         elif opt[0] in ('--no-rc',):
             no_rc = True
             remove_option(opt[0])
@@ -314,7 +303,7 @@ def process_inline_options():
             sys.argv.extend(gtk_options.split())
             ## gtk commands are eaten upon importing module
         else:
-            print "gtk options are ignored in text mode"
+            print("gtk options are ignored in text mode")
     else:
         import ooflib.SWIG.common.argv
         ooflib.SWIG.common.argv.init_argv(sys.argv[1:])
@@ -360,7 +349,7 @@ def front_end(no_interp=None):
         from gi.repository import Gtk
         msg = Gtk.check_version(3, 22, 0)
         if msg:
-            print msg
+            print(msg)
             sys.exit(3)
 
         import ooflib.common.IO.GUI.initialize
@@ -385,7 +374,6 @@ def front_end(no_interp=None):
     if debug.debug() or randomseed is not None:
         if randomseed is None:
             randomseed = 17
-        random.seed(randomseed)
         crandom.rndmseed(randomseed)
 
     for module in startupimports:
@@ -412,7 +400,7 @@ def front_end(no_interp=None):
         if not no_interp: # Default case, run on local thread.
             from ooflib.common.IO.GUI import oofGUI
             oofGUI.start()      # This call never returns.
-            print "This line should never be printed.  rank =", _rank
+            print("This line should never be printed.  rank =", _rank)
         else:
             # TODO LATER: The gui and no_interp combination is
             # thinkable, but has problems.  You have to run the GUI on
@@ -421,7 +409,7 @@ def front_end(no_interp=None):
             # raised them, causing a loss of control.  Also, the
             # current threading scheme requires that all gtk activity
             # happen on the main thread.
-            print "GUI no_interp mode not implemented.  Sorry."
+            print("GUI no_interp mode not implemented.  Sorry.")
             raise NotImplementedError("GUI no_interp mode")
             
     else:                               # text mode
@@ -446,14 +434,14 @@ def front_end(no_interp=None):
         if not quit.quiet():
             width = utils.screenwidth()
             wiggles = "//=*=\\\\=*="
-            nwiggles = (width-2)/len(wiggles)
+            nwiggles = (width-2)//len(wiggles)
             welcome = "Welcome to OOF2 version %s!" % oofversion.version
-            nblanks = (width - len(welcome))/2
+            nblanks = (width - len(welcome))//2
             banner = wiggles*nwiggles + "//\n\n" \
                      + " "*nblanks + welcome + "\n" + \
-                     string.join(utils.format(banner1, width),"\n") + \
+                     stringjoin(utils.format(banner1, width),"\n") + \
                      "\n\n" +  wiggles*nwiggles + "//\n" + \
-                     string.join(utils.format(banner2, width), "\n")
+                     stringjoin(utils.format(banner2, width), "\n")
         else:
             banner = ""
             
@@ -528,15 +516,17 @@ class StartUpReplay(StartUpFile):
 
 class StartUpRecord(StartUpFile):
     def load(self):
+        ## TODO PYTHON3: Change use_gui back to True after fixing loggergui.
         mainmenu.OOF.Help.Debug.GUI_Logging.Record(filename=self.filename,
-                                                   use_gui=True)
+                                                   use_gui=False)
 
 class StartUpRerecord(StartUpFile):
     def load(self):
+        ## TODO PYTHON3: Change use_gui back to True after fixing loggergui.
         mainmenu.OOF.Help.Debug.GUI_Logging.Rerecord(
             filename=self.filename,
             checkpoints=not no_checkpoints,
-            use_gui=True)
+            use_gui=False)
 
 def loadStartUpFiles(files):
     # Files is a list of StartUpFile-like objects
@@ -562,7 +552,7 @@ def start_sockets_Front_End():
         try:
             from ooflib.SWIG.common import mpitools
         except ImportError:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Parallel option requested, but parallel code not present.")
         from ooflib.common.IO import socket2me
         ## Tell back end what port to listen
@@ -606,17 +596,12 @@ def run(no_interp=None):
         oofrcpath = os.path.join(os.path.expanduser("~"), ".oof2rc")
         if os.path.exists(oofrcpath):
             if recording or replaying:
-                print >> sys.stderr, """
+                print("""
 ******* Warning: Loading .oof2rc can interfere with recording or replaying
 ******* a gui script.  Consider starting oof2 with the --no-rc option.
-"""
+""", file=sys.stderr)
 
             startupfiles = [StartUpScriptNoLog(oofrcpath)]+startupfiles
-
-
-    if thread_enable.query() and not (runtimeflags.text_mode or config.no_gui()):
-        # TODO: Is this still necessary?
-        garbage.disable()               # work-around for gtk bug?
 
     start_parallel_machine()  # start parallel suite (if available)
 
@@ -624,17 +609,17 @@ def run(no_interp=None):
         if parallel_enable.enabled():
             from ooflib.SWIG.common import mpitools
             _size = mpitools.Size()
-            mpitools.Isend_Bool(thread_enable.enabled(), range(1,_size))
+            mpitools.Isend_Bool(thread_enable.enabled(), list(range(1,_size)))
             
         if parallel_enable.enabled():
             from ooflib.common.IO import socket2me
 
         if config.petsc():
-            print "Going to InitPETSc"
+            print("Going to InitPETSc")
             from ooflib.SWIG.engine.PETSc.petsc_solverdriver import InitPETSc
             InitPETSc(sys.argv)
             for s in sys.argv:
-                print s
+                print(s)
 
         start_sockets_Front_End()
         # Import mainmenu only *after* processing command line options, so
@@ -656,11 +641,11 @@ def run(no_interp=None):
             from ooflib.common.IO import socket2me
 
         if config.petsc():
-            print "Going to InitPETSc"
+            print("Going to InitPETSc")
             from ooflib.SWIG.engine.PETSc.petsc_solverdriver import InitPETSc
             InitPETSc(sys.argv)
             for s in sys.argv:
-                print s
+                print(s)
 
         debug.set_debug_mode()  # set for debugging parallel mode
         from ooflib.common import quit

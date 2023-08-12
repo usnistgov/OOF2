@@ -8,22 +8,23 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import progress
 from ooflib.common import debug
 from ooflib.common import parallel_enable
 from ooflib.common import primitives
 from ooflib.common import registeredclass
+from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import deputy
 from ooflib.engine import skeletonmodifier
+from ooflib.engine.IO import pbcparams
 from ooflib.engine.IO import skeletongroupparams
 from ooflib.engine.IO import skeletonmenu
 import math
-import random
-# import time
 import sys
 
 from ooflib.SWIG.common import ooferror
@@ -124,8 +125,8 @@ class ConditionSelector(registeredclass.RegisteredClass):
 
 class ReductionRateCondition:
     def reductionRateFailed(self, delta, total):
-	if delta is None:
-	    return 1
+        if delta is None:
+            return 1
         # delta is negative, if energy is going down
         reduction = -delta/total*100.
         return reduction < self.reduction_rate
@@ -136,8 +137,8 @@ reductionRateParam = parameter.FloatRangeParameter(
 
 class AcceptanceRateCondition:
     def acceptanceRateFailed(self, rate):
-	if rate is None:
-	    return 1
+        if rate is None:
+            return 1
         return rate*100. < self.acceptance_rate
 
 acceptanceRateParam = parameter.FloatRangeParameter(
@@ -266,9 +267,15 @@ registeredclass.Registration(
             
 #############################################################
 
+# FiddleNodesTargets determine which nodes are moved. They have a
+# __call__ method that takes the *previous* set of active nodes as an
+# argument.  If it's non-empty, it can be just returned.  This allows
+# the target object to ensure that the same set of nodes are used on
+# each iteration (if desired).  For example, this prevents a node that
+# temporarily moves outside of the current ActiveArea to keep moving.
+
 class FiddleNodesTargets(registeredclass.RegisteredClass):
     registry = []
-
     tip = "Set target Nodes for Skeleton modifiers."
     discussion = """<para>
     <classname>FiddleNodesTargets</classname> objects are used as the
@@ -277,25 +284,11 @@ class FiddleNodesTargets(registeredclass.RegisteredClass):
     that move &nodes; around.
     </para> """
 
-## FiddleNodesTargets objects are called once per iteration of a
-## FiddleNodes process.  Most of the F.N.Targets objects make sure to
-## return the same list of nodes each time they're called, so that the
-## set of nodes being fiddled doesn't change.  This means that they
-## have to contain a reference to a set of nodes, which means that the
-## nodes won't be deleted properly when the Skeleton is destroyed (the
-## FiddleNodesTargets objects aren't necessarily destroyed because
-## they're kept in the modifier history buffer.)
-    
 class AllNodes(FiddleNodesTargets):
-    def __init__(self):
-        self.nodes = None
-    def __call__(self, context):
-        if self.nodes is None:
-            self.nodes = [n for n in context.getObject().activeNodes()
-                          if n.movable()]
-        return self.nodes
-    def cleanUp(self):
-        self.nodes = None
+    def __call__(self, context, prevnodes):
+        if prevnodes:
+            return prevnodes
+        return (n for n in context.getObject().activeNodes() if n.movable())
 
 registeredclass.Registration(
     'All Nodes',
@@ -311,17 +304,13 @@ registeredclass.Registration(
     </para>""")
 
 class SelectedNodes(FiddleNodesTargets):
-    def __init__(self):
-        self.nodes = None
-    def __call__(self, context):
-        if self.nodes is None:
-            skel = context.getObject()
-            # Use retrieveInOrder() so that results are repeatable in debug mode
-            self.nodes = [n for n in context.nodeselection.retrieveInOrder()
-                          if n.movable() and n.active(skel)]
-        return self.nodes
-    def cleanUp(self):
-        self.nodes = None
+    def __call__(self, context, prevnodes):
+        if prevnodes:
+            return prevnodes
+        skel = context.getObject()
+        # Use retrieveInOrder() so that results are repeatable in tests
+        return context.nodeselection.retrieveInOrder(
+            lambda n: n.movable() and n.active(skel))
 
 registeredclass.Registration(
     'Selected Nodes',
@@ -338,15 +327,12 @@ registeredclass.Registration(
 class NodesInGroup(FiddleNodesTargets):
     def __init__(self, group):
         self.group = group
-        self.nodes = None
-    def __call__(self, context):
-        if self.nodes is None:
-            skel = context.getObject()
-            self.nodes = [n for n in context.nodegroups.get_group(self.group)
-                          if n.movable() and n.active(skel)]
-        return self.nodes
-    def cleanUp(self):
-        self.nodes = None
+    def __call__(self, context, prevnodes):
+        if prevnodes:
+            return prevnodes
+        skel = context.getObject()
+        return (n for n in context.nodegroups.get_group(self.group)
+                if n.movable() and n.active(skel))
 
 registeredclass.Registration(
     'Nodes in Group',
@@ -363,29 +349,60 @@ registeredclass.Registration(
     &nodes; in a given node group.
     </para> """)
 
-    
+class NonBoundaryNodes(FiddleNodesTargets):
+    def __init__(self, ignorePBC=False):
+        self.ignorePBC = ignorePBC
+    def __call__(self, context, prevnodes):
+        if prevnodes:
+            return prevnodes
+        skel = context.getObject()
+        for node in skel.node_iterator():
+            if node.active(skel):
+                if self.ignorePBC:
+                    elements = node.aperiodicNeighborElements()
+                else:
+                    elements = node.neighborElements()
+                category = None
+                for el in elements:
+                    cat = el.dominantPixel(skel.MS)
+                    if cat == category or category == None:
+                        category = cat
+                    else:
+                        # One of the neighbor elements has a different
+                        # category than the others, so this is a boundary
+                        # node.  Skip it.
+                        break
+                else:
+                    yield node
+                
+registeredclass.Registration(
+    'Non-boundary Nodes',
+    FiddleNodesTargets,
+    NonBoundaryNodes,
+    ordering=1.6,
+    params=[pbcparams.PBCBooleanParameter('ignorePBC', False,
+                                          tip='Ignore periodicity?')],
+    tip="Only move nodes that aren't on internal boundaries")
+                
 
 class FiddleSelectedElements(FiddleNodesTargets):
-    def __init__(self):
-        self.nodes = None
-    def __call__(self, context):
-        if self.nodes is None:
-            self.nodes = []
-            nodedict = {}
-            # Use retrieveInOrder so that results are repeatable in debug mode
-            for element in context.elementselection.retrieveInOrder():
-                if element.active(context.getObject()):
-                    for nd in element.nodes:
-                        nodedict[nd] = 1
-            self.nodes = [n for n in nodedict if n.movable()]
-        return self.nodes
-    def cleanUp(self):
-        self.nodes = None
+    def __call__(self, context, prevnodes):
+        if prevnodes:
+            return prevnodes
+        nodedict = {}
+        skel = context.getObject()
+        # Use retrieveInOrder so that results are repeatable in tests
+        for element in context.elementselection.retrieveInOrder(
+                lambda e: e.active(skel)):
+            for nd in element.nodes:
+                nodedict[nd] = 1
+        # keys of a dict are retrieved in the order they were added
+        return (n for n in nodedict if n.movable())
 
 registeredclass.Registration(
     'Selected Elements',
     FiddleNodesTargets,
-    FiddleSelectedElements, 1.5,
+    FiddleSelectedElements, 2.0,
     tip="Try moving nodes of selected elements.",
     discussion="""<para>
     Apply a &node; motion <xref
@@ -397,27 +414,25 @@ registeredclass.Registration(
 class FiddleHeterogeneousElements(FiddleNodesTargets):
     def __init__(self, threshold=0.9):
         self.threshold = threshold
-
-    def __call__(self, context):
+    def __call__(self, context, prevnodes):
         # The other FiddleNodesTargets classes make sure to compute
-        # the list of nodes just once.  This one recomputes it each
-        # time it's called, so that elements that become homogeneous
-        # during the process won't be processed further.
+        # the list of nodes just once, by returning prevnodes
+        # unchanged if its not None.  This one recomputes it each time
+        # it's called, so that elements that become homogeneous during
+        # the process won't be processed further.
         nodedict = {}
         skel = context.getObject()
         for element in skel.activeElements():
             if element.homogeneity(skel.MS, False) < self.threshold:
                 for node in element.nodes:
                     nodedict[node] = 1
-        return [n for n in nodedict if n.movable()]
-    def cleanUp(self):
-        pass
+        return (n for n in nodedict if n.movable())
 
 registeredclass.Registration(
     'Heterogeneous Elements',
     FiddleNodesTargets,
     FiddleHeterogeneousElements,
-    ordering=2,
+    ordering=2.1,
     params = [
     parameter.FloatRangeParameter('threshold', (0.0, 1.0, 0.01), value=0.9,
                                   tip='Anneal elements with homogeneity below the specified threshold.')
@@ -434,20 +449,18 @@ registeredclass.Registration(
 class FiddleElementsInGroup(FiddleNodesTargets):
     def __init__(self, group):
         self.group = group
-        self.nodes = None
-    def __call__(self, context):
-        def sortcmp(x,y):
-            return cmp(x.index, y.index)
-        if self.nodes is None:
-            nodedict = {}
-            for element in context.elementgroups.get_group(self.group):
-                if element.active(context.getObject()):
-                    for nd in element.nodes:
-                        nodedict[nd] = 1
-            self.nodes = [n for n in nodedict if n.movable()]
-        return self.nodes
-    def cleanUp(self):
-        self.nodes = None
+    def __call__(self, context, prevnodes):
+        if prevnodes:
+            return prevnodes
+        # Use a dict instead of a set here.  Sets don't return their
+        # items in a guaranteed order, and if the order changes in a
+        # future version of python, the test scripts will break.
+        nodedict = {}
+        for element in context.elementgroups.get_group(self.group):
+            if element.active(context.getObject()):
+                for nd in element.nodes:
+                    nodedict[nd] = 1
+        return (n for n in nodedict if n.movable())
     
 registeredclass.Registration(
     'Elements in Group',
@@ -512,81 +525,81 @@ class FiddleNodes:
     def postProcess(self, context):
         ## global Pcount
         ## Pcount += 1
-        ## random.seed(1)
         skeleton = context.getObject()
-        prog = self.makeProgress()
         self.count = 0
-        prog.setMessage(self.header)
         before = skeleton.energyTotal(self.criterion.alpha)
+        self.activenodes = None
 
-        while self.iteration.goodToGo():
-            self.count += 1
-            # the context acquires the writing permissions inside
-            # coreProcess.
-            self.coreProcess(context)
-            self.updateIteration(prog)
-            skeleton.updateGeometry()
-            switchboard.notify("skeleton homogeneity changed", context.path())
-
+        prog = self.makeProgress()
+        prog.setMessage(self.header)
+        try:
+            while self.iteration.goodToGo():
+                self.count += 1
+                # the context acquires the writing permissions inside
+                # coreProcess.
+                self.coreProcess(context)
+                self.updateIteration(prog)
+                skeleton.updateGeometry()
+                switchboard.notify("skeleton homogeneity changed",
+                                   context.path())
+                if prog.stopped():
+                    break
+            switchboard.notify("skeleton nodes moved", context)
             if prog.stopped():
-                break
+                return
 
-        
-        switchboard.notify("skeleton nodes moved", context)
-        if prog.stopped():
-            self.targets.cleanUp()
-            return
-
-        after = skeleton.energyTotal(self.criterion.alpha)
-        if before:
-            rate = 100.0*(before-after)/before
-        else:
-            rate = 0.0
-        diffE = after - before
-        reporter.report("%s deltaE = %10.4e (%6.3f%%)"
-                        % (self.outro, diffE, rate))
-        self.targets.cleanUp()
-        prog.finish()
+            after = skeleton.energyTotal(self.criterion.alpha)
+            if before:
+                rate = 100.0*(before-after)/before
+            else:
+                rate = 0.0
+            diffE = after - before
+            reporter.report("%s deltaE = %10.4e (%6.3f%%)"
+                            % (self.outro, diffE, rate))
+        finally:
+            self.activenodes = None
+            prog.finish()
 
     def coreProcess(self, context):
         ## NOTE FOR DEVELOPERS:
-        #### if a change is made to this function,
-        #### make sure that the SAME changes are made, in a
-        #### consistent way in fiddlenodesbaseParallel.py
+        #### if a change is made to this function, make sure that the
+        #### SAME changes are made, in a consistent way in
+        #### fiddlenodesbaseParallel.py.  Or not.  The parallel code
+        #### is very out of date and should just be rewritten.
         skeleton = context.getObject()
 
-        prog = self.makeProgress()
         self.totalE = skeleton.energyTotal(self.criterion.alpha)
         self.nok = self.nbad = 0
         self.deltaE = 0.
-        # TODO: If the Skeleton is periodic and a node and its partner
-        # are both active, only one of them should be in activenodes.
-        activenodes = self.targets(context)
-        random.shuffle(activenodes)
+        
+        ## TODO: If the Skeleton is periodic and a node and its partner
+        ## are both active, only one of them should be in activenodes.
+        self.activenodes = list(self.targets(context, self.activenodes))
+        crandom.shuffle(self.activenodes)
         j = 0
         context.begin_writing()
+
+        prog = self.makeProgress()
         try:
-#             start_time = time.time()
-            for node in activenodes:
-                change = deputy.DeputyProvisionalChanges()
+            for node in self.activenodes:
+                change = deputy.DeputyProvisionalChanges(skeleton)
                 change.moveNode(node, self.movedPosition(skeleton, node),
                                 skeleton)
                 bestchange = self.criterion([change], skeleton)
 
                 if bestchange is not None:
                     self.nok += 1
-                    self.deltaE += bestchange.deltaE(skeleton,
-                                                     self.criterion.alpha)
-                    bestchange.accept(skeleton)
+                    self.deltaE += bestchange.deltaE(self.criterion.alpha)
+                    bestchange.accept()
                 # Failed to meet the specified criterion ... but
                 elif (self.T>0.0 and 
-                      not change.illegal(skeleton) and 
+                      not change.illegal() and 
                       not self.criterion.hopeless()):
-                    diffE = change.deltaE(skeleton, self.criterion.alpha)
-                    if math.exp(-diffE/self.T) > random.random():
+                    diffE = change.deltaE(self.criterion.alpha)
+                    if math.exp(-diffE/self.T) > crandom.rndm():
                         self.nok += 1
                         self.deltaE += diffE
-                        change.accept(skeleton)
+                        change.accept()
                     else:
                         self.nbad += 1
                 else:

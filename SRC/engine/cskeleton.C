@@ -474,19 +474,6 @@ HomogeneityData CSkeletonElement::c_homogeneity(const CMicrostructure &ms,
   return HomogeneityData(homogeneity, category);
 }
 
-// Find the point along edge i where the pixel category in the
-// Microstructure changes.  Return true iff there's just one such
-// point.
-bool CSkeletonElement::transitionPoint(CMicrostructure &microstructure, int i,
-				       Coord *point)
-  const
-{
-  return microstructure.transitionPoint(nodes[i]->position(),
-					nodes[(i+1)%nnodes()]->position(),
-					point);
-}
-
-
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 CSkeletonQuad::CSkeletonQuad(CSkeletonNode *n0, CSkeletonNode *n1,
@@ -554,23 +541,22 @@ bool CSkeletonQuad::illegal() const {
   Coord p2 = nodes[2]->position();
   Coord p3 = nodes[3]->position();
 
-  //   // Using Area() in a thorough way.
-  //   double a1 = (p1-p0)%(p3-p0);
-  //   double a2 = (p2-p1)%(p0-p1);
-  //   double a3 = (p3-p2)%(p1-p2);
-  //   double a4 = (p0-p3)%(p2-p3);
-  //   if ( (a1<=0) || (a2<=0) || (a3<=0) || (a4<=0) )
-  //     return true;
-  //   if ( (fabs((a1+a3)/(a2+a4))-1.0) > LEGAL_ELEMENT_AREA_TOLERANCE )
-  //     return true;
-  //   return false;
-
-  //   // Using Area() only.
-  //   return ((p1 - p0) % (p3 - p0) <= 0.0 ||
-  // 	  (p2 - p1) % (p0 - p1) <= 0.0 ||
-  // 	  (p3 - p2) % (p1 - p2) <= 0.0 ||
-  // 	  (p0 - p3) % (p2 - p3) <= 0.0);
-
+// #ifdef DEBUG
+//   if((p1-p0) % (p3-p0) <= 0.0)
+//     std::cerr << "CSkeletonQuad::illegal: (p1-p0)%(p3-p0)=" << (p1-p0)%(p3-p0)
+// 	      << std::endl;
+//   if((p2-p1) % (p0-p1) <= 0.0)
+//     std::cerr << "CSkeletonQuad::illegal: (p2-p1)%(p0-p1)=" << (p2-p1)%(p0-p1)
+// 	      << std::endl;
+//   if((p3-p2) % (p1-p2) <= 0.0)
+//     std::cerr << "CSkeletonQuad::illegal: (p3-p2)%(p1-p2)=" << (p3-p2)%(p1-p2)
+// 	      << std::endl;
+//   if((p0-p3) % (p2-p3) <= 0.0) {
+//     std::cerr << "CSkeletonQuad::illegal: (p0-p3)%(p2-p3)=" << (p0-p3)%(p2-p3)
+// 	      << std::endl;
+//   }
+// #endif // DEBUG
+  
   // Using Area() & Cosine().
   return  ( (p1 - p0) % (p3 - p0) <= 0.0 ||
 	    (p2 - p1) % (p0 - p1) <= 0.0 ||

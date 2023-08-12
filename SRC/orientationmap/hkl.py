@@ -16,46 +16,47 @@ from ooflib.common import debug
 from ooflib.common import primitives
 import math
 import os.path
-import string
+
+from ooflib.common.utils import stringsplit
 
 class HKLreader(orientmapdata.OrientMapReader):
     def __init__(self):
         self.phaselists = {}
         orientmapdata.OrientMapReader.__init__(self)
     def read(self, filename):
-        hklfile = file(filename, "r")
+        hklfile = open(filename, "r")
         lineiter = iter(hklfile)
-        line = lineiter.next()
+        line = next(lineiter)
         while not line.startswith('XCells'):
-            line = lineiter.next()
-        xcells = string.atoi(string.split(line)[1])
-        line = lineiter.next()
-        ycells = string.atoi(string.split(line)[1])
-        line = lineiter.next()
-        xstep = string.atof(string.split(line)[1])
-        line = lineiter.next()
-        ystep = string.atof(string.split(line)[1])
-        line = lineiter.next()
+            line = next(lineiter)
+        xcells = int(stringsplit(line)[1])
+        line = next(lineiter)
+        ycells = int(stringsplit(line)[1])
+        line = next(lineiter)
+        xstep = float(stringsplit(line)[1])
+        line = next(lineiter)
+        ystep = float(stringsplit(line)[1])
+        line = next(lineiter)
 
 
         od = orientmapdata.OrientMap(
             primitives.iPoint(xcells, ycells),
             primitives.Point(xcells*xstep, ycells*ystep))
         
-        while not string.split(line)[0] == 'Phase':
-            line = lineiter.next()
+        while not stringsplit(line)[0] == 'Phase':
+            line = next(lineiter)
         prog = progress.getProgress(os.path.basename(filename),
                                     progress.DEFINITE)
         try:
             count = 0
             npts = xcells*ycells
             for line in lineiter:
-                vals = string.split(line)
+                vals = stringsplit(line)
                 phase = vals[0]
-                x = string.atof(vals[1])
-                y = string.atof(vals[2])
-                angles = map(string.atof, vals[5:8])
-                mad = string.atof(vals[8])  # mean angular deviation
+                x = float(vals[1])
+                y = float(vals[2])
+                angles = list(map(float, vals[5:8]))
+                mad = float(vals[8])  # mean angular deviation
                 ij = primitives.iPoint(
                     int(round(x/xstep)),
                     ycells-1-int(round(y/ystep)))
@@ -65,7 +66,7 @@ class HKLreader(orientmapdata.OrientMapReader):
                     self.phaselists[phase] = [ij]
                 self.set_angle(
                     od, ij, 
-                    corientation.COrientBunge(*map(math.radians, angles)))
+                    corientation.COrientBunge(*list(map(math.radians, angles))))
                 prog.setFraction(float(count)/npts)
                 prog.setMessage("%d/%d orientations" % (count, npts))
                 count += 1
@@ -78,8 +79,7 @@ class HKLreader(orientmapdata.OrientMapReader):
     ## postProcess is called after the orientation data has been
     ## assigned to a Microstructure.
     def postProcess(self, microstructure):
-        phasenames = self.phaselists.keys()
-        phasenames.sort()
+        phasenames = sorted(list(self.phaselists.keys()))
         for phasename in phasenames:
             orientmapdata.addPixelsToGroup(microstructure, 'Phase_' + phasename,
                                            self.phaselists[phasename])

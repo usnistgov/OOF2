@@ -12,67 +12,122 @@
 #ifndef MESHITERATOR_SWG
 #define MESHITERATOR_SWG
 
-%module meshiterator
-%include "engine/typemaps.swg"
+%module(package="ooflib.SWIG.engine") meshiterator
 
-%extern "engine/element.swg"
-%pragma(python) code="from ooflib.SWIG.engine.element import ElementPtr"
-%extern "engine/node.swg"
-%pragma(python) code="from ooflib.SWIG.engine.node import NodePtr"
-%pragma(python) code="from ooflib.SWIG.engine.node import FuncNodePtr"
+%include "common/typemaps.swg"
+%import "engine/element.swg"
+%import "engine/node.swg"
 
 %{
+#include "engine/element.h"
 #include "engine/meshiterator.h"
+#include "engine/node.h"
+#include "engine/flux.h"	// SWIGBUG
+
+typedef VContainer<Node> VContainerNode;
+typedef VContainer<FuncNode> VContainerFuncNode;
+typedef VContainer<Element> VContainerElement;
+typedef VContainer<InterfaceElement> VContainerInterfaceElement;
+
+typedef std::vector<FuncNode*> FuncNodeVector;
+typedef std::vector<FuncNode*>::iterator FuncNodeIterator;
 %}
 
 // Constructors for these classes aren't swigged because the objects
-// should only be created by calling FEMesh::node_iterator, etc.
+// should only be created by calling FEMesh::nodes(), etc.
 
-// TODO: Make these into real Python iterators.  next() must return
-// the object being pointed to, and they must have an __iter__
-// function that returns self.
-
-class NodeIterator {
+%nodefaultctor MeshNodeIter;
+class MeshNodeIter {
 public:
-  // NodeIterator();		// DON'T SWIG THE CONSTRUCTOR
-  ~NodeIterator();
-  bool end();
-  int size();
-  Node *node();
-  %addmethods {
-    void next() {
-      ++(*self);
-    }
-  }
+  bool operator!=(const MeshNodeIter&);
 };
 
-class FuncNodeIterator {
-public:
-  // FuncNodeIterator();		// DON'T SWIG THE CONSTRUCTOR
-  ~FuncNodeIterator();
-  bool end();
-  int size();
-  FuncNode *node();
-  %addmethods {
-    void next() {
-      ++(*self);
-    }
-  }
+%extend MeshNodeIter {
+  void increment() { ++(*$self); }
+  Node* node() { return $self->operator*(); }
 };
 
-class ElementIterator {
+%nodefaultctor MeshFuncNodeIter;
+class MeshFuncNodeIter {
 public:
-  // ElementIterator(); 		// DON'T SWIG THE CONSTRUCTOR
-  ~ElementIterator();
-  bool end();
-  int size();
-  int count();
-  Element *element();
-  %addmethods {
-    void next() {
-      ++(*self);
-    }
-  }
+  bool operator!=(const MeshFuncNodeIter&);
 };
+
+%extend MeshFuncNodeIter {
+  void increment() { ++(*self); }
+  FuncNode* node() { return $self->operator*(); }
+};
+
+%nodefaultctor MeshElementIter;
+class MeshElementIter {
+public:
+  bool operator!=(const MeshElementIter&);
+};
+
+%extend MeshElementIter {
+  void increment() { ++(*self); }
+  Element *element() { return $self->operator*(); }
+};
+
+%nodefaultctor MeshInterfaceElementIter;
+class MeshInterfaceElementIter {
+public:
+  bool operator!=(const MeshInterfaceElementIter&);
+};
+
+%extend MeshInterfaceElementIter {
+  void increment() { ++(*self); }
+  Element *element() { return $self->operator*(); } 
+};
+
+// In principle, swig can understand the VContainer template, but I
+// couldn't get it to work, so the subtypes are typedefed above and
+// swigged individually.
+
+%nodefaultctor VContainerNode;
+%feature("valuewrapper") VContainerNode;
+class VContainerNode {
+public:
+  int size();
+  %newobject c_begin;
+  %newobject c_end;
+  MeshNodeIter* c_begin();
+  MeshNodeIter* c_end();
+};
+
+%nodefaultctor VContainerFuncNode;
+%feature("valuewrapper") VContainerFuncNode;
+class VContainerFuncNode {
+public:
+  int size();
+  %newobject c_begin;
+  %newobject c_end;
+  MeshFuncNodeIter* c_begin();
+  MeshFuncNodeIter* c_end();
+};
+
+%nodefaultctor VContainerElement;
+%feature("valuewrapper") VContainerElement;
+class VContainerElement {
+public:
+  int size();
+  %newobject c_begin;
+  %newobject c_end;
+  MeshElementIter* c_begin();
+  MeshElementIter* c_end();
+};
+
+%nodefaultctor VContainerInterfaceElement;
+%feature("valuewrapper") VContainerInterfaceElement;
+class VContainerInterfaceElement {
+public:
+  int size();
+  %newobject c_begin;
+  %newobject c_end;
+  MeshElementIter* c_begin();
+  MeshElementIter* c_end();
+};
+
+%pythoncode "engine/meshiterator.spy"
 
 #endif // MESHITERATOR_SWG

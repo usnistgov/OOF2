@@ -40,11 +40,14 @@ public:
   TimeStamp cloneAndIncrement();
   unsigned long time() const { return localtime; } // for debugging
   unsigned long epoch() const { return localepoch; } // for debugging
-  friend int operator<(const TimeStamp&, const TimeStamp&);
-  friend int operator>(const TimeStamp&, const TimeStamp&);
+  friend bool operator<(const TimeStamp&, const TimeStamp&);
+  friend bool operator>(const TimeStamp&, const TimeStamp&);
 
   friend std::ostream &operator<<(std::ostream&, const TimeStamp&);
 };
+
+bool operator<(const TimeStamp&, const TimeStamp&);
+bool operator>(const TimeStamp&, const TimeStamp&);
 
 //double cputime();
 

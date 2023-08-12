@@ -46,7 +46,7 @@ class VectorDirection(Direction):
         self.y = y
         self.z = z
 
-def _vector_from_base(self, base):
+def _vector_from_base(base):
     return [base.x(), base.y(), base.z()]
 
 DirectionRegistration(
@@ -70,7 +70,7 @@ class AngleDirection(Direction):
         self.theta = theta
         self.phi = phi
 
-def _angle_from_base(self, base):
+def _angle_from_base(base):
     return [base.theta()*180/math.pi, base.phi()*180/math.pi]
 
 DirectionRegistration(

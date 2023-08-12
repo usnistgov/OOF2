@@ -414,7 +414,8 @@ void DiskDataCache::record() {
   }
 
   char filename[100];
-  sprintf(filename, "%s/oof2-cache%d-XXXXXXX", tempdirname().c_str(), cacheID);
+  snprintf(filename, 100, "%s/oof2-cache%d-XXXXXXX",
+	   tempdirname().c_str(), cacheID);
   int fd = mkstemp(filename); // get new file
   fileDict[time] = filename;
   FILE *file = fdopen(fd, "w");

@@ -218,7 +218,7 @@ checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Material Color']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.6000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -236,7 +236,7 @@ assert tests.noContourBounds()
 
 # Delete Material color layer
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'Delete']).activate()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -258,7 +258,7 @@ findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
 checkpoint toplevel widget mapped Dialog-New Graphics Layer
 findWidget('Dialog-New Graphics Layer').resize(203, 193)
 findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.6000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -274,37 +274,37 @@ assert tests.allLayerNames('Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nod
 assert tests.sensitizationCheck1()
 
 # Lower Skeleton edge layer to bottom
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.5000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.4000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.3000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.1000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 3.9000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 3.7000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 3.6000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 3.4000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 3.3000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 3.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 3.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.8000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.7000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.5000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.1000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.9000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.8000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.7000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.6000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.5000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_hadjustment().set_value( 7.6989876674950e-01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.5000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.3000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.9000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.7000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.3000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.7000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.5000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.9000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.7000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.5000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('hadjustment').set_value( 7.6989876674950e-01)
 wevent(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path(Gtk.TreePath([10]))
 checkpoint OOF.Graphics_1.Layer.Select
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'Lower', 'To_Bottom']).activate()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.6000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -321,8 +321,8 @@ assert tests.allLayerNames('Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nod
 
 # Reorder the layers with "Reorder All"
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'Reorder_All']).activate()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -338,29 +338,29 @@ assert tests.selectedLayerCheck("Element Edges")
 assert tests.allLayerNames('Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nodes', 'Pixel Info', 'Selected Segments', 'Illegal Elements', 'Info', 'Selected Boundary', 'Cross Section', 'Element Edges', 'Selected Elements', 'BitmapOverlay', 'BitmapOverlay', 'Material Color', 'Bitmap')
 
 # Raise image layer until it's above the Skeleton edge layer
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.1000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.5000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 3.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.5000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.6000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_hadjustment().set_value( 1.7698987667495e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_hadjustment().set_value( 1.9996483385011e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_hadjustment().set_value( 2.9996483385011e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_hadjustment().set_value( 3.9996483385011e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_hadjustment().set_value( 4.9996483385011e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_hadjustment().set_value( 5.9996483385011e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_hadjustment().set_value( 6.9996483385011e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_hadjustment().set_value( 7.9996483385011e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.5000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.5000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('hadjustment').set_value( 1.7698987667495e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('hadjustment').set_value( 1.9996483385011e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('hadjustment').set_value( 2.9996483385011e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('hadjustment').set_value( 3.9996483385011e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('hadjustment').set_value( 4.9996483385011e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('hadjustment').set_value( 5.9996483385011e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('hadjustment').set_value( 6.9996483385011e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('hadjustment').set_value( 7.9996483385011e+00)
 wevent(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path(Gtk.TreePath([15]))
 checkpoint OOF.Graphics_1.Layer.Select
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_hadjustment().set_value( 5.9996483385011e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_hadjustment().set_value( 4.9996483385011e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_hadjustment().set_value( 1.9996483385011e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('hadjustment').set_value( 5.9996483385011e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('hadjustment').set_value( 4.9996483385011e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('hadjustment').set_value( 1.9996483385011e+00)
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'Raise', 'One_Level']).activate()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.6000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -371,8 +371,8 @@ checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Raise.One_Level
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'Raise', 'One_Level']).activate()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.6000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -383,8 +383,8 @@ checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Raise.One_Level
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'Raise', 'One_Level']).activate()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.4000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -395,8 +395,8 @@ checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Raise.One_Level
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'Raise', 'One_Level']).activate()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.2000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -407,8 +407,8 @@ checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Raise.One_Level
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'Raise', 'One_Level']).activate()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -425,8 +425,8 @@ assert tests.selectedLayerCheck("Bitmap")
 
 # Reorder again
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'Reorder_All']).activate()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.6000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -446,8 +446,8 @@ wevent(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), Gdk.EventType.
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path(Gtk.TreePath([14]))
 checkpoint OOF.Graphics_1.Layer.Select
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'Hide']).activate()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.6000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -469,8 +469,8 @@ assert tests.sensitizationCheck5()
 # Unhide the Skeleton material layer from the layer list
 wevent(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 findCellRenderer(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), col=0, rend=0).emit('toggled', Gtk.TreePath(14))
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.6000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -497,7 +497,7 @@ findWidget('OOF2:FE Mesh Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create a new mesh
 findWidget('Dialog-Create a new mesh').resize(299, 244)
 findWidget('Dialog-Create a new mesh:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.8000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info cleared position
 checkpoint Graphics_1 Mesh Info sensitized
@@ -679,8 +679,8 @@ findMenu(findWidget('chooserPopup-RCFChooser'), ['Solid Fill']).activate() # Men
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('Dialog-New Graphics Layer').resize(483, 561)
 findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 9.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 9.0000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -757,8 +757,8 @@ checkpoint OOF.Graphics_1.Settings.Color.Background
 
 # Raise the temperature display
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'Raise', 'One_Level']).activate()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 7.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 7.0000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -861,8 +861,8 @@ checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['TequilaSunrise']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 7.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 7.0000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -882,8 +882,8 @@ wevent(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), Gdk.EventType.
 checkpoint toplevel widget mapped PopUp-0
 findMenu(findWidget('PopUp-0'), ['Lower', 'To_Bottom']).activate() # MenuItemLogger
 deactivatePopup('PopUp-0') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.1200000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.1200000000000e+02)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -897,7 +897,7 @@ assert tests.contourBounds(156, 1.89e+04, tolerance=1.e-3)
 
 # Raise the layer back to the top
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'Raise', 'To_Top']).activate()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection

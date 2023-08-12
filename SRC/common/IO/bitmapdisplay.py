@@ -8,12 +8,12 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+from ooflib.SWIG.common import config
 from ooflib.common import debug
+from ooflib.common import primitives
+from ooflib.common import registeredclass
 from ooflib.common.IO import display
 from ooflib.common.IO import xmlmenudump
-from ooflib.SWIG.common import coord
-from ooflib.SWIG.common import config
-from ooflib.common import registeredclass
 
 class BitmapDisplayMethod(display.DisplayMethod):
     def __init__(self):
@@ -21,7 +21,8 @@ class BitmapDisplayMethod(display.DisplayMethod):
         display.DisplayMethod.__init__(self)
     def draw(self, gfxwindow):
         bitmapobj = self.who.getObject(gfxwindow)
-        image = bitmapobj.makeCanvasImage(coord.Coord(0,0), bitmapobj.size())
+        image = bitmapobj.makeCanvasImage(primitives.Point(0,0),
+                                          bitmapobj.size())
         image.setOpacity(1.0)
         self.canvaslayer.addItem(image)
 

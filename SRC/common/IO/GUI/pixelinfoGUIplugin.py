@@ -14,8 +14,12 @@ from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import subthread
 from ooflib.common.IO.GUI import gtklogger
-from gi.repository import Gtk
+
 import ooflib.common.microstructure
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 #####################
 
@@ -47,25 +51,20 @@ class PixelInfoGUIPlugIn:
 
 plugInClasses = []
 
-def pluginsorter(a,b):
-    if a.ordering < b.ordering: return -1
-    if a.ordering > b.ordering: return 1
-    return 0
-
 def registerPlugInClass(plugin):
     plugInClasses.append(plugin)
-    plugInClasses.sort(pluginsorter)
+    plugInClasses.sort(key=lambda p: p.ordering)
     switchboard.notify('new pixelinfo GUI plugin')
 
 ####################################
 
 class MicrostructurePlugIn(PixelInfoGUIPlugIn):
     ordering = 2
-    nrows = 2
+    nrows = 3
     def __init__(self, toolbox, table, row):
         debug.mainthreadTest()
         PixelInfoGUIPlugIn.__init__(self, toolbox)
-        label = Gtk.Label('microstructure=',
+        label = Gtk.Label(label='microstructure=',
                           halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,row,1,1)
         self.microtext = Gtk.Entry(hexpand=True, halign=Gtk.Align.FILL)
@@ -74,7 +73,7 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
         self.microtext.set_editable(False)
         table.attach(self.microtext, 1,row,1,1)
 
-        label = Gtk.Label('pixel groups=',
+        label = Gtk.Label(label='pixel groups=',
                           halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,row+1,1,1)
         self.grouplist = Gtk.TextView(left_margin=5, right_margin=5,
@@ -90,6 +89,14 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
         scroll.add(self.grouplist)
         table.attach(scroll, 1,row+1,1,1)
 
+        label = Gtk.Label(label='category', halign=Gtk.Align.END, hexpand=False)
+        table.attach(label, 0,row+2,1,1)
+        self.categorytext = Gtk.Entry(hexpand=True, halign=Gtk.Align.FILL)
+        gtklogger.setWidgetName(self.categorytext, "MSCategory")
+        self.categorytext.set_width_chars(12)
+        self.categorytext.set_editable(False)
+        table.attach(self.categorytext, 1,row+2, 1,1)
+
         self.sbcallbacks = [
             switchboard.requestCallbackMain('changed pixel group',
                                             self.grpchanged),
@@ -103,7 +110,7 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
         self.update(None)
 
     def close(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         PixelInfoGUIPlugIn.close(self)
 
     def clear(self):
@@ -126,19 +133,23 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
             finally:
                 mscntxt.end_reading()
             grpnames = '\n'.join(names)
+            category = str(microstructure.category(where))
         else:
             msname = '(No microstructure)'
             grpnames = ''
-        mainthread.runBlock(self.reallyupdate, (msname, grpnames))
-    def reallyupdate(self, msname, grpnames):
+            category = ''
+        mainthread.runBlock(self.reallyupdate, (msname, grpnames, category))
+    def reallyupdate(self, msname, grpnames, category):
         debug.mainthreadTest()
         self.microtext.set_text(msname)
         self.grouplist.get_buffer().set_text(grpnames)
+        self.categorytext.set_text(category)
 
     def nonsense(self):
         debug.mainthreadTest()
         self.grouplist.get_buffer().set_text('')
         self.microtext.set_text('???')
+        self.categorytext.set_text('???')
     def grpchanged(self, group, ms_name):
         microstructure = self.toolbox.findMicrostructure()
         if microstructure and microstructure.name() == ms_name:

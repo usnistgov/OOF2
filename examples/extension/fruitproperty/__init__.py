@@ -1,2 +1,2 @@
-import strawberry
-import pyproperty
+from . import strawberry
+from . import pyproperty

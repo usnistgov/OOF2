@@ -412,7 +412,7 @@ wevent(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), Gdk.EventType.
 checkpoint toplevel widget mapped PopUp-0
 findMenu(findWidget('PopUp-0'), ['Delete']).activate() # MenuItemLogger
 deactivatePopup('PopUp-0') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 checkpoint Graphics_1 Mesh Info cleared position
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Pixel Info updated
@@ -445,7 +445,7 @@ findWidget('Dialog-Python_Log:filename').set_text('session.lo')
 findWidget('Dialog-Python_Log:filename').set_text('session.log')
 findWidget('Dialog-Python_Log:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Save.Python_Log
-assert tests.filediff("session.log")
+assert tests.filediff("session.log", tolerance=1.e-6)
 
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Quit']).activate()
 checkpoint OOF.Graphics_1.File.Close

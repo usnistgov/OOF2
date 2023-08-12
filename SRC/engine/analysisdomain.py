@@ -106,16 +106,8 @@ class EntireMesh(Domain):
     def contains(self, pt):
         return True
 
-    # Returns a list of all the elements.  This maybe should return the
-    # iterator, to save memory?  The number of elements could be large.
     def get_elements(self):
-        el_list = []
-        iter = self.femesh.element_iterator()
-        while not iter.end():
-            el_list.append(iter.element())
-            iter.next()
-        return el_list
-        
+        return self.femesh.elements()
 
 registeredclass.Registration(
     'Entire Mesh',
@@ -233,7 +225,7 @@ class CrossSectionDomain(Domain):
         for i in range(DIM):
             if ((cs_obj.start[i] < 0 and cs_obj.end[i] < 0) or
                 (cs_obj.start[i] > bounds[i] and cs_obj.end[i] > bounds[i])):
-                raise ooferror.ErrUserError(errmsg)
+                raise ooferror.PyErrUserError(errmsg)
         
         # If an endpoint is out of bounds in any dimension, project it
         # back onto the bounding planes.  First, clone the endpoints
@@ -273,7 +265,7 @@ class CrossSectionDomain(Domain):
         # can happen if it grazes a corner of the Microstructure.
         seg = real_end - real_start
         if seg*seg == 0:
-            raise ooferror.ErrUserError(errmsg)
+            raise ooferror.PyErrUserError(errmsg)
 
         # Check that the modified points are within bounds.  It's
         # possible that they're not if the original points were placed
@@ -281,7 +273,7 @@ class CrossSectionDomain(Domain):
         for i in range(DIM):
             if not (0 <= real_start[i] <= bounds[i] and
                     0 <= real_end[i] <= bounds[i]):
-                raise ooferror.ErrUserError(errmsg)
+                raise ooferror.PyErrUserError(errmsg)
 
         return (real_start, real_end)
 
@@ -315,7 +307,7 @@ class CrossSectionDomain(Domain):
             (isec, new_el) = \
                    skeleton.get_intersection_and_next_element(
                        local_segment, last_el, None, None)
-        except ooferror.ErrPyProgrammingError, e:
+        except ooferror.PyErrPyProgrammingError as e:
             if e.summary()=="Segment exits element multiple times.":
                 (isec, new_el) = \
                        skeleton.get_intersection_and_next_element(
@@ -374,7 +366,7 @@ class ElementGroup(Domain):
         else:
             skel_els = self.skelcontext.elementgroups.get_groupFromSkeleton(
                 self.elements, self.skeleton)
-        return [self.femesh.getElement(s.meshindex) for s in skel_els]
+        return (self.femesh.getElement(s.meshindex) for s in skel_els)
 
     def get_bounds(self):
         first = 1

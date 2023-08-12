@@ -15,7 +15,6 @@ from ooflib.common import color
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
-from types import *
 import math
 
 FloatParameter = parameter.FloatParameter
@@ -39,7 +38,7 @@ class ColorMap(registeredclass.RegisteredClass):
             lut.SetTableRange(min,max)
             delta = (max-min)/(numcolors-1)
             x = min
-            for i in xrange(numcolors):
+            for i in range(numcolors):
                 color = self.__call__((x-min)/(max-min))
                 x += delta
                 lut.SetTableValue(i,color.getRed(),color.getGreen(),color.getBlue(),1)

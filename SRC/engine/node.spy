@@ -10,27 +10,50 @@
 
 from ooflib.SWIG.common import config
 
-if config.dimension() == 2:
-    NodePtr.__repr__ = lambda self:"Node(%d,%s,%s)" % (self.index(), self[0], self[1])
-    FuncNodePtr.__repr__ = lambda self:"FuncNode(%d,%s,%s)" % (self.index(), self[0],self[1])
-elif config.dimension() == 3:
-    NodePtr.__repr__ = lambda self:"Node(%d,%s,%s,%s)" % (self.index(), self[0], self[1], self[2])
-    FuncNodePtr.__repr__ = lambda self:"FuncNode(%d,%s,%s,%s)" % (self.index(), self[0],self[1], self[2])
+Node.__repr__ = lambda self:"Node(%d,%s,%s)" % (self.index(), self[0], self[1])
+FuncNode.__repr__ = lambda self:"FuncNode(%d,%s,%s)" % (self.index(), self[0],self[1])
 
-# cmp and hash operators are required so that nodes can be looked up
-# in dictionaries, and so that the same C++ node shows up as the same
-# Python node in comparisons. 
-def _NodePtr___cmp__(self, other):
-    if other is None:
-        return -1
-    return cmp(self.index(), other.index())
+# comparison and hash operators are required so that nodes can be
+# looked up in dictionaries, and so that the same C++ node shows up as
+# the same Python node in comparisons.
 
-NodePtr.__cmp__ = _NodePtr___cmp__
+def _Node___lt__(self, other):
+    if not isinstance(other, Node):
+        return NotImplemented
+    return self.index() < other.index()
+Node.__lt__ = _Node___lt__
 
+def _Node___gt__(self, other):
+    if not isinstance(other, Node):
+        return NotImplemented
+    return self.index() > other.index()
+Node.__gt__ = _Node___gt__
 
-def _NodePtr___hash__(self):
+def _Node___le__(self, other):
+    if not isinstance(other, Node):
+        return NotImplemented
+    return self.index() <= other.index()
+Node.__le__ = _Node___le__
+
+def _Node___ge__(self, other):
+    if not isinstance(other, Node):
+        return NotImplemented
+    return self.index() >= other.index()
+Node.__ge__ = _Node___ge__
+
+def _Node___eq__(self, other):
+    if not isinstance(other, Node):
+        return NotImplemented
+    return self.index() == other.index()
+Node.__eq__ = _Node___eq__
+
+def _Node___ne__(self, other):
+    if not isinstance(other, Node):
+        return NotImplemented
+    return self.index() != other.index()
+Node.__ne__ = _Node___ne__
+
+def _Node___hash__(self):
     return self.index()
+Node.__hash__ = _Node___hash__
 
-NodePtr.__hash__ = _NodePtr___hash__
-
-from ooflib.SWIG.common.coord import CoordPtr

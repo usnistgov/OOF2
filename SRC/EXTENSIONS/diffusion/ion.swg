@@ -9,21 +9,20 @@
  * oof_manager@nist.gov.
  */
 
-%module ion
+%module(package="ooflib.SWIG.EXTENSIONS.diffusion") ion
 
 %{
 #include "EXTENSIONS/diffusion/ion.h"
 %}
 
 %include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
-%extern "engine/symmmatrix.swg"
-
-%pragma(python) include="ion.spy"
+%import "engine/property.swg"
+%import "engine/symmmatrix.swg"
    
 class IonDiffusion : public Property {
 public:
   IonDiffusion(PyObject *reg, char *name, double z);
 };
 
+%pythoncode "ion.spy"
 

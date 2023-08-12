@@ -9,17 +9,18 @@
  * oof_manager@nist.gov.
  */
 
-%module charge
+#ifndef EXTENSION_CHARGE_SWG
+#define EXTENSION_CHARGE_SWG
+
+%module(package="ooflib.SWIG.EXTENSIONS.diffusion") charge
 
 %{
 #include "EXTENSIONS/diffusion/charge.h"
 %}
 
 %include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
-%extern "engine/symmmatrix.swg"
-
-%pragma(python) include="charge.spy"
+%import "engine/property.swg"
+%import "engine/symmmatrix.swg"
 
 class IsoCurrent : public Property {
 public:
@@ -31,3 +32,6 @@ public:
   AnisoCurrent(PyObject *reg, char *name, SymmMatrix3 *k);
 };
 
+%pythoncode "charge.spy"
+
+#endif // EXTENSION_CHARGE_SWG

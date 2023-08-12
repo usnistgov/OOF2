@@ -13,7 +13,6 @@
 #define SWITCHBOARD_H
 
 #include <oofconfig.h>
-#include <Python.h>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -25,18 +24,18 @@ private:
   const std::string msgname;
   std::vector<PyObject*> args;
   static const std::string classname_;
-  static const std::string modulename_;
 public:
   OOFMessage(const std::string &msgname);
   const std::string &name() const;
   virtual const std::string &classname() const { return classname_; }
-  virtual const std::string &modulename() const { return modulename_; }
   void addarg(const PythonExportableBase&);
   void addarg(const std::string &);
   void addarg(int);
   int nargs() const;
   PyObject *getarg(int) const;
 };
+
+std::ostream &operator<<(std::ostream&, const OOFMessage&);
 
 void switchboard_notify(const std::string&);
 void switchboard_notify(const OOFMessage&); // for more complicated messages

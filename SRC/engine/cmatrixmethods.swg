@@ -12,8 +12,9 @@
 #ifndef CMATRIXMETHODS_SWG
 #define CMATRIXMETHODS_SWG
 
-%module cmatrixmethods
-%include "engine/typemaps.swg"
+%module(package="ooflib.SWIG.engine") cmatrixmethods
+
+%include "common/typemaps.swg"
 
 %{
 #include "engine/cmatrixmethods.h"
@@ -165,23 +166,5 @@ public:
   ~SparseQR();
   int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
 };
-
-// TODO: Are these typemaps used?  Leftover from the pre-Eigen days?
-
-%typemap(python, argout) int INOUT {
-  // typemap(python, argout) int INOUT
-  if(!$target || $target == Py_None) {
-    $target = PyList_New(0);
-  }
-  PyList_Append($target, PyInt_FromLong($source));
- }
-
-%typemap(python, argout) double INOUT {
-  // typemap(python, argout) double INOUT
-  if(!$target || $target == Py_None) {
-    $target = PyList_New(0);
-  }
-  PyList_Append($target, PyFloat_FromDouble($source));
- }
 
 #endif

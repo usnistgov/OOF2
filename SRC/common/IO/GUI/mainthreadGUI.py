@@ -15,9 +15,13 @@ from ooflib.SWIG.common import threadstate
 from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import thread_enable
-from gi.repository import GObject
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from gi.repository import Gdk
+from gi.repository import GLib
+
 import threading
 
 class OOFIdleCallback:
@@ -41,7 +45,7 @@ def run_gui(func, args=(), kwargs={}):
      # must be installed before the GUI starts and executed
      # afterwards, so the installation must succeed even if threads
      # aren't available yet.
-     GObject.idle_add(OOFIdleCallback(func, args, kwargs))
+     GLib.idle_add(function=OOFIdleCallback(func, args, kwargs))
 
 ################
 
@@ -57,12 +61,18 @@ class OOFIdleBlockCallback:
           self.kwargs = kwargs
           self.event = threading.Event()
           self.result = None
+          self.exception = None
           self.callingthread = threadstate.findThreadNumber()
      def __call__(self):
           # See comment in common.debug.fmsg() about putting
           # debug.fmsg() calls here.
           try:
                self.result = self.func(*self.args, **self.kwargs)
+          except Exception as exc:
+               debug.fmsg("OOFIdleBlockCallback failed! func=", self.func,
+                          "args=", self.args, "kwargs=", self.kwargs)
+               # Save the exception to re-raise it on the calling thread.
+               self.exception = exc
           finally:
                Gdk.flush()
                self.event.set()
@@ -72,8 +82,10 @@ def runBlock_gui(func, args=(), kwargs={}):
     if thread_enable.query() and not mainthread.mainthread():
         callbackobj = OOFIdleBlockCallback(func, args, kwargs)
         callbackobj.event.clear()
-        GObject.idle_add(callbackobj, priority=GObject.PRIORITY_LOW)
+        GLib.idle_add(function=callbackobj, priority=GLib.PRIORITY_LOW)
         callbackobj.event.wait()
+        if callbackobj.exception is not None:
+             raise callbackobj.exception
         return callbackobj.result
     else:
         return func(*args, **kwargs)

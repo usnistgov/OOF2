@@ -206,8 +206,8 @@ assert tests.peekNodeCheck(None)
 
 # Click on a node in the nodes list
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInfo:NodeList').get_selection().select_path(Gtk.TreePath([1]))
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.5000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 5.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.5000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 5.0000000000000e+00)
 checkpoint contourmap info updated for Graphics_1
 assert tests.peekNodeCheck(32)
 
@@ -235,10 +235,10 @@ assert tests.peekNodeCheck(8)
 # Click on a node in the node list
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInfo:NodeList').get_selection().select_path(Gtk.TreePath([3]))
 checkpoint contourmap info updated for Graphics_1
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 3.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 1.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 3.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 1.0000000000000e+00)
 assert tests.peekNodeCheck(43)
 
 # Double-click the node in the node list
@@ -248,8 +248,8 @@ findGfxWindow('Graphics_1').simulateMouse('scroll', -1, -0, 1, False, False)
 tree=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInfo:NodeList')
 column = tree.get_column(0)
 tree.row_activated(Gtk.TreePath([3]), column)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 checkpoint Graphics_1 Mesh Info showed position
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info updated
@@ -286,12 +286,12 @@ assert tests.nodeListCheck(['FuncNode 7 at (0.5, 0.25)', 'FuncNode 34 at (0.625,
 assert tests.peekNodeCheck(43)
 
 # Click Prev again
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 2.8000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 5.4000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 8.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.2800000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 2.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 5.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 8.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.2800000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:Prev').clicked()
 checkpoint Graphics_1 Mesh Info showed position
 checkpoint Graphics_1 Mesh Info sensitized
@@ -312,7 +312,7 @@ assert tests.nodeListCheck(['FuncNode 1 at (0.25, 0)', 'FuncNode 29 at (0.375, 0
 assert tests.peekNodeCheck(None)
 
 # Click Next
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 9.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 9.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:Next').clicked()
 checkpoint Graphics_1 Mesh Info showed position
 checkpoint Graphics_1 Mesh Info sensitized
@@ -322,7 +322,7 @@ assert tests.nodeListCheck(['FuncNode 2 at (0.5, 0)', 'FuncNode 32 at (0.625, 0)
 assert tests.peekNodeCheck(None)
 
 # Next again
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 6.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.0000000000000e+00)
 findGfxWindow('Graphics_1').simulateMouse('scroll', -0, 5, 1, False, False)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 1.0000000000000e+00)
 findGfxWindow('Graphics_1').simulateMouse('scroll', -0, 13, 1, False, False)
@@ -342,8 +342,8 @@ findGfxWindow('Graphics_1').simulateMouse('up', -0.16791886, 0.48597546, 1, Fals
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:Next').clicked()
 checkpoint Graphics_1 Mesh Info showed position
 checkpoint Graphics_1 Mesh Info sensitized
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 checkpoint Graphics_1 Mesh Info updated
 checkpoint contourmap info updated for Graphics_1
 assert tests.nodeMode()

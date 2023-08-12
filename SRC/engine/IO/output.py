@@ -17,9 +17,9 @@ from ooflib.common import primitives
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
-import string
 import struct
-import types
+
+from ooflib.common.utils import stringjoin
 
 structIntFmt = '>i'
 structIntSize = struct.calcsize(structIntFmt)
@@ -35,7 +35,12 @@ class OutputType(enum.EnumClass('Scalar', 'Aggregate')):
 ## eventually users will be able to construct new Output operations at
 ## run-time by assembling predefined Outputs into new Output chains.
 
-class Output(object):
+## TODO NUMPY, TODO PYTHON3: Use numpy for the Output's data?  Would
+## that obviate the TODOs about using generators and iterators instead
+## of lists?  Would it make the Python/C++ interface cleaner and
+## faster?
+
+class Output:
     def __init__(self, name, otype, callback, inputs=[], params=[],
                  tip=parameter.emptyTipString,
                  discussion=parameter.emptyTipString,
@@ -131,7 +136,7 @@ class Output(object):
 
         # TODO: This is a hack that will have to be cleaned up.  Most
         # Outputs have an otype that is a single class (most commonly
-        # OutputValPtr).  Some are PosOutputs and have an otype that's
+        # OutputVal).  Some are PosOutputs and have an otype that's
         # a tuple, (Point, Coord).  When Outputs are connected to one
         # another, the parameter.TypeChecker mechanism is used.  When
         # Outputs are used in analyze.py, it only checks the
@@ -141,7 +146,7 @@ class Output(object):
         self.otype = otype
         if isinstance(otype, parameter.TypeChecker):
             self.otype = otype
-        elif type(otype) in (types.ListType, types.TupleType):
+        elif type(otype) in (list, tuple):
             self.otype = parameter.TypeChecker(*otype)
         else:
             self.otype = otype
@@ -240,9 +245,9 @@ class Output(object):
         return self.defaultRepr()
     def defaultRepr(self):
         params = self.getSettableParams() # dictionary keyed by alias
-        args = ["'%s'" % self.getPath()] + ['%s=%s' % (alias, `p.value`)
+        args = ["'%s'" % self.getPath()] + ['%s=%s' % (alias, repr(p.value))
                                             for alias, p in params.items()]
-        return string.join(args, ',')
+        return stringjoin(args, ',')
 
     def outputInstance(self): 
         # outputInstance returns an instance of the OutputVal subclass
@@ -304,21 +309,21 @@ class Output(object):
             # connect() calls might not be in order! Make sure that
             # inputs stay in the right order.  They have to be ordered
             # correctly or listAllParameterPaths won't work properly.
-            self.inputs.reorder(self.iparms.keys())
+            self.inputs.reorder(list(self.iparms.keys()))
 
     # Return all parameter paths, as lists of lists of names ([input,
     # input, ..., parameter]), unaliased.
-    def listAllParameterPaths(self, filter=lambda x: True):
-        plist = [[n] for n,p in self.params.items() if filter(p)]
+    def listAllParameterPaths(self, fltr=lambda x: True):
+        plist = [[n] for n,p in self.params.items() if fltr(p)]
         for inputname, input in self.inputs.items():
             plist.extend([[inputname]+path
-                          for path in input.listAllParameterPaths(filter)])
+                          for path in input.listAllParameterPaths(fltr)])
         return plist
 
     # Return all parameter names as colon separated paths, unaliased.
-    def listAllParameterNames(self, filter=lambda x: True):
-        return [string.join(path, ':')
-                for path in self.listAllParameterPaths(filter)]
+    def listAllParameterNames(self, fltr=lambda x: True):
+        return [stringjoin(path, ':')
+                for path in self.listAllParameterPaths(fltr)]
 
     # Return a dictionary of clones of the settable Parameters, keyed
     # by their aliases.
@@ -387,7 +392,7 @@ class Output(object):
     def convertNameHierarchy(self, pnames):
         hier = []
         for p in pnames:
-            if type(p) is types.ListType:
+            if isinstance(p, list):
                 hier.append(self.convertNameHierarchy(p))
             else:
                 param = self.findParam(p)
@@ -451,7 +456,7 @@ class Output(object):
                 try:
                     # If the parameter belongs to one of our inputs,
                     # our name for it is (input's name):(param's alias)
-                    return string.join([inputname,
+                    return stringjoin([inputname,
                                         input.getAliasForParam(param)], ':')
                 except KeyError:
                     pass
@@ -484,7 +489,12 @@ class Output(object):
         return False
 
     def evaluate(self, mesh, elements, coords):
-        ## TODO OPT: Use generators instead of lists!
+        ## TODO PYTHON3 LATER? Use generators instead of lists.  Each input
+        ## will have to iterate over the same list of elements and
+        ## coords, so either the loop over elements and coords will
+        ## have to be the outside loop (shared by all inputs), or the
+        ## element and coord generators will have to be converted to
+        ## lists, making the exercise pointless.
         argdict = {}
         for inputname, input in self.inputs.items():
             argdict[inputname] = input.evaluate(mesh, elements, coords)
@@ -503,13 +513,14 @@ class Output(object):
         return hash((self.name, self.callback, self.parent))
 
     def binaryRepr(self, datafile):
-        #Get the path to the prototype that will be provided to getOutput(name)
-        pathlengthstr=struct.pack(structIntFmt,len(self.getPath()))
+        # Get the path to the prototype that will be provided to getOutput(name)
+        pathlengthstr = struct.pack(structIntFmt,len(self.getPath()))
         #string (e.g. self.getPath()) itself need not be packed
-        strings=[pathlengthstr,self.getPath()]
+        strings = [pathlengthstr,
+                   bytes(self.getPath(), "UTF-8")]
         for pvalue in self.getSettableParams().values():
-            strings.append(pvalue.binaryRepr(datafile,pvalue.value))
-        return string.join(strings,'')
+            strings.append(pvalue.binaryRepr(datafile, pvalue.value))
+        return b"".join(strings)
 
     # These functions are used when setting GUI widgets
     def isAggregateOutput(self):
@@ -549,10 +560,10 @@ class Output(object):
 # to each.
 def prependHierarchyName(name, hier):
     for i in range(len(hier)):
-        if type(hier[i]) is types.ListType:
+        if isinstance(hier[i], list):
             hier[i] = prependHierarchyName(name, hier[i])
         else:
-            hier[i] = string.join([name, hier[i]], ':')
+            hier[i] = stringjoin([name, hier[i]], ':')
     return hier
 
 ################################################################
@@ -600,7 +611,7 @@ def defineScalarOutput(path, output, ordering=0):
 class ScalarOutputParameter(parameter.Parameter):
     def checker(self, x):
         if not (isinstance(x, Output)
-                and issubclass(x.otype, outputval.ScalarOutputValPtr)):
+                and issubclass(x.otype, outputval.ScalarOutputVal)):
             parameter.raiseTypeError(type(x), 'Scalar Output')
     def incomputable(self, context):
         return self.value is None or self.value.incomputable(context)
@@ -642,15 +653,15 @@ object whose value is a real number."""
         return value.binaryRepr(datafile)
     def binaryRead(self, parser):
         #First get path to prototype output
-        (pathlengthstr,)=struct.unpack(structIntFmt,parser.getBytes(structIntSize))
-        pathstr=parser.getBytes(pathlengthstr)
-        prototypeoutput=getOutput(pathstr)
+        (pathlengthstr,) = struct.unpack(structIntFmt,
+                                         parser.getBytes(structIntSize))
+        pathstr = parser.getBytes(pathlengthstr).decode()
+        prototypeoutput = getOutput(pathstr)
         argdict={}
-        for pname,pvalue in prototypeoutput.getSettableParams().items():
-            pvalueclone=pvalue.clone()
-            #The following line should set the value of pvalueclone
-            pvalueclone=pvalue.binaryRead(parser)
-            argdict[pname]=pvalueclone
+        for pname, pvalue in prototypeoutput.getSettableParams().items():
+            pvalueclone = pvalue.clone()
+            pvalueclone = pvalue.binaryRead(parser)
+            argdict[pname] = pvalueclone
         return prototypeoutput.clone(params=argdict)
 
 def getOutput(name, **kwargs):

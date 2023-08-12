@@ -28,8 +28,6 @@ from ooflib.engine.IO import meshmenu
 from ooflib.engine.IO import meshparameters
 from ooflib.engine.IO import outputdestination
 import ooflib.engine.mesh
-import string
-import types
 
 bdyanalysismenu = meshmenu.meshmenu.addItem(
     oofmenu.OOFMenuItem(

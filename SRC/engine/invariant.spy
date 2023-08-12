@@ -19,20 +19,20 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import problem
 
-cregisteredclass.registerCClass(InvariantPtr)
-InvariantPtr.tip = "Invariants of vectors and tensors."
-InvariantPtr.discussion = xmlmenudump.loadFile(
+cregisteredclass.registerCClass(Invariant)
+Invariant.tip = "Invariants of vectors and tensors."
+Invariant.discussion = xmlmenudump.loadFile(
     'DISCUSSIONS/engine/reg/invariant.xml')
 
 # Maintain lists of which Invariants can be applied to which kinds of
-# OutputVals.  The keys to the _invmap dict are OutputValPtr classes.
+# OutputVals.  The keys to the _invmap dict are OutputVal classes.
 # The values are lists of Invariant Registrations.
 
 _invmap = {}                           
 def _newInvariant():
     global _invmap
     _invmap = {}
-    for registration in InvariantPtr.registry:
+    for registration in Invariant.registry:
         for outvalclass in registration.sources:
             try:
                 invlist = _invmap[outvalclass]
@@ -41,7 +41,7 @@ def _newInvariant():
                 _invmap[outvalclass] = invlist
             invlist.append(registration)
 
-switchboard.requestCallback(InvariantPtr, _newInvariant)
+switchboard.requestCallback(Invariant, _newInvariant)
 
 def okInvariant(registration, outvalclass, outval):
     try:
@@ -54,57 +54,57 @@ def okInvariant(registration, outvalclass, outval):
 
 cregisteredclass.Registration(
     "Magnitude",
-    InvariantPtr,
+    Invariant,
     Magnitude,
     ordering=0,
-    sources=[outputval.ScalarOutputValPtr,
-             outputval.VectorOutputValPtr,
-             symmmatrix.SymmMatrix3Ptr],
+    sources=[outputval.ScalarOutputVal,
+             outputval.VectorOutputVal,
+             symmmatrix.SymmMatrix3],
     tip="Magnitude (L2 or Frobenius norm) of a vector or tensor, absolute value of a scalar.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/invariant.xml'))
 
 cregisteredclass.Registration(
     "Trace",
-    InvariantPtr,
+    Invariant,
     MatrixTrace,
     ordering=1,
-    sources=[symmmatrix.SymmMatrix3Ptr],
+    sources=[symmmatrix.SymmMatrix3],
     tip="Trace of a symmetric tensor.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/trace.xml'))
 
 cregisteredclass.Registration(
     "SecondInvariant",
-    InvariantPtr,
+    Invariant,
     SecondInvariant,
     ordering=2,
-    sources=[symmmatrix.SymmMatrix3Ptr],
+    sources=[symmmatrix.SymmMatrix3],
     tip="Second invariant of a symmetric tensor.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/2nd_invariant.xml'))
 
 cregisteredclass.Registration(
     "Determinant",
-    InvariantPtr,
+    Invariant,
     Determinant,
     ordering=2,
-    sources=[symmmatrix.SymmMatrix3Ptr],
+    sources=[symmmatrix.SymmMatrix3],
     tip="Determinant of a symmetric tensor.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/determinant.xml'))
 
 cregisteredclass.Registration(
     "Deviator",
-    InvariantPtr,
+    Invariant,
     Deviator,
     ordering=3,
-    sources=[symmmatrix.SymmMatrix3Ptr],
+    sources=[symmmatrix.SymmMatrix3],
     tip="Magnitude of deviatoric part of a symmetric tensor.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/deviator.xml'))
 
 cregisteredclass.Registration(
     "VonMises",
-    InvariantPtr,
+    Invariant,
     VonMises,
     ordering=3.5,
-    # sources=[symmmatrix.SymmMatrix3Ptr],
+    # sources=[symmmatrix.SymmMatrix3],
     sources=[problem.Stress],
     tip="The Von Mises stress."
     )
@@ -119,12 +119,12 @@ class EigenValueRank(enum.EnumClass('Largest', 'Middle', 'Smallest')):
 
 cregisteredclass.Registration(
     "Eigenvalue",
-    InvariantPtr,
+    Invariant,
     Eigenvalue,
     params=[enum.EnumParameter('which', EigenValueRank,
                                tip="Largest, middle, or smallest?")],
     ordering=4,
-    sources=[symmmatrix.SymmMatrix3Ptr],
+    sources=[symmmatrix.SymmMatrix3],
     tip="Eigenvalue of a symmetric tensor.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/eigenvalue.xml')
 )
@@ -141,7 +141,7 @@ cregisteredclass.Registration(
 
 class InvariantParameter(parameter.RegisteredParameter):
     def __init__(self, name, value=None, default=None, tip=None):
-        parameter.RegisteredParameter.__init__(self, name, InvariantPtr,
+        parameter.RegisteredParameter.__init__(self, name, Invariant,
                                                value, default, tip)
     def clone(self):
         return self.__class__(self.name, self.value, self.default, self.tip)

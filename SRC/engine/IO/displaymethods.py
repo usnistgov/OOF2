@@ -15,11 +15,11 @@ import sys
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
-from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import smallmatrix
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import threadstate
 from ooflib.SWIG.engine import mastercoord
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import mainthread
@@ -96,14 +96,12 @@ class SkeletonDisplayMethod(display.DisplayMethod):
         if parallel_enable.enabled():
             nodes = skeleton.all_skeletons["nodes"]
             elements = skeleton.all_skeletons["elements"]
-            polys = []
             for i in range(mpitools.Size()):
                 for el in elements[i]:
-                    polys.append([primitives.Point(*nodes[i][ni])
-                                  for ni in el])
-            return  polys
+                    yield [primitives.Point(*nodes[i][ni]) for ni in el]
         else:
-            return [el.perimeter() for el in skeleton.element_iterator()]
+            for el in skeleton.element_iterator():
+                yield el.perimeter()
 
 # Dummy exception class, raised by
 # _undisplaced_from_displaced_with_element if it overruns its
@@ -178,11 +176,19 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
             else:
                 if gfxwindow.settings.hideEmptyElements:
                     edges = [element.perimeter()
-                             for element in themesh.element_iterator()
+                             for element in themesh.elements()
                              if element.material() is not None]
                 else:
+                    # edges is a list of lists of Edges
                     edges = [element.perimeter()
-                             for element in themesh.element_iterator()]
+                             for element in themesh.elements()]
+
+                ## TODO PYTHON3 LATER: Can this all be done with generators
+                ## instead of lists?  Maybe if all edges were
+                ## evaluated at the same location, so that we wouldn't
+                ## have to iterate over the edges to know how big to
+                ## make the corners list?  Also see TODO in output.py.
+                
                 flatedges = utils.flatten(edges)
                 # corners tells where on each edge to evaluate self.where
                 corners = [[0.0]]*len(flatedges)
@@ -292,15 +298,12 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
         ## is very slow to fail.  Find a cleverer way to select which
         ## elements to search.
         ellist = []
-        ei = femesh.element_iterator()
-        while not ei.end():
-            el = ei.element()
+        for el in femesh.elements():
             if not (el.material() is None and hideEmpty):
                 distance2 = (self.where.evaluate(
                     femesh, [el],[[el.center()]])[0] - pos)**2
                 ellist.append( (distance2, el) )
-            ei.next()
-        ellist.sort()
+        ellist.sort(key=lambda x: x[0])
 
         smallestdist = None
         smallestres = None
@@ -337,7 +340,7 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
             if smallestel:
                 return smallestel.from_master(smallestres)
 
-        raise ooferror.ErrBoundsError("No element found")
+        raise ooferror.PyErrBoundsError("No element found")
         
 ###########################
 
@@ -438,9 +441,10 @@ class EdgeDisplay:
         polygons = self.polygons(gfxwindow, themesh)
         clr = color.canvasColor(self.color)
         for polygon in polygons:
-            poly = oofcanvas.CanvasPolygon()
+            poly = oofcanvas.CanvasPolygon.create()
             poly.setLineWidthInPixels(self.width)
             poly.setLineColor(clr)
+            poly.setLineJoin(oofcanvas.lineJoinBevel)
             poly.addPoints(polygon)
             self.canvaslayer.addItem(poly)
         
@@ -515,10 +519,10 @@ class PerimeterDisplay(MeshDisplayMethod):
         femesh = themesh.getObject()
         themesh.restoreCachedData(self.getTime(themesh, gfxwindow))
         try:
-            segs = oofcanvas.CanvasSegments()
+            segs = oofcanvas.CanvasSegments.create()
             segs.setLineWidthInPixels(self.width)
             segs.setLineColor(color.canvasColor(self.color))
-            for element in femesh.element_iterator():
+            for element in femesh.elements():
                 el_edges = element.perimeter()
                 for edge in el_edges:
                     if element.exterior(edge.startpt(), edge.endpt()):
@@ -570,7 +574,7 @@ registeredclass.Registration(
 #         try:
 #             meshctxt.restoreCachedData(self.getTime(meshctxt, gfxwindow))
 #             if self.boundary==placeholder.every.IDstring:
-#                 for edgement in femesh.edgement_iterator():
+#                 for edgement in femesh.interface_elements():
 #                     if self.material!=ANYstring:
 #                         if edgement.material():
 #                             matname=edgement.material().name()
@@ -583,7 +587,7 @@ registeredclass.Registration(
 #                         pts = self.where.evaluate(femesh, [edge], [[0.0, 1.0]])
 #                         device.draw_segment(primitives.Segment(pts[0], pts[1]))
 #             else:
-#                 for edgement in femesh.edgement_iterator():
+#                 for edgement in femesh.interface_elements():
 #                     if self.material!=ANYstring:
 #                         if edgement.material():
 #                             matname=edgement.material().name()
@@ -647,11 +651,11 @@ class MaterialDisplay:
                     try:
                         colorprop = material.fetchProperty('Color')
                         clr = color.canvasColor(colorprop.color())
-                    except ooferror.ErrNoSuchProperty:
+                    except ooferror.PyErrNoSuchProperty:
                         clr = None
                     colorcache[material] = clr
                 if clr is not None:
-                    poly = oofcanvas.CanvasPolygon()
+                    poly = oofcanvas.CanvasPolygon.create()
                     poly.setFillColor(clr)
                     poly.addPoints(polygon)
                     self.canvaslayer.addItem(poly)
@@ -666,13 +670,9 @@ class SkeletonMaterialDisplay(MaterialDisplay, SkeletonDisplayMethod):
         SkeletonDisplayMethod.__init__(self)
     def materials(self, gfxwindow, skelctxt):
         skel = skelctxt.getObject()
-        return [ element.material(skelctxt)
-                 for element in skel.element_iterator()]
+        return (element.material(skelctxt)
+                for element in skel.element_iterator())
     
-    # def materials(self, gfxwindow, themesh):
-    #     return [element.material(themesh)
-    #             for element in themesh.element_iterator()]
-
 class MeshMaterialDisplay(MaterialDisplay, MeshDisplayMethod):
     def __init__(self, when, where):
         self.where = where.clone()
@@ -682,10 +682,9 @@ class MeshMaterialDisplay(MaterialDisplay, MeshDisplayMethod):
         # of elements with an assigned material, this should only
         # return the non-trivial materials.
         themesh = meshctxt.getObject()
-        allmats = [element.material()
-                   for element in themesh.element_iterator()]
+        allmats = (element.material() for element in themesh.elements())
         if gfxwindow.settings.hideEmptyElements:
-            return filter(None, allmats)
+            return (mat for mat in allmats if mat)
         return allmats
     def getTimeStamp(self, gfxwindow):
         return max(MaterialDisplay.getTimeStamp(self, gfxwindow),
@@ -768,7 +767,7 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
             if deltaE == 0:
                 deltaE = 1.0
             for polygon, energy in polyenergy:
-                poly = oofcanvas.CanvasPolygon()
+                poly = oofcanvas.CanvasPolygon.create()
                 poly.setFillColor(
                     color.canvasColor(self.colormap((energy-emin)/deltaE)))
                 poly.addPoints(polygon)
@@ -799,7 +798,8 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
                 for i in range(self.contourmaplevels):
                     low = i*delta
                     high = (i+1)*delta
-                    rect = oofcanvas.CanvasRectangle((0.0, low), (width, high))
+                    rect = oofcanvas.CanvasRectangle.create((0.0, low),
+                                                            (width, high))
                     if height > 0:
                         clr = color.canvasColor(self.colormap(low/height))
                     else:

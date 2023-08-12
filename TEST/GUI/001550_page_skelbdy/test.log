@@ -1148,7 +1148,7 @@ checkpoint toplevel widget mapped chooserPopup-Skeleton
 findMenu(findWidget('chooserPopup-Skeleton'), ['skeleton<2>']).activate() # MenuItemLogger
 checkpoint boundary page updated
 deactivatePopup('chooserPopup-Skeleton') # MenuItemLogger
-assert tests.bdyNames(['top', 'bottom', 'right', 'left', None, 'topleft',                       'bottomleft', 'topright', 'bottomright'])
+assert tests.bdyNames(['top', 'right', 'bottom', 'left', None, 'topleft',                       'bottomleft', 'topright', 'bottomright'])
 assert tests.selectedBdy(None)
 assert tests.bdyStatusNoBdy()
 
@@ -1231,7 +1231,7 @@ checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton Boundaries']).activate() # MenuItemLogger
 checkpoint page installed Skeleton Boundaries
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-assert tests.bdyNames(['top', 'bottom', 'right', 'left', None, 'topleft',                       'bottomleft', 'topright', 'bottomright'])
+assert tests.bdyNames(['top', 'right', 'bottom', 'left', None, 'topleft',                       'bottomleft', 'topright', 'bottomright'])
 assert tests.selectedBdy(None)
 assert tests.bdyStatusNoBdy()
 

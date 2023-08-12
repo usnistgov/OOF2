@@ -9,8 +9,6 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 //  Objects and functions for storing and retrieving thread
 //  information.  There is exactly one ThreadState object per thread.
 //  There can be more than one ThreadID object for one thread, but
@@ -20,11 +18,13 @@
 #ifndef THREADSTATE
 #define THREADSTATE
 
+#include <oofconfig.h>
+
 #include "common/lock.h"
 #include "common/progress.h"
 
-#include <Python.h>
 #include <pthread.h>
+#include <string>
 #include <vector>
 
 class ThreadID {
@@ -33,6 +33,7 @@ private:
 public:
   ThreadID();
   const pthread_t & get_ID() const { return _ID; }
+  std::string *get_IDstr() const;
 };
 
 std::ostream &operator<<(std::ostream&, const ThreadID&);

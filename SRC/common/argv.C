@@ -14,7 +14,6 @@
 // Routines to cache the command line arguments so that they can be
 // passed to PETSc (and MPI?) when it starts up.
 
-#include <Python.h>
 #include <string>
 #include <signal.h>
 #include <iostream>

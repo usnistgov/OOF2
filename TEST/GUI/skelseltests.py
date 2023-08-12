@@ -25,7 +25,7 @@ def selectionSizeCheck(n):
     return int(_statusText().split()[0]) == n
 
 def selectionModeCheck(name):
-    return _statusText().split()[1] == name
+    return _statusText().split()[3] == name
 
 def historySensitizationCheck(mode, prev, ok, next):
     return generics.sensitizationCheck(

@@ -86,13 +86,13 @@ class SkeletonSelectionMode:
         switchboard.notify(self.modifierappliedsignal, modifier)
 
     def getSelectionContext(self, skeletoncontext):
-        raise ooferror.ErrPyProgrammingError("SkeletonSelectionMode.getSelectionContext() needs to be redefined in class " + self.__class__.__name__)
+        raise ooferror.PyErrPyProgrammingError("SkeletonSelectionMode.getSelectionContext() needs to be redefined in class " + self.__class__.__name__)
     def getGroups(self, skeletoncontext):
-        raise ooferror.ErrPyProgrammingError("SkeletonSelectionMode.getGroups() needs to be redefined in class " + self.__class__.__name__)
+        raise ooferror.PyErrPyProgrammingError("SkeletonSelectionMode.getGroups() needs to be redefined in class " + self.__class__.__name__)
     def getSelectionMenu(self):
-        raise ooferror.ErrPyProgrammingError("SkeletonSelectionMode.getSelectionMenu() needs to be redefined in class " + self.__class__.__name__)
+        raise ooferror.PyErrPyProgrammingError("SkeletonSelectionMode.getSelectionMenu() needs to be redefined in class " + self.__class__.__name__)
     def getGroupMenu(self):
-        raise ooferror.ErrPyProgrammingError("SkeletonSelectionMode.getGroupMenu() needs to be redefined in class " + self.__class__.__name__)
+        raise ooferror.PyErrPyProgrammingError("SkeletonSelectionMode.getGroupMenu() needs to be redefined in class " + self.__class__.__name__)
 
     def setUndoBufferSize(self, menuitem, size):
         self.stacksize = size+1         # affects future Selection objects

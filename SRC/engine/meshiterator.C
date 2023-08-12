@@ -16,162 +16,80 @@
 #include "engine/element.h"
 #include "engine/meshiterator.h"
 
-NodeIterator::NodeIterator(const NodeIterator &other)
-  : base(other.base->clone())
-{}
-
-NodeIterator::~NodeIterator() {
-  delete base;
-}
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-MeshNodeIterator::MeshNodeIterator(const FEMesh *const m)
-  : mesh(m),
-    index(0)
-{}
-
-void MeshNodeIterator::operator++() {
-  if(int(index) != mesh->nnodes())
-    index++;
-}
-
-int MeshNodeIterator::size() const {
-  return mesh->nnodes();
-}
-
-bool MeshNodeIterator::begin() const {
-  return index == 0;
-}
-
-bool MeshNodeIterator::end() const {
-  return int(index) == mesh->nnodes();
-}
-
-Node *MeshNodeIterator::node() const {
+Node *MeshNodeIter::operator*() const {
   return mesh->getNode(index);
 }
 
-NodeIteratorBase *MeshNodeIterator::clone() const {
-  return new MeshNodeIterator(*this);
+MeshIterator<Node>* MeshNodeContainer::c_begin() const {
+  return new MeshNodeIter(mesh);
 }
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-FuncNodeIterator::FuncNodeIterator(const FuncNodeIterator &other)
-  : base(other.base->clone())
-{}
-
-FuncNodeIterator::~FuncNodeIterator() {
-  delete base;
+MeshIterator<Node>* MeshNodeContainer::c_end() const {
+  return new MeshNodeIter(mesh, mesh->nnodes());
 }
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-MeshFuncNodeIterator::MeshFuncNodeIterator(const FEMesh *m)
-  : mesh(m),
-    index(0)
-{}
-
-void MeshFuncNodeIterator::operator++() {
-  if(index != mesh->funcnode.size())
-    index++;
+bool MeshNodeIter::operator!=(const MeshIterator<Node> &other) const {
+  const MeshNodeIter &o = dynamic_cast<const MeshNodeIter&>(other);
+  return o.index != index;
 }
 
-bool MeshFuncNodeIterator::begin() const {
-  return index == 0;
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+FuncNode *MeshFuncNodeIter::operator*() const {
+  return mesh->getFuncNode(index);
 }
 
-bool MeshFuncNodeIterator::end() const {
-  return index == mesh->funcnode.size();
+MeshIterator<FuncNode>* MeshFuncNodeContainer::c_begin() const {
+  return new MeshFuncNodeIter(mesh);
 }
 
-int MeshFuncNodeIterator::size() const {
-  return mesh->funcnode.size();
+MeshIterator<FuncNode>* MeshFuncNodeContainer::c_end() const {
+  return new MeshFuncNodeIter(mesh, mesh->nfuncnodes());
 }
 
-FuncNode *MeshFuncNodeIterator::node() const {
-  return mesh->funcnode[index];
+bool MeshFuncNodeIter::operator!=(const MeshIterator<FuncNode> &other) const {
+  const MeshFuncNodeIter &o = dynamic_cast<const MeshFuncNodeIter&>(other);
+  return o.index != index;
 }
 
-FuncNodeIteratorBase *MeshFuncNodeIterator::clone() const {
-  return new MeshFuncNodeIterator(*this);
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+Element *MeshElementIter::operator*() const {
+  return mesh->getElement(index);
 }
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-ElementIterator::~ElementIterator() {
-  delete base;
+MeshIterator<Element> *MeshElementContainer::c_begin() const {
+  return new MeshElementIter(mesh);
 }
 
-ElementIterator::ElementIterator(const ElementIterator &other)
-  : base(other.base->clone())
-{}
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-MeshElementIterator::MeshElementIterator(const FEMesh * const mesh)
-  : mesh(mesh),
-    index(0)
-{}
-
-void MeshElementIterator::operator++() {
-  if(!end())
-    index++;
+MeshIterator<Element> *MeshElementContainer::c_end() const {
+  return new MeshElementIter(mesh, mesh->nelements());
 }
 
-bool MeshElementIterator::end() const {
-  return index == mesh->element.size();
-}
+bool MeshElementIter::operator!=(const MeshIterator<Element> &other) const {
+  const MeshElementIter &o = dynamic_cast<const MeshElementIter&>(other);
+  return o.index != index;
+};
 
-Element *MeshElementIterator::element() const {
-  return mesh->element[index];
-}
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-int MeshElementIterator::size() const {
-  return mesh->nelements();
-}
-
-int MeshElementIterator::count() const {
-  return index;
-}
-
-ElementIteratorBase *MeshElementIterator::clone() const {
-  return new MeshElementIterator(*this);
-}
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-//Interface branch
-
-MeshInterfaceElementIterator::MeshInterfaceElementIterator(const FEMesh * 
-							   const mesh)
-  : mesh(mesh),
-    index(0)
-{}
-
-void MeshInterfaceElementIterator::operator++() {
-  if(!end())
-    index++;
-}
-
-bool MeshInterfaceElementIterator::end() const {
-  return index == mesh->edgement.size();
-}
-
-//TODO: Return InterfaceElement*?
-Element *MeshInterfaceElementIterator::element() const {
+InterfaceElement *MeshInterfaceElementIter::operator*() const {
   return mesh->edgement[index];
 }
 
-int MeshInterfaceElementIterator::size() const {
-  return mesh->nedgements();
+MeshIterator<InterfaceElement> *MeshInterfaceElementContainer::c_begin() const {
+  return new MeshInterfaceElementIter(mesh);
 }
 
-int MeshInterfaceElementIterator::count() const {
-  return index;
+MeshIterator<InterfaceElement> *MeshInterfaceElementContainer::c_end() const {
+  return new MeshInterfaceElementIter(mesh, mesh->nedgements());
 }
 
-ElementIteratorBase *MeshInterfaceElementIterator::clone() const {
-  return new MeshInterfaceElementIterator(*this);
+bool MeshInterfaceElementIter::operator!=(
+			  const MeshIterator<InterfaceElement> &other)
+  const
+{
+  const MeshInterfaceElementIter &o
+    = dynamic_cast<const MeshInterfaceElementIter&>(other);
+  return o.index != index;
 }
-

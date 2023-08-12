@@ -10,6 +10,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import crandom
 from ooflib.common import debug
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
@@ -23,7 +24,6 @@ elif config.dimension() == 3:
 from ooflib.engine import skeletonmodifier
 from ooflib.common.IO import reporter
 from ooflib.SWIG.common import progress
-import random
 
 if config.dimension() == 2:
     ProvisionalTriangle = skeletonelement.ProvisionalTriangle
@@ -78,7 +78,7 @@ class SwapEdges(skeletonmodifier.SkeletonModifier):
     def _apply(self, oldskeleton, context, prog):
         skel = oldskeleton.properCopy(skeletonpath=context.path())
         elements = self.targets(skel, context, copy=1)
-        random.shuffle(elements)
+        crandom.shuffle(elements)
         # A dict. keyed by element to prevent considering swapping an
         # element which does not exist any more.
         processed = {}
@@ -94,9 +94,8 @@ class SwapEdges(skeletonmodifier.SkeletonModifier):
                 bestchange = self.criterion(changes, skel)
                 if bestchange is not None:
                     done += 2
-                    savedE += bestchange.deltaE(skel,
-                                                self.criterion.alpha)
-                    bestchange.accept(skel)
+                    savedE += bestchange.deltaE(self.criterion.alpha)
+                    bestchange.accept()
                     # Newly created elements from swap should not be
                     # looked at again, not to mention the original pair
                     for elephant in bestchange.removed:

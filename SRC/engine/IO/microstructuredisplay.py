@@ -10,7 +10,6 @@
 
 # DisplayMethod for showing the Materials assigned to a Microstructure.
 
-from ooflib.SWIG.common import coord
 from ooflib.SWIG.common import config
 from ooflib.SWIG.engine import material
 from ooflib.SWIG.engine import angle2color
@@ -43,7 +42,7 @@ class MicrostructureMaterialDisplay(MSMaterialDisplay):
         # draw_image method that took an AbstractImage* argument.
         matlimage = material.MaterialImage(microstructure, self.no_material,
                                            self.no_color)
-        img = matlimage.makeCanvasImage(coord.Coord(0,0), microstructure.size())
+        img = matlimage.makeCanvasImage(primitives.Point(0,0), microstructure.size())
         self.canvaslayer.addItem(img)
 
 registeredclass.Registration(
@@ -84,7 +83,7 @@ class OrientationDisplay(MSMaterialDisplay):
         # orientmapimage may be destroyed before drawing is complete.
         # (TODO: Really? That can't be right.)  msobj.size() refers to
         # an object that will be persistent.
-        img = oimg.makeCanvasImage(coord.Coord(0,0), msobj.size())
+        img = oimg.makeCanvasImage(primitives.Point(0,0), msobj.size())
         self.canvaslayer.addItem(img)
         
 

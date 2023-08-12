@@ -12,12 +12,15 @@
 #ifndef NODALEQUATION_SWG
 #define NODALEQUATION_SWG
 
-%module nodalequation
-%include "engine/typemaps.swg"
+%module(package="ooflib.SWIG.engine") nodalequation
+%include "common/typemaps.swg"
 
 %{
 #include "engine/nodalequation.h"
 %}
+
+%nodefaultctor NodalEquation;
+%nodefaultdtor NodalEquation;
 
 class NodalEquation {
 public:

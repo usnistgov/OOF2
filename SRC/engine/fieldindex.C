@@ -18,38 +18,102 @@ bool operator==(const FieldIndex &a, const FieldIndex &b) {
   return a.integer() == b.integer();
 }
 
-std::vector<int> *ScalarFieldIndex::components() const {
-  return new std::vector<int>;	// empty vector
+std::ostream &operator<<(std::ostream &os, const FieldIndex &fi) {
+  fi.print(os);
+  return os;
 }
 
-const std::string &ScalarFieldIndex::shortstring() const {
+std::ostream &operator<<(std::ostream &os, const IndexP &ip) {
+  const FieldIndex &fi(ip);
+  os << "IndexP(" << fi << ")";
+  return os;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+const std::string &ScalarFieldIndex::shortrepr() const {
   static std::string ss("");
   return ss;
 }
 
-void VectorFieldIndex::set(const std::vector<int> *component) {
-  index_ = (*component)[0];
+void ScalarFieldIndex::print(std::ostream &os) const {
+  os << "ScalarFieldIndex()";
 }
 
-void VectorFieldIndex::set(int given_index) {
-  index_ = given_index;
+const std::string& ScalarFieldIndex::classname() const {
+  static const std::string nm("ScalarFieldIndex");
+  return nm;
 }
 
-std::vector<int> *VectorFieldIndex::components() const {
-  std::vector<int> *c = new std::vector<int>(1);
-  (*c)[0] = index_;
-  return c;
+ScalarFieldCompIterator &ScalarFieldCompIterator::operator++() {
+  done = true;
+  return *this;
 }
 
-const std::string &VectorFieldIndex::shortstring() const {
+bool ScalarFieldCompIterator::operator!=(const ComponentIterator &othr) const {
+  const ScalarFieldCompIterator& other =
+    dynamic_cast<const ScalarFieldCompIterator&>(othr);
+  return other.done != done;
+}
+
+FieldIndex *ScalarFieldCompIterator::fieldindex() const {
+  assert(!done);
+  return new ScalarFieldIndex();
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+const std::string &VectorFieldIndex::classname() const {
+  static const std::string nm("VectorFieldIndex");
+  return nm;
+}
+
+const std::string &VectorFieldIndex::shortrepr() const {
   static const std::string names[] = {std::string("x"),
 				      std::string("y"), 
 				      std::string("z")};
   return names[index_];
 }
 
+void VectorFieldIndex::print(std::ostream &os) const {
+  os << "VectorFieldIndex(" << index_ << ")";
+}
+
+bool VectorFieldCompIterator::operator!=(const ComponentIterator &othr) const {
+  const VectorFieldCompIterator &other =
+    dynamic_cast<const VectorFieldCompIterator&>(othr);
+  return other.index != index;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+const std::string &OutOfPlaneVectorFieldIndex::classname() const {
+  static const std::string nm("OutOfPlaneVectorFieldIndex");
+  return nm;
+}
+
+bool OutOfPlaneVectorFieldCompIterator::operator!=(
+					   const ComponentIterator &othr) const
+{
+  const OutOfPlaneVectorFieldCompIterator &other =
+    dynamic_cast<const OutOfPlaneVectorFieldCompIterator&>(othr);
+  return other.index != index;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 static const int rowset[] = { 0, 1, 2, 1, 0, 0 };
 static const int colset[] = { 0, 1, 2, 2, 2, 1 };
+
+const std::string &SymTensorIndex::classname() const {
+  static const std::string nm("SymTensorIndex");
+  return nm;
+}
+
+const std::string &OutOfPlaneSymTensorIndex::classname() const {
+  static const std::string nm("OutOfPlaneSymTensorIndex");
+  return nm;
+}
 
 int SymTensorIndex::row() const {
   return rowset[v];
@@ -59,53 +123,85 @@ int SymTensorIndex::col() const {
   return colset[v];
 }
 
-void SymTensorIndex::set(const std::vector<int> *component) {
-  v = ij2voigt((*component)[0], (*component)[1]);
+int SymTensorIterator::row() const {
+  return rowset[v];
 }
 
-std::vector<int> *SymTensorIndex::components() const {
-  std::vector<int> *c = new std::vector<int>(2);
-  (*c)[0] = rowset[v];
-  (*c)[1] = colset[v];
-  return c;
+int SymTensorIterator::col() const {
+  return colset[v];
 }
 
-const std::string &SymTensorIndex::shortstring() const {
-  // It looks like the conversion from char to string is handled
-  // automatically here...
+SymTensorIterator::SymTensorIterator(SpaceIndex i, SpaceIndex j)
+  : v(SymTensorIndex::ij2voigt(i, j))
+{}
+
+
+bool SymTensorIterator::operator!=(const ComponentIterator &othr) const {
+  const SymTensorIterator &other =
+    dynamic_cast<const SymTensorIterator&>(othr);
+  return other.v != v;
+}
+
+const std::string &SymTensorIndex::shortrepr() const {
   static const std::string voigt[] = {"xx", "yy", "zz", "yz", "xz", "xy"};
   return voigt[v];
-}
-
-std::ostream &operator<<(std::ostream &os, const FieldIndex &fi) {
-  fi.print(os);
-  return os;
-}
-
-void ScalarFieldIndex::print(std::ostream &os) const {
-  os << "ScalarFieldIndex()";
-}
-
-void VectorFieldIndex::print(std::ostream &os) const {
-  os << "VectorFieldIndex(" << index_ << ")";
 }
 
 void SymTensorIndex::print(std::ostream &os) const {
   os << "SymTensorIndex(" << row() << "," << col() << ")";
 }
 
-std::ostream &operator<<(std::ostream &os, const IndexP &ip) {
-  const FieldIndex &fi(ip);
-  os << "IndexP(" << fi << ")";
+// SymTensor components are often needed independent of a flux or
+// field, so they can be retrieved from this.
+SymTensorIJComponents symTensorIJComponents;
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+std::ostream &operator<<(std::ostream &os, const ComponentIterator &ci) {
+  ci.print(os);
   return os;
 }
 
-IteratorP *getSymTensorIterator(Planarity planarity) {
-#if DIM==2
-  if(planarity == IN_PLANE)
-    return new IteratorP(new SymTensorInPlaneIterator());
-  if(planarity == OUT_OF_PLANE)
-    return new IteratorP(new SymTensorOutOfPlaneIterator());
-#endif
-  return new IteratorP(new SymTensorIterator());
+std::ostream &operator<<(std::ostream &os, const ComponentIteratorP &cip) {
+  os << "ComponentIteratorP(";
+  cip.iterator()->print(os);
+  os << ")";
+  return os;
+}
+
+void EmptyFieldIterator::print(std::ostream& os) const {
+  os << "EmptyFieldIterator";
+}
+
+void ScalarFieldCompIterator::print(std::ostream &os) const {
+  os << "ScalarFieldCompIterator(" << (done?"done":"not done") << ")";
+}
+
+void VectorFieldCompIterator::print(std::ostream &os) const {
+  os << "VectorFieldCompIterator(" << index << ")";
+}
+
+void OutOfPlaneVectorFieldCompIterator::print(std::ostream &os) const {
+  os << "OutOfPlaneVectorFieldCompIterator(" << index << ")";
+}
+
+void SymTensorIterator::print(std::ostream &os) const {
+  os << "SymTensorIterator(" << v << ")";
+}
+
+void SymTensorInPlaneIterator::print(std::ostream &os) const {
+  os << "SymTensorInPlaneIterator(" << v << ")";
+}
+
+void SymTensorOutOfPlaneIterator::print(std::ostream &os) const {
+  os << "SymTensorOutOfPlaneIterator(" << v << ")";
+}
+
+void OutOfPlaneSymTensorIterator::print(std::ostream &os) const {
+  os << "OutOfPlaneSymTensorIterator(" << v << ")";
+}
+
+std::ostream &operator<<(std::ostream &os, const SymTensorIJIterator &it) {
+  os << "SymTensorIJIterator(" << it.v << ")";
+  return os;
 }

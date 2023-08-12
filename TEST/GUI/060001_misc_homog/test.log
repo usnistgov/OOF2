@@ -134,8 +134,8 @@ findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
 checkpoint toplevel widget mapped Dialog-New Graphics Layer
 findWidget('Dialog-New Graphics Layer').resize(395, 532)
 findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint selection info updated Element
@@ -157,7 +157,7 @@ wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Me
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Rectangle']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.0000000000000e+01)
 findGfxWindow('Graphics_1').simulateMouse('down', 0.0003756574, 0.016153268, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 0.0003756574, 0.016153268, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 0.010894065, 0.026671675, 1, False, False)

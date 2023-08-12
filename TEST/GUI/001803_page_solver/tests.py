@@ -26,9 +26,13 @@ def selection(which):
     return listViewSelectedRowNo(subplist) == which
 
 def listCheck(*names):
-    for s, n in map(None, treeViewColValues(subplist, 0), names):
+    tvcv = treeViewColValues(subplist, 0)
+    if len(tvcv) != len(names):
+        print("Wrong number of columns!", file=sys.stderr)
+        return False
+    for s, n in zip(tvcv, names):
         if s.name() != n:
-            print >> sys.stderr, s.name(), "!=", n
+            print(s.name(), "!=", n, file=sys.stderr)
             return False
     return True
 

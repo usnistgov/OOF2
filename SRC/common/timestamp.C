@@ -41,7 +41,7 @@ void TimeStamp::operator++() {
   TimeStampLock.release();
 }
 
-int operator<(const TimeStamp &t1, const TimeStamp &t2) {
+bool operator<(const TimeStamp &t1, const TimeStamp &t2) {
   TimeStampLock.acquire();
   bool lt;
   if(t1.localepoch == t2.localepoch)
@@ -52,7 +52,7 @@ int operator<(const TimeStamp &t1, const TimeStamp &t2) {
   return lt;
 }
 
-int operator>(const TimeStamp &t1, const TimeStamp &t2) {
+bool operator>(const TimeStamp &t1, const TimeStamp &t2) {
   TimeStampLock.acquire();
   bool gt;
   if(t1.localepoch == t2.localepoch)

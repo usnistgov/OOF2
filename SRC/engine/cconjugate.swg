@@ -9,36 +9,41 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef CCONJUGATE_SWG
 #define CCONJUGATE_SWG
 
-%module cconjugate
-%include "engine/typemaps.swg"
-%extern "engine/equation.swg"
-%extern "engine/field.swg"
-%extern "engine/fieldindex.swg"
+%module(package="ooflib.SWIG.engine") cconjugate
+
+%include "common/typemaps.swg"
+%import "engine/equation.swg"
+%import "engine/field.swg"
+%import "engine/fieldindex.swg"
 
 %{
 #include "engine/cconjugate.h"
+#include "engine/equation.h"
+#include "engine/field.h"
+#include "engine/fieldindex.h"
+  #include "engine/outputval.h"	// SWIGBUG
+  #include "engine/flux.h"	// SWIGBUG
+  #include "engine/node.h"	// SWIGBUG
 %}
-%pragma(python) code="from ooflib.SWIG.engine.equation import EquationPtr"
-%pragma(python) code="from ooflib.SWIG.engine.field import FieldPtr"
-%pragma(python) code="from ooflib.SWIG.engine.fieldindex import FieldIndexPtr"
+
+MAKE_LISTVEC_TYPEMAPS(CConjugatePair);
 
 class CConjugatePair {
 public:
   CConjugatePair(const Equation *eqn, const FieldIndex *eqncomp,
 		 const Field *field, const FieldIndex *fieldcomp);
-  Field *get_field();
+  const std::string &get_field_name();
   FieldIndex *get_field_component();
   Equation *get_equation();
   FieldIndex *get_equation_component();
-  %addmethods {
-    bool __eq__(CConjugatePair *other) {
-      return *self == *other;
-    }
+};
+
+%extend CConjugatePair {
+  bool __eq__(CConjugatePair *other) {
+    return *self == *other;
   }
 };
 

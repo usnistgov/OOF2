@@ -70,9 +70,9 @@ class SharedLibrary:
                  extra_link_args=None,
                  language=None,
                  **kwargs):
-        assert type(name) is StringType, "'name' must be a string"
-        assert (type(sources) is ListType and
-                map(type, sources) == [StringType]*len(sources)), \
+        assert isinstance(name, StringType), "'name' must be a string"
+        assert (isinstance(sources, ListType) and
+                list(map(type, sources)) == [StringType]*len(sources)), \
                 "'sources' must be a list of strings"
 
         self.name = name
@@ -86,10 +86,8 @@ class SharedLibrary:
         self.language = language
 
         if len(kwargs):
-            L = kwargs.keys()
-            L.sort()
-            L = map(repr, L)
-            msg = "Unknown SharedLibrary options: " + string.join(L, ', ')
+            L = sorted(list(kwargs.keys()))
+            msg = "Unknown SharedLibrary options: " + ' '.join(map(repr, L))
             if warnings is not None:
                 warnings.warn(msg)
             else:
@@ -150,17 +148,17 @@ class build_shlib(Command):
         # Much of the following is copied from build_ext
         if self.include_dirs is None:
             self.include_dirs = self.distribution.include_dirs or []
-        if type(self.include_dirs) is StringType:
+        if isinstance(self.include_dirs, StringType):
             self.include_dirs = string.split(self.include_dirs, os.pathsep)
 
         if self.libraries is None:
             self.libraries = []
-        elif type(self.libraries) is StringType:
+        elif isinstance(self.libraries, StringType):
             self.libraries = self.libraries.split(' ')
 
         if self.library_dirs is None:
             self.library_dirs = []
-        elif type(self.library_dirs) is StringType:
+        elif isinstance(self.library_dirs, StringType):
             self.library_dirs = string.split(self.library_dirs, os.pathsep)
 
         # The argument parsing will result in self.define being a string, but
@@ -170,7 +168,7 @@ class build_shlib(Command):
 
         if self.define:
             defines = string.split(self.define, ',')
-            self.define = map(lambda symbol: (symbol, '1'), defines)
+            self.define = [(symbol, '1') for symbol in defines]
 
         # The option for macros to undefine is also a string from the
         # option parsing, but has to be a list.  Multiple symbols can also
@@ -235,8 +233,7 @@ class build_shlib(Command):
         for shlib in shlibs:
             sources = shlib.sources
             if sources is None or type(sources) not in (ListType, TupleType):
-                raise DistutilsSetupError, \
-                      "In SharedLibrary %s, 'sources' must be a list of file names" % shlib.name
+                raise DistutilsSetupError("In SharedLibrary %s, 'sources' must be a list of file names" % shlib.name)
             sources = list(sources)
 
             log.info("building '%s' library", shlib.name)
@@ -278,18 +275,15 @@ class build_shlib(Command):
         ## header files, so there's no way that it can create a
         ## complete list for sdist.  Users will just have to provide a
         ## manifest file some other way.
-        raise DistutilsSetupError, \
-              "build_shlib requires a MANIFEST or MANIFEST.in file."
+        raise DistutilsSetupError("build_shlib requires a MANIFEST or MANIFEST.in file.")
 
     def check_library_list(self, shlibs):
-        if type(shlibs) is not ListType:
-            raise DistutilsSetupError, \
-                  "'shlibs' option must be a list of SharedLibrary objects"
+        if not isinstance(shlibs, ListType):
+            raise DistutilsSetupError("'shlibs' option must be a list of SharedLibrary objects")
 
         for shlib in shlibs:
             if not isinstance(shlib, SharedLibrary):
-                raise DistutilsSetupError, \
-                      "'shlibs' option must be a list of SharedLibrary objects"
+                raise DistutilsSetupError("'shlibs' option must be a list of SharedLibrary objects")
 
 ##################
 
@@ -302,15 +296,15 @@ def customize_compiler_darwin(compiler):
     (cc, cxx, cflags, opt, ccshared, ldshared, ldcxxshared) = \
         get_config_vars('CC', 'CXX', 'CFLAGS', 'OPT',
                         'CCSHARED', 'LDSHARED', 'LDCXXSHARED')
-    if os.environ.has_key('CC'):
+    if 'CC' in os.environ:
         cc = os.environ['CC']
-    if os.environ.has_key('CXX'):
+    if 'CXX' in os.environ:
         cxx = os.environ['CXX']
-    if os.environ.has_key('LDSHARED'):
+    if 'LDSHARED' in os.environ:
         ldshared = os.environ['LDSHARED']
-    if os.environ.has_key('LDCXXSHARED'):
+    if 'LDCXXSHARED' in os.environ:
         ldcxxshared = os.environ['LDCXXSHARED']
-    if os.environ.has_key('CPP'):
+    if 'CPP' in os.environ:
         cpp = os.environ['CPP']
     else:
         cpp = cc + " -E"
@@ -318,14 +312,14 @@ def customize_compiler_darwin(compiler):
     if ldcxxshared is None:
         ldcxxshared = ""
 
-    if os.environ.has_key('LDFLAGS'):
+    if 'LDFLAGS' in os.environ:
         ldshared = ldshared + ' ' + os.environ['LDFLAGS']
         ldcxxshared = ldcxxshared + ' ' + os.environ['LDFLAGS']
-    if os.environ.has_key('CFLAGS'):
+    if 'CFLAGS' in os.environ:
         cflags = opt + ' ' + os.environ['CFLAGS']
         ldshared = ldshared + ' ' + os.environ['CFLAGS']
         ldcxxshared = ldcxxshared + ' ' + os.environ['CFLAGS']
-    if os.environ.has_key('CPPFLAGS'):
+    if 'CPPFLAGS' in os.environ:
         cpp = cpp + ' ' + os.environ['CPPFLAGS']
         cflags = cflags + ' ' + os.environ['CPPFLAGS']
         ldshared = ldshared + ' ' + os.environ['CPPFLAGS']

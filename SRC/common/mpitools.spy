@@ -13,6 +13,7 @@ import string
 import sys
 from ooflib.common import debug
 from ooflib.common.IO import menuparser
+from functools import reduce
 
 ## wrapper for _mpi_initialize.
 ## mpi_finalize is registered so that when python exits it gets called
@@ -55,7 +56,7 @@ def Sendrecv_Int(value, destination, tag=0):
 
 def Sendrecv_Ints(value, destinations, tag=0):
     # Assumed Send-tag == Recv-tag.
-    if type(value) == type(1):  # just an integer
+    if isinstance(value, type(1)):  # just an integer
         value = [value]*len(destinations)
     return [Sendrecv_Int(v, d, tag)
             for (v,d) in zip(value, destinations)]
@@ -252,7 +253,7 @@ class ReceivePipe (menuparser.InputSource):
             real_org = origin
         ## Now, read from the mpi channel until
         ## a number n of bytes has been received
-        while 1:
+        while True:
             self._read(realorg)
             res = self.data[:n]
             self.data = self.data[n:]

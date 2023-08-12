@@ -21,17 +21,13 @@ from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import registeredclass
 from ooflib.common import subthread
+from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import placeholder
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
 
 import oofcanvas
-
-import string
-import types
-import weakref
-
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -43,19 +39,18 @@ class LayerOrdering:
     def __init__(self, order, suborder=0.):
         self.order = order
         self.suborder = suborder
-    def __cmp__(self, other):
-        if self.order < other.order: return -1
-        if self.order > other.order: return 1
-        if self.suborder < other.suborder: return -1
-        if self.suborder > other.suborder: return 1
-        return 0
+    def __lt__(self, other):
+        return (self.order < other.order or
+                (self.order == other.order and self.suborder < other.suborder))
+    def __ge__(self, other):
+        return not self.__lt__(other)
+    def __gt__(self, other):
+        return (self.order > other.order or
+                (self.order == other.order and self.suborder > other.suborder))
+    def __le__(self, other):
+        return not self.__gt__(other)
     def __call__(self, suborder):
         return LayerOrdering(self.order, suborder)
-
-def layercomparator(a, b):
-    aordering = a.layerordering()
-    bordering = b.layerordering()
-    return aordering.__cmp__(bordering)
 
 Abysmal = LayerOrdering(-1000)          # shouldn't ever appear
 Planar = LayerOrdering(0.)              # filled meshes, or images
@@ -83,6 +78,8 @@ class DisplayMethodParameter(parameter.RegisteredParameter):
 # attribute which lists the names of the WhoClasses that the
 # DisplayMethod accepts.
 
+layercounter = 0
+
 class DisplayMethod(registeredclass.RegisteredClass):
     registry = []
     def __init__(self):
@@ -99,7 +96,12 @@ class DisplayMethod(registeredclass.RegisteredClass):
         self.lastDrawn.backdate() # it hasn't been drawn yet
 
     def build(self, gfxwindow):
-        self.canvaslayer = gfxwindow.oofcanvas.newLayer(self.short_name())
+        # Try to make the layer name unique, but don't try too hard.
+        # It's only used for debugging.
+        global layercounter
+        self.canvaslayer = gfxwindow.oofcanvas.newLayer(
+            self.short_name() + "_" + str(layercounter))
+        layercounter += 1
         if self.hidden:
             self.canvaslayer.hide()
         else:
@@ -279,7 +281,7 @@ class AnimationLayer:
                 and not self.incomputable(gfxwindow))
     def animationTimes(self, gfxwindow):
         # Return a list of available times.
-        raise ooferror.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             "Someone forgot to redefine animationTimes for",
             self.__class__.__name__)
 
@@ -297,8 +299,7 @@ def _addMethodList(text, obj):
             except KeyError:
                 regdict[whoclass] = classlist = []
             classlist.append(reg)
-    whoclasses = regdict.keys()
-    whoclasses.sort()
+    whoclasses = sorted(list(regdict.keys()))
     lines = ["""
     <para>Here is a list of the types of displayable objects and the
     DisplayMethods that apply to them:
@@ -315,7 +316,7 @@ def _addMethodList(text, obj):
         lines.append("</itemizedlist></para></listitem>")
 
     lines.append("</itemizedlist></para>")
-    return text + string.join(lines, '\n')
+    return text + utils.stringjoin(lines, '\n')
 
 DisplayMethod.tip = "Methods for drawing &oof2; objects in the graphics window."
 DisplayMethod.discussion = xmlmenudump.loadFile(
@@ -331,7 +332,7 @@ class MicrostructurePerimeterDisplay(DisplayMethod):
 
     def draw(self, gfxwindow):
         size = self.getWho(gfxwindow).getObject().size()
-        rect = oofcanvas.CanvasRectangle((0, 0), size)
+        rect = oofcanvas.CanvasRectangle.create((0, 0), size)
         rect.setLineWidthInPixels(self.width)
         rect.setLineColor(color.canvasColor(self.color))
         self.canvaslayer.addItem(rect)

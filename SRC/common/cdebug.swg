@@ -12,7 +12,7 @@
 #ifndef CDEBUG_SWG
 #define CDEBUG_SWG
 
-%module cdebug
+%module(package="ooflib.SWIG.common") cdebug
 
 %include "common/typemaps.swg"
 
@@ -21,7 +21,6 @@
 #include "common/pixelsetboundary.h"
   void segfault();
 %}
-%pragma(python) include="cdebug.spy"
 
 void initDebug(PyObject*);
 void segfault(int);
@@ -32,5 +31,7 @@ void throwPythonCException();
 void spinCycle(int);
 
 int countleft;			// in pixelsetboundary.h
+
+%pythoncode "common/cdebug.spy"
 
 #endif // CDEBUG_SWG

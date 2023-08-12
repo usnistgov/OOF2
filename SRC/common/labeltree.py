@@ -48,12 +48,12 @@
 # be passed to the OOFMenuItem constructor.
 
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.ooferror import ErrUserError
+from ooflib.SWIG.common.ooferror import PyErrUserError
 from ooflib.common import debug
 from ooflib.common.IO import oofmenu
-from types import *
-import string
+from ooflib.common.utils import stringjoin
 import sys
+from functools import reduce
 
 # Data class for holding arguments to the menu within the
 # Labeltree object.  Separates the position argument tuple
@@ -70,15 +70,16 @@ def makePath(name):
     # turn a name into a path, which is a list of strings
     if name is None:                    # special case
         return None
-    if type(name)==ListType and type(name[0])==StringType: # it's already a path
+    if isinstance(name, list) and isinstance(name[0], str):
+        # it's already a path
         return name[:]                  # return a copy
-    elif type(name)==StringType:
-        path = name.split(':')          # separate colon delimited substrings
-##        while path and not path[-1]:
-##            path = path[:-1]
-        return path
+    elif isinstance(name, str):
+        return name.split(':')          # separate colon delimited substrings
     else:
         raise TypeError('Bad argument to labeltree.makePath: %s' % name)
+
+def ltordering(node):   # LabelTreeOrdering function, passed to sort()
+    return node.ordering
 
 # LabelTree is the root class of an ordered set of objects, all of
 # which (except the root itself) are LabelTreeNode objects.
@@ -88,14 +89,14 @@ def makePath(name):
 # tree has been constructed.
 
 class LabelTreeNode:
-    def __init__(self, name="", parent=None, object=None, ordering=0):
+    def __init__(self, name="", parent=None, obj=None, ordering=0):
         self.name = name
         self.parent = parent
         if parent:
             self.root = parent.root
         else:
             self.root = self
-        self.object = object
+        self.object = obj
         self.ordering = ordering
         self.nodes = []
         self.menus = {}
@@ -120,7 +121,7 @@ class LabelTreeNode:
                 else:
                     return node.subTree(path[1:])
         raise KeyError("Can't find %s in LabelTree!" %
-                       string.join([self.path(), path[0]], ':'))
+                       stringjoin([self.path(), path[0]], ':'))
     def __getitem__(self, name):
         return self.subTree(name)
 
@@ -190,7 +191,7 @@ class LabelTreeNode:
             # At the end of the path.  Create a leaf.  Object finally
             # gets assigned.
             leaf = LabelTreeNode(name=path[0], parent=self,
-                                 object=obj, ordering=ordering)
+                                 obj=obj, ordering=ordering)
             # Add the new leaf to the reverse dictionary.
             self.root.reverse_dict[obj]=leaf
             # Add the menu(s)
@@ -232,7 +233,7 @@ class LabelTreeNode:
                 
             # 
             self.nodes.append(leaf)
-            self.nodes.sort() # SORT
+            self.nodes.sort(key=ltordering)
             #
             # Notify the switchboard, passing the parent of the
             # tree.
@@ -246,14 +247,14 @@ class LabelTreeNode:
                     if node.ordering > ordering:
                         node.ordering = ordering
                         if self.parent:
-                            self.parent.nodes.sort() # SORT using __cmp__ 
+                            self.parent.nodes.sort(key=ltordering) 
                     # Descend into existing subtree.  Pass the ordering.
                     node.__setitem__(path[1:], obj, ordering)
                     return
             # Didn't find an existing subtree.  Make one, but don't
             # assign the object.
             newnode = LabelTreeNode(name=path[0], parent=self,
-                                    object=None, ordering=ordering)
+                                    obj=None, ordering=ordering)
             # Add intermediate-level menu
             for (k, menu) in self.menus.items():
                 menuargs = self.get_menu_args(k)
@@ -261,7 +262,7 @@ class LabelTreeNode:
                     newnode.makeOOFMenu(newnode.name, k, menuargs.paramfunc,
                                         *menuargs.args, **menuargs.kwargs))
             self.nodes.append(newnode)
-            self.nodes.sort()  # SORT.
+            self.nodes.sort(key=ltordering)
             switchboard.notify((self.root, "insert"), self, newnode)
             # Recursive call to __setitem__.  Propagate the ordering.
             newnode.__setitem__(path[1:], obj, ordering)
@@ -276,7 +277,7 @@ class LabelTreeNode:
                 if self.nodes[i].name==path[0]:
                     # Think of the children.
                     if len(self.nodes[i].nodes)!=0:
-                        raise ErrUserError(
+                        raise PyErrUserError(
                             "Attempt to delete non-leaf from labeltree.")
                     else:
                         # Then do the deletion, in the tree and
@@ -331,7 +332,7 @@ class LabelTreeNode:
         else:
             return []
     def path(self):
-        return string.join(self.pathlist(), ':')
+        return stringjoin(self.pathlist(), ':')
 
     # Returns a list of paths to all leaves of the subtree rooted at this node.
     def leafpaths(self, condition=lambda x: 1):
@@ -390,7 +391,7 @@ class LabelTreeNode:
     def __repr__(self):
         repr = ["%s(%s):" % (self.__class__.__name__, self.name)] + \
                [n.name for n in self.nodes]
-        return string.join(repr, ' ')
+        return stringjoin(repr, ' ')
 ##        repr = "%s(%s):\n" % (self.__class__.__name__, self.name)
 ##        for node in self.nodes:
 ##            repr += node.dump('')
@@ -402,16 +403,12 @@ class LabelTreeNode:
     def getOOFMenu(self, key):
         return self.menus[key]
     
-    # Comparison routine for sorting on orderings.
-    def __cmp__(self,other):
-        return cmp(self.ordering, other.ordering)
-
 # Special object for the root of a labeltree.
 class LabelTree(LabelTreeNode):
-    def __init__(self, name="", object=None, ordering=0):
+    def __init__(self, name="", obj=None, ordering=0):
         self.reverse_dict = {}
         LabelTreeNode.__init__(self, name=name, parent=None,
-                               object=object, ordering=ordering)
+                               obj=obj, ordering=ordering)
         self.menuargs = {} # Set at menu-time.
         # Dictionary keyed by the .object objects, with corresponding
         # LabelTreeNode objects as values.  Maintained in __setitem__.
@@ -443,7 +440,7 @@ class LabelTree(LabelTreeNode):
     
 
     # Given an object stored in the tree, return its path.  That is,
-    #     tree[tree.objpath(object)] is object.
+    #     tree[tree.objpath(obj)] is obj.
     def objpath(self, obj):
         return self.reverse_dict[obj].path()
 

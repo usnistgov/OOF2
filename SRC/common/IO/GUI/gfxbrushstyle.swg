@@ -12,16 +12,17 @@
 #ifndef GFXBRUSHSTYLE_SWG
 #define GFXBRUSHSTYLE_SWG
 
-%module gfxbrushstyle
+%module(package="ooflib.SWIG.common.IO.GUI") gfxbrushstyle
+
 %include "common/typemaps.swg"
+%import "common/brushstyle.swg"
+
 %{
 #include "common/IO/GUI/gfxbrushstyle.h"
 %}
 
-%extern "common/brushstyle.swg"
-%pragma(python) include="gfxbrushstyle.spy"
-%pragma(python) code="from ooflib.SWIG.common.brushstyle import CircleBrushPtr"
-%pragma(python) code="from ooflib.SWIG.common.brushstyle import SquareBrushPtr"
+
+%nodefaultctor GfxBrushStyle;
 
 class GfxBrushStyle {
 public:
@@ -38,4 +39,17 @@ public:
   GfxSquareBrush(double);
 };
 
+//%pythoncode "common/IO/GUI/gfxbrushstyle.spy"
+
+%pythoncode %{
+
+# When the GUI is loaded, the Registrations for the BrushStyles should
+# create GfxBrushStyles instead of the non-GUI BrushStyles that were
+# registered in brushstyle.py.  Here we sneakily replace the
+# registered classes with the GUI versions.
+from ooflib.SWIG.common import brushstyle
+brushstyle.circleReg.substituteClass(GfxCircleBrush)
+brushstyle.squareReg.substituteClass(GfxSquareBrush)
+
+%}
 #endif // GFXBRUSHSTYLE_SWG

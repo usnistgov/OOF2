@@ -9,7 +9,7 @@
 # oof_manager@nist.gov. 
 
 import unittest, os
-import memorycheck
+from . import memorycheck
 
 class OOF_Misorientation(unittest.TestCase):
     def setUp(self):

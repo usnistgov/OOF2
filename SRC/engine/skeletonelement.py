@@ -12,7 +12,7 @@ from ooflib.SWIG.common import coord
 from ooflib.SWIG.common import timestamp
 from ooflib.SWIG.engine import cskeleton
 from ooflib.SWIG.engine import material
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.common import object_id
@@ -47,7 +47,8 @@ class SkeletonElementBase:
         
     def __repr__(self):
 #        return "%s(%s)" % (self.__class__.__name__, id(self))
-        return "%s(%s)" % (self.__class__.__name__, self.nodes)
+#        return f"{self.__class__.__name__}({self.nodes}, index={self.index})"
+        return f"{self.__class__.__name__}{tuple(n.position() for n in self.nodes)}"
 
     def material(self, skeletonctxt):
         # This is the default function for assigning a material to an
@@ -79,13 +80,6 @@ class SkeletonElementBase:
         nx, ny = microstructure.sizeInPixels()
         return self.underlying_pixels(microstructure) # C++
 
-    def transitionPoint(self, skeleton, edgeno):
-        ok, point = \
-            cskeleton.CSkeletonElementPtr.transitionPoint(self, skeleton.MS,
-                                                          edgeno)
-        if ok:
-            return point
-    
     def energyTotal(self, skeleton, alpha):
         if alpha == 0.0:
             return self.energyShape()
@@ -95,14 +89,40 @@ class SkeletonElementBase:
                (1.-alpha)*self.energyShape()
 
     def getPositionHash(self):
-        sortedpositions = [n.position() for n in self.nodes]
-        sortedpositions.sort()
-        hashable = []
-        for pos in sortedpositions:
-            for i in range(2):
-                hashable.append(pos[i])
-        return hash(tuple(hashable))
+        # Get a hash value for an element that depends only on the
+        # position of its nodes.  This is used when caching
+        # homogeneities that were computed on provisional elements.
+        # We can't count on the nodes being in the same order or
+        # having the same indices when revisiting an element, so we
+        # need to base the hash on just the node positions.  We do
+        # want to ensure that the nodes are connected in the same way,
+        # though, so the hash is not simply derived from a sorted list
+        # of node positions.  Instead, we list the positions starting
+        # with the node with the largest position.  If two nodes have
+        # the same position, this might fail, but the consequences of
+        # failing are small -- an illegal element's homogeneity might
+        # be recomputed.
 
+        ## OLD VERSION
+        # sortedpositions = sorted([n.position() for n in self.nodes])
+        # hashable = []
+        # for pos in sortedpositions:
+        #     for i in range(2):
+        #         hashable.append(pos[i])
+
+        positions = [n.position() for n in self.nodes]
+        # Find the node with the largest position.
+        maxpos = None
+        maxi = -1
+        for i, pos in enumerate(positions):
+            if maxpos is None or pos > maxpos:
+                maxpos = pos
+                maxi = i
+        hashable = ([(pos[0], pos[1]) for pos in positions[maxi:self.nnodes()]]
+                    +
+                    [(pos[0], pos[1]) for pos in positions[0:maxi]])
+        return hash(tuple(hashable))
+        
 ##########################
         
 class SkeletonElement(SkeletonElementBase,
@@ -172,12 +192,10 @@ class SkeletonElement(SkeletonElementBase,
     #     return self.element
 
     def getSegments(self, skeleton):
-        segments = []
         lastnode = self.nodes[-1]
         for node in self.nodes:
-            segments.append(skeleton.findSegment(node, lastnode))
+            yield skeleton.findSegment(node, lastnode)
             lastnode = node
-        return segments
 
     #Interface branch
     #Get the segment opposite seg1 and that is incident on node1.
@@ -222,27 +240,22 @@ class SkeletonElement(SkeletonElementBase,
         return 0
 
     def new_child(self,index):
-        raise ooferror2.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             "Attempt to clone element parent class.")
 
     def getNumberOfEdges(self):
         return self.nnodes()
 
+    # Return a list of pairs of nodes, one pair for each segment.
     def segment_node_iterator(self):
-        segment_nodes = []
+        nn = self.nnodes()
         for i in range(self.nnodes()):
-            n0 = self.nodes[i]
-            n1 = self.nodes[(i+1)%self.nnodes()]
-            segment_nodes.append((n0,n1))
-        return segment_nodes
+            yield (self.nodes[i], self.nodes[(i+1)%nn])
 
     def segment_iterator(self, skel):
-        segments = []
+        nn = self.nnodes()
         for i in range(self.nnodes()):
-            n0 = self.nodes[i]
-            n1 = self.nodes[(i+1)%self.nnodes()]
-            segments.append(skel.findSegment(n0, n1))
-        return segments
+            yield skel.findSegment(self.nodes[i], self.nodes[(i+1)%nn])
 
     def edgeNeighbors(self, skeleton, loopRange=0):
         # Search for edge-sharing neighborhood for a given element and return
@@ -281,6 +294,39 @@ class SkeletonElement(SkeletonElementBase,
                 minEdge = list[i]
                 index = i
         return index
+
+    def aspectRatio2(self):
+        # The square of the aspect ratio is the ratio of the
+        # eigenvalues of the moment of inertia tensor of the points.
+        # This routine returns the square of (min_length/max_length)
+        # so that we don't have to take the sqrt or check for
+        # min_length = 0.
+
+        # First compute the center point.
+        midpt = primitives.Point(0,0)
+        for node in self.nodes:
+            midpt += node.position()
+        midpt /= self.nnodes()
+        # Get components of the moment of inertia tensor.
+        a00 = 0.
+        a01 = 0.
+        a11 = 0.
+        for node in self.nodes:
+            p = node.position() - midpt
+            a00 += p[0]*p[0]
+            a01 += p[0]*p[1]
+            a11 += p[1]*p[1]
+        # The eigenvalues of a 2x2 matrix are
+        #   m +/- sqrt(m**2 - p)
+        # where m is the mean of the diagonal elements and p is the determinant.
+        m = 0.5*(a00 + a11)
+        p = a00*a11 - a01*a01
+        d2 = m*m - p
+        if d2 >= 0:
+            d = math.sqrt(d2)
+            return (m - d)/(m + d)
+        # The points are colinear and round-off has made d2<0.
+        return 0.0 
     
     def getAnglesList(self):
         return [self.cosCornerAngle(i) for i in range(self.nnodes())]
@@ -309,7 +355,7 @@ class SkeletonElement(SkeletonElementBase,
         segment = skeleton.findSegment(node0, node1)
         elements = segment.getElements()
 ##        if len(elements) > 2:
-##            raise ooferror2.ErrPyProgrammingError("Too many sisters!")
+##            raise ooferror.PyErrPyProgrammingError("Too many sisters!")
         for e in elements:
             if e is not self:
                 return e
@@ -372,7 +418,7 @@ class SkeletonElement(SkeletonElementBase,
             self.meshindex = index
         else:
             if index != self.meshindex:
-                raise ooferror2.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "Index mismatch in element construction.")
                 
         nnewnodes = 0
@@ -465,7 +511,7 @@ class SkeletonElement(SkeletonElementBase,
             self.meshindex = index
         else:
             if index != self.meshindex:
-                raise ooferror2.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "Index mismatch in element construction.")
                 
         nnewnodes = 0
@@ -586,80 +632,18 @@ class SkeletonQuad(SkeletonElement, cskeleton.CSkeletonQuad):
         new.copyHomogeneity(self)
         return new
 
-    def aspectRatio(self):
-        #         ________d(max)_________
-        #        |                      /
-        # a(min) |                     / c
-        #        |____________________/
-        #                  b 
-        #
-        # aspect ratio : 1. Find a max ratio of two consecutive segments
-        #                   => d/a
-        #                2. Get an opposite segment of "a". => c
-        #                3. A.R. => max(c,d)/min(c,d)
-        #
-        # The reason why not using d/a as A.R. is that if a quad. has
-        # one short segment and three similarly long segments, d/a may
-        # give a wrong impression about this quad.
-
-        lengths = [self.edgeLength(i) for i in range(4)]
-        max_ratio = 1.0
-        long_side = None
-        short_side = None
-        for i in range(4):
-            if lengths[i] >= lengths[(i+1)%4]:
-                long = i
-                short = (i+1)%4
-            else:
-                long = (i+1)%4
-                short = i
-            ratio = lengths[long]/lengths[short]
-            if ratio >= max_ratio:
-                max_ratio = ratio
-                long_side = long
-                short_side = short
-        opposite = (short_side+2)%4
-        return max(lengths[opposite], lengths[long_side])/\
-               min(lengths[opposite], lengths[long_side])
-
-##    def getLongSegments(self, skeleton):
-##        lengths = [self.edgeLength(i) for i in range(4)]
-##        long = lengths.index(max(lengths))
-##        seg1 = skeleton.findSegment(self.nodes[long], self.nodes[(long+1)%4])
-##        seg2 = skeleton.findSegment(self.nodes[(long+2)%4],
-##                                    self.nodes[(long+3)%4])
-##        return seg1, seg2
-
     def getAspectRatioSegments(self, threshold, skeleton):
-        ## Return segments that should be refined by CheckAspectRatio.
-        ## The long edges of quads can be refined if there are two
-        ## long edges and two short ones, and the long ones are
-        ## opposite to each other.  We check the ratio of the second
-        ## longest to the second shortest, because this rules out
-        ## cases in which one edge is much longer than the other
-        ## three.
-        segs = []
-        lengths = map(self.edgeLength, (0,1,2,3))
-        sortlengths = lengths[:]
-        sortlengths.sort()
-        if sortlengths[2] > sortlengths[1]*threshold:
-            # find longest edges
-            l0 = sortlengths[2]
-            l1 = sortlengths[3]
-            i0 = i1 = None
-            for i in (0,1,2,3):
-                leng = lengths[i]
-                if leng == l0:
-                    i0 = i
-                if leng == l1:
-                    i1 = i
-            idiff = i0 - i1
-            if idiff == 2 or idiff == -2:
-                segs.append(skeleton.findSegment(self.nodes[i0],
-                                                self.nodes[(i0+1)%4]))
-                segs.append(skeleton.findSegment(self.nodes[i1],
-                                                 self.nodes[(i1+1)%4]))
-        return segs
+        # Return segments that should be refined by CheckAspectRatio.
+        # Quads should be refined only if the aspect ratio exceeds the
+        # threshold and the two longest edges are opposite each other.
+        if self.aspectRatio2() < 1./(threshold*threshold):
+            lengths = sorted([(self.edgeLength(i), i) for i in range(4)])
+            n0 = lengths[3][1] # index of longest edge
+            n1 = lengths[2][1] # index of second longest edge
+            dn = n0 - n1
+            if dn == 2 or dn == -2:
+                yield skeleton.findSegment(self.nodes[n0], self.nodes[(n0+1)%4])
+                yield skeleton.findSegment(self.nodes[n1], self.nodes[(n1+1)%4])
 
     def provisionalReplacement(self, oldnode, newnode):
         return ProvisionalQuad(self.replacementNodes(oldnode, newnode),
@@ -686,45 +670,21 @@ class SkeletonTriangle(SkeletonElement, cskeleton.CSkeletonTriangle):
         new.copyHomogeneity(self)
         return new
 
-    def aspectRatio(self):
-        lengths = [self.edgeLength(i) for i in range(3)]
-        lengths.sort()
-        ## This returns the ratio of the *middle* length to the
-        ## *shortest* length, which might seem odd. It's a more
-        ## conservative definition than using lengths[2]/lengths[0].
-        ## The reason for using it is that aspectRatio is used to mark
-        ## elements for refining, and not much is gained by refining
-        ## high aspect triangles unless they're more or less
-        ## isosceles, with only one small angle.
-        return lengths[1]/lengths[0]
+    def getAspectRatioSegments(self, threshold, skeleton):
+        # Return segments that should be refined by CheckAspectRatio.
+        if self.aspectRatio2() < 1./(threshold*threshold):
+            lengths = sorted([(self.edgeLength(i), i) for i in range(3)])
+            n0 = lengths[2][1] # index of longest edge
+            n1 = lengths[1][1] # index of second longest edge
+            yield skeleton.findSegment(self.nodes[n0], self.nodes[(n0+1)%3])
+            yield skeleton.findSegment(self.nodes[n1], self.nodes[(n1+1)%3])
+
+
 
     def provisionalReplacement(self, oldnode, newnode):
         return ProvisionalTriangle(self.replacementNodes(oldnode, newnode),
                                    self.getParents())
 
-##    def getLongSegments(self, skeleton):
-##        lengths = [self.edgeLength(i) for i in range(3)]
-##        short = lengths.index(min(lengths))
-##        seg1 = skeleton.findSegment(self.nodes[(short+1)%3],
-##                                    self.nodes[(short+2)%3])
-##        seg2 = skeleton.findSegment(self.nodes[(short+2)%3],
-##                                    self.nodes[(short+3)%3])
-##        return seg1, seg2
-
-    def getAspectRatioSegments(self, threshold, skeleton):
-        # return segments that should be refined by CheckAspectRatio.
-        # See comment in aspectRatio(), above.
-        
-        lengths = [(self.edgeLength(i), i) for i in range(3)]
-        lengths.sort()
-        if lengths[1][0] > lengths[0][0] * threshold:
-            n0 = lengths[2][1]
-            n1 = lengths[1][1]
-            return [skeleton.findSegment(self.nodes[n0],
-                                         self.nodes[(n0+1)%3]),
-                    skeleton.findSegment(self.nodes[n1],
-                                         self.nodes[(n1+1)%3])]
-        return []
 
 class ProvisionalTriangle(ProvisionalElement, cskeleton.CSkeletonTriangle):
     def __init__(self, nodes, parents):

@@ -12,14 +12,21 @@
 #ifndef PROGRESSGUI_SWG
 #define PROGRESSGUI_SWG
 
-%module progressGUI
+%module(package="ooflib.SWIG.common.IO.GUI") progressGUI
+
 %include "common/typemaps.swg"
 
 %{
 #include "common/IO/GUI/progressGUI.h"
 %}
-%pragma(python) include="common/IO/GUI/progressGUI.spy"
 
 void initialize();
+
+%pythoncode %{
+  initialize()
+%}
+
+
+
 
 #endif // PROGRESSGUI_SWG

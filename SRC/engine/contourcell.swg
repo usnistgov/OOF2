@@ -12,16 +12,13 @@
 #ifndef CONTOURCELL_SWG
 #define CONTOURCELL_SWG
 
-%module contourcell
-%include "engine/typemaps.swg"
+%module(package="ooflib.SWIG.engine") contourcell
 
-%extern "mastercoord.swg"
+%include "common/typemaps.swg"
 
 %{
 #include "engine/contourcell.h"
 %}
-
-%pragma(python) include="engine/contourcell.spy"
 
 class ContourCellCoord {
 public:
@@ -29,17 +26,18 @@ public:
   int ix, iy;
 };
 
+%nodefaultctor ContourCellSkeleton;
+
 class ContourCellSkeleton {
-public:
-  %addmethods {
+};
+
+%extend ContourCellSkeleton {
   ContourCellCoord getitem(int i) {
     return self->corner[i];
   }
-//   void __setitem__(int i, const MasterCoord &mc) {
-//     self->corner[i] = mc;
-//   }
   int __len__() { return 3; }
-  }
 };
+
+%pythoncode "engine/contourcell.spy"
 
 #endif // CONTOURCELL_SWG
