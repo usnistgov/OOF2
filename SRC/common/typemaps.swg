@@ -67,7 +67,7 @@
 // If not using -builtin, ADD_REPR can appear after the declaration
 // and the function does not need to be swigged.
 
-// ADD_REPR_GENERIC uses the to_string template (from
+// ADD_REPR_GENERIC uses the tostring template (from
 // common/tostring.h, not std::to_string) instead of a class method,
 // so it's useful as long as the class has defines operator<<.  It
 // should come before the class declaration in the swig file if the
@@ -106,7 +106,7 @@
 %extend CLASS {
   %newobject __repr__;
    const std::string *__repr__() { // ADD_REPR_GENERIC
-     return new std::string(to_string(*self));
+     return new std::string(tostring(*self));
    }
 };
 %enddef

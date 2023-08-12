@@ -761,7 +761,7 @@ BoundaryEdge *Element::newBndyEdge(const FuncNode *n0, const FuncNode *n1)
 
 BoundaryEdge *Element::getBndyEdge(const FuncNode *n0, const FuncNode *n1) {
   BoundaryEdge *ed = find_b_edge(n0, n1);
-//   Trace("Element::getBndyEdge " + to_string(*n0) + " " + to_string(*n1));
+//   Trace("Element::getBndyEdge " + tostring(*n0) + " " + tostring(*n1));
   // find_edge will correctly detect nullness of the edgelist.
   if(ed == nullptr) {
     ed = newBndyEdge(n0, n1);

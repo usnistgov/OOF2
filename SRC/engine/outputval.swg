@@ -141,9 +141,13 @@ public:
   double __float__() const {
     return self->value(); 
   }
+  // Don't use ADD_REPR_GENERIC to generate the repr, because it
+  // will print the class name as well as the value.
+  %newobject __repr__;
+  const std::string *__repr__() const {
+    return new std::string(tostring(self->value()));
+  }
 };
-
-ADD_REPR_GENERIC(ScalarOutputVal);
 
 class VectorOutputVal : public ArithmeticOutputVal {
 public:
@@ -155,9 +159,9 @@ public:
   %newobject __repr__;
   const std::string *__repr__() {
     std::string *res = new std::string("[");
-    *res += to_string( (*self)[0] );
+    *res += tostring( (*self)[0] );
     for(unsigned int i=1; i<self->size(); i++)
-      *res += ", " + to_string( (*self)[i] );
+      *res += ", " + tostring( (*self)[i] );
     *res += "]";
     return res;
   }

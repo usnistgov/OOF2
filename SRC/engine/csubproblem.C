@@ -711,7 +711,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 
       (*el)->make_linear_system( this, time, nlsolver, *linearsystem );
       progress->setFraction(float(counter+1)/nel);
-      progress->setMessage(to_string(counter+1) + "/" + to_string(nel)
+      progress->setMessage(tostring(counter+1) + "/" + tostring(nel)
 			   + " elements");
   }
 #endif // HAVE_OPENMP
@@ -727,7 +727,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
     edgement->make_linear_system(this, time, nlsolver, *linearsystem);
     counter++;
     progress->setFraction(counter/float(n));
-    progress->setMessage(to_string(counter) + "/" + to_string(n) + " edges");
+    progress->setMessage(tostring(counter) + "/" + tostring(n) + " edges");
   }    
   progress->finish();
   if(progress->stopped()) {
@@ -760,7 +760,7 @@ void CSubProblem::post_process() {
     element->post_process(this);
     counter++;
     progress->setFraction(counter/float(size));
-    progress->setMessage(to_string(counter) + "/" + to_string(size) + " elements");
+    progress->setMessage(tostring(counter) + "/" + tostring(size) + " elements");
   }
 
   //Interface branch
@@ -772,7 +772,7 @@ void CSubProblem::post_process() {
     edgement->post_process(this);
     counter++;
     progress->setFraction(counter/float(n));
-    progress->setMessage(to_string(counter) + "/" + to_string(n) + " edges");
+    progress->setMessage(tostring(counter) + "/" + tostring(n) + " edges");
   }
   progress->finish();
 }

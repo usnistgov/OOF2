@@ -63,7 +63,7 @@ ThreadID::ThreadID() {
 }
 
 std::string *ThreadID::get_IDstr() const {
-  return new std::string(to_string(get_ID()));
+  return new std::string(tostring(get_ID()));
 }
   
 

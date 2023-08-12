@@ -80,7 +80,7 @@ public:
   {}
   virtual ~ErrProgrammingErrorBase() {}
   virtual const std::string *summary() const {
-    return new std::string(file + ":" + to_string(line) + " " + msg);
+    return new std::string(file + ":" + tostring(line) + " " + msg);
   }
   // filename and lineno are for reading from Python
   const std::string &filename() const { return file; }

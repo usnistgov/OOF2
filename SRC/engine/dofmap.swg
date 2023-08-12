@@ -36,13 +36,6 @@ public:
 
 ADD_REPR_GENERIC(DoFMap);
 
-// %extend DoFMap {
-//   %newobject __repr__;
-//   const std::string *__repr__() {
-//     return new std::string(to_string(*self));
-//   }
-// };
-
 DoFMap compose(DoFMap&, DoFMap&);
 DoFMap concat(DoFMap&, DoFMap&);
 
