@@ -418,3 +418,5 @@ install(
 ## TODO PYTHON3: When creating a distribution, check that the various
 ## typemaps.swg files are included.  They're not explicitly listed as
 ## source files elsewhere.
+
+add_subdirectory(packaging)

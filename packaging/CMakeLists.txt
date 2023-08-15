@@ -27,9 +27,12 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 else()
   set(CPACK_GENERATOR TGZ)
 endif()
+message("CPACK_GENERATOR=${CPACK_GENERATOR}")
 
 set(CPACK_SOURCE_IGNORE_FILES
   /\\.git
+  SEGMENTATION
+  image/GRAINBDY
   )
 
 include(CPack)
