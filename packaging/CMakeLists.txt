@@ -30,11 +30,8 @@ endif()
 message("CPACK_GENERATOR=${CPACK_GENERATOR}")
 
 set(CPACK_SOURCE_IGNORE_FILES
-  /\\.git
-  SEGMENTATION
-  image/GRAINBDY
+  "/\\.git; SEGMENTATION; image/GRAINBDY; build*/; *.tar.*; \\.#; /#;"
+
   )
 
 include(CPack)
-
-  
