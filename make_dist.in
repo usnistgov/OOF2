@@ -231,7 +231,6 @@ try:
         cmd = ['git', 'push', 'origin', tag]
     else:
         cmd = ['git', 'push', '--set-upstream', 'origin', tag]
-
     if not dryrun:
         osCall(*cmd)
     else:
@@ -278,7 +277,6 @@ try:
     ]
 
     excludeFiles = [
-        "distname.py",
         "make_dist.in",
         "oof2-build", "oof2-clean",
         "SRC/header", "SRC/header.py",
