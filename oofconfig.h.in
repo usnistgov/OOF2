@@ -10,6 +10,11 @@
 #cmakedefine DEBUG
 #define DIM 2
 
-#cmakedefine HAVE_SSTREAM 
+#cmakedefine HAVE_SSTREAM
+
+#define OOFVERSION "@oof2_VERSION@"
+#define OOFVERSION_MAJOR @oof2_VERSION_MAJOR@
+#define OOFVERSION_MINOR @oof2_VERSION_MINOR@
+#define OOFVERSION_PATCH @oof2_VERSION_PATCH@
 
 #endif // OOFCONFIG_H

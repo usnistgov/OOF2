@@ -37,11 +37,11 @@ from ooflib.SWIG.common import config
 from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import ooferror
+from ooflib.SWIG.common import oofversion
 from ooflib.common import autoload
 from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import oof_getopt as getopt
-from ooflib.common import oofversion
 from ooflib.common import parallel_enable
 from ooflib.common import runtimeflags
 from ooflib.common import subthread
@@ -85,16 +85,16 @@ def remove_option(item, argument=None):
     # This should never happen.  getopt has already checked that the
     # options are well formed, so there should be nothing
     # unrecognizable in the list.
-    raise ooferror.PyErrPyProgrammingError("Failed to remove option: %s %s" %
-                                           (item, argument))
+    raise ooferror.PyErrPyProgrammingError(
+        f"Failed to remove option: {item} {argument}")
 
 def state_options_and_quit():
-    main_options_string= """
-This is oof2 version %s.
+    main_options_string= f"""
+This is OOF2 version {oofversion.version()}.
 
 Usage: oof2 [options]
 The options are:
-option      argument    description
+option      argument     description
 --------------------------------------------------------------
 --text                   Turn off graphics mode
 --help                   Display valid options and exit
@@ -105,10 +105,8 @@ option      argument    description
 --seed=     integer      Provide a random number seed
 --quiet                  Quit quietly when done
 --batch                  Quit immediately after running scripts (implies --text)
---autoload               Automatically load everything in the EXTENSIONS directory""" \
-    % oofversion.version
+--autoload               Automatically load everything in the EXTENSIONS directory"""
 
-    
     devel_options_string = """
 --parallel               Start-up parallel processing mode """
 
@@ -146,7 +144,7 @@ The following options are for debugging:
     sys.exit(1)
 
 def state_version_and_quit():
-    print("This is oof2 version %s." % oofversion.version)
+    print(f"This is oof2 version {oofversion.version()}")
     sys.exit(1)
 
 ##
@@ -380,7 +378,7 @@ def front_end(no_interp=None):
         exec('import ' + module)
 
     if not (runtimeflags.text_mode or config.no_gui()):
-        reporter.report("Welcome to OOF2 version %s!" % oofversion.version)
+        reporter.report(f"Welcome to OOF2 version {oofversion.version()}!")
         ## The files to be loaded must be loaded *after* the GUI
         ## starts, but this routine doesn't regain control once it
         ## starts the GUI. So we have to install the file loader
@@ -435,7 +433,7 @@ def front_end(no_interp=None):
             width = utils.screenwidth()
             wiggles = "//=*=\\\\=*="
             nwiggles = (width-2)//len(wiggles)
-            welcome = "Welcome to OOF2 version %s!" % oofversion.version
+            welcome = f"Welcome to OOF2 version {oofversion.version()}!"
             nblanks = (width - len(welcome))//2
             banner = wiggles*nwiggles + "//\n\n" \
                      + " "*nblanks + welcome + "\n" + \
@@ -478,7 +476,7 @@ class StartUpFile:
     def __init__(self, filename):
         self.filename = filename
     def __repr__(self):
-        return "%s(%s)" % (self.__class__.__name__, self.filename)
+        return f"{self.__class__.__name__}({self.filename})"
 
 class StartUpScript(StartUpFile):
     def load(self):

@@ -123,6 +123,7 @@ swig_sources(
   lock
   # mpitools  ## TODO: Add an mpi compilation option 
   ooferror
+  oofversion
   pixelattribute
   pixelgroup
   pixelselectioncourier
