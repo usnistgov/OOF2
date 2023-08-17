@@ -413,10 +413,18 @@ install(
 install(
   DIRECTORY examples
   DESTINATION ${CMAKE_INSTALL_DATADIR}/oof2
+)
+
+# Packaging
+
+# Don't use cmake's packaging tools because I couldn't get them to
+# work and we have a perfectly good make_dist script from the old
+# days.  But in order to ensure that the version number used by the
+# script is the same as the version number defined here, the script is
+# created from make_dist.in.
+
+configure_file(
+  ${PROJECT_SOURCE_DIR}/make_dist.in
+  ${PROJECT_BINARY_DIR}/make_dist
+  @ONLY
   )
-
-## TODO PYTHON3: When creating a distribution, check that the various
-## typemaps.swg and *.spy files are included.  They're not explicitly
-## listed as source files elsewhere.
-
-#add_subdirectory(packaging)

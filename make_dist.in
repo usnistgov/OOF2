@@ -12,14 +12,15 @@
 # Script for building a distribution of OOF2 or OOF3D.  Takes care of
 # git stuff, and sets the version number in the packaged source code.
 
-# The script creates a git branch for the release, and edits the
-# version number in setup.py and oofversion.py on the branch.  The
-# automatically created release branches should never be merged back
-# into master, because the modified version numbers will create
-# conflicts.  There should be no need to merge them anyway.
+# The script creates a git branch for the release.  The automatically
+# created release branches should never be merged back into master,
+# because the modified version numbers will create conflicts.  There
+# should be no need to merge them anyway.
+
+# This script is created by running "make make_dist" after creating
+# the build tools by running cmake.
 
 # The options are:
-#    --version     a string of nonpunctuation characters and dots (required)
 #    --comment     a string containing no dots (optional)
 #    --branch      Use the given branch, instead of master. (optional)
 #                  The branch is still retrieved from github, so it must
@@ -69,11 +70,10 @@ def run_sed(sedcmd, srcdir, srcfile):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-options = ['version=', 'comment=', 'dryrun', 'help', 'noclean', 'branch=']
+options = ['comment=', 'dryrun', 'help', 'noclean', 'branch=']
 
 def state_options_and_quit():
     print("""Options are:
---version=<version number> Version number.
 --comment=<comment>        Optional comment, cannot contain dots or spaces 
 
 Debugging options are:
@@ -84,7 +84,7 @@ Debugging options are:
 """, file=sys.stderr)
     sys.exit()
 
-version = None
+version = "@oof2_VERSION@"
 comment = None
 branch = "master"
 dryrun = False
@@ -98,9 +98,7 @@ except getopt.error as message:
     sys.exit()
 
 for opt in optlist:
-    if opt[0] == '--version':
-        version = opt[1]
-    elif opt[0] == '--comment':
+    if opt[0] == '--comment':
         comment = opt[1]
     elif opt[0] == '--noclean':
         noclean = True
@@ -111,16 +109,14 @@ for opt in optlist:
     elif opt[0] == '--help':
         state_options_and_quit()
 
-assert version is not None
-
 startdir = os.getcwd()
 
-# Are we building oof2 or oof3d? This info is stored in
-# distname.distname.  We get this from the directory in which
-# make_dist is being run.
-import distname
+# # Are we building oof2 or oof3d? This info is stored in
+# # distname.distname.  We get this from the directory in which
+# # make_dist is being run.
+# import distname
 
-print("Building", distname.distname, "distribution named", version, file=sys.stderr)
+print(f"Building oof2 distribution named f{version}", file=sys.stderr)
 
 
 # Create a temp directory.
@@ -136,15 +132,16 @@ try:
         print("*** Failed to get git repository!", \
             stderrdata.strip(), file=sys.stderr)
         sys.exit(1)
-    giturl = stdoutdata.strip()
+    giturl = stdoutdata.decode().strip()
 
     # cd to the temp directory
     print("Changing directory to", tempdir, file=sys.stderr)
     os.chdir(tempdir)
 
     # Clone the git repository into a directory whose name is given by
-    # the oof version number: oof2-version or oof3d-version
-    distdir = distname.distname + "-" + version
+    # the version number.
+    distdir = "oof2-" + version
+    print("giturl:", giturl, "distdir:", distdir)
     if branch is None:
         cmd = ['git', 'clone', giturl, distdir]
     else:
@@ -156,11 +153,10 @@ try:
     os.chdir(distdir)
 
     # Construct the commit message and new branch name (aka tag)
-    commit_msg = ("Building " + distname.distname + " release version " +
-                  version)
+    commit_msg = (f"Building oof2 release version {version}")
     if comment:
         commit_msg += " -- " + comment
-    tag = distname.distname + "-" + version
+    tag = "oof2-" + version
     if comment:
         oldtag = tag
         comment.replace(' ', '-')
@@ -171,7 +167,7 @@ try:
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdoutdata, stderrdata = proc.communicate()
     if proc.returncode == 0:    # success
-        tag = stdoutdata.strip()
+        tag = stdoutdata.decode().strip()
     else:
         print("Failed to convert '%s' to a legal tag." % tag, file=sys.stderr)
         print("Using '%s' instead." % oldtag, file=sys.stderr)
@@ -203,39 +199,39 @@ try:
             print("Failed to merge", branch, "into", tag, file=sys.stderr)
             sys.exit(1)
 
-    # Set the version number in setup.py and SRC/common/oofversion.py.
-    # The sed command finds a line beginning with
-    # "version_from_make_dist" and replaces everything after the
-    # equals sign with a string containing the version number.
-    sedcmd = '/^version_from_make_dist/s/=.*/= \\\"%s\\\"/' % version
-    run_sed(sedcmd, "", "setup.py")
-    run_sed(sedcmd, "SRC/common", "oofversion.py")
+    # # Set the version number in setup.py and SRC/common/oofversion.py.
+    # # The sed command finds a line beginning with
+    # # "version_from_make_dist" and replaces everything after the
+    # # equals sign with a string containing the version number.
+    # sedcmd = '/^version_from_make_dist/s/=.*/= \\\"%s\\\"/' % version
+    # run_sed(sedcmd, "", "setup.py")
+    # run_sed(sedcmd, "SRC/common", "oofversion.py")
 
     
-    # Check all the modifications into git, and tag with the version
-    # number.  It's necessary to go back to the distribution directory
-    # to use git.
-    osCall('git', 'add', 'SRC/common/oofversion.py', 'setup.py')
+    # # Check all the modifications into git, and tag with the version
+    # # number.  It's necessary to go back to the distribution directory
+    # # to use git.
+    # osCall('git', 'add', 'SRC/common/oofversion.py', 'setup.py')
 
-    cmd = ['git', 'commit', '--allow-empty', '-m', commit_msg]
-    print('--->', ' '.join(cmd), file=sys.stderr)
-    if not dryrun:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-        stdoutdata, stderrdata = proc.communicate()
-        if proc.returncode != 0:
-            print("Back from commit, status=", proc.returncode, file=sys.stderr)
-            print("stdoutdata=", stdoutdata, file=sys.stderr)
-            print("stderrdata=", stderrdata, file=sys.stderr)
-            sys.exit(0)
+    # cmd = ['git', 'commit', '--allow-empty', '-m', commit_msg]
+    # print('--->', ' '.join(cmd), file=sys.stderr)
+    # if not dryrun:
+    #     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+    #                             stderr=subprocess.PIPE)
+    #     stdoutdata, stderrdata = proc.communicate()
+    #     if proc.returncode != 0:
+    #         print("Back from commit, status=", proc.returncode, file=sys.stderr)
+    #         print("stdoutdata=", stdoutdata, file=sys.stderr)
+    #         print("stderrdata=", stderrdata, file=sys.stderr)
+    #         sys.exit(0)
 
+    # Push the branch to the server, unless this is just a dry
+    # run.
     if not newbranch:
         cmd = ['git', 'push', 'origin', tag]
     else:
         cmd = ['git', 'push', '--set-upstream', 'origin', tag]
 
-    # Push the modifications to the server, unless this is just a dry
-    # run.
     if not dryrun:
         osCall(*cmd)
     else:
@@ -253,7 +249,7 @@ try:
     
     # Make the MANIFEST file after moving back up to the temp
     # directory.  Moving up to the temp directory means that the path
-    # names in the file will all start with "oof{2,3d}-version/",
+    # names in the file will all start with "oof2-version/",
     # which is nice and modular.
     print("Changing directory to", tempdir, file=sys.stderr)
     os.chdir(tempdir)
@@ -283,7 +279,7 @@ try:
 
     excludeFiles = [
         "distname.py",
-        "make_dist",
+        "make_dist.in",
         "oof2-build", "oof2-clean",
         "SRC/header", "SRC/header.py",
         "SRC/maketags", "SRC/switchboard.txt",
@@ -333,9 +329,9 @@ finally:
 
 
 print("Done.", distfilename, "is ready.", file=sys.stderr)
-print("""To publish it, copy it to WEBPAGES/%(dist)s/source and edit
-WEBPAGES/%(dist)s/index.html.  Remember to check that the README file in
-WEBPAGES/%(dist)s/source is up to date.""" % {'dist':distname.distname}, file=sys.stderr)
+print("""To publish it, copy it to WEBPAGES/oof2/source and edit
+WEBPAGES/oof2/index.html.  Remember to check that the README file in
+WEBPAGES/oof2/source is up to date.""", file=sys.stderr)
 osCall("openssl", "dgst", "-md5", finaldistfilename)
 osCall("openssl", "dgst", "-rmd160", finaldistfilename)
 osCall("openssl", "dgst", "-sha256", finaldistfilename)
