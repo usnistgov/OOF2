@@ -53,18 +53,13 @@ void ElementSelection::print(std::ostream &os) const {
 SegmentSelection::SegmentSelection(CMicrostructure *ms,
 				   const Coord *n0, const Coord *n1)
   : PixelSelectionCourier(ms),
-    n0(*n0),
-    n1(*n1),
-    selected(0) {}
-
-SegmentSelection::~SegmentSelection() {
-  delete selected;
-}
+    n0(*n0), n1(*n1)
+{}
 
 void SegmentSelection::start() {
   bool dummy;
-  selected = ms->segmentPixels(n0, n1, dummy);  // get the pixel array
-  sel_iter = selected->begin();
+  selected = ms->segmentPixels(n0, n1, dummy, dummy);  // get the pixel array
+  sel_iter = selected.begin();
 }
 
 ICoord SegmentSelection::currentPoint() const {
@@ -72,7 +67,7 @@ ICoord SegmentSelection::currentPoint() const {
 }
 
 void SegmentSelection::next() {
-  if(sel_iter == selected->end()-1 )
+  if(sel_iter == selected.end()-1)
     done_ = true;
   else
     ++sel_iter;

@@ -68,20 +68,22 @@ propagate_exceptions = False
 # callback, or invoke a WorkerCore that calls the callback.  In the
 # first case, the Worker and the WorkerCore may be the same object.
 
-# Keep track of existing workers for debugging and testing.
+# Keep track of existing workers for debugging and testing.  These are
+# checked in TEST/fundamental_test.py.
 import weakref
-allWorkers = weakref.WeakKeyDictionary()
-allWorkerCores = weakref.WeakKeyDictionary()
+allWorkers = weakref.WeakSet()
+allWorkerCores = weakref.WeakSet()
 
-class Worker(object):
+class Worker:
     def __init__(self):
-        allWorkers[self] = 1
+        allWorkers.add(self)
+
         # toplevel is true if this worker wasn't started either
         # directly or indirectly by another worker.
         self.toplevel = self.isTopLevel()
     # Subclasses must redefine start().
     def start(self):
-        raise ooferror.ErrPyProgrammingError("Worker.start must be redefined.")
+        raise ooferror.PyErrPyProgrammingError("Worker.start must be redefined.")
     def stop(self):
         pass
 
@@ -89,17 +91,16 @@ class Worker(object):
 # runs menu commands.  WorkerCore always runs on the same thread as
 # the menu command.
 
-class WorkerCore(object):
+class WorkerCore:
     def __init__(self, menuitem, args, kwargs):
         self.menuitem = menuitem
         self.args = args
         self.kwargs = kwargs
         self._finished = False
-        allWorkerCores[self] = 1
+        allWorkerCores.add(self)
     def __getattr__(self, attrname):    # Stunt double for the menuitem
         return getattr(self.menuitem, attrname)    
     def initialize(self):       # called on subthread
-#         debug.fmsg("assigning excepthook, menuitem=", self.menuitem.path())
         self.excepthook = excepthook.assign_excepthook(
             excepthook.OOFexceptHook())
     def finalize(self):
@@ -139,9 +140,7 @@ class NonThreadedWorker(Worker, WorkerCore):
                     excepthook.remove_excepthook(self.excepthook)
                 except SystemExit:
                     raise
-                # TODO SWIG1.3: After conversion to SWIG 1.3, OOF
-                # exceptions will probably be subclasses of Exception.
-                except (Exception, ooferror.ErrErrorPtr), exception:
+                except Exception as exception:
                     mainthread.runBlock(self.menuitem.postcall, (False,))
                     if propagate_exceptions or not self.toplevel:
                         excepthook.remove_excepthook(self.excepthook)
@@ -188,13 +187,10 @@ class ThreadedWorkerCore(threading.Thread, WorkerCore):
                     excepthook.remove_excepthook(self.excepthook)
                 except SystemExit:
                     raise
-                # TODO SWIG1.3: After conversion to SWIG 1.3, OOF
-                # exceptions will probably be subclasses of Exception.
-                except (Exception, ooferror.ErrErrorPtr), exception:
+                except Exception as exception:
                     self.menuitem.postcall(False)
                     if propagate_exceptions or not self.toplevel:
                         self.exception_data = sys.exc_info()
-                        sys.exc_clear()
                     else:
                         reporter.error(exception)
                         sys.excepthook(*sys.exc_info())
@@ -235,13 +231,8 @@ class ThreadedWorker(Worker):
     
     def join(self):                     # waits for thread to finish
         self.worker.join()
-        # TODO: This seems like a silly way to use a lock.  What's it
-        # doing?
-        self.lock.acquire()
         self.worker.threadstate = None
-        self.lock.release()
-        # Save the exception data, if any, before finalizing the
-        # worker.
+        # Save the exception data, if any, before finalizing the worker.
         exception_data = self.worker.exception_data
         self.worker.cleanUp()
         self.worker = None
@@ -251,8 +242,8 @@ class ThreadedWorker(Worker):
         # the caller of the menu item.
         if ((propagate_exceptions or not self.toplevel)
             and exception_data is not None):
-            raise exception_data[0], exception_data[1], exception_data[2]
-
+            raise exception_data[1].with_traceback(exception_data[2])
+            
     def finished(self):
         return self.worker.finished()
     def threadstate(self):
@@ -285,12 +276,11 @@ class TextThreadedWorker(ThreadedWorker):
                         prog = ts.findProgress(pname)
                         pbar = prog.makeTextBar()
                         prgrsbars[pname] = pbar
-                    except ooferror.ErrNoProgress, exc:
-                        print exc
+                    except ooferror.PyErrNoProgress:
                         # Oops, the Progress object vanished already.
                         pass
-                    except (ooferror.ErrError, Exception):
-                        print "Error when constructing progress bar!"
+                    except Exception as exc:
+                        reporter.error("Error when constructing progress bar!")
                         raise
                 else:
                     # Re-use an old ProgressBar.

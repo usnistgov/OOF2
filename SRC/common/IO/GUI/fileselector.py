@@ -22,13 +22,13 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
-import cgi
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import os
 import os.path
-import re
-import string
-import weakref
 
 # FileSelectorWidget and friends.
 
@@ -88,7 +88,7 @@ class FileSelectorWidget(parameterwidgets.ParameterWidget):
         # Directory selector
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         vbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        hbox.pack_start(Gtk.Label("Directory:"), expand=False, fill=False,
+        hbox.pack_start(Gtk.Label(label="Directory:"), expand=False, fill=False,
                         padding=0)
         self.dirWidget = chooser.ChooserComboWidget([],
                                                     callback=self.dirChangedCB, 
@@ -137,7 +137,7 @@ class FileSelectorWidget(parameterwidgets.ParameterWidget):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                        halign=Gtk.Align.START, spacing=2)
         vbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        label = Gtk.Label("show hidden files", halign=Gtk.Align.START)
+        label = Gtk.Label(label="show hidden files", halign=Gtk.Align.START)
         hbox.pack_start(label, expand=False, fill=False, padding=0)
         self.hiddenButton = Gtk.CheckButton()
         hbox.pack_start(self.hiddenButton, expand=False, fill=False, padding=0)
@@ -354,8 +354,9 @@ class WriteFileSelectorWidget(FileSelectorWidget):
     def addMoreWidgets(self, vbox): # Widgets below the file list.
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         vbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        label = Gtk.Label('File:')
-        hbox.pack_start(Gtk.Label('File:'), expand=False, fill=False, padding=0)
+        label = Gtk.Label(label='File:')
+        hbox.pack_start(
+            Gtk.Label(label='File:'), expand=False, fill=False, padding=0)
         self.fileEntry = Gtk.Entry()
         gtklogger.setWidgetName(self.fileEntry, 'File')
         self.fileEntrySignal = gtklogger.connect(self.fileEntry, 'changed',
@@ -475,10 +476,21 @@ class WriteFileSelectorWidget(FileSelectorWidget):
     
 # Utility functions used by FileSelectorWidget
 
+def _escape(s):
+    # Replace "<", ">", and "&" in s with markup safe equivalents.
+    # The python2 version used cgi.escape(), but that doesn't exist in
+    # python3.  I *think* that this does the same thing.
+    ## TODO: Is this really needed?  Do these characters ever appear
+    ## in file names?  
+    s.replace("&", "&amp;")
+    s.replace("<", "&lt;")
+    s.replace(">", "&gt;")
+    return s;
+
 def _addMarkup(directory, filename):
     if filename and os.path.isdir(os.path.join(directory, filename)):
-        return "<b>" + cgi.escape(filename) + "</b>"
-    return cgi.escape(filename)
+        return "<b>" + _escape(filename) + "</b>"
+    return _escape(filename)
 
 def _filename_cmp(model, column, key, iter, data):
     # Comparisons made while searching in the file list use the raw
@@ -501,7 +513,7 @@ def endSlash(dirname):
 def getDirectoryHierarchy(directory):
     # Return a list of all directories in the hierarchy from root
     # to the given directory, eg. ["/", "/Users/", "/Users/oofuser/"]
-    names = filter(None, os.path.abspath(directory).split(os.sep))
+    names = [_f for _f in os.path.abspath(directory).split(os.sep) if _f]
     if names:
         return [os.sep] + [os.sep + os.path.join(*names[:n]) + os.sep
                            for n in range(1,len(names)+1)]
@@ -564,7 +576,7 @@ class WriteModeWidget(parameterwidgets.ParameterWidget):
             self.fileSelector = self.scope.findWidget(
                 lambda x: (isinstance(x, WriteFileSelectorWidget)))
         if self.fileSelector is None:
-            raise ooferror.ErrPyProgrammingError("Can't find file selector")
+            raise ooferror.PyErrPyProgrammingError("Can't find file selector")
         self.set_options()
         self.widgetChanged(True, True)
         self.sbcallback = switchboard.requestCallbackMain(self.fileSelector,
@@ -586,7 +598,8 @@ class WriteModeWidget(parameterwidgets.ParameterWidget):
         if phile and os.path.exists(phile):
             if self.state != "overwrite":
                 self.state = "overwrite"
-                ## TODO: render "OVERWRITE" in bold
+                ## TODO: render "OVERWRITE" in bold, after markup is
+                ## enabled in ChooserWidget.
                 self.widget.update(["OVERWRITE", "append"])
         else:
             if self.state != "write":
@@ -617,7 +630,7 @@ class OverwriteWidget(parameterwidgets.BooleanWidget):
             lambda x: (isinstance(x, (WriteFileSelectorWidget,
                                       FakeFileSelectorWidget))))
         if self.fileSelector is None:
-            raise ooferror.ErrPyProgrammingError("Can't find file selector")
+            raise ooferror.PyErrPyProgrammingError("Can't find file selector")
         self.set_validity()
         self.sbcallback = switchboard.requestCallbackMain(self.fileSelector,
                                                           self.fileSelectorCB)

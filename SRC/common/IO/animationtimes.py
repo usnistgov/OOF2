@@ -48,7 +48,7 @@ class FixedFrames(AnimationTimes):
             finish = resolvePlaceHolder(finish, alltimes)
         nframes = max(self.nframes, 2)
         dt = (finish - start)/(nframes - 1)
-        for i in xrange(nframes - 1):
+        for i in range(nframes - 1):
             yield start + dt*i
         yield finish            # avoid round off, hit finish exactly.
         

@@ -1,0 +1,70 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.
+
+# ProgressIterator is a base class for iterators that are compatible
+# with progress bars and Progress objects. They have the benefits of a
+# simple generator while also giving information about how the
+# iteration is progressing.
+
+# Subclasses must define self.targets(), which returns an iterable
+# object that returns the set of things to be examined or an iterator
+# for it, and self.ntotal(), which returns the total number of things
+# that will be returned.
+
+# Use it something like this:
+#   iter = SomeSubClassOfProgressIterator()
+#   prog = progress.getProgress(...)
+#   for obj in iter:
+#      ....
+#      prog.setFraction(iter.fraction())
+#      prog.setMessage(f"{iter.nexamined()}/{iter.ntotal()}")
+#
+
+# The ProgressIterator constructor has an optional "condition"
+# argument.  If provided, only objects obj for which condition(obj) is
+# true will be returned by the iterator.
+
+class ProgressIterator:
+    def __init__(self, condition=None):
+        self.condition = condition # predicate
+        self.count = 0          # number examined
+        self.nret = 0           # number returned
+    def fraction(self):
+        return self.count/self.ntotal()
+    def nexamined(self):
+        return self.count
+    def nreturned(self):
+        return self.nret
+    def __iter__(self):
+        if self.condition is not None:
+            for self.count, target in enumerate(self.targets()):
+                if self.condition(target):
+                    self.nret += 1
+                    yield target
+        else:
+            for self.count, target in enumerate(self.targets()):
+                self.nret += 1
+                yield target
+    def __len__(self):
+        return self.ntotal()
+
+# ContainerIterator turns a regular container object (or other
+# iterable that defines __len__) into a ProgressIterator.
+
+class ContainerIterator(ProgressIterator):
+    def __init__(self, data, condition=None):
+        self.data = data
+        ProgressIterator.__init__(self, condition)
+    def ntotal(self):
+        return len(self.data)
+    def targets(self):
+        return self.data
+
+

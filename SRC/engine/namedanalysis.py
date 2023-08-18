@@ -21,11 +21,13 @@ from ooflib.engine.IO import analyze
 from ooflib.engine.IO import scheduledoutput
 from ooflib.engine.IO import outputdestination
 
+import itertools
+
 _namedAnalyses = {}
 _namedBdyAnalyses = {}
 namelock = lock.SLock()
 
-class _nameResolver(object):
+class _nameResolver:
     # Callable object for creating a unique name for a bulk or
     # boundary analysis.  
     def __init__(self, defaultname):
@@ -35,13 +37,14 @@ class _nameResolver(object):
             basename = self.defaultname
         else:
             basename = name
-        return utils.uniqueName(basename, 
-                                _namedAnalyses.keys()+_namedBdyAnalyses.keys())
+        return utils.uniqueName(
+            basename,
+            itertools.chain(_namedAnalyses.keys(), _namedBdyAnalyses.keys()))
 
 nameResolver = _nameResolver('analysis')
 bdynameResolver = _nameResolver('bdy_analysis')
 
-class NamedBulkAnalysis(object):
+class NamedBulkAnalysis:
     def __init__(self, name, operation, data, domain, sampling):
         self.name = name
         self.operation = operation
@@ -79,7 +82,7 @@ class NamedBulkAnalysis(object):
         finally:
             namelock.release()
 
-class NamedBdyAnalysis(object):
+class NamedBdyAnalysis:
     def __init__(self, name, boundary, analyzer):
         self.name = name
         self.boundary = boundary
@@ -117,10 +120,10 @@ def getNamedAnalysis(name):
         return _namedBdyAnalyses[name]
 
 def bulkAnalysisNames():
-    return _namedAnalyses.keys()
+    return list(_namedAnalyses.keys())
 
 def bdyAnalysisNames():
-    return _namedBdyAnalyses.keys()
+    return list(_namedBdyAnalyses.keys())
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

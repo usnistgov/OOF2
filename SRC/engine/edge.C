@@ -54,7 +54,7 @@ double Edge::master_length() const {
 // Take a vector of doubles, each of which is a number between 0 and 
 // one, and for each input value, output the corresponding real coordinate
 // of the element.
-std::vector<Coord*> *Edge::position_(const std::vector<double> *x) const {
+std::vector<Coord*> *Edge::position(const std::vector<double> *x) const {
   int size = x->size();
   std::vector<Coord*> *res = new std::vector<Coord*>(size);
   for(int i=0; i<size; i++) {
@@ -101,7 +101,7 @@ BoundaryEdge::BoundaryEdge(const Element *elin, int n)
     nfuncnodes(n),
     complete(0)
 { 
-//   Trace("BoundaryEdge::BoundaryEdge, nfuncnodes = " + to_string(n) );
+//   Trace("BoundaryEdge::BoundaryEdge, nfuncnodes = " + tostring(n) );
   nlist.reserve(n);
 } 
 
@@ -123,7 +123,7 @@ bool BoundaryEdge::edge_match(const FuncNode *n0, const FuncNode *n1) {
 // function index.  This is why we pass in an iterator.
 void BoundaryEdge::add_node(const ElementFuncNodeIterator &in) {
   
-//   Trace("BoundaryEdge::add_node: FuncNodeIterator=" + to_string(in));
+//   Trace("BoundaryEdge::add_node: FuncNodeIterator=" + tostring(in));
   // NB Nodes *must* be passed in in order.  Take
   // both FuncNode and shapefunctionindex from the passed-in iterator.
   // Use the size of the array to detect the first and last nodes.
@@ -182,7 +182,7 @@ double EdgeNodeIterator::fraction() const
 {
   MasterCoord pos = ed->nlist[index_].mastercoord();
   MasterCoord interval = pos - ed->startpt();
-  // Positive assumption is OK becuase nodes come in sequence.
+  // Positive assumption is OK because nodes come in sequence.
   return sqrt(norm2(interval))/ed->master_length();
 }
 

@@ -12,10 +12,11 @@
 #ifndef PIXELSETBOUNDARY_SWG
 #define PIXELSETBOUNDARY_SWG
 
-%module pixelsetboundary
+%module(package="ooflib.SWIG.common") pixelsetboundary
+
+%include "common/typemaps.swg"
 
 %{
-#include <oofconfig.h>
 #include <common/pixelsetboundary.h>
 %}
 

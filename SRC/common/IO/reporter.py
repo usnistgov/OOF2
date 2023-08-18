@@ -21,10 +21,10 @@ from ooflib.common import thread_enable
 from ooflib.common import utils
 from ooflib.common.IO import questioner
 import ooflib.SWIG.common.lock
-import string
 import sys
 import traceback
 
+from ooflib.common.utils import stringjoin, stringsplit
 
 # List of allowed message classes.
 messageclasses = ["Log", "Warning", "Report", "Query", "Error"]
@@ -90,14 +90,14 @@ class MessageManager:
             MessageManager.outlock.acquire()
             try:
                 if not self.bar_text:
-                    print msg
+                    print(msg)
                     sys.stdout.flush()
                 else: 
                     # This is the "smart" case -- erase the bar, write
                     # the message, then redraw the bar.
                     # erase bar
                     sys.stdout.write('\r' + len(self.bar_text)*' ' + '\r')
-                    print msg
+                    print(msg)
                     sys.stdout.write(self.bar_text)
                     sys.stdout.flush()
             finally:
@@ -110,7 +110,7 @@ class MessageManager:
             try:
                 if newbars:
                     # Use '|' to separate progress bars from the same thread
-                    txt = " | ".join(filter(None, newbars))
+                    txt = " | ".join([_f for _f in newbars if _f])
                     self.thread_bars[threadstate.findThreadNumber()] = txt
                 
                 # Erase old bar display
@@ -121,7 +121,7 @@ class MessageManager:
                 # Redisplay all bars from all threads.  Use '||' to
                 # separate progress bars from different threads.
                 self.bar_text = ' || '.join(txt
-                                          for txt in self.thread_bars.values()
+                                            for txt in self.thread_bars.values()
                                             if txt)
 
                 sys.stdout.write(self.bar_text)
@@ -145,11 +145,11 @@ class MessageManager:
     # database.  This function also returns the message, although
     # most of the calls discard it, except "warning".
     def _append(self, type, *args):
-        message = string.join([str(x) for x in args], ' ')
+        message = stringjoin([str(x) for x in args], ' ')
         MessageManager.lock.acquire()
         try:
             if debug.debug() and type!="Log" and guitop.top():
-                print message
+                print(message)
             self.message_list.append( (message, type) )
             if self.flag_dict[type]:
                 self._write(message)
@@ -166,7 +166,7 @@ class MessageManager:
         
     def warn(self, *args):
         if self._warnings_are_errors:
-            raise ooferror.ErrWarning(' '.join(args))
+            raise ooferror.PyErrWarning(' '.join(args))
         message = self._append("Warning", *args)
         switchboard.notify("messagemanager warning", message)
 
@@ -248,7 +248,7 @@ class ReportFile:
     def write(self, data):
         global messagemanager
         self.buffer += data
-        stringset = string.split(self.buffer, '\n')
+        stringset = stringsplit(self.buffer, '\n')
         for s in stringset[:-1]:
             messagemanager.report(s)
         self.buffer = stringset[-1]

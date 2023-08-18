@@ -140,8 +140,8 @@ void CSubProblem::activate_equation(Equation &eqn) {
 
     // Create NodalEquations for this Equation in each Node.  This
     // also updates the Nodes' EquationSets.
-    for(FuncNodeIterator ni=funcnode_iterator(); !ni.end(); ++ni) {
-      ni.node()->addEquation(mesh, eqn);
+    for(FuncNode *node : funcnodes()) {
+      node->addEquation(mesh, eqn);
     }
     // Activate fluxes required for this Equation
     eqn.activate_fluxes(this);
@@ -152,8 +152,8 @@ void CSubProblem::deactivate_equation(Equation &eqn) {
   if(is_active_equation(eqn)) {
     int index = eqn.index();
     eqndata[index].active = false;
-    for(FuncNodeIterator ni=funcnode_iterator(); !ni.end(); ++ni) {
-      ni.node()->removeEquation(mesh, eqn);
+    for(FuncNode *node : funcnodes()) {
+      node->removeEquation(mesh, eqn);
     }
     // perform garbage collection on the nodaleqn list
     mesh->clean_nodaleqn();
@@ -260,10 +260,10 @@ void CSubProblem::do_define_field(const Field &field) {
   FieldData &fdata = fielddata[index];
   if(!fdata.defined) {
     fdata.defined = true;
-    for(FuncNodeIterator ni=funcnode_iterator(); !ni.end(); ++ni) {
-//       std::cerr << "CSubProblem::do_define_field: adding " << field
-// 		<< " at node " << *ni.node() << std::endl;
-      ni.node()->addField(mesh, field);
+    for(FuncNode *node : funcnodes()) {
+      // std::cerr << "CSubProblem::do_define_field: adding " << field
+      //           << " at node " << *ni.node() << std::endl;
+      node->addField(mesh, field);
     }
   }
 }
@@ -277,8 +277,8 @@ void CSubProblem::do_undefine_field(const Field &field) {
     std::vector<FieldData>::size_type index = field.index();
     if(index < fielddata.size()) {
       fielddata[index].defined = false;
-      for(FuncNodeIterator ni=funcnode_iterator(); !ni.end(); ++ni) {
-	ni.node()->removeField(mesh, field);
+      for(FuncNode *node : funcnodes()) {
+	node->removeField(mesh, field);
       }
       mesh->clean_doflist();
     }
@@ -291,14 +291,18 @@ void CSubProblem::do_undefine_field(const Field &field) {
 // defined.  Called by meshmenu.copyMesh.
 
 void CSubProblem::acquire_field_data(Field &field, const CSubProblem *other) {
-  for(FuncNodeIterator i=funcnode_iterator(); !i.end(); ++i) {
-    for(int d=0; d<field.ndof(); ++d) {
-      if(i.node()->hasField(field)) {
-	field(i.node(), d)->value(mesh) =
-	  field(other->mesh->getFuncNode(i.count()), d)->value(other->mesh);
+  auto myFuncNodes = funcnodes();
+  auto yourFuncNodes = other->funcnodes();
+  for(auto i=myFuncNodes.begin(), j=yourFuncNodes.begin();
+      i!=myFuncNodes.end() && j!=yourFuncNodes.end();
+      ++i, ++j)
+    {
+      for(int d=0; d<field.ndof(); ++d) {
+	if((*i)->hasField(field)) {
+	  field(*i, d)->value(mesh) = field(*j, d)->value(other->mesh);
+	}
       }
     }
-  }
 }
 
 bool CSubProblem::is_defined_field(const Field &field) const {
@@ -528,8 +532,7 @@ void CSubProblem::mapField(void *data,
 void CSubProblem::mapField_(const Field &field, const Field &tdfield,
 			    bool tddefined)
 {
-  for(FuncNodeIterator nd=funcnode_iterator(); !nd.end(); ++nd) {
-    FuncNode *node = nd.node();
+  for(FuncNode *node : funcnodes()) {
     for(int i=0; i<field.ndof(); i++) { // loop over field components
       int dofindex = field(node, i)->dofindex(); // global index
       int eqnindex = global_dof2eqn_map[dofindex];
@@ -616,8 +619,8 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   // parallel directive can only work on for loops with forms
   // like: for (int i = val; i < n; i++)
   std::vector<Element*> elements;
-  for (ElementIterator ei = element_iterator(); !ei.end(); ++ei)
-    elements.push_back(ei.element());
+  for(Element *el : elements())
+    elements.push_back(el);
 
   int nTds;     // number of threads
   int cntEle;   // count of elements that have been called
@@ -660,8 +663,8 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
         if ((cntEle % 8 == 0) && (omp_get_thread_num() == 0)) {
           // progress information
           progress->setFraction(float(cntEle) / float(elements.size()));
-          progress->setMessage(to_string(cntEle) + "/" 
-            + to_string(elements.size()) + " elements");
+          progress->setMessage(tostring(cntEle) + "/" 
+            + tostring(elements.size()) + " elements");
         }
       }
     }
@@ -678,8 +681,8 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 
   if (!progress->stopped()) {
     progress->setFraction(1.0);
-    progress->setMessage(to_string(elements.size()) + "/" 
-     + to_string(elements.size()) + " elements");
+    progress->setMessage(tostring(elements.size()) + "/" 
+     + tostring(elements.size()) + " elements");
   }
 
 #else // HAVE_OPENMP
@@ -697,36 +700,35 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   int counter = 0; 
   memusage("Start ElementIterator for loop (C)");
 
-  for(ElementIterator ei=element_iterator(); !ei.end() && !progress->stopped();
-      ++ei)
-  {
-     if(counter % 1000 == 0) {
+  VContainerP<Element> eliter = elements();
+  int nel = eliter.size();
+  for(auto el=eliter.begin(); el!=eliter.end() && !progress->stopped();
+      ++el, counter++) 
+    {
+      if(counter % 1000 == 0) {
 	memusage("ElementIterator for loop % 1000 step (C)");
-        }
+      }
 
-    ei.element()->make_linear_system( this, time, nlsolver, *linearsystem );
-    progress->setFraction( float(ei.count()+1)/float(ei.size()) );
-    progress->setMessage(to_string(ei.count()+1) + "/" + to_string(ei.size())
-  		   + " elements");
-     counter++;
-
+      (*el)->make_linear_system( this, time, nlsolver, *linearsystem );
+      progress->setFraction(float(counter+1)/nel);
+      progress->setMessage(tostring(counter+1) + "/" + tostring(nel)
+			   + " elements");
   }
 #endif // HAVE_OPENMP
 
   memusage("endif _OPENMP (C)");
 
   //Interface branch
-  //TODO: Write an InterfaceElementIterator for the subproblem.
-  unsigned int n = mesh->edgement.size();
-  for(std::vector<InterfaceElement*>::size_type i=0; 
-      i<n && !progress->stopped(); i++) {
-    if(mesh->edgement[i]->isSubProblemInterfaceElement(this)) {
-      mesh->edgement[i]->make_linear_system( this, time, nlsolver, 
-					     *linearsystem );
-    }
-    progress->setFraction(double(i+1)/n);
-    progress->setMessage(to_string(i+1) + "/" + to_string(n) + " edges");
-  }
+  unsigned int n = mesh->nedgements();
+  counter = 0;
+  for(InterfaceElement *edgement : mesh->interface_elements()) {
+    if(progress->stopped())
+      break;
+    edgement->make_linear_system(this, time, nlsolver, *linearsystem);
+    counter++;
+    progress->setFraction(counter/float(n));
+    progress->setMessage(tostring(counter) + "/" + tostring(n) + " edges");
+  }    
   progress->finish();
   if(progress->stopped()) {
     throw ErrInterrupted();
@@ -750,21 +752,27 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 void CSubProblem::post_process() {
   DefiniteProgress *progress =
     dynamic_cast<DefiniteProgress*>(getProgress("Postprocessing", DEFINITE));
-  for(ElementIterator ei=element_iterator(); !ei.end(); ++ei) {
-    ei.element()->post_process(this);
-    progress->setFraction(float(ei.count()+1)/float(ei.size()));
-    progress->setMessage(to_string(ei.count()+1) + "/" + to_string(ei.size())
-			 + " elements");
+  unsigned int counter = 0;
+  int size = elements().size();
+  for(Element *element : elements()) {
+    if(progress->stopped())
+      break;
+    element->post_process(this);
+    counter++;
+    progress->setFraction(counter/float(size));
+    progress->setMessage(tostring(counter) + "/" + tostring(size) + " elements");
   }
 
   //Interface branch
-  //TODO: Write an InterfaceElementIterator for the subproblem.
-  unsigned int n = mesh->edgement.size();
-  for(std::vector<InterfaceElement*>::size_type i=0; i<n; i++) {
-    if(mesh->edgement[i]->isSubProblemInterfaceElement(this))
-	  mesh->edgement[i]->post_process(this);
-    progress->setFraction(double(i+1)/n);
-    progress->setMessage(to_string(i+1) + "/" + to_string(n) + " edges");
+  unsigned int n = mesh->nedgements();
+  counter = 0;
+  for(InterfaceElement *edgement : mesh->interface_elements()) {
+    if(progress->stopped())
+      break;
+    edgement->post_process(this);
+    counter++;
+    progress->setFraction(counter/float(n));
+    progress->setMessage(tostring(counter) + "/" + tostring(n) + " edges");
   }
   progress->finish();
 }
@@ -779,16 +787,14 @@ void CSubProblem::post_process() {
 void mapLocalNonConjField(const Field &field, std::vector<int> &lmap,
 			  int &lowestrow, FuncNode::FieldSet &fieldset)
 {
-  for(IteratorP fieldcomp = field.iterator(ALL_INDICES); !fieldcomp.end();
-      ++fieldcomp)
-    {
-      if(lowestrow == -1 || lowestrow >= (int) lmap.size())
-	throw ErrSetupError("Too many degrees of freedom! Not enough equations?");
-      int dof_indx = fieldset.offset(&field) + fieldcomp.integer();
-      lmap[lowestrow] = dof_indx;
-      while(lmap[lowestrow] == -1 and lowestrow < (int) lmap.size())
-	++lowestrow;
-    }
+  for(IndexP fieldcomp : field.components(ALL_INDICES)) {
+    if(lowestrow == -1 || lowestrow >= (int) lmap.size())
+      throw ErrSetupError("Too many degrees of freedom! Not enough equations?");
+    int dof_indx = fieldset.offset(&field) + fieldcomp.integer();
+    lmap[lowestrow] = dof_indx;
+    while(lmap[lowestrow] == -1 and lowestrow < (int) lmap.size())
+      ++lowestrow;
+  }
 }
 
 // See if a local conjugacy map has already been constructed for the
@@ -895,9 +901,7 @@ void CSubProblem::set_equation_mapping(
   global_dof2eqn_map.resize(mesh->dof.size(), -1);
 
   LocalMapDict localmaps;
-  for(FuncNodeIterator iter=funcnode_iterator(); !iter.end(); ++iter) {
-    FuncNode *node = iter.node();
-
+  for(FuncNode *node : funcnodes()) {
     std::vector<NodalEquation*> &eqnlist = node->eqnlist;
     // Get the localmap, which indicates the conjugacy relations
     // between nodal equations and degrees of freedom in the Node.
@@ -929,23 +933,18 @@ void CSubProblem::set_equation_mapping(
 
 MaterialSet *CSubProblem::getMaterials() const {
   MaterialSet *mset = new MaterialSet;
-  for(ElementIterator ei=element_iterator(); !ei.end(); ++ei) {
-    const Material *matl = ei.element()->material();
+  for(Element *el : elements()) {
+    const Material *matl = el->material();
     if(matl) {
       mset->insert(matl);
     }
   }
 
   // Make sure to include surface materials in interfaces.
-  unsigned int ne = mesh->edgement.size();
-  for(std::vector<InterfaceElement*>::size_type i=0;
-      i<ne; ++i) { 
-    if(mesh->edgement[i]->isSubProblemInterfaceElement(this)) {
-      const Material *matl = mesh->edgement[i]->material();
-      if(matl) {
-	mset->insert(matl);
-      }
-    }
+  for(InterfaceElement *edgement : interface_elements()) {
+    const Material *matl = edgement->material();
+    if(matl)
+      mset->insert(matl);
   }
   return mset;
 }
@@ -956,7 +955,7 @@ MaterialSet *CSubProblem::getMaterials() const {
 // iterators, which I'm too lazy to write just now.
 
 // void CSubProblem::dump_dof() const {
-//   for(FuncNodeIterator i=funcnode_iterator(); !i.end(); ++i) {
+//   for(FuncNodeIterator i=funcnodes(); !i.end(); ++i) {
 //     const FuncNode &node = *i.node();
 //     std::cout << "node = " << node << std::endl;
 //     for(std::vector<Field*>::size_type f=0; f<Field::all().size(); f++) {
@@ -982,7 +981,7 @@ MaterialSet *CSubProblem::getMaterials() const {
 
 
 // void CSubProblem::dump_eqn() const {
-//   for(FuncNodeIterator i=funcnode_iterator(); !i.end(); ++i) {
+//   for(FuncNodeIterator i=funcnodes(); !i.end(); ++i) {
 //     const FuncNode &node = *i.node();
 //     std::cout << "node = " << node << std::endl;
 //     for(std::vector<Equation*>::size_type e=0;e<Equation::all().size();e++){
@@ -1464,22 +1463,19 @@ void CSubProblem::NodalPositionSolution(double* temp_array)
 {
   //Display (X,Y:NodalValues) at the terminal
   //For testing, and can be called only after set_precombined_equation_mapping and solve
-  for(FuncNodeIterator ni=funcnode_iterator(); !ni.end(); ++ni)
-    //for(FuncNodeIterator ni(this); !ni.end(); ++ni)
-    {
-      FuncNode* pfn=ni.node();
-      std::cerr << "(x,y:nodalvalues)=(" << pfn->position()(0) << "," <<
-	pfn->position()(1) << ":";
-      //Search dof for the index of the dofs in FuncNode->doflist
-      for(std::vector<DegreeOfFreedom*>::iterator it=pfn->doflist.begin();
-	  it!=pfn->doflist.end();it++)
-	{
-	  int index=(find(mesh->dof.begin(),mesh->dof.end(),*it)-mesh->dof.begin());
-	  if(m_precombined_freedofmap[index]!=-1)
-	    std::cerr << temp_array[m_precombined_freedofmap[index]] << ",";
-	}
-      std::cerr << ")\n";
-    }
+  for(FuncNode *pfn : funcnodes()) {
+    std::cerr << "(x,y:nodalvalues)=(" << pfn->position()(0) << "," <<
+      pfn->position()(1) << ":";
+    //Search dof for the index of the dofs in FuncNode->doflist
+    for(std::vector<DegreeOfFreedom*>::iterator it=pfn->doflist.begin();
+	it!=pfn->doflist.end();it++)
+      {
+	int index=(find(mesh->dof.begin(),mesh->dof.end(),*it)-mesh->dof.begin());
+	if(m_precombined_freedofmap[index]!=-1)
+	  std::cerr << temp_array[m_precombined_freedofmap[index]] << ",";
+      }
+    std::cerr << ")\n";
+  }
 
   // Do work like that of FEMesh::set_unknowns()
   for(std::vector<DegreeOfFreedom*>::size_type i=0; i<mesh->dof.size(); i++)
@@ -1531,9 +1527,8 @@ int CSubProblem::GatherNumNodes()
   // Get the number of nodes for this subproblem
   // Must be "owned" by the current process.
   int nOwned=0;
-  for(FuncNodeIterator ni=funcnode_iterator(); !ni.end(); ++ni)
+  for(FuncNode *pfn : funcnodes())
     {
-      FuncNode* pfn=ni.node();
       if(pfn->isShared())
 	{
 	  if(mesh->m_nodesharemap[pfn]->_owns0)
@@ -1600,15 +1595,14 @@ std::vector<int> *CSubProblem::get_nodes_from_patch(const int assembly_node,
 
 // initialize "recovered_fluxes"
 void CSubProblem::init_nodalfluxes() {
-  for(FuncNodeIterator i=funcnode_iterator(); !i.end(); ++i)
-    recovered_fluxes[i.node()->index()] = new NodalFluxes();
+  for(FuncNode *node : funcnodes())
+    recovered_fluxes[node->index()] = new NodalFluxes();
 }
 
 // recover fluxes
 void CSubProblem::recover_fluxes() {
-  std::map<const int, NodalSCPatches*>::iterator iter;
   std::vector<Flux*> allfluxes = allFluxes();
-  for(iter=scpatches.begin(); iter!=scpatches.end(); iter++)
+  for(auto iter=scpatches.begin(); iter!=scpatches.end(); iter++)
     (iter->second)->recover_fluxes(allfluxes);
 }
 
@@ -1628,7 +1622,7 @@ DoubleVec *CSubProblem::get_recovered_flux(const Flux *fluks,
   DoubleVec *result = new DoubleVec(dim, 0.0);
   for(int i=0; i<dim; i++) {
     // interpolating the value
-    for(CleverPtr<ElementFuncNodeIterator>node(elem->funcnode_iterator());
+    for(CleverPtr<ElementFuncNodeIterator> node(elem->funcnode_iterator());
 	!node->end(); ++*node)
       {
 	double temp = recovered_fluxes[(node->node())->index()]->
@@ -1677,9 +1671,9 @@ double CSubProblem::zz_L2_estimate(const Element *elem, const Flux *fluks) {
   int dim = fluks->ndof();
   double error = 0.0;
   double refer = 0.0;
-  for(GaussPointIterator gpt = elem->integrator(order); !gpt.end(); ++gpt) {
-    MasterCoord mc = gpt.gausspoint().mastercoord();
-    double wt = gpt.gausspoint().weight();
+  for(GaussPoint gpt: elem->integrator(order)) {
+    MasterCoord mc = gpt.mastercoord();
+    double wt = gpt.weight();
     zz_L2_estimate_sub(elem, fluks, dim, error, refer, mc, wt);
   }
   if (refer == 0.0)
@@ -1695,7 +1689,9 @@ void CSubProblem::zz_L2_estimate_sub(const Element *elem, const Flux *fluks,
 				     const MasterCoord &mc, const double &wt)
 {
   // flux(diff) vectors
-  DoubleVec *recovered = get_recovered_flux(fluks, elem, mc);
+  // The iterator calling this should not include empty elements.
+  assert(elem->material() != nullptr);
+    DoubleVec *recovered = get_recovered_flux(fluks, elem, mc);
   DoubleVec *feflux = fluks->evaluate( this->mesh, elem, mc );
   DoubleVec diff = *recovered - *feflux;
   error += (diff*diff) * wt;
@@ -1715,14 +1711,13 @@ DoubleVec *CSubProblem::zz_L2_weights(const Flux *fluks,
   bool first = true;
   int order=0;			// initialized to suppress compiler warnings
   double min=0, max=0;		// will be reinitialized below
-  for(ElementIterator i=element_iterator(); !i.end(); ++i) {
-    Element *elem = i.element();
+  for(Element *elem : elements()) {
     if(first)
       order = 2*elem->shapefun_degree();
     double value = 0.0;
-    for(GaussPointIterator gpt = elem->integrator(order); !gpt.end(); ++gpt) {
-      MasterCoord mc = gpt.gausspoint().mastercoord();
-      double wt = gpt.gausspoint().weight();
+    for(GaussPoint gpt : elem->integrator(order)) {
+      MasterCoord mc = gpt.mastercoord();
+      double wt = gpt.weight();
       zz_L2_weights_sub(elem, fluks, dim, value, mc, wt);
     }
     values.push_back(value);
@@ -1738,35 +1733,6 @@ DoubleVec *CSubProblem::zz_L2_weights(const Flux *fluks,
 	max = value;
     }
   }
-
-//   int order = 2*mesh->element[0]->shapefun_degree();
-//   int dim = fluks->ndof();
-
-//   Element *elem = element[0];
-//   double value = 0.0;
-//   for(GaussPointIterator gpt = elem->integrator(order); !gpt.end(); ++gpt) {
-//     MasterCoord mc = gpt.gausspoint().mastercoord();
-//     double wt = gpt.gausspoint().weight();
-//     zz_L2_weights_sub(elem, fluks, dim, value, mc, wt);
-//   }
-//   values.push_back(value);
-//   double min = value;
-//   double max = value;
-
-//   for(int i=1; i<mesh->nelements(); i++) {
-//     Element *elem = mesh->element[i];
-//     value = 0.0;
-//     for(GaussPointIterator gpt = elem->integrator(order); !gpt.end(); ++gpt) {
-//       MasterCoord mc = gpt.gausspoint().mastercoord();
-//       double wt = gpt.gausspoint().weight();
-//       zz_L2_weights_sub(elem, fluks, dim, value, mc, wt);
-//     }
-//     values.push_back(value);
-//     if(value < min)
-//       min = value;
-//     if(value > max)
-//       max = value;
-//   }
 
   double upper = min + (max-min)*top;
   double lower = min + (max-min)*bottom;

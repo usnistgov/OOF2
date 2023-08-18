@@ -12,7 +12,7 @@ import sys
 
 RECORDS = {}
 
-from UTILS import file_utils
+from .UTILS import file_utils
 fp_file_compare = file_utils.fp_file_compare
 reference_file = file_utils.reference_file
 datadir = 'matrix_data'
@@ -78,7 +78,7 @@ def run_SparseQR(matrix, rhs, solution):
 def run_iter_solver(nruns, solver, matrix, rhs, ref_solution, max_iterations, tolerance):
     if nruns < 1:
         return
-    print "[========== %s ==========]" %(solver.__name__)
+    print("[========== %s ==========]" %(solver.__name__))
 
     for i in range(nruns):
         solution = doublevec.DoubleVec(rhs.size())
@@ -86,9 +86,9 @@ def run_iter_solver(nruns, solver, matrix, rhs, ref_solution, max_iterations, to
         nIters, residue = solver(matrix, rhs, solution, max_iterations, tolerance)
         et = time.time() - st
         RECORDS[solver.__name__].append({ "iterations": nIters, "residue": residue, "time": et})
-        print "%d iterations, %s residue, %s seconds" %(nIters, residue, et)
-        print "Relative deviation from result: %e" %(
-            (solution - ref_solution).norm() / ref_solution.norm())
+        print("%d iterations, %s residue, %s seconds" %(nIters, residue, et))
+        print("Relative deviation from result: %e" %(
+            (solution - ref_solution).norm() / ref_solution.norm()))
 
     size = len(RECORDS[solver.__name__])
     if size > 0:
@@ -97,13 +97,13 @@ def run_iter_solver(nruns, solver, matrix, rhs, ref_solution, max_iterations, to
         for r in RECORDS[solver.__name__]:
             totTime += r["time"]
             totIter += r["iterations"]
-        print "Average iterations %d, average time %s seconds" %(totIter / size, totTime / size)
-    print
+        print("Average iterations %d, average time %s seconds" %(totIter / size, totTime / size))
+    print()
 
 def run_dir_solver(nruns, solver, matrix, rhs, ref_solution):
     if nruns < 1:
         return
-    print "[========== %s ==========]" %(solver.__name__)
+    print("[========== %s ==========]" %(solver.__name__))
 
     for i in range(nruns):
         solution = doublevec.DoubleVec(rhs.size())
@@ -111,8 +111,8 @@ def run_dir_solver(nruns, solver, matrix, rhs, ref_solution):
         solver(matrix, rhs, solution)
         et = time.time() - st
         RECORDS[solver.__name__].append({"time": et})
-        print "%s seconds, relative deviation: %e" %(et,
-            (solution-ref_solution).norm()/ref_solution.norm())
+        print("%s seconds, relative deviation: %e" %(et,
+            (solution-ref_solution).norm()/ref_solution.norm()))
 
     size = len(RECORDS[solver.__name__])
     if size > 0:
@@ -120,18 +120,18 @@ def run_dir_solver(nruns, solver, matrix, rhs, ref_solution):
         totIter = 0
         for r in RECORDS[solver.__name__]:
             totTime += r["time"]
-        print "Average time %s seconds" %(totTime / size)
-    print
+        print("Average time %s seconds" %(totTime / size))
+    print()
 
 def benchmark():
-    print "Loading matrix and vectors ..."
+    print("Loading matrix and vectors ...")
     matA = loadMatrix("matrix_17748-17748")
     vecRef = loadVector("rst_17748")
     vecRHS = matA * vecRef
 
-    print "Matrix size: %d * %d" %(matA.nrows(), matA.ncols())
-    print "Number of nonzeros: %d" %(matA.nnonzeros())
-    print ""
+    print("Matrix size: %d * %d" %(matA.nrows(), matA.ncols()))
+    print("Number of nonzeros: %d" %(matA.nnonzeros()))
+    print("")
 
     tolerance = 1.e-13
     max_iterations = 10000
@@ -172,7 +172,7 @@ if __name__ == "__main__":
         sys.path.append(os.path.dirname(oof2.__file__))
         from ooflib.common import oof
     except ImportError:
-        print "OOF is not correctly installed on this system."
+        print("OOF is not correctly installed on this system.")
         sys.exit(4)
     sys.argv.append("--text")
     sys.argv.append("--quiet")
@@ -183,10 +183,10 @@ if __name__ == "__main__":
     global preconditioner
     global doublevec
     global matrixmethod
-    global ooferror2
+    global ooferror
     from ooflib.SWIG.common import doublevec
     from ooflib.SWIG.engine import sparsemat
-    from ooflib.SWIG.engine import ooferror2
+    from ooflib.SWIG.engine import ooferror
     from ooflib.engine import preconditioner
     from ooflib.engine import matrixmethod
 

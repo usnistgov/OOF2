@@ -15,7 +15,7 @@ layerlist = "OOF2 Graphics 1:Pane0:LayerScroll:LayerList"
 def layerMenuSensitization(menuitem, sensitivity):
     actual = menuSensitive("OOF2 Graphics 1:MenuBar", ["Layer", menuitem])
     if actual != sensitivity:
-        print >> sys.stderr, "Layer menu sensitization failed for", menuitem
+        print("Layer menu sensitization failed for", menuitem, file=sys.stderr)
         return 0
     return 1
         
@@ -126,7 +126,7 @@ def layerCheck(*layers):
     names = _listedLayers("Graphics_1")
     ok = names == list(layers)
     if not ok:
-        print >> sys.stderr, names
+        print(names, file=sys.stderr)
     return ok
 
 def selectedLayerCheck(layer):
@@ -139,7 +139,7 @@ def allLayerNames(*layers):
     names = [l.name() for l in treeViewColValues(layerlist, 0)]
     ok = names == list(layers)
     if not ok:
-        print names
+        print(names)
     return ok
 
 def contourLabels():
@@ -165,8 +165,8 @@ def noContourBounds():
 
 def contourInterval(bmin, bmax, tolerance=1.e-6):
     minlabel, maxlabel = contourLevelLabels()
-    print "minlabel=", minlabel.get_text()
-    print "maxlabel=", maxlabel.get_text()
+    print("minlabel=", minlabel.get_text())
+    print("maxlabel=", maxlabel.get_text())
     return (abs(float(maxlabel.get_text()) - bmax) < tolerance and
             abs(float(minlabel.get_text()) - bmin) < tolerance)
 

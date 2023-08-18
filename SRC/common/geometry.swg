@@ -12,18 +12,19 @@
 #ifndef GEOMETRY_SWG
 #define GEOMETRY_SWG
 
-%module geometry
+%module(package="ooflib.SWIG.common") geometry
+
+%include "common/typemaps.swg"
 
 %{
-#include <oofconfig.h>
 #include "common/geometry.h"
 typedef class CPolygon<double, Coord> CPolygonCoord;
 %}
-%pragma(python) include="geometry.spy"
-%include "common/typemaps.swg"
 
-
+%nodefaultctor CPolygonCoord;
 class CPolygonCoord {};
+
+ADD_REPR_GENERIC(CRectangle);
 
 class CRectangle : public CPolygonCoord {
 public:
@@ -36,42 +37,5 @@ public:
   double width();
   void expand(double factor);
 };
-
-#ifdef DIM_3
-
-class CRectangularPrism : public CPolygonCoord {
-public:
-  CRectangularPrism(const Coord&, const Coord&);
-  double xmin();
-  double xmax();
-  double ymin();
-  double ymax();
-  double zmin();
-  double zmax();
-  double height();
-  double width();
-  double depth();
-  void expand(double factor);
-};
-
-#endif
-
-// class CQuadrilateral : public CPolygonCoord {
-// public:
-//   CQuadrilateral(Coord *Point, Coord *Point, Coord *Point, Coord *Point);
-//   bool contains(Coord *Point);
-//   double area();
-// };
-
-// class CTriangle : public CPolygonCoord {
-// public:
-//   CTriangle(Coord *Point, Coord *Point, Coord *Point);
-//   bool contains(Coord *Point);
-//   double area();
-// };
-
-//double triangleArea(Coord *Point, Coord *Point, Coord *Point);
-
-//double pixelIntersection(CPolygonCoord, ICoord *iPoint, double, double);
 
 #endif // GEOMETRY_SWG

@@ -15,7 +15,7 @@
 // forward declarations
 class Property;
 
-#include <Python.h>
+#include <oofconfig.h>
 #include "common/identification.h" // for ltidobject
 #include "common/pythonexportable.h"
 #include <string>
@@ -95,7 +95,6 @@ class Property: virtual public PythonExportable<Property> {
 private:
   const std::string name_;	// name of this instance
   std::string classname_;   // For PythonExportable-ability.
-  std::string modulename_;  // Ditto
   std::vector<const Field*> fields_reqd; // fields reqd to compute this property
   Property(const Property&);	// prohibited
 
@@ -120,7 +119,6 @@ public:
   const std::string &name() const { return name_; }
   // The following are required for a base class of PythonExportable.
   virtual const std::string &classname() const { return classname_; }
-  virtual const std::string &modulename() const { return modulename_; }
 
   // A Property is computable if all the Fields it requires are
   // defined on a Mesh.  A property is active if it is computable and

@@ -8,8 +8,10 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import widgetlogger
-import loggers
+from . import widgetlogger
+from . import loggers
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class WindowLogger(widgetlogger.WidgetLogger):

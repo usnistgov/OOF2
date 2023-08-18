@@ -22,7 +22,7 @@ from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import timestamp
 from ooflib.common import debug
 from ooflib.common import registeredclass
-import string
+from ooflib.common.utils import stringjoin
 import struct
 import sys
 
@@ -32,10 +32,7 @@ def registerCClass(klass):
     if not hasattr(klass, 'getRegistration'):
         def getRegistration(self):
             for reg in self.registry:
-                # reg.subclass is the non-Ptr version of the swigged
-                # class, which is derived from the Ptr version.  self
-                # might be either one.
-                if issubclass(reg.subclass, self.__class__):
+                if reg.subclass is self.__class__:
                     return reg
         klass.getRegistration = getRegistration
 
@@ -70,7 +67,7 @@ def registerCClass(klass):
         def paramrepr(self):
             values = self.getParamValues()
             names = [p.name for p in self.getRegistration().params]
-            return string.join(['%s=%s' % (name, `value`)
+            return stringjoin(['%s=%s' % (name, repr(value))
                                 for (name, value) in zip(names, values)], ',')
         klass.paramrepr = paramrepr
 
@@ -106,7 +103,7 @@ def registerCClass(klass):
             repstrings.append(struct.pack('>i', regkey))
             for param,value in zip(registration.params, self.getParamValues()):
                 repstrings.append(param.binaryRepr(datafile, value))
-            return string.join(repstrings, '')
+            return b''.join(repstrings)
         klass.binaryRepr = binaryRepr
 
     if not hasattr(klass, 'tip'):
@@ -128,6 +125,7 @@ class Registration(registeredclass.Registration):
     def monkeypatch(self, reprname):
         # Redefine the subclass's __init__ so that it keeps a list of
         # its arguments.
+        ## TODO PYTHON3: This isn't going to work if we use swig -builtin.
         self.subclass.oldinit = self.subclass.__init__
         def newinit(ego, *args):
             # Registration.setDefaultParams expects a list, not a
@@ -144,21 +142,6 @@ class Registration(registeredclass.Registration):
         self.subclass.__repr__ = repr
         self.subclass.__str__ = repr
         
-        # Actually, __repr__ has to be redefined in the xxxxPtr
-        # version of the subclass, which is the parent of the class we
-        # have.  The repr for this class, however, should *not* print
-        # the 'Ptr' part of the class name, since that name should be
-        # hidden from the user, and anyhow there's no way to construct
-        # xxxxPtr objects directly from a script.
-        def repr(ego, reprname=reprname):
-            return '%s(%s)' % (reprname, ego.paramrepr())
-        # Just in case there is more than one base class, check for
-        # the one that's derived from regclass.
-        for base in self.subclass.__bases__:
-            if issubclass(base, self.registeredclasses[0]):
-                base.__repr__ = repr
-                return
-
     def substituteClass(self, newclass):
         # Sometimes a module is loaded that redefines the behavior of
         # an existing RegisteredClass subclass, for example by adding
@@ -168,12 +151,10 @@ class Registration(registeredclass.Registration):
         # derived class to be substituted for a previously registered
         # C++ class.  The underlying C++ version of the new class must
         # be a subclass of the C++ version of the old class, although
-        # this isn't checked for (since it would be a pain to do.. we
-        # only have the non-Ptr swigged classes here).  Note that the
-        # repr of the class is *not* changed, so scripted commands
-        # still refer to the old class.  This is the correct behavior
-        # when the modification class is just adding graphics
-        # capability.
+        # this isn't checked for.  Note that the repr of the class is
+        # *not* changed, so scripted commands still refer to the old
+        # class.  This is the correct behavior when the modification
+        # class is just adding graphics capability.
         oldclass = self.subclass
         self.subclass = newclass
         self.monkeypatch(reprname=oldclass.__name__)
@@ -187,16 +168,6 @@ class Registration(registeredclass.Registration):
             except KeyError:
                 pass
         argvals = [p.value for p in self.params]
-        object = self.subclass(*argvals)
-        
-        # # Keep an extra reference to the arguments to ensure that the
-        # # Python garbage collector won't destroy them before the
-        # # registered class object itself is destroyed.  Also, this
-        # # allows getParamValues to return the original Python form of
-        # # the arguments.  If getParamValues goes into C++ to return
-        # # the arguments, it will return the Ptr form, which will
-        # # confuse the RegisteredClass type checking.
-        # object._keepargs = argvals
-
-        object.timestamp = timestamp.TimeStamp()
-        return object
+        obj = self.subclass(*argvals)
+        obj.timestamp = timestamp.TimeStamp()
+        return obj

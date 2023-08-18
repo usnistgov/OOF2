@@ -26,14 +26,14 @@
 ## the check for illegal elements in categoryAreas is uncommented.
 
 import unittest, os
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 # Flag that says whether to generate missing reference data files for
 # the Modify tests.  Should be false unless you really know what
 # you're doing.  New reference files won't be generated unless the old
 # one is removed first, though.
-generate = False
+generate = True
 
 class OOF_Skeleton(unittest.TestCase):
     def setUp(self):
@@ -141,7 +141,7 @@ class OOF_Skeleton(unittest.TestCase):
         OOF.File.Save.Skeleton(filename="skeleton_save",
                                mode="w", format="ascii",
                                skeleton="skeltest:savetest")
-        self.assert_(filecmp.cmp(reference_file("skeleton_data",
+        self.assertTrue(filecmp.cmp(reference_file("skeleton_data",
                                                 "periodic_savetest"),
                                  "skeleton_save"))
         os.remove("skeleton_save")
@@ -151,27 +151,29 @@ class OOF_Skeleton(unittest.TestCase):
         OOF.File.Load.Data(filename=reference_file("skeleton_data",
                                                    "periodic_savetest"))
         self.assertEqual(skeletoncontext.skeletonContexts.nActual(), 1)
-        self.assert_( ["skeltest", "savetest"] in
-                      skeletoncontext.skeletonContexts.keys())
+        self.assertTrue( ["skeltest", "savetest"] in
+                         skeletoncontext.skeletonContexts.keys())
         skelctxt = skeletoncontext.skeletonContexts["skeltest:savetest"]
         skel = skelctxt.getObject()
         self.assertEqual(skel.nnodes(), 81)
         self.assertEqual(skel.nelements(), 64)
         self.assertEqual(self.nPartneredNodes(skel),32)
         
+    ## TODO: doModify loads its own Skeleton and doesn't use the one
+    ## loaded by setUp(), so it should be in a different TestCase
+    ## subclass.
     @memorycheck.check("skeltest")
     def doModify(self, registration, startfile, compfile, kwargs):
-        import os, random
+        import os
         from ooflib.SWIG.common import crandom
         OOF.File.Load.Data(
             filename=reference_file("skeleton_data","periodic_mods", startfile))
         sk0 = skeletoncontext.skeletonContexts["skeltest:modtest"].getObject()
         mod = registration(**kwargs)
-        random.seed(17)
         crandom.rndmseed(17)
         OOF.Skeleton.Modify(skeleton="skeltest:modtest", modifier=mod)
         sk0 = skeletoncontext.skeletonContexts["skeltest:modtest"].getObject()
-        self.assert_(sk0.sanity_check())
+        self.assertTrue(sk0.sanity_check())
         fname = reference_file("skeleton_data", "periodic_mods", compfile)
         if generate and not os.path.exists(fname):
             # Save the new Skeleton under a different name
@@ -182,6 +184,7 @@ class OOF_Skeleton(unittest.TestCase):
             # Change the name back, so that tearDown won't complain.
             OOF.Microstructure.Rename(microstructure="reference",
                                       name="skeltest")
+            print("*** Saved new reference file as", fname)
         else:
             # Saving and reloading the Skeleton guarantees that node
             # indices match up with the reference skeleton.  Nodes are
@@ -217,7 +220,8 @@ class OOF_Skeleton(unittest.TestCase):
             try:
                 mods = skel_modify_args[r.name()]
             except KeyError:
-                print >> sys.stderr,  "No data for skeleton modifier %s." % r.name()
+                print(f"No data for skeleton modifier {r.name()}",
+                      file=sys.stderr)
             else:
                 # Saved skeleton must be named "modtest".
                 for (startfile, compfile, kwargs) in mods:
@@ -234,14 +238,15 @@ class OOF_Skeleton(unittest.TestCase):
                                            top_bottom_periodicity=True))
         sk_context = skeletoncontext.skeletonContexts["skeltest:undotest"]
         sk_0 = sk_context.getObject()
-        self.assert_(not sk_context.undoable())
-        OOF.Skeleton.Modify(skeleton="skeltest:undotest",
-                            modifier=Refine(
-            targets=CheckHomogeneity(threshold=0.9),
-            criterion=Unconditionally(),
-            degree=Trisection(rule_set="conservative")))
+        self.assertTrue(not sk_context.undoable())
+        OOF.Skeleton.Modify(
+            skeleton="skeltest:undotest",
+            modifier=Refine(
+                targets=CheckHomogeneity(threshold=0.9),
+                divider=Bisection(),
+                rules="Quick"))
         sk_1 = sk_context.getObject()
-        self.assert_(sk_context.undoable())
+        self.assertTrue(sk_context.undoable())
         self.assertNotEqual(id(sk_0),id(sk_1))
         OOF.Skeleton.Undo(skeleton="skeltest:undotest")
         sk_2 = sk_context.getObject()
@@ -258,17 +263,18 @@ class OOF_Skeleton(unittest.TestCase):
                                            top_bottom_periodicity=True))
         sk_context = skeletoncontext.skeletonContexts["skeltest:redotest"]
         sk_0 = sk_context.getObject()
-        OOF.Skeleton.Modify(skeleton="skeltest:redotest",
-                            modifier=Refine(
-            targets=CheckHomogeneity(threshold=0.9),
-            criterion=Unconditionally(),
-            degree=Trisection(rule_set="conservative")))
+        OOF.Skeleton.Modify(
+            skeleton="skeltest:redotest",
+            modifier=Refine(
+                targets=CheckHomogeneity(threshold=0.9),
+                divider=Bisection(),
+                rules='Quick'))
         sk_1 = sk_context.getObject()
         OOF.Skeleton.Undo(skeleton="skeltest:redotest")
         sk_2 = sk_context.getObject()
         OOF.Skeleton.Redo(skeleton="skeltest:redotest")
         self.assertEqual(id(sk_1),id(sk_context.getObject()))
-        self.assert_(not sk_context.redoable())
+        self.assertTrue(not sk_context.redoable())
 
 
 # Extra test -- now that skeletons are known to work, we can test if
@@ -328,7 +334,7 @@ class OOF_Skeleton_MoreExtra(unittest.TestCase):
                 iterations=1))
         skel = skeletoncontext.skeletonContexts[
             "microstructure:skeleton"].getObject()
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
     @memorycheck.check("microstructure")
     def TriQuadRationalize(self):
         # This is just like the skeleton used in TriTriRationalize,
@@ -347,7 +353,7 @@ class OOF_Skeleton_MoreExtra(unittest.TestCase):
                 iterations=1))
         skel = skeletoncontext.skeletonContexts[
             "microstructure:skeleton"].getObject()
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
     @memorycheck.check("microstructure")
     def TriQuadRemove(self):
         # Load a skeleton containing a skeleton with a small acute
@@ -367,7 +373,7 @@ class OOF_Skeleton_MoreExtra(unittest.TestCase):
             )
         skel = skeletoncontext.skeletonContexts[
             "microstructure:skeleton"].getObject()
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
     @memorycheck.check("microstructure")
     def TriTriRemove(self):
         # Load a skeleton containing a skeleton with a small acute
@@ -387,7 +393,7 @@ class OOF_Skeleton_MoreExtra(unittest.TestCase):
             )
         skel = skeletoncontext.skeletonContexts[
             "microstructure:skeleton"].getObject()
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
         
 
 # Data for the skeleton modifier tests.  This is a dictionary indexed
@@ -400,181 +406,192 @@ def build_mod_args():
     skel_modify_args = {
         "Refine" :
         [
-        ("modbase", "refine_1",
-         { "targets" : CheckHomogeneity(threshold=0.9),
-           "criterion" : Unconditionally(),
-           "degree" : Trisection(rule_set="conservative"),
-           "alpha" : 0.5
-           }
-         ),
-        ("modbase", "refine_2",
-         { "targets" : CheckHomogeneity(threshold=0.9),
-           "criterion" : Unconditionally(),
-           "degree" : Bisection(rule_set="conservative"),
-           "alpha" : 0.5
-           }
-         ),
-        ("modgroups","refine_3",
-         {"targets" : CheckElementsInGroup(group='elementgroup'),
-          "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_4",
-         {"targets" : CheckAllElements(),
-          "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_5",
-         {"targets" : CheckAspectRatio(threshold=1.5),
-          "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_6",
-         {"targets" : CheckHeterogeneousEdges(threshold=1,
-                                              choose_from=FromAllSegments()),
-          "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
-          "alpha" : 0.5
-          }
-         )
+            ("modbase", "refine_1",
+             { "targets" : CheckHomogeneity(threshold=0.9),
+               "divider" : Trisection(minlength=0),
+               "rules" : "Quick",
+               "alpha" : 0.5
+              }
+             ),
+            ("modbase", "refine_2",
+             { "targets" : CheckHomogeneity(threshold=0.9),
+               "divider" : Bisection(minlength=0),
+               "rules" : "Quick",
+               "alpha" : 0.5
+              }
+             ),
+            ("modgroups","refine_3",
+             {"targets" : CheckElementsInGroup(group='elementgroup'),
+              "divider" : Bisection(minlength=0),
+              "rules" : "Quick",
+              "alpha" : 0.5
+              }
+             ),
+            ("modgroups","refine_4",
+             {"targets" : CheckAllElements(),
+              "divider" : Bisection(minlength=0),
+              "rules" : "Quick",
+              "alpha" : 0.5
+              }
+             ),
+            ("modgroups","refine_5",
+             {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
+              "divider" : Bisection(minlength=0),
+              "rules" : "Quick",
+              "alpha" : 0.5
+              }
+             ),
+            ("modgroups","refine_6",
+             {"targets" : CheckHeterogeneousSegments(
+                 threshold=1, choose_from=FromAllSegments()),
+              "divider" : Bisection(minlength=0),
+              "rules" : "Quick",
+              "alpha" : 0.5
+              }
+             ),
+            # Old SnapRefine tests
+            ("modbase", "snaprefine_1",
+             { "targets" : CheckHomogeneity(threshold=0.9),
+               "divider" : TransitionPoints(minlength=0.01),
+               "rules" : 'Quick',
+               "alpha": 0.5
+              }
+             ),
+            ("modgroups", "snaprefine_2",
+             {"targets" : CheckElementsInGroup(group='elementgroup'),
+              "divider" : TransitionPoints(minlength=1.0),
+              "alpha": 0.5
+              }
+             ),
+            ("modgroups2", "snaprefine_3",
+             {"targets" : CheckAllElements(),
+              "divider" : TransitionPoints(minlength=1.0),
+              "alpha": 0.5
+              }
+             ),
+            ("modgroups", "snaprefine_4",
+             {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
+              "divider" : TransitionPoints(minlength=0.01),
+              "alpha": 0.5
+              }
+             ),
+            ("modgroups", "snaprefine_4a",
+             {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
+              "divider" : TransitionPoints(minlength=2.0),
+              "alpha": 0.5
+              }
+             ),
+            ("modgroups2", "snaprefine_5",
+             {"targets" :
+              CheckHeterogeneousSegments(threshold=1,
+                                         choose_from=FromAllSegments()),
+              "divider" : TransitionPoints(minlength=2.0),
+              "alpha": 0.5
+              }
+             ),
+            ("modbase1x1", "snaprefine_1x1",
+             {"targets" : CheckHomogeneity(threshold=0.9),
+              "divider" : TransitionPoints(minlength=1.0),
+              "alpha": 0.5
+              }
+             )
         ],
         "Relax" :
         [
-        ("modbase", "relax",
-         { "alpha" : 0.5,
-           "gamma" : 0.5,
-           "iterations" : 1
-           }
-         )
+            ("modbase", "relax",
+             { "alpha" : 0.5,
+               "gamma" : 0.5,
+               "iterations" : 1
+              }
+             )
         ],
         "Snap Nodes" :
-        [ ("modbase", "snapnodes",
-           { "targets" : SnapAll(),
-             "criterion" : AverageEnergy(alpha=1.)
-             }
-           )
-          ],
+        [
+            ("modbase", "snapnodes",
+             { "targets" : SnapAll(),
+               "criterion" : AverageEnergy(alpha=0.8)
+              }
+             )
+        ],
         "Anneal" :
         [
-        ("modbase", "anneal",
-         {"targets" : AllNodes(),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         ),
-        ("modgroups", "anneal_2",
-         {"targets" : NodesInGroup(group='nodegroup'),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         ),
-        ("modgroups", "anneal_3",
-         {"targets" : FiddleElementsInGroup(group='elementgroup'),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         ),
-        ("modgroups", "anneal_4",
-         {"targets" : FiddleHeterogeneousElements(threshold=0.95),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         )
+            ("modbase", "anneal",
+             {"targets" : AllNodes(),
+              "criterion" : AverageEnergy(alpha=0.6),
+              "T" : 0.0,
+              "delta" : 1.0,
+              "iteration" : FixedIteration(iterations=5)            
+              }
+             ),
+            ("modgroups", "anneal_2",
+             {"targets" : NodesInGroup(group='nodegroup'),
+              "criterion" : AverageEnergy(alpha=0.6),
+              "T" : 0.0,
+              "delta" : 1.0,
+              "iteration" : FixedIteration(iterations=5)            
+              }
+             ),
+            ("modgroups", "anneal_3",
+             {"targets" : FiddleElementsInGroup(group='elementgroup'),
+              "criterion" : AverageEnergy(alpha=0.6),
+              "T" : 0.0,
+              "delta" : 1.0,
+              "iteration" : FixedIteration(iterations=5)            
+              }
+             ),
+            ("modgroups", "anneal_4",
+             {"targets" : FiddleHeterogeneousElements(threshold=0.95),
+              "criterion" : AverageEnergy(alpha=0.6),
+              "T" : 0.0,
+              "delta" : 1.0,
+              "iteration" : FixedIteration(iterations=5)            
+              }
+             )
         ],
         "Smooth" :
-        [ ("modgroups", "smooth",
-           {"targets" : AllNodes(),
-            "criterion" : AverageEnergy(alpha=0.3),
-            "T" : 0.0,
-            "iteration" : FixedIteration(iterations=5)
-            }
-           )
-          ],
-        "Swap Edges" :
-        [ ("modgroups", "swapedges",
-           {"targets" : AllElements(),
-            "criterion" : AverageEnergy(alpha=0.3)
-            }
-           )
-          ],
-        "Merge Triangles" :
-        [ ("modgroups", "mergetriangles",
-           {"targets" : AllElements(),
-            "criterion" : AverageEnergy(alpha=0.3)
-            }
-           )
-          ],
-        "Rationalize" :
-        [ ("modgroups", "rationalize",
-           {"targets" : AllElements(),
-            "criterion" : AverageEnergy(alpha=0.3),
-            "method" : SpecificRationalization(
-        rationalizers=[RemoveShortSide(ratio=5.0),
-                       QuadSplit(angle=150),
-                       RemoveBadTriangle(acute_angle=30,obtuse_angle=130)]),
-            "iterations" : 3
-            }
-           )
-          ],
-        "Snap Refine" :
         [
-        ("modbase", "snaprefine_1",
-         { "targets" : CheckHomogeneity(threshold=0.9),
-           "criterion" : Unconditionally(),
-           "min_distance" : 0.01,
-           }
-         ),
-        ("modgroups","snaprefine_2",
-         {"targets" : CheckElementsInGroup(group='elementgroup'),
-          "criterion" : Unconditionally(),
-          "min_distance" : 1.0,
-          }
-         ),
-        ("modgroups2","snaprefine_3",
-         {"targets" : CheckAllElements(),
-          "criterion" : Unconditionally(),
-          "min_distance" : 1.0,
-          }
-         ),
-        ("modgroups","snaprefine_4",
-         {"targets" : CheckAspectRatio(threshold=1.5),
-          "criterion" : Unconditionally(),
-          "min_distance" : 0.01,
-          }
-         ),
-        ("modgroups2","snaprefine_5",
-         {"targets" : CheckHeterogeneousEdges(threshold=1,
-                                              choose_from=FromAllSegments()),
-          "criterion" : Unconditionally(),
-          "min_distance" : 1.0,
-          }
-         ),
-        ("modbase1x1","snaprefine_1x1",
-         { "targets" : CheckHomogeneity(threshold=0.9),
-           "criterion" : Unconditionally(),
-           "min_distance" : 1.0,
-           }
-         )
-        ]
-        }
-
+            ("modgroups", "smooth",
+             {"targets" : AllNodes(),
+              "criterion" : AverageEnergy(alpha=0.3),
+              "T" : 0.0,
+              "iteration" : FixedIteration(iterations=5)
+              }
+             )
+        ],
+        "Swap Edges" :
+        [
+            ("modgroups", "swapedges",
+             {"targets" : AllElements(),
+              "criterion" : AverageEnergy(alpha=0.3)
+              }
+             )
+        ],
+        "Merge Triangles" :
+        [
+            ("modgroups", "mergetriangles",
+             {"targets" : AllElements(),
+              "criterion" : AverageEnergy(alpha=0.3)
+              }
+             )
+        ],
+        "Rationalize" :
+        [
+            ("modgroups", "rationalize",
+             {"targets" : AllElements(),
+              "criterion" : AverageEnergy(alpha=0.3),
+              "method" : SpecificRationalization(
+                  rationalizers=[
+                      RemoveShortSide(ratio=5.0),
+                      QuadSplit(angle=150),
+                      RemoveBadTriangle(acute_angle=30,obtuse_angle=130)]),
+              "iterations" : 3
+              }
+             )
+        ],
+    }
 
 def initialize():
-    # Modfiy arguments make use of classes which are not in the
+    # Modify arguments make use of classes which are not in the
     # namespace until after oof.run() has been called, so they can't
     # be used at import-time.
     build_mod_args()
@@ -601,3 +618,5 @@ special_set = [
     ]
 
 test_set = skel_set + special_set
+
+#test_set = [OOF_Skeleton("Modify")]

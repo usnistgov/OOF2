@@ -12,7 +12,7 @@ from ooflib.common import debug
 import sys
 
 def stackDumper(signal):
-    print >> sys.stderr, "*********", signal, "**********"
+    print("*********", signal, "**********", file=sys.stderr)
     debug.dumpTrace()
 
 initDebug(stackDumper)

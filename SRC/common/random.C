@@ -124,3 +124,22 @@ std::vector<int> *randomInts(int n) {
   oofshuffle(vec->begin(), vec->end(), rand);
   return vec;
 }
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+#include <Python.h>
+
+void shuffle(PyObject *list) {
+  // Apply the shuffle algorithm to a Python list, without converting
+  // the list to a C++ vector, or converting the contents of the list
+  // to C++ objects.
+  assert(PyList_Check(list));
+  OOFRandomNumberGenerator rand;
+  int n = PyList_Size(list);
+  for(int i=1; i<n; i++) {
+    int j = rand(i+1);
+    PyObject *temp = PyList_GET_ITEM(list, i); // borrowed reference
+    PyList_SET_ITEM(list, i, PyList_GET_ITEM(list, j));
+    PyList_SET_ITEM(list, j, temp);
+  }
+}

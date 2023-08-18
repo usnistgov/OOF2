@@ -15,7 +15,8 @@
 #ifndef CRANDOM_SWG
 #define CRANDOM_SWG
 
-%module crandom
+%module(package="ooflib.SWIG.common") crandom
+
 %include "common/typemaps.swg"
 %{
 #include "common/random.h"
@@ -24,5 +25,20 @@
 void rndmseed(int);
 double rndm();
 int irndm();
+double gasdev();
+
+class OOFRandomNumberGenerator {
+public:
+  OOFRandomNumberGenerator();
+  int operator()(int);
+};
+
+void shuffle(PyObject*);
+
+%pythoncode %{
+def gauss(mean, dev):
+    return mean + dev*gasdev()
+%}
+
 
 #endif // CRANDOM_SWG

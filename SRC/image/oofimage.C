@@ -20,7 +20,7 @@
 #include "common/doublearray.h"
 #include "image/oofimage.h"
 
-#include "oofcanvas/oofcanvas.h"
+#include <oofcanvas.h>
 
 #include <math.h>
 #include <set>
@@ -564,6 +564,11 @@ ImageMagickError::ImageMagickError(const std::string &messg) {
       msg += '\\';
     msg += c;
   }
+}
+
+const std::string &ImageMagickError::classname() const {
+  static std::string s("ImageMagickError");
+  return s;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

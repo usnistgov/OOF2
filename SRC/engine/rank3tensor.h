@@ -44,8 +44,6 @@ private:
   SymmMatrix  m1;
   SymmMatrix  m2;
   static std::string classname_;
-  static std::string modulename_;
-
 
 public:
   Rank3Tensor() :  m0(3), m1(3), m2(3), nrows(3) {} 
@@ -70,7 +68,6 @@ public:
   friend Rank3Tensor operator*(const Rank3Tensor&, double); 
   friend SymmMatrix operator*(const Rank3Tensor&, const DoubleVec&);
   virtual const std::string &classname() const { return classname_; }  
-  virtual const std::string &modulename() const { return modulename_; } 
   friend Rank3Tensor operator/(const Rank3Tensor &A, double x); 
   double &operator()(int, const SymTensorIndex&);
   double operator()(int, const SymTensorIndex&) const;

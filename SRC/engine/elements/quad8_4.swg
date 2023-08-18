@@ -12,13 +12,20 @@
 #ifndef QUAD84_SWIG
 #define QUAD84_SWIG
 
-%module quad8_4
-%include "engine/typemaps.swg"
+%module(package="ooflib.SWIG.engine.elements") quad8_4
+
+%include "common/typemaps.swg"
 %{
   extern void quad8_4init();
 %}
 void quad8_4init();
 
-%pragma(python) include="quad8_4.spy"
+// Quad8_4 (superparametric) elements are not constructed, because
+// there's no machinery for placing the shape-controlling side nodes,
+// and also no way to draw them properly.  If they're ever used,
+// uncomment the following lines:
+// %pythoncode %{
+//   quad8_4init()
+// %}
 
 #endif // QUAD8_SWIG

@@ -16,6 +16,7 @@
 ## (rationalize method) that is being executed. 
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import progress
 from ooflib.common import debug
@@ -24,7 +25,6 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import skeletonmodifier
-import random
 
 ##################################################
 
@@ -49,13 +49,12 @@ class Rationalizer(registeredclass.RegisteredClass):
         # rationalizing. This is necessary because rationalizing
         # modifies the Skeleton's element list. 
         elements = targets(skel, context, copy=1)
-        random.shuffle(elements)
+        crandom.shuffle(elements)
         executed_action = self.getRegistration().gerund
         processed = set()
         count = 0
         done = 0  # No. of rationalized elements
         nel = len(elements)  # No. of elements to be considered
-        nelf = float(nel)    # probably completely meaningless optimization
         for element in elements:
             count += 1  # No. of elements that have been considered
             if element not in processed and element.active(skel):
@@ -68,7 +67,7 @@ class Rationalizer(registeredclass.RegisteredClass):
                     done += bestchange.nRemoved()
                     # Accepting the change converts provisional
                     # elements to actual elements.
-                    bestchange.accept(skel)
+                    bestchange.accept()
                     for elephant in bestchange.removed:
                         processed.add(elephant)
                     for oldel, newel in bestchange.substitutions:
@@ -76,7 +75,7 @@ class Rationalizer(registeredclass.RegisteredClass):
             if prog.stopped():
                 break
             else:
-                prog.setFraction(count/nelf)
+                prog.setFraction(count/nel)
                 prog.setMessage(executed_action + " %d/%d" % (count, nel))
             skel.cleanUp()
         

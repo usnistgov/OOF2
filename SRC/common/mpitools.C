@@ -10,8 +10,8 @@
  */
 
 #include <oofconfig.h>
+
 #include <string>
-#include <Python.h>
 #include <iostream>
 #include "mpitools.h"
 #include "ooferror.h"
@@ -560,6 +560,6 @@ MPIException::MPIException(const std::string &m, const std::string &f,
 
 std::string MPIException::pythonequiv() const
 {
-  return  "process number: " + to_string(process) + "\n" + " MPIException('" 
-    + msg + "', '" + file + "', " + to_string(line) + ")";
+  return  "process number: " + tostring(process) + "\n" + " MPIException('" 
+    + msg + "', '" + file + "', " + tostring(line) + ")";
 }

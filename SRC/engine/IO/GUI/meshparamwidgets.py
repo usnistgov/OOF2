@@ -28,8 +28,9 @@ from ooflib.engine import skeletoncontext
 from ooflib.engine import subproblemcontext
 from ooflib.engine.IO import meshparameters
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import string
 
 ## Blocks of code preceded by "if TESTINGPAPER:" are an attempt to
 ## reproduce the bug that motivated gui test 00176.
@@ -58,8 +59,8 @@ class MeshParamWidgetBase(parameterwidgets.ParameterWidget):
             and w.whoclass is whoclass)
         assert self.meshwidget is not None
         if self.meshwidget is None:
-            raise ooferror.ErrPyProgrammingError("Can't find WhoWidget for %s"
-                                                 % `whoclass`)
+            raise ooferror.PyErrPyProgrammingError("Can't find WhoWidget for %s"
+                                                   % repr(whoclass))
         self.sbcallbacks = [
             switchboard.requestCallbackMain(self.meshwidget, self.update),
             switchboard.requestCallbackMain("mesh changed", self.meshChangeCB),
@@ -118,7 +119,7 @@ class MeshParamWidgetBase(parameterwidgets.ParameterWidget):
     def cleanUp(self):
         debug.mainthreadTest()
         self.meshwidget = None
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         parameterwidgets.ParameterWidget.cleanUp(self)
 
 class MeshParamWidget(MeshParamWidgetBase):
@@ -306,7 +307,7 @@ class FieldIndexParameterWidget(parameterwidgets.ParameterWidget):
             lambda w: isinstance(w, IndexableWidget))
         self.sbcallback = switchboard.requestCallbackMain(self.fieldwidget,
                                                           self.fieldCB)
-        self.notapplicable = Gtk.Label('(Not Applicable)',
+        self.notapplicable = Gtk.Label(label='(Not Applicable)',
                                        halign=Gtk.Align.START)
         self.nIndices = 0
         self.update()
@@ -323,18 +324,15 @@ class FieldIndexParameterWidget(parameterwidgets.ParameterWidget):
         self.update()
         self.widgetChanged(True, interactive)
     def update(self):                   # field has changed
-        itlist = []
+        complist = []
         self.nIndices = 0
         field = self.fieldwidget.get_value()
         if field is not None:
-            iterator = field.iterator_all()
-            while not iterator.end():
+            for fcomp in field.components():
                 self.nIndices += 1
-                it = iterator.cloneIndex()
-                itrepr = it.shortrepr()
-                itlist.append(itrepr)
-                iterator.next()
-        self.chooser.update(itlist)
+                comprepr = fcomp.shortrepr()
+                complist.append(comprepr)
+        self.chooser.update(complist)
 
         # The __init__ used to put both the chooser and the "Not
         # Applicable" label in the Box, and the show() method showed

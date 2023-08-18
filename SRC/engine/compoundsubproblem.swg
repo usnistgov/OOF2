@@ -12,16 +12,14 @@
 #ifndef COMPOUNDSUBPROBLEM_SWG
 #define COMPOUNDSUBPROBLEM_SWG
 
-%module compoundsubproblem
+%module(package="ooflib.SWIG.engine") compoundsubproblem
 
-%include "engine/typemaps.swg"
-%extern "engine/csubproblem.swg"
-%pragma(python) include="engine/compoundsubproblem.spy"
-%pragma(python) code="from ooflib.SWIG.engine.csubproblem import CSubProblemPtr"
-%pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
+%include "common/typemaps.swg"
+%import "engine/csubproblem.swg"
 
 %{
 #include "engine/compoundsubproblem.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 class CIntersectionSubProblem: public CSubProblem {
@@ -57,5 +55,7 @@ public:
   Lock precomputeLock;
   bool precomputeRequired;
 };
+
+%pythoncode "engine/compoundsubproblem.spy"
 
 #endif // COMPOUNDSUBPROBLEM_SWG

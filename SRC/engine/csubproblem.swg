@@ -9,75 +9,49 @@
  * oof_manager@nist.gov.
  */
 
-#ifndef SUBPROBLEM_SWG
-#define SUBPROBLEM_SWG
+#ifndef CSUBPROBLEM_SWG
+#define CSUBPROBLEM_SWG
 
-%module subproblem
+%module(package="ooflib.SWIG.engine") csubproblem
 
-%include "engine/typemaps.swg"
-%extern "common/cmicrostructure.swg"
-%extern "common/doublevec.swg"
-%extern "common/lock.swg"
-%extern "engine/element.swg"
-%extern "engine/equation.swg"
-%extern "engine/femesh.swg"
-%extern "engine/field.swg"
-%extern "engine/linearizedsystem.swg"
-%extern "engine/meshiterator.swg"
-%extern "engine/node.swg"
-
-%pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
-%pragma(python) code="from ooflib.SWIG.common.lock import RWLockPtr"
-%pragma(python) code="from ooflib.SWIG.common.doublevec import DoubleVecPtr"
-%pragma(python) code="from ooflib.SWIG.engine.equation import EquationPtr"
-%pragma(python) code="from ooflib.SWIG.engine.femesh import FEMeshPtr"
-%pragma(python) code="from ooflib.SWIG.engine.field import FieldPtr"
-%pragma(python) code="from ooflib.SWIG.engine.linearizedsystem import LinearizedSystemPtr"
-%pragma(python) code="from ooflib.SWIG.engine.meshiterator import ElementIteratorPtr"
-%pragma(python) code="from ooflib.SWIG.engine.meshiterator import FuncNodeIteratorPtr"
-%pragma(python) code="from ooflib.SWIG.engine.meshiterator import NodeIteratorPtr"
-%pragma(python) code="from ooflib.SWIG.engine.nodalequation import NodalEquationPtr"
-
-%pragma(python) include="csubproblem.spy"
+%include "common/typemaps.swg"
+%import "common/coord.swg"
+%import "common/doublevec.swg"
+%import "common/lock.swg"
+%import "engine/element.swg"
+%import "engine/equation.swg"
+%import "engine/femesh.swg"
+%import "engine/field.swg"
+%import "engine/flux.swg"
+%import "engine/linearizedsystem.swg"
+%import "engine/material.swg"
+%import "engine/meshiterator.swg"
+%import "engine/node.swg"
 
 %{
 #include "common/doublevec.h"
 #include "engine/cconjugate.h"
 #include "engine/csubproblem.h"
 #include "engine/femesh.h"
+#include "engine/flux.h"
 #include "engine/material.h"
 #include "engine/meshiterator.h"
 #include "engine/sparsemat.h"
 #include <vector>
-typedef std::vector<CConjugatePair*> CConjugateVec;
+
+typedef VContainer<Node> VContainerNode;
+typedef VContainer<FuncNode> VContainerFuncNode;
+typedef VContainer<Element> VContainerElement;
 %}
 
-%typemap(python, in) CConjugateVec * (CConjugateVec cv) {
-  if(!PyList_Check($source)) {
-    PyErr_SetString(PyExc_TypeError,
-		 "Type Error in CConjugateVec typemap.  Python list required.");
-    return NULL;
-  }
-  CConjugateVec::size_type sz = Py_SAFE_DOWNCAST(PyList_Size($source),
-						 Py_ssize_t,
-						 CConjugateVec::size_type);
-  cv.resize(sz);
-  for(CConjugateVec::size_type i=0; i<sz; i++) {
-    CConjugatePair *pair;
-    PyObject *stg = PyObject_GetAttrString(PyList_GET_ITEM($source,
-							   (Py_ssize_t) i),
-					   "this");
-    char *str = PyString_AsString(stg);
-    SWIG_GetPtr(str, (void**) &pair, "_CConjugatePair_p");
-    cv[i] = pair;
-  }
-  $target = &cv;
-}
+MAKE_LISTVEC_TYPEMAPS(Equation);
+MAKE_LISTVEC_TYPEMAPS(Flux);
+MAKE_LISTVEC_TYPEMAPS(CConjugatePair);
 
+%nodefaultctor CSubProblem; // only derived classes can be constructed
 
 class CSubProblem {
 public:
-//   CSubProblem(FEMesh*);	// only derived classes can be constructed
   ~CSubProblem();
 
   void set_rwlock(RWLock *rw);
@@ -92,23 +66,31 @@ public:
   bool containsNode(Node*);
 
   Lock precomputeLock;
-//%readwrite
   bool precomputeRequired;
   void requirePrecompute();
   void redefined();
 
-  ElementIterator element_iterator();
-  NodeIterator node_iterator();
-  FuncNodeIterator funcnode_iterator();
+  %rename(nodes) c_nodes;
+  %rename(funcnodes) c_funcnodes;
+  %rename(elements) c_elements;
+  VContainerNode* c_nodes(); 
+  VContainerFuncNode* c_funcnodes();
+  VContainerElement *c_elements();
 
-  %new LinearizedSystem *new_linear_system(double);
+  %newobject new_linear_system;
+  LinearizedSystem *new_linear_system(double);
   void make_linear_system(LinearizedSystem *, CNonlinearSolver*);
 
-  %new CompoundFieldVec *all_compound_fields();
-  %new EquationVec *all_equations();
-  %new FluxVec *all_fluxes();
+  %newobject all_compound_fields;
+  // Don't use MAKE_LISTVEC_TYPEMAPS for CompoundField
+  std::vector<CompoundField*> *all_compound_fields();
+  %newobject all_equations;
+  EquationSubClassRefVec *all_equations();
+  %newobject all_fluxes;
+  FluxSubClassRefVec *all_fluxes();
 
-  %new MaterialSet *getMaterials();
+  %newobject getMaterials;
+  MaterialSet *getMaterials();
 
 
   bool define_field(Field&);
@@ -132,7 +114,8 @@ public:
 
   void mapFields();
   bool set_meshdofs(DoubleVec*);
-  %new DoubleVec *get_meshdofs();
+  %newobject get_meshdofs;
+  DoubleVec *get_meshdofs();
 
   void set_slaveDoF(int);
   void clear_slaveDoFs();
@@ -141,7 +124,7 @@ public:
 
   // for symmetrizing the stiffness matrix, if at all possible
 //   void set_trivial_equation_mapping();
-  void set_equation_mapping(CConjugateVec*);
+  void set_equation_mapping(CConjugatePairVec*);
 
 #ifdef HAVE_MPI
   int GatherNumNodes();
@@ -150,26 +133,30 @@ public:
 
   //AMR subproblem
   // SCPatch stuff, which should be encapsulated elsewhere eventually
-  void init_scpatches(IntVec*);
-  void add_scpatch(int, Material*, int, IntVec*, IntVec*, int);
-  %new IntVec *get_elements_from_patch(int, Material*);
-  %new IntVec *get_nodes_from_patch(int, Material*);
+  void init_scpatches(const std::vector<int>*);
+  void add_scpatch(int, Material*, int, const std::vector<int>*,
+		   const std::vector<int>*, int);
+  %newobject get_elements_from_patch;
+  std::vector<int> *get_elements_from_patch(int, Material*);
+  %newobject get_nodes_from_patch;
+  std::vector<int> *get_nodes_from_patch(int, Material*);
   void init_nodalfluxes();
   void recover_fluxes();
   void report_recovered_fluxes(Element*, Coord *Point);
   double zz_L2_estimate(Element*, Flux*);
-  %new DoubleList *zz_L2_weights(Flux*, double, double);
+  %newobject zz_L2_weights;
+  std::vector<double> *zz_L2_weights(Flux*, double, double);
   bool contains(Element*);
-
-  %addmethods {
-    int __hash__() {
-      return self->objectid();
-    }
-  }
-
 };				// class CSubProblem
+
+%extend CSubProblem {
+  int __hash__() {
+    return self->objectid();
+  }
+};
 
 long get_globalCSubProblemCount();
 
+%pythoncode "engine/csubproblem.spy"
 
-#endif // SUBPROBLEM_SWG
+#endif // CSUBPROBLEM_SWG

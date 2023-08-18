@@ -76,7 +76,7 @@ registeredclass.Registration(
 
 def _newImage(menuitem, name, microstructure, pixels):
     ms = ooflib.common.microstructure.microStructures[microstructure].getObject()
-    image = oofimage.newImageFromData(name, ms.sizeInPixels(), pixels.values())
+    image = oofimage.newImageFromData(name, ms.sizeInPixels(), list(pixels.values()))
     image.setSize(ms.size())
     imagemenu.loadImageIntoMS(image, microstructure)
     

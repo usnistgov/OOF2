@@ -519,8 +519,8 @@ checkpoint OOF.Skeleton.Redo
 assert tests.sensitivityCheck2()
 
 # Redo again
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 3.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Move Nodes:Redo').clicked()
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
@@ -1029,9 +1029,9 @@ checkpoint Move Node toolbox up event
 assert tests.xyshCompare(62.5, 21, '---', '---')
 
 # Delete the skeleton display layer
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
 wevent(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), Gdk.EventType.BUTTON_PRESS, button=3, state=0, window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 checkpoint toplevel widget mapped PopUp-0
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path(Gtk.TreePath([10]))
@@ -1054,7 +1054,7 @@ assert tests.sensitivityCheck0()
 assert tests.textCompare('---', '---', '---', '---')
 assert tests.messageCompare("")
 
-findWidget('OOF2:Introduction Page:Scroll').get_vadjustment().set_value( 1.0000000000000e+00)
+findWidget('OOF2:Introduction Page:Scroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Python_Log']).activate()
 checkpoint toplevel widget mapped Dialog-Python_Log
 findWidget('Dialog-Python_Log').resize(192, 122)
@@ -1073,6 +1073,6 @@ findWidget('Dialog-Python_Log:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Save.Python_Log
 assert tests.filediff('session.log')
 
-findWidget('OOF2:Introduction Page:Scroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2:Introduction Page:Scroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Quit']).activate()
 checkpoint OOF.Graphics_1.File.Close

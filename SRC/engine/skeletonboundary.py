@@ -88,7 +88,7 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
         try:
             return self.boundaryset[skeleton.sheriffSkeleton()]._sequenceable
         except KeyError:
-            return 1
+            return True
 
     # Removal function -- if a skeleton is specified, remove the
     # corresponding SkeletonBoundary from the skeleton.  Otherwise, do
@@ -141,7 +141,7 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
         #Can almost do the same for try_append above, but
         #the segments that are to be added do not carry
         #orientation information.
-        if skelbdy._sequenceable==0:
+        if not skelbdy._sequenceable:
             return 1
         return skelbdy.try_delete(segments)
 
@@ -165,7 +165,7 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
 
         old_bdy = self.boundaryset[skeleton]
         
-        if old_bdy._sequenceable==1: # TODO: use a boolean
+        if old_bdy._sequenceable:
             new_bdy = new_skeleton.makeEdgeBoundary(
                 self.name, exterior=exterior)
         else:
@@ -412,7 +412,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
         self.edges = []
         
         #Interface branch
-        self._sequenceable=1
+        self._sequenceable = True
 
     def size(self):
         return len(self.edges)
@@ -433,7 +433,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
     # sequenced.
     def sequence(self):
         #Interface branch
-        if self._sequenceable==0:
+        if not self._sequenceable:
             return
 
         if len(self.edges)==0 or len(self.edges)==1:
@@ -459,7 +459,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
                 endnodes.append(e.get_nodes()[1])
             else:
                 raise skeletonsegment.SequenceError(
-                    "Cannot sequence boundary %s" % `self._name`)
+                    "Cannot sequence boundary %s" % repr(self._name))
 
         # At this point, you have a list of start nodes, a list of end
         # nodes, and a dictionary of edges keyed by start node.
@@ -483,7 +483,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
             sequence_node = self.edges[0].get_nodes()[0]
         else:
             raise skeletonsegment.SequenceError(
-                "Topology problem with boundary %s, unable to sequence." % `self._name`)
+                "Topology problem with boundary %s, unable to sequence." % repr(self._name))
 
         # Now, finally, we have a starting node.  Chain the edges
         # together from this node.  Proceed until dictionary retrieval
@@ -492,7 +492,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
         # This really wants to be a "do...while" loop, but Python
         # doesn't offer this construction.
         newedgelist = []
-        while 1:
+        while True:
             try:
                 edge = ndict[sequence_node]
             except KeyError:
@@ -506,7 +506,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
         else:
             # This can occur if the boundary is made up of disjoint loops.
             raise skeletonsegment.SequenceError(
-                "Sequenced boundary %s did not use all edges." % `self._name`)
+                "Sequenced boundary %s did not use all edges." % repr(self._name))
         
     def reverse(self):
         self.edges.reverse()            # reverses list in place
@@ -551,7 +551,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
     def append(self, new_segments):
 
         if len(self.edges)==0:
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "Cannot append to an empty boundary.")
         
         self.sequence()  # Make sure we're in order, first.  
@@ -610,7 +610,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
                 else:
                     # If there's no place to put the segment, then
                     # something's gone badly wrong.
-                    raise ooferror.ErrPyProgrammingError(
+                    raise ooferror.PyErrPyProgrammingError(
                         "No adjacent node for new segment in boundary!")
 
         # Now check the back.
@@ -629,7 +629,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
                         skeletonsegment.SkeletonEdge(seg,direction=-1))
                     contact_node = nodes[0]
                 else:
-                    raise ooferror.ErrPyProgrammingError(
+                    raise ooferror.PyErrPyProgrammingError(
                         "No adjacent node for new segment in boundary!")
 
         self.sequence() # Clean up.
@@ -682,7 +682,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
             old_segments.remove(d)
 
         #Interface branch
-        if self._sequenceable==1:
+        if self._sequenceable:
             (seg_list, node_list, winding) = skeletonsegment.segSequence(old_segments)
 
         # If sequencing worked, then the modified boundary is
@@ -711,7 +711,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
 class ExteriorSkeletonEdgeBoundary(SkeletonEdgeBoundary):
     def addEdge(self, edge):
         if config.dimension() == 2 and edge.segment.nElements() != 1:
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Attempt to insert interior segment in exterior boundary.")
         self.edges.append(edge)
     def makeContextBoundary(self, context, name, skeleton):
@@ -825,17 +825,17 @@ def edgesFromSegs(edge, target_segs, direction):
                 return []
 
         else:
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Malformed segment sequence -- node counterpart not found.")
     
     target_list = []
-    for (s, n)  in map(None, seg_list, node_list[:-1]):
-        # if the node_list constitutes a loop, it will be longer than
-        # needed, producing an extra item in the list returned by map.
-        # We can ignore the extra item in this case.
-        if s is None:
-            pass
-        elif s.nodes()[0]==n:
+    # If the node_list constitutes a loop, it will be longer than
+    # needed by one item, which can be ignored.
+    if len(node_list) > len(seg_list)+1:
+        node_list.pop()
+        assert len(node_list) == len(seg_list)+1
+    for (s, n)  in zip(seg_list, node_list[:-1]):
+        if s.nodes()[0]==n:
             target_list.append(skeletonsegment.SkeletonEdge(s,direction=1))
         else:
             target_list.append(skeletonsegment.SkeletonEdge(s,direction=-1))

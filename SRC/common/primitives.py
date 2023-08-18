@@ -18,20 +18,14 @@ from ooflib.common import utils
 from ooflib.common.IO import parameter
 import math
 import struct
-import types
+
+# Point represents a point in 2 dimensions.  It is more or less
+# redundant with Coord, but doesn't have the overhead of calling C++
+# routines for simple operations.  Python graphics routines should
+# generally be prepared to receive either Point or Coord.
 
 class Point:
-    """
-    Point class represents a point in 2 dimensions.  It is more or
-    less redundant with oofcpp.Coord, but doesn't have the overhead of
-    calling C++ routines for simple operations.  Python graphics
-    routines should generally be prepared to receive either Point or
-    oofcpp.Coord.
-    """
     def __init__(self, x, y):
-        # This should possibly coerce x and y to floats, since other
-        # routines might want to take their ratio.  This *isn't* done
-        # here, because it might be slow.
         self.x = x
         self.y = y
             
@@ -57,13 +51,14 @@ class Point:
     # Multiply accepts mixed point/ipoint objects for dot products,
     # and preserves i-ness if possible.
     def __mul__(self, other):
-        if type(other)==types.InstanceType and \
+        if hasattr(other, "__class__") and \
            (issubclass(other.__class__, self.__class__) or
             issubclass(self.__class__, other.__class__) ):
+            # Dot product
             return self.x*other.x+self.y*other.y
-        elif type(other)==types.FloatType:
+        elif isinstance(other, float):
             return Point(other*self.x, other*self.y)
-        elif type(other)==types.IntType:
+        elif isinstance(other, int):
             # Return whatever class you already are.
             return self.__class__(other*self.x, other*self.y)
         raise TypeError
@@ -72,11 +67,11 @@ class Point:
         return self.x*other.y - self.y*other.x
 
     # Power defined only for squaring -- finds the squared magnitude.
+    # TODO: It's better to use Point.norm2.  Is this used?
     def __pow__(self, other):
         if other!=2:
-            ## TODO: Raise ValueError instead. Better would be not to
-            ## define __pow__ at all.
-            print "Power operation only defined for exponent equal to 2."
+            raise ValueError(
+                "Power operation only defined for exponent equal to 2.")
         return self.x*self.x+self.y*self.y
 
     def __rmul__(self, other):
@@ -92,53 +87,52 @@ class Point:
     def __neg__(self):
         return self.__class__(-self.x, -self.y)
 
-    def __div__(self, other):
+    def __truediv__(self, other):
         return Point(self.x/other, self.y/other)
+
+    def norm2(self):
+        return self.x*self.x + self.y*self.y
 
     def __hash__(self):
         # Comparison operators are written in terms of __getitem__ so that
         # comparison to Coords and ICoords will work.
         return hash((self.x, self.y))
 
-    def __cmp__(self, other):
-        try:
-            if self[0] < other[0]: return -1
-            if self[0] > other[0]: return 1
-            if self[1] < other[1]: return -1
-            if self[1] > other[1]: return 1
-            return 0
-        except:
-            return 1
-
     def __lt__(self, other):
         try:
-            if self[0] < other[0]: return 1
-            if self[0] > other[0]: return 0
-            if self[1] < other[1]: return 1
-            if self[1] > other[1]: return 0
+            if self.x < other[0]: return True
+            if self.x > other[0]: return False
+            if self.y < other[1]: return True
+            if self.y > other[1]: return False
         except:
-            return 0
+            return NotImplemented
 
     def __gt__(self, other):
         try:
-            if self[0] > other[0]: return 1
-            if self[0] < other[0]: return 0
-            if self[1] > other[1]: return 1
-            if self[1] < other[1]: return 0
+            if self.x > other[0]: return True
+            if self.x < other[0]: return False
+            if self.y > other[1]: return True
+            if self.y < other[1]: return False
         except:
-            return 1
+            return NotImplemented
+
+    def __le__(self, other):
+        return not self.__gt__(other)
+
+    def __ge__(self, other):
+        return not self.__lt__(other)
 
     def __eq__(self, other):
         try:
-            return self[0]==other[0] and self[1]==other[1]
+            return self.x==other[0] and self.y==other[1]
         except:
-            return 0
+            return NotImplemented
 
     def __ne__(self, other):
         try:
-            return self[0]!=other[0] or self[1]!=other[1]
+            return self.x!=other[0] or self.y!=other[1]
         except:
-            return 1
+            return NotImplemented
 
     def __repr__(self):
         return "Point(%s,%s)" % (self.x, self.y)
@@ -170,7 +164,7 @@ class ListOfPointsParameter(parameter.Parameter):
         parameter.Parameter.__init__(self, name, value, default, tip)
 
     def checker(self, x):
-        if type(x) is not types.ListType:
+        if not isinstance(x, list):
             parameter.raiseTypeError(type(x), "list of Points")
         for y in x:
             if not isinstance(y, Point):
@@ -212,7 +206,7 @@ def pontify(ptlist):
     # probably Curve or Polygon, and Stuff is probably MasterCoord or
     # Coord, but it doeesn't really matter.  Points can be faster to
     # use since they don't have any swig overhead.
-    if type(ptlist) == types.ListType:
+    if isinstance(ptlist, list):
         return [Point(pt[0], pt[1]) for pt in ptlist]
     return ptlist.__class__([Point(pt[0], pt[1]) for pt in ptlist])
 
@@ -260,7 +254,7 @@ class Rectangle:
         try:
             encl = obj.enclosing_rectangle()
         except AttributeError:
-            print obj
+            print(obj)
             raise
         self.lowleft.x = min(self.lowleft.x, encl.xmin())
         self.lowleft.y = min(self.lowleft.y, encl.ymin())
@@ -269,7 +263,7 @@ class Rectangle:
     def area(self):
         return (self.xmax()-self.xmin())*(self.ymax()-self.ymin())
     def __repr__(self):
-        return "Rectangle(%s,%s)" % (`self.lowleft`, `self.upright`)
+        return "Rectangle(%s,%s)" % (repr(self.lowleft), repr(self.upright))
 
 utils.OOFdefine('Rectangle', Rectangle)
 
@@ -396,42 +390,33 @@ class Segment:
     def enclosing_rectangle(self):
         return Rectangle(self.startpt, self.endpt)
     def __repr__(self):
-        return "Segment(%s, %s)" % (`self.startpt`, `self.endpt`)
-    def __cmp__(self, other):
-        try:
-            if self.startpt < other.startpt: return -1
-            if self.startpt > other.startpt: return 1
-            if self.endpt < other.endpt: return -1
-            if self.endpt > other.endpt: return 1
-            return 0
-        except AttributeError:
-            return 1
+        return "Segment(%s, %s)" % (repr(self.startpt), repr(self.endpt))
     def __lt__(self, other):
         try:
-            if self.startpt < other.startpt: return 1
-            if self.startpt > other.startpt: return 0
-            if self.endpt < other.endpt: return 1
-            return 0
+            if self.startpt < other.startpt: return True
+            if self.startpt > other.startpt: return False
+            if self.endpt < other.endpt: return True
+            return False
         except AttributeError:
-            return 0
+            return NotImplemented
     def __gt__(self, other):
         try:
-            if self.startpt > other.startpt: return 1
-            if self.startpt < other.startpt: return 0
-            if self.endpt > other.endpt: return 1
-            return 0
+            if self.startpt > other.startpt: return True
+            if self.startpt < other.startpt: return False
+            if self.endpt > other.endpt: return True
+            return False
         except AttributeError:
-            return 0
+            return NotImplemented
     def __eq__(self, other):
         try:
             return self.startpt == other.startpt and self.endpt == other.endpt
         except AttributeError:
-            return 0
+            return NotImplemented
     def __ne__(self, other):
         try:
             return self.startpt != other.startpt or self.endpt != other.endpt
         except AttributeError:
-            return 1
+            return NotImplemented
     
     def __hash__(self):
         return hash((self.startpt, self.endpt))
@@ -450,7 +435,7 @@ class Curve:
     Segments, too.
     """
     def __init__(self, ptlist):
-        if type(ptlist) == type(()):
+        if isinstance(ptlist, type(())):
             self.pts = list(ptlist)
         elif isinstance(ptlist, Curve):
             self.pts = ptlist.pts
@@ -507,7 +492,7 @@ class Curve:
 ##            rect.swallow(pt)
 ##        return rect
     def __repr__(self):
-        return "Curve(%s)" % `self.pts`
+        return "Curve(%s)" % repr(self.pts)
 
 utils.OOFdefine('Curve', Curve)
 
@@ -568,12 +553,12 @@ class Polygon(Curve):
         # joinPolygon used to be called "join", which got confused
         # with Curve.join, so the name was changed.  This is here to
         # find out if Polygon.join is called elsewhere.
-        raise ooferror.ErrPyProgrammingError("Polygon.join was called.")
+        raise ooferror.PyErrPyProgrammingError("Polygon.join was called.")
 
     def edges(self):
         return Polygon.PolygonEdges(self)
     def __repr__(self):
-        return "Polygon(%s)" % `self.pts`
+        return "Polygon(%s)" % repr(self.pts)
 
 # Function for taking a list of polygons representing the boundary of
 # a non-simply-connected polygon and returning a degenerate but
@@ -597,18 +582,18 @@ if __name__ == '__main__':
 
     poly = Polygon([p1,p2,p3,p4])
     curve = Curve([p1,p2,p3,p4])
-    print "Points"
+    print("Points")
     for point in poly.points():
-        print point
-    print "Curve Edges"
+        print(point)
+    print("Curve Edges")
     for edge in curve.edges():
-        print edge
-    print "Polygon Edges"
+        print(edge)
+    print("Polygon Edges")
     for edge in poly.edges():
-        print edge
+        print(edge)
 
-    print "p1=",p1
-    print "poly=", poly
-    print "curve=", curve
-    print "curve.enclosing_rectangle=", curve.enclosing_rectangle()
+    print("p1=",p1)
+    print("poly=", poly)
+    print("curve=", curve)
+    print("curve.enclosing_rectangle=", curve.enclosing_rectangle())
         

@@ -100,16 +100,6 @@ FEMesh::~FEMesh() {
   globalFEMeshCountLock.release();
 }
 
-const std::string &FEMesh::classname() const {
-  static const std::string _name = "FEMesh";
-  return _name;
-}
-
-const std::string &FEMesh::modulename() const {
-  static const std::string _name = "ooflib.SWIG.engine.femesh";
-  return _name;
-}
-
 long get_globalFEMeshCount() {
   return FEMesh::globalFEMeshCount;
 }
@@ -333,6 +323,10 @@ int FEMesh::nnodes() const {
   return funcnode.size() + mapnode.size();
 }
 
+int FEMesh::nfuncnodes() const {
+  return funcnode.size();
+}
+
 void FEMesh::addElement(Element *el) {
   element.push_back(el);
   el->set_index(element.size()-1);
@@ -351,8 +345,7 @@ int FEMesh::nelements() const {
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 void FEMesh::refreshMaterials(PyObject *skeletoncontext) {
-  for(ElementIterator ei=element_iterator(); !ei.end(); ++ei) {
-    Element *element = ei.element();
+  for(Element *element : elements()) {
     const Material *oldmat = element->material();
     element->refreshMaterial(skeletoncontext);
     const Material *newmat = element->material();
@@ -395,77 +388,87 @@ MaterialSet *FEMesh::getAllMaterials() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-ElementIterator FEMesh::element_iterator() const {
-  return ElementIterator(new MeshElementIterator(this));
+VContainerP<Element> FEMesh::elements() const {
+  return VContainerP<Element>(c_elements());
 }
 
-NodeIterator FEMesh::node_iterator() const {
-  return NodeIterator(new MeshNodeIterator(this));
+VContainer<Element>* FEMesh::c_elements() const {
+  return new MeshElementContainer(this, nelements());
 }
 
-FuncNodeIterator FEMesh::funcnode_iterator() const {
-  return FuncNodeIterator(new MeshFuncNodeIterator(this));
+VContainerP<InterfaceElement> FEMesh::interface_elements() const {
+  return VContainerP<InterfaceElement>(c_interface_elements());
 }
 
-// operator[] is deprecated...
-// FuncNode *FEMesh::operator[](const FuncNodeIterator &ni) const {
-//   return funcnode[ni.index];
-// }
+VContainer<InterfaceElement>* FEMesh::c_interface_elements() const {
+  return new MeshInterfaceElementContainer(this, nedgements());
+}
 
-// Node *FEMesh::operator[](const NodeIterator &ni) const {
-//   return getNode(ni.index);
-// }
+// TODO: FEMesh::nodes() is never used in C++.  That means that
+// the complications arising from iterating over two vectors in C++
+// aren't an issue.  It's called from python in Mesh.compare() and
+// SubproblemContxt.nnodes().  CSubProblem::nodes is called in
+// _CSubProblem_create_bdy_node_map.
 
-// Caution: NodeIterator::index is not necessarily the same as
+VContainerP<Node> FEMesh::nodes() const {
+  return VContainerP<Node>(c_nodes());
+}
+
+VContainer<Node>* FEMesh::c_nodes() const {
+  return new MeshNodeContainer(this, nnodes());
+}
+
+VContainerP<FuncNode> FEMesh::funcnodes() const {
+  return VContainerP<FuncNode>(c_funcnodes());
+}
+
+// This is faster than FEMesh::funcnodes().
+const std::vector<FuncNode*>& FEMesh::funcnodes_fast() const {
+  return funcnode;
+}
+
+VContainer<FuncNode>* FEMesh::c_funcnodes() const {
+  return new MeshFuncNodeContainer(this, nfuncnodes());
+}
+
+// Caution: MeshNodeIter::index is not necessarily the same as
 // node.index().  The argument to FEMesh::getNode is the
-// NodeIterator::index.
+// MeshNodeIter::index.  Node::index() is just used to distinguish
+// nodes from one another.
 
-Node *FEMesh::getNode(int i) const {
+Node *FEMesh::getNode(unsigned int i) const {
 //   if(i >= int(funcnode.size() + mapnode.size())) {
 //     std::cerr << "FEMesh::getNode: i=" << i << " fn=" << funcnode.size() 
 // 	      << " mn=" << mapnode.size() << std::endl;
 //   }
-  assert(i < int(funcnode.size() + mapnode.size()));
-  if(i < int(funcnode.size()))
+  assert(i < funcnode.size() + mapnode.size());
+  if(i < funcnode.size())
     return funcnode[i];
   return mapnode[i - funcnode.size()];
 }
 
-FuncNode *FEMesh::getFuncNode(int i) const {
+FuncNode *FEMesh::getFuncNode(unsigned int i) const {
   return funcnode[i];
 }
 
 // Finding the closest node to the mouse point.
 // Used in MeshInfo
-// TODO LATER: use hash table lookup here, instead of looping over all nodes.
-// Can use a vtk point locator object once the storage is set up
-#if DIM==2
-Node *FEMesh::closestNode(const double x, const double y)
-#elif DIM==3
-Node *FEMesh::closestNode(const double x, const double y, const double z=0)
-#endif
-{
-  double min=1.;   // (initial value provided to suppress compiler warnings)
-  Node *node, *thenode=0;
-  for(NodeIterator ni = node_iterator(); !ni.end(); ++ni) {
-    node = ni.node();
+
+// TODO LATER: use hash table lookup here, instead of looping over all
+// nodes.  Or maybe find enclosing element and search its nodes and its
+// neighbors' nodes?  In perverse situations the closest node may be
+// many elements away.
+
+Node *FEMesh::closestNode(const double x, const double y) {
+  double min = std::numeric_limits<double>::max();
+  Node *thenode = nullptr;
+  for(Node *node : nodes()) {
     double dx = node->position()(0) - x;
     double dy = node->position()(1) - y;
-#if DIM==2
     double dist = dx*dx + dy*dy;
-#elif DIM==3
-    double dz = node->position()(2) - z;
-    double dist = dx*dx + dy*dy + dz*dz;
-#endif
-    if (ni.begin()) {
+    if (dist <= min) {
       min = dist;
       thenode = node;
-    }
-    else {
-      if (dist <= min) {
-	min = dist;
-	thenode = node;
-      }
     }
   }
   return thenode;
@@ -608,26 +611,19 @@ int FEMesh::nedgements() const
 {
   return edgement.size();
 }
-ElementIterator FEMesh::edgement_iterator() const
-{
-  return ElementIterator(new MeshInterfaceElementIterator(this));
-}
-
 // TODO INTERFACE: Called from FEMesh::refreshMaterials, but possibly
 // from elsewhere also.  Should this function just be in-line in
 // refreshMaterials, or is there a good reason for it to stand alone?
-void FEMesh::refreshInterfaceMaterials(PyObject *skelctxt)
-{
-  for(ElementIterator ei=edgement_iterator(); !ei.end(); ++ei) {
-    Element *el = ei.element();
-    const Material *om = el->material();
-    InterfaceElement *ed = dynamic_cast<InterfaceElement*>(el);
-    ed->refreshInterfaceMaterial(skelctxt);
-    const Material *nm = el->material();
-    if (nm != om) {
-      if (om) 
+void FEMesh::refreshInterfaceMaterials(PyObject *skelctxt) {
+
+  for(InterfaceElement *el : interface_elements()) {
+    const Material *om = el->material(); // old material
+    el->refreshInterfaceMaterial(skelctxt);
+    const Material *nm = el->material(); // new material
+    if(nm != om) {
+      if(om)
 	removeMaterial(om);
-      if (nm)
+      if(nm)
 	addMaterial(nm);
     }
   }
@@ -636,6 +632,6 @@ void FEMesh::refreshInterfaceMaterials(PyObject *skelctxt)
 void FEMesh::renameInterfaceElements(const std::string &oldname,
 				     const std::string &newname)
 {
-  for(ElementIterator ei=edgement_iterator(); !ei.end(); ++ei)
-    ((InterfaceElement*)(ei.element()))->rename(oldname,newname);
+  for(InterfaceElement *edgement: interface_elements())
+    edgement->rename(oldname, newname);
 }

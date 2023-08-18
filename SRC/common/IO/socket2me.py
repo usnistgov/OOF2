@@ -14,7 +14,7 @@ from ooflib.SWIG.common import mpitools
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common.IO import menuparser
-import errno, os, socket, sys, time, types
+import errno, os, socket, sys, time
 
 
 # Local buffer and lock for doing socket-like communications between
@@ -72,7 +72,7 @@ class SocketInput(menuparser.InputSource):
                     c_count += 1
                     self.comm = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     self.comm.connect( (host_name, nearport) )
-                except socket.error, e:
+                except socket.error as e:
                     if e[0]==errno.ECONNREFUSED: # "Connection refused"
                         self.comm.close()
                         time.sleep(0.1)
@@ -97,10 +97,10 @@ class SocketInput(menuparser.InputSource):
 
     # Add data to the buffer.
     def _read(self):
-        while 1:
+        while True:
             try:
                 self.data += self.comm.recv(SocketInput.buffer_size)
-            except socket.error, e:
+            except socket.error as e:
                 # If the socket error no. is EINTR (interrupted system call),
                 # then just go around again.
                 debug.fmsg(e)
@@ -130,7 +130,7 @@ class SocketInput(menuparser.InputSource):
             return res
 
         # Otherwise, keep reading until it works.
-        while 1:
+        while True:
             self._read()
             res = self._cutline()
             if res:
@@ -143,7 +143,7 @@ class SocketInput(menuparser.InputSource):
             self.data = self.data[n:]
             return res
         # Else, as in getLine, keep reading until it works.
-        while 1:
+        while True:
             self._read()
             if len(self.data)>=n:
                 res = self.data[:n]
@@ -245,7 +245,7 @@ def getSocketInput():
 
 
 def socketWrite(data):
-    if type(data)==types.StringType:
+    if isinstance(data, bytes):
         global socketInput
         if socketInput is not None:
             # rank != 0, real socket exists, use it.
@@ -258,7 +258,7 @@ def socketWrite(data):
                 _buffer_lock.release()
                 # Buffer is not empty, so leave lock in "released" state.
     else:
-        raise ooferror.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             "Non-string data passed to socketWrite.")
 
 

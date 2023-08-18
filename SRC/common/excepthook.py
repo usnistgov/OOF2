@@ -23,16 +23,16 @@ from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 import sys, traceback
 
-def printTraceBack(e_type, e_value, tblist):
+def printTraceBack(e_type, e_value, tb):
     from ooflib.common.IO import reporter # avoid import loop
     for line in traceback.format_exception_only(e_type, e_value):
         reporter.error(line.rstrip())
-    if isinstance(e_value, ooferror.ErrErrorPtr):
+    if isinstance(e_value, ooferror.PyOOFError):
         moreinfo = e_value.details()
         if moreinfo:
             reporter.error(moreinfo)
-    if tblist:
-        for line in traceback.format_list(tblist):
+    if tb:
+        for line in traceback.extract_tb(tb).format():
             reporter.error(line.rstrip())
 
 # displayTraceBack is overridden by reporter_GUI.py, so that in GUI mode
@@ -42,22 +42,22 @@ displayTraceBack = printTraceBack
 # OOFexceptHook is a class with a __call__ method instead of a simple
 # function so that the getTraceBackList method can be overridden in
 # derived classes.  See scriptloader.py.
+## TODO: that's no longer necessary.  Turn OOFexceptHook back
+## into a function?
 
-class OOFexceptHook(object):
+class OOFexceptHook:
     def getTraceBackList(self, tback): # may be redefined in derived classes
         return traceback.extract_tb(tback)
     def __call__(self, e_type, e_value, tback):
-        tblist = self.getTraceBackList(tback)
-        displayTraceBack(e_type, e_value, tblist)
-        # Now that we've handled the exception, clear it.  The system's
-        # exception data keeps a reference to the local dictionary of the
-        # frame in which the exception occurred, and this can prevent
-        # garbage collection.  TODO: One can imagine circumstances in
-        # which this isn't the right thing to do, but those circumstances
-        # should probably assign a new excepthook function.
-        sys.exc_clear()
-    def __cmp__(self, other):
-        return cmp(id(self), id(other))
+        displayTraceBack(e_type, e_value, tback)
+
+    ## Not sure why __cmp__ was defined.  OOFexceptHook seems to work
+    ## properly without it in python2, and it's not used in python3.
+    ## I'm leaving it in here so that if weird things happen we can
+    ## remember that it used to be defined, in which case adding
+    ## __eq__ and __ne__ are possibly appropriate.
+    # def __cmp__(self, other):
+    #     return cmp(id(self), id(other))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

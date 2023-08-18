@@ -13,12 +13,13 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.orientationmap import genericreader
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import types
 
-class GCWidgetRow(object):
+class GCWidgetRow:
     def __init__(self, table, row, parent):
-        self.deleteButton = Gtk.Button('-', halign=Gtk.Align.FILL)
+        self.deleteButton = Gtk.Button(label='-', halign=Gtk.Align.FILL)
         table.attach(self.deleteButton, 0,row+1, 1,1)
         gtklogger.setWidgetName(self.deleteButton, 'Delete%d' % row)
         gtklogger.connect(self.deleteButton, 'clicked', parent.deleteRowCB, row)
@@ -57,10 +58,10 @@ class GCWidgetRow(object):
     def set_value(self, val):
         self.suppress()
         self.nameEntry.set_text(val[0])
-        if type(val[1]) is types.StringType:
+        if isinstance(val[1], (str, bytes)):
             self.colEntry.set_text(val[1])
         else:
-            self.colEntry.set_text(`val[1]`)
+            self.colEntry.set_text(repr(val[1]))
         self.unsuppress()
     def checkValue(self):
         try:
@@ -84,19 +85,20 @@ class GroupColumnWidget(parameterwidgets.ParameterWidget):
         frame.add(self.table)
         gtklogger.setWidgetName(self.table, 'GroupTable')
 
-        addbutton = Gtk.Button('+', hexpand=False)
+        addbutton = Gtk.Button(label='+', hexpand=False)
         gtklogger.setWidgetName(addbutton, "Add")
         gtklogger.connect(addbutton, 'clicked', self.addCB)
         self.table.attach(addbutton, 0,0, 1,1)
         addbutton.set_tooltip_text("Add a new group definition.")
 
-        clabel = Gtk.Label("Column", halign=Gtk.Align.CENTER, hexpand=True)
+        clabel = Gtk.Label(label="Column",
+                           halign=Gtk.Align.CENTER, hexpand=True)
         cframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         cframe.add(clabel)
         self.table.attach(cframe, 1,0, 1,1)
 
-        nlabel = Gtk.Label("Name", halign=Gtk.Align.CENTER, hexpand=True)
-        nlabel.set_alignment(0.0, 0.5)
+        nlabel = Gtk.Label(label="Name",
+                           halign=Gtk.Align.CENTER, hexpand=True)
         nframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         nframe.add(nlabel)
         self.table.attach(nframe, 2,0, 1,1)

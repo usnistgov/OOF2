@@ -23,15 +23,22 @@ from ooflib.common.IO import xmlmenudump
 import oofcanvas
 
 def draw_elements(canvaslayer, elements, lineWidth, color):
-    segs = oofcanvas.CanvasSegments()
-    segs.setLineWidthInPixels(lineWidth)
-    segs.setLineColor(color)
+    first = True
     for element in elements:
+        if first:
+            # Make sure not to do anything if there are no elements.
+            # The elements arg is an iterator and we don't know if it
+            # has anything to return until we've tried.
+            segs = oofcanvas.CanvasSegments.create()
+            segs.setLineWidthInPixels(lineWidth)
+            segs.setLineColor(color)
+            first = False
         for i in range(element.nnodes()):
             n0 = element.nodes[i].position()
             n1 = element.nodes[(i+1)%element.nnodes()].position()
             segs.addSegment(n0, n1)
-    canvaslayer.addItem(segs)
+    if not first:
+        canvaslayer.addItem(segs)
 
 class SkeletonInfoDisplay(display.DisplayMethod):
     def __init__(self, query_color, peek_color, node_size,
@@ -69,22 +76,22 @@ class SkeletonInfoDisplay(display.DisplayMethod):
         n0 = segment.nodes()[0].position()
         n1 = segment.nodes()[1].position()
 
-        seg = oofcanvas.CanvasSegment(n0, n1)
+        seg = oofcanvas.CanvasSegment.create(n0, n1)
         seg.setLineWidthInPixels(1.4*self.segment_width)
         seg.setLineColor(oofcanvas.white)
         self.canvaslayer.addItem(seg)
 
-        seg = oofcanvas.CanvasSegment(n0, n1)
+        seg = oofcanvas.CanvasSegment.create(n0, n1)
         seg.setLineWidthInPixels(self.segment_width)
         seg.setLineColor(color.canvasColor(self.colors[which]))
         self.canvaslayer.addItem(seg)
 
     def drawNode(self, node, which="query"):
-        dot = oofcanvas.CanvasDot(node.position(), 1.2*self.node_size)
+        dot = oofcanvas.CanvasDot.create(node.position(), 1.2*self.node_size)
         dot.setFillColor(oofcanvas.white)
         self.canvaslayer.addItem(dot)
         
-        dot = oofcanvas.CanvasDot(node.position(), self.node_size)
+        dot = oofcanvas.CanvasDot.create(node.position(), self.node_size)
         dot.setFillColor(color.canvasColor(self.colors[which]))
         self.canvaslayer.addItem(dot)
         
@@ -99,9 +106,9 @@ class SkeletonInfoDisplay(display.DisplayMethod):
 
 defaultSkelInfoQueryColor = color.RGBAColor(0.0, 0.5, 1.0, 1.0)
 defaultSkelInfoPeekColor = color.RGBAColor(1.0, 0.5, 0.5, 1.0)
-defaultSkelInfoNodeSize = 3
-defaultSkelInfoElemWidth = 3
-defaultSkelInfoSgmtWidth = 3
+defaultSkelInfoNodeSize = 4
+defaultSkelInfoElemWidth = 4
+defaultSkelInfoSgmtWidth = 4
 widthRange = (0, 10, 0.1)
 
 def _setSkelInfoParams(menuitem, query_color, peek_color, node_size,
@@ -183,7 +190,7 @@ class SkeletonIllegalElementDisplay(display.DisplayMethod):
         display.DisplayMethod.__init__(self)
     def draw(self, gfxwindow):
         skel = self.who.resolve(gfxwindow).getObject()
-        elements = skel.getIllegalElements()
+        elements = skel.illegalElements()
         if elements:
             draw_elements(self.canvaslayer, elements, 1.4*self.linewidth,
                           oofcanvas.white)

@@ -12,26 +12,32 @@
 #ifndef PIXELATTRIBUTE_SWG
 #define PIXELATTRIBUTE_SWG
 
-%module pixelattribute
+%module(package="ooflib.SWIG.common") pixelattribute
+
 %include "common/typemaps.swg"
 %{
 #include "common/pixelattribute.h"
 %}
-%pragma(python) include="pixelattribute.spy"
+
+%nodefaultctor PxlAttributeRegistration;
 
 class PxlAttributeRegistration {
 public:
-  const string &name();
+  const std::string &name();
 };
 
-%typemap(python, out) PxlAttributeRegistration* {
-  // typemap(python, out) PxlAttributeRegistration*
-  $target = $source->pythonObject();
-  if(!$target)
-    return 0;
-}
+PYTHONEXPORTABLE(PxlAttributeRegistration);
 
 int nAttributes();
 PxlAttributeRegistration *getRegistration(int);
+
+%pythoncode %{
+
+def _writeGlobalData(self, datafile, ms):
+    pass
+
+PxlAttributeRegistration.writeGlobalData = _writeGlobalData
+
+%}
 
 #endif // PIXELATTRIBUTE_SWG

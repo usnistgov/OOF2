@@ -21,9 +21,11 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import pixelinfoGUIplugin
 from ooflib.common.IO.GUI import toolboxGUI
-from gi.repository import Gtk
 import ooflib.common.microstructure
 
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def __init__(self, pixelinfotoolbox):
@@ -36,14 +38,14 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.grid = Gtk.Grid(column_spacing=2, row_spacing=2)
         mainbox.pack_start(self.grid, expand=False, fill=False, padding=0)
         
-        label = Gtk.Label('x=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='x=', halign=Gtk.Align.END, hexpand=False)
         self.grid.attach(label, 0,0,1,1)
         self.xtext = Gtk.Entry(halign=Gtk.Align.FILL, hexpand=True)
         gtklogger.setWidgetName(self.xtext, "X")
         self.xtext.set_width_chars(10)
         self.grid.attach(self.xtext, 1,0,1,1)
 
-        label = Gtk.Label('y=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='y=', halign=Gtk.Align.END, hexpand=False)
         self.grid.attach(label, 0,1,1,1)
         self.ytext = Gtk.Entry(halign=Gtk.Align.FILL, hexpand=True)
         gtklogger.setWidgetName(self.ytext, "Y")
@@ -104,7 +106,7 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.gfxwindow().removeMouseHandler()
 
     def close(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         for plugin in self.plugins:
             plugin.close()
         self.plugins = []
@@ -153,8 +155,8 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
             msOrImage = self.gfxwindow().topmost('Microstructure', 'Image')
             if where is not None and msOrImage is not None:
-                self.xtext.set_text(`where.x`)
-                self.ytext.set_text(`where.y`)
+                self.xtext.set_text(repr(where.x))
+                self.ytext.set_text(repr(where.y))
                 size = msOrImage.sizeInPixels() # might be ICoord or iPoint
                 if 0 <= where.x < size[0] and 0 <= where.y < size[1]:
                     for plugin in self.plugins:

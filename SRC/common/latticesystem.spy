@@ -800,8 +800,8 @@ for (spaceGrp, (ptgrp, schoen)) in space2PointDict.items():
         schoen2SpaceDict[schoen] = spaceGrp
         schoen2InternationalDict[schoen] = ptgrp
 
-internationalGroupNames = international2SpaceDict.keys()
-schoenfliesSymbols = schoen2SpaceDict.keys()
+internationalGroupNames = list(international2SpaceDict.keys())
+schoenfliesSymbols = list(schoen2SpaceDict.keys())
 
 # print "internationalGroupNames=", internationalGroupNames
 # print "schoenfliesSymbols=", schoenfliesSymbols
@@ -862,7 +862,7 @@ class International(LatticeSymmetry):
     def displayname(self):
         return "International " + self.name.string()
 
-def _international_from_base(reg, base):
+def _international_from_base(base):
     # base is an International instance.  base.name is an Enum.
     assert isinstance(base, International)
     return [base.name.name]
@@ -895,7 +895,7 @@ class SpaceGroup(LatticeSymmetry):
     def displayname(self):
         return "Space Group %d" % self.number
 
-def _space_from_base(reg, base):
+def _space_from_base(base):
     # base is an International instance. base.name is an Enum.
     assert isinstance(base, International)
     return [international2SpaceDict[base.name.name]]
@@ -941,7 +941,7 @@ class Schoenflies(LatticeSymmetry):
     def displayname(self):
         return "Schoenflies " + self.symbol.name
 
-def _schoenflies_from_base(reg, base):
+def _schoenflies_from_base(base):
     # base is an International instance.  base.name is an Enum.
     # base.name.name is the string version of the Enum.
     assert isinstance(base, International)

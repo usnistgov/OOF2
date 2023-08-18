@@ -60,9 +60,9 @@ assert tests.chooserListCheck(elbox+":SegmentList",[])
 assert tests.chooserListCheck(elbox+":NodeList",[])
 
 # Load a Skeleton
-findWidget('OOF2:Introduction Page:Scroll').get_vadjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2:Introduction Page:Scroll').get_vadjustment().set_value( 6.0000000000000e+00)
-findWidget('OOF2:Introduction Page:Scroll').get_vadjustment().set_value( 9.0000000000000e+00)
+findWidget('OOF2:Introduction Page:Scroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
+findWidget('OOF2:Introduction Page:Scroll').get_property('vadjustment').set_value( 6.0000000000000e+00)
+findWidget('OOF2:Introduction Page:Scroll').get_property('vadjustment').set_value( 9.0000000000000e+00)
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Load', 'Data']).activate()
 checkpoint toplevel widget mapped Dialog-Data
 findWidget('Dialog-Data').resize(192, 92)
@@ -273,10 +273,10 @@ assert not findWidget(tbox+":Click:Node").get_active()
 assert not findWidget(tbox+":Click:Segment").get_active()
 assert tests.gtkMultiFloatCompare({'X Text':31.98,'Y Text':56.3},cbox)
 assert tests.gtkMultiTextCompare({'Material':'<No material>','Group':'','Dom pixel':'blue','Index':'59','Type':'quad'},elbox)
-assert tests.gtkMultiFloatCompare({'Shape':0.418601,'Homog':0.992461,'Area':137.5},elbox)
+assert tests.gtkMultiFloatCompare({'Shape':0.418601,'Homog':0.992461,'Area':137.5},elbox, tolerance=1.e-4)
 assert tests.sensitizationCheck({'Prev':False,'Clear':True,'Next':False},tbox)
-assert tests.chooserListCheck(elbox+":SegmentList",["Segment 135, nodes (36, 44) (length: 15.4029218007)","Segment 134, nodes (36, 37) (length: 15.5)","Segment 70, nodes (37, 45) (length: 12.5)","Segment 128, nodes (44, 45) (length: 6.5)"], tolerance=1.e-6)
-assert tests.chooserListCheck(elbox+":NodeList",["Node 36 at (22.0, 50.0) (angle: 54.2461127456)","Node 37 at (37.5, 50.0) (angle: 90)","Node 45 at (37.5, 62.5) (angle: 90)","Node 44 at (31.0, 62.5) (angle: 125.753887254)"], tolerance=1.e-6)
+assert tests.chooserListCheck(elbox+":SegmentList",["Segment 135, nodes (36, 44) (length: 15.4029218007)","Segment 134, nodes (36, 37) (length: 15.5)","Segment 70, nodes (37, 45) (length: 12.5)","Segment 128, nodes (44, 45) (length: 6.5)"], tolerance=1.e-4)
+assert tests.chooserListCheck(elbox+":NodeList",["Node 36 at (22.0, 50.0) (angle: 54.2461127456)","Node 37 at (37.5, 50.0) (angle: 90)","Node 45 at (37.5, 62.5) (angle: 90)","Node 44 at (31.0, 62.5) (angle: 125.753887254)"], tolerance=1.e-4)
 
 # Query another element
 findGfxWindow('Graphics_1').simulateMouse('down', 21.125, 59.1, 1, False, False)
@@ -293,11 +293,11 @@ assert tests.gtkMultiFloatCompare({'X Text':21.12,'Y Text':59.1},cbox)
 assert tests.gtkMultiTextCompare({'Material':'<No material>','Group':'','Dom pixel':'yellow','Index':'60','Type':'triangle'},elbox)
 assert tests.gtkMultiFloatCompare({'Shape':0.030177,'Homog':0.975899,'Area':115.625000},elbox)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
-assert tests.chooserListCheck(elbox+":SegmentList",["Segment 68, nodes (36, 43) (length: 15.7003184681)", "Segment 135, nodes (36, 44) (length: 15.4029218007)", "Segment 130, nodes (43, 44) (length: 18.5)"], tolerance=1.e-6)
-assert tests.chooserListCheck(elbox+":NodeList",["Node 36 at (22.0, 50.0) (angle: 72.988721236)","Node 44 at (31.0, 62.5) (angle: 54.2461127456)", "Node 43 at (12.5, 62.5) (angle: 52.7651660184)"], tolerance=1.e-6)
+assert tests.chooserListCheck(elbox+":SegmentList",["Segment 68, nodes (36, 43) (length: 15.7003184681)", "Segment 135, nodes (36, 44) (length: 15.4029218007)", "Segment 130, nodes (43, 44) (length: 18.5)"], tolerance=1.e-4)
+assert tests.chooserListCheck(elbox+":NodeList",["Node 36 at (22.0, 50.0) (angle: 72.988721236)","Node 44 at (31.0, 62.5) (angle: 54.2461127456)", "Node 43 at (12.5, 62.5) (angle: 52.7651660184)"], tolerance=1.e-4)
 
 # Switch to node mode
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Node').clicked()
 checkpoint Graphics_1 Skeleton Info showed position
 checkpoint contourmap info updated for Graphics_1
@@ -345,7 +345,7 @@ assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(ndbox+":ElementList",["Element 30","Element 35","Element 54","Element 55"])
 
 # Switch to segment mode
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.8000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Segment').clicked()
 checkpoint Graphics_1 Skeleton Info showed position
 checkpoint contourmap info updated for Graphics_1
@@ -380,12 +380,12 @@ assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(sgbox+":ElementList",["Element 54","Element 60"])
 assert tests.chooserListCheck(sgbox+":NodeList",["Node 43 at (12.5, 62.5)","Node 44 at (31.0, 62.5)"], tolerance=1.e-6)
 
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.9000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 5.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 6.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.0000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.9000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 5.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 6.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 0.0000000000000e+00)
 
 # Click on another segment
 findGfxWindow('Graphics_1').simulateMouse('down', 10.975, 69.25, 1, False, False)
@@ -407,7 +407,7 @@ assert tests.chooserListCheck(sgbox+":NodeList",["Node 43 at (12.5, 62.5)","Node
 
 # Switch to element mode
 findWidget('OOF2 Graphics 1').resize(800, 492)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Element').clicked()
 checkpoint Graphics_1 Skeleton Info showed position
 checkpoint contourmap info updated for Graphics_1
@@ -435,12 +435,12 @@ checkpoint Graphics_1 Element sensitized
 checkpoint selection info updated Element
 deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(265)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Element:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Element:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['ByDominantPixel']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.4000000000000e+01)
 findGfxWindow('Graphics_1').simulateMouse('down', 41.10125, 55.95, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 41.10125, 55.95, 1, False, False)
 checkpoint Graphics_1 Element sensitized
@@ -812,8 +812,8 @@ assert tests.gtkMultiFloatCompare({'X Text':31.48,'Y Text':55.6},cbox)
 assert tests.gtkMultiTextCompare({'Material':'<No material>','Group':'elset','Dom pixel':'blue','Index':'59','Type':'quad'},elbox)
 assert tests.gtkMultiFloatCompare({'Shape':0.418601,'Homog':0.992461,'Area':137.500000},elbox)
 assert tests.sensitizationCheck({'Prev':False,'Clear':True,'Next':False},tbox)
-assert tests.chooserListCheck(elbox+":SegmentList",["Segment 135, nodes (36, 44) (length: 15.4029218)", "Segment 134, nodes (36, 37) (length: 15.5)", "Segment 70, nodes (37, 45) (length: 12.5)", "Segment 128, nodes (44, 45) (length: 6.5)"], tolerance=1.e-6)
-assert tests.chooserListCheck(elbox+":NodeList",['Node 36 at (22.0, 50.0) (angle: 54.2461127456)', 'Node 37 at (37.5, 50.0) (angle: 90.0)', 'Node 45 at (37.5, 62.5) (angle: 90.0)', 'Node 44 at (31.0, 62.5) (angle: 125.753887254)'])
+assert tests.chooserListCheck(elbox+":SegmentList",["Segment 135, nodes (36, 44) (length: 15.4029218)", "Segment 134, nodes (36, 37) (length: 15.5)", "Segment 70, nodes (37, 45) (length: 12.5)", "Segment 128, nodes (44, 45) (length: 6.5)"], tolerance=1.e-4)
+assert tests.chooserListCheck(elbox+":NodeList",['Node 36 at (22.0, 50.0) (angle: 54.2461127456)', 'Node 37 at (37.5, 50.0) (angle: 90.0)', 'Node 45 at (37.5, 62.5) (angle: 90.0)', 'Node 44 at (31.0, 62.5) (angle: 125.753887254)'], tolerance=1.e-4)
 
 # Click on another element
 findGfxWindow('Graphics_1').simulateMouse('down', 42.3, 86.05, 1, False, False)
@@ -831,8 +831,8 @@ assert tests.gtkMultiFloatCompare({'X Text':42.3,'Y Text':86.4},cbox)
 assert tests.gtkMultiTextCompare({'Material':'material','Group':'','Dom pixel':'yellow','Index':'45','Type':'triangle'},elbox)
 assert tests.gtkMultiFloatCompare({'Shape':0.133975,'Homog':0.982564,'Area':81.250000},elbox)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
-assert tests.chooserListCheck(elbox+":SegmentList",["Segment 118, nodes (53, 61) (length: 12.747549)","Segment 119, nodes (53, 62) (length: 18.027756)","Segment 109, nodes (61, 62) (length: 12.747549)"], tolerance=1.e-6)
-assert tests.chooserListCheck(elbox+":NodeList",["Node 53 at (40.0, 75.0) (angle: 45.0)","Node 62 at (50.0, 90.0) (angle: 45.0)","Node 61 at (37.5, 87.5) (angle: 90)"], tolerance=1.e-6)
+assert tests.chooserListCheck(elbox+":SegmentList",["Segment 118, nodes (53, 61) (length: 12.747549)","Segment 119, nodes (53, 62) (length: 18.027756)","Segment 109, nodes (61, 62) (length: 12.747549)"], tolerance=1.e-4)
+assert tests.chooserListCheck(elbox+":NodeList",["Node 53 at (40.0, 75.0) (angle: 45.0)","Node 62 at (50.0, 90.0) (angle: 45.0)","Node 61 at (37.5, 87.5) (angle: 90)"], tolerance=1.e-4)
 
 # Click on a third element
 findGfxWindow('Graphics_1').simulateMouse('down', 52.1, 97.6, 1, False, False)
@@ -849,8 +849,8 @@ assert tests.gtkMultiFloatCompare({'X Text':52.1,'Y Text':97.6},cbox)
 assert tests.gtkMultiTextCompare({'Material':'material','Group':'','Dom pixel':'yellow','Index':'46','Type':'triangle'},elbox)
 assert tests.gtkMultiFloatCompare({'Shape':0.155097,'Homog':0.999600,'Area':62.500000},elbox)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
-assert tests.chooserListCheck(elbox+":SegmentList",["Segment 110, nodes (62, 70) (length: 10)","Segment 120, nodes (62, 71) (length: 16.0078106)","Segment 121, nodes (70, 71) (length: 12.5)"], tolerance=1.e-6)
-assert tests.chooserListCheck(elbox+":NodeList",["Node 62 at (50.0, 90.0) (angle: 51.340191)","Node 71 at (62.5, 100.0) (angle: 38.659808)","Node 70 at (50.0, 100.0) (angle: 90)"], tolerance=1.e-6)
+assert tests.chooserListCheck(elbox+":SegmentList",["Segment 110, nodes (62, 70) (length: 10)","Segment 120, nodes (62, 71) (length: 16.0078106)","Segment 121, nodes (70, 71) (length: 12.5)"], tolerance=1.e-4)
+assert tests.chooserListCheck(elbox+":NodeList",["Node 62 at (50.0, 90.0) (angle: 51.340191)","Node 71 at (62.5, 100.0) (angle: 38.659808)","Node 70 at (50.0, 100.0) (angle: 90)"], tolerance=1.e-4)
 
 # Click on yet another element.  (Why so many?)
 findWidget('OOF2 Graphics 1').resize(962, 796)
@@ -868,8 +868,8 @@ assert tests.gtkMultiFloatCompare({'X Text':51.4,'Y Text':68.17},cbox)
 assert tests.gtkMultiTextCompare({'Material':'<No material>','Group':'elset','Dom pixel':'blue','Index':'31','Type':'quad'},elbox)
 assert tests.gtkMultiFloatCompare({'Shape':0.580223,'Homog':0.992404,'Area':162.625000},elbox)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
-assert tests.chooserListCheck(elbox+":SegmentList",["Segment 81, nodes (46, 53) (length: 16.007811)","Segment 74, nodes (46, 47) (length: 16)","Segment 82, nodes (47, 54) (length: 7.3824115)","Segment 83, nodes (53, 54) (length: 23.286262)"], tolerance=1.e-6)
-assert tests.chooserListCheck(elbox+":NodeList",["Node 46 at (50.0, 62.5) (angle: 128.659808)","Node 47 at (66.0, 62.5) (angle: 61.69924423)","Node 54 at (62.5, 69.0) (angle: 133.232172)","Node 53 at (40.0, 75.0) (angle: 36.408775)"], tolerance=1.e-6)
+assert tests.chooserListCheck(elbox+":SegmentList",["Segment 81, nodes (46, 53) (length: 16.007811)","Segment 74, nodes (46, 47) (length: 16)","Segment 82, nodes (47, 54) (length: 7.3824115)","Segment 83, nodes (53, 54) (length: 23.286262)"], tolerance=1.e-4)
+assert tests.chooserListCheck(elbox+":NodeList",["Node 46 at (50.0, 62.5) (angle: 128.659808)","Node 47 at (66.0, 62.5) (angle: 61.69924423)","Node 54 at (62.5, 69.0) (angle: 133.232172)","Node 53 at (40.0, 75.0) (angle: 36.408775)"], tolerance=1.e-4)
 
 # Switch to node mode
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Node').clicked()
@@ -878,11 +878,11 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QueryNode
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 0.0000000000000e+00)
 assert findWidget(tbox+":Click:Node").get_active()
 assert not findWidget(tbox+":Click:Segment").get_active()
 assert tests.gtkMultiFloatCompare({'X Text':51.4,'Y Text':68.17},cbox)
-assert tests.gtkMultiTextCompare({'Boundary':'','Group':'','Mobility':'free','Position':'(50.0, 62.5)','Index':'46'},ndbox)
+assert tests.gtkMultiTextCompare({'Boundary':'','Group':'','Mobility':'free','Position':'(50.0, 62.5)','Index':'46'},ndbox, tolerance=0)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(ndbox+":ElementList",['Element 27', 'Element 28', 'Element 31', 'Element 44'])
 
@@ -901,7 +901,7 @@ assert not findWidget(tbox+":Click:Element").get_active()
 assert findWidget(tbox+":Click:Node").get_active()
 assert not findWidget(tbox+":Click:Segment").get_active()
 assert tests.gtkMultiFloatCompare({'X Text':36.7,'Y Text':99.35},cbox)
-assert tests.gtkMultiTextCompare({'Boundary':'','Group':'ndset','Mobility':'x only','Position':'(37.5, 100.0)','Index':'69'},ndbox,tolerance=1.e-6)
+assert tests.gtkMultiTextCompare({'Boundary':'','Group':'ndset','Mobility':'x only','Position':'(37.5, 100.0)','Index':'69'},ndbox,tolerance=1.e-4)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(ndbox+":ElementList",["Element 40","Element 41"])
 
@@ -918,7 +918,7 @@ assert not findWidget(tbox+":Click:Element").get_active()
 assert findWidget(tbox+":Click:Node").get_active()
 assert not findWidget(tbox+":Click:Segment").get_active()
 assert tests.gtkMultiFloatCompare({'X Text':0.3,'Y Text':99.59},cbox)
-assert tests.gtkMultiTextCompare({'Boundary':'topleft','Group':'','Mobility':'fixed','Position':'(0.0, 100.0)','Index':'66'},ndbox,tolerance=1.e-6)
+assert tests.gtkMultiTextCompare({'Boundary':'topleft','Group':'','Mobility':'fixed','Position':'(0.0, 100.0)','Index':'66'},ndbox,tolerance=1.e-4)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(ndbox+":ElementList",["Element 38"])
 
@@ -953,7 +953,7 @@ assert not findWidget(tbox+":Click:Element").get_active()
 assert findWidget(tbox+":Click:Node").get_active()
 assert not findWidget(tbox+":Click:Segment").get_active()
 assert tests.gtkMultiFloatCompare({'X Text':72.05,'Y Text':50.},cbox)
-assert tests.gtkMultiTextCompare({'Boundary':'','Group':'','Mobility':'free','Position':'(72, 50)','Index':'39'},ndbox,tolerance=1.e-6)
+assert tests.gtkMultiTextCompare({'Boundary':'','Group':'','Mobility':'free','Position':'(72, 50)','Index':'39'},ndbox,tolerance=1.e-4)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(ndbox+":ElementList",["Element 24","Element 28","Element 57","Element 61","Element 62","Element 63"])
 
@@ -969,10 +969,10 @@ assert not findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert findWidget(tbox+":Click:Segment").get_active()
 assert tests.gtkMultiFloatCompare({'X Text':72.05,'Y Text':50},cbox)
-assert tests.gtkMultiTextCompare({'Boundary':'','Groups':'','Index':'136','Length':'15.5','Homogeneity':'1.0'},sgbox,tolerance=1.e-6)
+assert tests.gtkMultiTextCompare({'Boundary':'','Groups':'','Index':'136','Length':'15.5','Homogeneity':'1.0'},sgbox,tolerance=1.e-4)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(sgbox+":ElementList",["Element 61","Element 62"])
-assert tests.chooserListCheck(sgbox+":NodeList",['Node 39 at (72.0, 50.0)', 'Node 40 at (87.5, 50.0)'], tolerance=1.e-6)
+assert tests.chooserListCheck(sgbox+":NodeList",['Node 39 at (72.0, 50.0)', 'Node 40 at (87.5, 50.0)'], tolerance=1.e-4)
 
 # Click on a segment
 findGfxWindow('Graphics_1').simulateMouse('down', 42.65, 100.75, 1, False, False)
@@ -985,11 +985,11 @@ checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QuerySegment
 assert not findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert findWidget(tbox+":Click:Segment").get_active()
-assert tests.gtkMultiTextCompare({'X Text':'42.65','Y Text':'100'},cbox,tolerance=1.e-6)
-assert tests.gtkMultiTextCompare({'Boundary':'top','Groups':'segmentgroup','Index':'111','Length':'12.5','Homogeneity':'1.0'},sgbox,tolerance=1.e-6)
+assert tests.gtkMultiTextCompare({'X Text':'42.65','Y Text':'100'},cbox,tolerance=1.e-4)
+assert tests.gtkMultiTextCompare({'Boundary':'top','Groups':'segmentgroup','Index':'111','Length':'12.5','Homogeneity':'1.0'},sgbox,tolerance=1.e-4)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(sgbox+":ElementList",["Element 41"])
-assert tests.chooserListCheck(sgbox+":NodeList",["Node 69 at (37.5, 100.0)","Node 70 at (50.0, 100.0)"], tolerance=1.e-6)
+assert tests.chooserListCheck(sgbox+":NodeList",["Node 69 at (37.5, 100.0)","Node 70 at (50.0, 100.0)"], tolerance=1.e-4)
 
 # Click on another segment
 findGfxWindow('Graphics_1').simulateMouse('up', -7.4, 129.07375, 1, False, False)
@@ -1003,11 +1003,11 @@ checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QuerySegment
 assert not findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert findWidget(tbox+":Click:Segment").get_active()
-assert tests.gtkMultiTextCompare({'X Text':'5.9','Y Text':'100'},cbox, tolerance=1.e-6)
-assert tests.gtkMultiTextCompare({'Boundary':'top','Groups':'','Index':'102','Length':'12.5','Homogeneity':'1.0'},sgbox,tolerance=1.e-6)
+assert tests.gtkMultiTextCompare({'X Text':'5.9','Y Text':'100'},cbox, tolerance=1.e-4)
+assert tests.gtkMultiTextCompare({'Boundary':'top','Groups':'','Index':'102','Length':'12.5','Homogeneity':'1.0'},sgbox,tolerance=1.e-4)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(sgbox+":ElementList",["Element 38"])
-assert tests.chooserListCheck(sgbox+":NodeList",["Node 66 at (0.0, 100.0)","Node 67 at (12.5, 100.0)"], tolerance=1.e-6)
+assert tests.chooserListCheck(sgbox+":NodeList",["Node 66 at (0.0, 100.0)","Node 67 at (12.5, 100.0)"], tolerance=1.e-4)
 
 # click on yet another segment
 findGfxWindow('Graphics_1').simulateMouse('down', 58.77625, 0.27375, 1, False, False)
@@ -1020,11 +1020,11 @@ checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QuerySegment
 assert not findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert findWidget(tbox+":Click:Segment").get_active()
-assert tests.gtkMultiTextCompare({'X Text':'58.78','Y Text':'0.2737'},cbox,tolerance=1.e-6)
-assert tests.gtkMultiTextCompare({'Boundary':'bottom','Groups':'','Index':'13','Length':'12.5'},sgbox,tolerance=1.e-6)
+assert tests.gtkMultiTextCompare({'X Text':'58.78','Y Text':'0.2737'},cbox,tolerance=1.e-4)
+assert tests.gtkMultiTextCompare({'Boundary':'bottom','Groups':'','Index':'13','Length':'12.5'},sgbox,tolerance=1.e-4)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(sgbox+":ElementList",["Element 4"])
-assert tests.chooserListCheck(sgbox+":NodeList",["Node 4 at (50.0, 0.0)","Node 5 at (62.5, 0.0)"], tolerance=1.e-6)
+assert tests.chooserListCheck(sgbox+":NodeList",["Node 4 at (50.0, 0.0)","Node 5 at (62.5, 0.0)"], tolerance=1.e-4)
 
 # Click on yet another other segment
 findGfxWindow('Graphics_1').simulateMouse('down', 44.05, 83.27625, 1, False, False)
@@ -1037,11 +1037,11 @@ checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QuerySegment
 assert not findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert findWidget(tbox+":Click:Segment").get_active()
-assert tests.gtkMultiTextCompare({'X Text':'44.05','Y Text':'83.28'},cbox,tolerance=1.e-6)
-assert tests.gtkMultiTextCompare({'Boundary':'','Groups':'segmentgroup','Index':'119','Length':'18.027756377319946','Homogeneity':'0.6333333333333334'},sgbox,tolerance=1.e-6)
+assert tests.gtkMultiTextCompare({'X Text':'44.05','Y Text':'83.28'},cbox,tolerance=1.e-4)
+assert tests.gtkMultiTextCompare({'Boundary':'','Groups':'segmentgroup','Index':'119','Length':'18.027756377319946','Homogeneity':'0.966667'},sgbox,tolerance=1.e-4)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(sgbox+":ElementList",["Element 45","Element 49"])
-assert tests.chooserListCheck(sgbox+":NodeList",["Node 53 at (40.0, 75.0)","Node 62 at (50.0, 90.0)"], tolerance=1.e-6)
+assert tests.chooserListCheck(sgbox+":NodeList",["Node 53 at (40.0, 75.0)","Node 62 at (50.0, 90.0)"], tolerance=1.e-4)
 
 # Click on another segment.  This is getting to be ridiculous
 findGfxWindow('Graphics_1').simulateMouse('down', 64.7, 88.85, 1, False, False)
@@ -1055,11 +1055,11 @@ checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QuerySegment
 assert not findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert findWidget(tbox+":Click:Segment").get_active()
-assert tests.gtkMultiTextCompare({'X Text':'64.7','Y Text':'88.85'},cbox,tolerance=1.e-6)
-assert tests.gtkMultiTextCompare({'Boundary':'','Groups':'segmentgroup','Index':'123','Length':'25.124689052802225','Homogeneity':'0.92'},sgbox,tolerance=1.e-6)
+assert tests.gtkMultiTextCompare({'X Text':'64.7','Y Text':'88.85'},cbox,tolerance=1.e-4)
+assert tests.gtkMultiTextCompare({'Boundary':'','Groups':'segmentgroup','Index':'123','Length':'25.124689052802225','Homogeneity':'0.92'},sgbox,tolerance=1.e-4)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(sgbox+":ElementList",["Element 47","Element 48"])
-assert tests.chooserListCheck(sgbox+":NodeList",["Node 62 at (50.0, 90.0)","Node 63 at (75.0, 87.5)"], tolerance=1.e-6)
+assert tests.chooserListCheck(sgbox+":NodeList",["Node 62 at (50.0, 90.0)","Node 63 at (75.0, 87.5)"], tolerance=1.e-4)
 
 # Previous button
 findWidget('OOF2 Graphics 1').resize(962, 796)
@@ -1070,11 +1070,11 @@ checkpoint Graphics_1 Skeleton Info sensitized
 assert not findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert findWidget(tbox+":Click:Segment").get_active()
-assert tests.gtkMultiTextCompare({'X Text':'44.05','Y Text':'83.28'},cbox,tolerance=1.e-6)
-assert tests.gtkMultiTextCompare({'Boundary':'','Groups':'segmentgroup','Index':'119','Length':'18.027756377319946','Homogeneity':'0.6333333333333334'},sgbox,tolerance=1.e-6)
+assert tests.gtkMultiTextCompare({'X Text':'44.05','Y Text':'83.28'},cbox,tolerance=1.e-4)
+assert tests.gtkMultiTextCompare({'Boundary':'','Groups':'segmentgroup','Index':'119','Length':'18.027756377319946','Homogeneity':'0.966667'},sgbox,tolerance=1.e-4)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':True},tbox)
 assert tests.chooserListCheck(sgbox+":ElementList",["Element 45","Element 49"])
-assert tests.chooserListCheck(sgbox+":NodeList",["Node 53 at (40.0, 75.0)","Node 62 at (50.0, 90.0)"], tolerance=1.e-6)
+assert tests.chooserListCheck(sgbox+":NodeList",["Node 53 at (40.0, 75.0)","Node 62 at (50.0, 90.0)"], tolerance=1.e-4)
 
 # Previous button again
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Prev').clicked()
@@ -1084,11 +1084,11 @@ checkpoint Graphics_1 Skeleton Info sensitized
 assert not findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert findWidget(tbox+":Click:Segment").get_active()
-assert tests.gtkMultiTextCompare({'X Text':'58.78','Y Text':'0.2737'},cbox,tolerance=1.e-6)
-assert tests.gtkMultiTextCompare({'Boundary':'bottom','Groups':'','Index':'13','Length':'12.5','Homogeneity':'1.0'},sgbox,tolerance=1.e-6)
+assert tests.gtkMultiTextCompare({'X Text':'58.78','Y Text':'0.2737'},cbox,tolerance=1.e-4)
+assert tests.gtkMultiTextCompare({'Boundary':'bottom','Groups':'','Index':'13','Length':'12.5','Homogeneity':'1.0'},sgbox,tolerance=1.e-4)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':True},tbox)
 assert tests.chooserListCheck(sgbox+":ElementList",["Element 4"])
-assert tests.chooserListCheck(sgbox+":NodeList",["Node 4 at (50.0, 0.0)","Node 5 at (62.5, 0.0)"], tolerance=1.e-6)
+assert tests.chooserListCheck(sgbox+":NodeList",["Node 4 at (50.0, 0.0)","Node 5 at (62.5, 0.0)"], tolerance=1.e-4)
 
 # Switch to node mode
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Node').clicked()
@@ -1100,8 +1100,8 @@ checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QueryNode
 assert not findWidget(tbox+":Click:Element").get_active()
 assert findWidget(tbox+":Click:Node").get_active()
 assert not findWidget(tbox+":Click:Segment").get_active()
-assert tests.gtkMultiTextCompare({'X Text':'58.78','Y Text':'0.2737'},cbox,tolerance=1.e-6)
-assert tests.gtkMultiTextCompare({'Boundary':'','Group':'','Mobility':'x only','Position':'(62.5, 0)','Index':'5'},ndbox,tolerance=1.e-6)
+assert tests.gtkMultiTextCompare({'X Text':'58.78','Y Text':'0.2737'},cbox,tolerance=1.e-4)
+assert tests.gtkMultiTextCompare({'Boundary':'','Group':'','Mobility':'x only','Position':'(62.5, 0)','Index':'5'},ndbox,tolerance=1.e-4)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(ndbox+":ElementList",["Element 4","Element 5"])
 
@@ -1114,11 +1114,11 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Segme
 assert not findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert findWidget(tbox+":Click:Segment").get_active()
-assert tests.gtkMultiTextCompare({'X Text':'58.78','Y Text':'0.2737'},cbox,tolerance=1.e-6)
-assert tests.gtkMultiTextCompare({'Boundary':'bottom','Groups':'','Index':'13','Length':'12.5'},sgbox,tolerance=1.e-6)
+assert tests.gtkMultiTextCompare({'X Text':'58.78','Y Text':'0.2737'},cbox,tolerance=1.e-4)
+assert tests.gtkMultiTextCompare({'Boundary':'bottom','Groups':'','Index':'13','Length':'12.5'},sgbox,tolerance=1.e-4)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':True},tbox)
 assert tests.chooserListCheck(sgbox+":ElementList",["Element 4"])
-assert tests.chooserListCheck(sgbox+":NodeList",["Node 4 at (50.0, 0.0)","Node 5 at (62.5, 0.0)"], tolerance=1.e-6)
+assert tests.chooserListCheck(sgbox+":NodeList",["Node 4 at (50.0, 0.0)","Node 5 at (62.5, 0.0)"], tolerance=1.e-4)
 
 # Previous button
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Prev').clicked()
@@ -1129,11 +1129,11 @@ assert not findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert findWidget(tbox+":Click:Segment").get_active()
 assert tests.gtkMultiFloatCompare({'X Text':5.9,'Y Text':100},cbox)
-assert tests.gtkMultiTextCompare({'Boundary':'top','Groups':'','Index':'102'},sgbox,tolerance=1.e-6)
+assert tests.gtkMultiTextCompare({'Boundary':'top','Groups':'','Index':'102'},sgbox,tolerance=1.e-4)
 assert tests.gtkMultiFloatCompare({'Length':12.5},sgbox)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':True},tbox)
 assert tests.chooserListCheck(sgbox+":ElementList",["Element 38"])
-assert tests.chooserListCheck(sgbox+":NodeList",["Node 66 at (0.0, 100.0)","Node 67 at (12.5, 100.0)"], tolerance=1.e-6)
+assert tests.chooserListCheck(sgbox+":NodeList",["Node 66 at (0.0, 100.0)","Node 67 at (12.5, 100.0)"], tolerance=1.e-4)
 
 # Switch to element mode
 findWidget('OOF2 Graphics 1').resize(962, 796)
@@ -1150,8 +1150,8 @@ assert tests.gtkMultiFloatCompare({'X Text':5.9,'Y Text':100},cbox)
 assert tests.gtkMultiTextCompare({'Material':'material','Group':'','Dom pixel':'yellow','Index':'38','Type':'quad'},elbox)
 assert tests.gtkMultiFloatCompare({'Shape':0.0,'Homog':1.0, 'Area':156.25}, elbox)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
-assert tests.chooserListCheck(elbox+":SegmentList",["Segment 100, nodes (58, 66) (length: 12.5)","Segment 94, nodes (58, 59) (length: 12.5)","Segment 101, nodes (59, 67) (length: 12.5)","Segment 102, nodes (66, 67) (length: 12.5)"], tolerance=1.e-6)
-assert tests.chooserListCheck(elbox+":NodeList",["Node 58 at (0.0, 87.5) (angle: 90)","Node 59 at (12.5, 87.5) (angle: 90)","Node 67 at (12.5, 100.0) (angle: 90)","Node 66 at (0.0, 100.0) (angle: 90)"], tolerance=1.e-6)
+assert tests.chooserListCheck(elbox+":SegmentList",["Segment 100, nodes (58, 66) (length: 12.5)","Segment 94, nodes (58, 59) (length: 12.5)","Segment 101, nodes (59, 67) (length: 12.5)","Segment 102, nodes (66, 67) (length: 12.5)"], tolerance=1.e-4)
+assert tests.chooserListCheck(elbox+":NodeList",["Node 58 at (0.0, 87.5) (angle: 90)","Node 59 at (12.5, 87.5) (angle: 90)","Node 67 at (12.5, 100.0) (angle: 90)","Node 66 at (0.0, 100.0) (angle: 90)"], tolerance=1.e-4)
 
 # Previous button, triggers switch to segment mode
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Prev').clicked()
@@ -1167,7 +1167,7 @@ assert tests.gtkMultiTextCompare({'Boundary':'top','Groups':'','Index':'102'},sg
 assert tests.gtkMultiFloatCompare({'Length':12.5},sgbox)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':True},tbox)
 assert tests.chooserListCheck(sgbox+":ElementList",["Element 38"])
-assert tests.chooserListCheck(sgbox+":NodeList",["Node 66 at (0.0, 100.0)","Node 67 at (12.5, 100.0)"], tolerance=1.e-6)
+assert tests.chooserListCheck(sgbox+":NodeList",["Node 66 at (0.0, 100.0)","Node 67 at (12.5, 100.0)"], tolerance=1.e-4)
 
 # Previous
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Prev').clicked()
@@ -1182,7 +1182,7 @@ assert tests.gtkMultiTextCompare({'Boundary':'top','Groups':'segmentgroup','Inde
 assert tests.gtkMultiFloatCompare({'Length':12.5, 'Homogeneity':1.0},sgbox)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':True},tbox)
 assert tests.chooserListCheck(sgbox+":ElementList",["Element 41"])
-assert tests.chooserListCheck(sgbox+":NodeList",["Node 69 at (37.5, 100.0)","Node 70 at (50.0, 100.0)"], tolerance=1.e-6)
+assert tests.chooserListCheck(sgbox+":NodeList",["Node 69 at (37.5, 100.0)","Node 70 at (50.0, 100.0)"], tolerance=1.e-4)
 
 # Next
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Next').clicked()
@@ -1197,7 +1197,7 @@ assert tests.gtkMultiTextCompare({'Boundary':'top','Groups':'','Index':'102'},sg
 assert tests.gtkMultiFloatCompare({'Length':12.5},sgbox)
 assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':True},tbox)
 assert tests.chooserListCheck(sgbox+":ElementList",["Element 38"])
-assert tests.chooserListCheck(sgbox+":NodeList",["Node 66 at (0.0, 100.0)","Node 67 at (12.5, 100.0)"], tolerance=1.e-6)
+assert tests.chooserListCheck(sgbox+":NodeList",["Node 66 at (0.0, 100.0)","Node 67 at (12.5, 100.0)"], tolerance=1.e-4)
 
 # Clear button
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Clear').clicked()

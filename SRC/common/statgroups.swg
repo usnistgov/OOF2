@@ -12,23 +12,25 @@
 #ifndef STATGROUPS_SWG
 #define STATGROUPS_SWG
 
-%module statgroups
+%module(package="ooflib.SWIG.common") statgroups
+
 %include "common/typemaps.swg"
+%import "common/cmicrostructure.swg"
 
 %{
 #include "common/statgroups.h"
 #include "common/cmicrostructure.h"
 %}
 
-%pragma(python) include="common/statgroups.spy"
+%nodefaultctor PixelDistributionFactory;
 
 class PixelDistributionFactory {};
 
-const string *statgroups(CMicrostructure*,
-			 PixelDistributionFactory*,
-			 double, double,
-			 int, bool,
-			 char*, bool);
+const std::string *statgroups(CMicrostructure*,
+			      PixelDistributionFactory*,
+			      double, double, int, bool, char*, bool);
+
+%pythoncode "common/statgroups.spy"
 
 #endif // STATGROUPS_SWG
 

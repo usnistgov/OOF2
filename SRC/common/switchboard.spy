@@ -14,8 +14,6 @@
 # something important, and can request callbacks when the Switchboard
 # receives a message.
 
-import sys
-import types
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import threadstate
 from ooflib.common import atshutdown
@@ -161,7 +159,7 @@ class _SwitchboardCallbackBase(object):
     def perform(self, *args, **kwargs):
         pass
     def __repr__(self):
-        return 'SwitchboardCallbackBase(%s, %s)' % (`self.msgname`, `self.func`)
+        return 'SwitchboardCallbackBase(%s, %s)' % (repr(self.msgname), repr(self.func))
 
 
 # Transfer control to the main thread.  
@@ -181,7 +179,7 @@ class _SwitchboardCallback (_SwitchboardCallbackBase):
                 messageStack.pop()
             
     def __repr__(self):
-        return 'SwitchboardCallback(%s, %s)' % (`self.msgname`, `self.func`)
+        return 'SwitchboardCallback(%s, %s)' % (repr(self.msgname), repr(self.func))
 
 
 # Do the callback immediately on the local thread, unless the local
@@ -206,8 +204,8 @@ class _SwitchboardCallbackThread (_SwitchboardCallbackBase):
                 messageStack.pop()
             
     def __repr__(self):
-        return 'SwitchboardCallbackThread(%s, %s)' % (`self.msgname`,
-                                                      `self.func`)
+        return 'SwitchboardCallbackThread(%s, %s)' % (repr(self.msgname),
+                                                      repr(self.func))
 
 class _SwitchboardTaskList(object):
     def __init__(self, msgname):
@@ -261,7 +259,7 @@ class _SwitchboardTaskList(object):
 class _Switchboard(object):
     def __init__(self):
         self.taskdict = {}
-        self.verbose = 0
+        self.verbose = False
         self.lock = lock.SLock()
         self.depth = 0
     def _defineMessage(self, msgname):
@@ -301,7 +299,7 @@ class _Switchboard(object):
         # Messages passed from C++ may be either simple strings or
         # OOFMessage instances. The OOFMessage class has swigged
         # methods that make it act like a list of PyObjects.
-        if type(oofmessage)==types.StringType:
+        if isinstance(oofmessage, str):
             self.notify(oofmessage)
         else:
             # Convert OOFMessage object into arglist
@@ -380,19 +378,23 @@ def requestCallback(msgname, func, *args, **kwargs):
 
 def notify(msgname, *args, **kwargs):
     if switchboard.verbose and switchboard.nCallbacks(msgname) > 0:
-        # debug.dumpCaller()
-        debug.dumpTrace(-6,-2)
+        # debug.dumpTrace(-6, -2)
+        debug.dumpCaller()
     switchboard.notify(msgname, *args, **kwargs)
     
 def removeCallback(action):
     switchboard.removeCallback(action)
+
+def removeCallbacks(actions):
+    for action in actions:
+        switchboard.removeCallback(action)
 
 def requestCallbackMain(msgname, func, *args, **kwargs):
     caller = debug.callerID()
     return switchboard.requestCallbackMain(msgname, func, caller,
                                            *args, **kwargs)
 
-def verbose(menuitem, flag):
+def verbose(menuitem=None, flag=True):
     old = switchboard.verbose
     switchboard.verbose = flag
     return old

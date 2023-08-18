@@ -32,6 +32,7 @@ class Equation;
 class BoundaryEdge;
 class CNonlinearSolver;
 class CSubProblem;
+class ComponentsP;
 class Edge;
 class EdgeGaussPoint;
 class Element;
@@ -44,7 +45,6 @@ class FluxNormal;
 class FuncNode;
 class GaussPoint;
 class IndexP;
-class IteratorP;
 class LinearizedSystem;
 class Material;
 class NodalEquation;
@@ -58,7 +58,6 @@ class Equation : public IdentifiedObject, public PythonExportable<Equation> {
 protected:
   int dim_;			// number of components
   std::string name_;
-  static const std::string modulename_;
   const unsigned int index_;
 public:
   Equation(const std::string &nm, int d);
@@ -67,20 +66,19 @@ public:
   static Equation *getEquation(const std::string&);
 
   virtual const std::string &classname() const = 0;
-  virtual const std::string &modulename() const { return modulename_; }
 
   // where a given component lives in the eqn lists in a Node
   int localindex(const FuncNode&, const FieldIndex &component) const;
   int localindex(const FuncNode&, int component) const;
   NodalEquation *nodaleqn(const FuncNode&, int component) const;
 
-  // Equations can return an iterator that iterates over their
-  // components, which are the components of the divergence of the
-  // host flux, for DivergenceEquations, and out-of-plane components
-  // of the flux for PlaneFluxEquation objects.
-  virtual IteratorP iterator() const = 0;
-  virtual IndexP componenttype() const = 0;
-  virtual IndexP getIndex(const std::string&) const = 0;
+  // components() returns an object that is used to iterate over the
+  // Equations's components, which are the components of the
+  // divergence of the host flux, for DivergenceEquations, and
+  // out-of-plane components of the flux for PlaneFluxEquation
+  // objects.
+  virtual ComponentsP components() const = 0;
+  virtual FieldIndex *getIndex(const std::string&) const = 0;
 
   static std::vector<Equation*> &all();
   const std::string &name() const { return name_; }
@@ -178,9 +176,8 @@ public:
     const;
   virtual int integration_order(const Element*) const;
 
-  virtual IteratorP iterator() const;
-  virtual IndexP componenttype() const;
-  virtual IndexP getIndex(const std::string&) const;
+  virtual ComponentsP components() const;
+  virtual FieldIndex *getIndex(const std::string&) const;
 
   virtual const std::string &classname() const;
   virtual bool allow_boundary_conditions() const { return true; }
@@ -207,9 +204,8 @@ public:
     const;
   virtual int integration_order(const Element*) const;
 
-  virtual IteratorP iterator() const;
-  virtual IndexP componenttype() const;
-  virtual IndexP getIndex(const std::string&) const;
+  virtual ComponentsP components() const;
+  virtual FieldIndex *getIndex(const std::string&) const;
 
   virtual const std::string &classname() const;
   virtual bool allow_boundary_conditions() const { return false; }
@@ -236,9 +232,8 @@ public:
  				 const FluxNormal *) const;
 
   virtual int integration_order(const Element*) const;
-  virtual IteratorP iterator() const;
-  virtual IndexP componenttype() const;
-  virtual IndexP getIndex(const std::string&) const;
+  virtual ComponentsP components() const;
+  virtual FieldIndex *getIndex(const std::string&) const;
   virtual const std::string &classname() const;
   virtual bool allow_boundary_conditions() const { return false; }
 

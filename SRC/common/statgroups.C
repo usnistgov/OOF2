@@ -297,8 +297,8 @@ const std::string *statgroups(CMicrostructure *microstructure,
       
       } // end if an appropriate group was found
       progress->setMessage(
-		   to_string(nChecked) + "/" + to_string(npix) + " pixels, "
-		   + to_string(pixelDists.size()) + " groups");
+		   tostring(nChecked) + "/" + tostring(npix) + " pixels, "
+		   + tostring(pixelDists.size()) + " groups");
       progress->setFraction(double(nChecked++)/npix);
     } // end loop over pixels
 
@@ -382,7 +382,7 @@ const std::string *statgroups(CMicrostructure *microstructure,
       }
       if(largest < minsize) {
 	throw ErrUserError("minsize is too small: largest group size is " 
-			   + to_string(largest));
+			   + tostring(largest));
       }
 
       Progress *prog2 =
@@ -402,8 +402,8 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	int nSmallGroups = 0;
 	int g = 0;
 	for(PixelDistribution *pixDist : pixelDists) {
-	  prog2->setMessage("Checking group " + to_string(++g) + "/" +
-			    to_string(pixelDists.size()));
+	  prog2->setMessage("Checking group " + tostring(++g) + "/" +
+			    tostring(pixelDists.size()));
 	  prog2->setFraction(g/(double) pixelDists.size());
 	  if(pixDist->npts() < minsize) {
 	    ntodo += pixDist->npts();
@@ -448,8 +448,8 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	while(!bdyPixels.empty()) {
 	  if(prog2->stopped())
 	    break;
-	  prog2->setMessage("Checking pixel " + to_string(ndone) + "/" +
-			    to_string(ntodo));
+	  prog2->setMessage("Checking pixel " + tostring(ndone) + "/" +
+			    tostring(ntodo));
 	  prog2->setFraction(ndone/(double) ntodo);
 	  ICoord pxl = bdyPixels.back();
 	  bdyPixels.pop_back();
@@ -519,7 +519,7 @@ const std::string *statgroups(CMicrostructure *microstructure,
 		dists[nbr] = &bdyPixelMarker;
 	      }
 	  }
-	  prog2->setMessage(to_string(ndone) + "/" + to_string(ntodo));
+	  prog2->setMessage(tostring(ndone) + "/" + tostring(ntodo));
 	  prog2->setFraction(ndone/(double) ntodo);
 	  ndone++;
 	}	// end while bdyPixels is not empty
@@ -547,7 +547,7 @@ const std::string *statgroups(CMicrostructure *microstructure,
     // Create a real PixelGroup for each PixelDistribution, and delete
     // the PixelDistributions.
     int groupNo = 0;
-    int maxDigits = to_string(nonEmpty-1).size(); // for padding with 0
+    int maxDigits = tostring(nonEmpty-1).size(); // for padding with 0
     for(PixelDistribution *pd : pixelDists) {
       if(pd->npts() > 0) {
 	// Create the name for the group by replacing '%n' in the
@@ -557,7 +557,7 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	groupname = name_template;
 	std::string::size_type pos = groupname.find("%n", 0);
 	if(pos != std::string::npos) {
-	  std::string g = to_string(groupNo++);
+	  std::string g = tostring(groupNo++);
 	  int nzeros = maxDigits - g.size();
 	  groupname = groupname.replace(pos, 2, std::string(nzeros, '0') + g);
 	}

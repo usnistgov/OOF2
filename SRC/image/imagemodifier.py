@@ -22,8 +22,6 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.image import imagecontext
 
-from types import *
-
 # Base class for Python ImageModifiers. 
 class ImageModifier(registeredclass.RegisteredClass):
     registry = []
@@ -299,7 +297,7 @@ registeredclass.Registration(
 
 class NegateImage(ImageModifier):
     def __call__(self, image):
-        image.negate(0)                 # 0 => negate all colors, not just gray
+        image.negate(False)    # False => negate all colors, not just gray
         
 registeredclass.Registration(
     'Negate',

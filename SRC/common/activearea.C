@@ -100,9 +100,6 @@ void ActiveAreaList::print(std::ostream& o) const {
 const std::string ActiveAreasAttributeRegistration::
 classname_("ActiveAreasAttributeRegistration");
 
-const std::string ActiveAreasAttributeRegistration::
-modulename_("ooflib.SWIG.common.activearea");
-
 ActiveAreasAttributeRegistration::ActiveAreasAttributeRegistration()
   : PxlAttributeRegistration("NamedActiveArea")
 {

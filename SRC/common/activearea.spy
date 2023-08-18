@@ -148,4 +148,4 @@ def _AAReg_writeData(self, datafile, ms, reppxl):
     datafile.argument('active_areas', namelist)
     return True
 
-ActiveAreasAttributeRegistrationPtr.writeData = _AAReg_writeData
+ActiveAreasAttributeRegistration.writeData = _AAReg_writeData

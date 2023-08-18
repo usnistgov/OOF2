@@ -124,12 +124,12 @@ class SCPatch:
         self.subproblem.add_scpatch(self.assembly_node_index, self.mat,
                                     self.femesh.order(),
                                     [el.meshindex for el in self.elements],
-                                    self.recovery_nodes.keys(),
+                                    list(self.recovery_nodes.keys()),
                                     qualified)
 #         debug.fmsg(self.assembly_node_index, [el.meshindex for el in self.elements], self.recovery_nodes.keys())
         
     def __repr__(self):
-        return `[el.meshindex for el in self.elements]`
+        return repr([el.meshindex for el in self.elements])
 
 #########################################
 
@@ -191,7 +191,7 @@ class SCPatchCollection:
             min_els = 4
         else:  # Quadratic
             min_els = 4  # 4 seems to do better than 2
-        for patch in self.patches.values():
+        for patch in list(self.patches.values()):
             if patch.nElements() < min_els:
                 # Collect every available neighbor element from
                 # all the nodes in the current patch.

@@ -73,7 +73,7 @@ class SampleRCF(regclassfactory.RegisteredClassFactory):
         self.refresh(obj)
 
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         regclassfactory.RegisteredClassFactory.cleanUp(self)
         
     # The "self.directness" reflects whether or not the output

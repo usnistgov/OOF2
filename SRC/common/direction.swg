@@ -12,13 +12,15 @@
 #ifndef DIRECTION_SWG
 #define DIRECTION_SWG
 
-%module direction
+%module(package="ooflib.SWIG.common") direction
+
+%include "common/typemaps.swg"
 
 %{
 #include "common/direction.h"
 %}
 
-%pragma(python) include="direction.spy"
+%nodefaultctor CDirection;
 
 class CDirection {
 public:
@@ -40,6 +42,8 @@ class CAngleDirection : public CDirection {
 public:
   CAngleDirection(double, double);
 };
+
+%pythoncode "common/direction.spy"
 
 #endif // DIRECTION_SWG
 

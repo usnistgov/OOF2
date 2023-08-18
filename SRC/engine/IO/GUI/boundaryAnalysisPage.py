@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -30,6 +29,8 @@ from ooflib.engine.IO.GUI import analyzePage
 from ooflib.engine.IO.GUI import outputdestinationwidget
 import ooflib.engine.mesh
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
@@ -50,15 +51,16 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               callback=self.meshCB,
                                               scope=self)
-        label = Gtk.Label("Microstructure=", halign=Gtk.Align.END)
+        label = Gtk.Label(label="Microstructure=", halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[0],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label="Skeleton=",
+                          halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[1],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label("Mesh=", halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label="Mesh=", halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[2],
                              expand=False, fill=False, padding=0)
@@ -67,7 +69,7 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
                             halign=Gtk.Align.CENTER)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.timeWidget = self.timeparam.makeWidget(scope=self)
-        centerbox.pack_start(Gtk.Label("Time="),
+        centerbox.pack_start(Gtk.Label(label="Time="),
                              expand=False, fill=False, padding=0)
         centerbox.pack_start(self.timeWidget.gtk,
                              expand=False, fill=False, padding=0)

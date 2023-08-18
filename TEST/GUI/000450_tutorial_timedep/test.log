@@ -544,10 +544,10 @@ findMenu(findWidget('chooserPopup-PageMenu'), ['Solver']).activate() # MenuItemL
 checkpoint Solver page sensitized
 checkpoint page installed Solver
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_hadjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_hadjustment().set_value( 1.1000000000000e+01)
-findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_hadjustment().set_value( 1.0000000000000e+01)
-findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_hadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_property('hadjustment').set_value( 1.0000000000000e+00)
+findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_property('hadjustment').set_value( 1.1000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_property('hadjustment').set_value( 1.0000000000000e+01)
+findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_property('hadjustment').set_value( 0.0000000000000e+00)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([0]))
 checkpoint Solver page sensitized
 tree=findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers')
@@ -605,7 +605,7 @@ findMenu(findWidget('chooserPopup-category'), ['Mesh']).activate() # MenuItemLog
 deactivatePopup('chooserPopup-category') # MenuItemLogger
 findWidget('Dialog-New Graphics Layer').resize(467, 532)
 findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Mesh Info cleared position
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
@@ -646,8 +646,8 @@ checkpoint toplevel widget mapped chooserPopup-where_0
 findMenu(findWidget('chooserPopup-where_0'), ['original']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-where_0') # MenuItemLogger
 findWidget('Dialog-Edit Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
@@ -693,7 +693,7 @@ findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gr
 findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.2727272727273e-01)
 findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.1969696969697e-01)
 findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+01)
 checkpoint Move Node toolbox writable changed
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Move Nodes sensitized
@@ -710,8 +710,8 @@ event(Gdk.EventType.BUTTON_PRESS,x= 1.7000000000000e+02,y= 8.0000000000000e+00,b
 checkpoint toplevel widget mapped PopUp-0
 findMenu(findWidget('PopUp-0'), ['Lower', 'To_Bottom']).activate() # MenuItemLogger
 deactivatePopup('PopUp-0') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection

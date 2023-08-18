@@ -93,8 +93,8 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                      element_types=['D2_2', 'T3_3', 'Q4_4'])
         meshctxt=mesh.meshes["cyallow.png:skeleton:mesh"]
 
-        self.assert_(meshctxt.nnodes()==30)
-        self.assert_(meshctxt.nedgements()==20)
+        self.assertTrue(meshctxt.nnodes()==30)
+        self.assertTrue(meshctxt.nedgements()==20)
         
         OOF.Subproblem.Field.Define(
             subproblem='cyallow.png:skeleton:mesh:default',
@@ -190,7 +190,7 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
         #Cancellation of Generalized Force BCs and surface tension
         #property should be perfect.
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             delta = fn.displaced_position(meshobj) - fn.position()
             self.assertAlmostEqual(delta**2, 0.0, 6)
 
@@ -198,15 +198,15 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
         OOF.Microstructure.Interface.Delete(microstructure='cyallow.png',
                                             interface='interface<2>')
         
-        self.assert_(meshctxt.nnodes()==30)
-        self.assert_(meshctxt.nedgements()==20)
+        self.assertTrue(meshctxt.nnodes()==30)
+        self.assertTrue(meshctxt.nedgements()==20)
 
 
         OOF.Mesh.Solve(mesh='cyallow.png:skeleton:mesh', endtime=0.0,
                        stepsize=0)
 
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             delta = fn.displaced_position() - fn.position()
             self.assertAlmostEqual(delta**2, 0.0, 6)
 
@@ -233,8 +233,8 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                                       interfaces=['interface<2>'])
 
         #Check again
-        self.assert_(meshctxt.nnodes()==30)
-        self.assert_(meshctxt.nedgements()==20)
+        self.assertTrue(meshctxt.nnodes()==30)
+        self.assertTrue(meshctxt.nedgements()==20)
 
         OOF.Solver.Solve(
             subproblem='cyallow.png:skeleton:mesh:default',
@@ -244,7 +244,7 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                                 preconditioner=ILUPreconditioner())))
 
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             delta = fn.displaced_position() - fn.position()
             self.assertAlmostEqual(delta**2, 0.0, 6)
 
@@ -275,8 +275,8 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
         OOF.Microstructure.Interface.Delete(microstructure='cyallow.png',
                                             interface='interface')
 
-        self.assert_(meshctxt.nnodes()==30)
-        self.assert_(meshctxt.nedgements()==20)
+        self.assertTrue(meshctxt.nnodes()==30)
+        self.assertTrue(meshctxt.nedgements()==20)
 
         OOF.Solver.Solve(
             subproblem='cyallow.png:skeleton:mesh:default',
@@ -286,7 +286,7 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                                 preconditioner=ILUPreconditioner())))
 
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             delta = fn.displaced_position() - fn.position()
             self.assertAlmostEqual(delta**2, 0.0, 6)
 
@@ -308,8 +308,8 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                      element_types=['D3_3', 'T6_6', 'Q8_8'])
         meshctxt=mesh.meshes["cyallow.png:skeleton:mesh"]
 
-        self.assert_(meshctxt.nnodes()==74)
-        self.assert_(meshctxt.nedgements()==20)
+        self.assertTrue(meshctxt.nnodes()==74)
+        self.assertTrue(meshctxt.nedgements()==20)
         
         OOF.Subproblem.Field.Define(
             subproblem='cyallow.png:skeleton:mesh:default',
@@ -356,7 +356,7 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
 
         meshobj=meshctxt.getObject()
         numup=0
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             #Check that half of the nodes shifted up by 10 units.
             delta = fn.displaced_position() - fn.position()
             self.assertAlmostEqual(delta.x, 0.0, 6)
@@ -365,7 +365,7 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                 self.assertAlmostEqual(delta.y, 10.0, 6)
             else:
                 self.assertAlmostEqual(delta.y, 0.0, 6)
-        self.assert_(numup==37)
+        self.assertTrue(numup==37)
 
         #Create a skeleton boundary from an interface definition, and
         #apply the same jump condition across it.
@@ -399,12 +399,12 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                                 tolerance=1e-13,
                                 preconditioner=ILUPreconditioner())))
 
-        self.assert_(meshctxt.nnodes()==74)
-        self.assert_(meshctxt.nedgements()==20)
+        self.assertTrue(meshctxt.nnodes()==74)
+        self.assertTrue(meshctxt.nedgements()==20)
 
         meshobj=meshctxt.getObject()
         numup=0
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             #Check that half of the nodes shifted up by 10 units.
             delta = fn.displaced_position() - fn.position()
             self.assertAlmostEqual(delta.x, 0.0, 6)
@@ -413,7 +413,7 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                 self.assertAlmostEqual(delta.y, 10.0, 6)
             else:
                 self.assertAlmostEqual(delta.y, 0.0, 6)
-        self.assert_(numup==37)
+        self.assertTrue(numup==37)
 
     #Mr. Gorbachev...
     def tearDown(self):
@@ -453,32 +453,38 @@ class OOF_InterfaceTest2(unittest.TestCase):
             x_elements=2, y_elements=2,
             skeleton_geometry=QuadSkeleton(left_right_periodicity=False,
                                            top_bottom_periodicity=False))
+
+        ## TODO: This test has not been used since the Refine method
+        ## was updated.  The reference files are certainly out of
+        ## date. The Refine parameters may need to be tweaked.
         OOF.Skeleton.Modify(
             skeleton='serendipity.png:skeleton',
             modifier=Refine(
                 targets=CheckHomogeneity(threshold=0.90000000000000002),
-                criterion=Unconditionally(),
-                degree=Bisection(rule_set='liberal'),
+                divider=Bisection(minlength=0),
+                rules="Quick",
                 alpha=0.80000000000000004))
         OOF.Skeleton.Modify(
             skeleton='serendipity.png:skeleton',
             modifier=Refine(
                 targets=CheckHomogeneity(threshold=0.90000000000000002),
-                criterion=Unconditionally(),
-                degree=Bisection(rule_set='liberal'),
+                divider=Bisection(minlength=0),
+                rules="Quick",
                 alpha=0.80000000000000004))
         OOF.Skeleton.Modify(
             skeleton='serendipity.png:skeleton',
             modifier=Refine(
                 targets=CheckHomogeneity(threshold=0.90000000000000002),
-                criterion=Unconditionally(),
-                degree=Bisection(rule_set='liberal'),
+                divider=Bisection(minlength=0),
+                rules="Quick",
                 alpha=0.80000000000000004))
         OOF.Skeleton.Modify(
             skeleton='serendipity.png:skeleton',
-            modifier=SnapRefine(
-                targets=CheckHomogeneity(threshold=0.90000000000000002),
-                criterion=Unconditionally(),min_distance=0.01))
+            modifier=Refine(
+                targets=CheckHomogeneity(threshold=0.9),
+                divider=TransitionPoint(minlength=0),
+                rules="Quick",
+                alpha=0.5))
         OOF.Skeleton.Modify(
             skeleton='serendipity.png:skeleton',
             modifier=Rationalize(
@@ -528,8 +534,8 @@ class OOF_InterfaceTest2(unittest.TestCase):
             element_types=['D2_2', 'T3_3', 'Q4_4'])
 
         meshctxt=mesh.meshes["serendipity.png:skeleton:mesh"]
-        self.assert_(meshctxt.nnodes()==219)
-        self.assert_(meshctxt.nedgements()==45)
+        self.assertTrue(meshctxt.nnodes()==219)
+        self.assertTrue(meshctxt.nedgements()==45)
 
         OOF.Subproblem.Field.Define(
             subproblem='serendipity.png:skeleton:mesh:default',
@@ -580,7 +586,7 @@ class OOF_InterfaceTest2(unittest.TestCase):
         meshobj=meshctxt.getObject()
         nodelist=[]
         numjumps=0
-        for edgement in meshobj.edgement_iterator():
+        for edgement in meshobj.interface_elements():
             if edgement.name()!='boundary':
                 continue
             ei=edgement.node_iterator()
@@ -600,7 +606,7 @@ class OOF_InterfaceTest2(unittest.TestCase):
                     self.assertAlmostEqual(delta**2, 100.0, 6)
                     numjumps+=1
                 ei.increment()
-        self.assert_(numjumps==11)
+        self.assertTrue(numjumps==11)
 
     def tearDown(self):
         OOF.Microstructure.Delete(microstructure="serendipity.png")
@@ -688,8 +694,8 @@ class OOF_InterfaceTest3(unittest.TestCase):
         OOF.Mesh.New(name='mesh', skeleton='cyallow.png:skeleton',
                      element_types=['D2_2', 'T3_3', 'Q4_4'])
         meshctxt=mesh.meshes["cyallow.png:skeleton:mesh"]
-        self.assert_(meshctxt.nnodes()==25)
-        self.assert_(meshctxt.nedgements()==16)
+        self.assertTrue(meshctxt.nnodes()==25)
+        self.assertTrue(meshctxt.nedgements()==16)
 
         #For the second microstructure, define an interface
         OOF.Microstructure.Interface.New(
@@ -700,8 +706,8 @@ class OOF_InterfaceTest3(unittest.TestCase):
         OOF.Mesh.New(name='mesh', skeleton='cyallow.png.Copy:skeleton', 
                      element_types=['D2_2', 'T3_3', 'Q4_4'])
         meshctxt2=mesh.meshes["cyallow.png.Copy:skeleton:mesh"]
-        self.assert_(meshctxt2.nnodes()==30)
-        self.assert_(meshctxt2.nedgements()==20)
+        self.assertTrue(meshctxt2.nnodes()==30)
+        self.assertTrue(meshctxt2.nedgements()==20)
 
         #Plane strain case
         OOF.Subproblem.Field.Define(
@@ -814,11 +820,11 @@ class OOF_InterfaceTest3(unittest.TestCase):
         #Make a table of the solutions, then compare
         solutiondict={}
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             solutiondict[(fn.position().x,fn.position().y)] = \
                 fn.displaced_position()
         meshobj2=meshctxt2.getObject()
-        for fn in meshobj2.funcnode_iterator():
+        for fn in meshobj2.funcnodes():
             s2=fn.displaced_position()
             s1=solutiondict[(fn.position().x,fn.position().y)]
             self.assertAlmostEqual(s1.x, s2.x, 6)
@@ -853,11 +859,11 @@ class OOF_InterfaceTest3(unittest.TestCase):
         #Make a table of the solutions, then compare
         solutiondict={}
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             solutiondict[(fn.position().x,fn.position().y)] = \
                 fn.displaced_position()
         meshobj2=meshctxt2.getObject()
-        for fn in meshobj2.funcnode_iterator():
+        for fn in meshobj2.funcnodes():
             s2=fn.displaced_position()
             s1=solutiondict[(fn.position().x,fn.position().y)]
             self.assertAlmostEqual(s1.x, s2.x, 6)
@@ -869,8 +875,8 @@ class OOF_InterfaceTest3(unittest.TestCase):
         OOF.Mesh.New(name='mesh', skeleton='cyallow.png:skeleton', 
                      element_types=['D2_2', 'T3_3', 'Q4_4'])
         meshctxt=mesh.meshes["cyallow.png:skeleton:mesh"]
-        self.assert_(meshctxt.nnodes()==25)
-        self.assert_(meshctxt.nedgements()==16)
+        self.assertTrue(meshctxt.nnodes()==25)
+        self.assertTrue(meshctxt.nedgements()==16)
 
         #For the second microstructure, define an interface
         OOF.Microstructure.Interface.New(
@@ -881,8 +887,8 @@ class OOF_InterfaceTest3(unittest.TestCase):
         OOF.Mesh.New(name='mesh', skeleton='cyallow.png.Copy:skeleton', 
                      element_types=['D2_2', 'T3_3', 'Q4_4'])
         meshctxt2=mesh.meshes["cyallow.png.Copy:skeleton:mesh"]
-        self.assert_(meshctxt2.nnodes()==30)
-        self.assert_(meshctxt2.nedgements()==20)
+        self.assertTrue(meshctxt2.nnodes()==30)
+        self.assertTrue(meshctxt2.nedgements()==20)
 
         #in-plane
         OOF.Subproblem.Field.Define(
@@ -961,11 +967,11 @@ class OOF_InterfaceTest3(unittest.TestCase):
         #Make a table of the solutions, then compare
         solutiondict={}
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             solutiondict[(fn.position().x,fn.position().y)] = \
                 Temperature.value(fn,0)
         meshobj2=meshctxt2.getObject()
-        for fn in meshobj2.funcnode_iterator():
+        for fn in meshobj2.funcnodes():
             s2=Temperature.value(fn,0)
             s1=solutiondict[(fn.position().x,fn.position().y)]
             self.assertAlmostEqual(s1, s2, 6)
@@ -1000,11 +1006,11 @@ class OOF_InterfaceTest3(unittest.TestCase):
         #Make a table of the solutions, then compare
         solutiondict={}
         meshobj=meshctxt.getObject()
-        for fn in meshobj.funcnode_iterator():
+        for fn in meshobj.funcnodes():
             solutiondict[(fn.position().x,fn.position().y)] = \
                 Temperature.value(fn,0)
         meshobj2=meshctxt2.getObject()
-        for fn in meshobj2.funcnode_iterator():
+        for fn in meshobj2.funcnodes():
             s2=Temperature.value(fn,0)
             s1=solutiondict[(fn.position().x,fn.position().y)]
             self.assertAlmostEqual(s1, s2, 6)

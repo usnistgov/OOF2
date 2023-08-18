@@ -12,7 +12,7 @@ import sys
 
 from ooflib.SWIG.common import progress
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO import reporter
@@ -47,7 +47,8 @@ def evolve(meshctxt, endtime):
     targettime = endtime
 
     if starttime > endtime:
-        raise ooferror2.ErrSetupError("End time must not precede current time.")
+        raise ooferror.PyErrSetupError(
+            "End time must not precede current time.")
 
     meshctxt.solver_precompute(solving=True)
 
@@ -61,9 +62,8 @@ def evolve(meshctxt, endtime):
     try:
         # Get an ordered list of subproblems to be solved.  First,
         # create tuples containing a subproblem and its solveOrder.
-        subprobctxts = [(s.solveOrder, s) for s in meshctxt.subproblems()
-                       if s.time_stepper is not None and s.solveFlag]
-        subprobctxts.sort()     # sort by solveOrder
+        subprobctxts = sorted([(s.solveOrder, s) for s in meshctxt.subproblems()
+                       if s.time_stepper is not None and s.solveFlag])
         subprobctxts = [s[1] for s in subprobctxts] # strip solveOrder
 
         # Initialize statistics.
@@ -81,13 +81,11 @@ def evolve(meshctxt, endtime):
                 # Initial output comes *after* solving static fields.
                 # For fully static problems, this is the only output.
                 _do_output(meshctxt, starttime)
-            except ooferror2.ErrInterrupted:
+            except ooferror.PyErrInterrupted as exc:
+                meshctxt.setStatus(meshstatus.Failed(exc.summmary()))
                 raise
-            except ooferror2.ErrError, exc:
-                meshctxt.setStatus(meshstatus.Failed(exc.summary()))
-                raise
-            except Exception, exc:
-                meshctxt.setStatus(meshstatus.Failed(`exc`))
+            except Exception as exc:
+                meshctxt.setStatus(meshstatus.Failed(repr(exc)))
                 raise
 
         if staticProblem:
@@ -105,7 +103,7 @@ def evolve(meshctxt, endtime):
         # Loop over output times
         for t1 in meshctxt.outputSchedule.times(endtime):
             if t1 == lasttime:
-                raise ooferror2.ErrSetupError("Time step is zero!")
+                raise ooferror.PyErrSetupError("Time step is zero!")
             # If t1 <= starttime, there's no evolution to be done, and
             # any output at t1==starttime has already been done after
             # static initialization. 
@@ -116,22 +114,27 @@ def evolve(meshctxt, endtime):
                     delta = min(
                         [subp.time_stepper.initial_stepsize(t1-starttime)
                          for subp in subprobctxts])
+                    
                 try:
                     time, delta, linsys_dict = evolve_to(
                         meshctxt, subprobctxts,
                         time=time, endtime=t1, delta=delta, prog=prog,
                         linsysDict=linsys_dict)
-                except ooferror2.ErrInterrupted:
-                    # Interruptions shouldn't raise an error dialog
+                except ooferror.PyErrInterrupted as err:
+                    # Interruptions shouldn't raise an error dialog.
                     debug.fmsg("Interrupted!")
                     meshctxt.setStatus(meshstatus.Failed(
-                            "Solution interrupted."))
+                        "Solution interrupted."))
                     break
+                except Exception as exc:
+                    meshcontext.setStatus(meshstate.Failed(repr(exc)))
+                    raise
+                
                 meshctxt.solverDelta = delta
                 if time < t1:
                     meshctxt.setStatus(meshstatus.Failed(
                             "Solver failed to reach the target time."))
-                    raise ooferror2.ErrSetupError(
+                    raise ooferror.PyErrSetupError(
                         "Failed to reach target time. target=%s, actual=%s"
                         % (t1, time))
                 if not meshctxt.outputSchedule.isConditional():
@@ -218,7 +221,7 @@ def initializeStaticFields(subprobctxts, time, prog):
     # end consistency loop
 
     if not prog.stopped() and not consistent:
-        raise ooferror2.ErrConvergenceFailure(
+        raise ooferror.PyErrConvergenceFailure(
             "Static self-consistency loop", maxconsistencysteps)
     return linsysDict
 
@@ -242,7 +245,7 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
     starttime = time
     startdelta = delta
     truncated_step = False
-    utils.memusage("evolve_to")
+    # utils.memusage("evolve_to")
 
     try:
         # Main loop.  There is no explicit limit to the number of
@@ -416,7 +419,7 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
             ## End of consistency loop.
 
             if not stepTaken and not prog.stopped():
-                raise ooferror2.ErrConvergenceFailure(
+                raise ooferror.PyErrConvergenceFailure(
                     "Self-consistency loop at t=%s" % time, maxconsistencysteps)
             if meshctxt.outputSchedule.isConditional():
                 _do_output(meshctxt, time)
@@ -424,17 +427,17 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
         ## End main loop.
 
         if prog.stopped():
-            raise ooferror2.ErrInterrupted()
+            raise ooferror.PyErrInterrupted()
 
-    except ooferror2.ErrInterrupted:
+    except ooferror.PyErrInterrupted:
         debug.fmsg("Interrupted!")
-        meshctxt.setStatus(meshstatus.Failed("Solution interrupted."))
+        meshctxt.setStatus(meshstatus.Failed("Solution interrupted"))
         raise
-    except ooferror2.ErrErrorPtr, err:
-        debug.fmsg("Caught an ErrError")
+    except ooferror.PyOOFError as err:
+        debug.fmsg("Caught an PyOOFError:", err)
         meshctxt.setStatus(meshstatus.Failed(err.summary()))
         raise
-    except Exception, exc:
+    except Exception as exc:
         debug.fmsg("Caught an Exception")
         meshctxt.setStatus(meshstatus.Failed(exc.message))
         raise
@@ -488,9 +491,9 @@ def _do_output(meshctxt, time):
 
 def dumpLinSysRefererrers():
     global linsys
-    print >> sys.stderr, "---- dumpLinSysRefererrers ----"
-    for lsys in linsys.values():
-        print >> sys.stderr, "Referrers for LinearizedSystem", id(lsys)
+    print("---- dumpLinSysRefererrers ----", file=sys.stderr)
+    for lsys in list(linsys.values()):
+        print("Referrers for LinearizedSystem", id(lsys), file=sys.stderr)
         debug.dumpReferrers(lsys, 2)
 
 

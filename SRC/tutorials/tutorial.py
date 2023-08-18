@@ -8,8 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-## TODO: Print tutorials
-
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common import utils
@@ -45,21 +43,6 @@ class TutorialClass:
         return self.subject
 
 class TutoringItem:
-    def __init__(self, subject=None, comments=None, signal=None, done=False):
+    def __init__(self, subject=None, comments=None):
         self.subject = subject
         self.comments = comments
-        self.signal = signal
-        self.done = done
-
-    def activate(self):
-        if self.signal:
-            self.switchboardCB = switchboard.requestCallback(self.signal,
-                                                             self.signalCB)
-
-    def deactivate(self):
-        if self.signal:
-            switchboard.removeCallback(self.switchboardCB)
-            
-    def signalCB(self, *args, **kwargs):
-        self.done = True
-        switchboard.notify("task finished")

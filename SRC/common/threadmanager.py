@@ -8,7 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import string
 from ooflib.SWIG.common import lock
 from ooflib.common import debug
 from ooflib.common import mainthread

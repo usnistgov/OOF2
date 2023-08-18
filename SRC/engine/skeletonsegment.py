@@ -44,11 +44,7 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
     def length(self):
         n0 = self.nodes()[0].position()
         n1 = self.nodes()[1].position()
-        if config.dimension() == 2:
-            return math.sqrt((n1.x-n0.x)*(n1.x-n0.x)+(n1.y-n0.y)*(n1.y-n0.y))
-        if config.dimension() == 3:
-            return math.sqrt((n1.x-n0.x)*(n1.x-n0.x)+
-                             (n1.y-n0.y)*(n1.y-n0.y)+(n1.z-n0.z)*(n1.z-n0.z))
+        return math.sqrt((n1.x-n0.x)*(n1.x-n0.x)+(n1.y-n0.y)*(n1.y-n0.y))
 
     def getIndex(self):
         return self.index
@@ -57,17 +53,36 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
         return self._nodes[0].active(skeleton) or \
                self._nodes[1].active(skeleton)
 
-    def homogeneity(self, microstructure):
+    def homogeneity2(self, microstructure):
+        # Segment homogeneity can be direction dependent.  Which value
+        # is wanted depends on the circumstances, so this method
+        # returns both.
         pos0 = self._nodes[0].position()
         pos1 = self._nodes[1].position()
-        return microstructure.edgeHomogeneity(pos0, pos1)
-
+        ## TODO PYTHON3 LATER: These calls to edgeHomogeneity will
+        ## both call CMicrostructure::segmentPixels, but second call
+        ## could reuse the results of the first.  Perhaps
+        ## CMicrostructure::segmentPixels should cache its last args
+        ## and result.
+        return (microstructure.edgeHomogeneity(pos0, pos1),
+                microstructure.edgeHomogeneity(pos1, pos0))
+    def homogeneity(self, microstructure):
+        return min(self.homogeneity2(microstructure))
 
     def dominantPixel(self, microstructure):
-        n0 = self.nodes()[0].position()
-        n1 = self.nodes()[1].position()
-        homog, cat = microstructure.edgeHomogeneityCat(n0, n1)
-        return cat
+        sections = microstructure.getSegmentSections(self._nodes[0].position(),
+                                                     self._nodes[1].position(),
+                                                     0.0)
+        lengths = [0.0]*microstructure.nCategories();
+        for section in sections:
+            lengths[section.category] += section.physicalLength()
+        maxlen = -1
+        maxcat = None
+        for cat, length in enumerate(lengths):
+            if length > maxlen:
+                maxlen = length
+                maxcat = cat
+        return maxcat
 
     def nodes(self):
         return self._nodes
@@ -77,7 +92,7 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
 
     def addElement(self, element):
         if element in self._elements:
-            raise ooferror.ErrPyProgrammingError("Element already in Segment!")
+            raise ooferror.PyErrPyProgrammingError("Element already in Segment!")
         self._elements.append(element)
 
     def getElements(self):
@@ -119,7 +134,7 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
                               node in self._nodes):
                 return n
         # if we get this far, it's because we've passed an invalid node for this segment.
-        raise ooferror.ErrPyProgrammingError("Cannot determine which node is the 'other node' for this segment!")
+        raise ooferror.PyErrPyProgrammingError("Cannot determine which node is the 'other node' for this segment!")
         
     # New_child is called after new nodes and elements have been
     # created -- it is assumed that the most-recent children are
@@ -142,7 +157,7 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
             return skeleton.findSegment(pnodes[0], pnodes[1])
 
     def __repr__(self):
-        return "SkeletonSegment(%s, %s)" % ( `self._nodes[0]`, `self._nodes[1]`)
+        return "SkeletonSegment(%s, %s)" % ( repr(self._nodes[0]), repr(self._nodes[1]))
 
     def get_ownership(self):
         return self._rank
@@ -171,11 +186,6 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
             return True
         if p0.y == MS.size()[1] and p1.y == MS.size()[1]:
             return True
-        if config.dimension() == 3:
-            if p0.z == 0.0 and p1.z == 0.0:
-                return True
-            if p0.z == MS.size()[2] and p1.z == MS.size()[2]:
-                return True
         return False
 
     def material(self, skelctxt):
@@ -194,7 +204,7 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
 
 #######################
 
-class SequenceError(ooferror.ErrError):
+class SequenceError(Exception):
     def __init__(self, message):
         self.message = message
     def __repr__(self):
@@ -237,7 +247,7 @@ def segSequence(seglist, startnode=None):
     # remove any grazed corners (nodes added to adjacency dictionary
     # because of partnerships, that are not directly connected to
     # segments in the boundary) before doing the topology check
-    for (n,l) in adjacency.items():
+    for (n,l) in list(adjacency.items()):
         grazedCorner = True
         for seg in l:
             if n in seg.get_nodes():
@@ -278,7 +288,7 @@ def segSequence(seglist, startnode=None):
                     "Start node not found in sequence loop.")
                 
         else:
-            begin_node = adjacency.keys()[0]  # Again, arbitrary.
+            begin_node = next(iter(adjacency.keys())) # Again, arbitrary.
     else:
         # We reach this point if the number of nodes with only one
         # corresponding segment in the passed-in set is not 0 or 2.
@@ -470,14 +480,10 @@ class SkeletonEdge:
         elif nodes[0]==n2 and nodes[1]==n1:
             self.direction = -1
         else:
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Incorrect node set in SkeletonEdge.")
     def reverse(self):
         self.direction *= -1
-
-    if config.dimension() == 3:
-        def getVtkLine(self):
-            return self.segment.getVtkLine()
 
     # Retrieve the nodes in the correct order.  Used for drawing.
     def get_nodes(self):

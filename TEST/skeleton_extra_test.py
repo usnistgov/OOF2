@@ -19,11 +19,11 @@
 # circumstances than the initial test.
 
 import unittest, os
-import memorycheck
-import UTILS.file_utils
-reference_file = UTILS.file_utils.reference_file
-fp_file_compare = UTILS.file_utils.fp_file_compare
-UTILS.file_utils.generate = False
+from . import memorycheck
+from .UTILS import file_utils
+reference_file = file_utils.reference_file
+fp_file_compare = file_utils.fp_file_compare
+file_utils.generate = False
 
 class OOF_Skeleton_Extra(unittest.TestCase):
     def setUp(self):
@@ -66,7 +66,7 @@ class OOF_Skeleton_Extra(unittest.TestCase):
     # Run a modifier with pinned nodes.
     @memorycheck.check("skeltest", "skelcomp")
     def PinnedModify(self):
-        import os, random
+        import os
         from ooflib.SWIG.common import crandom
         OOF.Graphics_1.Toolbox.Select_Node.Rectangle(
             skeleton="skeltest:skelextra",
@@ -75,7 +75,6 @@ class OOF_Skeleton_Extra(unittest.TestCase):
         OOF.Skeleton.PinNodes.Pin_Node_Selection(
             skeleton="skeltest:skelextra")
 
-        random.seed(17)
         crandom.rndmseed(17)
         OOF.Skeleton.Modify(
             skeleton="skeltest:skelextra",
@@ -154,7 +153,7 @@ class OOF_Skeleton_Extra(unittest.TestCase):
         OOF.File.Save.Skeleton(filename="skeleton_rich_save",
                                mode="w", format="ascii",
                                skeleton="skelcomp:skelextra")
-        self.assert_(fp_file_compare(
+        self.assertTrue(fp_file_compare(
                 'skeleton_rich_save',
                 os.path.join('skeleton_data', 'rich_skeleton'),
                 1.e-10))
@@ -162,7 +161,7 @@ class OOF_Skeleton_Extra(unittest.TestCase):
         OOF.File.Save.Skeleton(filename="skeleton_abaqus_save",
                                mode="w", format="abaqus",
                                skeleton="skelcomp:skelextra")
-        self.assert_(fp_file_compare(
+        self.assertTrue(fp_file_compare(
             "skeleton_abaqus_save",
             os.path.join("skeleton_data", "abaqus_skeleton"),
             tolerance=1.e-10, ignoretime=True))
@@ -204,8 +203,8 @@ class OOF_Skeleton_Extra(unittest.TestCase):
         OOF.Skeleton.Modify(
             skeleton="skeltest:skelextra",
             modifier=Refine(targets=CheckHomogeneity(threshold=0.9),
-                            criterion=Unconditionally(),
-                            degree=Bisection(rule_set="conservative")))
+                            divider=Bisection(minlength=0.0),
+                            rules='Large'))
         sk2 = self.sk_context.getObject()
 
         OOF.Skeleton.Undo(skeleton="skeltest:skelextra")
@@ -239,8 +238,8 @@ class OOF_Skeleton_Extra(unittest.TestCase):
         OOF.Skeleton.Modify(
             skeleton="skeltest:skelextra",
             modifier=Refine(targets=CheckHomogeneity(threshold=0.9),
-                            criterion=Unconditionally(),
-                            degree=Bisection(rule_set="conservative")))
+                            divider=Bisection(minlength=0.0),
+                            rules='Quick'))
         # Then undo the modification...
         OOF.Skeleton.Undo(skeleton="skeltest:skelextra")
         # And undo and redo the selection...
@@ -364,7 +363,7 @@ class OOF_Skeleton_SmallBuffer(unittest.TestCase):
                                mode='w', 
                                format='ascii', 
                                skeleton='triangle:skeleton')
-        self.assert_(
+        self.assertTrue(
             fp_file_compare(
                 "skeleton_bufferbug_test",
                 os.path.join("skeleton_data", "skeleton_bufferbug_ref"),
@@ -423,7 +422,7 @@ class OOF_Skeleton_CyclicBoundary(unittest.TestCase):
         import os,filecmp
         OOF.File.Save.Skeleton(filename="skeleton_save",mode="w",
                                format="ascii",skeleton="skelextra:cycletest")
-        self.assert_(filecmp.cmp(reference_file("skeleton_data",
+        self.assertTrue(filecmp.cmp(reference_file("skeleton_data",
                                                   "cycletest"),
                                    "skeleton_save"))
         os.remove("skeleton_save")

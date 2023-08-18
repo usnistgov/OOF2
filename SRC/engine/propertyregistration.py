@@ -19,7 +19,7 @@
 
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.engine import properties
+from ooflib.SWIG.engine import property
 from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO import mainmenu
@@ -29,8 +29,8 @@ from ooflib.common.IO import reporter
 from ooflib.common.IO import xmlmenudump
 from ooflib.common import parallel_enable
 from ooflib.common.labeltree import LabelTree, makePath
-import string, types, sys
 
+from ooflib.common.utils import stringjoin, stringsplit
 
 # Load the convertible registered types used as parameters
 # by the properties.
@@ -101,11 +101,11 @@ class PropertyManager:
         self.parametrizekey = parametrizeKey
         self.loadkey = loadKey
 
-        def paramcopy(object):
+        def paramcopy(obj):
             # This routine is a callback function passed to
             # LabelTree.makeOOFMenu. makeOOFMenu uses it to get the
             # list of parameters for each menuitem that it creates.
-            # The 'object' argument is the PropertyRegistration for
+            # The 'obj' argument is the PropertyRegistration for
             # which the menu item is being built.
 
             # It's tempting to simply return the
@@ -116,12 +116,12 @@ class PropertyManager:
             # shared, then loading a named Property from a data file
             # will change the settings of an already parametrized
             # unnamed Property.
-            if object:
-                return [ p.clone() for p in object.getDefaultParams() ]
+            if obj:
+                return [ p.clone() for p in obj.getDefaultParams() ]
             return []
         
-        def kwarg_func(object):         # Extra kwargs for OOFMenuItem ctor.
-            if object and object.secret():
+        def kwarg_func(obj):    # Extra kwargs for OOFMenuItem ctor.
+            if obj and obj.secret():
                 return {'secret':1, 'no_doc':1}
             return {}
 
@@ -161,7 +161,7 @@ class PropertyManager:
             collision = self.data[key]
         except KeyError:
             # Key not found, OK to insert. 
-            propclass = string.split(key,':')[-1]
+            propclass = stringsplit(key,':')[-1]
 
             # Add it to the labeltree.
             self.data.__setitem__(key, value, ordering=value.ordering)
@@ -172,7 +172,7 @@ class PropertyManager:
                 if (p1.name != p2.name) or (p1.value != p2.value):
                     raise KeyError(
                         "Assignment collision in PropertyManager, key %s."
-                        % `key`)
+                        % repr(key))
 
 
     # Make a named instance of the given property.  Called by
@@ -182,8 +182,8 @@ class PropertyManager:
     def new_prop(self, oldname, newname):
         oldreg = self.data[oldname].object
         if hasattr(oldreg , "parent"):
-            namelist = string.split(oldname, ':')[:-1]
-            fullname = string.join(namelist+[newname], ':')
+            namelist = stringsplit(oldname, ':')[:-1]
+            fullname = stringjoin(namelist+[newname], ':')
         else:
             fullname = oldname+":"+newname
         newreg = oldreg.named_copy(fullname)
@@ -193,7 +193,7 @@ class PropertyManager:
         return self.data[key].object
 
     # Delete the named item.  LabelTree ("self.data") will raise
-    # ErrUserError if the named item is a non-leaf.
+    # PyErrUserError if the named item is a non-leaf.
     def delete(self, name):
         reg = self.data[name].object
         if hasattr(reg, "parent"):
@@ -228,7 +228,7 @@ class PropertyManager:
             # Translate the menuitem's path to the tree's path.  The first
             # three words of the path are OOF.Property.Parametrize.
             # We want the remainder.
-            treepath = string.split(menuitem.path(),".")[3:]
+            treepath = stringsplit(menuitem.path(),".")[3:]
             reg = self.data[treepath].object
             reg.new_params(**kwargs)
             switchboard.notify("redraw")
@@ -237,13 +237,13 @@ class PropertyManager:
     # initialization.  It is not placed in PropertyManager.__init__
     # because OOF.LoadData.IPC.Property has not been added yet.
     def set_parallel_parametrizercallback(self):
-        def paramcopy(object):
-            if object:
-                return [ p.clone() for p in object.getDefaultParams() ]
+        def paramcopy(obj):
+            if obj:
+                return [ p.clone() for p in obj.getDefaultParams() ]
             return []
 
-        def kwarg_func(object):         # Extra kwargs for OOFMenuItem ctor.
-            if object and object.secret():
+        def kwarg_func(obj):         # Extra kwargs for OOFMenuItem ctor.
+            if obj and obj.secret():
                 return {'secret':1, 'no_doc':1}
             return {}
 
@@ -262,7 +262,7 @@ class PropertyManager:
         # The first five words of menuitem.path() are
         # OOF.LoadData.IPC.Property.Parametrize
         # We want the remainder.
-        treepath = string.split(menuitem.path(),".")[5:]
+        treepath = stringsplit(menuitem.path(),".")[5:]
         reg = self.data[treepath].object
         reg.new_params(**kwargs)
         switchboard.notify("redraw")
@@ -274,7 +274,7 @@ class PropertyManager:
     # PropertyRegistration and NamedPropertyRegistration's writeData
     # methods ensure that "reg" is always a PropertyRegistration.
     def creatorcallback(self, menuitem, **kwargs):
-        treepath = string.split(menuitem.path(),".")[3:]
+        treepath = stringsplit(menuitem.path(),".")[3:]
         reg = self.data[treepath].object
         name = menuitem.params[0].value
 
@@ -289,10 +289,10 @@ class PropertyManager:
         if namecollision:               # name is a duplicate
             if parametercollision:      # parameters disagree
                 if name != "":
-                    raise ooferror.ErrSetupError("Named property in datafile conflicts with existing property '%s'" % name)
+                    raise ooferror.PyErrSetupError("Named property in datafile conflicts with existing property '%s'" % name)
                 # reparametrization of unnamed property
                 if reg.materials:
-                    raise ooferror.ErrSetupError("Unnamed property in datafile conflicts with existing property '%s'" % name)
+                    raise ooferror.PyErrSetupError("Unnamed property in datafile conflicts with existing property '%s'" % name)
                 # Unnamed property is being reparametrized, but it's
                 # not used in any materials, so it's ok.
                 reg.new_params(**kwargs)
@@ -304,7 +304,7 @@ class PropertyManager:
             # No collision, we must create a new NamedRegistration.
             # We know it's a NamedRegistration because unnamed
             # property registrations *always* produce a name conflict.
-            fullname = string.join( treepath + [name], ":")
+            fullname = stringjoin( treepath + [name], ":")
             newreg = reg.named_copy(fullname, menuitem.params[1:])
             switchboard.notify("redraw")
 
@@ -330,7 +330,7 @@ class _PSInfo:
         self._fields[field] = _PropertyFieldInfo(time_derivs, nonlinear, 
                                                  time_dependent)
     def fields(self):
-        return self._fields.keys()
+        return list(self._fields.keys())
     def fields_of_order(self, order):
         return [f for f in self._fields
                 if (f is not None and
@@ -399,7 +399,7 @@ class _PropertyStructureInfo:
                 pass
         return list(flds)
     def all(self):
-        return self._dict.keys()
+        return list(self._dict.keys())
     def nonlinear(self, fields):
         for key,pinfo in self._dict.items():
             if pinfo.nonlinear(fields):
@@ -426,19 +426,20 @@ class _PropertyStructureInfo:
 # resulting name as a parameter to their parameter list.
 
 class PropertyRegistrationParent:
-    def __init__(self, subclass, modulename, ordering, secret):
+    def __init__(self, subclass, ordering, secret):
         self.subclass = subclass        # for PythonExportability of Property
-        self.modulename = modulename    # ditto
         self.ordering = ordering
-        properties.Property.registry.append(self)
+        # The registry is class-level data inserted into the Property
+        # class in property.spy.
+        property.Property.registry.append(self)
         self._secret = secret
 
     def unregister(self):
-        del properties.Property.registry[self.getIndex()]
+        del property.Property.registry[self.getIndex()]
 
     def getIndex(self):
-        for i in range(len(properties.Property.registry)):
-            if properties.Property.registry[i] is self:
+        for i in range(len(property.Property.registry)):
+            if property.Property.registry[i] is self:
                 return i
     def secret(self):
         return self._secret
@@ -450,7 +451,7 @@ class PropertyRegistrationParent:
 # recomputation of the stiffness matrix when mesh.make_stiffness is
 # called, even if the mesh itself hasn't changed.
 class PropertyRegistration(PropertyRegistrationParent):
-    def __init__(self, name, subclass, modulename, ordering, params=[],
+    def __init__(self, name, subclass, ordering, params=[],
                  propertyType=None,
                  outputs=[],
                  secret=0,
@@ -459,8 +460,7 @@ class PropertyRegistration(PropertyRegistrationParent):
                  tip=None,
                  discussion=None):
 
-        PropertyRegistrationParent.__init__(self, subclass,
-                                            modulename, ordering, secret)
+        PropertyRegistrationParent.__init__(self, subclass, ordering, secret)
 
         # Save the fully-qualified name for error reporting.  This
         # datum should not be confused with the parameter "name",
@@ -482,7 +482,7 @@ class PropertyRegistration(PropertyRegistrationParent):
         self.discussion = discussion  # discussion string or loadFile
         
         if propertyType is None:
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Missing propertyType in PropertyRegistration %s" % name)
         self._propertyType=propertyType
 
@@ -520,7 +520,7 @@ class PropertyRegistration(PropertyRegistrationParent):
                  time_dependent=False):
         for flux in fluxes:
             for field in fields:
-                nl = ((isinstance(nonlinear, (types.ListType, types.TupleType))
+                nl = ((isinstance(nonlinear, (list, tuple))
                        and field in nonlinear)
                       or nonlinear)
                 self._fluxes.add(flux, field, time_derivs, nl, time_dependent)
@@ -533,7 +533,7 @@ class PropertyRegistration(PropertyRegistrationParent):
         # no contributions.
         for eqn in equations:
             for field in fields:
-                nl = ((isinstance(nonlinear, (types.ListType, types.TupleType))
+                nl = ((isinstance(nonlinear, (list, tuple))
                        and field in nonlinear)
                       or nonlinear)
                 self._equations.add(eqn, field, time_derivs, nl, time_dependent)
@@ -627,7 +627,7 @@ class PropertyRegistration(PropertyRegistrationParent):
                 except KeyError:
                     pass
         # "m" is a MaterialProps object, "o" is the old property instance.
-        for (m, o) in self.materials.values():
+        for (m, o) in list(self.materials.values()):
             newcopy = self() # Run the registration to get the prop.
             m.new_params(o, newcopy)
             self.materials[m.name]=(m, newcopy)
@@ -645,8 +645,8 @@ class PropertyRegistration(PropertyRegistrationParent):
 
     def __repr__(self):
         return "PropertyRegistration(%s, %s, %s)" % \
-               (self.subclass.__name__, `self.ordering`,
-                `self.params`)
+               (self.subclass.__name__, repr(self.ordering),
+                repr(self.params))
 
     def writeData(self, datafile):
         datafile.startCmd(
@@ -670,7 +670,6 @@ class PropertyRegistration(PropertyRegistrationParent):
         new_params = [parameter.StringParameter('name',name)] + \
                      [p.clone() for p in old_params]
         return NamedPropertyRegistration(self, name, self.subclass,
-                                         self.modulename, 
                                          self.ordering, new_params,
                                          secret)
     def getParameter(self, name):
@@ -684,17 +683,15 @@ class PropertyRegistration(PropertyRegistrationParent):
 # being created automatically by the tree, and by having a "parent"
 # attribute which refers to a PropertyRegistration object.
 class NamedPropertyRegistration(PropertyRegistration):
-    def __init__(self, parent, name, subclass,
-                 modulename, ordering, params, secret):
+    def __init__(self, parent, name, subclass, ordering, params, secret):
         
         ## TODO: Why does NamedPropertyRegistration inherit from
         ## PropertyRegistration, but call PropertyRegistrationParent's
         ## __init__?  Is the class hierarchy strange?
-        PropertyRegistrationParent.__init__(self, subclass,
-                                            modulename, ordering, secret)
+        PropertyRegistrationParent.__init__(self, subclass, ordering, secret)
 
         self._name = name
-        self.moniker = string.split(name,":")[-1]
+        self.moniker = stringsplit(name,":")[-1]
         self.parent = parent
         self.materials = {}
         self.params = params
@@ -742,8 +739,8 @@ class NamedPropertyRegistration(PropertyRegistration):
 
     def __repr__(self):
         return "NamedPropertyRegistration(%s, %s, %s, %s)" % \
-               (`self.moniker`, self.subclass.__name__, `self.ordering`,
-                `self.params`)
+               (repr(self.moniker), self.subclass.__name__, repr(self.ordering),
+                repr(self.params))
 
     def writeData(self, datafile):
         datafile.startCmd(
@@ -768,7 +765,6 @@ class NamedPropertyRegistration(PropertyRegistration):
         new_params = [parameter.StringParameter('name', name)] + \
                      [p.clone() for p in non_name_params]
         return NamedPropertyRegistration(self.parent, name, self.subclass,
-                                         self.modulename, 
                                          self.parent.ordering, new_params,
                                          secret)
     
@@ -831,7 +827,7 @@ def _parametrizeHelp(menuitem):
                    % ('n'*(name[0] in 'aeiouAEOIU'), name)
     splitpath = menuitem.path().split('.')
     proppath = splitpath[3:]            # remove "OOF.Property.Parametrize"
-    return "Set parameters for %s Properties" % string.join(proppath, '.')
+    return "Set parameters for %s Properties" % stringjoin(proppath, '.')
     
 
 def _loadDiscussion(menuitem):
@@ -896,7 +892,7 @@ def _loadHelp(menuitem):
                    % ('n'*(name[0] in 'aeiouAEIOU'), name)
     splitpath = menuitem.path().split('.')
     proppath = splitpath[3:]            # remove "OOF.LoadDataProperty"
-    return "Set parameters for %s Properties.  This menu is used only in data files." % string.join(proppath, '.')
+    return "Set parameters for %s Properties.  This menu is used only in data files." % stringjoin(proppath, '.')
     
 
 def xmldocs(phile):
@@ -932,28 +928,27 @@ def xmldocs(phile):
                 propdict[field] = [reg]
 
 
-    print >> phile, "<section id='Section-Properties'>"
-    print >> phile, "<title>Material Properties</title>"
-    print >> phile, """
+    print("<section id='Section-Properties'>", file=phile)
+    print("<title>Material Properties</title>", file=phile)
+    print("""
 <para>
 This is a listing of &properties; by category.  Each &material; may
 have at most one &property; from each category.  Follow the links for
 more detail about each &property;, including which &fields; it
 requires and which &fluxes; and/or &equations; it contributes to.
-</para>"""
-    print >> phile, "<itemizedlist>"
-    ptypes = ptypedict.keys()
-    ptypes.sort()
+</para>""", file=phile)
+    print("<itemizedlist>", file=phile)
+    ptypes = sorted(list(ptypedict.keys()))
     for ptype in ptypes:
-        print >> phile, '<listitem id="PropertyType-%s">' % ptype
-        print >> phile, '<para>', ptype
-        print >> phile, '<itemizedlist>'
+        print('<listitem id="PropertyType-%s">' % ptype, file=phile)
+        print('<para>', ptype, file=phile)
+        print('<itemizedlist>', file=phile)
         for reg in ptypedict[ptype]:
-            print >> phile, '<listitem><simpara><link linkend="Property-%s">%s</link></simpara></listitem>' % (reg.name().replace(':', '-'), reg.name())
-        print >> phile, '</itemizedlist>'
-        print >> phile, '</para>'
-        print >> phile, '</listitem>'
-    print >> phile, '</itemizedlist>'
+            print('<listitem><simpara><link linkend="Property-%s">%s</link></simpara></listitem>' % (reg.name().replace(':', '-'), reg.name()), file=phile)
+        print('</itemizedlist>', file=phile)
+        print('</para>', file=phile)
+        print('</listitem>', file=phile)
+    print('</itemizedlist>', file=phile)
 
     # Create a refentry page for each Property
     for reg in AllProperties.data.getObjects():
@@ -963,66 +958,66 @@ requires and which &fluxes; and/or &equations; it contributes to.
         idname = name.replace(':', '-')
         ptype = reg.propertyType()
         xmlmenudump.xmlIndexEntry(name, ptype+" Property", "Property-"+idname)
-        print >> phile, '<refentry xreflabel="%s" id="Property-%s" role="Property">' \
-            % (name, idname)
-        print >> phile, '<refnamediv>'
-        print >> phile, '<refname>%s</refname>' % name
+        print('<refentry xreflabel="%s" id="Property-%s" role="Property">' \
+            % (name, idname), file=phile)
+        print('<refnamediv>', file=phile)
+        print('<refname>%s</refname>' % name, file=phile)
         if reg.tip is not parameter.emptyTipString:
             tip = reg.tip or "MISSING PROPERTY TIP STRING for %s" % name
         else:
             tip = ""
-        print >> phile, '<refpurpose>%s</refpurpose>' % tip
-        print >> phile, '</refnamediv>'
-        print >> phile, '<refsect1>'
-        print >> phile, '<title>Details</title>'
-        print >> phile, '<itemizedlist>'
+        print('<refpurpose>%s</refpurpose>' % tip, file=phile)
+        print('</refnamediv>', file=phile)
+        print('<refsect1>', file=phile)
+        print('<title>Details</title>', file=phile)
+        print('<itemizedlist>', file=phile)
         # Category
-        print >> phile, '<listitem><simpara>'
-        print >> phile, 'Property Category: <link linkend="PropertyType-%(t)s">%(t)s</link>' % dict(t=ptype)
-        print >> phile, '</simpara></listitem>'
+        print('<listitem><simpara>', file=phile)
+        print('Property Category: <link linkend="PropertyType-%(t)s">%(t)s</link>' % dict(t=ptype), file=phile)
+        print('</simpara></listitem>', file=phile)
         # Parameters
-        print >> phile, '<listitem>'
-        print >> phile, '<para>Parameters:'
-        print >> phile, '<variablelist>'
+        print('<listitem>', file=phile)
+        print('<para>Parameters:', file=phile)
+        print('<variablelist>', file=phile)
         for param in reg.params:
-            print >> phile, '<varlistentry>'
-            print >> phile, '<term><varname>%s</varname></term>' % param.name
-            print >> phile, '<listitem>'
+            print('<varlistentry>', file=phile)
+            print('<term><varname>%s</varname></term>' % param.name, file=phile)
+            print('<listitem>', file=phile)
             if param.tip is not parameter.emptyTipString:
                 tip = param.tip or "MISSING PROPERTY PARAMETER TIP for %s"%name
             else:
                 tip = ""
-            print >> phile, '<simpara>%s <emphasis>Type</emphasis>: %s </simpara>'\
-                % (tip, param.valueDesc())
-            print >> phile, '</listitem>'
-            print >> phile, '</varlistentry>'
-        print >> phile, '</variablelist>'
-        print >> phile, '</para></listitem> <!-- Parameters -->'
+            print('<simpara>%s <emphasis>Type</emphasis>: %s </simpara>'\
+                % (tip, param.valueDesc()), file=phile)
+            print('</listitem>', file=phile)
+            print('</varlistentry>', file=phile)
+        print('</variablelist>', file=phile)
+        print('</para></listitem> <!-- Parameters -->', file=phile)
 
         for classname, plural, objlist in [('Field', 'Fields', reg.fields()),
                                  ('Flux', 'Fluxes', reg.fluxes()),
                                  ('Equation', 'Equations', reg.equations())]:
             if objlist:
-                print >> phile, '<listitem><simpara>'
+                print('<listitem><simpara>', file=phile)
                 text = ["<link linkend='%s-%s'><varname>%s</varname></link>"
                         % (classname, obj.name(), obj.name())
                         for obj in objlist]
-                print >> phile, "%s: %s" % (plural, ", ".join(text))
-                print >> phile, '</simpara></listitem>'
+                print("%s: %s" % (plural, ", ".join(text)), file=phile)
+                print('</simpara></listitem>', file=phile)
 
-        print >> phile, '</itemizedlist>'
-        print >> phile, '</refsect1> <!-- Details -->'
+        print('</itemizedlist>', file=phile)
+        print('</refsect1> <!-- Details -->', file=phile)
 
-        print >> phile, '<refsect1>'
-        print >> phile, '<title>Discussion</title>'
+        print('<refsect1>', file=phile)
+        print('<title>Discussion</title>', file=phile)
         try:
-            print >> phile, xmlmenudump.getDiscussion(reg)
+            print(xmlmenudump.getDiscussion(reg), file=phile)
         except AttributeError:
-            print >> phile, "<para>MISSING PROPERTY DISCUSSION: %s</para>" % name
-        print >> phile, '</refsect1> <!-- Discussion -->'
-        print >> phile, '</refentry>'
+            print("<para>MISSING PROPERTY DISCUSSION: %s</para>" % name, file=phile)
+        print('</refsect1> <!-- Discussion -->', file=phile)
+        print('</refentry>', file=phile)
 
-    print >> phile, "</section> <!-- Properties -->"
+    print("</section> <!-- Properties -->", file=phile)
 
     return propdict
 

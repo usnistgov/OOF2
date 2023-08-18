@@ -28,7 +28,7 @@ from ooflib.engine import skeletongroups
 from ooflib.engine import skeletonnode
 from ooflib.engine import skeletonselectable
 from ooflib.engine.IO import movenode
-import string
+import itertools
 import sys
 
 # When propagating boundaries, Deputies shouldn't be around - since they
@@ -274,13 +274,13 @@ class SkeletonContext(whoville.WhoDoUndo):
             meshctxt.skeletonChanged(self.getObject())
 
     def updateGroupsAndSelections(self):
-        self.nodegroups.new_objects(self)
-        self.segmentgroups.new_objects(self)
-        self.elementgroups.new_objects(self)
+        self.nodegroups.new_objects()
+        self.segmentgroups.new_objects()
+        self.elementgroups.new_objects()
 
-        self.nodeselection.newSkeleton(self)
-        self.segmentselection.newSkeleton(self)
-        self.elementselection.newSkeleton(self)
+        self.nodeselection.newSkeleton()
+        self.segmentselection.newSkeleton()
+        self.elementselection.newSkeleton()
     
 
     def undoModification(self):
@@ -417,6 +417,7 @@ class SkeletonContext(whoville.WhoDoUndo):
 
     def createPointBoundary(self, name, node_set,
                             exterior=None, autoselect=1):
+        # node_set can be a generator or other iterable object
         bdy = self.getObject().makePointBoundary(name, node_set, exterior)
 
         for mesh in self.getMeshes():
@@ -463,7 +464,7 @@ class SkeletonContext(whoville.WhoDoUndo):
             self.pointboundaries[name].remove()
             del self.pointboundaries[name]
         else:
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "Cannot remove boundary %s, no such boundary." % name)
         if name == self.selectedBdyName:
             self.unselectBoundary()
@@ -475,12 +476,13 @@ class SkeletonContext(whoville.WhoDoUndo):
             return
 
         if newname in self.allBoundaryNames():
-            raise ooferror.ErrSetupError("Name %s is already in use." % newname)
+            raise ooferror.PyErrSetupError(
+                "Name %s is already in use." % newname)
 
         #Interface branch
         if config.dimension() == 2 and runtimeflags.surface_mode:
             if newname in self.allInterfaceNames():
-                raise ooferror.ErrSetupError(
+                raise ooferror.PyErrSetupError(
                     "Name %s is already in use as an interface name." % newname)
 
         if oldname in self.edgeboundaries:
@@ -488,7 +490,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         elif oldname in self.pointboundaries:
             dict = self.pointboundaries
         else: 
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Boundary name %s not found." % oldname)
 
         dict[newname]=dict[oldname]
@@ -549,7 +551,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         try:
             bdy = self.edgeboundaries[name]
         except KeyError:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Boundary %s is not an edge boundary." % name)
 
         return bdy.try_append(seg_set)
@@ -559,7 +561,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         try:
             bdy = self.edgeboundaries[name]
         except KeyError:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Boundary %s is not an edge boundary." % name)
 
         bdy.append(seg_set)
@@ -573,7 +575,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         try:
             bdy = self.edgeboundaries[name] # SkelContextEdgeBoundary
         except KeyError:
-            raise ooferror.ErrSetupError("Boundary %s is not an edge boundary."
+            raise ooferror.PyErrSetupError("Boundary %s is not an edge boundary."
                                          % name)
         bdy.reverse()
         self.bdyPropagate(name, bdy)
@@ -586,7 +588,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         try:
             bdy = self.pointboundaries[name]
         except KeyError:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Boundary %s is not a point boundary." % name)
 
         bdy.append(node_list)
@@ -601,7 +603,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         try:
             bdy = self.edgeboundaries[name]
         except KeyError:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Boundary %s is not an edge Boundary." % name)
 
         return bdy.try_delete(seg_set)
@@ -611,7 +613,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         try:
             bdy = self.edgeboundaries[name]
         except KeyError:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Boundary %s is not an edge boundary." % name)
 
         bdy.delete(seg_set)
@@ -624,7 +626,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         try:
             bdy = self.pointboundaries[name]
         except KeyError:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Boundary %s is not a point boundary." % name)
 
         bdy.delete(node_list)
@@ -672,10 +674,13 @@ class SkeletonContext(whoville.WhoDoUndo):
     # ## ### #### ##### ###### ####### ####### ###### ##### #### ### ## #
 
     def allEdgeBoundaryNames(self):
-        return self.edgeboundaries.keys()
+        return self.edgeboundaries.keys() # returns an iterator!
     
     def allBoundaryNames(self):
-        return self.edgeboundaries.keys() + self.pointboundaries.keys()
+        for name in self.edgeboundaries:
+            yield name
+        for name in self.pointboundaries:
+            yield name
 
     #Interface branch
     def allInterfaceNames(self):
@@ -687,10 +692,9 @@ class SkeletonContext(whoville.WhoDoUndo):
             return []
         
     def uniqueBoundaryName(self, name):
-        if config.dimension() == 2:
-            return utils.uniqueName(name, self.allBoundaryNames()+self.allInterfaceNames())
-        if config.dimension() == 3:
-            return utils.uniqueName(name, self.allBoundaryNames())
+        return utils.uniqueName(
+            name,
+            itertools.chain(self.allBoundaryNames(), self.allInterfaceNames()))
 
     # Get information about the named boundary, i.e. type, size, and
     # return it as a string, with newlines as appropriate.
@@ -714,7 +718,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         if bdy:
             outlist.append("Size: %i" % bdy.size(self.getObject()))
         
-        return string.join(outlist,"\n")
+        return utils.stringjoin(outlist,"\n")
         
                 
     #Called by C++ edgement function refreshInterfaceMaterial() (element.C)
@@ -742,11 +746,9 @@ class SkeletonContext(whoville.WhoDoUndo):
 
     # Copy over the group data from another skeletoncontext.
     def groupCopy(self, other):
-        mygroups = [self.nodegroups, self.segmentgroups, self.elementgroups]
-        othergroups = [other.nodegroups, other.segmentgroups,
-                       other.elementgroups] 
-        for (g, og) in map(None, mygroups, othergroups):
-            g.nameCopy(og)
+        self.nodegroups.addGroup(*other.nodegroups.allGroups())
+        self.segmentgroups.addGroup(*other.segmentgroups.allGroups())
+        self.elementgroups.addGroup(*other.elementgroups.allGroups())
 
     # ## ### #### ##### ###### ####### ####### ###### ##### #### ### ## #
 
@@ -803,7 +805,7 @@ def getSkeleton(ms, name):
 
 def extractSkeletonPath(somepath):
     #Calling labeltree.makePath may be a more formal way to do this.
-    pathlist=string.split(somepath,":")
+    pathlist=utils.stringsplit(somepath,":")
     if len(pathlist)<2:
         #Shouldn't happen
         return somepath

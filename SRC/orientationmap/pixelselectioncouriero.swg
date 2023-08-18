@@ -12,13 +12,11 @@
 #ifndef PIXELSELECTIONCOURIERO_SWG
 #define PIXELSELECTIONCOURIERO_SWG
 
-%module pixelselectioncouriero
+%module(package="ooflib.SWIG.orientationmap") pixelselectioncouriero
 
 %include "common/typemaps.swg"
-%include "common/pixelselectioncourier.swg"
-
-%pragma(python) code="from ooflib.SWIG.common.pixelselectioncourier import PixelSelectionCourierPtr"
-
+%import "common/pixelselectioncourier.swg"
+%import "engine/corientation.swg"
 
 %{
 #include "engine/corientation.h"

@@ -28,6 +28,8 @@
 # in the path.
 
 # To temporarily skip a subdirectory, add a file called SKIP to it.
+# To permanently skip a subdirectory, add it to the skipdirs list,
+# below.
 
 # The subdirectory can contain a file called "args" which contains a
 # single line of arguments to be added to the oof2 command.  It can
@@ -59,13 +61,15 @@ unthreaded = False
 global tmpdir
 tmpdir = None
 
+skipdirs = ["__pycache__"]
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def run_tests(dirs, rerecord, forever):
     homedir = os.getcwd()
     global tmpdir
     tmpdir = tempfile.mkdtemp(prefix='oof2temp_')
-    print >> sys.stderr, "Using temp dir", tmpdir
+    print("Using temp dir", tmpdir, file=sys.stderr)
 
     linkfile(homedir, 'examples')
     linkfile(homedir, 'TEST_DATA')
@@ -75,14 +79,14 @@ def run_tests(dirs, rerecord, forever):
     try:
         if forever:
             counter = 0
-            while 1:
-                print >> sys.stderr, "******* %d ********" % counter
+            while True:
+                print("******* %d ********" % counter, file=sys.stderr)
                 counter += 1
                 ok = really_run_tests(homedir, dirs, rerecord)
         else:
             really_run_tests(homedir, dirs, rerecord)
     except:
-        print >> sys.stderr, "Not removing temp directory", tmpdir
+        print("Not removing temp directory", tmpdir, file=sys.stderr)
         raise
     else:   # Successful execution. 
         pass
@@ -97,23 +101,26 @@ def run_tests(dirs, rerecord, forever):
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def really_run_tests(homedir, dirs, rerecord):
-    nskipped = 0
+    skipped = []        # list of skipped directories, reported at the end
     nrun = 0
     for directory in dirs:
         originaldir = os.path.join(homedir, directory)
         # Check that the directory and log file exist, and that
         # there's no SKIP file, before bothering to make the symlink
         # to the directory.
+        if directory in skipdirs:
+            continue
         if not os.path.isdir(originaldir):
-            print >> sys.stderr, "Can't find directory", directory
+            print("Can't find directory", directory, file=sys.stderr)
             return
         if os.path.exists(os.path.join(originaldir, 'SKIP')) and len(dirs) > 1:
-            print >> sys.stderr, " **** Skipping", directory, "****"
-            nskipped += 1
+            print(" **** Skipping", directory, "****", file=sys.stderr)
+            skipped.append(directory)
             continue
         if not os.path.exists(os.path.join(originaldir, TESTFILE)):
-            print >> sys.stderr, " **** Skipping", directory, "(No log file!) ****"
-            nskipped += 1
+            print(" **** Skipping", directory, "(No log file!) ****",
+                  file=sys.stderr)
+            skipped.append(directory)
             continue
 
         # Ok, everything's there.  Get ready to run this test.  Make a
@@ -165,52 +172,60 @@ def really_run_tests(homedir, dirs, rerecord):
                "--%s" % replayarg,
                os.path.join(directory, TESTFILE)] + extraargs
 
-        print >> sys.stderr, "-------------------------"
-        print >> sys.stderr, "--- Running %s" % ' '.join(cmd)
-        os.putenv('OOFTESTDIR', directory)
+        print("-------------------------", file=sys.stderr)
+        print("--- Running %s" % ' '.join(cmd), file=sys.stderr)
+        os.environ["OOFTESTDIR"] = directory
         result = subprocess.call(cmd)
-        print >> sys.stderr, "--- Return value =", result
+        print("--- Return value =", result, file=sys.stderr)
         if result < 0:
-            print >> sys.stderr, "Child was terminated by signal", -result
-            print >> sys.stderr, "Test", directory, "failed!"
+            print("Child was terminated by signal", -result, file=sys.stderr)
+            print("Test", directory, "failed!", file=sys.stderr)
             sys.exit(result)
 
         if result != exitstatus:
-            print "Test %s failed! Status=%d, expected=%d" \
-                % (directory, result, exitstatus)
+            print("Test %s failed! Status=%d, expected=%d" \
+                % (directory, result, exitstatus))
             sys.exit(result)
-        print >> sys.stderr, "--- Finished %s" % directory
+        print("--- Finished %s" % directory, file=sys.stderr)
 
         cleanupscript = os.path.join(directory, 'cleanup.py')
         if os.path.exists(cleanupscript):
-            execfile(cleanupscript)
+            sys.path.append(directory)
+            sys.path.append(homedir)
+            sys.path.append("UTILS")
+            exec(
+                compile(
+                    open(cleanupscript, "rb").read(), cleanupscript, 'exec'),
+                globals(), locals())
 
         os.remove(testdir)
         nrun += 1
           
-    print >> sys.stderr, "%d test%s ran successfully!" % (nrun, "s"*(nrun!=1))
-    print >> sys.stderr, "Skipped %d test%s." % (nskipped, "s"*(nskipped!=1))
+    print("%d test%s ran successfully!" % (nrun, "s"*(nrun!=1)), file=sys.stderr)
+    print("Skipped %d test%s:" % (len(skipped), "s"*(len(skipped)!=1)),
+          file=sys.stderr)
+    for skipdir in skipped:
+        print(f"    {skipdir}", file=sys.stderr)
 
 excluded = ['CVS','TEST_DATA', 'examples']
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def get_dirs():
-    files = [f for f in os.listdir('.')
-             if os.path.isdir(f) and f not in excluded]
-    files.sort()
+    files = sorted([f for f in os.listdir('.')
+             if os.path.isdir(f) and f not in excluded])
     return files
 
 def checkdir(directory, dirs):
     if directory not in dirs:
-        print >> sys.stderr, "There is no directory named", directory
+        print("There is no directory named", directory, file=sys.stderr)
         sys.exit(1)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def removefile(filename):
     fullname = os.path.normpath(os.path.join(tmpdir, filename))
-    print >> sys.stderr, "Removing file", fullname
+    print("Removing file", fullname, file=sys.stderr)
     if os.path.exists(fullname):
         os.remove(fullname)
 
@@ -221,8 +236,7 @@ def linkfile(homedir, filename):
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def printhelp():
-    print >> sys.stderr, \
-"""
+    print("""
 Usage:  python guitests.py [options] [test directories]
 
 Options are:
@@ -239,7 +253,7 @@ Options are:
    --no-checkpoints Ignore checkpoints in log files (not very useful).
    --forever    Repeat tests until they fail.
    --help       Print this message.
-"""
+""", file=sys.stderr)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -253,10 +267,11 @@ def run(homedir):
                                        'rerecord', 'no-checkpoints',
                                        'sync', 'unthreaded',
                                        'forever', 'help'])
-    except getopt.error, message:
-        print message
+    except getopt.error as message:
+        print(message)
         printhelp()
         sys.exit(1)
+    global debug, unthreaded, sync, no_checkpoints, delaystr
     fromdir = None
     afterdir = None
     todir = None
@@ -296,7 +311,7 @@ def run(homedir):
 
     if listtests:
         dirs = get_dirs()
-        print "\n".join(dirs)
+        print("\n".join(dirs))
         sys.exit(0)
 
     if args:         # test directories were explicitly listed on command line
@@ -305,7 +320,7 @@ def run(homedir):
         dirs = get_dirs()
         if afterdir:
             if fromdir:
-                print >> sys.stderr, "You cannot use both --from and --after!"
+                print("You cannot use both --from and --after!", file=sys.stderr)
                 sys.exit(0)
             # Start at the directory following afterdir
             fromdir = dirs[dirs.index(afterdir)+1]

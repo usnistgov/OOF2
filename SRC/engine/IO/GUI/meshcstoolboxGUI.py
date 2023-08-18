@@ -35,6 +35,8 @@ from ooflib.engine.IO.GUI import sampleregclassfactory
 
 from oofcanvas import oofcanvasgui
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 # String displayed in the cross section chooser to mean that no cs is
@@ -81,7 +83,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         csbox.pack_start(table, expand=False, fill=False, padding=0)
 
         # Widget which shows the name of the current cross-section.
-        label = Gtk.Label("current: ", halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label="current: ", halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,0, 1,1)
         self.csChooser = chooser.ChooserWidget(
             [], callback=self.csChooserCB, name='csList',
@@ -89,7 +91,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         table.attach(self.csChooser.gtk, 1,0,1,1)
 
         # Widget for how to sample the cross-section.
-        label = Gtk.Label("points: ", halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label="points: ", halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,1, 1,2)
 
         self.cs_sample_widget = sampleregclassfactory.SampleRCF(
@@ -107,7 +109,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
                        margin_start=2, margin_end=2)
         csbox.pack_start(hbox, expand=False, fill=False, padding=0)
         # Rename button.
-        self.renamebutton = Gtk.Button("Rename")
+        self.renamebutton = Gtk.Button(label="Rename")
         gtklogger.setWidgetName(self.renamebutton, 'Rename')
         gtklogger.connect(self.renamebutton, 'clicked', self.csrenameCB)
         self.renamebutton.set_tooltip_text("Rename the current cross-section.")
@@ -143,7 +145,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
                        margin=2)
         vbox.pack_start(hbox, expand=False, fill=False, padding=0)
         
-        label = Gtk.Label("Destination: ", halign=Gtk.Align.END)
+        label = Gtk.Label(label="Destination: ", halign=Gtk.Align.END)
         hbox.pack_start(label, expand=False, fill=False, padding=0)
         self.destwidget = outputdestinationwidget.TextDestinationWidget(
             name="Destination", hexpand=True, halign=Gtk.Align.FILL)
@@ -181,7 +183,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         self.toolbox.activate()
         self.gfxwindow().setMouseHandler(self)
         self.motionFlag = self.gfxwindow().allowMotionEvents(
-            oofcanvasgui.motionMouseDown)
+            oofcanvasgui.MotionAllowed_MOUSEDOWN)
         self.gfxwindow().setRubberBand(oofcanvasgui.LineRubberBand())
         self.sb_callbacks = [
             switchboard.requestCallbackMain( (self.gfxwindow(),

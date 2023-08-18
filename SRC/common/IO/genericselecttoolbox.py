@@ -31,7 +31,6 @@
 # and invokes the non-GUI menu item, which creates the actual method
 # does the selection.
 
-
 from ooflib.SWIG.common import switchboard
 from ooflib.common import primitives
 from ooflib.common import debug
@@ -39,9 +38,6 @@ from ooflib.common import registeredclass
 from ooflib.common import toolbox
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
-from types import *
-import math
-
 
 # Base class for selection toolboxes.
 
@@ -96,11 +92,11 @@ class GenericSelectToolbox(toolbox.Toolbox):
                 callback=self.clearCB,
                 help="Clear the selection.",
                 discussion="""<para>
-                Unselect all %(object)ss in a %(source)s.  The
+                Unselect all %(obj)ss in a %(source)s.  The
                 <varname>%(param)s</varname> parameter is the
-                %(source)s in which the %(object)ss are to be
+                %(source)s in which the %(obj)ss are to be
                 deselected.
-                </para>""" % {'object':self.objName(),
+                </para>""" % {'obj':self.objName(),
                               'source':self.sourceName(),
                               'param':self.sourceParamName()}
                 ))
@@ -110,7 +106,7 @@ class GenericSelectToolbox(toolbox.Toolbox):
                 callback=self.undoCB,
                 help="Undo the selection.",
                 discussion="""<para>
-                Undo the previous %(object)s selection in the
+                Undo the previous %(obj)s selection in the
                 %(source)s named by the <varname>%(param)s</varname>
                 parameter.  Previous selections are stored on a stack,
                 and the <command>Undo</command> pops off the top of
@@ -122,7 +118,7 @@ class GenericSelectToolbox(toolbox.Toolbox):
                 </para><para>
                 The stack has a finite size.  Once it is full, old
                 selections will be lost when new selections are made.
-                </para>""" % {'object':self.objName(),
+                </para>""" % {'obj':self.objName(),
                               'source':self.sourceName(),
                               'param':self.sourceParamName(),
                               'parent':self.menu.path()}
@@ -133,7 +129,7 @@ class GenericSelectToolbox(toolbox.Toolbox):
                 callback=self.redoCB,
                 help="Redo the latest undone selection.",
                 discussion="""<para>
-                Redo the previously undone %(object)s selection in the
+                Redo the previously undone %(obj)s selection in the
                 %(source)s named in the <varname>%(param)s</varname>
                 parameter.  Selections are stored on a stack, and the
                 <link
@@ -144,10 +140,10 @@ class GenericSelectToolbox(toolbox.Toolbox):
                 </para>
                 <para>
                 It's only possible to <command>Redo</command> a
-                selection if no other %(object)ss have been selected
+                selection if no other %(obj)ss have been selected
                 since the last <link
                 linkend='MenuItem-%(parent)s.Undo'><command>Undo</command></link>.
-                </para>""" % {'object':self.objName(),
+                </para>""" % {'obj':self.objName(),
                               'source':self.sourceName(),
                               'param':self.sourceParamName(),
                               'parent':self.menu.path()}
@@ -158,12 +154,12 @@ class GenericSelectToolbox(toolbox.Toolbox):
                 callback=self.invertCB,
                 help="Invert the selection.",
                 discussion="""<para>
-                Invert the current %(object)s selection in the
+                Invert the current %(obj)s selection in the
                 %(source)s named by the <varname>%(param)s</varname>
-                parameter.  All of the currently selected %(object)ss
+                parameter.  All of the currently selected %(obj)ss
                 will be unselected and all of the currently unselected
                 ones will be selected.
-                </para>""" % {'object':self.objName(),
+                </para>""" % {'obj':self.objName(),
                               'source':self.sourceName(),
                               'param':self.sourceParamName()}
                 ))

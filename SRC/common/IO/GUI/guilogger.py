@@ -21,7 +21,11 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import progressbar_delay
 from ooflib.common.IO.GUI import activityViewer
 from ooflib.common.IO.GUI import gtklogger
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import os
 import sys
 import traceback
@@ -30,11 +34,6 @@ guidebugmenu = mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem("GUI_Logging",
                                                               ordering=1000,
                                                               no_log=True,
                                                               post_hook=None))
-
-
-# When running under the OOF context, gtklogger should catch OOF
-# errors also. 
-gtklogger.add_exception(ooferror.ErrErrorPtr)
 
 ###################################
 
@@ -83,8 +82,10 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
     callback=startLog,
     params=[filenameparam.WriteFileNameParameter(
                 'filename', ident='guilog', tip="Name of the file."),
+            ## TODO PYTHON3: Change default value of use_gui to True
+            ## after fixing loggergui.
             parameter.BooleanParameter(
-                'use_gui', True, tip="Use the logger gui to insert comments?")
+                'use_gui', False, tip="Use the logger gui to insert comments?")
             ],
     ellipsis=1,
     help="Save GUI events in a Python script",
@@ -125,7 +126,7 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
 
 def loadLog(menuitem, filename, checkpoints):
     if gtklogger.replaying():
-        raise ooferror.ErrUserError(
+        raise ooferror.PyErrUserError(
             "Multiple GUI logs cannot be replayed simultaneously!")
     debug.fmsg("Loading gui script", filename)
     menuitem.root().setOption('post_hook', menucheckpoint)
@@ -167,7 +168,7 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
 
 def rerecordLog(menuitem, filename, checkpoints, use_gui):
     if gtklogger.replaying():
-        raise ooferror.ErrUserError(
+        raise ooferror.PyErrUserError(
             "Multiple GUI logs cannot be replayed simultaneously!")
     menuitem.root().setOption('post_hook', menucheckpoint)
     dblevel = 0
@@ -242,10 +243,10 @@ def pauseLog(menuitem):
     pass
 
 def pauseGUI(menuitem):
-    dialog = Gtk.Dialog(flags=Gtk.DialogFlags.MODAL, parent=guitop.top())
+    dialog = Gtk.Dialog(modal=True, transient_for=guitop.top())
     dialog.set_title("OOF2 Pause")
     content = dialog.get_content_area()
-    content.pack_start(Gtk.Label("Continue?"),
+    content.pack_start(Gtk.Label(label="Continue?"),
                        expand=True, fill=True, padding=2)
     dialog.add_action_widget(gtkutils.StockButton("gtk-ok", "OK"),
                              Gtk.ResponseType.OK)

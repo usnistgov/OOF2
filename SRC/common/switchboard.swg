@@ -12,14 +12,12 @@
 #ifndef SWITCHBOARD_SWG
 #define SWITCHBOARD_SWG
 
-%module switchboard
+%module(package="ooflib.SWIG.common") switchboard
 
 %{
 #include "common/switchboard.h"
 #include "common/pythonlock.h"
 %}
-
-%pragma(python) include="switchboard.spy"
 
 %include "common/typemaps.swg"
 
@@ -27,30 +25,27 @@
 void init_switchboard_api(PyObject *pythonCallable); // call this once
 
 
-%typemap(python, out) PyObject* {
-  $target = $source;
-};
-
 class OOFMessage {
 public:
-  const string &name();
-  %addmethods {
-     int __len__() const {
-       return self->nargs();
-     }
-     PyObject *__getitem__(int which) const {
-       if(which >= self->nargs() || which < 0) {
-	 PyGILState_STATE pystate = acquirePyLock();
-	 PyErr_SetString(PyExc_IndexError,
- 			"Not that many arguments in OOFMessage");
-	 releasePyLock(pystate);
- 	return 0;
-       }
-       return self->getarg(which);
-     }
-   }
+  OOFMessage(const std::string&);
+  const std::string &name();
 };
 
-%typemap(python, out) PyObject*;
+%extend OOFMessage {
+  int __len__() const {
+    return self->nargs();
+  }
+  PyObject *__getitem__(int which) const {
+    if(which >= self->nargs() || which < 0) {
+      PYTHON_THREAD_BEGIN_BLOCK;
+      PyErr_SetString(PyExc_IndexError,
+		      "Not that many arguments in OOFMessage");
+      return 0;
+    }
+    return self->getarg(which);
+  }
+};
+
+%pythoncode "common/switchboard.spy"
 
 #endif // SWITCHBOARD_SWG

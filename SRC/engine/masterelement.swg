@@ -12,19 +12,22 @@
 #ifndef MASTERELEMENT_SWG
 #define MASTERELEMENT_SWG
 
-%include "engine/typemaps.swg"
+%module(package="ooflib.SWIG.engine") masterelement
 
-%pragma(python) include="engine/masterelement.spy"
-%extern "engine/element.swg"
-%extern "engine/mastercoord.swg"
+%include "common/typemaps.swg"
+%import "engine/element.swg"
+%import "engine/mastercoord.swg"
+%import "engine/material.swg"
 
 %{
-#include "engine/masterelement.h"
-#include "engine/element.h"
 #include "common/tostring.h"
-typedef std::vector<MasterElement*> MasterElementList;
-// typedef std::vector<ContourCellSkeleton*> ContourCellVec;
+#include "engine/element.h"
+#include "engine/masterelement.h"
+#include "engine/node.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
+
+%nodefaultctor ProtoNode;
 
 class ProtoNode {
 public:
@@ -35,41 +38,17 @@ public:
   int nedges();
   int getedge(int i);
   const MasterCoord &mastercoord();
-}; 
+};
 
-%typemap(python,out) MasterElementList* {
-  MasterElementList::size_type sz = $source->size();
-  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
-  $target = PyList_New((Py_ssize_t) sz);
-  char _ptemp[128];
-  for(std::vector<MasterElement*>::size_type i=0; i<sz; i++) {
-    SWIG_MakePtr(_ptemp, (char *)(*$source)[i], "_MasterElement_p");
-    PyList_SET_ITEM($target, (Py_ssize_t) i, Py_BuildValue("s",_ptemp));
-  }
-}
+MAKE_LISTVEC_TYPEMAPS(MasterElement);
+MAKE_LISTVEC_TYPEMAPS(Node);
 
-%typemap(python,newfree) MasterElementList* {
-  delete $source;
-}
-
-// %typemap(python,out) ContourCellVec* {
-//   MasterElementList::size_type sz = $source->size();
-//   assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
-//   $target = PyList_New((Py_ssize_t) sz);
-//   char _ptemp[128];
-//   for(std::vector<ContourCellSkeleton*>::size_type i=0; i<sz; i++) {
-//     SWIG_MakePtr(_ptemp, (char *)(*$source)[i], "_ContourCellSkeleton_p");
-//     PyList_SET_ITEM($target, (Py_ssize_t) i, Py_BuildValue("s",_ptemp));
-//   }
-// }
-
-// %typemap(python,newfree) ContourCellVec {
-//   delete $source;
-// }
-
-// In this case, this should *not* be "%new", C++ retains ownership
-// of the list, which is static inside the function.
-MasterElementList* masterElementList();
+// Do *not* use %newobject here. C++ retains ownership of the list,
+// which is static inside the function.
+MasterElementRefVec* masterElementList();
+// MasterElements are never created or destroyed in Python.
+%nodefaultctor MasterElement;
+%nodefaultdtor MasterElement;
 
 class MasterElement {
 public:
@@ -81,12 +60,10 @@ public:
   int ninteriormapnodes_only();
   int nexteriormapnodes_only();
   int nsides();
-  const string &name();
-  const string &description();
+  const std::string &name();
+  const std::string &description();
   int ncorners();
   double outOfBounds(const MasterCoord&);
-#ifndef DIM_3
-  // %new ContourCellVec* contourcells(int n);
   bool onBoundary(const MasterCoord&);
   bool onBoundary2(const MasterCoord&, const MasterCoord&);
 
@@ -95,34 +72,27 @@ public:
 					  Material*,
 					  NodeVec*, NodeVec*,
 					  bool,bool,
-					  StringVec*);
-#endif
-  
+					  std::vector<std::string>*);
   int map_order();
   int fun_order();
 
   Element *build(PyObject*, Material*, NodeVec*);
   
-  %addmethods {
-    const ProtoNode *get_protonode(int n) {
-      return self->protonode(n);
-    }
-    %new const string *__repr__() {
-      return new std::string(to_string(*self));
-    }
-  }
-
   // Superconvergent patch recovery
   int nSCpoints();
   MasterCoord getSCpoint(int);
-
 };
+
+%extend MasterElement {
+  const ProtoNode *get_protonode(int n) {
+    return self->protonode(n);
+  }
+}
+
+ADD_REPR_GENERIC(MasterElement);
 
 int integration_reduction;
 
-%typemap(python,out) MasterElementList*;
-%typemap(python,newfree) MasterElementList*;
-// %typemap(python,out) ContourCellVec*;
-// %typemap(python,newfree) ContourCellVec*;
+%pythoncode "engine/masterelement.spy"
 
 #endif // MASTERELEMENT_SWG

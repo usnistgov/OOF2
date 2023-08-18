@@ -17,7 +17,7 @@
 from ooflib.common import debug
 from ooflib.common import parallel_enable
 from ooflib.common import utils
-import ooflib.SWIG.engine.ooferror2
+import ooflib.SWIG.engine.ooferror
 from ooflib.SWIG.common import config
 
 
@@ -26,10 +26,7 @@ utils.OOFexec('from ooflib.engine.problem import *')
 import ooflib.engine.IO.propertymenu
 import ooflib.engine.IO.materialmenu
 import ooflib.engine.builtinprops
-if config.dimension() == 2:
-    import ooflib.engine.skeleton
-elif config.dimension() == 3:
-    import ooflib.engine.skeleton3d
+import ooflib.engine.skeleton
 import ooflib.engine.skeletoncontext
 import ooflib.engine.skeletonselectionmodes
 import ooflib.SWIG.engine.masterelement
@@ -57,21 +54,16 @@ import ooflib.engine.IO.meshmenu
 import ooflib.engine.IO.scheduledoutputmenu
 
 # skeleton and mesh modification stuff
-import ooflib.engine.refine
-import ooflib.engine.refinementtarget
 import ooflib.engine.rationalize
 import ooflib.engine.autoskeleton
-import ooflib.engine.snaprefine
+import ooflib.engine.refine
 import ooflib.engine.snapnode
 import ooflib.engine.edgeswap
-if config.dimension() == 2:
-    import ooflib.engine.splitquads
-    import ooflib.engine.rationalshort
-    import ooflib.engine.rationalwide
-    import ooflib.engine.rationalsharp
-    import ooflib.engine.mergetriangles
-elif config.dimension() == 3:
-    import ooflib.engine.rationalbadtet
+import ooflib.engine.splitquads
+import ooflib.engine.rationalshort
+import ooflib.engine.rationalwide
+import ooflib.engine.rationalsharp
+import ooflib.engine.mergetriangles
 import ooflib.engine.fiddlenodesmethods
 import ooflib.engine.relaxation
 import ooflib.engine.vigilante
@@ -97,8 +89,7 @@ import ooflib.engine.IO.skeletoninfodisplay
 import ooflib.engine.IO.meshinfodisplay
 import ooflib.engine.IO.movenodedisplay
 import ooflib.engine.IO.pinnodesdisplay
-if config.dimension() == 2: 
-    import ooflib.engine.IO.meshcsdisplay
+import ooflib.engine.IO.meshcsdisplay
 
 import ooflib.engine.IO.elementselectdisplay
 import ooflib.engine.IO.nodeselectdisplay
@@ -125,14 +116,14 @@ import ooflib.SWIG.engine.cstrain
 
 import ooflib.common.runtimeflags
 
-if config.dimension() == 2 and  ooflib.common.runtimeflags.surface_mode:
+if ooflib.common.runtimeflags.surface_mode:
     import ooflib.engine.IO.interfacemenu
 
 if parallel_enable.enabled():
     import ooflib.engine.IO.materialmenuIPC
     import ooflib.engine.IO.skeletonIPC
     import ooflib.engine.deputyParallel
-    import ooflib.engine.refineParallel
+    # import ooflib.engine.refineParallel
     import ooflib.engine.IO.meshIPC
     import ooflib.engine.IO.boundaryconditionIPC
     import ooflib.engine.IO.propertymenuIPC

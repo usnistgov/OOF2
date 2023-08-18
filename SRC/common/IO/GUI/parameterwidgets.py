@@ -22,16 +22,30 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import widgetscope
-from types import *
-from gi.repository import Gdk
+
+from ooflib.common.runtimeflags import digits
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import math
-import string
 import sys
+
+from ooflib.common.utils import stringlstrip
+
+# The python2 version of this file used FloatType, IntType, etc, via
+# "from types import *".  Rather than change all of them by hand, we
+# just define the old names here:
+FloatType = float
+IntType = int
+ListType = list
+TupleType = tuple
+StringType = str
 
 ############################
 
-class ParameterWidget(object):
+class ParameterWidget:
     def __init__(self, gtk, scope=None, name=None, expandable=False,
                  compact=False):
         debug.mainthreadTest()
@@ -109,7 +123,7 @@ class ParameterWidget(object):
 
     # For debugging. Redefine in derived classes to print more useful info.
     def dumpState(self, comment):
-        print >> sys.stderr, comment, "(%s)" % self.__class__.__name__
+        print(comment, f"({self.__class.__name__})", file=sys.stderr)
 
 # GenericWidget is a base class for several other widgets.  It can
 # also be created as an instance itself, but currently this is not
@@ -144,7 +158,10 @@ class GenericWidget(ParameterWidget):
         return None
     def set_value(self, newvalue):
         debug.mainthreadTest()
-        valuestr = `newvalue`
+        if isinstance(newvalue, float):
+            valuestr = f"{newvalue:.{digits()}g}"
+        else:
+            valuestr = f"{newvalue}"
         self.signal.block()
         self.gtk.set_text(valuestr)
         self.signal.unblock()
@@ -166,7 +183,7 @@ class GenericWidget(ParameterWidget):
         # either do the oofeval if it gets a string, or be broken up
         # into "validStringValue" and "validParameterValue" or
         # something similar.
-        return value is not None and string.lstrip(value) != ""
+        return value is not None and stringlstrip(value) != ""
 
     # GenericWidgets are sometimes included in other widgets with fake
     # parameters, which may need control over the emission of the
@@ -195,7 +212,7 @@ class StringWidget(GenericWidget):
     def set_value(self, value):
         debug.mainthreadTest()
         self.block_signal()
-        if type(value) == StringType and string.lstrip(value) != "":
+        if isinstance(value, StringType) and stringlstrip(value) != "":
             self.gtk.set_text(value)
             self.widgetChanged(1, interactive=0)
         else:
@@ -333,8 +350,10 @@ class AutoWidget(ParameterWidget):
                     self.enterManualMode()
                 if isinstance(newvalue, StringType):
                     self.gtk.set_text(newvalue)
+                elif isinstance(newvalue, float):
+                    self.gtk.set_text(f"{newvalue:.{digits()}g}")
                 else:
-                    self.gtk.set_text(`newvalue`)
+                    self.gtk.set_text(f"{newvalue}")
         finally:
             self.deleteSignal.unblock()
         self.widgetChanged(1, interactive=0)
@@ -343,7 +362,7 @@ class AutoWidget(ParameterWidget):
     def deleteTextCB(self, gtkobj, start_pos, end_pos):
         # In automatic mode, deletion does nothing.
         if self.automatic:
-            self.gtk.stop_emission("delete_text")
+            self.gtk.stop_emission_by_name("delete_text")
             return
         # In manual mode, deleting the last character switches to
         # automatic mode.
@@ -358,7 +377,7 @@ class AutoWidget(ParameterWidget):
             # Just a normal deletion.
             self.gtk.get_buffer().delete_text(start_pos, end_pos-start_pos)
 
-        self.gtk.stop_emission("delete_text")
+        self.gtk.stop_emission_by_name("delete_text")
         self.widgetChanged(self.validValue(self.get_value()),
                            interactive=True)
                 
@@ -370,7 +389,7 @@ class AutoWidget(ParameterWidget):
     def validValue(self, value):
         # See comment in GenericWidget.validValue.
         return (value is automatic.automatic or
-                (isinstance(value, StringType) and string.lstrip(value) != ""))
+                (isinstance(value, StringType) and stringlstrip(value) != ""))
 
     def enterAutoMode(self):
         self.automatic = True
@@ -417,7 +436,7 @@ class RestrictedAutoNameWidget(AutoNameWidget):
     def validValue(self, value):
         if value is automatic.automatic:
             return True
-        return (isinstance(value, StringType) and string.strip(value) != ""
+        return (isinstance(value, StringType) and utils.stringstrip(value) != ""
                 and self.prog.match(value))
 
 def _RestrictedAutoNameParam_makeWidget(self, scope, **kwargs):
@@ -461,7 +480,7 @@ class BooleanWidget(ParameterWidget):
         else:
             labelstr = 'false'
         if not compact:
-            self.button = Gtk.CheckButton(labelstr)
+            self.button = Gtk.CheckButton(label=labelstr)
         else:
             quargs.setdefault('halign', Gtk.Align.CENTER)
             quargs.setdefault('hexpand', True)
@@ -568,7 +587,7 @@ parameter.FloatRangeParameter.makeWidget = _FloatRange_makeWidget
 # LabelledSlider needs to know if the range is given in degrees or
 # radians, so we need an extra class to store the units.
 
-class _AngleClipper(object):
+class _AngleClipper:
     def __init__(self, vmin, vmax, circle):
         self.vmin = vmin
         self.vmax = vmax
@@ -581,12 +600,12 @@ class _AngleClipper(object):
             n = math.ceil((val - self.vmax)/self.circle)
             val -= n*self.circle
         if val < self.vmin or val > self.vmax:
-            raise ValueError("Parameter value out of range: val=" + `val`
-                             + " range=[" + `self.vmin` + ", " + `self.vmax`
+            raise ValueError("Parameter value out of range: val=" + repr(val)
+                             + " range=[" + repr(self.vmin) + ", " + repr(self.vmax)
                              + "]")
         return val
 
-class _ClipperFactory(object):
+class _ClipperFactory:
     def __init__(self, circle):
         self.circle = circle    # either 360 or 2*pi
     def __call__(self, vmin, vmax):
@@ -635,8 +654,8 @@ class FloatWidget(GenericWidget):
         return 0.0
     def validValue(self, val):
         try:
-            if type(val) is StringType:
-                return type(1.0*utils.OOFeval(val)) is FloatType
+            if isinstance(val, StringType):
+                return isinstance(1.0*utils.OOFeval(val), FloatType)
             else:
                 return isinstance(val, (FloatType, IntType))
         except:
@@ -652,9 +671,9 @@ parameter.FloatParameter.makeWidget = _FloatParameter_makeWidget
 class PositiveFloatWidget(FloatWidget):
     def validValue(self, val):
         try:
-            if type(val) is StringType:
+            if isinstance(val, StringType):
                 fval = 1.0*utils.OOFeval(val)
-                return type(fval) is FloatType and fval > 0.0
+                return isinstance(fval, FloatType) and fval > 0.0
             else:
                 return isinstance(val, (FloatType, IntType)) and val > 0.0
         except:
@@ -671,7 +690,7 @@ class ListOfFloatsWidget(GenericWidget):
         if x is not None:
             return x
         return []
-    def validValue(self, string):
+    def validValue(self, *args):
         return 1
 
 def _ListOfFloatsParameter_makeWidget(self, scope=None, **kwargs):
@@ -694,8 +713,8 @@ class IntWidget(GenericWidget):
         return 0
     def validValue(self, val):
         try:
-            if type(val) is StringType:
-                return type(utils.OOFeval(val)) is IntType
+            if isinstance(val, StringType):
+                return isinstance(utils.OOFeval(val), IntType)
             else:
                 return isinstance(val, IntType)
         except:
@@ -708,9 +727,9 @@ parameter.IntParameter.makeWidget = _IntParameter_makeWidget
 class PositiveIntWidget(IntWidget):
     def validValue(self, val):
         try:
-            if type(val) is StringType:
+            if isinstance(val, StringType):
                 ival = utils.OOFeval(val)
-                return type(ival) is IntType and ival > 0
+                return isinstance(ival, IntType) and ival > 0
             else:
                 return isinstance(val, IntType) and val > 0
         except:
@@ -735,7 +754,7 @@ class XYStrFunctionWidget(GenericWidget):
             self.gtk.set_text('')
         self.unblock_signal()
     def validValue(self, value):
-        if type(value) is StringType:
+        if isinstance(value, StringType):
             try:
                 fn = strfunction.XYStrFunction(value)
                 return True
@@ -762,7 +781,7 @@ class XYTStrFunctionWidget(GenericWidget):
             self.gtk.set_text('')
         self.unblock_signal()
     def validValue(self, value):
-        if type(value) is StringType:
+        if isinstance(value, StringType):
             try:
                 fn = strfunction.XYTStrFunction(value)
                 return True
@@ -853,7 +872,7 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
             ]
         self.validities[tablepos] = widget.isValid()
         
-        label = Gtk.Label(param.name + ' =', halign=Gtk.Align.END,
+        label = Gtk.Label(label=param.name + ' =', halign=Gtk.Align.END,
                           hexpand=False, margin_start=5)
         self.labels.append(label)
         if param.tip:
@@ -877,10 +896,10 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
             try:
                 val = widget.get_value()
                 param.value = val
-            except (Exception, ooferror.ErrError), exception:
+            except Exception as exception:
                 exceptions.append(exception)
         if exceptions:
-            debug.fmsg("exceptions[0] ->%s<-", exceptions[0])
+            debug.fmsg(f"exceptions[0] ->{exceptions[0]}<-")
             raise exceptions[0]
     def vcheck(self, widgetnumber, validity):
         # callback for ('validity', widget).  This just stores the
@@ -897,9 +916,9 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
                 return
         self.widgetChanged(True, interactive)
     def dumpValidity(self):
-        debug.fmsg(zip([p.name for p in self.params], self.validities))
+        debug.fmsg(list(zip([p.name for p in self.params], self.validities)))
     def dumpValues(self):
-        debug.fmsg(*["%s=%s" % (p.name, p.value) for p in self.params])
+        debug.fmsg(*[f"{p.name}={p.value}" for p in self.params])
     def dumpState(self, comment):
         for widget in self.widgets:
             try:
@@ -917,7 +936,7 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
         self.gtk.show()
     def cleanUp(self):
         # Make sure we don't have any circular references...
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         self.params = []
         self.widgets = []
         ParameterWidget.cleanUp(self)
@@ -989,8 +1008,8 @@ class ParameterDialog(widgetscope.WidgetScope):
                 self.setData(key, value)
             
         self.parameters = parameters
-        self.dialog = gtklogger.Dialog(flags=Gtk.DialogFlags.MODAL,
-                                       parent=parentwindow,
+        self.dialog = gtklogger.Dialog(modal=True,
+                                       transient_for=parentwindow,
                                        border_width=3)
         # Window.set_keep_above is not guaranteed to work, but it won't hurt.
         # https://developer.gnome.org/gtk3/stable/GtkWindow.html#gtk-window-set-keep-above
@@ -999,7 +1018,7 @@ class ParameterDialog(widgetscope.WidgetScope):
         try:
             title = kwargs['title']
         except KeyError:
-            raise ooferror.ErrPyProgrammingError("Untitled dialog!")
+            raise ooferror.PyErrPyProgrammingError("Untitled dialog!")
         gtklogger.newTopLevelWidget(self.dialog, 'Dialog-'+kwargs['title'])
         self.dialog.set_title(title)
 
@@ -1230,15 +1249,15 @@ class ValueSetParameterWidget(GenericWidget):
     def validValue(self, value):
         if value is None:
             return 0
-        if type(value) is StringType:
-            if string.lstrip(value)=="":
+        if isinstance(value, StringType):
+            if stringlstrip(value)=="":
                 return 0
             return 1 # Nontrival strings are OK.
         
-        if type(value) is IntType and value>0:
+        if isinstance(value, IntType) and value>0:
             return 1 # Ints greater than zero are OK.
 
-        if type(value) is TupleType:
+        if isinstance(value, TupleType):
             for v in value:
                 try:
                     x = float(v)
@@ -1260,18 +1279,18 @@ class AutomaticValueSetParameterWidget(AutoWidget):
     def validValue(self, value):
         if value is None:
             return 0
-        if type(value) is StringType:
-            if string.lstrip(value)=="":
+        if isinstance(value, StringType):
+            if stringlstrip(value)=="":
                 return 0
             return 1
         
-        if type(value) is IntType and value>0:
+        if isinstance(value, IntType) and value>0:
             return 1
 
         if value == automatic.automatic:
             return 1
 
-        if type(value) is TupleType:
+        if isinstance(value, TupleType):
             for v in value:
                 try:
                     x = float(v)
@@ -1300,10 +1319,10 @@ class PointWidget(ParameterWidget):
         debug.mainthreadTest()
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
                        **kwargs)
-        xlabel = Gtk.Label("x:", halign=Gtk.Align.END)
+        xlabel = Gtk.Label(label="x:", halign=Gtk.Align.END)
         self.xwidget = FloatWidget(parameter.FloatParameter('Tweedledum', 0),
                                    name="X")
-        ylabel = Gtk.Label("y:", halign=Gtk.Align.END)
+        ylabel = Gtk.Label(label="y:", halign=Gtk.Align.END)
         self.ywidget = FloatWidget(parameter.FloatParameter('Tweedledee', 0),
                                    name="Y")
         hbox.pack_start(xlabel, expand=False, fill=False, padding=0)
@@ -1330,7 +1349,7 @@ class PointWidget(ParameterWidget):
         self.widgetChanged(self.xwidget.isValid() and self.ywidget.isValid(),
                            interactive)
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         ParameterWidget.cleanUp(self)
 
 def _PointParameter_makeWidget(self, scope=None, **kwargs):

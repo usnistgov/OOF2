@@ -22,8 +22,6 @@ from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import subWindow
 
-from gi.repository import Gdk
-
 ## TODO: There's no need anymore for a separate GfxWindowBase base
 ## class.  All of this can be merged into GfxWindow.  GfxWindowBase
 ## was useful when the 2D and 3D graphics windows shared a base class.
@@ -118,8 +116,11 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         if self.selectedLayer is not None:
             selection = self.layerListView.get_selection()
             model, treeiter = selection.get_selected()
-            path = model.get_path(treeiter)
-            self.layerListView.scroll_to_cell(path)
+            # I'm not sure exactly how, but when loading a script it's
+            # possible for treeiter to be None here.
+            if treeiter is not None:
+                path = model.get_path(treeiter)
+                self.layerListView.scroll_to_cell(path)
 
     # Callbacks for the TreeView for the Layer List.
     ##################################################
@@ -168,7 +169,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         debug.mainthreadTest()
         layer = model[iter][0]
         if self.settings.longlayernames:
-            cell_renderer.set_property('text', `layer`)
+            cell_renderer.set_property('text', repr(layer))
         else:
             cell_renderer.set_property('text', layer.short_name())
                                    
@@ -335,7 +336,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             self.updateToolboxChooser()
                
     def updateToolboxChooser(self):
-        self.toolboxGUIs.sort()
+        self.toolboxGUIs.sort(key=lambda tb: tb.toolbox.ordering)
         self.toolboxchooser.update([tb.name() for tb in self.toolboxGUIs])
 
     def allowMotionEvents(self, mode):

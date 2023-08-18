@@ -11,6 +11,6 @@
 # This file is run with execfile from within guitests.py.  "dir" is
 # set to the directory containing the test files.
 
-import filecmp
-assert filecmp.cmp("session.log", os.path.join(directory, "session.log"))
+from generics import *
+assert filediff("session.log", tolerance=0.)
 

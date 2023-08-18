@@ -9,9 +9,9 @@
 # oof_manager@nist.gov. 
 
 import unittest, os
-import memorycheck
+from . import memorycheck
 
-from UTILS import file_utils
+from .UTILS import file_utils
 reference_file = file_utils.reference_file
 pdf_compare = file_utils.pdf_compare
 file_utils.generate = False
@@ -74,8 +74,11 @@ class OOF_PoleFigureTest(unittest.TestCase):
             colormap=colorMap,
             size=500,
             filename='test.pdf', overwrite=True)
-        self.assert_(pdf_compare('test.pdf', os.path.join('polefigure_data',
-                                                          prefix+'_0.pdf')))
+        # If pdf_compare fails after generating new reference pdf
+        # files, make sure that the time zone is set to "Etc/UTC"
+        # before generating them.  See the comment in regression.py.
+        self.assertTrue(pdf_compare('test.pdf', os.path.join('polefigure_data',
+                                                             prefix+'_0.pdf')))
         file_utils.remove("test.pdf")
 
         OOF.OrientationMap.Pole_Figure(
@@ -88,7 +91,7 @@ class OOF_PoleFigureTest(unittest.TestCase):
             colormap=colorMap,
             size=500,
             filename='test.pdf', overwrite=True)
-        self.assert_(pdf_compare('test.pdf', os.path.join('polefigure_data',
+        self.assertTrue(pdf_compare('test.pdf', os.path.join('polefigure_data',
                                                           prefix+'_1.pdf')))
         file_utils.remove("test.pdf")
 
@@ -102,7 +105,7 @@ class OOF_PoleFigureTest(unittest.TestCase):
             colormap=colorMap,
             size=500,
             filename='test.pdf', overwrite=True)
-        self.assert_(pdf_compare('test.pdf', os.path.join('polefigure_data',
+        self.assertTrue(pdf_compare('test.pdf', os.path.join('polefigure_data',
                                                           prefix+'_2.pdf')))
         file_utils.remove('test.pdf') 
 
@@ -116,7 +119,7 @@ class OOF_PoleFigureTest(unittest.TestCase):
             colormap=colorMap,
             size=500,
             filename='test.pdf', overwrite=True)
-        self.assert_(pdf_compare('test.pdf', os.path.join('polefigure_data',
+        self.assertTrue(pdf_compare('test.pdf', os.path.join('polefigure_data',
                                                           prefix+'_3.pdf')))
         file_utils.remove('test.pdf')
         
@@ -152,9 +155,14 @@ class OOF_PoleFigureTest(unittest.TestCase):
         self.checkPoleFigures('orientmap2', nBins=60,
                               colorMap=colormap.SpectralMap())
 
-test_set = [
-    OOF_PoleFigureTest("FromMap0"),
-    OOF_PoleFigureTest("FromProperty0"),
-    OOF_PoleFigureTest("FromMap1"),
-    OOF_PoleFigureTest("FromMap2")
-]
+## All tests are commented out because pdf generation is not portable.
+## Pdfs generated on different systems are different, and not just in
+## their time stamp.  TODO: Figure out how to compare pdfs portably.
+# test_set = [
+#     OOF_PoleFigureTest("FromMap0"),
+#     OOF_PoleFigureTest("FromProperty0"),
+#     OOF_PoleFigureTest("FromMap1"),
+#     OOF_PoleFigureTest("FromMap2")
+# ]
+
+test_set = []

@@ -10,46 +10,60 @@
 
 from ooflib.common import debug
 from ooflib.common import utils
-import types
+from ooflib.SWIG.common import switchboard
 
 def _Equation___hash_(self):
     return self.objectid()
 
-EquationPtr.__hash__ = _Equation___hash_
+Equation.__hash__ = _Equation___hash_
 
-def _Equation___cmp__(self, other):
-    if not isinstance(other, EquationPtr): return -1
-    if self.objectid() < other.objectid(): return -1
-    if self.objectid() > other.objectid(): return 1
-    return 0
+# Equations are sometimes stored in an OrderedSet and need to have
+# __lt__ defined.
 
-EquationPtr.__cmp__ = _Equation___cmp__
+def _Equation___lt__(self, other):
+    try:
+        return self.objectid() < other.objectid()
+    except:
+        return NotImplemented
 
-EquationPtr.__repr__ = EquationPtr.name
+Equation.__lt__ = _Equation___lt__
+
+def _Equation___hash__(self):
+    return self.objectid()
+
+Equation.__hash__ = _Equation___hash__
+
+Equation.__repr__ = Equation.name
 
 
-DivergenceEquationPtr.__repr__ = DivergenceEquationPtr.name
+DivergenceEquation.__repr__ = DivergenceEquation.name
 
-PlaneFluxEquationPtr.__repr__ = PlaneFluxEquationPtr.name
+PlaneFluxEquation.__repr__ = PlaneFluxEquation.name
 
-from ooflib.SWIG.engine.nodalequation import NodalEquationPtr
+def allEquations():
+    for indx in range(countEquations()):
+        yield getEquationByIndex(indx)
+    
+# getEquation(name) returns the equation with the given name.
+# Equation.getEquation is a static C++ method.
+getEquation = Equation.getEquation
+utils.OOFdefine('getEquation', Equation.getEquation)
 
-# AllEquations acts like a list of Equations
-class _AllEquations:
-    def __getitem__(self, indx):
-        if type(indx) == types.IntType:
-            if indx >= countEquations() or indx < 0:
-                raise IndexError("Bad equation index: " + str(indx))
-            return getEquationByIndex(indx)
-        elif type(indx) == types.StringType:
-            return getEquationByName(indx)
-    def __len__(self):
-        return countEquations()
+# finishConstruction is called after the swigged constructors for all
+# of the Equation subclasses.  It's installed by %pythonappend lines in
+# equation.swg.
+def finishConstruction(eqn):
+    utils.OOFdefine(eqn.name(), eqn)
+    switchboard.notify("new equation")
 
-allEquations = _AllEquations()
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def getEquation(name):
-    return getEquationByName(name)
+def _Equation_components(self):
+    comps = self.c_components() # a swigged generic ComponentsP object
+    beginp = comps.begin()      # generic ComponentIteratorP object
+    endp = comps.end()
+    while beginp != endp:
+        yield beginp.current()  # derived FieldIndex class object
+        beginp.increment()
 
-utils.OOFdefine('getEquation', getEquation)
-
+Equation.components = _Equation_components

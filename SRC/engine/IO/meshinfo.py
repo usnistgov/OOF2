@@ -32,14 +32,14 @@ class MeshQueryContainer:
     def __init__(self, context):
         self.timestamp = timestamp.TimeStamp()
         self.context = context  # mesh context
-        self.object = None
+        self.obj = None
         self.mouse_position = None
         self.mesh_position = None
         self.targetname = None
 
-    def set(self, object=None, targetname=None, mouse_position=None,
+    def set(self, obj=None, targetname=None, mouse_position=None,
             mesh_position=None):
-        self.object = object
+        self.obj = obj
         self.mouse_position = mouse_position
         self.mesh_position = mesh_position
         self.targetname = targetname
@@ -50,7 +50,7 @@ class MeshQueryContainer:
 
     def clone(self):
         krusty = MeshQueryContainer(self.context)
-        krusty.object = self.object
+        krusty.obj = self.obj
         krusty.targetname = self.targetname
         krusty.mouse_position = self.mouse_position
         krusty.mesh_position = self.mesh_position
@@ -58,7 +58,7 @@ class MeshQueryContainer:
         return krusty
 
     def clearable(self):
-        return not not self.object
+        return not not self.obj
 
 # Peek functionality for "mesh" is going to be limited to "Node".
 # There's a remote chance to include "Element" and "Edge" here.
@@ -69,8 +69,8 @@ class MeshPeekContainer(MeshQueryContainer):
         self.context = context
         self.objects = {"Node":None}
 
-    def assignObject(self, object, objtype):
-        self.objects[objtype] = object
+    def assignObject(self, obj, objtype):
+        self.objects[objtype] = obj
         self.timestamp.increment()
 
     def removeObject(self, objtype):
@@ -112,7 +112,7 @@ class MeshInfoToolbox(toolbox.Toolbox):
                                         self.newLayers)]
             
     def close(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
 
     def makeMenu(self, menu):
         self.menu = menu
@@ -196,7 +196,7 @@ class MeshInfoToolbox(toolbox.Toolbox):
                             self.gfxwindow(), position)
                     finally:
                         context.releaseCachedData()
-                except ooferror.ErrBoundsError:
+                except ooferror.PyErrBoundsError:
                     return
             elif config.dimension() == 3:
                 # skip handling displaced meshes in 3D for now. 
@@ -232,7 +232,7 @@ class MeshInfoToolbox(toolbox.Toolbox):
                             self.gfxwindow(), position)
                     finally:
                         context.releaseCachedData()
-                except ooferror.ErrBoundsError:
+                except ooferror.PyErrBoundsError:
                     return
             elif config.dimension() == 3:
                 # skip handling displaced meshes in 3D for now.  
@@ -249,7 +249,7 @@ class MeshInfoToolbox(toolbox.Toolbox):
             fnode = femesh.closestNode(meshpos.x, meshpos.y, meshpos.z)
         self.finishQuery(fnode, felem, "Node", position, meshpos)
 
-    def finishQuery(self, object, element, targetname, mouse_pos, mesh_pos):
+    def finishQuery(self, obj, element, targetname, mouse_pos, mesh_pos):
         # TODO LATER: Mesh toolboxes can ignore queries if they are
         # "out of bounds" in the sense that the clicked-on element is
         # empty.  Maintaining a consistent state when the
@@ -262,7 +262,7 @@ class MeshInfoToolbox(toolbox.Toolbox):
         #     return
 
         self.last_position = mouse_pos
-        self.querier.set(object=object, targetname=targetname,
+        self.querier.set(obj=obj, targetname=targetname,
                          mouse_position=mouse_pos,
                          mesh_position=mesh_pos)
         self.records.push(self.querier.clone())

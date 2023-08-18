@@ -32,7 +32,6 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.common.IO.mainmenu import OOF
 from ooflib.common.IO.oofmenu import OOFMenuItem
 from ooflib.common.IO.pixelgroupparam import PixelGroupParameter
-from types import *
 import ooflib.common.microstructure      # a local variable is named 'microstructure'
 
 if parallel_enable.enabled():
@@ -223,7 +222,7 @@ def renamePixelGroup(menuitem, microstructure, group, new_name):
                 interfacemsplugin=ms.getPlugIn("Interfaces")
                 interfacemsplugin.renameGroup(group, new_name)
         else:
-            raise ooferror.ErrUserError("There is no pixel group named %s!"
+            raise ooferror.PyErrUserError("There is no pixel group named %s!"
                                         % group)
     finally:
         mscontext.end_writing()
@@ -269,7 +268,7 @@ def copyPixelGroup(menuitem, microstructure, group, name):
                 (newgroup, newness) = ms.getGroup(name)
                 newgroup.addWithoutCheck(oldgroup.members())
             else:
-                raise ooferror.ErrUserError("There is no pixel group named %s!"
+                raise ooferror.PyErrUserError("There is no pixel group named %s!"
                                             % group)
         finally:
             mscontext.end_writing()
@@ -375,7 +374,7 @@ def meshablePixelGroup(menuitem, microstructure, group, meshable):
             grp.set_meshable(meshable)
             ms.recategorize()
         else:
-            raise ooferror.ErrUserError("There is no pixel group named %s!"
+            raise ooferror.PyErrUserError("There is no pixel group named %s!"
                                         % group)
     finally:
         mscontext.end_writing()
@@ -563,7 +562,7 @@ def _writeData(self, dfile, microstructure, pixel):
         return 1
     return 0
 
-pixelgroup.PixelGroupAttributeRegistrationPtr.writeData = _writeData
+pixelgroup.PixelGroupAttributeRegistration.writeData = _writeData
 
 def _readPixelGroups(menuitem, microstructure, category, groups):
     mscontext = ooflib.common.microstructure.microStructures[microstructure]

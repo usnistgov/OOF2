@@ -40,8 +40,12 @@ from ooflib.common.IO.GUI import subWindow
 import oofcanvas
 from oofcanvas import oofcanvasgui
 
-from gi.repository import GObject
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+from gi.repository import GLib
+from gi.repository import GObject
+
 import threading
 
 # Import this function separately because it's needed in a function
@@ -110,7 +114,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # paned2 is in left half of paned1
         self.paned2 = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
                                 wide_handle=True,
-                                margin_right=gtkutils.handle_padding)
+                                margin_end=gtkutils.handle_padding)
         gtklogger.setWidgetName(self.paned2, "Pane2")
         self.paned1.pack1(self.paned2, resize=True, shrink=True)
         gtklogger.connect_passive(self.paned2, 'notify::position')
@@ -128,7 +132,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                        spacing=2, margin=2)
         toolboxbox1.pack_start(hbox, expand=False, fill=False, padding=2)
-        hbox.pack_start(Gtk.Label("Toolbox:"),
+        hbox.pack_start(Gtk.Label(label="Toolbox:"),
                         expand=False, fill=False, padding=3)
         
         self.toolboxchooser = chooser.ChooserWidget(
@@ -164,7 +168,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                                spacing=2, margin=2)
         gtklogger.setWidgetName(self.timebox, 'time')
         canvasbox.pack_start(self.timebox, expand=False, fill=False, padding=0)
-        self.timebox.pack_start(Gtk.Label("time:"), expand=False, fill=False,
+        self.timebox.pack_start(Gtk.Label(label="time:"), expand=False, fill=False,
                                 padding=0)
         self.prevtimeButton = gtkutils.StockButton("go-previous-symbolic")
         gtklogger.setWidgetName(self.prevtimeButton, "prev")
@@ -215,7 +219,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         layerFrame.add(self.layerScroll)
 
         self.layerList = Gtk.ListStore(GObject.TYPE_PYOBJECT)
-        self.layerListView = Gtk.TreeView(self.layerList)
+        self.layerListView = Gtk.TreeView(model=self.layerList)
         gtklogger.setWidgetName(self.layerListView, "LayerList")
         self.layerListView.set_row_separator_func(self.layerRowSepFunc)
         self.layerListView.set_fixed_height_mode(False)
@@ -317,10 +321,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.paned1.pack2(contourmapframe, resize=False, shrink=True)
         gtklogger.setWidgetName(contourmapframe, "ContourMap")
         contourmapframe.add(contourmapbox)
-        self.contourmap_max = Gtk.Label("max", halign=Gtk.Align.CENTER)
+        self.contourmap_max = Gtk.Label(label="max", halign=Gtk.Align.CENTER)
         gtklogger.setWidgetName(self.contourmap_max, "MapMax")
         self.new_contourmap_canvas()    # Sets self.contourmapdata.canvas.
-        self.contourmap_min = Gtk.Label("min", halign=Gtk.Align.CENTER)
+        self.contourmap_min = Gtk.Label(label="min", halign=Gtk.Align.CENTER)
         gtklogger.setWidgetName(self.contourmap_min, "MapMin")
         contourmaplevelbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                                      spacing=1)
@@ -338,7 +342,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         gtklogger.setWidgetName(self.contourlevel_max, "LevelMax")
         contourmaplevelbox.pack_end(self.contourlevel_max,
                                     expand=True, fill=True, padding=0)
-        contourmapclearbutton = Gtk.Button("Clear Mark")
+        contourmapclearbutton = Gtk.Button(label="Clear Mark")
         gtklogger.setWidgetName(contourmapclearbutton, "Clear")
         gtklogger.connect(contourmapclearbutton, "clicked",
                          self.contourmap_clear_marker)
@@ -413,7 +417,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # created before any of their gui versions.  Some gui
         # toolboxes need to know about more than one non-gui toolbox.
         
-        map(self.makeToolboxGUI, self.toolboxes)
+        for tb in self.toolboxes:
+            self.makeToolboxGUI(tb)
         if self.toolboxGUIs:
             self.selectToolbox(self.toolboxGUIs[0].name())
             self.toolboxchooser.set_state(self.toolboxGUIs[0].name())
@@ -599,7 +604,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                         break
                 if level is not None:
                     width=(c_max-c_min)/self.settings.aspectratio
-                    polygon = oofcanvas.CanvasRectangle(
+                    polygon = oofcanvas.CanvasRectangle.create(
                         (0, lvls[level]-c_min),
                         (width, lvls[level+1]-c_min))
                     clr = self.settings.contourmap_markercolor
@@ -723,11 +728,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             self._stopAnimation = False
 
             # Start the escapement.
-            GObject.timeout_add(
-                int(1000./frame_rate), # time between frames, in milliseconds
-                self._escapementCB,
-                prog,
-                escapementDone)
+            GLib.timeout_add(
+                interval=int(1000./frame_rate), # time between frames, in milliseconds
+                function=self._escapementCB,
+                user_data=(prog, escapementDone))
 
             # Draw frames, after waiting for an escapement event.
             while not self._stopAnimation:
@@ -745,12 +749,12 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                 self._escapement.clear()
 
                 try:
-                    time = timegen.next()
+                    time = next(timegen)
                 except StopIteration:
                     self._stopAnimation = True
                 else:
                     # Update the progress bar and actually do the drawing.
-                    prog.setMessage(`time`)
+                    prog.setMessage(repr(time))
                     prog.setFraction((time-time0)/(time1-time0))
                     self.drawAtTime(time)
 
@@ -760,7 +764,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             prog.finish()
             menuitem.enable()
 
-    def _escapementCB(self, prog, escapementDone):
+    def _escapementCB(self, user_data):
+        prog, escapementDone = user_data
         # Timeout callback that calls self._escapement.set()
         # periodically.  This is called on the main thread.
         self._escapement.set()

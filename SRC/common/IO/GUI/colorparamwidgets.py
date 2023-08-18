@@ -22,11 +22,15 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import labelledslider
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import math
 
 
-class LabelledSliderSet(object):
+class LabelledSliderSet:
     def __init__(self, label=[], min=None, max=None):
         debug.mainthreadTest()
         self.min = min or [0.0]*len(label)
@@ -38,7 +42,7 @@ class LabelledSliderSet(object):
         self.callback = None
 
         for i in range(len(label)):
-            newlabel = Gtk.Label(label[i], halign=Gtk.Align.END)
+            newlabel = Gtk.Label(label=label[i], halign=Gtk.Align.END)
             self.gtk.attach(newlabel,0,i, 1,1)
 
             newslider = labelledslider.FloatLabelledSlider(
@@ -87,7 +91,7 @@ class LabelledSliderSet(object):
 # black and white triangles so that the opacity of the colors is
 # apparent.
 
-class TwoColorBox(object):
+class TwoColorBox:
     def __init__(self, xsize=100, ysize=100):
         debug.mainthreadTest()
         self.gtk = Gtk.DrawingArea()

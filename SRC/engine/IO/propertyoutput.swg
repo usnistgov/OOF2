@@ -12,29 +12,27 @@
 #ifndef PROPERTYOUTPUT_SWG
 #define PROPERTYOUTPUT_SWG
 
-%module propertyoutput
+%module(package="ooflib.SWIG.engine.IO") propertyoutput
 
-%include "engine/typemaps.swg"
-%extern "engine/properties.swg"
+%include "common/typemaps.swg"
+%import "engine/mastercoord.swg"
+%import "engine/property.swg"
+%import "engine/outputval.swg"
+
 %{
+#include "engine/mastercoord.h"
 #include "engine/IO/propertyoutput.h"
 %}
 
-%typemap(python, out) PropertyOutput* {
-  // typemap(python, out) PropertyOutput*
-  $target = $source->pythonObject();
-}
-
-%typemap(python, out) PropertyOutputInit* {
-  // typemap(python, out) PropertyOutputInit*
-  $target = $source->pythonObject();
-}
-
-%pragma(python) include="engine/IO/propertyoutput.spy"
+PYTHONEXPORTABLE(PropertyOutput);
+PYTHONEXPORTABLE(PropertyOutputInit);
+MAKE_LISTVEC_TYPEMAPS(MasterCoord);
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // OutputVal initializers
+
+%nodefaultctor PropertyOutputValInit;
 
 class PropertyOutputValInit {
 public:
@@ -48,7 +46,10 @@ public:
 
 // PropertyOutput initializers
 
+%nodefaultctor PropertyOutputInit;
+
 class PropertyOutputInit {};
+
 class ArithmeticPropertyOutputInit : public PropertyOutputInit {
 public:
   ArithmeticPropertyOutputInit();
@@ -61,40 +62,52 @@ public:
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+%nodefaultctor PropertyOutput;
+
 class PropertyOutput {
 public:
   ~PropertyOutput();
-  const string &name();
+  const std::string &name();
   double getFloatParam(char*);
   int getIntParam(char*);
   void setInitializer(PropertyOutputValInit*);
-  %new const string *getStringParam(char*);
-  %new const string *getEnumParam(char*);
-  %new const string *getRegisteredParamName(char*);
-  %new StringVec *getListOfStringsParam(char*);
+  %newobject getStringParam;
+  const std::string *getStringParam(char*);
+  %newobject getEnumParam;
+  const std::string *getEnumParam(char*);
+  %newobject getRegisteredParamName;
+  const std::string *getRegisteredParamName(char*);
+  %newobject getListOfStringsParam;
+  std::vector<std::string> *getListOfStringsParam(char*);
 };
+
+%nodefaultctor ArithmeticPropertyOutput;
 
 class ArithmeticPropertyOutput : public PropertyOutput {
 public:
-  %new ArithmeticOutputValueVec *evaluate(
-				  FEMesh*, Element*,
-				  MasterCoordVec*);
+  %newobject evaluate;
+  ArithmeticOutputValueVec *evaluate(FEMesh*, Element*, MasterCoordVec*);
 };
+
+%nodefaultctor NonArithmeticPropertyOutput;
 
 class NonArithmeticPropertyOutput : public PropertyOutput {
 public:
-  %new NonArithmeticOutputValueVec *evaluate(
-				  FEMesh*, Element*,
-				  MasterCoordVec*);
+  %newobject evaluate;
+  NonArithmeticOutputValueVec *evaluate(FEMesh*, Element*, MasterCoordVec*);
 };
 
 class PropertyOutputRegistration {
 public:
   PropertyOutputRegistration(char*);
   ~PropertyOutputRegistration();
-  const string &name();
-  %new PropertyOutput *instantiateArithmetic(char*, PyObject*);
-  %new PropertyOutput *instantiateNonArithmetic(char*, PyObject*);
+  const std::string &name();
+  %newobject instantiateArithmetic;
+  PropertyOutput *instantiateArithmetic(char*, PyObject*);
+  %newobject instantiateNonArithmetic;
+  PropertyOutput *instantiateNonArithmetic(char*, PyObject*);
 };
+
+%pythoncode "engine/IO/propertyoutput.spy"
 
 #endif	// PROPERTYOUTPUT_SWG

@@ -42,7 +42,7 @@ class PixelGroupWidget(parameterwidgets.ParameterWidget):
             switchboard.requestCallbackMain(self.groupchooser, self.chooserCB)
             ]
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         self.mswidget = None
         parameterwidgets.ParameterWidget.cleanUp(self)
     def update(self, *args, **kwargs):

@@ -210,5 +210,5 @@ def stackStateTest(mode, *args):
         liszt = gtklogger.findWidget(
             'OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll')
         return stack.get_visible_child() is liszt
-    print >> sys.stderr, "Unexpected mode for stackStateText:", mode
+    print("Unexpected mode for stackStateText:", mode, file=sys.stderr)
     return False

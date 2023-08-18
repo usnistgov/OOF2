@@ -12,9 +12,10 @@
 #include <oofconfig.h>
 #include "common/cleverptr.h"
 #include "common/doublevec.h"
+#include "common/oofswigruntime.h"
 #include "common/printvec.h"
 #include "common/pythonlock.h"
-#include "common/swiglib.h"
+#include "common/pyutils.h"
 #include "common/trace.h"
 #include "engine/IO/propertyoutput.h"
 #include "engine/cnonlinearsolver.h"
@@ -45,58 +46,29 @@ inline double max(double x, double y)
   return (x > y ? x : y);
 }
 
-// It appears the PyObject * can't be const, because
+// It appears the PyObject* can't be const, because
 // PyObject_GetAttrString doesn't take a const argument.
+
 Property::Property(const std::string &nm, PyObject *registration)
   : name_(nm), fields_reqd(0), registration_(registration)
 {
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   // registry.classobj.__name__, viewed through C++...
-  classname_ = PyString_AsString(
-		 PyObject_GetAttrString(
-		    PyObject_GetAttrString(registration, (char*)"subclass"),
-		      (char*) "__name__"));
-  // registry.modulename
-  modulename_ = PyString_AsString(PyObject_GetAttrString(registration,
-							 (char*) "modulename"));
-
+  PyObject *psub = PyObject_GetAttrString(registration, (char*) "subclass");
+  classname_ = getPyStringData(psub, "__name__");
+  Py_XDECREF(psub);
   Py_INCREF(registration_);
-  releasePyLock(pystate);
 }
 
-// Note: There appears to be some kind of bug somewhere involving
-// property registration reference counts -- if the incref/decref is
-// left out of this code, then at apparently-random points, all the
-// property *registration* entries associated with properties placed
-// in materials via "newMaterial" calls will lose all their data
-// members.  The incref/decref here is certainly correct, but probably
-// not the real answer, since several other references to registration
-// entries exist (e.g. in the PropertyRegistration object's ".data"
-// LabelTree, and the PropertyPtr class's "registry" list), so the
-// reference count should always be at least 2 even in the absence of
-// an incref in the Property class.
-//
-//   The observed behavior might be caused by the PropertyRegistration's
-// (Python) destructor getting called too early somehow, demolishing
-// the attributes but not removing the reference, if for instance
-// there were some kind of bug in the Python 2.1.2 and 2.1.3
-// interpreters.  Additional circumstantial evidence for this is that
-// the bug has never occurred in Python 2.2.
 Property::~Property()
 {
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_DECREF(registration_);
-  releasePyLock(pystate);
 }
 
-// Additional note on the mystery bug mentioned above: It can be
-// induced by making exactly two calls to this routine from the
-// registration retrieval block in MaterialManager.new_material.  One,
-// three, or four calls are OK -- that's as many as I tried.
 PyObject *Property::registration() const {
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_INCREF(registration_);
-  releasePyLock(pystate);
   return registration_;
 }
 
@@ -279,9 +251,7 @@ void FluxProperty::flux_matrix(const FEMesh *mesh, const Element *element,
     if (node.hasField( *field ) && field->is_active( subproblem ))
     {
       // Loop over field components
-      for(IteratorP fieldcomp=field->iterator(ALL_INDICES);
-	  !fieldcomp.end(); ++fieldcomp)
-      {
+      for(IndexP fieldcomp : field->components(ALL_INDICES)) {
 	DegreeOfFreedom *dof = (*field)(node, fieldcomp.integer());
 	double oldValue = dof->value( mesh );
 
@@ -309,8 +279,7 @@ void FluxProperty::flux_matrix(const FEMesh *mesh, const Element *element,
 	fluxVec1 /= (upValue - dnValue);
 
 	// Assign the derivative value to flux_matrix
-	for(IteratorP fluxcomp = flux->iterator(ALL_INDICES);
-	    !fluxcomp.end(); ++fluxcomp)
+	for(IndexP fluxcomp : flux->components(ALL_INDICES))
 	  fluxdata->stiffness_matrix_element( fluxcomp, field, fieldcomp, node )
 	    += fluxVec1[ fluxcomp.integer() ];
 
@@ -442,9 +411,7 @@ void EqnProperty::force_deriv_matrix(const FEMesh *mesh, const Element *element,
     if (node.hasField( *field ) && field->is_active( subproblem ))
     {
       // Loop over field components
-      for(IteratorP fieldcomp=field->iterator(ALL_INDICES);
-	  !fieldcomp.end(); ++fieldcomp)
-      {
+      for(IndexP fieldcomp : field->components(ALL_INDICES)) {
 	DegreeOfFreedom *dof = (*field)(node, fieldcomp.integer());
 	double oldValue = dof->value( mesh );
 
@@ -469,7 +436,7 @@ void EqnProperty::force_deriv_matrix(const FEMesh *mesh, const Element *element,
 	forceVec1 /= (upValue - dnValue);
 
 	// Assign the derivative value to force_deriv_matrix
-	for(IteratorP eqncomp = eqn->iterator(); !eqncomp.end(); ++eqncomp)
+	for(IndexP eqncomp : eqn->components())
 	  eqndata->force_deriv_matrix_element( eqncomp, field, fieldcomp, node )
 	    += forceVec1[ eqncomp.integer() ];
 

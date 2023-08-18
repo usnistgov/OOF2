@@ -11,7 +11,6 @@
 from ooflib.common import enum
 from ooflib.common import utils
 from ooflib.common.IO import parameter
-import types
 
 #Might be able to combine the material type and compatibilty
 #if we can imagine a material that accepts both bulk and interface
@@ -51,24 +50,24 @@ class InterfacesParameter(parameter.StringParameter):
         pass
 class ListOfInterfacesParameter(parameter.ListOfStringsParameter):
     def checker(self, x):
-        if type(x) is not types.ListType:
+        if not isinstance(x, list):
             raise TypeError("Expected a list of interfaces!")
         #TODO: More checking.
 class ListOfInterfacesWithMaterialParameter(parameter.ListOfStringsParameter):
     def checker(self, x):
-        if type(x) is not types.ListType:
+        if not isinstance(x, list):
             raise TypeError("Expected a list of interfaces!")
         #TODO: More checking.
 #This parameter should present interface names and skeleton boundary names
 #(prefixed with "skeletonname:")
 class ListOfInterfacesSkelBdyParameter(parameter.ListOfStringsParameter):
     def checker(self, x):
-        if type(x) is not types.ListType:
+        if not isinstance(x, list):
             raise TypeError("Expected a list of interfaces and skeleton boundaries!")
         #TODO: More checking.
 class ListOfInterfacesSkelBdyWithMaterialParameter(parameter.ListOfStringsParameter):
     def checker(self, x):
-        if type(x) is not types.ListType:
+        if not isinstance(x, list):
             raise TypeError("Expected a list of interfaces and skeleton boundaries!")
         #TODO: More checking.
 
@@ -79,6 +78,6 @@ class SkelAllParameter(parameter.StringParameter):
         pass
 class ListOfInterfacesCombinedBdysParameter(parameter.ListOfStringsParameter):
     def checker(self, x):
-        if type(x) is not types.ListType:
+        if not isinstance(x, list):
             raise TypeError("Expected a list of interfaces and skeleton boundaries!")
         #TODO: More checking.

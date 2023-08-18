@@ -13,7 +13,7 @@ from ooflib.SWIG.common import config
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import progress
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.image import autogroupMP
+from ooflib.SWIG.image import autogroup
 from ooflib.SWIG.image import oofimage
 from ooflib.common import debug
 from ooflib.common import labeltree
@@ -81,7 +81,6 @@ sizeparams = parameter.ParameterGroup(
 ###################################
 
 def loadImage(menuitem, filename, microstructure, height, width):
-    debug.fmsg("filename=", filename)
     if filename:
         # Read file and create an OOFImage object
         image = autoReadImage(filename, height, width)
@@ -115,7 +114,9 @@ def loadImageIntoMS(image, microstructure):
 
     # Check size of microstructure
     if ms.getObject().sizeInPixels() != image.sizeInPixels():
-        raise ooferror.ErrUserError("Cannot load an image into an existing Microstructure of a different size.")
+        raise ooferror.PyErrUserError(
+            "Cannot load an image into an existing Microstructure"
+            " of a different size.")
 
     # See if the image name is unique in the Microstructure
     newname = imagecontext.imageContexts.uniqueName([ms.name(), image.name()])
@@ -339,13 +340,12 @@ def createPixelGroups(menuitem, image, name_template):
     prog.setMessage("Categorizing pixels...")
     mscontext.begin_writing()
     try:
-        newgrpnames = autogroupMP.autogroup(ms, immidge, name_template)
+        newgrpnames = autogroup.autogroup(ms, immidge, name_template)
     finally:
         prog.finish()
         mscontext.end_writing()
 
     switchboard.notify('redraw')
-        
     if not prog.stopped():      # not interrupted
         # Do this only after releasing the ms write lock!  If the main
         # thread is waiting for the read lock, then switchboard.notify
@@ -439,8 +439,9 @@ microstructuremenu.micromenu.addItem(
 def createMSFromImageFile(menuitem, filename, microstructure_name,
                           height, width):
  
-    if (height!=automatic and height<=0) or (width!=automatic and width<=0):
-        raise ooferror.ErrUserError(
+    if ((height!=automatic.automatic and height<=0) or
+        (width!=automatic.automatic and width<=0)):
+        raise ooferror.PyErrUserError(
             "Negative microstructure sizes are not allowed.")
 
     image = autoReadImage(filename, height, width)

@@ -15,7 +15,6 @@
 // Routines used to catch C++ signals and dump the current Python
 // stack before bailing out.
 
-#include <Python.h>
 #include <string>
 #include <signal.h>
 #include <pthread.h>
@@ -37,12 +36,10 @@ static void handler(int sig) {
   else if(sig == SIGINT)
     msg = "Interrupted";
   
-  PyGILState_STATE pystate = acquirePyLock();
-  PyObject *args = Py_BuildValue((char*) "(s)", msg.c_str());
-  PyObject *result = PyEval_CallObject(python_dumper, args);
-  Py_DECREF(args);
+  PYTHON_THREAD_BEGIN_BLOCK;
+  PyObject *result = PyObject_CallFunction(python_dumper, "(s)", msg.c_str());
   Py_DECREF(result);
-  releasePyLock(pystate);
+  PYTHON_THREAD_END_BLOCK;
   std::cerr << "cdebug.C: " << msg << ": aborting" << std::endl;
   abort();
 }
@@ -125,42 +122,26 @@ void throwException() {
 // Python "function" that raises a Python exception.
 
 void throwPythonException() {
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    PyObject *result = PyObject_GetAttrString(Py_None, (char*) "say what?");
-    if(!result)
-      pythonErrorRelay();
-    Py_XDECREF(result);
-  }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
-  }
-  releasePyLock(pystate);
+  PYTHON_THREAD_BEGIN_BLOCK;
+  PyObject *result = PyObject_GetAttrString(Py_None, (char*) "say what?");
+  if(!result)
+    pythonErrorRelay();
+  Py_XDECREF(result);
 }
 
 // A C++ function that can be called from Python, and which calls a
 // Python function that throws a C++ exception.
 
 void throwPythonCException() {
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    PyObject *module = PyImport_ImportModule((char*) 
-					     "ooflib.SWIG.common.cdebug");
-    PyObject *func = PyObject_GetAttrString(module, (char*) "throwException");
-    Py_XDECREF(module);
-    PyObject *args = Py_BuildValue((char*) "()");
-    PyObject *result = PyEval_CallObject(func, args);
-    Py_XDECREF(args);
-    if(!result)
-      pythonErrorRelay();
-    Py_XDECREF(result);
-  }
-  catch (...) {
-    releasePyLock(pystate);
-    throw;
-  }
-  releasePyLock(pystate);
+  PYTHON_THREAD_BEGIN_BLOCK;
+  PyObject *module = PyImport_ImportModule((char*) 
+					   "ooflib.SWIG.common.cdebug");
+  PyObject *func = PyObject_GetAttrString(module, (char*) "throwException");
+  Py_XDECREF(module);
+  PyObject *result = PyObject_CallFunction(func, NULL);
+  if(!result)
+    pythonErrorRelay();
+  Py_XDECREF(result);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -180,7 +161,7 @@ void spinCycle(int nCycles) {
   double x;
   for(int i=0; i<nCycles && !progress->stopped(); i++) {
     x = cos(x);
-    progress->setMessage(to_string(i) + "/" + to_string(nCycles));
+    progress->setMessage(tostring(i) + "/" + tostring(nCycles));
     progress->setFraction((float) i/nCycles);
   }
   progress->finish();
@@ -188,30 +169,21 @@ void spinCycle(int nCycles) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-
 // Call out to the python utils.memusage() method
 
 void memusage(const std::string &comment) {
+  PYTHON_THREAD_BEGIN_BLOCK;
   static PyObject *memfunc = nullptr;
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!memfunc) {
-      PyObject *utils = PyImport_ImportModule((char*) "ooflib.common.utils");
-      memfunc = PyObject_GetAttrString(utils, (char*) "memusage");
-      Py_XDECREF(utils);
-    }
-    PyObject *arg = Py_BuildValue((char *) "(s)", comment.c_str());
-    PyObject *result = PyObject_CallObject(memfunc, arg);
-    Py_XDECREF(arg);
-    if(!result)
-      pythonErrorRelay();
-    Py_XDECREF(result);
+  if(!memfunc) {
+    PyObject *utils = PyImport_ImportModule((char*) "ooflib.common.utils");
+    memfunc = PyObject_GetAttrString(utils, (char*) "memusage");
+    Py_XDECREF(utils);
   }
-  catch (...) {
-    releasePyLock(pystate);
-    throw;
-  }
-  releasePyLock(pystate);
+  PyObject *arg = Py_BuildValue((char *) "(s)", comment.c_str());
+  PyObject *result = PyObject_CallObject(memfunc, arg);
+  Py_XDECREF(arg);
+  if(!result)
+    pythonErrorRelay();
+  Py_XDECREF(result);
 }
 
-					

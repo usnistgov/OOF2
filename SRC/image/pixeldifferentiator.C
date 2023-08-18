@@ -257,17 +257,17 @@ double ColorPixelDistribution::deviation2(const PixelDistribution *othr)
 #ifdef DEBUG
 
 std::string ColorPixelDistribution::stats() const {
-  return "[" + to_string(mean[0], 20) + ", " + to_string(mean[1], 20) + ", "
-    + to_string(mean[2], 20) 
+  return "[" + tostring(mean[0], 20) + ", " + tostring(mean[1], 20) + ", "
+    + tostring(mean[2], 20) 
     + "] +/- ["
-    + to_string(sqrt(variance[0])) + "," + to_string(sqrt(variance[1])) + ","
-    +  to_string(sqrt(variance[2])) + "]"
-    //    + "  sumsq=[" + to_string(sumsq[0]) + "," + to_string(sumsq[1]) +"," + to_string(sumsq[2]) + "]" + " n=" + to_string(npts())
+    + tostring(sqrt(variance[0])) + "," + tostring(sqrt(variance[1])) + ","
+    +  tostring(sqrt(variance[2])) + "]"
+    //    + "  sumsq=[" + tostring(sumsq[0]) + "," + tostring(sumsq[1]) +"," + tostring(sumsq[2]) + "]" + " n=" + tostring(npts())
     ;
 }
 
 std::string ColorPixelDistribution::value(const ICoord &pixel) const {
-  return to_string(image->getColor(pixel, rawpixels));
+  return tostring(image->getColor(pixel, rawpixels));
 }
 
 #endif // DEBUG

@@ -21,8 +21,6 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import skeletonboundary
-import math
-import string
 
 import oofcanvas
 
@@ -59,10 +57,10 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
                     nodes = e.get_nodes()
                     pt0 = nodes[0].position()
                     pt1 = nodes[1].position()
-                    seg = oofcanvas.CanvasSegment(pt0, pt1)
+                    seg = oofcanvas.CanvasSegment.create(pt0, pt1)
                     seg.setLineWidthInPixels(self.linewidth)
                     seg.setLineColor(clr)
-                    arrow = oofcanvas.CanvasArrowhead(seg, 0.5, False)
+                    arrow = oofcanvas.CanvasArrowhead.create(seg, 0.5, False)
                     arrow.setSizeInPixels(0.7*self.arrowsize, self.arrowsize)
                     self.canvaslayer.addItem(seg)
                     self.canvaslayer.addItem(arrow)
@@ -74,7 +72,7 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
                 pass
             else:
                 for n in b.nodes:
-                    dot = oofcanvas.CanvasDot(n.position(), self.dotsize)
+                    dot = oofcanvas.CanvasDot.create(n.position(), self.dotsize)
                     dot.setFillColor(clr)
                     self.canvaslayer.addItem(dot)
 
@@ -132,10 +130,10 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
             nodes = e.get_nodes()
             n0 = nodes[0].position()
             n1 = nodes[1].position()
-            seg = oofcanvas.CanvasSegment(n0, n1)
+            seg = oofcanvas.CanvasSegment.create(n0, n1)
             seg.setLineColor(clr)
             seg.setLineWidthInPixels(self.linewidth)
-            arrow = oofcanvas.CanvasArrowhead(seg, 0.5, False)
+            arrow = oofcanvas.CanvasArrowhead.create(seg, 0.5, False)
             arrow.setSizeInPixels(0.7*self.arrowsize, self.arrowsize)
             self.canvaslayer.addItem(seg)
             self.canvaslayer.addItem(arrow)
@@ -144,7 +142,7 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
         b = bdy.boundary(skelobj)
         clr = color.canvasColor(self.color)
         for n in b.nodes:
-            dot = oofcanvas.CanvasDot(n.position(), self.dotsize)
+            dot = oofcanvas.CanvasDot.create(n.position(), self.dotsize)
             dot.setFillColor(clr)
             self.canvaslayer.addItem(dot)
     

@@ -12,133 +12,126 @@
 #ifndef OOFERROR_SWG
 #define OOFERROR_SWG
 
-%module ooferror
+%module(package="ooflib.SWIG.common") ooferror
 
 %include "common/typemaps.swg"
+%include "common/ooferrorwrappers.swg"
 
 %{
 #include "common/ooferror.h"
 %}
 
-%pragma(python) include="ooferror.spy"
-
 void pyErrorInit(PyObject *pythonCallable);
 
-/* Swigged for automatic synchronization with C++ classes.
-   The error-handling scheme involves error objects being created
-   in the C++ code, then re-created from Python via the 
-   string returned by the pythonequiv method, which must be a 
-   call to the constructor in string form, with literal arguments,
-   e.g. if the constructor takes a string and two integers, the
-   pythonequiv string might look like: "MyError('Doom.', 13, 666)" */
-/* NB the pythonequiv method only needs to be visible from C++. */
- 
+%nodefaultctor ErrError;
 
 class ErrError {
 public:
-  %new string *summary();
-  %new string *details();
+  %newobject summary;
+  std::string *summary();
+  %newobject details;
+  std::string *details();
 };
 
-// NOTE: inheritance layout here is different than ooferror.h. 
+%pythoncode %{
+  # Does this work?
+  ErrError.__str__ = ErrError.__repr__
+%}
 
 // Subclasses require individual __repr__s.  If you provide one in the
 // base class but don't provide them in the subclasses, SWIG will
 // construct default uninformative __repr__s for the subclasses.
 
-/* Args are: Message, filename, line-number. */
 class ErrProgrammingError : public ErrError {
 public:
-  const string &filename();
+  ErrProgrammingError(const std::string &msg, const std::string &file, int l);
+  const std::string &filename();
   int lineno();
-  ErrProgrammingError(char *, char *, int);
   ~ErrProgrammingError();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+WRAP_OOFERROR_CLASS(ErrProgrammingError);
 
+class ErrPyProgrammingError : public ErrError {
+public:
+  ErrPyProgrammingError(std::string&, std::string&, int);
+  ~ErrPyProgrammingError();
+};
+WRAP_OOFERROR_CLASS(ErrPyProgrammingError);
+
+%pythoncode %{
+  # Monkeypatch the __init__ so that line number and file
+  # are inserted automatically.
+  oldinit = PyErrPyProgrammingError.__init__
+  def PyErrPyProgrammingError_init(self, msg):
+    stack = traceback.extract_stack()
+    (phile, lineno, func, txt) = stack[-2]
+    oldinit(self, msg, phile, lineno)
+  PyErrPyProgrammingError.__init__ = PyErrPyProgrammingError_init
+%}
 
 class ErrResourceShortage : public ErrError {
 public:
-  ErrResourceShortage(char *m);
+  ErrResourceShortage(const std::string &m);
   ~ErrResourceShortage();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+WRAP_OOFERROR_CLASS(ErrResourceShortage);
 
 class ErrBoundsError : public ErrError {
 public:
-  ErrBoundsError(char *m);
+  ErrBoundsError(const std::string &m);
   ~ErrBoundsError();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
-
+WRAP_OOFERROR_CLASS(ErrBoundsError);
 
 class ErrBadIndex : public ErrError {
 public:
-  ErrBadIndex(int, char *, int);
+  ErrBadIndex(int, const std::string&, int);
   ~ErrBadIndex();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
-
+WRAP_OOFERROR_CLASS(ErrBadIndex);
 
 class ErrUserError : public ErrError {
 public:
-  ErrUserError(char *);
+  ErrUserError(const std::string&);
   ~ErrUserError();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+WRAP_OOFERROR_CLASS(ErrUserError);
 
 class ErrSetupError : public ErrError {
 public:
-  ErrSetupError(char * m);
+  ErrSetupError(const std::string&);
   ~ErrSetupError();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+WRAP_OOFERROR_CLASS(ErrSetupError);
 
 class ErrInterrupted : public ErrError {
 public:
   ErrInterrupted();
   ~ErrInterrupted();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+WRAP_OOFERROR_CLASS(ErrInterrupted);
 
 class ErrNoProgress : public ErrError {
 public:
   ErrNoProgress();
   ~ErrNoProgress();
-  %addmethods {
-    const string *__repr__() {
-      static const std::string s("Progress object not found");
-      return &s;
-    }
-  }
 };
+WRAP_OOFERROR_CLASS(ErrNoProgress);
+
+class ErrDataFileError : public ErrError {
+public:
+  ErrDataFileError(const std::string&);
+  ~ErrDataFileError();
+};
+WRAP_OOFERROR_CLASS(ErrDataFileError);
+
+class ErrWarning : public ErrError {
+public:
+  ErrWarning(const std::string&);
+  ~ErrWarning();
+};
+WRAP_OOFERROR_CLASS(ErrWarning);
+
+%pythoncode "common/ooferror.spy"
 
 #endif // OOFERROR_SWG

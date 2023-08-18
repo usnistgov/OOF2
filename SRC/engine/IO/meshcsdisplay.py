@@ -23,7 +23,6 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import placeholder
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine.IO import meshcsparams
-import types
 
 import oofcanvas
 
@@ -59,7 +58,7 @@ class MeshCrossSectionDisplay(display.DisplayMethod):
                 else:
                     segments.append(primitives.Segment(b.start, b.end))
         if segments:
-            segs = oofcanvas.CanvasSegments()
+            segs = oofcanvas.CanvasSegments.create()
             segs.setLineWidthInPixels(self.linewidth)
             segs.setLineColor(color.canvasColor(self.color))
             for seg in segments:

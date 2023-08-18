@@ -9,14 +9,13 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef CFIDDLENODESBASEPARALLEL_H
 #define CFIDDLENODESBASEPARALLEL_H
 
+#include <oofconfig.h>
+
 #include "ooferror.h"
 #include "common/mpitools.h"
-#include <Python.h>
 #include <vector>
 #include <mpi++.h>
 

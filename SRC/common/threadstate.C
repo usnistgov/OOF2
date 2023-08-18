@@ -10,14 +10,14 @@
  */
 
 #include <oofconfig.h>
-#include <Python.h>
 
 #include "common/lock.h"
 #include "common/ooferror.h"
 #include "common/oofomp.h"
 #include "common/printvec.h"
 #include "common/threadstate.h"
-#include "oofcanvas/oofcanvas.h"
+#include "common/tostring.h"
+#include <oofcanvas.h>
 #include <iostream>
 #include <pthread.h>
 #include <string>
@@ -61,6 +61,11 @@ int findThreadNumber() {
 ThreadID::ThreadID() {
   _ID = pthread_self();
 }
+
+std::string *ThreadID::get_IDstr() const {
+  return new std::string(tostring(get_ID()));
+}
+  
 
 bool operator==(const ThreadID &t1, const ThreadID &t2) {
   return pthread_equal(t1.get_ID(), t2.get_ID());

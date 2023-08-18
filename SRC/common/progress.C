@@ -1,4 +1,4 @@
-// -*- C++ -*-
+/// -*- C++ -*-
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
@@ -42,8 +42,19 @@ Progress::Progress(const std::string &nm, ThreadState *ts)
 }
 
 Progress::~Progress() {
-  // std::cerr << "Progress:dtor: " << name_ << " " << this << std::endl;
-  assert(not (started_ and not finished_));
+  // std::cerr << "Progress:dtor: " << name_ << " " << this
+  // 	    << " finished_=" << finished_ << " started_=" << started_
+  // 	    << std::endl;
+
+  // The failure of this assertion often means that a procedure raised
+  // an exception and that the call to Progress::finish was never
+  // made.  The solution is to ensure that the Progress::finish() is
+  // called inside a finally: block in Python or generic catch block
+  // in C++.  If that's not done, then this assertion might abort the
+  // program before the exception is handled, and the developer will
+  // never see the exception.
+  assert(finished_ or not started_);
+  
   KeyHolder kh(lock, verboseLocks);
   disconnectBar(progressbar);
   KeyHolder key(idlock);
@@ -135,7 +146,6 @@ void Progress::releaseThreadLock() {
 // If new Progress subclasses are created, remember to update the
 // factory function ThreadState::getProgress.
 
-const std::string Progress::modulename_("ooflib.SWIG.common.progress");
 const std::string DefiniteProgress::classname_("DefiniteProgress");
 const std::string LogDefiniteProgress::classname_("LogDefiniteProgress");
 const std::string IndefiniteProgress::classname_("IndefiniteProgress");
@@ -187,8 +197,9 @@ void LogDefiniteProgress::setFraction(double x) {
       fraction_ = 0.0;
     else if(x < targetValue)
       fraction_ = 1.0;
-    else
+    else {
       fraction_ = 1.0 - log(x/targetValue)/log_init_over_targ;
+    }
   }
   start();
 }
@@ -208,10 +219,9 @@ void (*Progress::disconnect_hook)(PyObject*) = 0;
 // the GUI is running.
 
 void Progress::setProgressBar(PyObject *bar) {
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   progressbar = bar;
   Py_XINCREF(progressbar);
-  releasePyLock(pystate);
 }
 
 bool Progress::hasProgressBar() const {

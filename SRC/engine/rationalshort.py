@@ -39,9 +39,8 @@ class RemoveShortSide(rationalize.Rationalizer):
     def findAndFix(self, skel, element):
         changes = []
         if element.nnodes() == 4:       # only applies to quads
-            edgeLengths = [(length, indx) for indx, length in
-                            enumerate(element.getEdgeLengthsList())]
-            edgeLengths.sort()
+            edgeLengths = sorted([(length, indx) for indx, length in
+                            enumerate(element.getEdgeLengthsList())])
             # See if the shortest edge is much shorter than the rest
             if edgeLengths[1][0] >= self.ratio*edgeLengths[0][0]:
                 which = edgeLengths[0][1]
@@ -57,9 +56,8 @@ class RemoveShortSide(rationalize.Rationalizer):
     def fixAll(self, skel, element):
         if element.nnodes() == 4:
             which = element.getShortestEdge()
-            edgeLengths = [(length, indx) for indx, length in
-                            enumerate(element.getEdgeLengthsList())]
-            edgeLengths.sort()
+            edgeLengths = sorted([(length, indx) for indx, length in
+                            enumerate(element.getEdgeLengthsList())])
             changes = self.fix(skel, element, edgeLengths[0][1])
             indxdiff = edgeLengths[0][1] - edgeLengths[1][1]
             if indxdiff == 2 or indxdiff == -2:

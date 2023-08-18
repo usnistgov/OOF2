@@ -39,8 +39,11 @@ class SkeletonSelectionRegistration(registeredclass.Registration):
 
 class NodeSelectMethod(registeredclass.RegisteredClass):
     registry = []
+    # Subclasses must either define iterator() or redefine select().
+    # Iterator is a generator function that yields the objects to be
+    # selected.
     def select(self, skeletoncontext, pointlist, selector):
-        pass
+        selector(self.iterator(skeletoncontext, pointlist))
     ## No tip or discussion members are required here because the
     ## NodeSelectMethod classes are converted into menu items.
 
@@ -71,71 +74,63 @@ NodeSelectionRegistration(
     tip="Select a single node.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/single_node.xml'))
 
-if config.dimension() == 2:
-    class RectangleNodeSelect(NodeSelectMethod):
-        def select(self, skeletoncontext, pointlist, selector):
-            reslist = []
-            xmin = min(pointlist[0].x, pointlist[1].x)
-            xmax = max(pointlist[0].x, pointlist[1].x)
-            ymin = min(pointlist[0].y, pointlist[1].y)
-            ymax = max(pointlist[0].y, pointlist[1].y)
-            for n in skeletoncontext.getObject().nodes:
-                if n.position().x < xmax and n.position().x > xmin and \
-                       n.position().y < ymax and n.position().y > ymin:
-                    reslist.append(n)
-            selector(reslist)
+class RectangleNodeSelect(NodeSelectMethod):
+    def iterator(self, skeletoncontext, pointlist):
+        xmin = min(pointlist[0].x, pointlist[1].x)
+        xmax = max(pointlist[0].x, pointlist[1].x)
+        ymin = min(pointlist[0].y, pointlist[1].y)
+        ymax = max(pointlist[0].y, pointlist[1].y)
+        for n in skeletoncontext.getObject().nodes:
+            if xmin < n.position().x < xmax and \
+               ymin < n.position().y < ymax:
+                yield n
 
-    rectangleNodeSelector = NodeSelectionRegistration(
-        'Rectangle',
-        RectangleNodeSelect,
-        ordering=1,
-        events=['down', 'up'],
-        tip="Drag to select nodes within a rectangle.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/rectangle_node.xml')
-        )
+rectangleNodeSelector = NodeSelectionRegistration(
+    'Rectangle',
+    RectangleNodeSelect,
+    ordering=1,
+    events=['down', 'up'],
+    tip="Drag to select nodes within a rectangle.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/rectangle_node.xml')
+    )
 
+class CircleNodeSelect(NodeSelectMethod):
+    def iterator(self, skeletoncontext, pointlist):
+        center = pointlist[0]
+        radius2 = (pointlist[1]-pointlist[0])**2
 
-    class CircleNodeSelect(NodeSelectMethod):
-        def select(self, skeletoncontext, pointlist, selector):
-            reslist = []
-            center = pointlist[0]
-            radius2 = (pointlist[1]-pointlist[0])**2
+        for n in skeletoncontext.getObject().nodes:
+            dist2 = (n.position() - center)**2
+            if dist2 < radius2:
+                yield n
 
-            for n in skeletoncontext.getObject().nodes:
-                dist2 = (n.position() - center)**2
-                if dist2 < radius2:
-                    reslist.append(n)
-            selector(reslist)
-
-    circleNodeSelector = NodeSelectionRegistration(
-        'Circle',
-        CircleNodeSelect,
-        ordering=2,
-        events=['down', 'up'],
-        tip="Drag to select nodes within a circle.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/circle_node.xml')
-        )
+circleNodeSelector = NodeSelectionRegistration(
+    'Circle',
+    CircleNodeSelect,
+    ordering=2,
+    events=['down', 'up'],
+    tip="Drag to select nodes within a circle.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/circle_node.xml')
+    )
 
 
-    class EllipseNodeSelect(NodeSelectMethod):
-        def select(self, skeletoncontext, pointlist, selector):
-            reslist = []
-            aa = (0.5*(pointlist[0].x - pointlist[-1].x))**2
-            bb = (0.5*(pointlist[0].y - pointlist[-1].y))**2
-            center = 0.5*(pointlist[0]+pointlist[-1])
-            for n in skeletoncontext.getObject().nodes:
-                dx = n.position() - center
-                if dx.x*dx.x*bb + dx.y*dx.y*aa < aa*bb:
-                    reslist.append(n)
-            selector(reslist)
+class EllipseNodeSelect(NodeSelectMethod):
+    def iterator(self, skeletoncontext, pointlist):
+        aa = (0.5*(pointlist[0].x - pointlist[-1].x))**2
+        bb = (0.5*(pointlist[0].y - pointlist[-1].y))**2
+        center = 0.5*(pointlist[0]+pointlist[-1])
+        for n in skeletoncontext.getObject().nodes:
+            dx = n.position() - center
+            if dx.x*dx.x*bb + dx.y*dx.y*aa < aa*bb:
+                yield n
 
-    ellipseNodeSelector = NodeSelectionRegistration(
-        'Ellipse',
-        EllipseNodeSelect,
-        ordering=3,
-        events=['down', 'up'],
-        tip="Drag to select nodes within an ellipse.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/ellipse_node.xml'))
+ellipseNodeSelector = NodeSelectionRegistration(
+    'Ellipse',
+    EllipseNodeSelect,
+    ordering=3,
+    events=['down', 'up'],
+    tip="Drag to select nodes within an ellipse.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/ellipse_node.xml'))
                 
 ##########################################
 
@@ -144,7 +139,7 @@ if config.dimension() == 2:
 class SegmentSelectMethod(registeredclass.RegisteredClass):
     registry = []
     def select(self, skeletoncontext, pointlist, selector):
-        pass
+        selector(self.iterator(skeletoncontext, pointlist))
     ## No tip or discussion members are required here because the
     ## SegmentSelectMethod classes are converted into menu items.
 
@@ -174,83 +169,70 @@ SegmentSelectionRegistration(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/single_segment.xml')
     )
 
+# Parent class for all the area selectors.  Sets self.xmin, self.xmax,
+# self.ymin, self.ymax.  Subclasses provide the "interior" function.
+class AreaSegmentSelect(SegmentSelectMethod):
+    def iterator(self, skeletoncontext, pointlist):
+        self.first = pointlist[0]
+        self.xmin = min(pointlist[0].x, pointlist[1].x)
+        self.xmax = max(pointlist[0].x, pointlist[1].x)
+        self.ymin = min(pointlist[0].y, pointlist[1].y)
+        self.ymax = max(pointlist[0].y, pointlist[1].y)
+        self.xspan2 = (self.xmax-self.xmin)**2
+        self.yspan2 = (self.ymax-self.ymin)**2
+        self.center = primitives.Point(0.5*(self.xmax+self.xmin),
+                                       0.5*(self.ymax+self.ymin))
 
-if config.dimension() == 2:
-    # Parent class for all the area selectors.  Sets self.xmin, self.xmax,
-    # self.ymin, self.ymax.  Subclasses provide the "interior" function.
-    class AreaSegmentSelect(SegmentSelectMethod):
-        def select(self, skeletoncontext, pointlist, selector):
-            reslist = []
-            self.first = pointlist[0]
-            self.xmin = min(pointlist[0].x, pointlist[1].x)
-            self.xmax = max(pointlist[0].x, pointlist[1].x)
-            self.ymin = min(pointlist[0].y, pointlist[1].y)
-            self.ymax = max(pointlist[0].y, pointlist[1].y)
-            self.xspan2 = (self.xmax-self.xmin)**2
-            self.yspan2 = (self.ymax-self.ymin)**2
-            self.center = primitives.Point(0.5*(self.xmax+self.xmin),
-                                           0.5*(self.ymax+self.ymin))
+        for (k,v) in skeletoncontext.getObject().segments.items():
+            if self.interior(k[0]) and self.interior(k[1]):
+                yield v
 
-            for (k,v) in skeletoncontext.getObject().segments.items():
-                if self.interior(k[0]) and self.interior(k[1]):
-                    reslist.append(v)
-            selector(reslist)
+class RectangleSegmentSelect(AreaSegmentSelect):
+    # Determine whether or a point is inside the rectangle.
+    def interior(self, n):
+        return (n.position().x < self.xmax and n.position().x > self.xmin and 
+                n.position().y < self.ymax and n.position().y > self.ymin)
 
-    class RectangleSegmentSelect(AreaSegmentSelect):
-        # Determine whether or a point is inside the rectangle.
-        def interior(self, n):
-            if n.position().x < self.xmax and n.position().x > self.xmin and \
-                   n.position().y < self.ymax and n.position().y > self.ymin:
-                return 1
-            return 0
+rectangleSegmentSelector = SegmentSelectionRegistration(
+    'Rectangle',
+    RectangleSegmentSelect,
+    ordering=1,
+    events=['down', 'up'],
+    tip="Drag to select segments within a rectangle.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/rectangle_segment.xml')
+    )
 
-    rectangleSegmentSelector = SegmentSelectionRegistration(
-        'Rectangle',
-        RectangleSegmentSelect,
-        ordering=1,
-        events=['down', 'up'],
-        tip="Drag to select segments within a rectangle.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/rectangle_segment.xml')
-        )
+class CircleSegmentSelect(AreaSegmentSelect):
+    # Determine whether or not a point is inside the ellipse.
+    def interior(self, n):
+        delta = n.position() - self.first
+        return delta**2 < (self.xspan2 + self.yspan2)
 
+circleSegmentSelector = SegmentSelectionRegistration(
+    'Circle',
+    CircleSegmentSelect,
+    ordering=2,
+    events=['down', 'up'],
+    tip="Drag to select segments within an ellipse.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/circle_segment.xml')
+    )
 
-    class CircleSegmentSelect(AreaSegmentSelect):
-        # Determine whether or not a point is inside the ellipse.
-        def interior(self, n):
-            delta = n.position() - self.first
-            if delta**2 < (self.xspan2 + self.yspan2):
-                return 1
-            return None
+class EllipseSegmentSelect(AreaSegmentSelect):
+    # Determine whether or not a point is inside the ellipse.
+    def interior(self, n):
+        delta = n.position() - self.center
+        return (delta.x*delta.x*self.yspan2 + delta.y*delta.y*self.xspan2 < 
+               (self.xspan2*self.yspan2)/4.0)
 
-    circleSegmentSelector = SegmentSelectionRegistration(
-        'Circle',
-        CircleSegmentSelect,
-        ordering=2,
-        events=['down', 'up'],
-        tip="Drag to select segments within an ellipse.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/circle_segment.xml')
-        )
-
-
-    class EllipseSegmentSelect(AreaSegmentSelect):
-        # Determine whether or not a point is inside the ellipse.
-        def interior(self, n):
-            delta = n.position() - self.center
-            if delta.x*delta.x*self.yspan2 + delta.y*delta.y*self.xspan2 < \
-                   (self.xspan2*self.yspan2)/4.0:
-                return 1
-            return None
-
-
-    ellipseSegmentSelector = SegmentSelectionRegistration(
-        'Ellipse',
-        EllipseSegmentSelect,
-        ordering=3,
-        events=['down', 'up'],
-        tip="Drag to select segments within an ellipse.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/ellipse_segment.xml')
-        )
-
+ellipseSegmentSelector = SegmentSelectionRegistration(
+    'Ellipse',
+    EllipseSegmentSelect,
+    ordering=3,
+    events=['down', 'up'],
+    tip="Drag to select segments within an ellipse.",
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/ellipse_segment.xml')
+    )
 
 #############################################
 
@@ -258,7 +240,7 @@ if config.dimension() == 2:
 class ElementSelectMethod(registeredclass.RegisteredClass):
     registry = []
     def select(self, skeletoncontext, pointlist, selector):
-        pass
+        selector(self.iterator(skeletoncontext, pointlist))
     ## No tip or discussion members are required here because the
     ## ElementSelectMethod classes are converted into menu items.
 
@@ -293,96 +275,81 @@ ElementSelectionRegistration(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/single_element.xml')
     )
 
-#####################################
+class AreaElementSelect(ElementSelectMethod):
+    def iterator(self, skeletoncontext, pointlist):
+        self.first = pointlist[0]
+        self.xmin = min(pointlist[0].x, pointlist[-1].x)
+        self.xmax = max(pointlist[0].x, pointlist[-1].x)
+        self.ymin = min(pointlist[0].y, pointlist[-1].y)
+        self.ymax = max(pointlist[0].y, pointlist[-1].y)
+        self.xspan2 = (self.xmax-self.xmin)**2
+        self.yspan2 = (self.ymax-self.ymin)**2
+        self.center = primitives.Point(0.5*(self.xmax+self.xmin),
+                                       0.5*(self.ymax+self.ymin))
 
-if config.dimension() == 2:
-    class AreaElementSelect(ElementSelectMethod):
-        def select(self, skeletoncontext, pointlist, selector):
-            reslist = []
-            self.first = pointlist[0]
-            self.xmin = min(pointlist[0].x, pointlist[-1].x)
-            self.xmax = max(pointlist[0].x, pointlist[-1].x)
-            self.ymin = min(pointlist[0].y, pointlist[-1].y)
-            self.ymax = max(pointlist[0].y, pointlist[-1].y)
-            self.xspan2 = (self.xmax-self.xmin)**2
-            self.yspan2 = (self.ymax-self.ymin)**2
-            self.center = primitives.Point(0.5*(self.xmax+self.xmin),
-                                           0.5*(self.ymax+self.ymin))
+        for e in skeletoncontext.getObject().elements:
+            for n in e.nodes:
+                if not self.interior(n):
+                    break
+            else:
+                yield e
 
-            for e in skeletoncontext.getObject().elements:
-                for n in e.nodes:
-                    if not self.interior(n):
-                        break
-                else:
-                    reslist.append(e)
-            selector(reslist)
+class RectangleElementSelect(AreaElementSelect):
+    # Determine whether or a point is inside the rectangle.
+    def interior(self, n):
+        return (self.xmin < n.position().x < self.xmax and 
+                self.ymin < n.position().y < self.ymax)
 
-
-    class RectangleElementSelect(AreaElementSelect):
-        # Determine whether or a point is inside the rectangle.
-        def interior(self, n):
-            if n.position().x < self.xmax and n.position().x > self.xmin and \
-                   n.position().y < self.ymax and n.position().y > self.ymin:
-                return 1
-            return 0
-
-    rectangleElementSelector = ElementSelectionRegistration(
-        'Rectangle',
-        RectangleElementSelect,
-        ordering=1,
-        events=['down', 'up'],
-        tip="Drag to select elements within a rectangle.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/rectangle_element.xml')
-        )
+rectangleElementSelector = ElementSelectionRegistration(
+    'Rectangle',
+    RectangleElementSelect,
+    ordering=1,
+    events=['down', 'up'],
+    tip="Drag to select elements within a rectangle.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/rectangle_element.xml')
+    )
 
 
-    class CircleElementSelect(AreaElementSelect):
-        # Determine whether or not a point is inside the ellipse.
-        def interior(self, n):
-            delta = n.position() - self.first
-            if delta**2 < (self.xspan2 + self.yspan2):
-                return 1
-            return None
+class CircleElementSelect(AreaElementSelect):
+    # Determine whether or not a point is inside the ellipse.
+    def interior(self, n):
+        delta = n.position() - self.first
+        return delta**2 < (self.xspan2 + self.yspan2)
 
-    circleElementSelector = ElementSelectionRegistration(
-        'Circle',
-        CircleElementSelect,
-        ordering=2,
-        events=['down', 'up'],
-        tip="Drag to select elements within a circle.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/circle_element.xml')
-        )
+circleElementSelector = ElementSelectionRegistration(
+    'Circle',
+    CircleElementSelect,
+    ordering=2,
+    events=['down', 'up'],
+    tip="Drag to select elements within a circle.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/circle_element.xml')
+    )
 
+class EllipseElementSelect(AreaElementSelect):
+    # Determine whether or not a point is inside the ellipse.
+    def interior(self, n):
+        delta = n.position() - self.center
+        return (delta.x*delta.x*self.yspan2 + delta.y*delta.y*self.xspan2 < 
+                (self.xspan2*self.yspan2)/4.0)
 
-    class EllipseElementSelect(AreaElementSelect):
-        # Determine whether or not a point is inside the ellipse.
-        def interior(self, n):
-            delta = n.position() - self.center
-            if delta.x*delta.x*self.yspan2 + delta.y*delta.y*self.xspan2 < \
-                   (self.xspan2*self.yspan2)/4.0:
-                return 1
-            return None
-
-    ellipseElementSelector = ElementSelectionRegistration(
-        'Ellipse',
-        EllipseElementSelect,
-        ordering=3,
-        events=['down', 'up'],
-        tip="Drag to select elements within an ellipse.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/ellipse_element.xml')
-        )
+ellipseElementSelector = ElementSelectionRegistration(
+    'Ellipse',
+    EllipseElementSelect,
+    ordering=3,
+    events=['down', 'up'],
+    tip="Drag to select elements within an ellipse.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/ellipse_element.xml')
+    )
 
 
 class PixelElementSelect(ElementSelectMethod):
-    def select(self, skeletoncontext, pointlist, selector):
-        reslist = []
+    def iterator(self, skeletoncontext, pointlist):
         skel = skeletoncontext.getObject()
         MS = skel.MS
         category = MS.categoryFromPoint(pointlist[0])
         for e in skel.element_iterator():
             if e.dominantPixel(skel.MS) == category:
-                reslist.append(e)
-        selector(reslist)
+                yield e
 
 ElementSelectionRegistration(
     'ByDominantPixel',

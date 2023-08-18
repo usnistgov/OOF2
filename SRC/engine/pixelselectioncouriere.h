@@ -44,12 +44,11 @@ public:
 class SegmentSelection : public PixelSelectionCourier {
 private:
   const Coord n0, n1;
-  const std::vector<ICoord> *selected;
+  std::vector<ICoord> selected;
   std::vector<ICoord>::const_iterator sel_iter;
 public:
   SegmentSelection(CMicrostructure *ms,
 		   const Coord *n0, const Coord *n1);
-  virtual ~SegmentSelection();
   virtual void start();
   virtual ICoord currentPoint() const;
   virtual void next();

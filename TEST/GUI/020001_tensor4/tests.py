@@ -34,7 +34,7 @@ def sensitivecij(widgetname, **cijs):
             fullwname = base + ";" + widgetname + ":" + wijname
             actual = is_sensitive(fullwname)
             if actual != nominal:
-                print >> sys.stderr, "Sensitization test failed for", fullwname
+                print("Sensitization test failed for", fullwname, file=sys.stderr)
                 return 0
     return 1
 

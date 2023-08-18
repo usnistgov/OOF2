@@ -13,9 +13,10 @@ from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
-from gi.repository import Gtk
-from gi.repository import Pango
 
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 # A gtk.Button containing an image from the given stock item, (eg,
 # gtk.STOCK_OK) and optional text.  If 'reverse' is true, the text
@@ -43,7 +44,7 @@ class StockButton(Gtk.Button):
         if debug.debug():
             it = Gtk.IconTheme()
             if not icon_name in it.list_icons():
-                raise ooferror.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "Bad icon name: " + icon_name)
 
         if align is None:
@@ -53,23 +54,26 @@ class StockButton(Gtk.Button):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         self.markup = markup
         self.reverse = reverse
+        self.label = None
         if reverse:
+            # text comes before icon
             if labelstr:
                 if markup:
                     self.label = Gtk.Label(halign=align)
                     self.label.set_markup(labelstr + ' ')
                 else:
-                    self.label = Gtk.Label(labelstr + ' ')
+                    self.label = Gtk.Label(label=labelstr + ' ')
                 hbox.pack_start(self.label, expand=True, fill=True, padding=0)
             hbox.pack_start(image, expand=False, fill=False, padding=0)
-        else:                       # not reverse
+        else:
+            # not reverse, icon comes before text
             hbox.pack_start(image, expand=False, fill=False, padding=0)
             if labelstr:
                 if markup:
                     self.label = Gtk.Label(halign=align)
                     self.label.set_markup(' ' + labelstr)
                 else:
-                    self.label = Gtk.Label(' ' + labelstr)
+                    self.label = Gtk.Label(label=' ' + labelstr)
                 hbox.pack_start(self.label, expand=True, fill=True, padding=0)
         self.add(hbox)
 
@@ -84,7 +88,21 @@ class StockButton(Gtk.Button):
                 self.label.set_text(labelstr + ' ')
             else:
                 self.label.set_text(' ' + labelstr)
-                        
+
+    def replaceIcon(self, icon_name):
+        hbox = self.get_children()[0]
+        oldimage = findChild(Gtk.Image, hbox)
+        hbox.remove(oldimage)
+        newimage = Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
+        if self.label is None:
+            hbox.pack_start(newimage, expand=False, fill=False, padding=0)
+        elif self.reverse:   # image follows label
+            hbox.pack_start(self.label, expand=False, fill=False, padding=0)
+            hbox.pack_start(newimage, expand=False, fill=False, padding=0)
+        else:                   # label follows image
+            hbox.pack_end(newimage, expand=False, fill=False, padding=0)
+            hbox.pack_start(self.label, expand=False, fill=False, padding=0)
+
 def prevButton(**kwargs):
     debug.mainthreadTest()
     button = StockButton('go-previous-symbolic', 'Prev', **kwargs)

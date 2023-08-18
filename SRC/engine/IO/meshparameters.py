@@ -20,7 +20,6 @@ from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import placeholder
-import types
 
 class FieldParameterBase(parameter.ObjParameter, parameter.Parameter):
     def __init__(self, name, value=None, default=None, tip=None, outofplane=0):
@@ -31,10 +30,8 @@ class FieldParameterBase(parameter.ObjParameter, parameter.Parameter):
                               self.outofplane)
     
     def checker(self, x):
-        if not isinstance(x, field.FieldPtr):
+        if not isinstance(x, field.Field):
             parameter.raiseTypeError(x, "Field")
-        # if not self.outofplane and not isinstance(x, field.CompoundFieldPtr):
-        #     parameter.raiseTypeError(x, "CompoundField")
             
     def incomputable(self, context):
         if not context:
@@ -61,16 +58,9 @@ class SubProblemFieldParameter(FieldParameter):
 ##    def incomputable(self, context):
 ##        return 0
 
-# class TwoVectorFieldParameter(FieldParameter): # Not used?
-#     def checker(self, x):
-#         if not isinstance(x, field.TwoVectorFieldPtr):
-#             parameter.raiseTypeError(x, "TwoVectorField")
-#     def valueDesc(self):
-#         return "A two component vector <link linkend='Section-Concepts-Mesh-Field'><classname>Field</classname></link>."
-    
 class FluxParameter(parameter.ObjParameter, parameter.Parameter):
     def checker(self, x):
-        if not isinstance(x, flux.FluxPtr):
+        if not isinstance(x, flux.Flux):
             parameter.raiseTypeError(x, "Flux")
     def valueDesc(self):
         return "A <link linkend='Section-Concepts-Mesh-Flux'><classname>Flux</classname></link> object."
@@ -83,7 +73,7 @@ class SubProblemFluxParameter(FluxParameter):
 
 class EquationParameter(parameter.ObjParameter, parameter.Parameter):
     def checker(self, x):
-        if not isinstance(x, equation.EquationPtr):
+        if not isinstance(x, equation.Equation):
             parameter.raiseTypeError(x, "Equation")
     def valueDesc(self):
         return "An <link linkend='Section-Concepts-Mesh-Equation'><classname>Equation</classname></link> object."
@@ -93,7 +83,7 @@ class SubProblemEquationParameter(EquationParameter):
 
 class EquationBCParameter(parameter.ObjParameter, parameter.Parameter):
     def checker(self, x):
-        if not isinstance(x, equation.EquationPtr) or not x.allow_boundary_conditions():
+        if not isinstance(x, equation.Equation) or not x.allow_boundary_conditions():
             parameter.raiseTypeError(x, "Equation with BC capability")
     def valueDesc(self):
         return "An <link linkend='Section-Concepts-Mesh-Equation'><classname>Equation</classname></link> object which can be used in boundary conditions."
@@ -134,7 +124,7 @@ class MeshEdgeBdyInterfaceParameter(MeshBoundaryParameter):
 
 #Includes "<every>"
 class MeshEdgeBdyParameterExtra(placeholder.PlaceHolderParameter):
-    types = (types.StringType, placeholder.every)
+    types = (str, bytes, placeholder.every)
     def valueDesc(self):
         return "The name of an edge boundary in a mesh."
     
@@ -146,7 +136,7 @@ class MeshEdgeBdyParameterExtra(placeholder.PlaceHolderParameter):
 # # graphics window.
 
 # class MeshTimeParameter(placeholder.PlaceHolderParameter):
-#     types = (IntType, FloatType, placeholder.earliest, placeholder.latest)
+#     types = (int, float, placeholder.earliest, placeholder.latest)
 #     def valueDesc(self):
 #         return "A floating point number, or the earliest or latest time."
 

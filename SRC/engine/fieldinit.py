@@ -18,9 +18,7 @@ from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
 from ooflib.common.IO import placeholder
 import ooflib.engine.mesh
-import string
 import struct
-import types
 
 # FieldInit subclasses must be derived from FieldInit *and* from
 # RegisteredClass.
@@ -33,25 +31,19 @@ class FieldInit:
             # in more than one subproblem when that field gets defined
             # on the second subproblem.  Doing so would wipe out a
             # value that might have been set by the first subproblem.
-            fniter = femesh.funcnode_iterator()
-            while not fniter.end():
-                node = fniter.node()
+            for node in femesh.funcnodes():
                 if node.fieldDefCount(field)==1:
                     position = node.position()
                     for i in range(field.ndof()): # field component
                         field.setvalue(femesh, node, i,
                                        self.func(position, time, i))
-                fniter.next()
         else:
-            fniter = femesh.funcnode_iterator()
-            while not fniter.end():
-                node = fniter.node()
+            for node in femesh.funcnodes():
                 if node.hasField(field):
                     position = node.position()
                     for i in range(field.ndof()): # field component
                         field.setvalue(femesh, node, i,
                                        self.func(position, time, i))
-                fniter.next()
 
 # The FieldInitParameter is not a simple RegisteredParameter because
 # it has to handle more than one RegisteredClass, for different

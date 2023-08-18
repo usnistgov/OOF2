@@ -9,9 +9,9 @@
 # oof_manager@nist.gov.
 
 from ooflib.SWIG.common import config
-from ooflib.SWIG.common import coord
 from ooflib.common import color
 from ooflib.common import debug
+from ooflib.common import primitives
 from ooflib.common import registeredclass
 from ooflib.common.IO import bitmapdisplay
 from ooflib.common.IO import display
@@ -35,7 +35,7 @@ class BitmapOverlayDisplayMethod(display.DisplayMethod):
         if bitmap is None or bitmap.empty():
             return
         bitmap.setColor(self.color)
-        image = bitmap.makeCanvasImage(coord.Coord(0,0), bitmap.size())
+        image = bitmap.makeCanvasImage(primitives.Point(0,0), bitmap.size())
         self.canvaslayer.addItem(image)
 
     def getTimeStamp(self, gfxwindow):

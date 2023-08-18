@@ -8,8 +8,10 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import widgetlogger
+from . import widgetlogger
 
 class ButtonLogger(widgetlogger.WidgetLogger):
     classes = (Gtk.Button,)

@@ -27,6 +27,8 @@ from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import skeletoncontext
 from ooflib.engine import skeletonselmodebase
 
+from ooflib.common.runtimeflags import digits
+
 from gi.repository import Gtk
 import sys
 
@@ -41,7 +43,7 @@ import sys
 # each mode, all of this mode specific data is stored in a ModeData
 # object.
 
-class ModeData(object):
+class ModeData:
     def __init__(self, page, mode):
         self.page = page                # SkeletonSelectionPage
         self.mode = mode                # SkeletonSelectionMode object
@@ -95,12 +97,13 @@ class SkeletonSelectionPage(oofGUI.MainPage):
         self.skelwidget = whowidget.WhoWidget(skeletoncontext.skeletonContexts,
                                               scope=self)
         self.skelwidget.verbose = True
-        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        label = Gtk.Label(label='Microstructure=', halign=Gtk.Align.END)
         self.skelwidgetbox.pack_start(label,
                                       expand=False, fill=False, padding=0)
         self.skelwidgetbox.pack_start(self.skelwidget.gtk[0],
                                       expand=False, fill=False, padding=0)
-        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END, margin_start=5)
+        label = Gtk.Label(label='Skeleton=',
+                          halign=Gtk.Align.END, margin_start=5)
         self.skelwidgetbox.pack_start(label,
                                       expand=False, fill=False, padding=0)
         self.skelwidgetbox.pack_start(self.skelwidget.gtk[1],
@@ -111,7 +114,7 @@ class SkeletonSelectionPage(oofGUI.MainPage):
         gtklogger.setWidgetName(self.modebox, 'Mode')
         self.mainbox.pack_start(self.modebox,
                                 expand=False, fill=False, padding=0)
-        label = Gtk.Label("Selection Mode:", halign=Gtk.Align.END)
+        label = Gtk.Label(label="Selection Mode:", halign=Gtk.Align.END)
         self.modebox.pack_start(label, expand=False, fill=False, padding=0)
 
         # Construct buttons for switching between selection modes, and
@@ -251,8 +254,9 @@ class SkeletonSelectionPage(oofGUI.MainPage):
         if skelcontext:
             n, m = self.selectionSizeAndMax()    # requires subthread
             if m > 0:
-                status_text = "%d %s%s selected (%g%%)." % \
-                    (n, self.activemode.name(), 's'*(n!=1), 100.*n/m)
+                status_text = (f"{n} of {m} "
+                               f"{self.activemode.name()}s selected "
+                               f"({100.*n/m:.{digits()}g}%)")
             else:
                 status_text = "0 %s%s selected." % \
                     (self.activemode.name(), 's'*(n!=1))
@@ -332,7 +336,7 @@ class SkeletonSelectionPage(oofGUI.MainPage):
 # selected by the mesh widget.  The GroupGUI has a local selection
 # state.
 
-class GroupGUI(object):
+class GroupGUI:
     def __init__(self, parent):
         debug.mainthreadTest()
         self.parent = parent
@@ -353,14 +357,14 @@ class GroupGUI(object):
         lbuttons = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         box.pack_start(lbuttons, fill=False, expand=False, padding=0)
 
-        self.new_button = Gtk.Button("New...")
+        self.new_button = Gtk.Button(label="New...")
         gtklogger.setWidgetName(self.new_button, 'New')
         lbuttons.pack_start(self.new_button,
                             fill=False, expand=False, padding=0)
         gtklogger.connect(self.new_button, "clicked", self.newGroupCB)
         self.new_button.set_tooltip_text("Create a new empty group.")
 
-        self.auto_button = Gtk.Button("Auto")
+        self.auto_button = Gtk.Button(label="Auto")
         gtklogger.setWidgetName(self.auto_button, 'Auto')
         lbuttons.pack_start(self.auto_button,
                             fill=False, expand=False, padding=0)
@@ -368,7 +372,7 @@ class GroupGUI(object):
         self.auto_button.set_tooltip_text(
             "Automatically create groups from the current pixel groups.")
         
-        self.rename_button = Gtk.Button("Rename...")
+        self.rename_button = Gtk.Button(label="Rename...")
         gtklogger.setWidgetName(self.rename_button, 'Rename')
         lbuttons.pack_start(self.rename_button,
                             fill=False, expand=False, padding=0)
@@ -376,7 +380,7 @@ class GroupGUI(object):
         gtklogger.connect(self.rename_button, "clicked", self.renameGroupCB)
         self.rename_button.set_tooltip_text("Rename the selected group.")
 
-        self.copy_button = Gtk.Button("Copy...")
+        self.copy_button = Gtk.Button(label="Copy...")
         gtklogger.setWidgetName(self.copy_button, 'Copy')
         lbuttons.pack_start(self.copy_button,
                             fill=False, expand=False, padding=0)
@@ -384,7 +388,7 @@ class GroupGUI(object):
         gtklogger.connect(self.copy_button, "clicked", self.copyGroupCB)
         self.copy_button.set_tooltip_text("Copy the selected group.")
 
-        self.delete_button = Gtk.Button("Delete")
+        self.delete_button = Gtk.Button(label="Delete")
         gtklogger.setWidgetName(self.delete_button, 'Delete')
         lbuttons.pack_start(self.delete_button,
                             fill=False, expand=False, padding=0)
@@ -392,7 +396,7 @@ class GroupGUI(object):
         gtklogger.connect(self.delete_button, "clicked", self.deleteGroupCB)
         self.delete_button.set_tooltip_text("Deleted the selected group.")
 
-        self.deleteAll_button = Gtk.Button("Delete All")
+        self.deleteAll_button = Gtk.Button(label="Delete All")
         gtklogger.setWidgetName(self.deleteAll_button, 'DeleteAll')
         lbuttons.pack_start(self.deleteAll_button,
                             fill=False, expand=False, padding=0)
@@ -409,7 +413,7 @@ class GroupGUI(object):
         rbuttons = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         box.pack_start(rbuttons, fill=False, expand=False, padding=0)
 
-        self.add_button = Gtk.Button("Add")
+        self.add_button = Gtk.Button(label="Add")
         gtklogger.setWidgetName(self.add_button, 'Add')
         rbuttons.pack_start(self.add_button,
                             fill=False, expand=False, padding=0)
@@ -418,7 +422,7 @@ class GroupGUI(object):
         self.add_button.set_tooltip_text(
             "Add the currently selected pixels to the selected group.")
 
-        self.remove_button = Gtk.Button("Remove")
+        self.remove_button = Gtk.Button(label="Remove")
         gtklogger.setWidgetName(self.remove_button, 'Remove')
         rbuttons.pack_start(self.remove_button,
                             fill=False, expand=False, padding=0)
@@ -427,7 +431,7 @@ class GroupGUI(object):
         self.remove_button.set_tooltip_text(
             "Remove the currently selected pixels from the selected group.")
         
-        self.clear_button = Gtk.Button("Clear")
+        self.clear_button = Gtk.Button(label="Clear")
         gtklogger.setWidgetName(self.clear_button, 'Clear')
         rbuttons.pack_start(self.clear_button,
                             fill=False, expand=False, padding=0)
@@ -435,7 +439,7 @@ class GroupGUI(object):
         self.clear_button.set_tooltip_text(
             "Remove all pixels from the selected group.")
 
-        self.clearAll_button = Gtk.Button("Clear All")
+        self.clearAll_button = Gtk.Button(label="Clear All")
         gtklogger.setWidgetName(self.clearAll_button, 'ClearAll')
         rbuttons.pack_start(self.clearAll_button,
                             fill=False, expand=False, padding=0)
@@ -443,7 +447,7 @@ class GroupGUI(object):
         self.clearAll_button.set_tooltip_text(
             "Remove all pixels from all groups.")
 
-        self.info_button = Gtk.Button("Info")
+        self.info_button = Gtk.Button(label="Info")
         gtklogger.setWidgetName(self.info_button, 'Info')
         rbuttons.pack_start(self.info_button,
                             fill=False, expand=False, padding=0)
@@ -461,7 +465,7 @@ class GroupGUI(object):
                          margin_start=2, margin_end=2, margin_bottom=2)
         matframe.add(matbox)
 
-        self.addmaterial_button = Gtk.Button("Assign")
+        self.addmaterial_button = Gtk.Button(label="Assign")
         gtklogger.setWidgetName(self.addmaterial_button, 'AddMaterial')
         matbox.pack_start(self.addmaterial_button,
                           fill=False, expand=False, padding=0)
@@ -471,7 +475,7 @@ class GroupGUI(object):
             "Assign a material to the members of the selected group."
             " This overrides any material assigned to the pixels.")
 
-        self.removematerial_button = Gtk.Button("Remove")
+        self.removematerial_button = Gtk.Button(label="Remove")
         matbox.pack_start(self.removematerial_button,
                           fill=False, expand=False, padding=0)
         gtklogger.connect(self.removematerial_button, "clicked",
@@ -501,7 +505,14 @@ class GroupGUI(object):
 
     def getGroupSet(self):
         skelcontext = self.parent.getCurrentSkeleton()
-        if skelcontext:
+        # If this is being called in indirect response to a
+        # switchboard signal, the skeleton may be in the process of
+        # being dismantled, and getGroups might fail.  So check for
+        # that by calling defunct() before doing anything.
+        ## TODO: That's a general problem with switchboard signals
+        ## that invoke other switchboard signals, perhaps combined
+        ## with subthread/mainthread calls.
+        if skelcontext and not skelcontext.defunct():
             return self.activemode().getGroups(skelcontext)
 
         
@@ -786,7 +797,7 @@ class GroupGUI(object):
                              + self.activemode().name())
                              
             
-class SelectionGUI(object):
+class SelectionGUI:
     def __init__(self, parent):
         debug.mainthreadTest()
         self.parent = parent
@@ -854,7 +865,7 @@ class SelectionGUI(object):
         self.undoredoline.pack_start(self.clear_button,
                                      expand=True, fill=False, padding=0)
 
-        self.invert_button = Gtk.Button("Invert")
+        self.invert_button = Gtk.Button(label="Invert")
         gtklogger.setWidgetName(self.invert_button, 'Invert')
         gtklogger.connect(self.invert_button, "clicked", self.invertCB)
         self.invert_button.set_tooltip_text('Toggle the current selection.')
@@ -991,7 +1002,7 @@ class SelectionGUI(object):
         gtklogger.checkpoint("skeleton selection page selection sensitized "
                              + self.activemode().name())
         
-class HistoryBox(object):
+class HistoryBox:
     def __init__(self, set_callback, ok_callback):
         debug.mainthreadTest()
         self.gtk = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
@@ -1022,9 +1033,9 @@ class HistoryBox(object):
                             expand=False, fill=False, padding=0)
         
         
-    def setCB(self, object):
+    def setCB(self, obj):
         if self.set_callback:
-            self.set_callback(object)
+            self.set_callback(obj)
 
             
     def sensitize(self):

@@ -13,47 +13,43 @@
 #ifndef SYMMMATRIX_SWG
 #define SYMMMATRIX_SWG
 
-%module symmmatrix
-%include "engine/typemaps.swg"
+%module(package="ooflib.SWIG.engine") symmmatrix
+
+%include "common/typemaps.swg"
+%import "engine/outputval.swg"
+%import "engine/fieldindex.swg"
+%import "engine/IO/propertyoutput.swg"
 
 %{
 #include "engine/symmmatrix.h"
 %}
-
-%pragma(python) include="engine/symmmatrix.spy"
-%extern "engine/outputval.swg"
-%pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValPtr"
-%pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValuePtr"
-%extern "engine/fieldindex.swg"
-%pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
-%pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import ArithmeticPropertyOutputInit"
-%pragma(python) code="from ooflib.SWIG.engine.outputval import OutputValuePtr"
 
 class SymmMatrix {
 public:
   SymmMatrix(int);
   ~SymmMatrix();
   int size();
-  %addmethods {
-    double get(int i, int j) {
-      double v =  (*self)(i,j);
-      return v;
-    }
-    void set(int i, int j, double val) {
-      (*self)(i,j)=val;
-    }
-    // *= defined in Python only for scalars.
-    SymmMatrix __imul__(double x) {
-      return (*self).operator*=(x);
-    }
-    bool __eq__(SymmMatrix *other) {
-      return other && *self == *other;
-    }
-    bool __ne__(SymmMatrix *other) {
-      return !(other && *self == *other);
-    }
-  } 
 };
+
+%extend SymmMatrix {
+  double get(int i, int j) {
+    double v =  (*self)(i,j);
+    return v;
+  }
+  void set(int i, int j, double val) {
+    (*self)(i,j)=val;
+  }
+  // *= defined in Python only for scalars.
+  SymmMatrix __imul__(double x) {
+    return (*self).operator*=(x);
+  }
+  bool __eq__(SymmMatrix *other) {
+    return other && *self == *other;
+  }
+  bool __ne__(SymmMatrix *other) {
+    return !(other && *self == *other);
+  }
+}; 
 
 // This particular inheritance is a problem for indexing -- both
 // SymmMatrix and OutputVal have __getitem__ overrides, and the order
@@ -64,6 +60,7 @@ public:
 // SymmMatrix users must use the .get method, which takes the two
 // integers that would be in the tuple.  It would be nicer if the
 // __getitem__ were homogenous.
+
 class SymmMatrix3 : public ArithmeticOutputVal, public SymmMatrix {
 public:
   SymmMatrix3(double, double, double, double, double, double);
@@ -77,32 +74,36 @@ public:
   double midEigenvalue();
   double minEigenvalue();
   double contract(SymmMatrix3&);
-  IteratorP getIterator();
-  
+};
+
+%extend SymmMatrix3 {
   // Because of maintenance-of-ownership requirements for OutputVal
   // subclasses, these routines should operate in-place on the object
-  // and not return anything.  This prevents SWIG from automatically
-  // making new "Ptr" objects of dubious provenance.
-  %addmethods {
-    void _add(const SymmMatrix3 &other) {
-      (*self) += other;
-    }
-    void _sub(const SymmMatrix3 &other) {
-      (*self) -= other;
-    }
-    void _mul(double other) {
-      (*self) *= other;
-    }
+  // and not return anything.  This prevents swig from automatically
+  // making new wrapped objects of dubious provenance.
+  void _add(const SymmMatrix3 &other) {
+    (*self) += other;
+  }
+  void _sub(const SymmMatrix3 &other) {
+    (*self) -= other;
+  }
+  void _mul(double other) {
+    (*self) *= other;
   }
 };
 
-%new OutputValue *newSymTensorOutputValue();
+%newobject newSymTensorOutputValue;
+OutputValue *newSymTensorOutputValue();
+
+// TODO: swig complains that ArithmeticPropertyOutputInit is undefined
+// (ignored).  Do we care?  (Does it still complain? This is an old
+// comment, predating swig4).
 
 class SymmMatrix3PropertyOutputInit : public ArithmeticPropertyOutputInit {
 public:
   SymmMatrix3PropertyOutputInit();
 };
 
-
+%pythoncode "engine/symmmatrix.spy"
 
 #endif // SYMMMATRIX_SWG

@@ -15,8 +15,8 @@
 # run.
 
 import unittest, os
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 class OOF_Pixel_Extra(unittest.TestCase):
     def setUp(self):

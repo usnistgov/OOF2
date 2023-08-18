@@ -83,7 +83,7 @@ class SkeletonGroupWidget(parameterwidgets.ParameterWidget):
         self.redraw(self.getSkeleton())
 
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         parameterwidgets.ParameterWidget.cleanUp(self)
 
 class SkeletonAggregateWidget(SkeletonGroupWidget):
@@ -325,7 +325,7 @@ class SkeletonBoundaryWidgetBase(parameterwidgets.ParameterWidget):
             self.widget.update([])
 
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         parameterwidgets.ParameterWidget.cleanUp(self)
 
 
@@ -342,7 +342,7 @@ skeletongroupparams.SkeletonBoundaryParameter.makeWidget = \
 
 class SkeletonEdgeBoundaryWidget(SkeletonBoundaryWidgetBase):
     def names(self, skel):
-        return skel.edgeboundaries.keys()
+        return list(skel.edgeboundaries.keys())
         
 def _makeSkeletonEdgeBoundaryWidget(self, scope=None, **kwargs):
     return SkeletonEdgeBoundaryWidget(self, scope=scope, name=self.name,
@@ -354,7 +354,7 @@ skeletongroupparams.SkeletonEdgeBoundaryParameter.makeWidget = \
 
 class SkeletonPointBoundaryWidget(SkeletonBoundaryWidgetBase):
     def names(self, skel):
-        return skel.pointboundaries.keys()
+        return list(skel.pointboundaries.keys())
         
 def _makeSkeletonPointBoundaryWidget(self, scope=None, **kwargs):
     return SkeletonPointBoundaryWidget(self, scope=scope, name=self.name,

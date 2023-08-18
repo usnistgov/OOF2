@@ -9,9 +9,9 @@
 # oof_manager@nist.gov.
 
 import unittest, os
-import memorycheck
+from . import memorycheck
 from math import *
-from exact_solns import *
+from .exact_solns import *
 
 class NonlinearTimedependentTest(unittest.TestCase):
     def tearDown(self):
@@ -239,9 +239,9 @@ class NonlinearTimedependentTest(unittest.TestCase):
 
         L2_error = computeScalarErrorL2( soln_func, mesh_obj, field_ptr,
                                          self.numX, self.numY, time=self.time )
-        print "L2 error: ", L2_error
+        print("L2 error: ", L2_error)
 
-        self.assert_( L2_error < 1.e-1 )
+        self.assertTrue( L2_error < 1.e-1 )
 
 
     @memorycheck.check("microstructure")
@@ -390,9 +390,9 @@ class NonlinearTimedependentTest(unittest.TestCase):
 
         L2_error = computeVector2DErrorL2( soln_func, mesh_obj, field_ptr,
                                            self.numX, self.numY, time=self.time)
-        print "L2 error: ", L2_error
+        print("L2 error: ", L2_error)
 
-        self.assert_( L2_error < 1.e-1 )
+        self.assertTrue( L2_error < 1.e-1 )
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

@@ -12,18 +12,20 @@
 #ifndef ORIENTMAPPROPERTY_SWG
 #define ORIENTMAPPROPERTY_SWG
 
-%module orientationmapproperty
+%module(package="ooflib.SWIG.orientationmap") orientmapproperty
+
 %include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
+%import "engine/property.swg"
+
 %{
 #include "orientationmap/orientmapproperty.h"
 %}
-
-%pragma(python) include="orientationmap/orientmapproperty.spy"
 
 class OrientationMapProp : public Property {
 public:
   OrientationMapProp(PyObject *registry, char *name);
 };
+
+%pythoncode "orientationmap/orientmapproperty.spy"
 
 #endif // ORIENTMAPPROPERTY_SWG

@@ -12,24 +12,20 @@
 #ifndef ORIENTMAPDATA_SWG
 #define ORIENTMAPDATA_SWG
 
-%module orientmapdata
+%module(package="ooflib.SWIG.orientationmap") orientmapdata
+
 %include "common/typemaps.swg"
 %include "common/canvasimage.swg"
+%import "common/abstractimage.swg"
+%import "common/coord.swg"
+%import "engine/angle2color.swg"
+%import "engine/corientation.swg"
+%import "image/oofimage.swg"
+
 %{
 #include "orientationmap/orientmapdata.h"
+#include "engine/angle2color.h"
 %}
-
-%pragma(python) include="orientmapdata.spy"
-%extern "common/abstractimage.swg"
-%extern "common/coord.swg"
-%extern "engine/angle2color.swg"
-%extern "engine/corientation.swg"
-%extern "image/oofimage.swg"
-%pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
-%pragma(python) code="from ooflib.SWIG.common.coord import CoordPtr"
-%pragma(python) code="from ooflib.SWIG.common.coord import ICoordPtr"
-%pragma(python) code="from ooflib.SWIG.engine.corientation import COrientABGPtr"
-%pragma(python) code="from ooflib.SWIG.image.oofimage import OOFImagePtr"
 
 class OrientMap {
 public:
@@ -40,6 +36,7 @@ public:
   const Coord size();
   ICoord pixelFromPoint(Coord *Point);
   bool pixelInBounds(ICoord *iPoint);
+  %newobject createImage;
   OOFImage *createImage(char *, Angle2Color&);
   void setMicrostructure(CMicrostructure*);
   CMicrostructure *getCMicrostructure();
@@ -55,10 +52,12 @@ class OrientMapImage : public AbstractImage {
 public:
   OrientMapImage(OrientMap*, Angle2Color*);
   ~OrientMapImage();
-  NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 
 void registerOrientMap(char*, OrientMap*);
 void removeOrientMap(char*);
+
+%pythoncode "orientationmap/orientmapdata.spy"
 
 #endif // ORIENTMAPDATA_SWG

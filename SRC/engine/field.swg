@@ -12,167 +12,199 @@
 #ifndef FIELD_SWG
 #define FIELD_SWG
 
-%module field
+%module(package="ooflib.SWIG.engine") field
 
-%include "engine/typemaps.swg"
-%extern "engine/freedom.swg"
-%extern "engine/csubproblem.swg"
-%extern "engine/femesh.swg"
-%extern "engine/pointdata.swg"
+%include "common/typemaps.swg"
+%import "engine/csubproblem.swg"
+%import "engine/femesh.swg"
+%import "engine/fieldindex.swg"
+%import "engine/freedom.swg"
+%import "engine/outputval.swg"
+%import "engine/planarity.swg"
+%import "engine/pointdata.swg"
 
 %{
 #include "common/coord.h"
-#include "common/ooferror.h"
-#include "common/pythonlock.h"
 #include "engine/field.h"
+#include "engine/outputval.h"
 #include "engine/pointdata.h"
-  int countFields();
-typedef double (*INITFUNC)(const Coord &position, int dof, void *clientdata);
+  #include "engine/flux.h"	// SWIGBUG
+  #include "engine/node.h"	// SWIGBUG
+  #include "engine/property.h"	// SWIGBUG?
+int countFields();
+typedef std::vector<CompoundField*> CompoundFieldVec;
+typedef FieldIndex NewFieldIndex;
 %}
-%pragma(python) include="engine/field.spy"
-%extern "engine/fieldindex.swg"
-%pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
-%pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
-%extern "engine/outputval.swg"
-%pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValuePtr"
 
-// %{
-// static double fieldInitCallback(const Coord &pos, int dof, void *clientdata) {
-//   PyObject *func, *arglist;
-//   PyObject *result;
-//   double dres = 0;
+// Typemap to convert a std::vector of CompoundField*s to a Python
+// list of CompoundFields.  It does *not* use the PythonExportable
+// mechanism because the Field class uses too much virtual inheritance
+// for PythonExportable to work properly.  The typemap instead
+// extracts Field names and call the Python getField function (defined
+// in field.spy).
 
-//   PyGILState_STATE pystate = acquirePyLock();
-//   try {
-//     func = (PyObject *)clientdata;
-//     arglist = Py_BuildValue("(ddi)",pos(0),pos(1),dof);
-//     result = PyEval_CallObject(func,arglist);
-//     Py_DECREF(arglist);
-//     if(result) {
-//       dres = PyFloat_AsDouble(result);
-//     }
-//     else {			// result == 0
-//       releasePyLock(pystate);
-//       return 0;
-//     }
-//     Py_XDECREF(result);
-//   }
-//   catch (...) {
-//     releasePyLock(pystate);
-//     throw;
-//   }
-//   return dres;
-// }
-// %}
+// ** Do not use MAKE_LISTVEC_TYPEMAPS for CompoundField! **
 
-// This fails because of the complicated Field virtual inheritance scheme.
-// %typemap(python, out) Field* {
-//   $target = $source->pythonObject();
-//   if(!$target)
-//      return 0;
-// }
+// There is no typemap for Field*.  Field objects should never be
+// returned from C++ to Python.  Use getField() instead.
+
+// TODO PYTHON3 LATER: If Field had a swigged __eq__ method that
+// compared objectid()s, would it be safe to return Fields from Python
+// to C++?  The reason for not doing that was that two separately
+// swigged instances of the same field don't compare equal, so we
+// ensure than there is only one instance of a given Field in C++.  Is
+// there some subtle reason that just providing __eq__ (and maybe also
+// __hash__ and __lt__) doesn't work?
+
+%typemap(out) std::vector<CompoundField*> * {
+  // typemap(out) std::vector<CompoundField*>*
+  static PyObject *getField = 0;
+  if(!getField) {
+    PyObject *module = PyImport_ImportModule("ooflib.SWIG.engine.field");
+    getField = PyObject_GetAttrString(module, "getField");
+    Py_XDECREF(module);
+    if(!getField)
+      SWIG_fail;
+  }
+  std::vector<CompoundField*>::size_type sz = $1->size();
+  $result = PyList_New((Py_ssize_t) sz);
+  for(std::vector<CompoundField*>::size_type i=0; i<sz; i++) {
+    PyObject *fldobj = PyObject_CallFunction(getField, "(s)",
+					     (*$1)[i]->name().c_str());
+    PyList_SET_ITEM($result, (Py_ssize_t) i, fldobj);
+  }
+}
+
+%typemap(newfree) CompoundFieldVec * {
+  // typemap(newfree) CompoundFieldVec*
+  delete $1;
+}
+
+////////////////////////////
+
+%nodefaultctor Field;
+%nodefaultdtor Field;
+
+%rename(c_time_derivative) Field::time_derivative;
+%rename(c_components) Field::components;
+%rename(c_outOfPlaneComponents) Field::outOfPlaneComponents;
 
 class Field {
-    public:
-  %readonly
-  const string &name();
+public:
+  const std::string &name();
   int objectid();
   int index();
-  %readwrite
 
   int ndof();
 
-  const string &classname(); 
+  const std::string &classname();
 
-  Field *time_derivative();
+  // The time_derivative, out_of_plane, and
+  // out_of_plane_time_derivative parts of a Field cannot be returned
+  // from C++ to Python in the usual way, because swig would create a
+  // separate object each time, and we want all the Field objects to
+  // be singletons in Python (one for Temperature, one for
+  // Displacement, etc).  So there are separate Python definitions of
+  // those methods in field.spy that retrieve cached singleton objects
+  // from a dictionary.  To create that dictionary, the newField
+  // function in problem.py calls Field.c_time_derivative, etc.
+  // c_time_derivative should not be used anywhere else.
+  Field *time_derivative(); // renamed to c_time_derivative
+
+  ComponentsP components(Planarity p=planarity.ALL_INDICES);
+  ComponentsP outOfPlaneComponents();
 
   void registerProperty(Property*);
 
   bool is_active(CSubProblem*);
   bool is_defined(CSubProblem*);
 
-  // void initialize(CSubProblem *subproblem, INITFUNC f, void *clientdata);
   double value(FEMesh*, PointData *n, int component);
 
   void setValueFromOutputValue(FEMesh*, PointData&, OutputValue*);
 
-  %addmethods {
-    // void init(CSubProblem *subproblem, PyObject *pythonCallable)
-    // {
-    //   self->initialize(subproblem, fieldInitCallback, (void*) pythonCallable);
-    // }
-    // Uses PyObject *pythonCallable global typemap from typemaps.swg.
-    
-    // TODO LATER: Get rid of setvalue, if possible.  Use
-    // setValueFromOutputValue instead, since it sets all components.
-    // setvalue is used in _loadFieldValues in meshIO.py, and also in
-    // the field initialization code in fieldinit.py. And in
-    // Dirichlet.__call__ and FloatBC.fixFloatTree in bdycondition.py.
-    void setvalue(FEMesh *mesh, PointData *n, int component, double x) {
-      (*self)(*n, component)->value(mesh) = x;
-    }
-    DegreeOfFreedom *dof(PointData *n, int component) {
-      return (*self)(*n, component);
-    }
-  }
-  IteratorP iterator(Planarity p);
-  %addmethods {
-    // iterator_all is used in situations in which it's not known if
-    // we're iterating over a Field, Flux, or Equation.
-    // Equation::iterator doesn't take an argument.
-    IteratorP iterator_all() {
-      return self->iterator(ALL_INDICES);
-    }
-  }
-  IndexP componenttype();
-  IndexP getIndex(char *);	// convert from "x", "xy", etc.
+  NewFieldIndex *getIndex(const std::string&) const;
+  
   ArithmeticOutputValue newOutputValue();
   ArithmeticOutputValue output(FEMesh*, PointData&);
 };
 
+%extend Field {
+  // TODO LATER: Get rid of setvalue, if possible.  Use
+  // setValueFromOutputValue instead, since it sets all components.
+  // setvalue is used in _loadFieldValues in meshIO.py, and also in
+  // the field initialization code in fieldinit.py. And in
+  // Dirichlet.__call__ and FloatBC.fixFloatTree in bdycondition.py.
+  void setvalue(FEMesh *mesh, PointData *n, int component, double x) {
+    (*self)(*n, component)->value(mesh) = x;
+  }
+  DegreeOfFreedom *dof(PointData *n, int component) {
+    return (*self)(*n, component);
+  }
+};
+
+%nodefaultctor CompoundField;
+%nodefaultdtor CompoundField;
+
+%rename(c_out_of_plane) CompoundField::out_of_plane();
+%rename(c_out_of_plane_time_derivative) CompoundField::out_of_plane_time_derivative();
 
 class CompoundField : public Field {
 public:
-  //   Field *time_derivative();
-#ifndef DIM_3
   bool in_plane(FEMesh*);
-  Field *out_of_plane();
-  Field *out_of_plane_time_derivative(); 
-#endif
+
+  // See comment above re Field::time_derivative.
+  Field *out_of_plane();		 // renamed to c_out_of_plane
+  Field *out_of_plane_time_derivative(); // to c_out_of_plane_time_derivative
 };
 
 int countFields();
 CompoundField *getCompoundFieldByIndex(int);
 int countCompoundFields();
 
+%pythonappend ScalarField::ScalarField %{
+  finishConstruction(self)
+%}
+
 class ScalarField : public CompoundField, public Field {
 public:
   ScalarField(char *name);
-  const string &classname();
+  const std::string &classname();
 };
+
+
+%pythonappend TwoVectorField::TwoVectorField %{
+  finishConstruction(self)
+%}
 
 class TwoVectorField : public CompoundField, public Field {
 public:
   TwoVectorField(char *name);
-  const string &classname();
+  const std::string &classname();
 };
+
+%pythonappend ThreeVectorField::ThreeVectorField %{
+  finishConstruction(self)
+%}
 
 class ThreeVectorField : public CompoundField, public Field {
 public:
   ThreeVectorField(char *name);
-  const string &classname();
+  const std::string &classname();
 };
 
-class VectorFieldBase : public Field {
-public:
-  VectorFieldBase(char *name, int d);
-  const string &classname();
-};
+%pythonappend SymmetricTensorField::SymmetricTensorField %{
+  finishConstruction(self)
+%}
 
 class SymmetricTensorField : public Field {
 public:
   SymmetricTensorField(char *name);
-  const string &classname();
-}
+  const std::string &classname();
+};
+
+void testIterators();
+
+%pythoncode "engine/field.spy"
 
 #endif // FIELD_SWG

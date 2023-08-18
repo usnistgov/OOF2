@@ -9,8 +9,9 @@
 # oof_manager@nist.gov. 
 
 # This file stores the master version number.  This is a relatively
-# coarse measure of version, and is used in writing data files.  See
-# also "oofversion.py", which has a more rapidly-changing version
-# number.
+# coarse measure of version, and is used in writing data files. The
+# real (2.x.y) version number is defined in the CMakeLists.txt file
+# and is accessible in C++ in oofconfig.h and in python in
+# ooflib.SWIG.common.oofversion.
 
 version = "2.0"

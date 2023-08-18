@@ -19,8 +19,6 @@ from ooflib.common.IO import menuparser
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 import os.path
-import string
-import types
 
 ##############################
 
@@ -102,7 +100,7 @@ class AsciiDataFile:
     def startCmd(self, command):
         path = command.path()
         if self.format == ASCII:
-            path = string.join(path.split('.')[2:], '.')
+            path = '.'.join(path.split('.')[2:])
         self.buffer = path + "("
         self.nargs = 0
     def endCmd(self):
@@ -116,7 +114,7 @@ class AsciiDataFile:
     def argument(self, name, value):
         if self.nargs > 0:
             self.buffer += ", "
-        self.buffer += "%s=%s" % (name, `value`)
+        self.buffer += "%s=%s" % (name, repr(value))
         self.nargs += 1
     def comment(self, remark):
         self.file.write("# %s\n" % remark)
@@ -133,18 +131,25 @@ def writeDataFile(filename, mode, format):
         versioncmd = "OOF.LoadData.FileVersion"
     else:
         versioncmd = "FileVersion"
-    file.write("# OOF version %s\n%s(number=%s, format=%s)\n"
-               % (version.version, versioncmd, datafileversion, `format`))
+    header = "# OOF version %s\n%s(number=%s, format=%s)\n" \
+               % (version.version, versioncmd, datafileversion, repr(format))
+
     if format != BINARY:
+        file.write(header)
         return AsciiDataFile(file, format)
+
     from ooflib.common.IO import binarydata    # avoid import loop
+    file.write(bytes(header, "UTF-8"))
     return binarydata.BinaryDataFile(file)
 
 def readDataFile(filename, menu):
     prog = progress.getProgress(os.path.basename(filename), progress.DEFINITE)
+    source = None
     try:
         source = menuparser.ProgFileInput(filename, prog)
         parser = menuparser.MenuParser(source, menu)
         parser.run()
     finally:
+        if source is not None:  # in case an error occured in creating source
+            source.close()
         prog.finish()

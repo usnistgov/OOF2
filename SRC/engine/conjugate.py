@@ -15,12 +15,11 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import config
 from ooflib.SWIG.engine import cconjugate
 from ooflib.SWIG.engine import material
+from ooflib.SWIG.engine import field
 from ooflib.SWIG.engine import fieldindex
 from ooflib.common import debug
 from ooflib.engine import propertyregistration
 from ooflib.engine import symstate
-
-FieldIndexPtr = fieldindex.FieldIndexPtr
 
 # It is not possible to remove a ConjugatePair object from the list.
 # This is OK, since the conjugate pair objects express simple facts
@@ -32,12 +31,18 @@ class ConjugatePairObj(cconjugate.CConjugatePair):
         cconjugate.CConjugatePair.__init__(self, eqn, eqncomp, field, fieldcomp)
     def get_name(self):
         return self.name
+    def get_field(self):
+        return field.getField(self.get_field_name())
     def __hash__(self):
         return hash((self.name,
                      self.get_equation(),
                      self.get_equation_component(),
                      self.get_field(),
                      self.get_field_component()))
+    def __repr__(self):
+        return f"ConjugatePairObj({self.name}, " \
+            f"{self.get_equation()}[{self.get_equation_component()}], " \
+            f"{self.get_field()}[{self.get_field_component()}])"
 
 class ListOfConjugatePairs:
     def __init__(self):
@@ -122,12 +127,12 @@ listofconjugatepairs = ListOfConjugatePairs()
 def conjugatePair(name, equation, eqncomp, field, fieldcomp):
     # eqncomp and fieldcomp can either be a single FieldIndex object,
     # or a list of them.  The lists must have the same length.
-    if isinstance(eqncomp, FieldIndexPtr):
+    if isinstance(eqncomp, fieldindex.FieldIndex):
         eqncomp = [eqncomp]
-    if isinstance(fieldcomp, FieldIndexPtr):
+    if isinstance(fieldcomp, fieldindex.FieldIndex):
         fieldcomp = [fieldcomp]
     if len(eqncomp) != len(fieldcomp):
-        raise ooferror.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             "Bad index specification in conjugatePair")
     for (ecomp, fcomp) in zip(eqncomp, fieldcomp):
         listofconjugatepairs.add(
@@ -139,7 +144,7 @@ def find_relevant_pairs(subpcontext):
     materials = subpcontext.getObject().getMaterials()
     relevant_pairs = set()
     for matter in materials:
-        for property in matter.properties():
+        for property in matter.properties:
             p_reg = property.registration()
             for pair in listofconjugatepairs.pairs:
                 if listofconjugatepairs.relevant_property(p_reg, pair):
@@ -195,7 +200,7 @@ def check_symmetry(subpName, *args):
     meqlist = subp.all_equations()
     for eq in meqlist:
         for p in relevant_pairs:
-            if p.get_equation()==eq:
+            if p.get_equation() == eq:
                 break
         else:
             subpctxt.matrix_symmetry_K.set_asymmetric()

@@ -148,7 +148,7 @@ class VirtualMachineParameters:
             ld += self.computation[processor]
         for processor in range(self.size):
             self.fractionPLoad.append(self.computation[processor]/ld)
-            print self.computation[processor]/ld
+            print(self.computation[processor]/ld)
 
 
 

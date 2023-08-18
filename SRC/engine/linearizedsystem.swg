@@ -12,10 +12,11 @@
 #ifndef LINEARIZEDSYSTEM_SWG
 #define LINEARIZEDSYSTEM_SWG
 
-%module linearizedsystem
-%include "engine/typemaps.swg"
-%extern "engine/sparsemat.swg"
-%extern "common/doublevec.swg"
+%module(package="ooflib.SWIG.engine") linearizedsystem
+
+%include "common/typemaps.swg"
+%import "common/doublevec.swg"
+%import "engine/sparsemat.swg"
 
 %{
 #include "common/doublevec.h"
@@ -23,21 +24,12 @@
 #include "engine/sparsemat.h"
 %}
 
-%pragma(python) code="from ooflib.SWIG.engine.sparsemat import SparseMatPtr"
-%pragma(python) code="from ooflib.SWIG.common.doublevec import DoubleVecPtr"
-
-%pragma(python) include="linearizedsystem.spy"
+%nodefaultctor LinearizedSystem;
 
 class LinearizedSystem {
 public:
   ~LinearizedSystem();
 
-  %addmethods {
-    %new LinearizedSystem *clone_() {
-      return new LinearizedSystem(*self);
-    }
-  }
-  
   double time();
   void set_time(double);
   void clearResidual();
@@ -63,33 +55,46 @@ public:
   // void set_meshdofs(DoubleVec*);
   // %new DoubleVec *get_meshdofs();
 
-  %new DoubleVec* get_unknowns_MCK(DoubleVec*);
-  %new DoubleVec* get_unknowns_MCKa(DoubleVec*);
-  %new DoubleVec* get_unknowns_MCKd(DoubleVec*);
+  %newobject get_unknowns_MCK;
+  DoubleVec* get_unknowns_MCK(DoubleVec*);
+  %newobject get_unknowns_MCKa;
+  DoubleVec* get_unknowns_MCKa(DoubleVec*);
+  %newobject get_unknowns_MCKd;
+  DoubleVec* get_unknowns_MCKd(DoubleVec*);
   
-  %new DoubleVec* set_unknowns_MCK(DoubleVec*, DoubleVec*);
-  %new DoubleVec* set_unknowns_MCKa(DoubleVec*, DoubleVec*);
-  %new DoubleVec* set_unknowns_MCKd(DoubleVec*, DoubleVec*);
+  %newobject set_unknowns_MCK;
+  DoubleVec* set_unknowns_MCK(DoubleVec*, DoubleVec*);
+  %newobject set_unknowns_MCKa;
+  DoubleVec* set_unknowns_MCKa(DoubleVec*, DoubleVec*);
+  %newobject set_unknowns_MCKd;
+  DoubleVec* set_unknowns_MCKd(DoubleVec*, DoubleVec*);
 
-  %new DoubleVec* get_unknowns_part(char, DoubleVec*);
+  %newobject get_unknowns_part;
+  DoubleVec* get_unknowns_part(char, DoubleVec*);
   void set_unknowns_part(char, DoubleVec*, DoubleVec*);
 
-  %new DoubleVec* get_fields_MCKd(DoubleVec*);
+  %newobject get_fields_MCKd;
+  DoubleVec* get_fields_MCKd(DoubleVec*);
   void set_fields_MCKd(DoubleVec*, DoubleVec*);
 
-  %new DoubleVec* get_derivs_MCKd(DoubleVec*);
+  %newobject get_derivs_MCKd;
+  DoubleVec* get_derivs_MCKd(DoubleVec*);
   void set_derivs_MCKd(DoubleVec*, DoubleVec*);
 
-  %new DoubleVec* get_derivs_part_MCKa(char, DoubleVec*);
-  %new DoubleVec* get_derivs_part_MCKd(char, DoubleVec*);
+  %newobject get_derivs_part_MCKa;
+  DoubleVec* get_derivs_part_MCKa(char, DoubleVec*);
+  %newobject get_derivs_part_MCKd;
+  DoubleVec* get_derivs_part_MCKd(char, DoubleVec*);
   void set_derivs_part_MCKa(char, DoubleVec*, DoubleVec*);
   void set_derivs_part_MCKd(char, DoubleVec*, DoubleVec*);
 
-  %new DoubleVec* extract_MCa_dofs(DoubleVec*);
+  %newobject extract_MCa_dofs;
+  DoubleVec* extract_MCa_dofs(DoubleVec*);
   void inject_MCa_dofs(DoubleVec*, DoubleVec*);
   void expand_MCa_dofs(DoubleVec*);
 
-  %new DoubleVec* error_estimation_dofs_MCKd(DoubleVec*);
+  %newobject error_estimation_dofs_MCKd;
+  DoubleVec* error_estimation_dofs_MCKd(DoubleVec*);
 
   unsigned int n_unknowns_MCK();
   unsigned int n_unknowns_MCKa();
@@ -115,15 +120,23 @@ public:
   SparseMat K_MCa();
   SparseMat C_MCa();
 
-  %new DoubleVec *rhs_MCa();
-  %new DoubleVec *rhs_MCK();
-  %new DoubleVec *rhs_MCKa();
-  %new DoubleVec *rhs_ind_part(char);
+  %newobject rhs_MCa;
+  DoubleVec *rhs_MCa();
+  %newobject rhs_MCK;
+  DoubleVec *rhs_MCK();
+  %newobject rhs_MCKa;
+  DoubleVec *rhs_MCKa();
+  %newobject rhs_ind_part;
+  DoubleVec *rhs_ind_part(char);
 
-  %new DoubleVec *static_residual_MCK();
-  %new DoubleVec *static_residual_MCKa(DoubleVec*);
-  %new DoubleVec *static_residual_MCa(DoubleVec*);
-  %new DoubleVec *static_residual_ind_part(char);
+  %newobject static_residual_MCK;
+  DoubleVec *static_residual_MCK();
+  %newobject static_residual_MCKa;
+  DoubleVec *static_residual_MCKa(DoubleVec*);
+  %newobject static_residual_MCa;
+  DoubleVec *static_residual_MCa(DoubleVec*);
+  %newobject static_residual_ind_part;
+  DoubleVec *static_residual_ind_part(char);
 
   const DoubleVec &raw_static_residual();
 
@@ -135,6 +148,17 @@ public:
   void dumpAll(char*, double, char*); // debugging
 };
 
+%extend LinearizedSystem {
+  %newobject clone_;
+  LinearizedSystem *clone_() {
+    return new LinearizedSystem(*self);
+  }
+};
+
+
+
 int get_globalLinSysCount();
+
+%pythoncode "engine/linearizedsystem.spy"
 
 #endif // LINEARIZEDSYSTEM_SWG

@@ -11,8 +11,8 @@
 # Test suite for the menu commands under OOF.Microstructure.*
 
 import unittest, os, filecmp
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 class OOF_Microstructure(unittest.TestCase):
     def setUp(self):
@@ -29,7 +29,7 @@ class OOF_Microstructure(unittest.TestCase):
         from ooflib.common import primitives
         from ooflib.common.IO import parameter
 
-        self.assertRaises(ooferror.ErrUserError,
+        self.assertRaises(ooferror.PyErrUserError,
                           OOF.Microstructure.New,
                           name="one", width=-1.0, height=-1.0,
                           width_in_pixels=10,
@@ -84,12 +84,12 @@ class OOF_Microstructure(unittest.TestCase):
         from ooflib.common import primitives
         # from ooflib.SWIG.common.IO import stringimage
         self.assertRaises(
-            oofimage.ImageMagickError, 
+            oofimage.PyImageMagickError, 
             OOF.Microstructure.Create_From_ImageFile,
             filename="nosuchfile", microstructure_name="nosuchfile",
             height=automatic, width=automatic)
         self.assertRaises(
-            ooferror.ErrUserError,
+            ooferror.PyErrUserError,
             OOF.Microstructure.Create_From_ImageFile,
             filename=reference_file("ms_data","small.ppm"),
             microstructure_name="oops",
@@ -104,11 +104,11 @@ class OOF_Microstructure(unittest.TestCase):
         self.assertEqual(ms.sizeOfPixels(), (20.0/150, 20.0/150))
         ms_images = ms.imageNames()
         self.assertEqual(len(ms_images), 1)
-        self.assert_("small.ppm" in ms_images)
+        self.assertTrue("small.ppm" in ms_images)
         # img = oofimage.getImage("small.ms:small.ppm")
         # strimg = stringimage.StringImage(ms.sizeInPixels(), ms.size())
         # img.fillstringimage(strimg)
-        # outfile = file('hexstringimage.dat','w')
+        # outfile = open('hexstringimage.dat','w')
         # print >> outfile, strimg.hexstringimage()
         # outfile.close()
         # assert filecmp.cmp('hexstringimage.dat',
@@ -140,7 +140,7 @@ class OOF_Microstructure(unittest.TestCase):
         OOF.Microstructure.Delete(microstructure="small.ppm")
         # Ensure that after the originating microstructure has been
         # deleted, the derived one still has the same image.
-        self.assert_("small.ppm" in ms_1.imageNames())
+        self.assertTrue("small.ppm" in ms_1.imageNames())
         self.assertEqual(ms_1_image_id, id(ms_1.getImageContexts()[0]))
 
     # Should be run after "New" and "Delete" are known to work.
@@ -154,9 +154,9 @@ class OOF_Microstructure(unittest.TestCase):
         OOF.Microstructure.Copy(microstructure="three", name="four")
         ms_count = microstructure.microStructures.nActual()
         self.assertEqual(ms_count, start_ms_count + 3)
-        name_list = microstructure.microStructures.keys()
-        self.assert_(['three<2>'] in name_list)
-        self.assert_(['four'] in name_list)
+        name_list = list(microstructure.microStructures.keys())
+        self.assertTrue(['three<2>'] in name_list)
+        self.assertTrue(['four'] in name_list)
         OOF.Microstructure.Delete(microstructure="three<2>")
         ms_0 = getMicrostructure("three")
         ms_1 = getMicrostructure("four")
@@ -189,7 +189,7 @@ class OOF_Microstructure(unittest.TestCase):
                                      mode="w",
                                      format="ascii",
                                      microstructure="save_test")
-        self.assert_(filecmp.cmp("ms_save_test",
+        self.assertTrue(filecmp.cmp("ms_save_test",
                                  reference_file("ms_data","saved_ms")))
         os.remove("ms_save_test")
 

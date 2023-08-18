@@ -12,67 +12,51 @@
 #ifndef FIELDINDEX_SWG
 #define FIELDINDEX_SWG
 
-%module fieldindex
+%module(package="ooflib.SWIG.engine") fieldindex
 
-%include "engine/typemaps.swg"
-%extern "engine/planarity.swg"
+%include "common/typemaps.swg"
+%import "engine/planarity.swg"
+
 %{
 #include "engine/fieldindex.h"
 #include "common/tostring.h"
-#ifndef HAVE_SSTREAM
-#include <strstream.h>
-#else 
-#include <sstream>	
-#endif // HAVE_SSTREAM
 %}
 
-%pragma(python) include="engine/fieldindex.spy"
+%nodefaultctor FieldIndex;
 
 class FieldIndex {
 public:
   ~FieldIndex();
   int integer();
   bool in_plane();
-  void set(IntVec*);
-  %new IntVec *components();
-  const string &shortstring();
-  %addmethods {
-    %new const string *__repr__() {
-      return new std::string(to_string(*self)); 
-    }
-  }
+  const std::string &shortrepr();
 };
+
+bool operator==(const FieldIndex&, const FieldIndex&);
+
+PYTHONEXPORTABLE(FieldIndex);	// defines typemap for NewFieldIndex
+ADD_REPR_GENERIC(FieldIndex);
 
 class ScalarFieldIndex : public FieldIndex {
 public:
   ScalarFieldIndex();
-  %addmethods{
-    %new const string *__repr__() {
-      return new std::string(to_string(*self));
-    }
-  }
 };
+
+ADD_REPR_GENERIC(ScalarFieldIndex);
 
 class VectorFieldIndex : public FieldIndex {
 public:
   VectorFieldIndex(int);
-  %addmethods{
-    %new const string *__repr__() {
-      return new std::string(to_string(*self));
-    }
-  }
 };
+
+ADD_REPR_GENERIC(VectorFieldIndex);
 
 class OutOfPlaneVectorFieldIndex : public VectorFieldIndex {
 public:
   OutOfPlaneVectorFieldIndex(int);
-  %addmethods{
-    %new const string *__repr__() {
-      return new std::string(to_string(*self));
-    }
-  }
 };
 
+ADD_REPR_GENERIC(OutOfPlaneVectorFieldIndex);
 
 class SymTensorIndex : public FieldIndex {
 public:
@@ -80,133 +64,74 @@ public:
   int row();
   int col();
   bool diagonal();
-  %addmethods{
-    %new const string *__repr__() { 
-      return new std::string(to_string(*self));
-    }
-  }
 };
+
+ADD_REPR_GENERIC(SymTensorIndex);
 
 class OutOfPlaneSymTensorIndex : public SymTensorIndex {
 public:
   OutOfPlaneSymTensorIndex(int, int);
-  %addmethods{
-    %new const string *__repr__() { 
-      return new std::string(to_string(*self));
-    }
-  }
 };
 
+ADD_REPR_GENERIC(SymTensorIndex);
 
-class FieldIterator : public FieldIndex {
+//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//
+
+%nodefaultctor ComponentIteratorP;
+
+// The only thing we need from ComponentIteratorP is direct access to
+// the FieldIndex that it's current referring to.
+
+%nodefaultctor ComponentIteratorP;
+%feature("valuewrapper") ComponentIteratorP;
+%rename(increment) ComponentIteratorP::operator++;
+
+ADD_REPR_GENERIC(ComponentIteratorP);
+
+%{
+  typedef FieldIndex NewFieldIndex; 
+%}
+
+class ComponentIteratorP {
 public:
-  %addmethods{
-    void next() {
-      ++(*self);
-    }
-  }
-  int size();
-  bool end();
-  FieldIterator *cloneIterator();
+  ComponentIteratorP &operator++();
+  NewFieldIndex *current();
+  bool operator!=(const ComponentIteratorP&) const;
 };
 
-class ScalarFieldIterator: public ScalarFieldIndex, public FieldIterator {
+%nodefaultctor ComponentsP;
+%feature("valuewrapper") ComponentsP;
+
+class ComponentsP {
 public:
-  ScalarFieldIterator();
+  ComponentIteratorP begin() const;
+  ComponentIteratorP end() const;
 };
 
-class VectorFieldIterator: public VectorFieldIndex, public FieldIterator {
+//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//
+
+%nodefaultctor SymTensorIJIterator;
+%nodefaultctor SymTensorIJComponents;
+%rename(increment) SymTensorIJIterator::operator++;
+%rename(getIndex) SymTensorIJIterator::operator*;
+
+class SymTensorIJIterator {
 public:
-  VectorFieldIterator();
+  SymTensorIJIterator &operator++();
+  NewFieldIndex *fieldindex() const;
+  bool operator!=(const SymTensorIJIterator&) const;
 };
 
-class OutOfPlaneVectorFieldIterator
-  : public OutOfPlaneVectorFieldIndex, public FieldIterator
-{
+ADD_REPR_GENERIC(SymTensorIJIterator);
+
+class SymTensorIJComponents {
 public:
-  OutOfPlaneVectorFieldIterator();
+  SymTensorIJIterator begin() const;
+  SymTensorIJIterator end() const;
 };
 
-class SymTensorIterator: public SymTensorIndex, public FieldIterator {
-public:
-  SymTensorIterator();
-  %addmethods {
-    %new const string *__repr__() {
-      return new std::string(to_string(*self));
-    }
-  }
-};
+extern const SymTensorIJComponents symTensorIJComponents;
 
-class SymTensorInPlaneIterator: public SymTensorIterator {
-public:
-  SymTensorInPlaneIterator();
-};
-
-class SymTensorOutOfPlaneIterator: public SymTensorIterator {
-public:
-  SymTensorOutOfPlaneIterator();
-};
-
-class OutOfPlaneSymTensorIterator:
-  public OutOfPlaneSymTensorIndex, public FieldIterator
-{
-  OutOfPlaneSymTensorIterator();
-}
-
-
-// IndexP and IteratorP objects should NOT be created directly in
-// Python, because it leads to arguments over whose job it is to
-// delete the enclosed FieldIndex or FieldIterator object.
-
-class IndexP {
-public:
-//   IndexP(FieldIndex*);   // DON'T SWIG THE CONSTRUCTOR
-  ~IndexP();
-  int integer();
-  bool in_plane();
-  IndexP cloneIndex();
-  void set(IntVec*);
-  %new IntVec *components();
-  const string &shortstring();
-  %addmethods{
-    %new const string *__repr__() {
-      return new std::string(to_string(*self));
-    }
-  }
-};
-
-class IteratorP: public IndexP {
-public:
-//   IteratorP(FieldIterator*);   // DON'T SWIG THE CONSTRUCTOR
-  ~IteratorP();
-  bool end();
-  int size();
-  IteratorP cloneIterator();
-  %addmethods{
-    void next() { ++(*self); }
-    %new const string *__repr__() {
-      return new std::string(to_string(*self));
-    }
-    
-
-    // TODO INDEXING: The swigged IteratorP should be a real Python
-    // iterator, with next() and __iter__() methods.  next() should
-    // raise a StopIteration exception when done.  Fixing this at this
-    // late date will be a pain.
-
-    // TODO INDEXING: Don't swig IteratorP and IndexP.  Make the
-    // underlying FieldIndex and FieldIterator classes
-    // PythonExportable, and swig those.  Operations like
-    // SymmMatrix.__getitem__ would expect a FieldIndex of the correct
-    // type, not an IndexP, and the index object's special methods,
-    // like SymTensorIndex.diagonal, would be available.
-
-//     IteratorP __iter__() {
-//       return self->cloneIterator();
-//     }
-  }
-};
-
-%new IteratorP *getSymTensorIterator(Planarity);
+%pythoncode "engine/fieldindex.spy"
 
 #endif // FIELDINDEX_SWG

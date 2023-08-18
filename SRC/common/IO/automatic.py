@@ -13,18 +13,17 @@
 
 from ooflib.common import utils
 
-class SpecialValue(object):
-    def __cmp__(self, other):
-        if isinstance(other, SpecialValue) and \
-           self.__class__ == other.__class__:
-            return 0
-        return 1
-    def __hash__(self):
-        return hash(id(self.__class__))
-    
-class Automatic(SpecialValue):
+class Automatic:
     def __repr__(self):
         return 'automatic'
+    def __eq__(self, other):
+        # All Automatics are equal to each other, but don't equal
+        # anything else.  Menu callbacks will be checking to see if
+        # parameters are automatic, so it's convenient to define
+        # __eq__.
+        return isinstance(other, self.__class__)
+    def __hash__(self):
+        return hash(id(self.__class__))
 
 automatic = Automatic()
 

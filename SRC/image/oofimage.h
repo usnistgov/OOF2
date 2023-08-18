@@ -10,12 +10,11 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef OOFIMAGE_H
 #define OOFIMAGE_H
 
-#include <Python.h>
+#include <oofconfig.h>
+
 #include "common/abstractimage.h"
 #include "common/array.h"
 #include "common/ccolor.h"
@@ -163,9 +162,7 @@ class ImageMagickError : public ErrErrorBase<ImageMagickError> {
   std::string msg;
 public:
   ImageMagickError(const std::string&);
-  virtual const std::string pythonequiv() const {
-    return "ImageMagickError('" + msg + "')";
-  }
+  const std::string &classname() const;
   const std::string *summary() const { return new std::string(msg); }
 };
 

@@ -9,12 +9,11 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef MPITOOLS_H
 #define MPITOOLS_H
 
-#include <Python.h>
+#include <oofconfig.h>
+
 #include <vector>
 #include "ooferror.h"
 #include <string>

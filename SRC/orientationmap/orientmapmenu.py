@@ -78,14 +78,14 @@ def _loadOrientationMap(menuitem, filename, reader, microstructure):
         # Check to see if the microstructure already has an
         # orientation map.  It can't have more than one.
         if orientmapdata.getOrientationMap(mscontext.getObject()) is not None:
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "A Microstructure can contain only one orientation map.")
 
         data = reader.read(filename)        # creates OrientMap object
 
         if (mscontext.getObject().sizeInPixels() != data.sizeInPixels() or
             mscontext.getObject().size() != data.size()):
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "Cannot load orientation map into an existing Microstructure of a different size. ms=%sx%s (%dx%d), map=%sx%s (%dx%d)" % (
                 mscontext.getObject().size()[0],
                 mscontext.getObject().size()[1],

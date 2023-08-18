@@ -13,9 +13,9 @@
 ## TODO: Add tests that continue a solution.
 
 import unittest, os, sys
-import memorycheck
+from . import memorycheck
 
-from UTILS import file_utils
+from .UTILS import file_utils
 # Flag that says whether to generate missing reference data files.
 # Should be false unless you really know what you're doing.
 #file_utils.generate = True
@@ -268,7 +268,7 @@ class OOF_ScheduledOutput(unittest.TestCase):
     def UnnamedVectorFlux(self):
         self.scheduleUnnamedVectorFluxNormal('test.dat', 0.1)
         self.solve()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'vectorfluxoutput.dat'),
                 1.e-8))
@@ -279,7 +279,7 @@ class OOF_ScheduledOutput(unittest.TestCase):
     def NamedVectorFlux(self):
         self.scheduleNamedVectorFluxNormal('test.dat', 0.1)
         self.solve()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'vectorfluxoutput.dat'),
                 1.e-8))
@@ -290,7 +290,7 @@ class OOF_ScheduledOutput(unittest.TestCase):
     def UnnamedTensorFlux(self):
         self.scheduleUnnamedTensorFluxNormal('test.dat', 0.1)
         self.solve()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'tensorfluxoutput.dat'),
                 1.e-8))
@@ -301,7 +301,7 @@ class OOF_ScheduledOutput(unittest.TestCase):
     def NamedTensorFlux(self):
         self.scheduleNamedTensorFluxNormal('test.dat', 0.1)
         self.solve()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'tensorfluxoutput.dat'),
                 1.e-8))
@@ -313,7 +313,7 @@ class OOF_ScheduledOutput(unittest.TestCase):
     def UnnamedScalarField(self):
         self.scheduleUnnamedScalarField('test.dat', 0.1)
         self.solve()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'scalarfieldoutput.dat'),
                 1.e-8))
@@ -324,7 +324,7 @@ class OOF_ScheduledOutput(unittest.TestCase):
     def NamedScalarField(self):
         self.scheduleNamedScalarField('test.dat', 0.1)
         self.solve()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'scalarfieldoutput.dat'),
                 1.e-8))
@@ -335,7 +335,7 @@ class OOF_ScheduledOutput(unittest.TestCase):
     def UnnamedVectorField(self):
         self.scheduleUnnamedVectorField('test.dat', 0.1)
         self.solve()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'vectorfieldoutput.dat'),
                 1.e-8))
@@ -346,7 +346,7 @@ class OOF_ScheduledOutput(unittest.TestCase):
     def NamedVectorField(self):
         self.scheduleNamedVectorField('test.dat', 0.1)
         self.solve()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'vectorfieldoutput.dat'),
                 1.e-8))
@@ -359,11 +359,11 @@ class OOF_ScheduledOutput(unittest.TestCase):
         self.scheduleUnnamedVectorField('vtest.dat', 0.1)
         self.scheduleUnnamedTensorFluxNormal('ttest.dat', 0.1)
         self.solve()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'vtest.dat',
                 os.path.join('mesh_data', 'vectorfieldoutput.dat'),
                 1.e-8))
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'ttest.dat',
                 os.path.join('mesh_data', 'tensorfluxoutput.dat'),
                 1.e-8))
@@ -377,11 +377,11 @@ class OOF_ScheduledOutput(unittest.TestCase):
         self.scheduleNamedVectorField('vtest.dat', 0.1)
         self.scheduleNamedTensorFluxNormal('ttest.dat', 0.1)
         self.solve()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'vtest.dat',
                 os.path.join('mesh_data', 'vectorfieldoutput.dat'),
                 1.e-8))
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'ttest.dat',
                 os.path.join('mesh_data', 'tensorfluxoutput.dat'),
                 1.e-8))
@@ -395,7 +395,7 @@ class OOF_ScheduledOutput(unittest.TestCase):
         self.scheduleUnnamedVectorField('test.dat', 0.1)
         self.scheduleUnnamedTensorFluxNormal('test.dat', 0.1)
         self.solve()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'combooutput.dat'),
                 1.e-8))
@@ -408,7 +408,7 @@ class OOF_ScheduledOutput(unittest.TestCase):
         self.scheduleNamedVectorField('test.dat', 0.1)
         self.scheduleNamedTensorFluxNormal('test.dat', 0.1)
         self.solve()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'combooutput.dat'),
                 1.e-8))
@@ -421,7 +421,7 @@ class OOF_ScheduledOutput(unittest.TestCase):
         self.scheduleUnnamedVectorField('test.dat', 0.1)
         self.scheduleUnnamedTensorFluxNormal('test.dat', 0.2)
         self.solve()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'asyncoutput.dat'),
                 1.e-8))

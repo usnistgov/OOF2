@@ -168,7 +168,7 @@ checkpoint toplevel widget mapped chooserPopup-Skeleton
 findMenu(findWidget('chooserPopup-Skeleton'), ['skeleton<2>']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Skeleton') # MenuItemLogger
 findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 checkpoint Move Node toolbox writable changed
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Move Nodes sensitized
@@ -473,7 +473,7 @@ findMenu(findWidget('chooserPopup-Skeleton'), ['skeleton']).activate() # MenuIte
 checkpoint mesh bdy page updated
 checkpoint mesh bdy page updated
 deactivatePopup('chooserPopup-Skeleton') # MenuItemLogger
-assert tests.bdyList('top', 'bottom', 'right', 'left')
+assert tests.bdyList('top', 'right', 'bottom', 'left')
 assert tests.goSensitive(0)
 
 event(Gdk.EventType.BUTTON_PRESS,x= 6.7000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('OOF2:Boundary Analysis Page:Skeleton').get_window())
@@ -482,11 +482,11 @@ findMenu(findWidget('chooserPopup-Skeleton'), ['skeleton<2>']).activate() # Menu
 checkpoint mesh bdy page updated
 checkpoint mesh bdy page updated
 deactivatePopup('chooserPopup-Skeleton') # MenuItemLogger
-assert tests.bdyList('top', 'bottom', 'right', 'diagonal', 'left')
+assert tests.bdyList('top', 'right', 'bottom', 'left', 'diagonal')
 assert tests.goSensitive(0)
 
 # Select the diagonal bdy
-findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([3]))
+findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([4]))
 assert tests.goSensitive(1)
 
 # Switch to the skeleton with no diagonal bdy
@@ -496,7 +496,7 @@ findMenu(findWidget('chooserPopup-Skeleton'), ['skeleton']).activate() # MenuIte
 checkpoint mesh bdy page updated
 checkpoint mesh bdy page updated
 deactivatePopup('chooserPopup-Skeleton') # MenuItemLogger
-assert tests.bdyList('top', 'bottom', 'right', 'left')
+assert tests.bdyList('top', 'right', 'bottom', 'left')
 assert tests.goSensitive(0)
 
 # Choose the displacement field output
@@ -519,7 +519,7 @@ findWidget('OOF2:Boundary Analysis Page:Pane').set_position(211)
 assert tests.goSensitive(1)
 
 # Select the diagonal boundary
-findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([3]))
+findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([4]))
 assert tests.goSensitive(1)
 
 # Switch back to the mesh with no diagonal boundary
@@ -567,7 +567,7 @@ findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Analysis']).activate() 
 checkpoint mesh bdy page updated
 checkpoint page installed Boundary Analysis
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-assert tests.bdyList('top', 'bottom', 'right', 'left')
+assert tests.bdyList('top', 'right', 'bottom', 'left')
 assert tests.goSensitive(0)
 
 # Delete the mesh from skeleton<2>
@@ -583,8 +583,8 @@ findWidget('OOF2:FE Mesh Page:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(297, 86)
 findWidget('Questioner:Yes').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -603,9 +603,9 @@ checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 checkpoint selection info updated Node
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 checkpoint selection info updated Segment
 checkpoint Graphics_1 Element sensitized
 checkpoint Graphics_1 Segment sensitized
@@ -630,7 +630,7 @@ checkpoint mesh bdy page updated
 checkpoint mesh bdy page updated
 deactivatePopup('chooserPopup-Skeleton') # MenuItemLogger
 findWidget('OOF2:Boundary Analysis Page:Pane').set_position(211)
-assert tests.bdyList('top', 'bottom', 'right', 'left')
+assert tests.bdyList('top', 'right', 'bottom', 'left')
 assert tests.goSensitive(0)
 
 # Switch the display to the other skeleton
@@ -647,8 +647,8 @@ checkpoint toplevel widget mapped chooserPopup-Skeleton
 findMenu(findWidget('chooserPopup-Skeleton'), ['skeleton']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Skeleton') # MenuItemLogger
 findWidget('Dialog-Edit Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 checkpoint Move Node toolbox writable changed
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Move Nodes sensitized
@@ -668,7 +668,7 @@ event(Gdk.EventType.BUTTON_PRESS,x= 9.4000000000000e+01,y= 1.6000000000000e+01,b
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Rectangle']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.4000000000000e+01)
 findGfxWindow('Graphics_1').simulateMouse('down', 0.049461558, 0.65076384, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 0.049461558, 0.6472577, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 0.049461558, 0.64024543, 1, False, False)
@@ -755,7 +755,7 @@ findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Analysis']).activate() 
 checkpoint mesh bdy page updated
 checkpoint page installed Boundary Analysis
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-assert tests.bdyList('top', 'bottom', 'right', 'left', 'interior')
+assert tests.bdyList('top', 'right', 'bottom', 'left', 'interior')
 assert tests.goSensitive(0)
 
 findWidget('OOF2').resize(782, 545)
@@ -797,8 +797,8 @@ findWidget('OOF2:FE Mesh Page:Pane:ElementOps:OK').clicked()
 checkpoint Solver page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint Solver page sensitized
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection

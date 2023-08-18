@@ -21,6 +21,7 @@ class COrientMapReader;
 #include "common/array.h"
 #include "engine/corientation.h"
 #include "image/oofimage.h"
+#include <oofcanvas.h>
 #include <string>
 #include <vector>
 

@@ -28,7 +28,8 @@ checkpoint OOF.File.LoadStartUp.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(266, 210)
 findWidget('OOF2').resize(782, 545)
-assert generics.errorMsg("ErrProgrammingError: Somebody made a mistake!\n(./SRC/common/cdebug.C:124)\n\nErrUserError: Script 'TEST_DATA/errorcmd.py' raised an ErrProgrammingError exception")
+assert generics.errorMsg("Somebody made a mistake!\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/errorcmd.py raised a PyErrProgrammingError exception")
+
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
 
 utils.OOFexec("teststring = None")
@@ -61,7 +62,8 @@ findWidget('Dialog-Script:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.Help.Debug.Error.CError
 checkpoint OOF.File.Load.Script
 checkpoint toplevel widget mapped Error
-assert generics.errorMsg("ErrProgrammingError: Somebody made a mistake!\n(./SRC/common/cdebug.C:124)\n\nErrUserError: Script 'TEST_DATA/errorcmd.py' raised an ErrProgrammingError exception")
+
+assert generics.errorMsg("Somebody made a mistake!\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/errorcmd.py raised a PyErrProgrammingError exception")
 
 findWidget('Error').resize(266, 210)
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()

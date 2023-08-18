@@ -35,12 +35,12 @@ class SkeletonBoundaryListParamWidget(parameterwidgets.ParameterWidget,
         if issubclass(skelctxt.__class__, whoville.WhoProxy):
             gfxwindow = scope.findData("gfxwindow")
             if gfxwindow is None:
-                raise ooferror.ErrUserError(
+                raise ooferror.PyErrUserError(
                     "Unable to find a Skeleton or its list of boundaries!")
             skelctxt = skelctxt.resolve(gfxwindow)
 
-        bdynames = skelctxt.edgeboundaries.keys() + \
-                   skelctxt.pointboundaries.keys()
+        bdynames = list(skelctxt.edgeboundaries.keys()) + \
+                   list(skelctxt.pointboundaries.keys())
         chooser.MultiListWidget.__init__(self, objlist=bdynames,
                                          callback=self.chooserCB, **kwargs)
         parameterwidgets.ParameterWidget.__init__(self, self.gtk, scope, name,

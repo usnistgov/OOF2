@@ -38,11 +38,11 @@ class SkeletonNodeSelectionDisplay(display.DisplayMethod):
             for node in retr:
                 pt = node.position()
 
-                dot = oofcanvas.CanvasDot(pt, 1.2*self.size)
+                dot = oofcanvas.CanvasDot.create(pt, 1.2*self.size)
                 dot.setFillColor(oofcanvas.white.opacity(self.color.getAlpha()))
                 self.canvaslayer.addItem(dot)
 
-                dot = oofcanvas.CanvasDot(pt, self.size)
+                dot = oofcanvas.CanvasDot.create(pt, self.size)
                 dot.setFillColor(clr)
                 self.canvaslayer.addItem(dot)
                 

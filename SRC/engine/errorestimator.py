@@ -19,13 +19,11 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import refinementtarget
+from ooflib.engine import skeleton
 from ooflib.engine.IO import meshparameters
 import ooflib.engine.mesh
 #AMR subproblem
 import ooflib.engine.subproblemcontext
-
-import random
-
 
 # ErrorEstimator base class
 class ErrorEstimator(registeredclass.RegisteredClass):
@@ -138,42 +136,50 @@ registeredclass.Registration(
 
 ################################
 
-# RefinementTarget for AdaptiveMeshRefinement.  Marks all elements
+# RefinementTarget for AdaptiveMeshRefinement.  Returns all elements
 # that fail the error estimator test.
-class AdaptiveMeshRefine(refinementtarget.RefinementTarget):
+
+class AdaptiveMeshRefine(refinementtarget.ElementRefinementTarget):
     def __init__(self, subproblem, estimator):
         #self.mesh = mesh  # mesh
         self.subproblem = subproblem
         self.estimator = estimator  # ErrorEstimator instance
-            
-    def __call__(self, skeleton, context, divisions, markedEdges, criterion):
-        subproblemobj = ooflib.engine.subproblemcontext.subproblems[
-            self.subproblem].getObject()
-        femesh=subproblemobj.mesh
-        self.estimator.preprocess(subproblemobj)
-        prog = progress.findProgress("Refine")
-        elements = skeleton.activeElements()
-        n = len(elements)
-        for i, element in enumerate(elements):
-            # If the refinement is done more than once from the skeleton
-            # page (after a mesh has been created),
-            # some of the new skeleton elements may not have
-            # corresponding mesh elements, i.e. element.meshindex is
-            # undefined. The second refinement could be done after
-            # a new mesh is created from the first refinement.
-            fe_element = femesh.getElement(element.meshindex)
-            if not subproblemobj.contains(fe_element):
-                continue
-            if not fe_element.material():
-                continue
-            if (self.estimator(fe_element, subproblemobj) and 
-                criterion(skeleton, element)):
-                self.markElement(element, divisions, markedEdges)
-            if prog.stopped() :
-                return
-            prog.setFraction(1.0*(i+1)/n)
-            prog.setMessage("checked %d/%d elements" % (i+1, n))
+    def iterator(self, skeletoncontext):
+        return skeleton.SkeletonElementIterator(
+            skeletoncontext.getObject(),
+            AMRPredicate(self, skeletoncontext))
+        
+# Helper class for AdaptiveMeshRefine.  SkeletonElementIterator needs
+# a predicate functional that takes a single argument, but we need to
+# pass more data to it. This could be avoided by putting
+# AMRPredicate.__call__ in AdaptiveMeshRefine, but that feels wrong.
+# Other RefinementTarget subclasses don't have __call__ methods.
 
+class AMRPredicate:
+    def __init__(self, amr, skelcontext):
+        self.skelctxt = skelcontext
+        self.subproblemobj = ooflib.engine.subproblemcontext.subproblems[
+            amr.subproblem].getObject()
+        self.femesh = self.subproblemobj.mesh
+        self.estimator = amr.estimator
+        self.estimator.preprocess(self.subproblemobj)
+    def __call__(self, element):
+        assert element.meshindex is not None
+        ## OLD COMMENT THAT MIGHT NOT BE RELEVANT ANY MORE
+        # If the refinement is done more than once from the skeleton
+        # page (after a mesh has been created),
+        # some of the new skeleton elements may not have
+        # corresponding mesh elements, i.e. element.meshindex is
+        # undefined. The second refinement could be done after
+        # a new mesh is created from the first refinement.
+        fe_element = self.femesh.getElement(element.meshindex)
+        return (element.active(self.skelctxt.getObject()) and
+                element.material(self.skelctxt) is not None and
+                self.subproblemobj.contains(fe_element) and
+                self.estimator(fe_element, self.subproblemobj))
+
+
+        
 #####################
 
 # A trivial WhoParameter for a smart widget.

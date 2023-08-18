@@ -109,14 +109,15 @@ params:	      A list of Parameters that are provided as arguments to
               parameter, using Parameter.name and Parameter.value for
               the key and value.  [default value = []]
 
-help_menu:    If help_menu=1, then this item is presumed to be a 'Help'
-              menu and will be right justified in a GUI menu bar.  Setting
-              help_menu=1 on anything other than a plain old OOFMenuItem with
-              no callback doesn't make any sense, and may cause confusion.
-
 ordering:     New items are added to menus just before the first item with
               a larger ordering number.  Items with the same ordering number
               appear in the order in which they're added. [default value=0]
+
+help_menu:    If help_menu=1, then this item is presumed to be a 'Help'
+              menu and will be in the right-most position in a GUI menu bar,
+              independent of its ordering.  Setting help_menu=1 on anything
+              other than a plain old OOFMenuItem with no callback doesn't
+              make any sense, and may cause confusion.
 
 Options:      Any additional keyword arguments to the OOFMenuItem
               constructor are options that apply to the menu item and
@@ -375,17 +376,15 @@ from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
-from ooflib.common import garbage
 from ooflib.common import parallel_enable
 from ooflib.common import thread_enable
-from ooflib.common import utils
 from ooflib.common import worker
 from ooflib.common.IO import menuparser
 from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
-import string
-import types
 import weakref
+
+from ooflib.common.utils import stringjoin, stringsplit
 
 
 #####################################
@@ -630,8 +629,8 @@ class OOFMenuItem:
         return self.parent.path() + "." + self.name
 
     def descendPath(self, path):
-        if type(path) == types.StringType:
-            return self.descendPath(string.split(path, '.'))
+        if isinstance(path, (str, bytes)):
+            return self.descendPath(stringsplit(path, '.'))
         if not path:
             return self
         return self.getItem(path[0]).descendPath(path[1:])
@@ -755,11 +754,11 @@ class OOFMenuItem:
         # List arguments, taking values from the argdict, but
         # displaying them in the order in which they occur in the
         # self.params list.
-        arglist = ["%s=%s" % (name, `argdict[name]`)
+        arglist = ["%s=%s" % (name, repr(argdict[name]))
                    for name in [p.name for p in self.params]
                    if argdict[name] is not None]
-        self.log(self.path() +'(' + string.join(arglist, ', ') + ')')
-        self.bar_name = self.path() +'(' + string.join(arglist, ', ') + ')'
+        self.log(self.path() +'(' + stringjoin(arglist, ', ') + ')')
+        self.bar_name = self.path() +'(' + stringjoin(arglist, ', ') + ')'
 
         self.hireWorker(argdict=argdict)
 
@@ -799,7 +798,6 @@ class OOFMenuItem:
                 # mode.
                 workerclass = worker.getThreadedWorker
         the_worker = workerclass(self, argtuple, argdict)
-        garbage.collect()
         # Launch the thread (and wait for it to finish if in text
         # mode).
         the_worker.start()
@@ -829,7 +827,8 @@ class OOFMenuItem:
         if self.getOption('no_log') != 1:
             root = self.root()
             if root is self:
-                raise "OOFMenuItem.log: No root menu?"
+                raise ooferror.PyErrPyProgrammingError(
+                    "OOFMenuItem.log: No root menu?")
             root.log(strng)
 
     # Enable menu items to be invoked by, eg, menu.submenu.subsubmenu.item().
@@ -844,7 +843,7 @@ class OOFMenuItem:
     def __len__(self):
         return len(self.items)
     def __repr__(self):
-        return string.join([self.name+":"] + \
+        return stringjoin([self.name+":"] + \
                            [item.name for item in self.items
                             if item.visible_cli()],
                            ' ')
@@ -860,13 +859,13 @@ class OOFMenuItem:
     # Return the name of the callback function and the name of its module.
     def getcallbackname(self):
         try:
-            im_self_data = self.callback.im_self
+            im_self_data = self.callback.__self__
         except AttributeError:
             funcname = ""
         else:
             funcname = im_self_data.__class__.__name__ + "."
         funcname += self.callback.__name__
-        return (funcname, self.callback.func_globals['__name__'])
+        return (funcname, self.callback.__globals__['__name__'])
 
     # Apply "func" to this menu item and its subtree.
     def apply(self, func, *args, **kwargs):
@@ -882,31 +881,31 @@ class OOFMenuItem:
     def xmlParams(self, file):          # make a list of parameters
         from ooflib.common.IO import xmlmenudump # delayed to avoid import loops
         if self.params:
-            print >> file, "<listitem><para> Parameters:"
-            print >> file, " <variablelist>"
+            print("<listitem><para> Parameters:", file=file)
+            print(" <variablelist>", file=file)
             for param in self.params:
                 xmlmenudump.process_param(param)
-                print >> file, "  <varlistentry>"
-                print >> file, "    <term><varname>%s</varname></term>" \
-                      % param.name
-                print >> file, "      <listitem>"
+                print("  <varlistentry>", file=file)
+                print("    <term><varname>%s</varname></term>" \
+                      % param.name, file=file)
+                print("      <listitem>", file=file)
                 if param.tip is not parameter.emptyTipString:
                     tip = param.tip or "MISSING TIP STRING"
                 else:
                     tip =""
-                print >> file, "       <simpara>%s <emphasis>Type</emphasis>: %s</simpara>" \
-                      % (tip, param.valueDesc())
-                print >> file, "      </listitem>"
-                print >> file, "  </varlistentry>" 
-            print >> file, " </variablelist>" # list of params
-            print >> file, "</para></listitem>"
+                print("       <simpara>%s <emphasis>Type</emphasis>: %s</simpara>" \
+                      % (tip, param.valueDesc()), file=file)
+                print("      </listitem>", file=file)
+                print("  </varlistentry>", file=file) 
+            print(" </variablelist>", file=file) # list of params
+            print("</para></listitem>", file=file)
             
     def xmlSynopsis(self, file):        # make the Synopsis section
-        print >> file, " <refsynopsisdiv><simpara>"
-        args = string.join(['<varname>%s</varname>' % p.name
+        print(" <refsynopsisdiv><simpara>", file=file)
+        args = stringjoin(['<varname>%s</varname>' % p.name
                             for p in self.params], ',')
-        print >> file, "  <command>%s</command>(%s)" % (self.path(), args)
-        print >> file, " </simpara></refsynopsisdiv>"
+        print("  <command>%s</command>(%s)" % (self.path(), args), file=file)
+        print(" </simpara></refsynopsisdiv>", file=file)
 
     
         
@@ -929,22 +928,22 @@ class CheckOOFMenuItem(OOFMenuItem):
             self.hireWorker(argtuple=(self.value,))
 
     def xmlSynopsis(self, file):
-        print >> file, "<refsynopsisdiv><simpara>"
-        print >> file, " <command>%s</command>(<varname>boolean</varname>)" \
-              % self.path()
-        print >> file, "</simpara></refsynopsisdiv>"        
+        print("<refsynopsisdiv><simpara>", file=file)
+        print(" <command>%s</command>(<varname>boolean</varname>)" \
+              % self.path(), file=file)
+        print("</simpara></refsynopsisdiv>", file=file)        
 
     def xmlParams(self, file):
-        print >> file, "<listitem><para>Parameters:"
-        print >> file, " <variablelist>"
-        print >> file, "  <varlistentry>"
-        print >> file, "   <term><varname>boolean</varname></term>"
-        print >> file, "   <listitem><simpara>"
-        print >> file, "     A boolean value, <userinput>0</userinput> (false) or <userinput>1</userinput> (true). This is <emphasis>not</emphasis> a keyword parameter (just enter '0' or '1', not 'boolean=1')."
-        print >> file, "   </simpara></listitem>"
-        print >> file, "  </varlistentry>"
-        print >> file, " </variablelist>"
-        print >> file, "</para></listitem>"
+        print("<listitem><para>Parameters:", file=file)
+        print(" <variablelist>", file=file)
+        print("  <varlistentry>", file=file)
+        print("   <term><varname>boolean</varname></term>", file=file)
+        print("   <listitem><simpara>", file=file)
+        print("     A boolean value, <userinput>0</userinput> (false) or <userinput>1</userinput> (true). This is <emphasis>not</emphasis> a keyword parameter (just enter '0' or '1', not 'boolean=1').", file=file)
+        print("   </simpara></listitem>", file=file)
+        print("  </varlistentry>", file=file)
+        print(" </variablelist>", file=file)
+        print("</para></listitem>", file=file)
         
 
 ##################################

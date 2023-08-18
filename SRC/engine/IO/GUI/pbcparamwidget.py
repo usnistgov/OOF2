@@ -29,7 +29,7 @@ class PBCBooleanWidget(parameterwidgets.BooleanWidget):
             lambda w: isinstance(w, whowidget.WhoWidget)
             and w.whoclass is skeletoncontext.skeletonContexts)
         if self.skelwidget is None:
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Can't find WhoWidget for Skeleton")
         self.sbcallback = switchboard.requestCallbackMain(self.skelwidget,
                                                           self.sensitize)

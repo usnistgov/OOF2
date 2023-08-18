@@ -193,7 +193,7 @@ public:
 
   void make_linear_system(const CSubProblem*,
 			  const Element*,
-			  const GaussPointIterator&,
+			  const GaussPoint&,
 			  const std::vector<int>&,
 			  double time,
 			  const CNonlinearSolver*,
@@ -246,7 +246,6 @@ public:
 class MaterialAttributeRegistration : public PxlAttributeRegistration {
 private:
   static const std::string classname_;
-  static const std::string modulename_;
 public:
   MaterialAttributeRegistration();
   virtual ~MaterialAttributeRegistration() {}
@@ -259,7 +258,6 @@ public:
      createAttributeGlobalData(const CMicrostructure*) const;
 
   virtual const std::string &classname() const { return classname_; }
-  virtual const std::string &modulename() const { return modulename_; }
 };
 
 const Material *getMaterialFromCategory(const CMicrostructure*, int category);

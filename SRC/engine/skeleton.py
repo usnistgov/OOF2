@@ -43,11 +43,9 @@ from ooflib.engine import skeletonselectable
 from ooflib.engine import materialmanager
 
 import math
-import random
-import time
-import types
 import weakref
 import sys
+from functools import reduce
 
 Registration = registeredclass.Registration
 
@@ -117,8 +115,8 @@ class SkeletonGeometry(registeredclass.RegisteredClass):
         toprgt = skel.getPointBoundary('topright', exterior=1)
 
         ## create nodes and selected point boundaries.
-        dx = (skel.MS.size()[0]*1.0)/m   # Promote numerators to floating-point.
-        dy = (skel.MS.size()[1]*1.0)/n
+        dx = skel.MS.size()[0]/m
+        dy = skel.MS.size()[1]/n
         tot_items = (m + 1)*(n + 1)
         for i in range(n+1):
             for j in range(m+1):
@@ -156,7 +154,7 @@ class SkeletonGeometry(registeredclass.RegisteredClass):
                 if prog.stopped():
                     return
                 nn = i*(n+1)+j+1
-                prog.setFraction(1.0*nn/tot_items)
+                prog.setFraction(nn/tot_items)
                 prog.setMessage("Allocated %d/%d nodes" % (nn, tot_items))
                                
 
@@ -264,7 +262,7 @@ class QuadSkeleton(SkeletonGeometry):
                     if prog.stopped():
                         return None
                     rectangle_count = i*m+j+1
-                    prog.setFraction(float(rectangle_count)/tot_items)
+                    prog.setFraction(rectangle_count/tot_items)
                     prog.setMessage("Created %d/%d elements"
                                     % (rectangle_count, tot_items))
             return skel
@@ -325,7 +323,7 @@ class TriSkeleton(SkeletonGeometry):
                     elif self.arrangement == middling:
                         rightdiag = 1-(i+j)%2
                     elif self.arrangement == anarchic:
-                        rightdiag = random.choice([0,1])
+                        rightdiag = 0 if crandom.rndm() < 0.5 else 1
                     else:
                         debug.fmsg('unknown arrangement!', self.arrangement)
 
@@ -386,7 +384,7 @@ class TriSkeleton(SkeletonGeometry):
                     if prog.stopped():
                         return None
                     rectangle_count = i*m+j
-                    prog.setFraction(float(rectangle_count)/tot_items)
+                    prog.setFraction(rectangle_count/tot_items)
                     prog.setMessage("Created %d/%d elements"
                                     % (2*rectangle_count, 2*tot_items))
             return skel
@@ -479,9 +477,6 @@ class SkeletonBase:
             self.illegalCount = illegalCount
         return self.illegalCount
 
-    def getIllegalElements(self):
-        return [e for e in self.elements if e.illegal()]
-    
     def getHomogeneityIndex(self):
         if (self.homogeneity_index_computation_time < self.MS.getTimeStamp()):
             self.setHomogeneityIndex()
@@ -497,15 +492,12 @@ class SkeletonBase:
     
     # Utility function, finds all the intersections of passed-in
     # segment (a primitives.Segment object) with the passed-in
-    # skeleton element.  Needs the skeleton object in order to extract
-    # skeleton segments. Actually returns a dictionary, indexed by
+    # skeleton element.  Actually returns a dictionary, indexed by
     # points, whose values are lists of the intersecting segments, as
     # a tuple, (intersection-point, next-element)
     def _get_intersections_with_element(self, local_seg, skel_el):
-        skel_segs = skel_el.getSegments(self)
         isec_set = {}
-        #
-        for s in skel_segs:
+        for s in skel_el.getSegments(self): 
             nds = s.nodes()
             c1 = nds[0].position()
             c2 = nds[1].position()
@@ -576,7 +568,7 @@ class SkeletonBase:
             entry_segs = isec_set[entry]
             if ((prior_element is None) or
                 (len(entry_segs)==1) or
-                (len(isec_set.keys())>1)):
+                (len(isec_set)>1)): # was len(isec_set.keys()) > 1
                 del isec_set[entry]
             else:
                 # If *none* of the segments have the prior element,
@@ -622,11 +614,11 @@ class SkeletonBase:
         if len(isec_set) !=1:
             # print >> sys.stderr, "Multiple exits:"
             # print >> sys.stderr, isec_set
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Segment exits element multiple times.")
             
-        isec_point = isec_set.keys()[0]
-        isec_segs = isec_set.values()[0]
+        # Get the first and only item in isec_set
+        isec_point, isec_segs = next(iter(isec_set.items()))
 
         # Now get the *segments* corresponding to the exit point.
         # If there's one, then this is the generic case.
@@ -686,7 +678,7 @@ class SkeletonBase:
                         next_el = e
                         break
                 else:
-                    raise ooferror.ErrPyProgrammingError("get_intersection_and_next_element failed, case 0")
+                    raise ooferror.PyErrPyProgrammingError("get_intersection_and_next_element failed, case 0")
                     
             # If we found exactly one element, then just return it.
             elif len(new_elements)==1:
@@ -705,10 +697,10 @@ class SkeletonBase:
                         next_el = e
                         break
                 else:
-                    raise ooferror.ErrPyProgrammingError("get_intersection_and_next_element failed, case n")
+                    raise ooferror.PyErrPyProgrammingError("get_intersection_and_next_element failed, case n")
         else:
             # Impossible!
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Linear path crosses an element more than twice, or fewer than zero times.")
 
         return (isec_point, next_el)
@@ -754,7 +746,7 @@ class SkeletonBase:
                     el = ell
                     break
             else:               
-                raise ooferror.ErrSetupError("All elements are illegal!")
+                raise ooferror.PyErrSetupError("All elements are illegal!")
                          
             
         center = el.center()
@@ -872,17 +864,32 @@ class Skeleton(SkeletonBase):
         self.MS = microStructure        # Microstructure object, not context
         self._size = self.MS.size()
         self._area = self._size[0]*self._size[1]
+        self.timestamp = timestamp.TimeStamp()
         self.nodemovehistory = skeletondiff.NodeMoveHistory()
         self.elements = utils.ReservableList()
         self._found_element = None      # used in enclosingElement().
         self.nodes = utils.ReservableList()
         self.segments = {}              # Nondirected edges.
+
         self.edgeboundaries = {}
         self.pointboundaries = {}
-        self.timestamp = timestamp.TimeStamp()
         self.left_right_periodicity = left_right_periodicity
         self.top_bottom_periodicity = top_bottom_periodicity
-
+        # The order in which the boundaries are listed in the GUI
+        # depends on the order in which they're added to
+        # edgeboundaries and pointboundaries, so create the default
+        # boundaries here, just to get the order we want.  (The order
+        # we want is what it was in the python2 version, so that test
+        # scripts that rely on the order don't break.)
+        self.getEdgeBoundary("top", exterior=True)
+        self.getEdgeBoundary("right", exterior=True)
+        self.getEdgeBoundary("bottom", exterior=True)
+        self.getEdgeBoundary("left", exterior=True)
+        self.getPointBoundary("topleft", exterior=True)
+        self.getPointBoundary("bottomleft", exterior=True)
+        self.getPointBoundary("topright", exterior=True)
+        self.getPointBoundary("bottomright", exterior=True)
+        
         # When elements and nodes are deleted from the mesh, they
         # aren't immediately removed from the lists in the Skeleton.
         # They're only removed when cleanUp() is called.  washMe
@@ -939,8 +946,7 @@ class Skeleton(SkeletonBase):
             self.element_index0 = element_index_base
 
     def reserveElements(self, n):
-#         self.elements.reserve(n)
-        pass
+        self.elements.reserve(n)
 
     def reserveNodes(self, n):
         self.nodes.reserve(n)
@@ -963,12 +969,6 @@ class Skeleton(SkeletonBase):
 
         self._destroyed = True  # see NOTE above
 
- #        for el in self.elements:
- #            el.destroy(self)
- #        self.elements = []
- #        self.nodes = []
- #        self.hashedNodes = None
-        
         # Any data shared with deputies must not be deleted until the
         # deputies are done with it.
         if self.ndeputies() == 0:
@@ -995,7 +995,11 @@ class Skeleton(SkeletonBase):
         return 'Skeleton(%d)' % id(self)
     
     def disconnect(self):
-        for s in self.nodes + self.segments.values() + self.elements:
+        for s in self.nodes:
+            s.disconnect()
+        for s in self.segments.values():
+            s.disconnect()
+        for s in self.elements:
             s.disconnect()
 
     def getTimeStamp(self):
@@ -1011,7 +1015,7 @@ class Skeleton(SkeletonBase):
         if ratio < 1.0:
             ratio = 1.0/ratio
         nndtile = int( 0.5*math.sqrt(nnodes)*ratio )  # no. of nodes per tile
-        ntiles = int( nnodes/nndtile )  # no. of tiles
+        ntiles = nnodes//nndtile                      # no. of tiles
 
         if x_size >= y_size:
             nx = int( math.sqrt(ratio*ntiles) )  # tiles in the x-direction
@@ -1035,27 +1039,22 @@ class Skeleton(SkeletonBase):
         self.cleanUp()
         return len(self.nodes)
                                    
-    def nelements(self):                # for compatiblity w/ Element output
+    def nelements(self): 
         self.cleanUp()
         return len(self.elements)
 
-    def element_iterator(self):         # for compatiblity w/ Element output
+    def nsegments(self):
         self.cleanUp()
-        return self.elements
+        return len(self.segments)
 
-    def node_iterator(self):
-        self.cleanUp()
-        return self.nodes
+    def element_iterator(self, *args, **kwargs):
+        return SkeletonElementIterator(self, *args, **kwargs)
 
-    def segment_iterator(self):
-        self.cleanUp()
-        return self.segments.values()
+    def node_iterator(self, *args, **kwargs):
+        return SkeletonNodeIterator(self, *args, **kwargs)
 
-    # This returns the position in the skeleton's node list
-    # which is not the same as node.getIndex()
-    # Is this used?
-##     def getNodeIndex(self, node):
-##         return self.nodes.index(node)
+    def segment_iterator(self, *args, **kwargs):
+        return SkeletonSegmentIterator(self, *args, **kwargs)
 
     def notPinnedNodes(self):
         return [n for n in self.node_iterator() if not n.pinned()]
@@ -1090,9 +1089,9 @@ class Skeleton(SkeletonBase):
             c = SkeletonNode(x,y, index=self.node_index)
         self.node_index += 1
         if x == 0.0 or x == self.size()[0]:
-            c.setMobilityX(0)
+            c.setMobilityX(False)
         if y == 0.0 or y == self.size()[1]:
-            c.setMobilityY(0)
+            c.setMobilityY(False)
         self.nodes.append(c)
         
         if parallel_enable.enabled():
@@ -1112,7 +1111,7 @@ class Skeleton(SkeletonBase):
             el = SkeletonQuad(nodes, self.element_index)
             self.element_index += 1
         else:
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Unable to construct %d-noded element." % nnodes)
         self.elements.append(el)
         for parent in parents:
@@ -1174,9 +1173,10 @@ class Skeleton(SkeletonBase):
             
     def cleanUp(self):
         if self.washMe:
-            self.elements = filter(lambda e: not hasattr(e, 'defunct'),
-                                   self.elements)
-            self.nodes = filter(lambda n: not hasattr(n, 'defunct'), self.nodes)
+            self.elements = utils.ReservableList(
+                vals=(e for e in self.elements if not hasattr(e, 'defunct')))
+            self.nodes = utils.ReservableList(
+                vals=(n for n in self.nodes if not hasattr(n, 'defunct')))
             self.washMe = 0
 
     def getElement(self, index):
@@ -1273,10 +1273,18 @@ class Skeleton(SkeletonBase):
             return "Element node indexing mismatch"
 
         # Make sure segments have the same node indices.  Segments are
-        # stored in a dictionary keyed by node pairs, so there's no
-        # need to worry about segment order.
-        for (s1,s2) in zip(self.segments.values(), other.segments.values()):
-            if [x.index for x in s1.nodes()]!=[x.index for x in s2.nodes()]:
+        # stored in a dictionary keyed by node pairs.  Don't rely on
+        # the order in which objects are returned by segments.keys or
+        # segments.values.  It's not guaranteed to be the same for the
+        # two skeletons.
+        thiskeys = list(self.segments.keys())
+        thiskeys.sort()
+        thatkeys = list(other.segments.keys())
+        thatkeys.sort()
+        for (k1, k2) in zip(thiskeys, thatkeys):
+            s1 = self.segments[k1]
+            s2 = other.segments[k2]
+            if [x.index for x in s1.nodes()] != [x.index for x in s2.nodes()]:
                 return "Segment node indexing mismatch"
 
         # Basic topology is right, now quantitatively check node locations.
@@ -1284,8 +1292,8 @@ class Skeleton(SkeletonBase):
         for (n1,n2) in zip(self.nodes, other.nodes):
             if (n1.position()-n2.position())**2 > tol2:
                 return "Node outside of tolerance, %s-%s=%s" % \
-                       (`n1.position()`, `n2.position()`,
-                       `n1.position()-n2.position()`)
+                       (repr(n1.position()), repr(n2.position()),
+                       repr(n1.position()-n2.position()))
 
         if len(self.edgeboundaries)!=len(other.edgeboundaries):
             return "Edge boundary count mismatch"
@@ -1513,6 +1521,7 @@ class Skeleton(SkeletonBase):
         pass
 
     #######################
+    
     def weightedEnergyTotal(self, alpha):
         self.cleanUp()
         return reduce(lambda x,y: x+y,
@@ -1527,19 +1536,28 @@ class Skeleton(SkeletonBase):
         return total
 
     def illegalElements(self):
-        return [e for e in self.elements if e.illegal()]
+        return SkeletonElementIterator(self, lambda e: e.illegal())
 
     def activeElements(self):
         self.cleanUp()
-        return [e for e in self.elements if e.active(self)]
+        return SkeletonElementIterator(self, lambda e: e.active(self))
+
+    def selectedElements(self, condition=lambda e: True): 
+        # Looping over the selection object would be neater and
+        # faster, but the elements wouldn't be returned in a
+        # deterministic order.  This effectively does what
+        # ElementSelection.retrieveInOrder() does.
+        self.cleanUp()
+        return SkeletonElementIterator(
+            self, lambda e: condition(e) and e.isSelected())
 
     def activeNodes(self):
         self.cleanUp()
-        return [n for n in self.nodes if n.active(self)]
+        return SkeletonNodeIterator(self, lambda n: n.active(self))
 
     def activeSegments(self):
         self.cleanUp()
-        return [s for s in self.segments.values() if s.active(self)]
+        return SkeletonSegmentIterator(self, lambda s: s.active(self))
                     
     def nearestNode(self, point):
         if self.hashedNodes is None:
@@ -1561,12 +1579,12 @@ class Skeleton(SkeletonBase):
                 return None
 
         # Set of nodes that are moving
-        movingNodes = set([pair[0] for pair in pairs])
+        movingNodes = utils.OrderedSet([pair[0] for pair in pairs])
         # List of segments that will vanish
         doomedSegments = [self.findSegment(*pair) for pair in pairs]
         # Set of all pairs -- this is just the 'pair's argument, but
         # will be extended to include periodic partners.
-        mergingPairs = set(pairs)
+        mergingPairs = utils.OrderedSet(pairs)
 
         # Include periodic partners of the merging nodes.
         for pair in pairs:
@@ -1578,13 +1596,13 @@ class Skeleton(SkeletonBase):
 
         # Find the topologically changing elements.  These are
         # elements that have a doomed segment as a side.
-        topElements = set()
+        topElements = utils.OrderedSet()
         for seg in doomedSegments:
             topElements.update(seg.getElements())
 
         # Find the elements that don't change topology, but do change
         # shape.
-        isoElements = set(
+        isoElements = utils.OrderedSet(
             [elem for node in movingNodes
              for elem in node.aperiodicNeighborElements()])
         isoElements -= topElements
@@ -1685,11 +1703,6 @@ class Skeleton(SkeletonBase):
     # figure out the directions for the edges.
     def makeEdgeBoundary(self, name, segments=None, startnode=None,
                          exterior=None):
-        if (name in self.edgeboundaries) or \
-               (name in self.pointboundaries):
-            raise ooferror.ErrPyProgrammingError(
-                "Boundary '%s' already exists." % name)
-        
         bdy = self.getEdgeBoundary(name, exterior) # Guaranteed to be new.
         
         if segments and len(segments)==1:
@@ -1700,7 +1713,7 @@ class Skeleton(SkeletonBase):
                 else: # startnode==seg.nodes()[1]:
                     bdy.addEdge(SkeletonEdge(seg, -1))
             else:
-                raise ooferror.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "Singleton segment boundaries require a starting node!")
 
         elif segments: # Length of the segment list is greater than one.
@@ -1731,13 +1744,9 @@ class Skeleton(SkeletonBase):
     def makeNonsequenceableEdgeBoundary(self, name, segments=None,
                                         directions=None,
                                         exterior=None):
-        if (name in self.edgeboundaries) or \
-               (name in self.pointboundaries):
-            raise ooferror.ErrPyProgrammingError(
-                "Boundary '%s' already exists." % name)
         
         bdy = self.getEdgeBoundary(name, exterior) # Guaranteed to be new.
-        bdy._sequenceable=0
+        bdy._sequenceable = False
 
         if segments is not None:
             for i in range(len(segments)):
@@ -1749,15 +1758,11 @@ class Skeleton(SkeletonBase):
     # Build a new point boundary from the passed-in list of nodes,
     # and return it.  
     def makePointBoundary(self, name, nodes=None, exterior=None):
-        if (name in self.pointboundaries) or \
-               (name in self.edgeboundaries):
-            raise ooferror.ErrPyProgrammingError(
-                "Boundary '%s' already exists." % name)
 
         bdy = self.getPointBoundary(name, exterior)
 
         # Correctly returns an empty boundary if nodes==None.
-        if nodes:
+        if nodes is not None:
             for n in nodes:
                 bdy.addNode(n)
 
@@ -1860,14 +1865,13 @@ class Skeleton(SkeletonBase):
                             "inconsistent neighborNodes for node",
                             node.index, " and element", element.index)
                         sane = False
-                segs = element.getSegments(self)
-                if None in segs:
+                if None in element.getSegments(self):
                     reporter.report("Element", element.index,
                                     "is missing a segment")
                     sane = False
             for i, node in enumerate(self.nodes):
                 prog.setMessage("nodes %d/%d" % (i, self.nnodes()))
-                prog.setFraction(float(i)/self.nnodes())
+                prog.setFraction(i/self.nnodes())
                 if prog.stopped():
                     return False
                 for element in node.aperiodicNeighborElements():
@@ -1924,7 +1928,7 @@ class Skeleton(SkeletonBase):
             nsegs = len(self.segments)
             for i, segment in enumerate(self.segments.values()):
                 prog.setMessage("segments %d/%d" % (i, nsegs))
-                prog.setFraction(float(i)/nsegs)
+                prog.setFraction(i/nsegs)
                 if prog.stopped():
                     return False
                 elements = segment.getElements()
@@ -1950,13 +1954,13 @@ class Skeleton(SkeletonBase):
             nbdys = len(self.edgeboundaries)
             for i, bdyname in enumerate(self.edgeboundaries):
                 prog.setMessage("edge boundaries %d/%d" % (i, nbdys))
-                prog.setFraction(float(i)/nbdys)
+                prog.setFraction(i/nbdys)
                 if prog.stopped():
                     return
                 bdy = self.edgeboundaries[bdyname]
                 try:
                     bdy.sequence()
-                except skeletonsegment.SequenceError, err:
+                except skeletonsegment.SequenceError as err:
                     reporter.report(err)
                     reporter.report("boundary", bdyname, "cannot be sequenced")
                     sane = False
@@ -1984,7 +1988,7 @@ class Skeleton(SkeletonBase):
         # edict[n] is the n-sided master element.  Find the
         # interpolation order of the elements.  They all have the same
         # order, so just pick one.
-        order = edict.values()[0].fun_order()
+        order = next(iter(edict.values())).fun_order()
 
         # set_materials is a function that will be called to assign
         # materials to elements.
@@ -2006,7 +2010,7 @@ class Skeleton(SkeletonBase):
         # than one interface, it still only appears once in this dict,
         # with a segmentData object with all the interfaces included.
         interface_seg_dict = self.createInterfaceSegmentDict(skelpath)
-
+        
         fe_splitnode={} #{key=skeleton node:
                         #value=list of mesh nodes, one for each zone
                         #around the skeleton node}
@@ -2018,7 +2022,6 @@ class Skeleton(SkeletonBase):
         # SkeletonNode objects.
         fe_node = {}
         
-
         realmesh = femesh.FEMesh(self.MS, order)
         realmesh.skeleton = self
 
@@ -2029,24 +2032,27 @@ class Skeleton(SkeletonBase):
             nels[n] = 0
         for el in self.elements:
             nels[el.nnodes()] += 1
-
-        #TODO: Do a smarter reserve when edgements are involved?
+        
+        # TODO: Do a smarter reserve when edgements are involved?
         nfuncnodes = self.nnodes() + len(self.segments)*(order-1)
         for n, masterelem in edict.items():
             nfuncnodes += nels[n]*masterelem.ninteriorfuncnodes()
         realmesh.reserveFuncNodes(nfuncnodes)
 
-        masterel = edict[edict.keys()[0]]
-        n_map_per_side = masterel.nexteriormapnodes_only()/masterel.nsides()
+        # Get the number of map nodes per side.  It's the same for all
+        # element shapes, so just look at the first one.
+        masterel = next(iter(edict.values()))
+        n_map_per_side = masterel.nexteriormapnodes_only()//masterel.nsides()
+        
         nmapnodes = len(self.segments)*n_map_per_side
         for n, masterelem in edict.items():
             nmapnodes += nels[n]*masterelem.ninteriormapnodes_only()
         realmesh.reserveMapNodes(nmapnodes)
-
+        
         # Make the real nodes at the corners of the elements.  These
         # nodes are always both mapping and function nodes.
         mnodecount = self.nnodes()
-        for i in xrange(mnodecount):
+        for i in range(mnodecount):
             cur = self.nodes[i]
             if split_interface:
                 splitcount=self.countInterfaceZonesAtNode(cur,
@@ -2071,13 +2077,13 @@ class Skeleton(SkeletonBase):
                 prog.setMessage("Interrupted")
                 return
             else:
-                prog.setFraction(1.0*(i+1)/mnodecount)
+                prog.setFraction((i+1)/mnodecount)
                 prog.setMessage("Allocated %d/%d nodes"%(i+1, mnodecount))
 
         # Loop over elements.
         numelements = self.nelements()
         realmesh.reserveElements(numelements)
-        for mesh_idx in xrange(numelements):
+        for mesh_idx in range(numelements):
             el = self.elements[mesh_idx]
             local_fe_node={}
             if split_interface:
@@ -2102,7 +2108,7 @@ class Skeleton(SkeletonBase):
             if prog.stopped():
                 prog.setMessage("Interrupted")
                 return
-            prog.setFraction(1.0*(mesh_idx+1)/numelements)
+            prog.setFraction((mesh_idx+1)/numelements)
             prog.setMessage("Allocated %d/%d elements"
                             % (mesh_idx+1, numelements))
 
@@ -2133,7 +2139,7 @@ class Skeleton(SkeletonBase):
                     prog.setMessage("Interrupted")
                     return
                 else:
-                    prog.setFraction(1.0*(dict_index+1)/dict_size)
+                    prog.setFraction((dict_index+1)/dict_size)
                     prog.setMessage("Allocating point boundaries: %d/%d" 
                                     % (dict_index+1, dict_size))
             dict_index +=1
@@ -2143,7 +2149,6 @@ class Skeleton(SkeletonBase):
 
         
         # Edge boundaries.
-        
         for bdkey, edgebndy in self.edgeboundaries.items():
             edgebndy.sequence()
             realbndy = realmesh.newEdgeBoundary(bdkey)
@@ -2174,13 +2179,13 @@ class Skeleton(SkeletonBase):
                 realn1 = realel.getCornerNode(
                     skelel.getNodeIndexIntoList(edge_nodes[1]) )
 
-
                 realbndy.addEdge(realel.getBndyEdge(realn0,realn1))
+                
                 if prog.stopped():
                     prog.setMessage("Interrupted")
                     return
                 else:
-                    prog.setFraction(1.0*(dict_index+1)/dict_size)
+                    prog.setFraction((dict_index+1)/dict_size)
                     prog.setMessage("Allocating edge boundaries: %d/%d"
                                      % (dict_index+1, dict_size))
             dict_index +=1
@@ -2204,9 +2209,9 @@ class Skeleton(SkeletonBase):
         else:
             self.createInterfaceElementsFromInterface(interface_seg_dict, 
                                                       realmesh, el2)
-
         prog.finish()
         return realmesh
+    # end Skeleton.femesh()
 
     # Interfaces are fundamentally defined in the microstructure, as
     # existing between different materials, or surrounding certain
@@ -2245,7 +2250,7 @@ class Skeleton(SkeletonBase):
                     seglist)
                 if len(seg_seq)==0:
                     #Don't expect this to happen
-                    raise ooferror.ErrPyProgrammingError(
+                    raise ooferror.PyErrPyProgrammingError(
                         "Got empty sequenced segment list!")
                 iels = interfacedef.getAdjacentElements(seg_seq[0],skelctxt)
                 if iels:
@@ -2268,7 +2273,7 @@ class Skeleton(SkeletonBase):
                         if iels.right.nodesInOrder(node_seq[0],node_seq[1]):
                             seg_seq.reverse()
                 else:
-                    raise ooferror.ErrPyProgrammingError(
+                    raise ooferror.PyErrPyProgrammingError(
                         "Expecting this segment to be part of the interface!")
             except skeletonsegment.SequenceError:
                 #Non-sequenceable
@@ -2300,7 +2305,7 @@ class Skeleton(SkeletonBase):
                             sn0=seg.get_nodes()[0]
                             sn1=seg.get_nodes()[1]
                 else:
-                    raise ooferror.ErrPyProgrammingError(
+                    raise ooferror.PyErrPyProgrammingError(
                         "Expecting this segment to be part of the interface!")
                 realel = realmesh.getElement(skelel.meshindex)
                 realn0 = realel.getCornerNode(skelel.getNodeIndexIntoList(sn0))
@@ -2521,7 +2526,7 @@ class Skeleton(SkeletonBase):
         while len(interfacesegments)>0:
             #Now starting at startsegment, get the 'fan' of adjacent elements
             #until we encounter the next interface segment.
-            while 1:
+            while True:
                 if skelelem==startelement:
                     return numzones-1
                 nextsegment=startelement.getOppositeSegment(skelnode,
@@ -2544,7 +2549,7 @@ class Skeleton(SkeletonBase):
                     numzones+=1
                     break
         if isExteriorNode:
-            raise ooferror.ErrPyProgrammingError("This shouldn't happen!")
+            raise ooferror.PyErrPyProgrammingError("This shouldn't happen!")
         return numzones-1
 
     def countInterfaceZonesAtNode(self,skelnode,seg_dict):
@@ -2667,22 +2672,19 @@ class Skeleton(SkeletonBase):
                                                     matname, seg_dict):
         skelbdy.sequence() #Should have been sequenced by this point
         bdylength=len(skelbdy.edges)
-        for i in xrange(0,bdylength):
+        for i in range(bdylength):
             skeledge=skelbdy.edges[i]
             # NOTE: skeledge.get_nodes() returns the nodes in the
             # order indicated by skeledge.direction.
             # skeledge.segment.get_nodes() returns the nodes already
-             # in canonical order (see skeletonsegment.py)
+            # in canonical order (see skeletonsegment.py)
             segkey=skeledge.segment.get_nodes()
             els=skeledge.segment.getElements()
             if len(els) == 1:
-                #seg_dict[segkey]=(matname,els[0],bdkey)
                 if els[0].nodesInOrder(*skeledge.get_nodes()):
-                    #seg_dict[segkey]=(matname,els[0],bdkey)
                     leftelem=els[0]
                     rightelem=None
                 else:
-                    #seg_dict[segkey]=(matname,els[1],bdkey)
                     leftelem=None
                     rightelem=els[0]
             else:
@@ -2702,11 +2704,9 @@ class Skeleton(SkeletonBase):
                 # (element e is to the 'left' of directed segment s)
                 #
                 if els[0].nodesInOrder(*skeledge.get_nodes()):
-                    #seg_dict[segkey]=(matname,els[0],bdkey)
                     leftelem=els[0]
                     rightelem=els[1]
                 else:
-                    #seg_dict[segkey]=(matname,els[1],bdkey)
                     leftelem=els[1]
                     rightelem=els[0]
             try:
@@ -2729,10 +2729,7 @@ class Skeleton(SkeletonBase):
         # edict[n] is the n-sided master element.  Find the
         # interpolation order of the elements.  They all have the same
         # order, so just pick one.
-        
-        #order = edict[edict.keys()[0]].fun_order()
-        #This should do the same thing
-        order = edict.values()[0].fun_order()
+        order = next(iter(edict.values())).fun_order()
 
         # set_materials is a function that will be called to assign
         # materials to elements.
@@ -2763,8 +2760,8 @@ class Skeleton(SkeletonBase):
             nfuncnodes += nels[n]*masterelem.ninteriorfuncnodes()
         realmesh.reserveFuncNodes(nfuncnodes)
 
-        masterel = edict[edict.keys()[0]]
-        n_map_per_side = masterel.nexteriormapnodes_only()/masterel.nsides()
+        masterel = next(iter(edict.values())) 
+        n_map_per_side = masterel.nexteriormapnodes_only()//masterel.nsides()
         nmapnodes = len(self.segments)*n_map_per_side
         for n, masterelem in edict.items():
             nmapnodes += nels[n]*masterelem.ninteriormapnodes_only()
@@ -2788,7 +2785,7 @@ class Skeleton(SkeletonBase):
             #cur.setMeshIndex(realnode.index())
             if prog.stopped():
                 return
-            prog.setFraction(1.0*(i+1)/mnodecount)
+            prog.setFraction((i+1)/mnodecount)
             prog.setMessage("Allocated %d/%d nodes"%(i+1, mnodecount))
         
         # Loop over elements.
@@ -2807,7 +2804,7 @@ class Skeleton(SkeletonBase):
                 edict, set_materials)
             if prog.stopped():
                 return
-            prog.setFraction(1.0*(mesh_idx+1)/numelements)
+            prog.setFraction((mesh_idx+1)/numelements)
             prog.setMessage("Allocated %d/%d elements"
                             % (mesh_idx+1, numelements))
 
@@ -2824,7 +2821,7 @@ class Skeleton(SkeletonBase):
                 realbndy.addNode(fe_node[node]) # Preserve order of nodes.
                 if prog.stopped():
                     return
-                prog.setFraction(1.0*(dict_index+1)/dict_size)
+                prog.setFraction((dict_index+1)/dict_size)
                 prog.setMessage("Allocated %d/%d point boundaries" 
                                 % (dict_index+1, dict_size))
             dict_index +=1
@@ -2845,7 +2842,7 @@ class Skeleton(SkeletonBase):
                 realbndy.addEdge(realel.getBndyEdge(realn0,realn1))
                 if prog.stopped():
                     return
-                prog.setFraction(1.0*(dict_index+1)/dict_size)
+                prog.setFraction((dict_index+1)/dict_size)
                 prog.setMessage("Allocated %d/%d edge boundaries"
                                 % (dict_index+1, dict_size))
             dict_index +=1
@@ -2854,6 +2851,53 @@ class Skeleton(SkeletonBase):
 ########################## end femesh_shares ###############################
 
 ## end of class Skeleton
+
+########################################################################
+
+# SkeletonIterator classes are used for iterating over the elements of
+# a Skeleton or a subset of them.  
+
+class SkeletonIterator(progress.ProgressIterator):
+    def __init__(self, skeleton, condition=None):
+        self.skeleton = skeleton
+        progress.ProgressIterator.__init__(self, condition)
+                
+class SkeletonNodeIterator(SkeletonIterator):
+    def ntotal(self):
+        return self.skeleton.nnodes()
+    def targets(self):
+        return self.skeleton.nodes
+    
+class SkeletonElementIterator(SkeletonIterator):
+    def ntotal(self):
+        return self.skeleton.nelements()
+    def targets(self):
+        return self.skeleton.elements
+
+class SkeletonSegmentIterator(SkeletonIterator):
+    def ntotal(self):
+        return self.skeleton.nsegments()
+    def targets(self):
+        return self.skeleton.segments.values()
+
+class SkeletonSegmentGroupIterator(SkeletonIterator):
+    # Takes a SkeletonContext arg, not a Skeleton!
+    def __init__(self, context, groupname, condition=lambda x: True):
+        self.group = context.segmentgroups.get_group(groupname)
+        SkeletonIterator.__init__(self, context.getObject(), condition)
+    def targets(self):
+        return self.group
+    def ntotal(self):
+        return len(self.group)
+
+class SkeletonElementGroupIterator(SkeletonIterator):
+    def __init__(self, context, groupname, condition=lambda x: True):
+        self.group = context.elementgroups.get_group(groupname)
+        SkeletonIterator.__init__(self, context.getObject(), condition)
+    def targets(self):
+        return self.group
+    def ntotal(self):
+        return len(self.group)
 
 ########################################################################
 
@@ -2894,11 +2938,6 @@ def simpleSkeleton(name, ms, nx, ny, skeleton_geometry):
 
 ###########################
 
-## TODO: Remove the 'skeleton' argument in all ProvisionalChanges
-## methods, because self.skeleton can now be used instead.  It's
-## probably necessary to give DeputyProvisionalChanges a self.skeleton
-## as well.
-
 class ProvisionalChanges:
     def __init__(self, skeleton):
         self.skeleton = skeleton        # Skeleton object. Not context.
@@ -2914,19 +2953,19 @@ class ProvisionalChanges:
     def __repr__(self):
         s = self.__class__.__name__ + "("
         if self.removed:
-            s += "\n    removed=" + `self.removed`
+            s += "\n    removed=" + repr(self.removed)
         if self.inserted:
-            s += "\n    inserted=" + `self.inserted`
+            s += "\n    inserted=" + repr(self.inserted)
         if self.substitutions:
-            s += "\n    substitutions=" + `self.substitutions`
+            s += "\n    substitutions=" + repr(self.substitutions)
         if self.seg_subs:
-            s += "\n    seg_subs=" + `self.seg_subs`
+            s += "\n    seg_subs=" + repr(self.seg_subs)
         if self.movednodes:
-            s += "\n    movednodes=" + `self.movednodes`
+            s += "\n    movednodes=" + repr(self.movednodes)
         s += ")"
         return s
     
-    def removeAddedNodes(self, skeleton):
+    def removeAddedNodes(self):
         # redefined by subclasses that add nodes
         pass
             
@@ -2962,7 +3001,7 @@ class ProvisionalChanges:
         # substitution of one element for another.
         self.seg_subs[old] = new
 
-    def moveNode(self, node, position, mobility=(1,1)):
+    def moveNode(self, node, position, mobility=(True,True)):
         self.movednodes.append(
             self.MoveNode(node=node, position=position, mobility=mobility))
 
@@ -2987,80 +3026,57 @@ class ProvisionalChanges:
                         self.after.append(nbr)
         return self.after
 
-    def makeNodeMove(self, skeleton):
+    def makeNodeMove(self):
         for mvnode in self.movednodes:
             mvnode.node.moveTo(mvnode.position)
 
-    def moveNodeBack(self, skeleton):
+    def moveNodeBack(self):
         for mvnode in self.movednodes:
             mvnode.node.moveBack()        
 
-    def illegal(self, skeleton):
+    def illegal(self):
         # Will this change produce any illegal elements?
-        self.makeNodeMove(skeleton) # Move nodes to simulate the change
+        self.makeNodeMove()     # Move nodes to simulate the change
         try:
             # Check elements
             for element in self.elAfter():
                 if element.illegal():
                     return True
         finally:
-            self.moveNodeBack(skeleton) # Move nodes back
+            self.moveNodeBack() # Move nodes back
         return False
 
-    def deltaE(self, skeleton, alpha):
+    def deltaE(self, alpha):
         # Return the change in energy per element if this move were to
         # be accepted.
         if self.cachedDeltaE is None:
             # Energy before the change
             oldE = 0.0
             for element in self.elBefore():
-                oldE += element.energyTotal(skeleton, alpha)
+                oldE += element.energyTotal(self.skeleton, alpha)
             oldE /= len(self.elBefore())
             # Move nodes accordingly to simulate the change
-            self.makeNodeMove(skeleton)
+            self.makeNodeMove()
             # Energy after the change
             newE = 0.0
             for element in self.elAfter():
                 # TODO OPT?: perhaps using cachedHomogeneities as in
                 # the deputy would be helpful here too
-                newE += element.energyTotal(skeleton, alpha)
+                newE += element.energyTotal(self.skeleton, alpha)
             newE /= len(self.elAfter())
             # Move node back
-            self.moveNodeBack(skeleton)
-            # Energy differnce due to the change
+            self.moveNodeBack()
+            # Energy difference due to the change
             self.cachedDeltaE = newE - oldE
         return self.cachedDeltaE
 
-    def deltaEBound(self, skeleton, alpha):
-        # TODO: Obsolete?  Can't find a caller for this.
-        # Return the maximum possible deltaE -- assuming all elements
-        # become homogenous after the change
-        if self.cachedDeltaEBound is None:
-            # Energy before the change
-            oldE = 0.0
-            for element in self.elBefore():
-                oldE += element.energyTotal(self.skeleton, alpha)
-            oldE /= len(self.elBefore())
-            # Move nodes accordingly to simulate the change
-            self.makeNodeMove(self.skeleton)
-            # Energy after the change
-            newE = 0.0
-            for element in self.elAfter():
-                newE += (1.-alpha)*element.energyShape()+alpha
-            newE /= len(self.elAfter())
-            # Move node back
-            self.moveNodeBack(self.skeleton)
-            # Energy differnce due to the change
-            self.cachedDeltaEBound = newE - oldE        
-        return self.cachedDeltaEBound
-            
-    def accept(self, skeleton):
+    def accept(self):
         # Create actual elements to replace the provisional ones.  The
         # actual elements replace their predecessors in the
         # ProvisionalChanges object, so that they're available to the
         # calling routine.
-        ## TODO: Remove argument and use self.skeleton instead?
-        self.inserted = [element.accept(skeleton) for element in self.inserted]
+        self.inserted = [element.accept(self.skeleton)
+                         for element in self.inserted]
         for mvnode in self.movednodes:
             mvnode.node.moveTo(mvnode.position)
             if mvnode.mobility:
@@ -3068,10 +3084,10 @@ class ProvisionalChanges:
                 mvnode.node.setMobilityY(mvnode.mobility[1])
         for pair in self.substitutions:
             old, new = pair
-            newelement = new.accept(skeleton)
+            newelement = new.accept(self.skeleton)
             pair[1] = newelement
-            oldsegments = old.getSegments(skeleton)
-            newsegments = newelement.getSegments(skeleton)
+            oldsegments = list(old.getSegments(self.skeleton))
+            newsegments = list(newelement.getSegments(self.skeleton))
             assert len(oldsegments) == len(newsegments)
             for oldseg, newseg in zip(oldsegments, newsegments):
                 for parent in oldseg.getParents():
@@ -3080,15 +3096,15 @@ class ProvisionalChanges:
             # Call Skeleton.removeElements only *after* the segment
             # parents have been reestablished, because removing the
             # elements may remove the segments from the skeleton.
-            skeleton.removeElements(old)
+            self.skeleton.removeElements(old)
         for old in self.seg_subs:
             new_segs = self.seg_subs[old]
             for node0, node1 in new_segs:
-                new = skeleton.getSegment(node0, node1)
+                new = self.skeleton.getSegment(node0, node1)
                 for parent in old.getParents():
                     new.add_parent(parent)
                     parent.add_child(new)
-        skeleton.removeElements(*self.removed)
+        self.skeleton.removeElements(*self.removed)
 
 class ProvisionalInsertion(ProvisionalChanges):
     def __init__(self, skeleton):
@@ -3098,27 +3114,25 @@ class ProvisionalInsertion(ProvisionalChanges):
     def addNode(self, node):
         self.addedNodes.append(node)
         
-    def removeAddedNodes(self, skeleton):
-        ## TODO: Remove argument and use self.skeleton instead?
+    def removeAddedNodes(self):
         for n in self.addedNodes:
-            n.destroy(skeleton)
+            n.destroy(self.skeleton)
 
 class ProvisionalMerge(ProvisionalChanges):
     def __init__(self, skeleton, node0, node1):
         ProvisionalChanges.__init__(self, skeleton)
         self.node0 = node0
         self.node1 = node1
-    def accept(self, skeleton):
-        ## TODO: Remove argument and use self.skeleton instead?
+    def accept(self):
         self.node0.makeSibling(self.node1)
-        ProvisionalChanges.accept(self, skeleton)
+        ProvisionalChanges.accept(self)
 
 class ProvisionalMerges(ProvisionalChanges):
     def __init__(self, skeleton, *pairs):
         ProvisionalChanges.__init__(self, skeleton)
         self.pairs = pairs
-    def accept(self, skeleton):
+    def accept(self):
         for pair in self.pairs:
             pair[0].makeSibling(pair[1])
-        ProvisionalChanges.accept(self, skeleton)
+        ProvisionalChanges.accept(self)
 

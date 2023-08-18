@@ -12,14 +12,12 @@
 #ifndef RANK3TENSOR_SWG
 #define RANK3TENSOR_SWG
 
-%module rank3tensor
-%include "engine/typemaps.swg"
+%module(package="ooflib.SWIG.engine") rank3tensor
+%include "common/typemaps.swg"
 
 %{
 #include "engine/rank3tensor.h"
 %}
-
-%pragma(python) include="engine/rank3tensor.spy"
 
 class Rank3Tensor {
 public:
@@ -43,5 +41,7 @@ public:
     }
   } 
 };
+
+%pythoncode "engine/rank3tensor.spy"
 
 #endif // RANK3TENSOR_SWG

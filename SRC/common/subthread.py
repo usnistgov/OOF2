@@ -21,13 +21,13 @@ from ooflib.SWIG.common import threadstate
 from ooflib.common import debug
 from ooflib.common import excepthook
 from ooflib.common import thread_enable
-import exceptions
+from ooflib.common import ooferrorwrappers
 import sys
 import threading
 
-class StopThread(exceptions.Exception):
+class StopThread(Exception):
     def __init__ (self):
-        exceptions.Exception.__init__(self)
+        Exception.__init__(self)
     
 
 class MiniThread(threading.Thread):
@@ -44,21 +44,23 @@ class MiniThread(threading.Thread):
         self.immortal = True
         
     def run(self):
+        from ooflib.common.IO import reporter
         miniThreadManager.add(self)
         try:
             try:
                 self.threadstate = threadstate.ThreadState()
-#                 debug.fmsg("assigning excepthook, function=", self.function)
                 hook = excepthook.assign_excepthook(excepthook.OOFexceptHook())
                 self.function(*self.args, **self.kwargs)
                 excepthook.remove_excepthook(hook)
             except StopThread:
                 excepthook.remove_excepthook(hook)
                 return
-            # TODO SWIG1.3: After conversion to SWIG 1.3, OOF
-            # exceptions will probably be subclasses of Exception.
-            except (Exception, ooferror.ErrErrorPtr), exception:
-                from ooflib.common.IO import reporter
+            except ooferrorwrappers.PyOOFError as exception:
+                debug.fmsg("Caught a PyOOFError!", exception, type(exception))
+                reporter.error(exception.cexcept)
+                sys.excepthook(*sys.exc_info())
+            except Exception as exception:
+                debug.fmsg("Caught something else!")
                 reporter.error(exception)
                 sys.excepthook(*sys.exc_info())
         finally:

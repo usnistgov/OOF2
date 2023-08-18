@@ -8,33 +8,20 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##
-##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##
-##                                                                      ##
-##   NOTE: Because this file is imported by properties.swg, not         ##
-##   property.swg (due to an unfortunate historical accident) the       ##
-##   setup.py script doesn't notice if it's been edited.  If you edit   ##
-##   this file, you will have to force setup.py to run swig on          ##
-##   properties.swg.  You can easily do that by removing                ## 
-##   SRC/SWIG2D/engine/properties*.                                     ## 
-##                                                                      ##
-##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##
-##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##
-
 from ooflib.common import debug
 
-# Add class data to the PropertyPtr class.  The "registry" data member
+# Add class data to the Property class.  The "registry" data member
 # is used by the Registration class to muck about with parameters and
 # so forth.
 
-PropertyPtr.registry = []
+Property.registry = []
 
 def _Property___eq__(self, other):
-    if isinstance(other, PropertyPtr) and other.this == self.this:
+    if isinstance(other, Property) and other.this == self.this:
         return 1
     return 0
 
-PropertyPtr.__eq__ = _Property___eq__
+Property.__eq__ = _Property___eq__
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -51,7 +38,7 @@ def _Property_bookkeeping(self, material):
     for propertyoutput in self.registration().outputs():
         material.registerOutput(self, propertyoutput)
     
-PropertyPtr.bookkeeping = _Property_bookkeeping
+Property.bookkeeping = _Property_bookkeeping
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -78,7 +65,7 @@ def _Property_is_active(self, subproblem):
                 return True
     return False
 
-PropertyPtr.is_active = _Property_is_active
+Property.is_active = _Property_is_active
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -87,4 +74,4 @@ PropertyPtr.is_active = _Property_is_active
 def _Property_is_nonlinear(self, fields):
     return self.registration().nonlinear(fields)
 
-PropertyPtr.is_nonlinear = _Property_is_nonlinear
+Property.is_nonlinear = _Property_is_nonlinear

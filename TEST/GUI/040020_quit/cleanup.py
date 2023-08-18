@@ -15,6 +15,5 @@
 # instead of in log.py.  It's checking to see if the python log is
 # saved correctly from the quit dialog box.
 
-import filecmp
-import os
-assert filecmp.cmp("session.log", os.path.join(directory, "session.log"))
+from generics import *
+assert filediff("session.log", tolerance=0.)

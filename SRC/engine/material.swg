@@ -12,49 +12,150 @@
 #ifndef MATERIAL_SWG
 #define MATERIAL_SWG
 
-%module material
-%include "engine/typemaps.swg"
+%module(package="ooflib.SWIG.engine") material
+
+%include "common/typemaps.swg"
 %include "common/canvasimage.swg"
+%import "common/abstractimage.swg"
+%import "common/ccolor.swg"
+%import "common/coord.swg"
+%import "common/pixelattribute.swg"
+%import "common/timestamp.swg"
+%import "engine/property.swg"
+
 %{
+#include "common/ccolor.h"
+#include "common/coord.h"
+#include "common/pixelgroup.h"
 #include "engine/csubproblem.h"
 #include "engine/element.h"
 #include "engine/material.h"
 #include "engine/property.h"
-#include "common/pixelgroup.h"
-#include "common/ccolor.h"
-typedef const std::string MaterialType;
+typedef std::string MaterialType;
 %}
 
-%pragma(python) include="engine/material.spy"
-%extern "common/pixelattribute.swg"
-%pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
-%extern "common/timestamp.swg"
-%pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr;"
-%extern "engine/femesh.swg"
-%extern "common/abstractimage.swg"
-%pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
-   
-%typemap(python, out) Property* {
-  // typemap(python, out) Property*
-  $target = $source->pythonObject();
-  if(!$target)
-    return 0;
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// get the getMaterial python function
+
+%define GET_GETMATERIAL()
+  static PyObject *getMaterial = 0;
+  if(!getMaterial) {
+    PyObject *module = PyImport_ImportModule("ooflib.engine.materialmanager");
+    getMaterial = PyObject_GetAttrString(module, "getMaterial");
+    Py_XDECREF(module);
+    if(!getMaterial) {
+      PyErr_SetString(PyExc_RuntimeError,
+		      "in '$symname', could not find 'getMaterial'");
+      SWIG_fail;
+    }
+    Py_XINCREF(getMaterial);
+  }
+%enddef
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// When a Material* is returned from C++ to Python, the swigged
+// Material that's returned isn't the same Python object as the
+// Material that was created initially.  This typemap uses the
+// Material's name and the MaterialManager to fetch the original
+// Material object.
+
+%typemap(out) Material* {
+    // typemap(out) Material*
+  GET_GETMATERIAL();
+  if($1) {
+    // call getMaterial()
+    $result = PyObject_CallFunction(getMaterial, "(s)", $1->name().c_str());
+    // If the material manager can't find the Material, then we're
+    // still in the process of building it.  getMaterial will have
+    // raised a KeyError, which we clear, and return the unmodified
+    // Material object.
+    if(!$result) {
+      if(PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_KeyError)) {
+	// we got a KeyError
+	PyErr_Clear();
+	$result = SWIG_NewPointerObj(SWIG_as_voidptr($1),
+				     $descriptor(Material*),
+				     0);
+      }
+      else {			// we got some other error
+	$result = 0;
+      }
+    }
+  }
+  else {
+    Py_INCREF(Py_None);
+    $result = Py_None;
+  }
+}
+
+%{
+  typedef std::vector<const Material*> MaterialVec;
+%}
+
+%typemap(out) MaterialVec* {
+   // typemap(out) MaterialVec*
+  GET_GETMATERIAL();
+  MaterialVec::size_type sz = $1->size();
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  $result = PyList_New((Py_ssize_t) sz);
+  for(std::vector<const Material*>::size_type i=0; i<$1->size(); i++) {
+    PyList_SET_ITEM(
+       $result, (Py_ssize_t) i,
+       PyObject_CallFunction(getMaterial, "(s)", (*$1)[i]->name().c_str()));
+  }
+}
+
+%typemap(newfree) MaterialVec* {
+  // typemap(newfree) MaterialVec*
+  delete $1;
+}
+
+%{
+#include "engine/materialset.h"
+#include "engine/material.h"
+%}
+
+%typemap(out) MaterialSet* {
+   // typemap(out) MaterialSet*
+  GET_GETMATERIAL();
+  $result = PySet_New(NULL);
+  for(auto i=$1->begin(); i!=$1->end(); ++i) {
+    PyObject *matl = PyObject_CallFunction(getMaterial, "(s)",
+					   (*i)->name().c_str());
+    // The return value of PyObject_CallFunction is NULL on failure...
+    if(!matl)
+      SWIG_fail;
+    // ... but the return value of PySet_Add is 0 on *success*.
+    int status = PySet_Add($result, matl);
+    if(status != 0) {
+      SWIG_fail;
+    }
+  }
+}
+
+%typemap(newfree) MaterialSet* {
+  // typemap(newfree) MaterialSet*
+  delete $1;
 }
 
 // Convert a std::string& to a MaterialType Enum
-%typemap(python, out) MaterialType {
-  // typemap(python, out) MaterialType*
-  static PyObject *MaterialTypeEnum = 0;
-  if(!MaterialTypeEnum) {
-    PyObject *module = PyImport_ImportModule("ooflib.SWIG.engine.material");
-    MaterialTypeEnum = PyObject_GetAttrString(module, "MaterialType");
-    Py_XDECREF(module);
-    if(!MaterialTypeEnum) return 0;
-    Py_XINCREF(MaterialTypeEnum);
-  }
-  PyObject *arglist = Py_BuildValue("(s)", $source->c_str());
-  $target = PyEval_CallObject(MaterialTypeEnum, arglist);
-  Py_XDECREF(arglist);
+%typemap(out) MaterialType {
+  // typemap(out) MaterialType
+  FETCH_CLASS(ooflib.engine.materialtype, MaterialType)
+  $result = PyObject_CallFunction(MaterialTypeClass, "(s)", $1.c_str());
+}
+
+%typemap(in) const std::string &MaterialType (std::string mt)
+{
+  // typemap(in) const std::string &MaterialType
+  PyObject *smt = PyObject_CallMethod($input, "string", NULL);
+  PyObject *ustr = PyUnicode_AsEncodedString(smt, "UTF-8", "replace");
+  mt.assign(PyBytes_AsString(ustr));
+  $1 = &mt;
+  Py_XDECREF(ustr);
+  Py_XDECREF(smt);
 }
 
 class CMicrostructure;
@@ -65,9 +166,9 @@ class Property;
 class Material {
 public:
   //Interface branch
-  Material(char *name, char* materialtype);
+  Material(const std::string& , const std::string &MaterialType);
   ~Material();
-  const string &name();
+  const std::string &name();
   void rename(char *newname);
 
   //Interface branch
@@ -95,7 +196,8 @@ public:
   bool cleanAttributes(CMicrostructure*);
   bool replaceAttributes(CMicrostructure*, Material*);
 
-  void assignToPixels(CMicrostructure*, ICoordVec *iPointList);
+  // The IC
+  void assignToPixels(CMicrostructure*, std::vector<ICoord> *iPointList);
   void assignToPixelGroup(CMicrostructure*, PixelSet*);
   void assignToAllPixels(CMicrostructure*);
   int nPixelsInMicrostructure(CMicrostructure*);
@@ -106,7 +208,8 @@ public:
   MaterialAttributeRegistration();
 };
 
-%new MaterialVec *getMaterials(CMicrostructure*);
+%newobject getMaterials;
+MaterialVec *getMaterials(CMicrostructure*);
 Material *getMaterialFromCategory(CMicrostructure*, int);
 Material *getMaterialFromPoint(CMicrostructure*, ICoord *iPoint);
 void removeMaterialFromPixels(CMicrostructure*, PixelSet*);
@@ -116,9 +219,9 @@ TimeStamp getMaterialTimeStamp(CMicrostructure*);
 class MaterialImage : public AbstractImage {
 public:
   MaterialImage(CMicrostructure*, CColor*, CColor*);
-  NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 
-%typemap(python,out) Property*;
+%pythoncode "engine/material.spy"
 
 #endif // MATERIAL_SWG

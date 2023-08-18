@@ -9,12 +9,11 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef PIXELGROUP_H
 #define PIXELGROUP_H
 
-#include <Python.h>
+#include <oofconfig.h>
+
 #include "common/boolarray.h"
 #include "common/coord.h"
 #include "common/lock.h"
@@ -140,7 +139,6 @@ bool pixelGroupQueryPixel(const CMicrostructure&, const ICoord&,
 class PixelGroupAttributeRegistration : public PxlAttributeRegistration {
 private:
   static const std::string classname_;
-  static const std::string modulename_;
 public:
   PixelGroupAttributeRegistration();
   virtual ~PixelGroupAttributeRegistration() {}
@@ -148,7 +146,6 @@ public:
     return new GroupList();
   }
   virtual const std::string &classname() const { return classname_;}
-  virtual const std::string &modulename() const { return modulename_; }
 };
 
 #endif // PIXELGROUP_H

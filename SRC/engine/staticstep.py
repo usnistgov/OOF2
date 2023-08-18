@@ -11,7 +11,6 @@
 import sys
 
 from ooflib.SWIG.common import doublevec
-from ooflib.SWIG.engine import ooferror2
 from ooflib.SWIG.engine import sparsemat
 from ooflib.common import debug
 from ooflib.common import registeredclass

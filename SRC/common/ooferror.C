@@ -11,9 +11,10 @@
 
 #include <oofconfig.h>
 #include <iostream>
+#include "common/cdebug.h"
 #include "common/ooferror.h"
+#include "common/oofswigruntime.h"
 #include "common/pythonlock.h"
-#include "common/swiglib.h"
 #include "common/tostring.h"
 
 
@@ -32,67 +33,65 @@ ErrProgrammingError::ErrProgrammingError(const std::string &m,
 const std::string *ErrBadIndex::summary() const {
   const std::string *sum = ErrProgrammingErrorBase<ErrBadIndex>::summary();
   const std::string *equiv = new std::string(*sum  + " Bad Index: "
-					     + to_string(badindex));
+					     + tostring(badindex));
   delete sum;
   return equiv;
 }
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// Python equivalents 
-
-// Makes the most general assumption about the structure.
-const std::string ErrProgrammingError::pythonequiv() const {
-  return "ErrProgrammingError('" +
-    escapostrophe(msg) + "', '" + file + "', " +
-    to_string(line) + ")";
+const std::string &ErrProgrammingError::classname() const {
+  static std::string s("ErrProgrammingError");
+  return s;
 }
 
-const std::string ErrResourceShortage::pythonequiv() const {
-  return "ErrResourceShortage('" + escapostrophe(msg) + "')";
+const std::string &ErrPyProgrammingError::classname() const {
+  static std::string s("ErrPyProgrammingError");
+  return s;
 }
 
-
-const std::string ErrBoundsError::pythonequiv() const {
-  return "ErrBoundsError('" + escapostrophe(msg) + "')";
+const std::string &ErrResourceShortage::classname() const {
+  static std::string s("ErrResourceShortage");
+  return s;
 }
 
-
-const std::string ErrBadIndex::pythonequiv() const {
-  const std::string *sum = ErrProgrammingErrorBase<ErrBadIndex>::summary();
-  const std::string equiv = "ErrBadIndex('" + *sum + "')";
-  delete sum;
-  return equiv;
+const std::string &ErrBoundsError::classname() const {
+  static std::string s("ErrBoundsError");
+  return s;
 }
 
-const std::string ErrUserError::pythonequiv() const {
-  return "ErrUserError('" + escapostrophe(msg) + "')";
+const std::string &ErrBadIndex::classname() const {
+  static std::string s("ErrBadIndex");
+  return s;
 }
 
-const std::string ErrSetupError::pythonequiv() const {
-  return "ErrSetupError('" + escapostrophe(msg) + "')";
+const std::string &ErrUserError::classname() const {
+  static std::string s("ErrUserError");
+  return s;
 }
 
-const std::string ErrInterrupted::pythonequiv() const {
-  return "ErrInterrupted()";
+const std::string &ErrSetupError::classname() const {
+  static std::string s("ErrSetupError");
+  return s;
 }
 
-
-// Use basic_string functionality, to be all properly C++y, and
-// hopefully ensure that the functionality is robustly retained when
-// we switch over to Unicode.
-std::basic_string<char> escapostrophe(const std::string &in) {
-  // Make sure to work on a copy.
-  std::basic_string<char> out(in);
-
-  std::basic_string<char>::size_type p = out.find("'",0);
-  while(p!=std::basic_string<char>::npos) {
-    out.replace(p,1,"\\'");
-    p = out.find("'",p+2);
-  }
-  return out;
+const std::string &ErrInterrupted::classname() const {
+  static std::string s("ErrInterrupted");
+  return s;
 }
 
+const std::string &ErrNoProgress::classname() const {
+  static std::string s("ErrNoProgress");
+  return s;
+}
+
+const std::string &ErrDataFileError::classname() const {
+  static std::string s("ErrDataFileError");
+  return s;
+}
+
+const std::string &ErrWarning::classname() const {
+  static std::string s("ErrWarning");
+  return s;
+}
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -103,69 +102,68 @@ std::basic_string<char> escapostrophe(const std::string &in) {
 
 // pythonErrorRelay() should be called whenever C++ detects that a
 // Python exception has been raised in a Python API call.  It converts
-// the Python exception to a C++ exception if possible (ie, when the
-// Python exception is really a swigged C++ ErrError subclass).
-// Otherwise it just throws PythonError, which is caught by the swig
-// exception typemap.
+// the Python exception to a C++ exception if possible.  Otherwise it
+// just throws PythonError, which is caught by the swig exception
+// typemap.
 
 void pythonErrorRelay() {
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    PyObject *ptype;
-    PyObject *pvalue;
-    PyObject *ptraceback;
-    // PyErr_Fetch returns new references to its arguments.  It also
-    // clears the Python error state.
-    PyErr_Fetch(&ptype, &pvalue, &ptraceback);
-    if(ptype) {
-      // Get the swigged ErrError class, so that we can compare error
-      // types on the Python side.
-      static PyObject *pyErrError = 0;
-      if(!pyErrError) {
-	PyObject *module = PyImport_ImportModule((char*) 
-						 "ooflib.SWIG.common.ooferror");
-	pyErrError = PyObject_GetAttrString(module, (char*) "ErrErrorPtr");
-	Py_XDECREF(module);
-      }
-      if(PyErr_GivenExceptionMatches(ptype, pyErrError)) {
-	// The Python exception is a swigged ErrError -- ie, it's one of
-	// ours.  Extract the C++ object and raise it as a new
-	// exception.
-	const ErrError *ee;
-	SWIG_GetPtrObj(pvalue, (void**) &ee, "_ErrError_p");
-	Py_XDECREF(ptraceback);
-	Py_XDECREF(ptype);
-	// Don't decref pvalue! It will destroy *ee.
-	ee->throw_self();
-      }
-      else {
-	// The error is a native Python exception.  Since PyErr_Fetch
-	// cleared the error state, we have to call PyErr_Restore.
-	// The error will be caught again when C++ returns to Python,
-	// at which point the swig exception typemap will handle it.
-	// PyErr_Restore steals references to its arguments, so we
-	// don't have to decref here.
+  // pythonErrorRelay should be called inside a
+  // PYTHON_THREAD_BEGIN_BLOCK/PYTHON_THREAD_END_BLOCK block. 
 
-	// Mysterious crashes are sometimes due to python errors that
-	// don't propagate properly, perhaps because they're occuring
-	// within the thread handling machinery.  Uncommenting these
-	// lines can help to debug them:
-	// std::cerr << "pythonErrorRelay: " <<
-	//   PyString_AsString(PyObject_Repr(ptype)) << std::endl;
-	// std::cerr << "pythonErrorRelay: " <<
-	//   PyString_AsString(PyObject_Repr(pvalue)) << std::endl;
+  PyObject *ptype;
+  PyObject *pvalue;
+  PyObject *ptraceback;
+  // PyErr_Fetch returns new references to its arguments.  It also
+  // clears the Python error state.
+  PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+  if(ptype) {
+    // Get the ErrError class, so that we can compare error
+    // types on the Python side.
+    static PyObject *pyErrError = 0;
+    if(!pyErrError) {
+      PyObject *module = PyImport_ImportModule((char*) 
+					       "ooflib.SWIG.common.ooferror");
+      pyErrError = PyObject_GetAttrString(module, (char*) "ErrError");
+      assert(pyErrError!= 0);
+      Py_XDECREF(module);
+    }
+    if(PyObject_IsInstance(ptype, pyErrError)) {
+      //       PyErr_GivenExceptionMatches(ptype, pyErrError)) {
+      // The Python exception is a swigged ErrError -- ie, it's one of
+      // ours.  Extract the C++ object and raise it as a new
+      // exception.
+      const ErrError *ee;
+      PyObject *cexcept = PyObject_GetAttrString(pvalue, "cexcept");
+      assert(cexcept != 0);
+      SWIG_ConvertPtr(pvalue, (void**) &ee,
+		      ((SwigPyObject*) cexcept)->ty, 0);
+      // SWIG_GetPtrObj(pvalue, (void**) &ee, "_ErrError_p");
+      Py_XDECREF(ptraceback);
+      Py_XDECREF(ptype);
+      Py_XDECREF(cexcept);
+      // Don't decref pvalue! It will destroy *ee.
+      ee->throw_self();
+    }
+    else {
+      // The error is a native Python exception.  Since PyErr_Fetch
+      // cleared the error state, we have to call PyErr_Restore.  The
+      // error will be caught again when C++ returns to Python, at
+      // which point the swig exception typemap will handle it.
+      // PyErr_Restore steals references to its arguments, so we don't
+      // have to decref here.
 
-	PyErr_Restore(ptype, pvalue, ptraceback);
+      // Mysterious crashes are sometimes due to python errors that
+      // don't propagate properly, perhaps because they're occuring
+      // within the thread handling machinery.  Uncommenting these
+      // lines can help to debug them:
+      // std::cerr << "pythonErrorRelay: " << repr(ptype) << std::endl;
+      // std::cerr << "pythonErrorRelay: " << repr(pvalue) << std::endl;
 
-	throw PythonError();
-      }
-    } // end if ptype
-  }
-  catch (...) {
-    releasePyLock(pystate);
-    throw;
-  }
-  releasePyLock(pystate);
+      PyErr_Restore(ptype, pvalue, ptraceback);
+
+      throw PythonError();
+    }
+  } // end if ptype
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -180,6 +178,7 @@ PyObject *ErrError::pyconverter(0);
 // time.  Errors which occur prior to this import will not be handled
 // correctly.
 void pyErrorInit(PyObject *converter) {
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_XINCREF(converter);
   ErrError::pyconverter = converter;
 }

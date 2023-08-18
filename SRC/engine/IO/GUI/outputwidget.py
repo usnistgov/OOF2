@@ -17,6 +17,8 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 # Widgets for Parameters whose value is an Output (not the value of an

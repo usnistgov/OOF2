@@ -15,7 +15,6 @@
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import placeholder 
-import types
 
 class NodeGroupParameter(parameter.StringParameter):
     def valueDesc(self):
@@ -56,7 +55,7 @@ class SkeletonPointBoundaryParameter(parameter.StringParameter):
 # again for the purpose of having special widgets.
 
 class SkelGroupSelParameter(placeholder.PlaceHolderParameter):
-    types = (types.StringType, placeholder.selection)
+    types = (str, bytes, placeholder.selection)
 
 class NodeAggregateParameter(SkelGroupSelParameter):
     def valueDesc(self):

@@ -26,20 +26,20 @@ def meshInfoElementTBCheck(winname, index, elemtype, nodelist, material):
     indexwidget = gtklogger.findWidget(
         '%s:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInfo:index' % winname)
     if index != int(indexwidget.get_text()):
-        print >> sys.stderr, "meshInfoElementTBCheck: got %s, expected %d" % (
-            indexwidget.get_text(), index)
+        print("meshInfoElementTBCheck: got %s, expected %d" % (
+            indexwidget.get_text(), index), file=sys.stderr)
         return False
     etypewidget = gtklogger.findWidget(
         '%s:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInfo:type' % winname)
     if elemtype != etypewidget.get_text():
-        print >> sys.stderr, "meshInfoElementTBCheck: got %s, expected %s" % (
-            etypewidget.get_text(), elemtype)
+        print("meshInfoElementTBCheck: got %s, expected %s" % (
+            etypewidget.get_text(), elemtype), file=sys.stderr)
         return False
     matlwidget = gtklogger.findWidget(
         '%s:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInfo:material'%winname)
     if material != matlwidget.get_text():
-        print >> sys.stderr, "meshInfoElementTBCheck: got %s, expected %s" % (
-            matlwidget.get_text(), material)
+        print("meshInfoElementTBCheck: got %s, expected %s" % (
+            matlwidget.get_text(), material), file=sys.stderr)
         return False
     return chooserListCheck(
         '%s:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInfo:NodeList'%winname,

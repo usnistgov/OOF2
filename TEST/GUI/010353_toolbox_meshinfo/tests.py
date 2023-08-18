@@ -16,12 +16,12 @@ def dataWidgets(*widgetnames):
     # strip "Data:" from each name
     shortnames = [n[5:] for n in wnames]
     if len(shortnames) != len(widgetnames):
-        print "Wrong number of data widgets"
-        print shortnames
+        print("Wrong number of data widgets")
+        print(shortnames)
         return False
     for n in widgetnames:
         if n not in shortnames:
-            print "Unexpected widgetname:", n
-            print shortnames
+            print("Unexpected widgetname:", n)
+            print(shortnames)
             return False
     return True

@@ -18,6 +18,7 @@ class Equation;
 class Field;
 class FieldIndex;
 
+#include <string>
 #include <vector>
 
 class CConjugatePair {
@@ -30,6 +31,7 @@ public:
   CConjugatePair(const Equation *eqn, const FieldIndex *eqncomp,
 		 const Field *field, const FieldIndex *fieldcomp);
   const Field *get_field() const { return field_; }
+  const std::string &get_field_name() const;
   const FieldIndex *get_field_component() const { return fieldcomp_; }
   const Equation *get_equation() const { return eqn_; }
   const FieldIndex *get_equation_component() const { return eqncomp_; }

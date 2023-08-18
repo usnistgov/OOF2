@@ -14,7 +14,7 @@ from ooflib.SWIG.common import mpitools
 
 import sys
 
-CFiddleNodesMoveDataPtr.__repr__ = lambda self: "FiddleNodeMoveData(%d,%d,%g,%g,%d)" % (self.master, self.index, self.x, self.y)
+CFiddleNodesMoveData.__repr__ = lambda self: "FiddleNodeMoveData(%d,%d,%g,%g,%d)" % (self.master, self.index, self.x, self.y)
 
 def Iprobe_MoveData(origin=-1, tag=0):
     if mpitools.Iprobe(origin, tag):

@@ -12,17 +12,21 @@
 #ifndef NODE_SWG
 #define NODE_SWG
 
-%module node
-%include "engine/typemaps.swg"
-%extern "common/coord.swg"
-%extern "engine/field.swg"
-%extern "engine/pointdata.swg"
-%pragma(python) code="from ooflib.SWIG.engine.pointdata import PointDataPtr"
+%module(package="ooflib.SWIG.engine") node
+
+%include "common/typemaps.swg"
+%import "common/coord.swg"
+%import "engine/field.swg"
+%import "engine/pointdata.swg"
 
 %{
 #include "engine/node.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
-%pragma(python) include="engine/node.spy"
+
+PYTHONEXPORTABLE(Node);
+
+%nodefaultctor Node;
 
 class Node
 {
@@ -31,23 +35,29 @@ public:
 
   Coord position();
 
-  %new const string *ctor();
-  const string &classname();
+  %newobject ctor;
+  const std::string *ctor();
+  const std::string &classname();
   // int ndof();
   // int neqn();
 
-  %new StringVec *fieldNames();
+  %newobject fieldNames;
+  std::vector<std::string> *fieldNames();
+};
 
-  %addmethods {
-    double __getitem__(int i) {
-      return self->position()(i);
-    }
+%extend Node {
+  double __getitem__(int i) {
+    return self->position()(i);
   }
 };
+
+%nodefaultctor FuncNode;
 
 class FuncNode : public Node, public PointData {
 public:
   Coord displaced_position(FEMesh*);
 };
+
+%pythoncode "engine/node.spy"
 
 #endif // NODE_SWG

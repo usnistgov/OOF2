@@ -25,7 +25,11 @@ from ooflib.common.IO.GUI import fontselector
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import os
 
 ##########################
@@ -76,8 +80,9 @@ switchboard.requestCallbackMain('change fixed font', setFixedFontSize)
 
 ##############################
 
-themedirs = [Gtk.rc_get_theme_dir(),
-             os.path.join(os.path.expanduser("~"), ".themes")]
+themedirs = [
+    #Gtk.rc_get_theme_dir(),  ## deprecated!  Use GtkCssProvider instead
+    os.path.join(os.path.expanduser("~"), ".themes")]
 
 themes = []
 for dir in themedirs:

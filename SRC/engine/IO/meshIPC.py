@@ -26,9 +26,11 @@ from ooflib.common.IO import whoville
 from ooflib.SWIG.common import switchboard
 from ooflib.common.IO import reporter
 import ooflib.engine.mesh
-import string
 from ooflib.common import primitives
 from ooflib.common import debug
+from functools import reduce
+
+from ooflib.common.utils import stringjoin
 
 StringParameter = parameter.StringParameter
 
@@ -108,7 +110,7 @@ def collect_pieces(femesh):
     #  which are unique but may have gaps)
     nodedict = {}
     i = 0
-    for node in femesh.node_iterator():
+    for node in femesh.nodes():
         nodedict[node.index()] = i
         i += 1
 
@@ -127,7 +129,7 @@ def collect_pieces(femesh):
     myCoords = reduce(
         lambda x,y: x+y, [[nd.position().x,
                            nd.position().y]
-                          for nd in femesh.node_iterator()]
+                          for nd in femesh.nodes()]
         )
     
     coordSizes = [i*2 for i in nnodes]
@@ -145,14 +147,14 @@ def collect_pieces(femesh):
                   for i in range(_size) ]
     
     # element connectivity signature
-    myEConSigs = [len(el.perimeter()) for el in femesh.element_iterator()]
+    myEConSigs = [len(el.perimeter()) for el in femesh.elements()]
     #RCL: One gets this for allEConSigs: [[elnnodes0,elnnodes1,...],[elnnodes0',elnnodes1',...],...]
     allEConSigs = mpitools.Allgather_IntVec(myEConSigs, size_known=nelems)
 
     # element connectivity
     #RCL: nodedict must be a map to the 0-based indices of the nodes
     myECons = [ [nodedict[nd.index()] for nd in el.node_iterator()]
-                for el in femesh.element_iterator()]
+                for el in femesh.elements()]
     myECons = reduce(lambda x,y: x+y, myECons)
 
     #RCL: conSizes looks like [[elnnodes0+elnnodes1+...],[elnnodes0'+elnnodes1'+...],...]
@@ -260,7 +262,7 @@ def copyMesh_parallel(menuitem, mesh, name,
         newmesh.begin_writing()
         try:
             copiedmesh = skelpath+[copiedmeshname]
-            copiedmeshfullname = string.join(copiedmesh,":")
+            copiedmeshfullname = stringjoin(copiedmesh,":")
             for subpctxt in basemesh.subproblems():
                 subp = subpctxt.getObject()
                 newsubp = subpctxt.getObject().clone() # CSubProblem object
@@ -288,7 +290,7 @@ def copyMesh_parallel(menuitem, mesh, name,
             if copy_field:
                 for field in newmesh.all_compound_subproblem_fields():
                     if basemesh.femesh().in_plane(field):
-                        newmesh.set_in_plane_field(field, 1)
+                        newmesh.set_in_plane_field(field, True)
                         notifications.append(("field inplane",
                                               copiedmeshfullname, field.name(),
                                               1))
@@ -453,7 +455,7 @@ def parallel_inPlaneField(menuitem, mesh, field):
     meshcontext.reserve()
     meshcontext.begin_writing()
     try:
-        meshcontext.set_in_plane_field(field, 1)
+        meshcontext.set_in_plane_field(field, True)
     finally:
         meshcontext.end_writing()
         meshcontext.cancel_reservation()
@@ -465,7 +467,7 @@ def parallel_outOfPlaneField(menuitem, mesh, field):
     meshcontext.reserve()
     meshcontext.begin_writing()
     try:
-        meshcontext.set_in_plane_field(field, 0)
+        meshcontext.set_in_plane_field(field, False)
     finally:
         meshcontext.end_writing()
         meshcontext.cancel_reservation()
@@ -733,12 +735,12 @@ def parallel_mesh_info_query(menuitem, targetname, position, mesh):
                     reportsubpfields.append(8*" "+subpctxt.name())
                     for field in subpctxt.all_compound_fields():
                         if subp.is_active_field(field):
-                            reportsubpfields.append(12*" "+`field`)
+                            reportsubpfields.append(12*" "+repr(field))
                             #The hasField check is redundant because of containsNode above.
                             if fnode.hasField(field):
                                 for i in range(field.ndof()):
                                     reportsubpfields.append(16*" "+("%g" % field.value(fnode,i)))
-            reportstring+=string.join(reportsubpfields,"\n")
+            reportstring+=stringjoin(reportsubpfields,"\n")
 
         if _rank==0:
             #Get list of squares of distance of node to the click point
@@ -792,7 +794,7 @@ def parallel_mesh_info_query(menuitem, targetname, position, mesh):
     nodes=%s
     material=%s\n""" % (felem.masterelement().name(),
                         felem.get_index(),
-                        string.join(["%s %d at (%g, %g)" % 
+                        stringjoin(["%s %d at (%g, %g)" % 
                                      (obj.classname(), obj.index(),
                                       obj.position().x, obj.position().y)
                                      for obj in felem.node_iterator()],","),
@@ -806,13 +808,13 @@ def parallel_mesh_info_query(menuitem, targetname, position, mesh):
                     reportsubpfields.append(8*" "+subpctxt.name())
                     for field in subpctxt.all_compound_fields():
                         if subp.is_active_field(field):
-                            reportsubpfields.append(12*" "+`field`)
+                            reportsubpfields.append(12*" "+repr(field))
                             masterpos=felem.to_master(position)
                             o=felem.outputField(field,masterpos)
                             valuelist=o.valuePtr().value_list()
                             for val in valuelist:
-                                reportsubpfields.append(16*" "+`val`)
-                reportstring+=string.join(reportsubpfields,"\n")
+                                reportsubpfields.append(16*" "+repr(val))
+                reportstring+=stringjoin(reportsubpfields,"\n")
 
         if _rank==0:
             distance2list=[distance2]

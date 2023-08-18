@@ -11,19 +11,22 @@
 ## This file contains the API for gtk_logger.  Nothing outside of this
 ## file should have to be explicitly called by users.
 
+## TODO PYTHON3: The loggergui appears to be receiving bytes instead
+## of str.  Is that due to the way the pipe is opened?  The way that
+## data is put into the pipe?  The way it's being read?
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 import atexit
 import os
-import string
 import subprocess
 import sys
-import types
 import weakref
 
-import loggers
-import logutils
+from . import loggers
+from . import logutils
 
-_allexceptions = [Exception]
 _process = None
 
 def start(filename, debugLevel=2, suppress_motion_events=True,
@@ -33,24 +36,25 @@ def start(filename, debugLevel=2, suppress_motion_events=True,
     _suppress_motion_events = suppress_motion_events
     if logutils.recording():
         logutils.logfile().close()
+
     try:
         if comment_gui:
             # Open a pipe to the loggergui process for inserting
             # comments into the output stream.  The pipe is
             # line-buffered so that comments appear in the right
             # places.
-            from GUI import loggergui
+            from .GUI import loggergui
             guifile = os.path.abspath(loggergui.__file__)
             global _process
             _process = subprocess.Popen(
-                ["python",
-                 "-u",          # unbuffered stdin on the subprocess
+                [sys.executable, # this version of python
+                 "-u",           # unbuffered stdin on the subprocess
                  guifile, filename
                  ],
                 bufsize=1, # 0 means unbuffered, 1 means line buffered
                 stdin=subprocess.PIPE)
             logutils.set_logfile(_process.stdin)
-        elif type(filename) is types.StringType:
+        elif isinstance(filename, (str, bytes, os.PathLike)):
             logutils.set_logfile(open(filename, "w"))
         else:                   # filename is assumed to be a file
             logutils.set_logfile(filename)
@@ -95,9 +99,6 @@ def dont_log_motion_events(widget=None):
 
 def suppress_motion_events(widget=None):
     return logutils.suppress_motion_events()
-
-def add_exception(excclass):
-    logutils.add_exception(excclass)
 
 ##################################
 
@@ -214,7 +215,7 @@ def connect_passive_after(obj, signal, *args, **kwargs):
         )
 
 
-class CallBackWrapper(object):
+class CallBackWrapper:
     def __init__(self, signal, callback=None, logger=None):
         self.callback = callback
         self.signal = signal
@@ -238,13 +239,16 @@ class GUISignals:
             widget.connect('destroy', self.destroyCB)
     def block(self):
         if self.alive:
-            map(self.widget().handler_block, self.signals)
+            for s in self.signals:
+                self.widget().handler_block(s)
     def unblock(self):
         if self.alive:
-            map(self.widget().handler_unblock, self.signals)
+            for s in self.signals:
+                self.widget().handler_unblock(s)
     def disconnect(self):
         if self.alive:
-            map(self.widget().disconnect, self.signals)
+            for s in self.signals:
+                self.widget.disconnect(s)
         self.signals = ()
     def destroyCB(self, *args):
         self.alive = False
@@ -271,7 +275,7 @@ class Dialog(Gtk.Dialog):
         # Just to be nice to the programmer, turn on logging for the
         # buttons automatically.  Perhaps this should be optional.
         button = super(Dialog, self).add_button(name, response_id)
-        assert type(name) is types.StringType
+        assert isinstance(name, bytes)
         setWidgetName(button, name)
         connect_passive(button, 'clicked')
         return button
@@ -304,7 +308,7 @@ def newPopupMenu(name=None, **kwargs):
     if name:
         pname = name
     else:
-        pname = 'PopUp-'+`popupCount`
+        pname = 'PopUp-'+repr(popupCount)
         popupCount += 1
     newTopLevelWidget(menu, pname)
     # When recording a gui log file, it's necessary to log the
@@ -330,13 +334,15 @@ def logScrollBars(window, name=None):
     assert isinstance(window, Gtk.ScrolledWindow)
     if name is not None:
         setWidgetName(window, name)
-    adoptGObject(window.get_hadjustment(), window,
-                 access_method=window.get_hadjustment)
-    adoptGObject(window.get_vadjustment(), window,
-                 access_method=window.get_vadjustment)
+    adoptGObject(window.get_property('hadjustment'), window,
+                 access_method=window.get_property,
+                 access_args=('hadjustment',))
+    adoptGObject(window.get_property('vadjustment'), window,
+                 access_method=window.get_property,
+                 access_args=('vadjustment',))
     return (
-        connect_passive(window.get_hadjustment(), 'value-changed'),
-        connect_passive(window.get_vadjustment(), 'value-changed'))
+        connect_passive(window.get_property('hadjustment'), 'value-changed'),
+        connect_passive(window.get_property('vadjustment'), 'value-changed'))
 
 
 
@@ -347,7 +353,7 @@ def sanity_check(widget, path=[]):
     widgetname = logutils.getWidgetName(widget)
     if widgetname:
         path = path + [widgetname]
-        if logutils.findWidget(string.join(path, ':')) is not widget:
+        if logutils.findWidget(':'.join(path)) is not widget:
             raise ValueError("%s is not a unique widget name" % path)
 #         else:
 #             print "ok:", path, widget.__class__.__name__
@@ -364,6 +370,6 @@ def comprehensive_sanity_check():
 # Insert a comment in the log file.
 def comment(*args):
     if logutils.recording():
-        print >> logutils.logfile(), ' '.join(map(str, ("#",) + args))
+        print(' '.join(map(str, ("#",) + args)), file=logutils.logfile())
         if logutils.debugLevel() >= 2:
-            print >> sys.stderr, ' '.join(map(str, ("#",) + args))
+            print(' '.join(map(str, ("#",) + args)), file=sys.stderr)

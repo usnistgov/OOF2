@@ -24,8 +24,6 @@ from ooflib.common import pixelselection
 from ooflib.common import primitives
 from ooflib.common import utils
 from ooflib.common.IO import whoville
-from types import *
-import string
 import sys
 
 #############################
@@ -121,7 +119,7 @@ class Microstructure(cmicrostructure.CMicrostructure):
     def destroy(self):
         for plugin in self.plugins.values():
             plugin.destroy()
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         # sbcallbacks must be explicitly cleared because
         # CMicrostructure has a swigged destructor.  That is,
         # sbcallbacks contains a SwitchboardCallback object which
@@ -303,18 +301,7 @@ class Microstructure(cmicrostructure.CMicrostructure):
     # Microstructures are fairly complex objects, hard to construct,
     # but easy to retrieve, so the repr is a "retriever".
     def __repr__(self):
-        return "getMicrostructure(%s)" % `self.name()`
-
-    def transitionPointWithPoints(self, c0, c1):
-        okay, point = cmicrostructure.CMicrostructurePtr.transitionPointWithPoints(self, c0, c1)
-        if okay:
-            return point
-
-    #For SnapRefine
-    def transitionPointWithPoints_unbiased(self, c0, c1):
-        okay, point = cmicrostructure.CMicrostructurePtr.transitionPointWithPoints_unbiased(self, c0, c1)
-        if okay:
-            return point
+        return "getMicrostructure(%s)" % repr(self.name())
 
 class MicrostructureContext(whoville.Who):
     def getMicrostructure(self):
@@ -335,6 +322,18 @@ class MicrostructureContext(whoville.Who):
             # the Microstructure at the same time.  (An Image can't be
             # locked unless it can obtain its Microstructure's read
             # lock.)
+
+            # Remove Skeletons.  Doing this first ensures that any
+            # redraws triggered by it won't try to redraw partially
+            # destroyed Microstructures. (Although see the above TODO
+            # about not redrawing at all.)
+            skelclass = whoville.getClass('Skeleton')
+            if skelclass is not None: # TODO: Why check?  Can it be None?
+                for skeletonname in skelclass.keys(base=self.name()):
+                    skelcontext = skelclass[[self.name(), skeletonname[0]]]
+                    skelcontext.lockAndDelete()
+                    skelcontext.setParent(None)
+
             for imagename in ms.imageNames():
                 image = whoville.getClass('Image')[[self.name(), imagename]]
                 image.begin_writing()
@@ -358,14 +357,6 @@ class MicrostructureContext(whoville.Who):
                 pixsel.end_writing()
             pixsel.setParent(None)
 
-            # Remove Skeletons
-            skelclass = whoville.getClass('Skeleton')
-            # TODO 3D: Remove this when engine is added to 3d
-            if skelclass is not None:
-                for skeletonname in skelclass.keys(base=self.name()):
-                    skelcontext = skelclass[[self.name(), skeletonname[0]]]
-                    skelcontext.lockAndDelete()
-                    skelcontext.setParent(None)
             self.begin_writing()
             try:
                 microStructures.remove(self.name())

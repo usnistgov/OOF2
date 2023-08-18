@@ -23,6 +23,8 @@ class COrientXYZ;
 class COrientAxis;
 class COrientRodrigues;
 
+#include "common/ooferror.h"
+#include "engine/fieldindex.h"
 // NO, I don't know why outputval.h is in engine but propertyoutput.h
 // is in engine/IO.
 #include "engine/IO/propertyoutput.h"
@@ -31,6 +33,11 @@ class COrientRodrigues;
 #include <vector>
 #include <string>
 #include <iostream>
+
+template <class ORIENT> class COrientationSubClass;
+template <class ORIENT> class OIndex;
+template <class ORIENT> class OComponents;
+template <class ORIENT> class OIterator;
 
 class SmallMatrix;
 class LatticeSymmetry;
@@ -78,16 +85,7 @@ public:
 			      const LatticeSymmetry&) const;
 
   virtual void print(std::ostream&) const = 0;
-
-  // Methods required by OutputVal.  The IndexP points to one of the
-  // components of an OutputVal, and IteratorP iterates over the
-  // components.  IndexP wraps a FieldIndex and IteratorP wraps a
-  // FieldIterator.  See the TODO in outputval.h about how FieldIndex
-  // and FieldIterator are not suited for this situation, but are
-  // required by the current OutputVal design.
-  const std::string &modulename() const;
-  virtual IndexP getIndex(const std::string&) const = 0;
-  virtual IteratorP getIterator() const = 0;
+  virtual FieldIndex *getIndex(const std::string&) const = 0;
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -97,62 +95,103 @@ public:
 // using index and iterator classes derived from FieldIndex and
 // FieldIterator.  This has to be done separately for each
 // COrientation subclass, but fortunately can be done with templates.
+// See the TODO in outputval.h about misusing FieldIndex.
 
 // The indices are used in the __getitem__ methods defined in
-// corientation.spy.  
+// corientation.spy.  TODO: Add C++ operator[](OIndex&) ?
 
 template <class ORIENT>
-class OIndex : virtual public FieldIndex {
+class COrientationSubClass : public COrientation {
 protected:
-  const ORIENT *orient;
-  std::vector<std::string>::size_type which;
+  OComponents<ORIENT> comps;
 public:
-  OIndex(const ORIENT *o) : orient(o), which(0) {}
-  OIndex(const ORIENT *o, int i) : orient(o), which(i) {}
+  COrientationSubClass()
+    : comps(dynamic_cast<const ORIENT*>(this))
+  {}
+  virtual FieldIndex *getIndex(const std::string &s) const {
+    return new OIndex<ORIENT>(dynamic_cast<const ORIENT*>(this), s);
+  }
+  virtual ComponentsP components() const {
+    return ComponentsP(&comps);
+  }
+};
+
+template <class ORIENT>
+class OIndex : public FieldIndex {
+protected:
+  std::vector<std::string>::size_type which;
+  const std::vector<std::string> &args;
+public:
+  OIndex(const ORIENT *o) : which(0), args(o->arguments) {}
+  OIndex(const ORIENT *o, int i) : which(i), args(o->arguments) {}
   OIndex(const ORIENT *o, const std::string &s)
-    : orient(o)
+    : args(o->arguments)
   {
-    for(std::vector<std::string>::size_type i=0; i<orient->arguments.size(); i++) {
-      if(orient->arguments[i] == s) {
+    for(std::vector<std::string>::size_type i=0; i<args.size(); i++) {
+      if(args[i] == s) {
 	which = i;
 	return;
       }
     }
     throw ErrProgrammingError("Bad arg to OIndex: " + s, __FILE__, __LINE__);
   }
-  OIndex(const OIndex &o) : orient(o.orient), which(o.which) {}
-  virtual FieldIndex *cloneIndex() const { return new OIndex(*this); }
+  OIndex(const OIndex &o) : which(o.which), args(o.args) {}
+  const std::string &classname() const;
+  virtual FieldIndex *clone() const { return new OIndex(*this); }
   virtual int integer() const { return which; }
-  virtual void set(const std::vector<int> *v) { which = (*v)[0]; }
-  virtual std::vector<int> *components() const {
-    return new std::vector<int>(1, which);
-  }
   virtual void print(std::ostream &os) const {
-    os << orient->classname() << "::Index('"
-       << orient->arguments[which] << "')";
+    os << classname() << "('" << args[which] << "')";
   }
-  virtual const std::string &shortstring() const {
-    return orient->arguments[which];
+  virtual const std::string &shortrepr() const {
+    return args[which];
   }
 };
 
 template <class ORIENT>
-class OIterator : public OIndex<ORIENT>, public FieldIterator {
+class OIterator : public ComponentIterator {
+protected:
+  int v;
+  const ORIENT *orient;
 public:
-  OIterator(const ORIENT *o) : OIndex<ORIENT>(o) {}
-  virtual void operator++() { ++OIndex<ORIENT>::which; }
-  virtual bool end() const {
-    return OIndex<ORIENT>::which == OIndex<ORIENT>::orient->arguments.size();
+  OIterator(const ORIENT *o, int i) : v(i), orient(o) {}
+  virtual bool operator!=(const ComponentIterator &othr) const {
+    const OIterator<ORIENT> &other =
+      dynamic_cast<const OIterator<ORIENT>&>(othr);
+    return orient != other.orient || v != other.v;
   }
-  virtual int size() const { return OIndex<ORIENT>::orient->arguments.size(); }
-  virtual void reset() { OIndex<ORIENT>::which = 0; }
-  virtual FieldIterator *cloneIterator() const { return new OIterator(*this); }
+  virtual ComponentIterator &operator++() {
+    v++;
+    return *this;
+  }
+  virtual FieldIndex *fieldindex() const {
+    return new OIndex<ORIENT>(orient, v);
+  }
+  virtual ComponentIterator *clone() const {
+    return new OIterator<ORIENT>(orient, v);
+  }
+  virtual void print(std::ostream &os) const {
+    os << "OIterator<" << orient->classname() << ">" << std::endl;
+  }
 };
 
+template <class ORIENT>
+class OComponents : public Components {
+protected:
+  const ORIENT *orient;
+public:
+  OComponents(const ORIENT *o) : orient(o) {}
+  virtual ComponentIteratorP begin() const {
+    return ComponentIteratorP(new OIterator<ORIENT>(orient, 0));
+  }
+  virtual ComponentIteratorP end() const {
+    return ComponentIteratorP(
+		      new OIterator<ORIENT>(orient, orient->arguments.size()));
+  }
+};
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-class COrientABG : public COrientation {
+class COrientABG : public COrientationSubClass<COrientABG> {
 private:
   double alpha_, beta_, gamma_;
 protected:
@@ -187,15 +226,9 @@ public:
   virtual COrientABG *zero() const;
   virtual std::vector<double> *value_list() const;
   static const std::vector<std::string> arguments;
-  virtual IndexP getIndex(const std::string &s) const {
-    return IndexP(new OIndex<COrientABG>(this, s));
-  }
-  virtual IteratorP getIterator() const {
-    return IteratorP(new OIterator<COrientABG>(this));
-  }
 };
 
-class COrientBunge : public COrientation {
+class COrientBunge : public COrientationSubClass<COrientBunge> {
 private:
   double phi1_, theta_, phi2_;
 protected:
@@ -219,15 +252,9 @@ public:
   virtual COrientBunge *zero() const;
   virtual std::vector<double> *value_list() const;
   static const std::vector<std::string> arguments;
-  virtual IndexP getIndex(const std::string &s) const {
-    return IndexP(new OIndex<COrientBunge>(this, s));
-  }
-  virtual IteratorP getIterator() const {
-    return IteratorP(new OIterator<COrientBunge>(this));
-  }
 };
 
-class COrientQuaternion : public COrientation {
+class COrientQuaternion : public COrientationSubClass<COrientQuaternion> {
 private:
   double q[4];
 protected:
@@ -252,18 +279,12 @@ public:
   virtual COrientQuaternion *zero() const;
   virtual std::vector<double> *value_list() const;
   static const std::vector<std::string> arguments;
-  virtual IndexP getIndex(const std::string &s) const {
-    return IndexP(new OIndex<COrientQuaternion>(this, s));
-  }
-  virtual IteratorP getIterator() const {
-    return IteratorP(new OIterator<COrientQuaternion>(this));
-  }
 };
 
 // Goldstein's "X" convention.  This may have some other more
 // descriptive name, but I don't know what it is.  Rotations are z,x,z.
 
-class COrientX : public COrientation {
+class COrientX : public COrientationSubClass<COrientX> {
 private:
   double phi_, theta_, psi_;
 protected:
@@ -287,18 +308,12 @@ public:
   virtual COrientX *zero() const;
   virtual std::vector<double> *value_list() const;
   static const std::vector<std::string> arguments;
-  virtual IndexP getIndex(const std::string &s) const {
-    return IndexP(new OIndex<COrientX>(this, s));
-  }
-  virtual IteratorP getIterator() const {
-    return IteratorP(new OIterator<COrientX>(this));
-  }
 };
 
 // The "aerodynamic" XYZ convention, with each rotation about a
 // different principal axis.  Again the name is from Goldstein.
 
-class COrientXYZ : public COrientation {
+class COrientXYZ : public COrientationSubClass<COrientXYZ> {
 private:
   double phi_, theta_, psi_;
 protected:
@@ -322,15 +337,9 @@ public:
   virtual COrientXYZ *zero() const;
   virtual std::vector<double> *value_list() const;
   static const std::vector<std::string> arguments;
-  virtual IndexP getIndex(const std::string &s) const {
-    return IndexP(new OIndex<COrientXYZ>(this, s));
-  }
-  virtual IteratorP getIterator() const {
-    return IteratorP(new OIterator<COrientXYZ>(this));
-  }
 };
 
-class COrientAxis : public COrientation {
+class COrientAxis : public COrientationSubClass<COrientAxis> {
 private:
   double angle_, x_, y_, z_;
 protected:
@@ -358,12 +367,6 @@ public:
   virtual COrientAxis *zero() const;
   virtual std::vector<double> *value_list() const;
   static const std::vector<std::string> arguments;
-  virtual IndexP getIndex(const std::string &s) const {
-    return IndexP(new OIndex<COrientAxis>(this, s));
-  }
-  virtual IteratorP getIterator() const {
-    return IteratorP(new OIterator<COrientAxis>(this));
-  }
 };
 
 // Rodrigues vector. Another way of describing crystal orientations.
@@ -371,7 +374,7 @@ public:
 // particularly useful to describe fiber-texture and poling in
 // ferroelectrics. --REG
 
-class COrientRodrigues : public COrientation {
+class COrientRodrigues : public COrientationSubClass<COrientRodrigues> {
 private:
   double r1_, r2_, r3_;
 protected:
@@ -395,12 +398,6 @@ public:
   virtual COrientRodrigues *zero() const;
   virtual std::vector<double> *value_list() const;
   static const std::vector<std::string> arguments;
-  virtual IndexP getIndex(const std::string &s) const {
-    return IndexP(new OIndex<COrientRodrigues>(this, s));
-  }
-  virtual IteratorP getIterator() const {
-    return IteratorP(new OIterator<COrientRodrigues>(this));
-  }
 };
 
 std::ostream &operator<<(std::ostream&, const COrientation&);

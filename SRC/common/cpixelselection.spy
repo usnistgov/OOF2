@@ -14,4 +14,4 @@ def _CPixelSelection_getMicrostructure(self):
     cms = self.getCMicrostructure()
     return microstructure.microStructures[cms.name()]
 
-CPixelSelectionPtr.getMicrostructure = _CPixelSelection_getMicrostructure
+CPixelSelection.getMicrostructure = _CPixelSelection_getMicrostructure

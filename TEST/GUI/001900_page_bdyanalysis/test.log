@@ -175,7 +175,7 @@ checkpoint page installed Boundary Analysis
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Boundary Analysis Page:Pane').set_position(256)
 assert tests.goSensitive(0)
-assert tests.bdyList("top", "bottom", "right", "left")
+assert tests.bdyList("top", "right", "bottom", "left")
 
 # Define some fields
 event(Gdk.EventType.BUTTON_PRESS,x= 7.0000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
@@ -264,7 +264,7 @@ checkpoint OOF.Mesh.Boundary_Analysis.Analyze
 assert tests.msgFloat(0.0, 0.5)
 
 # bottom
-findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([1]))
+findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([2]))
 findWidget('OOF2:Boundary Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
 assert tests.msgFloat(0.0, 0.0)
@@ -276,7 +276,7 @@ checkpoint OOF.Mesh.Boundary_Analysis.Analyze
 assert tests.msgFloat(0.0, 0.0)
 
 # right
-findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([2]))
+findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([1]))
 findWidget('OOF2:Boundary Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
 assert tests.msgFloat(0.0, 0.335)
@@ -679,7 +679,7 @@ checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Mesh.Solve
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.7000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.7000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Viewer:Zoom:Fill').clicked()
 checkpoint OOF.Graphics_1.Settings.Zoom.Fill_Window
 
@@ -695,11 +695,11 @@ findWidget('OOF2:Boundary Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
 findWidget('OOF2 Graphics 1').resize(800, 492)
 assert tests.msgFloat(0.0, 0.0, 0.00620165904187)
-findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([1]))
+findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([2]))
 findWidget('OOF2:Boundary Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
 assert tests.msgFloat(0.0, 0.0, -0.00620165904187)
-findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([2]))
+findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([1]))
 findWidget('OOF2:Boundary Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
 assert tests.msgFloat(0.0, 0.0878255288986, 0.0)
@@ -783,14 +783,14 @@ assert tests.msgFloat(0, 0, 0)
 findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([3]))
 findWidget('OOF2:Boundary Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
-assert tests.msgFloat(0, -0.06666666666666736, 0)
-
-findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([2]))
-findWidget('OOF2:Boundary Analysis Page:Go').clicked()
-checkpoint OOF.Mesh.Boundary_Analysis.Analyze
-assert tests.msgFloat(0, 0.066666666666669996, 0)
+assert tests.msgFloat(0, -0.0666667, 0)
 
 findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([1]))
+findWidget('OOF2:Boundary Analysis Page:Go').clicked()
+checkpoint OOF.Mesh.Boundary_Analysis.Analyze
+assert tests.msgFloat(0, 0.0666667, 0)
+
+findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([2]))
 findWidget('OOF2:Boundary Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
 assert tests.msgFloat(0, 0, 0)
@@ -882,8 +882,8 @@ findWidget('OOF2:FE Mesh Page:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(277, 86)
 findWidget('Questioner:Yes').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
@@ -900,7 +900,7 @@ checkpoint Graphics_1 Mesh Info cleared position
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
 checkpoint selection info updated Element
 
 checkpoint Graphics_1 Pixel Selection sensitized

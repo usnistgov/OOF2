@@ -27,9 +27,12 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import sys
-import types
 
 ###################
 
@@ -128,7 +131,7 @@ class RegisteredClassFactory(RCFBase):
                                    spacing=2)
             self.box.pack_start(self.titlebox,
                                 expand=False, fill=False, padding=0)
-            self.titlebox.pack_start(Gtk.Label(title, halign=Gtk.Align.START),
+            self.titlebox.pack_start(Gtk.Label(label=title, halign=Gtk.Align.START),
                                      expand=False, fill=False, padding=0)
             self.titlebox.pack_start(self.options.gtk,
                                      expand=True, fill=True, padding=0)
@@ -150,8 +153,8 @@ class RegisteredClassFactory(RCFBase):
         self.update(registry, obj, interactive=0)
 
     def dumpState(self, comment):
-        print >> sys.stderr, comment, self.__class__.__name__, \
-            (self.currentOption and self.currentOption.name())
+        print(comment, self.__class__.__name__, \
+            (self.currentOption and self.currentOption.name()), file=sys.stderr)
         self.options.dumpState("   " + comment)
         if self.paramWidget:
             self.paramWidget.dumpState("   " + comment)
@@ -202,7 +205,7 @@ class RegisteredClassFactory(RCFBase):
         if obj is not None:
             # If obj is a string, look for a registration with that
             # name.
-            if type(obj)==types.StringType:
+            if isinstance(obj, (str, bytes)):
                 for reg in registry:
                     if self.includeRegistration(reg) and reg.name()==obj:
                         self.setByRegistration(reg, interactive)
@@ -471,7 +474,7 @@ class ConvertibleRegisteredClassFactory(RegisteredClassFactory):
             try:
                 old = self.getParamValues()
                 got_old = True
-            except ValueError, exc:
+            except ValueError as exc:
                 reporter.warn(exc)
                 got_old = False
             
@@ -490,7 +493,7 @@ class ConvertibleRegisteredClassFactory(RegisteredClassFactory):
         # and store it so you can pass it to widgets for other representations.
         try:
             self.base_value = registration.getParamValuesAsBase()
-        except ValueError, exc:
+        except ValueError as exc:
             reporter.warn(exc)
 
     def getParamValues(self):
@@ -551,7 +554,7 @@ class RegistrationGUIData:
         # would have to be redone.
         self._signal = gtklogger.connect(self._button, 'clicked', self.buttonCB)
         self._box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-        self._label = Gtk.Label(registration.name(), halign=Gtk.Align.START)
+        self._label = Gtk.Label(label=registration.name(), halign=Gtk.Align.START)
         if hasattr(registration, 'tip'):
             self._label.set_tooltip_text(registration.tip)
         self.sbcallback = None
@@ -624,9 +627,6 @@ class RegisteredClassListFactory(RCFBase):
                  scope=None, name=None, widgetdict={},
                  *args, **kwargs):
         debug.mainthreadTest()
-        if kwargs:
-            debug.fmsg("kwargs=", kwargs)
-
         self.registry = registry
         self.callback = callback
         self.callbackargs = args
@@ -654,7 +654,7 @@ class RegisteredClassListFactory(RCFBase):
         self.grid.foreach(Gtk.Widget.destroy) # clear the grid
         row = 0
         if self.title:
-            self.grid.attach(Gtk.Label(self.title), 0,row,1,1)
+            self.grid.attach(Gtk.Label(label=self.title), 0,row,1,1)
             row += 1
             self.grid.attach(
                 Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
@@ -732,7 +732,7 @@ class RegisteredClassListFactory(RCFBase):
         # RegisteredClassListFactory, since the menu Parameter is a
         # list of RegisteredClass objects, not the parameters of the
         # objects themselves.  So don't use this, use get_value() instead.
-        raise ooferror.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             "Don't use RegisteredClassListFactory.set_defaults()!")
 
 def _RegisteredClassList_makeWidget(self, scope=None, **kwargs):

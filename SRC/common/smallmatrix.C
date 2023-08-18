@@ -28,6 +28,13 @@ void SmallMatrix::resize(int rows, int cols) {
 }
 
 double& SmallMatrix::operator()(int row, int col) {
+#ifdef DEBUG
+  if(row < 0 || col < 0 || row >=data.rows() || col >= data.cols()) {
+    std::cerr << "SmallMatrix:operator(): nrows=" << data.rows()
+	      << " ncols=" << data.cols() << " row=" << row
+	      << " col=" << col << std::endl;
+  }
+#endif	// DEBUG
   assert(row >= 0 && col >= 0 && row < data.rows() && col < data.cols());
   return data.coeffRef(row, col);
 }

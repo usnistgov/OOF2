@@ -15,7 +15,7 @@
 #ifndef CCOLOR_H
 #define CCOLOR_H
 
-#include "oofcanvas/oofcanvas.h"
+#include <oofcanvas.h>
 #include <iostream>
 
 // Utility class for holding cached conversion values, including a

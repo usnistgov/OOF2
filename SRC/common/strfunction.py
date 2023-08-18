@@ -12,9 +12,8 @@ from ooflib.SWIG.common import config
 from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO import parameter
-import types
+import ast
 import struct
-import compiler
 
 class StrFunction:
     def __init__(self, arglist, funcstr):
@@ -51,19 +50,11 @@ class StrFunction:
 
     def dependsOn(self, name):
         # Does the function actually depend on the variable 'name'?
-        nodes = compiler.parse(self.funcstr).getChildNodes()
-        return name in _findNames(nodes)
-
-def _findNames(nodes):
-    # Return the names of all compiler.ast.Name nodes in the given
-    # Abstract Syntax Tree nodes.
-    names = []
-    for node in nodes:
-        if isinstance(node, compiler.ast.Name):
-            names.append(node.name)
-        else:
-            names.extend(_findNames(node.getChildNodes()))
-    return names
+        tree = ast.parse(self.funcstr)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Name) and node.id == name:
+                return True
+        return False
 
 # XYStrFunction is initialized from a string function of x,y or x,y,z,
 # but it takes a single Coord or Point as its argument when it's being
@@ -101,11 +92,11 @@ utils.OOFdefine('StrFunction', StrFunction)
 
 
 class XYStrFunctionParameter(parameter.Parameter):
-    types = (types.StringType, XYStrFunction)
+    types = (str, bytes, XYStrFunction)
     def __init__(self, name, value=None, default='0.0', tip=None):
         parameter.Parameter.__init__(self, name, value, default, tip)
     def set(self, value):
-        if type(value) is types.StringType:
+        if isinstance(value, (str, bytes)):
             self._value = XYStrFunction(value)
         elif isinstance(value, XYStrFunction):
             self._value = value
@@ -113,7 +104,7 @@ class XYStrFunctionParameter(parameter.Parameter):
             self._value = None
         else:
             raise parameter.ParameterMismatch(
-                'Got ' + `value` + ' for Parameter ' + self.name)
+                'Got ' + repr(value) + ' for Parameter ' + self.name)
         self.timestamp.increment()
     def valueDesc(self):
         if config.dimension() == 2:
@@ -122,18 +113,18 @@ class XYStrFunctionParameter(parameter.Parameter):
             return 'A string defining a function of x, y, and z.'
     def binaryRepr(self, datafile, value):
         length = len(value.funcstr)
-        return struct.pack('>i', length) + value.funcstr
+        return struct.pack('>i', length) + bytes(value.funcstr, "UTF-8")
     def binaryRead(self, parser):
         b = parser.getBytes(struct.calcsize('>i'))
         (length,) = struct.unpack('>i', b)
-        return XYStrFunction(parser.getBytes(length))
+        return XYStrFunction(parser.getBytes(length).decode())
 
 class XYTStrFunctionParameter(parameter.Parameter):
-    types = (types.StringType, XYStrFunction)
+    types = (str, bytes, XYStrFunction)
     def __init__(self, name, value=None, default='0.0', tip=None):
         parameter.Parameter.__init__(self, name, value, default, tip)
     def set(self, value):
-        if type(value) is types.StringType:
+        if isinstance(value, (str, bytes)):
             self._value = XYTStrFunction(value)
         elif isinstance(value, XYTStrFunction):
             self._value = value
@@ -141,7 +132,7 @@ class XYTStrFunctionParameter(parameter.Parameter):
             self._value = None
         else:
             raise parameter.ParameterMismatch(
-                'Got ' + `value` + ' for Parameter ' + self.name)
+                'Got ' + repr(value) + ' for Parameter ' + self.name)
         self.timestamp.increment()
     def valueDesc(self):
         if config.dimension() == 2:
@@ -150,8 +141,8 @@ class XYTStrFunctionParameter(parameter.Parameter):
             return 'A string defining a function of x, y, z, and t.'
     def binaryRepr(self, datafile, value):
         length = len(value.funcstr)
-        return struct.pack('>i', length) + value.funcstr
+        return struct.pack('>i', length) + bytes(value.funcstr, "UTF-8")
     def binaryRead(self, parser):
         b = parser.getBytes(struct.calcsize('>i'))
         (length,) = struct.unpack('>i', b)
-        return XYTStrFunction(parser.getBytes(length))
+        return XYTStrFunction(parser.getBytes(length).decode())

@@ -8,8 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-# from ooflib.SWIG.engine import node
-from ooflib.SWIG.engine.node import FuncNodePtr
+from ooflib.common import debug
 from ooflib.engine.profile import Location
 
 def _EdgeSet___repr__(self):
@@ -28,12 +27,10 @@ EdgeSet.__repr__ = _EdgeSet___repr__
 # fractional distance traversed.  Caches the results, because it will
 # be needed by each boundary condition.
 def _EdgeSet_build_caches_(self):
-    raw = self.ndlist()
-    elist = map(EdgeNodeDistancePtr, raw)
+    elist = self.ndlist()
     self.node_cache = [e.node for e in elist]
     self.location_cache = []
     for e in elist:
-        e.thisown = 1
         self.location_cache.append(
             Location(e.node.position(), index=e.index,
                      s=e.distance, alpha=e.fraction))
@@ -45,11 +42,9 @@ EdgeSet.build_caches_ = _EdgeSet_build_caches_
 # swigged-and-typemapped C++ "ndlist" function to get a list of
 # EdgeNodeDistance pointers, and extracts the node information from it.
 def _EdgeSet_nodes(self):
-    try:
-        return self.node_cache
-    except AttributeError:
+    if not hasattr(self, "node_cache"):
         self.build_caches_()
-        return self.node_cache
+    return self.node_cache
 
 EdgeSet.nodes = _EdgeSet_nodes
 
@@ -62,13 +57,9 @@ EdgeSet.nodes = _EdgeSet_nodes
 ## the set.  Perhaps EdgeSet.locations() should take a time arg and
 ## set the time itself.
 def _EdgeSet_locations(self):
-    try:
-        self.location_cache
-        self.node_cache
-    except AttributeError:
-        self.build_caches_()
-
-    return map( None, self.node_cache, self.location_cache)
+    if not hasattr(self, "node_cache"):
+        self. build_caches_()
+    return zip(self.node_cache, self.location_cache)
 
 EdgeSet.locations = _EdgeSet_locations
 
@@ -88,9 +79,9 @@ def _EdgeSet_addEdge(self, boundaryedge):
     self.addEdge_(boundaryedge)
 
 
-EdgeSetPtr.addEdge = _EdgeSet_addEdge
+EdgeSet.addEdge = _EdgeSet_addEdge
 
-# Patterned after the FuncNodeIteratorPtr getitem routine in mesh.spy.
+# Patterned after the FuncNodeIterator getitem routine in mesh.spy.
 def _EdgeSetIterator___getitem__(self, idx):
     if self.end():
         raise IndexError
@@ -98,4 +89,4 @@ def _EdgeSetIterator___getitem__(self, idx):
     self.increment()
     return ret
 
-EdgeSetIteratorPtr.__getitem__ = _EdgeSetIterator___getitem__
+EdgeSetIterator.__getitem__ = _EdgeSetIterator___getitem__

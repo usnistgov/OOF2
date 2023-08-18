@@ -9,34 +9,38 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-import types
 from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.SWIG.engine import fieldindex
+from ooflib.SWIG.engine import planarity
+from ooflib.SWIG.common import switchboard
 
-FieldPtr.__repr__ = FieldPtr.name
-CompoundFieldPtr.__repr__ = CompoundFieldPtr.name
-ScalarFieldPtr.__repr__ = ScalarFieldPtr.name
-TwoVectorFieldPtr.__repr__ = TwoVectorFieldPtr.name
-ThreeVectorFieldPtr.__repr__ = ThreeVectorFieldPtr.name
-SymmetricTensorFieldPtr.__repr__ = SymmetricTensorFieldPtr.name
+Field.__repr__ = Field.name
+CompoundField.__repr__ = CompoundField.name
+ScalarField.__repr__ = ScalarField.name
+TwoVectorField.__repr__ = TwoVectorField.name
+ThreeVectorField.__repr__ = ThreeVectorField.name
+SymmetricTensorField.__repr__ = SymmetricTensorField.name
 
-#-----------------
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def _Field___cmp__(self, other):
-    if not isinstance(other, FieldPtr): return -1
-    if self.objectid() < other.objectid(): return -1
-    if self.objectid() > other.objectid(): return 1
-    return 0
+# Fields are sometimes stored in an OrderedSet and so need to have
+# __lt__ defined.
 
-FieldPtr.__cmp__ = _Field___cmp__
+def _Field___lt__(self, other):
+    try:
+        return self.objectid() < other.objectid()
+    except:
+        return NotImplemented
+
+Field.__lt__ = _Field___lt__
 
 def _Field___hash__(self):
     return self.objectid()
 
-FieldPtr.__hash__ = _Field___hash__
+Field.__hash__ = _Field___hash__
 
-################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 _allFields = {}                 # dict of Fields keyed by name
 
@@ -48,6 +52,7 @@ allCompoundFields = utils.OrderedDict()
 
 def newField(fld):
     _allFields[fld.name()] = fld
+    utils.OOFdefine(fld.name(), fld)
 
 def newCompoundField(fld):
     newField(fld)
@@ -56,9 +61,58 @@ def newCompoundField(fld):
 def getField(name):
     return _allFields[name]
 
+utils.OOFdefine('getField', getField)
+
 def allFields():
-    return _allFields.values()
+    return list(_allFields.values())
 
-from ooflib.SWIG.engine.freedom import DegreeOfFreedomPtr
+# finishConstruction is called after the swigged constructors for all
+# of the Field subclasses.  It's installed by %pythonappend lines in
+# field.swg.
+def finishConstruction(fld):
+    newCompoundField(fld)
+    newField(fld.c_time_derivative())
+    newField(fld.c_out_of_plane())
+    newField(fld.c_out_of_plane_time_derivative())
+    # "new field" must be sent after the field is defined in the OOF
+    #  namespace by newField and newCompoundField
+    switchboard.notify("new field")
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# See comment in field.swg about Field::time_derivative.
+
+def _Field_time_derivative(self):
+    return _allFields[self.name() + "_t"]
+
+Field.time_derivative = _Field_time_derivative
+
+def _Field_out_of_plane(self):
+    return _allFields[self.name() + "_z"]
+
+CompoundField.out_of_plane = _Field_out_of_plane
+
+def _Field_out_of_plane_time_derivative(self):
+    return _allFields[self.name() + "_tz"]
+
+CompoundField.out_of_plane_time_derivative = _Field_out_of_plane_time_derivative
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+def _fielditer(comps):
+    # comps is a swigged generic ComponentsP object
+    beginp = comps.begin()      # generic ComponentIteratorP object
+    endp = comps.end()          # generic ComponentIteratorP object
+    while beginp != endp:
+        yield beginp.current()  # derived FieldIndex class object
+        beginp.increment()
+
+def _Field_components(self, plan=planarity.ALL_INDICES):
+    return _fielditer(self.c_components(plan))
+
+Field.components = _Field_components
+
+def _Field_outOfPlaneComponents(self):
+    return _fielditer(self.c_outOfPlaneComponents())
+
+Field.outOfPlaneComponents = _Field_outOfPlaneComponents

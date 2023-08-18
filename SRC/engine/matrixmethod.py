@@ -9,7 +9,7 @@
 # oof_manager@nist.gov.
 
 from ooflib.SWIG.engine import cmatrixmethods
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.engine import preconditioner
 from ooflib.common import debug
 from ooflib.common import registeredclass
@@ -92,18 +92,18 @@ class ConjugateGradient(PreconditionedMatrixMethod):
     def solveMatrix(self, matrix, rhs, solution):
         if _check_symmetry:
             import sys
-	    import subprocess, os
+            import subprocess, os
             if (matrix.nrows()!=matrix.ncols() or
                 not matrix.is_symmetric(1.e-12)): # can be very slow
-                raise ooferror2.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "%dx%d CG matrix is not symmetric!" %
                     (matrix.nrows(), matrix.ncols()))
-	# added to try and debug memory usage
-	#subprocess.check_output(["oof2",'os.getpid()'])
+        # added to try and debug memory usage
+        #subprocess.check_output(["oof2",'os.getpid()'])
         succ = self.solver.solve(matrix, rhs, solution)
         if succ != cmatrixmethods.SUCCESS: 
             if succ == cmatrixmethods.NOCONVERG:
-                raise ooferror2.ErrConvergenceFailure(
+                raise ooferror.PyErrConvergenceFailure(
                     "CG", self.solver.iterations())
         return self.solver.iterations(), self.solver.error()
 
@@ -155,7 +155,7 @@ class StabilizedBiConjugateGradient(PreconditionedMatrixMethod):
         succ = self.solver.solve(matrix, rhs, solution)
         if succ != cmatrixmethods.SUCCESS: 
             if succ == cmatrixmethods.NOCONVERG:
-                raise ooferror2.ErrConvergenceFailure(
+                raise ooferror.PyErrConvergenceFailure(
                     "StabilizedBiConjugateGradient", self.solver.iterations())
         return self.solver.iterations(), self.solver.error()
 
@@ -193,8 +193,9 @@ registeredclass.Registration(
     "BiCG",
     MatrixMethod,
     BiConjugateGradient,
-    ordering=2,
+    ordering=2.2,
     symmetricOnly=False,
+    secret=True,
     params=[
         parameter.RegisteredParameter(
             "preconditioner",
@@ -206,7 +207,7 @@ registeredclass.Registration(
         parameter.IntParameter(
             "max_iterations", 1000,
             tip="Maximum number of iterations to perform.")],
-    tip="Bi-conjugate gradient method for iteratively solving non-symmetric matrices.",
+    tip="Actually the same as BiCGStab.  Preserved for backwards compatibility.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/bicg.xml')
 )
 
@@ -223,10 +224,10 @@ class DirectMatrixSolver(MatrixMethod):
         succ = self.solver.solve(matrix, rhs, solution)
         if succ != cmatrixmethods.SUCCESS: 
             if succ == cmatrixmethods.NUMERICAL:
-                raise ooferror2.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "The provided data did not satisfy the prerequisites.")
             elif succ == cmatrixmethods.INVALID_INPUT:
-                raise ooferror2.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "The inputs are invalid, or the algorithm has been improperly called.")
         return (1, 0)
 
@@ -237,10 +238,10 @@ class SimplicialLLT(MatrixMethod):
         succ = self.solver.solve(matrix, rhs, solution)
         if succ != cmatrixmethods.SUCCESS: 
             if succ == cmatrixmethods.NUMERICAL:
-                raise ooferror2.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "The provided data did not satisfy the prerequisites.")
             elif succ == cmatrixmethods.INVALID_INPUT:
-                raise ooferror2.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "The inputs are invalid, or the algorithm has been improperly called.")
         return (1, 0)
 
@@ -251,10 +252,10 @@ class SimplicialLDLT(MatrixMethod):
         succ = self.solver.solve(matrix, rhs, solution)
         if succ != cmatrixmethods.SUCCESS: 
             if succ == cmatrixmethods.NUMERICAL:
-                raise ooferror2.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "The provided data did not satisfy the prerequisites.")
             elif succ == cmatrixmethods.INVALID_INPUT:
-                raise ooferror2.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "The inputs are invalid, or the algorithm has been improperly called.")
         return (1, 0)
 
@@ -265,10 +266,10 @@ class SparseLU(MatrixMethod):
         succ = self.solver.solve(matrix, rhs, solution)
         if succ != cmatrixmethods.SUCCESS: 
             if succ == cmatrixmethods.NUMERICAL:
-                raise ooferror2.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "The provided data did not satisfy the prerequisites.")
             elif succ == cmatrixmethods.INVALID_INPUT:
-                raise ooferror2.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "The inputs are invalid, or the algorithm has been improperly called.")
         return (1, 0)
 
@@ -279,10 +280,10 @@ class SparseQR(MatrixMethod):
         succ = self.solver.solve(matrix, rhs, solution)
         if succ != cmatrixmethods.SUCCESS: 
             if succ == cmatrixmethods.NUMERICAL:
-                raise ooferror2.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "The provided data did not satisfy the prerequisites.")
             elif succ == cmatrixmethods.INVALID_INPUT:
-                raise ooferror2.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "The inputs are invalid, or the algorithm has been improperly called.")
         return (1, 0)
 
@@ -358,10 +359,11 @@ class BasicIterative(BasicMatrixMethod):
             existingSolver.tolerance == self.tolerance and
             existingSolver.max_iterations == self.max_iterations and
             isinstance(existingSolver.preconditioner,
-                       preconditioner.JacobiPreconditioner)):
+                       ## TODO: Should the preconditioner be IC or ILUT?
+                       preconditioner.ILUTPreconditioner)):
             return existingSolver
         return ConjugateGradient(
-            preconditioner=preconditioner.JacobiPreconditioner(),
+            preconditioner=preconditioner.ILUTPreconditioner(),
             tolerance=self.tolerance,
             max_iterations=self.max_iterations)
     def resolve_asymmetric(self, subproblemcontext, existingSolver):
@@ -369,10 +371,11 @@ class BasicIterative(BasicMatrixMethod):
             existingSolver.tolerance == self.tolerance and
             existingSolver.max_iterations == self.max_iterations and
             isinstance(existingSolver.preconditioner,
-                       preconditioner.JacobiPreconditioner)):
+                       preconditioner.ILUTPreconditioner
+                       )):
             return existingSolver
         return StabilizedBiConjugateGradient(
-            preconditioner=preconditioner.JacobiPreconditioner(),
+            preconditioner=preconditioner.ILUTPreconditioner(),
             tolerance=self.tolerance,
             max_iterations=self.max_iterations)
     def shortrepr(self):
@@ -401,5 +404,4 @@ registeredclass.Registration(
     ordering=1,
     tip='Solve matrix equations with a direct method.  Not recommended for large problems.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/basicdirect.xml'))
-                
 

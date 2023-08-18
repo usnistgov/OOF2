@@ -25,10 +25,8 @@ from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.engine.IO import meshparameters
 from ooflib.engine.IO import output
-from types import *
-import itertools
-import math
-import sys
+
+from functools import reduce
 
 # Examples of Outputs
 
@@ -91,7 +89,7 @@ elif config.dimension() == 3:
 
 def _field(mesh, elements, coords, field):
     return utils.flatten1([element.outputFields(mesh, field, ecoords)
-           for element, ecoords in itertools.izip(elements, coords)])
+           for element, ecoords in zip(elements, coords)])
 
 def _field_instancefn(self):
     field = self.resolveAlias('field').value
@@ -108,16 +106,14 @@ def _field_column_names(self):
     if field.ndof() == 1:
         return [field.name()]
     names = []
-    it = field.iterator(planarity.ALL_INDICES)
-    while not it.end():
-        names.append("%s[%s]" % (field.name(), it.shortstring()))
-        it.next()
+    for comp in field.components(planarity.ALL_INDICES):
+        names.append("%s[%s]" % (field.name(), comp.shortrepr()))
     return names
 
 FieldOutput = output.Output(
     name = "field",
     callback = _field,
-    otype = outputval.OutputValPtr,
+    otype = outputval.OutputVal,
     srepr=lambda x: x.resolveAlias('field').value.name(),
     instancefn = _field_instancefn,
     column_names = _field_column_names,
@@ -140,7 +136,7 @@ FieldOutput = output.Output(
 def _fieldderiv(mesh, elements, coords, field, derivative):
     return utils.flatten1(
         [element.outputFieldDerivs(mesh, field, derivative, ecoords)
-         for element, ecoords in itertools.izip(elements, coords)])
+         for element, ecoords in zip(elements, coords)])
 
 def _fieldderiv_shortrepr(self):
     field = self.resolveAlias('field').value
@@ -153,17 +149,15 @@ def _fieldderiv_column_names(self):
     if field.ndof() == 1:
         return ["d(%s)/d%s" % (field.name(), derivative.string())]
     names = []
-    it = field.iterator(planarity.ALL_INDICES)
-    while not it.end():
-        names.append("d(%s[%s])/d%s" % (field.name(), it.shortstring(),
+    for comp in field.components(planarity.ALL_INDICES):
+        names.append("d(%s[%s])/d%s" % (field.name(), comp.shortrepr(),
                                         derivative.string()))
-        it.next()
     return names
 
 FieldDerivOutput = output.Output(
     name = "field derivative",
     callback = _fieldderiv,
-    otype = outputval.OutputValPtr,
+    otype = outputval.OutputVal,
     instancefn = _field_instancefn,
     params = [meshparameters.FieldParameter("field", outofplane=1,
                                                 tip=parameter.emptyTipString),
@@ -187,7 +181,7 @@ def _flux(mesh, elements, coords, flux):
     nel = len(elist)
     try:
         ecount = 0
-        for element, ecoords in itertools.izip(elist, coords):
+        for element, ecoords in zip(elist, coords):
             mesh.begin_all_subproblems(element)
     ##        element.begin_material_computation(mesh)
             ans.append(element.outputFluxes(mesh, flux, ecoords))
@@ -215,17 +209,15 @@ def _flux_instancefn(self):
 
 def _flux_column_names(self):
     flux = self.resolveAlias('flux').value
-    it = flux.iterator(planarity.ALL_INDICES)
     names = []
-    while not it.end():
-        names.append("%s[%s]" % (flux.name(), it.shortstring()))
-        it.next()
+    for comp in flux.components(planarity.ALL_INDICES):
+        names.append("%s[%s]" % (flux.name(), comp.shortrepr()))
     return names
 
 FluxOutput = output.Output(
     name = "flux",
     callback = _flux,
-    otype = outputval.OutputValPtr,
+    otype = outputval.OutputVal,
     instancefn = _flux_instancefn,
     column_names=_flux_column_names,
     params = [meshparameters.FluxParameter("flux",
@@ -239,7 +231,7 @@ FluxOutput = output.Output(
 def _component(mesh, elements, coords, field, component):
     if field:
         # 'component' is a string, "x" or "xy" or the like
-        comp = field[0].getIndex(component) # convert string to IndexP
+        comp = field[0].getIndex(component) # convert string to FieldIndex
         return [outputval.ScalarOutputVal(f[comp]) for f in field]
     return []
         
@@ -255,7 +247,7 @@ def single_column_name(self):
 ComponentOutput = output.Output(
     name = "component",
     callback = _component,
-    otype = outputval.ScalarOutputValPtr,
+    otype = outputval.ScalarOutputVal,
     instancefn = scalar_instancefn,
     column_names=single_column_name,
     inputs = [outputval.OutputValParameter('field')],
@@ -331,8 +323,7 @@ FluxCompOutput.aliasParam('field:flux', 'flux')
 ###############
 
 def _invariant(mesh, elements, coords, field, invariant):
-    ## TODO: Use imap instead of map.  See comment at top of file.
-    return map(outputval.ScalarOutputVal, itertools.imap(invariant, field))
+    return list(map(outputval.ScalarOutputVal, map(invariant, field)))
 
 def _invariant_shortrepr(self):
     field = self.findInput('field').shortrepr()
@@ -342,7 +333,7 @@ def _invariant_shortrepr(self):
 InvariantOutput = output.Output(
     name="invariant",
     callback=_invariant,
-    otype=outputval.ScalarOutputValPtr,
+    otype=outputval.ScalarOutputVal,
     srepr=_invariant_shortrepr,
     instancefn = scalar_instancefn,
     column_names=single_column_name,
@@ -383,8 +374,8 @@ def _scalarFunctionOutput(mesh, elements, coords, f):
     prog = progress.getProgress("Function evaluation", progress.DEFINITE)
     ecount = 0 
     nel = mesh.nelements()
-    for element, coordlist in itertools.izip(elements, coords):
-        realcoords = itertools.imap(element.from_master, coordlist)
+    for element, coordlist in zip(elements, coords):
+        realcoords = map(element.from_master, coordlist)
         ans.extend(outputval.ScalarOutputVal(f(coord, t)) for coord in realcoords)
         ecount += 1
         prog.setFraction((1.*ecount)/nel)
@@ -403,7 +394,7 @@ def _scalarFunction_shortrepr(self):
 ScalarFunctionOutput = output.Output(
     name="Function",
     callback=_scalarFunctionOutput,
-    otype=outputval.ScalarOutputValPtr,
+    otype=outputval.ScalarOutputVal,
     instancefn=scalar_instancefn,
     srepr=_scalarFunction_shortrepr,
     column_names=single_column_name,
@@ -415,30 +406,14 @@ ScalarFunctionOutput = output.Output(
         ]
     )
 
-def _vectorFunctionOutput(mesh, elements, coords, fx=None, fy=None, fz=None):
+def _vectorFunctionOutput(mesh, elements, coords, fx=None, fy=None):
     ans = []
-    for element, coordlist in itertools.izip(elements, coords):
-        realcoords = map(element.from_master, coordlist)
-        for coord in realcoords:
-            val = outputval.VectorOutputVal(config.dimension())
-            it = val.getIterator()
-            # Although f has three components, the third one won't be
-            # used if we're not in three dimensions.
-            f = iter([fx, fy, fz])
-            while not it.end(): # use size of val, not f!
-                fi = f.next()   # python iterator
-                val[it] = fi(coord)
-                it.next()       # oof IteratorP from fieldindex.py
+    for element, coordlist in zip(elements, coords):
+        for coord in map(element.from_master, coordlist):
+            val = outputval.VectorOutputVal(2)
+            for i, fi in zip(val.components(), (fx, fy)):
+                val[i] = fi(coord)
             ans.append(val)
-        ## TODO: That was a real mess.  If OutputVal.getIterator
-        ## returned a real Python iterator object, this could be
-        ## rewritten as:
-        ## f = (fx, fy)
-        ## for coord in realcoords:
-        ##     val = outputval.VectorOutputVal(2)
-        ##     for i, fi in itertools.izip(val.getIterator(), f):
-        ##         val[i] = fi(coord)
-        ##     ans.append(val)
     return ans
 
 def _vecfuncparam(component, components):
@@ -448,24 +423,15 @@ def _vecfuncparam(component, components):
         tip="The %s component of the function as a Python function of %s" 
         %(component, components))
 
-if config.dimension() == 2:
-    _vecfuncparams=[_vecfuncparam(comp, 'x and y') for comp in 'xy']
-else:
-    _vecfuncparams=[_vecfuncparam(comp, 'x, y, and z') for comp in 'xyz']
+_vecfuncparams=[_vecfuncparam(comp, 'x and y') for comp in 'xy']
 
 def _vecfunc_shortrepr(self):
-    if config.dimension() == 2:
-        pnames = "xy"
-    else:
-        pnames = "xyz"
+    pnames = "xy"
     return ("("
             + ",".join([self.resolveAlias('f'+p).value.string() for p in pnames])
             + ")")
 def _vecfunc_column_names(self):
-    if config.dimension() == 2:
-        return ["fx", "fy"]
-    else:
-        return ["fx", "fy", "fz"]
+    return ["fx", "fy"]
 
 def vector_instancefn(self):
     return outputval.VectorOutputVal(config.dimension()).zero()
@@ -473,7 +439,7 @@ def vector_instancefn(self):
 VectorFunctionOutput = output.Output(
     name="Vector Function",
     callback=_vectorFunctionOutput,
-    otype=outputval.VectorOutputValPtr,
+    otype=outputval.VectorOutputVal,
     instancefn=vector_instancefn,
     srepr=_vecfunc_shortrepr,
     column_names=_vecfunc_column_names,
@@ -483,7 +449,7 @@ VectorFunctionOutput = output.Output(
 #=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#
 
 def _pointSum(mesh, elements, coords, point1, point2, a, b):
-    ans = [a*f+b*s for f,s in itertools.izip(point1, point2)]
+    ans = [a*f+b*s for f,s in zip(point1, point2)]
     return ans
 
 PointSumOutput = output.Output(
@@ -502,7 +468,7 @@ PointSumOutput = output.Output(
 def _difference(mesh, elements, coords, minuend, subtrahend):
     minuends = minuend.evaluate(mesh, elements, coords)
     subtrahends = subtrahend.evaluate(mesh, elements, coords)
-    return [x-y for x,y in itertools.izip(minuends, subtrahends)]
+    return [x-y for x,y in zip(minuends, subtrahends)]
 
 def _difference_shortrepr(self):
     return "(%s-%s)" % (self.resolveAlias('minuend').value.shortrepr(),
@@ -518,7 +484,7 @@ def _difference_instancefn(self):
 ScalarDifferenceOutput = output.Output(
     name="difference",
     callback=_difference,
-    otype=outputval.ScalarOutputValPtr,
+    otype=outputval.ScalarOutputVal,
     instancefn = _difference_instancefn,
     column_names=single_column_name,
     # The minuend and subtrahend are *parameters*, not inputs, so that
@@ -546,17 +512,12 @@ def _aggdiff_column_names(self):
     inst = self.outputInstance()
     if inst.dim() == 1:
         return [sr]
-    it = inst.getIterator()
-    names = []
-    while not it.end():
-        names.append("%s[%s]" % (sr, it.shortstring()))
-        it.next()
-    return names
+    return list(f"{sr}[{comp.shortrepr()}]" for comp in inst.components())
 
 AggregateDifferenceOutput = output.Output(
     name="difference",
     callback=_difference,
-    otype=outputval.OutputValPtr,
+    otype=outputval.OutputVal,
     srepr=_difference_shortrepr,
     instancefn=_difference_instancefn,
     column_names=_aggdiff_column_names,
@@ -593,7 +554,7 @@ output.defineAggregateOutput('Difference', AggregateDifferenceOutput,
 ## ValueOutputParameter's widget needs to find an EnumWidget for
 ## Scalar/Aggregate.
 
-class ConcatenatedOutputVal(object):
+class ConcatenatedOutputVal:
     def __init__(self, *args):
         # args is a tuple of OutputVals
         self.args = args
@@ -621,7 +582,7 @@ class ConcatenatedOutputVal(object):
         return ConcatenatedOutputVal(*(x-y for x,y, in zip(self.args, o.args)))
     def __pow__(self, x):
         return ConcatenatedOutputVal(*(v**x for v in self.args))
-    def __div__(self, x):
+    def __truediv__(self, x):
         return ConcatenatedOutputVal(*(v/x for v in self.args))
     def clone(self):
         return ConcatenatedOutputVal(*(v.clone() for v in self.args))
@@ -647,7 +608,7 @@ def _concatenate(mesh, elements, coords, first, second):
     firsts = first.evaluate(mesh, elements, coords)
     seconds = second.evaluate(mesh, elements, coords)
     return [ConcatenatedOutputVal(f, s)
-            for f,s in itertools.izip(firsts, seconds)]
+            for f,s in zip(firsts, seconds)]
 
 def _concatenate_shortrepr(self):
     return "%s and %s" % (self.resolveAlias('first').value.shortrepr(),
@@ -703,7 +664,7 @@ def _rescaleOutput(mesh, elements, coords, minimum, maximum, inputdata):
             return 0.5*(tmin + tmax)    # arbitrary
         return tmin + (tmax-tmin)*(x-mn)/(mx-mn)
     ## TODO: Use imap instead of map.  See comment at top of file.
-    return map(rescale, inputdata)
+    return list(map(rescale, inputdata))
 
 def _rescale_instancefn(self):
     return self.findInput("inputdata").instancefn()
@@ -716,7 +677,7 @@ def _rescale_shortrepr(self):
 
 RescaleOutput = output.Output(
     name="rescale",
-    otype=outputval.ScalarOutputValPtr,
+    otype=outputval.ScalarOutputVal,
     callback=_rescaleOutput,
     instancefn=_rescale_instancefn,
     srepr=_rescale_shortrepr,
@@ -740,7 +701,7 @@ def _mult_instancefn(self):
 ScalarMultiplyOutput = output.Output(
     name="scalar multiply",
     callback=_multOutput,
-    otype = outputval.OutputValPtr,
+    otype = outputval.OutputVal,
     instancefn=_mult_instancefn,
     params=[parameter.FloatParameter("factor", default=1.)],
     inputs=[outputval.OutputValParameter('scalee')],

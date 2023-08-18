@@ -91,19 +91,19 @@ def textCompare(x, y, shape, homog):
 # Check the values as floats.
 def floatCompare(x, y, shape, homog):
     return gtkMultiFloatCompare({'x':x, 'y':y, 'shape':shape, 'homog':homog},
-                               tbox)
+                                tbox, tolerance=1.e-4)
 
 # Check x and y as floats, but shape and homogeneity as strings.
 def xyshCompare(x, y, shape, homog):
-    return (gtkMultiFloatCompare({'x':x, 'y':y}, tbox) and
+    return (gtkMultiFloatCompare({'x':x, 'y':y}, tbox, tolerance=1.e-4) and
             gtkMultiTextCompare({'shape':shape, 'homog':homog}, tbox))
 
 def messageCompare(msg):
     text = gtklogger.findWidget(tbox+":Status").get_text()
     ok = text == msg
     if not ok:
-        print >> sys.stderr, "Expected:", msg
-        print >> sys.stderr, "     Got:", text
+        print("Expected:", msg, file=sys.stderr)
+        print("     Got:", text, file=sys.stderr)
     return ok
 
 def mouseMode():

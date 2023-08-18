@@ -12,20 +12,20 @@
 #ifndef MESHDATACACHE_SWG
 #define MESHDATACACHE_SWG
 
-%module meshdatacache
+%module(package="ooflib.SWIG.engine") meshdatacache
 
-%include "engine/typemaps.swg"
-
-%pragma(python) include="meshdatacache.spy"
+%include "common/typemaps.swg"
 
 %{
 #include "engine/meshdatacache.h"
 %}
 
+%nodefaultctor MeshDataCache;
+
 class MeshDataCache {
 public:
   void setMesh(FEMesh*);
-  DoubleList *times();
+  std::vector<double> *times();
   int size();
   void restore(double);
   void restoreLatest();
@@ -50,5 +50,7 @@ public:
   DiskDataCache(FEMesh*);
   ~DiskDataCache();
 };
+
+%pythoncode "engine/meshdatacache.spy"
 
 #endif

@@ -21,8 +21,14 @@ from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
 from ooflib.engine.IO import skeletoninfo
 
+from ooflib.common.utils import stringjoin
+from ooflib.common.runtimeflags import digits
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import string
+
+import math
 import sys
 
 class SkeletonInfoMode:
@@ -45,7 +51,7 @@ class SkeletonInfoMode:
         
     def destroy(self):
         self.built = False
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         mainthread.runBlock(self.gtk.destroy)
         self.toolbox = None  # break circular references
 
@@ -58,7 +64,7 @@ class SkeletonInfoMode:
     
     def labelmaster(self, column, row, labeltext, width=1, height=1):
         debug.mainthreadTest()
-        label = Gtk.Label(labeltext, halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label=labeltext, halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, column, row, width, height)
 
     def entrymaster(self, column, row, editable=False, width=1, height=1):
@@ -125,17 +131,20 @@ class SkeletonInfoMode:
 
     def updateNodeList(self, chsr, objlist):
         # called only when Skeleton readlock has been obtained.
-        namelist = ["Node %d at (%s, %s)" % (obj.index, obj.position().x,
-                                             obj.position().y)
+        namelist = [(f"Node {obj.index} at "
+                     f"({obj.position().x:.{digits()}g}, "
+                     f"{obj.position().y:.{digits()}g})")
                     for obj in objlist]
+        
         mainthread.runBlock(chsr.update, (objlist, namelist))
 
     def updateNodeListAngle(self, chsr, element):
         # called only when Skeleton readlock has been obtained.
-        namelist = ["Node %d at (%s, %s) (angle: %s)" % \
-                   (node.index, node.position().x, node.position().y,
-                    element.getRealAngle(element.nodes.index(node)))
-                    for node in element.nodes]
+        namelist = [f"Node {node.index} at "
+                    f"({node.position().x:.{digits()}g}, "
+                    f"{node.position().y:.{digits()}g}) "
+                    f"(angle: {element.getRealAngle(i):.{digits()}f})"
+                    for i,node in enumerate(element.nodes)]
         mainthread.runBlock(chsr.update, (element.nodes, namelist))
     
     def makeElementList(self, column, row):
@@ -157,7 +166,7 @@ class SkeletonInfoMode:
     def updateGroup(self, obj):
         # called only when Skeleton readlock has been obtained.
         mainthread.runBlock(self.group.set_text,
-                            (string.join(obj.groups, ', '),))
+                            (stringjoin(obj.groups, ', '),))
 
 
     def makeSegmentList(self, column, row):
@@ -172,10 +181,11 @@ class SkeletonInfoMode:
         return chsr
     
     def updateSegmentList(self, chsr, objlist):
-        # called only when Skeleton readlock has been obtained.        
-        namelist = ["Segment %d, nodes (%d, %d) (length: %s)" %
-                    (obj.index, obj.nodes()[0].index, obj.nodes()[1].index,
-                     obj.length())
+        # called only when Skeleton readlock has been obtained.
+        objlist = list(objlist)
+        namelist = [f"Segment {obj.index}, "
+                    f"nodes ({obj.nodes()[0].index}, {obj.nodes()[1].index}) "
+                    f"(length: {obj.length():.{digits()}g})"
                     for obj in objlist]
         mainthread.runBlock(chsr.update, (objlist, namelist))
 
@@ -226,12 +236,16 @@ class ElementMode(SkeletonInfoMode):
         self.shape = self.entrymaster(1, 7)
         gtklogger.setWidgetName(self.shape, "Shape")
 
-        self.labelmaster(0, 8, 'element groups=')
-        self.group = self.entrymaster(1, 8)
+        self.labelmaster(0, 8, 'aspect ratio')
+        self.aspect = self.entrymaster(1, 8)
+        gtklogger.setWidgetName(self.aspect, "Aspect")
+
+        self.labelmaster(0, 9, 'element groups=')
+        self.group = self.entrymaster(1, 9)
         gtklogger.setWidgetName(self.group, "Group")
 
-        self.labelmaster(0, 9, 'material=')
-        self.material = self.entrymaster(1, 9)
+        self.labelmaster(0, 10, 'material=')
+        self.material = self.entrymaster(1, 10)
         gtklogger.setWidgetName(self.material, "Material")
 
         self.built = True
@@ -255,8 +269,8 @@ class ElementMode(SkeletonInfoMode):
 
         container.context.begin_reading()
         try:
-            etype = `element.type()`[1:-1] # strip quotes
-            eindex = `element.getIndex()`
+            etype = f"{element.type()}"[1:-1] # strip quotes
+            eindex = f"{element.getIndex()}"
 
             self.updateNodeListAngle(self.nodes, element)
             # Clear the selection in the list of nodes if there's
@@ -269,17 +283,24 @@ class ElementMode(SkeletonInfoMode):
             # nothing in the peeker.
             self.syncPeeker(self.segs, "Segment")
 
-            earea = "%s" % element.area()
+            earea = f"{element.area():.{digits()}g}"
 
             if not element.illegal():
                 domCat = element.dominantPixel(skeleton.MS)
                 repPix = skeleton.MS.getRepresentativePixel(domCat)
                 pixGrp = pixelgroup.pixelGroupNames(skeleton.MS, repPix)
-                pixgrps = string.join(pixGrp, ", ")
+                pixgrps = stringjoin(pixGrp, ", ")
                 # Change False to True in this line to get verbose
                 # output from the homogeneity calculation.
-                ehom = "%f" % element.homogeneity(skeleton.MS, False)
-                eshape = "%f" % element.energyShape()
+                ehom = f"{element.homogeneity(skeleton.MS, False):.{digits()}f}"
+                eshape = f"{element.energyShape():.{digits()}f}"
+
+                a2 = element.aspectRatio2()
+                if a2 > 0:
+                    aspect = \
+                        f"{(1./math.sqrt(element.aspectRatio2())):.{digits()}g}"
+                else:
+                    aspect = "infinity"
 
                 mat = element.material(container.context)
                 if mat:
@@ -290,16 +311,17 @@ class ElementMode(SkeletonInfoMode):
                 pixgrps = "???"
                 ehom = "???"
                 eshape = "???"
+                aspect = "???"
                 matname = "???"
             self.updateGroup(element)
         finally:
             container.context.end_reading()
         mainthread.runBlock(self.updateSomething_thread,
                             (etype, eindex, earea, pixgrps, ehom, eshape,
-                             matname))
+                             aspect, matname))
 
     def updateSomething_thread(self, etype, eindex, earea, pixgrps, ehom,
-                               eshape, matname):
+                               eshape, aspect, matname):
         debug.mainthreadTest()
         self.type.set_text(etype)
         self.index.set_text(eindex)
@@ -307,6 +329,7 @@ class ElementMode(SkeletonInfoMode):
         self.domin.set_text(pixgrps)
         self.homog.set_text(ehom)
         self.shape.set_text(eshape)
+        self.aspect.set_text(aspect)
         self.material.set_text(matname)
 
     def updateNothing(self):
@@ -321,6 +344,7 @@ class ElementMode(SkeletonInfoMode):
         self.domin.set_text("")
         self.homog.set_text("")
         self.shape.set_text("")
+        self.aspect.set_text("")
         self.group.set_text("")
         self.material.set_text("")
 
@@ -373,9 +397,9 @@ class NodeMode(SkeletonInfoMode):
         skeleton = container.skeleton
         container.context.begin_reading()
         try:
-            nindex = `node.getIndex()`
-            npos = "(%s, %s)" % (node.position().x, node.position().y)
-            
+            nindex = repr(node.getIndex())
+            npos = (f"({node.position().x:.{digits()}g}, "
+                    f"{node.position().y:.{digits()}g})")
             if node.movable_x() and node.movable_y():
                 nmob = "free"
             elif node.movable_x() and not node.movable_y():
@@ -396,7 +420,7 @@ class NodeMode(SkeletonInfoMode):
             for key, bdy in skeleton.pointboundaries.items():
                 if node in bdy.nodes:
                     bdys.append(key)
-            bdynames = string.join(bdys, ", ")
+            bdynames = stringjoin(bdys, ", ")
         finally:
             container.context.end_reading()
         mainthread.runBlock(self.updateSomething_thread,
@@ -483,17 +507,17 @@ class SegmentMode(SkeletonInfoMode):
         skeleton = container.skeleton
         container.context.begin_reading()
         try:
-            sindex = `segment.getIndex()`
+            sindex = repr(segment.getIndex())
             self.updateNodeList(self.nodes, list(segment.get_nodes()))
             self.syncPeeker(self.nodes, "Node")
             self.updateElementList(self.elem, segment.getElements())
             self.syncPeeker(self.elem, "Element")
-            length = `segment.length()`
-            homogval = segment.homogeneity(skeleton.MS)
-            if 0.9999 < homogval < 1.0:
-                homog = "1 - (%e)" % (1.0-homogval)
-            else:
-                homog = `homogval`
+            length = f"{segment.length():.{digits()}g}" 
+            homogvals = segment.homogeneity2(skeleton.MS)
+            homog = [f"1-{(1-h):.{digits()}f}"
+                     if (0.999 < h < 1.0)
+                     else f"{h:.{digits()}f}"
+                     for h in homogvals]
             self.updateGroup(segment)
 
             bdynames = ','.join(
@@ -515,7 +539,10 @@ class SegmentMode(SkeletonInfoMode):
         debug.mainthreadTest()
         self.index.set_text(sindex)
         self.length.set_text(length)
-        self.homog.set_text(homog)
+        if homog[0] == homog[1]:
+            self.homog.set_text(homog[0])
+        else:
+            self.homog.set_text(homog[0] + ", " + homog[1])
         self.bndy.set_text(bdynames)
 #         self.material.set_text(matname)
             
@@ -559,7 +586,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         clickbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        hbox.pack_start(Gtk.Label("Click on an: "),
+        hbox.pack_start(Gtk.Label(label="Click on an: "),
                         expand=False, fill=False, padding=0)
 
         self.modebuttons = []
@@ -582,7 +609,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         table = Gtk.Grid(row_spacing=2, column_spacing=2) 
         clickbox.pack_start(table, expand=False, fill=False, padding=0)
 
-        label = Gtk.Label('x=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='x=', halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,0, 1,1)
         self.xtext = Gtk.Entry(editable=False,
                                hexpand=True, halign=Gtk.Align.FILL)
@@ -590,7 +617,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.xtext.set_width_chars(13)
         table.attach(self.xtext, 1,0, 1,1)
 
-        label = Gtk.Label('y=', halign=Gtk.Align.END, hexpand=False)
+        label = Gtk.Label(label='y=', halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,1, 1,1)
         self.ytext = Gtk.Entry(editable=False,
                                hexpand=True, halign=Gtk.Align.FILL)
@@ -621,10 +648,10 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.clear.set_tooltip_text("Clear the current query.")
         buttonbox.pack_start(self.clear, expand=True, fill=True, padding=0)
 
-        self.next = gtkutils.nextButton()
-        gtklogger.connect(self.next, 'clicked', self.nextQuery)
-        self.next.set_tooltip_text("Go on to the next object")
-        buttonbox.pack_start(self.next, expand=False, fill=False, padding=0)
+        self.nextb = gtkutils.nextButton()
+        gtklogger.connect(self.nextb, 'clicked', self.nextQuery)
+        self.nextb.set_tooltip_text("Go on to the next object")
+        buttonbox.pack_start(self.nextb, expand=False, fill=False, padding=0)
 
         self.mainbox.pack_start(buttonbox, expand=False, fill=False, padding=0)
 
@@ -669,7 +696,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         debug.mainthreadTest()
         self.clear.set_sensitive(self.clearable())
         self.prev.set_sensitive(self.prev_able())
-        self.next.set_sensitive(self.next_able())
+        self.nextb.set_sensitive(self.next_able())
         gtklogger.checkpoint(self.gfxwindow().name + " " +
                              self._name + " sensitized")
 
@@ -701,7 +728,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         debug.mainthreadTest()
         if self.modeobj:
             self.modeobj.destroy()
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         self.sbcallbacks = []
         toolboxGUI.GfxToolbox.close(self)
 

@@ -110,38 +110,28 @@ std::ostream &GaussPoint::print(std::ostream &os) const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-GaussPointIterator::GaussPointIterator(const Element *el, int order)
+GaussPointIntegrator::GaussPointIntegrator(const Element *el, int order)
   : element(el),
-    gptable(el->masterelement().gausspointtable(order)),
-    currentpt(0) 
+    gptable(el->masterelement().gausspointtable(order))
 {}
 
-void GaussPointIterator::operator++() {
-  if(!end())
-    ++currentpt;
+GaussPointIterator GaussPointIntegrator::begin() const {
+  return GaussPointIterator(element, gptable, 0);
 }
 
-bool GaussPointIterator::end() const {
-  return currentpt == gptable.size();
+GaussPointIterator GaussPointIntegrator::end() const {
+  return GaussPointIterator(element, gptable, gptable.size());
 }
 
-GaussPoint GaussPointIterator::gausspoint() const {
+
+GaussPoint GaussPointIterator::operator*() const {
   return GaussPoint(element, gptable[currentpt].position,
-		    gptable[currentpt].weight, currentpt, order() );
+		    gptable[currentpt].weight, currentpt, gptable.order() );
 }
 
 GaussPoint *GaussPointIterator::gausspointptr() const {
   return new GaussPoint(element, gptable[currentpt].position,
-			gptable[currentpt].weight, currentpt, order() );
-}
-
-
-int GaussPointIterator::index() const {
-  return currentpt;
-}
-
-int GaussPointIterator::order() const {
-  return gptable.order();
+			gptable[currentpt].weight, currentpt, gptable.order() );
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

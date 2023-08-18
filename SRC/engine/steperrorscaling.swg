@@ -12,26 +12,28 @@
 #ifndef STEPERRORSCALING_SWG
 #define STEPERRORSCALING_SWG
 
-%module steperrorscaling
+%module(package="ooflib.SWIG.engine") steperrorscaling
 
-%include "engine/typemaps.swg"
-%pragma(python) include="steperrorscaling.spy"
+%include "common/typemaps.swg"
 %{
 #include "common/doublevec.h"
 #include "engine/steperrorscaling.h"
 %}
 
+%nodefaultctor StepErrorScaling;
+
 class StepErrorScaling {
 public:
   bool globalscaling();
-  %addmethods {
-    double __call__(double deltat, DoubleVec &start,
-		    DoubleVec &end0, DoubleVec &end1)
-    {
-      return (*self)(deltat, start, end0, end1);
-    }
-  }
 };
+
+%extend StepErrorScaling {
+  double __call__(double deltat, DoubleVec &start,
+		  DoubleVec &end0, DoubleVec &end1)
+  {
+    return (*self)(deltat, start, end0, end1);
+  }
+}
 
 class RelativeErrorScaling : public StepErrorScaling {
 public:
@@ -52,5 +54,7 @@ class GlobalErrorScaling : public StepErrorScaling {
 public:
   GlobalErrorScaling();
 };
+
+%pythoncode "engine/steperrorscaling.spy"
 
 #endif // STEPERRORSCALING_SWG

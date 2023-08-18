@@ -12,11 +12,16 @@ from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
+
+import itertools
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 from gi.repository import GObject
 from gi.repository import Gdk
-from gi.repository import Gtk
+
 import sys
-import types
 
 # The ChooserWidget creates a pull-down menu containing the given list
 # of objects.  The currently selected object is shown when the menu
@@ -67,7 +72,7 @@ import types
 ## ChooserWidget.set_state(arg) no longer allows arg to be an integer
 ## index.
 
-class ChooserWidget(object):
+class ChooserWidget:
     def __init__(self, objlist, callback=None, callbackargs=(),
                  update_callback=None, update_callback_args=(),
                  helpdict={}, name=None, separator_func=None,
@@ -129,7 +134,8 @@ class ChooserWidget(object):
 
     def makeSubWidget(self, name):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, margin=2)
-        label = Gtk.Label(name, halign=Gtk.Align.START, hexpand=True, margin=5)
+        label = Gtk.Label(label=name, halign=Gtk.Align.START,
+                          hexpand=True, margin=5)
         image = Gtk.Image.new_from_icon_name('pan-down-symbolic',
                                              Gtk.IconSize.BUTTON)
         hbox.pack_start(label, expand=True, fill=True, padding=2)
@@ -140,7 +146,7 @@ class ChooserWidget(object):
     # update() returns True if something changed.
     def update(self, objlist, helpdict={}):
         debug.mainthreadTest()
-        self.objlist = objlist[:]
+        self.objlist = list(objlist) # objlist might be an iterator
         namelist = [str(n) for n in self.objlist]
         if namelist == self.namelist and helpdict == self.helpdict:
             return False
@@ -201,7 +207,8 @@ class ChooserWidget(object):
                 # If the GtkComboBox allowed tooltips, we'd use it
                 # instead.
                 if name == self.current_string:
-                    menuitem = Gtk.MenuItem.new_with_label("")
+                    menuitem = Gtk.MenuItem(label="")
+                    gtklogger.setWidgetName(menuitem, name)
                     label = menuitem.get_child()
                     ## TODO: If we want to allow markup in names, then
                     ## we need to do something smarter here.
@@ -210,7 +217,7 @@ class ChooserWidget(object):
                     label.set_markup("<i>" + nm + "</i>")
                     menuitem.set_sensitive(False)
                 else:
-                    menuitem = Gtk.MenuItem(name)
+                    menuitem = Gtk.MenuItem(label=name)
                     gtklogger.setWidgetName(menuitem, name)
                     gtklogger.connect(menuitem, 'activate', self.activateCB,
                                       name)
@@ -255,14 +262,14 @@ class ChooserWidget(object):
         # failed silently if arg was not None, a string, or an int, or
         # if it was a string that wasn't in the list.  It's now an
         # error.  Also, ints aren't accepted as indices into the
-        # list. They're acepted if they're in objlist.
+        # list. They're accepted if they're in objlist.
         if (self.allowNone and arg is None) or self.nChoices() == 0:
             self.stack.set_visible_child(self.emptyMarker)
             newstr = None
         else:
             newstr = str(arg)
             if not newstr in self.namelist:
-                raise ooferror.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "Invalid ChooserWidget argument: %s" % arg)
             self.stack.set_visible_child_name(newstr)
 
@@ -290,7 +297,7 @@ class ChooserWidget(object):
         return self.objlist
             
     def dumpState(self, comment):
-        print >> sys.stderr, comment, self.current_string
+        print(comment, self.current_string, file=sys.stderr)
 
                 
 
@@ -300,7 +307,7 @@ class FakeChooserWidget:
     def __init__(self, namelist, callback=None, callbackargs=(),
                  update_callback=None, update_callback_args=(), helpdict={}):
         debug.mainthreadTest()
-        self.gtk = gtk.Label("Gen-u-wine Fake Widget")
+        self.gtk = Gtk.Label("Gen-u-wine Fake Widget")
         debug.fmsg(namelist)
     def show(self):
         pass
@@ -347,7 +354,7 @@ class NewChooserWidget(ChooserWidget):
         hbox.pack_start(self.gtk, expand=True, fill=True, padding=2)
         self.gtk = hbox
 
-        self.newbutton = Gtk.Button(buttontext)
+        self.newbutton = Gtk.Button(label=buttontext)
         hbox.pack_start(self.newbutton, expand=False, fill=False, padding=2)
         gtklogger.connect(self.newbutton, 'clicked', self.newbuttonCB)
     def newbuttonCB(self, button):
@@ -385,7 +392,7 @@ class ChooserListWidgetBase:
         debug.mainthreadTest()
         self.liststore = Gtk.ListStore(GObject.TYPE_STRING,
                                        GObject.TYPE_PYOBJECT)
-        self.treeview = Gtk.TreeView(self.liststore, **kwargs)
+        self.treeview = Gtk.TreeView(model=self.liststore, **kwargs)
         self.gtk = self.treeview
         self.treeview.set_property("headers-visible", 0)
         cell = Gtk.CellRendererText()
@@ -498,17 +505,16 @@ class ChooserListWidget(ChooserListWidgetBase):
         self.suppress_signals()
         old_obj = self.get_value()
         self.liststore.clear()
-
-        if not objlist:
-            self.liststore.append(["None", None])
-            self.treeview.set_sensitive(False)
-        else:
-            self.treeview.set_sensitive(True)
-            for obj, dispname in map(None, objlist, displaylist):
-                if dispname is not None:
-                    self.liststore.append([dispname, obj])
-                else:
-                    self.liststore.append([obj, obj])
+        # Either objlist or displaylist could be a generator instead
+        # of an actual list.
+        empty = True
+        for obj, dispname in itertools.zip_longest(objlist, displaylist):
+            self.liststore.append([obj if dispname is None else dispname,
+                                   obj])
+            empty = False
+        self.treeview.set_sensitive(not empty)
+        if empty:
+            self.liststore.append(["None", None]) # Is this needed?
         try:
             index = self.find_obj_index(old_obj)
         except ValueError:
@@ -552,11 +558,9 @@ class MultiListWidget(ChooserListWidgetBase):
         self.suppress_signals()
         old_objs = self.get_value()
         self.liststore.clear()
-        for obj, dispname in map(None, objlist, displaylist):
-            if dispname is not None:
-                self.liststore.append([dispname, obj])
-            else:
-                self.liststore.append([obj, obj])
+        for obj, dispname in itertools.zip_longest(objlist, displaylist):
+            self.liststore.append([obj if dispname is None else dispname,
+                                   obj])
         treeselection = self.treeview.get_selection()
         for obj in old_objs:
             try:
@@ -661,10 +665,10 @@ class ChooserComboWidget:
 
     def set_state(self, arg):
         debug.mainthreadTest()
-        if type(arg) == types.IntType:
+        if type(arg) == int:
             liststore = self.combobox.get_model()
             self.combobox.get_child().set_text(liststore[arg][0])
-        elif type(arg) == types.StringType:
+        elif isinstance(arg, (str, bytes)):
             self.combobox.get_child().set_text(arg)
         self.combobox.get_child().set_position(-1)
 

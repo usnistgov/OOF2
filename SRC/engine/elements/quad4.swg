@@ -12,13 +12,16 @@
 #ifndef QUAD4_SWIG
 #define QUAD4_SWIG
 
-%module quad4
-%include "engine/typemaps.swg"
+%module(package="ooflib.SWIG.engine.elements") quad4
+
+%include "common/typemaps.swg"
 %{
   extern void quad4init();
 %}
 void quad4init();
 
-%pragma(python) include="quad4.spy"
+%pythoncode %{
+  quad4init()
+%}
 
 #endif // QUAD4_SWIG

@@ -17,16 +17,16 @@ from ooflib.engine import profile
 from ooflib.engine import profilefunction
 from ooflib.engine.IO.GUI import meshparamwidgets
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import types
-
 
 class ProfileFunctionXWidget(parameterwidgets.XYStrFunctionWidget):
     def get_value(self):
         debug.mainthreadTest()
         return profilefunction.ProfileFunctionX(self.gtk.get_text().lstrip())
     def validValue(self, value):
-        if type(value) is types.StringType:
+        if isinstance(value, (str, bytes)):
             try:
                 fn = profilefunction.ProfileFunctionX(value)
                 return True
@@ -44,7 +44,7 @@ class ProfileFunctionXTWidget(parameterwidgets.XYTStrFunctionWidget):
         debug.mainthreadTest()
         return profilefunction.ProfileFunctionXT(self.gtk.get_text().lstrip())
     def validValue(self, value):
-        if type(value) is types.StringType:
+        if isinstance(value, (str, bytes)):
             try:
                 fn = profilefunction.ProfileFunctionXT(value)
                 return True
@@ -67,7 +67,7 @@ class LabelledProfileRCF:
         debug.mainthreadTest()
         self.fpsw = fpsw                # parent FluxProfileSetWidget
         self.gtk = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
-        self.label = Gtk.Label(label+" = ")
+        self.label = Gtk.Label(label=label+" = ")
         self.widget = regclassfactory.RegisteredClassFactory(
             profile.ProfileXT.registry, scope=scope, name=label)
         self.sbcb = switchboard.requestCallbackMain(self.widget, self.rcfCB)
@@ -100,7 +100,7 @@ class LabelledProfileRCF:
 class FluxProfileSetWidget(parameterwidgets.ParameterWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
         if scope is None:
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "FluxProfileSetWidget instanced with no scope.")
         self.scope=scope
         self.fluxwidget = scope.findWidget(

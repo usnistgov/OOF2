@@ -144,12 +144,12 @@ def materialCheck(materialname, propertypaths):
     from ooflib.engine import materialmanager
     from ooflib.engine import propertyregistration
     matl = materialmanager.getMaterial(materialname)
-    regs = [prop.registration() for prop in matl.properties()]
+    regs = [prop.registration() for prop in matl.properties]
     if len(propertypaths) != len(regs):
         return False
     for path in propertypaths:
         if propertyregistration.AllProperties[path] not in regs:
-            print >> sys.stderr, "Property", path, "not found in", materialname
+            print("Property", path, "not found in", materialname, file=sys.stderr)
             return False
     return True
     
@@ -165,8 +165,8 @@ def selectedMatlPropertyCheck(propertypath):
         return True
     if model[iter][0] == propertypath:
         return True
-    print "Selected property is %s. Expected %s." \
-          % (model[iter][0], propertypath)
+    print("Selected property is %s. Expected %s." \
+          % (model[iter][0], propertypath))
     return False
 
 def skeletonPageSensitivityCheck0():

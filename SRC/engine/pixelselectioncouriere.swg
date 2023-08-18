@@ -12,19 +12,17 @@
 #ifndef PIXELSELECTIONCOURIERE_SWG
 #define PIXELSELECTIONCOURIERE_SWG
 
-%module pixelselectioncouriere
+%module(package="ooflib.SWIG.engine") pixelselectioncouriere
 
-%include "engine/typemaps.swg"
-%extern "common/pixelselectioncourier.swg"
+%include "common/typemaps.swg"
+%import "common/coord.swg"
+%import "common/pixelselectioncourier.swg"
 
 %{
 #include "common/coord.h"
 #include "engine/pixelselectioncouriere.h"
 #include "engine/cskeleton.h"
 %}
-
-%pragma(python) code="from ooflib.SWIG.common.pixelselectioncourier import PixelSelectionCourierPtr"
-
 
 class ElementSelection : public PixelSelectionCourier {
 public:
@@ -38,7 +36,9 @@ public:
   ~SegmentSelection() {}
 };
 
-class MaterialSelectionBase : public PixelSelectionCourier {}
+%nodefaultctor MaterialSelectionBase;
+
+class MaterialSelectionBase : public PixelSelectionCourier {};
 
 class MaterialSelection : public MaterialSelectionBase {
 public:

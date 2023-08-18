@@ -12,11 +12,11 @@ from ooflib.SWIG.common import threadstate
 from ooflib.common import mainthread
 from ooflib.common import parallel_enable
 from ooflib.common import thread_enable
+from ooflib.common.utils import stringjoin, stringsplit
 import ooflib.SWIG.common.lock
 
 import gc
 import os
-import string
 import sys
 import traceback
 import types
@@ -67,13 +67,13 @@ def dumpTrace(start=0, end=-1):
             lines.append('+++%30s:%3d\t%s\t\t%s' % (line[0],line[1],
                                                         line[2],line[3]))
         lines.append('+++-------------- end trace -----------------')
-        print >> sys.stderr, string.join(lines, '\n')
+        print(stringjoin(lines, '\n'), file=sys.stderr)
     finally:
         lock.release()
 
 def dumpCaller(offset=0):
     if _debug_mode:
-        print >> sys.stderr, callerID(-4-offset)
+        print(callerID(-4-offset), file=sys.stderr)
 
 def callerID(depth=-3):
     if _debug_mode:
@@ -105,9 +105,8 @@ def msg(*args):
                 rank="%02d" % mpitools.Rank()
             else:
                 rank='--'
-            print >> sys.stderr, \
-                  ('-%04d-%02d-%s'%(depth,thread,rank))+'-'*(depth-1), \
-                  string.join(map(str, args), ' ')
+            print(('-%04d-%02d-%s'%(depth,thread,rank))+'-'*(depth-1), \
+                  stringjoin(list(map(str, args)), ' '), file=sys.stderr)
         finally:
             lock.release()
 
@@ -124,7 +123,7 @@ def fmsg(*args):
         try:
             stack = traceback.extract_stack()
             depth = len(stack)
-            filename = string.split(stack[-2][0], '/')[-1]
+            filename = stringsplit(stack[-2][0], '/')[-1]
             func = stack[-2][2]
             line = stack[-2][1]
             try:
@@ -136,10 +135,9 @@ def fmsg(*args):
                 rank="%02d" % mpitools.Rank()
             else:
                 rank='--'
-            print >> sys.stderr, \
-                  ('-%04d-%s-%s'%(depth,thread,rank))+'-'*(depth-1), \
+            print(('-%04d-%s-%s'%(depth,thread,rank))+'-'*(depth-1), \
                   '%s(%d):%s'%(filename, line, func),\
-                  string.join(map(str, args), ' ')
+                  stringjoin(list(map(str, args)), ' '), file=sys.stderr)
         finally:
             lock.release()
 
@@ -164,28 +162,29 @@ def dumpReferrers(obj, levels=0, exclude=[], _level=0):
     if _debug_mode:
         refs = gc.get_referrers(obj)
         if _level==0:
-            print >> sys.stderr, len(refs), "references", \
-                [type(ref) for ref in refs]
+            print(len(refs), "references", \
+                [type(ref) for ref in refs], file=sys.stderr)
         for ref in refs:
             reftype = type(ref)
-            if reftype is types.FrameType:
-                print >> sys.stderr, "-> %2d"%_level, "  "*_level,
-                print >> sys.stderr, "frame", ref.f_code.co_filename, \
-                    ref.f_code.co_name, ref.f_lineno
+            if reftype is types.FrameType: # only in Python2 ?
+                print("-> %2d"%_level, "  "*_level, end=' ', file=sys.stderr)
+                print("frame", ref.f_code.co_filename, \
+                    ref.f_code.co_name, ref.f_lineno, file=sys.stderr)
             elif ref is not obj and ref not in exclude:
-                print >> sys.stderr, "-> %2d"%_level, "  "*_level,
-                if reftype is types.InstanceType:
-                    print >> sys.stderr, "instance", ref.__class__.__name__, ref
-                elif reftype is types.DictType:
-                    for key,val in ref.items():
+                print("-> %2d"%_level, "  "*_level, end=' ', file=sys.stderr)
+                if not inspect.isclass(reftype):
+                    print("instance", ref.__class__.__name__, ref,
+                          file=sys.stderr)
+                elif reftype is dict:
+                    for key,val in list(ref.items()):
                         if key is obj:
-                            print >> sys.stderr, "dict key"
+                            print("dict key", file=sys.stderr)
                             break
                         if val is obj:
-                            print >> sys.stderr, "dict val, key =", key
+                            print("dict val, key =", key, file=sys.stderr)
                             break
                     else:
-                        print >> sys.stderr, "obj not found in dict?"
+                        print("obj not found in dict?", file=sys.stderr)
 #                     if ref is globals():
 #                         print >> sys.stderr, "globals"
 #                     elif ref is locals():
@@ -193,10 +192,33 @@ def dumpReferrers(obj, levels=0, exclude=[], _level=0):
 #                 elif reftype is types.FrameType:
 #                     print >> sys.stderr, "frame", dir(ref)
                 else:
-                    print >> sys.stderr, "other", type(ref), ref
+                    print("other", type(ref), ref, file=sys.stderr)
                 if _level < levels:
                     dumpReferrers(ref, levels,
                                   exclude=exclude+[locals(), refs], 
                                   _level=_level+1)
 
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+_dumpFile = None
+
+def openDumpFile(name):
+    if _debug_mode:
+        global _dumpFile
+        if _dumpFile is not None:
+            _dumpFile.close()
+        _dumpFile = open(name, "w")
+        fmsg("dumpfile is", name, _dumpFile)
+
+def closeDumpFile():
+    if _debug_mode:
+        global _dumpFile
+        if _dumpFile is not None:
+            _dumpFile.close()
+            _dumpFile = None
+
+def dump(*args):
+    global _dumpFile
+    if _debug_mode and _dumpFile is not None:
+        print(*args, file=_dumpFile)

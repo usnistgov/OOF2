@@ -12,60 +12,62 @@
 #ifndef EQUATION_SWG
 #define EQUATION_SWG
 
-%module equation
-%include "engine/typemaps.swg"
-%extern "engine/nodalequation.swg"
-%extern "engine/planarity.swg"
-%extern "engine/flux.swg"
-%extern "engine/csubproblem.swg"
+%module(package="ooflib.SWIG.engine") equation
+
+%include "common/typemaps.swg"
+%import "engine/csubproblem.swg"
+%import "engine/fieldindex.swg"
+%import "engine/flux.swg"
+%import "engine/nodalequation.swg"
+%import "engine/planarity.swg"
 
 %{
 #include "engine/equation.h"
+#include "engine/fieldindex.h"
+#include "engine/flux.h"
+#include "engine/node.h"
+#include <vector>
+typedef std::vector<Equation*> EquationVec;
+typedef FieldIndex NewFieldIndex;
 %}
 
-%pragma(python) include="equation.spy"
-%pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
-%pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
+PYTHONEXPORTABLE(Equation);
+MAKE_LISTVEC_TYPEMAPS(Equation);
 
-%pragma(python) code="from ooflib.SWIG.engine.flux import FluxPtr"
-
-%typemap(python, out) Equation* {
-   // typemap(python, out) Equation*
-   $target = $source->pythonObject();
-   if(!$target)
-     return 0;
-}
+%nodefaultctor Equation;
+%rename(c_components) Equation::components;
 
 class Equation {
 public:
-  const string &name();
+  const std::string &name();
   int objectid();
   int dim();
   int ndof();			// same as dim()
-  // string fluxname();
-  // Flux *flux();
   NodalEquation *nodaleqn(const FuncNode&, int);
-  IteratorP iterator();
-  %addmethods{
-    // iterator_all is used in situations in which it's not known if
-    // we're iterating over a Field, Flux, or Equation.
-    // Field::iterator and Flux::iterator take an argument, but
-    // iterator_all doesn't.
-    IteratorP iterator_all() {
-      return self->iterator();
-    }
-  }
-  IndexP componenttype();
-  IndexP getIndex(char*);
   int is_active(const CSubProblem*);
   bool allow_boundary_conditions();
+  static Equation *getEquation(const std::string&);
+  ComponentsP components();
+  NewFieldIndex *getIndex(const std::string&) const;
 };
+
+%extend Equation {
+  bool __eq__(Equation *other) {
+    return self->objectid() == other->objectid();
+  }
+};
+
+%nodefaultctor FluxEquation;
 
 class FluxEquation : public Equation {
 public:
-  const string &fluxname();
+  const std::string &fluxname();
   Flux *flux();
 };
+
+%pythonappend NaturalEquation::NaturalEquation %{
+  finishConstruction(self)
+%}
 
 // Natural equations don't require a flux.
 class NaturalEquation : public Equation {
@@ -73,10 +75,18 @@ public:
   NaturalEquation(char *name, int dim);
 };
 
+%pythonappend DivergenceEquation::DivergenceEquation %{
+  finishConstruction(self)
+%}
+
 class DivergenceEquation : public FluxEquation {
 public:
   DivergenceEquation(char *name, Flux &flux, int dim);
 };
+
+%pythonappend PlaneFluxEquation::PlaneFluxEquation %{
+  finishConstruction(self)
+%}
 
 class PlaneFluxEquation : public FluxEquation {
 public:
@@ -85,12 +95,7 @@ public:
 
 int countEquations();
 Equation *getEquationByIndex(int);
-Equation *getEquationByName(char *);
 
-%{
-  Equation *getEquationByName(const std::string &name) {
-    return Equation::getEquation(name);
-  }
-%}
+%pythoncode "engine/equation.spy"
 
 #endif // EQUATION_SWG

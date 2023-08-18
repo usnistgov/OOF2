@@ -12,19 +12,24 @@
 #ifndef BDYANALYSIS_SWG
 #define BDYANALYSIS_SWG
 
-#include <oofconfig.h>
+%module(package="ooflib.SWIG.engine") bdyanalysis
 
-%module bdyanalysis
+%include "common/typemaps.swg"
+%import "engine/outputval.swg"
+%import "engine/flux.swg"
+%import "engine/field.swg"
+%import "engine/edgeset.swg"
+%import "engine/femesh.swg"
 
-%include "engine/typemaps.swg"
 %{
 #include "engine/bdyanalysis.h"
+#include "engine/edgeset.h"
+#include "engine/field.h"
+#include "engine/flux.h"
+#include "engine/outputval.h"
 %}
 
-%extern "engine/outputval.swg"
-%pragma(python) code="from ooflib.SWIG.engine.outputval import OutputValuePtr"
-
-OutputValue integrateFlux(FEMesh*, Flux*, EdgeSet*);
-OutputValue averageField(FEMesh*, Field*, EdgeSet*);
+ArithmeticOutputValue integrateFlux(FEMesh*, Flux*, EdgeSet*);
+ArithmeticOutputValue averageField(FEMesh*, Field*, EdgeSet*);
 
 #endif // BDYANALYSIS_SWG

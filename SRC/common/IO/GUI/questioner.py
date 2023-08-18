@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -25,7 +24,11 @@ from ooflib.common import mainthread
 from ooflib.common import thread_enable
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
 import threading
 
 # Ugly code here...  We want questions posed with the questioner to be
@@ -53,18 +56,19 @@ class _Questioner:
         debug.mainthreadTest()
 
         if len(answers)==0:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Questioner must have at least one possible answer.")
 
         parentwindow = kwargs['parentwindow']
         self.answers = answers
-        self.gtk = gtklogger.Dialog(border_width=3, parent=parentwindow)
+        self.gtk = gtklogger.Dialog(border_width=3, transient_for=parentwindow)
         self.gtk.set_keep_above(True)
         gtklogger.newTopLevelWidget(self.gtk, "Questioner")
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         vbox = self.gtk.get_content_area()
         vbox.pack_start(hbox, expand=True, fill=True, padding=15)
-        hbox.pack_start(Gtk.Label(question), expand=True, fill=True, padding=15)
+        hbox.pack_start(Gtk.Label(label=question),
+                        expand=True, fill=True, padding=15)
         self.defaultbutton = None
 
         try:
@@ -83,7 +87,7 @@ class _Questioner:
                 button = gtkutils.StockButton(stock, answer)
             except KeyError:
                 debug.fmsg('no stock icon for', answer)
-                button = Gtk.Button(answer)
+                button = Gtk.Button(label=answer)
             gtklogger.setWidgetName(button, answer)
             self.gtk.add_action_widget(button, count)
             self.answerdict[count] = answer

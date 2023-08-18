@@ -51,7 +51,7 @@ class ScheduledOutputWidget(parameterwidgets.ParameterWidget):
                                interactive=False)
         
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         parameterwidgets.ParameterWidget.cleanUp(self)
     def get_value(self):
         return self.chooser.get_value()

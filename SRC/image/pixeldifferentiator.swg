@@ -12,22 +12,18 @@
 #ifndef PIXELDIFFERENTIATORI_SWG
 #define PIXELDIFFERENTIATORI_SWG
 
-%module pixeldifferentiator
+%module(package="ooflib.SWIG.image") pixeldifferentiator
+
 %include "common/typemaps.swg"
+%import "common/burn.swg"
+%import "common/statgroups.swg"
+%import "image/oofimage.swg"
 
 %{
 #include "common/cmicrostructure.h"
 #include "image/pixeldifferentiator.h"
 #include "image/oofimage.h"
 %}
-
-%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
-%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator2Ptr"
-%pragma(python) code="from ooflib.SWIG.common.statgroups import PixelDistributionFactoryPtr"
-
-%pragma(python) include="image/pixeldifferentiator.spy"
-%extern "common/burn.swg"
-%extern "common/statgroups.swg"
 
 class CColorDifferentiator3 : public CPixelDifferentiator3 {
 public:
@@ -43,5 +39,7 @@ class ColorPixelDistFactory : public PixelDistributionFactory {
 public:
   ColorPixelDistFactory(OOFImage*, double);
 };
+
+%pythoncode "image/pixeldifferentiator.spy"
 
 #endif // PIXELDIFFERENTIATORI_SWG

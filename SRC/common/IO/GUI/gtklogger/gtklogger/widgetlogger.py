@@ -8,13 +8,14 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import loggers
-from gi.repository import Gdk
+from . import loggers
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import logutils
+from gi.repository import Gdk
+from . import logutils
 
 import sys
-import string
 
 # When recording, _wdict[obj] is the name of a variable which, when
 # replaying, will be storing a weak reference to obj.  All the
@@ -30,9 +31,9 @@ class WidgetLogger(loggers.GtkLogger):
         # list of strings and the colon separated string.
         path = logutils.getWidgetPath(widget)
         if path[0] not in logutils.getTopWidgetNames():
-            raise logutils.GtkLoggerException(string.join(path, ':') + 
+            raise logutils.GtkLoggerException(':'.join(path) + 
                                      " is not contained in a top-level widget")
-        return "findWidget('%s')" % string.join(path, ':')
+        return "findWidget('%s')" % ':'.join(path)
 
     def record(self, obj, signal, *args):
         if signal in ('button-press-event', 'button-release-event'):
@@ -172,7 +173,7 @@ modifiernames = ["Shift_L", "Shift_R",
                  "Control_L", "Control_R",
                  "Meta_L", "Meta_R",
                  "Alt_L", "Alt_R"]
-modifierkeyvals = map(Gdk.keyval_from_name, modifiernames)
+modifierkeyvals = list(map(Gdk.keyval_from_name, modifiernames))
 
 def is_modifier(keyval):
     return keyval in modifierkeyvals

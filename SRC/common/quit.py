@@ -30,7 +30,7 @@ def quit(*args, **kwargs):
     # used as a menu callback.
     exitstatus = kwargs.get('exitstatus', 0)
     if mainmenu.OOF.logChanged() and not quiet():
-        answer = utils.OOFeval('raw_input("*Save log file? [Yn]: ")')
+        answer = utils.OOFeval('input("*Save log file? [Yn]: ")')
         if answer in ('','Y','y','yes','Yes', 'YES'):  # Oh, yes!
             mainmenu.OOF.File.Save.Python_Log()
             mainmenu.cleanlog()

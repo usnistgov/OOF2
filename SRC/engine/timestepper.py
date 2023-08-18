@@ -10,7 +10,7 @@
 
 import sys
 
-from ooflib.SWIG.engine import ooferror2
+from ooflib.SWIG.engine import ooferror
 from ooflib.SWIG.engine import steperrorscaling
 from ooflib.common import debug
 from ooflib.common import registeredclass
@@ -178,7 +178,7 @@ class NonLinearStepper(TimeStepper):
 # NonLinearStepper subclasses can use this class, derive from it, or
 # define their own data container if necessary.
 
-class NLData(object):
+class NLData:
     def __init__(self, subproblem, linsys, time):
         # The LinearizedSystem that's passed in as the linsys argument
         # will only be used in NonLinearStepper.precomputeNL to
@@ -203,7 +203,7 @@ class NLData(object):
 ## it to the LinearizedSystem, which would use it to return the
 ## correct submatrices and subvectors.
 
-class NonStaticStepper(object):
+class NonStaticStepper:
     def rhs_ind_part(self, part, linsys):
         return linsys.rhs_ind_part(part)
 
@@ -289,7 +289,7 @@ class QCTimeStepper(registeredclass.RegisteredClass):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class StepResult(object):
+class StepResult:
     def __init__(self, endTime=None, endValues=None, nextStep=None,
                  errorEstimate=None, linsys=None):
         self.endTime = endTime
@@ -359,7 +359,7 @@ class AdaptiveDriver(StepDriver):
                 # debug.fmsg("delta delta t=%15g t=%15g dt=%15g not ok" %
                 #            (dt-newstep, time, newstep))
                 if newstep < self.minstep or time + newstep == time:
-                    raise ooferror2.ErrTimeStepTooSmall(newstep)
+                    raise ooferror.PyErrTimeStepTooSmall(newstep)
                 # If the error is just slightly more than the
                 # tolerance, we'll be making a very small change in
                 # the stepsize, and it may take many iterations to

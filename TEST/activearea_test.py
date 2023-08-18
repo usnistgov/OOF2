@@ -22,8 +22,8 @@
 # Expand, Shrink, Invert, Copy, Undo, Redo
 
 import unittest, os, filecmp
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 # The system starts up with no stored/named active areas, and with all
 # pixels in the microstructure active.  Active areas are stored in the
@@ -97,9 +97,9 @@ class ActiveArea(unittest.TestCase):
     @memorycheck.check("active")
     def Override(self):
         OOF.ActiveArea.Override(override=True, microstructure="active")
-        self.assert_(self.ms().activearea.getOverride())
+        self.assertTrue(self.ms().activearea.getOverride())
         OOF.ActiveArea.Override(override=False, microstructure="active")
-        self.assert_(not self.ms().activearea.getOverride())
+        self.assertTrue(not self.ms().activearea.getOverride())
         
     
     @memorycheck.check("active")

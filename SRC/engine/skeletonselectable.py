@@ -59,21 +59,17 @@ class SkeletonSelectable:
     # child objects can be messed up if equal-index objects compare
     # equally.  You want an __eq__ operator in general so that
     # equality comparisons will be fast -- so, compare object IDs.
-    # The __lt__ and __cmp__ operators are different, they are used
-    # for ordering objects in uniquelists, in particular in the
-    # "group" objects.  In this case, you *do* want to order by index,
-    # because you want the ordering to be repeatable over different
-    # runs or architectures.  So, in that case, use index comparison.
-    # The pathology here is that you could have two selectables A and
-    # B, with the properties that A is not less than B, B is not less
-    # than A, and A is not equal to B.  This case doesn't arise.
+    # The __lt__ operator is different. It is used for ordering
+    # objects in uniquelists, in particular in the "group" objects.
+    # In this case, you *do* want to order by index, because you want
+    # the ordering to be repeatable over different runs or
+    # architectures.  So, in that case, use index comparison.  The
+    # pathology here is that you could have two selectables A and B
+    # with the same index but different ids, so A is not less than B,
+    # B is not less than A, and A is not equal to B.  This case
+    # doesn't arise.
     def __eq__(self, other):
         return id(self)==id(other)
-
-    def __cmp__(self, other):
-        if not isinstance(other, self.__class__):
-            return -1
-        return cmp(self.index, other.index)
 
     def __lt__(self, other):
         if not isinstance(other, self.__class__):
@@ -252,6 +248,9 @@ class SkeletonSelectable:
         self.children.append(new)
         return new
 
+    def youngest_child(self):
+        return self.children[-1]
+
     # Add/remove parents and children.  Hides the implementation.
     # Does not promise consistency between parents and children.
     # *Does* promise uniqueness of objects in the lists.
@@ -351,7 +350,7 @@ class SelectableMap:
         self.target = target or []
     def __repr__(self):
         return "SelectableMap(source=%s, target=%s)" % \
-               (`self.source`, `self.target`)
+               (repr(self.source), repr(self.target))
         
 
 
@@ -374,8 +373,8 @@ class SelectableMap:
 class SelectionTrackerBase:
     def __init__(self):
         self.data = set()  # set of SkeletonSelectables
-    def add(self, object):
-        self.data.add(object)
+    def add(self, obj):
+        self.data.add(obj)
     def clone(self):
         shakes = self.__class__()
         shakes.data = self.data.copy()
@@ -573,15 +572,13 @@ class SelectionBase:
         self.rwLock = lock.RWLock()
 
         self.sbcallbacks = [
-            # switchboard.requestCallback(('who changed', 'Skeleton'),
-            #                             self.newSkeleton),
             switchboard.requestCallback(('whodoundo push',
                                          'Skeleton'),
                                         self.whoChanged0)
             ]
 
     def destroy(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         self.stack.clear()      # break circular references
         
     # "Start" should be called prior to operations which are
@@ -596,11 +593,10 @@ class SelectionBase:
                 set.implied_select(oldskeleton, newskeleton)
             self.stack.current().writeskeleton(newskeleton)
 
-    # Response to mesh modification events [('who changed', 'Skeleton') signal]
-    def newSkeleton(self, skelcontext):
-        if skelcontext is self.skeletoncontext:
-            self.timestamp.increment()  # enforces a redraw.
-            self.signal()
+    def newSkeleton(self):
+        # Called from SkeletonContext.updateGroupsAndSelections
+        self.timestamp.increment()  # enforces a redraw.
+        self.signal()
 
     # This returns a SelectionSet object, which has the current state
     # for the entire stack.  To get the current skeleton's current
@@ -730,7 +726,9 @@ class Selection(SelectionBase):
             del plist[0]
         return (clist, plist)
     
-    # The Four Selection Operations.
+    # The Four Selection Operations.  The objlist parameter doesn't
+    # have to be a list, it just has to be iterable.
+
     def select(self, objlist):
         (clist, plist) = self.trackerlist()
         skeleton = self.skeletoncontext.getObject()
@@ -775,17 +773,18 @@ class Selection(SelectionBase):
     # Selects objects from already selected ones
     def selectSelected(self, objlist):
         (clist, plist) = self.trackerlist()
-        skeleton = self.skeletoncontext.getObject()        
-        for o in self.all_objects():
-            if o.active(skeleton) and o.selected and o not in objlist:
+        skeleton = self.skeletoncontext.getObject()
+        deselect = self.retrieve() - set(objlist)
+        for o in deselect:
+            if o.active(skeleton):
                 o.deselect(clist, plist)
         self.timestamp.increment()
 
     def clear(self):
         (clist, plist) = self.trackerlist()
         skeleton = self.skeletoncontext.getObject()
-        for o in self.all_objects():
-            if o.active(skeleton) and o.selected:
+        for o in list(self.retrieve()):
+            if o.active(skeleton):
                 o.deselect(clist, plist)
         self.timestamp.increment()
 
@@ -798,56 +797,47 @@ class Selection(SelectionBase):
 # selection manipulation routines can send the correct switchboard
 # signals.  They are also distinguished by their method for getting
 # all of the objects in the current skeleton, which is needed by
-# "invert".  The "retrieveInOrder" function is used by certain
-# Skeleton modification routines that need predictability in debug
-# mode.  It ensures that the objects are returned in the same order
-# each time.
+# "invert".
+
+# The "retrieveInOrder" methods are used by certain Skeleton
+# modification routines that need predictability for testing. They
+# ensure that the objects are returned in the same order each time.
+# (They're required because the selections are stored as sets, which
+# don't guarantee reproducible iteration order.)  They work by
+# iterating over all objects in the Skeleton (in known order) and
+# returning the selected ones.
 
 class ElementSelection(Selection):
     def all_objects(self):
         return self.skeletoncontext.getObject().elements
     def mode(self):
         return skeletonselmodebase.getMode("Element")
-    def retrieveInOrder(self):
-        skel = self.skeletoncontext.getObject()
-        nelem = len(self.retrieve())
-        ordered = []
-        count = 0
-        for e in skel.element_iterator():
-            if e.selected:
-                ordered.append(e)
-                count += 1
-                if count == nelem:
-                    return ordered
-        return []
+    def retrieveInOrder(self, condition=lambda x: True):
+        return self.skeletoncontext.getObject().element_iterator(
+            lambda e : e.selected and condition(e))
     def maxSize(self):
+        return self.skeletoncontext.getObject().nelements()
+    def __len__(self):
         return self.skeletoncontext.getObject().nelements()
 
 class SegmentSelection(Selection):
     def all_objects(self):
-        return self.skeletoncontext.getObject().segments.values()
+        return list(self.skeletoncontext.getObject().segments.values())
     def mode(self):
         return skeletonselmodebase.getMode("Segment")
+    def retrieveInOrder(self, condition=lambda x: True):
+        return self.skeletoncontext.getObject().segment_iterator(
+            lambda s : s.selected and condition(s))
     def maxSize(self):
         return len(self.all_objects())
-
+    
 class NodeSelection(Selection):
     def all_objects(self):
         return self.skeletoncontext.getObject().nodes
     def mode(self):
         return skeletonselmodebase.getMode("Node")
-    def retrieveInOrder(self):
-        skel = self.skeletoncontext.getObject()
-        nnode = len(self.retrieve())
-        ordered = []
-        count = 0
-        for n in skel.node_iterator():
-            if n.selected:
-                ordered.append(n)
-                count += 1
-                if count == nnode:
-                    return ordered
-        else:
-            return []
+    def retrieveInOrder(self, condition=lambda x: True):
+        return self.skeletoncontext.getObject().node_iterator(
+            lambda n : n.selected and condition(n))
     def maxSize(self):
         return len(self.skeletoncontext.getObject().nodes)

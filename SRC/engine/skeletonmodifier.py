@@ -21,8 +21,6 @@ elif config.dimension() == 3:
     from ooflib.engine import skeleton3d as skeleton
 from ooflib.engine.IO import skeletongroupparams
 
-import random
-
 ########################
 
 # The alpha parameter for computing an element's effective energy is
@@ -201,10 +199,10 @@ registeredclass.Registration(
 
 class SkelModCriterion(registeredclass.RegisteredClass):
     registry = []
-    def __call__(self, changes, skel):
-        # Child classes must provide __call__ method with
-        # ProvisionalChanges, Skeleton as arguments
-        pass    
+    # def __call__(self, changes, skel):
+    #     # Child classes must provide __call__ method with
+    #     # ProvisionalChanges, Skeleton as arguments
+    #     pass    
     def hopeless(self):
         return 0
     
@@ -222,7 +220,7 @@ class LimitedSkelModCriterion(SkelModCriterion):
         for el in change.elBefore():
             homog_before[el] = el.homogeneity(skel.MS, False)
             shape_before[el] = el.energyShape()
-        change.makeNodeMove(skel)
+        change.makeNodeMove()
         for el in change.elAfter():
             key = el.getPositionHash()
             try:
@@ -233,15 +231,14 @@ class LimitedSkelModCriterion(SkelModCriterion):
                 skel.cachedHomogeneities[key] = homogeneity            
             homog_after[el] = el.homogeneity(skel.MS, False)
             shape_after[el] = el.energyShape()
-        change.moveNodeBack(skel)
+        change.moveNodeBack()
         # In parallel-mode, changes from other processes also need
         # to be considered.
         if parallel_enable.enabled():
-            for i, h0,h1, s0,s1 in zip(range(len(change.parallelHomog0)),
-                                       change.parallelHomog0,
-                                       change.parallelHomog1,
-                                       change.parallelShape0,
-                                       change.parallelShape1):
+            for i, h0,h1, s0,s1 in enumerate(zip(change.parallelHomog0,
+                                                 change.parallelHomog1,
+                                                 change.parallelShape0,
+                                                 change.parallelShape1)):
                 homog_before[i] = h0
                 homog_after[i] = h1
                 shape_before[i] = s0
@@ -279,15 +276,15 @@ class AverageEnergy(SkelModCriterion):
         bestE = 0.0
         bestchange = None
         for change in changes:
-            if not (change is None or change.illegal(skel)):
-                diff = change.deltaE(skel, self.alpha)  # energy difference
+            if not (change is None or change.illegal()):
+                diff = change.deltaE(self.alpha)  # energy difference
                 if diff < bestE:
                     bestchange = change
                     bestE = diff
                     
         for change in changes:
             if change is not None and change is not bestchange:
-                change.removeAddedNodes(skel)
+                change.removeAddedNodes()
         return bestchange
 
 registeredclass.Registration(
@@ -299,43 +296,6 @@ registeredclass.Registration(
     tip = 'Accept the change, if any, that improves the average energy the most.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/average_energy.xml'))
 
-
-#class AverageEnergyBestOf(SkelModCriterion):
-#    def __init__(self, alpha, num):
-#        self.alpha = alpha
-#        self.num = num
-    # Finds the best available change(lowering average energy the most)
-    # that is legal.
-#    def __call__(self, changes, skel):
-#        bestE = 0.0
-#        bestchange = None
-#        changesconsidered = []
-#        for change in changes:
-#            if not (change is None or change.illegal(skel) or change.deltaEBound(skel, self.alpha) >= 0):
-#                changesconsidered.append(change)
-#        if len(changesconsidered) > self.num:
-#            changesconsidered = changesconsidered[:self.num]
-#        for change in changesconsidered:
-#            diff = change.deltaE(skel, self.alpha)  # energy difference
-#            if diff <= bestE:
-#                bestchange = change
-#                bestE = diff
-#                    
-#        for change in changes:
-#            if change is not None and change is not bestchange:
-#                change.removeAddedNodes(skel)
-#        return bestchange
-
-#registeredclass.Registration(
-#    'Average Energy Best Of',
-#    SkelModCriterion,
-#    AverageEnergyBestOf,
-#    ordering=4,
-#    params=[alphaParameter, parameter.IntParameter('num', value=5, tip="number of possibilities to consider")],
-#    tip = 'Accept the change, if any, that improves the average energy the most.  Limit the number of possibilities considered.',
-#    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/average_energy.xml'))
-
-
 # Accept any modification as long as it stays in the legal boundaries
 class Unconditional(SkelModCriterion):
     def __init__(self, alpha):
@@ -346,13 +306,13 @@ class Unconditional(SkelModCriterion):
         bestE = None
         bestchange = None
         for change in changes:
-            if not (change is None or change.illegal(skel)):
+            if not (change is None or change.illegal()):
                 # Reads ... are  you the first non-trivial in the list?
                 if bestE is None and bestchange is None:
                     bestchange = change
-                    bestE = change.deltaE(skel, self.alpha)
+                    bestE = change.deltaE(self.alpha)
                 else:
-                    diff = change.deltaE(skel, self.alpha)
+                    diff = change.deltaE(self.alpha)
                     if diff < bestE:
                         bestchange = change
                         bestE = diff
@@ -360,7 +320,7 @@ class Unconditional(SkelModCriterion):
             if change is bestchange:
                 continue
             if change is not None:
-                change.removeAddedNodes(skel)
+                change.removeAddedNodes()
         return bestchange
 
 registeredclass.Registration(
@@ -380,16 +340,16 @@ class LimitedAverageEnergy(LimitedSkelModCriterion):
         bestE = 0.0
         bestchange = None
         for change in changes:
-            if not (change is None or change.illegal(skel)) and \
+            if not (change is None or change.illegal()) and \
                self.withinTheLimit(change, skel):
-                diff = change.deltaE(skel, self.alpha)  # energy difference
+                diff = change.deltaE(self.alpha)  # energy difference
                 if diff < bestE:
                     bestchange = change
                     bestE = diff
 
         for change in changes:
             if change is not bestchange:
-                change.removeAddedNodes(skel)
+                change.removeAddedNodes()
         return bestchange
 
 registeredclass.Registration(
@@ -421,21 +381,21 @@ class LimitedUnconditional(LimitedSkelModCriterion):
         bestE = None
         bestchange = None
         for change in changes:
-            if not (change is None or change.illegal(skel)) and \
+            if not (change is None or change.illegal()) and \
                self.withinTheLimit(change, skel):
                 # Reads ... is this the first non-trivial one in the list?
                 if bestE is None and bestchange is None:
                     bestchange = change
-                    bestE = change.deltaE(skel, self.alpha)
+                    bestE = change.deltaE(self.alpha)
                 else:
-                    diff = change.deltaE(skel, self.alpha)
+                    diff = change.deltaE(self.alpha)
                     if diff < bestE:
                         bestchange = change
                         bestE = diff
 
         for change in changes:
             if change is not bestchange:
-                change.removeAddedNodes(skel)
+                change.removeAddedNodes()
         return bestchange
     
 registeredclass.Registration(
@@ -486,10 +446,10 @@ class NamedSkeletonModifiers:
         self.data={}
 
     def __setitem__(self,key,value):
-	self.data[key]=value
+        self.data[key]=value
 
     def __getitem__(self,key):
-	return self.data[key]
+        return self.data[key]
 
 namedSkeletonModifiers=NamedSkeletonModifiers()
 utils.OOFdefine('namedSkeletonModifiers',namedSkeletonModifiers)

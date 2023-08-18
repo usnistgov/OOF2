@@ -189,7 +189,7 @@ DVec &MemoryDataCache::fetchOne(double time) {
   DataCache::iterator i = cache.find(time);
   if(i == cache.end())
     throw ErrProgrammingError(
-		     "Attempt to restore nonexistent time! " + to_string(time),
+		     "Attempt to restore nonexistent time! " + tostring(time),
 		     __FILE__, __LINE__);
   return (*i).second;
 }
@@ -202,8 +202,8 @@ void MemoryDataCache::restore_(double time) {
     // load it.  This should never happen -- the cache should be
     // cleared when fields are deleted.
     throw ErrProgrammingError("Attempt to set wrong number of values: expected "
-			      + to_string(n) + ", got "
-			      + to_string(dofs.size()), __FILE__, __LINE__);
+			      + tostring(n) + ", got "
+			      + tostring(dofs.size()), __FILE__, __LINE__);
   if(n > dofs.size())
     // Fields have been added since this data was cached.  New dofs
     // are added at the end of the list, so just assume their value is
@@ -414,7 +414,8 @@ void DiskDataCache::record() {
   }
 
   char filename[100];
-  sprintf(filename, "%s/oof2-cache%d-XXXXXXX", tempdirname().c_str(), cacheID);
+  snprintf(filename, 100, "%s/oof2-cache%d-XXXXXXX",
+	   tempdirname().c_str(), cacheID);
   int fd = mkstemp(filename); // get new file
   fileDict[time] = filename;
   FILE *file = fdopen(fd, "w");

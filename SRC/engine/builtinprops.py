@@ -20,44 +20,44 @@ from ooflib.SWIG.common import config
 # be exhaustive.
 import ooflib.SWIG.engine.properties
 
-import ooflib.SWIG.engine.property.color.color
-import ooflib.SWIG.engine.property.damping.damping
-import ooflib.SWIG.engine.property.elasticity.aniso.aniso
-import ooflib.SWIG.engine.property.elasticity.elasticity
-import ooflib.SWIG.engine.property.elasticity.iso.iso
-import ooflib.SWIG.engine.property.elasticity.largestrain.largestrain
-import ooflib.SWIG.engine.property.elasticity.thermo.thermo
-import ooflib.SWIG.engine.property.elasticity.visco.visco
-import ooflib.SWIG.engine.property.elasticity.nonlinear.general_nonlinear_elasticity
-import ooflib.SWIG.engine.property.forcedensity.forcedensity
-import ooflib.SWIG.engine.property.forcedensity.nonconstant.nonconstant_force_density
-import ooflib.SWIG.engine.property.forcedensity.nonlinear.nonlinear_force_density
-import ooflib.SWIG.engine.property.heatcapacity.heatcapacity
-import ooflib.SWIG.engine.property.heatconductivity.heatconductivity
-import ooflib.SWIG.engine.property.heatconductivity.nonlinear.nonlinear_heat_conductivity
-import ooflib.SWIG.engine.property.heatsource.heatsource
-import ooflib.SWIG.engine.property.heatsource.nonconstant.nonconstant_heat_source
-import ooflib.SWIG.engine.property.heatsource.nonlinear.nonlinear_heat_source
-import ooflib.SWIG.engine.property.massdensity.massdensity
-import ooflib.SWIG.engine.property.orientation.orientation
-import ooflib.SWIG.engine.property.permittivity.permittivity
-import ooflib.SWIG.engine.property.piezoelectricity.piezoelectricity
-import ooflib.SWIG.engine.property.pyroelectricity.pyroelectricity
-import ooflib.SWIG.engine.property.stressfreestrain.stressfreestrain
-import ooflib.SWIG.engine.property.thermalexpansion.thermalexpansion
-import ooflib.engine.property.plasticity.plasticity
+import ooflib.SWIG.engine.properties.color.color
+import ooflib.SWIG.engine.properties.damping.damping
+import ooflib.SWIG.engine.properties.elasticity.aniso.aniso
+import ooflib.SWIG.engine.properties.elasticity.elasticity
+import ooflib.SWIG.engine.properties.elasticity.iso.iso
+import ooflib.SWIG.engine.properties.elasticity.largestrain.largestrain
+import ooflib.SWIG.engine.properties.elasticity.thermo.thermo
+import ooflib.SWIG.engine.properties.elasticity.visco.visco
+import ooflib.SWIG.engine.properties.elasticity.nonlinear.general_nonlinear_elasticity
+import ooflib.SWIG.engine.properties.forcedensity.forcedensity
+import ooflib.SWIG.engine.properties.forcedensity.nonconstant.nonconstant_force_density
+import ooflib.SWIG.engine.properties.forcedensity.nonlinear.nonlinear_force_density
+import ooflib.SWIG.engine.properties.heatcapacity.heatcapacity
+import ooflib.SWIG.engine.properties.heatconductivity.heatconductivity
+import ooflib.SWIG.engine.properties.heatconductivity.nonlinear.nonlinear_heat_conductivity
+import ooflib.SWIG.engine.properties.heatsource.heatsource
+import ooflib.SWIG.engine.properties.heatsource.nonconstant.nonconstant_heat_source
+import ooflib.SWIG.engine.properties.heatsource.nonlinear.nonlinear_heat_source
+import ooflib.SWIG.engine.properties.massdensity.massdensity
+import ooflib.SWIG.engine.properties.orientation.orientation
+import ooflib.SWIG.engine.properties.permittivity.permittivity
+import ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity
+import ooflib.SWIG.engine.properties.pyroelectricity.pyroelectricity
+import ooflib.SWIG.engine.properties.stressfreestrain.stressfreestrain
+import ooflib.SWIG.engine.properties.thermalexpansion.thermalexpansion
+import ooflib.engine.properties.plasticity.plasticity
 
 # Planar strain only makes sense in 2D.
 if config.dimension() == 2:
-    import ooflib.SWIG.engine.property.planestrain.planestrain
+    import ooflib.SWIG.engine.properties.planestrain.planestrain
 
 #Interface branch
 if config.dimension() == 2:
-    import ooflib.SWIG.engine.property.interfaces.surfacetension.simpletension.simpletension
-    import ooflib.SWIG.engine.property.interfaces.surfacetest.surfacetest
-#     import ooflib.SWIG.engine.property.interfaces.surfacetension.simpletension2.simpletension2
+    import ooflib.SWIG.engine.properties.interfaces.surfacetension.simpletension.simpletension
+    import ooflib.SWIG.engine.properties.interfaces.surfacetest.surfacetest
+#     import ooflib.SWIG.engine.properties.interfaces.surfacetension.simpletension2.simpletension2
 
 
-import ooflib.engine.property.heatconductivity.pyheatconductivity
-import ooflib.engine.property.elasticity.pyelasticity
-import ooflib.engine.property.stressfreestrain.pystressfreestrain
+import ooflib.engine.properties.heatconductivity.pyheatconductivity
+import ooflib.engine.properties.elasticity.pyelasticity
+import ooflib.engine.properties.stressfreestrain.pystressfreestrain

@@ -16,7 +16,6 @@
 class MasterElement;
 class MasterEdge;
 
-#include <Python.h>
 #include <oofconfig.h>
 
 #include "gausspoint.h"

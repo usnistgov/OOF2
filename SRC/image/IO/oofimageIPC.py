@@ -75,7 +75,7 @@ imenu.addItem(oofmenu.OOFMenuItem(
 def createImage(msname, imagename, origin=0):
     if _rank == origin:
         image = oofimage.getImage([msname, imagename])
-        destinations = range(1,_size)
+        destinations = list(range(1,_size))
         oofimage.Send_Image(image, destinations)
     else:
         image = oofimage.Recv_Image(origin)
@@ -195,8 +195,8 @@ def createPixelGroups_Parallel(menuitem, image, name_template):
             try:
                 grpname = colornamedict[color]
             except KeyError:
-                grpname = name_template.replace('%c', `color`).\
-                          replace('%n', `grpcount`)
+                grpname = name_template.replace('%c', repr(color)).\
+                          replace('%n', repr(grpcount))
                 grpcount += 1
                 colornamedict[color] = grpname
             # The pixel group is being added.

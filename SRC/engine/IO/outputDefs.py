@@ -23,14 +23,10 @@ from ooflib.common import enum
 from ooflib.common import primitives
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
-from ooflib.common.IO.typename import typename
 from ooflib.engine import problem
 from ooflib.engine.IO import output
 from ooflib.engine.IO import outputClones
 from ooflib.engine.IO import propertyoutputreg
-
-from types import *
-import string
 
 ######################################
 
@@ -40,13 +36,7 @@ import string
 # Point so that it can be added to a position.
 
 Displacement = field.getField("Displacement")
-if config.dimension() == 2:
-    iter = Displacement.iterator(planarity.IN_PLANE)
-elif config.dimension() == 3:
-    iter = Displacement.iterator(planarity.ALL_INDICES)
-disp0 = iter.cloneIndex()
-iter.next()
-disp1 = iter.cloneIndex()
+disp0, disp1 = Displacement.components(planarity.IN_PLANE)
 
 displacementFieldOutput = outputClones.FieldOutput.clone(
     name="displacement field",
@@ -206,12 +196,12 @@ class ReferenceFrame(enum.EnumClass(
 
 class VoigtPairListParameter(parameter.ListOfStringsParameter):
     def checker(self, x):
-        if not isinstance(x, (ListType, TupleType)):
+        if not isinstance(x, (list, tuple)):
             parameter.raiseTypeError(type(x), "list of Voigt index pairs")
         for s in x:
-            if not (isinstance(s, StringType) and len(s)==2 and
+            if not (isinstance(s, str) and len(s)==2 and
                     s[0] in "123456" and s[1] in "123456"):
-                parameter.raiseTypeError("list of %s" % typename(type(s)),
+                parameter.raiseTypeError("list of %s" % type(s).__name__,
                                          "list of Voigt index pairs [1-6][1-6]")
     def valueDesc(self):
         return "A list of character strings of the form 'XY'" \
@@ -219,12 +209,12 @@ class VoigtPairListParameter(parameter.ListOfStringsParameter):
 
 class SymmIndexPairListParameter(parameter.ListOfStringsParameter):
     def checker(self, x):
-        if not isinstance(x, (ListType, TupleType)):
+        if not isinstance(x, (list, tuple)):
             parameter.raiseTypeError(type(x), "list of index pairs")
         for s in x:
-            if not (isinstance(s, StringType) and len(s)==2 and
+            if not (isinstance(s, str) and len(s)==2 and
                     s[0] in "123" and s[1] in "123"):
-                parameter.raiseTypeError("list of %s" % typename(type(s)),
+                parameter.raiseTypeError("list of %s" % type(s).__name__,
                                          "list of index pairs [1-3][1-3]")
     def valueDesc(self):
         return "A list of character strings of the form 'XY'" \
@@ -235,12 +225,12 @@ class Rank3TensorIndexParameter(parameter.ListOfStringsParameter):
     # This class is poorly named because the name doesn't indicate the
     # symmetry of the tensor (ie, 2nd index is Voigt).
     def checker(self, x):
-        if not isinstance(x, (ListType, TupleType)):
+        if not isinstance(x, (list, tuple)):
             parameter.raiseTypeError(type(x), "list of index pairs")
         for s in x:
-            if not (isinstance(s, StringType) and len(s)==2 and
+            if not (isinstance(s, str) and len(s)==2 and
                     s[0] in "123" and s[1] in "123456"):
-                parameter.raiseTypeError("list of %s" % typename(type(s)),
+                parameter.raiseTypeError("list of %s" % type(s).__name__,
                                          "list of index pairs [1-3][1-6]")
     def valueDesc(self):
         return "A list of character strings of the form 'XY'" \

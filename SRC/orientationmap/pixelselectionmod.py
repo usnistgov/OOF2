@@ -30,7 +30,7 @@ class OrientationRange(pixelselectionmod.SelectionModifier):
         curselection = selection.getObject()
         orientationmap = orientmapdata.getOrientationMap(ms)
         if orientationmap is None:
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "The Microstructure has no orientation map.")
         selection.start()
         selection.clearAndSelect(

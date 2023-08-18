@@ -12,19 +12,20 @@
 #ifndef PIXELGROUP_SWG
 #define PIXELGROUP_SWG
 
-%module pixelgroup
+%module(package="ooflib.SWIG.common") pixelgroup
+
 %include "common/typemaps.swg"
+%import "common/cmicrostructure.swg"
+%import "common/coord.swg"
+%import "common/pixelattribute.swg"
 
 %{
 #include "common/pixelgroup.h"
 #include "common/cmicrostructure.h"
 #include "common/ooferror.h"
 %}
-%pragma(python) include="pixelgroup.spy"
-%extern "common/cmicrostructure.swg"
-%extern "common/pixelattribute.swg"
 
-%pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
+%nodefaultctor PixelSet;
 
 class PixelSet {
 public:
@@ -32,24 +33,26 @@ public:
   int id();
   bool is_defunct();
   void set_defunct();
-  void add(ICoordVec *iPointList);
-  void addWithoutCheck(ICoordVec *iPointList);
-  void remove(ICoordVec *iPointList);
-  %new PixelSet *clone();
+  void add(std::vector<ICoord> *iPointList);
+  void addWithoutCheck(std::vector<ICoord> *iPointList);
+  void remove(std::vector<ICoord> *iPointList);
+  %newobject clone;
+  PixelSet *clone();
   void clear();
-  ICoordVec *members();
-  %addmethods {
-    int __len__() {
-      return self->len();
-    }
-    const ICoord __getitem__(int i) {
-      if(i < 0 || i >= self->len()) {
-	throw ErrBadIndex(i, __FILE__, __LINE__);
-      }
-      return (*self)[i];
-    }
-  }
+  std::vector<ICoord> *members();
 };
+
+%extend PixelSet {
+  int __len__() {
+    return self->len();
+  }
+  const ICoord __getitem__(int i) {
+    if(i < 0 || i >= self->len()) {
+      throw ErrBadIndex(i, __FILE__, __LINE__);
+    }
+    return (*self)[i];
+  }
+ };
 
 class PixelGroup : public PixelSet {
 public:
@@ -58,15 +61,18 @@ public:
   void rename(char*);
   bool is_meshable();
   void set_meshable(bool);
-  const string &name();
+  const std::string &name();
 };
 
-%new StringVec *pixelGroupNames(CMicrostructure*, ICoord *iPoint);
+%newobject pixelGroupNames;
+std::vector<std::string> *pixelGroupNames(CMicrostructure*, ICoord *iPoint);
 
 class PixelGroupAttributeRegistration : public PxlAttributeRegistration {
 public:
   PixelGroupAttributeRegistration();
   ~PixelGroupAttributeRegistration();
 };
+
+%pythoncode "common/pixelgroup.spy"
 
 #endif // PIXELGROUP_SWG

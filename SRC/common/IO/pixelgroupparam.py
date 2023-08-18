@@ -11,7 +11,6 @@
 
 from ooflib.common.IO import parameter
 from ooflib.common.IO import placeholder
-import types, struct
 
 # Parameter subclass for choosing a PixelGroup in a Microstructure
 
@@ -23,7 +22,7 @@ class PixelGroupParameter(parameter.StringParameter):
 # the currently selected pixels.
 
 class PixelAggregateParameter(placeholder.PlaceHolderParameter):
-    types = (types.StringType, placeholder.selection, placeholder.every)
+    types = (str, bytes, placeholder.selection, placeholder.every)
 
     def valueDesc(self):
         return "The name of a PixelGroup, or <link linkend='Object-Placeholder'><constant>every</constant></link> or <link linkend='Object-Placeholder'><constant>selected</constant></link>."

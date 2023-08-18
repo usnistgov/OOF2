@@ -45,6 +45,6 @@ public:
   virtual ~PETScSolverDriverCore();
 };
 
-void InitPETSc(CharPtrVec *argv);
+void InitPETSc(std::vector<char*> *argv);
 
 #endif // PETSCSOLVERDRIVER_SWG

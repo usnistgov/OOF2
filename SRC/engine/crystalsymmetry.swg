@@ -12,22 +12,27 @@
 #ifndef CRYSTALSYMMETRY_SWG
 #define CRYSTALSYMMETRY_SWG
 
-%module crystalsymmetry
+%module(package="ooflib.SWIG.engine") crystalsymmetry
 
-%pragma(python) include="engine/crystalsymmetry.spy"
+%include "common/typemaps.swg"
+
 %{
 #include "engine/crystalsymmetry.h"
 %}
 
+// The C++ AnisoCrystalSymmetry enum defined in crystalsymmetry.h is
+// *not* swigged.  Instead, a Python Enum class is defined in the
+// pythoncode block below.  This typemap converts from one to the
+// other.
 
-// $source is a Python AnisoCrystalSymmetry instance.
-// AnisoCrystalSymmetry is an Enum subclass defined in
-// crystalsymmetry.spy.
+// TODO: Is there a better way to do this?  Can a python Enum
+// class be built automatically from a swigged C++ enum?
 
-%typemap(python, in) AnisoCrystalSymmetry* (AnisoCrystalSymmetry sym) {
-  // typemap(python, in) AnisoCrystalSymmetry*
-  std::string name = PyString_AsString(
-			       PyObject_CallMethod($source,(char*) "string", NULL));
+%typemap(in) AnisoCrystalSymmetry* (AnisoCrystalSymmetry sym) {
+  // typemap(in) AnisoCrystalSymmetry*
+  PyObject *pname= PyObject_CallMethod($input, "string", NULL);
+  PyObject *ustr = PyUnicode_AsEncodedString(pname, "UTF-8", "replace");
+  std::string name(PyBytes_AsString(ustr));
   if(name == "Tetragonal")
     sym = TETRAGONAL;
   if(name == "Hexagonal")
@@ -42,7 +47,25 @@
     sym = MONOCLINIC;
   if(name == "Triclinic")
     sym = TRICLINIC;
-  $target = &sym;
+  $1 = &sym;
 };
+
+
+%pythoncode %{
+
+from ooflib.common import enum
+
+# Don't change this Enum without also changing crystalsymmetry.h.
+class AnisoCrystalSymmetry(enum.EnumClass(
+        "Tetragonal",
+        "Hexagonal",
+        "Cubic",
+        "Trigonal",
+        "Orthorhombic",
+        "Monoclinic",
+        "Triclinic")):
+    pass
+%}
+
 
 #endif // CRYSTALSYMMETRY_SWG

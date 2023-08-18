@@ -9,9 +9,9 @@
 # oof_manager@nist.gov. 
 
 import unittest, os, string, sys
-import memorycheck
+from . import memorycheck
 
-from UTILS import file_utils
+from .UTILS import file_utils
 fp_file_compare = file_utils.fp_file_compare
 pdf_compare = file_utils.pdf_compare
 reference_file = file_utils.reference_file
@@ -32,10 +32,22 @@ class OOF_Output(unittest.TestCase):
         from ooflib.common.worker import allWorkers, allWorkerCores
         global outputdestination
         from ooflib.engine.IO import outputdestination
+        build_position_output_args()
+        build_scalar_output_args()
+        build_aggregate_output_args()
 
     def tearDown(self):
         pass
-    
+
+    ## TODO NUMPY: pdf creation seems to be non-portable, even though
+    ## oofcanvas sets a particular pdf version number, so comparing
+    ## pdf files fails.  ** This test is commented out in test_set,
+    ## below. ** Perhaps it would be possible to compare pdfs by
+    ## converting them to a bitmap format, but then we'd have to
+    ## ensure that all users had the same conversion utilities.  A
+    ## better alternative might be to load the pdf images into a
+    ## Microstructure and compare them in line.  ImageMagick can read
+    ## pdf files.  Can skimage?
     @memorycheck.check("microstructure")
     def PDFOutput(self):
         from ooflib.common.IO import gfxmanager
@@ -65,7 +77,10 @@ class OOF_Output(unittest.TestCase):
             filename='test.pdf', format='pdf', overwrite=True,
             pixels=400, background=True)
 
-        self.assert_(pdf_compare(
+        # If pdf_compare fails after generating new reference pdf
+        # files, make sure that the time zone is set to "Etc/UTC"
+        # before generating them.  See the comment in regression.py.
+        self.assertTrue(pdf_compare(
             'test.pdf', os.path.join('output_data', 'posmesh.pdf')))
 
         file_utils.remove('test.pdf')
@@ -84,7 +99,7 @@ class OOF_Output(unittest.TestCase):
         from ooflib.SWIG.engine import mastercoord
         tree = output.positionOutputs
         outputpaths = tree.leafpaths()
-        outputnames = [ string.join(x,':') for x in outputpaths ]
+        outputnames = [ ':'.join(x) for x in outputpaths ]
         OOF.File.Load.Data(filename=reference_file('output_data',
                                                  'position_mesh'))
         meshobj = mesh.meshes['microstructure:skeleton:mesh'].getObject()
@@ -92,7 +107,8 @@ class OOF_Output(unittest.TestCase):
             try:
                 (param_args, results) = position_output_args[name]
             except KeyError:
-                print >> sys.stderr,  "No test data for PositionOutput %s." % name
+                print("No test data for PositionOutput %s." % name,
+                      file=sys.stderr)
             else:
                 outputobj = tree[name].object
                 paramhier = outputobj.listAllParametersHierarchically(
@@ -109,16 +125,13 @@ class OOF_Output(unittest.TestCase):
                 # so we do these directly.  Evaluate each element at
                 # mastercoord (0,0).
 
-                elset = meshobj.element_iterator()
                 reslist = []
-                while not elset.end():
-                    lmnt = elset.element()
+                for lmnt in meshobj.elements():
                     reslist += outputclone.evaluate(
                         meshobj, [lmnt],
                         [[mastercoord.MasterCoord(0.0,0.0)]])
-                    elset.next()
                 for (r1,r2) in zip(reslist, results):
-                    self.assert_( (r1-r2)**2 < tolerance )
+                    self.assertTrue( (r1-r2)**2 < tolerance )
         del meshobj
         OOF.Material.Delete(name='material')
                 
@@ -130,7 +143,7 @@ class OOF_Output(unittest.TestCase):
         from ooflib.engine.IO import analyze
 
         outputpaths = tree.leafpaths()
-        outputnames = [ string.join(x,':') for x in outputpaths ]
+        outputnames = [ ':'.join(x) for x in outputpaths ]
 
         OOF.File.Load.Data(filename=reference_file(
             'output_data', 'thermoelastic.mesh'))
@@ -156,16 +169,15 @@ class OOF_Output(unittest.TestCase):
             try:
                 testlist = args[name]
             except KeyError:
-                print >> sys.stderr, "No test data for %s %s." % (treename,
-                                                                  name)
+                print("No test data for %s %s." % (treename,
+                                                                  name), file=sys.stderr)
             else:
                 outputobj = tree[name].object
                 paramhier = outputobj.listAllParametersHierarchically(
                     onlySettable=1)
                 output_params = utils.flatten_all(paramhier)
 
-                print >> sys.stderr, \
-                      "Running test for %s %s." % (treename, name)
+                print("Running test for %s %s." % (treename, name), file=sys.stderr)
                 
                 for test in testlist:
                     meshname = test[0]
@@ -191,9 +203,9 @@ class OOF_Output(unittest.TestCase):
                     outputdestination.forgetTextOutputStreams()
 
                     # Compare test.dat with the right comparison file.
-                    print >> sys.stderr,  "Comparing test.dat to", \
-                          reference_file('output_data', comp_file)
-                    self.assert_(
+                    print("Comparing test.dat to", \
+                          reference_file('output_data', comp_file), file=sys.stderr)
+                    self.assertTrue(
                         fp_file_compare('test.dat',
                                         os.path.join('output_data', comp_file),
                                         tolerance ) )
@@ -216,7 +228,7 @@ class OOF_Output(unittest.TestCase):
                         )
                         outputdestination.forgetTextOutputStreams()
 
-                        self.assert_(
+                        self.assertTrue(
                             fp_file_compare(
                                 'test.dat',
                                 os.path.join('output_data', 'avg_'+comp_file),
@@ -273,6 +285,8 @@ def build_position_output_args():
     from ooflib.common import primitives
     Point = primitives.Point
     global position_output_args
+    if position_output_args:
+        return
     position_output_args = {
         'original':({},[Point(0.125,0.125),
                         Point(0.375,0.125),
@@ -332,6 +346,8 @@ def build_position_output_args():
 scalar_output_args = {}
 def build_scalar_output_args():
     global scalar_output_args
+    if scalar_output_args:
+        return
     scalar_output_args = {
         'Field:Component':[
             ('thermms:thermskel:therm',
@@ -651,6 +667,8 @@ def build_scalar_output_args():
 aggregate_output_args = {}
 def build_aggregate_output_args():
     global aggregate_output_args
+    if aggregate_output_args:
+        return
     aggregate_output_args = {
         'Field:Value':[('thermms:thermskel:therm',
                         {'field':Displacement},
@@ -1063,7 +1081,7 @@ class OOF_PlaneFluxRHS(unittest.TestCase):
 
         outputdestination.forgetTextOutputStreams()
 
-        self.assert_(fp_file_compare(
+        self.assertTrue(fp_file_compare(
             'plane_stress_rhs.out',
             os.path.join('output_data','plane_stress_ref.dat'),
             1.0e-08)
@@ -1176,7 +1194,7 @@ class OOF_AnisoPlaneStress(unittest.TestCase):
             domain=EntireMesh(),
             sampling=ElementSampleSet(order=automatic),
             destination=OutputStream(filename='test.dat',mode='w'))
-        self.assert_(
+        self.assertTrue(
             fp_file_compare(
                 'test.dat',
                 os.path.join('output_data', 'aniso_planestress.dat'),
@@ -1193,7 +1211,7 @@ class OOF_AnisoPlaneStress(unittest.TestCase):
 class OOF_BadMaterial(unittest.TestCase):
     @memorycheck.check("microstructure")
     def Analyze(self):
-        from ooflib.SWIG.engine import ooferror2
+        from ooflib.SWIG.engine import ooferror
         OOF.Microstructure.New(
             name='microstructure',
             width=1.0, height=1.0,
@@ -1245,7 +1263,7 @@ class OOF_BadMaterial(unittest.TestCase):
             name='material', 
             property='Orientation')
         self.assertRaises(
-            ooferror2.ErrBadMaterial,
+            ooferror.PyErrBadMaterial,
             OOF.Mesh.Analyze.Average,
             mesh='microstructure:skeleton:mesh',
             time=latest,
@@ -1302,7 +1320,7 @@ class OOF_MiscOutput(OOF_Output):
                 x_points=10,y_points=10,
                 show_x=True,show_y=True),
             destination=OutputStream(filename='test.dat', mode='w'))
-        self.assert_(
+        self.assertTrue(
             fp_file_compare(
                 'test.dat',
                 os.path.join('output_data', 'range.dat'),
@@ -1312,7 +1330,7 @@ class OOF_MiscOutput(OOF_Output):
 
 
 test_set = [
-    OOF_Output("PDFOutput"),
+    #OOF_Output("PDFOutput"),
     OOF_Output("PositionOutputs"),
     OOF_Output("ScalarOutputs"),
     OOF_Output("AggregateOutputs"),

@@ -12,20 +12,17 @@
 #ifndef PYPROPERTYWRAPPER_SWG
 #define PYPROPERTYWRAPPER_SWG
 
-%module pypropertywrapper
+%module(package="ooflib.SWIG.engine") pypropertywrapper
 
-%include "engine/typemaps.swg"
-%pragma(python) include="pypropertywrapper.spy"
+%include "common/typemaps.swg"
+%import "engine/element.swg"
+%import "engine/property.swg"
+
 %{
 #include "engine/pypropertywrapper.h"
+  #include "engine/equation.h"	// SWIGBUG
+  #include "engine/flux.h"	// SWIGBUG
 %}
-
-%extern "engine/properties.swg"
-%pragma(python) code="from ooflib.SWIG.engine.properties import FluxPropertyPtr"
-%pragma(python) code="from ooflib.SWIG.engine.properties import EqnPropertyPtr"
-
-%extern "engine/element.swg"
-%pragma(python) code="from ooflib.SWIG.engine.element import ElementDataPtr"
 
 // Not much has to be done here.  The Python functions which are
 // called from the C++ side are defined in pypropertywrapper.spy.
@@ -60,5 +57,7 @@ public:
   // ~PyPropertyElementData();
   PyObject *data();
 };
+
+%pythoncode "engine/pypropertywrapper.spy"
 
 #endif // PYPROPERTYWRAPPER_SWG

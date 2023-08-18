@@ -1,6 +1,5 @@
 // -*- C++ -*-
 
-
 /* This software was produced by NIST, an agency of the U.S. government,
 * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -15,15 +14,11 @@
 #ifndef OUTPUTVAL_H
 #define OUTPUTVAL_H
 
-#include "common/pythonexportable.h"
 #include "engine/fieldindex.h"
 
 #include <iostream>
 #include <math.h>
 #include <vector>
-
-class IndexP;
-class IteratorP;
 
 // The OutputVal classes defined here are used to ferry values from
 // the finite element mesh out to the Python output machinery. The
@@ -40,7 +35,6 @@ class OutputVal : public PythonExportable<OutputVal> {
 private:
   OutputVal(const OutputVal&) = delete;
 protected:
-  static std::string modulename_;
   int refcount;
 public:
   OutputVal();
@@ -49,14 +43,16 @@ public:
   virtual unsigned int dim() const = 0;
   virtual OutputVal *clone() const = 0;
   virtual OutputVal *zero() const = 0;
-  virtual const std::string &modulename() const { return modulename_; }
   // IO ops.
   virtual std::vector<double> *value_list() const = 0;
   virtual void print(std::ostream&) const = 0;
   // getIndex converts the string representation of a component index
-  // into an IndexP object that can be used to extract a component.
-  virtual IndexP getIndex(const std::string&) const = 0;
-  virtual IteratorP getIterator() const = 0;
+  // into a FieldIndex object that can be used to extract a component.
+  virtual FieldIndex *getIndex(const std::string&) const = 0;
+  // Like Fields, Fluxes, and Equations, OutputVal components are
+  // indexed by FieldIndex objects and can be iterated over with
+  // ComponentsP.
+  virtual ComponentsP components() const = 0;
 
   friend class OutputValue;
 };
@@ -72,8 +68,8 @@ public:
   virtual void component_square() = 0;
   virtual void component_sqrt() = 0;
   virtual double magnitude() const = 0;
-  virtual double operator[](const IndexP&) const = 0;
-  virtual double &operator[](const IndexP&) = 0;
+  virtual double operator[](const FieldIndex&) const = 0;
+  virtual double &operator[](const FieldIndex&) = 0;
 };
 
 class NonArithmeticOutputVal : public OutputVal {
@@ -134,11 +130,10 @@ public:
   virtual double magnitude() const { return fabs(val); }
   double value() const { return val; }
   double &value() { return val; }
-  virtual double operator[](const IndexP&) const;
-  virtual double &operator[](const IndexP&);
-  virtual IndexP getIndex(const std::string&) const;
-  virtual IteratorP getIterator() const;
-  
+  virtual double operator[](const FieldIndex&) const;
+  virtual double &operator[](const FieldIndex&);
+  virtual FieldIndex *getIndex(const std::string&) const;
+  virtual ComponentsP components() const;
   virtual void print(std::ostream&) const;
 };
 
@@ -152,13 +147,14 @@ class VectorOutputVal : public ArithmeticOutputVal {
 private:
   unsigned int size_;
   double *data;
+  mutable VectorFieldComponents *components_;
   static std::string classname_;
 public:
   VectorOutputVal();
   VectorOutputVal(int n);
   VectorOutputVal(const VectorOutputVal&);
   VectorOutputVal(const std::vector<double>&);
-  virtual ~VectorOutputVal() { delete [] data; }
+  virtual ~VectorOutputVal();
   virtual const VectorOutputVal &operator=(const OutputVal&);
   const VectorOutputVal &operator=(const VectorOutputVal&);
   virtual unsigned int dim() const { return size_; }
@@ -203,12 +199,12 @@ public:
   double dot(const std::vector<double>&) const;
 
   virtual std::vector<double> *value_list() const;
+  virtual ComponentsP components() const;
   double operator[](int i) const { return data[i]; }
   double &operator[](int i) { return data[i]; }
-  virtual double operator[](const IndexP &p) const;
-  virtual double &operator[](const IndexP &p);
-  virtual IndexP getIndex(const std::string&) const;
-  virtual IteratorP getIterator() const;
+  virtual double operator[](const FieldIndex&) const;
+  virtual double &operator[](const FieldIndex&);
+  virtual FieldIndex *getIndex(const std::string&) const;
   virtual double magnitude() const;
   virtual void print(std::ostream&) const;
 };
@@ -227,11 +223,75 @@ VectorOutputVal operator/(VectorOutputVal&, double);
 // structure, so the labels for its components need to be supplied
 // externally.
 
+class ListOutputVal;
+
+// ListOutputValIndex has to be a FieldIndex so that it can be used to
+// index ListOutputVal, but it doesn't really belong in FieldIndex
+// because the in_plane method doesn't make any sense for it.  We're
+// over-using the FieldIndex class.
+//
+// TODO PYTHON3 LATER: OutputVal should use some other kind of Index,
+// and FieldIndex should be derived from that.
+
+class ListOutputValIndex : public FieldIndex {
+protected:
+  int index_;
+  const ListOutputVal *ov_;
+public:
+  ListOutputValIndex(const ListOutputVal *ov)
+    : index_(0), ov_(ov)
+  {}
+  ListOutputValIndex(const ListOutputVal *ov, int i)
+    : index_(i), ov_(ov)
+  {}
+  ListOutputValIndex(ListOutputValIndex &o)
+    : index_(o.index_), ov_(o.ov_)
+  {}
+  virtual const std::string &classname() const;
+  virtual FieldIndex *clone() const {
+    return new ListOutputValIndex(ov_, index_);
+  }
+  virtual int integer() const { return index_; }
+  virtual void print(std::ostream &os) const;
+  virtual const std::string &shortrepr() const;
+};
+
+class ListOutputValIterator: public ComponentIterator {
+protected:
+  int v;
+  const ListOutputVal *ov_;
+public:
+  ListOutputValIterator(const ListOutputVal *lov, int i) : v(i), ov_(lov) {}
+  virtual bool operator!=(const ComponentIterator&) const;
+  virtual ComponentIterator& operator++() { v++; return *this; }
+  virtual FieldIndex *fieldindex() const {
+    return new ListOutputValIndex(ov_, v);
+  }
+  virtual ComponentIterator *clone() const {
+    return new ListOutputValIterator(ov_, v);
+  }
+  virtual void print(std::ostream&) const;
+};
+
+class ListOutputValComponents : public Components {
+protected:
+  const ListOutputVal *ov_;
+public:
+  ListOutputValComponents(const ListOutputVal *lov) : ov_(lov) {}
+  virtual ComponentIteratorP begin() const;
+  virtual ComponentIteratorP end() const;
+};
+
+// TODO: ListOutputValComponents doesn't really need to be a separate
+// class. ListOutputVal could be derived from Components, and
+// ListOutputVal::components() coudl return ComponentsP(this).
+
 class ListOutputVal : public NonArithmeticOutputVal {
 private:
   unsigned int size_;
   double *data;
-  const std::vector<std::string> labels; 
+  ListOutputValComponents components_;
+  const std::vector<std::string> labels;
   static std::string classname_;
 public:
   ListOutputVal(const std::vector<std::string>*);
@@ -245,71 +305,17 @@ public:
   unsigned int size() const { return size_; }  
   virtual ListOutputVal *zero() const;
   virtual ListOutputVal *clone() const;
+  virtual ComponentsP components() const;
   double &operator[](int i) { return data[i]; }
   double operator[](int i) const { return data[i]; }
-  virtual double operator[](const IndexP &p) const;
-  virtual double &operator[](const IndexP &p);
-  virtual IteratorP getIterator() const;
-  virtual IndexP getIndex(const std::string&) const;
+  virtual double operator[](const FieldIndex&) const;
+  virtual double &operator[](const FieldIndex&);
+  virtual FieldIndex *getIndex(const std::string&) const;
   virtual std::vector<double> *value_list() const;
   virtual void print(std::ostream&) const;
   const std::string &label(int i) const { return labels[i]; }
   friend class ListOutputValIndex;
 };
-
-// ListOutptuValIndex has to be a FieldIndex so that it can be used to
-// index ListOutputVal, but it doesn't really belong in FieldIndex
-// because the in_plane method doesn't make any sense for it.  We're
-// over-using the FieldIndex class.
-// TODO: OutputVal should use some other kind of Index, and FieldIndex
-// should be derived from that.
-
-class ListOutputValIndex : virtual public FieldIndex {
-protected:
-  int max_;
-  int index_;
-  const ListOutputVal *ov_;
-public:
-  ListOutputValIndex(const ListOutputVal *ov)
-    : max_(ov->size_), index_(0), ov_(ov)
-  {}
-  ListOutputValIndex(const ListOutputVal *ov, int i)
-    : max_(ov->size_), index_(i), ov_(ov)
-  {}
-  ListOutputValIndex(const ListOutputValIndex &o)
-    : max_(o.max_), index_(o.index_), ov_(o.ov_)
-  {}
-  virtual FieldIndex *cloneIndex() const {
-    return new ListOutputValIndex(*this);
-  }
-  virtual int integer() const { return index_; }
-  virtual void set(const std::vector<int>*);
-  virtual std::vector<int>* components() const;
-  virtual void print(std::ostream &os) const;
-  virtual const std::string &shortstring() const;
-};
-
-
-class ListOutputValIterator : public ListOutputValIndex,
-				   public FieldIterator
-{
-public:
-  ListOutputValIterator(const ListOutputVal *ov)
-    : ListOutputValIndex(ov)
-  {}
-  ListOutputValIterator(const ListOutputValIterator &o)
-    : ListOutputValIndex(o)
-  {}
-  virtual void operator++() { index_++; }
-  virtual bool end() const { return index_ == max_; }
-  virtual void reset() { index_ = 0; }
-  virtual int size() const { return max_; }
-  virtual FieldIterator *cloneIterator() const {
-    return new ListOutputValIterator(*this);
-  }
-};
-
-
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -366,13 +372,13 @@ public:
   const ArithmeticOutputValue &operator-=(const ArithmeticOutputValue &other);
   const ArithmeticOutputValue &operator *=(double x);
 
-  // In principle, operator[](IndexP) should be defined in the base
+  // In principle, operator[](FieldIndex) should be defined in the base
   // classes OutputValue and OutputVal.  However, it's a bit of a pain
   // to define them for NonArithmeticOutputVals that are indexed by
   // strings, and they're not needed in C++.  They're defined in
   // Python.
-  double operator[](const IndexP &p) const;
-  double &operator[](const IndexP &p);
+  double operator[](const FieldIndex&) const;
+  double &operator[](const FieldIndex&);
 };
 
 ArithmeticOutputValue operator*(double x, const ArithmeticOutputValue &ov);
@@ -384,6 +390,11 @@ ArithmeticOutputValue operator-(const ArithmeticOutputValue &a,
 				const ArithmeticOutputValue &b);
 
 std::ostream &operator<<(std::ostream&, const OutputValue&);
+
+
+// Typedefs used in the swig-generated code.
+typedef std::vector<ArithmeticOutputValue> ArithmeticOutputValueVec;
+typedef std::vector<NonArithmeticOutputValue> NonArithmeticOutputValueVec;
 
 // TODO: Energies should not be calculated by using the properties
 // (each property contributing its part).  Instead, the Fluxes should

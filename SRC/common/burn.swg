@@ -12,16 +12,21 @@
 #ifndef BURNCOMMON_SWG
 #define BURNCOMMON_SWG
 
-%module autograin
+%module(package="ooflib.SWIG.common") burn
+
 %include "common/typemaps.swg"
 
 %{
 #include "common/burn.h"
 #include "common/cmicrostructure.h"
 %}
-%pragma(python) include="common/burn.spy"
+
+%nodefaultctor CPixelDifferentiator2;
+%nodefaultctor CPixelDifferentiator3;
 
 class CPixelDifferentiator3 {};
 class CPixelDifferentiator2 {};
+
+%pythoncode "common/burn.spy"
 
 #endif // BURNCOMMON_SWG

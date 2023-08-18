@@ -8,8 +8,14 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import unittest, os
-from UTILS.file_utils import reference_file
+import unittest, os, sys
+
+# For reasons that I don't completely understand, file_utils needs to
+# be imported with an absolute path name, or else the modules imported
+# here and in regression.py will have different __name__'s.  That
+# means that the second import (this one) will re-run the commands in
+# the file, and reset file_utils.referencedir.
+from oof2.TEST.UTILS.file_utils import reference_file
 
 class OOF_Fundamental(unittest.TestCase):
     def setUp(self):
@@ -39,8 +45,8 @@ class OOF_Fundamental(unittest.TestCase):
         self.assertEqual([x for x in os1], [1,3,2,4])
         os1.add(1)
         self.assertEqual([x for x in os1], [1,3,2,4])
-        self.assert_(3 in os1)
-        self.assert_(5 not in os1)
+        self.assertTrue(3 in os1)
+        self.assertTrue(5 not in os1)
         os1.discard(3)
         self.assertEqual([x for x in os1], [1,2,4])
         os1.discard(3)
@@ -76,6 +82,15 @@ class OOF_Fundamental(unittest.TestCase):
         self.assertRaises(RuntimeError, OOF.Help.Debug.Error.PyError)
         self.assertEqual(len(allWorkers), 0)
         self.assertEqual(len(allWorkerCores), 0)
+
+    def WorkerException00(self):
+        # Check that errors raised in python are handled correctly
+        self.assertEqual(len(allWorkers), 0)
+        self.assertEqual(len(allWorkerCores), 0)
+        self.assertRaises(ooferror.PyErrPyProgrammingError,
+                          OOF.Help.Debug.Error.PyError2)
+        self.assertEqual(len(allWorkers), 0)
+        self.assertEqual(len(allWorkerCores), 0)
         
     def WorkerException1(self):
         # Check that a worker is destroyed if its task raises an
@@ -83,7 +98,7 @@ class OOF_Fundamental(unittest.TestCase):
         from ooflib.SWIG.common import ooferror
         self.assertEqual(len(allWorkers), 0)
         self.assertEqual(len(allWorkerCores), 0)
-        self.assertRaises(ooferror.ErrProgrammingError,
+        self.assertRaises(ooferror.PyErrProgrammingError,
                           OOF.Help.Debug.Error.CError)
         self.assertEqual(len(allWorkers), 0)
         self.assertEqual(len(allWorkerCores), 0)
@@ -104,7 +119,7 @@ class OOF_Fundamental(unittest.TestCase):
         from ooflib.SWIG.common import ooferror
         self.assertEqual(len(allWorkers), 0)
         self.assertEqual(len(allWorkerCores), 0)
-        self.assertRaises(ooferror.ErrProgrammingError,
+        self.assertRaises(ooferror.PyErrProgrammingError,
                           OOF.Help.Debug.Error.CPyCError)
         self.assertEqual(len(allWorkers), 0)
         self.assertEqual(len(allWorkerCores), 0)
@@ -116,16 +131,20 @@ class OOF_Fundamental(unittest.TestCase):
         # and then sets teststring to "not ok".  If the exception is
         # not handled properly, lines following the error will be
         # read, and teststring will be set to "not ok".
-        self.assertRaises(ooferror.ErrUserError,
+        #
+        # The script contains a NameError, but loadscript() in
+        # mainmenu.py converts it into a PyErrUserError.
+        self.assertRaises(ooferror.PyErrUserError,
                           OOF.File.Load.Script,
                           filename = reference_file("fundamental_data",
                                                     "pyerror.py"))
         self.assertEqual(utils.OOFeval('teststring'), "ok")
 
     def ScriptException1(self):
-        # This script is the same, but it raises the exception by
-        # running a menu command.
-        self.assertRaises(ooferror.ErrUserError,
+        # This script is similar, but it raises the exception by
+        # running a menu command.  The exception is an
+        # ErrProgrammingError.
+        self.assertRaises(ooferror.PyErrUserError,
                           OOF.File.Load.Script,
                           filename=reference_file("fundamental_data",
                                                   "errorcmd.py"))
@@ -136,12 +155,12 @@ class OOF_Fundamental(unittest.TestCase):
         # a nested menu command.  teststring and/or another test will
         # not be "ok" if lines following the error are being
         # processed.
-        self.assertRaises(ooferror.ErrUserError,
+        self.assertRaises(ooferror.PyErrUserError,
                           OOF.File.Load.Script,
                           filename=reference_file("fundamental_data",
                                                   "nestederror.py"))
-        self.assert_(utils.OOFeval('teststring')=="ok" and
-                     utils.OOFeval('anothertest')=="ok")
+        self.assertTrue(utils.OOFeval('teststring')=="ok" and
+                        utils.OOFeval('anothertest')=="ok")
 
     def ScriptSyntaxErr0(self):
         self.assertRaises(SyntaxError,
@@ -156,7 +175,7 @@ class OOF_Fundamental(unittest.TestCase):
         self.assertRaises(NameError, utils.OOFeval, "borogoves")
 
     def ScriptSyntaxErr1(self):
-        self.assertRaises(ooferror.ErrUserError,
+        self.assertRaises(ooferror.PyErrUserError,
                           OOF.File.Load.Script,
                           filename=reference_file("fundamental_data",
                                                   "nestedsyntaxerr.py"))
@@ -167,7 +186,7 @@ class OOF_Fundamental(unittest.TestCase):
     def RandomNumbers(self):
         # Check to be sure that the random numbers are reproducible
         # from machine to machine when the generator has been seeded.
-        # If they'r e not reproducible, many of the subsequent tests
+        # If they're not reproducible, many of the subsequent tests
         # will fail.
         from ooflib.SWIG.common import crandom
         crandom.rndmseed(17)
@@ -186,13 +205,45 @@ class OOF_Fundamental(unittest.TestCase):
                     491970794, 2006468446, 837991916, 696662892, 1224152791]
         self.assertEqual(r, expected)
 
-        
-        
+    def Shuffle(self):
+        # Make sure that the shuffle algorithm does what it used to
+        # do. When we relied on methods provide by the system or by
+        # Python, the implementation sometimes changed, which broke
+        # other tests.
+        from ooflib.SWIG.common import crandom
+        crandom.rndmseed(137)
+        r = list(range(50))
+        expected = [6, 5, 30, 37, 10, 11, 43, 32, 41, 1, 20, 33, 13, 35, 28, 38, 18, 17, 2, 36, 22, 9, 3, 48, 15, 25, 40, 21, 31, 26, 42, 49, 16, 4, 46, 27, 24, 34, 45, 14, 47, 23, 44, 7, 12, 29, 19, 0, 8, 39]
+        # To ensure that shuffle, implemented in C++, isn't
+        # mishandling reference counts, count the references to one
+        # element of the list before and after shuffling.
+        val = 40                # anything in the list
+        refcount = sys.getrefcount(val)
+        crandom.shuffle(r)
+        self.assertEqual(len(r), 50)
+        self.assertEqual(len(set(r)), 50) # no duplicate entries
+        self.assertEqual(r, expected)
+        self.assertEqual(refcount, sys.getrefcount(val))
+        # Repeat with same seed
+        crandom.rndmseed(137)
+        r = list(range(50))
+        crandom.shuffle(r)
+        self.assertEqual(r, expected)
+        # Repeat with different seed
+        crandom.rndmseed(1778)
+        r = list(range(50))
+        crandom.shuffle(r)
+        expected2 = [10, 20, 42, 23, 36, 25, 2, 30, 17, 32, 34, 49, 13, 21, 33, 47, 35, 46, 24, 5, 28, 0, 29, 22, 38, 27, 26, 4, 40, 16, 3, 19, 14, 37, 39, 1, 44, 48, 6, 11, 7, 18, 31, 9, 8, 45, 15, 12, 43, 41]
+        self.assertEqual(len(r), 50)
+        self.assertEqual(len(set(r)), 50)
+        self.assertEqual(r, expected2)
+
 test_set = [
     OOF_Fundamental("OrderedDict"),
     OOF_Fundamental("Ordered_Set"),
     OOF_Fundamental("WorkerCleanup"),
     OOF_Fundamental("WorkerException0"),
+    OOF_Fundamental("WorkerException00"),
     OOF_Fundamental("WorkerException1"),
     OOF_Fundamental("WorkerException2"),
     OOF_Fundamental("WorkerException3"),
@@ -201,5 +252,6 @@ test_set = [
     OOF_Fundamental("ScriptException2"),
     OOF_Fundamental("ScriptSyntaxErr0"),
     OOF_Fundamental("ScriptSyntaxErr1"),
-    OOF_Fundamental("RandomNumbers")
+    OOF_Fundamental("RandomNumbers"),
+    OOF_Fundamental("Shuffle")
 ]

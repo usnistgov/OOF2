@@ -19,8 +19,8 @@
 # menu items have all been tested and work.
 
 import unittest, os
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -77,7 +77,7 @@ class OOF_Skeleton(unittest.TestCase):
         skel = skelctxt.getObject()
         self.assertEqual(skel.nnodes(), 81)
         self.assertEqual(skel.nelements(), 64)
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
         
     @memorycheck.check("skeltest")
     def NewTri(self):
@@ -93,7 +93,7 @@ class OOF_Skeleton(unittest.TestCase):
         skel = skelctxt.getObject()
         self.assertEqual(skel.nnodes(), 81)
         self.assertEqual(skel.nelements(), 128)
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
 
     @memorycheck.check("skeltest")
     def Delete(self):
@@ -150,7 +150,7 @@ class OOF_Skeleton(unittest.TestCase):
         skel = skelctxt.getObject()
         self.assertEqual(skel.nnodes(), 81)
         self.assertEqual(skel.nelements(), 64)
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
         OOF.Skeleton.Delete(skeleton="skeltest:copy")
 
     @memorycheck.check("skeltest")
@@ -167,7 +167,7 @@ class OOF_Skeleton(unittest.TestCase):
         skel = skelctxt.getObject()
         self.assertEqual(skel.nnodes(), 81)
         self.assertEqual(skel.nelements(), 64)
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
 
     @memorycheck.check("skeltest")
     def Save(self):
@@ -180,7 +180,7 @@ class OOF_Skeleton(unittest.TestCase):
         OOF.File.Save.Skeleton(filename="skeleton_save",
                                mode="w", format="ascii",
                                skeleton="skeltest:savetest")
-        self.assert_(filecmp.cmp(reference_file("skeleton_data",
+        self.assertTrue(filecmp.cmp(reference_file("skeleton_data",
                                               "savetest"),
                                  "skeleton_save"))
         os.remove("skeleton_save")
@@ -190,13 +190,13 @@ class OOF_Skeleton(unittest.TestCase):
         OOF.File.Load.Data(filename=reference_file("skeleton_data",
                                                  "savetest"))
         self.assertEqual(skeletoncontext.skeletonContexts.nActual(), 1)
-        self.assert_( ["skeltest", "savetest"] in
-                      skeletoncontext.skeletonContexts.keys())
+        self.assertTrue( ["skeltest", "savetest"] in
+                         skeletoncontext.skeletonContexts.keys())
         skelctxt = skeletoncontext.skeletonContexts["skeltest:savetest"]
         skel = skelctxt.getObject()
         self.assertEqual(skel.nnodes(), 81)
         self.assertEqual(skel.nelements(), 64)
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
 
     @memorycheck.check("skeltest")
     def Homogeneity(self):
@@ -219,11 +219,11 @@ class OOF_Skeleton(unittest.TestCase):
                     x_elements=skelsize, y_elements=skelsize,
                     skeleton_geometry=geometry)
                 h0 = getHomogIndex("skeltest", "htest", bins=1)
-                print >> sys.stderr, "   bins=0, h=", h0
+                print("   bins=0, h=", h0, file=sys.stderr)
                 for nbins in ntiles:
                     h = getHomogIndex("skeltest", "htest", bins=nbins)
-                    print >> sys.stderr, "   bins=", nbins, "h=", h, "delta=", \
-                        h-h0
+                    print("   bins=", nbins, "h=", h, "delta=", \
+                        h-h0, file=sys.stderr)
                     self.assertAlmostEqual(h, h0, 10)
                 OOF.Skeleton.Delete(skeleton="skeltest:htest")
     #     self.testHomogeneityUniform(
@@ -247,19 +247,24 @@ class OOF_Skeleton(unittest.TestCase):
     #             self.assertAlmostEqual(h, h0, 10);
     #         OOF.Skeleton.Delete(skeleton="skeltest:htest")
                     
-        
-    @memorycheck.check("skeltest")
-    def doModify(self, registration, startfile, compfile, kwargs):
-        import os, random
+
+    ## TODO: doModify loads its own Skeleton and doesn't use the one
+    ## loaded by setUp(), so it should be in a different TestCase
+    ## subclass.
+    @memorycheck.check("skeltest", "skelcomp")
+    def doModify(self, registration, startfile, compfile, kwargs, commands):
+        import os
         from ooflib.SWIG.common import crandom
         # Loaded skeleton must be named "modtest".
         OOF.File.Load.Data(filename=reference_file("skeleton_data", startfile))
         mod = registration(**kwargs)
-        random.seed(17)
         crandom.rndmseed(17)
+        if commands:
+            for cmd in commands:
+                exec(cmd)
         OOF.Skeleton.Modify(skeleton="skeltest:modtest", modifier=mod)
         skelc = skeletoncontext.skeletonContexts["skeltest:modtest"]
-        self.assert_(skelc.getObject().sanity_check())
+        self.assertTrue(skelc.getObject().sanity_check())
         # Saving and reloading the Skeleton guarantees that node
         # indices match up with the reference skeleton.  Nodes are
         # re-indexed when a skeleton is saved.
@@ -278,15 +283,8 @@ class OOF_Skeleton(unittest.TestCase):
         sk2 = skeletoncontext.skeletonContexts[
             "skelcomp:reference"].getObject()
         # Tolerance is 1.0e-13, 100x double-precision noise.
-        ## After switching to Eigen 3.3.9 it was necessary to increase
-        ## the tolerance to get the new calculations to "agree" with
-        ## the old reference files for the Relax test.  
-        ## TODO: Recompute the reference files.
-        self.assertEqual(sk1.compare(sk2, 1.0e-6), 0)
+        self.assertEqual(sk1.compare(sk2, 1.0e-13), 0)
         os.remove("skeleton_mod_test")
-        OOF.Skeleton.Delete(skeleton="skeltest:modtest")
-        OOF.Skeleton.Delete(skeleton="skelcomp:reference")
-        OOF.Microstructure.Delete(microstructure="skelcomp")
 
     # This is a modify pass which may be considered preliminary -- the
     # only possible target is "AllNodes", because we do not yet know
@@ -297,11 +295,11 @@ class OOF_Skeleton(unittest.TestCase):
             try:
                 mods = skel_modify_args[r.name()]
             except KeyError:
-                print >> sys.stderr,  "No data for skeleton modifier %s." % r.name()
+                print("No data for skeleton modifier %s." % r.name(), file=sys.stderr)
             else:
-                print >> sys.stderr, "Testing", r.name()
-                for (startfile, compfile, kwargs) in mods:
-                    self.doModify(r, startfile, compfile, kwargs)
+                print("Testing", r.name(), file=sys.stderr)
+                for (startfile, compfile, kwargs, *commands) in mods:
+                    self.doModify(r, startfile, compfile, kwargs, commands)
 
     @memorycheck.check("skeltest")
     def Undo(self):
@@ -313,14 +311,15 @@ class OOF_Skeleton(unittest.TestCase):
                                            left_right_periodicity=False))
         sk_context = skeletoncontext.skeletonContexts["skeltest:undotest"]
         sk_0 = sk_context.getObject()
-        self.assert_(not sk_context.undoable())
-        OOF.Skeleton.Modify(skeleton="skeltest:undotest",
-                            modifier=Refine(
-            targets=CheckHomogeneity(threshold=0.9),
-            criterion=Unconditionally(),
-            degree=Trisection(rule_set="conservative")))
+        self.assertTrue(not sk_context.undoable())
+        OOF.Skeleton.Modify(
+            skeleton="skeltest:undotest",
+            modifier=Refine(
+                targets=CheckHomogeneity(threshold=0.9),
+                divider=Trisection(minlength=0),
+                rules='Quick'))
         sk_1 = sk_context.getObject()
-        self.assert_(sk_context.undoable())
+        self.assertTrue(sk_context.undoable())
         self.assertNotEqual(id(sk_0),id(sk_1))
         OOF.Skeleton.Undo(skeleton="skeltest:undotest")
         sk_2 = sk_context.getObject()
@@ -337,17 +336,48 @@ class OOF_Skeleton(unittest.TestCase):
                                            left_right_periodicity=False))
         sk_context = skeletoncontext.skeletonContexts["skeltest:redotest"]
         sk_0 = sk_context.getObject()
-        OOF.Skeleton.Modify(skeleton="skeltest:redotest",
-                            modifier=Refine(
-            targets=CheckHomogeneity(threshold=0.9),
-            criterion=Unconditionally(),
-            degree=Trisection(rule_set="conservative")))
+        OOF.Skeleton.Modify(
+            skeleton="skeltest:redotest",
+            modifier=Refine(
+                targets=CheckHomogeneity(threshold=0.9),
+                divider=Trisection(minlength=0),
+                rules='Quick'))
         sk_1 = sk_context.getObject()
         OOF.Skeleton.Undo(skeleton="skeltest:redotest")
         sk_2 = sk_context.getObject()
         OOF.Skeleton.Redo(skeleton="skeltest:redotest")
         self.assertEqual(id(sk_1),id(sk_context.getObject()))
-        self.assert_(not sk_context.redoable())
+        self.assertTrue(not sk_context.redoable())
+
+    @memorycheck.check("skeltest", "skelcomp")
+    def Autoskeleton(self):
+        from ooflib.engine import skeletoncontext
+        from ooflib.SWIG.common import crandom
+        crandom.rndmseed(17)
+        OOF.Skeleton.Auto(name='modtest',
+                          microstructure='skeltest',
+                          top_bottom_periodicity=False,
+                          left_right_periodicity=False,
+                          maxscale=150,
+                          minscale=10,
+                          units="Pixel",
+                          threshold=0.9)
+        # See comment in doModify.  This compares the skeleton to the
+        # expected one in the way that doModify does.
+        OOF.File.Save.Skeleton(
+            filename="skeleton_mod_test",
+            mode="w", format="ascii",
+            skeleton="skeltest:modtest")
+        OOF.Skeleton.Delete(skeleton="skeltest:modtest")
+        OOF.File.Load.Data(filename="skeleton_mod_test")
+        OOF.File.Load.Data(
+            filename=reference_file("skeleton_data", "autoskel"))
+        sk1 = skeletoncontext.skeletonContexts[
+            "skeltest:modtest"].getObject()
+        sk2 = skeletoncontext.skeletonContexts[
+            "skelcomp:reference"].getObject()
+        self.assertEqual(sk1.compare(sk2, 1.e-13), 0)
+        os.remove("skeleton_mod_test")
 
     def tearDown(self):
          pass
@@ -412,11 +442,11 @@ class OOF_Skeleton_Special(unittest.TestCase):
         skel = skelctxt.getObject()
         #  Node 512 on the top boundary should be able to move in x only.
         node = skel.getNode(512)
-        print >> sys.stderr,  "x:", node.movable_x(), "y:", node.movable_y()
-        self.assert_(node.movable_x() and not node.movable_y())
+        print("x:", node.movable_x(), "y:", node.movable_y(), file=sys.stderr)
+        self.assertTrue(node.movable_x() and not node.movable_y())
         # Node 367 on the right boundary should be able to move in y only.
         node = skel.getNode(367)
-        self.assert_(node.movable_y() and not node.movable_x())
+        self.assertTrue(node.movable_y() and not node.movable_x())
 
     @memorycheck.check("checkerboard.pgm")
     def CheckerBoard(self):
@@ -452,7 +482,7 @@ class OOF_Skeleton_Special(unittest.TestCase):
         h0 = getHomogIndex("mess", "skeleton", bins=1)
         for nt in ntiles:
             h = getHomogIndex("mess", "skeleton", bins=nt)
-            print >> sys.stderr, "  nt=", nt, "h=", h, "delta=", h-h0
+            print("  nt=", nt, "h=", h, "delta=", h-h0, file=sys.stderr)
             self.assertAlmostEqual(h0, h, 2)
         # Check with automatic, hierarchical tiling
         factors = (0.1, 0.5, 0.7, 0.9)
@@ -461,10 +491,13 @@ class OOF_Skeleton_Special(unittest.TestCase):
             for factor in factors:
                 h = getHomogIndex("mess", "skeleton", factor=factor,
                                   minimumTileSize=minTile, bins=0)
-                print >> sys.stderr, "  factor=", factor, "minTile=", minTile, \
-                    "h=", h, "delta=", h-h0
+                print("  factor=", factor, "minTile=", minTile, \
+                    "h=", h, "delta=", h-h0, file=sys.stderr)
                 self.assertAlmostEqual(h0, h, 2)
 
+    def RefinementRuleCheck(self):
+        from ooflib.engine import refinemethod
+        self.assertTrue(refinemethod.checkRefinementRuleSets())
         
 # Data for the skeleton modifier tests.  This is a dictionary indexed by
 # skeleton modifier name, and for each modifier, there is a set of
@@ -475,110 +508,298 @@ def build_mod_args():
     global skel_modify_args
     skel_modify_args = {
         "Refine" :
-        [
-        ("modbase", "refine_1",
-         { "targets" : CheckHomogeneity(threshold=0.9),
-           "criterion" : Unconditionally(),
-           "degree" : Trisection(rule_set="conservative"),
+        [("modbase", "refine_1",
+          { "targets" : CheckHomogeneity(threshold=0.9),
+            "divider" : Trisection(minlength=0),
+            "rules": "Quick",
+            "alpha" : 0.5
+           }
+          ),
+         ("modbase", "refine_1L",
+          { "targets" : CheckHomogeneity(threshold=0.9),
+            "divider" : Trisection(minlength=0),
+            "rules": "Large",
+            "alpha" : 0.5
+           }
+          ),
+         ("modbase", "refine_2",
+          { "targets" : CheckHomogeneity(threshold=0.9),
+            "divider" : Bisection(minlength=0),
+            "rules" : "Quick",
+            "alpha" : 0.5
+           }
+          ),
+         ("modbase", "refine_2L",
+          { "targets" : CheckHomogeneity(threshold=0.9),
+            "divider" : Bisection(minlength=0),
+            "rules" : "Large",
+            "alpha" : 0.5
+           }
+          ),
+         ("modgroups","refine_3",
+          {"targets" : CheckElementsInGroup(group='elementgroup'),
+           "divider" : Bisection(minlength=0),
+           "rules" : "Quick",
            "alpha" : 0.5
            }
-         ),
-        ("modbase", "refine_2",
-         { "targets" : CheckHomogeneity(threshold=0.9),
-           "criterion" : Unconditionally(),
-           "degree" : Bisection(rule_set="conservative"),
+          ),
+         ("modgroups","refine_3L",
+          {"targets" : CheckElementsInGroup(group='elementgroup'),
+           "divider" : Bisection(minlength=0),
+           "rules" : "Large",
            "alpha" : 0.5
            }
-         ),
-        ("modgroups","refine_3",
-         {"targets" : CheckElementsInGroup(group='elementgroup'),
-          "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_4",
-         {"targets" : CheckAllElements(),
-          "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_5",
-         {"targets" : CheckAspectRatio(threshold=1.5),
-          "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
-          "alpha" : 0.5
-          }
-         ),
-        ("modgroups","refine_6",
-         {"targets" : CheckHeterogeneousEdges(threshold=1,
-                                              choose_from=FromAllSegments()),
-          "criterion" : Unconditionally(),
-          "degree" : Bisection(rule_set="conservative"),
-          "alpha" : 0.5
-          }
-         )
-        ],
+          ),
+         ("modgroups","refine_4",
+          {"targets" : CheckAllElements(),
+           "divider" : Bisection(minlength=0),
+           "rules" : "Quick",
+           "alpha" : 0.5
+           }
+          ),
+         ("modgroups","refine_4L",
+          {"targets" : CheckAllElements(),
+           "divider" : Bisection(minlength=0),
+           "rules" : "Large",
+           "alpha" : 0.5
+           }
+          ),
+         ("modgroups","refine_5",
+          {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
+           "divider" : Bisection(minlength=0),
+           "rules" : "Quick",
+           "alpha" : 0.5
+           }
+          ),
+         ("modgroups","refine_5L",
+          {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
+           "divider" : Bisection(minlength=0),
+           "rules" : "Large",
+           "alpha" : 0.5
+           }
+          ),
+         ("modgroups","refine_6",
+          {"targets" : CheckHeterogeneousSegments(threshold=1,
+                                               choose_from=FromAllSegments()),
+           "divider" : Bisection(minlength=0),
+           "rules" : "Quick",
+           "alpha" : 0.5
+           }
+          ),
+         ("modgroups","refine_6L",
+          {"targets" : CheckHeterogeneousSegments(threshold=1,
+                                               choose_from=FromAllSegments()),
+           "divider" : Bisection(minlength=0),
+           "rules" : "Large",
+           "alpha" : 0.5
+           }
+          ),
+         ("modtriangle", "refine_7",
+          { "targets" : CheckHomogeneity(threshold=0.6),
+            "divider" : Bisection(minlength=0),
+            "rules" : "Quick",
+            "alpha" : 0.5
+           }
+          ),
+         ("modtriangle", "refine_7L",
+          { "targets" : CheckHomogeneity(threshold=0.6),
+            "divider" : Bisection(minlength=0),
+            "rules" : "Large",
+            "alpha" : 0.5
+           }
+          ),
+         ("modtriangle", "refine_8",
+          { "targets" : CheckHomogeneity(threshold=0.6),
+            "divider" : Trisection(minlength=0),
+            "rules" : "Quick",
+            "alpha" :  0.5
+           }
+          ),
+         ("modtriangle", "refine_8L",
+          { "targets" : CheckHomogeneity(threshold=0.6),
+            "divider" : Trisection(minlength=0),
+            "rules" : "Large",
+            "alpha" :  0.5
+           }
+          ),
+         ("modbase_groups", "refine_9",
+          dict(targets=CheckSegmentsInGroup(group='#00fc00'),
+               divider=Bisection(minlength=0),
+               rules='Quick',alpha=0.3)),
+         ("modbase_groups", "refine_9L",
+          dict(targets=CheckSegmentsInGroup(group='#00fc00'),
+               divider=Bisection(minlength=0),
+               rules='Large',alpha=0.3)),
+             
+
+         # TransitionPoint Refinement tests, nee SnapRefine.  These
+         # use dict() instead of {} because I copied the arguments out
+         # of an oof2 log.
+         ("modbase", "snaprefine_1",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               divider=TransitionPoints(minlength=0.1),
+               rules='Quick',
+               alpha=0.5)),
+         ("modbase", "snaprefine_1L",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               divider=TransitionPoints(minlength=0.1),
+               rules='Large',
+               alpha=0.5)),
+         ("modtriangle", "snaprefine_1T",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               divider=TransitionPoints(minlength=0.1),
+               rules='Quick',
+               alpha=0.5)),
+         ("modtriangle", "snaprefine_1LT",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               divider=TransitionPoints(minlength=0.1),
+               rules='Large',
+               alpha=0.5)),
+         # snaprefine_2 is just like snaprefine_1 but has larger minlengths
+         ("modbase", "snaprefine_2",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               divider=TransitionPoints(minlength=2.0),
+               rules='Quick',
+               alpha=0.5)),
+         ("modbase", "snaprefine_2L",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               divider=TransitionPoints(minlength=2.0),
+               rules='Large',
+               alpha=0.5)),
+         ("modtriangle", "snaprefine_2T",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               divider=TransitionPoints(minlength=5.0),
+               rules='Quick',
+               alpha=0.5)),
+         ("modtriangle", "snaprefine_2LT",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               divider=TransitionPoints(minlength=5.0),
+               rules='Large',
+               alpha=0.5)),
+
+         # Mixed quads and triangles, checking homogeneity, for both
+         # quick and large rule sets.
+         ("modbase", "snaprefine_3",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               divider=TransitionPoints(minlength=2.0),
+               rules='Quick',
+               alpha=0.5)),
+         ("modbase", "snaprefine_3L",
+          dict(targets=CheckHomogeneity(threshold=0.9),
+               divider=TransitionPoints(minlength=2.0),
+               rules='Large',
+               alpha=0.5)),
+         
+         #  Checking aspect ratio
+         ("highaspect", "snaprefine_4",
+          dict(targets=CheckAspectRatio(threshold=5, only_quads=True),
+               divider=TransitionPoints(minlength=2),
+               rules='Quick',
+               alpha=0.5)),
+         ("highaspect", "snaprefine_4a",
+          dict(targets=CheckAspectRatio(threshold=3, only_quads=True),
+               divider=TransitionPoints(minlength=2),
+               rules='Quick',
+               alpha=0.5)),
+         ("highaspect", "snaprefine_4L",
+          dict(targets=CheckAspectRatio(threshold=5, only_quads=True),
+               divider=TransitionPoints(minlength=2),
+               rules='Large',
+               alpha=0.5)),
+         ("highaspect", "snaprefine_4T",
+          dict(targets=CheckAspectRatio(threshold=5, only_quads=False),
+               divider=TransitionPoints(minlength=2),
+               rules='Quick',
+               alpha=0.5)),
+         ("highaspect", "snaprefine_4TL",
+          dict(targets=CheckAspectRatio(threshold=5, only_quads=False),
+               divider=TransitionPoints(minlength=2),
+               rules='Large',
+               alpha=0.5))
+         ],
         "Relax" :
-        [
-        ("modbase", "relax",
-         { "alpha" : 0.5,
-           "gamma" : 0.5,
-           "iterations" : 1
+        [("modbase", "relax",
+          { "alpha" : 0.5,
+            "gamma" : 0.5,
+            "iterations" : 1
            }
-         )
-        ],
+          )
+         ],
         "Snap Nodes" :
-        [ ("modbase", "snapnodes",
-           { "targets" : SnapAll(),
-             "criterion" : AverageEnergy(alpha=1.)
-             }
-           )
-          ],
+        [("modbase_groups", "snapnodes_0",
+          dict(targets=SnapAll(),
+               criterion=AverageEnergy(alpha=0.8))),
+         ("modbase_groups", "snapnodes_0a",
+          dict(targets=SnapAll(),
+               criterion=AverageEnergy(alpha=0.5))),
+         ("modbase_groups", "snapnodes_1",
+          dict(targets=SnapSelectedNodes(),
+               criterion=AverageEnergy(alpha=0.8)),
+          "OOF.NodeSelection.Select_Group(skeleton='skeltest:modtest', group='#f8fc00')"),
+         ("modbase_groups", "snapnodes_1a",
+          dict(targets=SnapSelectedNodes(),
+               criterion=AverageEnergy(alpha=1.0)),
+          "OOF.NodeSelection.Select_Group(skeleton='skeltest:modtest', group='#f8fc00')"
+          ),
+         ("modbase_groups", "snapnodes_2",
+          dict(targets=SnapHeterogeneousElements(threshold=0.9),
+               criterion=AverageEnergy(alpha=0.8))),
+         ("modbase_groups", "snapnodes_3",
+          dict(targets=SnapSelectedElements(),
+               criterion=AverageEnergy(alpha=0.8)),
+          "OOF.ElementSelection.Select_Group(skeleton='skeltest:modtest', group='#00fc00')"
+          ),
+         ("modbase_groups", "snapnodes_4",
+          dict(targets=SnapHeterogeneousSegments(threshold=0.9),
+               criterion=AverageEnergy(alpha=0.8))),
+         ("modbase_groups", "snapnodes_5",
+          dict(targets=SnapSelectedSegments(),criterion=AverageEnergy(alpha=0.8)),
+          "OOF.SegmentSelection.Select_Group(skeleton='skeltest:modtest', group='#f8fc00')"
+          )
+         ],
+
         "Split Quads" :
         [ ("modbase", "splitquads",
            { "targets" : AllElements(),
              "criterion" : AverageEnergy(alpha=0.9),
              "split_how" : GeographicQ2T()
-             }
+            }
            )
-          ],
+         ],
         "Anneal" :
-        [
-        ("modbase", "anneal",
-         {"targets" : AllNodes(),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         ),
-        ("modgroups", "anneal_2",
-         {"targets" : NodesInGroup(group='nodegroup'),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         ),
-        ("modgroups", "anneal_3",
-         {"targets" : FiddleElementsInGroup(group='elementgroup'),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         ),
-        ("modgroups", "anneal_4",
-         {"targets" : FiddleHeterogeneousElements(threshold=0.95),
-          "criterion" : AverageEnergy(alpha=0.6),
-          "T" : 0.0,
-          "delta" : 1.0,
-          "iteration" : FixedIteration(iterations=5)            
-          }
-         )
-        ],
+        [("modbase", "anneal",
+          {"targets" : AllNodes(),
+           "criterion" : AverageEnergy(alpha=0.6),
+           "T" : 0.0,
+           "delta" : 1.0,
+           "iteration" : FixedIteration(iterations=5)            
+           }
+          ),
+         ("modgroups", "anneal_2",
+          {"targets" : NodesInGroup(group='nodegroup'),
+           "criterion" : AverageEnergy(alpha=0.6),
+           "T" : 0.0,
+           "delta" : 1.0,
+           "iteration" : FixedIteration(iterations=5)            
+           }
+          ),
+         ("modgroups", "anneal_3",
+          {"targets" : FiddleElementsInGroup(group='elementgroup'),
+           "criterion" : AverageEnergy(alpha=0.6),
+           "T" : 0.0,
+           "delta" : 1.0,
+           "iteration" : FixedIteration(iterations=5)            
+           }
+          ),
+         ("modgroups", "anneal_4",
+          {"targets" : FiddleHeterogeneousElements(threshold=0.95),
+           "criterion" : AverageEnergy(alpha=0.6),
+           "T" : 0.0,
+           "delta" : 1.0,
+           "iteration" : FixedIteration(iterations=5)            
+           }
+          )
+         ],
         "Smooth" :
         [ ("modsecond", "smooth",
            {"targets" : AllNodes(),
@@ -587,87 +808,71 @@ def build_mod_args():
             "iteration" : FixedIteration(iterations=5)
             }
            )
-          ],
+         ],
         "Swap Edges" :
         [ ("modsecond", "swapedges",
            {"targets" : AllElements(),
             "criterion" : AverageEnergy(alpha=0.3)
             }
            )
-          ],
+         ],
         "Merge Triangles" :
         [ ("modsecond", "mergetriangles",
            {"targets" : AllElements(),
             "criterion" : AverageEnergy(alpha=0.3)
             }
            )
-          ],
+         ],
         "Rationalize" :
-        [ ("modsecond", "rationalize",
-           {"targets" : AllElements(),
-            "criterion" : AverageEnergy(alpha=0.3),
-            "method" : SpecificRationalization(
-        rationalizers=[RemoveShortSide(ratio=5.0),
-                       QuadSplit(angle=150),
-                       RemoveBadTriangle(acute_angle=30,obtuse_angle=130)]),
-            "iterations" : 3
-            }
-           )
-          ],
-        #For snaprefine_3 and snaprefine_5, if we used modgroups,
-        #then there would be a difference in results between
-        #32 and 64 bit machines.
-        "Snap Refine" :
-        [
-        ("modbase", "snaprefine_1",
-         { "targets" : CheckHomogeneity(threshold=0.9),
-           "criterion" : Unconditionally(),
-           "min_distance" : 0.01,
+        [("modsecond", "rationalize",
+          {"targets" : AllElements(),
+           "criterion" : AverageEnergy(alpha=0.3),
+           "method" : SpecificRationalization(
+               rationalizers=[RemoveShortSide(ratio=5.0),
+                              QuadSplit(angle=150),
+                              RemoveBadTriangle(acute_angle=30,
+                                                obtuse_angle=130)]),
+           "iterations" : 3
            }
-         ),
-        ("modgroups","snaprefine_2",
-         {"targets" : CheckElementsInGroup(group='elementgroup'),
-          "criterion" : Unconditionally(),
-          "min_distance" : 1.0,
-          }
-         ),
-        ("modgroups2","snaprefine_3",
-         {"targets" : CheckAllElements(),
-          "criterion" : Unconditionally(),
-          "min_distance" : 1.0,
-          }
-         ),
-        ("modgroups","snaprefine_4",
-         {"targets" : CheckAspectRatio(threshold=1.5),
-          "criterion" : Unconditionally(),
-          "min_distance" : 0.01,
-          }
-         ),
-        ("modgroups2","snaprefine_5",
-         {"targets" : CheckHeterogeneousEdges(threshold=1,
-                                              choose_from=FromAllSegments()),
-          "criterion" : Unconditionally(),
-          "min_distance" : 1.0,
-          }
-         )
-        ],
+          )
+         ],
+
         "Fix Illegal Elements" :
-        [
-            ("illegal_skeleton", "illegal_fixed", {})
+        [("illegal_skeleton", "illegal_fixed", {})
         ]
     }
 
+    # print("NOT RUNNING THE FULL SET OF SKELETON MODIFICATION TESTS")
     # skel_modify_args = {
-    #     "Relax" :
-    #         [
-    #         ("modbase", "relax",
-    #          { "alpha" : 0.5,
-    #            "gamma" : 0.5,
-    #            "iterations" : 1
-    #            }
-    #          )
-    #         ],
+    #     "Snap Nodes" :
+    #     [("modbase", "snapnodes",
+    #       { "targets" : SnapAll(),
+    #         "criterion" : AverageEnergy(alpha=1.)
+    #        }
+    #       ),
+    #      ("modbase", "snapnodes_2",
+    #       {"targets" : SnapSelected(),
+    #        "criterion" : AverageEnergy(alpha=0.9)
+    #        },
+    #       "OOF.ElementGroup.Auto_Group(skeleton='skeltest:modtest')",
+    #       "OOF.ElementSelection.Select_Group(skeleton='skeltest:modtest', group='RGBColor(red=0.0,green=0.9882352941176471,blue=0.0)')"
+    #       ),
+    #      ("modbase", "snapnodes_3",
+    #       {"targets" : SnapSelectedNodes(),
+    #        "criterion" : AverageEnergy(alpha=0.9)
+    #        },
+    #       "OOF.NodeGroup.Auto_Group(skeleton='skeltest:modtest')",
+    #       "OOF.NodeSelection.Select_Group(skeleton='skeltest:modtest', group='RGBColor(red=0.0,green=0.9882352941176471,blue=0.0)')"
+    #       ),
+    #      ("modbase", "snapnodes_4",
+    #       {"targets" : SnapHeterogenous(threshold=0.9),
+    #        "criterion" : AverageEnergy(alpha=0.9)
+    #        }
+    #       )
+    #      ],
     # }
+
+    
 
 def initialize():
     build_mod_args()
@@ -684,6 +889,7 @@ skel_set = [
     OOF_Skeleton("Load"),
     OOF_Skeleton("Homogeneity"),
     OOF_Skeleton("Modify"),
+    OOF_Skeleton("Autoskeleton"),    
     OOF_Skeleton("Undo"),
     OOF_Skeleton("Redo")
     ]
@@ -693,6 +899,11 @@ special_set = [
     OOF_Skeleton_Special("RoundOff"),
     OOF_Skeleton_Special("CheckerBoard"),
     OOF_Skeleton_Special("MessyHomogeneity"),
+    OOF_Skeleton_Special("RefinementRuleCheck")
     ]
 
 test_set = skel_set + special_set
+
+# test_set = [
+#     OOF_Skeleton("Modify"),
+# ]

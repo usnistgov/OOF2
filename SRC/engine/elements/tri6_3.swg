@@ -12,13 +12,20 @@
 #ifndef TRI6_3_SWIG
 #define TRI6_3_SWIG
 
-%module tri6_3
-%include "engine/typemaps.swg"
+%module(package="ooflib.SWIG.engine.elements") tri6_3
+
+%include "common/typemaps.swg"
 %{
   extern void tri6_3init();
 %}
 void tri6_3init();
 
-%pragma(python) include="tri6_3.spy"
+// Tri6_3 (superparametric) elements are not constructed, because
+// there's no machinery for placing the shape-controlling side nodes,
+// and also no way to draw them properly.  If they're ever used,
+// uncomment the following lines:
+// %pythoncode %{
+//   tri6_3init()
+// %}
 
 #endif // TRI6_3_SWIG

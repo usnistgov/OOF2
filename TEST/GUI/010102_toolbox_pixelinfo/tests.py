@@ -19,12 +19,12 @@ def checkReferenceText(txt):
 def checkSetRefButton(state):
     if is_sensitive(tbpath + ':setref') == state:
         return True
-    print >> sys.stderr, "Set Reference button sensitivity check failed."
+    print("Set Reference button sensitivity check failed.", file=sys.stderr)
 
 def checkSetSymButton(state):
     if is_sensitive(tbpath + ':symmetry:set') == state:
         return True
-    print >> sys.stderr, "Set Symmetry button sensitivity check failed"
+    print("Set Symmetry button sensitivity check failed", file=sys.stderr)
 
 def checkVisibleRefWidget(name):
     stack = gtklogger.findWidget(tbpath + ':reference')

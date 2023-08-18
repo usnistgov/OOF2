@@ -9,10 +9,10 @@
 # oof_manager@nist.gov.
 
 import unittest, os
-import memorycheck
+from . import memorycheck
 from math import *
-from UTILS import file_utils
-from exact_solns import *
+from .UTILS import file_utils
+from .exact_solns import *
 
 
 class NonconstantPropertyTest(unittest.TestCase):
@@ -211,9 +211,9 @@ class NonconstantPropertyTest(unittest.TestCase):
 
         L2_error = computeScalarErrorL2( soln_func, mesh_obj, field_ptr,
                                          self.numX, self.numY, time=self.time )
-        print "L2 error: ", L2_error
+        print("L2 error: ", L2_error)
 
-        self.assert_( L2_error < 1.e-2 )
+        self.assertTrue( L2_error < 1.e-2 )
 
 
     @memorycheck.check("microstructure")
@@ -330,9 +330,9 @@ class NonconstantPropertyTest(unittest.TestCase):
 
         L2_error = computeVector2DErrorL2( soln_func, mesh_obj, field_ptr,
                                            self.numX, self.numY, time=self.time )
-        print "L2 error: ", L2_error
+        print("L2 error: ", L2_error)
 
-        self.assert_( L2_error < 1.e-2 )
+        self.assertTrue( L2_error < 1.e-2 )
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

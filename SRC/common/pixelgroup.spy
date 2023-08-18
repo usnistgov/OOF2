@@ -6,18 +6,18 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
 def _PixelGroup___eq__(self, other):
     try:
         return self.id() == other.id()
     except AttributeError:
         return 0
-PixelGroupPtr.__eq__ = _PixelGroup___eq__
+PixelGroup.__eq__ = _PixelGroup___eq__
 
 def _PixelGroup___hash__(self):
     return hash(self.id())
-PixelGroupPtr.__hash__ = _PixelGroup___hash__
+PixelGroup.__hash__ = _PixelGroup___hash__
 
 #######################
 

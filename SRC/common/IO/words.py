@@ -12,7 +12,6 @@
 from ooflib.common import utils
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import mainmenu
-import string
 import sys
 
 words = {}
@@ -67,8 +66,7 @@ tcmalloc: tcmalloc is part of the Google Performance Tools which can be found at
 def _fancyprint(menuitem):
 #    width = utils.screenwidth()
     width = 80
-    print >> sys.stderr, string.join(utils.format(words[menuitem.data], width),
-                                     "\n")
+    print("\n".join(utils.format(words[menuitem.data], width)), file=sys.stderr)
 
 def xmlify(text):
     lines = text.split('\n')
@@ -76,7 +74,7 @@ def xmlify(text):
     for line in lines:
         if line:
             xmllines.append("<para>" + line + "</para>")
-    return string.join(xmllines, '\n')
+    return "\n".join(xmllines)
 
 for key in words:
     help = key + " information."

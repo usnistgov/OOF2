@@ -63,7 +63,7 @@ class MoveNodeToolbox(toolbox.Toolbox):
                                         self.layersChangedCB)]
 
     def close(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         
     def getSkeletonContext(self):
         return self.gfxwindow().topwho(*self.whoset)
@@ -135,7 +135,7 @@ class MoveNodeToolbox(toolbox.Toolbox):
             switchboard.notify('redraw')
 
     def selectNode(self, menuitem, position):
-        context = apply(self.gfxwindow().topwho, self.whoset)
+        context = self.gfxwindow().topwho(*self.whoset)
         if context:
             skeleton = context.getObject()
             self.selectednode.set(skeleton.nearestNode(position))

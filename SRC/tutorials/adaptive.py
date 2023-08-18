@@ -21,14 +21,9 @@ TutorialClass(
     subject="Introduction",
     comments=
 
-    """OOF2 provides a rudimentary adaptive mesh refinement tool via
-    BOLD(a Posteriori) error estimation scheme that utilizes the
-    BOLD(Superconvergent Patch Recovery) of BOLD(Zienkiewicz) and
-    BOLD(Zhu) -- more discussion of the subject can be found in the
-    OOF2 manual.
+"""OOF2 provides a rudimentary adaptive mesh refinement tool via <b>a Posteriori</b> error estimation scheme that utilizes the <b>Superconvergent Patch Recovery</b> of <b>Zienkiewicz</b> and <b>Zhu</b> -- more discussion of the subject can be found in the OOF2 manual.
 
-    In this tutorial, the adaptive mesh refinement will be briefly
-    demonstrated.
+In this tutorial, the adaptive mesh refinement will be briefly demonstrated.
 
     """),
 
@@ -36,198 +31,133 @@ TutorialClass(
     subject="Loading a Skeleton",
     comments=
     
-    """Open a graphics window, if none has been opened yet, with the
-    BOLD(Graphics/New) command in the BOLD(Windows) menu.  Set
-    BOLD(New Layer Policy) to BOLD(Single) in the BOLD(Settings) menu.
+"""Open a graphics window, if none has been opened yet, with the <b>Graphics/New</b> command in the <b>Windows</b> menu.  Set <b>New Layer Policy</b> to <b>Single</b> in the <b>Settings</b> menu.
 
-    Locate the file BOLD(el_shape.mesh) within the share/oof2/examples
-    directory in your OOF2 installation.
+Locate the file <b>el_shape.mesh</b> within the share/oof2/examples directory in your OOF2 installation.
 
-    Use the menu item BOLD(File/Load/Data) in the main OOF2 window to
-    load the file.
-    """,
-    signal = ("new who", "Skeleton")
+Use the menu item <b>File/Load/Data</b> in the main OOF2 window to load the file.
+    """
     ),
     
     TutoringItem(
     subject="L-shaped Domain",
     comments=
 
-    """If you have finished the tutorial for BOLD(Non-rectangular Domain),
-    you should be familiar with this Mesh.  The Mesh looks rectangular
-    but a Material has been assigned only to the BOLD(green) part of
-    the Mesh, which simulates an effective BOLD(L)-shaped domain.
+"""If you have finished the tutorial for <b>Non-rectangular Domain</b>, you should be familiar with this Mesh.  The Mesh looks rectangular but a Material has been assigned only to the <b>green</b> part of the Mesh, which simulates an effective <b>L</b>-shaped domain.
     
-    Move on to the next slide.
-    """ ),
+Move on to the next slide. """
+    ),
 
     TutoringItem(
     subject="Boundary Conditions",
-    comments="""The Mesh is ready to be solved.
+    comments=
+"""The Mesh is ready to be solved.
 
-    The applied boundary conditions (all BOLD(Dirichlet)) are:
+The applied boundary conditions (all <b>Dirichlet</b>) are:
 
-    BOLD(1.) u_x = 0 on the BOLD(left) side
+<b>1.</b> u_x = 0 on the <b>left</b> side
     
-    BOLD(2.) u_y = 0 on the BOLD(left) side
+<b>2.</b> u_y = 0 on the <b>left</b> side
 
-    BOLD(3.) u_x = 0 on the BOLD(top) side
+<b>3.</b> u_x = 0 on the <b>top</b> side
 
-    BOLD(4.) u_y = 0 on the BOLD(top) side
+<b>4.</b> u_y = 0 on the <b>top</b> side
 
-    BOLD(5.) u_y = -2 on the BOLD(right) side"""
+<b>5.</b> u_y = -2 on the <b>right</b> side"""
     ),
 
     TutoringItem(
     subject="Solution",
     comments=
     
-    """Open the BOLD(Solver) page and just click BOLD(Solve).
-    A deformed Mesh will be displayed in the graphics window.
-    Note that dummy elements (BOLD(ivory) part) are BOLD(NOT) displayed
-    in the deformed Mesh.
+"""Open the <b>Solver</b> page and just click <b>Solve</b>. A deformed Mesh will be displayed in the graphics window. Note that dummy elements (<b>ivory</b> part) are <b>NOT</b> displayed in the deformed Mesh.
 
-    For a clearer view, hide the Skeleton layer.  Navigate to the
-    bottom of the graphics window and find a layer labeled
-    BOLD(Skeleton(skeleton)) and uncheck the leftmost square box to
-    hide the layer.
+For a clearer view, hide the Skeleton layer.  Navigate to the bottom of the graphics window and find a layer labeled <b>Skeleton(skeleton)</b> and uncheck the leftmost square box to hide the layer.
 
-    Due to the shape of the domain, it is obvious that stresses are
-    highly concentrated in the region surrounding the corner.
-    It is also safe to assume that errors in this region would be higher
-    than in other regions.
+Due to the shape of the domain, it is obvious that stresses are highly concentrated in the region surrounding the corner. It is also safe to assume that errors in this region would be higher than in other regions.
 
-    Move on to the next slide to start the process for adaptive mesh
-    refinement.
-    """,
-    signal = "mesh solved"
+Move on to the next slide to start the process for adaptive mesh refinement."""
     ),
 
     TutoringItem(
     subject="Adaptive Mesh Refinement",
     comments=
 
-    """Go to the BOLD(Skeleton) page.  (In earlier versions of OOF2,
-    adaptive mesh refinement was a Mesh modification method.  As of
-    version 2.1, it's part of BOLD(Skeleton) refinement.)
+"""Go to the <b>Skeleton</b> page.  (In earlier versions of OOF2, adaptive mesh refinement was a Mesh modification method.  As of version 2.1, it's part of <b>Skeleton</b> refinement.)
 
-    Choose the BOLD(Refine) Skeleton Modification method, and set
-    BOLD(targets) to BOLD(Adaptive Mesh Refinement). 
+Choose the <b>Refine</b> Skeleton Modification method, and set <b>targets</b> to <b>Adaptive Mesh Refinement</b>. 
 
-    The BOLD(subproblem) parameter determines which subproblem's
-    elements and fields will be used to determine which elements will
-    be refined.  Leave it set to BOLD(el_shape.png/skeleton/mesh/default).
+The <b>subproblem</b> parameter determines which subproblem's elements and fields will be used to determine which elements will be refined.  Leave it set to <b>el_shape.png/skeleton/mesh/default</b>.
 
-    The BOLD(estimator) parameter determines which error estimator to
-    use. Elements with high error estimates will be refined.
-    Currently, OOF2 only provides one estimator, the BOLD(Z-Z
-    Estimator).  Set its parameters to BOLD(norm)=BOLD(L2 Error Norm),
-    BOLD(flux)=BOLD(Stress), and BOLD(threshold)=BOLD(10).  This means
-    that the L2 norm of the difference between the computed flux and
-    the "recovered" flux will be computed, and that any elements in
-    which this difference is greater than 10 percent of the L2 norm of
-    the flux will be refined.
+The <b>estimator</b> parameter determines which error estimator to use. Elements with high error estimates will be refined. Currently, OOF2 only provides one estimator, the <b>Z-Z Estimator</b>.  Set its parameters to <b>norm</b>=<b>L2 Error Norm</b>, <b>flux</b>=<b>Stress</b>, and <b>threshold</b>=<b>10</b>.  This means that the L2 norm of the difference between the computed flux and the "recovered" flux will be computed, and that any elements in which this difference is greater than 10 percent of the L2 norm of the flux will be refined.
 
-    The remaining parameters are the same as for other Skeleton
-    refinement methods.  Set BOLD(criterion) to BOLD(Unconditional),
-    BOLD(degree) to BOLD(Bisection/liberal) and BOLD(alpha) to 0.3.
+The remaining parameters are the same as for other Skeleton refinement methods.  Set <b>criterion</b> to <b>Unconditional</b>, <b>degree</b> to <b>Bisection/liberal</b> and <b>alpha</b> to 0.3.
 
-    Click BOLD(OK).
-""",
+Click <b>OK</b>. """,
     
-#     """Go back to the BOLD(FEMesh) page.
+#     """Go back to the <b>FEMesh</b> page.
 
-#     Select BOLD(Adaptive Mesh Refinement).
-#     As of now, we have only one error estimator, BOLD(Z-Z Estimator).
-#     Select BOLD(L2 Error Norm) for error estimating BOLD(method).
-#     Select BOLD(stress), which is the only entity,
-#     for the BOLD(flux) parameter.
-#     Set BOLD(threshold) to be BOLD(10).
+#     Select <b>Adaptive Mesh Refinement</b>.
+#     As of now, we have only one error estimator, <b>Z-Z Estimator</b>.
+#     Select <b>L2 Error Norm</b> for error estimating <b>method</b>.
+#     Select <b>stress</b>, which is the only entity,
+#     for the <b>flux</b> parameter.
+#     Set <b>threshold</b> to be <b>10</b>.
 
 #     For each element, an L2 error norm will be computed
 #     with stresses computed from the finite element solution and their
 #     recovered counterparts, which act as exact stresses.
 #     If the relative error exceeds 10 percent, the element will be refined.
 
-#     The next three parameters, BOLD(criterion), BOLD(degree) and, BOLD(alpha)
+#     The next three parameters, <b>criterion</b>, <b>degree</b> and, <b>alpha</b>
 #     take care of actual refinement. Don't bother with these parameters
-#     for this tutorial (See BOLD(skeleton) tutorial for details).
+#     for this tutorial (See <b>skeleton</b> tutorial for details).
 
 #     Sometimes, refinement could create badly-shaped elements. These elements
-#     can be removed by turning on the BOLD(rationalize) option.
+#     can be removed by turning on the <b>rationalize</b> option.
 
 #     By default, field values are transferred to the refined mesh.
 #     This, however, is just a
 #     projection of the previous solution onto the refined mesh --
 #     you need to re-solve the problem for improved solution.
 
-#     Leave these options as they are for now and click BOLD(OK).
+#     Leave these options as they are for now and click <b>OK</b>.
 #     """,
-    signal = "Skeleton modified"
     ),
 
     TutoringItem(
         subject="Rebuild the Mesh",
         comments=
-        """Go back to the Graphics window and use the left hand
-        checkboxes in the layer list to hide the Mesh and show the
-        Skeleton.  Notice that the Mesh wasn't refined, although the
-        Skeleton was.  Skeleton modifications are NOT automatically
-        transferred to Meshes, because doing so can be computationally
-        expensive.  
+"""Go back to the Graphics window and use the left hand checkboxes in the layer list to hide the Mesh and show the Skeleton.  Notice that the Mesh wasn't refined, although the Skeleton was.  Skeleton modifications are NOT automatically transferred to Meshes, because doing so can be computationally expensive.  
 
-        Toggle the layers in the graphics window so that the Mesh is
-        visible again.
+Toggle the layers in the graphics window so that the Mesh is visible again.
 
-        Go to the BOLD(FE Mesh) page and make sure that the
-        BOLD(Method) widget in the BOLD(Mesh Operations) pane is set
-        to BOLD(Rebuild).  Click BOLD(OK).  Now the Mesh has been
-        updated to match the Skeleton.
+Go to the <b>FE Mesh</b> page and make sure that the <b>Method</b> widget in the <b>Mesh Operations</b> pane is set to <b>Rebuild</b>.  Click <b>OK</b>.  Now the Mesh has been updated to match the Skeleton.
         """,
-        signal="Mesh modified"
         ),
 
     TutoringItem(
     subject="Refined Mesh",
     comments=
     
-    """As expected, elements surrounding the corner have been refined.
+"""As expected, elements surrounding the corner have been refined.
 
-    The Displacement values from the old Mesh have been transferred to
-    the refined Mesh.  This, however, is just a projection of the
-    previous solution onto the refined mesh.  You need to re-solve the
-    problem to get an improved solution.
+The Displacement values from the old Mesh have been transferred to the refined Mesh.  This, however, is just a projection of the previous solution onto the refined mesh.  You need to re-solve the problem to get an improved solution.
 
-    Go to the BOLD(Solver) page.  BOLD(Solve) the problem again with
-    the refined mesh.  If you get an convergence error, edit the
-    BOLD(Solver) and switch the BOLD(symmetric_solver) to BOLD(BiCG),
-    which seems to work better here, or increase the tolerance of
-    BOLD(CG) to 1.e-08.  After you change the Solver, click
-    BOLD(Solve) again.  """,
-    signal = "mesh solved"
+Go to the <b>Solver</b> page.  <b>Solve</b> the problem again with the refined mesh.  If you get an convergence error, edit the <b>Solver</b> and switch the <b>symmetric_solver</b> to <b>BiCG</b>, which seems to work better here, or increase the tolerance of <b>CG</b> to 1.e-08.  After you change the Solver, click <b>Solve</b> again.  """,
     ),
 
     TutoringItem(
     subject="Refine Again",
     comments=
     
-    """
-    Go back to the BOLD(Skeleton) page and refine the Skeleton again
-    (just click BOLD(OK)), and rebuild the Mesh by clicking
-    BOLD(OK) in the BOLD(FE Mesh) page again.
+"""Go back to the <b>Skeleton</b> page and refine the Skeleton again (just click <b>OK</b>), and rebuild the Mesh by clicking <b>OK</b> in the <b>FE Mesh</b> page again.
     
-    The corner has been refined more. For a better view, use
-    BOLD(ctrl)+BOLD(.) or BOLD(Settings)->BOLD(Zoom)->BOLD(In) from
-    the graphics window.
+The corner has been refined more. For a better view, use <b>ctrl-.</b> or <b>Settings/Zoom/In</b> from the graphics window.
 
-    This process (BOLD(Refine) + BOLD(Rebuild) + BOLD(Solve)) can be
-    repeated until you're satisfied.  If a Mesh is out of sync with
-    its Skeleton, it's not possible to solve it or use it as a basis
-    for refining the Skeleton until it's been rebuilt.
+This process (<b>Refine</b> + <b>Rebuild</b> + <b>Solve</b>) can be repeated until you're satisfied.  If a Mesh is out of sync with its Skeleton, it's not possible to solve it or use it as a basis for refining the Skeleton until it's been rebuilt.
 
-    Thanks for trying out the tutorial.
-    """,
-    signal = "mesh changed"
+Thanks for trying out the tutorial. """,
     )
     
     ])

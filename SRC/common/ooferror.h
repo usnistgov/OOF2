@@ -12,18 +12,19 @@
 #ifndef OOFERROR_H
 #define OOFERROR_H
 
+#include <oofconfig.h>
+#include "common/pythonexportable.h"
+#include "common/tostring.h"
+
 #include <iostream>
-#include <string>
-#include <Python.h>
 
 // Error namespace causes too many problems for SWIG.  Instead,
 // use a customizing prefix for error names.
 
 // Base class so that all OOF errors can be caught by the one catch
-// statement typemap in oof.swg.  Also holds the One True Pythonizer
-// for error classes.
+// statement typemap in oof.swg.
 
-class ErrError {
+class ErrError : public PythonExportable<ErrError> {
 public:
   static PyObject *pyconverter;
   virtual ~ErrError() {}
@@ -32,17 +33,10 @@ public:
   // without additional copying or memory leaks.
   virtual const std::string *summary() const = 0;
   virtual const std::string *details() const { return new std::string(""); }
-
-  virtual const std::string pythonequiv() const = 0;
   virtual void throw_self() const = 0;
+  virtual ErrError *clone() const = 0;
 };
 
-
-// Utility function to escape single-quotes (i.e. apostrophes) in a
-// string.  Used to santize message strings in the various subclassses
-// pythonequiv() methods, so that these don't generate syntax errors
-// when the strings are eval'd by Python.
-std::basic_string<char> escapostrophe(const std::string &in);
 
 // ErrErrorBase exists just so that a base class pointer can re-throw
 // itself.  It's used in pythonErrorRelay, when throwing a C++
@@ -57,6 +51,9 @@ public:
   virtual void throw_self() const {
     const E *self = dynamic_cast<const E*>(this);
     throw *self;
+  }
+  ErrError *clone() const {
+    return new E(*dynamic_cast<const E*>(this));
   }
 };
 
@@ -78,8 +75,13 @@ public:
   ErrProgrammingErrorBase(const std::string &m, const std::string &f, int l)
     : file(f), line(l), msg(m)
   {}
+  ErrProgrammingErrorBase(const ErrProgrammingErrorBase &other)
+    : file(other.file), line(other.line), msg(other.msg)
+  {}
   virtual ~ErrProgrammingErrorBase() {}
-  virtual const std::string *summary() const { return new std::string(msg); }
+  virtual const std::string *summary() const {
+    return new std::string(file + ":" + tostring(line) + " " + msg);
+  }
   // filename and lineno are for reading from Python
   const std::string &filename() const { return file; }
   int lineno() const { return line; }  
@@ -91,7 +93,16 @@ class ErrProgrammingError
 public:
   ErrProgrammingError(const std::string &f, int l);
   ErrProgrammingError(const std::string &m, const std::string &f, int l);
-  virtual const std::string pythonequiv() const;
+  virtual const std::string &classname() const;
+};
+
+class ErrPyProgrammingError
+  : public ErrProgrammingErrorBase<ErrPyProgrammingError>
+{
+public:
+  ErrPyProgrammingError(const std::string &m, const std::string &f, int l)
+    : ErrProgrammingErrorBase<ErrPyProgrammingError>(m, f, l) {}
+  virtual const std::string &classname() const;
 };
 
 
@@ -104,9 +115,11 @@ public:
   ErrResourceShortage(const std::string &m) 
     : msg(m) 
   {}
+  ErrResourceShortage(const ErrResourceShortage &other)
+    : ErrErrorBase<ErrResourceShortage>(other), msg(other.msg) {}
   virtual ~ErrResourceShortage() {}
   virtual const std::string *summary() const { return new std::string(msg); }
-  virtual const std::string pythonequiv() const;
+  virtual const std::string &classname() const;
 };
 
 
@@ -117,9 +130,11 @@ public:
   ErrBoundsError(const std::string &m) 
     : msg(m) 
   {}
+  ErrBoundsError(const ErrBoundsError &other)
+    : ErrErrorBase<ErrBoundsError>(other), msg(other.msg) {}
   virtual ~ErrBoundsError() {}
   virtual const std::string *summary() const { return new std::string(msg); }
-  virtual const std::string pythonequiv() const;
+  virtual const std::string &classname() const;
 };
 
 
@@ -131,8 +146,10 @@ public:
     : ErrProgrammingErrorBase<ErrBadIndex>(f, l),
       badindex(i)
   {}
+  ErrBadIndex(const ErrBadIndex &other)
+    : ErrProgrammingErrorBase<ErrBadIndex>(other), badindex(other.badindex) {}
   virtual const std::string *summary() const;
-  virtual const std::string pythonequiv() const;
+  virtual const std::string &classname() const;
 };
 
 
@@ -143,28 +160,46 @@ class ErrUserErrorBase : public ErrErrorBase<E> {
 public:
   const std::string msg;
   ErrUserErrorBase(const std::string &m) : msg(m) {}
+  ErrUserErrorBase(const ErrUserErrorBase &other)
+    : ErrErrorBase<E>(other), msg(other.msg) {}
   virtual ~ErrUserErrorBase() {}
   virtual const std::string *summary() const { return new std::string(msg); }
-  // pythonequiv must be defined in derived classes.
 };
 
 // Generic user error
 class ErrUserError : public ErrUserErrorBase<ErrUserError> {
 public:
   ErrUserError(const std::string &m) : ErrUserErrorBase<ErrUserError>(m) {}
-  virtual const std::string pythonequiv() const;
+  ErrUserError(const ErrUserError &other)
+    : ErrUserErrorBase<ErrUserError>(other)
+  {}
+  virtual const std::string &classname() const;
 };
 
 class ErrSetupError : public ErrUserErrorBase<ErrSetupError> {
 public:
   ErrSetupError(const std::string &m) : ErrUserErrorBase<ErrSetupError>(m) {}
-  virtual const std::string pythonequiv() const;
+  virtual const std::string &classname() const;
 };
 
 class ErrInterrupted : public ErrUserErrorBase<ErrInterrupted> {
 public:
   ErrInterrupted() : ErrUserErrorBase<ErrInterrupted>("Interrupted!") {}
-  virtual const std::string pythonequiv() const;
+  virtual const std::string &classname() const;
+};
+
+class ErrDataFileError : public ErrUserErrorBase<ErrDataFileError> {
+public:
+  ErrDataFileError(const std::string &m)
+    : ErrUserErrorBase<ErrDataFileError>(m) {}
+  virtual const std::string &classname() const;
+};
+
+class ErrWarning : public ErrUserErrorBase<ErrWarning> {
+public:
+  ErrWarning(const std::string &m)
+    : ErrUserErrorBase<ErrWarning>(m) {}
+  virtual const std::string &classname() const;
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -173,9 +208,7 @@ public:
 
 class ErrNoProgress : public ErrErrorBase<ErrNoProgress> {
 public:
-  virtual const std::string pythonequiv() const { 
-    return "ErrNoProgress()"; 
-  }
+  virtual const std::string &classname() const;
   virtual const std::string *summary() const { return new std::string(""); }
 };
 

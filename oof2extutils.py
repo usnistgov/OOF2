@@ -8,6 +8,9 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+OBSOLETE, but not deleted yet in case it contains hints for the cmake build.
+
+
 # Tools for building OOF2 extensions.  These are *not* used for
 # building OOF2 itself, because they rely on oof2config.py, which is
 # created when OOF2 is built.

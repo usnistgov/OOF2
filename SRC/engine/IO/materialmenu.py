@@ -46,20 +46,18 @@ from ooflib.engine.IO import materialparameter
 import ooflib.SWIG.engine.material
 import ooflib.common.microstructure
 
-MATERIALTYPE_BULK = ooflib.SWIG.engine.material.MATERIALTYPE_BULK
+MATERIALTYPE_BULK = ooflib.engine.materialtype.MATERIALTYPE_BULK
 
 if runtimeflags.surface_mode:
-    MATERIALTYPE_INTERFACE = ooflib.SWIG.engine.material.MATERIALTYPE_INTERFACE
+    MATERIALTYPE_INTERFACE = ooflib.engine.materialtype.MATERIALTYPE_INTERFACE
 
-MaterialType = ooflib.SWIG.engine.material.MaterialType
+MaterialType = ooflib.engine.materialtype.MaterialType
 
 #Interface branch
 from ooflib.engine.IO import interfaceparameters
 
 if parallel_enable.enabled():
     from ooflib.engine.IO import materialmenuIPC
-
-import types
 
 StringParameter = parameter.StringParameter
 OOFMenuItem = oofmenu.OOFMenuItem
@@ -399,7 +397,7 @@ def _writeData(self, dfile, microstructure, pixel):
         return 1
     return 0
     
-ooflib.SWIG.engine.material.MaterialAttributeRegistrationPtr.writeData = \
+ooflib.SWIG.engine.material.MaterialAttributeRegistration.writeData = \
     _writeData
 
 def _readMSMaterial(menuitem, microstructure, category, material):
@@ -420,7 +418,7 @@ def _writeGlobalData(self, dfile, microstructure):
     writeMaterials(dfile,
                    ooflib.SWIG.engine.material.getMaterials(microstructure))
 
-ooflib.SWIG.engine.material.MaterialAttributeRegistrationPtr.writeGlobalData = \
+ooflib.SWIG.engine.material.MaterialAttributeRegistration.writeGlobalData = \
                                                               _writeGlobalData
         
 microstructureIO.categorymenu.addItem(OOFMenuItem(
@@ -450,11 +448,10 @@ def writeMaterials(dfile, materials, excludeProps={}):
     # whose keys are property paths.
     props = {}           # dictionary of all properties used in the Materials
     for material in materials:
-        for prop in material.properties():
+        for prop in material.properties:
             props[prop.registration().name()] = prop
     # Sort the properties by name.
-    paths = props.keys()
-    paths.sort()
+    paths = sorted(list(props.keys()))
     # Write the properties.
     for path in paths:
         if path not in excludeProps:
@@ -464,7 +461,7 @@ def writeMaterials(dfile, materials, excludeProps={}):
         dfile.startCmd(mainmenu.OOF.LoadData.MaterialandType)
         dfile.argument('name', material.name())
         dfile.argument('properties', [prop.registration().name()
-                                      for prop in material.properties()])
+                                      for prop in material.properties])
         #Interface branch
         dfile.argument('materialtype',material.type())
         dfile.endCmd()

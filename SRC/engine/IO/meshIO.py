@@ -70,7 +70,7 @@ subpmenu = OOF.LoadData.addItem(OOFMenuItem(
 
 def getNodeSets(femesh):
     nodesets = {}               # lists of nodes keyed by fieldSetID.
-    for node in femesh.funcnode_iterator():
+    for node in femesh.funcnodes():
         fieldsetid = node.fieldSetID()
         try:
             nodesets[fieldsetid].append(node)
@@ -79,8 +79,7 @@ def getNodeSets(femesh):
     # Make sure that Fields are always listed in the same order, to
     # facilitate testing.  Since fieldSetIDs are integers, we just
     # sort the set of IDs.
-    ids = nodesets.keys()
-    ids.sort()
+    ids = sorted(list(nodesets.keys()))
     return ids, nodesets
 
 def writeFields(dfile, meshcontext):
@@ -117,8 +116,7 @@ def writeFields(dfile, meshcontext):
     ids, nodesets = getNodeSets(femesh)
     for fieldsetID in ids:
         nodelist= nodesets[fieldsetID]
-        fieldnames = femesh.getFieldSetByID(fieldsetID)
-        fieldnames.sort()
+        fieldnames = sorted(femesh.getFieldSetByID(fieldsetID))
         fields = [getFieldObj(name) for name in fieldnames]
         values = []
         for node in nodelist:
@@ -157,7 +155,7 @@ def writeMesh(dfile, meshcontext, includeFields=True):
     # Create mesh.
     dfile.startCmd(meshmenu.New)
     dfile.argument('name', meshcontext.name())
-    masterelems = [`ename` for ename in meshcontext.elementdict.values()]
+    masterelems = [repr(ename) for ename in list(meshcontext.elementdict.values())]
     dfile.argument('masterelems', masterelems)
     dfile.argument('skeleton', skelpath)
     dfile.endCmd()
@@ -229,8 +227,7 @@ def writeMesh(dfile, meshcontext, includeFields=True):
             dfile.endCmd()
 
     # Boundary conditions
-    bcnames = meshcontext.allBndyCondNames()
-    bcnames.sort()
+    bcnames = sorted(meshcontext.allBndyCondNames())
     for bcname in bcnames:
         bc = meshcontext.getBdyCondition(bcname)
         # bc's that are invisible in the gui are generally created by
@@ -260,10 +257,12 @@ def writeMesh(dfile, meshcontext, includeFields=True):
         # overwritten.
         curtime = meshcontext.getCurrentTime()
         latest = meshcontext.atLatest()
-        for time in meshcontext.cachedTimes():
+        times = sorted(meshcontext.cachedTimes())
+        for time in times:
             meshcontext.restoreCachedData(time)
             writeAndCacheFields(dfile, meshcontext, time)
             meshcontext.releaseCachedData()
+        # Restore the mesh to its current state.    
         if latest:
             meshcontext.restoreLatestData()
             meshcontext.releaseLatestData() # allow overwriting
@@ -271,14 +270,16 @@ def writeMesh(dfile, meshcontext, includeFields=True):
             meshcontext.restoreCachedData(curtime)
             meshcontext.releaseCachedData()
 
-        # Current data
-        writeFields(dfile, meshcontext)
+        # Save the current state, if it hasn't been cached.
+        if curtime not in times:
+            writeFields(dfile, meshcontext)
+            dfile.startCmd(meshmenu.Time)
+            dfile.argument('mesh', meshcontext.path())
+            dfile.argument('time', meshcontext.getCurrentTime())
+            dfile.endCmd()
 
-    # Time
-    dfile.startCmd(meshmenu.Time)
-    dfile.argument('mesh', meshcontext.path())
-    dfile.argument('time', meshcontext.getCurrentTime())
-    dfile.endCmd()
+    # If there are no Fields, the time isn't defined.  It will have
+    # been initialized to 0 when the Mesh was created.
 
     # Cross sections:
     for csname in meshcontext.cross_sections.all_names(): # already ordered
@@ -313,8 +314,8 @@ def getMyMasterElementDict(masterelems):
             master = masterdict[ename]
             edict[master.ncorners()] = master
         except KeyError:
-            raise ooferror.ErrUserError("Element type \"%s\" is unknown."
-                                        % ename)
+            raise ooferror.PyErrUserError("Element type \"%s\" is unknown."
+                                          % ename)
     return edict
 
 def _newMesh(menuitem, name, masterelems, skeleton):
@@ -393,7 +394,7 @@ def _subpFields(menuitem, subproblem, defined, active, inplane):
 
     for fname in inplane:
         field = getFieldObj(fname)
-        meshctxt.set_in_plane_field(field, 1)
+        meshctxt.set_in_plane_field(field, True)
         switchboard.notify("field inplane", meshname, field.name(), 1)
 
     subpctxt.changed("Fields loaded.")
@@ -512,7 +513,6 @@ meshmenu.addItem(OOFMenuItem(
     help="Cache_Fields is used internally in Mesh data files.",
     discussion="<para>Store the current Field values in the data cache.</para>"
     ))
-
 
 def _subpEqns(menuitem, subproblem, equations):
     subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
@@ -697,7 +697,7 @@ def _meshFields(menuitem, mesh, defined, active, inplane):
 
     for fname in inplane:
         field = getFieldObj(fname)
-        meshctxt.set_in_plane_field(field, 1)
+        meshctxt.set_in_plane_field(field, True)
         switchboard.notify("field inplane", mesh, field.name(), 1)
 
     switchboard.notify("mesh changed", meshctxt)
@@ -781,7 +781,7 @@ registeredclass.Registration(
 ##########
 
 import datetime
-import string
+
 def writeABAQUSfromMesh(filename, mode, meshcontext):
     femesh=meshcontext.femesh()
 
@@ -796,29 +796,25 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
     # nodes don't appear in the abaqus output.  All oof2 nodes at the
     # same position are represented by a single abaqus node.
 
-    nodedict = {}
+    nodedict = utils.OrderedDict()
     i = 1
-    # # use only those nodes that are associated with elements that have
-    # # a material
-    # import time
-    # t0 = time.clock()
-    for el in femesh.element_iterator():
+    # use only those nodes that are associated with elements that have
+    # a material
+    for el in femesh.elements():
         if el.material():
             for node in el.node_iterator():
                 if nodedict.setdefault(node.position(), i) == i:
                     i += 1
 
-    # debug.fmsg("elapsed time=", time.clock()-t0)
-    
     # same for elements
-    elementdict = {}
+    elementdict = utils.OrderedDict()
     i = 1
     # In the same loop, get the list of materials and masterelements
     # directly from the elements (i.e. straight from the horses'
     # mouths. May be inefficient.)
-    materiallist={}
-    masterElementDict={}
-    for el in femesh.element_iterator():
+    materiallist=utils.OrderedDict()
+    masterElementDict=utils.OrderedDict()
+    for el in femesh.elements():
         ematerial = el.material()
         emasterelement = el.masterelement()
         if ematerial:
@@ -834,7 +830,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
     buffer.append("** Materials defined by OOF2:\n")
     for matname, details in materiallist.items():
         buffer.append("**   %s:\n" % (matname))
-        for prop in details.properties():
+        for prop in details.properties:
             for param in prop.registration().params:
                 buffer.append("**     %s: %s\n" % (param.name,param.value))
 
@@ -848,7 +844,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
     buffer.append("** Boundary Conditions:\n")
     for bcname in meshcontext.allBndyCondNames():
         bc=meshcontext.getBdyCondition(bcname)
-        buffer.append("**   %s: %s\n" % (bcname,`bc`))
+        buffer.append("**   %s: %s\n" % (bcname,repr(bc)))
 
     buffer.append("""** Notes:
 **   The set of nodes and elements may be different from the set
@@ -880,10 +876,10 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
 ** and may have to be modified by the user to be meaningful.
 *ELEMENT, TYPE=CPS%d
 """
-% (`ename`,masterElementDict[ename.name()].nnodes())]
+% (repr(ename),masterElementDict[ename.name()].nnodes())]
             # Trivia: C stands for Continuum, PS for Plane Stress (PE
             # - Plane strain)
-            for el in femesh.element_iterator():
+            for el in femesh.elements():
                 if el.material():
                     if el.masterelement().name()==ename.name():
                         listbuf2=["%d" % (elementdict[el.get_index()])]
@@ -898,7 +894,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                             if node.index() not in cornernodelist:
                                 listbuf2.append(
                                     "%d" % (nodedict[node.position()]))
-                        listbuf.append(string.join(listbuf2,", ")+"\n")
+                        listbuf.append(utils.stringjoin(listbuf2,", ")+"\n")
             buffer.extend(listbuf)
         except KeyError:
             ## TODO: Which KeyError are we ignoring here?  Use
@@ -907,7 +903,9 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
             pass
 
     buffer.append("** Point boundaries in OOF2\n")
-    for pbname in meshcontext.pointBoundaryNames():
+    pbnames = meshcontext.pointBoundaryNames()
+    pbnames.sort()
+    for pbname in pbnames:
         buffer.append("*NSET, NSET=%s\n" % (pbname))
         listbuf=[]
         i=0
@@ -923,10 +921,12 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                 else:
                     listbuf.append("%d" % (somevalue))
                 i+=1
-        buffer.append(string.join(listbuf,", ")+"\n")
+        buffer.append(utils.stringjoin(listbuf,", ")+"\n")
 
     buffer.append("** Edge boundaries in OOF2\n")
-    for ebname in meshcontext.edgeBoundaryNames():
+    ebnames = meshcontext.edgeBoundaryNames()
+    ebnames.sort()
+    for ebname in ebnames:
         buffer+="*NSET, NSET=%s\n" % (ebname)
         listbuf=[]
         i=0
@@ -942,7 +942,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                 else:
                     listbuf.append("%d" % (somevalue))
                 i+=1
-        buffer.append(string.join(listbuf,", ")+"\n")
+        buffer.append(utils.stringjoin(listbuf,", ")+"\n")
 
     for matname in materiallist:
         ## TODO OPT: Use a separate buffer for each material, and only
@@ -950,7 +950,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
         buffer+="*ELSET, ELSET=%s\n" % matname
         listbuf=[]
         i=0
-        for el in femesh.element_iterator():
+        for el in femesh.elements():
             if el.material():
                 if el.material().name()==matname:
                     if i>0 and i%16==0:
@@ -958,7 +958,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                     else:
                         listbuf.append("%d" % elementdict[el.get_index()])
                     i+=1
-        buffer.append(string.join(listbuf,", ") +
+        buffer.append(utils.stringjoin(listbuf,", ") +
                       "\n*SOLID SECTION, ELSET=%s, MATERIAL=%s\n" % (matname,
                                                                      matname))
 

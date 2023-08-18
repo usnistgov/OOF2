@@ -12,16 +12,14 @@
 #ifndef PIXELGROUPSUBPROBLEM_SWG
 #define PIXELGROUPSUBPROBLEM_SWG
 
-%module pixelgroupsubproblem
+%module(package="ooflib.SWIG.engine") pixelgroupsubproblem
 
-%include "engine/typemaps.swg"
-%extern "engine/csubproblem.swg"
-%pragma(python) include="engine/pixelgroupsubproblem.spy"
-%pragma(python) code="from ooflib.SWIG.engine.csubproblem import CSubProblemPtr"
-%pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
+%include "common/typemaps.swg"
+%import "engine/csubproblem.swg"
 
 %{
 #include "engine/pixelgroupsubproblem.h"
+  #include "engine/flux.h"	// SWIGBUG
 %}
 
 class CPixelGroupSubProblem: public CSubProblem {
@@ -29,5 +27,7 @@ public:
   CPixelGroupSubProblem(char*);
   ~CPixelGroupSubProblem();
 };
+
+%pythoncode "engine/pixelgroupsubproblem.spy"
 
 #endif // PIXELGROUPSUBPROBLEM_SWG

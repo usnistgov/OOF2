@@ -12,15 +12,25 @@
 #ifndef BOUNDARYCOND_SWG
 #define BOUNDARYCOND_SWG
 
-%module boundarycond
-%include "engine/typemaps.swg"
+%module(package="ooflib.SWIG.engine") boundarycond
+
+%include "common/typemaps.swg"
+%import "engine/csubproblem.swg"
+%import "engine/edgeset.swg"
+%import "engine/equation.swg"
+%import "engine/field.swg"
+%import "engine/flux.swg"
+%import "engine/linearizedsystem.swg"
+%import "engine/node.swg"
 
 %{
-#include "engine/boundarycond.h"
-#include "engine/flux.h"
-#include "engine/fluxnormal.h"
-#include "common/tostring.h"
 #include "common/coord.h"
+#include "common/tostring.h"
+#include "engine/boundarycond.h"
+#include "engine/equation.h"
+#include "engine/field.h"
+#include "engine/flux.h"
+#include "engine/node.h"
 %}
 
 class FloatBCApp {

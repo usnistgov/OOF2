@@ -32,6 +32,11 @@ from ooflib.common.IO.GUI import regclassfactory
 from ooflib.common.IO.GUI import whowidget
 from ooflib.image import imagecontext
 from ooflib.image import imagemodifier
+
+from ooflib.common.runtimeflags import digits
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class ImagePage(oofGUI.MainPage):
@@ -45,12 +50,12 @@ class ImagePage(oofGUI.MainPage):
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                             spacing=3, margin=2, halign=Gtk.Align.CENTER)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
-        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        label = Gtk.Label(label='Microstructure=', halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         self.imagewidget = whowidget.WhoWidget(imagecontext.imageContexts)
         centerbox.pack_start(self.imagewidget.gtk[0],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label('Image=', halign=Gtk.Align.END)
+        label = Gtk.Label(label='Image=', halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.imagewidget.gtk[1],
                              expand=False, fill=False, padding=0)
@@ -60,7 +65,7 @@ class ImagePage(oofGUI.MainPage):
                             spacing=3, margin=2, halign=Gtk.Align.CENTER)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
 
-        self.loadbutton = Gtk.Button('Load...')
+        self.loadbutton = Gtk.Button(label='Load...')
         gtklogger.setWidgetName(self.loadbutton, 'Load')
         centerbox.pack_start(self.loadbutton, expand=True, fill=True, padding=0)
         gtklogger.connect(self.loadbutton, 'clicked', self.loadCB)
@@ -98,7 +103,7 @@ class ImagePage(oofGUI.MainPage):
         self.savebutton.set_tooltip_text('Save the current image to a file.')
         centerbox.pack_start(self.savebutton, expand=True, fill=True, padding=0)
 
-        self.autogroupbutton = Gtk.Button('Group...')
+        self.autogroupbutton = Gtk.Button(label='Group...')
         gtklogger.setWidgetName(self.autogroupbutton, 'Group')
         gtklogger.connect(self.autogroupbutton, 'clicked', self.autogroupCB)
         centerbox.pack_start(self.autogroupbutton,
@@ -253,20 +258,13 @@ class ImagePage(oofGUI.MainPage):
         if imagecontext:
             imagecontext.begin_reading()
             try:
-                if config.dimension() == 2:
-                    image = imagecontext.getObject()
-                    size = image.sizeInPixels()
-                    text += 'Pixel size: %dx%d\n' % (size.x, size.y)
-                    size = image.size()
-                    text += 'Physical size: %sx%s\n' % (size.x, size.y)
-                    if image.comment():
-                        text += '\nComments:\n%s\n' % image.comment()
-                elif config.dimension() == 3:
-                    image = imagecontext.getObject()
-                    size = image.sizeInPixels()
-                    text += 'Voxel size: %dx%dx%d\n' % (size.x, size.y, size.z)
-                    size = image.size()
-                    text += 'Physical size: %sx%sx%s\n' % (size.x, size.y, size.z)                    
+                image = imagecontext.getObject()
+                size = image.sizeInPixels()
+                text += f'Pixel size: {size.x} x {size.y}\n'
+                size = image.size()
+                text += f'Physical size: {size.x:.{digits()}g} x {size.y:.{digits()}g}\n'
+                if image.comment():
+                    text += '\nComments:\n%s\n' % image.comment()
             finally:
                 imagecontext.end_reading()
         mainthread.runBlock(self.displayImageInfo_thread, (text,))
@@ -345,7 +343,7 @@ class ImagePage(oofGUI.MainPage):
             
     def saveCB(self,button):
         menuitem = mainmenu.OOF.File.Save.Image
-        params = filter(lambda x: x.name!="image", menuitem.params)
+        params = [x for x in menuitem.params if x.name!="image"]
         if parameterwidgets.getParameters(
                 parentwindow=self.gtk.get_toplevel(), title='Save Image',
                 *params):

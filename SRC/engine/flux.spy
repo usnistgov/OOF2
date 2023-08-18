@@ -8,46 +8,39 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import types
 from ooflib.common import debug
 from ooflib.common import utils
-
-FluxPtr.__repr__ = FluxPtr.name
-SymmetricTensorFluxPtr.__repr__ = SymmetricTensorFluxPtr.name
-VectorFluxPtr.__repr__ = VectorFluxPtr.name
+from ooflib.SWIG.engine import planarity
+from ooflib.SWIG.common import switchboard
 
 def _Flux___hash__(self):
     return self.objectid()
 
-FluxPtr.__hash__ = _Flux___hash__
+Flux.__hash__ = _Flux___hash__
 
-def _Flux___cmp__(self, other):
-    if not isinstance(other, FluxPtr): return -1
-    if self.objectid() < other.objectid(): return -1
-    if self.objectid() > other.objectid(): return 1
-    return 0
+# Fluxes are sometimes stored in an OrderedSet and need to have __lt__
+# defined.
 
-FluxPtr.__cmp__ = _Flux___cmp__
+def _Flux___lt__(self, other):
+    try:
+        return self.objectid() < other.objectid()
+    except:
+        return NotImplemented
 
 class _AllFluxes:
     def __getitem__(self, indx):
-        if type(indx) == types.IntType:
+        if isinstance(indx, int):
             if indx >= countFluxes():
                 raise IndexError("Bad flux index: " + str(indx))
             return getFluxByIndex(indx)
-        elif type(indx) == types.StringType:
+        elif isinstance(indx, (str, bytes)):
             try:
                 flx = utils.OOFeval(indx)
             except NameError:
                 raise IndexError("Bad flux name: " + indx)
-            if not isinstance(flx, FluxPtr):
+            if not isinstance(flx, Flux):
                 raise IndexError("Bad flux name: " + indx)
             return flx
-##            for i in range(countFluxes()):
-##                f = getFluxByIndex(i)
-##                if f.name() == indx:
-##                    return f
-##            raise IndexError("Bad flux name: " + indx)
     def __len__(self):
         return countFluxes()
 
@@ -57,3 +50,34 @@ def getFlux(which):
     return allFluxes[which]
 
 utils.OOFdefine('getFlux', getFlux)
+
+# finishConstruction is called after the swigged constructors for all
+# of the Flux subclasses.  It's installed by %pythonappend lines in
+# flux.swg.
+def finishConstruction(flx):
+    utils.OOFdefine(flx.name(), flx)
+    switchboard.notify("new flux")
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+def _fluxiter(comps):
+    beginp = comps.begin()
+    endp = comps.end()
+    while beginp != endp:
+        yield beginp.current()
+        beginp.increment()
+
+def _Flux_components(self, plan=planarity.ALL_INDICES):
+    return _fluxiter(self.c_components(plan))
+
+Flux.components = _Flux_components
+
+def _Flux_divergenceComponents(self):
+    return _fluxiter(self.c_divergenceComponents())
+
+Flux.divergenceComponents = _Flux_divergenceComponents
+
+def _Flux_outOfPlaneComponents(self):
+    return _fluxiter(self.c_outOfPlaneComponents())
+
+Flux.outOfPlaneComponents = _Flux_outOfPlaneComponents

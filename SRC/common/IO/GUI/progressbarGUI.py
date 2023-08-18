@@ -18,8 +18,12 @@ from ooflib.common.IO import activityviewermenu
 from ooflib.common.IO.GUI import activityViewer
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
-from gi.repository import GObject
+
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+from gi.repository import GLib
+gi.require_version("Pango", "1.0")
 from gi.repository import Pango
 
 import sys
@@ -62,8 +66,8 @@ class GUIProgressBar(progressbar.ProgressBar):
     def schedule(self):
         # Schedule the bar for periodic updates via the gtk timeout
         # events.  The time is specified in milliseconds.
-        self.timeout_id = GObject.timeout_add(progressbar_delay.period,
-                                              self._updateGUI)
+        self.timeout_id = GLib.timeout_add(interval=progressbar_delay.period,
+                                           function=self._updateGUI)
 
     def show(self):
         debug.mainthreadTest()
@@ -106,7 +110,7 @@ class GUIProgressBar(progressbar.ProgressBar):
                 self.timeout_id = None
                 self.progress = None
                 pgrs.disconnectBar(self)
-                GObject.source_remove(timeout_id)
+                GLib.source_remove(timeout_id)
             finally:
                 pgrs.releaseThreadLock()
 
@@ -152,10 +156,8 @@ class GUIProgressBar(progressbar.ProgressBar):
     def switchButton(self): # Change the "Stop" button to a "Dismiss" button
         debug.mainthreadTest()
         if not self.dismissable:
-            label = gtkutils.findChild(Gtk.Label, self.stopbutton)
-            label.set_text("Dismiss")
-            image = gtkutils.findChild(Gtk.Image, self.stopbutton)
-            image.set_from_stock("gtk-cancel", Gtk.IconSize.BUTTON)
+            self.stopbutton.relabel("Dismiss")
+            self.stopbutton.replaceIcon("edit-delete-symbolic")
             self.dismissable = True
             activityViewer.sensitize()
         
@@ -164,7 +166,7 @@ class GUIProgressBar(progressbar.ProgressBar):
 def _makeGUIBar(self):
     return GUIProgressBar(self)
 
-progress.ProgressPtr.makeGUIBar = _makeGUIBar
+progress.Progress.makeGUIBar = _makeGUIBar
 
 def _updateDefiniteBar(self, gtkbar):
     debug.mainthreadTest()
@@ -175,7 +177,7 @@ def _updateDefiniteBar(self, gtkbar):
         frac = 0.0
     gtkbar.set_fraction(frac)
 
-progress.DefiniteProgressPtr.updateGUIBar = _updateDefiniteBar
+progress.DefiniteProgress.updateGUIBar = _updateDefiniteBar
 
 def _updateIndefiniteBar(self, gtkbar):
     debug.mainthreadTest()
@@ -187,4 +189,4 @@ def _updateIndefiniteBar(self, gtkbar):
         self.prevpulse = prevpulse
         gtkbar.pulse()
 
-progress.IndefiniteProgressPtr.updateGUIBar = _updateIndefiniteBar
+progress.IndefiniteProgress.updateGUIBar = _updateIndefiniteBar

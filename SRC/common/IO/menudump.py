@@ -14,8 +14,6 @@ from ooflib.common import utils
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
-import string
-
 
 indent =  "      "
 indent2 = "           "
@@ -27,31 +25,31 @@ enumdict = {}                           # All Enum types that are used
 def textdumper(menuitem, file):
     if menuitem.items or menuitem.getOption('no_doc'):
         return                      # skip submenus, only do actual commands
-    print >> file, menuitem.path()
+    print(menuitem.path(), file=file)
     if menuitem.callback:
         funcname, modulename = menuitem.getcallbackname()
-        print >> file, indent, "callback: Function '%s' in module '%s'" % \
-              (funcname, modulename)
+        print(indent, "callback: Function '%s' in module '%s'" % \
+              (funcname, modulename), file=file)
     if menuitem.helpstr:
-        print >> file, indent, "help:", menuitem.helpstr
+        print(indent, "help:", menuitem.helpstr, file=file)
     else:
-        print >> file, indent, "MISSING HELP STRING."
+        print(indent, "MISSING HELP STRING.", file=file)
     if menuitem.secret:
-        print >> file, indent, "secret:", menuitem.secret
-    print >> file, indent, "threadability:", menuitem.threadable
+        print(indent, "secret:", menuitem.secret, file=file)
+    print(indent, "threadability:", menuitem.threadable, file=file)
     if menuitem.options:
-        print >> file, indent, "options:",
+        print(indent, "options:", end=' ', file=file)
         for key,val in menuitem.options.items():
-            print >> file, key, "=", val,
-        print >> file
+            print(key, "=", val, end=' ', file=file)
+        print(file=file)
     if menuitem.params:
-        print >> file, indent, "Parameters:"
+        print(indent, "Parameters:", file=file)
         for param in menuitem.params:
             tip = param.tip or "MISSING TIP"
-            print >> file, indent2, "'%s'\t%s\t%s" \
-                  %(param.name, param.classRepr(), tip)
+            print(indent2, "'%s'\t%s\t%s" \
+                  %(param.name, param.classRepr(), tip), file=file)
             add_params(param)
-    print >> file
+    print(file=file)
             # v = param.valueRepr()
             # if v:
             #     paramdict[param.classRepr()] = v
@@ -88,46 +86,45 @@ def textmenudump(file):
     enumdict = {}
     mainmenu.OOF.apply(textdumper, file)
     
-    print >> file, "\n\n------------ Registered Classes -------------\n"
-    rlist = regclassdict.items()
-    rlist.sort()
+    print("\n\n------------ Registered Classes -------------\n", file=file)
+    rlist = sorted(list(regclassdict.items()))
     for rname, reg in rlist:
         basenames = [regclass.__name__ for regclass in reg.registeredclasses]
-        print >> file, indent, rname, "(%s)"%string.join(basenames,",")
+        print(indent, rname, "(%s)" % ",".join(basenames), file=file)
         if reg.tip:
-            print >> file, indent, "tip:", reg.tip
+            print(indent, "tip:", reg.tip, file=file)
         else:
-            print >> file, indent, "MISSING TIP STRING."
+            print(indent, "MISSING TIP STRING.", file=file)
         for p in reg.params:
-            print >> file, indent2, "'%s'\t%s" % (p.name, p.classRepr())
-        print >> file
+            print(indent2, "'%s'\t%s" % (p.name, p.classRepr()), file=file)
+        print(file=file)
 
-    print >> file, "\n\n------------ Enum Classes ------------\n"
-    elist = enumdict.keys()
+    print("\n\n------------ Enum Classes ------------\n", file=file)
+    elist = list(enumdict.keys())
     elist.sort()
     for enum in elist:
-        print >> file, indent, enum.__name__
+        print(indent, enum.__name__, file=file)
         for name in enum.names:
             try:
                 helpstr = enum.helpdict[name]
-                print >> file, indent2, name, ": ", helpstr
+                print(indent2, name, ": ", helpstr, file=file)
             except KeyError:
-                print >> file, indent2, name, ": MISSING HELP STRING"
-        print >> file
+                print(indent2, name, ": MISSING HELP STRING", file=file)
+        print(file=file)
 
-    print >> file, "\n\n------------ Parameter Classes ------------\n"
-    plist = paramdict.items()
+    print("\n\n------------ Parameter Classes ------------\n", file=file)
+    plist = list(paramdict.items())
     plist.sort()
     for name, p in plist:
-        print >> file, indent, name #, v
+        print(indent, name, file=file) #, v
         if p.tip:
-            print >> file, indent2, "tip:", p.tip
+            print(indent2, "tip:", p.tip, file=file)
         else:
-            print >> file, indent2, "MISSING TIP STRING"
-        vlist = string.split(p.valueRepr(), '\n')
+            print(indent2, "MISSING TIP STRING", file=file)
+        vlist = p.valueRepr().split('\n')
         for vv in vlist:
-            print >> file, indent2, vv
-        print >> file
+            print(indent2, vv, file=file)
+        print(file=file)
     file.close()
 
 

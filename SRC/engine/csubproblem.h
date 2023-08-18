@@ -26,6 +26,7 @@ class CSubProblem;
 #include "engine/dofmap.h"
 #include "engine/femesh.h"
 #include "engine/materialset.h"
+#include "engine/meshiterator.h"
 
 #include <set>
 #include <string>
@@ -41,13 +42,13 @@ class Coord;
 class DoFMap;
 class DoubleVec;
 class Element;
-class ElementIterator;
 class Equation;
 class FEMesh;
 class Field;
 class Flux;
 class FuncNode;
 class FuncNodeIterator;
+class InterfaceElement;
 class LinearizedSystem;
 class Lock;
 class Material;
@@ -79,7 +80,7 @@ public:
   // called by the constructor because the constructor is called by a
   // RegisteredClass registration, before the mesh is known.
   void set_femesh(FEMesh *msh);
-  void set_nnodes(int);
+  void set_nnodes(int);		// n FUNC nodes
   FEMesh *mesh;
   FEMesh *get_mesh() const { return mesh; }
 
@@ -95,9 +96,24 @@ public:
   // MaterialSubProblem::redefined() should be called.
   virtual void redefined() {}
 
-  virtual ElementIterator element_iterator() const = 0;
-  virtual NodeIterator node_iterator() const = 0;
-  virtual FuncNodeIterator funcnode_iterator() const = 0;
+  VContainerP<Node> nodes() const {
+    return VContainerP<Node>(c_nodes());
+  }
+  VContainerP<FuncNode> funcnodes() const {
+    return VContainerP<FuncNode>(c_funcnodes());
+  }
+  VContainerP<Element> elements() const {
+    return VContainerP<Element>(c_elements());
+  }
+  VContainerP<InterfaceElement> interface_elements() const {
+    return VContainerP<InterfaceElement>(c_interface_elements());
+  }
+  
+  virtual VContainer<Node>* c_nodes() const = 0;
+  virtual VContainer<FuncNode>* c_funcnodes() const = 0;
+  virtual VContainer<Element>* c_elements() const = 0;
+  virtual VContainer<InterfaceElement>* c_interface_elements() const=0;
+  
   virtual bool contains(const Element *) const = 0;
   virtual bool containsNode(const Node *) const = 0;
 
@@ -315,9 +331,6 @@ private:
 
   bool staticStepper_;
 
-  friend class SubProblemElementIterator;
-  friend class SubProblemFuncNodeIterator;
-  friend class SubProblemNodeIterator;
   friend long get_globalCSubProblemCount();
 
   //Adaptive Mesh Refinement stuff translocated from femesh.h

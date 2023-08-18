@@ -33,9 +33,6 @@ from ooflib.engine.IO import outputDefs
 
 import oofcanvas
 
-from types import *
-import sys
-
 RegisteredParameter = parameter.RegisteredParameter
 IntParameter = parameter.IntParameter
 IntRangeParameter = parameter.IntRangeParameter
@@ -110,7 +107,7 @@ class ContourDisplay(ZDisplay):
 ##            # Not implemented yet.
 ##            # Should print an apology here.
 ##            return [], []
-        if type(nlevels) == ListType or type(nlevels) == TupleType:
+        if isinstance(nlevels, (list, tuple)):
             clevels = nlevels
             nlevels = len(clevels)
             
@@ -118,7 +115,7 @@ class ContourDisplay(ZDisplay):
         ## TODO OPT: Rework this to use generators instead of passing
         ## lists around.  It may be faster for large meshes.
         nodepoints = []
-        for element in mesh.element_iterator():
+        for element in mesh.elements():
             master = element.masterelement()
             el_mpos = []                # master coords of nodes in this element
             for n in range(master.nnodes()):
@@ -128,7 +125,7 @@ class ContourDisplay(ZDisplay):
         # Evaluate the function at the nodes
 
         values = [float(x) for x in 
-                  what.evaluate(mesh, mesh.element_iterator(), nodepoints)]
+                  what.evaluate(mesh, mesh.elements(), nodepoints)]
         # Get function values grouped by element
         evalues = utils.unflatten(nodepoints, values)
 
@@ -136,7 +133,7 @@ class ContourDisplay(ZDisplay):
         # values cached somewhere, and can they be reused?
         
 ##        vmax = max(values)
-##        for (vals, element) in zip(evalues, mesh.element_iterator()):
+##        for (vals, element) in zip(evalues, mesh.elements()):
 ##            if vmax in vals:
 ##                debug.fmsg('max found in element', element, vals)
 ##                break
@@ -195,21 +192,21 @@ class PlainContourDisplay(ContourDisplay):
             # nodes of each element.
             clevels, evalues = self.find_levels(mesh, self.what)
             ecount = 0
-            for element in mesh.element_iterator():
+            for element in mesh.elements():
                 if (not gfxwindow.settings.hideEmptyElements) or \
                        ( element.material() is not None ) :
                     (contours, elmin, elmax)  = contour.findContours(
                         mesh, element, self.where,
                         self.what, clevels,
-                        self.nbins, 0)
+                        self.nbins, False)
                     for cntr in contours:
                         for loop in cntr.loops:
-                            poly = oofcanvas.CanvasPolygon()
+                            poly = oofcanvas.CanvasPolygon.create()
                             poly.setLineWidthInPixels(self.width)
                             poly.setLineColor(clr)
                             poly.addPoints(loop)
                         for curve in cntr.curves:
-                            segs = oofcanvas.CanvasSegments()
+                            segs = oofcanvas.CanvasSegments.create()
                             segs.setLineWidthInPixels(self.width)
                             segs.setLineColor(clr)
                             for edge in curve.edges():
@@ -237,7 +234,7 @@ class PlainContourDisplay(ContourDisplay):
                 height = self.contour_max - self.contour_min
                 width = height/aspect_ratio
 
-                segs = oofcanvas.CanvasSegments()
+                segs = oofcanvas.CanvasSegments.create()
                 segs.setLineWidthInPixels(self.width)
                 segs.setLineColor(color.canvasColor(self.color))
 
@@ -310,13 +307,13 @@ class FilledContourDisplay(ContourDisplay):
             offset = -minval*factor
             ecount = 0
             # TODO: we might want to use itertools here
-            for element, values in zip(mesh.element_iterator(), evalues):
+            for element, values in zip(mesh.elements(), evalues):
                 if ( not gfxwindow.settings.hideEmptyElements ) or \
                        ( element.material() is not None ) :
                     (contours, elmin, elmax) = contour.findContours(
                         mesh, element, self.where,
                         self.what, clevels,
-                        self.nbins, 1)
+                        self.nbins, True)
 
                     # Before drawing anything, fill the element with the
                     # largest contour value below its lowest detected value.
@@ -340,7 +337,7 @@ class FilledContourDisplay(ContourDisplay):
                     edges = element.perimeter()
                     mcorners = [[0.0]]*element.ncorners()
                     corners = self.where.evaluate(mesh, edges, mcorners)
-                    poly = oofcanvas.CanvasPolygon()
+                    poly = oofcanvas.CanvasPolygon.create()
                     poly.addPoints(corners)
                     poly.setFillColor(baseclr)
                     self.canvaslayer.addItem(poly)
@@ -355,7 +352,7 @@ class FilledContourDisplay(ContourDisplay):
                             points = primitives.makeCompoundPolygon(
                                 cntour.loops)
                         if points:
-                            poly = oofcanvas.CanvasPolygon()
+                            poly = oofcanvas.CanvasPolygon.create()
                             poly.setFillColor(
                                 color.canvasColor(self.colormap(
                                     offset + cntour.value*factor)))
@@ -393,8 +390,8 @@ class FilledContourDisplay(ContourDisplay):
                     r_low = low-self.contour_min
                     r_high = high-self.contour_min
 
-                    rect = oofcanvas.CanvasRectangle((0, r_low),
-                                                     (width, r_high))
+                    rect = oofcanvas.CanvasRectangle.create((0, r_low),
+                                                            (width, r_high))
                     # In the collapsed case, height can be zero.  This is
                     # not hugely informative, but should be handled without
                     # crashing.
