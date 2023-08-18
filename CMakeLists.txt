@@ -14,6 +14,8 @@ set(DESIRED_PYVERSION 3.10 CACHE STRING "Python3 version number")
 
 include(GNUInstallDirs)
 
+## TODO PTYHON3: --enable-openmp?
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # OOF2/SRC subdirectories containing python files to install.  The
