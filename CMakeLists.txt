@@ -100,7 +100,8 @@ function(swig_sources)
       SOURCE ${swigfile}.swg
       PROPERTY GENERATED_COMPILE_OPTIONS
       "${SS_CFLAGS}"
-      "${OOFCANVAS_CFLAGS}")
+      "${OOFCANVAS_CFLAGS}"
+    )
 
     if(SS_TARGET_SFX)
       # If the TARGET_SFX argument is supplied, append it to
@@ -164,13 +165,24 @@ endfunction()
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-set(oof_build_types Debug Release)
-set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${oof_build_types})
-set(CMAKE_BUILD_TYPE Release CACHE STRING "Debug or Release")
+# Set the build type.
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(DEBUG True)
-endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+# These are the build types that we support:
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release)
+
+# Set the default build type.  See
+# https://www.kitware.com/cmake-and-the-default-build-type/
+set(default_build_type "Release")
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE Release CACHE
+    STRING "Debug or Release" FORCE)
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
+endif()
+
+# Apparently using -DDEBUG for debugging is not the modern
+# convention. CMake instead assumes that we're using -DNDEBUG when not
+# debugging, so add -DDEBUG here.
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -222,6 +234,10 @@ endif()
 if(${SWIG_USE_BUILTIN})		# wishful thinking
   list(APPEND CMAKE_SWIG_FLAGS -builtin)
 endif()
+# UseSWIG doesn't seem to use -DNDEBUG or -DDEBUG when calling
+# swig.  This has to be set with a generator expression because
+# CMAKE_BUILD_TYPE can't be evaluated reliably at this time.
+list(APPEND CMAKE_SWIG_FLAGS $<$<CONFIG:Debug>:-DDEBUG>)
 
 # Use pkg-config to get info about dependencies
 include(FindPkgConfig)
