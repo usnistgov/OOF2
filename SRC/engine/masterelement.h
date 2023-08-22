@@ -31,11 +31,12 @@ class MasterEdge;
 #include <vector>
 
 class ContourCellSkeleton;
+class CSkeletonElement;
 class ElementNodeIterator;
 class ElementCornerNodeIterator;
 class Material;
 class Node;
-class InterfaceElement; 
+class InterfaceElement;
 
 // Each Element type has a corresponding MasterElement type.  Only one
 // instance of each MasterElement type is created.  The MasterElement
@@ -142,14 +143,16 @@ public:
   int ngauss(int order) const;
 
   // Create a real Element
-  Element *build(PyObject *skelel, Material *m, const std::vector<Node*> *v)
+  Element *build(PyObject *skelel, CSkeletonElement *cskelel,
+		 Material *m, const std::vector<Node*> *v)
     const;
-
-#if DIM == 2
 
   //Interface branch
   // Create a real InterfaceElement
-  InterfaceElement *buildInterfaceElement(PyObject *skelel, PyObject *skelel2,
+  InterfaceElement *buildInterfaceElement(PyObject *skelel,
+					  CSkeletonElement *cskelel,
+					  PyObject *skelel2,
+					  CSkeletonElement *cskelel2,
 					  int segmentordernumber,
 					  Material *m,
 					  const std::vector<Node*> *v,
@@ -182,7 +185,6 @@ public:
   virtual bool exterior(const MasterCoord&, const MasterCoord&,
 			const std::vector<ElementCornerNodeIterator> &ext)
     const = 0;
-#endif	// DIM == 2
 
   // How far outside the element is the given point?  Returns 0 or
   // negative if the point is inside the element.  If the point is
@@ -245,8 +247,6 @@ protected:
 std::vector<MasterElement*>* masterElementList();
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-#if DIM == 2
 
 class EdgeMaster : public MasterElement {
   //this class corresponds to the one dimensional
@@ -382,8 +382,6 @@ private:
   virtual const std::vector<GaussPtTable> &gptable_vec() const;
 };
 
-#endif
-
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 class MasterEdge {
@@ -401,45 +399,6 @@ public:
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-#if DIM == 3
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-class TetrahedralMaster : public MasterElement {
-public:
-  TetrahedralMaster(const std::string &name, const std::string &desc,
-		      int nnodes, int nsc)
-    : MasterElement(name, desc, nnodes, 6, nsc) {}
-  virtual ~TetrahedralMaster() {}
-  virtual const GaussPtTable &gausspointtable(int deg) const;
-  virtual MasterCoord center() const;
-  int ncorners() {return 4;}
-//   // element order info
-  virtual int map_order() const = 0;
-  virtual int fun_order() const = 0;
-//   virtual std::vector<ContourCellSkeleton*>* contourcells(int) const;
-//   virtual bool onBoundary(const MasterCoord&) const;
-//   virtual bool onBoundary2(const MasterCoord&, const MasterCoord&) const;
-//   virtual bool exterior(const MasterCoord&, const MasterCoord&,
-// 			const std::vector<ElementCornerNodeIterator> &ext)
-//     const;
-  virtual double outOfBounds(const MasterCoord&) const;
-//   virtual const std::vector<const MasterCoord*> &perimeter() const;
-//   virtual MasterEndPointComparator bdysorter() const;
-//   static bool endPointComparator(const MasterEndPoint&, const MasterEndPoint&);
-//   static int sidenumber(const MasterCoord&);
-// protected:
-//   virtual int sideno(const MasterCoord &x) const { return sidenumber(x); }
-//   virtual const MasterCoord *endpoint(int) const;
-private:
-  virtual const std::vector<GaussPtTable> &gptable_vec() const;
-};
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-#endif
-
 
 extern int integration_reduction;
 

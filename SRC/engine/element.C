@@ -16,6 +16,7 @@
 #include "common/oofswigruntime.h"
 #include "common/printvec.h"
 #include "common/pythonlock.h"
+#include "common/pyutils.h"
 #include "common/tostring.h"
 #include "common/trace.h"
 #include "engine/cnonlinearsolver.h"
@@ -42,14 +43,15 @@ ElementData::ElementData(const std::string &nm)
   : name_(nm)
 {}
 
-Element::Element(PyObject *skelel, const MasterElement &me,
+Element::Element(PyObject *skelel, CSkeletonElement *cskelel,
+		 const MasterElement &me,
 		 const std::vector<Node*> *nl, const Material *mat)
   : master(me),
     nodelist(*nl),
     matl(mat),
-    exterior_edges(0),
+    exterior_edges(nullptr),
     skeleton_element(skelel),
-    cskeleton_element(0)
+    cskeleton_element(cskelel)
 {
 
 //   Trace("Element::Element " + me.name());
@@ -58,12 +60,7 @@ Element::Element(PyObject *skelel, const MasterElement &me,
 //     nodelist[i] = (*nl)[i];
 //   }
   PYTHON_THREAD_BEGIN_BLOCK;
-  if(skeleton_element!=Py_None)
-    {
-      SWIG_ConvertPtr(skeleton_element, (void**) &cskeleton_element,
-		      ((SwigPyObject*) skeleton_element)->ty, 0);
-      Py_XINCREF(skeleton_element);
-    }
+  Py_XINCREF(skeleton_element);
 }
 
 Element::~Element() {
@@ -80,7 +77,9 @@ const std::string *Element::repr() const {
     *rep += " " + tostring(*nodelist[i]);
   return rep;
 }
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 // Index stuff.
 
 void Element::set_index(int i) {
@@ -897,8 +896,10 @@ Node* Element::getCornerNode(int i) const
 //////////////////////////////////////////////////////////////
 
 
-InterfaceElement::InterfaceElement(PyObject *leftskelel, 
+InterfaceElement::InterfaceElement(PyObject *leftskelel,
+				   CSkeletonElement *leftcskelel,
 				   PyObject *rightskelel,
+				   CSkeletonElement *rightcskelel,
 				   int segmentordernumber,
 				   const MasterElement &me,
 				   const std::vector<Node*> *nlleft, 
@@ -908,23 +909,18 @@ InterfaceElement::InterfaceElement(PyObject *leftskelel,
 				   const Material *mat,
 				   const std::vector<std::string>* 
 				   pInterfacenames)
-  : Element(leftskelel,me,nlleft,mat),
+  : Element(leftskelel,leftcskelel,me,nlleft,mat),
     nodelist2(*nlright), 
     left_nodes_in_interface_order(left_inorder),
     right_nodes_in_interface_order(right_inorder),
     skeleton_element2(rightskelel),  // Element base class has "element".
-    cskeleton_element2(0),
+    cskeleton_element2(rightcskelel),
     _segmentordernumber(segmentordernumber),
     _interfacenames(*pInterfacenames),
     current_side(LEFT)
 {
-  if(rightskelel!=Py_None)
-    {
-      PYTHON_THREAD_BEGIN_BLOCK;
-      SWIG_ConvertPtr(rightskelel, (void**) &cskeleton_element2,
-		      ((SwigPyObject*) rightskelel)->ty, 0);
-      Py_XINCREF(skeleton_element2);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  Py_XINCREF(skeleton_element2);
 }
 
 InterfaceElement::~InterfaceElement()

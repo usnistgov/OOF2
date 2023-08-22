@@ -107,8 +107,8 @@ private:
 
 public:
   const std::vector<Node*> & get_nodelist() const {return nodelist;}
-  Element(PyObject *skelel, const MasterElement&, const std::vector<Node*>*,
-	  const Material*);
+  Element(PyObject *skelel, CSkeletonElement *cskelel,
+	  const MasterElement&, const std::vector<Node*>*, const Material*);
   virtual ~Element();
   CSkeletonElement * get_skeleton_element() const {return cskeleton_element;}
   const std::string *repr() const;	// id string for Python
@@ -329,7 +329,8 @@ public:
   virtual std::vector<std::string>* namelist() const;
   const std::vector<Node*> & get_leftnodelist() const { return nodelist;}
   const std::vector<Node*> & get_rightnodelist() const { return nodelist2;}
-  InterfaceElement(PyObject *leftskelel, PyObject *rightskelel,
+  InterfaceElement(PyObject *leftskelel, CSkeletonElement *leftcskelel,
+		   PyObject *rightskelel, CSkeletonElement *rightcskelel,
 		   int segmentordernumber,
 		   const MasterElement&,
 		   const std::vector<Node*>*, const std::vector<Node*>*,
