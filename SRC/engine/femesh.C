@@ -356,8 +356,17 @@ void FEMesh::refreshMaterials(PyObject *skeletoncontext) {
 	addMaterial(newmat);
     }
   }
-  // TODO INTERFACE: Should this just be in-line here?
-  refreshInterfaceMaterials(skeletoncontext);
+  for(InterfaceElement *el : interface_elements()) {
+    const Material *oldmat = el->material();
+    el->refreshInterfaceMaterial(skeletoncontext);
+    const Material *newmat = el->material();
+    if(newmat != oldmat) {
+      if(oldmat)
+	removeMaterial(oldmat);
+      if(newmat)
+	addMaterial(newmat);
+    }
+  }
 }
 
 void FEMesh::addMaterial(const Material *matl) {
@@ -611,24 +620,7 @@ int FEMesh::nedgements() const
 {
   return edgement.size();
 }
-// TODO INTERFACE: Called from FEMesh::refreshMaterials, but possibly
-// from elsewhere also.  Should this function just be in-line in
-// refreshMaterials, or is there a good reason for it to stand alone?
-void FEMesh::refreshInterfaceMaterials(PyObject *skelctxt) {
 
-  for(InterfaceElement *el : interface_elements()) {
-    const Material *om = el->material(); // old material
-    el->refreshInterfaceMaterial(skelctxt);
-    const Material *nm = el->material(); // new material
-    if(nm != om) {
-      if(om)
-	removeMaterial(om);
-      if(nm)
-	addMaterial(nm);
-    }
-  }
-
-}
 void FEMesh::renameInterfaceElements(const std::string &oldname,
 				     const std::string &newname)
 {

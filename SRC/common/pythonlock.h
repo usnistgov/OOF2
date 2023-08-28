@@ -10,6 +10,7 @@
  */
 
 #include <oofconfig.h>
+#include <iostream>
 
 #ifndef PYTHONLOCK_H
 #define PYTHONLOCK_H
@@ -83,12 +84,10 @@ public:
 
 class Python_Thread_Allow {
 private:
-  bool status;
   PyThreadState *save;
 public:
   Python_Thread_Allow(bool on=true)
-    : status(false),
-      save(nullptr)
+    : save(nullptr)
   {
     if(on)
       start();
@@ -97,15 +96,14 @@ public:
     end();
   }
   void end() {
-    if (status && threading_enabled) {
+    if(save) {
       PyEval_RestoreThread(save);
-      status = false;
+      save = nullptr;
     }
   }
   void start() {
-    if(!status && threading_enabled) {
+    if(!save && threading_enabled) {
       save = PyEval_SaveThread();
-      status = true;
     }
   }
 };

@@ -110,7 +110,7 @@ public:
   %newobject namelist;
   std::vector<std::string> *namelist();
 
-  void refreshMaterial(PyObject *skeletoncontext);
+  void refreshMaterial(PyObject*);
 
   OutputValue outputField(FEMesh*, Field&, MasterPosition&);
   %newobject outputFields;

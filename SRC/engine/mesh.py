@@ -911,8 +911,6 @@ class Mesh(whoville.Who):
         try:
             meshobj = self.getObject()
             meshobj.refreshMaterials(skelctxt)
-            #Interface branch
-            meshobj.refreshInterfaceMaterials(skelctxt)
             self.materialsChanged.increment()
             for s in self.subproblems():
                 s.getObject().requirePrecompute()

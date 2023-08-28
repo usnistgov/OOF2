@@ -720,19 +720,13 @@ class SkeletonContext(whoville.WhoDoUndo):
         
         return utils.stringjoin(outlist,"\n")
         
-                
-    #Called by C++ edgement function refreshInterfaceMaterial() (element.C)
-    def getInterfaceMaterial(self, edgementname):
-        if edgementname in self.allEdgeBoundaryNames():
-            interfacematname=self.getBoundary(edgementname)._interfacematerial
-        else:
-            interfacemsplugin=self.getMicrostructure().getPlugIn("Interfaces")
-            interfacematname=interfacemsplugin.getInterfaceMaterialName(edgementname)
-        if interfacematname:
-            return materialmanager.materialmanager[interfacematname].actual
-        else:
+    def getMaterialNameFromInterfaceName(self, edgementname):
+        #Interface branch -- untested
+        try:
+            bdy = self.getBoundary(edgementname)
+        except KeyError:
             return None
-                
+        return bdy._interfacematerial
 
     # ## ### #### ##### ###### ####### ####### ###### ##### #### ### ## #
 

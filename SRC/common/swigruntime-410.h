@@ -419,12 +419,17 @@ SWIG_TypeEquiv(const char *nb, const char *tb) {
 SWIGRUNTIME swig_cast_info *
 SWIG_TypeCheck(const char *c, swig_type_info *ty) {
   if (ty) {
+    std::cerr << "SWIG_TypeCheck: c=" << std::string(c) << std::endl;
     swig_cast_info *iter = ty->cast;
     while (iter) {
+      std::cerr << "SWIG_TypeCheck: iter->type=" << iter->type << std::endl;
       if (strcmp(iter->type->name, c) == 0) {
-        if (iter == ty->cast)
+        if (iter == ty->cast) {
+	  std::cerr << "SWIG_TypeCheck: returning iter" << std::endl;
           return iter;
+	}
         /* Move iter to the top of the linked list */
+	std::cerr << "SWIG_TypeCheck: moving iter to top of list" << std::endl;
         iter->prev->next = iter->next;
         if (iter->next)
           iter->next->prev = iter->prev;
@@ -434,9 +439,11 @@ SWIG_TypeCheck(const char *c, swig_type_info *ty) {
         ty->cast = iter;
         return iter;
       }
+      std::cerr << "SWIG_TypeCheck: incrementing iter" << std::endl;
       iter = iter->next;
     }
   }
+  std::cerr << "SWIG_TypeCheck: returning 0" << std::endl;
   return 0;
 }
 
@@ -2321,6 +2328,7 @@ SWIG_Python_AcquirePtr(PyObject *obj, int own) {
 
 SWIGRUNTIME int
 SWIG_Python_ConvertPtrAndOwn(PyObject *obj, void **ptr, swig_type_info *ty, int flags, int *own) {
+  std::cerr << "SWIG_Python_ConvertPtrAndOwn" << std::endl;
   int res;
   SwigPyObject *sobj;
   int implicit_conv = (flags & SWIG_POINTER_IMPLICIT_CONV) != 0;
@@ -2335,25 +2343,36 @@ SWIG_Python_ConvertPtrAndOwn(PyObject *obj, void **ptr, swig_type_info *ty, int 
 
   res = SWIG_ERROR;
 
+  std::cerr << "SWIG_Python_ConvertPtrAndOwn: 1" << std::endl;
   sobj = SWIG_Python_GetSwigThis(obj);
   if (own)
     *own = 0;
   while (sobj) {
+    std::cerr << "SWIG_Python_ConvertPtrAndOwn: sobj" << sobj << std::endl;    
     void *vptr = sobj->ptr;
+    std::cerr << "SWIG_Python_ConvertPtrAndOwn: vptr=" << vptr << std::endl;
     if (ty) {
+      std::cerr << "SWIG_Python_ConvertPtrAndOwn: ty=" << ty << std::endl;
       swig_type_info *to = sobj->ty;
+      std::cerr << "SWIG_Python_ConvertPtrAndOwn: to=" << to << std::endl;
       if (to == ty) {
         /* no type cast needed */
         if (ptr) *ptr = vptr;
         break;
       } else {
+	std::cerr << "SWIG_Python_ConvertPtrAndOwn: calling SWIG_TypeCheck"
+		  << std::endl;
         swig_cast_info *tc = SWIG_TypeCheck(to->name,ty);
+	std::cerr << "SWIG_Python_ConvertPtrAndOwn: tc=" << tc << std::endl;
         if (!tc) {
           sobj = (SwigPyObject *)sobj->next;
         } else {
           if (ptr) {
+	    std::cerr << "SWIG_Python_ConvertPtrAndOwn: calling SWIG_TypeCast"
+		      << std::endl;
             int newmemory = 0;
             *ptr = SWIG_TypeCast(tc,vptr,&newmemory);
+	    std::cerr << "SWIG_Python_ConvertPtrAndOwn: ptr=" << ptr << std::endl;
             if (newmemory == SWIG_CAST_NEW_MEMORY) {
               assert(own); /* badly formed typemap which will lead to a memory leak - it must set and use own to delete *ptr */
               if (own)
@@ -2368,10 +2387,13 @@ SWIG_Python_ConvertPtrAndOwn(PyObject *obj, void **ptr, swig_type_info *ty, int 
       break;
     }
   }
+  std::cerr << "SWIG_Python_ConvertPtrAndOwn: 2" << std::endl;  
   if (sobj) {
     if (((flags & SWIG_POINTER_RELEASE) == SWIG_POINTER_RELEASE) && !sobj->own) {
       res = SWIG_ERROR_RELEASE_NOT_OWNED;
     } else {
+      std::cerr << "SWIG_Python_ConvertPtrAndOwn: 3" << std::endl;    
+      
       if (own)
         *own = *own | sobj->own;
       if (flags & SWIG_POINTER_DISOWN) {
@@ -2384,6 +2406,7 @@ SWIG_Python_ConvertPtrAndOwn(PyObject *obj, void **ptr, swig_type_info *ty, int 
     }
   } else {
     if (implicit_conv) {
+      std::cerr << "SWIG_Python_ConvertPtrAndOwn: 4" << std::endl;    
       SwigPyClientData *data = ty ? (SwigPyClientData *) ty->clientdata : 0;
       if (data && !data->implicitconv) {
         PyObject *klass = data->klass;
@@ -2426,6 +2449,7 @@ SWIG_Python_ConvertPtrAndOwn(PyObject *obj, void **ptr, swig_type_info *ty, int 
       }
     }
   }
+  std::cerr << "SWIG_Python_ConvertPtrAndOwn: done" << std::endl;  
   return res;
 }
 
