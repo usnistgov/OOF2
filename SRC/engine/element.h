@@ -27,6 +27,7 @@ class MasterElement;
 #include <vector>
 
 class BoundaryEdge;
+class CMicrostructure;
 class CNonlinearSolver;
 class CSkeletonElement;
 class CSubProblem;
@@ -89,7 +90,7 @@ private:
   // Elements, it's more efficient to store the SkeletonElement in the
   // Element than vice versa.
   PyObject *skeleton_element;
-  CSkeletonElement * cskeleton_element;
+  CSkeletonElement *cskeleton_element;
   // The edgeset allows elements to own the edges, which are created
   // and manipulated in connection with boundary conditions.  A
   // typical element will have an empty edgeset.  Elements with
@@ -117,7 +118,7 @@ public:
   const Material *material() const { return matl; }
 
   // Tell the Element that the Material may have changed.
-  void refreshMaterial(PyObject *skeletoncontext);
+  void refreshMaterial(PyObject *skeltoncontext);
 
   int ndof() const;  std::vector<int> localDoFmap() const;
   void localDoFs(const FEMesh*, DoubleVec&) const;

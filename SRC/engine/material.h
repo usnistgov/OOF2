@@ -269,6 +269,7 @@ void removeMaterialFromPixels(CMicrostructure*, const PixelSet*);
 void removeMaterialFromPixels(CMicrostructure*, const std::vector<ICoord>&);
 void removeAllMaterials(CMicrostructure*);
 TimeStamp getMaterialTimeStamp(const CMicrostructure*);
+const Material *getMaterialByName(const std::string&);
 
 class MaterialImage : public AbstractImage {
 private:

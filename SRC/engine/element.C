@@ -11,9 +11,9 @@
 
 #include <oofconfig.h>
 #include "common/cleverptr.h"
+#include "common/cmicrostructure.h"
 #include "common/doublevec.h"
 #include "common/ooferror.h"
-#include "common/oofswigruntime.h"
 #include "common/printvec.h"
 #include "common/pythonlock.h"
 #include "common/pyutils.h"
@@ -100,27 +100,33 @@ int Element::nexteriorfuncnodes() const { return master.nexteriorfuncnodes(); }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// refreshMaterial() is called when Materials have been reassigned in a
-// Microstructure after the FEMesh has been created.  The Elements
-// need to ask their SkeletonElements for the new Material.
+// refreshMaterial() is called when Materials have been reassigned in
+// a Microstructure after the FEMesh has been created.  The Elements
+// need to ask their SkeletonElements for the new Material.  It's not
+// sufficient to get the Material from the SkeletonElement's dominant
+// pixel, because a material might have been assigned to an element
+// group.
 
 void Element::refreshMaterial(PyObject *skeletoncontext) {
   PYTHON_THREAD_BEGIN_BLOCK;
-  // Call skeletonelement.material(skeletoncontext)
-  PyObject *pymat = PyObject_CallMethod(skeleton_element, (char*) "material",
-					(char*) "O", skeletoncontext);
-  if(!pymat) {
+  // It would be nice to call SkeletonElement.material() here, but
+  // something goes wrong in swig when we try that when using python 3.11.
+  PyObject *method = PyUnicode_FromString("materialName");
+  PyObject *pymatname = PyObject_CallMethodObjArgs(skeleton_element,
+						   method,
+						   skeletoncontext, NULL);
+  if(!pymatname) {
     pythonErrorRelay();
   }
-  if(pymat == Py_None) {
-    matl = 0;
+  if(pymatname == Py_None) {
+    matl = nullptr;
   }
   else {
-    // Extract the C++ Material* from the Python object.
-    SWIG_ConvertPtr(pymat, (void**) &matl,
-		    ((SwigPyObject*) pymat)->ty, 0);
-    Py_XDECREF(pymat);
+    std::string matname = pyStringAsString(pymatname);
+    matl = getMaterialByName(matname);
   }
+  Py_XDECREF(method);
+  Py_XDECREF(pymatname);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -946,29 +952,51 @@ std::vector<std::string>* InterfaceElement::namelist() const
   return ptmp;
 }
 
-// Called by FEMesh::refreshInterfaceMaterials, which is called by
-// mesh.py->refreshMaterials
+// Called by FEMesh::refreshMaterials.
 void InterfaceElement::refreshInterfaceMaterial(PyObject *skeletoncontext)
 {
+  //Interface branch -- untested
   PYTHON_THREAD_BEGIN_BLOCK;
-  // Call skeleton.getInterfaceMaterial(skeleton_element, segmentordernumber)
-  PyObject *pymat;
-  pymat = PyObject_CallMethod(skeletoncontext, "getInterfaceMaterial",
-			      "s", name().c_str());
-  if(!pymat) {
+  // Call SkeletonContext.getMaterialNameFromInterfaceName(name()) via
+  // python API calls.  It will return a string.
+  PyObject *pymatname = PyObject_CallMethod(skeletoncontext,
+					    "getMaterialNameFromInterfaceName",
+					    "s", name().c_str());
+  if(!pymatname) {
     pythonErrorRelay();
   }
-  if(pymat == Py_None) {
-    setMaterial(0);
+  if(pymatname == Py_None) {
+    setMaterial(nullptr);
   }
   else {
-    // Extract the C++ Material* from the Python object.
-    const Material* tmp;
-    //	  SWIG_GetPtrObj(pymat, (void**)(&tmp), "_Material_p");
-    SWIG_ConvertPtr(pymat, (void**) &tmp, ((SwigPyObject*) pymat)->ty, 0);
-    setMaterial(tmp);
-    Py_XDECREF(pymat);
+    // Get C++ material name from python object
+    std::string matname = pyStringAsString(pymatname);
+    // Get C++ material from material name
+    const Material *mat = getMaterialByName(matname);
+    setMaterial(mat);
   }
+  Py_XDECREF(pymatname);
+
+  
+  
+  // // Call skeleton.getInterfaceMaterial(skeleton_element, segmentordernumber)
+  // PyObject *pymat;
+  // pymat = PyObject_CallMethod(skeletoncontext, "getInterfaceMaterial",
+  // 			      "s", name().c_str());
+  // if(!pymat) {
+  //   pythonErrorRelay();
+  // }
+  // if(pymat == Py_None) {
+  //   setMaterial(0);
+  // }
+  // else {
+  //   // Extract the C++ Material* from the Python object.
+  //   const Material* tmp;
+  //   //	  SWIG_GetPtrObj(pymat, (void**)(&tmp), "_Material_p");
+  //   SWIG_ConvertPtr(pymat, (void**) &tmp, ((SwigPyObject*) pymat)->ty, 0);
+  //   setMaterial(tmp);
+  //   Py_XDECREF(pymat);
+  // }
 }
 
 bool InterfaceElement::isSubProblemInterfaceElement(const CSubProblem* pSubProblem) const

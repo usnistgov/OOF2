@@ -47,7 +47,6 @@ public:
   ~FEMesh();
 
   void refreshMaterials(PyObject *skeletoncontext);
-  void refreshInterfaceMaterials(PyObject *skeletoncontext);
   void addMaterial(Material*);
   void removeMaterial(Material*);
   %newobject getAllMaterials;

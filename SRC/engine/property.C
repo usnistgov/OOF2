@@ -12,7 +12,6 @@
 #include <oofconfig.h>
 #include "common/cleverptr.h"
 #include "common/doublevec.h"
-#include "common/oofswigruntime.h"
 #include "common/printvec.h"
 #include "common/pythonlock.h"
 #include "common/pyutils.h"

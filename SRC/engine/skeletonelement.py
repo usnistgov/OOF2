@@ -51,8 +51,8 @@ class SkeletonElementBase:
         return f"{self.__class__.__name__}{tuple(n.position() for n in self.nodes)}"
 
     def material(self, skeletonctxt):
-        # This is the default function for assigning a material to an
-        # element.  When a Mesh is created, a different function may
+        # This is the default function for determining an element's
+        # material.  When a Mesh is created, a different function may
         # be used in some circumstances (see Relax).
 
         # If this element is part of an ElementGroup that has an
@@ -73,6 +73,11 @@ class SkeletonElementBase:
         dominantpixel = self.dominantPixel(ms)
         if dominantpixel is not None:
             return material.getMaterialFromCategory(ms, dominantpixel)
+
+    def materialName(self, skeletonctxt):
+        mat = self.material(skeletonctxt)
+        if mat:
+            return mat.name()
 
     def underlyingPixels(self, microstructure):
         # Returns a list of all pixels that overlap with this element.
