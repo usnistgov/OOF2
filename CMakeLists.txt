@@ -319,6 +319,25 @@ configure_file(
   @ONLY
   )
 
+# Create swigruntime.h from swig.
+## Targets added by add_custom_target are always out of date, so
+## swigruntime.h will always be created, and anything that imports it
+## will always be rebuilt, whenever make is run.  This is bad. Can
+## swigruntime.h be created only when the swig version is changed?
+## Use add_custom_command instead?
+# add_custom_target(
+#   swigruntime.h
+#   COMMAND swig -python -external-runtime swigruntime.h
+#   COMMENT Creating swigruntime.h
+#   )
+#add_dependencies(oof2common swigruntime.h)
+
+add_custom_command(
+  OUTPUT swigruntime.h
+  COMMAND swig -python -external-runtime swigruntime.h
+  )
+##add_dependencies(oof2common swigruntime.h)  # doesn't work
+
 foreach(script ${oofscripts})
   configure_file(
   ${PROJECT_SOURCE_DIR}/${script}.in

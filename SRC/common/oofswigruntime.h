@@ -36,6 +36,7 @@
 #ifndef SWIG_RUNTIME_VERSION
 
 #include "common/swigruntime-410.h"
+//#include "swigruntime.h"
 #define SWIG_as_voidptr(a) const_cast< void * >(static_cast< const void * >(a)) 
 
 #endif 
