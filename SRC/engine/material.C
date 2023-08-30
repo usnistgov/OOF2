@@ -41,6 +41,8 @@
 #include <vector>
 #include <map>
 
+static std::map<std::string, Material*> materialCatalog;
+
 //Interface branch
 Material::Material(const std::string &nm,
 		   const std::string &materialtype)
@@ -57,6 +59,8 @@ Material::Material(const std::string &nm,
   // will create pairs as required by the operator[] function, but it
   // seems wise.
 
+  materialCatalog[nm] = this;
+
   for(std::vector<Flux*>::const_iterator fi = Flux::allfluxes().begin();
       fi!=Flux::allfluxes().end(); ++fi)
     fluxpropmap[*fi] = FluxPropList();
@@ -65,7 +69,9 @@ Material::Material(const std::string &nm,
     eqnpropmap[*ei] = std::vector<EqnProperty*>();
 }
 
-Material::~Material() {}
+Material::~Material() {
+  materialCatalog.erase(name_);
+}
 
 const TimeStamp &Material::getTimeStamp() const {
   return timestamp;
@@ -874,6 +880,13 @@ const Material *getMaterialFromPoint(const CMicrostructure *microstructure,
   assert(matAtt!=0);
 #endif
   return matAtt->get();
+}
+
+const Material *getMaterialByName(const std::string &name) {
+  auto iter = materialCatalog.find(name);
+  if(iter != materialCatalog.end())
+    return iter->second;
+  return nullptr;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

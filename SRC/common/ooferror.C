@@ -128,16 +128,13 @@ void pythonErrorRelay() {
       Py_XDECREF(module);
     }
     if(PyObject_IsInstance(ptype, pyErrError)) {
-      //       PyErr_GivenExceptionMatches(ptype, pyErrError)) {
       // The Python exception is a swigged ErrError -- ie, it's one of
       // ours.  Extract the C++ object and raise it as a new
       // exception.
       const ErrError *ee;
       PyObject *cexcept = PyObject_GetAttrString(pvalue, "cexcept");
       assert(cexcept != 0);
-      SWIG_ConvertPtr(pvalue, (void**) &ee,
-		      ((SwigPyObject*) cexcept)->ty, 0);
-      // SWIG_GetPtrObj(pvalue, (void**) &ee, "_ErrError_p");
+      SWIG_ConvertPtr(pvalue, (void**) &ee, ((SwigPyObject*) cexcept)->ty, 0);
       Py_XDECREF(ptraceback);
       Py_XDECREF(ptype);
       Py_XDECREF(cexcept);

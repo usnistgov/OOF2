@@ -185,14 +185,12 @@ public:
 
   Element *getElement(int i) const;
 
-  void refreshMaterials(PyObject *skeletoncontext);
+  void refreshMaterials(PyObject *skelctxt); 
   // Keep track of how many Elements use each Material.
   void addMaterial(const Material*);
   void removeMaterial(const Material*);
   //  void makeMaterialLists();
   MaterialSet *getAllMaterials() const; // creates new set
-  //Interface branch
-  void refreshInterfaceMaterials(PyObject *skeletoncontext);
 
   int nnodes() const;
   int nfuncnodes() const;

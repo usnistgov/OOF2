@@ -10,6 +10,7 @@
  */
 
 #include <oofconfig.h>
+#include <iostream>
 
 #ifndef PYTHONLOCK_H
 #define PYTHONLOCK_H
@@ -60,12 +61,14 @@ private:
 public:
   void start() {
     if(!status && threading_enabled) {
+      //std::cerr << "OOF::Python_Thread_Block: start"  << std::endl;
       state = PyGILState_Ensure();
       status = true;
     }
   }
   void end() {
     if (status && threading_enabled) {
+      //std::cerr << "OOF::Python_Thread_Block: end" << std::endl;
       PyGILState_Release(state);
       status = false;
     }
@@ -83,12 +86,10 @@ public:
 
 class Python_Thread_Allow {
 private:
-  bool status;
   PyThreadState *save;
 public:
   Python_Thread_Allow(bool on=true)
-    : status(false),
-      save(nullptr)
+    : save(nullptr)
   {
     if(on)
       start();
@@ -97,15 +98,16 @@ public:
     end();
   }
   void end() {
-    if (status && threading_enabled) {
+    if(save) {
+      //std::cerr << "OOF::Python_Thread_Allow: end" << std::endl;
       PyEval_RestoreThread(save);
-      status = false;
+      save = nullptr;
     }
   }
   void start() {
-    if(!status && threading_enabled) {
+    if(!save && threading_enabled) {
+      //std::cerr << "OOF::Python_Thread_Allow: start" << std::endl;
       save = PyEval_SaveThread();
-      status = true;
     }
   }
 };

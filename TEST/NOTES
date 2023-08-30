@@ -79,28 +79,20 @@ account.
 Structure of Modules
 --------------------
 
-From the general to the specific, modules must have code that runs
-OOF, code that runs all the tests, and finally the actual tests
-themselves.
+Each test module is in a python file in this directory.  To run the
+tests in a module, run
+   python regression.py [module names]
+in this directory, or
+   oof2-test [module names]
+in any directory.  If no modules are listed, all modules will be run.
+The ".py" suffix is optional in the module name list.
 
-In order to run independently, each module should have a block of
-code, run if the module is imported as "__main__", which starts OOF
-with appropriate arguments, calls the module's run_tests() function,
-then quits OOF, reporting whether or not the run_tests function
-succeeded or failed.  There is no reason why this code block should
-not be identical in every module.
-
-The run_tests function is almost identical between modules.  It should
-always be called "run_tests" so that the regression test script can
-run it.  Run_tests should create an instance of a TextTestRunner
-object, from the class in Python's distribution-provided "unittest"
-module, and then use it to run every test in the test-set.
-
-The tests themselves are created from subclasses of the TestCase class
-from the Python distribution-provided unittest module.  Each TestCase
-class declaration defines several functions within a given subclass,
-each function corresponding to an individual tests.  Tests are created
-by giving the function name as an argument to the constructor for the
+Each module file must contain a list of tests called "test_set".  The
+tests are created from subclasses of the TestCase class from the
+Python distribution-provided unittest module.  Each TestCase class
+declaration defines several functions within a given subclass, each
+function corresponding to an individual test.  Tests are created by
+giving the function name as an argument to the constructor for the
 class, so that each function corresponds to an instance of the
 TestCase subclass object.  Besides the individual tests, TestCase
 subclass objects also have a setUp and tearDown function, the former
@@ -115,9 +107,6 @@ required in their class's setUp routine, they run the OOF menu command
 being tested, and the examine the results using the TestCase's
 "assert" functions.  These functions inspect various conditions, and
 if the conditions are not satisfied, will report a test failure.
-
-The run_test function is written in such a way that any test failure
-terminates the testing process.
 
 
 Notes

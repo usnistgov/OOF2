@@ -21,6 +21,7 @@
 
 %{
 #include "common/tostring.h"
+#include "engine/cskeleton.h"  
 #include "engine/element.h"
 #include "engine/masterelement.h"
 #include "engine/node.h"
@@ -42,6 +43,31 @@ public:
 
 MAKE_LISTVEC_TYPEMAPS(MasterElement);
 MAKE_LISTVEC_TYPEMAPS(Node);
+
+// Multiargument typemap to convert a single python SkeletonElement to
+// two C++ arguments, a PyObject* and a CSkeletonElement*.  The
+// Element constructor wants to know both the SkeletonElement's
+// PyObject (so that it can hold a reference to it) and the
+// CSkeletonElement (to access its methods).
+// MasterElement::buildElement and
+// MasterElement::buildInterfaceElement are the swigged C++ functions
+// that call the Element constructor.
+
+%typemap(in) (PyObject *skelel, CSkeletonElement *cskelel) {
+  // typemap(in) (PyObject *skelel, CSkeletonElement *cskelel)
+  $1 = $input;
+  void *ptr = 0;
+  int res = SWIG_ConvertPtr($input, &ptr, $descriptor(CSkeletonElement*),
+			    0);
+  if(!SWIG_IsOK(res)) {
+    PyErr_SetString(PyExc_TypeError,
+		    "in method '$symname', expecting a CSkeletonElement*");
+    SWIG_fail;
+  }
+  $2 = reinterpret_cast<CSkeletonElement*>(ptr);
+}
+
+
 
 // Do *not* use %newobject here. C++ retains ownership of the list,
 // which is static inside the function.
@@ -67,7 +93,10 @@ public:
   bool onBoundary(const MasterCoord&);
   bool onBoundary2(const MasterCoord&, const MasterCoord&);
 
-  InterfaceElement *buildInterfaceElement(PyObject*, PyObject*,
+  InterfaceElement *buildInterfaceElement(PyObject *skelel,
+					  CSkeletonElement *cskelel,
+					  PyObject * skelel,
+					  CSkeletonElement *cskelel,
 					  int,
 					  Material*,
 					  NodeVec*, NodeVec*,
@@ -76,7 +105,8 @@ public:
   int map_order();
   int fun_order();
 
-  Element *build(PyObject*, Material*, NodeVec*);
+  Element *build(PyObject *skelel, CSkeletonElement *cskelel,
+		 Material*, NodeVec*);
   
   // Superconvergent patch recovery
   int nSCpoints();

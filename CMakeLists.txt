@@ -7,12 +7,14 @@
 # oof_manager@nist.gov.
 
 cmake_minimum_required(VERSION 3.16)
-project(oof2 VERSION 2.3.0)
+project(oof2 VERSION 2.2.99)
 
 set(DESIRED_SWIGVERSION 4.1 CACHE STRING "Choose 4.0 or 4.1")
 set(DESIRED_PYVERSION 3.10 CACHE STRING "Python3 version number")
 
 include(GNUInstallDirs)
+
+## TODO PTYHON3: --enable-openmp?
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -316,6 +318,25 @@ configure_file(
   ${PROJECT_BINARY_DIR}/oofconfig.h
   @ONLY
   )
+
+# Create swigruntime.h from swig.
+## Targets added by add_custom_target are always out of date, so
+## swigruntime.h will always be created, and anything that imports it
+## will always be rebuilt, whenever make is run.  This is bad. Can
+## swigruntime.h be created only when the swig version is changed?
+## Use add_custom_command instead?
+# add_custom_target(
+#   swigruntime.h
+#   COMMAND swig -python -external-runtime swigruntime.h
+#   COMMENT Creating swigruntime.h
+#   )
+#add_dependencies(oof2common swigruntime.h)
+
+add_custom_command(
+  OUTPUT swigruntime.h
+  COMMAND swig -python -external-runtime swigruntime.h
+  )
+##add_dependencies(oof2common swigruntime.h)  # doesn't work
 
 foreach(script ${oofscripts})
   configure_file(

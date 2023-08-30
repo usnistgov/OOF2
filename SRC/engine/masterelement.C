@@ -220,8 +220,6 @@ int MasterElement::ngauss_sets() const {
 #define max3(a, b, c) ((a) > (b) ? max2((a), (c)) : max2((b), (c)))
 #define max4(a, b, c, d) ((a) > (b) ? max3((a), (c), (d)) : max3((b), (c), (d)))
 
-#if DIM==2
-
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 const GaussPtTable &TriangularMaster::gausspointtable(int deg) const {
@@ -849,8 +847,10 @@ MasterEndPointComparator EdgeMaster::bdysorter() const {
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 InterfaceElement 
-*MasterElement::buildInterfaceElement(PyObject *leftskelel, 
+*MasterElement::buildInterfaceElement(PyObject *leftskelel,
+				      CSkeletonElement *leftcskelel,
 				      PyObject *rightskelel,
+				      CSkeletonElement *rightcskelel,
 				      int segmentordernumber,
 				      Material *m,
 				      const std::vector<Node*> *leftnodes,
@@ -860,66 +860,19 @@ InterfaceElement
 				      const std::vector<std::string> *pInterfacenames)
   const
 {
-  return new InterfaceElement(leftskelel, rightskelel, 
+  return new InterfaceElement(leftskelel, leftcskelel,
+			      rightskelel, rightcskelel,
 			      segmentordernumber, *this,
 			      leftnodes, rightnodes,
 			      leftnodesinorder, rightnodesinorder,
 			      m, pInterfacenames);
 }
 
-#endif
-
-Element *MasterElement::build(PyObject *skelel, Material *m,
+Element *MasterElement::build(PyObject *skelel, CSkeletonElement *cskelel,
+			      Material *m,
 			      const std::vector<Node*> *nodes)
   const
 {
-  return new Element(skelel, *this, nodes, m);
+  return new Element(skelel, cskelel, *this, nodes, m);
 }
 
-#if DIM == 3
-
-const GaussPtTable &TetrahedralMaster::gausspointtable(int deg) const {
-  return gptable(deg);
-}
-
-#define sixth 1./6.
-#define third 1./3.
-#define fourth 0.25
-#define c14   0.585410196624969
-#define c15   0.138196601125011
-
-const std::vector<GaussPtTable> &TetrahedralMaster::gptable_vec() const {
-  static std::vector<GaussPtTable> table;
-  static bool set = 0;
-
-  if(!set) {
-    set = 1;
-     // order = 0, npts = 1
-    table.push_back(GaussPtTable(0, 1));
-    table[0].addpoint(MasterCoord(fourth, fourth, fourth), sixth);
-
-     // order = 1, npts = 1
-    table.push_back(GaussPtTable(1, 1));
-    table[1].addpoint(MasterCoord(fourth, fourth, fourth), sixth);
-
-     // order = 2, npts = 4
-    table.push_back(GaussPtTable(2, 4));
-    table[2].addpoint(MasterCoord(c15, c15, c15), 1./24.);
-    table[2].addpoint(MasterCoord(c15, c14, c15), 1./24.);
-    table[2].addpoint(MasterCoord(c14, c15, c15), 1./24.);
-    table[2].addpoint(MasterCoord(c15, c15, c14), 1./24.);
-
-  }
-
-  return table;
-}
-
-MasterCoord TetrahedralMaster::center() const {
-  return MasterCoord(fourth, fourth, fourth);
-}
-
-double TetrahedralMaster::outOfBounds(const MasterCoord &pt) const {
-  return max4(-pt(0), -pt(1), -pt(2), pt(0)+pt(1)+pt(2)-1.0);
-}
-
-#endif

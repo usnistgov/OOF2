@@ -36,7 +36,7 @@ OOF2 performs physical computations on microstructures, starting from a microgra
 
 Here is an extremely simplified description of the process, just to get you started.  For more details and examples, see the Tutorials in the Help menu and the manual, which may be found on-line at http://www.ctcms.nist.gov/~langer/oof2man.
 
-First, create a Microstructure, which is OOF2's basic data type. A Microstructure is a map which assigns Materials to pixels.  A Microstructure can contain Images.  You can select pixelss in an Image and assign Materials to those pixels in the Microstructure.
+First, create a Microstructure, which is OOF2's basic data type. A Microstructure is a map which assigns Materials to pixels.  A Microstructure can contain Images.  You can select pixels in an Image and assign Materials to those pixels in the Microstructure.
 
 After creating a Microstructure and assigning Materials to it, you need to create a Skeleton.  A Skeleton defines the geometry of a finite element mesh, specifying node positions and element edges only. It does not specify element type, equations, or boundary conditions. The Skeleton Modification tools allow you to adapt the Skeleton to the geometry of your Microstructure.  A Microstructure can contain more than one Skeleton.
 
@@ -48,8 +48,6 @@ The Boundary Conditions page sets the boundary conditions (surprise!), and the S
 
 Graphics windows may be opened from the Windows menu.  They can be used to view Images, Microstructures, Skeletons, and Meshes, and to interactively operate on them.  The behavior of a graphics window is determined by the currently selected toolbox, which can be changed with the pull-down menu in the window's left pane. 
 """
-
-## TODO MERGE: The second to last paragraph above isn't correct for OOF3D.
 
 ####################
    
