@@ -27,7 +27,7 @@
 // defined in swigruntime.h and also defined in all swig-generated C++
 // files.
 
-// TODO PYTHON3?  Allow users to switch between swig versions, and
+// TODO PYTHON3:  Allow users to switch between swig versions, and
 // include either swigruntime-402.h or swigruntime-410.h here.
 // BETTER -- generate swigruntime.h via cmake after swig is located.
 
