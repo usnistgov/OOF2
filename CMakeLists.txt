@@ -252,8 +252,8 @@ list(APPEND CMAKE_SWIG_FLAGS $<$<CONFIG:Debug>:-DDEBUG>)
 include(FindPkgConfig)
 # MacPorts puts some pkg-config files in the python library
 if(APPLE)
-set(ENV{PKG_CONFIG_PATH}
-  "$ENV{PKG_CONFIG_PATH}:${Python3_LIBRARY_DIRS}/pkgconfig")
+  set(ENV{PKG_CONFIG_PATH}
+    "$ENV{PKG_CONFIG_PATH}:${Python3_LIBRARY_DIRS}/pkgconfig")
 endif()
 if($ENV{CONDA_PREFIX})
   set(ENV{PKG_CONFIG_PATH}
@@ -281,10 +281,19 @@ pkg_check_modules(
   GTK3 REQUIRED
   gtk+-3.0>=${GTK3_MIN_VERSION})
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Check compiler capabilities
+
 include(TestForSSTREAM)		# sets CMAKE_NO_ANSI_STRING_STREAM
 ## TODO: Is there a non-stupid way of setting HAVE_SSTREAM?
 if(NOT ${CMAKE_NO_ANSI_STRING_STREAM})
   set(HAVE_SSTREAM True)
+endif()
+
+if(${OOF_USE_OPENMP})
+  include(FindOpenMP)
+  message("OpenMP_FOUND = ${OpenMP_FOUND}")
 endif()
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
