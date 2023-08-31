@@ -6,7 +6,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.18)
 project(oof2 VERSION 2.2.99)
 
 set(DESIRED_SWIGVERSION 4.1 CACHE STRING "Use this version of swig")
