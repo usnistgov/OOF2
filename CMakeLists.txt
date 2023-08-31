@@ -6,11 +6,15 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.18)
 project(oof2 VERSION 2.2.99)
 
-set(DESIRED_SWIGVERSION 4.1 CACHE STRING "Choose 4.0 or 4.1")
-set(DESIRED_PYVERSION 3.10 CACHE STRING "Python3 version number")
+set(DESIRED_SWIGVERSION 4.1 CACHE STRING "Use this version of swig")
+set_property(CACHE DESIRED_SWIGVERSION PROPERTY STRINGS 4.0 4.1)
+
+## TODO: Can we list only the available versions of swig and python?
+set(DESIRED_PYTHONVERSION 3.10 CACHE STRING "Use this version of Python")
+set_property(CACHE DESIRED_PYTHONVERSION PROPERTY STRINGS 3.8 3.9 3.10 3.11)
 
 include(GNUInstallDirs)
 
@@ -208,7 +212,7 @@ set(Python3_ROOT /opt/local) # Use MacPorts if available
 ## TODO: Allow user to choose python sub version
 include(FindPython)
 find_package(
-  Python3 ${DESIRED_PYVERSION} EXACT
+  Python3 ${DESIRED_PYTHONVERSION} EXACT
   COMPONENTS Interpreter Development)
 set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
 
@@ -319,24 +323,18 @@ configure_file(
   @ONLY
   )
 
-# Create swigruntime.h from swig.
-## Targets added by add_custom_target are always out of date, so
-## swigruntime.h will always be created, and anything that imports it
-## will always be rebuilt, whenever make is run.  This is bad. Can
-## swigruntime.h be created only when the swig version is changed?
-## Use add_custom_command instead?
-# add_custom_target(
-#   swigruntime.h
-#   COMMAND swig -python -external-runtime swigruntime.h
-#   COMMENT Creating swigruntime.h
-#   )
-#add_dependencies(oof2common swigruntime.h)
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Create swigruntime.h by running "swig -external-runtime". The
+# dependence of oofswigruntime.h on swigruntime.h is set explicitly in
+# SRC/common/CMakeLists.txt.
 
 add_custom_command(
   OUTPUT swigruntime.h
-  COMMAND swig -python -external-runtime swigruntime.h
-  )
-##add_dependencies(oof2common swigruntime.h)  # doesn't work
+  COMMAND ${SWIG_EXECUTABLE} -python -external-runtime swigruntime.h
+)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 foreach(script ${oofscripts})
   configure_file(
