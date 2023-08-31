@@ -618,14 +618,14 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   // extract elements for this subproblem. Because OpenMP for loop 
   // parallel directive can only work on for loops with forms
   // like: for (int i = val; i < n; i++)
-  std::vector<Element*> elements;
+  std::vector<Element*> localels;
   for(Element *el : elements())
-    elements.push_back(el);
+    localels.push_back(el);
 
   int nTds;     // number of threads
   int cntEle;   // count of elements that have been called
 
-  #pragma omp parallel shared(elements, linearsystem, nlsolver, \
+  #pragma omp parallel shared(localels, linearsystem, nlsolver, \
                               progress, nTds, cntEle)
   {
     #pragma omp single
@@ -641,9 +641,9 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
     }
 
     #pragma omp for schedule(dynamic, 1)
-    for (std::vector<Element*>::size_type i = 0; i < elements.size(); ++i) {
+    for (std::vector<Element*>::size_type i = 0; i < localels.size(); ++i) {
       if (!progress->stopped()) {
-        elements[i]->make_linear_system(this, time, nlsolver, *linearsystem);
+        localels[i]->make_linear_system(this, time, nlsolver, *linearsystem);
         
         // clear the dirty dof values of this element from
         // the dirty zone of current thread
@@ -662,9 +662,9 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
         // thread implementation among python, pthread and openmp.
         if ((cntEle % 8 == 0) && (omp_get_thread_num() == 0)) {
           // progress information
-          progress->setFraction(float(cntEle) / float(elements.size()));
+          progress->setFraction(float(cntEle) / float(localels.size()));
           progress->setMessage(tostring(cntEle) + "/" 
-            + tostring(elements.size()) + " elements");
+            + tostring(localels.size()) + " elements");
         }
       }
     }
@@ -681,8 +681,8 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 
   if (!progress->stopped()) {
     progress->setFraction(1.0);
-    progress->setMessage(tostring(elements.size()) + "/" 
-     + tostring(elements.size()) + " elements");
+    progress->setMessage(tostring(localels.size()) + "/" 
+     + tostring(localels.size()) + " elements");
   }
 
 #else // OOF_USE_OPENMP
@@ -720,14 +720,14 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 
   //Interface branch
   unsigned int n = mesh->nedgements();
-  counter = 0;
+  int icounter = 0;
   for(InterfaceElement *edgement : mesh->interface_elements()) {
     if(progress->stopped())
       break;
     edgement->make_linear_system(this, time, nlsolver, *linearsystem);
-    counter++;
-    progress->setFraction(counter/float(n));
-    progress->setMessage(tostring(counter) + "/" + tostring(n) + " edges");
+    icounter++;
+    progress->setFraction(icounter/float(n));
+    progress->setMessage(tostring(icounter) + "/" + tostring(n) + " edges");
   }    
   progress->finish();
   if(progress->stopped()) {
