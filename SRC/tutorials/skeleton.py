@@ -107,15 +107,11 @@ Four parameters need to be set.
 
 The parameter <b>targets</b> determines which elements should be refined.  Select <b>Heterogeneous Elements</b> and set its <b>threshold</b> to be <b>1.0</b>, meaning any heterogeneous elements will be refined.  (All elements with a <b>homogeneity</b> less than 1.0 will be refined.  The <b>homogeneity</b> is the largest fraction of an element's area belonging to a single pixel type.)
     
-The second parameter <b>criterion</b> determines how OOF2 decides to accept or reject a possible refinement.  Select <b>Unconditional</b>.
+The second parameter <b>divider</b> determines how OOF2 decides to subdivide the edges of an element when refining it.  The choices are <b>Bisection</b> (dividing in two equal pieces), <b>Trisection</b> (Dividing in three equal pieces) or <b>TransitionPoints</b> (dividing at the points where a pixel boundary crosses the element edge). Select <b>Bisection</b>.
 
-The parameter <b>degree</b> controls the degree of subdivision.  It specifies into how many segments each edge of an element will be divided.
+The parameter <b>rules</b> determines how OOF2 decides to subdivide the interior of an element after subdividing its edges.  Choosing <b>Quick<b> selects a small set of rules, and <b>Large<b> selects a larger set.  The larger set may produce better answers because it gives the progam more choices, but it's slower to run.  Set <b>rules</b> to <b>Quick</b>.
 
-Each refinement <b>degree</b> has a parameter <b>rule_set</b> that contains two options.  The <b>conservative</b> rule_set preserves the topology of the target element. That is, if you refine a quadrilateral, you'll get only quadrilaterals, whenever possible. The <b>liberal</b> rule_set may mix triangles and quadrilaterals, if the mix yields a better result.
-
-Choose <b>Trisection</b> and <b>conservative</b> for its rule_set.
-
-Finally, the parameter <b>alpha</b> determines how elements are refined when there are two or more possibilities.  When <b>alpha</b> is near zero, oof2 chooses the arrangement that produces elements with the best shapes.  When <b>alpha</b> is near one, it tries to make the elements as homogeneous as possible. Set <b>alpha</b> to 0.5.
+Finally, the parameter <b>alpha</b> determines how OOF2 compares possible refinements.  When <b>alpha</b> is near zero, oof2 chooses the arrangement that produces elements with the best shapes.  When <b>alpha</b> is near one, it tries to make the elements as homogeneous as possible. Set <b>alpha</b> to 0.5.
 
 Click <b>OK</b> to refine the Skeleton. """,
     ),
@@ -188,7 +184,7 @@ The quality of a Skeleton element is quantified by a functional, E, which is cal
 
 By setting <b>alpha</b>=1, we've told the <b>Snap Nodes</b> tool that it's ok if moving a node creates badly shaped elements, as long as doing so makes them more homogeneous. (We'll fix the bad shapes next.)
 
-Click <b>OK</b> to make changes.  Notice that the <b>Homogeneity Index</b> increases from 0.957 to 0.989.""",
+Click <b>OK</b> to make changes.  Notice that the <b>Homogeneity Index</b> increases from 0.957 to 0.991.""",
     ),
 
     TutoringItem(
@@ -344,7 +340,7 @@ In the pull-down menu labelled <b>Method</b>, Select <b>Pin Internal Boundary No
 
 All the nodes along the boundaries should be selected and displayed as <b>yellow</b> dots.  These nodes are not going to move at all, until they are unpinned.
 
-If the dots are too large and are obscuring the Skeleton, you can change their radius by editing their graphics layer.  In the graphics window's <b>Settings</b> menu, check <b>List All Layers</b>.  Make the window and layer list larger if necessary, and double-click the <b>PinnedNodesDisplay</b> line in the layer list. Reduce the radius by changing the <b>size</b> parameter and click <b>OK</b>.  Uncheck <b>List All Layers</b> in the <b>Settings</b> menu. """,
+If the dots are too large and are obscuring the Skeleton, you can change their radius by editing their graphics layer.  In the graphics window's <b>Settings</b> menu, check <b>List All Layers</b>.  Make the window and layer list larger if necessary, and double-click the <b>PinnedNodesDisplay</b> line near the top of the layer list. Reduce the radius by changing the <b>size</b> parameter and click <b>OK</b>.  Uncheck <b>List All Layers</b> in the <b>Settings</b> menu. """,
     ),
     
     TutoringItem(
