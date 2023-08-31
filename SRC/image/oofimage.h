@@ -26,7 +26,7 @@
 #include <vector>
 
 // Make sure that omp.h is included before Magick++.h
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
 #include <omp.h>
 #endif
 #include <Magick++.h>

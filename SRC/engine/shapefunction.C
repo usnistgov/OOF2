@@ -22,7 +22,7 @@
 #include "vtk-5.0/vtkMath.h"
 #endif 
 
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
 #include <omp.h>
 #endif
 
@@ -56,7 +56,7 @@ ShapeFunction::ShapeFunction(int nsf, const MasterElement &master)
     sftable[i] = new ShapeFunctionTable(master.ngauss(i), nsf);
   }
 
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
   // When make_linear_system is running in parallel, each thread
   // has its own shapefunction cache storing calculated results of 
   // ShapeFunction::det_jacobian(..) and ShapeFunction::realderiv(..)
@@ -171,7 +171,7 @@ double ShapeFunction::realderiv(const Element *el,
   //  Trace("ShapeFunction::realderiv 1");
   double result = 0;
   int idx;
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
   // calculate the index of the sfcache of current OpenMP thread
   idx = omp_get_thread_num() * ngauss_sets + g.order();
 #else
@@ -210,7 +210,7 @@ double ShapeFunction::det_jacobian(const Element *el, const GaussPoint &g) const
 {
   double result;
   int idx;
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
   // calculate the index of the sfcache of current OpenMP thread
   idx = omp_get_thread_num() * ngauss_sets + g.order();
 #else

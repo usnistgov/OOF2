@@ -52,7 +52,7 @@ int enablempi() {
 }
 
 bool enable_openmp() {
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
    return true;
 #else
    return false;

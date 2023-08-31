@@ -29,7 +29,7 @@
 #include "engine/property.h"
 #include "engine/smallsystem.h"
 
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
 #include <omp.h>
 #endif
 
@@ -183,7 +183,7 @@ void FluxProperty::make_flux_contributions(const FEMesh *mesh,
   // FluxProperty::recurse datum.  This is also why recurse has to be
   // re-set to false inside the func-node loop.
 
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
   bool& recurse = recurse_flags[omp_get_thread_num()];
 #endif
   recurse = false;
@@ -221,7 +221,7 @@ void FluxProperty::flux_matrix(const FEMesh *mesh, const Element *element,
 			       double time, SmallSystem *fluxdata)
   const
 {
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
   bool& recurse = recurse_flags[omp_get_thread_num()];
 #endif
 
@@ -305,7 +305,7 @@ void FluxProperty::static_flux_value(const FEMesh *mesh, const Element *element,
 				     double time, SmallSystem *fluxdata)
   const
 {
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
   bool& recurse = recurse_flags[omp_get_thread_num()];
 #endif
 
@@ -352,7 +352,7 @@ void FluxProperty::flux_value(const FEMesh *mesh, const Element *element,
 			      const Flux *flux, const MasterPosition &pt,
 			      double time, SmallSystem *fluxdata) const
 {
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
   bool& recurse = recurse_flags[omp_get_thread_num()];
 #endif
 

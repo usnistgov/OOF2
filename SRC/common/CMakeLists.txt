@@ -128,7 +128,6 @@ swig_sources(
   intarray
   latticesystem
   lock
-  # mpitools  ## TODO: Add an mpi compilation option 
   ooferror
   oofversion
   pixelattribute

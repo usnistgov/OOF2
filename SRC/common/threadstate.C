@@ -270,7 +270,7 @@ std::vector<std::string> *ThreadState::getProgressNames() const {
 static ThreadState *mainthreadstate = 0;
 
 void initThreadState() {
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
   std::cout << "Using OpenMP with maximum " << omp_get_max_threads() 
             << " threads." << std::endl;
   omp_set_nested(1);

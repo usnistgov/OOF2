@@ -39,7 +39,7 @@
 #include "engine/nodalfluxes.h"
 #include "engine/nodalscpatches.h"
 
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
 #include <omp.h>
 #include <sstream>
 #include <tuple>
@@ -614,7 +614,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   // mesh.
 
 
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
   // extract elements for this subproblem. Because OpenMP for loop 
   // parallel directive can only work on for loops with forms
   // like: for (int i = val; i < n; i++)
@@ -685,7 +685,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
      + tostring(elements.size()) + " elements");
   }
 
-#else // HAVE_OPENMP
+#else // OOF_USE_OPENMP
 
   // TODO MEMORY MANAGEMENT:
   // If we want to pre-allocate the triplet vectors in the linearized
@@ -714,7 +714,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
       progress->setMessage(tostring(counter+1) + "/" + tostring(nel)
 			   + " elements");
   }
-#endif // HAVE_OPENMP
+#endif // OOF_USE_OPENMP
 
   memusage("endif _OPENMP (C)");
 

@@ -25,7 +25,7 @@
 #include <unordered_map>
 
 
-// TODO: OpenMP pragmas have been enclosed in #ifdef HAVE_OPENMP
+// TODO: OpenMP pragmas have been enclosed in #ifdef OOF_USE_OPENMP
 // blocks so that we control when they're used.  On Ubuntu,
 // ImageMagick is built with -fopenmp, and OOF2 gets it c++ flags from
 // ImageMagick, so it's being built with OpenMP whether we want it or
@@ -93,17 +93,17 @@ std::vector<std::string> *autogroup(CMicrostructure *ms, OOFImage *image,
   const Magick::PixelPacket *packet = image->pixelPacket();
 
   size_t i, j;
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
   #pragma omp parallel shared(colorlists, packet, \
                        progress, ndone) private(i, j)
-#endif // HAVE_OPENMP
+#endif // OOF_USE_OPENMP
   {
     // Each thread has its own ColorListMap called 'colorlist', but
     // they're all stored in a global 'colorlists' array so that they
     // can be accessed from other threads later.
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
     #pragma omp single
-#endif // HAVE_OPENMP
+#endif // OOF_USE_OPENMP
     {
       progress->setMessage("Categorizing pixels");
       colorlists.resize(omp_get_num_threads());
@@ -111,9 +111,9 @@ std::vector<std::string> *autogroup(CMicrostructure *ms, OOFImage *image,
     ColorListMap &colorlist = colorlists[omp_get_thread_num()];
 
     // Put pixels with the same color into lists.
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
     #pragma omp for
-#endif // HAVE_OPENMP
+#endif // OOF_USE_OPENMP
     for(j=0; j<height; ++j) {
       for(i=0; i<width && !progress->stopped(); ++i) {
         ICoord pxl(i, j);
@@ -124,9 +124,9 @@ std::vector<std::string> *autogroup(CMicrostructure *ms, OOFImage *image,
         // add this pixel to corresponding list
         colorlist[color].push_back(pxl);
       }
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
       #pragma omp atomic
-#endif // HAVE_OPENMP
+#endif // OOF_USE_OPENMP
 	  ndone += width;
       progress->setFraction(ndone/npixels);
     } 
@@ -183,10 +183,10 @@ std::vector<std::string> *autogroup(CMicrostructure *ms, OOFImage *image,
   progress->setFraction(0.0);
   progress->setMessage("Adding pixels to groups");
 
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
   #pragma omp parallel for shared(colors, colorlists, colorgroupmap) \
                            private(i)
-#endif // HAVE_OPENMP
+#endif // OOF_USE_OPENMP
   for (i = 0; i < colors.size(); ++i) {
     if (!progress->stopped()) {
       const CColor color = colors[i];

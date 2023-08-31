@@ -100,7 +100,7 @@ private:
   std::vector<ShapeFunctionCache*> sfcache;
   int nfunctions;
 
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
   // Mesh elements with the same shape, such as triangle, are 
   // sharing one master element which includes cache of shape
   // function values. During make_linear_system, values of 

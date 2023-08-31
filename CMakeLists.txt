@@ -18,8 +18,6 @@ set_property(CACHE DESIRED_PYTHONVERSION PROPERTY STRINGS 3.8 3.9 3.10 3.11)
 
 include(GNUInstallDirs)
 
-## TODO PTYHON3: --enable-openmp?
-
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # OOF2/SRC subdirectories containing python files to install.  The
@@ -61,6 +59,11 @@ set(OOFCANVAS_MIN_VERSION 1.1.0)
 set(MAGICK_MIN_VERSION 6.0.0)
 set(MAGICK_MAX_VERSION 7.0.0)
 set(GTK3_MIN_VERSION 3.22)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Options to be set by the user
+option(OOF_USE_OPENMP "Use OpenMP" OFF)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

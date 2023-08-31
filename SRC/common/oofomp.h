@@ -11,7 +11,7 @@
 
 #include <oofconfig.h>
 
-#ifdef HAVE_OPENMP
+#ifdef OOF_USE_OPENMP
 #include <omp.h>
 #else
 #define omp_get_thread_num() 0

@@ -11,6 +11,7 @@
 #define DIM 2
 
 #cmakedefine HAVE_SSTREAM
+#cmakedefine OOF_USE_OPENMP
 
 #define OOFVERSION "@oof2_VERSION@"
 #define OOFVERSION_MAJOR @oof2_VERSION_MAJOR@
