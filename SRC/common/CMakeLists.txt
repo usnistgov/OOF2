@@ -83,8 +83,6 @@ target_sources(oof2common
   smallmatrix.h
   statgroups.C
   statgroups.h
-  swigruntime-402.h
-  swigruntime-410.h
   switchboard.C
   switchboard.h
   threadstate.C
@@ -94,7 +92,16 @@ target_sources(oof2common
   tostring.h
   trace.C
   trace.h
-  )
+)
+
+# oofswigruntime.h depends on swigruntime.h.  Because swigruntime.h is
+# the output of a custom command the dependency isn't picked up by the
+# usual methods.
+set_property(
+  SOURCE oofswigruntime.h
+  DIRECTORY ${PROJECT_SOURCE_DIR}
+  PROPERTY OBJECT_DEPENDS swigruntime.h
+)
 
 swig_sources(
   SWIGFILES
