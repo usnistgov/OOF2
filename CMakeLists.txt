@@ -18,7 +18,7 @@ set_property(CACHE DESIRED_PYTHONVERSION PROPERTY STRINGS 3.8 3.9 3.10 3.11)
 
 include(GNUInstallDirs)
 
-## TODO PTYHON3: --enable-openmp?
+## TODO PYTHON3: Get openMP working. See the openmp-branch branch.
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
