@@ -107,9 +107,9 @@ Four parameters need to be set.
 
 The parameter <b>targets</b> determines which elements should be refined.  Select <b>Heterogeneous Elements</b> and set its <b>threshold</b> to be <b>1.0</b>, meaning any heterogeneous elements will be refined.  (All elements with a <b>homogeneity</b> less than 1.0 will be refined.  The <b>homogeneity</b> is the largest fraction of an element's area belonging to a single pixel type.)
     
-The second parameter <b>divider</b> determines how OOF2 decides to subdivide the edges of an element when refining it.  The choices are <b>Bisection</b> (dividing in two equal pieces), <b>Trisection</b> (Dividing in three equal pieces) or <b>TransitionPoints</b> (dividing at the points where a pixel boundary crosses the element edge). Select <b>Bisection</b>.
+The second parameter <b>divider</b> determines how OOF2 decides to subdivide the edges of an element when refining it.  The choices are <b>Bisection</b> (dividing in two equal pieces), <b>Trisection</b> (Dividing in three equal pieces) or <b>TransitionPoints</b> (dividing at the points where a pixel boundary crosses the element edge). The <b>minlength</b> parameter sets the smallest segment length (in pixel units) that will be created. Select <b>Bisection</b> with <b>minlength</b>=2.
 
-The parameter <b>rules</b> determines how OOF2 decides to subdivide the interior of an element after subdividing its edges.  Choosing <b>Quick<b> selects a small set of rules, and <b>Large<b> selects a larger set.  The larger set may produce better answers because it gives the progam more choices, but it's slower to run.  Set <b>rules</b> to <b>Quick</b>.
+The parameter <b>rules</b> determines how OOF2 decides to subdivide the interior of an element after subdividing its edges.  Choosing <b>Quick</b> selects a small set of rules, and <b>Large</b> selects a larger set.  The larger set may produce better answers because it gives the progam more choices, but it's slower to run.  Set <b>rules</b> to <b>Quick</b>.
 
 Finally, the parameter <b>alpha</b> determines how OOF2 compares possible refinements.  When <b>alpha</b> is near zero, oof2 chooses the arrangement that produces elements with the best shapes.  When <b>alpha</b> is near one, it tries to make the elements as homogeneous as possible. Set <b>alpha</b> to 0.5.
 
@@ -121,7 +121,7 @@ Click <b>OK</b> to refine the Skeleton. """,
     comments=
 """The refined skeleton should be displayed in the graphics window.
 
-Every element (except one in the top-right corner) has been divided into 9 elements.  As a result, a larger fraction of the Microstructure's area is covered by homogeneous elements.
+Every element (except one in the top-right corner) has been divided into 4 square elements. (The top right element has also been divided, to maintain compatibility with its neighbors.)  As a result, a larger fraction of the Microstructure's area is covered by homogeneous elements.
 
 At the bottom of the <b>Skeleton Status</b> pane in the <b>Skeleton</b> page, there is a <b>Homogeneity Index</b>.  This number indicates the homogeneity of the entire skeleton.
 
@@ -129,17 +129,15 @@ As the skeleton becomes more homogeneous and adapts to material boundaries, the 
 
 Click <b>Undo</b> and <b>Redo</b>, while checking out Homogeneity Index.
 
-The number has been increased from <b>0.7306</b> to <b>0.8726</b>. """
+The number has been increased from <b>0.7306</b> to <b>0.8172</b>. """
     ),
     
     TutoringItem(
     subject="Another Refinement",
     comments=
-"""We're still one more <b>Refine</b> away from being satisfied.
+"""<b>Refine</b> again, but this time, leave <b>targets</b> set to <b>Heterogeneous Elements</b> and set <b>threshold</b> to <b>0.9</b>, so that only elements less than 90% homogeneous will be refined.
 
-This time, leave <b>targets</b> set to <b>Heterogeneous Elements</b> and set <b>threshold</b> to <b>0.9</b>, so that only elements less than 90% homogeneous will be refined.
-
-Click <b>OK</b> to start refining.  """,
+Click <b>OK</b> to refine the Skeleton.  """,
     ),
 
     TutoringItem(
@@ -184,7 +182,7 @@ The quality of a Skeleton element is quantified by a functional, E, which is cal
 
 By setting <b>alpha</b>=1, we've told the <b>Snap Nodes</b> tool that it's ok if moving a node creates badly shaped elements, as long as doing so makes them more homogeneous. (We'll fix the bad shapes next.)
 
-Click <b>OK</b> to make changes.  Notice that the <b>Homogeneity Index</b> increases from 0.957 to 0.991.""",
+Click <b>OK</b> to make changes.  Notice that the <b>Homogeneity Index</b> increases from 0.924 to 0.979.""",
     ),
 
     TutoringItem(
@@ -235,20 +233,20 @@ A quadrilateral element can be split along either of its two diagonals.  The <b>
 Click <b>OK</b> to modify the skeleton.""",
     ),
 
-    TutoringItem(
-    subject="Rationalizing, again",
-    comments=
-"""A handful of quadrilaterals have been split, but some badly shaped triangles were generated.
+#     TutoringItem(
+#     subject="Rationalizing, again",
+#     comments=
+# """A handful of quadrilaterals have been split, but some badly shaped triangles were generated.
 
-Select <b>Rationalize</b> and apply it to the Skeleton with the same settings as before.  """,
-    ),
+# Select <b>Rationalize</b> and apply it to the Skeleton with the same settings as before.  """,
+#     ),
 
     TutoringItem(
     subject="Skeleton Selection",
     comments=
 """Go back to the <b>Skeleton Selection</b> page and again select elements by homogeneity with the threshold set to <b>0.9</b>.
 
-Notice the reduced number of selected elements. """,
+Notice the slightly reduced number of selected elements. """,
     ),
     
     TutoringItem(
@@ -273,13 +271,13 @@ Click <b>OK</b>.
 Watch the <b>Message</b> and <b>Graphics</b> windows to monitor the progress.""",
     ),
 
-    TutoringItem(
-    subject="Rationalizing ...",
-    comments=
-"""If you recall, we set <b>alpha</b> to <b>0.9</b> during the anneal.  This put a strong emphasis on homogeneity, thus many elements may have been distorted severely.
+#     TutoringItem(
+#     subject="Rationalizing ...",
+#     comments=
+# """If you recall, we set <b>alpha</b> to <b>0.9</b> during the anneal.  This put a strong emphasis on homogeneity, thus many elements may have been distorted severely.
 
-Select <b>Rationalize</b> for the modification method and click <b>OK</b>.  """,
-    ),
+# Select <b>Rationalize</b> for the modification method and click <b>OK</b>.  """,
+#     ),
 
     TutoringItem(
     subject="Reduced No. of Heterogeneous Elements",
@@ -289,31 +287,31 @@ Select <b>Rationalize</b> for the modification method and click <b>OK</b>.  """,
 You will notice that the number of elements selected is significantly reduced.  """,
     ),
     
-    TutoringItem(
-    subject="Annealing Again",
-    comments=
-"""Return to <b>Skeleton</b> page and do the <b>Anneal</b> one more time with the same settings as before.  """,
-    ),
+#     TutoringItem(
+#     subject="Annealing Again",
+#     comments=
+# """Return to <b>Skeleton</b> page and do the <b>Anneal</b> one more time with the same settings as before.  """,
+#     ),
     
-    TutoringItem(
-    subject="Rationalizing ...",
-    comments=
-"""Again, we need to <b>Rationalize</b> the skeleton before we move on to the next step.
+#     TutoringItem(
+#     subject="Rationalizing ...",
+#     comments=
+# """Again, we need to <b>Rationalize</b> the skeleton before we move on to the next step.
 
-Use the same settings as before.  """,
-    ),        
+# Use the same settings as before.  """,
+#     ),        
 
-    TutoringItem(
-    subject="Almost Done",
-    comments=
-"""Open the <b>Skeleton Selection</b> page and select elements by homogeneity with the <b>threshold</b> being <b>0.9</b>.
+#     TutoringItem(
+#     subject="Almost Done",
+#     comments=
+# """Open the <b>Skeleton Selection</b> page and select elements by homogeneity with the <b>threshold</b> being <b>0.9</b>.
 
-There should be very few elements selected.  (Because of randomness in some modification methods, your results may vary.)
+# There should be very few elements selected.  (Because of randomness in some modification methods, your results may vary.)
 
-Set the <b>threshold</b> to be <b>0.8</b> and click <b>OK</b>.
+# Set the <b>threshold</b> to be <b>0.8</b> and click <b>OK</b>.
 
-There should be very few elements selected, meaning that most of the elements have been adapted to the material boundaries successfully.""",
-    ),        
+# There should be very few elements selected, meaning that most of the elements have been adapted to the material boundaries successfully.""",
+#     ),        
     
     TutoringItem(
     subject="Skeleton Quality Control",
