@@ -143,10 +143,13 @@ In your home directory or some other convenient location, enter
 ### 2. Unpack
 
 Unpack the .tar.gz file.  The usual way is to run `tar -xf` on the
-file you want to unpack.  This will create a subdirectory named
-"oof2-<version>" in the directory where you run tar.
+file you want to unpack.  If the file is in your Downloads directory,
+type
 
-    % tar -xf oof2-2.3.0.tar.gz
+    % tar -xf ~/Downloads/oof2-2.3.0.tar.gz
+    
+This will create a subdirectory named "oof2-<version>" in the
+directory where you run tar.
     
 ### 3. Configure
 
@@ -160,9 +163,9 @@ If you want to use the default settings, run `cmake`.
     % cmake ../oof2-2.3.0
     
 but beware that this will cause OOF2 to be installed in a system
-directory like `/usr` or `/usr/local`, where you might not have permission
-to create files.  It's better to use `ccmake`, which will let you edit
-settings:
+directory like `/usr` or `/usr/local`, where you might not have
+permission to create files.  It's better to use `ccmake`, which will
+let you edit settings:
 
     % ccmake ../oof2-2.3.0
     
@@ -170,7 +173,8 @@ See https://cmake.org/cmake/help/latest/manual/ccmake.1.html for
 full instructions on how to use ccmake.  At a minimum
 
 - Type `c` to do the initial configuration
-- Use the arrow keys to navigate to `CMAKE_INSTALL_PREFIX`.
+- Use the arrow keys to navigate to `CMAKE_INSTALL_PREFIX`, which is
+  where OOF2 will be installed.
 - Type `<return>`, edit the prefix, and type `<return>` again.
   Set the prefix to a directory where you can write, such as your home
   directory.
@@ -196,8 +200,8 @@ simultaneously.
 
 If you need superuser permissions to create files in the installation
 directory (possibly because you didn't change `CMAKE_INSTALL_PREFIX`
-in step 3) you can run the build and installation steps separately os
-that you can use superuser privileges for installation
+in step 3) you should run the build and installation steps separately
+so that you can use superuser privileges for installation:
 
     % make
     % sudo make install
