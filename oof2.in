@@ -10,18 +10,18 @@
 # versions of this software, you first contact the authors at
 # oof_manager@ctcms.nist.gov. 
 
-# This is the start-up script for oof2.  It is installed as an
-# executable file in the bin directory, *not* the python library.
-# "import oof2" statements refer to the oof2 module in the library,
-# not to this file.
+# This is the start-up script for oof2, created by cmake from oof2.in
+# in the oof2 source distribution.  It is installed as an executable
+# file in the bin directory, *not* the python library.  "import oof2"
+# statements refer to the oof2 module in the library, not to this
+# file.
 
 import sys
 import os
 
-# The base "oof" module must be in your path. You may need to
-# set the PYTHONPATH environment variable on Linux or Mac OSX systems.
-# If you are seeing failures on this line, your shell environment
-# is a good place to start troubleshooting.
+# This should make it unnecessary for users to set PYTHONPATH themselves.
+sys.path.append("@CMAKE_INSTALL_PREFIX@/@SITE_PACKAGES@")
+
 import oof2
 sys.path.append(os.path.dirname(oof2.__file__))
 
@@ -33,8 +33,7 @@ from math import *
 # no modules containing oof C++ code can be used.  Therefore, don't
 # even try loading any other oof code (not even the debug module)
 # before here!
-
 from ooflib.common import oof
-oof.run()
 
+oof.run()
 sys.exit()

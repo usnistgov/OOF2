@@ -219,8 +219,12 @@ set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
 # message("Python3 is ${Python3_EXECUTABLE}")
 # message("Python3_INCLUDE_DIRS is ${Python3_INCLUDE_DIRS}")
 # message("Python3_LIBRARIES is ${Python3_LIBRARIES}")
+# message("Python3_LIBRARY_DIRS is ${Python3_LIBRARY_DIRS}")
+# message("Python3_RUNTIME_LIBRARY_DIRS is ${Python3_RUNTIME_LIBRARY_DIRS}")
+# message("Python3_SITELIB is ${Python3_SITELIB}")
 
-set(PYDEST lib/python${PYVERSION}/site-packages/${CMAKE_PROJECT_NAME})
+set(SITE_PACKAGES lib/python${PYVERSION}/site-packages)
+set(PYDEST ${SITE_PACKAGES}/${CMAKE_PROJECT_NAME})
 # message("PYDEST is ${PYDEST}")
 
 include(FindBLAS)
@@ -247,11 +251,13 @@ list(APPEND CMAKE_SWIG_FLAGS $<$<CONFIG:Debug>:-DDEBUG>)
 
 # Use pkg-config to get info about dependencies
 include(FindPkgConfig)
+# Update the pkgconfig search path
 # MacPorts puts some pkg-config files in the python library
 if(APPLE)
-set(ENV{PKG_CONFIG_PATH}
-  "$ENV{PKG_CONFIG_PATH}:${Python3_LIBRARY_DIRS}/pkgconfig")
+  set(ENV{PKG_CONFIG_PATH}
+    "$ENV{PKG_CONFIG_PATH}:${Python3_LIBRARY_DIRS}/pkgconfig")
 endif()
+# Look in the anaconda directory if necessary
 if($ENV{CONDA_PREFIX})
   set(ENV{PKG_CONFIG_PATH}
     "$ENV{PKG_CONFIG_PATH}:$ENV{CONDA_PREFIX}/lib/pkgconfig")
