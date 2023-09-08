@@ -1,7 +1,4 @@
-This is the README file for OOF2, describing how to build and install
-it.
-
-This README file is for OOF2 version 2.3.0 or later.
+This is the README file for OOF2, version 2.3.0 or later.
 
 # What is OOF2?
 
@@ -61,7 +58,7 @@ programs and libraries.  These are usually available as part of a
 - [cairomm (1.12 or later)](https://www.cairographics.org/cairomm/)
 - [pango (1.40 or later)](https://pango.gnome.org/)
 - [pangocairo (1.40 or later)](https://gnome.pages.gitlab.gnome.org/pango/PangoCairo/) 
-- [oofcanvas (1.1 or later)](http://www.ctcms.nist.gov/oof/oofcanvas)
+- [OOFCanvas (1.1 or later)](http://www.ctcms.nist.gov/oof/oofcanvas)
 
 Please note that the words "or later" do not include later major
 versions.  OOF2 will not work with gtk 4.x.  It is recommended that
@@ -80,10 +77,11 @@ be installed, and you may require headers (sometimes provided as
 part of a "-dev" package).
 
 Detailed instructions for installing the OOF2 prerequisites on a
-number of different operating systems can be found at
-http://www.ctcms.nist.gov/oof/oof2/prerequisites.html.
+number of different operating systems can be found on the [OOF2
+Prerequisites
+page](http://www.ctcms.nist.gov/oof/oof2/prerequisites.html).
 
-## Detailed Installation Procedure
+## Installing OOF2
 
 Commands in the following steps should be typed into a terminal
 window, after you have installed all the OOF2 prerequisites.  In the
@@ -116,7 +114,7 @@ type
 
     % tar -xf ~/Downloads/oof2-2.3.0.tar.gz
     
-This will create a subdirectory named "oof2-<version>" in the
+This will create a subdirectory named `oof2-2.3.0` in the
 oof2 directory (if you followed the instructions in step 2).
 
 ### 4. Set PKG_CONFIG_PATH 
@@ -128,11 +126,12 @@ command
 
     % pkg-config --modversion oofcanvas
     
-If it reports a version number, nothing needs to be done.  If it says
-it can't find oofcanvas, set the environment variable
-`PKG_CONFIG_PATH` to the location of `oofcanvas.pc`.  For example, if
-OOFCanvas was installed into your home directory, the file will be in
-`~/lib/pgkconfig`, and after you run
+If `pkg-config` reports the correct OOFCanvas version number, nothing
+needs to be done.  If it says it can't find oofcanvas, set the
+environment variable `PKG_CONFIG_PATH` to the location of
+`oofcanvas.pc`.  For example, if OOFCanvas was installed into your
+home directory, the file will be in `~/lib/pgkconfig`, and after you
+run
 
     % export PKG_CONFIG_PATH=~/lib/pkgconfig
     
@@ -267,19 +266,40 @@ Be sure to read the [OOF manual](http://www.ctcms.nist.gov/~langer/oof2man/)
 and to go through the tutorials provided in the OOF2 Help menu.
 
 
-# Contact Us
+# Reporting Bugs
 
 If you encounter bugs in the program, please send e-mail to
-`oof_bugs@nist.gov`.  Tell us what version of OOF2 you're using, what
-operating system you're using, and *exactly* what you did to encounter
-the error.  It is helpful to include an OOF2 script (which you can
-save with the "File/Save/Python Log" menu item) and a copy of any
-input files (images, oof data files, etc) required to run the script.
-It is extremely difficult for us to fix a bug if we can't reproduce it
-ourselves. 
+[oof_bugs@nist.gov](mailto:oof_bugs@nist.gov).  Include as much
+information as possible -- it is extremely difficult for us to fix a
+bug if we can't reproduce it.  In particular, include
+
+* What version of OOF2 you're using.  Starting OOF with the `-version`
+  flag will print the version number.
+
+* What type of computer and what operating system you're using.
+
+* A complete description of the problem: what happened and what did
+  you do to make it happen?
+
+* If possible, an OOF2 script that reproduces the problem.  A script
+  can be saved from the `File/Save/Python Log` menu item in the main
+  OOF2 window, or the `Save` button in the `Quit` dialog box.
+  
+  If OOF2 crashes before you get a chance to save a script, a script
+  will be saved automatically in the your operating system's temp
+  directory, which is probably named `tmp`.  Look for a file named
+  `oof2-abcdef.py` where `abcdef` is a random string of characters.
+  You can change the location of the temp directory by setting the
+  `OOFTMP` environment variable.
+  
+* Be sure to include any files that the script requires, such as
+  images or other scripts that it loads.
+
+# Contact Us
 
 Other communications, including requests for help and suggestions for
-new features, can be sent to oof_manager@nist.gov.
+new features, can be sent to
+[oof_manager@nist.gov](mailto:oof_manager@nist.gov).
 
 # Disclaimer {#disclaimerlink}
 
