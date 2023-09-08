@@ -32,7 +32,7 @@ OOF2 2.3.0
 
     * The "divider" parameter determines how element edges are
       subdivided.  The choices are Bisection, Trisection, and
-      TransitionPoints.  Bisection and Trisection divides edges into
+      TransitionPoints.  Bisection and Trisection divide edges into
       two or three equal segments.  TransitionPoints divides the edges
       at the points where the pixel category changes (like the old
       Snap Refine).  It will never divide an edge into more than three
@@ -54,12 +54,12 @@ OOF2 2.3.0
 * The number of digits of floating point numbers displayed in the GUI
   can be set with the "GUI Digits" item in the Settings menu.
 
-* The "targets" parameter for the skeleton modifiers, Anneal, Smooth,
-  and Snap Refine can be applied to "Non-boundary Nodes", which will
-  preserve the positions of Skeleton nodes that have more than one
-  neighboring element category.  Annealing with targets set to
-  non-boundary nodes has the same effect as pinning internal boundary
-  nodes and the annealing.
+* The "targets" parameter for the skeleton modifiers Anneal and Smooth
+  can be set to "Non-boundary Nodes", which will preserve the
+  positions of Skeleton nodes that have more than one neighboring
+  element category.  Annealing with targets set to non-boundary nodes
+  has the same effect as pinning internal boundary nodes and then
+  annealing.
 
 * The Snap Nodes skeleton modifier has been rewritten and does a
   better job than it used to.

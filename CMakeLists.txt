@@ -18,7 +18,7 @@ set_property(CACHE DESIRED_PYTHONVERSION PROPERTY STRINGS 3.8 3.9 3.10 3.11)
 
 include(GNUInstallDirs)
 
-## TODO PTYHON3: --enable-openmp?
+## TODO PYTHON3: Get openMP working. See the openmp-branch branch.
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -219,8 +219,12 @@ set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
 # message("Python3 is ${Python3_EXECUTABLE}")
 # message("Python3_INCLUDE_DIRS is ${Python3_INCLUDE_DIRS}")
 # message("Python3_LIBRARIES is ${Python3_LIBRARIES}")
+# message("Python3_LIBRARY_DIRS is ${Python3_LIBRARY_DIRS}")
+# message("Python3_RUNTIME_LIBRARY_DIRS is ${Python3_RUNTIME_LIBRARY_DIRS}")
+# message("Python3_SITELIB is ${Python3_SITELIB}")
 
-set(PYDEST lib/python${PYVERSION}/site-packages/${CMAKE_PROJECT_NAME})
+set(SITE_PACKAGES lib/python${PYVERSION}/site-packages)
+set(PYDEST ${SITE_PACKAGES}/${CMAKE_PROJECT_NAME})
 # message("PYDEST is ${PYDEST}")
 
 include(FindBLAS)
@@ -247,16 +251,30 @@ list(APPEND CMAKE_SWIG_FLAGS $<$<CONFIG:Debug>:-DDEBUG>)
 
 # Use pkg-config to get info about dependencies
 include(FindPkgConfig)
+# Update the pkgconfig search path
 # MacPorts puts some pkg-config files in the python library
 if(APPLE)
-set(ENV{PKG_CONFIG_PATH}
-  "$ENV{PKG_CONFIG_PATH}:${Python3_LIBRARY_DIRS}/pkgconfig")
+  set(ENV{PKG_CONFIG_PATH}
+    "$ENV{PKG_CONFIG_PATH}:${Python3_LIBRARY_DIRS}/pkgconfig")
 endif()
+# Look in the anaconda directory if necessary
 if($ENV{CONDA_PREFIX})
   set(ENV{PKG_CONFIG_PATH}
     "$ENV{PKG_CONFIG_PATH}:$ENV{CONDA_PREFIX}/lib/pkgconfig")
 endif()
-#message("PKG_CONFIG_PATH is $ENV{PKG_CONFIG_PATH}")
+
+# TODO: OOFCanvas was probably installed with the same prefix, so it
+# would be nice to add CMAKE_INSTALL_PREFIX/lib/pkgconfig to
+# PKG_CONFIG_PATH here, and not require users to set PKG_CONFIG_PATH
+# themselves.  But when ccmake opens this file for the first time,
+# CMAKE_INSTALL_PREFIX is not set, and so oofcanvas is not found.  I
+# don't know how to delay the pkg_check_modules call until after
+# CMAKE_INSTALL_PREFIX is set.
+#   if(EXISTS ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig/oofcanvas.pc})
+#     set(ENV{PKG_CONFIG_PATH}
+#       "$ENV{PKG_CONFIG_PATH}:${CMAKE_INSTALL_PREFIX}/lib/pkgconfig")
+#   endif()
+
 
 pkg_check_modules(
   OOFCANVAS REQUIRED
@@ -465,4 +483,19 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/make_dist.in")
     ${PROJECT_BINARY_DIR}/make_dist
     @ONLY
   )
+endif()
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Add an "uninstall" target.  Copied from
+# https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
+
+if(NOT TARGET uninstall)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+  add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 endif()
