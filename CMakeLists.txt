@@ -262,7 +262,19 @@ if($ENV{CONDA_PREFIX})
   set(ENV{PKG_CONFIG_PATH}
     "$ENV{PKG_CONFIG_PATH}:$ENV{CONDA_PREFIX}/lib/pkgconfig")
 endif()
-#message("PKG_CONFIG_PATH is $ENV{PKG_CONFIG_PATH}")
+
+# TODO: OOFCanvas was probably installed with the same prefix, so it
+# would be nice to add CMAKE_INSTALL_PREFIX/lib/pkgconfig to
+# PKG_CONFIG_PATH here, and not require users to set PKG_CONFIG_PATH
+# themselves.  But when ccmake opens this file for the first time,
+# CMAKE_INSTALL_PREFIX is not set, and so oofcanvas is not found.  I
+# don't know how to delay the pkg_check_modules call until after
+# CMAKE_INSTALL_PREFIX is set.
+#   if(EXISTS ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig/oofcanvas.pc})
+#     set(ENV{PKG_CONFIG_PATH}
+#       "$ENV{PKG_CONFIG_PATH}:${CMAKE_INSTALL_PREFIX}/lib/pkgconfig")
+#   endif()
+
 
 pkg_check_modules(
   OOFCANVAS REQUIRED
