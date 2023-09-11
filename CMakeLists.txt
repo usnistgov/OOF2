@@ -7,7 +7,7 @@
 # oof_manager@nist.gov.
 
 cmake_minimum_required(VERSION 3.18)
-project(oof2 VERSION 2.2.99)
+project(oof2 VERSION 2.3.0)
 
 set(DESIRED_SWIGVERSION 4.1 CACHE STRING "Use this version of swig")
 set_property(CACHE DESIRED_SWIGVERSION PROPERTY STRINGS 4.0 4.1)
