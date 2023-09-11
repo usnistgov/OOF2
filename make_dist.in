@@ -183,8 +183,9 @@ try:
         # the merge, since nobod [y finished writing this comment!]
         newbranch = False
         osCall('git', 'checkout', tag)
-        print(f"Merging {branch} into {tag}", file=sys.stderr)
-        proc = subprocess.Popen(['git', 'merge', '--no-edit', branch],
+        mbranch = branch if branch else 'master'
+        print(f"Merging {mbranch} into {tag}", file=sys.stderr)
+        proc = subprocess.Popen(['git', 'merge', '--no-edit', mbranch],
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdoutdata, stderrdata = proc.communicate()
         print(stdoutdata, file=sys.stderr)
