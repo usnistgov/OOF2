@@ -13,8 +13,12 @@ set(DESIRED_SWIGVERSION 4.1 CACHE STRING "Use this version of swig")
 set_property(CACHE DESIRED_SWIGVERSION PROPERTY STRINGS 4.0 4.1)
 
 ## TODO: Can we list only the available versions of swig and python?
-set(DESIRED_PYTHONVERSION 3.10 CACHE STRING "Use this version of Python")
-set_property(CACHE DESIRED_PYTHONVERSION PROPERTY STRINGS 3.8 3.9 3.10 3.11)
+# The initial value of DESIRED_PYTHONVERSION is "" so that the initial
+# configuration pass doesn't raise an error if the requested version
+# isn't found.
+set(DESIRED_PYTHONVERSION "Latest" CACHE STRING "Use this version of Python")
+set_property(CACHE DESIRED_PYTHONVERSION PROPERTY STRINGS
+  3.8 3.9 3.10 3.11 Latest)
 
 include(GNUInstallDirs)
 
@@ -209,11 +213,14 @@ set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 
 # Find Python3.
 set(Python3_ROOT /opt/local) # Use MacPorts if available
-## TODO: Allow user to choose python sub version
 include(FindPython)
-find_package(
-  Python3 ${DESIRED_PYTHONVERSION} EXACT
-  COMPONENTS Interpreter Development)
+if(${DESIRED_PYTHONVERSION} STREQUAL "Latest")
+  find_package(Python3 COMPONENTS Interpreter Development)
+else()
+  find_package(
+    Python3 ${DESIRED_PYTHONVERSION} EXACT
+    COMPONENTS Interpreter Development)
+endif()
 set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
 
 # message("Python3 is ${Python3_EXECUTABLE}")
