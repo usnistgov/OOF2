@@ -41,33 +41,12 @@ import time
 
 def osCall(*args):
     print("--->", ' '.join(args), file=sys.stderr)
-    status = subprocess.call(args)
-    if status != 0:
+    proc = subprocess.run(args)
+    if proc.returncode != 0:
         print("Failed to execute", ' '.join(args), file=sys.stderr)
         print("Aborting!", file=sys.stderr)
-        sys.exit(status)
-        
-def run_sed(sedcmd, srcdir, srcfile):
-    # Process the given file with the given sed command, and
-    # replace the file with the result.
-
-    # Don't create a temp file with mkstemp, because it uses overly
-    # strict permissions, and others need to be able to read the file.
-    # Use a temp directory instead.
-    tmpdir = tempfile.mkdtemp()
-    destpath = os.path.join(tmpdir, srcfile)
-    dest = open(destpath, "w")
-    srcpath = os.path.join(srcdir, srcfile)
-    proc = subprocess.Popen(["sed", sedcmd, srcpath], stdout=dest,
-                            stderr=subprocess.PIPE)
-    stdoutdata, stderrdata = proc.communicate()
-    if proc.returncode != 0:
-        print("sed command failed:", stderrdata, file=sys.stderr)
         sys.exit(proc.returncode)
-    dest.close()
-    os.rename(destpath, srcpath)
-    os.rmdir(tmpdir)
-
+        
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 options = ['comment=', 'dryrun', 'help', 'noclean', 'branch=']
@@ -118,14 +97,13 @@ print("Using temp directory", tempdir, file=sys.stderr)
 
 try:
     # Get the git repository location
-    proc = subprocess.Popen(['git', 'remote', 'get-url', 'origin'],
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdoutdata, stderrdata = proc.communicate()
-    if stderrdata:
+    proc = subprocess.run(['git', 'remote', 'get-url', 'origin'],
+                          capture_output=True, text=True)
+    if proc.stderr:
         print("*** Failed to get git repository!", \
-            stderrdata.strip(), file=sys.stderr)
+            proc.stderr.strip(), file=sys.stderr)
         sys.exit(1)
-    giturl = stdoutdata.decode().strip()
+    giturl = proc.stdout.strip()
 
     # cd to the temp directory
     print("Changing directory to", tempdir, file=sys.stderr)
@@ -154,12 +132,10 @@ try:
         comment.replace(' ', '-')
         tag += "--" + comment
     # Check and/or fix the tag if it's not legal
-    proc = subprocess.Popen(['git', 'check-ref-format', '--normalize',
-                             '--allow-onelevel', tag],
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdoutdata, stderrdata = proc.communicate()
+    cmd = ['git', 'check-ref-format', '--normalize', '--allow-onelevel', tag]
+    proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode == 0:    # success
-        tag = stdoutdata.decode().strip()
+        tag = proc.stdout.strip()
     else:
         print("Failed to convert '%s' to a legal tag." % tag, file=sys.stderr)
         print("Using '%s' instead." % oldtag, file=sys.stderr)
@@ -172,26 +148,25 @@ try:
     # First see if the branch already exists.  "git ls-remote" returns
     # 2 if the branch doesn't exist, when given the --exit-code
     # argument.
-    if subprocess.call(['git', 'ls-remote', '--exit-code', 'origin', tag],
-                       stdout=None, stderr=None) == 2:
+    cmd = ['git', 'ls-remote', '--exit-code', 'origin', tag]
+    if subprocess.run(cmd).returncode == 2:
         # The branch doesn't already exist.
         newbranch = True
         osCall('git', 'checkout', '-b', tag)
     else:
         # The branch already exists.  Check it out, and merge the
         # current base branch into it.  There *should* be no conflicts in
-        # the merge, since nobod [y finished writing this comment!]
+        # the merge.
         newbranch = False
         osCall('git', 'checkout', tag)
         mbranch = branch if branch else 'master'
         print(f"Merging {mbranch} into {tag}", file=sys.stderr)
-        proc = subprocess.Popen(['git', 'merge', '--no-edit', mbranch],
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdoutdata, stderrdata = proc.communicate()
-        print(stdoutdata, file=sys.stderr)
+        proc = subprocess.run(['git', 'merge', '--no-edit', mbranch],
+                              text=True, capture_output=True)
+        print(proc.stdout, file=sys.stderr)
         if proc.returncode != 0:
-            print(stderrdata, file=sys.stderr)
-            print(f"Failed to merge {branch} into {tag}", file=sys.stderr)
+            print(proc.stderr, file=sys.stderr)
+            print(f"Failed to merge master into {tag}", file=sys.stderr)
             sys.exit(1)
 
     # Push the branch to the server, unless this is just a dry run.
@@ -301,3 +276,4 @@ WEBPAGES/oof2/source is up to date.""", file=sys.stderr)
 osCall("openssl", "dgst", "-md5", finaldistfilename)
 osCall("openssl", "dgst", "-rmd160", finaldistfilename)
 osCall("openssl", "dgst", "-sha256", finaldistfilename)
+oscall("wc", "-c", finaldistfilename)
