@@ -251,7 +251,7 @@ set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
 # oof2-guitest.in so that users can run the top level scripts without
 # setting PYTHONPATH.
 set(PYLIBPATH python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages)
-if(OOFCANVAS_SYSTEM_INSTALL)
+if(OOF2_SYSTEM_INSTALL)
   set(SITE_PACKAGES ${Python3_LIBRARY_DIRS}/${PYLIBPATH})
 else()
   set(SITE_PACKAGES lib/${PYLIBPATH})

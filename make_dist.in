@@ -89,7 +89,7 @@ for opt in optlist:
 
 startdir = os.getcwd()
 
-print(f"Building oof2 distribution named f{version}", file=sys.stderr)
+print(f"Building oof2 distribution named {version}", file=sys.stderr)
 
 # Create a temp directory.
 tempdir = tempfile.mkdtemp(prefix='oof-tempdir-'+version+'-')
@@ -276,4 +276,4 @@ WEBPAGES/oof2/source is up to date.""", file=sys.stderr)
 osCall("openssl", "dgst", "-md5", finaldistfilename)
 osCall("openssl", "dgst", "-rmd160", finaldistfilename)
 osCall("openssl", "dgst", "-sha256", finaldistfilename)
-oscall("wc", "-c", finaldistfilename)
+osCall("wc", "-c", finaldistfilename)
