@@ -7,18 +7,29 @@
 # oof_manager@nist.gov.
 
 cmake_minimum_required(VERSION 3.18)
-project(oof2 VERSION 2.2.99)
+project(oof2 VERSION 2.3.1)
 
-set(DESIRED_SWIGVERSION 4.1 CACHE STRING "Use this version of swig")
-set_property(CACHE DESIRED_SWIGVERSION PROPERTY STRINGS 4.0 4.1)
+set(OOF2_SWIG_VERSION 4.1 CACHE STRING "Use this version of swig")
+set_property(CACHE OOF2_SWIG_VERSION PROPERTY STRINGS 4.0 4.1)
 
+# The initial value of OOF2_PYTHON3_VERSION is "Latest" so that the
+# initial configuration pass doesn't raise an error if the requested
+# version isn't found.
 ## TODO: Can we list only the available versions of swig and python?
-# The initial value of DESIRED_PYTHONVERSION is "" so that the initial
-# configuration pass doesn't raise an error if the requested version
-# isn't found.
-set(DESIRED_PYTHONVERSION "Latest" CACHE STRING "Use this version of Python")
-set_property(CACHE DESIRED_PYTHONVERSION PROPERTY STRINGS
+set(OOF2_PYTHON3_VERSION "Latest" CACHE STRING "Use this version of Python")
+set_property(CACHE OOF2_PYTHON3_VERSION PROPERTY STRINGS
   3.8 3.9 3.10 3.11 Latest)
+
+# If OOF2 is being installed by a regular user, the python files
+# should be installed into lib/pythonX.Y/site-packages/oofcanvas,
+# which is probably in /usr/local or the user's home directory.  But
+# if it's being installed by MacPorts or another package manager they
+# should be installed in
+# ${Python3_LIBRARY_DIRS}/pythonX.Y/site-packages.  The package
+# manager should set OOF2_SYSTEM_INSTALL to ON, which will cause
+# the files to be installed under Python3_LIBRARY_DIRS.
+option(OOF2_SYSTEM_INSTALL OFF "Install in system directory?")
+mark_as_advanced(OOF2_SYSTEM_INSTALL)
 
 include(GNUInstallDirs)
 
@@ -61,7 +72,7 @@ set(oofscripts
 
 # Required version numbers for dependencies
 
-set(OOFCANVAS_MIN_VERSION 1.1.0)
+set(OOFCANVAS_MIN_VERSION 1.1.1)
 set(MAGICK_MIN_VERSION 6.0.0)
 set(MAGICK_MAX_VERSION 7.0.0)
 set(GTK3_MIN_VERSION 3.22)
@@ -78,7 +89,6 @@ set(GTK3_MIN_VERSION 3.22)
 #        INCLUDE_DIRECTORIES <additional directories to search for C++ headers>
 #        TARGET_SFX <suffix to use for the cmake target.  See below>
 #  )
-
 
 function(swig_sources)
   set(multiValueArgs SWIGFILES LIBRARIES CFLAGS INCLUDE_DIRECTORIES TARGET_SFX)
@@ -212,13 +222,20 @@ set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 # Find dependencies
 
 # Find Python3.
-set(Python3_ROOT /opt/local) # Use MacPorts if available
+
+# Without this line, cmake finds the system python on Mac even if
+# MacPorts is installed.  With this line, it finds MacPorts' python,
+# whether the argument is FIRST or LAST. This confuses me.  If
+# Python_FIND_FRAMEWORK is used instead, it seems to always find the
+# system python.
+set(CMAKE_FIND_FRAMEWORK LAST)
+
 include(FindPython)
-if(${DESIRED_PYTHONVERSION} STREQUAL "Latest")
+if(${OOF2_PYTHON3_VERSION} STREQUAL "Latest")
   find_package(Python3 COMPONENTS Interpreter Development)
 else()
   find_package(
-    Python3 ${DESIRED_PYTHONVERSION} EXACT
+    Python3 ${OOF2_PYTHON3_VERSION} EXACT
     COMPONENTS Interpreter Development)
 endif()
 set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
@@ -230,15 +247,30 @@ set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
 # message("Python3_RUNTIME_LIBRARY_DIRS is ${Python3_RUNTIME_LIBRARY_DIRS}")
 # message("Python3_SITELIB is ${Python3_SITELIB}")
 
-set(SITE_PACKAGES lib/python${PYVERSION}/site-packages)
+# SITE_PACKAGES is used to set the path in oof2.in, oof2-test.in and
+# oof2-guitest.in so that users can run the top level scripts without
+# setting PYTHONPATH.
+set(PYLIBPATH python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages)
+if(OOFCANVAS_SYSTEM_INSTALL)
+  set(SITE_PACKAGES ${Python3_LIBRARY_DIRS}/${PYLIBPATH})
+else()
+  set(SITE_PACKAGES lib/${PYLIBPATH})
+endif()
+# PYDEST is the destination for installing OOF2 python files.
 set(PYDEST ${SITE_PACKAGES}/${CMAKE_PROJECT_NAME})
+
 # message("PYDEST is ${PYDEST}")
+# message("SITE_PACKAGES is ${SITE_PACKAGES}")
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 include(FindBLAS)
- 
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 include(FindSWIG)
 include(UseSWIG)
-find_package(SWIG ${DESIRED_SWIGVERSION} COMPONENTS python)
+find_package(SWIG ${OOF2_SWIG_VERSION} COMPONENTS python)
 ## UseSWIG can generate dependencies only for cmake >= 3.20.  Setting
 ## the flag for it is harmless even if it doesn't always work.
 set(SWIG_USE_SWIG_DEPENDENCIES True)
@@ -255,6 +287,8 @@ endif()
 # swig.  This has to be set with a generator expression because
 # CMAKE_BUILD_TYPE can't be evaluated reliably at this time.
 list(APPEND CMAKE_SWIG_FLAGS $<$<CONFIG:Debug>:-DDEBUG>)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Use pkg-config to get info about dependencies
 include(FindPkgConfig)
@@ -282,6 +316,7 @@ endif()
 #       "$ENV{PKG_CONFIG_PATH}:${CMAKE_INSTALL_PREFIX}/lib/pkgconfig")
 #   endif()
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 pkg_check_modules(
   OOFCANVAS REQUIRED
@@ -295,13 +330,20 @@ list(APPEND CMAKE_INSTALL_RPATH ${OOFCANVAS_LIBDIR})
 #     message(STATUS "${_variableName}=${${_variableName}}")
 # endforeach()
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 pkg_check_modules(
   MAGICK REQUIRED
   Magick\+\+>=${MAGICK_MIN_VERSION}
   Magick\+\+<${MAGICK_MAX_VERSION})
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 pkg_check_modules(
   GTK3 REQUIRED
   gtk+-3.0>=${GTK3_MIN_VERSION})
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 include(TestForSSTREAM)		# sets CMAKE_NO_ANSI_STRING_STREAM
 ## TODO: Is there a non-stupid way of setting HAVE_SSTREAM?
