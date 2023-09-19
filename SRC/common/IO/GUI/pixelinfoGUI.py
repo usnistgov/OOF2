@@ -179,8 +179,8 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def updateButtonCB(self, button):
         debug.mainthreadTest()
         self.updatebutton.set_sensitive(0)
-        x = int(self.xtext.get_text())
-        y = int(self.ytext.get_text())
+        x = int(float(self.xtext.get_text()))
+        y = int(float(self.ytext.get_text()))
         msOrImage = self.gfxwindow().topmost('Microstructure', 'Image')
         size = msOrImage.sizeInPixels() # might be ICoord or iPoint
         if x < 0 or x >= size[0] or y < 0 or y >= size[1]: # illegal size
