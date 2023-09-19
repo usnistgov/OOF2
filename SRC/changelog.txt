@@ -1,3 +1,10 @@
+OOF2 2.3.1
+
+* Changed the names of user-settable variables in CMakeLists.txt, so
+  that they're all grouped together in ccmake.
+  DESIRED_PYTHONVERSION is now OOF2_PYTHON3_VERSION.
+  DESIRED_SWIGVERSION is now OOF2_SWIG_VERSION.
+
 OOF2 2.3.0
 
 * Upgrade to Python3 from Python2.  Python 3.8 or later is required.

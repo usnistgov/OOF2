@@ -1,4 +1,4 @@
-This is the README file for OOF2, version 2.3.0 or later.
+This is the README file for OOF2, version 2.3.1 or later.
 
 # What is OOF2?
 
@@ -167,11 +167,15 @@ full instructions on how to use ccmake.  At a minimum
   Set the prefix to a directory where you can write files, such as your home
   directory.  If you're installing into an Anaconda environment named `OOF2`,
   set `CMAKE_INSTALL_PREFIX` to `~/Anaconda3/envs/OOF2`.
-- Similarly, change `DESIRED_PYTHON_VERSION` to the version of python3
-  that you have installed, and `DESIRED_SWIG_VERSION` to the version
+- Similarly, change `OOF2_PYTHON_VERSION` to the version of python3
+  that you have installed, and `OOF2_SWIG_VERSION` to the version
   of swig4.  Use the same values you used when installing OOFCanvas.
 - Type `c` to update the configuration.
 - Type `g` to generate the build scripts and exit.
+- If `g` wassn't an option at the bottom of the screen in the previous
+  step and ccmake didn't exit, the previous `c` probably added new
+  variables.  Check their values and type `c` again until the `g`
+  appears, then type `g`.
 
 ### 6. Build and install
 
@@ -253,10 +257,10 @@ at your shell prompt, and OOF2 will start up.
 
 If you get a message like `oof2: command not found`, try opening a new
 terminal window -- the old one doesn't know that a new command has
-been added.
+been added. 
 
-OOF2 also has many options, and you can get a summary of them by typing
-`oof2 --help`.
+OOF2 also has many command line options, and you can get a summary of
+them by typing `oof2 --help`.
 
 By default, OOF2 runs in graphics mode, opening a couple of windows to
 get you started.  If you don't want this, you can use the `--text`
