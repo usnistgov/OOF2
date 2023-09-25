@@ -1019,7 +1019,7 @@ class RegisteredParameter(Parameter):
                            '\n')
     def valueDesc(self):
         from ooflib.common.IO import xmlmenudump # delayed to avoid import loops
-        nm = xmlmenudump.stripPtr(self.regname())
+        nm = self.regname()
         try:
             # RegisteredClasses that are secret don't appear in the
             # manual, although menu commands in the manual may refer
@@ -1122,7 +1122,7 @@ class MetaRegisteredParameter(Parameter):
         return utils.OOFeval(nm)
     def valueDesc(self):
         from ooflib.common.IO import xmlmenudump # delayed to avoid import loops
-        nm = xmlmenudump.stripPtr(self.reg.__name__)
+        nm = self.reg.__name__
         return "A subclass of the <link linkend='RegisteredClass-%s'><classname>%s</classname></link> class." % (nm, nm)
 
 

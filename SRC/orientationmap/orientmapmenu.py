@@ -116,7 +116,8 @@ loadparams = [
     filenameparam.ReadFileNameParameter(
         'filename',
         tip="Name of the file containing the orientation map data."),
-    parameter.RegisteredParameter('reader', orientmapdata.OrientMapReader),
+    parameter.RegisteredParameter('reader', orientmapdata.OrientMapReader,
+                                  tip="Description of the data file format"),
     MicrostructureWithoutOrientMapParameter(
         'microstructure', tip='Add the orientation map to this Microstructure.')
     ]

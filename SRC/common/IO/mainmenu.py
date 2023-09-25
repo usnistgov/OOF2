@@ -431,7 +431,8 @@ _annotatelogmenu = _filemenu.addItem(OOFMenuItem(
     discussion="<para>Write info directly to the log file.</para>",
     callback = _annotatelogmenucallback,
     ordering=200,
-    params=[parameter.StringParameter(name="message"),]
+    params=[parameter.StringParameter(name="message",
+                                      tip="Data to include in the log file."),]
     ))
 
 ##################################

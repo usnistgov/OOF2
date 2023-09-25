@@ -264,7 +264,9 @@ class GhostGfxWindow:
                     tip="Upper right corner of the saved region,"
                     " in physical coordinates.")
                 ],
-            help="Save a region of the graphics window as a pdf file."))
+            help="Save a region of the graphics window as a pdf file.",
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/graphicssaveregion.xml')))
             
         filemenu.addItem(OOFMenuItem(
             'Save_Contourmap',
@@ -334,7 +336,14 @@ class GhostGfxWindow:
             filemenu.addItem(OOFMenuItem(
                 'DumpLayers',
                 callback=self.dumpLayers,
-                params=[parameter.StringParameter('filename')],
+                params=[parameter.StringParameter('filename',
+                                                  tip="File name prefix.")],
+                help="Save each graphics layer as a separate png file.",
+                discussion="""<para> Save each individual graphics
+                layer in a png file, named
+                <userinput>filename</userinput>XX.png, where XX is an
+                integer. Only available if the window was opened in
+                debug mode. </para>"""
                 ))
 
         filemenu.addItem(OOFMenuItem(

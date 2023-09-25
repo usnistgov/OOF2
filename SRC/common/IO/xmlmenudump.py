@@ -255,15 +255,17 @@ def dumpMenuItem(file, menuitem):
         print("  <listitem><simpara>", file=file)
         print("   Callback: function <function>%s</function> in module <filename>%s</filename>" % (fname, mname), file=file)
         print("  </simpara></listitem>", file=file)
-    # print >> file, "  <listitem><simpara>"
-    # print >> file, "    Threadability: <constant>%s</constant>" % \
-    #       menuitem.threadable
-    # print >> file, "  </simpara></listitem>"
-    if menuitem.options:
+
+    # Menu items are enabled and disabled dynamically, so the current
+    # state of the flag isn't relevant to the documentation.
+    ## TODO: "disabled" shouldn't be an OOFMenuItem option.
+    if menuitem.options and list(menuitem.options.keys()) != ['disabled']:
         print("  <listitem><simpara>", file=file)
         print("   Options:", file=file)
         for key, val in list(menuitem.options.items()):
-            print(" <varname>%s</varname>=<constant>%s</constant>" %(key, repr(val)), file=file)
+            if key != "disabled":
+                print(" <varname>%s</varname>=<constant>%s</constant>"
+                      %(key, repr(val)), file=file)
         print("  </simpara></listitem>", file=file)
 
     menuitem.xmlParams(file)
