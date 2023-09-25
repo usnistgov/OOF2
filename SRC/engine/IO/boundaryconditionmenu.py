@@ -271,19 +271,21 @@ def setBCInit(menuitem, mesh, bc, initializer):
     switchboard.notify("field initializer set")
 
 bcmenu.addItem(oofmenu.OOFMenuItem(
-        'Set_BC_Initializer',
-        callback=setBCInit,
-        params=[
-            whoville.WhoParameter(
-                'mesh', ooflib.engine.mesh.meshes,
-                tip=parameter.emptyTipString),
-            BCNameParameter(
-                'bc',
-                tip="Name of the boundary condition to initialize"),
-            bdycondition.FloatBCInitParameter(
-                'initializer',
-                tip='How the boundary condition is to be initialized.')]
-        ))
+    'Set_BC_Initializer',
+    callback=setBCInit,
+    params=[
+        whoville.WhoParameter(
+            'mesh', ooflib.engine.mesh.meshes,
+            tip=parameter.emptyTipString),
+        BCNameParameter(
+            'bc',
+            tip="Name of the boundary condition to initialize"),
+        bdycondition.FloatBCInitParameter(
+            'initializer',
+            tip='How the boundary condition is to be initialized.')],
+    help="Set the initial value of a floating boundary condition.",
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/engine/menu/set_bc_init.xml")
+))
 
 def _clearBCInit(menuitem, mesh, bc):
     themesh = ooflib.engine.mesh.meshes[mesh]

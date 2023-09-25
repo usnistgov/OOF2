@@ -345,9 +345,12 @@ registeredclass.Registration(
     ordering=100,
     layerordering=Linear(0),
     params=[
-        color.TranslucentColorParameter('color', color.black),
-        parameter.FloatParameter('width', 1.0)],
+        color.TranslucentColorParameter('color', color.black, tip="Line color"),
+        parameter.FloatParameter('width', 1.0,
+                                 tip="Line width in pixels")],
     whoclasses = ('Microstructure',),
+    tip="Draw the perimeter of the Microstructure.",
+    discussion="<para>Draw a line around the outer edge of the Microstructure.</para>"
     )
 
 
