@@ -382,7 +382,8 @@ class GhostGfxWindow:
             ellipsis=True,
             gui_title="New Graphics Layer", # used in the dialog box
             params=[
-                whoville.WhoClassParameter("category"),
+                whoville.WhoClassParameter(
+                    "category", tip="The kind of object to display."),
                 whoville.AnyWhoParameter(
                     "what", tip="The object to display."),
                 display.DisplayMethodParameter(
@@ -396,7 +397,8 @@ class GhostGfxWindow:
             'Edit',
             callback=self.editLayerCB,
             params=[IntParameter('n', 0, tip="Layer to edit."),
-                    whoville.WhoClassParameter("category"),
+                    whoville.WhoClassParameter(
+                        "category", tip="The kind of object to display"),
                     whoville.AnyWhoParameter(
                         "what", tip="The object to display"),
                     display.DisplayMethodParameter(
@@ -578,8 +580,11 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             'New_Layer_Policy',
             callback=self.setNewLayerPolicy,
             params=[enum.EnumParameter('policy', NewLayerPolicy,
-                                       value=self.settings.newlayerpolicy)],
-            help="When to create new graphics layers."
+                                       value=self.settings.newlayerpolicy,
+                                       tip=parameter.emptyTipString)],
+            help="When to create new graphics layers.",
+            discussion=xmlmenudump.loadFile(
+                "DISCUSSIONS/common/menu/newlayerpolicy.xml")
         ))
         settingmenu.addItem(CheckOOFMenuItem(
             'List_All_Layers',
