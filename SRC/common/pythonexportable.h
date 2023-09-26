@@ -105,6 +105,7 @@
 #include <iostream>
 
 #include <Python.h>
+#include <stdexcept>
 #include "common/oofswigruntime.h"
 #include "common/pyutils.h"
 
