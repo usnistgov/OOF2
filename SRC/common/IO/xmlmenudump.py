@@ -93,14 +93,17 @@ class DiscussionFile:
         self.filename = filename
         self.func = func
     def read(self, obj):
+        # This comment makes it easier to find the source file in case
+        # the xml processor reports errors in the combined file.
+        namecomment = f"<!-- FILE: {self.filename} -->\n"
         if self.filename:
             phile = open(self.filename, 'r')
             text = phile.read()
         else:
             text = None
         if self.func:
-            return self.func(text, obj)
-        return text
+            return namecomment + self.func(text, obj)
+        return namecomment + text
 
 class DiscussionFunc:
     def __init__(self, func):
@@ -195,7 +198,7 @@ def dumpMenu(file, menu, toplevel):
             try:
                 help = getHelp(item)
                 if help:
-                    print("--", help, file=file)
+                    print("&#x2014;", help, file=file)
             except AttributeError:
                 pass
             print(" </simpara></listitem>", file=file)
@@ -446,7 +449,7 @@ may be members of more than one
         except AttributeError:
             tip = "MISSING TIP STRING: %s" % regclassname
         print(" <listitem><simpara>", file=file)
-        print("  <xref linkend='%s'/> -- %s" % (regclassID(regclass),\
+        print("  <xref linkend='%s'/> &#x2014; %s" % (regclassID(regclass),\
                                                          tip), file=file)
         print(" </simpara></listitem>", file=file)        
     print(" </itemizedlist>", file=file)
@@ -483,7 +486,7 @@ may be members of more than one
                 except AttributeError:
                     tip = "MISSING TIP STRING: %s" % reg.subclass.__name__
                 print("   <listitem><simpara>", file=file)
-                print("    <link linkend='%s'>%s (<classname>%s</classname>)</link> -- %s" % \
+                print("    <link linkend='%s'>%s (<classname>%s</classname>)</link> &#x2014; %s" % \
                       (registrationID(reg), reg.name(), reg.subclass.__name__,
                        tip), file=file)
                 print("   </simpara></listitem>", file=file)
@@ -517,7 +520,7 @@ may be members of more than one
             tip = getHelp(reg)
         except AttributeError:
             tip = "MISSING TIP STRING: %s" % name
-        print("    <xref linkend='%s'/> -- %s" % \
+        print("    <xref linkend='%s'/> &#x2014; %s" % \
               (registrationID(reg), tip), file=file)
         print("  </simpara></listitem>", file=file)
     print(" </itemizedlist>", file=file)
@@ -638,7 +641,7 @@ def enumSection(file):
         except AttributeError:
             tip = "MISSING ENUM TIP STRING: %s" % enumname
         print("<listitem><simpara>", file=file)
-        print(" <xref linkend='Enum-%s'/> -- %s" % (enumname, tip), file=file)
+        print(" <xref linkend='Enum-%s'/> &#x2014; %s" % (enumname, tip), file=file)
         print("</simpara></listitem>", file=file)        
     print("</itemizedlist>", file=file)
     
