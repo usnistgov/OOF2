@@ -67,10 +67,7 @@ class NewLayerPolicy(enum.EnumClass(
         ("Single", "Automatically add new graphics layers for Images, Skeletons, and Meshes if the graphics window doesn't contain any similar layers for other objects.  New graphics windows will automatically add layers for pre-existing objects if they are unique."),
         ("Always", "Automatically add display layers for all newly created Images, Skeletons, and Meshes."))):
     tip = "How the graphics window reacts when new Images, Skeletons, or Meshes are created."
-    discussion="<para>See <xref linkend="Section-Graphics-New-Layer-Policy"/>.</para>"
-
-
-        "DISCUSSIONS/common/enum/newlayerpolicy.xml")
+    discussion='<para>See <xref linkend="Section-Graphics-New-Layer-Policy"/>.</para>'
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

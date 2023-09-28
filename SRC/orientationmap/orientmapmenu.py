@@ -202,7 +202,7 @@ microstructuremenu.micromenu.addItem(oofmenu.OOFMenuItem(
     filenameparam.ReadFileNameParameter(
                 'filename',
                 tip='Name of the Orientation Map file.'),
-    parameter.RegisteredParameter('reader', orientmapdata.OrientMapReader
+    parameter.RegisteredParameter('reader', orientmapdata.OrientMapReader,
                                   tip="The method for reading the file."),
     parameter.AutomaticNameParameter('microstructure',
                                      msOrientMapFileNameResolver,
