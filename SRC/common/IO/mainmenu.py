@@ -488,11 +488,14 @@ def openGfx(menuitem):
     window = gfxManager.openWindow()
     window.drawAtTime(time=window.latestTime(), zoom=True)
     
-_graphicsmenu.addItem(OOFMenuItem("New",
-                                  callback=openGfx,
-                                  help="Open a new graphics window.",
-                                  accel='g',
-                                  discussion="<para>Create a new <link linkend='Chapter-Graphics'>Graphics Window</link>.</para>"))
+_graphicsmenu.addItem(OOFMenuItem(
+    "New",
+    callback=openGfx,
+    help="Open a new graphics window.",
+    accel='g',
+    discussion="""<para>Create a new <link
+    linkend='Chapter-Graphics'>Graphics Window</link>.</para>"""
+))
 
 _windowmenu.addItem(_graphicsmenu)
 
@@ -514,11 +517,10 @@ helpmenu = OOF.addItem(OOFMenuItem('Help', help_menu=1))
 
 debugmenu = helpmenu.addItem(OOFMenuItem(
     'Debug',
-    discussion=
-    """
-<para>Tools for figuring out what's going on when it's not going well.
-Mostly of interest to the developers.</para>
-"""
+    help="Tools for debugging.",
+    discussion= """<para>Tools for figuring out what's going on when
+    it's not going well.  Mostly of interest to the
+    developers.</para>"""
     ))
 
 def set_debug(menuitem, state):
@@ -547,7 +549,11 @@ debugmenu.addItem(CheckOOFMenuItem(
     'Switchboard_Stack_Tracking',
     switchboard.useMessageStackFlag,
     callback=switchboard.useMessageStackCB,
-    help='Keep track of current switchboard calls.'))
+    help='Keep track of current switchboard calls.',
+    discussion="""<para>Keep track of which switchboard calls have led
+    to other switchboard calls, making it easier to find cause and
+    effect when debugging.</para>"""
+))
     
 
 if debug.debug():
@@ -555,7 +561,11 @@ if debug.debug():
         "Sandbox",
         callback=None,
         accel='d',
-        threadable=oofmenu.UNTHREADABLE))
+        threadable=oofmenu.UNTHREADABLE,
+        help="Open the sandbox window.",
+        discussion="""<para>A place for developers to play with gtk
+        code in the &oof2; environment.</para>"""
+    ))
         
 ####
 
@@ -565,17 +575,28 @@ def _startMemMonitor(menuitem, filename):
 def _stopMemMonitor(menuitem):
     utils.stopMemoryMonitor()
 
-memmenu = debugmenu.addItem(OOFMenuItem('Memory_Monitor'))
+memmenu = debugmenu.addItem(OOFMenuItem(
+    'Memory_Monitor',
+    discussion="""<para>Tools for debugging memory issues.  See
+    <filename>SRC/common/utils.py</filename>.</para>"""
+))
 
 memmenu.addItem(OOFMenuItem(
     'Start',
     callback=_startMemMonitor,
-    params=[filenameparam.WriteFileNameParameter("filename")],
+    params=[
+        filenameparam.WriteFileNameParameter(
+            "filename", tip="Log file name.")],
+    help="Start logging memory use.",
+    discussion="<para>Start logging memory use.</para>"
     ))
 
 memmenu.addItem(OOFMenuItem(
     'Stop',
-    callback=_stopMemMonitor))
+    callback=_stopMemMonitor,
+    help="Stop logging memory use.",
+    discussion="<para>Stop logging memory use.</para>"
+))
 
 ####
 
@@ -686,7 +707,9 @@ profmenu.addItem(OOFMenuItem(
     callback=profile_stop,
     threadable = oofmenu.UNTHREADABLE,
     help="Stop measuring execution time.",
-    discussion="<para>Stop profiling, and save the data in the file specified in <xref linkend='MenuItem-OOF.Help.Debug.Profile.Start'/>.</para>"
+    discussion="""<para>Stop profiling, and save the data in the file
+    specified in <xref
+    linkend='MenuItem-OOF.Help.Debug.Profile.Start'/>.</para>"""
                              ))
 
 def proffudge(menuitem, iterations):
@@ -798,8 +821,11 @@ errmenu.addItem(OOFMenuItem('Infinite_Loop', callback=loop,
 def spinCycle(menuitem, nCycles):
     cdebug.spinCycle(nCycles)
 
-debugmenu.addItem(OOFMenuItem('SpinCycle', callback=spinCycle,
-                              params=[IntParameter('nCycles', 100000)]))
+debugmenu.addItem(OOFMenuItem(
+    'SpinCycle', callback=spinCycle,
+    params=[IntParameter('nCycles', 100000, tip="How many cycles to run.")],
+    help="Eat up some cpu cycles.",
+    discussion="<para>I don't remember why this was needed.</para>"))
 
 import os
 from ooflib.SWIG.common import lock
@@ -859,5 +885,9 @@ debugmenu.addItem(OOFMenuItem(
         'Random',
         callback=_random,
         secret=not debug.debug(),
-        params=[IntParameter('n', 10, tip='How many')],
-        help='For debugging'))
+        params=[IntParameter('n', 10, tip='How many numbers to generate.')],
+        help='Generate some random numbers.',
+    discussion="""<para>For debugging the random number generator.
+    Being able to generate reproducible random numbers is important
+    for the test suite.</para>"""
+))

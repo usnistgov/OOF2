@@ -113,4 +113,7 @@ pixelselectionmethod.PixelSelectionRegistration(
         ],
     whoclasses=['Microstructure', 'Image'],
     events=['up'],
-    tip='Select a contiguous set of similarly oriented pixels, using a forest fire algorithm on an orientation map.')
+    tip='Select a contiguous set of similarly oriented pixels, using a forest fire algorithm on an orientation map.',
+    discussion=xmlmenudump.loadFile(
+        "DISCUSSIONS/orientationmap/reg/orientationburn.xml")
+)

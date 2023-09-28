@@ -67,6 +67,10 @@ class NewLayerPolicy(enum.EnumClass(
         ("Single", "Automatically add new graphics layers for Images, Skeletons, and Meshes if the graphics window doesn't contain any similar layers for other objects.  New graphics windows will automatically add layers for pre-existing objects if they are unique."),
         ("Always", "Automatically add display layers for all newly created Images, Skeletons, and Meshes."))):
     tip = "How the graphics window reacts when new Images, Skeletons, or Meshes are created."
+    discussion="<para>See <xref linkend="Section-Graphics-New-Layer-Policy"/>.</para>"
+
+
+        "DISCUSSIONS/common/enum/newlayerpolicy.xml")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -1636,12 +1640,22 @@ mainmenu.gfxdefaultsmenu.addItem(oofmenu.OOFMenuItem(
     discussion="<para> Set the initial size of graphics windows. </para>"
     ))
 
+##########
+
+# Global default setting for the new layer policy.  This applies to
+# all new windows, not existing ones.
+
 def _setDefaultNewLayerPolicy(menuitem, policy):
     GfxSettings.newlayerpolicy = policy
 
 mainmenu.gfxdefaultsmenu.addItem(oofmenu.OOFMenuItem(
     'New_Layer_Policy',
     callback=_setDefaultNewLayerPolicy,
-    params=[enum.EnumParameter('policy', NewLayerPolicy,
-                               value=GfxSettings.newlayerpolicy)],
-    help = "When to create new graphics layers."))
+    params=[enum.EnumParameter(
+        'policy', NewLayerPolicy,
+        value=GfxSettings.newlayerpolicy,
+        tip='New layer policy for newly created windows.')],
+    help = "When to create new graphics layers in new windows.",
+    discussion=xmlmenudump.loadFile(
+        "DISCUSSIONS/common/menu/defaultnewlayerpolicy.xml")
+))
