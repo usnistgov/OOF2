@@ -128,7 +128,7 @@ def outputDump(file):
             try:
                 print(" <refpurpose>%s</refpurpose>" % xmlmenudump.getHelp(o), file=file)
             except AttributeError:
-                print(" <refpurpose>MISSING TIP STRING: %s</refpurpose>" % xmlid, file=file)
+                print(" <refpurpose>MISSING HELP STRING: %s</refpurpose>" % xmlid, file=file)
             print(" </refnamediv>", file=file)
             print(" <refsynopsisdiv>", file=file)
             print("  <title>Output Categories</title>", file=file)
@@ -155,7 +155,7 @@ def outputDump(file):
                     try:
                         tip = xmlmenudump.getHelp(param)
                     except AttributeError:
-                        tip = "MISSING TIP STRING: %s" % param.name
+                        tip = "MISSING HELP STRING: %s" % param.name
                     print("     <simpara>%s <emphasis>Type</emphasis>: %s</simpara>" \
                           % (tip, param.valueDesc()), file=file)
                     print("     </listitem>", file=file)

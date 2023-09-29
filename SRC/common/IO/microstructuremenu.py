@@ -345,14 +345,20 @@ micromenu.addItem(oofmenu.OOFMenuItem(
             tip='Fixed number of subdivisions')
 
     ],
-    help="Set parameters for calculating element homogeneity."))
+    help="Set parameters for calculating element homogeneity.",
+    discussion="""<para>This command is used in the regression tests
+    to check aspects of the element homogeneity calculuation.</para>"""
+))
 
 micromenu.addItem(oofmenu.OOFMenuItem(
     'ResetHomogeneityParameters',
     callback=resetHomogParams,
     ordering=1001,
     secret=1,
-    help="Reset parameters for calculating element homogeneity."))
+    help="Reset parameters for calculating element homogeneity.",
+    discussion="""<para>This command is used in the regression tests
+    to check aspects of the element homogeneity calculuation.</para>"""
+))
     
 
 # Force recategorization of pixels.  Used when testing.
@@ -368,15 +374,20 @@ micromenu.addItem(oofmenu.OOFMenuItem(
     params=[whoville.WhoParameter('microstructure',
                                   ooflib.common.microstructure.microStructures,
                                   tip=parameter.emptyTipString)],
-    help="Force pixel recategorization. Used in regression tests."
+    help="Force pixel recategorization. Used in regression tests.",
+    discussion="""<para>This command is used in the regression tests
+    to check aspects of the element homogeneity calculuation.</para>"""
     ))
 
 
-def printHomogeneityStats(menuitem):
-    pixelsetboundary.printHomogStats()
+## This is for debugging the tiling computation in pixelsetboundary.C.
+## There's no GUI access to this function.  
 
-micromenu.addItem(oofmenu.OOFMenuItem(
-    'PrintHomogeneityStats',
-    callback=printHomogeneityStats,
-    ordering=1001,
-    help='Print useful information for testing and debugging'))
+# def printHomogeneityStats(menuitem):
+#     pixelsetboundary.printHomogStats()
+
+# micromenu.addItem(oofmenu.OOFMenuItem(
+#     'PrintHomogeneityStats',
+#     callback=printHomogeneityStats,
+#     ordering=1001,
+#     help='Print useful information for testing and debugging'))

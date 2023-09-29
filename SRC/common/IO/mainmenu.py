@@ -405,7 +405,9 @@ settingsmenu.addItem(oofmenu.OOFMenuItem(
     'Random_Seed',
     callback=_randomseed,
     ordering=3.5,
-    params=[parameter.IntParameter('seed', 17)]
+    params=[parameter.IntParameter('seed', 17, tip=parameter.emptyTipString)],
+    help="Seed the random number generator.",
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/common/menu/randomseed.xml")
 ))
 
 def _setdigits(menuitem, digits):
@@ -417,7 +419,9 @@ settingsmenu.addItem(oofmenu.OOFMenuItem(
     ordering=3,
     params=[parameter.NonNegativeIntParameter(
         'digits', runtimeflags.digits(),
-        tip='Number of digits to show after the decimal point.')]
+        tip='Number of digits to show after the decimal point.')],
+    help="Set the precision for numbers in the GUI.",
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/common/menu/digits.xml")
 ))
 
 ################################

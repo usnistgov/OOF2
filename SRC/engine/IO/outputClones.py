@@ -642,9 +642,14 @@ ConcatenateOutput = output.Output(
     column_names=_concatenate_columnnames,
     arithmeticFilter=_concatenate_allowsArithmetic,
     params=[
-        output.AggregateOutputParameter('first'),
-        output.AggregateOutputParameter('second')],
-    tip="Print multiple quantities on each line")
+        output.AggregateOutputParameter('first', tip=parameter.emptyTipString),
+        output.AggregateOutputParameter('second', tip=parameter.emptyTipString)
+    ],
+    tip="Print multiple quantities on each line",
+    discussion="""<para>Combine two Outputs on one line in the data
+    file.  To combine more, one or both of the two parameters can also
+    be a <classname>Concatenate</classname> Output.</para>"""
+)
 
 output.defineAggregateOutput('Concatenate', ConcatenateOutput,
                              ordering=1001)
