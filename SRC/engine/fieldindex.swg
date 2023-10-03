@@ -132,6 +132,8 @@ public:
 
 extern const SymTensorIJComponents symTensorIJComponents;
 
+ComponentsP getSymTensorComponents(Planarity);
+
 %pythoncode "engine/fieldindex.spy"
 
 #endif // FIELDINDEX_SWG
