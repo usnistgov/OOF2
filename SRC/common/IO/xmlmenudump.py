@@ -122,13 +122,14 @@ def getDiscussion(obj):
 def getHelp(obj):                       # get help, helpstr, or tip
     for helpattr in ("helpstr", "help", "tip"):
         try:
-            help = getattr(obj, helpattr)
+            whelp = getattr(obj, helpattr)
         except AttributeError:
             pass
         else:
-            if isinstance(help, (str, bytes)):
-                return help
-            return help.read(obj)
+            if isinstance(whelp, (str, bytes)):
+                return whelp
+            return whelp.read(obj)
+    raise AttributeError(obj, "helpstr, help, or tip")
 
 ##################    
 
