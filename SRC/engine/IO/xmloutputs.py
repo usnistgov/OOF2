@@ -139,21 +139,21 @@ def outputDump(file):
             print("<listitem><simpara><link linkend='Section-Output-Aggregate'><classname>AggregateOutput</classname></link></simpara></listitem>", file=file)
         print("  </itemizedlist>", file=file)
         print(" </refsynopsisdiv>", file=file)
-        params = list(o.getSettableParams().values())
+        params = o.getSettableParams() # dict of params keyed by alias
         if params:
             print(" <refsect1>", file=file)
             print("  <title>Parameters</title>", file=file)
             print("  <variablelist>", file=file)
-            for param in params:
+            for alias, param in params.items():
                 xmlmenudump.process_param(param)
                 print("   <varlistentry>", file=file)
                 print("    <term><varname>%s</varname></term>" \
-                      % param.name, file=file)
+                      % alias, file=file)
                 print("    <listitem>", file=file)
                 try:
                     tip = xmlmenudump.getHelp(param)
                 except AttributeError:
-                    tip = "MISSING HELP STRING: %s" % param.name
+                    tip = "MISSING HELP STRING: %s" % alias
                 print("     <simpara>%s <emphasis>Type</emphasis>: %s</simpara>" 
                           % (tip, param.valueDesc()), file=file)
                 print("     </listitem>", file=file)
