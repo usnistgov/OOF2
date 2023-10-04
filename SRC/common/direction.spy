@@ -23,6 +23,11 @@ import math
 
 class Direction(registeredclass.ConvertibleRegisteredClass):
     registry = []
+    tip="Ways of representing a direction in 3D space."
+    discussion="""<para>Don't confuse this with an <xref
+    linkend='RegisteredClass-Orientation'>, which describes how a
+    crystal lattice is oriented.  This describes how an arrow is
+    oriented.</para>"""
     def unitVector(self):
         return self.cdirection.unitVector()
 

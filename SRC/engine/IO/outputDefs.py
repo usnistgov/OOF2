@@ -333,6 +333,8 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
 propertyoutputreg.ScalarParamOutputRegistration(
     name="Material Constants:Thermal:Heat Capacity",
     srepr=lambda s: "Heat Capacity",
+    tip="Print the heat capacity.",
+    discussion="<para>Print the value of the <link linkend='PropertyType-HeatCapacity'>heat capacity</link>.</para>",
     ordering=21)
 
 propertyoutputreg.ScalarParamOutputRegistration(

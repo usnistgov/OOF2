@@ -497,7 +497,9 @@ ScalarDifferenceOutput = output.Output(
             'subtrahend',
             tip='The quantity to subtract from the minuend.')],
     srepr=_difference_shortrepr,
-    tip="Compute the difference between two quantities.")
+    tip="Compute the difference between two quantities.",
+    discussion="<para>Compute the difference between two <link linkend='Section-Output-Scalar'>scalar</link> outputs.</para>"
+)
 
 # It's important that the ordering parameter for
 # ScalarDifferenceOutput and AggregateDifferenceOutput be greater than
@@ -527,7 +529,8 @@ AggregateDifferenceOutput = output.Output(
         output.AggregateOutputParameter(
             'subtrahend',
             tip='The quantity to subtract from the minuend.')],
-    tip="Compute the difference between two quantities.")
+    tip="Compute the difference between two quantities.",
+    discussion="<para>Compute the difference between two <link linkend='Section-Output-Aggregate'>aggregate</link> quantities.  The two must have the same dimensions.</para>")
 
 output.defineAggregateOutput('Difference', AggregateDifferenceOutput,
                              ordering=1000)
