@@ -14,6 +14,7 @@ from ooflib.SWIG.engine import corientation
 from ooflib.SWIG.orientationmap import orientmapdata
 from ooflib.common import debug
 from ooflib.common import primitives
+from ooflib.common.IO import xmlmenudump
 import math
 import os.path
 
@@ -87,4 +88,6 @@ class HKLreader(orientmapdata.OrientMapReader):
 orientmapdata.OrientMapRegistration(
     'HKL', HKLreader,
     ordering=3,
-    tip='HKL channel text file')
+    tip='HKL channel text file',
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/orientationmap/reg/hkl.xml')
+)

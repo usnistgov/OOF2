@@ -216,7 +216,9 @@ orientmapdata.OrientMapRegistration(
             'angle_offset', 0,
             tip='Subtract this angle (in degrees) from phi1.')
         ],
-    tip="TSL .ang file (old format)")
+    tip="TSL .ang file (old format)",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/orientmap/reg/tsl.xml')
+)
         
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
