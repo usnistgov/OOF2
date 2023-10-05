@@ -91,6 +91,10 @@ class InputSeparator(registeredclass.RegisteredClass):
     registry = []
     def split(self, line):
         return line.split(self.character)
+    tip="Characters that separate words in an input file."
+    discussion="""<para>InputSeparators come between words in an input
+    file.  Different input file formats may use different kinds of
+    separators.</para>"""
 
 class WhiteSpaceSeparator(InputSeparator):
     character = None
@@ -100,7 +104,9 @@ registeredclass.Registration(
     InputSeparator,
     WhiteSpaceSeparator,
     ordering=0,
-    tip="Any combination of blanks and tabs.")
+    tip="Any combination of blanks and tabs.",
+    discussion="""<para>Use blanks and tabs or other whitespace
+    characters to separate words.</para>""")
 
 class CommaSeparator(InputSeparator):
     character = ','
@@ -110,7 +116,8 @@ registeredclass.Registration(
     InputSeparator,
     CommaSeparator,
     ordering=1,
-    tip="A comma.")
+    tip="A comma.",
+    discussion="<para>Use commas to separate words.</para>")
 
 class OtherSeparator(InputSeparator):
     def __init__(self, character):
@@ -124,7 +131,9 @@ registeredclass.Registration(
     params=[
         parameter.StringParameter('character', ',', 
                                   tip="The separator character(s).")],
-    tip="Any specified character or string of characters.")
+    tip="Any specified character or string of characters.",
+    discussion="""<para>Use the specified set of characters to
+    separate words.</para>""")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

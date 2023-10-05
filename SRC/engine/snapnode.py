@@ -160,6 +160,12 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
         try:
             nodeiter = utils.ReorderableIterator(targetnodes)
             for i, node0 in enumerate(nodeiter):
+                # TODO: Is this correct?  We continue looking at the
+                # neighbors of node0 even after having moved it or one
+                # of its other neighbors.  Should we end the node1
+                # loop after one move?  Should we only choose a
+                # bestchange after examining all node1s?
+                
                 for node1 in node0.neighborNodes(skel):
                     segment = skel.findSegment(node0, node1)
                     if segment not in usedsegments:
@@ -229,6 +235,9 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
 
 class SnapNodeTargets(registeredclass.RegisteredClass):
     registry = []
+    tip="Which nodes will be snapped by SnapNodes"
+    discussion="""<para>Ways of selecting &nodes; to be moved by <xref
+    linkend="RegisteredClass-SnapNodes"/>.</para>"""
 
 class SnapAll(SnapNodeTargets):
     def __call__(self, context):
@@ -365,6 +374,8 @@ registeredclass.Registration(
                                           skeletonmodifier.SkelModCriterion,
                                           tip='Acceptance criterion')
             ],
-    tip="Move nodes directly to pixel boundaries.")
+    tip="Move nodes directly to pixel boundaries.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/snapnodes.xml')
+)
 
 

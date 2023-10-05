@@ -38,6 +38,10 @@ class OrientMapReader(COrientMapReader, registeredclass.RegisteredClass):
     # __repr__ will be used instead of the RegisteredClass __repr__.
     def __repr__(self):
         return registeredclass.RegisteredClass.__repr__(self)
+    
+    tip="Methods for reading orientation maps."
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/orientationmap/reg/orientationreader.xml')
 
 
 class OrientMapRegistration(registeredclass.Registration):

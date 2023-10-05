@@ -19,6 +19,7 @@ from ooflib.common import utils
 from ooflib.common.IO import formatchars
 from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
+from ooflib.common.IO import xmlmenudump
 from ooflib.engine.IO import orientationmatrix
 import math
 import os.path
@@ -302,4 +303,7 @@ orientmapdata.OrientMapRegistration(
             "different pixel groups.  A '%s' in the groupname will be "
             "replaced by the contents of the column.")
         ],
-    tip="Generic EBSD data reader.")
+    tip="Generic EBSD data reader.",
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/orientationmap/reg/genericreader.xml')
+)
