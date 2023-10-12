@@ -54,7 +54,9 @@ def getrows(datapts):
     yield row
 
 class AngleUnits(enum.EnumClass('Radians', 'Degrees')):
-    pass
+    tip = "Units for angles"
+    discussion="""<para>Whether angles read from orientation map files
+    are in radians or degrees.</para>"""
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

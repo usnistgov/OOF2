@@ -73,7 +73,8 @@ class NewLayerPolicy(enum.EnumClass(
 
 class OutputImageFormat(enum.EnumClass(
         "pdf", "png")):
-    pass
+    tip="File format for the image."
+    discussion="""<para>Images can be saved as either pdf or png files.</para>"""
 
 if debug.debug():
     enum.addEnumName(OutputImageFormat, "datadump")

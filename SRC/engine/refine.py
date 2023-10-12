@@ -104,7 +104,9 @@ registeredclass.Registration(
     Trisection,
     ordering=2,
     params=[minLengthParam],
-    tip="Divide segments into thirds.")
+    tip="Divide segments into thirds.",
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/engine/reg/trisection.xml")
+)
 
 class TransitionPoints(SegmentDivider):
     def markSegment(self, skeleton, node0, node1, segMarkings):

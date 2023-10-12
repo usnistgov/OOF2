@@ -54,6 +54,7 @@
 %pythoncode %{
 
 from ooflib.common import enum
+from ooflib.common.IO import xmlmenudump
 
 # Don't change this Enum without also changing crystalsymmetry.h.
 class AnisoCrystalSymmetry(enum.EnumClass(
@@ -64,7 +65,12 @@ class AnisoCrystalSymmetry(enum.EnumClass(
         "Orthorhombic",
         "Monoclinic",
         "Triclinic")):
-    pass
+    tip="Crystal symmetry types."
+    discussion="""<para>
+  When computing <link linkend="MenuItem-OOF.OrientationMap.Pole_Figure">
+  pole figures</link>, this specifies the crystal symmetry.
+  </para>"""
+
 %}
 
 

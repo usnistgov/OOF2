@@ -382,7 +382,14 @@ registeredclass.Registration(
     ordering=1.6,
     params=[pbcparams.PBCBooleanParameter('ignorePBC', False,
                                           tip='Ignore periodicity?')],
-    tip="Only move nodes that aren't on internal boundaries")
+    tip="Only move nodes that aren't on internal boundaries",
+    discussion="""<para> Apply a &node; motion <xref
+    linkend='RegisteredClass-SkeletonModifier'/> (such as <xref
+    linkend='RegisteredClass-Anneal'/>) to &nodes; that are on
+    internal boundaries, that is, &nodes; that are part of &elems;
+    with different <link
+    linkend="Section-Concepts-Skeleton-Homogeneity">categories</link>.</para>
+    """)
                 
 
 class FiddleSelectedElements(FiddleNodesTargets):

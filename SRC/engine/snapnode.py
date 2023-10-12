@@ -251,10 +251,9 @@ registeredclass.Registration(
     SnapAll,
     0,
     tip="Try to move all nodes to pixel boundaries.",
-    discussion="""<para>
-    All &nodes; of the &skel; are <varname>targets</varname> of <xref
-    linkend='RegisteredClass-SnapNodes'/>.
-    </para>""")
+    discussion="""<para> In <xref
+    linkend='RegisteredClass-SnapNodes'/>, move all &nodes; of
+    the &skel; </para>""")
 
 #=--=##=--=##=--=#
 
@@ -269,7 +268,11 @@ registeredclass.Registration(
     SnapNodeTargets,
     SnapSelectedNodes,
     ordering=1,
-    tip="Try to move the selected nodes to pixel boundaries.")
+    tip="Try to move the selected nodes to pixel boundaries.",
+    discussion="""<para> In <xref
+    linkend='RegisteredClass-SnapNodes'/>, move the currently
+    selected &nodes; of the &skel; </para>"""
+)
 
 #=--=##=--=##=--=#
 
@@ -295,7 +298,13 @@ registeredclass.Registration(
         value=0.9,
         tip='Move nodes in elements whose homogeneity is less than this.')],
     ordering=2,
-    tip="Try to move nodes in heterogeneous elements to pixel boundaries.")
+    tip="Try to move nodes in heterogeneous elements to pixel boundaries.",
+    discussion="""<para>In <xref
+    linkend='RegisteredClass-SnapNodes'/>, move only those
+    &nodes; that belong to <link
+    linkend="Section-Concepts-Skeleton-Homogeneity">heterogeneous</link>
+    &elems;.</para>"""
+)
 
 #=--=##=--=##=--=#
 
@@ -313,7 +322,11 @@ registeredclass.Registration(
     SnapNodeTargets,
     SnapSelectedElements,
     ordering=3,
-    tip="Try to move the nodes in the selected elements to pixel boundaries.")
+    tip="Try to move the nodes in the selected elements to pixel boundaries.",
+    discussion="""<para>In <xref
+    linkend='RegisteredClass-SnapNodes'/>, move only those
+    &nodes; that belong to currently selected &elems;.</para>"""
+)
 
 #=--=##=--=##=--=#
 
@@ -340,7 +353,11 @@ registeredclass.Registration(
             'threshold', (0.0, 1.0, 0.01),
             value=0.9,
             tip='Move nodes in elements whose homogeneity is less than this.')],
-    tip="Try to move nodes on heterogeneous segments to pixel boundaries.")
+    tip="Try to move nodes on heterogeneous segments to pixel boundaries.",
+    discussion="""<para>In <xref
+    linkend='RegisteredClass-SnapNodes'/>, move only those
+    &nodes; that belong to heterogeneous &sgmts;.</para>"""
+)
 
 #=--=##=--=##=--=#
 
@@ -359,7 +376,11 @@ registeredclass.Registration(
     SnapNodeTargets,
     SnapSelectedSegments,
     ordering=5,
-    tip="Try to move nodes on selected segments to pixel boundaries.")
+    tip="Try to move nodes on selected segments to pixel boundaries.",
+    discussion="""<para>In <xref
+    linkend='RegisteredClass-SnapNodes'/>, move only those
+    &nodes; that belong to selected &sgmts;.</para>"""
+)
     
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

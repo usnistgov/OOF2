@@ -61,7 +61,7 @@ cregisteredclass.Registration(
              outputval.VectorOutputVal,
              symmmatrix.SymmMatrix3],
     tip="Magnitude (L2 or Frobenius norm) of a vector or tensor, absolute value of a scalar.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/invariant.xml'))
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/magnitude.xml'))
 
 cregisteredclass.Registration(
     "Trace",
@@ -104,9 +104,9 @@ cregisteredclass.Registration(
     Invariant,
     VonMises,
     ordering=3.5,
-    # sources=[symmmatrix.SymmMatrix3],
     sources=[problem.Stress],
-    tip="The Von Mises stress."
+    tip="The Von Mises stress.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/vonmises.xml')
     )
 
 class EigenValueRank(enum.EnumClass('Largest', 'Middle', 'Smallest')):
