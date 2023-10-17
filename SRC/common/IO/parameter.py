@@ -428,7 +428,7 @@ class AutoNumericParameter(Parameter):
     def valueRepr(self):
         return "Int, Float, or automatic"
     def valueDesc(self):
-        return "An integer, a real number, or the string 'automatic'."
+        return "An integer, a real number, or the value <constant>automatic</constant>."
 
 
 class AutoIntParameter(Parameter):
@@ -438,7 +438,7 @@ class AutoIntParameter(Parameter):
     def valueRepr(self):
         return "Int or automatic"
     def valueDesc(self):
-        return "An integer, or the string 'automatic'."
+        return "An integer, or the value <constant>automatic</constant>."
     def binaryRepr(self, datafile, value):
         auto = (value == automatic.automatic)
         if auto:
@@ -475,7 +475,7 @@ class AutomaticValueSetParameter(ValueSetParameter):
     def valueRepr(self):
         return "Int or List of numbers, or automatic"
     def valueDesc(self):
-        return "An integer, or a list of numbers, or 'automatic'."
+        return "An integer, or a list of numbers, or the value <constant>automatic</constant>."
     
         
   
@@ -1191,7 +1191,7 @@ class AutomaticNameParameter(Parameter):
                (self.name, self.resolver, self.truevalue, self.tip)
     def valueDesc(self):
         return \
-          "A character string, or the variable <constant>automatic</constant>."
+          "A character string, or the value <constant>automatic</constant>."
 
     def binaryRepr(self, datafile, value):
         # Unresolved automatic name parameter values should never be
@@ -1241,7 +1241,7 @@ class RestrictedAutomaticNameParameter(AutomaticNameParameter):
         return "RestrictedAutomaticNameParameter(%s, pattern=%s, resolver=%s, truevalue=%s, tip=%s)" % (
             self.name, self.pattern, self.resolver, self.truevalue, self.tip)
     def valueDesc(self):
-        return "A character string matching the regular expression '%s', or the variable <constant>automatic</constant>." % self.pattern
+        return "A character string matching the regular expression '%s', or the value <constant>automatic</constant>." % self.pattern
     
 ##############################
         
