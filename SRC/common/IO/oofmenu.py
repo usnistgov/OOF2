@@ -911,7 +911,7 @@ class OOFMenuItem:
     def xmlSynopsis(self, file):        # make the Synopsis section
         print(" <refsynopsisdiv><simpara>", file=file)
         args = stringjoin(['<varname>%s</varname>' % p.name
-                            for p in self.params], ',')
+                            for p in self.params], ', ')
         print("  <command>%s</command>(%s)" % (self.path(), args), file=file)
         print(" </simpara></refsynopsisdiv>", file=file)
 
