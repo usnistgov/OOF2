@@ -546,7 +546,7 @@ may be members of more than one
 
         print("  <refsynopsisdiv><simpara>", file=file)
         args = utils.stringjoin(['<varname>%s</varname>' % p.name
-             for p in reg.params], ',')
+             for p in reg.params], ', ')
         print("   <classname>%s</classname>(%s)" % (name, args), file=file)
         print("  </simpara></refsynopsisdiv>", file=file)
         
