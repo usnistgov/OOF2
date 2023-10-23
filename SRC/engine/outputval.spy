@@ -138,11 +138,6 @@ def _ScalarOutputVal_expandRange(self, vmin, vmax):
 
 ScalarOutputVal.expandRange = _ScalarOutputVal_expandRange
 
-def _ScalarOutputVal_initRange(self):
-    return None
-
-ScalarOutputVal.initRange = _ScalarOutputVal_initRange
-
 ##############################
 
 def _OutputValue___repr__(self):

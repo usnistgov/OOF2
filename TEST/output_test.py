@@ -17,7 +17,7 @@ pdf_compare = file_utils.pdf_compare
 reference_file = file_utils.reference_file
 # Flag that says whether to generate missing reference data files.
 # Should be false unless you really know what you're doing.
-file_utils.generate = False
+file_utils.generate = True
 
 ## TODO: Add tests for all different domain and sampling types.
 ## Include non-rectangular pixel groups and selections.
@@ -1285,8 +1285,8 @@ class OOF_BadMaterial(unittest.TestCase):
         OOF.Material.Delete(name='material')
 
 class OOF_MiscOutput(OOF_Output):
-    @memorycheck.check("microstructure")
-    def Range(self):
+    def setUp(self):
+        OOF_Output.setUp(self)
         OOF.Microstructure.New(
             name='microstructure', 
             width=1.0, height=1.0,
@@ -1310,6 +1310,8 @@ class OOF_MiscOutput(OOF_Output):
             initializer=FuncScalarFieldInit(function='x'))
         OOF.Mesh.Apply_Field_Initializers(
             mesh='microstructure:skeleton:mesh')
+    @memorycheck.check("microstructure")
+    def Range(self):
         OOF.Mesh.Analyze.Range(
             mesh='microstructure:skeleton:mesh',
             time=latest,
@@ -1328,7 +1330,55 @@ class OOF_MiscOutput(OOF_Output):
         file_utils.remove('test.dat')
         outputdestination.forgetTextOutputStreams()
 
+    @memorycheck.check("microstructure")
+    def RangeEdge(self):
+        OOF.Mesh.Analyze.Range(
+            mesh='microstructure:skeleton:mesh',
+            time=latest,
+            data=getOutput(
+                'Field:Component',component='',field=Temperature),
+            domain=SkeletonEdgeBoundaryDomain(
+                boundary='bottom',side='LEFT'),
+            sampling=ElementSegmentSampleSet(
+                n_points=2,
+                show_segment=True,
+                show_distance=True,
+                show_fraction=True,
+                show_x=True,show_y=True),
+            destination=OutputStream(filename='test.dat', mode='w'))
+        self.assertTrue(
+            fp_file_compare(
+                'test.dat',
+                os.path.join('output_data', 'range_edge.dat'),
+                1.e-8))
+        file_utils.remove('test.dat')
+        outputdestination.forgetTextOutputStreams()
 
+    @memorycheck.check("microstructure")
+    def RangeCS(self):
+        OOF.Mesh.Cross_Section.New(
+            name='midline',
+            mesh='microstructure:skeleton:mesh',
+            cross_section=StraightCrossSection(start=Point(0.01, 0.01),
+                                               end=Point(0.9, 0.91,)))
+        OOF.Mesh.Analyze.Range(
+            mesh='microstructure:skeleton:mesh',
+            time=latest,
+            data=getOutput('Field:Component',component='',field=Temperature),
+            domain=CrossSectionDomain(cross_section='midline'),
+            sampling=ElementSegmentSampleSet(
+                n_points=2,
+                show_segment=True,show_distance=True,show_fraction=True,
+                show_x=True,show_y=True),
+            destination=OutputStream(filename='test.dat', mode='w'))
+        self.assertTrue(
+            fp_file_compare(
+                'test.dat',
+                os.path.join('output_data', 'range_cs.dat'),
+                1.e-8))
+        file_utils.remove('test.dat')
+        outputdestination.forgetTextOutputStreams()
+        
 test_set = [
     #OOF_Output("PDFOutput"),
     OOF_Output("PositionOutputs"),
@@ -1338,5 +1388,8 @@ test_set = [
     OOF_AnisoPlaneStress("Avg"),
     OOF_BadMaterial("Analyze"),
     OOF_MiscOutput("Range"),
+    OOF_MiscOutput("RangeEdge"),
+    OOF_MiscOutput("RangeCS")
 ]
+
 

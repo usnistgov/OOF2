@@ -192,9 +192,11 @@ class RangeOutput(OneLineDataOperation):
     def __call__(self, time, output, domain, sampling, destination):
         olist = sampling.evaluate(domain, output)
         if len(olist) > 0:
-            vmin = vmax = olist[0][1].initRange()
+            vmin = vmax = None
             for sample, value in olist:
-                vmin, vmax = value.expandRange(vmin, vmax)
+                # The sample has to handle the range calculation
+                # because not all samples are simple scalars.
+                vmin, vmax = sample.expandRange(value, vmin, vmax)
             self.printResults(time, utils.flatten_all([vmin, vmax]),
                               destination)
     def colNames(self, output):

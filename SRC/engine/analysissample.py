@@ -65,7 +65,7 @@ from functools import reduce
 ## TODONT: Add NodeSample, for printing values directly at Nodes.
 ## This is hard to do, because we don't have a way of specifying sets
 ## of Mesh nodes, and it's not a good operation mathematically,
-## because it not mesh size invariant.  About the only thing that
+## because it is not mesh size invariant.  About the only thing that
 ## makes sense to do at Nodes is to evaluate Fields, which can be done
 ## in the MeshInfo toolbox.
 
@@ -106,6 +106,18 @@ class Sample:
     def columnData(self, header):
         datalist = self.outputData()
         return [ [ datalist[self.columnNames.index(x)] for x in header] ]
+    # Samples that have scalar values or lists of scalar values need
+    # to define expandRange.
+    def expandRange(self, value, vmin, vmax):
+        if vmin is None:
+            vmin = value
+        else:
+            vmin = min(value, vmin)
+        if vmax is None:
+            vmax = value
+        else:
+            vmax = max(value, vmax)
+        return (vmin, vmax)
 
 class ElementSample(Sample):
     columnNames = ["Element"]
@@ -180,6 +192,10 @@ class ElementLineSample(Sample):
         self.fractions = fractions
         self.distances = distances
         self.n_points = n_points
+    def expandRange(self, values, vmin, vmax):
+        for val in values:
+            vmin, vmax = Sample.expandRange(self, val, vmin, vmax)
+        return (vmin, vmax)
     # def identifier(self):
     #     return (self.segment, self.element)
     # Because there are multiple points, this class has a local
@@ -628,11 +644,8 @@ class ElementSegmentSampleSet(SampleSet):
             for seg, el, dist1, dist2 in tempdata]
         return 1
     def evaluate(self, domain, output):
-        res = []
         femesh = domain.femesh
-        for s in self.sample_list:
-            res.append( (s, s.evaluate(femesh, output)) )
-        return res
+        return [(s, s.evaluate(femesh, output)) for s in self.sample_list]
 
     def integrate(self, domain, output, power=1):
         result = []

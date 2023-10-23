@@ -1,0 +1,14 @@
+# Operation: Range
+# Output: Temperature
+# Domain: CrossSectionDomain(cross_section='midline')
+# Sampling: ElementSegmentSampleSet(n_points=2,show_segment=True,show_distance=True,show_fraction=True,show_x=True,show_y=True)
+# Columns:
+# 1. time
+# 2. Segment
+# 3. Distance
+# 4. Fraction
+# 5. X
+# 6. Y
+# 7. min Temperature
+# 8. max Temperature
+0.0, 0.01, 0.9

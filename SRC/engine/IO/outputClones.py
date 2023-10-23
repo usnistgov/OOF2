@@ -604,8 +604,6 @@ class ConcatenatedOutputVal:
             mins.append(mn)
             maxes.append(mx)
         return mins, maxes
-    def initRange(self):
-        return [a.initRange() for a in self.args]
 
 def _concatenate(mesh, elements, coords, first, second):
     firsts = first.evaluate(mesh, elements, coords)
