@@ -644,7 +644,6 @@ class ElementSegmentSampleSet(SampleSet):
             for seg, el, dist1, dist2 in tempdata]
         return 1
     def evaluate(self, domain, output):
-        debug.fmsg()
         femesh = domain.femesh
         return [(s, s.evaluate(femesh, output)) for s in self.sample_list]
 
