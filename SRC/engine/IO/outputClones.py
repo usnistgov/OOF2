@@ -497,7 +497,9 @@ ScalarDifferenceOutput = output.Output(
             'subtrahend',
             tip='The quantity to subtract from the minuend.')],
     srepr=_difference_shortrepr,
-    tip="Compute the difference between two quantities.")
+    tip="Compute the difference between two quantities.",
+    discussion="<para>Compute the difference between two <link linkend='Section-Output-Scalar'>scalar</link> outputs.</para>"
+)
 
 # It's important that the ordering parameter for
 # ScalarDifferenceOutput and AggregateDifferenceOutput be greater than
@@ -527,7 +529,8 @@ AggregateDifferenceOutput = output.Output(
         output.AggregateOutputParameter(
             'subtrahend',
             tip='The quantity to subtract from the minuend.')],
-    tip="Compute the difference between two quantities.")
+    tip="Compute the difference between two quantities.",
+    discussion="<para>Compute the difference between two <link linkend='Section-Output-Aggregate'>aggregate</link> quantities.  The two must have the same dimensions.</para>")
 
 output.defineAggregateOutput('Difference', AggregateDifferenceOutput,
                              ordering=1000)
@@ -601,8 +604,6 @@ class ConcatenatedOutputVal:
             mins.append(mn)
             maxes.append(mx)
         return mins, maxes
-    def initRange(self):
-        return [a.initRange() for a in self.args]
 
 def _concatenate(mesh, elements, coords, first, second):
     firsts = first.evaluate(mesh, elements, coords)
@@ -642,9 +643,14 @@ ConcatenateOutput = output.Output(
     column_names=_concatenate_columnnames,
     arithmeticFilter=_concatenate_allowsArithmetic,
     params=[
-        output.AggregateOutputParameter('first'),
-        output.AggregateOutputParameter('second')],
-    tip="Print multiple quantities on each line")
+        output.AggregateOutputParameter('first', tip=parameter.emptyTipString),
+        output.AggregateOutputParameter('second', tip=parameter.emptyTipString)
+    ],
+    tip="Print multiple quantities on each line",
+    discussion="""<para>Combine two Outputs on one line in the data
+    file.  To combine more, one or both of the two parameters can also
+    be a <classname>Concatenate</classname> Output.</para>"""
+)
 
 output.defineAggregateOutput('Concatenate', ConcatenateOutput,
                              ordering=1001)

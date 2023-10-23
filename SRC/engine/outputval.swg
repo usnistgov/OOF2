@@ -121,6 +121,7 @@ class ScalarOutputVal : public ArithmeticOutputVal {
 public:
   ScalarOutputVal(double);
   double value();
+  bool operator<(const ScalarOutputVal&) const;
 };
 
 %extend ScalarOutputVal {

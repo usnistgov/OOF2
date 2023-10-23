@@ -103,6 +103,9 @@ public:
     val += another.val;
     return *this;
   }
+  bool operator<(const ScalarOutputVal &other) const {
+    return val < other.val;
+  }
   virtual ArithmeticOutputVal &operator-=(const ArithmeticOutputVal &other) {
     const ScalarOutputVal &another =
       dynamic_cast<const ScalarOutputVal&>(other);
