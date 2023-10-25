@@ -480,11 +480,9 @@ def _escape(s):
     # Replace "<", ">", and "&" in s with markup safe equivalents.
     # The python2 version used cgi.escape(), but that doesn't exist in
     # python3.  I *think* that this does the same thing.
-    ## TODO: Is this really needed?  Do these characters ever appear
-    ## in file names?  
-    s.replace("&", "&amp;")
-    s.replace("<", "&lt;")
-    s.replace(">", "&gt;")
+    s = s.replace("&", "&amp;")
+    s = s.replace("<", "&lt;")
+    s = s.replace(">", "&gt;")
     return s;
 
 def _addMarkup(directory, filename):
