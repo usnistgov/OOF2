@@ -72,12 +72,14 @@ class NewLayerPolicy(enum.EnumClass(
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class OutputImageFormat(enum.EnumClass(
-        "pdf", "png")):
+        ("pdf", "Save image as a pdf file."),
+        ("png", "Save image as a png file."))):
     tip="File format for the image."
     discussion="""<para>Images can be saved as either pdf or png files.</para>"""
 
 if debug.debug():
-    enum.addEnumName(OutputImageFormat, "datadump")
+    enum.addEnumName(OutputImageFormat, "datadump",
+                     help="For debugging only.")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
