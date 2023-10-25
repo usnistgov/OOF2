@@ -127,7 +127,7 @@ def evolve(meshctxt, endtime):
                         "Solution interrupted."))
                     break
                 except Exception as exc:
-                    meshcontext.setStatus(meshstate.Failed(repr(exc)))
+                    meshctxt.setStatus(meshstatus.Failed(repr(exc)))
                     raise
                 
                 meshctxt.solverDelta = delta

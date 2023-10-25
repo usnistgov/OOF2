@@ -720,7 +720,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             # This menuitem shouldn't finish until the escapement
             # timeout callback has been cleared, which is indicated by
             # another event.
-            escapementDone = threading.Event()
+            self.escapementDone = threading.Event()
 
             # _stopAnimation indicates that the animation is complete,
             # either because it ran to the end, the user interrupted
@@ -728,10 +728,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             self._stopAnimation = False
 
             # Start the escapement.
+            ## TODO: Add an animation test to the gui test suite.
             GLib.timeout_add(
-                interval=int(1000./frame_rate), # time between frames, in milliseconds
-                function=self._escapementCB,
-                user_data=(prog, escapementDone))
+                interval=int(1000./frame_rate), # time between frames, millisec
+                function=self._escapementCB)
 
             # Draw frames, after waiting for an escapement event.
             while not self._stopAnimation:
@@ -764,16 +764,22 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             prog.finish()
             menuitem.enable()
 
-    def _escapementCB(self, user_data):
-        prog, escapementDone = user_data
+    def _escapementCB(self):
+        #prog, escapementDone = user_data
         # Timeout callback that calls self._escapement.set()
         # periodically.  This is called on the main thread.
         self._escapement.set()
-        if prog.stopped() or self._stopAnimation:
-            self._stopAnimation = True
-            escapementDone.set()
-            return False        # don't reinstall time out callback
-        return True             # do reinstall timeout callback
+        try:
+            # The progress bar might have been deleted already, so
+            # findProgress might raise an exception.
+            if (progress.findProgress("Animation").stopped()
+                or self._stopAnimation):
+                self._stopAnimation = True
+                self.escapementDone.set()
+                return False        # don't reinstall time out callback
+            return True             # do reinstall timeout callback
+        except:
+            return False
 
     def _timegenerator(self, style, times, start, finish):
         return iter(style.getTimes(times.times(start, finish, self)))
