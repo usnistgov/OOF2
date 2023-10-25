@@ -977,6 +977,12 @@ class HierParameterTable(ParameterTable):
 
 # Modal dialog for setting Parameters
 
+# When taking screen shots for the manual, transient dialog are
+# grouped with their parent windows and don't show up in their own
+# screen shots.  This is just a convenient place to turn that on and
+# off.  TODO: Make it a settable parameter in cmake?
+use_transient_dialogs = False
+
 class ParameterDialog(widgetscope.WidgetScope):
     def __init__(self, *parameters, **kwargs):
         debug.mainthreadTest()
@@ -1008,9 +1014,10 @@ class ParameterDialog(widgetscope.WidgetScope):
                 self.setData(key, value)
             
         self.parameters = parameters
-        self.dialog = gtklogger.Dialog(modal=True,
-                                       transient_for=parentwindow,
-                                       border_width=3)
+        self.dialog = gtklogger.Dialog(
+            modal=True,
+            transient_for=parentwindow if use_transient_dialogs else None,
+            border_width=3)
         # Window.set_keep_above is not guaranteed to work, but it won't hurt.
         # https://developer.gnome.org/gtk3/stable/GtkWindow.html#gtk-window-set-keep-above
         self.dialog.set_keep_above(True) 

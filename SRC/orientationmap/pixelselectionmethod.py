@@ -17,6 +17,7 @@ from ooflib.SWIG.orientationmap import pixelselectioncouriero
 from ooflib.common import debug
 from ooflib.common import pixelselectionmethod
 from ooflib.common.IO import parameter
+from ooflib.common.IO import xmlmenudump
 
 class OrientationSelector(pixelselectionmethod.SelectionMethod):
     def __init__(self, lattice_symmetry, misorientation):
@@ -49,7 +50,10 @@ pixelselectionmethod.PixelSelectionRegistration(
             tip="Select orientations with misorientation less than this, relative to the selected pixel's orientation, in degrees.")
         ],
     whoclasses=['Microstructure'],
-    tip="Select pixels whose orientation is within the given misorientation of the selected pixel's orientation.")
+    tip="Select pixels whose orientation is within the given misorientation of the selected pixel's orientation.",
+    discussion=xmlmenudump.loadFile(
+        "DISCUSSIONS/engine/reg/pixelorientselect.xml")
+)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -109,4 +113,7 @@ pixelselectionmethod.PixelSelectionRegistration(
         ],
     whoclasses=['Microstructure', 'Image'],
     events=['up'],
-    tip='Select a contiguous set of similarly oriented pixels, using a forest fire algorithm on an orientation map.')
+    tip='Select a contiguous set of similarly oriented pixels, using a forest fire algorithm on an orientation map.',
+    discussion=xmlmenudump.loadFile(
+        "DISCUSSIONS/orientationmap/reg/orientationburn.xml")
+)

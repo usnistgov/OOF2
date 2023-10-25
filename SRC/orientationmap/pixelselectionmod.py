@@ -19,6 +19,7 @@ from ooflib.common import pixelselectionmod
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import whoville
+from ooflib.common.IO import xmlmenudump
 from ooflib.engine.IO import orientationmatrix
 
 class OrientationRange(pixelselectionmod.SelectionModifier):
@@ -55,5 +56,7 @@ registeredclass.Registration(
             'misorientation', (0, 180, 1), 0,
             tip="Select orientations with misorientation less than this, relative to the given orientation, in degrees.")
     ],
-    tip="Select all pixels whose orientation is in a given range."
+    tip="Select all pixels whose orientation is in a given range.",
+    discussion=xmlmenudump.loadFile(
+        "DISCUSSIONS/orientationmap/reg/orientationrange.xml")
 )

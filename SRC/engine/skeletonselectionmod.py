@@ -966,7 +966,8 @@ registeredclass.Registration(
             'only_refineable', value=True,
             tip="Only select quads with opposing long edges.")
     ],
-    tip="Select elements with a minimum ratio of longest to shortest adjacent edges."
+    tip="Select elements with a minimum ratio of longest to shortest adjacent edges.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/element_by_aspect.xml')
     )
 
 #######################

@@ -10,6 +10,8 @@
 
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine.IO import output
+from ooflib.common import debug
+import sys
 
 def _catalogPaths(outputlist, xmlids, prefix):
     for o in outputlist:
@@ -116,61 +118,56 @@ def outputDump(file):
     </para>
     """, file=file)
 
-    # for i in range(len(allOutputs)):
-    #     if i==0 or (allOutputs[i] is not allOutputs[i-1]):
-    #         o = allOutputs[i]
     for o,xmlid in list(xmlids.items()):
-            path = o.getPath()
-            # xmlid = xmlids[path]
-            print("<refentry id='%s' role='Output'>" % xmlid, file=file)
-            print(" <refnamediv>", file=file)
-            print("  <refname>%s</refname>" % path, file=file)
-            try:
-                print(" <refpurpose>%s</refpurpose>" % xmlmenudump.getHelp(o), file=file)
-            except AttributeError:
-                print(" <refpurpose>MISSING TIP STRING: %s</refpurpose>" % xmlid, file=file)
-            print(" </refnamediv>", file=file)
-            print(" <refsynopsisdiv>", file=file)
-            print("  <title>Output Categories</title>", file=file)
-            print("  <itemizedlist spacing='compact'>", file=file)
-            if o in scalars:
-                print("<listitem><simpara><link linkend='Section-Output-Scalar'><classname>ScalarOutput</classname></link></simpara></listitem>", file=file)
-            if o in positions:
-                print("<listitem><simpara><link linkend='Section-Output-Position'><classname>PositionOutput</classname></link></simpara></listitem>", file=file)
-            if o in aggregates:
-                print("<listitem><simpara><link linkend='Section-Output-Aggregate'><classname>AggregateOutput</classname></link></simpara></listitem>", file=file)
-            print("  </itemizedlist>", file=file)
-            print(" </refsynopsisdiv>", file=file)
-            params = list(o.getSettableParams().values())
-            if params:
-                print(" <refsect1>", file=file)
-                print("  <title>Parameters</title>", file=file)
-                print("  <variablelist>", file=file)
-                for param in params:
-                    xmlmenudump.process_param(param)
-                    print("   <varlistentry>", file=file)
-                    print("    <term><varname>%s</varname></term>" \
-                          % param.name, file=file)
-                    print("    <listitem>", file=file)
-                    try:
-                        tip = xmlmenudump.getHelp(param)
-                    except AttributeError:
-                        tip = "MISSING TIP STRING: %s" % param.name
-                    print("     <simpara>%s <emphasis>Type</emphasis>: %s</simpara>" \
-                          % (tip, param.valueDesc()), file=file)
-                    print("     </listitem>", file=file)
-                    print("   </varlistentry>", file=file)
-                print("  </variablelist>", file=file)
-                print(" </refsect1>", file=file)
+        path = o.getPath()
+        print("<refentry id='%s' role='Output'>" % xmlid, file=file)
+        print(" <refnamediv>", file=file)
+        print("  <refname>%s</refname>" % path, file=file)
+        try:
+            print(" <refpurpose>%s</refpurpose>" % xmlmenudump.getHelp(o), file=file)
+        except AttributeError as ax:
+            print(" <refpurpose>MISSING HELP STRING: %s</refpurpose>" % xmlid, file=file)
+        print(" </refnamediv>", file=file)
+        print(" <refsynopsisdiv>", file=file)
+        print("  <title>Output Categories</title>", file=file)
+        print("  <itemizedlist spacing='compact'>", file=file)
+        if o in scalars:
+            print("<listitem><simpara><link linkend='Section-Output-Scalar'><classname>ScalarOutput</classname></link></simpara></listitem>", file=file)
+        if o in positions:
+            print("<listitem><simpara><link linkend='Section-Output-Position'><classname>PositionOutput</classname></link></simpara></listitem>", file=file)
+        if o in aggregates:
+            print("<listitem><simpara><link linkend='Section-Output-Aggregate'><classname>AggregateOutput</classname></link></simpara></listitem>", file=file)
+        print("  </itemizedlist>", file=file)
+        print(" </refsynopsisdiv>", file=file)
+        params = o.getSettableParams() # dict of params keyed by alias
+        if params:
             print(" <refsect1>", file=file)
-            print("  <title>Description</title>", file=file)
-            try:
-                print(xmlmenudump.getDiscussion(o), file=file)
-            except AttributeError:
-                print("<simpara>MISSING DISCUSSION: Output %s</simpara>" % path, file=file)
+            print("  <title>Parameters</title>", file=file)
+            print("  <variablelist>", file=file)
+            for alias, param in params.items():
+                xmlmenudump.process_param(param)
+                print("   <varlistentry>", file=file)
+                print("    <term><varname>%s</varname></term>" \
+                      % alias, file=file)
+                print("    <listitem>", file=file)
+                try:
+                    tip = xmlmenudump.getHelp(param)
+                except AttributeError:
+                    tip = "MISSING HELP STRING: %s" % alias
+                print("     <simpara>%s <emphasis>Type</emphasis>: %s</simpara>" 
+                          % (tip, param.valueDesc()), file=file)
+                print("     </listitem>", file=file)
+                print("   </varlistentry>", file=file)
+            print("  </variablelist>", file=file)
             print(" </refsect1>", file=file)
-            
-            print("</refentry>", file=file)
+        print(" <refsect1>", file=file)
+        print("  <title>Description</title>", file=file)
+        try:
+            print(xmlmenudump.getDiscussion(o), file=file)
+        except AttributeError:
+            print("<simpara>MISSING DISCUSSION: Output %s</simpara>" % path, file=file)
+        print(" </refsect1>", file=file)
+        print("</refentry>", file=file)
             
     print("</section>", file=file)         # End of Outputs 
 

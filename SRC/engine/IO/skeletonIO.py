@@ -286,7 +286,7 @@ skelmenu.addItem(OOFMenuItem(
                           tip=parameter.emptyTipString),
     parameter.StringParameter('name', tip="Name of Edge Boundary."),
     parameter.ListOfTuplesOfIntsParameter('edges',
-                                          tip="List of Edges -- tuple of two nodes."),
+                                          tip="List of Edges &#x2014; tuple of two nodes."),
     parameter.IntParameter('exterior', 0, tip="1 (true) for the exterior boundary and 0 (false) for otherwise.")],
     help="Load Edge Boundary. Used internally in data files.",
     discussion="<para>Load a <link linkend='Section-Concepts-Skeleton-Boundary-Edge'><classname>EdgeBoundary</classname></link> from a Skeleton data file.</para>"
@@ -354,7 +354,7 @@ skelmenu.addItem(OOFMenuItem(
     whoville.WhoParameter('skeleton', skeletoncontext.skeletonContexts,
                           tip=parameter.emptyTipString),
     parameter.StringParameter('name', tip="Name for the segment group."),
-    parameter.ListOfTuplesOfIntsParameter('segments', tip="List of segments -- tuple of two node indices.")],
+    parameter.ListOfTuplesOfIntsParameter('segments', tip="List of segments &#x2014; tuple of two node indices.")],
     help="Load Segment Group. Used internally in data files.",
     discussion="<para>Load a segment <link linkend='Section-Concepts-Skeleton-Groups'>group</link>.</para>"
     ))

@@ -42,13 +42,27 @@ class MisorientationPlugIn(pixelinfo.PixelInfoPlugIn):
                         tip='Calculate misorientations relative to this.'
                     )
                 ],
-                help="Set the reference orientation."))
+                help="Set the reference orientation.",
+                discussion="""<para>Set the reference orientation used
+                when computing misorientations.  See the
+                misorientation discussion in the <link
+                linkend="Section-Graphics-PixelInfo-Misorient">Pixel
+                Info</link> toolbox section.</para>"""))
         symcmd = mismenu.addItem(
             oofmenu.OOFMenuItem(
                 "Set_Symmetry",
                 callback=self.setSymmetry,
-                params=[latticesystem.LatticeSymmetryParameter('symmetry')],
-                help="Set lattice symmetry used when comparing orientations"))
+                params=[latticesystem.LatticeSymmetryParameter(
+                    'symmetry',
+                    tip="The lattice symmetry to assume when computing misorientations.")],
+                help="Set lattice symmetry used when comparing orientations",
+                discussion="""<para>When computing misorientations,
+                the lattice symmetry needs to be taken into
+                account. See the misorientation discussion in the
+                <link
+                linkend="Section-Graphics-PixelInfo-Misorient">Pixel
+                Info</link> toolbox section.</para>"""
+            ))
         self.symmetry = symcmd.get_arg('symmetry').value
 
     def setReference(self, menuitem, point, orientation):

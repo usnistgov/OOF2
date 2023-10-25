@@ -67,6 +67,8 @@ class SegmentDivider(registeredclass.RegisteredClass):
     def __init__(self, minlength):
         self.minlength = minlength
         self.minLength2 = minlength*minlength
+    tip="How segments are subdivided during refinement."
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/engine/reg/segmentdivider.xml")
 
 minLengthParam = parameter.NonNegativeFloatParameter(
     "minlength", value=2.0,
@@ -85,7 +87,9 @@ registeredclass.Registration(
     Bisection,
     ordering=1,
     params = [minLengthParam],
-    tip="Divide segments in half.")
+    tip="Divide segments in half.",
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/engine/reg/bisection.xml")
+)
 
 class Trisection(SegmentDivider):
     def markSegment(self, skeleton, node0, node1, segMarkings):
@@ -100,7 +104,9 @@ registeredclass.Registration(
     Trisection,
     ordering=2,
     params=[minLengthParam],
-    tip="Divide segments into thirds.")
+    tip="Divide segments into thirds.",
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/engine/reg/trisection.xml")
+)
 
 class TransitionPoints(SegmentDivider):
     def markSegment(self, skeleton, node0, node1, segMarkings):
@@ -206,6 +212,8 @@ registeredclass.Registration(
     TransitionPoints,
     params = [minLengthParam],
     tip="Divide segments at the intersections with pixel boundaries.",
+    discussion=xmlmenudump.loadFile(
+        "DISCUSSIONS/engine/reg/transitionpoint.xml"),
     ordering=3)
         
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

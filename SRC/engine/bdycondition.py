@@ -1000,6 +1000,9 @@ registeredclass.Registration(
 class FloatBCInitMethod(registeredclass.RegisteredClass):
     registry = []
     tip="Ways of initializing a floating boundary condition."
+    discussion = """<para>These are used as arguments to <xref
+    linkend="MenuItem-OOF.Mesh.Boundary_Conditions.Set_BC_Initializer"/></para>
+    """
     def __init__(self, value):
         self.value = value
     def getOffset(self, bc, time):
@@ -1057,8 +1060,11 @@ def registerFloatBCInitMethod(name, subclass, ordering=0, params=[], secret=0,
         ordering=ordering+0.5,
         params=tparams,
         secret=secret,
+        discussion=f"""<para>This is just like <xref
+        linkend="RegisteredClass-{subclass.__name__}"/>, but the time
+        derivative of the offset is also set.</para>""",
         time_derivative=True,
-        tip="Like %s, with time derivative." % subclass.__name__,
+        tip=f"Like {subclass.__name__}, with time derivative.",
         **kwargs)        
 
 class FloatBCInitMin(FloatBCInitMethod):
@@ -1081,7 +1087,10 @@ registerFloatBCInitMethod(
         parameter.FloatParameter(
             'value', 0.0,
             tip='The initial value of the BC at the minimum of its profile.')],
-    ordering=1)
+    tip="Initialize a floating boundary condition by setting its minumum value.",
+    ordering=1,
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/floatbcinitmin.xml')
+)
 
 class FloatBCInitMax(FloatBCInitMethod):
     # Return the offset that will cause the maximum value of the
@@ -1103,7 +1112,10 @@ registerFloatBCInitMethod(
         parameter.FloatParameter(
             'value', 0.0,
             tip='The initial value of the BC at the maximum of its profile.')],
-    ordering=2)
+    tip="Initialize a floating boundary condition by setting its maximum value.",
+    ordering=2,
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/floatbcinitmax.xml')
+)
 
 class FloatBCInitAverage(FloatBCInitMethod):
     def reset(self):
@@ -1124,7 +1136,10 @@ registerFloatBCInitMethod(
         parameter.FloatParameter(
             'value', 0.0,
             tip="The initial value of the average of the BC's profile.")],
-    ordering=3)
+    tip="Specify the average spatial value of a floating boundary condition.",
+    ordering=3,
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/floatbcinitavg.xml')
+)
 
 class FloatBCInitParameter(parameter.RegisteredParameter):
     def __init__(self, name, value=None, default=None, tip=None):

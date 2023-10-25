@@ -309,7 +309,7 @@ def _addMethodList(text, obj):
         lines.append("<listitem><para>%s" % whoclass)
         lines.append("<itemizedlist spacing='compact' id='DisplayMethods:%s'>" % whoclass)
         for reg in regdict[whoclass]:
-            lines.append("<listitem><simpara><link linkend='%s'>%s (%s</link>) -- %s</simpara></listitem>"
+            lines.append("<listitem><simpara><link linkend='%s'>%s (%s</link>) &#x2014; %s</simpara></listitem>"
                          % (xmlmenudump.registrationID(reg), reg.name(),
                          reg.subclass.__name__, reg.tip))
 
@@ -345,9 +345,12 @@ registeredclass.Registration(
     ordering=100,
     layerordering=Linear(0),
     params=[
-        color.TranslucentColorParameter('color', color.black),
-        parameter.FloatParameter('width', 1.0)],
+        color.TranslucentColorParameter('color', color.black, tip="Line color"),
+        parameter.FloatParameter('width', 1.0,
+                                 tip="Line width in pixels")],
     whoclasses = ('Microstructure',),
+    tip="Draw the perimeter of the Microstructure",
+    discussion="<para>Draw a line around the outer edge of the Microstructure.</para>"
     )
 
 

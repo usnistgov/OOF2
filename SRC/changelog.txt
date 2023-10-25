@@ -1,5 +1,8 @@
 OOF2 2.3.2
 
+* Fixed a bug that was preventing strain components from being
+  displayed in the GUI or looped over in python.
+
 * Fixed a bug in the file selector.  It wasn't properly handling
   special characters in file names.
 

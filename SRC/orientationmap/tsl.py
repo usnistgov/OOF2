@@ -17,6 +17,7 @@ from ooflib.common import primitives
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
+from ooflib.common.IO import xmlmenudump
 import math
 import os.path
 
@@ -216,7 +217,9 @@ orientmapdata.OrientMapRegistration(
             'angle_offset', 0,
             tip='Subtract this angle (in degrees) from phi1.')
         ],
-    tip="TSL .ang file (old format)")
+    tip="TSL .ang file (old format)",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/orientationmap/reg/tsl.xml')
+)
         
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -266,4 +269,6 @@ orientmapdata.OrientMapRegistration(
             'angle_offset', 90, default=0,
             tip='Subtract this angle (in degrees) from phi1.')
         ],
-    tip="TSL .ang file with phase id in column 8")
+    tip="TSL .ang file with phase id in column 8",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/orientationmap/reg/tsl2.xml')
+)

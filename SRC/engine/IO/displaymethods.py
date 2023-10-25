@@ -415,7 +415,10 @@ mainmenu.gfxdefaultsmenu.Meshes.addItem(oofmenu.OOFMenuItem(
     ordering=1.1,
     params=[output.PositionOutputParameter(
         'where', value=defaultMeshPosition,
-        tip='Plot at displaced or original position?')]
+        tip='Plot at displaced or original position?')],
+    help="Set the default displacement in Mesh displays.",
+    discussion=xmlmenudump.loadFile(
+        "DISCUSSIONS/engine/menu/defaultmeshpos.xml")
     ))
 
 ##################

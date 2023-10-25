@@ -23,6 +23,11 @@ import math
 
 class Direction(registeredclass.ConvertibleRegisteredClass):
     registry = []
+    tip="Ways of representing a direction in 3D space."
+    discussion="""<para>Don't confuse this with an <xref
+    linkend='RegisteredClass-Orientation'/>, which describes how a
+    crystal lattice is oriented.  This describes how an arrow is
+    oriented.</para>"""
     def unitVector(self):
         return self.cdirection.unitVector()
 
@@ -61,7 +66,10 @@ DirectionRegistration(
             'y', 0, tip="The y component of the direction."),
         parameter.FloatParameter(
             'z', 0, tip="The z component of the direction.")],
-    tip="A direction in space in the form of a vector.  The vector will be normalized automatically."
+    tip="A direction in space in the form of a vector.  ",
+    discussion="""<para>Specify a direction in 3-space by giving the
+    components of a vector. The input vector does not need to be
+    normalized.</para>"""
     )
 
 class AngleDirection(Direction):
@@ -85,5 +93,6 @@ DirectionRegistration(
         parameter.FloatRangeParameter(
             'phi', (0, 360, 1), 0.0,
             tip="Azimuth from the x axis, in degrees.")],
-    tip="A direction in space in the form of inclination and azimuth.")
+    tip="A direction in space in the form of inclination and azimuth.",
+    discussion="<para>Use angles to specify a direction in 3-space.</para>")
 

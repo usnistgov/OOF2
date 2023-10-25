@@ -100,6 +100,11 @@ class Orientation(registeredclass.ConvertibleRegisteredClass, metaclass=utils.Pr
 
 class OrientationEnum(enum.EnumClass()):
     tip="Various ways to specify an Orientation"
+    discussion = """<para><classname>OrientationEnum</classname> is
+    used to select a representation for displaying an <xref
+    linkend="RegisteredClass-Orientation"/>.  The details of each
+    representation are explained pages for the subclasses of <xref
+    linkend="RegisteredClass-Orientation"/>.</para>"""
 
 # Registration object hosts the "call points" for to_base
 # routines.  These are used by the GUI when switching types.

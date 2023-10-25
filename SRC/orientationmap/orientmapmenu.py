@@ -116,7 +116,8 @@ loadparams = [
     filenameparam.ReadFileNameParameter(
         'filename',
         tip="Name of the file containing the orientation map data."),
-    parameter.RegisteredParameter('reader', orientmapdata.OrientMapReader),
+    parameter.RegisteredParameter('reader', orientmapdata.OrientMapReader,
+                                  tip="Description of the data file format"),
     MicrostructureWithoutOrientMapParameter(
         'microstructure', tip='Add the orientation map to this Microstructure.')
     ]
@@ -201,7 +202,8 @@ microstructuremenu.micromenu.addItem(oofmenu.OOFMenuItem(
     filenameparam.ReadFileNameParameter(
                 'filename',
                 tip='Name of the Orientation Map file.'),
-    parameter.RegisteredParameter('reader', orientmapdata.OrientMapReader),
+    parameter.RegisteredParameter('reader', orientmapdata.OrientMapReader,
+                                  tip="The method for reading the file."),
     parameter.AutomaticNameParameter('microstructure',
                                      msOrientMapFileNameResolver,
                                      automatic.automatic,
@@ -281,7 +283,11 @@ mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem(
             value=latticesystem.SpaceGroup(1),
             tip="Lattice symmetry")
         ],
-    help="Print the misorientation (in degrees) between two orientations in thegiven lattice system."))
+    help="Print the misorientation (in degrees) between two orientations in the given lattice system.",
+    discussion="""<para>Print the <link
+    linkend="Section-Concepts-Material-Orientation">misorientation</link>
+    between two 3D orientations in the given lattice system.</para>"""
+))
     
     
 

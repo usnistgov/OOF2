@@ -160,6 +160,12 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
         try:
             nodeiter = utils.ReorderableIterator(targetnodes)
             for i, node0 in enumerate(nodeiter):
+                # TODO: Is this correct?  We continue looking at the
+                # neighbors of node0 even after having moved it or one
+                # of its other neighbors.  Should we end the node1
+                # loop after one move?  Should we only choose a
+                # bestchange after examining all node1s?
+                
                 for node1 in node0.neighborNodes(skel):
                     segment = skel.findSegment(node0, node1)
                     if segment not in usedsegments:
@@ -229,6 +235,9 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
 
 class SnapNodeTargets(registeredclass.RegisteredClass):
     registry = []
+    tip="Which nodes will be snapped by SnapNodes"
+    discussion="""<para>Ways of selecting &nodes; to be moved by <xref
+    linkend="RegisteredClass-SnapNodes"/>.</para>"""
 
 class SnapAll(SnapNodeTargets):
     def __call__(self, context):
@@ -242,10 +251,9 @@ registeredclass.Registration(
     SnapAll,
     0,
     tip="Try to move all nodes to pixel boundaries.",
-    discussion="""<para>
-    All &nodes; of the &skel; are <varname>targets</varname> of <xref
-    linkend='RegisteredClass-SnapNodes'/>.
-    </para>""")
+    discussion="""<para> In <xref
+    linkend='RegisteredClass-SnapNodes'/>, move all &nodes; of
+    the &skel; </para>""")
 
 #=--=##=--=##=--=#
 
@@ -260,7 +268,11 @@ registeredclass.Registration(
     SnapNodeTargets,
     SnapSelectedNodes,
     ordering=1,
-    tip="Try to move the selected nodes to pixel boundaries.")
+    tip="Try to move the selected nodes to pixel boundaries.",
+    discussion="""<para> In <xref
+    linkend='RegisteredClass-SnapNodes'/>, move the currently
+    selected &nodes; of the &skel; </para>"""
+)
 
 #=--=##=--=##=--=#
 
@@ -286,7 +298,13 @@ registeredclass.Registration(
         value=0.9,
         tip='Move nodes in elements whose homogeneity is less than this.')],
     ordering=2,
-    tip="Try to move nodes in heterogeneous elements to pixel boundaries.")
+    tip="Try to move nodes in heterogeneous elements to pixel boundaries.",
+    discussion="""<para>In <xref
+    linkend='RegisteredClass-SnapNodes'/>, move only those
+    &nodes; that belong to <link
+    linkend="Section-Concepts-Skeleton-Homogeneity">heterogeneous</link>
+    &elems;.</para>"""
+)
 
 #=--=##=--=##=--=#
 
@@ -304,7 +322,11 @@ registeredclass.Registration(
     SnapNodeTargets,
     SnapSelectedElements,
     ordering=3,
-    tip="Try to move the nodes in the selected elements to pixel boundaries.")
+    tip="Try to move the nodes in the selected elements to pixel boundaries.",
+    discussion="""<para>In <xref
+    linkend='RegisteredClass-SnapNodes'/>, move only those
+    &nodes; that belong to currently selected &elems;.</para>"""
+)
 
 #=--=##=--=##=--=#
 
@@ -331,7 +353,11 @@ registeredclass.Registration(
             'threshold', (0.0, 1.0, 0.01),
             value=0.9,
             tip='Move nodes in elements whose homogeneity is less than this.')],
-    tip="Try to move nodes on heterogeneous segments to pixel boundaries.")
+    tip="Try to move nodes on heterogeneous segments to pixel boundaries.",
+    discussion="""<para>In <xref
+    linkend='RegisteredClass-SnapNodes'/>, move only those
+    &nodes; that belong to heterogeneous &sgmts;.</para>"""
+)
 
 #=--=##=--=##=--=#
 
@@ -350,7 +376,11 @@ registeredclass.Registration(
     SnapNodeTargets,
     SnapSelectedSegments,
     ordering=5,
-    tip="Try to move nodes on selected segments to pixel boundaries.")
+    tip="Try to move nodes on selected segments to pixel boundaries.",
+    discussion="""<para>In <xref
+    linkend='RegisteredClass-SnapNodes'/>, move only those
+    &nodes; that belong to selected &sgmts;.</para>"""
+)
     
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -365,6 +395,8 @@ registeredclass.Registration(
                                           skeletonmodifier.SkelModCriterion,
                                           tip='Acceptance criterion')
             ],
-    tip="Move nodes directly to pixel boundaries.")
+    tip="Move nodes directly to pixel boundaries.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/snapnodes.xml')
+)
 
 

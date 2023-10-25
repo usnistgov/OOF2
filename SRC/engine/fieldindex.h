@@ -93,8 +93,8 @@
 // field.swg) The index is a swigged FieldIndex of the appropriate
 // subclass, because FieldIndex is derived from PythonExportable.
 // (Components and ComponentIterator don't have be be
-// PythonExportable, and there's no need in Python for IndexP,
-// ComponentIteratorP, or ComponentsP.)
+// PythonExportable, and there's no need in Python for IndexP or
+// ComponentIteratorP.)
 
 #include <iostream>
 #include <string>
@@ -619,6 +619,8 @@ public:
     return ComponentIteratorP(new OutOfPlaneSymTensorIterator(5));
   }
 };
+
+ComponentsP getSymTensorComponents(Planarity p);
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

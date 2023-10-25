@@ -183,7 +183,7 @@ def process_inline_options():
                    'record=', 'rerecord=', 'replay=', 'replaydelay=',
                    'pathdir=', 'no-checkpoints', 'autoload', 'geometry=',
                    'no-fakefileselector', 'fakefileselector', 'surface', 
-                   'nobars', 'verbose-switchboard']
+                   'no-bars', 'verbose-switchboard']
     if config.enablempi():
         option_list += ['parallel']
     try:
@@ -279,7 +279,7 @@ def process_inline_options():
             runtimeflags.text_mode = True
             progressbar.suppressProgressBars()
             remove_option(opt[0])
-        elif opt[0] in ('--nobars',):
+        elif opt[0] in ('--no-bars',):
             progressbar.suppressProgressBars()
             remove_option(opt[0])
         elif opt[0] in ('--surface',):

@@ -148,7 +148,9 @@ orientmapmenu.orientmapmenu.addItem(
             filenameparam.OverwriteParameter(
                 "overwrite",
                 tip="Overwrite an existing file?"),
-            
-            ]
+            ],
+        help="Plot a pole figure for a microstructure.",
+        discussion="""<para>Plot a pole figure for the given
+        Microstructure as a pdf file.</para>"""
         )
     )

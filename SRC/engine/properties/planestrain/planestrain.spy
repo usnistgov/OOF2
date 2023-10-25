@@ -28,11 +28,9 @@ reg = PropertyRegistration(
     23,
     [parameter.FloatParameter('ezz', 0.0, tip="Out of plane strain")],
     outputs=["Strain"],
-    # outputs=["Strain", "Energy", "Material Constants:Mechanical:PlaneStrain ezz"],
     propertyType="ZStrain",
     tip="Out-of-plane strain",
-    # discussion=xmlmenudump.loadFile(
-    #     'DISCUSSIONS/engine/property/isostressfreestrain.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/property/zstrain.xml')
 )
 
 reg.fluxInfo(fluxes=[problem.Stress])

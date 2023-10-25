@@ -405,6 +405,14 @@ _allowed_options = [
     'post_hook'                         # Function called after menu item
     ]
 
+# TODO: 'disabled' shouldn't be an option.  All of the other options
+# are static settings for each menu item, but 'disabled' is changed
+# dynamically.  This causes problems in xmlmenudump.dumpMenuItem,
+# which is printing 'disabled' in the documentation for every menu
+# item that happens to be disabled when the documentation is
+# generated.  However, disabling should apply to submenus and
+# submenuitems, like options do.
+
 ######################################
 
 ## These are available types of threadability that OOFMenuItem has. ##
@@ -903,7 +911,7 @@ class OOFMenuItem:
     def xmlSynopsis(self, file):        # make the Synopsis section
         print(" <refsynopsisdiv><simpara>", file=file)
         args = stringjoin(['<varname>%s</varname>' % p.name
-                            for p in self.params], ',')
+                            for p in self.params], ', ')
         print("  <command>%s</command>(%s)" % (self.path(), args), file=file)
         print(" </simpara></refsynopsisdiv>", file=file)
 

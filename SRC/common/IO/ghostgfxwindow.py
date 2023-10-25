@@ -67,15 +67,19 @@ class NewLayerPolicy(enum.EnumClass(
         ("Single", "Automatically add new graphics layers for Images, Skeletons, and Meshes if the graphics window doesn't contain any similar layers for other objects.  New graphics windows will automatically add layers for pre-existing objects if they are unique."),
         ("Always", "Automatically add display layers for all newly created Images, Skeletons, and Meshes."))):
     tip = "How the graphics window reacts when new Images, Skeletons, or Meshes are created."
+    discussion='<para>See <xref linkend="Section-Graphics-New-Layer-Policy"/>.</para>'
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class OutputImageFormat(enum.EnumClass(
-        "pdf", "png")):
-    pass
+        ("pdf", "Save image as a pdf file."),
+        ("png", "Save image as a png file."))):
+    tip="File format for the image."
+    discussion="""<para>Images can be saved as either pdf or png files.</para>"""
 
 if debug.debug():
-    enum.addEnumName(OutputImageFormat, "datadump")
+    enum.addEnumName(OutputImageFormat, "datadump",
+                     help="For debugging only.")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -264,7 +268,9 @@ class GhostGfxWindow:
                     tip="Upper right corner of the saved region,"
                     " in physical coordinates.")
                 ],
-            help="Save a region of the graphics window as a pdf file."))
+            help="Save a region of the graphics window as a pdf file.",
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/graphicssaveregion.xml')))
             
         filemenu.addItem(OOFMenuItem(
             'Save_Contourmap',
@@ -334,7 +340,14 @@ class GhostGfxWindow:
             filemenu.addItem(OOFMenuItem(
                 'DumpLayers',
                 callback=self.dumpLayers,
-                params=[parameter.StringParameter('filename')],
+                params=[parameter.StringParameter('filename',
+                                                  tip="File name prefix.")],
+                help="Save each graphics layer as a separate png file.",
+                discussion="""<para> Save each individual graphics
+                layer in a png file, named
+                <userinput>filename</userinput>XX.png, where XX is an
+                integer. Only available if the window was opened in
+                debug mode. </para>"""
                 ))
 
         filemenu.addItem(OOFMenuItem(
@@ -373,7 +386,8 @@ class GhostGfxWindow:
             ellipsis=True,
             gui_title="New Graphics Layer", # used in the dialog box
             params=[
-                whoville.WhoClassParameter("category"),
+                whoville.WhoClassParameter(
+                    "category", tip="The kind of object to display."),
                 whoville.AnyWhoParameter(
                     "what", tip="The object to display."),
                 display.DisplayMethodParameter(
@@ -387,7 +401,8 @@ class GhostGfxWindow:
             'Edit',
             callback=self.editLayerCB,
             params=[IntParameter('n', 0, tip="Layer to edit."),
-                    whoville.WhoClassParameter("category"),
+                    whoville.WhoClassParameter(
+                        "category", tip="The kind of object to display"),
                     whoville.AnyWhoParameter(
                         "what", tip="The object to display"),
                     display.DisplayMethodParameter(
@@ -569,8 +584,11 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             'New_Layer_Policy',
             callback=self.setNewLayerPolicy,
             params=[enum.EnumParameter('policy', NewLayerPolicy,
-                                       value=self.settings.newlayerpolicy)],
-            help="When to create new graphics layers."
+                                       value=self.settings.newlayerpolicy,
+                                       tip=parameter.emptyTipString)],
+            help="When to create new graphics layers.",
+            discussion=xmlmenudump.loadFile(
+                "DISCUSSIONS/common/menu/newlayerpolicy.xml")
         ))
         settingmenu.addItem(CheckOOFMenuItem(
             'List_All_Layers',
@@ -1625,12 +1643,22 @@ mainmenu.gfxdefaultsmenu.addItem(oofmenu.OOFMenuItem(
     discussion="<para> Set the initial size of graphics windows. </para>"
     ))
 
+##########
+
+# Global default setting for the new layer policy.  This applies to
+# all new windows, not existing ones.
+
 def _setDefaultNewLayerPolicy(menuitem, policy):
     GfxSettings.newlayerpolicy = policy
 
 mainmenu.gfxdefaultsmenu.addItem(oofmenu.OOFMenuItem(
     'New_Layer_Policy',
     callback=_setDefaultNewLayerPolicy,
-    params=[enum.EnumParameter('policy', NewLayerPolicy,
-                               value=GfxSettings.newlayerpolicy)],
-    help = "When to create new graphics layers."))
+    params=[enum.EnumParameter(
+        'policy', NewLayerPolicy,
+        value=GfxSettings.newlayerpolicy,
+        tip='New layer policy for newly created windows.')],
+    help = "When to create new graphics layers in new windows.",
+    discussion=xmlmenudump.loadFile(
+        "DISCUSSIONS/common/menu/defaultnewlayerpolicy.xml")
+))

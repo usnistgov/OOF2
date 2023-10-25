@@ -193,6 +193,13 @@ class ReferenceFrame(enum.EnumClass(
         ("Crystal", "The crystal reference frame")
         )):
     tip="Evaluate quantities in the lab or crystal reference frame."
+    discussion="""<para>The values of anisotropic quantities can be
+    printed in either the laboratory or crystal reference frames.
+    When printing an anisotropic modulus, for example, in the crystal
+    frame the values will be just what you entered when you defined
+    the &property;.  In the lab frame the values will be modified by
+    the &material;'s <link
+    linkend="RegisteredClass-Orientation"><classname>orientation</classname></link>.</para>"""
 
 class VoigtPairListParameter(parameter.ListOfStringsParameter):
     def checker(self, x):
@@ -258,6 +265,9 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the modulus in this reference frame.")
     ],
+    tip="Print components of the elastic modulus.",
+    discussion="""<para>Print the given components of the <link
+    linkend='PropertyType-Elasticity'>elastic modulus</link>.</para>""",
     ordering=10)
 
 propertyoutputreg.ModulusPropertyOutputRegistration(
@@ -271,21 +281,34 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the stress-free strain in this reference frame.")
         ],
+    tip="Print components of the stress-free strain.",
+    discussion="""<para>Print the given components of the <link
+    linkend='PropertyType-StressFreeStrain'>stress-free
+    strain</link>.</para>""",
     ordering=11)
 
 propertyoutputreg.TwoVectorParamPropertyOutputRegistration(
     name="Material Constants:Mechanical:Force Density F",
     symbol="F",
+    tip="Print the force density",
+    discussion="""<para>Print the x and y components of the <link
+    linkend='PropertyType-ForceDensity'>force density</link>.</para>""",
     ordering=12)
 
 propertyoutputreg.ScalarParamOutputRegistration(
     name="Material Constants:Mechanical:Mass Density",
     srepr=lambda s: "Mass Density",
+    tip="Print the mass density",
+    discussion="""<para>Print the value of the <link
+    linkend='PropertyType-MassDensity'>mass density</link>.</para>""",
     ordering=13)
 
 propertyoutputreg.ScalarParamOutputRegistration(
     name="Material Constants:Mechanical:Damping",
     srepr=lambda s: "Damping",
+    tip="Print the damping coefficient.",
+    discussion="""<para>Print the value of the <link
+    linkend='PropertyType-Damping'>damping coefficient</link>.</para>""",
     ordering=15)
 
 propertyoutputreg.ModulusPropertyOutputRegistration(
@@ -299,6 +322,10 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the viscosity in this reference frame.")
         ],
+    tip="Print the viscosity.",
+    discussion="""<para>Print the given components of the <link
+    linkend='PropertyType-ViscoElasticity'>viscoelasticity
+    tensor</link>.</para>""",
     ordering=14)
 
 # Thermal
@@ -314,16 +341,26 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the conductivity in this reference frame.")
         ],
+    tip="Print the thermal conductivity.",
+    discussion="""<para>Print the given components of the <link
+    linkend='PropertyType-ThermalConductivity'>thermal conductivity
+    tensor</link>.</para>""",
     ordering=20)
 
 propertyoutputreg.ScalarParamOutputRegistration(
     name="Material Constants:Thermal:Heat Capacity",
     srepr=lambda s: "Heat Capacity",
+    tip="Print the heat capacity.",
+    discussion="""<para>Print the value of the <link
+    linkend='PropertyType-HeatCapacity'>heat capacity</link>.</para>""",
     ordering=21)
 
 propertyoutputreg.ScalarParamOutputRegistration(
     name="Material Constants:Thermal:Heat Source",
     srepr=lambda s: "Heat Source",
+    tip="Print the heat source magnitude",
+    discussion="""<para>Print the magnitude of the <link
+    linkend='PropertyType-HeatSource'>heat source</link>.</para>""",
     ordering=22)
 
 propertyoutputreg.ModulusPropertyOutputRegistration(
@@ -337,11 +374,19 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the permittivity in this reference frame.")
         ],
+    tip="Print the dielectric permittivity",
+    discussion="""<para>Print the given components of the <link
+    linkend='PropertyType-DielectricPermittivity'>dielectric
+    permittivity</link>.</para>""",
     ordering=30)
 
 propertyoutputreg.ScalarParamOutputRegistration(
     name="Material Constants:Electric:Space Charge",
     srepr=lambda s: "Space Charge",
+    tip="Print the space charge.",
+    discussion="""<para>Print the magnitude of the <link
+    linkend='PropertyType-ChargeDensity'>space charge
+    density</link>.</para>""",
     ordering=31)
 
 # Couplings
@@ -356,11 +401,19 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
         enum.EnumParameter(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the thermal expansion coefficient in this reference frame.")],
+    tip="Print the thermal expansion coefficient",
+    discussion="""<para>Print the given components of the <link
+    linkend='PropertyType-ThermalExpansion'>thermal expansion
+    tensor</link>.</para>""",
     ordering=50)
 
 propertyoutputreg.ScalarParamOutputRegistration(
     name="Material Constants:Couplings:Thermal Expansion T0",
     srepr=lambda s: "T0",
+    tip="Print the thermal expansion reference temperature.",
+    discussion="""<para>Print the temperature at which the <link
+    linkend='PropertyType-ThermalExpansion'>thermal expansion</link>
+    vanishes.</para>""",
     ordering=50.5)
 
 propertyoutputreg.ModulusPropertyOutputRegistration(
@@ -374,6 +427,10 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the stress-free strain in this reference frame.")
         ],
+    tip="Print the piezoelectric coefficient.",
+    discussion="""<para>Print the given components of the <link
+    linkend='PropertyType-PiezoElectricity'>piezoelectric
+    tensor</link>.</para>""",
     ordering=51)
 
 # TODO: PyroElectricity
@@ -382,6 +439,9 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
 
 propertyoutputreg.OrientationPropertyOutputRegistration(
     "Material Constants:Orientation",
+    tip="Compute the orientation at each point.",
+    discussion="""<para>Print the value of the <link
+    linkend='PropertyType-Orientation'>orientation</link>.</para>""",
     ordering=1000,
-    tip="Compute the orientation at each point.")
+)
 

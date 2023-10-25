@@ -150,7 +150,7 @@ registeredclass.Registration(
     BadlyShapedElements, ordering = 3,
     params=[
     parameter.FloatRangeParameter('threshold', (0.0, 1.0, 0.01), value=0.4,
-                                  tip="The threshold shape energy -- 0.0 for the perfect shape and 1.0 for the worst shape.")],
+                                  tip="The threshold shape energy &#x2014; 0.0 for the perfect shape and 1.0 for the worst shape.")],
     tip='Modify badly shaped elements.',
     discussion = """<para>
     <classname>BadlyShapedElements</classname> is a <xref

@@ -21,10 +21,11 @@ class StrainType(registeredclass.RegisteredClass):
     registry = []
     def name(self):
         return self._name
-    def iterator(self, plnrty):
-        return fieldindex.getSymTensorIterator(plnrty)
     def newOutputValue(self):
         return symmmatrix.newSymTensorOutputValue()
+    def components(self, plan=planarity.ALL_INDICES):
+        return fieldindex.getSymTensorComponents(plan)
+
     tip="Different varieties of strain."
     discussion="""<para>
     <classname>StrainType</classname> objects are used to pick strain

@@ -26,6 +26,7 @@ from ooflib.common.IO import xmlmenudump
 # effective-modulus computation.
 
 class ConstancyEnum (enum.EnumClass('Constant stress','Constant strain')):
+    tip="Choose between constant stress or constant strain pyroelectricity."
     discussion = """<para>
     Interpretation for the coefficients of the Pyroelectricity
     property. Constant-stress coefficients can be modified by secondary
