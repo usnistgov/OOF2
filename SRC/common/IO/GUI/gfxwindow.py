@@ -803,7 +803,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def toggleAntialias(self, menuitem, antialias):
         ghostgfxwindow.GhostGfxWindow.toggleAntialias(
             self, menuitem, antialias)
-        mainthread.runBlock(self.oofcanvas.setAntialias, (antialias,))
 
     # used by viewertoolbox zoom functions -- only 2D!
     def zoomFactor(self):

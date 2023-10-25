@@ -1102,7 +1102,10 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def toggleAntialias(self, menuitem, antialias):
         self.settings.antialias = antialias
-        self.oofcanvas.setAntialias(antialias)
+        # Swigged functions like setAntialias require their boolean
+        # args to be actual bools, but gtk3 sets antialias to either 0
+        # or 1.
+        self.oofcanvas.setAntialias(bool(antialias))
 
     def toggleContourpane(self, menuitem, contourpane):
         self.settings.showcontourpane = contourpane
