@@ -728,8 +728,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             self._stopAnimation = False
 
             # Start the escapement.
-            ## TODO: user_data isn't getting through to the callback.
-            ## Make the callback an object?
             ## TODO: Add an animation test to the gui test suite.
             GLib.timeout_add(
                 interval=int(1000./frame_rate), # time between frames, millisec
