@@ -39,12 +39,10 @@ class BasicSolverMode(SolverMode):
         return nonlinearsolver.NoNonlinearSolver()
     def get_symmetric_solver(self, subproblemcontext, existingSolver):
         solver = self.matrix_method.resolve_symmetric(existingSolver)
-        debug.fmsg("symmetric_solver =", solver)
         return solver
     def get_asymmetric_solver(self, subproblemcontext, existingSolver):
         solver = self.matrix_method.resolve_asymmetric(subproblemcontext, 
                                                      existingSolver)
-        debug.fmsg("asymmetric_solver =", solver)
         return solver
     def derivOrder(self, subproblemcontext):
         pass
