@@ -216,9 +216,10 @@ class GhostGfxWindow:
             help='Make a copy of this window.',
             discussion="""<para>
             Duplicate this <link linkend='Chapter-Graphics'>Graphics
-            window</link>.  All the settings and <link
-            linkend='Section-Graphics-Layer'>layers</link> will be
-            duplicated as well.
+            window</link>.  The <link
+            linkend='Section-Graphics-Layer'>layers</link> and most of the
+            <link linkend="MenuItem-OOF.Graphics_n.Settings">settings</link>
+            will be duplicated as well.
             </para>"""
             ))
         filemenu.addItem(OOFMenuItem(
@@ -242,9 +243,8 @@ class GhostGfxWindow:
                     "background", True,
                     tip="Fill the background?")                       
             ],
-            help="Save the contents of the graphics window as a pdf file.",
+            help="Save the contents of the graphics window as an image file.",
             discussion=xmlmenudump.loadFile(
-                # TODO GTK3: Update this file
                 'DISCUSSIONS/common/menu/graphicssave.xml')
             ))
         filemenu.addItem(OOFMenuItem(
@@ -276,7 +276,7 @@ class GhostGfxWindow:
                     tip="Upper right corner of the saved region,"
                     " in physical coordinates.")
                 ],
-            help="Save a region of the graphics window as a pdf file.",
+            help="Save a region of the graphics window as an image file.",
             discussion=xmlmenudump.loadFile(
                 'DISCUSSIONS/common/menu/graphicssaveregion.xml')))
             
