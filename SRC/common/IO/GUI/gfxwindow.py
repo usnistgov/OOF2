@@ -76,7 +76,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     # postinitialize() is run after the canvas is created.  Both are
     # run on the main thread.
 
-    def preinitialize(self, name, gfxmgr, clone):
+    def preinitialize(self, name, gfxmgr, settings, clone):
         debug.mainthreadTest()
         self.gtk = None
         self.closed = None # State data used at window-close time.
@@ -84,7 +84,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.oofcanvas = None
         self.realized = 0
         self.zoomed = 0
-        self.settings = ghostgfxwindow.GfxSettings()
+        self.settings = settings or ghostgfxwindow.GfxSettings()
         self.mouseHandler = mousehandler.nullHandler # doesn't do anything
         self.rubberband = None
 

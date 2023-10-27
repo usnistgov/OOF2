@@ -83,43 +83,51 @@ if debug.debug():
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+default_settings = dict(
+    bgcolor = color.white.opaque(),
+    zoomfactor = 1.5,
+    margin = 0.05,
+    longlayernames = False,     # Use long form of layer reprs.
+    listall = False,            # are all layers to be listed?
+    antialias = True,
+    aspectratio = 5,            # Aspect ratio of the contourmap.
+    contourmap_markersize = 2,  # Size in pixels of contourmap marker.
+    contourmap_markercolor = color.gray50, # Contourmap position marker color.
+    newlayerpolicy = NewLayerPolicy("Never")
+)    
+
 class GfxSettings:
     # Stores all the settable parameters for a graphics
-    # window. Variables defined at the class level are the default
-    # values. Assigning to a variable sets *both* the instance and
-    # default values.  Therefore a new window will always use the
-    # latest settings.
+    # window. Assigning to a variable sets *both* the instance and
+    # default values so that a new window will always use the latest
+    # settings.
 
-    ## TODO: Use Python properties, instead of __setattr__.
+    ## TODO? Use Python properties, instead of __setattr__.  Can that
+    ## be done without writing separate setter and getter routines for
+    ## each setting?  That would make it difficult to add new
+    ## settings.
 
-    bgcolor = color.white.opaque()
-    zoomfactor = 1.5
-    margin = 0.05
-    longlayernames = False      # Use long form of layer reprs.
-    listall = False             # are all layers to be listed?
-    antialias = True
-    aspectratio = 5             # Aspect ratio of the contourmap.
-    contourmap_markersize = 2   # Size in pixels of contourmap marker.
-    contourmap_markercolor = color.gray50 # Color of contourmap position marker.
-    newlayerpolicy = NewLayerPolicy("Never")
     def __init__(self):
-        # Copy all default (class) values into local (instance) variables.
-        self.__dict__['timestamps'] = {}
-        for key,val in GfxSettings.__dict__.items():
-            # Exclude '__module__', etc, as well as all methods (such
-            # as getTimeStamp).  Because (apparently) we're accessing
-            # the methods via the dictionary, they're not recognized
-            # as methods, and we have to check for FunctionType
-            # instead of MethodType or UnboundMethodType.
-            if key[0] != '_' and not isinstance(val, types.FunctionType):
-                self.__dict__[key] = val
-                self.timestamps[key] = timestamp.TimeStamp()
+        self.__dict__['timestamps'] = {} # don't use setattr for this!
+        # Initialize to the default values
+        for key, val in default_settings.items():
+            self.__dict__[key] = val
+            self.timestamps[key] = timestamp.TimeStamp()
     def __setattr__(self, attr, val):
-        self.__dict__[attr] = val       # local value
-        setattr(GfxSettings, attr, val) # default value
-        self.timestamps[attr].increment()
+        self.__dict__[attr] = val 
+        default_settings[attr] = val
+        if attr in self.timestamps:
+            self.timestamps[attr].increment()
+        else:
+            self.timestamps[attr] = timestamp.TimeStamp()
     def getTimeStamp(self, attr):
         return self.timestamps[attr]
+
+    def clone(self):
+        copy = GfxSettings()
+        for attr in default_settings.keys():
+            setattr(copy, attr, getattr(self, attr))
+        return copy
 
 
 # Modules (eg, image or engine) can add graphics window settings by
@@ -130,7 +138,7 @@ class GfxSettings:
 # signal.
 
 def defineGfxSetting(name, val):
-    exec(f"GfxSettings.{name} = val") # what's the right way to do this?
+    default_settings[name] = val
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -150,7 +158,9 @@ class ContourMapData:
 class GhostGfxWindow:
     initial_height = 400
     initial_width = 800
-    def __init__(self, name, gfxmanager, clone=0):
+    def __init__(self, name, gfxmanager, settings=None, clone=False):
+        if not hasattr(self, 'settings'):
+            self.settings = settings or GfxSettings()
         self.name = name
         self.gfxmanager = gfxmanager
         if not hasattr(self, 'gfxlock'):
@@ -165,8 +175,6 @@ class GhostGfxWindow:
         # sorts of time.
         self.displayTime = 0.0
         self.displayTimeChanged = timestamp.TimeStamp()
-        if not hasattr(self, 'settings'):
-            self.settings = GfxSettings()
 
         self.oofcanvas = mainthread.runBlock(self.newCanvas)
         self.oofcanvas.setAntialias(self.settings.antialias)
@@ -760,6 +768,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
         self.sensitize_menus()
 
+        # If this is a clone, the cloning process will copy the
+        # predefined layers from the original, and we don't have to
+        # create them here.
         if not clone:
             self.createPredefinedLayers()
 
@@ -1012,13 +1023,20 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.selectedLayer = self.layers[n]
         self.incorporateLayer(how, who)
 
+    ## TODO PYTHON3: Add GUI test for cloning a graphics window
     def cloneWindow(self, *args):
         self.acquireGfxLock()
         try:
-            clone = self.gfxmanager.openWindow(clone=1)
-            clone.settings = copy.deepcopy(self.settings)
+            clone = self.gfxmanager.openWindow(clone=True,
+                                               settings=self.settings.clone())
+            # clone.settings = self.settings.clone()
+            # ## TODO PYTHON3: Copying the cloned settings here doesn't
+            # ## actually change anything in the window -- it doesn't
+            # ## call the relevant oofcanvas routines, for example.  The
+            # ## settings need to be passed in as arguments to the
+            # ## constructor.
             for layer in self.layers:
-                clone.incorporateLayer(layer)
+                clone.incorporateLayer(layer.clone(), layer.who)
                 clone.deselectLayer(clone.selectedLayerNumber())
             if self.selectedLayer is not None:
                 clone.selectLayer(self.layerID(self.selectedLayer))
@@ -1649,14 +1667,14 @@ mainmenu.gfxdefaultsmenu.addItem(oofmenu.OOFMenuItem(
 # all new windows, not existing ones.
 
 def _setDefaultNewLayerPolicy(menuitem, policy):
-    GfxSettings.newlayerpolicy = policy
+    default_settings["newlayerpolicy"] = policy
 
 mainmenu.gfxdefaultsmenu.addItem(oofmenu.OOFMenuItem(
     'New_Layer_Policy',
     callback=_setDefaultNewLayerPolicy,
     params=[enum.EnumParameter(
         'policy', NewLayerPolicy,
-        value=GfxSettings.newlayerpolicy,
+        value=default_settings["newlayerpolicy"],
         tip='New layer policy for newly created windows.')],
     help = "When to create new graphics layers in new windows.",
     discussion=xmlmenudump.loadFile(

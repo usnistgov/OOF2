@@ -27,12 +27,13 @@ from ooflib.common.IO.GUI import subWindow
 ## was useful when the 2D and 3D graphics windows shared a base class.
 
 class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
-    def __init__(self, name, gfxmgr, clone=0):
+    def __init__(self, name, gfxmgr, settings=None, clone=False):
         debug.subthreadTest()
         self.gfxlock = lock.Lock()
-        mainthread.runBlock(self.preinitialize, (name, gfxmgr, clone))
+        mainthread.runBlock(self.preinitialize, (name, gfxmgr, settings, clone))
 
         ghostgfxwindow.GhostGfxWindow.__init__(self, name, gfxmgr,
+                                               settings=settings,
                                                clone=clone)
         self.buttonDown = False
         mainthread.runBlock(self.postinitialize, (name, gfxmgr, clone))
