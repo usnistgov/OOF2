@@ -177,7 +177,7 @@ class GhostGfxWindow:
         self.displayTimeChanged = timestamp.TimeStamp()
 
         self.oofcanvas = mainthread.runBlock(self.newCanvas)
-        self.oofcanvas.setAntialias(self.settings.antialias)
+        self.oofcanvas.setAntialias(bool(self.settings.antialias))
         self.oofcanvas.setBackgroundColor(
             color.canvasColor(self.settings.bgcolor))
         self.oofcanvas.setMargin(self.settings.margin)
