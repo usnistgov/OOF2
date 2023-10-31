@@ -30,8 +30,9 @@ class OrientationMapDisplay(display.DisplayMethod):
         data = orientmapdata.getOrientationMap(msobj)
         if data is not None:
             orientimage = orientmapdata.OrientMapImage(data, self.colorscheme)
-            self.canvaslayer.draw_image(orientimage, coord.Coord(0,0),
-                                        msobj.size())
+            image = orientimage.makeCanvasImage(primitives.Point(0,0),
+                                                msobj.size())
+            self.canvaslayer.addItem(image)
     def getTimeStamp(self, gfxwindow):
         msobj = self.who.getObject(gfxwindow)
         return max(display.DisplayMethod.getTimeStamp(self, gfxwindow),
