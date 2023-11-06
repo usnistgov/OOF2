@@ -79,7 +79,8 @@ def getMasterElementEnums():
                 """Element%(corners)d.discussion=\"\"\"<para>Various kinds of
                 %(corners)d cornered finite elements.  Different types have
                 different numbers of function and mapping
-                nodes.</para>\"\"\"""" % {'corners':el.ncorners()})
+                nodes.   See <xref linkend="Section-Concepts-Mesh-Geometry"/>.
+                </para>\"\"\"""" % {'corners':el.ncorners()})
             _masterElementEnumDict[el.ncorners()] = enumclass
             enumclass._sorted = 1
         if name not in enumclass.names:

@@ -144,6 +144,9 @@ class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
                 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+## TODO PYTHON3: Reset the Misorientation panel completely when the
+## Clear button is pressed in the toolbox.
+
 class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
     ordering=5
     nrows = 4 # title, reference orientation + set button, lattice
