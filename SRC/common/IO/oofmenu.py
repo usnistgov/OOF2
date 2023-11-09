@@ -102,6 +102,13 @@ help:	      A helpful string.  Appears in tooltips.
 discussion:   A longer helpful string.  It should be a series of xml
               elements legal for the body of a DocBook refsect1 element.
 
+xrefs:        A list of strings which are xml ids for other parts
+              of the manual, and which will appear in the "See Also"
+              subsection of the menuitem's manual page.  xrefs from
+              parent menus automatically appear in child pages.  To use
+              non-standard text for the link, insert an (xmlid, text)
+              tuple instead of just the xmlid.
+
 params:	      A list of Parameters that are provided as arguments to
               the non-GUI callback function.  The Parameter class is
               defined in common.IO.parameter.  The callback will be
@@ -463,6 +470,7 @@ class OOFMenuItem:
                  help_menu=0,           # is this a right justified help menu?
                  help=None,             # string describing command
                  discussion=None,       # for manual, in docbook xml
+                 xrefs=[],              # cross references for manual
                  threadable = THREADABLE,     # MenuItem is threaded if it receives a ThreadType object different from UNTHREADABLE
                  params=[],             # list of Parameter args for callback
                  ordering=0,
@@ -487,6 +495,7 @@ class OOFMenuItem:
         self.gui_title = gui_title
         self.helpstr = help
         self.discussion = discussion
+        self.xrefs = xrefs
         self.ordering = ordering
         self.threadable = UNTHREADABLE
         global _threadability_options
@@ -514,7 +523,7 @@ class OOFMenuItem:
             else:
                 raise AttributeError('Unknown OOFMenu option: ' + opt)
 
-    def clone(self,name=None, help=None, discussion=None):
+    def clone(self,name=None, help=None, discussion=None, xrefs=[]):
         # Clone menu item, but NOT its submenus.  self.params may be a
         # ParameterGroup or a list, so we have to check the type when
         # copying.  Unfortunately, list and ParameterGroup have
@@ -533,6 +542,7 @@ class OOFMenuItem:
                                  help_menu=self.help_menu,
                                  help=help or self.helpstr,
                                  discussion=discussion or self.discussion,
+                                 xrefs=xrefs or self.xrefs,
                                  threadable = self.threadable,
                                  params=params)
         newitem.options.update(self.options)
@@ -915,7 +925,14 @@ class OOFMenuItem:
         print("  <command>%s</command>(%s)" % (self.path(), args), file=file)
         print(" </simpara></refsynopsisdiv>", file=file)
 
-    
+    def _xmlXRefs(self):
+        if self.parent is None:
+            return self.xrefs
+        return self.parent._xmlXRefs() + self.xrefs
+        
+    def xmlXRefs(self):
+        from ooflib.common.IO import xmlmenudump
+        return xmlmenudump.xrefListing(self._xmlXRefs())
         
 ##################################
     

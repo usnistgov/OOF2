@@ -73,6 +73,26 @@ def registrationID(reg):
 
 ###################
 
+# Convert a list of xml ids to a list of links for the "See Also"
+# sections of menuitems and registeredclasses.  The list items are
+# either xml ids (strings) or a tuple (xmlid, text). 
+
+def xrefListing(xrefs):
+    texts = []
+    done = []                   # check for duplicates
+    for xref in xrefs:
+        if xref not in done:
+            if isinstance(xref, str):
+                texts.append(f'<xref linkend="{xref}"/>')
+            elif isinstance(xref, tuple):
+                texts.append(f'<xref linkend="{xref[0]}" endterm="{xref[1]}"/>')
+            done.append(xref)
+    return ", ".join(texts)
+        
+    
+
+###################
+
 # RegisteredClasses, Registrations, MenuItems, and Enums (and possibly
 # other classes) have 'discussion' strings, which go into the xml
 # manual.  If these strings are long, it's a pain to have them inside
@@ -205,6 +225,13 @@ def dumpMenu(file, menu, toplevel):
             print(" </simpara></listitem>", file=file)
     print("</itemizedlist>", file=file)
 
+    xrefs = menu.xmlXRefs()
+    if xrefs:
+        print(" <simplesect>", file=file)
+        print("   <title>See Also</title>", file=file)
+        print(f"   <simpara>{xrefs}</simpara>", file=file)
+        print(" </simplesect>", file=file)
+
     if not toplevel:
         print("</section> <!-- %s -->" % path, file=file)
 
@@ -284,6 +311,14 @@ def dumpMenuItem(file, menuitem):
     except AttributeError:
         print("  <para>MISSING DISCUSSION: %s</para>" % path, file=file)
     print(" </refsect1>", file=file)
+
+    xrefs = menuitem.xmlXRefs()
+    if xrefs:
+        print(" <refsect1>", file=file)
+        print("   <title>See Also</title>", file=file)
+        print(f"   <simpara>{xrefs}</simpara>", file=file)
+        print(" </refsect1>", file=file)
+    
     print("</refentry>", file=file)
 
 ###################        
@@ -501,7 +536,15 @@ may be members of more than one
             print("<para>MISSING DISCUSSION: %s</para>" \
                   % regclassname, file=file)
         print("  </refsect1>", file=file)
-        print(" </refentry>", file=file)
+        xrefs = getattr(regclass, "xrefs", [])
+        if xrefs:
+            print("<simplesect>", file=file)
+            print("<title>See Also</title>", file=file)
+            print(f"<simpara>{xrefListing(xrefs)}</simpara>", file=file)
+            print("</simplesect>", file=file)
+
+        print(" </refentry>", file=file) # end refentry for registered base class
+
     print("</section>", file=file)
 
     subclassnames = sorted(list(registrationdict.keys()))
@@ -587,6 +630,12 @@ may be members of more than one
         except AttributeError:
             print("<para>MISSING DISCUSSION: %s</para>" % name, file=file)
         print("  </refsect1>", file=file)
+        if reg.xrefs:
+            print("   <refsect1>", file=file)
+            print("   <title>See Also</title>", file=file)
+            print(f"   <simpara>{xrefListing(reg.xrefs)}</simpara>",
+                  file=file)
+            print("   </refsect1>", file=file)
         print(" </refentry>", file=file)
 
     print("</section>", file=file)         # end of registered subclasses

@@ -52,6 +52,14 @@
 ## of contents in the manual and for the tooltip in the GUI, so it
 ## should not contain xml tags.
 
+## Both base registered classes (those with a registry) and subclass
+## Registrations can have an "xrefs" member, which is a list of xml
+## ids that will appear in the "See Also" section of the manual pages.
+## The list entries can be a bare xmlid, or an (xmlid,text) tuple if
+## the default id text isn't sufficient for some reason.  If both the
+## base class and registration have xrefs, both will appear on the man
+## page for the subclass.
+
 ####
 
 ## QUESTION Can this be made to work even if the registry isn't a
@@ -70,7 +78,9 @@ from ooflib.common.utils import stringjoin
 
 class Registration:
     def __init__(self, name, registeredclass, subclass, ordering,
-                 params=[], secret=0, tip=None, discussion=None, **kwargs):
+                 params=[], secret=0,
+                 tip=None, discussion=None, xrefs=[], # for documentation
+                 **kwargs):
 
         self._name = name
         self.subclass = subclass
@@ -83,6 +93,7 @@ class Registration:
         self.secret = secret
         self.tip = tip
         self.discussion = discussion
+        self.xrefs = getattr(registeredclass, "xrefs", []) + xrefs
         # Registered subclasses must have unique names in the main OOF
         # namespace:
         try:
