@@ -209,6 +209,7 @@ class SkelModCriterion(registeredclass.RegisteredClass):
     tip = "Acceptance criteria for skeleton modifications."
     discussion = xmlmenudump.loadFile(
         'DISCUSSIONS/engine/reg/skelmodcriterion.xml')
+    xrefs=["Section-Tasks-Skeleton"]
 
 class LimitedSkelModCriterion(SkelModCriterion):
     _hopeless = 0

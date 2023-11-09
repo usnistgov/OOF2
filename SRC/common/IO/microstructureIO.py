@@ -94,7 +94,16 @@ micromenu.addItem(oofmenu.OOFMenuItem(
 
 ##########
 
-categorymenu = micromenu.addItem(oofmenu.OOFMenuItem('DefineCategory'))
+categorymenu = micromenu.addItem(
+    oofmenu.OOFMenuItem(
+        'DefineCategory',
+        help="Define pixel categories in a data file.",
+        discussion="""<para>Commands that define pixel attributes
+        (Material, Group membership, etc) for categories of pixels
+        in a &micro; data file.</para>
+        """,
+    ))
+
 
 class CategoryMap:
     def __init__(self, array):

@@ -49,20 +49,23 @@ def _namedactivearea(menuitem, microstructure, category, active_areas):
 # This item is a sub-item of OOF.LoadData.Microstructure.DefineCategory.
 microstructureIO.categorymenu.addItem(
     oofmenu.OOFMenuItem(
-    'NamedActiveArea',
-    callback=_namedactivearea,
-    params=[whoville.WhoParameter('microstructure',
-                                  ms_module.microStructures,
-                                  tip=parameter.emptyTipString),
-            parameter.IntParameter('category',
-                                   tip=parameter.emptyTipString),
-            parameter.ListOfStringsParameter('active_areas',
-                                             tip=parameter.emptyTipString)],
-    
-    help="Create a named active area in a microstructure",
-    discussion="""<para> Creates a named active area when
-    loading a microstructure from
-    a file.  This menu item is only used in data files.</para>"""
+        'NamedActiveArea',
+        callback=_namedactivearea,
+        params=[whoville.WhoParameter('microstructure',
+                                      ms_module.microStructures,
+                                      tip=parameter.emptyTipString),
+                parameter.IntParameter('category',
+                                       tip=parameter.emptyTipString),
+                parameter.ListOfStringsParameter('active_areas',
+                                                 tip=parameter.emptyTipString)],
+        
+        help="Create a named active area in a microstructure",
+        discussion="""<para> Creates a named active area when
+        loading a microstructure from
+        a file.  This menu item is only used in data files.</para>""",
+        xrefs=["Section-Concepts-FileFormats",
+               "Section-Tasks-ActiveArea",
+               "MenuItem-OOF.LoadData.Microstructure"]
     ))                    
 
 
@@ -79,15 +82,16 @@ def _newactivearea(menuitem, microstructure, name):
 # loading it from a file.
 microstructureIO.micromenu.addItem(
     oofmenu.OOFMenuItem(
-    'NewActiveArea',
-    callback=_newactivearea,
-    params=[whoville.WhoParameter('microstructure',
-                                  ms_module.microStructures,
-                                  tip=parameter.emptyTipString),
-            parameter.StringParameter('name',
-                                      tip=parameter.emptyTipString)],
-    help="Create a new empty active area in a microstructure.",
-    discussion="""<para>Create a new empty active area in a
-    microstructure when loading it from a data file.  This menu
-    item is only used in data files.</para>"""
+        'NewActiveArea',
+        callback=_newactivearea,
+        params=[whoville.WhoParameter('microstructure',
+                                      ms_module.microStructures,
+                                      tip=parameter.emptyTipString),
+                parameter.StringParameter('name',
+                                          tip=parameter.emptyTipString)],
+        help="Create a new empty active area in a microstructure.",
+        discussion="""<para>Create a new empty active area in a
+        microstructure when loading it from a data file.  This menu
+        item is only used in data files.</para>""",
+        xrefs=["Section-Concepts-FileFormats", "Section-Tasks-ActiveArea"]
     ))

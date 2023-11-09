@@ -27,15 +27,15 @@ activityviewermenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     mode, progress bars are drawn with asterisks in a terminal window,
     and typing control-C interrupts tasks.
 
-    </para>"""
-    
+    </para>""",
+    xrefs=["Section-Windows-ActivityViewer"]
     ))
 
 # The "File" menu item is visible in the ActivityViewer window in
 # GUI mode -- GUI-only menu items are added to it at that time.
 # It has to be created here in order to be the first in the sequence on
 # the menubar.
-filemenu = activityviewermenu.addItem(oofmenu.OOFMenuItem('File', no_doc=1))
+filemenu = activityviewermenu.addItem(oofmenu.OOFMenuItem('File', no_doc=True))
 
 settingsmenu = activityviewermenu.addItem(oofmenu.OOFMenuItem(
     'Settings',
