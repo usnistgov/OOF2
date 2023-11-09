@@ -202,57 +202,56 @@ registeredclass.Registration(
     )
 
 ############################
-if config.dimension() == 2:
 
-    ShrinkSelection = pixelselectioncourier.ShrinkSelection
-    class ExpandActiveArea(ActiveAreaModifier):
-        def __init__(self, radius):
-            self.radius = radius
-        def __call__(self, microstructure):
-            activearea = microstructure.activearea
-            activearea.start()
-            activegrp = activearea.getSelectionAsGroup()
-            activearea.unselectWithoutCheck(ShrinkSelection(microstructure,
-                                                            activegrp,
-                                                            self.radius))
+ShrinkSelection = pixelselectioncourier.ShrinkSelection
+class ExpandActiveArea(ActiveAreaModifier):
+    def __init__(self, radius):
+        self.radius = radius
+    def __call__(self, microstructure):
+        activearea = microstructure.activearea
+        activearea.start()
+        activegrp = activearea.getSelectionAsGroup()
+        activearea.unselectWithoutCheck(ShrinkSelection(microstructure,
+                                                        activegrp,
+                                                        self.radius))
 
-    registeredclass.Registration(
-        'Expand',
-        ActiveAreaModifier,
-        ExpandActiveArea,
-        ordering=3.0,
-        params=[parameter.FloatParameter('radius', 1.0,
-                                         tip="The radius of expansion in pixel units.")],
-        tip="Expand the active area by a given distance.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/expand_activearea.xml')
-        )
+registeredclass.Registration(
+    'Expand',
+    ActiveAreaModifier,
+    ExpandActiveArea,
+    ordering=3.0,
+    params=[parameter.FloatParameter('radius', 1.0,
+                                     tip="The radius of expansion in pixel units.")],
+    tip="Expand the active area by a given distance.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/expand_activearea.xml')
+    )
 
-    ##############################
+##############################
 
-    ExpandSelection = pixelselectioncourier.ExpandSelection
-    class ShrinkActiveArea(ActiveAreaModifier):
-        def __init__(self, radius):
-            self.radius = radius
-        def __call__(self, microstructure):
-            activearea = microstructure.activearea
-            activearea.start()
-            activegrp = activearea.getSelectionAsGroup()
-            activearea.selectWithoutCheck(ExpandSelection(microstructure,
-                                                          activegrp,
-                                                          self.radius))
+ExpandSelection = pixelselectioncourier.ExpandSelection
+class ShrinkActiveArea(ActiveAreaModifier):
+    def __init__(self, radius):
+        self.radius = radius
+    def __call__(self, microstructure):
+        activearea = microstructure.activearea
+        activearea.start()
+        activegrp = activearea.getSelectionAsGroup()
+        activearea.selectWithoutCheck(ExpandSelection(microstructure,
+                                                      activegrp,
+                                                      self.radius))
 
-    registeredclass.Registration(
-        'Shrink',
-        ActiveAreaModifier,
-        ShrinkActiveArea,
-        ordering=3.1,
-        params=[
-        parameter.FloatParameter('radius', 1.0,
-                                 tip="The radius of shrinkage in pixel units.")
-        ],
-        tip="Shrink the active area by a given distance.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/shrink_activearea.xml')
-        )
+registeredclass.Registration(
+    'Shrink',
+    ActiveAreaModifier,
+    ShrinkActiveArea,
+    ordering=3.1,
+    params=[
+    parameter.FloatParameter('radius', 1.0,
+                             tip="The radius of shrinkage in pixel units.")
+    ],
+    tip="Shrink the active area by a given distance.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/shrink_activearea.xml')
+    )
 
 ##############################
 
@@ -268,10 +267,8 @@ registeredclass.Registration(
     ordering=4.0,
     tip="Switch active and inactive pixels",
     discussion="""<para>
-
     Invert the current &active; by activating the inactive pixels and
     deactivating the active ones.
-
     </para>"""
     )
 
