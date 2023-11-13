@@ -196,7 +196,6 @@ except IOError:
 
 startdir = os.getcwd()
 
-
 if not cleaning:
     # Move builddir to build
     try:
@@ -228,33 +227,39 @@ if not cleaning:
 
         # Use sys.executable instead of "python" here, so that the
         # python used to build is the same as the python used to run
-        # oof2-build.
+        # oof2-build.  It will also be the python used to run oof2.
+        #
+        # Prefix is set to stowdir/$HOME, and when stow is run, it's
+        # run with "-t /".  This makes the installation compatible
+        # with methods that use DESTDIR, such as the cmake builds that
+        # are used in more modern versions of oof2.
         build_cmd = "%s setup.py build %s install --prefix=%s" \
                     % (sys.executable, string.join(build_args),
-                       os.path.join(stowdir, stowsubdir))
+                       os.path.join(stowdir, stowsubdir,
+                                    os.path.expanduser('~')[1:]))
         print build_cmd
         result = os.system(build_cmd)
         if not result:                      # successful
             os.chdir(stowdir)
             if not laststow:
                 print "Stowing", stowsubdir
-                stowcmd = "stow " + stowsubdir
+                stowcmd = "stow -t / " + stowsubdir
                 os.system(stowcmd)
                 lsf = file(laststowfile, "w")
                 print >> lsf, stowsubdir
                 lsf.close()
             elif laststow != stowsubdir:
                 print "Unstowing", laststow, "and stowing", stowsubdir
-                unstowcmd = "stow -D " + laststow
+                unstowcmd = "stow -D -t / " + laststow
                 os.system(unstowcmd)
-                stowcmd = "stow " + stowsubdir
+                stowcmd = "stow -t / " + stowsubdir
                 os.system(stowcmd)
                 lsf = file(laststowfile, "w")
                 print >> lsf, stowsubdir
                 lsf.close()
             else:
                 print "Restowing", stowsubdir
-                stowcmd = "stow -R " + stowsubdir
+                stowcmd = "stow -R -t / " + stowsubdir
                 os.system(stowcmd)
 
 
@@ -268,7 +273,7 @@ else:
     try:
         if laststow == stowsubdir:
             print "Unstowing", stowsubdir, "from", stowdir
-            os.system('stow -D %s' % stowsubdir)
+            os.system('stow -t / -D %s' % stowsubdir)
             os.remove(laststowfile)
         print "Emptying", os.path.join(stowdir, stowsubdir)
         os.system('rm -rf %s' % stowsubdir)
