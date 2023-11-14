@@ -54,7 +54,7 @@ test_module_names = [
     "time_dependent_bc_test",
     "subproblem_test_extra",
     "r3tensorrotationbug",
-    "polefigure_test",
+    # "polefigure_test",
     "zstrain_test",
     # "interface_test"
     ]

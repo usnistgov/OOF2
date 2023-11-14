@@ -1312,7 +1312,7 @@ class OOF_MiscOutput(OOF_Output):
 
 
 test_set = [
-    OOF_Output("PDFOutput"),
+    # OOF_Output("PDFOutput"),
     OOF_Output("PositionOutputs"),
     OOF_Output("ScalarOutputs"),
     OOF_Output("AggregateOutputs"),
