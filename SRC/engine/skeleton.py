@@ -1841,6 +1841,9 @@ class Skeleton(SkeletonBase):
     def sanity_check(self):
         sane = True
         prog = progress.getProgress("Sanity Check", progress.DEFINITE)
+        # Make sets for fast lookup.
+        nodeset = set(self.nodes)
+        elementset = set(self.elements)
         try:
             for i, element in enumerate(self.elements):
                 if prog.stopped():
@@ -1850,7 +1853,7 @@ class Skeleton(SkeletonBase):
                                     [n.position() for n in element.nodes])
                     sane = False
                 for node in element.nodes:
-                    if node not in self.nodes:
+                    if node not in nodeset:
                         reporter.report(
                             "element", element.index, "contains a node",
                             node.index, "not in the skeleton")
@@ -1871,7 +1874,7 @@ class Skeleton(SkeletonBase):
                 if prog.stopped():
                     return False
                 for element in node.aperiodicNeighborElements():
-                    if element not in self.elements:
+                    if element not in elementset:
                         reporter.report(
                             "node", node.index, "contains an element",
                             element.index, "not in the skeleton")
@@ -1934,14 +1937,14 @@ class Skeleton(SkeletonBase):
                         "has too many elements:", [el.index for el in elements])
                     sane = False
                 for element in elements:
-                    if element not in self.elements:
+                    if element not in elementset:
                         reporter.report(
                             "segment", [n.index for n in segment.nodes()],
                             "contains an element", element.index, 
                             "not in the skeleton")
                         sane = False
                 for node in segment.nodes():
-                    if node not in self.nodes:
+                    if node not in nodeset:
                         reporter.report(
                             "segment", [n.index for n in segment.nodes()], 
                             "contains a node", node.index,
