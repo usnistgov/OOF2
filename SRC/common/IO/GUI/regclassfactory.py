@@ -624,8 +624,6 @@ class RegisteredClassListFactory(RCFBase):
                  scope=None, name=None, widgetdict={},
                  *args, **kwargs):
         debug.mainthreadTest()
-        if kwargs:
-            debug.fmsg("kwargs=", kwargs)
 
         self.registry = registry
         self.callback = callback
