@@ -134,12 +134,13 @@ imageparams = parameter.ParameterGroup(
     
 mainmenu.OOF.File.Load.addItem(
     oofmenu.OOFMenuItem(
-    'Image',
-    callback=loadImage,
-    ellipsis=1,
-    params=imageparams+sizeparams,
-    help="Load an Image into an existing Microstructure.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/menu/loadimage.xml')
+        'Image',
+        callback=loadImage,
+        ellipsis=1,
+        params=imageparams+sizeparams,
+        help="Load an Image into an existing Microstructure.",
+        discussion=xmlmenudump.loadFile('DISCUSSIONS/image/menu/loadimage.xml'),
+        xrefs=["Section-Tasks-Microstructure", "Section-Tasks-Image"]
     ))
 
 def _sensitize(*args, **kwargs):

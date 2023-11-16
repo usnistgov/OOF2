@@ -131,13 +131,16 @@ mainmenu.OOF.File.Load.addItem(oofmenu.OOFMenuItem(
     discussion =xmlmenudump.loadFile('DISCUSSIONS/orientationmap/menu/load.xml')))
 
 # OOF.OrientationMap.Load is the same as OOF.File.Load.OrientationMap
-orientmapmenu.addItem(oofmenu.OOFMenuItem(
-    'Load',
-    callback=_loadOrientationMap,
-    ordering=0,
-    params=loadparams,
-    help = "Load an orientation map into a Microstructure",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/orientationmap/menu/load.xml')))
+orientmapmenu.addItem(
+    oofmenu.OOFMenuItem(
+        'Load',
+        callback=_loadOrientationMap,
+        ordering=0,
+        params=loadparams,
+        help = "Load an orientation map into a Microstructure",
+        discussion=xmlmenudump.loadFile(
+            'DISCUSSIONS/orientationmap/menu/load.xml')
+    ))
 
 ##############
 
@@ -157,8 +160,9 @@ orientmapmenu.addItem(oofmenu.OOFMenuItem(
     'Delete',
     callback=_deleteOrientationMap,
     ordering=1,
-    params=[MicrostructureWithOrientMapParameter('microstructure',
-                            tip='Remove the orientation map from this Microstructure.')],
+    params=[MicrostructureWithOrientMapParameter(
+        'microstructure',
+        tip='Remove the orientation map from this Microstructure.')],
     help="Remove the orientation map from a Microstructure.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/orientationmap/menu/remove.xml')))
 
@@ -195,21 +199,27 @@ def msOrientMapFileNameResolver(param, name):
     return ooflib.common.microstructure.microStructures.uniqueName(
         basename.replace(':','.'))
 
-microstructuremenu.micromenu.addItem(oofmenu.OOFMenuItem(
-    'Create_From_OrientationMap_File',
-    callback=_createMSFromOrientationMapFile,
-    params=parameter.ParameterGroup(
-    filenameparam.ReadFileNameParameter(
+microstructuremenu.micromenu.addItem(
+    oofmenu.OOFMenuItem(
+        'Create_From_OrientationMap_File',
+        callback=_createMSFromOrientationMapFile,
+        params=parameter.ParameterGroup(
+            filenameparam.ReadFileNameParameter(
                 'filename',
                 tip='Name of the Orientation Map file.'),
-    parameter.RegisteredParameter('reader', orientmapdata.OrientMapReader,
-                                  tip="The method for reading the file."),
-    parameter.AutomaticNameParameter('microstructure',
-                                     msOrientMapFileNameResolver,
-                                     automatic.automatic,
-                                     tip='Name of the new Microstructure.')),
-    help="Load an Orientation Map file and create a Microstructure from it.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/orientationmap/menu/create.xml')
+            parameter.RegisteredParameter(
+                'reader', orientmapdata.OrientMapReader,
+                tip="The method for reading the file."),
+            parameter.AutomaticNameParameter(
+                'microstructure',
+                msOrientMapFileNameResolver,
+                automatic.automatic,
+                tip='Name of the new Microstructure.')),
+        help="Load an Orientation Map file and create a Microstructure from it.",
+        discussion=xmlmenudump.loadFile(
+            'DISCUSSIONS/orientationmap/menu/create.xml'),
+        xrefs=["Section-Tasks-Microstructure",
+               "MenuItem-OOF.File.Load.OrientationMap"]
     ))
 
 

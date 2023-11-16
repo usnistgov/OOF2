@@ -44,6 +44,7 @@ nodegroupmenu = oofmenu.OOFMenuItem(
     "NodeGroup",
     cli_only=1,
     help='Create and manage NodeGroups.',
+    xrefs=["Section-Tasks-SkeletonSelection"],
     discussion="""<para>
     &nodegroups; provide a convenient way of operating on many &skel;
     &nodes; simultaneously.
@@ -53,6 +54,7 @@ segmentgroupmenu = oofmenu.OOFMenuItem(
     "SegmentGroup",
     cli_only=1,
     help='Create and manage SegmentGroups.',
+    xrefs=["Section-Tasks-SkeletonSelection"],
     discussion="""<para>
     &sgmtgroups; provide a convenient way of operating on many &skel;
     &sgmts; simultaneously.
@@ -62,6 +64,7 @@ elementgroupmenu = oofmenu.OOFMenuItem(
     "ElementGroup",
     cli_only=1,
     help='Create and manage ElementGroups.',
+    xrefs=["Section-Tasks-SkeletonSelection"],
     discussion="""<para>
     &elemgroups; provide a convenient way of operating on many &skel;
     &elems; simultaneously.

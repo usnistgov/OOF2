@@ -27,6 +27,7 @@ nodeselectmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'NodeSelection',
     cli_only=1,
     help='Select nodes in a Skeleton.',
+    xrefs=["Section-Tasks-SkeletonSelection"],
     discussion="""<para>
     The <command>NodeSelection</command> menu contains commands for
     selecting sets of &skel; &nodes; and for modifying the set of
@@ -38,13 +39,14 @@ nodeselectmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     originate in the <link
     linkend='Section-Graphics-SkeletonSelection'>Skeleton Selection
     toolbox</link>.
-    </para>"""
+    </para>""",
     ))
 
 segmentselectmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'SegmentSelection',
     cli_only=1,
     help='Select segments in a Skeleton.',
+    xrefs=["Section-Tasks-SkeletonSelection"],
     discussion="""<para>
     The <command>SegmentSelection</command> menu contains commands for
     selecting sets of &skel; &sgmts; and for modifying the set of
@@ -63,6 +65,7 @@ elementselectmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'ElementSelection',
     cli_only=1,
     help='Select elements in a Skeleton.',
+    xrefs=["Section-Tasks-SkeletonSelection"],
     discussion="""<para>
     The <command>ElementSelection</command> menu contains commands for
     selecting sets of &skel; &elems; and for modifying the set of

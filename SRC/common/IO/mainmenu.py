@@ -114,7 +114,13 @@ _startupmenu = _filemenu.addItem(OOFMenuItem(
     'LoadStartUp',
     secret=True,
     help="Load start-up datafiles and scripts.",
-    discussion="<para>Commands to load datafiles and scripts at start-up time.</para>"))
+    discussion="""<para> Commands to load datafiles and scripts from
+    command line arguments at start-up time. These commands are the
+    same as the ones in <xref linkend="MenuItem-OOF.File.Load"/> but
+    have their own copies of the parameters to avoid affecting default
+    values. </para>""",
+    xrefs=["Section-Running"]
+))
 
 class PScriptLoader(scriptloader.ScriptLoader):
     # A ScriptLoader that supports a progress bar.
@@ -176,7 +182,8 @@ _loadmenu.addItem(OOFMenuItem(
     ellipsis=1,
     accel='l',
     help="Execute a Python script.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loadscript.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loadscript.xml'),
+    xrefs=["Section-Running"]
     ))
 
 _startupmenu.addItem(OOFMenuItem(
@@ -191,7 +198,7 @@ _startupmenu.addItem(OOFMenuItem(
     disabled=config.nanoHUB(),  # loading arbitrary scripts is a
                                 # security hole on nanoHUB
     help="Execute a Python script.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loadscript.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loadscript.xml'),
     ))
 
 # "Data" files are distinguished from scripts in that they're not read
@@ -214,7 +221,8 @@ _loadmenu.addItem(OOFMenuItem(
                                                 tip="Name of the file.")],
     ellipsis=1,
     help="Load a data file.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loaddatafile.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loaddatafile.xml'),
+    xrefs=["Section-Running"]
     ))
 
 _startupmenu.addItem(OOFMenuItem(
@@ -225,7 +233,7 @@ _startupmenu.addItem(OOFMenuItem(
                                                 tip="Name of the file.")],
     ellipsis=1,
     help="Load a data file.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loaddatafile.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loaddatafile.xml'),
     ))
 
 OOF.addItem(oofmenu.OOFMenuItem(
