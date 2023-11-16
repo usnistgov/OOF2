@@ -113,7 +113,20 @@ def _midpoints(skel, node0, node1):
     n1pos = node1.position()
     partners = node0.getPartnerPair(node1)
     if not partners:
-        return 0.5*(n0pos + n1pos), None
+        # If points are on an edge of the Microstructure, make sure
+        # that their midpoint is also exactly on the edge.  Don't do
+        # any numerical calculation that might introduce roundoff
+        # error.
+        if n0pos.x == n1pos.x:
+            xmid = n0pos.x
+        else:
+            xmid = 0.5*(n0pos.x + n1pos.x)
+        if n0pos.y == n1pos.y:
+            ymid = n0pos.y
+        else:
+            ymid = 0.5*(n0pos.y + n1pos.y)
+        return primitives.Point(xmid, ymid), None
+        #return 0.5*(n0pos + n1pos), None
     
     if n0pos.x == n1pos.x: # vertical boundary
         ymid = 0.5*(n0pos.y + n1pos.y)
@@ -430,8 +443,9 @@ def triNoneSplit(skel, anchor, itchy, scratchy, tri):
     if itchy.pinned() and scratchy.pinned(): return []
     
     change = skeleton.ProvisionalChanges(skel)
+    midpt = _midpoints(skeleton, itchy, scratchy)[0]
     change.moveNode(anchor,
-                    position=0.5*(itchy.position() + scratchy.position()),
+                    position=midpt,
                     mobility=(itchy.movable_x() or scratchy.movable_x(),
                               itchy.movable_y() or scratchy.movable_y()))
     change.removeElements(tri)

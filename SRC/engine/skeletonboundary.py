@@ -426,6 +426,16 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
             e.remove()
         self.edges = []
 
+    def checkMobility(self, xmobility, ymobility):
+        # Check that the nodes on a boundary are immovable in
+        # directions that they're supposed to be immovable.
+        for edge in self.edges:
+            for node in edge.get_nodes():
+                if node.movable_x() and not xmobility:
+                    return False
+                if node.movable_y() and not ymobility:
+                    return False
+        return True
 
     # Function for ensuring that the "self.edges" list is in the
     # correct order, and proceeds from start to finish.  Should work
