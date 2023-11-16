@@ -76,7 +76,8 @@ minLengthParam = parameter.NonNegativeFloatParameter(
 
 class Bisection(SegmentDivider):
     def markSegment(self, skeleton, node0, node1, segMarkings):
-        if (node0.position() - node1.position()).norm2() >= 4*self.minLength2:
+        pixelseg = skeleton.MS.physical2Pixel(node0.position()-node1.position())
+        if pixelseg.norm2() >= 4*self.minLength2:
             segMarkings.insert(SegmentMarks(node0, node1, (1/2,)))
     def reduceMarks(self, maxMarks, markedSegs):
         pass
@@ -93,7 +94,8 @@ registeredclass.Registration(
 
 class Trisection(SegmentDivider):
     def markSegment(self, skeleton, node0, node1, segMarkings):
-        if (node0.position() - node1.position()).norm2() >= 9*self.minLength2:
+        pixelseg = skeleton.MS.physical2Pixel(node0.position()-node1.position())
+        if pixelseg.norm2() >= 9*self.minLength2:
             segMarkings.insert(SegmentMarks(node0, node1, (1/3, 2/3)))
     def reduceMarks(self, maxMarks, markedSegs):
         pass

@@ -1,5 +1,8 @@
 OOF2 2.3.2
 
+* The minlength parameter for Bisection and Trisection is now
+  interpreted in pixel units, not physical units.
+  
 * Fixed a bug that was preventing strain components from being
   displayed in the GUI or looped over in python.
 
