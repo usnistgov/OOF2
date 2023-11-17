@@ -116,9 +116,7 @@ class OOF_Skeleton(unittest.TestCase):
         skel = skelctxt.getObject()
         self.assertEqual(skel.nelements(), 22500)
         self.assertEqual(skel.nnodes(), 22801)
-        # No sanity check here, because it takes too long.  The simple
-        # skeleton uses the same code as the regular skeleton, so
-        # checking shouldn't be necessary.
+        self.assertTrue(skel.sanity_check())
 
     @memorycheck.check("skeltest")
     def SimpleTri(self):
@@ -132,9 +130,7 @@ class OOF_Skeleton(unittest.TestCase):
         skel = skelctxt.getObject()
         self.assertEqual(skel.nelements(), 45000)
         self.assertEqual(skel.nnodes(), 22801)
-        # No sanity check here, because it takes too long.  The simple
-        # skeleton uses the same code as the regular skeleton, so
-        # checking shouldn't be necessary.
+        self.assertTrue(skel.sanity_check())
 
     @memorycheck.check("skeltest")
     def Copy(self):
