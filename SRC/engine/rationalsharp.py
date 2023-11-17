@@ -79,6 +79,12 @@ def _acuteHandler(skel, element, indexC):
     #        /____|  This case involves a "merging" process.
     #        A    B  (merging of two nodes, A and B)
     #
+
+    ## TODO: If neither A->B or B->A is legal, try something like
+    ## triTriSplit or triQuadSplit, with the neighbors on AC or BC.
+    ## Those routines aren't appropriate themselves, because they
+    ## assume that there's a wide angle that can be safely flattened.
+    
     nodeA = element.nodes[(indexC+1)%3]
     nodeB = element.nodes[(indexC+2)%3]
     return [skel.mergeNodePairs((nodeA, nodeB)),
