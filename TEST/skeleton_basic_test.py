@@ -626,8 +626,31 @@ def build_mod_args():
           dict(targets=CheckSegmentsInGroup(group='#00fc00'),
                divider=Bisection(minlength=0),
                rules='Large',alpha=0.3)),
-             
 
+         # Tests with square pixels that are smaller than 1x1 in
+         # physical units.  This checks that minlength is being
+         # interpreted in pixel units.
+         ("modbase_small", "refine_small0",
+          { "targets" : CheckHomogeneity(threshold=0.9),
+            "divider" : Bisection(minlength=10), # does no division
+            "rules": "Quick",
+            "alpha" : 0.5
+           }
+          ),
+         ("modbase_small", "refine_small1",
+          { "targets" : CheckHomogeneity(threshold=0.9),
+            "divider" : Bisection(minlength=2),
+            "rules": "Quick",
+            "alpha" : 0.5
+           }
+          ),
+         ("modbase_small", "refine_small2",
+          { "targets" : CheckHomogeneity(threshold=0.9),
+            "divider" : Trisection(minlength=2),
+            "rules": "Quick",
+            "alpha" : 0.5
+           }
+          ),
          # TransitionPoint Refinement tests, nee SnapRefine.  These
          # use dict() instead of {} because I copied the arguments out
          # of an oof2 log.
