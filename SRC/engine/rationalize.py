@@ -77,8 +77,8 @@ class Rationalizer(registeredclass.RegisteredClass):
             else:
                 prog.setFraction(count/nel)
                 prog.setMessage(executed_action + " %d/%d" % (count, nel))
-            skel.cleanUp()
-        
+
+        skel.cleanUp()
         reporter.report("%d elements rationalized : %s."
                         % (done, self.getRegistration().name()))
 

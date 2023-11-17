@@ -617,6 +617,13 @@ class ProvisionalElement(SkeletonElementBase):
         element = skeleton.newElement(self.nodes, parents=self.parents)
         element.copyHomogeneity(self)
         return element
+    def __repr__(self):
+        # TODO: This repr redundant with the base class repr, but
+        # sometimes it's convenient to change the base class in ways
+        # that aren't compatible with this class.  That means that the
+        # base class repr should be in the other derived classes, I
+        # guess. But this is just for debugging.
+        return f"{self.__class__.__name__}{tuple(n.position() for n in self.nodes)}"
 
 #####################################################    
 

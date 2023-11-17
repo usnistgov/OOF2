@@ -79,6 +79,12 @@ def _acuteHandler(skel, element, indexC):
     #        /____|  This case involves a "merging" process.
     #        A    B  (merging of two nodes, A and B)
     #
+
+    ## TODO: If neither A->B or B->A is legal, try something like
+    ## triTriSplit or triQuadSplit, with the neighbors on AC or BC.
+    ## Those routines aren't appropriate themselves, because they
+    ## assume that there's a wide angle that can be safely flattened.
+    
     nodeA = element.nodes[(indexC+1)%3]
     nodeB = element.nodes[(indexC+2)%3]
     return [skel.mergeNodePairs((nodeA, nodeB)),
@@ -113,7 +119,20 @@ def _midpoints(skel, node0, node1):
     n1pos = node1.position()
     partners = node0.getPartnerPair(node1)
     if not partners:
-        return 0.5*(n0pos + n1pos), None
+        # If points are on an edge of the Microstructure, make sure
+        # that their midpoint is also exactly on the edge.  Don't do
+        # any numerical calculation that might introduce roundoff
+        # error.
+        if n0pos.x == n1pos.x:
+            xmid = n0pos.x
+        else:
+            xmid = 0.5*(n0pos.x + n1pos.x)
+        if n0pos.y == n1pos.y:
+            ymid = n0pos.y
+        else:
+            ymid = 0.5*(n0pos.y + n1pos.y)
+        return primitives.Point(xmid, ymid), None
+        #return 0.5*(n0pos + n1pos), None
     
     if n0pos.x == n1pos.x: # vertical boundary
         ymid = 0.5*(n0pos.y + n1pos.y)
@@ -430,8 +449,9 @@ def triNoneSplit(skel, anchor, itchy, scratchy, tri):
     if itchy.pinned() and scratchy.pinned(): return []
     
     change = skeleton.ProvisionalChanges(skel)
+    midpt = _midpoints(skeleton, itchy, scratchy)[0]
     change.moveNode(anchor,
-                    position=0.5*(itchy.position() + scratchy.position()),
+                    position=midpt,
                     mobility=(itchy.movable_x() or scratchy.movable_x(),
                               itchy.movable_y() or scratchy.movable_y()))
     change.removeElements(tri)

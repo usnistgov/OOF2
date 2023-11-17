@@ -1,7 +1,17 @@
 OOF2 2.3.2
 
+* Eliminated some opportunities for roundoff error in Rationalize that
+  could lead to edge nodes not being recognized as edge nodes.
+
+* Fixed some Refine bugs.  Some newly created nodes on boundaries
+  could move off of the boundaries in subsequent operations.
+
+* Rationalize is faster, after correcting a python indentation error
+  that had moved a line into the preceding loop.
+
 * The minlength parameter for Bisection and Trisection is now
-  interpreted in pixel units, not physical units.
+  interpreted in pixel units, not physical units, in Refine
+  operations.
   
 * Fixed a bug that was preventing strain components from being
   displayed in the GUI or looped over in python.

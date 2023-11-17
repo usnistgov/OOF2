@@ -385,7 +385,7 @@ def _modify(menuitem, skeleton, modifier):
             if skel is None:
                 reporter.warn("Modify Process Interrupted")
                 return
-            context.pushModification(skel) # parallelized
+            context.pushModification(skel)
             skel.needsHash()
         finally:
             context.end_writing()

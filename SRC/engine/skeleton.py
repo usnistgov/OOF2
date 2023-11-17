@@ -1577,7 +1577,7 @@ class Skeleton(SkeletonBase):
         for pair in pairs:
             if not pair[0].canMergeWith(pair[1]):
                 return None
-
+            
         # Set of nodes that are moving
         movingNodes = utils.OrderedSet([pair[0] for pair in pairs])
         # List of segments that will vanish
@@ -1653,7 +1653,6 @@ class Skeleton(SkeletonBase):
                 change.insertElements(
                     skeletonelement.getProvisionalElement(
                         newnodes, parents=oldelement.getParents()))
-                        
         return change
 
     ########################################################################
@@ -1846,6 +1845,9 @@ class Skeleton(SkeletonBase):
     def sanity_check(self):
         sane = True
         prog = progress.getProgress("Sanity Check", progress.DEFINITE)
+        # Make sets for fast lookup.
+        nodeset = set(self.nodes)
+        elementset = set(self.elements)
         try:
             for i, element in enumerate(self.elements):
                 if prog.stopped():
@@ -1855,7 +1857,7 @@ class Skeleton(SkeletonBase):
                                     [n.position() for n in element.nodes])
                     sane = False
                 for node in element.nodes:
-                    if node not in self.nodes:
+                    if node not in nodeset:
                         reporter.report(
                             "element", element.index, "contains a node",
                             node.index, "not in the skeleton")
@@ -1875,7 +1877,7 @@ class Skeleton(SkeletonBase):
                 if prog.stopped():
                     return False
                 for element in node.aperiodicNeighborElements():
-                    if element not in self.elements:
+                    if element not in elementset:
                         reporter.report(
                             "node", node.index, "contains an element",
                             element.index, "not in the skeleton")
@@ -1938,14 +1940,14 @@ class Skeleton(SkeletonBase):
                         "has too many elements:", [el.index for el in elements])
                     sane = False
                 for element in elements:
-                    if element not in self.elements:
+                    if element not in elementset:
                         reporter.report(
                             "segment", [n.index for n in segment.nodes()],
                             "contains an element", element.index, 
                             "not in the skeleton")
                         sane = False
                 for node in segment.nodes():
-                    if node not in self.nodes:
+                    if node not in nodeset:
                         reporter.report(
                             "segment", [n.index for n in segment.nodes()], 
                             "contains a node", node.index,
@@ -1964,6 +1966,24 @@ class Skeleton(SkeletonBase):
                     reporter.report(err)
                     reporter.report("boundary", bdyname, "cannot be sequenced")
                     sane = False
+
+            # Check that nodes on the exterior edge boundaries have
+            # the proper mobilities.  If the user has created new
+            # boundaries with these names that aren't actually on the
+            # microstructure edges, then this test will fail.
+            if not self.edgeboundaries["top"].checkMobility(True, False):
+                reporter.report("Top boundary nodes have incorrect mobility")
+                sane = False
+            if not self.edgeboundaries["bottom"].checkMobility(True, False):
+                reporter.report("Bottom boundary nodes have incorrect mobility")
+                sane = False
+            if not self.edgeboundaries["left"].checkMobility(False, True):
+                reporter.report("Left boundary nodes have incorrect mobility")
+                sane = False
+            if not self.edgeboundaries["right"].checkMobility(False, True):
+                reporter.report("Right boundary nodes have incorrect mobility")
+                sane = False
+                
         finally:
             prog.finish()
             if prog.stopped():
@@ -1975,7 +1995,6 @@ class Skeleton(SkeletonBase):
                 reporter.report("*** Skeleton sanity check failed. ***")
         return sane
 
-                
 # ## ### #### ##### ###### ####### ######## ####### ###### ##### #### ### ## #
 
 ## Create a real mesh from a Skeleton, using the given element types.
