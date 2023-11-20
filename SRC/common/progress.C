@@ -265,7 +265,9 @@ Progress *findProgress(const std::string &name) {
   return ts->findProgress(name);
 }
 
-// findProgressByID is used only by the ActivityViewer window.
+// findProgressByID is used by the ActivityViewer window and possibly
+// other cases in which the Progress object might have been created on
+// a different thread than the one trying to use it.
 Progress *findProgressByID(int id) {
   std::map<int, Progress*>::iterator i = idmap.find(id);
   if(i == idmap.end())

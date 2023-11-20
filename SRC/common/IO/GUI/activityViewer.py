@@ -278,4 +278,7 @@ def delayed_add_ProgressBar(progressid):
             GLib.timeout_add(interval=progressbar_delay.delay,
                              function=pbupdater)
 
+# The "new progress" switchboard message is sent by Progress::start()
+# in progress.C.  It passes the Progress object's id as a callback
+# argument to delayed_add_ProgressBar().
 switchboard.requestCallbackMain("new progress", delayed_add_ProgressBar)

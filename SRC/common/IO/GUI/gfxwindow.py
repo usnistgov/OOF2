@@ -69,6 +69,9 @@ def during_callback():
 # What has to be done when the gfxlock is acquired?  What can't be
 # done?
 
+# TODO: Using any of the widgets in the time box should stop the
+# current animation.
+
 class GfxWindow(gfxwindowbase.GfxWindowBase):
     # This whole initialization sequence is complicated. See note in
     # gfxwindowbase.py.  preinitialize() is run from
@@ -691,9 +694,19 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+    ## TODO: When looping, can OOFCanvas save the bitmaps and not
+    ## recompute the layers?  The bitmaps would have to be recomputed
+    ## if layers changed.
+
+    ## TODO PYTHON3: There is some flickering when replaying at high
+    ## frame rates.  Is the canvas updating the screen before all of
+    ## the layers have been drawn?  Double buffering not working
+    ## correctly?
+
     def animate(self, menuitem, start, finish, times, frame_rate, style):
         menuitem.disable()
         prog = progress.getProgress("Animation", style.getProgressStyle())
+        self.animationProgressID = prog.id()
 
         # Construct a generator that produces the times of the
         # animation frames.  Python generators aren't thread safe in
@@ -760,19 +773,21 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
             ## TODO: Use some other scheme for unthreaded mode.
 
-            escapementDone.wait()
+            self.escapementDone.wait()
             prog.finish()
+            self.animationProgressID = None
             menuitem.enable()
 
     def _escapementCB(self):
-        #prog, escapementDone = user_data
         # Timeout callback that calls self._escapement.set()
         # periodically.  This is called on the main thread.
         self._escapement.set()
         try:
             # The progress bar might have been deleted already, so
-            # findProgress might raise an exception.
-            if (progress.findProgress("Animation").stopped()
+            # findProgressByID might raise an exception.  Don't use
+            # findProgress, because it only works on the same thread
+            # where the Progress object was created.
+            if (progress.findProgressByID(self.animationProgressID).stopped()
                 or self._stopAnimation):
                 self._stopAnimation = True
                 self.escapementDone.set()
