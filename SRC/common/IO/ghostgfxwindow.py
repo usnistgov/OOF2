@@ -62,10 +62,19 @@ _debuglocks = False
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class NewLayerPolicy(enum.EnumClass(
-        ("Never", "Don't automatically create any display layers."),
-        ("Single", "Automatically add new graphics layers for Images, Skeletons, and Meshes if the graphics window doesn't contain any similar layers for other objects.  New graphics windows will automatically add layers for pre-existing objects if they are unique."),
-        ("Always", "Automatically add display layers for all newly created Images, Skeletons, and Meshes."))):
+class NewLayerPolicy(
+        enum.EnumClass(
+            ("Never",
+             "Don't automatically create any display layers."),
+            ("Single",
+             """Automatically add new graphics layers for
+             Images, Skeletons, and Meshes if the graphics window doesn't
+             contain any similar layers for other objects.  New graphics
+             windows will automatically add layers for pre-existing objects
+             if they are unique."""),
+            ("Always",
+             """Automatically add display layers for all newly created
+             Images, Skeletons, and Meshes."""))):
     tip = "How the graphics window reacts when new Images, Skeletons, or Meshes are created."
     discussion='<para>See <xref linkend="Section-Graphics-New-Layer-Policy"/>.</para>'
 
@@ -1023,18 +1032,14 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.selectedLayer = self.layers[n]
         self.incorporateLayer(how, who)
 
-    ## TODO PYTHON3: Add GUI test for cloning a graphics window
+    ## TODO LATER: Add GUI test for cloning a graphics window.
+    ## Testing that all the settings have been applied correctly to
+    ## the OOFCanvas will require some additional OOFCanvas code.
     def cloneWindow(self, *args):
         self.acquireGfxLock()
         try:
             clone = self.gfxmanager.openWindow(clone=True,
                                                settings=self.settings.clone())
-            # clone.settings = self.settings.clone()
-            # ## TODO PYTHON3: Copying the cloned settings here doesn't
-            # ## actually change anything in the window -- it doesn't
-            # ## call the relevant oofcanvas routines, for example.  The
-            # ## settings need to be passed in as arguments to the
-            # ## constructor.
             for layer in self.layers:
                 clone.incorporateLayer(layer.clone(), layer.who)
                 clone.deselectLayer(clone.selectedLayerNumber())

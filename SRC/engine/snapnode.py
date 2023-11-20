@@ -51,10 +51,21 @@
 # ......|.......|.....|......|.....
 # ......|.......|.....|......|.....   But if BC is addressed after AB
 # ......|.......|.....|......|.....   this situation is avoided, because
-# ......|.......|.....|......|.....   C fill be snapped to S before G is
+# ......|.......|.....|......|.....   C will be snapped to S before G is
 # ------E-------F-----G------H-----   moved.
 # ......|.......|.....|......|.....
 
+# TODO: Some variations are possible, and haven't been checked to see
+# if they're better.
+
+# * We could make a node immovable after it's been moved once.
+#   Currently it can be moved again if another one of its segments is
+#   addressed.
+
+# * After addressing segment AB, we currently put node B at the head
+#   of the list of future moves, but not node A.  We could put all
+#   neighbor segments (any segment containing either A or B) at the
+#   head of the list.
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import crandom 
@@ -160,12 +171,6 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
         try:
             nodeiter = utils.ReorderableIterator(targetnodes)
             for i, node0 in enumerate(nodeiter):
-                # TODO: Is this correct?  We continue looking at the
-                # neighbors of node0 even after having moved it or one
-                # of its other neighbors.  Should we end the node1
-                # loop after one move?  Should we only choose a
-                # bestchange after examining all node1s?
-                
                 for node1 in node0.neighborNodes(skel):
                     segment = skel.findSegment(node0, node1)
                     if segment not in usedsegments:
@@ -205,9 +210,6 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
                                 # likely that two segments on the same
                                 # pixel boundary will be snapped
                                 # incompatibly.
-                                ## TODO PYTHON3 LATER: Should the
-                                ## *neighbors* of the moved nodes be
-                                ## prioritized instead?
                                 if node != node0:
                                     nodeiter.prioritize(node)
 
@@ -215,7 +217,8 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
                 prog.setMessage(f"Snapped {i+1}/{ntotal} nodes")
         finally:
             prog.finish()
-        reporter.report(f"Snapped {len(usednodes)} node{'' if len(usednodes)==1 else 's'}.")
+        reporter.report(
+            f"Snapped {len(usednodes)} node{'' if len(usednodes)==1 else 's'}.")
         return skel
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
