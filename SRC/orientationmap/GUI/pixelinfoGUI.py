@@ -144,9 +144,6 @@ class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
                 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-## TODO PYTHON3: Reset the Misorientation panel completely when the
-## Clear button is pressed in the toolbox.
-
 class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
     ordering=5
     nrows = 4 # title, reference orientation + set button, lattice
@@ -296,10 +293,7 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
 
     def clear(self):
         self.getNonGUIPlugIn().clear()
-        if self.refOrient is not None:
-            self.stack.set_visible_child_name("refwidget")
-        else:
-            self.stack.set_visible_child_name("reftext")
+        self.stack.set_visible_child_name("reftext")
         self.refOrient = None
         self.updateMisorientation()
         
