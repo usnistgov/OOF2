@@ -134,6 +134,25 @@ pixelInfoDisplay = registeredclass.Registration(
 # Image or Microstructure.  We can then create a predefined layer for
 # the WhoClass.
 
+## TODO PYTHON3: Can PixelSelection and PixelInfo layers be treated
+## similarly?
+##
+## Currently, the WhoClass Top Bitmap only has one DisplayMethod,
+## PixelInfo, and only takes one "what", <top bitmap>.  But for pixel
+## selections, the WhoClass is Pixel Selection, the "what" is <top
+## microstructure> or a Microstructure. It also takes one
+## DisplayMethod, BitmapOverlay.
+##
+## The GUI would be simpler if PixelSelection and PixelInfo were
+## DisplayMethods for the Top Bitmap proxy WhoClass.  But then it's
+## more difficult to find the PixelSelection in the GUI.
+##
+## Maybe PixelInfo should be a WhoClass like PixelSelection?  That
+## doesn't make much sense either.  Should the DisplayMethod be the
+## primary selection?
+
+
+
 from ooflib.common.IO import whoville
 
 class TopBitmap(whoville.WhoProxyClass):
