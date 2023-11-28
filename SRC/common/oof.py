@@ -31,15 +31,18 @@ from ooflib.SWIG.common import switchboard
 # __builtins__.
 from ooflib.common import utils
 
+from ooflib.common import debug
 
-# These can be imported in any order.
+# These can be imported in any order.  Nothing imported here should
+# directly or indirectly create OOFMenuItems.  Some of the menus are
+# built differently in debug mode, which is set by a command line flag
+# that hasn't been read yet.
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import oofversion
 from ooflib.common import autoload
-from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import oof_getopt as getopt
 from ooflib.common import parallel_enable
@@ -162,9 +165,15 @@ replaydelay = None
 no_checkpoints = False
 no_rc = False
 recording = replaying = False
+quiet_mode = False
 
 def process_inline_options():
-    # Defaults for option switches.
+    # process_inline_options should not import any oof modules or rely
+    # on any imported oof modules, other than perhaps runtimeflags.py.
+    # It would interfere with the order of initialization determined
+    # by the various initialize.py files and by front_end().  For
+    # example, modules that create menus shouldn't be loaded before
+    # the debug flag is set.
     global gtk_options
     global help_mode
     global record
@@ -175,6 +184,7 @@ def process_inline_options():
     global version_mode
     global no_checkpoints
     global no_rc
+    global quiet_mode
     global recording, replaying
     option_list = ['text', 'help', 'version', 'quiet', 'batch', 'no-rc',
                    'gtk=', 'unthreaded', 'socket=', 'script=', 'seed=',
@@ -271,8 +281,7 @@ def process_inline_options():
             sys.path.append(opt[1])
             remove_option(opt[0], opt[1])
         elif opt[0] in ('--quiet',):
-            from ooflib.common import quit
-            quit.set_quiet()
+            quiet_mode = True
             remove_option(opt[0])
         elif opt[0] in ('--batch',):
             runtimeflags.batch_mode = True
@@ -305,8 +314,7 @@ def process_inline_options():
     else:
         import ooflib.SWIG.common.argv
         ooflib.SWIG.common.argv.init_argv(sys.argv[1:])
-    
-        
+
 ## ######### Notes to ALL developers ######### 
 ## front_end() is the old run() in serial mode 
 ##
@@ -350,7 +358,7 @@ def front_end(no_interp=None):
             print(msg)
             sys.exit(3)
 
-        import ooflib.common.IO.GUI.initialize
+        import ooflib.common.IO.GUI.initialize # loads ooflib.common.initialize
         import ooflib.engine.IO.GUI.initialize
         import ooflib.image.IO.GUI.initialize
         import ooflib.orientationmap.GUI.initialize
@@ -358,6 +366,10 @@ def front_end(no_interp=None):
         if replaydelay is not None:
             from ooflib.common.IO.GUI import gtklogger
             gtklogger.set_delay(int(replaydelay))
+
+        if quiet_mode:
+            from ooflib.common import quit
+            quit.set_quiet()
     else:                               # text mode
         import ooflib.common.initialize
         import ooflib.engine.initialize
@@ -529,6 +541,8 @@ def loadStartUpFiles(files):
     for phile in files:
         phile.load()
 
+###########################        
+
 ## identifiers and other global variables for parallel machine live here.
 
 _rank = 0  # process ID
@@ -570,7 +584,7 @@ def start_sockets_Back_End():
         socket2me.makeSocketInput(s_name, int(s_address), mpitools.Rank())
 
 
-
+###########################
 
 # Main routine.  Takes a "no_interp" argument, which, if not None,
 # suppresses running the command interpreter.  This is meant to be
