@@ -155,6 +155,7 @@ mainmenu.OOF.Help.addItem(oofmenu.OOFMenuItem(
     'API_Listing',
     callback=menudump,
     threadable = oofmenu.UNTHREADABLE,
+    secret = not debug.debug(),
     params=[
     parameter.StringParameter('filename', 'oof2_api.txt', tip="File name."),
     enum.EnumParameter('format', MenuDumpFormat, value="text",

@@ -525,14 +525,27 @@ Viewer</link> window, if it is open. If not, open it.
 
 ## Help menu
 
-helpmenu = OOF.addItem(OOFMenuItem('Help', help_menu=1))
+helpmenu = OOF.addItem(OOFMenuItem(
+    'Help',
+    help_menu=1,
+    help="Tutorials and debugging tools.",
+    discussion=
+    """<para>Tutorials, debugging tools, and documentation tools.
+    Some of these items only appear if &oof2; is started with the
+    <link
+    linkend="Section-Running"><userinput>--debug</userinput></link>
+    option.</para>"""
+))
 
 debugmenu = helpmenu.addItem(OOFMenuItem(
     'Debug',
     help="Tools for debugging.",
     discussion= """<para>Tools for figuring out what's going on when
-    it's not going well.  Mostly of interest to the
-    developers.</para>"""
+    it's not going well.  Mostly of interest to the developers.  Some
+    of these commands only appear in the GUI if &oof2; is started with
+    the <link
+    linkend="Section-Running"><userinput>--debug</userinput></link>
+    option.</para>"""
     ))
 
 def set_debug(menuitem, state):
@@ -685,7 +698,11 @@ treated as errors and will abort the current calculation.</para>
 
 ## Profiling functions, in the Debug menu
 
-profmenu = debugmenu.addItem(OOFMenuItem('Profile'))
+profmenu = OOFMenuItem('Profile')
+
+## TODO: The profiling menu is commented out because it doesn't work
+## anymore.  Fix it and uncomment the next line.
+# debugmenu.addItem(profmenu)
 prof = None
 
 def profile_start(menuitem, filename, fudge):

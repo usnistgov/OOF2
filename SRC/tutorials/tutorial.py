@@ -18,7 +18,20 @@ from ooflib.common.IO import mainmenu
 allTutorials = {}
         
 tutorialMenu = mainmenu.OOF.Help.addItem(
-    oofmenu.OOFMenuItem('Tutorials', gui_only=1, no_log=1, ordering=-10))
+    oofmenu.OOFMenuItem(
+        'Tutorials',
+        gui_only=1,
+        no_log=1,
+        ordering=-10,
+        help="Interactive tutorials for learning OOF2.",
+        discussion="""<para>
+        The items in this menu, other than <command>Resume</command>,
+        are step-by-step lessons in how to use OOF2.  Please go through
+        them in order from <command>A Simple Example</command> to
+        <command>Solving Time Dependent Systems</command>.
+        </para>"""
+        
+    ))
 
 def start_tutorial(tutorial, progress): # redefined in GUI mode
     pass
