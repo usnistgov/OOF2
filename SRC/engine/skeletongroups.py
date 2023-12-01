@@ -77,8 +77,8 @@ class GenericGroupSet:
     def destroy(self):
         switchboard.removeCallbacks(self.sbcallbacks)
         # Break circular references
-        del self.groups 
-        del self.objects
+        self.groups = []
+        self.objects = []
 
     # When new skeletons are pushed on, create the required groups.
     # Called by the switchboard when a new Skeleton is pushed onto the
