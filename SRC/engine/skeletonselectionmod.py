@@ -17,6 +17,7 @@ from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.common import primitives
 from ooflib.common import registeredclass
+from ooflib.common import runtimeflags
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import pixelgroupparam
@@ -568,21 +569,20 @@ class SelectInterfaceSegments(SegmentSelectionModifier):
         selection.clear()
         selection.select(self.iterator(skeleton))
 
-registeredclass.Registration(
-    'Select Interface Segments',
-    SegmentSelectionModifier,
-    SelectInterfaceSegments,
-    ordering=8,
-    params=[
-    interfaceparameters.InterfacesParameter(
-        'interface',
-        tip='Select segments in this interface.')],
-    tip="Select segments from an interface definition.",
-    discussion="""<para>
-
-    Select all the &sgmts; that belong to the given interface definition.
-    
-    </para>"""
+if runtimeflags.surface_mode:
+    registeredclass.Registration(
+        'Select Interface Segments',
+        SegmentSelectionModifier,
+        SelectInterfaceSegments,
+        ordering=8,
+        params=[
+            interfaceparameters.InterfacesParameter(
+                'interface',
+                tip='Select segments in this interface.')],
+        tip="Select segments from an interface definition.",
+        discussion="""<para>
+        Select all the &sgmts; that belong to the given interface definition.
+        </para>"""
     )
 
 #######################
