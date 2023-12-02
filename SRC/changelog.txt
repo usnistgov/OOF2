@@ -1,3 +1,8 @@
+OOF2 2.3.3
+
+* Disabled selection of interface segments since interface properties
+  aren't enabled.
+
 OOF2 2.3.2
 
 * Eliminated some opportunities for roundoff error in Rationalize that
