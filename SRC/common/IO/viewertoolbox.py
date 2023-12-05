@@ -22,6 +22,7 @@ class ViewerToolbox(toolbox.Toolbox):
     that you're reading right now shouldn't appear in the
     documentation.  If it does, please file a bug report.
     </para>"""
+    no_menu = True
 
 
 toolbox.registerToolboxClass(ViewerToolbox, ordering=0.0)

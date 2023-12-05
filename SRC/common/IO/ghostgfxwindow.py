@@ -1593,11 +1593,11 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     def newToolboxClass(self, tbclass):
         tb = tbclass(self)              # constructs toolbox
         self.toolboxes.append(tb)
-        menu = self.toolboxmenu.addItem(OOFMenuItem(tb.name(),
-                                                    help=tb.tip,
-                                                    discussion=tb.discussion))
-        menu.data = tb
-        tb.makeMenu(menu)
+        if  not getattr(tbclass, "no_menu", False):
+            menu = self.toolboxmenu.addItem(OOFMenuItem(
+                tb.name(), help=tb.tip, discussion=tb.discussion))
+            menu.data = tb
+            tb.makeMenu(menu)
 
     def getToolboxByName(self, name):
         for toolbox in self.toolboxes:
