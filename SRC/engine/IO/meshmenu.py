@@ -62,7 +62,9 @@ meshmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     manipulating finite element &meshes;, including methods for
     defining &fields; and determining which &equations; to <link
     linkend='MenuItem-OOF.Mesh.Solve'>solve</link>.
-    </para>"""))
+    </para>""",
+    xrefs=["Section-Tasks-FEMesh"]
+))
 
 settingsmenu = mainmenu.OOF.Settings.addItem(oofmenu.OOFMenuItem(
     'Mesh_Defaults',
@@ -1352,7 +1354,8 @@ OOF.File.Save.addItem(oofmenu.OOFMenuItem(
                        tip="Format of the file."),
     SyncMeshParameter('mesh', tip='Name of the Mesh.')],
     help="Save a Mesh to a file.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/savemesh.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/savemesh.xml'),
+    xrefs=["Section-Tasks-FEMesh"]
     ))
 
 def _fixmenu(*args):

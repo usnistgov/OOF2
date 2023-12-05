@@ -69,7 +69,8 @@ matmanager = materialmanager.materialmanager
 _materialmenu = OOFMenuItem(
     'Material',
     cli_only=1,
-    help='Create Materials and assign them to pixels.')
+    help='Create Materials and assign them to pixels.',
+    xrefs=["Section-Tasks-Materials"])
 
 mainmenu.OOF.addItem(_materialmenu)
 
@@ -485,7 +486,8 @@ mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     materialparameter.ListOfMaterialsParameter('materials', tip="Material(s) to be saved.")
     ],
     help="Save Materials to a file.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/savematerial.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/savematerial.xml'),
+    xrefs=["Section-Tasks-Materials"]
     ))
 
 def _fixmenu(*args):

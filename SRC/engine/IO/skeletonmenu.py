@@ -58,7 +58,8 @@ skeletonmenu = OOF.addItem(oofmenu.OOFMenuItem(
     discussion="""<para>
     The <command>Skeleton</command> menu contains tools to create and
     modify &skels;.
-    </para>"""
+    </para>""",
+    xrefs=["Section-Tasks-Skeleton"]
     ))
 
 #####################
@@ -607,7 +608,8 @@ OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     linkend='MenuItem-OOF.File.Load.Script'/> or <xref
     linkend='MenuItem-OOF.File.Load.Data'/>, depending on the file
     format.</para>
-    """
+    """,
+    xrefs=["Section-Tasks-Skeleton"]
     ))
 
 def _fixmenu(*args):

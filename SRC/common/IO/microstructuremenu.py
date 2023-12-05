@@ -14,10 +14,6 @@ from ooflib.SWIG.common import activearea
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import pixelsetboundary
-# if config.dimension() == 2:
-#     from ooflib.SWIG.image import oofimage
-# else:
-#     from ooflib.SWIG.image import oofimage3d as oofimage
 from ooflib.common import enum
 from ooflib.common import debug
 from ooflib.common import pixelselection
@@ -41,73 +37,38 @@ if parallel_enable.enabled():
 micromenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'Microstructure',
     help="Create and manipulate &micro; objects.",
-    cli_only=1))
+    cli_only=True,
+    xrefs=["Section-Tasks-Microstructure"]
+))
 
 #######################
 
-if config.dimension() == 2:
-    sizeparams = parameter.ParameterGroup(
-        parameter.FloatParameter('width', 1., tip='Width in physical units.'),
-        parameter.FloatParameter('height', 1.,tip='Height in physical units.'),
-        parameter.IntParameter('width_in_pixels', 10, tip='Width in pixels.'),
-        parameter.IntParameter('height_in_pixels', 10, tip='Height in pixels.'))
-    
-    
-    def newMicrostructure(menuitem, name,
-                          width, height,
-                          width_in_pixels, height_in_pixels):
-        if width<=0 or height<=0 or width_in_pixels<=0 or height_in_pixels<=0:
-            raise ooferror.PyErrUserError("Negative sizes are not allowed.")
+sizeparams = parameter.ParameterGroup(
+    parameter.FloatParameter('width', 1., tip='Width in physical units.'),
+    parameter.FloatParameter('height', 1.,tip='Height in physical units.'),
+    parameter.IntParameter('width_in_pixels', 10, tip='Width in pixels.'),
+    parameter.IntParameter('height_in_pixels', 10, tip='Height in pixels.'))
 
-        if parallel_enable.enabled():
-            # For the rear-end guys
-            microstructureIPC.msmenu.New_Parallel(name=name,
-                                                 width=width, height=height,
-                                                 width_in_pixels=width_in_pixels,
-                                                 height_in_pixels=height_in_pixels)
 
-        # Serial mode & #0 in parallel mode
-        ms = ooflib.common.microstructure.Microstructure(
-            name, primitives.iPoint(width_in_pixels,
-                                    height_in_pixels),
-            primitives.Point(width, height)
-            )
+def newMicrostructure(menuitem, name,
+                      width, height,
+                      width_in_pixels, height_in_pixels):
+    if width<=0 or height<=0 or width_in_pixels<=0 or height_in_pixels<=0:
+        raise ooferror.PyErrUserError("Negative sizes are not allowed.")
 
-elif config.dimension() == 3:
+    if parallel_enable.enabled():
+        # For the rear-end guys
+        microstructureIPC.msmenu.New_Parallel(name=name,
+                                             width=width, height=height,
+                                             width_in_pixels=width_in_pixels,
+                                             height_in_pixels=height_in_pixels)
 
-    sizeparams = parameter.ParameterGroup(
-        parameter.FloatParameter('width', 1., tip='Width in physical units.'),
-        parameter.FloatParameter('height', 1.,tip='Height in physical units.'),
-        parameter.FloatParameter('depth', 1.,tip='Depth in physical units.'),
-        parameter.IntParameter('width_in_pixels', 10, tip='Width in pixels.'),
-        parameter.IntParameter('height_in_pixels', 10, tip='Height in pixels.'),
-        parameter.IntParameter('depth_in_pixels', 10, tip='Depth in pixels.'))
-
-    def newMicrostructure(menuitem, name,
-                      width, height, depth,
-                      width_in_pixels, height_in_pixels,
-                      depth_in_pixels):
-        if (width<=0 or height<=0 or depth<=0 
-            or width_in_pixels<=0 or height_in_pixels<=0 or depth_in_pixels<=0):
-            raise ooferror.PyErrUserError("Negative sizes are not allowed.")
-
-        if parallel_enable.enabled():
-            # For the rear-end guys
-            microstructureIPC.msmenu.New_Parallel(
-                name=name,
-                width=width, height=height, depth=depth,
-                width_in_pixels=width_in_pixels,
-                height_in_pixels=height_in_pixels,
-                depth_in_pixels=depth_in_pixels)
-
-        # Serial mode & #0 in parallel mode
-        ms = ooflib.common.microstructure.Microstructure(
-            name, primitives.iPoint(width_in_pixels,
-                                    height_in_pixels,
-                                    depth_in_pixels),
-            primitives.Point(width, height, depth)
-            )
-
+    # Serial mode & #0 in parallel mode
+    ms = ooflib.common.microstructure.Microstructure(
+        name, primitives.iPoint(width_in_pixels,
+                                height_in_pixels),
+        primitives.Point(width, height)
+        )
 
 def msNameResolver(param, name):
     if param.automatic():
@@ -282,7 +243,8 @@ mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     linkend='MenuItem-OOF.File.Load.Script'/> or <xref
     linkend='MenuItem-OOF.File.Load.Data'/>, depending on the file
     format.</para>
-    """
+    """,
+    xrefs=["Section-Tasks-Microstructure"]
    ))
 
 def _fixmenu(*args):

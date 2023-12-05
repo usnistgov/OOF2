@@ -267,7 +267,8 @@ _savemenu.addItem(OOFMenuItem(
     ellipsis=1,
     no_log=1,
     help="Save the current session as a Python script.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/savelog.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/savelog.xml'),
+    xrefs=["MenuItem-OOF"]
     ))
 
 #################################
@@ -440,7 +441,7 @@ def _annotatelogmenucallback(menutiem, message):
 _annotatelogmenu = _filemenu.addItem(OOFMenuItem(
     'Annotate_Log',
     help="Write a message to the log file",
-    discussion="<para>Write info directly to the log file.</para>",
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/common/menu/annotatelog.xml"),
     callback = _annotatelogmenucallback,
     ordering=200,
     params=[parameter.StringParameter(name="message",

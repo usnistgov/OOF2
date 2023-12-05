@@ -38,4 +38,6 @@ mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     [parameter.BooleanParameter(name, True,
                                 tip="True to include and False to not.")
      for name in reporter.messageclasses],
-    discussion="Unlike other <link linkend='MenuItem-OOF.File.Save'>OOF.File.Save</link> menu varieties, messages are saved only in an <emphasis>ascii</emphasis> format for an obvious reason."))
+    discussion="Unlike other <link linkend='MenuItem-OOF.File.Save'>OOF.File.Save</link> menu varieties, messages are saved only in an <emphasis>ascii</emphasis> format for an obvious reason.",
+    xrefs=["Section-Windows-Messages"]
+))

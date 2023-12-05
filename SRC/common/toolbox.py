@@ -29,6 +29,9 @@
 # OOF.Graphics_n.Toolbox.<ToolboxName> menu.  The discussion can be an
 # xmlmenudump.DiscussionFile object, if necessary.
 
+# If a subclass has a no_menu member that is set to True, then a menu
+# for the subclass will not be generated.
+
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 

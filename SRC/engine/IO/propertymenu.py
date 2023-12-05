@@ -133,12 +133,12 @@ OOF.File.Save.addItem(oofmenu.OOFMenuItem(
             ],
     help="Save the indicated Property to a file.",
     discussion="""<para>
-
     Save the given &property; to a data file.  The file can be read
     either by <xref linkend='MenuItem-OOF.File.Load.Script'/> or <xref
     linkend='MenuItem-OOF.File.Load.Data'/>, depending on the
     <varname>format</varname>.  File formats are discussed in <xref
     linkend='Section-Concepts-FileFormats'/>.
-
-    </para>"""))
+    </para>""",
+    xrefs=["Section-Tasks-Materials"]
+))
 

@@ -55,7 +55,6 @@ OOF.addItem(oofmenu.OOFMenuItem(
     cli_only=1,
     help='Create, modify, and delete material properties.',
     discussion="""<para>
-
     The <command>Property</command> menu contains the basic tools for
     managing material &properties;.  Unnamed versions of all
     &properties; are created when &oof2; starts.  The <link
@@ -67,8 +66,8 @@ OOF.addItem(oofmenu.OOFMenuItem(
     the <link
     linkend='MenuItem-OOF.Property.Delete'><command>Delete</command></link>
     command removes named &properties;.
-
-    </para>"""
+    </para>""",
+    xrefs=["Section-Tasks-Materials"]
     ))
 
 OOF.LoadData.addItem(oofmenu.OOFMenuItem(
