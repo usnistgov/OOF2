@@ -15,6 +15,13 @@
 ## TODO: If the window is empty, write "This window intentionally left
 ## blank" w/ instructions on what to do.
 
+## TODO: Allow antialiasing to be different on different layers.
+## antialias=True would apply it to all layers. antialias=False would
+## apply it to none. antialias=Maybe would apply it to lines and
+## points, but not filled polygons.  This would (maybe) prevent
+## element edges from appearing when displaying filled contours or
+## other filled elements.
+
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import ooferror
@@ -46,10 +53,6 @@ import traceback
 import types
 
 import oofcanvas
-
-# TODO: These are used inconsistently.  Don't define the local variables. 
-FloatParameter = parameter.FloatParameter
-IntParameter = parameter.IntParameter
 
 OOF = mainmenu.OOF
 OOFMenuItem = oofmenu.OOFMenuItem
@@ -95,7 +98,7 @@ if debug.debug():
 default_settings = dict(
     bgcolor = color.white.opaque(),
     zoomfactor = 1.5,
-    margin = 0.05,
+    margin = 0.02,
     longlayernames = False,     # Use long form of layer reprs.
     listall = False,            # are all layers to be listed?
     antialias = True,
@@ -202,7 +205,8 @@ class GhostGfxWindow:
             secret=True,
             help = "Commands dependent on a particular Graphics window.",
             discussion=xmlmenudump.loadFile(
-                'DISCUSSIONS/common/menu/graphics.xml')
+                'DISCUSSIONS/common/menu/graphics.xml'),
+            xrefs=["Chapter-Graphics"]
         ))
 
         # Put this window into the Windows/Graphics menu, so that it
@@ -363,8 +367,11 @@ class GhostGfxWindow:
                 discussion="""<para> Save each individual graphics
                 layer in a png file, named
                 <userinput>filename</userinput>XX.png, where XX is an
-                integer. Only available if the window was opened in
-                debug mode. </para>"""
+                integer.  Only the non-empty layers will be saved, so
+                files for some values of XX may be missing.  This
+                command is only available if the window was opened in
+                <link linkend="MenuItem-OOF.Help.Debug.Debug">debug
+                mode</link>.  </para>"""
                 ))
 
         filemenu.addItem(OOFMenuItem(
@@ -417,7 +424,7 @@ class GhostGfxWindow:
         layermenu.addItem(OOFMenuItem(
             'Edit',
             callback=self.editLayerCB,
-            params=[IntParameter('n', 0, tip="Layer to edit."),
+            params=[parameter.IntParameter('n', 0, tip="Layer to edit."),
                     whoville.WhoClassParameter(
                         "category", tip="The kind of object to display"),
                     whoville.AnyWhoParameter(
@@ -433,7 +440,7 @@ class GhostGfxWindow:
         layermenu.addItem(OOFMenuItem(
             'Delete',
             callback=self.deleteLayerNumber,
-            params=[IntParameter('n', 0, tip="Layer index.")],
+            params=[parameter.IntParameter('n', 0, tip="Layer index.")],
             help="Delete the selected graphics layer.",
             discussion=xmlmenudump.loadFile(
                 'DISCUSSIONS/common/menu/deletelayer.xml')
@@ -447,7 +454,7 @@ class GhostGfxWindow:
             # See the comment in GfxWindowBase.layerDoubleClickCB in
             # SRC/common/IO/GUI/gfxwindowbase.py.
             threadable=oofmenu.UNTHREADABLE,
-            params=[IntParameter('n', 0, tip="Layer index.")],
+            params=[parameter.IntParameter('n', 0, tip="Layer index.")],
             help="Select the given graphics layer.",
             discussion=xmlmenudump.loadFile(
                 'DISCUSSIONS/common/menu/selectlayer.xml')
@@ -456,7 +463,7 @@ class GhostGfxWindow:
             'Deselect',
             callback=self.deselectLayerCB,
             cli_only=1,
-            params=[IntParameter('n', 0, tip="Layer index.")],
+            params=[parameter.IntParameter('n', 0, tip="Layer index.")],
             help="Deselect the given graphics layer.",
             discussion="""<para>
             See <xref linkend='MenuItem-OOF.Graphics_n.Layer.Select'/>.
@@ -465,7 +472,7 @@ class GhostGfxWindow:
             'Hide',
             callback=self.hideLayer,
             accel='h',
-            params=[IntParameter('n', 0, tip="Layer index.")],
+            params=[parameter.IntParameter('n', 0, tip="Layer index.")],
             help="Hide the selected graphics layer.",
             discussion=xmlmenudump.loadFile(
                 'DISCUSSIONS/common/menu/hidelayer.xml')
@@ -474,7 +481,7 @@ class GhostGfxWindow:
             'Show',
             callback=self.showLayer,
             accel='s',
-            params=[IntParameter('n', 0, tip="Layer index.")],
+            params=[parameter.IntParameter('n', 0, tip="Layer index.")],
             help="Show the selected and previously hidden graphics layer.",
             discussion=xmlmenudump.loadFile(
                     'DISCUSSIONS/common/menu/showlayer.xml')
@@ -482,7 +489,7 @@ class GhostGfxWindow:
         layermenu.addItem(OOFMenuItem(
             'Freeze',
             callback=self.freezeLayer,
-            params=[IntParameter('n', 0, tip="Layer index.")],
+            params=[parameter.IntParameter('n', 0, tip="Layer index.")],
             help="Prevent the selected layer from being redrawn.",
             discussion=xmlmenudump.loadFile(
                     'DISCUSSIONS/common/menu/freezelayer.xml')
@@ -490,7 +497,7 @@ class GhostGfxWindow:
         layermenu.addItem(OOFMenuItem(
             'Unfreeze',
             callback=self.unfreezeLayer,
-            params=[IntParameter('n', 0, tip="Layer index.")],
+            params=[parameter.IntParameter('n', 0, tip="Layer index.")],
             help="Allow the selected layer to be redrawn.",
             discussion="""
 <para>Undo the effect of <xref
@@ -508,7 +515,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             'One_Level',
             callback=self.raiseLayer,
             accel='r',
-            params=[IntParameter('n', 0, tip="Layer index.")],
+            params=[parameter.IntParameter('n', 0, tip="Layer index.")],
             help="Raise the selected graphics layer.",
             discussion=xmlmenudump.loadFile(
                 'DISCUSSIONS/common/menu/raiseone.xml')
@@ -517,7 +524,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             'To_Top',
             callback=self.raiseToTop,
             accel='t',
-            params=[IntParameter('n', 0, tip="Layer index.")],
+            params=[parameter.IntParameter('n', 0, tip="Layer index.")],
             help=\
             "Draw the selected graphics layer on top of all other layers.",
             discussion=xmlmenudump.loadFile(
@@ -528,8 +535,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             callback=self.raiseBy,
             #cli_only = 1,
             params=[
-                IntParameter('n', 0, tip="Layer index."),
-                IntParameter('howfar', 1, tip="How far to raise the layer.")
+                parameter.IntParameter('n', 0, tip="Layer index."),
+                parameter.IntParameter('howfar', 1, tip="How far to raise the layer.")
             ],
             help="Raise the selected graphics layer over a given number"
             " of other layers.",
@@ -546,7 +553,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             'One_Level',
             callback=self.lowerLayer,
             accel='l',
-            params=[IntParameter('n', 0, tip="Layer index.")],
+            params=[parameter.IntParameter('n', 0, tip="Layer index.")],
             help="Lower the selected graphics layer.",
             discussion=xmlmenudump.loadFile(
                 'DISCUSSIONS/common/menu/lowerone.xml')
@@ -555,7 +562,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             'To_Bottom',
             callback=self.lowerToBottom,
             accel='b',
-            params=[IntParameter('n', 0, tip="Layer index.")],
+            params=[parameter.IntParameter('n', 0, tip="Layer index.")],
             help="Draw the selected graphics layer below all other layers.",
             discussion=xmlmenudump.loadFile(
                 'DISCUSSIONS/common/menu/lowerbtm.xml')
@@ -564,8 +571,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             'By',
             callback=self.lowerBy,
             params=[
-                IntParameter('n', 0, tip="Layer index."),
-                IntParameter('howfar', 1, tip="How far to lower the layer.")
+                parameter.IntParameter('n', 0, tip="Layer index."),
+                parameter.IntParameter('howfar', 1, tip="How far to lower the layer.")
                     ],
             help="Lower the selected graphics layer under"
             " a given number of other layers.",
@@ -582,11 +589,12 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         settingmenu = self.menu.addItem(OOFMenuItem(
             'Settings',
             help='Control Graphics window behavior.',
-            discussion="""<para>
-            The <command>Settings</command> menu contains commands
-            that set parameters that control the behavior of the
-            Graphics window.
-            </para>"""
+            discussion="""<para> The <command>Settings</command> menu
+            contains commands that set parameters that control the
+            behavior of the Graphics window.</para>
+            <para>Changing any values in
+            this menu also changes the default values used in new
+            Graphics windows.  </para>"""
         ))
         settingmenu.addItem(CheckOOFMenuItem(
             'Antialias',
@@ -605,7 +613,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                                        tip=parameter.emptyTipString)],
             help="When to create new graphics layers.",
             discussion=xmlmenudump.loadFile(
-                "DISCUSSIONS/common/menu/newlayerpolicy.xml")
+                "DISCUSSIONS/common/menu/newlayerpolicy.xml"),
+            xrefs=["Section-Graphics-New-Layer-Policy"]
         ))
         settingmenu.addItem(CheckOOFMenuItem(
             'List_All_Layers',
@@ -626,19 +635,21 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         settingmenu.addItem(OOFMenuItem(
             'Time',
             callback=self.setTimeCB,
-            params=[FloatParameter(
+            params=[parameter.FloatParameter(
                 'time', 0.0,
                 tip='The time to use when displaying time-dependent layers.')
                     ],
             help='Set the time for display layers.',
             discussion=xmlmenudump.loadFile(
-                'DISCUSSIONS/common/menu/settime.xml')
+                'DISCUSSIONS/common/menu/settime.xml'),
+            xrefs=["Section-Graphics-Time"]
         ))
         settingmenu.addItem(OOFMenuItem(
             'Aspect_Ratio',
             callback=self.aspectRatio,
-            params=[FloatParameter('ratio', 5.0,
-                                   tip="Aspect ratio of the contour map.")],
+            params=[parameter.FloatParameter(
+                'ratio', 5.0,
+                tip="Aspect ratio of the contour map.")],
             help="Set the aspect ratio of the contour map.",
             discussion="""<para>
             Set the aspect ratio (height/width) of the <link
@@ -650,7 +661,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             'Contourmap_Marker_Size',
             callback=self.contourmapMarkSize,
             ellipsis=1,
-            params=[IntParameter('width',2,
+            params=[parameter.IntParameter('width',2,
                                  tip="Contour map marker line width.")],
             help="Width in pixels of the markers on the contour map.",
             discussion="""<para>
@@ -659,8 +670,10 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             linkend='Section-Graphics-ContourMap'>contour map</link>.
             </para>"""))
 
-        zoommenu = settingmenu.addItem(OOFMenuItem('Zoom',
-                                    help="Change the scale in the display."))
+        zoommenu = settingmenu.addItem(
+            OOFMenuItem('Zoom',
+                        help="Change the scale in the display.",
+                        xrefs=["Section-Graphics-Viewer"]))
         zoommenu.addItem(OOFMenuItem(
             'In',
             callback=self.zoomIn,
@@ -669,7 +682,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             discussion="""<para>
             Magnify the graphics display by the current <link
             linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
-            factor</link>, keeping the center of the display fixed.
+            factor</link>, keeping the center of the display fixed on
+            the canvas.
             </para>"""))
         zoommenu.addItem(OOFMenuItem(
             'InFocussed',
@@ -681,8 +695,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             discussion="""<para>
             Magnify the graphics display by the current <link
             linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
-            factor</link>, keeping the mouse click position fixed.
-            </para>"""))
+            factor</link>, keeping the mouse click position fixed on
+            the canvas.
+                        </para>"""))
         zoommenu.addItem(OOFMenuItem(
             'Out',
             callback=self.zoomOut,
@@ -691,7 +706,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             discussion="""<para> 
             Demagnify the graphics display by the current <link
             linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
-            factor</link>, keeping the center of the display fixed.
+            factor</link>, keeping the center of the display fixed on
+            the canvas.
             </para>"""))
         zoommenu.addItem(OOFMenuItem(
             'OutFocussed',
@@ -703,7 +719,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             discussion="""<para>
             Demagnify the graphics display by the current <link
             linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
-            factor</link>, keeping the mouse click position fixed.
+            factor</link>, keeping the mouse click position fixed on
+            the canvas.
             </para>"""))
         zoommenu.addItem(OOFMenuItem(
             'Fill_Window',
@@ -711,14 +728,16 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             accel='=',
             help='Fit the image to the window.',
             discussion="""<para>
-            Zoom the display so that it fills the window.
-            </para>"""))
+            Zoom the graphics display so that it fills the canvas.
+            </para>""",
+            xrefs=["MenuItem-OOF.Graphics_n.Settings.Margin"]
+        ))
         zoommenu.addItem(OOFMenuItem(
             'Zoom_Factor',
             callback = self.zoomfactorCB,
             params=[
-            FloatParameter('factor', self.settings.zoomfactor,
-                           tip="Zoom factor.")],
+            parameter.FloatParameter('factor', self.settings.zoomfactor,
+                                     tip="Zoom factor.")],
             ellipsis=1,
             help='Set the zoom magnification.',
             discussion="""<para>
@@ -739,10 +758,10 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             ellipsis=1,
             help='Change the background color.',
             discussion="""<para>
-
             Set the background color for the main display and the
-            contour map display.
-            
+            contour map display.  The color is visible in the <link
+            linkend="MenuItem-OOF.Graphics_n.Settings.Margin">margin</link>
+            and in holes or transparent parts of the display &layers;.
             </para>"""))
 
         colormenu.addItem(OOFMenuItem(
@@ -760,7 +779,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         settingmenu.addItem(OOFMenuItem(
             'Margin',
             callback=self.marginCB,
-            params=[FloatParameter(
+            params=[parameter.NonNegativeFloatParameter(
                 'fraction', self.settings.margin,
                 tip="Margin as a fraction of the image size.")],
             ellipsis=1,
@@ -1548,9 +1567,11 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         return None
 
     def dumpLayers(self, menuitem, filename):
+        ndigits = len(f"{self.nLayers()}")
+        fmt = f"%0{ndigits}d"
         for i, layer in enumerate(self.layers):
             if not layer.empty():
-                fname = filename + '%02d' % i + ".png"
+                fname = filename + fmt % i + ".png"
                 print("Saving layer", layer.short_name(), "as", fname)
                 layer.canvaslayer.writeToPNG(fname)
             
@@ -1683,5 +1704,6 @@ mainmenu.gfxdefaultsmenu.addItem(oofmenu.OOFMenuItem(
         tip='New layer policy for newly created windows.')],
     help = "When to create new graphics layers in new windows.",
     discussion=xmlmenudump.loadFile(
-        "DISCUSSIONS/common/menu/defaultnewlayerpolicy.xml")
+        "DISCUSSIONS/common/menu/defaultnewlayerpolicy.xml"),
+    xrefs=["Section-Graphics-New-Layer-Policy"]
 ))

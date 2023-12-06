@@ -946,6 +946,9 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             self.releaseGfxLock()
 
     def marginCB(self, menuitem, fraction):
+        ## TODO: Changing the margin moves the image in the canvas
+        ## because the bitmap size changes.  Can its position be
+        ## preserved?
         self.acquireGfxLock()
         try:
             self.settings.margin = fraction

@@ -72,7 +72,7 @@ set(oofscripts
 
 # Required version numbers for dependencies
 
-set(OOFCANVAS_MIN_VERSION 1.1.1)
+set(OOFCANVAS_MIN_VERSION 1.1.2)
 set(MAGICK_MIN_VERSION 6.0.0)
 set(MAGICK_MAX_VERSION 7.0.0)
 set(GTK3_MIN_VERSION 3.22)

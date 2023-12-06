@@ -305,7 +305,7 @@ class BooleanParameter(Parameter):
         # it's ok even for versions of Python that don't have
         # types.BooleanType.
         if x!=0 and x!=1:
-            raiseTypeError(type(x), "0 or 1")
+            raiseTypeError(type(x), "True or False")
     def set(self, value):
         if value is not None:
             if value not in (True, False):

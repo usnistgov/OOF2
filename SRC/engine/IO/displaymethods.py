@@ -74,7 +74,9 @@ def addToGfxSettings(gfxwindow):
         callback=toggleEmptyDrawing,
         value=gfxwindow.settings.hideEmptyElements,
         help="Toggle the display of elements with no Material.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/hideempty.xml')))
+        discussion=xmlmenudump.loadFile(
+            'DISCUSSIONS/engine/menu/hideempty.xml'),
+        xrefs=["Chapter-Graphics"]))
     item.data = gfxwindow
 
 switchboard.requestCallback('open graphics window', addToGfxSettings)

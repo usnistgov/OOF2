@@ -945,7 +945,7 @@ class CheckOOFMenuItem(OOFMenuItem):
         self.value = value
     def __call__(self, *args):
         if len(args)==1:
-            self.value = args[0]
+            self.value = bool(args[0])
         else:
             self.value = not self.value
         self.log('%s(%d)' % (self.path(), self.value))
@@ -964,7 +964,7 @@ class CheckOOFMenuItem(OOFMenuItem):
         print("  <varlistentry>", file=file)
         print("   <term><varname>boolean</varname></term>", file=file)
         print("   <listitem><simpara>", file=file)
-        print("     A boolean value, <userinput>0</userinput> (false) or <userinput>1</userinput> (true). This is <emphasis>not</emphasis> a keyword parameter (just enter '0' or '1', not 'boolean=1').", file=file)
+        print("     A boolean value, <userinput>0</userinput> (false) or <userinput>1</userinput> (true). This is <emphasis>not</emphasis> a keyword parameter. In scripts, just enter '0' or '1', not 'boolean=1'.", file=file)
         print("   </simpara></listitem>", file=file)
         print("  </varlistentry>", file=file)
         print(" </variablelist>", file=file)
