@@ -82,7 +82,7 @@ class SubWindow:
             # If no menu is provided, then build a non-logging local
             # one with 'Close' and 'Quit'.
             self.subwindow_menu = oofmenu.OOFMenuItem(
-                menu, secret=1, gui_only=1, no_log=1)
+                menu, secret=1, gui_only=1, no_log=1, no_doc=1)
 
             file_item = oofmenu.OOFMenuItem('File', gui_only=1, no_log=1)
             self.subwindow_menu.addItem(file_item)
