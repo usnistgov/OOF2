@@ -37,7 +37,9 @@ import os.path
 imagemenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'Image',
     cli_only=1,
-    help='Operations involving Images.'))
+    help='Operations involving Images.',
+    xrefs=["Section-Tasks-Image"]
+))
 
 imagemodmenu = mainmenu.OOF.Image.addItem(oofmenu.OOFMenuItem(
     'Modify',

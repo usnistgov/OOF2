@@ -74,6 +74,7 @@ class SkeletonSelectionToolbox(genericselecttoolbox.GenericSelectToolbox):
         return "&skel;"
     def sourceParamName(self):
         return 'skeleton'
+    xrefs = ["Section-Graphics-SkeletonSelection"]
 
 ## Create toolbox subclasses for each SkeletonSelectionMode
 

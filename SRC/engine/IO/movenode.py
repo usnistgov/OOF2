@@ -70,6 +70,7 @@ class MoveNodeToolbox(toolbox.Toolbox):
 
     def makeMenu(self, menu):
         self.menu = menu
+        menu.xrefs.append("Section-Graphics-MoveNodes")
         menu.addItem(oofmenu.OOFMenuItem(
             'MoveNode',
             threadable=oofmenu.THREADABLE,

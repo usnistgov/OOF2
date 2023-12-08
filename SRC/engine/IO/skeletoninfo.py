@@ -350,5 +350,6 @@ class SkeletonInfoToolbox(toolbox.Toolbox):
     discussion="""<para>
     Get information about &skel; components, based on mouse input.
     </para>"""
+    xrefs = ["Section-Graphics-SkeletonInfo"]
     
 toolbox.registerToolboxClass(SkeletonInfoToolbox, ordering=2.0)

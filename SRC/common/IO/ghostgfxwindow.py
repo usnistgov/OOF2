@@ -651,11 +651,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                 'ratio', 5.0,
                 tip="Aspect ratio of the contour map.")],
             help="Set the aspect ratio of the contour map.",
-            discussion="""<para>
-            Set the aspect ratio (height/width) of the <link
-            linkend='Section-Graphics-ContourMap'>contour map</link>
-            display.
-            </para>"""))
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/contouraspect.xml')))
 
         settingmenu.addItem(OOFMenuItem(
             'Contourmap_Marker_Size',
@@ -667,7 +664,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             discussion="""<para>
             Set the line <varname>width</varname>, in pixels, of the
             rectangle used to mark a region of the <link
-            linkend='Section-Graphics-ContourMap'>contour map</link>.
+            linkend='Section-Graphics-ContourMap'>contour map</link>,
+            as shown in <xref linkend="Figure-ContourMap"/>.
             </para>"""))
 
         zoommenu = settingmenu.addItem(

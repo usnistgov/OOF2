@@ -33,6 +33,7 @@ class PinnedNodesToolbox(toolbox.Toolbox):
 
     def makeMenu(self, menu):
         self.menu = menu
+        menu.xrefs.append("Section-Graphics-PinNodes")
         menu.addItem(oofmenu.OOFMenuItem(
             'Pin',
             callback = self.pin,

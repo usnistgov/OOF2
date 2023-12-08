@@ -72,6 +72,7 @@ class PixelInfoToolbox(toolbox.Toolbox):
 
     def makeMenu(self, menu):
         self.menu = menu
+        menu.xrefs.append("Section-Graphics-PixelInfo")
         positionparams=[parameter.IntParameter('x', 0, tip="The x coordinate."),
                         parameter.IntParameter('y', 0, tip="The y coordinate.")]
         helpstring="Query the pixel that is closest to the given point(x,y)."

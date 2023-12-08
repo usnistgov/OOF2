@@ -83,6 +83,7 @@ class PixelSelectToolbox(genericselecttoolbox.GenericSelectToolbox):
     linkend='Section-Concepts-Microstructure-PixelSelection'>selecting</link>
     pixels in a &micro;, based on mouse input.
     </para>"""
+    xrefs = ["Section-Graphics-PixelSelection"]
     
 toolbox.registerToolboxClass(PixelSelectToolbox, ordering = 1.5)
 

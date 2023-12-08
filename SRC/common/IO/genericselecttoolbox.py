@@ -45,6 +45,11 @@ from ooflib.common.IO import parameter
 # notifies whoever needs to be notified when a new selection
 # is available.
 #
+# Child classes should have an xrefs member, which is a list of cross
+# references for the manual pages for the toolbox menu items.  It
+# should at least point to the section describing the appropriate
+# graphics toolbox.
+#
 # Selections are made to Selection objects that live inside some
 # source object.  For example, the pixel selection lives inside a
 # Microstructure.  Child classes must provide a "sourceParams" method,
@@ -85,6 +90,7 @@ class GenericSelectToolbox(toolbox.Toolbox):
         # Put all the selection methods in the menu.
         if self.menu is not None:
             self.menu.clearSubMenu()
+            self.menu.xrefs.extend(self.xrefs)
             sourceparams = self.sourceParams()
             self.menu.addItem(oofmenu.OOFMenuItem(
                 'Clear',

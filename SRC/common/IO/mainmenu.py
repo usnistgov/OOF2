@@ -635,10 +635,12 @@ helpmenu.addItem(CheckOOFMenuItem(
     callback=setWarnPopups,
     help="Display warnings in a pop-up window or just in the message window?",
     discussion="""<para>
-    If <command>Popup_warnings</command> is true, warning messages
-    will appear in an annoying pop-up window.  If it's false, they'll
-    appear only in the <link
-    linkend='Section-Windows-Messages'>Messages</link> window.
+    If <command>Popup_warnings</command> is
+    <userinput>true</userinput>, warning messages will appear in an
+    annoying pop-up window.  If it's <userinput>false</userinput>,
+    they'll appear only in the <link
+    linkend='Section-Windows-Messages'>Messages</link> window.  The
+    default value is <userinput>true</userinput>.
     </para>"""))
 
 ## TODO: Remove No_Warnings.  Instead, add Warning_Mode, which can be
@@ -652,10 +654,12 @@ helpmenu.addItem(CheckOOFMenuItem(
         ordering=-7,
         callback=setWarnErrors,
         help="Treat warnings as errors.",
-        discussion="""
-<para> If <command>No_Warnings</command> is true, warning messages are
-treated as errors and will abort the current calculation.</para>
-"""))
+        discussion="""<para>
+        If <command>No_Warnings</command> is
+        <userinput>true</userinput>, warning messages are treated as
+        errors and will abort the current calculation.  The default
+        value is <userinput>false</userinput>.
+        </para>"""))
 
 # def testBars1(menuitem):
 #     import time

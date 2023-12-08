@@ -470,7 +470,7 @@ class OOFMenuItem:
                  help_menu=0,           # is this a right justified help menu?
                  help=None,             # string describing command
                  discussion=None,       # for manual, in docbook xml
-                 xrefs=[],              # cross references for manual
+                 xrefs=None,            # cross references for manual
                  threadable = THREADABLE,     # MenuItem is threaded if it receives a ThreadType object different from UNTHREADABLE
                  params=[],             # list of Parameter args for callback
                  ordering=0,
@@ -495,7 +495,12 @@ class OOFMenuItem:
         self.gui_title = gui_title
         self.helpstr = help
         self.discussion = discussion
-        self.xrefs = xrefs
+        # The default value for xrefs in the __init__ args must be
+        # None, and not [].  If it were [], then all menu items that
+        # have no xrefs would share an empty list, and if any of the
+        # items add to the list later all of them would get the
+        # additions.
+        self.xrefs = xrefs or []
         self.ordering = ordering
         self.threadable = UNTHREADABLE
         global _threadability_options

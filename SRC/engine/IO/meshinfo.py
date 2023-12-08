@@ -116,6 +116,7 @@ class MeshInfoToolbox(toolbox.Toolbox):
 
     def makeMenu(self, menu):
         self.menu = menu
+        self.menu.xrefs.append("Section-Graphics-MeshInfo")
         menu.addItem(oofmenu.OOFMenuItem(
             'QueryElement',
             callback=self.queryElem,
