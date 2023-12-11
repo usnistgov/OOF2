@@ -19,6 +19,7 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import reporter
 from ooflib.common.IO import parameter
 from ooflib.common.IO import progressbar_delay
+from ooflib.common.IO import xmlmenudump
 from ooflib.common.IO.GUI import activityViewer
 from ooflib.common.IO.GUI import gtklogger
 
@@ -35,7 +36,17 @@ guidebugmenu = mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem(
     ordering=1000,
     no_log=True,
     post_hook=None,
-    help="Tools for creating and loading log files of GUI sessions."))
+    help="Record and replay log files of GUI sessions.",
+    discussion="""<para>
+    These commands are the &oof2; interface to <ulink
+    url="https://www.ctcms.nist.gov/oof/gtklogger">gtklogger</ulink>,
+    a tool for recording and replaying log files of GUI sessions.
+    Tests can be added to the log files to ensure that the GUI is
+    functioning correctly.  This is the mechanism of the
+    <application>oof2-guitest</application> program.
+    </para>
+    """
+))
 
 ###################################
 
@@ -88,7 +99,8 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
                 'use_gui', True, tip="Use the logger gui to insert comments?")
             ],
     ellipsis=1,
-    help="Save GUI events in a Python script",
+    help="Save GUI events in a log file.",
+    discussion=xmlmenudump.emptyDiscussion
     ))
 
 ############################
@@ -105,7 +117,8 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
     callback=stopLog,
     no_log=1,
     threadable=oofmenu.UNTHREADABLE,
-    help="Stop recording GUI events"))
+    help="Stop recording GUI events",
+    discussion=xmlmenudump.emptyDiscussion))
 
 ############################
 
@@ -162,7 +175,8 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
             parameter.BooleanParameter('checkpoints', True, 'obey checkpoints?')
             ],
     ellipsis=1,
-    help="Load a GUI log file"))
+    help="Load a GUI log file.",
+    discussion=xmlmenudump.emptyDiscussion))
 
 ##############################
 
@@ -218,7 +232,8 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
                                    tip="Use the logger gui to insert comments?")
             ],
     ellipsis=1,
-    help="Load and rerecord a GUI log file"))
+    help="Load and rerecord a GUI log file.",
+    discussion=xmlmenudump.emptyDiscussion))
 
 #####################
 
@@ -229,7 +244,8 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
     'Sanity_Check',
     callback=sanity_check,
     no_log=1,
-    help="Check that widget names are unique"))
+    help="Check that widget names are unique.",
+    discussion=xmlmenudump.emptyDiscussion))
 
 
 ############################
@@ -256,10 +272,11 @@ def pauseGUI(menuitem):
     menuitem.callWithDefaults()
 
 guidebugmenu.addItem(oofmenu.OOFMenuItem(
-        'Pause',
-        callback=pauseLog,
-        gui_callback=pauseGUI,
-        help="Stop replaying until the 'Continue' button is pressed."))
+    'Pause',
+    callback=pauseLog,
+    gui_callback=pauseGUI,
+    help="Stop replaying until the 'Continue' button is pressed.",
+    discussion=xmlmenudump.emptyDiscussion))
 
 ############################
 

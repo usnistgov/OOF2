@@ -17,6 +17,12 @@ TutoringItem = tutorial.TutoringItem
 tutorial.TutorialClass(
     subject = "Solving Time Dependent Systems",
     ordering=7,
+    tip="How to solve time-dependent equations.",
+    discussion="""<para>
+    This tutorial illustrates the basics of treating time dependent
+    systems in &oof2; by how to solving an oscillating damped elastic
+    material.
+    </para>""",
     lessons=[
         TutoringItem(
             subject="Introduction",

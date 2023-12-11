@@ -104,6 +104,10 @@ def xrefListing(xrefs):
 # appropriate objects without actually reading the files until
 # xmlmenudump is run.  func is an optional function for processing the
 # string in the file before inserting it into the xml.
+#
+# The discussion section can be suppressed by setting discussion to
+# emptyDiscussion. 
+
 
 def loadFile(filename, func=None):
     return DiscussionFile(filename, func)
@@ -137,6 +141,8 @@ def getDiscussion(obj):
     ## or if its discussion isn't either a string or a DiscussionFile.
     if isinstance(obj.discussion, (str, bytes)):
         return obj.discussion
+    if obj.discussion is emptyDiscussion:
+        return emptyDiscussion
     return obj.discussion.read(obj)
 
 def getHelp(obj):                       # get help, helpstr, or tip
@@ -150,6 +156,8 @@ def getHelp(obj):                       # get help, helpstr, or tip
                 return whelp
             return whelp.read(obj)
     raise AttributeError(obj, "helpstr, help, or tip")
+
+emptyDiscussion = DiscussionFile(None, None)
 
 ##################    
 
@@ -194,9 +202,12 @@ def dumpMenu(phile, menu, toplevel):
     except AttributeError:
         pass
     try:
-        print(getDiscussion(menu), file=phile)
+        discus = getDiscussion(menu)
     except AttributeError:
-        pass
+        print(f"<para>MISSING MENU DISCUSSION: {path}</para>", file=phile)
+    else:
+        if discus is not emptyDiscussion:
+            print(discus, file=phile)
 
     if not toplevel:
         print("<simpara>Parent Menu: <xref linkend='MenuItem-%s'/></simpara>" \
@@ -205,6 +216,8 @@ def dumpMenu(phile, menu, toplevel):
     # Create alphabetical lists of submenus and commands.  It's more
     # convenient to find things in alphabetical lists in the manual,
     # even if they're not presented alphabetically in the GUI.
+    # Sorting can be suppressed by setting alphabetize=False in the
+    # OOFMenuItem constructor.
     commands = []
     submenus = []
     for item in menu.items:
@@ -213,8 +226,9 @@ def dumpMenu(phile, menu, toplevel):
                 submenus.append(item.name)
             else:
                 commands.append(item.name)
-    submenus.sort()
-    commands.sort()
+    if menu.alphabetize:
+        submenus.sort()
+        commands.sort()
 
     if submenus:
         print("<itemizedlist spacing='compact'>", file=phile)
@@ -317,13 +331,19 @@ def dumpMenuItem(phile, menuitem):
     print("   </itemizedlist>", file=phile)
     print(" </refsect1>", file=phile) # details section
 
-    print(" <refsect1>", file=phile)
-    print("  <title>Description</title>", file=phile)
     try:
-        print("  %s" % getDiscussion(menuitem), file=phile)
+        discus = getDiscussion(menuitem)
     except AttributeError:
-        print("  <para>MISSING DISCUSSION: %s</para>" % path, file=phile)
-    print(" </refsect1>", file=phile)
+        print(" <refsect1>", file=phile)
+        print("  <title>Description</title>", file=phile)
+        print(f"  <para>MISSING MENUITEM DISCUSSION: {path}</para>", file=phile)
+        print(" </refsect1>", file=phile)
+    else:
+        if discus is not emptyDiscussion:
+            print(" <refsect1>", file=phile)
+            print("  <title>Description</title>", file=phile)
+            print(f"  {discus}", file=phile)
+            print(" </refsect1>", file=phile)
 
     xrefs = menuitem.xmlXRefs()
     if xrefs:
@@ -542,14 +562,21 @@ may be members of more than one
                 print("   </simpara></listitem>", file=phile)
         print("   </itemizedlist>", file=phile)        
         print("  </refsect1>", file=phile)
-        print("  <refsect1>", file=phile)
-        print("   <title>Description</title>", file=phile)
+        
         try:
-            print("    %s" % getDiscussion(regclass), file=phile)
+            discus = getDiscussion(regclass)
         except AttributeError:
-            print("<para>MISSING DISCUSSION: %s</para>" \
-                  % regclassname, file=phile)
-        print("  </refsect1>", file=phile)
+            print("  <refsect1>", file=phile)
+            print("   <title>Description</title>", file=phile)
+            print(f"<para>MISSING REGCLASS DISCUSSION: {regclassname}</para>",
+                  file=phile)
+            print("  </refsect1>", file=phile)
+        else:
+            if discus is not emptyDiscussion:
+                print("  <refsect1>", file=phile)
+                print("   <title>Description</title>", file=phile)
+                print(f"    {discus}", file=phile)
+                print("  </refsect1>", file=phile)
         xrefs = getattr(regclass, "xrefs", [])
         if xrefs:
             print("<simplesect>", file=phile)
@@ -640,9 +667,12 @@ may be members of more than one
         print("  <refsect1>", file=phile)
         print("   <title>Description</title>", file=phile)
         try:
-            print("   %s" % getDiscussion(reg), file=phile)
+            discus = getDiscussion(reg)
         except AttributeError:
-            print("<para>MISSING DISCUSSION: %s</para>" % name, file=phile)
+            print(f"<para>MISSING REGCLASS DISCUSSION: {name}</para>",
+                  file=phile)
+        else:
+            print(f"   {discus}", file=phile)
         print("  </refsect1>", file=phile)
         if reg.xrefs:
             print("   <refsect1>", file=phile)
@@ -723,13 +753,20 @@ def enumSection(phile):
         print("   <refpurpose>%s</refpurpose>" % tip, file=phile)
         print("  </refnamediv>", file=phile)        
 
-        print(" <refsect1>", file=phile)
-        print("  <title>Description</title>", file=phile)
         try:
-            print("  %s" % getDiscussion(enumclass), file=phile)
+            discus = getDiscussion(enumclass)
         except AttributeError:
-            print("<para>MISSING ENUM DISCUSSION: %s</para>" % enumname, file=phile)
-        print(" </refsect1>", file=phile)
+            print(" <refsect1>", file=phile)
+            print("  <title>Description</title>", file=phile)
+            print(f"<para>MISSING ENUM DISCUSSION: {enumname}</para>",
+                  file=phile)
+            print(" </refsect1>", file=phile)
+        else:
+            if discus is not emptyDiscussion:
+                print(" <refsect1>", file=phile)
+                print("  <title>Description</title>", file=phile)
+                print(f"  {discus}", file=phile)
+                print(" </refsect1>", file=phile)
         print(" <refsect1>", file=phile)
         print("  <title>Values</title>", file=phile)
         print("  <itemizedlist spacing='compact'>", file=phile)
@@ -756,7 +793,14 @@ addSection(enumSection, ordering=1001)
     
 def printObjDocs(path, obj, phile):
     if obj is not None:
-        print(getDiscussion(obj), file=phile)
+        try:
+            discus = getDiscussion(obj)
+        except AttributeError:
+            print(f"<para>MISSING OBJ DISCUSSION: {path} {obj}</para>",
+                  file=phile)
+        else:
+            if discus is not emptyDiscussion:
+                print(discus, file=phile)
     else:
         # obj is None, meaning that this is a meta section.  Print toc.
         if path:                        # no path means we're at the top level

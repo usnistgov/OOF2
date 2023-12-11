@@ -15,6 +15,11 @@ TutorialClass = tutorial.TutorialClass
 TutorialClass(
     subject = "Nonrectangular Domain",
     ordering=5,
+    tip="An example using a non-rectangular Microstructure.",
+    discussion="""<para>
+    This tutorial demonstrates how to use a non-rectangular domain in
+    &oof2; even though &images; and &skels; are always rectangular.
+    </para>""",
     lessons = [
     
     TutoringItem(

@@ -277,10 +277,10 @@ def _misorientation(menutitem, orientation1, orientation2, lattice_symmetry):
                                         lattice_symmetry.schoenflies())
     reporter.report("misorientation=", misor)
 
-mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem(
+mainmenu.helpmenu.addItem(oofmenu.OOFMenuItem(
     'Misorientation_Calculator',
     callback=_misorientation,
-    ordering=100,
+    ordering=10,
     params=[
         parameter.RegisteredParameter('orientation1',
                                       orientationmatrix.Orientation,
@@ -293,10 +293,12 @@ mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem(
             value=latticesystem.SpaceGroup(1),
             tip="Lattice symmetry")
         ],
-    help="Print the misorientation (in degrees) between two orientations in the given lattice system.",
+    help="Print the misorientation (in degrees) between two orientations.",
     discussion="""<para>Print the <link
     linkend="Section-Concepts-Material-Orientation">misorientation</link>
-    between two 3D orientations in the given lattice system.</para>"""
+    between two 3D orientations in the given lattice system.</para>""",
+    xrefs=["Section-Concepts-Material-Orientation",
+           "Section-Graphics-PixelInfo-Misorient"]
 ))
     
     

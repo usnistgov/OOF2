@@ -29,8 +29,8 @@ tutorialMenu = mainmenu.OOF.Help.addItem(
         are step-by-step lessons in how to use OOF2.  Please go through
         them in order from <command>A Simple Example</command> to
         <command>Solving Time Dependent Systems</command>.
-        </para>"""
-        
+        </para>""",
+        alphabetize=False
     ))
 
 def start_tutorial(tutorial, progress): # redefined in GUI mode
@@ -40,7 +40,12 @@ def startTutorial(menuitem):
     start_tutorial(menuitem.data, 0)
 
 class TutorialClass:
-    def __init__(self, subject, ordering, lessons):
+    def __init__(self, subject, ordering, lessons, tip=None, discussion=None):
+        # subject is the title, which will appear in the Tutorials menu.
+        # ordering is a number by which tutorials are sorted in the menu.
+        # lessons is a list of TutoringItems.
+        # tip is a tooltip string for menus and documentation
+        # discussion is a short xml text for the manual
         self.subject = subject
         self.lessons = lessons
         self.ordering = ordering
@@ -48,7 +53,9 @@ class TutorialClass:
             oofmenu.OOFMenuItem(utils.space2underscore(subject),
                                 ordering=ordering,
                                 gui_callback=startTutorial,
-                                threadable=oofmenu.UNTHREADABLE))
+                                threadable=oofmenu.UNTHREADABLE,
+                                help=tip,
+                                discussion=discussion))
         menuitem.data = self
         allTutorials[subject] = self
         

@@ -3,6 +3,9 @@ OOF2 2.3.3
 * Disabled selection of interface segments since interface properties
   aren't enabled.
 
+* Moved Misorientation_Calculator from the Help/Debug menu to the Help
+  menu.
+
 OOF2 2.3.2
 
 * Eliminated some opportunities for roundoff error in Rationalize that

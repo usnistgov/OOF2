@@ -15,8 +15,14 @@ TutorialClass = tutorial.TutorialClass
 TutorialClass(
     subject = "Moving Nodes",
     ordering=2.1,
+    tip="Methods for moving nodes in a skeleton.",
+    discussion="""<para>
+    This tutorial expands on the discussion of Node Motion in the
+    "Skeleton" tutorial.
+    </para>""",
     lessons = [
-    TutoringItem(
+
+        TutoringItem(
     subject="Introduction",
     comments=
 """This tutorial expands on the discussion of Node Motion in the "Skeleton" tutorial.

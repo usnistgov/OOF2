@@ -16,6 +16,11 @@ TutorialClass = tutorial.TutorialClass
 TutorialClass(
     subject = "Postprocessing",
     ordering = 4,
+    tip="Tools for viewing and analyzing a solution.",
+    discussion="""<para>
+    This tutorial discusses post-processing tools for viewing and
+    analyzing a soltion.
+    </para>""",
     lessons = [
       
     TutoringItem(

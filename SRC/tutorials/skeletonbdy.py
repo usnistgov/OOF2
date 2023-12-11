@@ -23,6 +23,12 @@ switchboard.requestCallback("new boundary created", new_boundaries)
 TutorialClass(
     subject = "Skeleton Boundaries",
     ordering=3,
+    tip="Creating and using boundaries in Skeletons.",
+    discussion="""<para>
+    This tutorial walks through how to construct <link
+    linkend="Section-Concepts-Skeleton-Boundary">boundaries</link> in
+    &skels;.
+    </para>""",
     lessons = [
     TutoringItem(
     subject="Introduction",

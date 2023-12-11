@@ -15,6 +15,11 @@ TutorialClass = tutorial.TutorialClass
 TutorialClass(
     subject = "Skeleton",
     ordering=2,
+    tip="Details of the Skeleton object.",
+    discussion = """<para>
+    This tutorial provides an overview of how to create and modify an
+    &oof2; &skel;.
+    </para>""",
     lessons = [
     TutoringItem(
     subject="Introduction",

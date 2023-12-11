@@ -15,6 +15,12 @@ TutorialClass = tutorial.TutorialClass
 TutorialClass(
     subject="A Simple Example",
     ordering=0.1,
+    tip="A complete but minimal example.",
+    discussion="""<para>
+    This tutorial works through a simple example problem from
+    beginning to end, illustrating some of the most important features
+    of &oof2;.
+    </para>""",
     lessons = [
         TutoringItem(
             subject="Introduction",

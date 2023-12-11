@@ -15,6 +15,12 @@ TutorialClass = tutorial.TutorialClass
 TutorialClass(
     subject = "Adaptive Mesh Refinement",
     ordering = 6,
+    tip="Improving a Mesh where necessary.",
+    discussion="""<para>
+    This example shows how to use <xref
+    linkend="RegisteredClass-AdaptiveMeshRefine"/> to create a finer
+    &mesh; where the finite element solution requires more accuracy.
+    </para>""",
     lessons = [
     
     TutoringItem(

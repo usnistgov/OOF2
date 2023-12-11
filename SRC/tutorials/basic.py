@@ -12,12 +12,13 @@ from ooflib.tutorials import tutorial
 TutoringItem = tutorial.TutoringItem
 TutorialClass = tutorial.TutorialClass
 
-## TODO: Update discussion of the "Group" button.  It doesn't mention
-## the template_name parameter, and mentions the activity viewer,
-## which might or might not actually show up.
-
 TutorialClass(subject="Basics",
               ordering=0,
+              tip="The basics of operating OOF2.",
+              discussion="""<para>
+              This tutorial teaches some of the terminology used in &oof2;,
+              and the mechanics of using the program.
+              </para>""",
               lessons=[
     TutoringItem(
     subject="Introduction",
@@ -111,8 +112,6 @@ Notice that some buttons in the page are grayed out, that is, they are not acces
 
     TutoringItem(
     subject="Task Pages -- continued",
-        ## TODO GTK3: Move discussion of automatic widgets here, from
-        ## simpleexample.py.
     comments=
 """Now, create a microstructure to see what happens to the grayed-out buttons on the page.
 
@@ -121,9 +120,11 @@ directory in your OOF2 installation.
 
 Click the <b>New from Image File</b> button.
 
-The file selector will appear. To navigate, switch directories by typing in the <b>Directory</b> box at the top of the window, or by using the pull-down menu to its right, which displays the directory hierarchy.  Directories are also listed in bold in the list of files below the row of buttons.  Double-clicking on a directory name in the list will take you to that directory.
+The dialog box that appears has a column of labels on the left, and boxes corresponding to those labels on the right.  The labels are the names of parameters that need to be set, and the boxes contain the GUI widgets that let you set them.
 
-The <b>Back</b> and <b>Next</b> buttons take you other directories that you've recently visited, and the <b>Home</b> button takes you to your home directory.
+The file selector widget is in the top box. To navigate, switch directories by typing in the <b>Directory</b> box at the top of the widget, or by using the pull-down menu to its right, which displays the directory hierarchy. Directories are also listed in bold in the list of files below the row of buttons.  Double-clicking on a directory name in the list will take you to that directory.
+
+The <b>Back</b> and <b>Next</b> buttons take you other directories that you've recently visited, and the central <b>Home</b> button takes you to your home directory.
 
 Navigate to the directory containing <tt>small.ppm</tt> and click its name in the list.
 
@@ -198,7 +199,10 @@ From this <b>OOF2 Error</b> window, you can ignore the error by clicking <b>OK</
 
 If you're interested in tracking down the source of error, you can click the <b>View Traceback</b> button to see what really happened. This traceback can be saved to a file by clicking <b>Save Traceback</b>.
    
-Finally, you can choose to abort the program by clicking on the <b>Abort</b> button.  OOF2 will give you a chance to save the session log file before aborting."""
+Finally, you can choose to abort the program by clicking on the <b>Abort</b> button.  OOF2 will give you a chance to save the session log file before aborting.
+
+If you do encounter an error in the program, please let us know about it by following the advice in the <b>Reporting Bugs</b> section of the OOF2 web site.
+"""
     ),
 
     TutoringItem(

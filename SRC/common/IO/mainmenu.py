@@ -529,13 +529,12 @@ Viewer</link> window, if it is open. If not, open it.
 helpmenu = OOF.addItem(OOFMenuItem(
     'Help',
     help_menu=1,
-    help="Tutorials and debugging tools.",
+    help="Tutorials, helpful utilities, and debugging tools.",
     discussion=
-    """<para>Tutorials, debugging tools, and documentation tools.
-    Some of these items only appear if &oof2; is started with the
-    <link
-    linkend="Section-Running"><userinput>--debug</userinput></link>
-    option.</para>"""
+    """<para>
+    Tutorials, helpful utilties, debugging tools, and documentation
+    tools.  
+    </para>"""
 ))
 
 debugmenu = helpmenu.addItem(OOFMenuItem(
@@ -546,7 +545,8 @@ debugmenu = helpmenu.addItem(OOFMenuItem(
     of these commands only appear in the GUI if &oof2; is started with
     the <link
     linkend="Section-Running"><userinput>--debug</userinput></link>
-    option.</para>"""
+    option.</para>""",
+    ordering=10000
     ))
 
 def set_debug(menuitem, state):
@@ -568,7 +568,8 @@ debugmenu.addItem(CheckOOFMenuItem(
     switchboard.switchboard.verbose,
     callback=switchboard.verbose,
     help='Print all switchboard calls as they occur.',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/verbosesb.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/verbosesb.xml'),
+    xrefs=["MenuItem-OOF.Help.Debug.Switchboard_Stack_Tracking"]
     ))
 
 debugmenu.addItem(CheckOOFMenuItem(
@@ -576,9 +577,14 @@ debugmenu.addItem(CheckOOFMenuItem(
     switchboard.useMessageStackFlag,
     callback=switchboard.useMessageStackCB,
     help='Keep track of current switchboard calls.',
-    discussion="""<para>Keep track of which switchboard calls have led
-    to other switchboard calls, making it easier to find cause and
-    effect when debugging.</para>"""
+    discussion="""<para>
+    Keep track of which switchboard calls have led to other
+    switchboard calls, making it easier to find cause and effect when
+    debugging.  See class <classname>MessageStack</classname> in
+    <filename>SRC/common/switchboard.spy</filename> in the source
+    code.
+    </para>""",
+    xrefs=["MenuItem-OOF.Help.Debug.Verbose_Switchboard"]
 ))
     
 
@@ -603,8 +609,22 @@ def _stopMemMonitor(menuitem):
 
 memmenu = debugmenu.addItem(OOFMenuItem(
     'Memory_Monitor',
-    discussion="""<para>Tools for debugging memory issues.  See
-    <filename>SRC/common/utils.py</filename>.</para>"""
+    help="Debug memory use",
+    discussion="""
+
+    <para> A tool for debugging memory issues.  Place calls to <code
+    language='python'>utils.memusage(comment)</code> in Python files
+    at the points where you want memory usage to be printed, rebuild
+    &oof2;, and call <xref
+    linkend="MenuItem-OOF.Help.Debug.Memory_Monitor.Start"/> and <xref
+    linkend="MenuItem-OOF.Help.Debug.Memory_Monitor.Stop"/> while
+    running it.  </para>
+
+    <para>This currently does not work on Macintosh.</para>
+
+    <para>See <filename>SRC/common/utils.py</filename>.</para>
+    
+    """
 ))
 
 memmenu.addItem(OOFMenuItem(
@@ -614,14 +634,14 @@ memmenu.addItem(OOFMenuItem(
         filenameparam.WriteFileNameParameter(
             "filename", tip="Log file name.")],
     help="Start logging memory use.",
-    discussion="<para>Start logging memory use.</para>"
+    discussion=xmlmenudump.emptyDiscussion
     ))
 
 memmenu.addItem(OOFMenuItem(
     'Stop',
     callback=_stopMemMonitor,
     help="Stop logging memory use.",
-    discussion="<para>Stop logging memory use.</para>"
+    discussion=xmlmenudump.emptyDiscussion
 ))
 
 ####
@@ -852,14 +872,18 @@ errmenu.addItem(OOFMenuItem('Infinite_Loop', callback=loop,
                              threadable=oofmenu.THREADABLE,
                              help="I hope you have lots of time."))
 
-def spinCycle(menuitem, nCycles):
-    cdebug.spinCycle(nCycles)
+# This was used to introduce a delay in a script at some point.  I
+# don't remember why.  It shouldn't be cluttering up the menus or the
+# manual.
 
-debugmenu.addItem(OOFMenuItem(
-    'SpinCycle', callback=spinCycle,
-    params=[IntParameter('nCycles', 100000, tip="How many cycles to run.")],
-    help="Eat up some cpu cycles.",
-    discussion="<para>I don't remember why this was needed.</para>"))
+# def spinCycle(menuitem, nCycles):
+#     cdebug.spinCycle(nCycles)
+
+# debugmenu.addItem(OOFMenuItem(
+#     'SpinCycle', callback=spinCycle,
+#     params=[IntParameter('nCycles', 100000, tip="How many cycles to run.")],
+#     help="Eat up some cpu cycles.",
+#     discussion="<para>I don't remember why this was needed.</para>"))
 
 import os
 from ooflib.SWIG.common import lock

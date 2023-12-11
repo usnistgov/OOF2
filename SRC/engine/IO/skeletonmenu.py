@@ -558,20 +558,23 @@ OOF.Help.Debug.addItem(oofmenu.OOFMenuItem(
     ordering=100,
     params=[WhoParameter('skeleton', skeletoncontext.skeletonContexts,
                          tip=parameter.emptyTipString),
-            parameter.BooleanParameter('quick', 1,
+            parameter.BooleanParameter('quick', 0,
                                        tip="quick or thorough?")],
     help="Check for errors in Skeleton construction.",
     discussion="""<para>
 
-    The quick check (<varname>quick</varname>=<constant>1</constant>)
-    just checks for <link
-    linkend='Section-Concepts-Skeleton-Illegality'>illegal
+    The quick check
+    (<varname>quick</varname>=<constant>True</constant>) just checks
+    for <link linkend='Section-Concepts-Skeleton-Illegality'>illegal
     elements</link>.  The thorough check
-    (<varname>quick</varname>=<constant>0</constant>) also checks that
-    the internal data structures are self-consistent.  This command
-    should never be needed by end-users, but some of them have found
-    it reassuring.
-
+    (<varname>quick</varname>=<constant>False</constant>) also checks
+    that the internal data structures are self-consistent.  The
+    thorough check is not very much slower than the quick check
+    (although it used to be, due to a programming error).
+    </para>
+    <para>
+    This command should never be needed by end-users, but some of them
+    have found it reassuring.
     </para>"""
     ))
 

@@ -52,12 +52,21 @@ def resume_tutorial(menuitem, subject, progress):
     mainthread.runBlock(start_class, (tutor, progress))
     
 mainmenu.OOF.Help.Tutorials.addItem(
-    oofmenu.OOFMenuItem('Resume',
-                        callback=resume_tutorial,
-                        secret=1,
-                        params=[parameter.StringParameter('subject'),
-                                parameter.IntParameter('progress')],
-                        help="Resume a tutorial.  This command is only used when tutorials are saved."
+    oofmenu.OOFMenuItem(
+        'Resume',
+        callback=resume_tutorial,
+        secret=1,
+        ordering=10000,
+        params=[
+            parameter.StringParameter('subject',
+                                      tip="The name of the tutorial."),
+            parameter.IntParameter('progress',
+                                   tip="The current page number.")],
+        help="Resume a tutorial.",
+        discussion="""<para>
+        This command is used when a tutorial session is saved in a
+        script.  It's not available to the user directly.
+        </para>"""
                         )
     )
 

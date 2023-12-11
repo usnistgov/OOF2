@@ -474,6 +474,7 @@ class OOFMenuItem:
                  threadable = THREADABLE,     # MenuItem is threaded if it receives a ThreadType object different from UNTHREADABLE
                  params=[],             # list of Parameter args for callback
                  ordering=0,
+                 alphabetize=True, # alphabetize submenu list in manual
                  **kwargs):             # additional options
         # Check for legal name
         if name:
@@ -495,6 +496,7 @@ class OOFMenuItem:
         self.gui_title = gui_title
         self.helpstr = help
         self.discussion = discussion
+        self.alphabetize = alphabetize
         # The default value for xrefs in the __init__ args must be
         # None, and not [].  If it were [], then all menu items that
         # have no xrefs would share an empty list, and if any of the

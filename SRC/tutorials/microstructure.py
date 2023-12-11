@@ -14,7 +14,12 @@ TutorialClass = tutorial.TutorialClass
 
 TutorialClass(subject="Microstructure",
               ordering=1,
-
+              tip="Details of the Microstructure object.",
+              discussion="""<para>
+              This tutorial covers most the basic operations related
+              to &micros; in &oof2; by creating and manipulating a
+              &micro; based on a typical micrograph.
+              </para>""",
               lessons = [
     TutoringItem(
     subject="Introduction",
@@ -40,9 +45,9 @@ In the file selection dialog box, navigate to <b>K1_small.pgm</b>.
 
 Look for a parameter named <b>microstructure_name</b> in the middle of the window.
 
-If you want to set the name of the microstructure yourself, type in a name in place of <i>&lt;automatic&gt;</i>).  To use an automatically generated name (which will be the same as the image name), leave the box alone.  To return to automatic mode after typing something, delete the contents of the box.
+If you want to set the name of the microstructure yourself, type in a name in place of <i>&lt;automatic&gt;</i>.  To use an automatically generated name (which will be the same as the image name), leave the box alone.  To return to automatic mode after typing something, delete the contents of the box.
 
-The parameters <b>width</b> and <b>height</b> are the physical size of the microstructure.  Leave these set to <i>&lt;automatic&gt;</i>).  The size will be determined by assuming that each pixel is 1 unit square.
+The parameters <b>width</b> and <b>height</b> are the physical size of the microstructure.  Leave these set to <i>&lt;automatic&gt;</i>.  The size will be determined by assuming that each pixel is 1 unit square.
 
 Click <b>OK</b> to create the Microstructure.""",
     ),
@@ -101,7 +106,7 @@ The gray values in the image now span the full range from black to white. """,
     subject="Increasing Contrast",
     comments=
 
-"""Select <b>Contrast</b> and apply it <b>three</b> times.
+"""In the <b>Method</b> menu, select <b>Contrast</b> and apply it <b>three</b> times.
 
 The darker regions get darker and the brighter regions get brighter, making the two materials more distinguishable than before.
 
@@ -117,7 +122,7 @@ We'll deal with it later.
         
 """The image is ready for categorization.
 
-Unfortunately, one-click do-it-all feature (the <b>Group</b> button in the Image page) is not going to work for this micrograph, because it contains too many shades of gray. Thus, we will categorize the pixels manually using a few <b>pixel selection</b> algorithms.
+Unfortunately, the one-click do-it-all feature (the <b>Group</b> button in the Image page) is not going to work for this micrograph, because it contains too many shades of gray. Thus, we will categorize the pixels manually using a few <b>pixel selection</b> algorithms.
 
 Go to the graphics window and open the <b>Pixel Selection</b> toolbox, using the <b>Toolbox</b> menu at the top of the left hand pane. """
         ),
