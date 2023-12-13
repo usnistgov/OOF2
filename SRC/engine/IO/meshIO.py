@@ -63,10 +63,25 @@ OOFMenuItem = oofmenu.OOFMenuItem
 
 OOF = mainmenu.OOF
 
-meshmenu = OOF.LoadData.addItem(OOFMenuItem(
-        'Mesh', help="Load a Mesh from a data file."))
-subpmenu = OOF.LoadData.addItem(OOFMenuItem(
-        'Subproblem', help="Load a Subproblem from a data file."))
+meshmenu = OOF.LoadData.addItem(
+    OOFMenuItem(
+        'Mesh',
+        help="Load a Mesh from a data file.",
+        discussion="""<para>
+        This menu contains commands for constructing a &mesh;.  It is
+        used internally in data files and not invoked directly by the
+        &oof2; user interface.</para>"""
+))
+
+subpmenu = OOF.LoadData.addItem(
+    OOFMenuItem(
+        'Subproblem',
+        help="Load a Subproblem from a data file.",
+        discussion="""<para>
+        This menu contains commands for constructing a &subproblem;.
+        It is used internally in data files and not invoked directly
+        by the &oof2; user interface.</para>"""
+    ))
 
 def getNodeSets(femesh):
     nodesets = {}               # lists of nodes keyed by fieldSetID.
@@ -343,8 +358,12 @@ meshmenu.addItem(OOFMenuItem(
                                   skeletoncontext.skeletonContexts,
                                   tip=parameter.emptyTipString)
             ],
-    help="Load a Mesh. Used internally in Mesh data files.",
-    discussion="<para>Load a &mesh; from a datafile.</para>"
+    help="Create a Mesh.",
+    discussion="""<para>
+    Create a &mesh;.  This command is similar to <xref
+    linkend="MenuItem-OOF.Mesh.New"/>, but is run from within a data
+    file, and not directly by the &oof2; user interface.
+    </para>"""
     ))
 
 def _newSubProblem(menuitem, mesh, name, subproblem):
@@ -368,8 +387,12 @@ subpmenu.addItem(OOFMenuItem(
                                           tip=parameter.emptyTipString),
             whoville.WhoParameter('mesh', ooflib.engine.mesh.meshes,
                                   tip=parameter.emptyTipString)],
-    help="Define a Subproblem.  Used internally in Mesh data files.",
-    discussion="<para>Create a &subproblem; in a datafile.</para>"
+    help="Define a Subproblem.",
+    discussion="""<para>
+    Create a &subproblem;. This command is similar to <xref
+    linkend="MenuItem-OOF.Subproblem.New"/>, but is run from within a
+    data file, and not directly by the &oof2; user interface.
+    </para>"""
     ))
 
 getFieldObj = ooflib.SWIG.engine.field.getField
@@ -409,9 +432,15 @@ subpmenu.addItem(OOFMenuItem(
             parameter.ListOfStringsParameter('active', tip="Active Fields."),
             parameter.ListOfStringsParameter('inplane', tip="In-plane Fields.")
             ],
-    help="Load subproblem Field definitions. Used internally in data files.",
+    help="Load subproblem Field definitions.",
     discussion="""<para>
-    Load the list of defined &fields; from a saved &mesh;.</para>"""
+    Load the list of the names of the defined &fields; for a
+    &subproblem;, excluding the time derivative &fields;.  Auxiliary
+    time derivative &fields; are handled by <xref
+    linkend="MenuItem-OOF.LoadData.Subproblem.Time_Derivative_Fields"/>.
+    </para><para> This command is used within data files and is not
+    invoked directly by the &oof2; user interface.
+    </para>"""
     ))
 
 # Time derivative fields are handled separately for backwards
@@ -439,9 +468,16 @@ subpmenu.addItem(OOFMenuItem(
             parameter.ListOfStringsParameter('fields',
                            tip="Fields with auxiliary time-derivative Fields.")
             ],
-    help="Load subproblem Field definitions. Used internally in data files.",
+    help="Load subproblem Field definitions.",
     discussion="""<para>
-    Load the list of defined &fields; from a saved &mesh;.</para>"""
+    Load the list of the names of the defined time-derivative &fields;
+    for a &subproblem;.  These are treated separately from the other
+    &fields; for backwards compatibility with old data files.  See
+    <xref
+    linkend="MenuItem-OOF.LoadData.Subproblem.Fields"/>.</para><para>
+    This command is used within data files and is not invoked directly
+    by the &oof2; user interface.
+    </para>"""
     ))
 
 def _loadFieldValues(menuitem, mesh, fields, field_values):
@@ -470,16 +506,25 @@ meshmenu.addItem(OOFMenuItem(
                                              tip="Names of Fields."),
             parameter.ListOfTuplesOfIntFloatsParameter('field_values',
                                                        tip="Values of Fields.")],
-    help="Load Fields is used internally in Mesh data files.",
+    help="Load Field values into a Mesh.",
     discussion="""<para>
-    Load values for a &field; at the &nodes; of a saved &mesh;.  The
-    <varname>fields</varname> parameter is a <link
+
+    Load values for a &field; at the &nodes; of a saved &mesh;.  This
+    command is used internally in data files and not invoked directly
+    by the &oof2; user interface.</para>
+
+    <para> The <varname>fields</varname> parameter is a <link
     linkend='Object-list'>list</link> of the names of the &fields;
     that are defined on the &mesh;.  The
     <varname>field_values</varname> parameter is a list of tuples
-    (Python lists with parentheses instead of square brackets).  Each
-    tuple contains an integer node number, followed by the components
-    of the listed fields in the listed order.
+    containing an integer node number, followed by the components of
+    the listed fields in the listed order.</para>
+
+    <para> Because different &nodes; may have different sets of
+    &fields; defined on them, more than one call to
+    <command>Load_Field</command> may be needed to load all of the
+    &fields; on a &mesh;.
+    
     </para>"""
     ))
 
@@ -494,8 +539,12 @@ meshmenu.addItem(OOFMenuItem(
     params=[whoville.WhoParameter('mesh', ooflib.engine.mesh.meshes,
                                   tip=parameter.emptyTipString),
             parameter.FloatParameter('time', tip=parameter.emptyTipString)],
-    help="Time is used internally in Mesh data files.",
-    discussion="<para>Set the time for the current Field values.</para>"))
+    help="Set the current time for a saved Mesh.",
+    discussion="""<para>
+    Set the time for the current &field; values.  This command is used
+    within data files and not invoked directly by the &oof2; user
+    interface.
+    </para>"""))
 
 def _cacheFields(menuitem, mesh, time):
     meshctxt = ooflib.engine.mesh.meshes[mesh]
@@ -510,8 +559,19 @@ meshmenu.addItem(OOFMenuItem(
     params=[whoville.WhoParameter('mesh', ooflib.engine.mesh.meshes,
                                   tip=parameter.emptyTipString),
             parameter.FloatParameter('time', tip=parameter.emptyTipString)],
-    help="Cache_Fields is used internally in Mesh data files.",
-    discussion="<para>Store the current Field values in the data cache.</para>"
+    help="Store Field values in the Mesh's cache.",
+    discussion="""<para>
+
+    Store the current Field values in the data cache. This command is
+    used internally in data files not invoked directly by the &oof2;
+    user interface.</para>
+
+    <para>Cached fields are stored in a data file as a series of <xref
+    linkend="MenuItem-OOF.LoadData.Mesh.Load_Field"/> commands
+    followed by a call to <command>Cache_Fields</command>, which moves
+    the data into the cache.
+    
+    </para>"""
     ))
 
 def _subpEqns(menuitem, subproblem, equations):
@@ -531,9 +591,12 @@ subpmenu.addItem(OOFMenuItem(
                                   tip=parameter.emptyTipString),
             parameter.ListOfStringsParameter('equations',
                                              tip="Active equations.")],
-    help="Load subproblem Equations. Used internally in data files.",
+    help="Load subproblem Equations.",
     discussion="""<para>
-    Load the list of active &equations; from a saved &mesh;.</para>"""
+    Load the list of active &equations; from a saved &mesh;.  This
+    command is unsed internally in data files and not invoked directly
+    by the &oof2; user interface.
+    </para>"""
     ))
 
 def _subpSolver(menuitem, subproblem, solver_mode):
@@ -550,8 +613,14 @@ subpmenu.addItem(OOFMenuItem(
             parameter.RegisteredParameter('solver_mode', solvermode.SolverMode,
                                           tip="The solver.")
             ],
-    help="Assign a solver to a subproblem.  Used internally in data files.",
-    discussion="<para>Assign a solver to a subproblem.</para>"
+    help="Assign a solver to a subproblem.",
+    discussion="""<para>
+
+    Assign a solver to a subproblem. This command is used internally
+    in data files and not invoked directly by the &oof2; user
+    interface.
+
+    </para>"""
     ))
 
 
@@ -567,10 +636,11 @@ meshmenu.addItem(OOFMenuItem(
                                       tip="Name of the boundary condition."),
             parameter.RegisteredParameter('bc', bdycondition.BC,
                                           tip=parameter.emptyTipString)],
-    help="Load a boundary conditon. Used internally in Mesh data files.",
+    help="Load a boundary conditon.",
     discussion="""<para>
     Load a <link linkend='Section-Tasks-BoundaryCondition'>boundary
-    condition</link> from a saved &mesh;.
+    condition</link> from a saved &mesh;.  This command is used within
+    data files and not invoked directly by the &oof2; user interface.
     </para>"""
     ))
 
@@ -587,10 +657,12 @@ meshmenu.addItem(OOFMenuItem(
                 'initializer',
                 bdycondition.FloatBCInitMethod,
                 tip='How the initial value is to be interpreted.')],
-        help="Load a FloatBC initializer.  Used internally in data files.",
+        help="Load a FloatBC initializer.",
         discussion="""<para>
-Load an initializer for a floating boundary condition from a saved &mesh;.
-</para>"""
+        Load an initializer for a floating boundary condition from a
+        saved &mesh;.  This command is used within data files and not
+        invoked directly by the &oof2; user interface.
+        </para>"""
         ))
 
 meshmenu.addItem(OOFMenuItem(
@@ -603,12 +675,13 @@ meshmenu.addItem(OOFMenuItem(
                                   outofplane=True),
     fieldinit.FieldInitParameter('initializer', tip=parameter.emptyTipString)
     ],
-    help="Initialize a Field. Used internally in Mesh data files.",
+    help="Initialize a Field.",
     discussion="""<para>
     Initialize a &field; on a saved &mesh;.  If <link
     linkend='MenuItem-OOF.LoadData.Mesh.Load_Field'>field data</link>
     is saved as well, it will overwrite the &fields; from the
-    initializer.
+    initializer.  This command is used within data files and not
+    invoked directly by the &oof2; user interface.
     </para>"""))
 
 
@@ -632,18 +705,19 @@ meshmenu.addItem(OOFMenuItem(
     parameter.StringParameter('name', tip="Name of the cross section."),
     parameter.RegisteredParameter('cs', meshcrosssection.MeshCrossSection,
                                   tip=parameter.emptyTipString)],
-    help="Load a Cross Section. Used internally in Mesh data files.",
+    help="Load a Cross Section.",
     discussion="""<para>
     Load a <link linkend='RegisteredClass-MeshCrossSection'>cross
-    section</link>.
+    section</link>.  This command is used within data files and not
+    invoked directly by the &oof2; user interface.
     </para>"""
     ))
 
 
 def _assignMat(menuitem, mesh, elements, material):
     reporter.warn(
-     "Explicit material assignments to mesh elements are no longer supported!"
-       )
+       "Explicit material assignments to mesh elements are no longer supported!"
+    )
 
 meshmenu.addItem(OOFMenuItem(
     'AssignMaterial',
@@ -672,8 +746,11 @@ meshmenu.addItem(OOFMenuItem(
             parameter.RegisteredParameter('status',
                                           meshstatus.MeshStatus,
                                           tip=parameter.emptyTipString)],
-    help="Set the Mesh status.  Used internally in Mesh data files.",
-    discussion="<para>Set a Mesh's status.</para>"
+    help="Set the Mesh status.",
+    discussion="""<para>
+    Set a Mesh's status.  This command is used within data files and
+    not invoked directly by the &oof2; user interface.
+    </para>"""
 ))
 
 ##########################################################
@@ -711,9 +788,12 @@ meshmenu.addItem(OOFMenuItem(
                                              tip="Defined Fields."),
             parameter.ListOfStringsParameter('active', tip="Active Fields."),
             parameter.ListOfStringsParameter('inplane', tip="In-plane Fields.")],
-    help="Load Fields. Used internally in Mesh data files.",
+    help="Load Fields, the old way",
     discussion="""<para>
-    Load the list of defined &fields; from a saved &mesh;.
+    Load the list of defined &fields; from a saved &mesh;.  This
+    command is used within <emphasis>old</emphasis> data files, from
+    before the invention of &subproblems;, and not invoked directly by
+    the &oof2; user interface.
     </para>"""
     ))
 
@@ -735,9 +815,12 @@ meshmenu.addItem(OOFMenuItem(
                                   tip=parameter.emptyTipString),
             parameter.ListOfStringsParameter('equations',
                                              tip="Names of Equations.")],
-    help="Load Equations. Used internally in Mesh data files.",
+    help="Load Equations.",
     discussion="""<para>
-    Load the list of active &equations; from a saved &mesh;.
+    Load the list of active &equations; from a saved &mesh;.  This
+    command is used within <emphasis>old</emphasis> data files, from
+    before the invention of &subproblems;, and not invoked directly by
+    the &oof2; user interface.
     </para>"""
     ))
 

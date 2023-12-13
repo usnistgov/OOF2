@@ -241,6 +241,7 @@ OOF.addItem(oofmenu.OOFMenuItem(
     help="Commands used in data files.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loaddata.xml'),
     post_hook=None, # Don't include checkpoints in gui logs
+    xrefs=["MenuItem-OOF.File.Load.Data", "MenuItem-OOF.File.Save"]
     ))
 
 
@@ -484,7 +485,8 @@ _windowmenu.addItem(OOFMenuItem(
     discussion="""<para>
     The &oof2; <link linkend='Section-Windows-Console'>Console</link>
     provides a way of executing arbitrary Python code while running
-    &oof2; in graphics mode.
+    &oof2; in graphics mode.  All of the OOF2 objects that are
+    available in scripts are available in the Console.
     </para>"""))
 
 ##################

@@ -34,8 +34,13 @@ outputmenu = mainmenu.OOF.Mesh.addItem(
 
 outputIOmenu = meshIO.meshmenu.addItem(oofmenu.OOFMenuItem(
         'Scheduled_Output',
-        help="Scheduled Output operations. Used internally in Mesh data files.",
-        discussion='<para>Load <xref linkend="RegisteredClass-ScheduledOutput"/>s from a data file.</para>'
+        help="Scheduled Output operations.",
+        discussion="""<para>
+        Load <xref linkend="RegisteredClass-ScheduledOutput"/>s from a
+        data file.  Commands in this menu are used internally in data
+        files and is not invoked directly by the &oof2; user
+        interface.
+        </para>"""
         ))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -79,7 +84,12 @@ outputmenu.addItem(oofmenu.OOFMenuItem(
     ))
 
 outputIOmenu.addItem(outputmenu.New.clone(
-        discussion="<para>Used internally in data files.</para>"
+        discussion="""<para>
+        This is a version of <xref
+        linkend="MenuItem-OOF.Mesh.Scheduled_Output.New"/> that is
+        used internally in data files.  It is not invoked directly by
+        the &oof2; user interface.
+        </para>"""
 ))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -191,9 +201,10 @@ outputmenu.addItem(oofmenu.OOFMenuItem(
                 tip='New name for the output.')),
     help="Rename an existing scheduled output operation.",
     discussion=
-"""<para>Give a new name to a <link
-linkend="Section-Concepts-Outputs-Scheduled">Scheduled
-Output</link>.</para>"""
+    """<para>
+    Give a new name to a <link
+    linkend="Section-Concepts-Outputs-Scheduled">Scheduled Output
+    </link>.</para>"""
     ))
     
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -246,10 +257,12 @@ schedulemenu = outputmenu.addItem(oofmenu.OOFMenuItem(
         "Schedule",
         help="Determine when a Scheduled Output will be performed.",
         discussion=
-"""<para>These commands operate on the schedule for a <link
-linkend="Section-Concepts-Outputs-Scheduled">Scheduled Output</link>.
-The schedule determines at which times during a time dependent
-calculation an output operation will be performed.  </para>"""
+    """<para>
+    These commands operate on the schedule for a <link
+    linkend="Section-Concepts-Outputs-Scheduled">Scheduled
+    Output</link>.  The schedule determines at which times during a
+    time dependent calculation an output operation will be performed.
+    </para>"""
         ))
 
 def _setSchedule(menuitem, mesh, output, scheduletype, schedule):
@@ -284,7 +297,12 @@ schedulemenu.addItem(oofmenu.OOFMenuItem(
 
 outputIOmenu.addItem(schedulemenu.Set.clone(
         name='Schedule',
-        discussion="<para>Used internally in data files.</para>"))
+        discussion="""<para>
+        This is a version of <xref
+        linkend="MenuItem-OOF.Mesh.Scheduled_Output.Schedule.Set"/> this is
+        used internally in data files.  It is not invoked directly by
+        the &oof2; user interface.
+        </para>"""))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -366,7 +384,12 @@ destinationmenu.addItem(oofmenu.OOFMenuItem(
 
 outputIOmenu.addItem(destinationmenu.Set.clone(
         name="Destination",
-        discussion="<para>Used internally in data files.</para>"))
+        discussion="""<para>
+        This is a version of <xref
+        linkend="MenuItem-OOF.Mesh.Scheduled_Output.Destination.Set"/>
+        that is used internally in data files.  It is not invoked
+        directly by the &oof2; user interface.
+        </para>"""))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

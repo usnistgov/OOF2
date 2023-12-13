@@ -56,7 +56,8 @@ def _close_console(menuitem):
     debug.mainthreadTest()
     current_console.gtk.destroy()
     
-_console_menu = oofmenu.OOFMenuItem("Console", secret=1, gui_only=1, no_log=1)
+_console_menu = oofmenu.OOFMenuItem("Console",
+                                    secret=1, gui_only=1, no_log=1, no_doc=1)
 mainmenu.OOF.addItem(_console_menu)
 
 ## TODO: The File menu has already been created by the SubWindow.

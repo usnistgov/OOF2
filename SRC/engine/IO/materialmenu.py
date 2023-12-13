@@ -559,7 +559,9 @@ _interfacemenu=_materialmenu.addItem(OOFMenuItem(
     discussion="""
 The items in this menu are disabled in &oof2; 2.1.  They will be
 restored in a future version.
-    """))
+    """,
+    secret=True,
+    no_doc=True))
 
 def _assigninterfacemat(menuitem, microstructure, material,
                         skeleton,interfaces):
@@ -612,7 +614,12 @@ _interfacemenu.addItem(OOFMenuItem(
 
 #OOF.LoadData.Material.Interface
 #Note that OOF.LoadData.Material has a callback
-_loadmatinterfacemenu=mainmenu.OOF.LoadData.Material.addItem(oofmenu.OOFMenuItem('Interface'))
+_loadmatinterfacemenu=mainmenu.OOF.LoadData.addItem(
+    oofmenu.OOFMenuItem('Interface',
+                        no_doc=True, # TODO: remove when Interfaces supported
+                        secret=True
+                        ))
+
 #OOF.LoadData.Material.Interface.Assign
 _loadmatinterfacemenu.addItem(oofmenu.OOFMenuItem(
     'Assign',

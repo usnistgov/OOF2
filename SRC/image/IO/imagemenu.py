@@ -43,7 +43,8 @@ imagemenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
 
 imagemodmenu = mainmenu.OOF.Image.addItem(oofmenu.OOFMenuItem(
     'Modify',
-    help='Tools for modifying images.'
+    help='Tools for modifying images.',
+    discussion=xmlmenudump.emptyDiscussion
     ))
 
 def buildImageModMenu():

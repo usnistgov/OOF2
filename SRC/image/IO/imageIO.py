@@ -26,7 +26,12 @@ from ooflib.image.IO import imagemenu
 import ooflib.common.microstructure
 
 
-imgmenu = mainmenu.OOF.LoadData.addItem(oofmenu.OOFMenuItem('Image'))
+imgmenu = mainmenu.OOF.LoadData.addItem(
+    oofmenu.OOFMenuItem(
+        'Image',
+        help="Read Image data from a data file.",
+        discussion=xmlmenudump.loadFile("DISCUSSIONS/common/menu/loaddata.xml")
+    ))
 
 
 class ImageData(registeredclass.RegisteredClass):
@@ -90,7 +95,10 @@ imgmenu.addItem(oofmenu.OOFMenuItem(
     parameter.RegisteredParameter('pixels', ImageData,
                                   tip=parameter.emptyTipString)],
     help="Load an Image.",
-    discussion="<para>Load an &image; from a saved &micro;.</para>"
+    discussion="""<para>
+    Load an &image; saved in a &micro; data file.  This command is only
+    used within data files.
+    </para>"""
     ))
 
 
