@@ -43,7 +43,9 @@ ops_menu = oofmenu.OOFMenuItem(
     "Analyze",
     secret=1,
     help="Compute properties of the solution.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/analyze.xml'))
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/analyze.xml'),
+    xrefs=["Section-Tasks-Analysis"]
+)
 
 mainmenu.OOF.Mesh.addItem(ops_menu)
 

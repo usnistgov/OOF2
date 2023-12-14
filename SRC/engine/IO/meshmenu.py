@@ -227,7 +227,7 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
     ],
     help="Delete a Mesh.",
     discussion="""<para>
-    Delete a &mesh;.  Its &skel; and &micro; are
+    Delete a &mesh; and all its data.  Its &skel; and &micro; are
     <emphasis>not</emphasis> deleted.
     </para>"""
     ))
@@ -320,7 +320,7 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
                           tip=parameter.emptyTipString),
     whoville.AutoWhoNameParameter('name', value=automatic.automatic,
                                   resolver=meshNameResolver,
-                                  tip="Name of the copied Mesh. Use automatic selection, or type in a name."),
+                                  tip="Name of the copied Mesh."),
     parameter.BooleanParameter('copy_field', value=1, tip='Copy fields?'),
     parameter.BooleanParameter('copy_equation', value=1, tip='Copy equation?'),
     parameter.BooleanParameter('copy_bc', value=1,
@@ -426,8 +426,8 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
     help="Copy the Field state (defined, active, etc) from one Mesh to another.",
     discussion="""<para>
 
-    This command copies the &field; state from the default
-    &subproblem; in one &mesh; to another, meaning that the same
+    This command copies the &field; state <emphasis>from the default
+    &subproblem;</emphasis> in one &mesh; to another, meaning that the same
     &fields; will be defined, active, and in-plane in the
     <varname>target</varname> &mesh; as in the
     <varname>source</varname> &mesh;.  If &fields; were explicitly
@@ -437,8 +437,10 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
     (This is because the source and target meshes might have quite
     different geometries.)</para>
 
-    <para>DEPRECATED.  Use <xref
+    <para>This command is deprecated and only works on the default
+    &subproblem;.  Use <xref
     linkend='MenuItem-OOF.Subproblem.Copy_Field_State'/> instead.
+    That works on all &subproblems;.
 
     </para>"""
                         ) )
@@ -524,7 +526,8 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
     <varname>target</varname> &subproblem; as in the
     <varname>source</varname> &subproblem;.
 
-    </para>"""
+    </para>""",
+    xrefs=["Section-Tasks-FieldsEquations"]
 
     ) )
 
@@ -536,9 +539,16 @@ fieldmenu = meshmenu.addItem(oofmenu.OOFMenuItem(
     'Field',
     help='Define and activate Fields.',
     discussion="""<para>
+
     The <command>Field</command> menu contains the commands that
-    define and set the properties of &fields; on &meshes;.
-    </para>"""))
+    define and set the properties of &fields; on &meshes;.  These
+    commands are deprecated but are preserved for backwards
+    compatibility.  Use <xref
+    linkend="MenuItem-OOF.Subproblem.Field"/> instead.
+
+    </para>"""
+
+))
 
 
 def _defineField(menuitem, mesh, field):
@@ -601,7 +611,6 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
             meshparameters.FieldParameter('field', tip=parameter.emptyTipString)
     ],
     help="Define a Field on a Mesh. Only defined Fields may be given values.",
-    ## TODO: Fix discussion
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/definefield.xml')
     ))
 
@@ -615,10 +624,16 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
     help="Undefine a Field on a Mesh.  Only defined Fields may be given values.",
     discussion="""<para>
 
-    Undefine a &field; on a &mesh;'s default &subproblem;.  This frees
-    the memory used to store the &field; components and destroys their
-    values, unless other &subproblems; are using the &field;.  See <xref
-    linkend='MenuItem-OOF.Mesh.Field.Define'/>. DEPRECATED.
+    This command is deprecated and not available in the user interface,
+    but will still work in scripts. New scripts should use <xref
+    linkend="MenuItem-OOF.Subproblem.Field.Undefine"/> instead.
+    </para>
+    <para>
+    This command undefines a &field; on a &mesh;'s default
+    &subproblem;.  This frees the memory used to store the &field;
+    components and destroys their values, unless other &subproblems;
+    are using the &field;.  See <xref
+    linkend='MenuItem-OOF.Mesh.Field.Define'/>.
 
     </para>"""
     ))
@@ -704,12 +719,15 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
             ],
     help="Deactivate a Field.  The solver finds the values of active Fields.",
     discussion="""<para>
-
+    This command is deprecated but will still work in scripts. New
+    scripts should use <xref
+    linkend="MenuItem-OOF.Subproblem.Field.Activate"/> instead.
+    </para>
+    <para>
     Deactivating a &field; means that its values will not be found
     when the &mesh; is <link
     linkend="MenuItem-OOF.Mesh.Solve">solved</link>.  See <xref
     linkend='MenuItem-OOF.Mesh.Field.Activate'/>.
-
     </para>"""
     ))
 
@@ -761,8 +779,10 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
     linkend='Section-Concepts-Mesh-3D'>generalized plane-strain</link>
     for the given &field; on all &subproblems; on the given &mesh;.
     The out-of-plane derivatives of the &field; are taken to be zero.
-    See <xref linkend='MenuItem-OOF.Mesh.Field.Out_of_Plane'/>.>
-
+    See <xref linkend='MenuItem-OOF.Mesh.Field.Out_of_Plane'/>.
+    </para><para>
+    Note that if a &field; is in-plane on one &subproblem;, it must
+    be in-plane on all &subproblems;.
     </para>"""
     ))
 
@@ -785,8 +805,10 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
     <link
     linkend='Section-Concepts-Mesh-Equation-PlaneFlux'>plane-flux
     equation</link> in order to solve for the out-of-plane derivatives
-    of a &field;.
-
+    of a &field;.  </para><para> Note that if a &field; is
+    out-of-plane on one &subproblem;, it must be out-of-plane on all
+    &subproblems;.
+    
     </para>"""
     ))
 
@@ -830,7 +852,8 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
                                          tip=parameter.emptyTipString)
     ],
     help="Determine how to assign values to a Field on a Mesh.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/initfield.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/initfield.xml'),
+    xrefs=["Section-Tasks-Solver"]
     ))
 
 
@@ -902,7 +925,8 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
     initialize the &fields; in the target &mesh;.  If a &field; is not
     defined in the target &mesh;, its initializer will not be copied.
 
-    </para>"""
+    </para>""",
+    xrefs=["Section-Tasks-Solver", "MenuItem-OOF.Mesh.Set_Field_Initializer"]
     ))
 
 
@@ -929,8 +953,11 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
     discussion="""<para>
     Remove the initializer for the given &field; from the given
     &mesh;.  This does not change the values of the &field; itself,
-    but prevents it from being reinitialized later.
-    </para>"""
+    but prevents it from being reinitialized until a new initializer
+    is <link
+    linkend="MenuItem-OOF.Mesh.Set_Field_Initializer">assigned</link>.
+    </para>""",
+    xrefs=["Section-Tasks-Solver", "MenuItem-OOF.Mesh.Set_Field_Initializer"]
     ))
 
 def _clearFieldInits(menuitem, mesh):
@@ -953,12 +980,13 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
                                   tip=parameter.emptyTipString)],
     help="Remove all Field initializers from the current Mesh.",
     discussion="""<para>
-
     Remove all the &field; and boundary condition initializers from
     the given &mesh;.  This does not change the values of the &fields;
-    themselves, but prevents them from being reinitialized later.
-
-    </para>"""
+    themselves, but prevents them from being reinitialized until new
+    initializers are <link
+    linkend="MenuItem-OOF.Mesh.Set_Field_Initializer">assigned</link>.
+    </para>""",
+    xrefs=["Section-Tasks-Solver", "MenuItem-OOF.Mesh.Set_Field_Initializer"]
     ))
 
 def applyFieldInits(menuitem, mesh):
@@ -981,7 +1009,8 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
     params=[whoville.WhoParameter('mesh', ooflib.engine.mesh.meshes,
                                   tip=parameter.emptyTipString)],
     help="Initialize all Fields.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/applyinit.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/applyinit.xml'),
+    xrefs=["Section-Tasks-Solver", "MenuItem-OOF.Mesh.Set_Field_Initializer"]
 ))
 
 def _applyFieldInitsAtTime(menuitem, mesh, time):
@@ -1006,15 +1035,27 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
             parameter.FloatParameter('time', 0.0,
                                      tip=parameter.emptyTipString)],
     help="Initialize all Fields and reset the Mesh's time.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/applyinittime.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/applyinittime.xml'),
+    xrefs=["Section-Tasks-Solver", "MenuItem-OOF.Mesh.Set_Field_Initializer"]
 ))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Equations
 
-eqnmenu = meshmenu.addItem(oofmenu.OOFMenuItem('Equation',
-                                               help='Activate equations.'))
+eqnmenu = meshmenu.addItem(
+    oofmenu.OOFMenuItem(
+        'Equation',
+        help='Activate and deactivate equations.',
+        discussion="""<para>
+        These are deprecated commands for activating and deactivating
+        equations on a &mesh;. The preferred commands in <xref
+        linkend="MenuItem-OOF.Subproblem.Equation"/> do the same thing
+        on &subproblems; instead.
+        </para>""",
+        xrefs=["Section-Tasks-FieldsEquations",
+               "Section-Tasks-Solver"]
+    ))
 
 def _activateEquation(menuitem, mesh, equation):
     if parallel_enable.enabled():
@@ -1097,10 +1138,9 @@ eqnmenu.addItem(oofmenu.OOFMenuItem(
     discussion="""<para>
 
     Deactivate the given &equation; on the default &subproblem; on the
-    given &mesh;.  See <xref
-    linkend='MenuItem-OOF.Mesh.Equation.Deactivate'/>.</para>
+    given &mesh;.  Deactivated &equations; will not be solved.</para>
 
-    <para> DEPRECATED.  USE <xref
+    <para> DEPRECATED.  Use <xref
     linkend="MenuItem-OOF.Subproblem.Equation.Deactivate"/> instead.
 
     </para>"""
@@ -1114,7 +1154,10 @@ eqnmenu.addItem(oofmenu.OOFMenuItem(
 csmenu = meshmenu.addItem(oofmenu.OOFMenuItem(
     'Cross_Section',
     help="Create and manipulate Mesh cross sections for plotting.",
-    discussion=xmlmenudump.loadFile("DISCUSSIONS/engine/menu/cross_section.xml")
+    discussion=xmlmenudump.loadFile(
+        "DISCUSSIONS/engine/menu/cross_section.xml"),
+    xrefs=["Section-Graphics-CrossSection",
+           "Section-Tasks-Analysis"]
     ))
 
 def csnameresolver(param, name):
@@ -1519,20 +1562,21 @@ def _copyAllSolvers(menuitem, source, target):
             subproblemmenu.setSolver(menuitem, subppath, solver)
 
 OOF.Mesh.addItem(oofmenu.OOFMenuItem(
-        'Copy_All_Solvers',
-        callback=_copyAllSolvers,
-        params=[
-            whoville.WhoParameter('source',
-                                  ooflib.engine.mesh.meshes,
-                                  tip="Mesh to copy the solvers from."),
-            whoville.WhoParameter('target',
-                                  ooflib.engine.mesh.meshes,
-                                  tip="Mesh to which to copy the solvers.")
-            ],
-        help="Copy all solvers from one mesh to another.",
-        discussion=xmlmenudump.loadFile(
-            'DISCUSSIONS/engine/menu/copyallsolvers.xml')
-        ))
+    'Copy_All_Solvers',
+    callback=_copyAllSolvers,
+    params=[
+        whoville.WhoParameter('source',
+                              ooflib.engine.mesh.meshes,
+                              tip="Mesh to copy the solvers from."),
+        whoville.WhoParameter('target',
+                              ooflib.engine.mesh.meshes,
+                              tip="Mesh to which to copy the solvers.")
+    ],
+    help="Copy all solvers from one mesh to another.",
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/menu/copyallsolvers.xml'),
+    xrefs=["MenuItem-OOF.Mesh.Copy_All_Solvers"]
+))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -1544,19 +1588,19 @@ def _setSubproblemOrder(menuitem, mesh, subproblems):
     switchboard.notify("subproblems reordered", meshctxt)
 
 OOF.Mesh.addItem(oofmenu.OOFMenuItem(
-        'ReorderSubproblems',
-        callback=_setSubproblemOrder,
-        params=[whoville.WhoParameter(
-                    'mesh', ooflib.engine.mesh.meshes,
-                    tip=parameter.emptyTipString),
-                parameter.ListOfStringsParameter(
-                    'subproblems',
-                    tip='A list of Subproblem names in the order in which they should be solved.')
-                ],
-        help="Set the order in which subproblems will be solved.",
-        discussion=xmlmenudump.loadFile(
-                'DISCUSSIONS/engine/menu/reordersubp.xml')
-        ))
+    'ReorderSubproblems',
+    callback=_setSubproblemOrder,
+    params=[whoville.WhoParameter(
+        'mesh', ooflib.engine.mesh.meshes,
+        tip=parameter.emptyTipString),
+    parameter.ListOfStringsParameter(
+        'subproblems',
+        tip='A list of Subproblem names in the order in which they should be solved.')],
+    help="Set the order in which subproblems will be solved.",
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/menu/reordersubp.xml'),
+    xrefs=["Section-Tasks-Solver"]
+))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -1588,6 +1632,7 @@ OOF.Mesh.addItem(oofmenu.OOFMenuItem(
            parameter.FloatParameter('endtime', tip='Ending time.')
            ],
    help='Solve or evolve the mesh.',
-   discussion=xmlmenudump.loadFile("DISCUSSIONS/engine/menu/solve.xml")
-   ))
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/engine/menu/solve.xml"),
+    xrefs=["Section-Tasks-Solver"]
+))
 

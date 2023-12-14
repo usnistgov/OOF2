@@ -174,10 +174,9 @@ _materialmenu.addItem(OOFMenuItem(
     params=[parameter.StringParameter('name', tip="Name of the material.")],
     help="Delete a Material.",
     discussion="""<para>
-
     Delete the given &material;.  It will be removed from any &micros;
-    in which it is being used.
-
+    in which it is being used.  The &properties; it contains will not
+    be deleted.
     </para>"""))
 
 
@@ -225,13 +224,11 @@ _materialmenu.addItem(OOFMenuItem(
     ),
     help="Copy a Material.",
     discussion="""<para>
-
     Make a copy of a &material;.  The new &material;
     <emphasis>shares</emphasis> its &properties; with the original, so
     changing parameters in a &property; in one &material; also changes
     them in the other.  To create independent &properties;, it is
-    necessary to replace the &properties; in one of the &materials;
-
+    necessary to replace the &properties; in one of the &materials;.
     </para>"""
     ))
 
@@ -378,10 +375,7 @@ _materialmenu.addItem(OOFMenuItem(
     discussion = """<para>
 
     This command undoes the &material; assignments made with <xref
-    linkend='MenuItem-OOF.Material.Assign'/>.  There's really no need
-    to do this, since new &materials; may be assigned to pixels
-    without removing the old assignments, and in the end all pixels
-    should have a &material;.
+    linkend='MenuItem-OOF.Material.Assign'/>. 
 
     </para>"""
     ))
@@ -433,7 +427,7 @@ microstructureIO.categorymenu.addItem(OOFMenuItem(
     parameter.StringParameter('material', tip="Name of the Material.")
     ],
     help=
-    "Assign a Material to a pixel category. Used internally in data files.",
+    "Assign a Material to a pixel category.",
     discussion=xmlmenudump.loadFile(
             'DISCUSSIONS/engine/menu/materialcategory.xml')
     ))

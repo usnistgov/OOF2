@@ -817,9 +817,15 @@ parameters for this &property;.
         hierarchy echoes the hierarchical arrangement of the
         &properties; themselves.  Each command sets the parameters of
         a &property;.  The <emphasis>named</emphasis> &properties;
-        appear in the menus as submenus for their unnamed
-        counterparts.  They aren't listed in the documentation,
-        though.  </para>"""
+        appear in the menus as submenu items for their unnamed
+        counterparts.  For example,
+        <literallayout class="monospaced">
+    OOF.Property.Parametrize.Color(color=TranslucentGray(value=0.425,alpha=1))
+    OOF.Property.Parametrize.Color.<emphasis role="bold">blue</emphasis>(color=RGBAColor(red=0,green=0,blue=1,alpha=1))</literallayout>
+        sets the unnamed Color &property; to gray and a named Color
+        &property; to blue.  The menu items for named &properties;
+        aren't listed explicitly in the manual.
+        </para>"""
     return xmlmenudump.emptyDiscussion
 
 def _parametrizeHelp(menuitem):

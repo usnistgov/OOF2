@@ -32,7 +32,10 @@ import ooflib.engine.mesh
 bdyanalysismenu = meshmenu.meshmenu.addItem(
     oofmenu.OOFMenuItem(
         'Boundary_Analysis',
-        help="Compute properties of the solution on boundaries."))
+        help="Compute properties of the solution on boundaries.",
+        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/bdyanalyze.xml'),
+        
+        xrefs=["Section-Tasks-BdyAnalysis"]))
 
 mesh_param = whoville.WhoParameter(
     'mesh', ooflib.engine.mesh.meshes,

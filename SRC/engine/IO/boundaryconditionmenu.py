@@ -37,8 +37,10 @@ bcmenu = oofmenu.OOFMenuItem(
     'Boundary_Conditions',
     cli_only=1,
     help="Create and manipulate boundary conditions on Meshes.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/bc.xml')
-    )
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/bc.xml',),
+    xrefs=["Section-Tasks-SkeletonBoundaries",
+           "Section-Tasks-BoundaryCondition"]
+)
 
 meshmenu.meshmenu.addItem(bcmenu)
 
@@ -150,7 +152,8 @@ bcmenu.addItem(oofmenu.OOFMenuItem(
                                   tip="Name of the mesh."),
             BCNameParameter('name', tip="Boundary condition being enabled.")],
     help="Enable an explicitly disabled boundary condition.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/enable_bc.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/enable_bc.xml'),
+    xrefs=["MenuItem-OOF.Mesh.Boundary_Conditions.Disable"]
     ))
 
 bcmenu.addItem(oofmenu.OOFMenuItem(
@@ -160,7 +163,8 @@ bcmenu.addItem(oofmenu.OOFMenuItem(
                                   tip="Name of the mesh."),
             BCNameParameter('name', tip="Boundary condition being disabled.")],
     help="Disable a boundary condition.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/disable_bc.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/disable_bc.xml'),
+    xrefs=["MenuItem-OOF.Mesh.Boundary_Conditions.Enable"]
     ))
 
 # Copy a boundary condition to a new boundary (for possibly another mesh).
@@ -299,21 +303,23 @@ def _clearBCInit(menuitem, mesh, bc):
     switchboard.notify("field initializer set")
 
 bcmenu.addItem(oofmenu.OOFMenuItem(
-        'Clear_BC_Initializer',
-        callback=_clearBCInit,
-        params=[
-            whoville.WhoParameter(
-                'mesh', ooflib.engine.mesh.meshes,
-                tip=parameter.emptyTipString),
-            BCNameParameter(
-                'bc',
-                tip='The name of a floating boundary condition.')],
-        help=
-        'Remove the initializer for the given floating boundary condition.',
-        discussion="""<para>
+    'Clear_BC_Initializer',
+    callback=_clearBCInit,
+    params=[
+        whoville.WhoParameter(
+            'mesh', ooflib.engine.mesh.meshes,
+            tip=parameter.emptyTipString),
+        BCNameParameter(
+            'bc',
+            tip='The name of a floating boundary condition.')],
+    help=
+    'Remove the initializer for the given floating boundary condition.',
+    discussion="""<para>
     Remove the initializer for the given floating boundary condition
     from the given &mesh;.  This does not change the values of the
     boundary condition itself, but prevents it from being
-    reinitialized later. </para>"""
-        ))
+    reinitialized later.
+    </para>""",
+    xrefs = ["MenuItem-OOF.Mesh.Boundary_Conditions.Set_BC_Initializer"]
+))
 

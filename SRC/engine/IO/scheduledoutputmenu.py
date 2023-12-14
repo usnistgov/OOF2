@@ -30,7 +30,10 @@ outputmenu = mainmenu.OOF.Mesh.addItem(
         'Scheduled_Output',
         help="Define output operations to be performed during time evolution calculations.",
         discussion=xmlmenudump.loadFile(
-            "DISCUSSIONS/engine/menu/scheduledoutput.xml")))
+            "DISCUSSIONS/engine/menu/scheduledoutput.xml"),
+        xrefs=["Section-Tasks-ScheduledOutput"]
+    )
+)
 
 outputIOmenu = meshIO.meshmenu.addItem(oofmenu.OOFMenuItem(
         'Scheduled_Output',
