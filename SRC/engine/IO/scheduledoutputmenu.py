@@ -299,7 +299,7 @@ outputIOmenu.addItem(schedulemenu.Set.clone(
         name='Schedule',
         discussion="""<para>
         This is a version of <xref
-        linkend="MenuItem-OOF.Mesh.Scheduled_Output.Schedule.Set"/> this is
+        linkend="MenuItem-OOF.Mesh.Scheduled_Output.Schedule.Set"/> that is
         used internally in data files.  It is not invoked directly by
         the &oof2; user interface.
         </para>"""))

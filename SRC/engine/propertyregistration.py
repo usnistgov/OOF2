@@ -71,7 +71,14 @@ OOF.addItem(oofmenu.OOFMenuItem(
     ))
 
 OOF.LoadData.addItem(oofmenu.OOFMenuItem(
-    'Property'
+    'Property',
+    discussion="""<para>
+
+    This is a version of the <xref linkend="MenuItem-OOF.Property"/>
+    that is used within data files. It is not used directly by the &oof2;
+    user interface.
+    
+    </para>"""
     ))
 
 #=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=#
@@ -803,7 +810,7 @@ parameters for this &property;.
 
     # No discussion section for intermediate nodes in the Property
     # tree, except for the root.
-    if reg.path() == 'OOF.Property.Parametrize':
+    if menuitem.path() == 'OOF.Property.Parametrize':
         return """<para>
         The <command>Parametrize</command> menu contains an entry for
         each <emphasis>unnamed</emphasis> &property;.  The menu
@@ -813,7 +820,7 @@ parameters for this &property;.
         appear in the menus as submenus for their unnamed
         counterparts.  They aren't listed in the documentation,
         though.  </para>"""
-    return ""
+    return xmlmenudump.emptyDiscussion
 
 def _parametrizeHelp(menuitem):
     reg = menuitem.data
@@ -833,35 +840,34 @@ def _loadDiscussion(menuitem):
     reg = menuitem.data
     if reg:
         name = reg.name()
-        return  """
-<para>
-Create an instance of the material &property;
-<classname>%s</classname>.  This command is only used in data files.
-Data files containing &properties; are created by the <link
-linkend='MenuItem-OOF.File.Save.Materials'><command>Materials</command></link>,
-<link
-linkend='MenuItem-OOF.File.Save.Microstructure'><command>Microstructure</command></link>,
-<link
-linkend='MenuItem-OOF.File.Save.Skeleton'><command>Skeleton</command></link>
-and <link
-linkend='MenuItem-OOF.File.Save.Mesh'><command>Mesh</command></link>
-commands in the <xref linkend='MenuItem-OOF.File.Save'/> menu.
-</para> <para> The <varname>name</varname> argument should be set to
-the name of a named &property; or to an empty string
-(<userinput>''</userinput>) when setting parameters in an unnamed
-&property;.
-</para>
-<para>
-See <xref linkend="Property-%s"/> for a complete description of the
-parameters for this &property;.
-</para>
-                """ % (reg.name(), reg.name().replace(':','-'))
+        return  f"""
+        <para>
 
-        return intro + xmlmenudump.getDiscussion(reg)
+        Create an instance of the material &property;
+        <classname>{name}</classname>.  This command is only used in
+        data files, and is not invoked by the &oof2; user interface.
+        Data files containing &properties; are created by the <link
+        linkend='MenuItem-OOF.File.Save.Materials'><command>Materials</command></link>,
+        <link
+        linkend='MenuItem-OOF.File.Save.Microstructure'><command>Microstructure</command></link>,
+        <link
+        linkend='MenuItem-OOF.File.Save.Skeleton'><command>Skeleton</command></link>
+        and <link
+        linkend='MenuItem-OOF.File.Save.Mesh'><command>Mesh</command></link>
+        commands in the <xref linkend='MenuItem-OOF.File.Save'/> menu.
+        </para>
+
+        <para> The <varname>name</varname> argument should be set to
+        the name of a named &property; or to an empty string
+        (<userinput>''</userinput>) when setting parameters in an
+        unnamed &property;.  </para> <para> See <xref
+        linkend="Property-{name.replace(':', '-')}"/> for a complete
+        description of the parameters for this &property;.
+        </para>"""
 
     # No discussion section for intermediate nodes in the Property
     # tree, except for the root.
-    if reg.path() == 'OOF.LoadData.Property':
+    if menuitem.path() == 'OOF.LoadData.Property':
         return """<para>
 
         The <command>OOF.LoadData.Property</command> menu contains an
@@ -877,21 +883,21 @@ parameters for this &property;.
         string (<userinput>''</userinput>) when assigning parameters
         to unnamed &properties;.</para>"""
 
-    return ""
+    return xmlmenudump.emptyDiscussion
 
     
 def _loadHelp(menuitem):
     reg = menuitem.data
     if reg:
         try:
-            return reg.tip + " Used internally in data files."
+            return reg.tip 
         except:
             name = reg.name()
-            return "Define a%s %s Property.  Used internally in data files." \
+            return "Define a%s %s Property." \
                    % ('n'*(name[0] in 'aeiouAEIOU'), name)
     splitpath = menuitem.path().split('.')
     proppath = splitpath[3:]            # remove "OOF.LoadDataProperty"
-    return "Set parameters for %s Properties.  This menu is used only in data files." % stringjoin(proppath, '.')
+    return "Set parameters for %s Properties." % stringjoin(proppath, '.')
     
 
 def xmldocs(phile):

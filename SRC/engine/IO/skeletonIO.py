@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -29,16 +28,13 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import whoville
 from ooflib.engine import materialmanager
+from ooflib.engine import skeleton
 from ooflib.engine import skeletonboundary
 from ooflib.engine import skeletoncontext
 from ooflib.engine.IO import materialmenu
 import ooflib.common.microstructure
 #Interface branch
 from ooflib.engine import skeletonsegment
-if config.dimension() == 2:
-    import ooflib.engine.skeleton as skeleton
-elif config.dimension() == 3:
-    import ooflib.engine.skeleton3d as skeleton
 
 from ooflib.common.utils import stringjoin
 
@@ -48,55 +44,53 @@ OOFMenuItem = oofmenu.OOFMenuItem
 
 OOF = mainmenu.OOF
 
-skelmenu = OOF.LoadData.addItem(OOFMenuItem('Skeleton'))
+skelmenu = OOF.LoadData.addItem(
+    OOFMenuItem(
+        'Skeleton',
+        help="Load a Skeleton from a data file.",
+        discussion="""<para>
+        This menu contains commands for constructing a &skel;. It is
+        used internally in data files and not invoked directly by the
+        OOF2 user interface.
+        </para>"""
+    ))
 
-if config.dimension() == 2:
+def _newSkelPeriodic(menuitem, name, microstructure,
+                     left_right_periodicity=False,
+                     top_bottom_periodicity=False):
+    skeleton.newEmptySkeleton(name, microstructure,
+                              left_right_periodicity,
+                              top_bottom_periodicity)
 
-    def _newSkelPeriodic(menuitem, name, microstructure,
-                         left_right_periodicity=False,
-                         top_bottom_periodicity=False):
-        skeleton.newEmptySkeleton(name, microstructure,
-                                  left_right_periodicity,
-                                  top_bottom_periodicity)
-        
-    periodicparams = [parameter.StringParameter('name', tip="Name for the Skeleton."),
-                whoville.WhoParameter('microstructure',
-                                      ooflib.common.microstructure.microStructures,
-                                      tip=parameter.emptyTipString),
-                parameter.BooleanParameter('left_right_periodicity',
-                    tip="Whether the skeleton is periodic in the horizontal direction"),
-                parameter.BooleanParameter('top_bottom_periodicity',
-                    tip="Whether the skeleton is periodic in the vertical direction")]
-
-elif config.dimension() == 3:
-
-    def _newSkelPeriodic(menuitem, name, microstructure,
-                         left_right_periodicity=False,
-                         top_bottom_periodicity=False,
-                         front_back_periodicity=False):
-        skeleton.newEmptySkeleton(name, microstructure,
-                                  left_right_periodicity,
-                                  top_bottom_periodicity,
-                                  front_back_periodicity)
-
-    periodicparams = [parameter.StringParameter('name', tip="Name for the Skeleton."),
-                whoville.WhoParameter('microstructure',
-                                      ooflib.common.microstructure.microStructures,
-                                      tip=parameter.emptyTipString),
-                parameter.BooleanParameter('left_right_periodicity',
-                    tip="Whether the skeleton has left-right periodicity"),
-                parameter.BooleanParameter('top_bottom_periodicity',
-                    tip="Whether the skeleton has top-bottom periodicity"),
-                parameter.BooleanParameter('front_back_periodicity',
-                    tip="Whether the skeleton has back-front periodicity")]
+periodicparams = [
+    parameter.StringParameter('name', tip="Name for the Skeleton."),
+    whoville.WhoParameter(
+        'microstructure',
+        ooflib.common.microstructure.microStructures,
+        tip=parameter.emptyTipString),
+    parameter.BooleanParameter(
+        'left_right_periodicity',
+        tip="Whether the skeleton is periodic in the horizontal direction"),
+    parameter.BooleanParameter(
+        'top_bottom_periodicity',
+        tip="Whether the skeleton is periodic in the vertical direction")]
 
 
 skelmenu.addItem(OOFMenuItem(
     'NewPeriodic',
     callback=_newSkelPeriodic,
     params=periodicparams,
-    help="Load Skeleton. Used internally in data files.",
-    discussion="<para>Initiate loading a &skel; from a data file.</para>"))
+    help="Load a Skeleton.",
+    discussion="""<para>
+    &skels; are stored in data files as a series of commands.  This is
+    the first one.  It's called <quote>NewPeriodic</quote> because its
+    arguments set the &skel;'s periodicity.  The old <xref
+    linkend="MenuItem-OOF.LoadData.Skeleton.New"/> command, without
+    periodicity parameters, still exists for backwards compatibility,
+    but should never be used in new data files.  </para><para> This
+    command is used only in data files and is not directly accessible
+    from the &oof2; user interface.
+    </para>"""))
 
 ## Optional arguments don't work in binary data files, so for
 ## backwards compatibility we need a menu item called "New" that
@@ -113,8 +107,14 @@ skelmenu.addItem(OOFMenuItem(
             whoville.WhoParameter('microstructure',
                                   ooflib.common.microstructure.microStructures,
                                   tip=parameter.emptyTipString)],
-    help="Load Skeleton. Used internally in data files.",
-    discussion="<para>Initiate loading a &skel; from a data file.</para>"))
+    help="Old command for creating a Skeleton.",
+    discussion="""<para>
+    This is an old version of <xref
+    linkend="MenuItem-OOF.LoadData.Skeleton.NewPeriodic"/>.  It's
+    just like that command, but doesn't specify the &skel;'s
+    periodicity.  This command is kept for backwards compatibility but
+    should not be used in new data files.
+    </para>"""))
 
 ###
 
@@ -139,10 +139,16 @@ skelmenu.addItem(OOFMenuItem(
     callback=_loadNodes,
     params=[whoville.WhoParameter('skeleton', skeletoncontext.skeletonContexts,
                                   tip=parameter.emptyTipString),
-            parameter.ListOfTuplesOfFloatsParameter('points',
-                                                    tip="List of points (nodes).")],
-    help="Load Nodes. Used internally in data files.",
-    discussion="<para>Load <link linkend='Section-Concepts-Skeleton-Node'>nodes</link> from a <link linkend='MenuItem-OOF.File.Save.Skeleton'>saved</link> Skeleton.</para>"
+            parameter.ListOfTuplesOfFloatsParameter(
+                'points', tip="A list of node positions (x,y).")],
+    help="Create Skeleton Nodes.",
+    discussion="""<para>
+    Create &nodes; in a &skel; that is being loaded from a data file.
+    This command must come after <xref
+    linkend="MenuItem-OOF.LoadData.Skeleton.NewPeriodic"/> in the data
+    file.  It is only used in data files and is not directly
+    accessible from the &oof2; user interface.
+    </para>"""
     ))
 
 ###
@@ -167,11 +173,18 @@ skelmenu.addItem(OOFMenuItem(
     callback=_loadPartnerships,
     params=[whoville.WhoParameter('skeleton', skeletoncontext.skeletonContexts,
                                   tip=parameter.emptyTipString),
-            parameter.ListOfTuplesOfIntsParameter('partnerlists',
-                                                    tip="List of tuples containing partner sets.")],
-    help="Load Partnerships. Used internally in data files.",
-    discussion="<para>Load node partnerships for periodic skeletons from a <link linkend='MenuItem-OOF.File.Save.Skeleton'>saved</link> Skeleton.</para>"
-    ))
+            parameter.ListOfTuplesOfIntsParameter(
+                'partnerlists',
+                tip="List of tuples containing partner sets.")],
+    help="Load Node partnership relations.",
+    discussion="""<para>
+    If a &skel; stored in a data file is periodic, this command is
+    used to establish the correspondence between nodes on the periodic
+    boundaries. It must come after <xref
+    linkend="MenuItem-OOF.LoadData.Skeleton.Nodes"/> in the file.  It
+    is only used in data files and is not directly accessible from the
+    &oof2; user interface.
+    </para>"""))
 
 ###
 
@@ -184,19 +197,27 @@ def _loadElements(menuitem, skeleton, nodes):
         skeleton.loadElement(*nodelist)
     skelcontext.getTimeStamp(None).increment()
     skeleton.updateGeometry()
-    if config.dimension() == 2:
-        skelcontext.updateGroupsAndSelections()
+    skelcontext.updateGroupsAndSelections()
     switchboard.notify(('who changed', 'Skeleton'), skelcontext)
 
 skelmenu.addItem(OOFMenuItem(
     'Elements',
     callback=_loadElements,
-    params=[whoville.WhoParameter('skeleton', skeletoncontext.skeletonContexts,
-                                  tip=parameter.emptyTipString),
-            parameter.ListOfTuplesOfIntsParameter('nodes',
-                                                  tip="List of element connectivities (List of node indices).")],
-    help="Load Elements. Used internally in data files.",
-    discussion="<para>Load <link linkend='Section-Concepts-Skeleton-Element'>elements</link> from a <link linkend='MenuItem-OOF.File.Save.Skeleton'>saved</link> Skeleton.</para>"
+    params=[
+        whoville.WhoParameter(
+            'skeleton', skeletoncontext.skeletonContexts,
+            tip=parameter.emptyTipString),
+        parameter.ListOfTuplesOfIntsParameter(
+            'nodes',
+            tip="List of tuples of Node indices for each Element.")],
+    help="Create Skeleton Elements.",
+    discussion="""<para>
+    Create the &elems; in a &skel; that is being loaded from a data
+    file.  It must come after <xref
+    linkend="MenuItem-OOF.LoadData.Skeleton.Nodes"/> in the file.
+    This command is only used in data files and is not directly
+    accessible in the &oof2; user interface.
+    </para>"""
     ))
 
 ###
@@ -216,8 +237,14 @@ skelmenu.addItem(OOFMenuItem(
     whoville.WhoParameter('skeleton', skeletoncontext.skeletonContexts,
                           tip=parameter.emptyTipString),
     parameter.ListOfIntsParameter('nodes', tip="List of indices of pinned nodes.")],
-    help="Load pinned Nodes. Used internally in data files.",
-    discussion="<para>Load <link linkend='MenuItem-OOF.Graphics_n.Toolbox.Pin_Nodes.Pin'>pinned</link> nodes from a &skel; data file.</para>"
+    help="Pin Nodes.",
+    discussion="""<para>
+    <link linkend="Section-Graphics-PinNodes">Pin Nodes</link> in a
+    &skel; that is being loaded from a data file.  This command must
+    come after <xref linkend="MenuItem-OOF.LoadData.Skeleton.Nodes"/>
+    in the file. It is only used in data files and is not directly
+    accessible in the &oof2; user interface.
+    </para>"""
     ))
 
 ###
@@ -241,9 +268,19 @@ skelmenu.addItem(OOFMenuItem(
                           tip=parameter.emptyTipString),
     parameter.StringParameter('name', tip="Name of Point Boundary."),
     parameter.ListOfIntsParameter('nodes', tip="List of node indices."),
-    parameter.IntParameter('exterior', 0, tip="1 (true) for the exterior boundary and 0 (false) for otherwise.")],
-    help="Load Point Boundary. Used internally in data files.",
-    discussion="<para>Load a <link linkend='Section-Concepts-Skeleton-Boundary-Point'><classname>PointBoundary</classname></link> from a Skeleton data file.</para>"
+    parameter.IntParameter(
+        'exterior', 0,
+        tip="1 (true) for the exterior boundary and 0 (false) for otherwise.")],
+    help="Create a point boundary.",
+    discussion="""<para>
+    Create a <link
+    linkend='Section-Concepts-Skeleton-Boundary-Point'>point boundary</link>
+    in a &skel; that is being loaded from a data file.  This command
+    must come after <xref
+    linkend="MenuItem-OOF.LoadData.Skeleton.Nodes"/> in the file. It
+    is only used in data files and is not directly accessible in the
+    &oof2; user interface.
+    </para>"""
     ))
 
 ###
@@ -285,11 +322,22 @@ skelmenu.addItem(OOFMenuItem(
     whoville.WhoParameter('skeleton', skeletoncontext.skeletonContexts,
                           tip=parameter.emptyTipString),
     parameter.StringParameter('name', tip="Name of Edge Boundary."),
-    parameter.ListOfTuplesOfIntsParameter('edges',
-                                          tip="List of Edges &#x2014; tuple of two nodes."),
-    parameter.IntParameter('exterior', 0, tip="1 (true) for the exterior boundary and 0 (false) for otherwise.")],
-    help="Load Edge Boundary. Used internally in data files.",
-    discussion="<para>Load a <link linkend='Section-Concepts-Skeleton-Boundary-Edge'><classname>EdgeBoundary</classname></link> from a Skeleton data file.</para>"
+    parameter.ListOfTuplesOfIntsParameter(
+        'edges',
+        tip="List of Edges &#x2014; tuple of two nodes."),
+    parameter.IntParameter(
+        'exterior', 0,
+        tip="1 (true) for the exterior boundary and 0 (false) for otherwise.")],
+    help="Create an edge boundary.",
+    discussion="""<para>
+    Create a <link
+    linkend='Section-Concepts-Skeleton-Boundary-Edge'>edge
+    boundary</link> in a &skel; that is being loaded from a data file.
+    This command must come after <xref
+    linkend="MenuItem-OOF.LoadData.Skeleton.Elements"/> in the
+    file. It is only used in data files and is not directly accessible
+    in the &oof2; user interface.
+    </para>"""
     ))
 
 ######
@@ -311,8 +359,15 @@ skelmenu.addItem(OOFMenuItem(
                           tip=parameter.emptyTipString),
     parameter.StringParameter('name', tip="Name for the node group."),
     parameter.ListOfIntsParameter('nodes', tip="List of node indices.")],
-    help="Load Node Group. Used internally in data files.",
-    discussion="<para>Load a node <link linkend='Section-Concepts-Skeleton-Groups'>group</link>.</para>"
+    help="Create a Node group.",
+    discussion="""<para>
+    Create a <link linkend='Section-Concepts-Skeleton-Groups'>&node;
+    group</link> in a &skel; that is being loaded from a data file.
+    This command must come after <xref
+    linkend="MenuItem-OOF.LoadData.Skeleton.Nodes"/> in the file. It
+    is only used in data files and is not directly accessible in the
+    &oof2; user interface.
+    </para>"""
     ))
 
 def _loadElementGroup(menuitem, skeleton, name, elements):
@@ -332,8 +387,15 @@ skelmenu.addItem(OOFMenuItem(
                           tip=parameter.emptyTipString),
     parameter.StringParameter('name', tip="Name for the element group."),
     parameter.ListOfIntsParameter('elements', tip="List of element indices")],
-    help="Load Element Group. Used internally in data files.",
-    discussion="<para>Load an element <link linkend='Section-Concepts-Skeleton-Groups'>group</link>.</para>"
+    help="Create an Element group.",
+    discussion="""<para>
+    Create a <link linkend='Section-Concepts-Skeleton-Groups'>&elem;
+    group</link> in a &skel; that is being loaded from a data file.
+    This command must come after <xref
+    linkend="MenuItem-OOF.LoadData.Skeleton.Elements"/> in the file. It
+    is only used in data files and is not directly accessible in the
+    &oof2; user interface.
+    </para>"""
     ))
 
 def _loadSegmentGroup(menuitem, skeleton, name, segments):
@@ -355,8 +417,15 @@ skelmenu.addItem(OOFMenuItem(
                           tip=parameter.emptyTipString),
     parameter.StringParameter('name', tip="Name for the segment group."),
     parameter.ListOfTuplesOfIntsParameter('segments', tip="List of segments &#x2014; tuple of two node indices.")],
-    help="Load Segment Group. Used internally in data files.",
-    discussion="<para>Load a segment <link linkend='Section-Concepts-Skeleton-Groups'>group</link>.</para>"
+    help="Create a Segment group.",
+    discussion="""<para>
+    Create a <link linkend='Section-Concepts-Skeleton-Groups'>&sgmt;
+    group</link> in a &skel; that is being loaded from a data file.
+    This command must come after <xref
+    linkend="MenuItem-OOF.LoadData.Skeleton.Elements"/> in the file. It
+    is only used in data files and is not directly accessible in the
+    &oof2; user interface.
+    </para>"""
     ))
 
 def _addMaterialToElementGroup(menuitem, skeleton, group, material):
@@ -372,8 +441,16 @@ skelmenu.addItem(OOFMenuItem(
                               tip=parameter.emptyTipString),
         parameter.StringParameter('group', tip="Name of the element group"),
         parameter.StringParameter('material', tip="Name of the material.")],
-    help="Add a Material to an Element Group.  Used internally in data files.",
-    discussion="<para>Add a Material to an Element Group.</para>"    
+    help="Add a Material to an Element group.",
+    discussion="""<para>
+    Add a &material; to an &elem; group in a &skel; that is being
+    loaded from a data file.  The material and group definitions (via
+    <xref linkend="MenuItem-OOF.LoadData.Material"/> and <xref
+    linkend="MenuItem-OOF.LoadData.Skeleton.ElementGroup"/>) must
+    precede this command in the file.  This command is ony used in
+    data files and is not directly accessible in the &oof2; user
+    interface.
+    </para>"""    
     ))
 
 #############
@@ -388,21 +465,17 @@ def writeSkeleton(datafile, skelcontext):
         datafile.startCmd(skelmenu.NewPeriodic)
         datafile.argument('name', skelcontext.name())
         datafile.argument('microstructure', skeleton.MS.name())
-        datafile.argument('left_right_periodicity', skeleton.left_right_periodicity)
-        datafile.argument('top_bottom_periodicity', skeleton.top_bottom_periodicity)
-        if config.dimension() == 3:
-            datafile.argument('front_back_periodicity', skeleton.front_back_periodicity)            
+        datafile.argument('left_right_periodicity',
+                          skeleton.left_right_periodicity)
+        datafile.argument('top_bottom_periodicity',
+                          skeleton.top_bottom_periodicity)
         datafile.endCmd()
 
         # Define nodes.
         datafile.startCmd(skelmenu.Nodes)
         datafile.argument('skeleton', skelpath)
-        if config.dimension()==2:
-            datafile.argument('points', [(nd.position().x, nd.position().y)
-                                         for nd in skeleton.nodes])
-        elif config.dimension()==3:
-            datafile.argument('points', [(nd.position().x, nd.position().y, nd.position().z)
-                                         for nd in skeleton.nodes])
+        datafile.argument('points', [(nd.position().x, nd.position().y)
+                                     for nd in skeleton.nodes])
         datafile.endCmd()
 
         # Nodes are written and read in the order in which they're stored
@@ -423,8 +496,7 @@ def writeSkeleton(datafile, skelcontext):
             c += 1
 
         # Write node partnerships using the node indices in nodedict
-        if skeleton.left_right_periodicity or skeleton.top_bottom_periodicity \
-               or (config.dimension()==3 and skeleton.front_back_periodicity):
+        if skeleton.left_right_periodicity or skeleton.top_bottom_periodicity:
             partners = []
             for node in skeleton.nodes:
                 nodeno = nodedict[node]
@@ -446,74 +518,70 @@ def writeSkeleton(datafile, skelcontext):
                                     for el in skeleton.elements])
         datafile.endCmd()
 
-
-        # we don't have groups and boundaries set up in 3d yet.
-        # TODO 3D: enable this in 3d when needed
-        if config.dimension() == 2:
-            # Node groups
-            for group in skelcontext.nodegroups.groups:
-                datafile.startCmd(skelmenu.NodeGroup)
-                datafile.argument('skeleton', skelpath)
-                datafile.argument('name', group)
-                datafile.argument(
-                    'nodes', 
-                    [nodedict[node]
-                     for node in skelcontext.nodegroups.get_group(group)])
-                datafile.endCmd()
-
-            # Element groups
-            for group in skelcontext.elementgroups.groups:
-                datafile.startCmd(skelmenu.ElementGroup)
-                datafile.argument('skeleton', skelpath)
-                datafile.argument('name', group)
-                datafile.argument(
-                    'elements',
-                    [elementdict[el]
-                     for el in skelcontext.elementgroups.get_group(group)])
-                datafile.endCmd()
-
-            for group in skelcontext.segmentgroups.groups:
-                datafile.startCmd(skelmenu.SegmentGroup)
-                datafile.argument('skeleton', skelpath)
-                datafile.argument('name', group)
-                nodepairs = [
-                    seg.nodes()
-                    for seg in skelcontext.segmentgroups.get_group(group)]
-                datafile.argument(
-                    'segments',
-                    [(nodedict[n1], nodedict[n2]) for (n1, n2) in nodepairs])
-                datafile.endCmd()
-
-            # Materials assigned to Element Groups.  If a Material
-            # isn't assigned to pixels in the Microstructure, be sure
-            # to save the Material's definition first.
-            msmatls = ooflib.SWIG.engine.material.getMaterials(skeleton.MS)
-            groupmats = skelcontext.elementgroups.getAllMaterials()
-            # skelmatls is a list of Materials used in the Skeleton
-            # that aren't in the Microstructure.
-            skelmatls = [m for (g, m) in groupmats if m not in msmatls]
-            # Construct a list of Properties already defined in the
-            # data file, so that they're not written twice.
-            excludeProps = {}
-            for mat in msmatls:
-                for prop in mat.properties:
-                    excludeProps[prop.registration().name()] = prop
-            materialmenu.writeMaterials(datafile, skelmatls, excludeProps)
-            # Now assign Materials to Groups.
-            for group, material in groupmats:
-                datafile.startCmd(skelmenu.AddMaterialToGroup)
-                datafile.argument('skeleton', skelpath)
-                datafile.argument('group', group)
-                datafile.argument('material', material.name())
-                datafile.endCmd()
-
-            # Pinned nodes
-            datafile.startCmd(skelmenu.PinnedNodes)
+        # Node groups
+        for group in skelcontext.nodegroups.groups:
+            datafile.startCmd(skelmenu.NodeGroup)
             datafile.argument('skeleton', skelpath)
+            datafile.argument('name', group)
             datafile.argument(
-                'nodes',
-                [nodedict[node] for node in skelcontext.pinnednodes.retrieve()])
+                'nodes', 
+                [nodedict[node]
+                 for node in skelcontext.nodegroups.get_group(group)])
             datafile.endCmd()
+
+        # Element groups
+        for group in skelcontext.elementgroups.groups:
+            datafile.startCmd(skelmenu.ElementGroup)
+            datafile.argument('skeleton', skelpath)
+            datafile.argument('name', group)
+            datafile.argument(
+                'elements',
+                [elementdict[el]
+                 for el in skelcontext.elementgroups.get_group(group)])
+            datafile.endCmd()
+
+        for group in skelcontext.segmentgroups.groups:
+            datafile.startCmd(skelmenu.SegmentGroup)
+            datafile.argument('skeleton', skelpath)
+            datafile.argument('name', group)
+            nodepairs = [
+                seg.nodes()
+                for seg in skelcontext.segmentgroups.get_group(group)]
+            datafile.argument(
+                'segments',
+                [(nodedict[n1], nodedict[n2]) for (n1, n2) in nodepairs])
+            datafile.endCmd()
+
+        # Materials assigned to Element Groups.  If a Material
+        # isn't assigned to pixels in the Microstructure, be sure
+        # to save the Material's definition first.
+        msmatls = ooflib.SWIG.engine.material.getMaterials(skeleton.MS)
+        groupmats = skelcontext.elementgroups.getAllMaterials()
+        # skelmatls is a list of Materials used in the Skeleton
+        # that aren't in the Microstructure.
+        skelmatls = [m for (g, m) in groupmats if m not in msmatls]
+        # Construct a list of Properties already defined in the
+        # data file, so that they're not written twice.
+        excludeProps = {}
+        for mat in msmatls:
+            for prop in mat.properties:
+                excludeProps[prop.registration().name()] = prop
+        materialmenu.writeMaterials(datafile, skelmatls, excludeProps)
+        # Now assign Materials to Groups.
+        for group, material in groupmats:
+            datafile.startCmd(skelmenu.AddMaterialToGroup)
+            datafile.argument('skeleton', skelpath)
+            datafile.argument('group', group)
+            datafile.argument('material', material.name())
+            datafile.endCmd()
+
+        # Pinned nodes
+        datafile.startCmd(skelmenu.PinnedNodes)
+        datafile.argument('skeleton', skelpath)
+        datafile.argument(
+            'nodes',
+            [nodedict[node] for node in skelcontext.pinnednodes.retrieve()])
+        datafile.endCmd()
 
         # Point boundaries
         # sort keys to print in a consistent order

@@ -753,7 +753,11 @@ class ListOfTuplesOfIntsParameter(Parameter):
     def valueRepr(self):
         return "List of variably sized Tuples of Ints"
     def valueDesc(self):
-        return "A list of tuples of integers.  The tuples do not all have to have the same size."
+        # This used to add "The tuples do not all have to be the same
+        # size", which was true in general but confusing when
+        # appearing in the manual after a help string like "tuple of
+        # two node indices".
+        return "A list of tuples of integers."
 
 class ListOfStringIntTuplesParameter(Parameter):
     def checker(self, x):
@@ -881,7 +885,10 @@ class ListOfTuplesOfFloatsParameter(Parameter):
     def valueRepr(self):
         return "List of variably sized Tuples of Floats"
     def valueDesc(self):
-        return "A list of tuples of real numbers. The tuples do not all have to have the same size."
+        # This used to add "The tuples do not all have to have the
+        # same size", but that was confusing when appearing after help
+        # strings like "List of node positions (x,y)"
+        return "A list of tuples of real numbers."
 
 class ListOfTuplesOfIntFloatsParameter(Parameter):
     def __init__(self, name, value=None, default=[], tip=None):

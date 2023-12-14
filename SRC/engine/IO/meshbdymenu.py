@@ -120,7 +120,12 @@ mainmenu.OOF.LoadData.addItem(oofmenu.OOFMenuItem(
             bdy_param,
             analyzer_param],
         help="Create a named boundary analysis. Used internally in data files.",
-        discussion="<para>Create a named boundary analysis.</para>"  
+        discussion="""<para>
+        Create a named boundary analysis.  This is a version of <xref
+        linkend="MenuItem-OOF.Mesh.Boundary_Analysis.Create"/> that is
+        used internally in data files.  It is not invoked directly by
+        the &oof2; user interface.
+        </para>"""  
         ))
 
 def _deleteAnalysis(menuitem, name):

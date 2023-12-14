@@ -266,8 +266,13 @@ mainmenu.OOF.LoadData.addItem(oofmenu.OOFMenuItem(
             output_param,
             domain_param,
             sample_param],
-    help="Assign a name to a set of analysis parameters.  Used internally in data files.",
-    discussion="<para>Create a Named Analysis.</para>"
+    help="Assign a name to a set of analysis parameters.",
+    discussion="""<para>
+    Create a Named Analysis.  This is a version of <xref
+    linkend="MenuItem-OOF.Named_Analysis.Create"/> that is used
+    internally in data files.  It is not invoked directly by the
+    &oof2; user interface.
+    </para>"""
 ))
 
 def _deleteAnalysis(menuitem, name):

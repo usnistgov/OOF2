@@ -25,6 +25,11 @@ class MaterialType(enum.EnumClass(
     Types of &oof2; materials.
     Certain properties can only be assigned to certain types of materials.
     Bulk materials can be assigned to bulk elements.
+    </para>
+    <para>
+    There used to be an Interface material type in &oof2;, but it
+    wasn't fully implemented. It will be reintroduced sometime, we
+    hope.
     </para>"""
 
 if runtimeflags.surface_mode:
