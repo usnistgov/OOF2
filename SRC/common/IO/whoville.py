@@ -770,6 +770,11 @@ class WhoNameParameter(parameter.RestrictedStringParameter):
     def __repr__(self):
         return "%s(name='%s', value=%s, default=%s)" % \
                (self.__class__.__name__, self.name, self.value, self.default)
+    def valueDesc(self):
+        # The base class define valueDesc by printing out the regexp
+        # pattern, which probably isn't useful to many users.  This is
+        # simpler.
+        return "A character string containing no colons (:)."
 
 class AutoWhoNameParameter(parameter.RestrictedAutomaticNameParameter):
     def __init__(self, name, resolver, value=None, default=None, tip=None):
@@ -783,6 +788,11 @@ class AutoWhoNameParameter(parameter.RestrictedAutomaticNameParameter):
         return "%s(name=%s, resolver=%s, truevalue=%s, tip=%s)" % (
             self.__class__.__name__,
             self.name, self.resolver, self.truevalue, self.tip)
+    def valueDesc(self):
+        # The base class define valueDesc by printing out the regexp
+        # pattern, which probably isn't useful to many users.  This is
+        # simpler.
+        return "A character string containing no colons (:), or the value <constant>automatic</constant>."
 
 # A NewWhoParameter can be set to the name of an existing Who object,
 # or a new name.  Its widget presents a list of existing objects and a

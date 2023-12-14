@@ -523,6 +523,9 @@ class RestrictedStringParameter(StringParameter):
                (self.__class__.__name__, self.name, self.pattern, self.value,
                 self.default)
     def valueDesc(self):
+        ## TODO: Printing the regexp pattern probably isn't useful to
+        ## many users.  It would be better for the subclasses to
+        ## redefine valueDesc.
         return ("A character string matching the regular expression '%s'."
                 % self.pattern)
 
@@ -1248,6 +1251,9 @@ class RestrictedAutomaticNameParameter(AutomaticNameParameter):
         return "RestrictedAutomaticNameParameter(%s, pattern=%s, resolver=%s, truevalue=%s, tip=%s)" % (
             self.name, self.pattern, self.resolver, self.truevalue, self.tip)
     def valueDesc(self):
+        ## TODO: Printing the regexp pattern probably isn't useful to
+        ## many users.  It would be better for the subclasses to
+        ## redefine valueDesc.
         return "A character string matching the regular expression '%s', or the value <constant>automatic</constant>." % self.pattern
     
 ##############################
