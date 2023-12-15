@@ -35,7 +35,7 @@ class Tri_6_6MasterElement : public TriangularMaster {
 public:
   Tri_6_6MasterElement()
     : TriangularMaster("T6_6",
-		       "Isoparametric 6 noded triangle with quadratic interpolation for both positions and fields", 6, 3)
+		       "Isoparametric 6 noded triangle with quadratic interpolation for both positions and fields.", 6, 3)
   {
     shapefunction = new Tri6ShapeFunction(*this);
     mapfunction = shapefunction;

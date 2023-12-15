@@ -39,7 +39,7 @@ class Quad8MasterElement : public QuadrilateralMaster {
 public:
   Quad8MasterElement()
     : QuadrilateralMaster("Q4_8",
-			  "Subparametric 8 noded quadrilateral with bilinear interpolation for positions and quadratic interpolation for fields", 8, 4)
+			  "Subparametric 8 noded quadrilateral with bilinear interpolation for positions and quadratic interpolation for fields.", 8, 4)
   {
     shapefunction = new Quad8ShapeFunction(*this);
     mapfunction = new Quad4ShapeFunction(*this);

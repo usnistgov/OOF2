@@ -10,6 +10,7 @@
 
 from ooflib.common import enum
 from ooflib.common import debug
+from ooflib.common.IO import xmlmenudump
 
 # Global function that gets the master element array from C.  While
 # doing so, it does some precomputation in MasterElement.__init__().
@@ -69,19 +70,14 @@ def getMasterElementEnums():
         try:
             enumclass = _masterElementEnumDict[el.ncorners()]
         except KeyError:
+            n = el.ncorners()
             utils.OOFexec('from ooflib.common import enum')
-            utils.OOFexec('class Element%d(enum.EnumClass()):pass'%el.ncorners())
-            enumclass = utils.OOFeval('Element%d' % el.ncorners())
-            utils.OOFexec(
-                'Element%(corners)d.tip="%(corners)d cornered finite elements."'
-                % {'corners':el.ncorners()})
-            utils.OOFexec(              # nested triple quotes!
-                """Element%(corners)d.discussion=\"\"\"<para>Various kinds of
-                %(corners)d cornered finite elements.  Different types have
-                different numbers of function and mapping
-                nodes.   See <xref linkend="Section-Concepts-Mesh-Geometry"/>.
-                </para>\"\"\"""" % {'corners':el.ncorners()})
-            _masterElementEnumDict[el.ncorners()] = enumclass
+            utils.OOFexec(f'class Element{n}(enum.EnumClass()):pass')
+            enumclass = utils.OOFeval(f'Element{n}')
+            enumclass.tip = f"{n} cornered finite elements."
+            enumclass.discussion = xmlmenudump.loadFile(
+                f"DISCUSSIONS/engine/enum/element{n}.xml")
+            _masterElementEnumDict[n] = enumclass
             enumclass._sorted = 1
         if name not in enumclass.names:
             enum.addEnumName(enumclass, name, el.description())

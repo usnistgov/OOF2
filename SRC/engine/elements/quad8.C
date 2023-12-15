@@ -36,7 +36,7 @@ class Quad_8_8MasterElement : public QuadrilateralMaster {
 public:
   Quad_8_8MasterElement()
     : QuadrilateralMaster("Q8_8",
-			  "Isoparametric 8 noded quadrilateral with quadratic interpolation for both positions and fields", 8, 4)
+			  "Isoparametric 8 noded quadrilateral with quadratic interpolation for both positions and fields.", 8, 4)
   {
     shapefunction = new Quad8ShapeFunction(*this);
     mapfunction = shapefunction;

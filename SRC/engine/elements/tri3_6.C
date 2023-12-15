@@ -34,7 +34,7 @@ class Tri6MasterElement : public TriangularMaster {
 public:
   Tri6MasterElement()
     : TriangularMaster("T3_6",
-		       "Subparametric 6 noded triangle with linear interpolation for positions and quadratic interpolation for fields", 6, 3)
+		       "Subparametric 6 noded triangle with linear interpolation for positions and quadratic interpolation for fields.", 6, 3)
   {
     shapefunction = new Tri6ShapeFunction(*this);
     mapfunction = new Tri3ShapeFunction(*this);

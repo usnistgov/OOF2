@@ -36,7 +36,7 @@ class Quad_9_9MasterElement : public QuadrilateralMaster {
 public:
   Quad_9_9MasterElement()
     : QuadrilateralMaster("Q9_9",
-			  "Isoparametric 9 noded quadrilateral with quadratic interpolation for both positions and fields", 9, 4)
+			  "Isoparametric 9 noded quadrilateral with quadratic interpolation for both positions and fields.", 9, 4)
   {
     shapefunction = new Quad9ShapeFunction(*this);
     mapfunction = shapefunction;

@@ -32,7 +32,7 @@ class Quad4MasterElement : public QuadrilateralMaster {
 public:
   Quad4MasterElement()
     : QuadrilateralMaster("Q4_4",
-			  "Isoparametric 4 noded quadrilateral with bilinear interpolation for both positions and fields", 4, 1)
+			  "Isoparametric 4 noded quadrilateral with bilinear interpolation for both positions and fields.", 4, 1)
   {
     shapefunction = new Quad4ShapeFunction(*this);
     mapfunction = shapefunction;
