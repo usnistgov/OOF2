@@ -388,17 +388,32 @@ def createMSFromImage(menuitem, name, width, height, image):
         from ooflib.image.IO import oofimageIPC
         oofimageIPC.imenu.Create_From_Image_Parallel(
             msname=name, image=image)
-
-    # For serial mode #0 in parallel mode
+        # TODO: If parallel mode is every fixed, is this supposed to
+        # return here?
+        
     imagepath = labeltree.makePath(image)
     immidgecontext = imagecontext.imageContexts[image]
     immidge = immidgecontext.getObject().clone(imagepath[-1])
 
-    size = immidge.size() # Point object.
-    if width!=automatic.automatic:
-        size[0]=width
-    if height!=automatic.automatic:
-        size[1]=height
+    # Set the physical size to the physical size of the source image.
+    size = immidge.size()
+    aspect = size[0]/size[1]
+    # If either of the height or width parameters is provided (ie, not
+    # automatic), change the size accordingly.
+    if width != automatic.automatic and height != automatic.automatic:
+        # Both width and height are specified, just use them both.
+        size[0] = width
+        size[1] = height
+    elif width != automatic.automatic:
+        # Only height is automatic.  Scale it to preserve the aspect ratio.
+        size[0] = width
+        size[1] = width/aspect
+    elif height != automatic.automatic:
+        # Only width is automatic. Scale it to preserve the aspect ratio.
+        size[0] = height*aspect
+        size[1] = height
+
+    immidge.setSize(size)
         
     ms = ooflib.common.microstructure.Microstructure(name,
                                                    immidge.sizeInPixels(),
@@ -423,15 +438,19 @@ microstructuremenu.micromenu.addItem(
     'Create_From_Image',
     callback=createMSFromImage,
     params = parameter.ParameterGroup(
-    whoville.AutoWhoNameParameter('name', msImageNameResolver,
-                                   automatic.automatic,
-                                   tip="Name of the new Microstructure."),
-    parameter.AutoNumericParameter('width', automatic.automatic,
-                                   tip="Width in physical units, or automatic to use the image width."),
-    parameter.AutoNumericParameter('height', automatic.automatic,
-                                   tip="Height in physical units. or automatic to use the image height."),
-    whoville.WhoParameter('image', imagecontext.imageContexts,
-                          tip='Image on which to base the Microstructure.')),
+    whoville.AutoWhoNameParameter(
+        'name', msImageNameResolver,
+        automatic.automatic,
+        tip="Name of the new Microstructure."),
+        parameter.AutoNumericParameter(
+            'width', automatic.automatic,
+            tip="Width in physical units, or automatic to use the image width."),
+        parameter.AutoNumericParameter(
+            'height', automatic.automatic,
+            tip="Height in physical units. or automatic to use the image height."),
+        whoville.WhoParameter(
+            'image', imagecontext.imageContexts,
+            tip='Image on which to base the Microstructure.')),
     help="Create a Microstructure from an already loaded Image.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/image/menu/microfromimage.xml')
     ))
