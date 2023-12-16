@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -36,8 +35,11 @@ if parallel_enable.enabled():
 
 micromenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'Microstructure',
-    help="Create and manipulate &micro; objects.",
     cli_only=True,
+    help="Create and manipulate &micro; objects.",
+    discussion="""<para>
+    Commands for creating and manipulating Microstructures.
+    </para>""",
     xrefs=["Section-Tasks-Microstructure"]
 ))
 
@@ -295,6 +297,7 @@ micromenu.addItem(oofmenu.OOFMenuItem(
     callback=setHomogParams,
     ordering=1000,
     secret=1,
+    no_doc=1,
     params=[
         parameter.FloatRangeParameter(
             'factor', range=(0.0, 1.0, 0.01), default=0.5,
@@ -317,6 +320,7 @@ micromenu.addItem(oofmenu.OOFMenuItem(
     callback=resetHomogParams,
     ordering=1001,
     secret=1,
+    no_doc=1,
     help="Reset parameters for calculating element homogeneity.",
     discussion="""<para>This command is used in the regression tests
     to check aspects of the element homogeneity calculuation.</para>"""
@@ -333,10 +337,11 @@ micromenu.addItem(oofmenu.OOFMenuItem(
     'Recategorize',
     callback=recategorize,
     secret=1,
+    no_doc=1,
     params=[whoville.WhoParameter('microstructure',
                                   ooflib.common.microstructure.microStructures,
                                   tip=parameter.emptyTipString)],
-    help="Force pixel recategorization. Used in regression tests.",
+    help="Force pixel recategorization.",
     discussion="""<para>This command is used in the regression tests
     to check aspects of the element homogeneity calculuation.</para>"""
     ))

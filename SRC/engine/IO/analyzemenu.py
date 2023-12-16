@@ -230,9 +230,17 @@ else:
 # Operations on Named Analyses, used in ScheduledOutputs
 
 namedanalysismenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
-        'Named_Analysis',
-        help="Create analysis operations that can be saved and invoked by name",
-        cli_only=1))
+    'Named_Analysis',
+    cli_only=1,
+    help="Create analysis operations that can be saved and invoked by name",
+    discussion="""<para>
+    Giving a name to an analysis operation defined on the <link
+    linkend="Section-Tasks-Analysis">Analysis page</link> allows it to
+    be restored quickly, either on that page or as a <link
+    linkend="Section-Tasks-ScheduledOutput">Scheduled Output</link>.
+    </para>""",
+    xrefs=["Section-Tasks-Analysis"]
+))
 
 def _nameAnalysis(menuitem, name,  operation, data, domain, sampling):
     namedanalysis.NamedBulkAnalysis(name, operation, data, domain, sampling)

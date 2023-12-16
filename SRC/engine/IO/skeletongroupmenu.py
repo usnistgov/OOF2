@@ -262,11 +262,18 @@ auto = oofmenu.OOFMenuItem(
     params=[whoville.WhoParameter("skeleton", whoville.getClass("Skeleton"),
                                   tip=parameter.emptyTipString)],
     help="Create node groups for each pixel group.",
-    discussion=
-"""<para>Automatically create a &nodegroup; in the &skel; for every
-&pixelgroup; in the &micro;.  All &skel; &nodes; lying on a pixel in a
-&pixelgroup; will be added to a &nodegroup; with the same name as the
-&pixelgroup;. New groups will be created if necessary.</para>"""
+    discussion= """<para>
+    Automatically create a &nodegroup; in the &skel; for every
+    &pixelgroup; in the &micro;.  All &skel; &nodes; lying on a pixel
+    in a &pixelgroup; will be added to a &nodegroup; with the same
+    name as the &pixelgroup;. New groups will be created if necessary.
+    </para><para>
+    Pre-existing &nodegroups; with the same names as the &pixelgroups;
+    will <emphasis>not</emphasis> be cleared first.  &nodes; will be
+    added to them.
+    </para>""",
+    xrefs=["Section-MicrostructurePage-GroupPane",
+           "Section-Graphics-PixelSelection"]
     )
 auto.data = "nodegroups"
 auto.iterator = skeleton.Skeleton.node_iterator
