@@ -825,6 +825,11 @@ parameters for this &property;.
         sets the unnamed Color &property; to gray and a named Color
         &property; to blue.  The menu items for named &properties;
         aren't listed explicitly in the manual.
+        </para>
+        <para>
+        The physics and the meanings of the parameters for each
+        &property; are explained in <xref
+        linkend="Section-Properties"/>.
         </para>"""
     return xmlmenudump.emptyDiscussion
 
@@ -839,7 +844,7 @@ def _parametrizeHelp(menuitem):
                    % ('n'*(name[0] in 'aeiouAEOIU'), name)
     splitpath = menuitem.path().split('.')
     proppath = splitpath[3:]            # remove "OOF.Property.Parametrize"
-    return "Set parameters for %s Properties" % stringjoin(proppath, '.')
+    return "Set parameters for %s Properties." % stringjoin(proppath, '.')
     
 
 def _loadDiscussion(menuitem):

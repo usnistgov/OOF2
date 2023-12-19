@@ -302,7 +302,8 @@ settingsmenu = OOF.addItem(OOFMenuItem(
 fontmenu = settingsmenu.addItem(OOFMenuItem(
     "Fonts",
     ordering=1,
-    help="Set fonts used in the GUI."
+    help="Set fonts used in the GUI.",
+    discussion=xmlmenudump.emptyDiscussion
     ))
 
 def setFont(menuitem, fontname):
@@ -332,7 +333,7 @@ fontmenu.addItem(OOFMenuItem(
     callback=setFixedFont,
     params=[parameter.PositiveIntParameter('fontsize', fixedFontSize,
                                            tip='Font size, in pixels.')],
-    help="Set the fixed-width font to use in text displays.",
+    help="Set the size of fixed-width font to use in text displays.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/textfont.xml')
     ))
 
