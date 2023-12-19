@@ -28,7 +28,8 @@ from ooflib.common.IO.GUI import parameterwidgets
 
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+from gi.repository import Gtk, Gio, GLib
+from pathlib import Path
 
 import os
 
@@ -80,16 +81,46 @@ switchboard.requestCallbackMain('change fixed font', setFixedFontSize)
 
 ##############################
 
-themedirs = [
-    #Gtk.rc_get_theme_dir(),  ## deprecated!  Use GtkCssProvider instead
-    os.path.join(os.path.expanduser("~"), ".themes")]
+def currentTheme():
+    return Gtk.Settings.get_default().get_property("gtk-theme-name")
 
-themes = []
-for dir in themedirs:
-    try:
-        themes += os.listdir(dir)
-    except:
-        pass
+# list_gtk_themes was stolen from from
+# https://gist.github.com/flozz/2560bcced07abde5713d3eeae839bf60
+
+def list_gtk_themes():
+    """Lists all available GTK theme.
+
+    :rtype: [str]
+    """
+    builtin_themes = [
+        theme[:-1]
+        for theme in Gio.resources_enumerate_children(
+            "/org/gtk/libgtk/theme", Gio.ResourceFlags.NONE
+        )
+    ]
+
+    theme_search_dirs = [
+        Path(data_dir) / "themes" for data_dir in GLib.get_system_data_dirs()
+    ]
+    theme_search_dirs.append(Path(GLib.get_user_data_dir()) / "themes")
+    theme_search_dirs.append(Path(GLib.get_home_dir()) / ".themes")
+    fs_themes = []
+    for theme_search_dir in theme_search_dirs:
+        if not theme_search_dir.exists():
+            continue
+
+        for theme_dir in theme_search_dir.iterdir():
+            if (
+                not (theme_dir / "gtk-3.0" / "gtk.css").exists()
+                and not (theme_dir / "gtk-3.0" / "gtk-dark.css").exists()
+            ):
+                continue
+            fs_themes.append(theme_dir.as_posix().split("/")[-1])
+
+    return sorted(set(builtin_themes + fs_themes))
+
+
+themes = list_gtk_themes()
 
 if themes:
     # This is ugly... We can't use an EnumParam for the theme, because the
@@ -101,6 +132,7 @@ if themes:
     class ThemeEnum(enum.EnumClass(*themes)): pass
 
     themeParam = enum.EnumParameter('theme', ThemeEnum)
+    themeParam.value = currentTheme()
 
     def setTheme_gui(menuitem):
         if parameterwidgets.getParameters(themeParam,

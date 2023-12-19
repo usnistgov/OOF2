@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -20,13 +19,13 @@ from gi.repository import Gtk
 
 
 fsdialog = None
-defaultfont = "Mono 12"
 
 def getFontName(parentwindow=None):
-    global fsdialog, defaultfont
+    global fsdialog
     if not fsdialog:
         fsdialog = Gtk.FontChooserDialog("OOF2 Font Chooser", parentwindow)
-    fsdialog.set_font(defaultfont)
+        currentfont = Gtk.Settings.get_default().get_property("gtk-font-name")
+        fsdialog.set_font(currentfont)
     result = fsdialog.run()
     newfont = fsdialog.get_font()
     fsdialog.hide()
@@ -34,5 +33,4 @@ def getFontName(parentwindow=None):
                   Gtk.ResponseType.DELETE_EVENT,
                   Gtk.ResponseType.NONE):
         return None
-    defaultfont = newfont
     return newfont

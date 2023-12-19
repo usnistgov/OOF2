@@ -6,6 +6,9 @@ OOF2 2.3.3
 * Moved Misorientation_Calculator from the Help/Debug menu to the Help
   menu.
 
+* Fixed OOF.Settings.Theme.  It now lists the built-in system themes
+  and initialzes the list of themes properly.
+
 OOF2 2.3.2
 
 * Eliminated some opportunities for roundoff error in Rationalize that
