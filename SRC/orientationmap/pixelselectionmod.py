@@ -10,6 +10,10 @@
 
 ## Pixel selection modifiers make selections without mouse input.
 
+## TODO: Make this work if the Microstructure has either an
+## Orientation Property or OrientationMap. It currently requires an
+## OrientationMap.
+
 from ooflib.SWIG.common import latticesystem
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.orientationmap import orientmapdata

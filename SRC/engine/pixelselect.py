@@ -40,7 +40,9 @@ registeredclass.Registration(
     ],
     tip="Select the pixels lying under the selected elements.",
     discussion="""<para>
-    Select all pixels that intersect the currently selected &skel; elements.
+    Select all pixels that intersect the currently selected &skel;
+    &elems;. A pixel is selected even if only a fraction of it
+    intersects an &elem;.
     </para>""")
 
 SegmentSelection = pixelselectioncouriere.SegmentSelection
@@ -96,20 +98,23 @@ registeredclass.Registration(
     registeredclass=pixelselectionmod.SelectionModifier,
     subclass=SelectMaterialPixels,
     ordering=110,
-    params=[materialparameter.AnyMaterialParameter('material',
-                                    tip='The name of a material, or \'None\'.'
-    )
-            ],
+    params=[
+        materialparameter.AnyMaterialParameter(
+            'material',
+            ## TODO PYTHON3: The tooltip should read <Any>, but the
+            ## xml requires &lt;Any&gt;.  Tooltips should be processed
+            ## before being written to the xml file, replacing < with
+            ## &lt;, etc.
+            tip='The name of a material, or Any, or None.'
+        )
+    ],
     tip="Select pixels to which a given Material has been assigned.",
-    discussion="""
-
-    <para> Select all pixels to which the given <varname>material</varname>
-    has been assigned.  If <varname>material</varname> is"&lt;None&gt;", only pixels
-    without an assigned &material; will be selected.  If
-    <varname>material</varname> is "&lt;Any&gt;", pixels with any assigned &material;
-    will be selected.
-    
-    </para>
-
-    """
+    discussion="""<para>
+    Select all pixels to which the given <varname>material</varname>
+    has been assigned.  If <varname>material</varname> is
+    <userinput>&lt;None&gt;</userinput>, only pixels without an
+    assigned &material; will be selected.  If
+    <varname>material</varname> is <userinput>&lt;Any&gt;</userinput>,
+    pixels with any assigned &material; will be selected.
+    </para>"""
     )

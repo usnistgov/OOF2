@@ -168,11 +168,9 @@ registeredclass.Registration(
             ],
     tip='Select all pixels in the given group.',
     discussion="""<para>
-
-    Deselect all pixels, and then select the pixels in the given
-    group.  Compare to <xref
+    Select the pixels in the given group and deselect all other
+    pixels.  Compare to <xref
     linkend='MenuItem-OOF.PixelSelection.Add_Group'/>.
-
     </para>""")
             
 registeredclass.Registration(
@@ -238,30 +236,29 @@ class Elkcepsed(SelectionModifier):
         selection.unselect(pixelselectioncourier.ElkcepsedSelection(
             ms, selection.getSelectionAsGroup(), self.neighbors))
 
-if config.dimension() == 2:
-    registeredclass.Registration(
-        'Despeckle',
-        SelectionModifier,
-        Despeckle,
-        ordering=2.0,
-        params=[parameter.IntRangeParameter('neighbors', (4,8), 8,
-                tip="Select pixels with at least this many selected neighbors")
-        ],
-        tip="Recursively select all pixels with a minimum number of selected neighbors. This fills in small holes in the selection.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/despeckle.xml')
-        )
+registeredclass.Registration(
+    'Despeckle',
+    SelectionModifier,
+    Despeckle,
+    ordering=2.0,
+    params=[parameter.IntRangeParameter('neighbors', (4,8), 8,
+            tip="Select pixels with at least this many selected neighbors")
+    ],
+    tip="Recursively select all pixels with a minimum number of selected neighbors.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/despeckle.xml')
+    )
 
-    registeredclass.Registration(
-        'Elkcepsed',
-        SelectionModifier,
-        Elkcepsed,
-        ordering=2.1,
-        params=[parameter.IntRangeParameter('neighbors', (1,4), 3,
-           tip="Deselect pixels with fewer than this many selected neighbors.")
-        ],
-        tip="Recursively deselect all pixels with fewer than a minimum number of selected neighbors.  This has the effect of removing small islands and peninsulas, and is the opposite of 'Despeckle'.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/elkcepsed.xml')
-        )
+registeredclass.Registration(
+    'Elkcepsed',
+    SelectionModifier,
+    Elkcepsed,
+    ordering=2.1,
+    params=[parameter.IntRangeParameter('neighbors', (1,4), 3,
+       tip="Deselect pixels with fewer than this many selected neighbors.")
+    ],
+    tip="Recursively deselect all pixels with fewer than a minimum number of selected neighbors.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/elkcepsed.xml')
+    )
 
 
 #########################################

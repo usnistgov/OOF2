@@ -23,7 +23,8 @@ selmodmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'PixelSelection',
     help='Tools for selecting pixels.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/pixelselection.xml'),
-    cli_only=1))
+    cli_only=1,
+    xrefs=["Section-Tasks-PixelSelection"]))
 
 def buildSelectionModMenu():
     selmodmenu.clearMenu()

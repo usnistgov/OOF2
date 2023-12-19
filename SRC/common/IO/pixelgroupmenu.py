@@ -44,7 +44,8 @@ StringParameter = parameter.StringParameter
 pixgrpmenu = OOF.addItem(OOFMenuItem(
     'PixelGroup', cli_only=1,
     help='Create and manipulate pixel groups.',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/pixelgroup.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/pixelgroup.xml'),
+    xrefs=["Section-MicrostructurePage-GroupPane"]
     ))
 
 ##########################
@@ -400,7 +401,11 @@ pixgrpmenu.addItem(OOFMenuItem(
     linkend='MenuItem-OOF.Skeleton.Modify'>modification</link>
     (adaptive meshing) tools.  That is, the tools attempt to create
     &skels; that resolve the <constant>meshable</constant> group
-    boundaries as well as the &material; boundaries.  By default,
+    boundaries as well as the &material; boundaries.  Pixels belonging
+    to different meshable &pixelgroups; are in different <link
+    linkend="Section-Concepts-Skeleton-Homogeneity">categories</link>.
+    </para><para>
+    By default,
     <link linkend='MenuItem-OOF.PixelGroup.New'>new</link>
     &pixelgroups; are <constant>meshable</constant>.
 

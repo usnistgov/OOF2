@@ -39,7 +39,7 @@ nodeselectmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     originate in the <link
     linkend='Section-Graphics-SkeletonSelection'>Skeleton Selection
     toolbox</link>.
-    </para>""",
+    </para>"""
     ))
 
 segmentselectmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
