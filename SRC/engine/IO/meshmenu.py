@@ -66,10 +66,26 @@ meshmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     xrefs=["Section-Tasks-FEMesh"]
 ))
 
-settingsmenu = mainmenu.OOF.Settings.addItem(oofmenu.OOFMenuItem(
+solversettingsmenu = mainmenu.OOF.Settings.addItem(oofmenu.OOFMenuItem(
+    "Solver",
+    ordering=5.5,
+    help="Advanced solver parameters.",
+    discussion="""<para>
+    Routines for settting a few rarely needed solver parameters.
+    </para>""",
+    xrefs=["Section-Tasks-Solver"]
+))
+
+meshsettingsmenu = mainmenu.OOF.Settings.addItem(oofmenu.OOFMenuItem(
     'Mesh_Defaults',
     ordering=5,
-    help='Default values for Mesh parameters'))
+    help='Default values for Mesh parameters',
+    discussion="""<para>
+    This menu contains commands that set default values used when
+    creating new &meshes;.
+    </para>""",
+    xrefs=["Section-Tasks-FEMesh"]
+))
 
 ####################
 
@@ -1467,7 +1483,7 @@ from ooflib.SWIG.engine import meshdatacache
 
 def _dummy(*args, **kwargs): pass
 
-settingsmenu.addItem(oofmenu.OOFMenuItem(
+meshsettingsmenu.addItem(oofmenu.OOFMenuItem(
     'Data_Cache_Type',
     callback=_dummy,              # Just setting the parameter is enough.
     params = [meshdatacache.cacheTypeParam],
@@ -1475,47 +1491,95 @@ settingsmenu.addItem(oofmenu.OOFMenuItem(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/datacachetype.xml')
 ))
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 def _consistencyTolerance(menuitem, tolerance, max_iterations):
     subproblemcontext.consistencyTolerance = tolerance
     evolve.maxconsistencysteps = max_iterations
 
-settingsmenu.addItem(oofmenu.OOFMenuItem(
-        "SelfConsistency",
-        callback=_consistencyTolerance,
-        params=[
-            parameter.FloatParameter(
-                "tolerance",
-                subproblemcontext.consistencyTolerance,
-                tip="Relative tolerance for consistency."),
-            parameter.IntParameter(
-                "max_iterations",
-                evolve.maxconsistencysteps,
-                tip="Maximum number of iterations to perform.")
-                ],
-        help="Set the tolerance and iteration limit used when self-consistently solving multiple subproblems simultaneously.",
-        discussion=xmlmenudump.loadFile(
-            'DISCUSSIONS/engine/menu/selfconsistency.xml')))
+solversettingsmenu.addItem(oofmenu.OOFMenuItem(
+    "Self_Consistency",
+    callback=_consistencyTolerance,
+    params=[
+        parameter.FloatParameter(
+            "tolerance",
+            subproblemcontext.consistencyTolerance,
+            tip="Relative tolerance for consistency."),
+        parameter.IntParameter(
+            "max_iterations",
+            evolve.maxconsistencysteps,
+            tip="Maximum number of iterations to perform.")
+            ],
+    help="Parameters for self-consistent solution of multiple subproblems.",
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/menu/selfconsistency.xml')))
+
+# SelfConsistency was moved from Settings.Mesh_Defaults to
+# Settings.Solver.  This is an invisible copy of it in Mesh_Defaults
+# so that scripts don't break.
+meshsettingsmenu.addItem(oofmenu.OOFMenuItem(
+    "SelfConsistency",
+    callback=_consistencyTolerance,
+    secret=1, no_doc=1, cli_only=1,
+    params=[
+        parameter.FloatParameter(
+            "tolerance",
+            subproblemcontext.consistencyTolerance,
+            tip="Relative tolerance for consistency."),
+        parameter.IntParameter(
+            "max_iterations",
+            evolve.maxconsistencysteps,
+            tip="Maximum number of iterations to perform.")
+    ],
+    help="Parameters for self-consistent solution of multiple subproblems.",
+    discussion="""<para>
+    Use <xref linkend="OOF.Settings.SolverSettings.SelfConsistency"/> instead.
+    </para>"""
+))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+## TODO: Either deriv_eps needs to be local to a solver, or there
+## needs to be a way to ensure that it's not changed while a solver is
+## using it.
 
 from ooflib.SWIG.engine import property
 
 def _numericalDiff(menuitem, epsilon):
     property.cvar.deriv_eps = epsilon
 
-settingsmenu.addItem(oofmenu.OOFMenuItem(
-        "Numerical_Differentiation",
-        callback=_numericalDiff,
-        params=[
-            parameter.FloatParameter(
-                "epsilon",
-                property.cvar.deriv_eps,
-                tip="Increment for numerical differentiation")],
-        help="Set the increment used for approximate derivatives when exact derivatives are not available.",
-        discussion=xmlmenudump.loadFile(
-            'DISCUSSIONS/engine/menu/numericaldiff.xml')
-        ))
+solversettingsmenu.addItem(oofmenu.OOFMenuItem(
+    "Numerical_Differentiation",
+    callback=_numericalDiff,
+    params=[
+        parameter.FloatParameter(
+            "epsilon",
+            property.cvar.deriv_eps,
+            tip="Increment for numerical differentiation")],
+    help="Set the increment used for numerical differentiation.",
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/menu/numericaldiff.xml')
+))
+
+# Numerical_Differentiation was moved from Settings.Mesh_Defaults to
+# Settings.Solver.  This is an invisible copy of it in Mesh_Defaults
+# so that scripts don't break.
+meshsettingsmenu.addItem(oofmenu.OOFMenuItem(
+    "Numerical_Differentiation",
+    callback=_numericalDiff,
+    params=[
+        parameter.FloatParameter(
+            "epsilon",
+            property.cvar.deriv_eps,
+            tip="Increment for numerical differentiation")],
+    secret=1, no_doc=1, cli_only=1,
+    help="Set the increment used for numerical differentiation.",
+    discussion="""<para>
+    Use <xref
+    linkend="OOF.Settings.SolverSettings.Numerical_Differentiation"/>
+    instead.
+    </para>"""
+))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

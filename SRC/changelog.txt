@@ -9,6 +9,11 @@ OOF2 2.3.3
 * Fixed OOF.Settings.Theme.  It now lists the built-in system themes
   and initialzes the list of themes properly.
 
+* Moved the menu item OOF.Settings.Mesh_Defaults.SelfConsistency to
+  OOF.Settings.Solver.Self_Consistency, and
+  OOF.Settings.Mesh_Defaults.Numerical_Differentiation to
+  OOF.Settings.Solver.Numerical_Differentiation.
+
 OOF2 2.3.2
 
 * Eliminated some opportunities for roundoff error in Rationalize that
