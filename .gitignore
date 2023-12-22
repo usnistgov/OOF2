@@ -6,5 +6,6 @@
 .\#*
 .swp
 build/
+build-*
 builddir-*
 SCRATCH/*
