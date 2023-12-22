@@ -1,0 +1,6 @@
+OOF.Microstructure.New(name='microstructure', width=1, height=1, width_in_pixels=10, height_in_pixels=10)
+OOF.Skeleton.New(name='skeleton', microstructure='microstructure', x_elements=8, y_elements=8, skeleton_geometry=QuadSkeleton(left_right_periodicity=False,top_bottom_periodicity=False))
+OOF.Windows.Graphics.New()
+OOF.Graphics_1.Layer.New(category='Skeleton', what='microstructure:skeleton', how=SkeletonEdgeDisplay(color=TranslucentGray(value=0.0,alpha=1.0),width=0.5))
+OOF.Graphics_1.Toolbox.Select_Node.Rectangle(skeleton='microstructure:skeleton', points=[Point(-0.0330572993188194,0.7882329370909574), Point(1.1059837050888206,0.6562708695071455)], shift=False, ctrl=False)
+OOF.Skeleton.Boundary.Construct(skeleton='microstructure:skeleton', name='boundary', constructor=EdgeFromNodes(group=selection,direction='Right to left'))

@@ -14,6 +14,9 @@ OOF2 2.3.3
   OOF.Settings.Mesh_Defaults.Numerical_Differentiation to
   OOF.Settings.Solver.Numerical_Differentiation.
 
+* Fixed a bug in the GUI for the "New" button on the Skeleton
+  Boundaries page.
+
 OOF2 2.3.2
 
 * Eliminated some opportunities for roundoff error in Rationalize that

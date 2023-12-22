@@ -94,10 +94,6 @@ class DirectorWidget(parameterwidgets.EnumWidget):
             self.widget.update(["No edge sequence"])
             self.widgetChanged(0, interactive=0)
 
-    # GTK callback for when a selection is made.
-    def selection(self, name):
-        parameterwidgets.EnumWidget.selection(self, name)
-
     # Just need to update when the aggregate changes.
     def newAggregate(self, *args, **kwargs):
         self.update()

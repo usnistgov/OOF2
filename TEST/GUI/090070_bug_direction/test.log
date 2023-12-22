@@ -1,0 +1,249 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.
+
+## This tests for a bug in DirectorWidget.  If the bug is present, the
+## widget doesn't change state when used, and the wrong
+## DirectorParameter value will be used in the saved script.
+
+import tests
+
+checkpoint toplevel widget mapped OOF2
+checkpoint page installed Introduction
+findWidget('OOF2').resize(792, 512)
+wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
+checkpoint toplevel widget mapped chooserPopup-PageMenu
+findMenu(findWidget('chooserPopup-PageMenu'), ['Microstructure']).activate() # MenuItemLogger
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
+checkpoint page installed Microstructure
+findWidget('OOF2:Microstructure Page:Pane').set_position(237)
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+findWidget('OOF2:Microstructure Page:Pane').set_position(186)
+findWidget('OOF2:Microstructure Page:New').clicked()
+checkpoint toplevel widget mapped Dialog-Create Microstructure
+findWidget('Dialog-Create Microstructure').resize(224, 236)
+findWidget('OOF2').resize(792, 549)
+findWidget('Dialog-Create Microstructure:widget_GTK_RESPONSE_OK').clicked()
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint pixel page updated
+checkpoint active area status updated
+checkpoint pixel page sensitized
+findWidget('OOF2:Microstructure Page:Pane').set_position(190)
+checkpoint mesh bdy page updated
+checkpoint Field page sensitized
+checkpoint Materials page updated
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page sensitized
+checkpoint boundary page updated
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
+checkpoint Solver page sensitized
+checkpoint OOF.Microstructure.New
+findWidget('OOF2').resize(792, 550)
+wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
+checkpoint toplevel widget mapped chooserPopup-PageMenu
+findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuItemLogger
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
+checkpoint page installed Skeleton
+findWidget('OOF2:Skeleton Page:Pane').set_position(433)
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha').set_position(146)
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold').set_position(100)
+checkpoint skeleton page sensitized
+checkpoint skeleton page sensitized
+findWidget('OOF2:Skeleton Page:New').clicked()
+checkpoint toplevel widget mapped Dialog-New skeleton
+findWidget('Dialog-New skeleton').resize(352, 255)
+findWidget('Dialog-New skeleton:x_elements').set_text('')
+findWidget('Dialog-New skeleton:x_elements').set_text('8')
+findWidget('Dialog-New skeleton:y_elements').set_text('')
+findWidget('Dialog-New skeleton:y_elements').set_text('8')
+findWidget('Dialog-New skeleton:widget_GTK_RESPONSE_OK').clicked()
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton page sensitized
+checkpoint mesh bdy page updated
+checkpoint Field page sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page sensitized
+checkpoint boundary page updated
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton page info updated
+checkpoint skeleton selection page selection sensitized Element
+checkpoint Solver page sensitized
+checkpoint OOF.Skeleton.New
+checkpoint skeleton page info updated
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page updated
+checkpoint skeleton page sensitized
+findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
+checkpoint Move Node toolbox info updated
+checkpoint Graphics_1 Skeleton Info sensitized
+checkpoint Graphics_1 Mesh Info sensitized
+findWidget('OOF2 Graphics 1:Pane0').set_position(362)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(211)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:time:timeslider').set_position(187)
+checkpoint toplevel widget mapped OOF2 Graphics 1
+findWidget('OOF2 Graphics 1').resize(800, 495)
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Windows.Graphics.New
+findWidget('OOF2 Graphics 1').resize(800, 495)
+findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
+findWidget('Dialog-New Graphics Layer:how:Material:no_color:RGBAColor:red').set_position(100)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray').set_position(101)
+findWidget('Dialog-New Graphics Layer:how:Material:no_color:RGBAColor:red').set_position(103)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray').set_position(104)
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(400, 537)
+wevent(findWidget('Dialog-New Graphics Layer:category'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Graphics Layer:category').get_window())
+checkpoint toplevel widget mapped chooserPopup-category
+findMenu(findWidget('chooserPopup-category'), ['Skeleton']).activate() # MenuItemLogger
+deactivatePopup('chooserPopup-category') # MenuItemLogger
+findWidget('Dialog-New Graphics Layer:how:Element Edges:width').set_position(143)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray').set_position(122)
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
+checkpoint Move Node toolbox writable changed
+checkpoint Move Node toolbox info updated
+checkpoint Graphics_1 Move Nodes sensitized
+checkpoint Graphics_1 Skeleton Info sensitized
+checkpoint Graphics_1 Pixel Info updated
+checkpoint selection info updated Pixel Selection
+checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
+checkpoint selection info updated Node
+checkpoint selection info updated Segment
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Graphics_1.Layer.New
+wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
+checkpoint toplevel widget mapped chooserPopup-TBChooser
+findMenu(findWidget('chooserPopup-TBChooser'), ['Skeleton Selection']).activate() # MenuItemLogger
+deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(265)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:time:timeslider').set_position(157)
+checkpoint selection info updated Element
+checkpoint Graphics_1 Element sensitized
+checkpoint selection info updated Element
+checkpoint Graphics_1 Element sensitized
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Select:Node').clicked()
+checkpoint Graphics_1 Node sensitized
+checkpoint selection info updated Node
+wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Node:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Node:Method:RCFChooser').get_window())
+checkpoint toplevel widget mapped chooserPopup-RCFChooser
+findMenu(findWidget('chooserPopup-RCFChooser'), ['Rectangle']).activate() # MenuItemLogger
+deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 2.4000000000000e+01)
+findGfxWindow('Graphics_1').simulateMouse('down', -0.033057299, 0.78823294, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', -0.033057299, 0.78823294, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', -0.036529985, 0.78476025, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', -0.040002671, 0.77781488, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', -0.040002671, 0.76739682, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', -0.040002671, 0.75697876, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', -0.036529985, 0.74308802, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', -0.026111927, 0.72919728, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.012087619, 0.70488847, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.085014024, 0.67710699, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.17877655, 0.65627087, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.26906638, 0.6493255, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.34199279, 0.65279818, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.39755576, 0.65974356, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.44270068, 0.66668893, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.47048217, 0.67016161, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.49479097, 0.67016161, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.52257246, 0.67016161, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.56424469, 0.67016161, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.62328035, 0.67016161, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.67884333, 0.67016161, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.73093362, 0.67016161, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.78302391, 0.66668893, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.82122345, 0.66321624, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.859423, 0.65627087, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.89414986, 0.6493255, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.92540403, 0.64585281, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.94276746, 0.64238013, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.94971284, 0.64238013, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.95318552, 0.64238013, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.95665821, 0.64585281, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.96360358, 0.64585281, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.97749432, 0.6493255, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 0.99485775, 0.6493255, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 1.0156939, 0.6493255, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 1.0330573, 0.6493255, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 1.0573661, 0.64585281, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 1.0816749, 0.64585281, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 1.0955656, 0.6493255, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 1.102511, 0.65279818, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 1.1059837, 0.65279818, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 1.1059837, 0.65279818, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 1.1059837, 0.65279818, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 1.1059837, 0.65627087, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 1.1059837, 0.65627087, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 1.1059837, 0.65627087, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('up', 1.1059837, 0.65627087, 1, False, False)
+checkpoint Graphics_1 Node sensitized
+checkpoint Graphics_1 Node sensitized
+checkpoint selection info updated Node
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Graphics_1.Toolbox.Select_Node.Rectangle
+wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
+checkpoint toplevel widget mapped chooserPopup-PageMenu
+findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton Boundaries']).activate() # MenuItemLogger
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
+checkpoint page installed Skeleton Boundaries
+findWidget('OOF2:Skeleton Boundaries Page:Pane').set_position(379)
+findWidget('OOF2:Skeleton Boundaries Page:Pane:Boundaries:New').clicked()
+checkpoint toplevel widget mapped Dialog-New Boundary
+findWidget('Dialog-New Boundary').resize(320, 197)
+wevent(findWidget('Dialog-New Boundary:constructor:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Boundary:constructor:RCFChooser').get_window())
+checkpoint toplevel widget mapped chooserPopup-RCFChooser
+findWidget('chooserPopup-RCFChooser').deactivate() # MenuLogger
+# Optional -- Check that direction is Left to right
+findMenu(findWidget('chooserPopup-RCFChooser'), ['Edge boundary from nodes']).activate() # MenuItemLogger
+deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
+wevent(findWidget('Dialog-New Boundary:constructor:Edge boundary from nodes:direction'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Boundary:constructor:Edge boundary from nodes:direction').get_window())
+checkpoint toplevel widget mapped chooserPopup-direction
+findWidget('chooserPopup-direction').deactivate() # MenuLogger
+# Optional -- Check that direction is Right to left
+findMenu(findWidget('chooserPopup-direction'), ['Right to left']).activate() # MenuItemLogger
+deactivatePopup('chooserPopup-direction') # MenuItemLogger
+findWidget('Dialog-New Boundary:widget_GTK_RESPONSE_OK').clicked()
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint boundary page updated
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Skeleton.Boundary.Construct
+findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Python_Log']).activate()
+checkpoint toplevel widget mapped Dialog-Python_Log
+findWidget('Dialog-Python_Log').resize(208, 123)
+findWidget('Dialog-Python_Log:filename').set_text('s')
+findWidget('Dialog-Python_Log:filename').set_text('se')
+findWidget('Dialog-Python_Log:filename').set_text('ses')
+findWidget('Dialog-Python_Log:filename').set_text('sess')
+findWidget('Dialog-Python_Log:filename').set_text('sessi')
+findWidget('Dialog-Python_Log:filename').set_text('sessio')
+findWidget('Dialog-Python_Log:filename').set_text('session')
+findWidget('Dialog-Python_Log:filename').set_text('session.')
+findWidget('Dialog-Python_Log:filename').set_text('session.l')
+findWidget('Dialog-Python_Log:filename').set_text('session.lo')
+findWidget('Dialog-Python_Log:filename').set_text('session.log')
+findWidget('Dialog-Python_Log:widget_GTK_RESPONSE_OK').clicked()
+checkpoint OOF.File.Save.Python_Log
+assert tests.filediff('session.log')
+findMenu(findWidget('OOF2:MenuBar'), ['File', 'Quit']).activate()
+checkpoint OOF.Graphics_1.File.Close
