@@ -68,6 +68,7 @@ class BoundaryConstructor(registeredclass.RegisteredClass):
     linkend='Section-Concepts-Skeleton-Boundary'>boundaries</link> in
     a &skel;.
     </para>"""
+    xrefs=["Section-Tasks-SkeletonBoundaries"]
 
 # Utility function -- given a bunch of segments and an orientation,
 # it returns (startnode, seg_list), where seg_list is suitably
@@ -254,34 +255,32 @@ def segments_from_el_aggregate(skelcontext, group):
 
     return list(seg_set.keys())
 
-if config.dimension() == 2:                
-    class EdgeFromElements(BoundaryConstructor):
-        def __init__(self, group, direction):
-            self.group = group
-            self.direction = direction
+class EdgeFromElements(BoundaryConstructor):
+    def __init__(self, group, direction):
+        self.group = group
+        self.direction = direction
 
-        def __call__(self, skelcontext, name):
-            skelobj = skelcontext.getObject()
+    def __call__(self, skelcontext, name):
+        skelobj = skelcontext.getObject()
+        seg_list = segments_from_el_aggregate(skelcontext, self.group)
+        (startnode, seg_list) = _segset2seglist(
+            seg_list, self.direction, skelobj)
+        skelcontext.createEdgeBoundary(name, seg_list, startnode)
 
-            seg_list = segments_from_el_aggregate(skelcontext, self.group)
-
-            (startnode, seg_list) = _segset2seglist(seg_list, self.direction, skelobj)
-
-            skelcontext.createEdgeBoundary(name, seg_list, startnode)
-
-
-    registeredclass.Registration(
-        "Edge boundary from elements",
-        BoundaryConstructor,
-        EdgeFromElements,
-        ordering=101,
-        params = [skeletongroupparams.ElementAggregateParameter('group',
-                               tip="Construct the boundary from these elements"),
-                  director.DirectorParameter('direction',
-                                             director.Director('Clockwise'),
-                                             tip="Direction of Boundary.")],
-        tip="Construct an edge boundary around a set of elements.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/edge_from_elements.xml'))
+registeredclass.Registration(
+    "Edge boundary from elements",
+    BoundaryConstructor,
+    EdgeFromElements,
+    ordering=101,
+    params = [skeletongroupparams.ElementAggregateParameter('group',
+                           tip="Construct the boundary from these elements"),
+              director.DirectorParameter('direction',
+                                         director.Director('Clockwise'),
+                                         tip="Direction of Boundary.")],
+    tip="Construct an edge boundary around a set of elements.",
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/edge_from_elements.xml')
+)
 
 
 # ## ### #### ##### ###### ####### ######## ####### ###### ##### #### ### ## #

@@ -659,16 +659,18 @@ class WhoDoUndoClass(WhoClass):
                           instanceClass=instanceClass,
                           proxyClasses=proxyClasses, secret=secret)
         self.historysize = historysize
+        thename = utils.space2underscore(name)
         mainmenu.bufsizemenu.addItem(oofmenu.OOFMenuItem(
-            utils.space2underscore(name),
+            thename,
             callback=self.setUndoBufferSize,
-            # TODO: Disallow size=0.
-            params=[parameter.IntParameter('size', historysize,
-                                           tip='number of previous versions to preserve')],
+            params=[parameter.PositiveIntParameter(
+                'size', historysize,
+                tip='number of previous versions to preserve')],
             help="Set the history buffer size for %ss" % name,
             discussion=xmlmenudump.loadFile(
                'DISCUSSIONS/common/menu/bufsize.xml',
-               lambda text,obj: text.replace('CLASS', name))
+                lambda text,obj: text.replace('CLASS', name)),
+            xrefs=[f"Section-Tasks-{thename}"]
             ))
     def setUndoBufferSize(self, menuitem, size):
         if size <= 0:

@@ -37,7 +37,8 @@ boundarymenu = skeletonmenu.skeletonmenu.addItem(mainmenu.OOFMenuItem(
     linkend='Section-Concepts-Mesh-BoundaryCondition'><emphasis>boundary
     conditions</emphasis></link> are in <xref
     linkend='MenuItem-OOF.Mesh.Boundary_Conditions'/>.
-    </para>"""
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonBoundaries"]
     ))
 
 ####  Boundary deletion.

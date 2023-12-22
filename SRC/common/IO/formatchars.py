@@ -20,7 +20,9 @@ from ooflib.common.IO import xmlmenudump
 settingsmenu = mainmenu.OOF.Settings.addItem(oofmenu.OOFMenuItem(
     'Output_Formatting',
     ordering=6,
-    help="Formatting options for post-processing analysis output."))
+    help="Formatting options for post-processing analysis output.",
+    discussion=xmlmenudump.emptyDiscussion
+))
 
 # The menuitems just set the parameter values, so they just have a
 # dummy callback function.

@@ -1682,7 +1682,7 @@ mainmenu.gfxdefaultsmenu.addItem(oofmenu.OOFMenuItem(
                                    GhostGfxWindow.initial_height,
                                    tip="Window height in pixels.")],
     help="Set the initial size of graphics windows.",
-    discussion="<para> Set the initial size of graphics windows. </para>"
+    discussion=xmlmenudump.emptyDiscussion
     ))
 
 ##########

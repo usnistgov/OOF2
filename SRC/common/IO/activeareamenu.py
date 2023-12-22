@@ -64,7 +64,7 @@ microstructureIO.categorymenu.addItem(
         loading a microstructure from
         a file.  This menu item is only used in data files.</para>""",
         xrefs=["Section-Concepts-FileFormats",
-               "Section-Tasks-ActiveArea",
+               "Section-Tasks-Active_Area",
                "MenuItem-OOF.LoadData.Microstructure"]
     ))                    
 
@@ -93,5 +93,5 @@ microstructureIO.micromenu.addItem(
         discussion="""<para>Create a new empty active area in a
         microstructure when loading it from a data file.  This menu
         item is only used in data files.</para>""",
-        xrefs=["Section-Concepts-FileFormats", "Section-Tasks-ActiveArea"]
+        xrefs=["Section-Concepts-FileFormats", "Section-Tasks-Active_Area"]
     ))

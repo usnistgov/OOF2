@@ -117,8 +117,11 @@ mainmenu.OOF.Settings.UndoBuffer_Size.addItem(oofmenu.OOFMenuItem(
     'Pinned_Nodes',
     ordering=2,
     callback=_setPinnedNode_UndoBufferSize,
-    params=[parameter.IntParameter('size', skeletonnode.stacksize,
-                                   tip='number of previous pinned node configurations to retain')],
+    params=[parameter.PositiveIntParameter(
+        'size', skeletonnode.stacksize,
+        tip='number of previous pinned node configurations to retain')],
     help='Set the history buffer size for node pinning operations',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/pinnodebufsize.xml')
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/menu/pinnodebufsize.xml'),
+    xrefs=["Section-Tasks-PinNodes"]
     ))

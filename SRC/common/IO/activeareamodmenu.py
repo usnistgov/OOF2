@@ -86,7 +86,7 @@ aamodmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     cli_only=1,
     help='Create and manipulate Active Areas.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/activearea.xml'),
-    xrefs=["Section-Tasks-ActiveArea"]
+    xrefs=["Section-Tasks-Active_Area"]
     ))
                                                                                 
 def buildActiveAreaModMenu():

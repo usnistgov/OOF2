@@ -115,7 +115,11 @@ def firstMode():
 bufsizmenu = mainmenu.OOF.Settings.UndoBuffer_Size.addItem(oofmenu.OOFMenuItem(
     'Skeleton_Selection',
     help="Set the size of history buffers for Skeleton selection operations",
-    ordering=1))
+    ordering=1,
+    discussion=xmlmenudump.emptyDiscussion,
+    xrefs=["Section-Tasks-SkeletonSelection",
+           "Section-Graphics-SkeletonSelection"]
+))
 
 _stacksize = 50
 

@@ -353,20 +353,28 @@ settingsmenu.addItem(OOFMenuItem(
 bufsizemenu = settingsmenu.addItem(OOFMenuItem(
     "UndoBuffer_Size",
     ordering=8,
-    help="Set the size of history buffers."))
+    help="Set the size of history buffers.",
+    discussion="""<para>
+    Many operations in &oof2; save data in a buffer so that the
+    operation can be reversed with an <guibutton>Undo</guibutton>
+    button.  This menu contains commands that set the size of the
+    buffer.  Using a larger buffer make more operations undoable, but
+    uses more memory.
+    </para>"""
+))
 
 gfxdefaultsmenu = settingsmenu.addItem(OOFMenuItem(
     "Graphics_Defaults",
     ordering=4,
     help="Set various default parameters for graphics displays.",
     discussion="""<para>
-
     This menu contains commands for setting the default values of
     various parameters controlling how things are displayed in the
     graphics window.  Put these commands into your &oof2rc; file
     to set defaults for every &oof2; session.
-
-    </para>"""))
+    </para>""",
+    xrefs=["Chapter-Graphics"]
+))
 gfxdefaultsmenu.addItem(OOFMenuItem(
     "Pixels",
     ordering=1,
