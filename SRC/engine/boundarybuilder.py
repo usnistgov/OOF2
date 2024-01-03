@@ -285,383 +285,171 @@ registeredclass.Registration(
 
 # ## ### #### ##### ###### ####### ######## ####### ###### ##### #### ### ## #
 
+# To unambiguously build an edge boundary from a set of nodes, it's
+# necessary to find a unique linearly ordered set of segments that
+# connect all of the nodes.  Constructing a path through a linked set
+# of nodes (a graph, in the graph theory sense of the word) such that
+# each node is visited once is called the Hamiltonian Path Problem,
+# and is NP complete.  See
+# https://en.wikipedia.org/wiki/Hamiltonian_path_problem
+# and 
+# A Search Procedure for Hamilton Paths and Circuits FRANK RUBIN
+# https://dl.acm.org/doi/pdf/10.1145/321850.321854
+# Fortunately we don't expect to have to solve extremely large or
+# complicated graphs, and can use a brute force approach.  I think.
 
-# Stateful object for keeping track of where you are in the
-# path-construction process.  Maintains a list of segments-or-None,
-# and a dictionary, indexed by nodes, of pointers into this list.
-# "None" in the list means that the segment in question has already
-# been used in the current path.
-class PathBuilder:
-    # If a segment list is provided, it should be complete, with no
-    # "None" entries in it.  This is only required at start-time.
-    def __init__(self, segments=None):
-        self.finished = None
-        self.loop = None # Paths can be loops, or not.
-        if segments:
-            self.seg_list = segments[:]
-            self.path = []         # List of segments used so far.
-            self.last_node = None  # Trailing node of the path so far.
-            self.node_dict = {}
-            for i in range(len(segments)):
-                # Build a node-indexed dictionary of pointers into the
-                # segment list.
-                seg_nodes  = self.seg_list[i].get_nodes()
-                for n in seg_nodes:
-                    try:
-                        self.node_dict[n].append(i)
-                    except KeyError:
-                        self.node_dict[n] = [i]
+class SequenceError(Exception): pass
 
-    # The iterate function -- returns a list of PathBuilder objects
-    # one step farther along than the current one.
-    def iterate(self):
-        if self.finished:
-            return []
-        
-        # Find a node to start from.
-        if self.last_node is None:
-            for (n,s) in self.node_dict.items():
-                if len(s)==1:
-                    node = n
-                    index_list = self.node_dict[node]
-                    break
-            else:
-                # Loop case -- no node has exactly one neighbor.  Find
-                # one that has exactly two, and then proceed in only
-                # one direction from it.  This looks expensive, but
-                # for well-formed node sets, it will succeed in O(1).
-                for (n,s)  in self.node_dict.items():
-                    if len(s)==2:
-                        node = n
-                        index_list = self.node_dict[node][:-1]
-                        self.loop = 1
-                        break
-                else:
-                    # Pathological case -- no node has exactly two neighbors.
-                    # Unique path is impossible.
-                    self.finished = 1
-                    return []
-        else:
-            node = self.last_node
-            index_list = self.node_dict[node]
-
-        res = []
-        for i in index_list:
-            seg = self.seg_list[i]
-            if seg:
-                new_pb = PathBuilder()
-                new_pb.loop = self.loop
-                new_pb.seg_list = self.seg_list[:]
-                new_pb.seg_list[i]=None
-                new_pb.path = self.path[:] + [seg]
-                new_pb.node_dict = self.node_dict # Shared reference
-                new_pb.last_node = seg.get_other_node(node)
-                res.append(new_pb)
-
-        if res==[]:
-            self.finished=1
-        return res
-
-    # Query: Does the current path use all the nodes?  If it's a loop,
-    # does it, in fact, loop?  This test is probably too expensive.
-    def well_formed_q(self):
-        node_count_dict = {}
-        for n in self.node_dict:
-            node_count_dict[n]=0
-        for nn in [x.get_nodes() for x in self.path]:
-            for node in nn:
-                try:
-                    del node_count_dict[node]
-                except KeyError:
-                    pass
-        if len(node_count_dict)!=0:
-            return None
-
-        # All nodes used -- check loopiness, if needed.
-        if not self.loop:
-            return 1
-
-        n2s = self.path[-1].get_nodes()
-        for n in self.path[0].get_nodes():
-            if n in n2s:
-                return 1
-
-# Optional routine which uses the PathBuilder class, above, to
-# do an expensive but good-quality assessment of the node set,
-# and picks out a path, if there is one.
-def _really_good_segs(segs):
-    path_list = [ PathBuilder(segs) ]
-    finished = None
-    # Iterate the pathbuilders until they're all done.  This is the
-    # expensive part, in the sense of scaling combinatorially badly in
-    # the number of enclosed loops in the node set.
-    while not finished:
-        finished = 1
-        new_path_list = []
-        for p in path_list:
-            new_paths = p.iterate()
-            if new_paths:
-                new_path_list += new_paths
-                finished=None
-            else:
-                new_path_list.append(p)
-        path_list = new_path_list
-
-    # Select only the paths which are well-formed, according to the
-    # PathBuilder's routine.
-    complete_path_list = []
-    for p in path_list:
-        if p.well_formed_q():
-            complete_path_list.append(p)
-
-    # If there's only one such path, we win -- return those segments.
-    if len(complete_path_list)==1:
-        return complete_path_list[0].path
-
-    # Otherwise, return nothing.
-    return []
-        
-
-# A more primitive but faster segment-pruning scheme.  Given the
-# initial segment set, find either two nodes with exactly one segment
-# each (straight case), or, if no such nodes exist, one node with
-# exactly two segments associated with it.  Then, traverse the segment
-# set in each direction, using a "keep to the right" rule at
-# branch-points, if any.  If either direction's traversal results in a
-# set of segments which include each of the original nodes exactly
-# once, then return that segment set -- you have pruned out extraneous
-# segments.
-
-# Another utility function -- given a segment, and the *trailing* node
-# on that segment, it returns the next segment-and-trailing-node pair,
-# keeping furthest to the right in case of branches.
-def _right_traverse_step(segment, node, node_dict):
-    sset = node_dict[node][:] # Make a local copy of this list.
-    sset.remove(segment)      # Ditch the one we know about already.
-    if len(sset)==0:  # Unable to proceed, nowhere to go.
-        return None
-    if len(sset)==1:  # Trivial case, no branch here.
-        if node in sset[0].get_nodes():
-            return (sset[0], sset[0].get_other_node(node))
-        # the segment is on the other side of a periodic boundary
-        else:
-            for partner in node.getPartners():
-                # there will only be one partner in the segment
-                if partner in sset[0].get_nodes():
-                    return (sset[0], sset[0].get_other_node(partner))
-                
-    # "Node" is the trailing node.
-    if node in segment.get_nodes():
-        incoming_vec = node.position() - segment.get_other_node(node).position()
-    else:
-        for partner in node.getPartners():
-            if partner in segment.get_nodes():
-                incoming_vec = partner.position() - \
-                               segment.gett_other_node(partner).position()
-    incoming_mag = math.sqrt(incoming_vec**2)
-    normalized_iv = incoming_vec/incoming_mag
-    maximal_pair = None
-    maximal_angle = -math.pi
-    for s in sset:
-        if node in s.get_nodes():
-            pair = (s, s.get_other_node(node))
-            trailing_node = node
-        else:
-            for partner in node.getPartners():
-                if partner in s.get_nodes():
-                    pair = (s, s.get_other_node(partner))
-                    trailing_node = partner
-        outgoing_vec = pair[1].position()-trailing_node.position()
-        outgoing_mag = math.sqrt(outgoing_vec**2)
-        normalized_ov = outgoing_vec/outgoing_mag
-        cos = normalized_iv*normalized_ov
-        sin = normalized_ov.cross(normalized_iv) # Positive for rightward.
-        angle = math.atan2(sin,cos)
-        if angle > maximal_angle:
-            maximal_angle = angle
-            maximal_pair = pair
-    return maximal_pair
-
-# Higher-level utility function -- given a *starting* node and a
-# segment, does a keep-to-the-right traverse of the node-dict until it
-# can't go any farther.  If the resulting segment set uses all the
-# nodes, then it returns the segments, in order, otherwise it raises
-# the "IncompletePath" exception.
-
-class IncompletePath(Exception): pass
-
-def _right_traverse(node, segment, node_dict):
-    nodelist = list(node_dict.keys())
-    nodelist.remove(node)
-    for partner in node.getPartners():
-        nodelist.remove(partner)
-    seglist = []
-    trailing_node = segment.get_other_node(node)
-    
-    while True:
-        seglist.append(segment)
-        try:
-            nodelist.remove(trailing_node)
-            for partner in trailing_node.getPartners():
-                nodelist.remove(partner)
-        except ValueError:
-            # Node has already been visited, but we're not done!  That
-            # means that there's an internal loop.
-            raise IncompletePath()
-        next = _right_traverse_step(segment, trailing_node, node_dict)
-        if not next: # Straight-through completion case.
-            break
-        segment, trailing_node = next
-        # Loop completion case.
-        if trailing_node==node or trailing_node in node.getPartners():
-            seglist.append(segment)
-            break
-
-    if len(nodelist)==0:
-        return seglist
-    raise IncompletePath()
-        
-
-def _prune_segments(segs):              # part of a well balanced breakfast
-    # create a list of segments for each node
-    node_dict = {} 
-    for s in segs:
-        for n in s.get_nodes():
-            try:
-                node_dict[n].append(s)
-            except KeyError:
-                node_dict[n] = [s]
-            # include the partners
-            for p in n.getPartners():
-                try:
-                    node_dict[p].append(s)
-                except KeyError:
-                    node_dict[p] = [s]
-                
-
-    straight_start_points = []
-    loop_start_point = None
-    for (n,ss) in node_dict.items():
-        if len(ss)==1:
-            straight_start_points.append(n)
-        elif len(ss)==2 and not loop_start_point:
-            loop_start_point = n
-
-
-    len_ssp = len(straight_start_points)
-
-    # If there's a unique path, there must be either 0 endpoints (a
-    # loop) or two endpoints.
-    if len_ssp!=0 and len_ssp!=2:
-        return []
-
-    # Collect the approprate starting-node-and-segment pairs.
-    if len_ssp==2:
-        node1 = straight_start_points[0]
-        seg1 = node_dict[node1][0]
-        node2 = straight_start_points[1]
-        seg2 = node_dict[node2][0]
-    else: # len_ssp==0
-        node1 = loop_start_point
-        seg1 = node_dict[node1][0]
-        node2 = node1
-        seg2 = node_dict[node2][1]
-        
-    # Find paths. Accept the first one that works.  
-
-    # TODO 3D: In 3D, we can go left, right, up, or down with each
-    # step forward
-    try:
-        path = _right_traverse(node1, seg1, node_dict)
-    except IncompletePath:
-        try:
-            path = _right_traverse(node2, seg2, node_dict)
-        except IncompletePath:
-            return []
-    return path
-
+# segments_from_node_aggregate is called by EdgeFromNodes, below, and
+# also by DirectorWidget.loop_check() in boundarybuilderGUI.py, via
+# the segmenter dict from skeletongroupwidgets.py.
 
 def segments_from_node_aggregate(skelcontext, group):
-    seg_set = {}
-    node_set = {}
     if group == placeholder.selection:
         nodes = skelcontext.nodeselection.retrieve()
     else:
         nodes = skelcontext.nodegroups.get_group(group)
 
+    skel = skelcontext.getObject()
+
+    # First construct a graph of the given nodes and the segments
+    # joining them.  The graph is stored as a dictionary keyed by
+    # nodes.  The dictionary values are the nodes that are connected
+    # to the key by a segment.
+
+    # Loop over all the segments attached to the nodes, and count how
+    # many times each segment appears.
+    seg_counts = {}
+    connections = {}            # This is the graph data structure.
     for n in nodes:
-        node_set[n]=0
-        for s in n.localSegments(skelcontext.getObject()):
+        connections[n] = []
+        for s in n.localSegments(skel):
             try:
-                seg_set[s] += 1
+                seg_counts[s] += 1
             except KeyError:
-                seg_set[s] = 1
+                seg_counts[s] = 1
 
-    # Segment selection is more complicated in this case -- loops are
-    # not necessarily an error.  What we really want is the unique
-    # path that uses all the nodes, if there is one.
-    
-    # Each segment which occurs twice is one we want, because
-    # both ends of it are in the node set.
-    good_segs = [ s for s in seg_set if seg_set[s]==2]
+    # We want each segment that occurs twice, because both of its ends
+    # are in the node set.
+    for seg, count in seg_counts.items():
+        if count == 2:
+            n0, n1 = seg.get_nodes()
+            connections.setdefault(n0, []).append(n1)
+            connections.setdefault(n1, []).append(n0)
 
-    if len(good_segs)==0:
+    # If there are isolated nodes that don't have any neighbors in the
+    # set, then the set is not sequenceable.  The isolated nodes won't
+    # be in connections.
+    if len(connections) != len(nodes):
         return []
+
+    # The final path must either have two endpoints, or be a loop with
+    # no endpoints.  The endpoints are nodes with only one neighbor.
+    # See if there are 0 or 2 of them.  Also look for a point with
+    # only two neighbors, because it will be a good starting point
+    # when searching for a loop.
+    endpoints = []
+    twopoint = None             # a point with only two neighbors
+    for node, nbrs in connections.items():
+        if len(nbrs) == 1:
+            endpoints.append(node)
+        if not twopoint and len(nbrs) == 2:
+            twopoint = node
+    nendpts = len(endpoints)
+
+    # Identify the start and end points and the first step in the
+    # path.  Choosing the first step now guarantees that we won't
+    # accidentally identify the path and its reverse and think that
+    # we've found two paths.
+    if nendpts == 2:
+        startpt = endpoints[0]
+        path = [startpt, connections[startpt][0]]
+        endpt = endpoints[1]
+    elif nendpts == 0 and  twopoint is not None:
+        startpt = twopoint
+        path = [startpt, connections[startpt][0]]
+        endpt = connections[startpt][1]
+    else:
+        # If we didn't find a starting point, the node set isn't
+        # sequenceable.  (That statement might not be true for general
+        # graphs, but seems to be true for planar graphs constructed
+        # from corners and edges of tilings.  We think.)
+        return []
+
+    # Search for Hamiltonian paths, joining startpt to endpt.
+    hampaths = []
+    try:
+        _extend_path(connections, path, endpt, hampaths) # recursive
+    except SequenceError:
+        return []
+    if len(hampaths) != 1:
+        # There's no path or more than one path. The sequence isn't
+        # unique.
+        return []
+
+    # Convert the path, which is a list of nodes, to a set of segments.
+    ## TODO: we're discarding the connectivity information, which will
+    ## be regenerated later by skeletonsegment.segSequence. That is
+    ## inefficient. Do we care?
+    segset = set()
+    hampath = hampaths[0]
+    for i in range(1, len(hampath)):
+        segset.add(skel.getSegment(hampath[i], hampath[i-1]))
+    if nendpts == 0:            # close the loop
+        segset.add(skel.getSegment(hampath[-1], hampath[0]))
+
+    return segset
+
+def _extend_path(connections, path, endpt, hampaths):
+    # Extend the path in all possible directions by adding a
+    # neighboring point and calling this routine again.  If there are
+    # no points to add, see if the path is complete.  
+    currentpt = path[-1]
+    foundone = False
+    for nextpt in connections[currentpt]:
+        # TODO: If this check is too slow, we can store the nodes in
+        # the path as a set too.  Or give the nodes temporary subgraph
+        # indices and use simple list lookup.
+        if nextpt not in path:
+            foundone = True
+            path.append(nextpt)
+            _extend_path(connections, path, endpt, hampaths)
+            path.pop()          # removes nextpt
+    if not foundone:
+        # There's nothing to add.  Are we done?
+        if len(path) == len(connections) and path[-1] == endpt:
+            if len(hampaths) == 1:
+                # We found a path before this one, so the sequence
+                # isn't unique.
+                raise SequenceError
+            hampaths.append(path[:])
     
-    # Double-check that set of good segments includes all the nodes.
-    # An isolated node won't be in good_segs, and means that the nodes
-    # don't form a connected boundary.
-    for s in good_segs:
-        for n in s.get_nodes():
-            node_set[n] += 1
-    for count in node_set.values():
-        if count==0:
-            return []
 
-    return _prune_segments(good_segs)
+class EdgeFromNodes(BoundaryConstructor):
+    def __init__(self, group, direction):
+        self.group = group
+        self.direction = direction
 
-    # Options: There is a very robust but combinatorially bad-scaling
-    # algorithm:
-    # return _really_good_segs(good_segs)
+    def __call__(self, skelcontext, name):
+        path_segs = segments_from_node_aggregate(skelcontext, self.group)
+        (startnode, seg_list) = _segset2seglist(path_segs, self.direction,
+                                                skelcontext.getObject())
+        skelcontext.createEdgeBoundary(name, seg_list, startnode)
 
-    # Or there is the old way of just returning the segment set, which
-    # will get tripped up on easily-resolvable loops in the segment
-    # set:
-    # return good_segs
-
-# Disabling this in 3D for now.
-if config.dimension() == 2:
-    class EdgeFromNodes(BoundaryConstructor):
-        def __init__(self, group, direction):
-            self.group = group
-            self.direction = direction
-
-        def __call__(self, skelcontext, name):
-            skelobj = skelcontext.getObject()
-
-            seg_set = segments_from_node_aggregate(skelcontext, self.group)
-
-            (startnode, seg_list) = _segset2seglist(seg_set, self.direction, skelobj)
-
-            skelcontext.createEdgeBoundary(name, seg_list, startnode)
-
-
-    registeredclass.Registration(
-        "Edge boundary from nodes",
-        BoundaryConstructor,
-        EdgeFromNodes,
-        ordering=102,
-        params=[skeletongroupparams.NodeAggregateParameter('group',
-                                tip="Node group from which to deduce segments"),
-                director.DirectorParameter('direction',
-                                           director.Director('Clockwise'),
-                                           tip="Direction of Boundary.")],
-        tip="Construct an edge boundary from a collection of nodes.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/edge_from_nodes.xml')
-        )
-
-
-
+registeredclass.Registration(
+    "Edge boundary from nodes",
+    BoundaryConstructor,
+    EdgeFromNodes,
+    ordering=102,
+    params=[skeletongroupparams.NodeAggregateParameter('group',
+                            tip="Node group from which to deduce segments"),
+            director.DirectorParameter('direction',
+                                       director.Director('Clockwise'),
+                                       tip="Direction of Boundary.")],
+    tip="Construct an edge boundary from a collection of nodes.",
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/edge_from_nodes.xml')
+    )
 
 # ## ### #### ##### ###### ####### ######## ####### ###### ##### #### ### ## #
 
