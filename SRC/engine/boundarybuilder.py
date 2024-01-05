@@ -77,8 +77,7 @@ class BoundaryConstructor(registeredclass.RegisteredClass):
 def _segset2seglist(seg_set, direction, skel):
 
     if len(seg_set)==0:
-        raise ooferror.PyErrUserError(
-            "Attempt to sequence null segment set.")
+        raise ooferror.PyErrUserError("Attempt to sequence null segment set.")
     
     (seg_list, node_list, winding_number) = skeletonsegment.segSequence(seg_set)
     
@@ -285,6 +284,10 @@ registeredclass.Registration(
 
 # ## ### #### ##### ###### ####### ######## ####### ###### ##### #### ### ## #
 
+# segments_from_node_aggregate is called by EdgeFromNodes, below, and
+# also by DirectorWidget.loop_check() in boundarybuilderGUI.py, via
+# the segmenter dict from skeletongroupwidgets.py.
+
 # To unambiguously build an edge boundary from a set of nodes, it's
 # necessary to find a unique linearly ordered set of segments that
 # connect all of the nodes.  Constructing a path through a linked set
@@ -293,54 +296,70 @@ registeredclass.Registration(
 # and is NP complete.  See
 # https://en.wikipedia.org/wiki/Hamiltonian_path_problem
 # and 
-# A Search Procedure for Hamilton Paths and Circuits FRANK RUBIN
+# A Search Procedure for Hamilton Paths and Circuits, Frank Rubin
 # https://dl.acm.org/doi/pdf/10.1145/321850.321854
 # Fortunately we don't expect to have to solve extremely large or
 # complicated graphs, and can use a brute force approach.  I think.
 
 class SequenceError(Exception): pass
 
-# segments_from_node_aggregate is called by EdgeFromNodes, below, and
-# also by DirectorWidget.loop_check() in boundarybuilderGUI.py, via
-# the segmenter dict from skeletongroupwidgets.py.
+def representativeNode(node, periodicmap):
+    # Get the representative for the given node. A node that's not a
+    # key in periodic map is its own representative.
+    return periodicmap.get(node, node)
 
 def segments_from_node_aggregate(skelcontext, group):
     if group == placeholder.selection:
-        nodes = skelcontext.nodeselection.retrieve()
+        originalnodes = set(skelcontext.nodeselection.retrieve())
     else:
-        nodes = skelcontext.nodegroups.get_group(group)
+        originalnodes = set(skelcontext.nodegroups.get_group(group))
 
     skel = skelcontext.getObject()
 
-    # First construct a graph of the given nodes and the segments
-    # joining them.  The graph is stored as a dictionary keyed by
-    # nodes.  The dictionary values are the nodes that are connected
-    # to the key by a segment.
+    # When the skeleton has periodic boundary conditions, the periodic
+    # partners of a node are all considered to be one point, as far as
+    # the graph is concerned.  All of the periodic partners are
+    # represented by a single representative node and tracked by the
+    # periodicmap dict.
+    periodicmap = {}
 
-    # Loop over all the segments attached to the nodes, and count how
-    # many times each segment appears.
-    seg_counts = {}
-    connections = {}            # This is the graph data structure.
-    for n in nodes:
-        connections[n] = []
-        for s in n.localSegments(skel):
-            try:
-                seg_counts[s] += 1
-            except KeyError:
-                seg_counts[s] = 1
+    # nodeset contains the nodes to be sequenced, after taking
+    # periodicity into account.
+    nodeset = set()
 
-    # We want each segment that occurs twice, because both of its ends
-    # are in the node set.
-    for seg, count in seg_counts.items():
-        if count == 2:
-            n0, n1 = seg.get_nodes()
-            connections.setdefault(n0, []).append(n1)
-            connections.setdefault(n1, []).append(n0)
+    # Find nodeset and periodicmap.
+    for node in originalnodes:
+        # Add node to nodeset only if none of its periodic partners
+        # are already in nodeset.
+        for p in node.getPartners():
+            if p in nodeset:
+                break
+        else:
+            nodeset.add(node)
+            # At this point we don't know which periodic partners of
+            # the node will be used, so put them all in periodic map.
+            # It's easier to do this now than it is to search for them
+            # later, when looking for a connection to a neighbor of
+            # one of the partners.
+            periodicmap[node] = node
+            for p in node.getPartners():
+                periodicmap[p] = node
+
+    # Construct the graph.
+    connections = {}
+    for node in nodeset:
+        for other in node.neighborNodes(skel):
+            nother = periodicmap.get(other, other)
+            if nother in nodeset:
+                if node in connections:
+                    connections[node].add(nother)
+                else:
+                    connections[node] = set([nother])
 
     # If there are isolated nodes that don't have any neighbors in the
     # set, then the set is not sequenceable.  The isolated nodes won't
     # be in connections.
-    if len(connections) != len(nodes):
+    if len(connections) != len(nodeset):
         return []
 
     # The final path must either have two endpoints, or be a loop with
@@ -363,41 +382,84 @@ def segments_from_node_aggregate(skelcontext, group):
     # we've found two paths.
     if nendpts == 2:
         startpt = endpoints[0]
-        path = [startpt, connections[startpt][0]]
+        path = [startpt, next(iter(connections[startpt]))]
         endpt = endpoints[1]
     elif nendpts == 0 and  twopoint is not None:
         startpt = twopoint
-        path = [startpt, connections[startpt][0]]
-        endpt = connections[startpt][1]
+        # The two points connected to startpt are the next point in
+        # the path after startpt, and endpt.  Which is which doesn't
+        # matter here.
+        nextpt, endpt = iter(connections[startpt])
+        path = [startpt, nextpt]
     else:
         # If we didn't find a starting point, the node set isn't
         # sequenceable.  (That statement might not be true for general
-        # graphs, but seems to be true for planar graphs constructed
-        # from corners and edges of tilings.  We think.)
+        # graphs, but it's true for planar graphs constructed from
+        # corners and edges of tilings.  We think.)
         return []
 
     # Search for Hamiltonian paths, joining startpt to endpt.
     hampaths = []
     try:
-        _extend_path(connections, path, endpt, hampaths) # recursive
+        _extend_path(connections, path, endpt, hampaths) # recursive search
     except SequenceError:
+        # More than one Hamiltonian path was found. 
         return []
     if len(hampaths) != 1:
-        # There's no path or more than one path. The sequence isn't
-        # unique.
+        # There's no path or more than one path. 
         return []
 
+    hampath = hampaths[0]       # The unique Hamiltonian path
+    if nendpts == 0:
+        hampath.append(hampath[0]) # Close the loop
+        
     # Convert the path, which is a list of nodes, to a set of segments.
     ## TODO: we're discarding the connectivity information, which will
     ## be regenerated later by skeletonsegment.segSequence. That is
-    ## inefficient. Do we care?
+    ## inefficient. Do we care?  Probably not. 
     segset = set()
-    hampath = hampaths[0]
     for i in range(1, len(hampath)):
-        segset.add(skel.getSegment(hampath[i], hampath[i-1]))
-    if nendpts == 0:            # close the loop
-        segset.add(skel.getSegment(hampath[-1], hampath[0]))
-
+        nodeA = hampath[i-1]
+        nodeB = hampath[i]
+        seg = skel.findSegment(nodeA, nodeB)
+        if seg is not None:
+            setset.add(seg)
+        else:
+            # Because the nodes we were using are the representative
+            # nodes, it's possible that a step in the path uses nodes
+            # from opposite sides of the Skeleton. In that case, the
+            # above call to findSegment will fail.  We should replace
+            # one or both nodes with one of their periodic partners.
+            nodes0 = [nodeA] + nodeA.getPartners() 
+            nodes1 = [nodeB] + nodeB.getPartners()
+            # Look for a pair of nodes that are periodic partners of
+            # nodeA and nodeB, define a segment in the Skeleton, and
+            # are in the original set of nodes (ie not simply periodic
+            # partners).
+            for n0 in nodes0:
+                if seg:
+                    break
+                if n0 in originalnodes: 
+                    for n1 in nodes1:
+                        if n1 in originalnodes:
+                            seg = skel.findSegment(n0, n1)
+                            if seg:
+                                break
+            else:
+                # Try again, without requiring the nodes to be in the
+                # original set.
+                for n0 in nodes0:
+                    if seg:
+                        break
+                    for n1 in nodes1:
+                        seg = skel.findSegment(n0, n1)
+                        if seg:
+                            break
+            if seg is not None:
+                segset.add(seg)
+            else:
+                raise ooferror.PyErrPyProgrammingError(
+                    "segments_from_node_aggregate failed.")
     return segset
 
 def _extend_path(connections, path, endpt, hampaths):
@@ -407,14 +469,20 @@ def _extend_path(connections, path, endpt, hampaths):
     currentpt = path[-1]
     foundone = False
     for nextpt in connections[currentpt]:
-        # TODO: If this check is too slow, we can store the nodes in
-        # the path as a set too.  Or give the nodes temporary subgraph
-        # indices and use simple list lookup.
+        # TODO: Checking that nextpt isn't already in the path is
+        # o(n), which might be slow.  It could be made o(1) by giving
+        # each node an index in [0, len(nodeset)) and working with
+        # indices instead of node objects.  Then an array of bools
+        # indexed by the node index would say if a node is already in
+        # the path.  However, the set of nodes is not likely to be
+        # large, and if it is, the python recursion limit or the
+        # combinational complexity of searching all paths is likely to
+        # be more limiting than this o(n) search.
         if nextpt not in path:
             foundone = True
             path.append(nextpt)
             _extend_path(connections, path, endpt, hampaths)
-            path.pop()          # removes nextpt
+            path.pop()          # remove nextpt
     if not foundone:
         # There's nothing to add.  Are we done?
         if len(path) == len(connections) and path[-1] == endpt:
