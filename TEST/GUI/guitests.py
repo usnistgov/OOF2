@@ -56,7 +56,7 @@ debug = False
 no_checkpoints = False
 sync = False
 unthreaded = False
-#forever = False
+retries = 0
 
 global tmpdir
 tmpdir = None
@@ -101,8 +101,9 @@ def run_tests(dirs, rerecord, forever):
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def really_run_tests(homedir, dirs, rerecord):
-    skipped = []        # list of skipped directories, reported at the end
+    skipped = []    # list of skipped directories, reported at the end
     nrun = 0
+    retried = [] # tests which had to be repeated, reported at the end
     for directory in dirs:
         originaldir = os.path.join(homedir, directory)
         # Check that the directory and log file exist, and that
@@ -173,19 +174,26 @@ def really_run_tests(homedir, dirs, rerecord):
                os.path.join(directory, TESTFILE)] + extraargs
 
         print("-------------------------", file=sys.stderr)
-        print("--- Running %s" % ' '.join(cmd), file=sys.stderr)
-        os.environ["OOFTESTDIR"] = directory
-        result = subprocess.call(cmd)
-        print("--- Return value =", result, file=sys.stderr)
-        if result < 0:
-            print("Child was terminated by signal", -result, file=sys.stderr)
-            print("Test", directory, "failed!", file=sys.stderr)
-            sys.exit(result)
+        for iteration in range(retries+1):
+            print("--- Running %s" % ' '.join(cmd), file=sys.stderr)
+            os.environ["OOFTESTDIR"] = directory
+            result = subprocess.call(cmd)
+            print("--- Return value =", result, file=sys.stderr)
+            if result < 0:
+                print("Child was terminated by signal", -result, file=sys.stderr)
+                print("Test", directory, "failed!", file=sys.stderr)
+                if iteration==retries:
+                    sys.exit(result)
 
-        if result != exitstatus:
-            print("Test %s failed! Status=%d, expected=%d" \
-                % (directory, result, exitstatus))
-            sys.exit(result)
+            elif result != exitstatus:
+                print("Test %s failed! Status=%d, expected=%d" \
+                    % (directory, result, exitstatus))
+                if iteration==retries:
+                    sys.exit(result)
+            else:
+                break           # success.  Don't retry.
+        if iteration != 0:
+            retried.append((directory, iteration))
         print("--- Finished %s" % directory, file=sys.stderr)
 
         cleanupscript = os.path.join(directory, 'cleanup.py')
@@ -201,11 +209,18 @@ def really_run_tests(homedir, dirs, rerecord):
         os.remove(testdir)
         nrun += 1
           
-    print("%d test%s ran successfully!" % (nrun, "s"*(nrun!=1)), file=sys.stderr)
-    print("Skipped %d test%s:" % (len(skipped), "s"*(len(skipped)!=1)),
+    print("%d test%s ran successfully!" % (nrun, "s"*(nrun!=1)),
           file=sys.stderr)
-    for skipdir in skipped:
-        print(f"    {skipdir}", file=sys.stderr)
+    if retried:
+        print(f"Repeated {len(retried)} test{'s'*(len(retried)!=1)}:",
+              file=sys.stderr)
+        for directory, count in retried:
+            print(f"    {directory}: repeats = {count}", file=sys.stderr)
+    if skipped:
+        print("Skipped %d test%s:" % (len(skipped), "s"*(len(skipped)!=1)),
+              file=sys.stderr)
+        for skipdir in skipped:
+            print(f"    {skipdir}", file=sys.stderr)
 
 excluded = ['CVS','TEST_DATA', 'examples']
 
@@ -252,6 +267,7 @@ Options are:
                 This is useful if new checkpoints have been added.
    --no-checkpoints Ignore checkpoints in log files (not very useful).
    --forever    Repeat tests until they fail.
+   --retries=n  Repeat failed tests at most this many times (default=0)
    --help       Print this message.
 """, file=sys.stderr)
 
@@ -266,12 +282,13 @@ def run(homedir):
                                        'from=', 'after=', 'to=',
                                        'rerecord', 'no-checkpoints',
                                        'sync', 'unthreaded',
-                                       'forever', 'help'])
+                                       'forever', 'retries=',
+                                       'help'])
     except getopt.error as message:
         print(message)
         printhelp()
         sys.exit(1)
-    global debug, unthreaded, sync, no_checkpoints, delaystr
+    global debug, unthreaded, sync, no_checkpoints, delaystr, retries
     fromdir = None
     afterdir = None
     todir = None
@@ -303,6 +320,8 @@ def run(homedir):
             sync = True
         elif opt[0] == '--forever':
             forever = True
+        elif opt[0] == '--retries':
+            retries = int(opt[1])
         elif opt[0] == '--list':
             listtests = True
         elif opt[0] == '--help':
