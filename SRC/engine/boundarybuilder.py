@@ -423,7 +423,7 @@ def segments_from_node_aggregate(skelcontext, group):
         nodeB = hampath[i]
         seg = skel.findSegment(nodeA, nodeB)
         if seg is not None:
-            setset.add(seg)
+            segset.add(seg)
         else:
             # Because the nodes we were using are the representative
             # nodes, it's possible that a step in the path uses nodes
@@ -478,6 +478,10 @@ def _extend_path(connections, path, endpt, hampaths):
         # large, and if it is, the python recursion limit or the
         # combinational complexity of searching all paths is likely to
         # be more limiting than this o(n) search.
+
+        # TODO: to limit recursion, maybe make trivial steps
+        # non-recursively?  Trivial steps are when nextpt only has two
+        # connections and isn't in the path.
         if nextpt not in path:
             foundone = True
             path.append(nextpt)
