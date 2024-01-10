@@ -1,7 +1,6 @@
 OOF.Microstructure.Create_From_ImageFile(filename='examples/K1_small.pgm', microstructure_name='K1_small.pgm', height=automatic, width=automatic)
 OOF.Windows.Graphics.New()
 OOF.Graphics_1.Layer.New(category='Image', what='K1_small.pgm:K1_small.pgm', how=BitmapDisplayMethod())
-OOF.Image.Modify.Normalize(image='K1_small.pgm:K1_small.pgm')
 OOF.Image.Modify.Contrast(image='K1_small.pgm:K1_small.pgm', sharpen=True)
 OOF.Image.Modify.Contrast(image='K1_small.pgm:K1_small.pgm', sharpen=True)
 OOF.Image.Modify.Contrast(image='K1_small.pgm:K1_small.pgm', sharpen=True)
