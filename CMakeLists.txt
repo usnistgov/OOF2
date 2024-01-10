@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.18)
 project(oof2 VERSION 2.3.3)
 
 set(OOF2_SWIG_VERSION 4.1 CACHE STRING "Use this version of swig")
-set_property(CACHE OOF2_SWIG_VERSION PROPERTY STRINGS 4.0 4.1)
+set_property(CACHE OOF2_SWIG_VERSION PROPERTY STRINGS 4.0 4.1 4.2)
 
 # The initial value of OOF2_PYTHON3_VERSION is "Latest" so that the
 # initial configuration pass doesn't raise an error if the requested
@@ -18,7 +18,7 @@ set_property(CACHE OOF2_SWIG_VERSION PROPERTY STRINGS 4.0 4.1)
 ## TODO: Can we list only the available versions of swig and python?
 set(OOF2_PYTHON3_VERSION "Latest" CACHE STRING "Use this version of Python")
 set_property(CACHE OOF2_PYTHON3_VERSION PROPERTY STRINGS
-  3.8 3.9 3.10 3.11 Latest)
+  3.8 3.9 3.10 3.11 3.12 Latest)
 
 # If OOF2 is being installed by a regular user, the python files
 # should be installed into lib/pythonX.Y/site-packages/oofcanvas,

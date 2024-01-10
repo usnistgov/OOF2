@@ -24,23 +24,24 @@ public:
   Rank3Tensor();
   ~Rank3Tensor();
   int size();
-  %addmethods {
-    double get(int i, int j, int k) {
-      double v =  (*self)(i, j, k);
-      return v;
-    }
-    void set(int i, int j, int k, double val) {
-      (*self)(i,j, k)=val;
-    }
-    // *= defined in Python only for scalars.
-    Rank3Tensor __imul__(double x) {
-      return (*self).operator*=(x);
-    }
-    bool equalp(Rank3Tensor &r) {
-      return (*self).operator==(r);
-    }
-  } 
 };
+
+%extend Rank3Tensor {
+  double get(int i, int j, int k) {
+    double v =  (*self)(i, j, k);
+    return v;
+  }
+  void set(int i, int j, int k, double val) {
+    (*self)(i,j, k)=val;
+  }
+  // *= defined in Python only for scalars.
+  Rank3Tensor __imul__(double x) {
+    return (*self).operator*=(x);
+  }
+  bool equalp(Rank3Tensor &r) {
+    return (*self).operator==(r);
+  }
+}
 
 %pythoncode "engine/rank3tensor.spy"
 

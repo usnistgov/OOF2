@@ -23,14 +23,13 @@
 
 %nodefaultctor Invariant;
 
-class Invariant {
-public:
-  %addmethods{
-    double __call__(ArithmeticOutputVal &ov) {
-      return (*self)(ov);
-    }
+class Invariant {};
+
+%extend Invariant {
+  double __call__(ArithmeticOutputVal &ov) {
+    return (*self)(ov);
   }
-};
+}
 
 class Magnitude : public Invariant {
 public:
