@@ -23,6 +23,11 @@ FloatRangeParameter = parameter.FloatRangeParameter
 class ColorMap(registeredclass.RegisteredClass):
     registry = []
     tip = "Color maps used in contour displays."
+    xrefs = ["Section-Graphics-ContourMap",
+             "RegisteredClass-FilledContourDisplay",
+             "RegisteredClass-MeshCenterFillDisplay",
+             "RegisteredClass-SkeletonQualityDisplay",
+             ]
     discussion = """<para>
     <classname>ColorMap</classname> objects are used when generating
     contour displays.  They specify a way of converting numbers into
