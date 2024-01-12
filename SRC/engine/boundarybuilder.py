@@ -17,6 +17,7 @@ from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common import director
 from ooflib.common import registeredclass
+from ooflib.common import runtimeflags
 from ooflib.common import primitives
 from ooflib.common.IO import automatic
 from ooflib.common.IO import parameter
@@ -625,48 +626,48 @@ registeredclass.Registration("Point boundary from elements",
 ###############################################################
 #Interface branch
 
-if config.dimension() == 2:
+# Build an edge boundary from segments along an interface
+class EdgeFromInterface(BoundaryConstructor):
+    def __init__(self, interface, direction):
+        self.interface = interface
+        self.direction = direction
 
-    # Build an edge boundary from segments along an interface
-    class EdgeFromInterface(BoundaryConstructor):
-        def __init__(self, interface, direction):
-            self.interface = interface
-            self.direction = direction
+    def __call__(self, skelcontext, name):
+        skelobj = skelcontext.getObject()
 
-        def __call__(self, skelcontext, name):
-            skelobj = skelcontext.getObject()
+        (seg_set, direction_set)=skelobj.getInterfaceSegments(
+            skelcontext, self.interface)
 
-            (seg_set, direction_set)=skelobj.getInterfaceSegments(
-                skelcontext, self.interface)
+        if self.direction==director.Director('Non-sequenceable'):
+            skelcontext.createNonsequenceableEdgeBoundary(name, seg_set, direction_set)
+        else:
+            (startnode, seg_list) = _segset2seglist(seg_set, self.direction, skelobj)
+            # At this point, we have a correctly-sequenced list of segments.
+            # Actually create the boundary.  The context will create it in
+            # the underlying object.
+            skelcontext.createEdgeBoundary(name, seg_list, startnode)
 
-            if self.direction==director.Director('Non-sequenceable'):
-                skelcontext.createNonsequenceableEdgeBoundary(name, seg_set, direction_set)
-            else:
-                (startnode, seg_list) = _segset2seglist(seg_set, self.direction, skelobj)
-                # At this point, we have a correctly-sequenced list of segments.
-                # Actually create the boundary.  The context will create it in
-                # the underlying object.
-                skelcontext.createEdgeBoundary(name, seg_list, startnode)
-
+if runtimeflags.surface_mode:
     registeredclass.Registration(
         "Edge boundary from interface segments",
         BoundaryConstructor,
         EdgeFromInterface,
         ordering=200,
         params = [
-        interfaceparameters.InterfacesParameter('interface',
-                                                tip='Construct the boundary from these interface segments.'),
-    ##    skeletongroupparams.SegmentAggregateParameter('group',
-    ##                                                  tip="Construct the boundary from these segments"),
-        director.DirectorInterfacesParameter('direction',
-                                             director.Director('Clockwise'),
-                                             tip="Direction of the boundary.")],
+            interfaceparameters.InterfacesParameter('interface',
+                                                    tip='Construct the boundary from these interface segments.'),
+            ##    skeletongroupparams.SegmentAggregateParameter('group',
+            ##                                                  tip="Construct the boundary from these segments"),
+    director.DirectorInterfacesParameter('direction',
+                                         director.Director('Clockwise'),
+                                         tip="Direction of the boundary.")],
         tip="Construct an edge boundary from a set of interface segments.",
         discussion = """<para>
 
-        Create an edge boundary from segments specified by an interface definition.
-        If the interface segments are disconnected, the corresponding edge boundary is
-        also disconnected, and it will be labeled as not sequenceable.
+        Create an edge boundary from segments specified by an
+        interface definition.  If the interface segments are
+        disconnected, the corresponding edge boundary is also
+        disconnected, and it will be labeled as not sequenceable.
 
-        </para>"""
-        )
+    </para>"""
+    )
