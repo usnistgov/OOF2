@@ -48,7 +48,8 @@ class DataOperation(registeredclass.RegisteredClass):
     registry = []
     tip='Post-processing data operations'
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/dataoperation.xml')
-
+    xrefs=["Section-Tasks-Analysis", "MenuItem-OOF.Mesh.Analyze"]
+    
     def shortrepr(self):
         return self.getRegistration().name()
 

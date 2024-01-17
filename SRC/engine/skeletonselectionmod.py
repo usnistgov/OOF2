@@ -255,6 +255,7 @@ class ExpandCriterion(registeredclass.RegisteredClass):
     They describe different ways of expanding the set of currently
     selected &nodes; in a &skel;.
     </para>"""
+    xrefs=["Section-Tasks-SkeletonSelection"]
 
 class ExpandByElements(ExpandCriterion):
     def expand(self, skeleton, ignorePBC):

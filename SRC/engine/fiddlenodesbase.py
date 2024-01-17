@@ -43,8 +43,9 @@ class IterationManager(registeredclass.RegisteredClass):
             reduce = abs(100.0*delta/total)
         else:
             reduce = 0.0
-        reporter.report("Iteration %d: E = %10.4e, deltaE=%10.4e (%6.3f%%), Acceptance Rate = %4.1f%%"
-                        % (count, total, delta, reduce, 100.*rate))
+        reporter.report(
+            "Iteration %d: E = %10.4e, deltaE=%10.4e (%6.3f%%), Acceptance Rate = %4.1f%%"
+            % (count, total, delta, reduce, 100.*rate))
 
     def reportNothing(self, count):
         reporter.report("Iteration %d: No attempts made, no nodes moved!"
@@ -59,6 +60,7 @@ class IterationManager(registeredclass.RegisteredClass):
     such as <xref linkend='RegisteredClass-Anneal'/> and <xref
     linkend='RegisteredClass-Smooth'/>.
     </para>"""
+    xrefs=["Section-Tasks-Skeleton"]
 
     
 class FixedIteration(IterationManager):
@@ -122,6 +124,7 @@ class ConditionSelector(registeredclass.RegisteredClass):
     criterion is specified with an object of the
     <classname>ConditionSelector</classname> class.
     </para>"""
+    xrefs=["RegisteredClass-ConditionalIteration"]
 
 class ReductionRateCondition:
     def reductionRateFailed(self, delta, total):
@@ -133,7 +136,7 @@ class ReductionRateCondition:
 
 reductionRateParam = parameter.FloatRangeParameter(
     'reduction_rate', (0., 100., 0.1), value=0.1, 
-    tip="Minimum allowable energy reduction rate as a percentage of the total energy.")
+    tip="Minimum energy reduction rate as a percentage of the total energy.")
 
 class AcceptanceRateCondition:
     def acceptanceRateFailed(self, rate):
@@ -143,7 +146,7 @@ class AcceptanceRateCondition:
 
 acceptanceRateParam = parameter.FloatRangeParameter(
     'acceptance_rate', (0., 100., 0.1), value=7,
-    tip='Minimum allowable move acceptance rate as a percentage of the number of movable nodes.'
+    tip='Minimum move acceptance rate as a percentage of the number of movable nodes.'
     )
 
 class Either(ConditionSelector,
@@ -256,14 +259,18 @@ registeredclass.Registration(
     IterationManager,
     ConditionalIteration, 1,
     params=[
-    parameter.RegisteredParameter('condition', ConditionSelector,
-                                  tip='Which exit condition to use.'),
-    parameter.IntParameter('extra', 0,
-                           tip="Number of extra steps to take to ensure that the condition is met."),
-    parameter.IntParameter('maximum', 100,
-                        tip="Maximum number of iterations, despite the exit condition.")],
+    parameter.RegisteredParameter(
+        'condition', ConditionSelector,
+        tip='Which exit condition to use.'),
+    parameter.IntParameter(
+        'extra', 0,
+        tip="Number of extra steps to take to ensure that the condition is met."),
+    parameter.IntParameter(
+        'maximum', 100,
+        tip="Maximum number of iterations, despite the exit condition.")],
     tip='Iteration stops when a given condition is satisfied.',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/conditional_iteration.xml'))
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/conditional_iteration.xml'))
             
 #############################################################
 
@@ -281,8 +288,10 @@ class FiddleNodesTargets(registeredclass.RegisteredClass):
     <classname>FiddleNodesTargets</classname> objects are used as the
     <varname>targets</varname> parameter in <link
     linkend='RegisteredClass-SkeletonModifier'><classname>SkeletonModifiers</classname></link>
-    that move &nodes; around.
+    that move &nodes; to new positions without adding or removing any
+    &nodes; or &elems;.
     </para> """
+    xrefs=["Section-Tasks-Skeleton"]
 
 class AllNodes(FiddleNodesTargets):
     def __call__(self, context, prevnodes):
@@ -322,7 +331,9 @@ registeredclass.Registration(
     linkend='RegisteredClass-SkeletonModifier'/> (such as <xref
     linkend='RegisteredClass-Anneal'/>) to only the currently selected
     &nodes; in the &skel;.
-    </para> """)
+    </para> """,
+    xrefs=["Section-Tasks-SkeletonSelection"]
+)
 
 class NodesInGroup(FiddleNodesTargets):
     def __init__(self, group):
@@ -347,7 +358,9 @@ registeredclass.Registration(
     linkend='RegisteredClass-SkeletonModifier'/> (such as <xref
     linkend='RegisteredClass-Anneal'/>) to only the 
     &nodes; in a given node group.
-    </para> """)
+    </para> """,
+    xrefs=["Section-Tasks-SkeletonSelection"]
+)
 
 class NonBoundaryNodes(FiddleNodesTargets):
     def __init__(self, ignorePBC=False):
@@ -416,7 +429,9 @@ registeredclass.Registration(
     linkend='RegisteredClass-SkeletonModifier'/> (such as <xref
     linkend='RegisteredClass-Anneal'/>) to the &nodes; of the
     currently selected &elems; in the &skel;.
-    </para>""")
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonSelection"]
+)
 
 class FiddleHeterogeneousElements(FiddleNodesTargets):
     def __init__(self, threshold=0.9):
@@ -482,7 +497,9 @@ registeredclass.Registration(
     linkend='RegisteredClass-SkeletonModifier'/> (such as <xref
     linkend='RegisteredClass-Anneal'/>) to the &nodes; of the &elems;
     in a given &elem; group.
-    </para>""")
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonSelection"]
+)
 
 #####################################################
 

@@ -847,7 +847,7 @@ class InternationalName(enum.EnumClass(*internationalGroupNames)):
 
 Names allowed by <xref linkend="RegisteredClass-International"/>.  See
   <ulink
-  url="https://en.wikipedia.org/wiki/Crystallographic_point_group#The_correspondence_between_different_notations"
+  url="https://en.wikipedia.org/wiki/Crystallographic_point_group%23The_correspondence_between_different_notations"
   role="external">Wikipedia</ulink> for details.</para> """
 
 def internationalFromSpaceGroup(n):
@@ -926,7 +926,7 @@ class SchoenfliesName(enum.EnumClass(*schoenfliesSymbols)):
     discussion="""
 <para>Names allowed by <xref linkend="RegisteredClass-Schoenflies"/>. See
 <ulink
-  url="https://en.wikipedia.org/wiki/Crystallographic_point_group#The_correspondence_between_different_notations"
+  url="https://en.wikipedia.org/wiki/Crystallographic_point_group%23The_correspondence_between_different_notations"
   role="external">Wikipedia</ulink> for details.</para> """
     
 def schoenfliesFromSpaceGroup(n):

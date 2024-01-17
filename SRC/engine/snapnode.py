@@ -227,11 +227,12 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
 # iterable of SkeletonNodes.
 
 ## TODO PYTHON3 LATER: Does SnapNodes really need its own set of
-## Target classes?  Different kinds of skeleton modifiers require
-## different things from their Target classes, but the fundamental
-## choices that the classes make are the same, as well as their
-## appearance to the user.  All of the Target classes should have
-## methods for supporting all of the modifiers, and none of those
+## Target classes?  In particular, should SnapNodesTargets and
+## FiddleNodesTargets be merged?  Different kinds of skeleton
+## modifiers require different things from their Target classes, but
+## the fundamental choices that the classes make are the same, as well
+## as their appearance to the user.  All of the Target classes should
+## have methods for supporting all of the modifiers, and none of those
 ## methods should be called __call__.  There might be some Targets
 ## that are inappropriate for some modifiers, so perhaps the
 ## modifiers' registrations could list the acceptable targets classes.
@@ -241,6 +242,7 @@ class SnapNodeTargets(registeredclass.RegisteredClass):
     tip="Which nodes will be snapped by SnapNodes"
     discussion="""<para>Ways of selecting &nodes; to be moved by <xref
     linkend="RegisteredClass-SnapNodes"/>.</para>"""
+    xrefs=["Section-Tasks-Skeleton"]
 
 class SnapAll(SnapNodeTargets):
     def __call__(self, context):

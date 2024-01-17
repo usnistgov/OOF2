@@ -23,6 +23,7 @@ cregisteredclass.registerCClass(Invariant)
 Invariant.tip = "Invariants of vectors and tensors."
 Invariant.discussion = xmlmenudump.loadFile(
     'DISCUSSIONS/engine/reg/invariant.xml')
+Invariant.xrefs = ["Section-Tasks-Analysis", "Section-Tasks-BdyAnalysis"]
 
 # Maintain lists of which Invariants can be applied to which kinds of
 # OutputVals.  The keys to the _invmap dict are OutputVal classes.

@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -42,6 +41,7 @@ import sys
 
 class Domain(registeredclass.RegisteredClass):
     registry = []
+    xrefs=["Section-Tasks-Analysis", "MenuItem-OOF.Mesh.Analyze"]
     def set_mesh(self, mesh):
         if mesh is not None:
             self.mesh = mesh
@@ -69,7 +69,7 @@ class Domain(registeredclass.RegisteredClass):
         self.skelcontext.end_reading()
         self.meshctxt.end_reading()
 
-    tip = "A specified region of &mesh; or its &micro; for sampling."
+    tip = "A region of a mesh or its microstructure for to sample for analysis."
     discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/domain.xml')
 
 
@@ -194,11 +194,15 @@ registeredclass.Registration(
     Domain,
     PixelGroup,
     10,
-    params=[pixelgroupparam.PixelAggregateParameter('pixels',
-                                                    tip=parameter.emptyTipString)],
+    params=[pixelgroupparam.PixelAggregateParameter(
+        'pixels',
+        tip=parameter.emptyTipString)],
     sample_types = [analysissample.GRID, analysissample.PIXEL],
     tip="Use a pixel group as a post-processing domain.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/pixelgroup_domain.xml'))
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/pixelgroup_domain.xml'),
+    xrefs=["Section-Tasks-Microstructure", "Section-Tasks-Pixel_Selection"]
+)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -350,7 +354,9 @@ registeredclass.Registration(
                                       tip='The cross section to sample.')],
     sample_types = [analysissample.BENTLINE, analysissample.LINE],
     tip='Use a Mesh cross section as the post-processing domain.',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/xsection_domain.xml')
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/xsection_domain.xml'),
+    xrefs=["Section-Graphics-CrossSection"]
     )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -403,11 +409,14 @@ registeredclass.Registration(
     Domain,
     ElementGroup,
     30,
-    params=[skeletongroupparams.ElementAggregateParameter('elements',
-                                                          tip='Elements to sample.')],
+    params=[skeletongroupparams.ElementAggregateParameter(
+        'elements',
+        tip='Elements to sample.')],
     sample_types=[analysissample.GRID, analysissample.ELEMENT],
     tip='Use an element group as the post-processing domain.',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/element_group_domain.xml')
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/element_group_domain.xml'),
+    xrefs=["Section-Tasks-SkeletonSelection"]
     )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -472,7 +481,8 @@ registeredclass.Registration(
             tip="Use the element on this side, if both exist.")],
     sample_types = [analysissample.BENTLINE],
     tip="Use a Skeleton edge boundary as the post-processing domain.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/skeledgedomain.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/skeledgedomain.xml'),
+    xrefs=["Section-Tasks-SkeletonBoundaries"]
 )
     
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -506,6 +516,7 @@ registeredclass.Registration(
     sample_types = [analysissample.POINT],
     tip="Use a Skeleton point boundary as the post-processing domain.",
     discussion=xmlmenudump.loadFile(
-        'DISCUSSIONS/engine/reg/skelptbdydomain.xml')
+        'DISCUSSIONS/engine/reg/skelptbdydomain.xml'),
+    xrefs=["Section-Tasks-SkeletonBoundaries"]
 )
 

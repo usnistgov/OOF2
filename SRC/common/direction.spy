@@ -28,6 +28,7 @@ class Direction(registeredclass.ConvertibleRegisteredClass):
     linkend='RegisteredClass-Orientation'/>, which describes how a
     crystal lattice is oriented.  This describes how an arrow is
     oriented.</para>"""
+    xrefs = ["MenuItem-OOF.OrientationMap.Pole_Figure"]
     def unitVector(self):
         return self.cdirection.unitVector()
 

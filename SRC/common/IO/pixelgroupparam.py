@@ -25,7 +25,7 @@ class PixelAggregateParameter(placeholder.PlaceHolderParameter):
     types = (str, bytes, placeholder.selection, placeholder.every)
 
     def valueDesc(self):
-        return "The name of a PixelGroup, or <link linkend='Object-Placeholder'><constant>every</constant></link> or <link linkend='Object-Placeholder'><constant>selected</constant></link>."
+        return "The name of a PixelGroup, or <link linkend='Object-Placeholder'><constant>every</constant></link> or <link linkend='Object-Placeholder'><constant>selection</constant></link>."
 
 #Interface branch
 class PixelGroupInterfaceParameter(parameter.StringParameter):

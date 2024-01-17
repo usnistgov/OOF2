@@ -82,6 +82,7 @@ layercounter = 0
 
 class DisplayMethod(registeredclass.RegisteredClass):
     registry = []
+    xrefs=["Section-Graphics-Layer", "MenuItem-OOF.Graphics_n.Layer"]
     def __init__(self):
         self.hidden = False
         self.listed = True     # is it listed in gfxwindow layer list?

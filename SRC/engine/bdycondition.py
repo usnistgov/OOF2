@@ -1001,7 +1001,8 @@ class FloatBCInitMethod(registeredclass.RegisteredClass):
     registry = []
     tip="Ways of initializing a floating boundary condition."
     discussion = """<para>These are used as arguments to <xref
-    linkend="MenuItem-OOF.Mesh.Boundary_Conditions.Set_BC_Initializer"/></para>
+    linkend="MenuItem-OOF.Mesh.Boundary_Conditions.Set_BC_Initializer"/>.
+    </para>
     """
     def __init__(self, value):
         self.value = value
@@ -1018,6 +1019,13 @@ class FloatBCInitMethod(registeredclass.RegisteredClass):
 # Two versions of each FloatBCInitMethod are created when a subclass
 # is registered.  The second version also initializes the time
 # derivative.
+
+## TODO: Why are FloatBCs treated differently than Fields?  When a
+## time derivative Field needs to be initialized, a new Field with a
+## _t suffix appears in the Initialization pane, and it's initialized
+## separately from the original Field.  If the time derivative of a
+## FloatBC has to be initialized, it's done via a new argument to
+## Set_BC_Initializer, instead of a new BC.
 
 def registerFloatBCInitMethod(name, subclass, ordering=0, params=[], secret=0,
                               tip=None, discussion=None, **kwargs):

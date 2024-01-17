@@ -100,12 +100,9 @@ IsoCijklRegistration(
     params=[FloatParameter('c11', 10.0, tip=parameter.emptyTipString),
             FloatParameter('c12', 5.0, tip=parameter.emptyTipString)],
     tip="Explicit representation in terms of tensor components.",
-    discussion="""<para>
-    <classname>IsotropicRank4TensorCij</classname> is a rank 4 tensor
-    with isotropic symmetry.  It is parametrized by its two
-    independent components, <varname>c11</varname> and
-    <varname>c12</varname>.
-    </para>""")
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/isotropic_rank4_cij.xml')
+)
 
 
 ###########################################################################
@@ -138,7 +135,7 @@ IsoCijklRegistration(
     to_base=_lame_to_base,
     # initial values of the parameters are equivalent to Cij's initial values
     params=[FloatParameter('lmbda', 0.5, tip='Lambda.'),
-            FloatParameter('mu', 0.25, tip=parameter.emptyTipString)],
+            FloatParameter('mu', 0.25, tip='Shear modulus.')],
     tip="Isotropic rank 4 tensor in terms of Lame coefficients.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/isotropic_rank4_lame.xml')
     )
