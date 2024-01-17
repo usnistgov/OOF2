@@ -877,9 +877,6 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
 # separately from the Field state, because the initializers live
 # in the mesh and the state flags live in the subproblems.
 
-## TODO: Fix this, and write tests for it.  get_floatbc_initializer
-## isn't defined.
-
 def _copyFieldInits(menuitem, source, target):
     if source == target:
         return
@@ -907,7 +904,9 @@ def _copyFieldInits(menuitem, source, target):
                     notifications.append(("field initialized"))
         # Copy FloatBC inititalizers
         for bcname in source_mesh.allBndyCondNames():
-            initializer = source_mesh.get_floatbc_initializer(bcname)
+            # get_bc_initializer returns None if the bc isn't a
+            # FloatBC or has no initializer.
+            initializer = source_mesh.get_bc_initializer(bcname)
             if initializer: 
                 # Check that the target mesh has a FloatBC with this name
                 try:
@@ -936,10 +935,14 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
     help="Copy all of the relevant Field initializers from one Mesh to another.",
     discussion="""<para>
 
-    Copy all of the &field; initialization functions from the source
-    &mesh; to the target &mesh;.  This does <emphasis>not</emphasis> actually
+    Copy all of the &field; and <link
+    linkend="RegisteredClass-FloatBC">floating boundary
+    condition</link> initialization functions from the source &mesh;
+    to the target &mesh;.  This does <emphasis>not</emphasis> actually
     initialize the &fields; in the target &mesh;.  If a &field; is not
     defined in the target &mesh;, its initializer will not be copied.
+    A boundary condition initializer will be copied only if the target
+    &mesh; has a floating boundary condition with the same name.
 
     </para>""",
     xrefs=["Section-Tasks-Solver", "MenuItem-OOF.Mesh.Set_Field_Initializer"]

@@ -17,6 +17,9 @@ OOF2 2.3.3
 * Fixed a bug in the GUI for the "New" button on the Skeleton
   Boundaries page.
 
+* Fixed a bug that was preventing boundary condition initializers
+  from being copied.
+
 OOF2 2.3.2
 
 * Eliminated some opportunities for roundoff error in Rationalize that
