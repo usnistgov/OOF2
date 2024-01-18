@@ -28,9 +28,6 @@ import math
 # and returns a tuple containing the number of iterations taken and
 # the final residual.
 
-## TODO OPT MAYBE: Cache the preconditioners in the LinearizedSystem
-## so they can be re-used if the matrix hasn't changed.
-
 class MatrixMethod(registeredclass.RegisteredClass):
     registry = []
     def shortrepr(self):
@@ -306,9 +303,8 @@ registeredclass.Registration(
     ordering=201,
     symmetricOnly=True,
     tip="A direct sparse matrix solver using LL^T Cholesky factorizations for sparse positive definite matrices.",
-    discussion="""<para>This routine is provided by Eigen.  See <ulink
-    url="https://eigen.tuxfamily.org/dox/classEigen_1_1SimplicialLLT.html"
-    role="external"/>.</para>"""
+    discussion="""<para>This routine is provided by <ulink
+    url="https://eigen.tuxfamily.org" role="external">Eigen</ulink>.</para>"""
 )
 
 registeredclass.Registration(
@@ -318,9 +314,8 @@ registeredclass.Registration(
     ordering=200,
     symmetricOnly=True,
     tip="A direct sparse matrix solver using LDL^T Cholesky factorizations for sparse positive definite matrices. Recommended for very sparse and not too large problems.",
-    discussion="""<para>This routine is provided by Eigen.  See <ulink
-    url="https://eigen.tuxfamily.org/dox/classEigen_1_1SimplicialLDLT.html"
-    role="external"/>.</para>"""
+    discussion="""<para>This routine is provided by <ulink
+    url="https://eigen.tuxfamily.org" role="external">Eigen</ulink>.</para>"""
 )
 
 registeredclass.Registration(
@@ -330,9 +325,8 @@ registeredclass.Registration(
     ordering=202,
     symmetricOnly=False,
     tip="A direct sparse matrix solver using LU factorizations for square matrices.",
-    discussion="""<para>This routine is provided by Eigen.  See <ulink
-    url="https://eigen.tuxfamily.org/dox/classEigen_1_1SparseLU.html"
-    role="external"/>.</para>"""
+    discussion="""<para>This routine is provided by <ulink
+    url="https://eigen.tuxfamily.org" role="external">Eigen</ulink>.</para>"""
 )
 
 registeredclass.Registration(
@@ -342,9 +336,8 @@ registeredclass.Registration(
     ordering=203,
     symmetricOnly=False,
     tip="A direct sparse matrix solver using QR factorizations for any type of matrices.",
-    discussion="""<para>This routine is provided by Eigen.  See <ulink
-    url="https://eigen.tuxfamily.org/dox/classEigen_1_1SparseQR.html"
-    role="external"/>.</para>"""
+    discussion="""<para>This routine is provided by <ulink
+    url="https://eigen.tuxfamily.org" role="external">Eigen</ulink>.</para>"""
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

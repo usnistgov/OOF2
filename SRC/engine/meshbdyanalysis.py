@@ -53,6 +53,8 @@ class MeshBdyAnalyzer(registeredclass.RegisteredClass):
     represent different types of calculations that can be done on the
     boundary of a Mesh after it's been solved.
     </para>"""
+    xrefs=["MenuItem-OOF.Mesh.Boundary_Analysis",
+           "Section-Tasks-BdyAnalysis"]
 
 class IntegrateBdyFlux(MeshBdyAnalyzer):
     def __init__(self, flux):
