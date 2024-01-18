@@ -39,7 +39,8 @@ class MatrixMethod(registeredclass.RegisteredClass):
         return self.solveMatrix(matrix, rhs, solution)
     tip="Ways to solve a matrix equation."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/matrixmethod.xml')
-            
+    xrefs=["Section-Tasks-Solver",
+           "Section-Concepts-Mesh-Solvers"]
 
 class PreconditionedMatrixMethod(MatrixMethod):
     def shortrepr(self):
@@ -116,7 +117,7 @@ registeredclass.Registration(
     params=[
         parameter.RegisteredParameter(
             "preconditioner",
-            preconditioner.PreconditionerBase,
+            preconditioner.Preconditioner,
             tip="Black magic for making the matrix more easily solvable."),
         parameter.FloatParameter(
             "tolerance", 1.e-13,
@@ -168,7 +169,7 @@ registeredclass.Registration(
     params=[
         parameter.RegisteredParameter(
             "preconditioner",
-            preconditioner.PreconditionerBase,
+            preconditioner.Preconditioner,
             tip="Black magic for making the matrix more easily solvable."),
         parameter.FloatParameter(
             "tolerance", 1.e-13,
@@ -199,7 +200,7 @@ registeredclass.Registration(
     params=[
         parameter.RegisteredParameter(
             "preconditioner",
-            preconditioner.PreconditionerBase,
+            preconditioner.Preconditioner,
             tip="Black magic for making the matrix more easily solvable."),
         parameter.FloatParameter(
             "tolerance", 1.e-13,

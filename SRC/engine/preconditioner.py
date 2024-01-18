@@ -17,32 +17,32 @@ from ooflib.common.IO import xmlmenudump
 ## placeholders that are used in the PreconditionedMatrixMethod
 ## classes in matrixmethod.py to choose the correct Eigen routine.
 
-class PreconditionerBase(registeredclass.RegisteredClass):
+class Preconditioner(registeredclass.RegisteredClass):
     registry = []
     tip = "Preconditioners for efficient solution of matrix equations."
     discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/preconditioner.xml')
     def shortrepr(self):
         return self.__class__.__name__
 
-class UnPreconditioner(PreconditionerBase):
+class UnPreconditioner(Preconditioner):
     name = "Un"
 
-class JacobiPreconditioner(PreconditionerBase):
+class JacobiPreconditioner(Preconditioner):
     name = "Diag"
 
-class ILUTPreconditioner(PreconditionerBase):
+class ILUTPreconditioner(Preconditioner):
     name = "ILUT"
 
 # ILU preconditioner actually points to ILUT preconditioner
-class ILUPreconditioner(PreconditionerBase):
+class ILUPreconditioner(Preconditioner):
     name = "ILU"
 
-class ICPreconditioner(PreconditionerBase):
+class ICPreconditioner(Preconditioner):
     name = "IC"
 
 registeredclass.Registration(
     "Null",
-    PreconditionerBase,
+    Preconditioner,
     UnPreconditioner,
     ordering=2000,
     params=[],
@@ -50,7 +50,7 @@ registeredclass.Registration(
 
 registeredclass.Registration(
     "Jacobi",
-    PreconditionerBase,
+    Preconditioner,
     JacobiPreconditioner,
     ordering=500,
     params=[],
@@ -58,7 +58,7 @@ registeredclass.Registration(
 
 registeredclass.Registration(
     "Incomplete LUT",
-    PreconditionerBase,
+    Preconditioner,
     ILUTPreconditioner,
     ordering=101,
     params=[],
@@ -66,7 +66,7 @@ registeredclass.Registration(
 
 registeredclass.Registration(
     "ILU",
-    PreconditionerBase,
+    Preconditioner,
     ILUPreconditioner,
     ordering=101,
     params=[],
@@ -75,7 +75,7 @@ registeredclass.Registration(
 
 registeredclass.Registration(
     "Incomplete Cholesky",
-    PreconditionerBase,
+    Preconditioner,
     ICPreconditioner,
     ordering=100,
     params=[],
