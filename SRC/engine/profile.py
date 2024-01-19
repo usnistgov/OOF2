@@ -100,6 +100,7 @@ class ProfileX:
     tip="Space-dependent boundary condition profiles."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/profilex.xml')
     registry = []
+    xrefs=["Section-Tasks-BoundaryCondition"]
 
 # Space- and time-dependent profiles.
 
@@ -107,6 +108,7 @@ class ProfileXT:
     tip="Space- and time-dependent boundary condition profiles."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/profilext.xml')
     registry = []
+    xrefs=["Section-Tasks-BoundaryCondition"]
 
 # Space- and time-dependent profiles, for which time derivative
 # information is provided.
@@ -115,6 +117,7 @@ class ProfileXTd:
     tip="Space- and time-dependent boundary condition profiles, with derivatives."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/profilextd.xml')
     registry = []
+    xrefs=["Section-Tasks-BoundaryCondition"]
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

@@ -206,7 +206,10 @@ registeredclass.Registration(
             "max_iterations", 1000,
             tip="Maximum number of iterations to perform.")],
     tip="Actually the same as BiCGStab.  Preserved for backwards compatibility.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/bicg.xml')
+    discussion="""<para>
+    This method is kept for backwards compatibility, but
+    <xref linkend="RegisteredClass-BiCBStab"/> is used instead.
+    </para>"""
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -303,8 +306,13 @@ registeredclass.Registration(
     ordering=201,
     symmetricOnly=True,
     tip="A direct sparse matrix solver using LL^T Cholesky factorizations for sparse positive definite matrices.",
-    discussion="""<para>This routine is provided by <ulink
-    url="https://eigen.tuxfamily.org" role="external">Eigen</ulink>.</para>"""
+    discussion="""
+    <para>This routine is provided by <ulink
+    url="https://eigen.tuxfamily.org" role="external">Eigen</ulink>.
+    See <ulink
+    url="https://eigen.tuxfamily.org/dox/classEigen_1_1SimplicialLLT.html"
+    role="external"/>.
+    </para>"""
 )
 
 registeredclass.Registration(
@@ -315,7 +323,10 @@ registeredclass.Registration(
     symmetricOnly=True,
     tip="A direct sparse matrix solver using LDL^T Cholesky factorizations for sparse positive definite matrices. Recommended for very sparse and not too large problems.",
     discussion="""<para>This routine is provided by <ulink
-    url="https://eigen.tuxfamily.org" role="external">Eigen</ulink>.</para>"""
+    url="https://eigen.tuxfamily.org" role="external">Eigen</ulink>.
+    See <ulink url="https://eigen.tuxfamily.org/dox/classEigen_1_1SimplicialLDLT.html"
+    role="external"/>.
+    </para>"""
 )
 
 registeredclass.Registration(
@@ -325,8 +336,13 @@ registeredclass.Registration(
     ordering=202,
     symmetricOnly=False,
     tip="A direct sparse matrix solver using LU factorizations for square matrices.",
-    discussion="""<para>This routine is provided by <ulink
-    url="https://eigen.tuxfamily.org" role="external">Eigen</ulink>.</para>"""
+    discussion="""<para>
+    This routine is provided by <ulink
+    url="https://eigen.tuxfamily.org" role="external">Eigen</ulink>.
+    See <ulink
+    url="https://eigen.tuxfamily.org/dox/classEigen_1_1SparseLU.html"
+    role="external"/>.
+    </para>"""
 )
 
 registeredclass.Registration(
@@ -336,8 +352,13 @@ registeredclass.Registration(
     ordering=203,
     symmetricOnly=False,
     tip="A direct sparse matrix solver using QR factorizations for any type of matrices.",
-    discussion="""<para>This routine is provided by <ulink
-    url="https://eigen.tuxfamily.org" role="external">Eigen</ulink>.</para>"""
+    discussion="""<para>
+    This routine is provided by <ulink
+    url="https://eigen.tuxfamily.org" role="external">Eigen</ulink>.
+    See <ulink
+    url="https://eigen.tuxfamily.org/dox/classEigen_1_1SparseQR.html"
+    role="external"/>.
+    </para>"""
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

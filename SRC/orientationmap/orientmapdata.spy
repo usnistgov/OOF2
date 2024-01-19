@@ -42,6 +42,7 @@ class OrientMapReader(COrientMapReader, registeredclass.RegisteredClass):
     tip="Methods for reading orientation maps."
     discussion=xmlmenudump.loadFile(
         'DISCUSSIONS/orientationmap/reg/orientationreader.xml')
+    xrefs=["MenuItem-OOF.OrientationMap.Load"]
 
 
 class OrientMapRegistration(registeredclass.Registration):

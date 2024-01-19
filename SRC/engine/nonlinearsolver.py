@@ -26,6 +26,7 @@ class NonlinearSolverBase(registeredclass.RegisteredClass):
     tip="Base class for nonlinear solvers, including the null solver."
     discussion=xmlmenudump.loadFile(
         'DISCUSSIONS/engine/reg/nonlinearsolverbase.xml')
+    xrefs=["Section-Tasks-Solver"]
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

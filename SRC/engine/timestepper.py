@@ -282,6 +282,7 @@ class QCTimeStepper(registeredclass.RegisteredClass):
     registry = []
     tip='Ways of taking a "Quality Controlled" time step.'
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/qcstepper.xml')
+    xrefs=["Section-Tasks-Solver"]
     ## Subclasses must have linearstep and/or nonlinearstep functions
     ## that take the same arguments as the TimeStepper methods, plus a
     ## StepErrorScaling object called "errorscaling".  They should

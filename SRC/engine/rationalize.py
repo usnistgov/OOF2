@@ -109,8 +109,9 @@ switchboard.requestCallback(Rationalizer, _updateDefaults)
 
 class RationalizeMethod(registeredclass.RegisteredClass):
     registry = []
-    tip = "Strategies for removing bad elements from a Skeleton"
+    tip = "Methods for removing bad elements from a Skeleton."
     discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/rationalizemethod.xml')
+    xrefs=["Section-Tasks-Skeleton"]
 
 ## The Automatic RationalizeMethod applies the rationalizers to *all*
 ## elements in the target set and picks the best rationalization, or

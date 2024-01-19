@@ -58,12 +58,6 @@ class Color(registeredclass.ConvertibleRegisteredClass):
         return (self.getRed(), self.getGreen(), self.getBlue(), self.getAlpha())
 
     tip = "Various ways of describing a color."
-    discussion = """<para>
-    The <classname>Color</classname> contains various ways of
-    describing colors.  The different representations are provided for
-    convenience.  The behavior of the program never depends on the
-    format in which a color was specified.
-    </para>"""
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -74,11 +68,32 @@ class Color(registeredclass.ConvertibleRegisteredClass):
 
 class TranslucentColor(Color):
     registry = []
+    xrefs=["RegisteredClass-OpaqueColor"]
+    discussion = """<para>
+    
+    The <classname>TranslucentColor</classname> class contains various
+    ways of describing translucent colors.  The subclasses all have
+    <varname>alpha</varname> parameters. A color with
+    <varname>alpha</varname>=<userinput>0</userinput> is fully
+    transparent, and a color with
+    <varname>alpha</varname>=<userinput>1</userinput> is fully opaque.
+    The different representations are provided for convenience.  The
+    behavior of the program never depends on the format in which a
+    color was specified.
+
+    </para>"""
     def translucent(self):
         return self
 
 class OpaqueColor(TranslucentColor):
     registry = []
+    xrefs=["RegisteredClass-TranslucentColor"]
+    discussion = """<para>
+    The <classname>OpaqueColor</classname> class contains various ways
+    of describing opaque colors.  The different representations are
+    provided for convenience.  The behavior of the program never
+    depends on the format in which a color was specified.
+    </para>"""
     def opaque(self):
         return self
 

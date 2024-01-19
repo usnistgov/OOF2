@@ -21,8 +21,14 @@ class Preconditioner(registeredclass.RegisteredClass):
     registry = []
     tip = "Preconditioners for efficient solution of matrix equations."
     discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/preconditioner.xml')
+    xrefs=["RegisteredClass-ConjugateGradient",
+           "RegisteredClass-StabilizedBiConjugateGradient"]
     def shortrepr(self):
         return self.__class__.__name__
+
+# The preconditioner name is used in matrixmethod.py to look up the
+# actual C++ method for each combination of solver and preconditioner.
+# I don't know why the class name isn't used instead.
 
 class UnPreconditioner(Preconditioner):
     name = "Un"
@@ -46,7 +52,13 @@ registeredclass.Registration(
     UnPreconditioner,
     ordering=2000,
     params=[],
-    tip="Be bold (or foolhardy) and attempt to solve the mesh without a preconditioner")
+    tip="Be bold (or foolhardy) and attempt to solve the mesh without a preconditioner",
+    discussion="""<para>
+    Choosing this option for the <varname>preconditioner</varname>
+    of a <xref linkend="RegisteredClass-MatrixMethod"/> skips the
+    preconditioning step, probably making the solution slower.
+    </para>"""
+)
 
 registeredclass.Registration(
     "Jacobi",
@@ -54,7 +66,15 @@ registeredclass.Registration(
     JacobiPreconditioner,
     ordering=500,
     params=[],
-    tip="A light-weight preconditioner, that simply inverts the diagonal part of the matrix.")
+    tip="A light-weight preconditioner, that simply inverts the diagonal part of the matrix.",
+    discussion="""<para>
+    This algorithm is provided by <ulink
+    url="http://eigen.tuxfamily.org/" role ="external">Eigen</ulink>.
+    See <ulink
+    url="https://eigen.tuxfamily.org/dox/classEigen_1_1DiagonalPreconditioner.html"
+    role="external"/>.
+    </para>"""
+)
 
 registeredclass.Registration(
     "Incomplete LUT",
@@ -62,7 +82,15 @@ registeredclass.Registration(
     ILUTPreconditioner,
     ordering=101,
     params=[],
-    tip="Incomplete LU-factorization with dual thresholding.")
+    tip="Incomplete LU-factorization with dual thresholding.",
+    discussion="""<para>
+    This algorithm is provided by <ulink
+    url="http://eigen.tuxfamily.org/" role ="external">Eigen</ulink>.
+    See <ulink
+    url="https://eigen.tuxfamily.org/dox/classEigen_1_1IncompleteLUT.html"
+    role="external"/>.
+    </para>"""
+)
 
 registeredclass.Registration(
     "ILU",
@@ -79,4 +107,12 @@ registeredclass.Registration(
     ICPreconditioner,
     ordering=100,
     params=[],
-    tip="Incomplete Cholesky factorization with dual thresholding.") 
+    tip="Incomplete Cholesky factorization with dual thresholding.",
+    discussion="""<para>
+    This algorithm is provided by <ulink
+    url="http://eigen.tuxfamily.org/" role ="external">Eigen</ulink>.
+    See <ulink
+    url="https://eigen.tuxfamily.org/dox/classEigen_1_1IncompleteCholesky.html"
+    role="external"/>.
+    </para>"""
+) 

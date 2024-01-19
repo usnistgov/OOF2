@@ -27,6 +27,7 @@ class OutputDestination(registeredclass.RegisteredClass):
     registry = []
     tip="What to do with Scheduled Output data."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/outputdest.xml')
+    xrefs=["Section-Tasks-ScheduledOutput"]
     def open(self):
         pass
     # def open_append(self):
