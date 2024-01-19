@@ -579,10 +579,10 @@ may be members of more than one
                 print("  </refsect1>", file=phile)
         xrefs = getattr(regclass, "xrefs", [])
         if xrefs:
-            print("<simplesect>", file=phile)
+            print("<refsect1>", file=phile)
             print("<title>See Also</title>", file=phile)
             print(f"<simpara>{xrefListing(xrefs)}</simpara>", file=phile)
-            print("</simplesect>", file=phile)
+            print("</refsect1>", file=phile)
 
         print(" </refentry>", file=phile) # end refentry for registered base class
 
