@@ -24,10 +24,12 @@ from ooflib.common.IO import xmlmenudump
 
 class MeshCrossSection(registeredclass.RegisteredClass):
     registry = []
-
-MeshCrossSection.tip = "Paths within a Mesh for post-processing."
-MeshCrossSection.discussion = xmlmenudump.loadFile(
-    "DISCUSSIONS/engine/reg/meshcrosssection.xml")
+    tip = "Paths within a Mesh for post-processing."
+    discussion = xmlmenudump.loadFile(
+        "DISCUSSIONS/engine/reg/meshcrosssection.xml")
+    xrefs=["RegisteredClass-CrossSectionDomain",
+           "Section-Tasks-Analysis",
+           "Section-Graphics-CrossSection"]
 
 class StraightCrossSection(MeshCrossSection):
     # start and end should be primitives.Point objects...

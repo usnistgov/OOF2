@@ -46,7 +46,9 @@ dataCacheReg = registeredclass.Registration(
     ordering=10,
     params=[cacheTypeParam],
     tip='Choose to cache time step data in memory or on disk.',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/setcachetype.xml'))
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/setcachetype.xml'),
+    xrefs=["MenuItem-OOF.Settings.Mesh_Defaults.Data_Cache_Type"]
+)
 
 
 def newMeshDataCache(femesh):
@@ -73,5 +75,7 @@ registeredclass.Registration(
     ClearMeshDataCache,
     ordering=11,
     tip='Remove cached field values for all times except the current time.',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/clearcache.xml'))
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/clearcache.xml'),
+    xrefs=["MenuItem-OOF.Settings.Mesh_Defaults.Data_Cache_Type"]
+)
 
