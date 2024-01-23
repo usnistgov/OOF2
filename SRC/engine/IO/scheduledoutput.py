@@ -37,6 +37,8 @@ class ScheduledOutput(registeredclass.RegisteredClass):
     settableDestination = True
     tip='Output operations for time evolution.'
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/schedout.xml')
+    xrefs=["Section-Tasks-ScheduledOutput"]
+    
     def __init__(self):
         global _noutputs
         self._name = None
@@ -218,7 +220,8 @@ registeredclass.Registration(
         ],
     tip="Compute Fields, Fluxes, etc. on the Mesh.",
     discussion=xmlmenudump.loadFile(
-        'DISCUSSIONS/engine/reg/bulkanalysis.xml')
+        'DISCUSSIONS/engine/reg/bulkanalysis.xml'),
+    xrefs=["Section-Tasks-Analysis"]
 )
 
 class BoundaryAnalysis(ScheduledOutput):
@@ -250,7 +253,8 @@ registeredclass.Registration(
         ],
     tip="Compute averages and integrals on boundaries.",
     discussion=xmlmenudump.loadFile(
-        'DISCUSSIONS/engine/reg/bdyanalysis.xml')
+        'DISCUSSIONS/engine/reg/bdyanalysis.xml'),
+    xrefs=["Section-Tasks-BdyAnalysis"]
     )
 
 ###################

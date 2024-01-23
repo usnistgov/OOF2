@@ -303,9 +303,6 @@ class SkeletonElement(SkeletonElementBase,
     def aspectRatio2(self):
         # The square of the aspect ratio is the ratio of the
         # eigenvalues of the moment of inertia tensor of the points.
-        # This routine returns the square of (min_length/max_length)
-        # so that we don't have to take the sqrt or check for
-        # min_length = 0.
 
         # First compute the center point.
         midpt = primitives.Point(0,0)

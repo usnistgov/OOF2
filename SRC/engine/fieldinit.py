@@ -94,6 +94,7 @@ class ScalarFieldInit(registeredclass.RegisteredClass, FieldInit):
     tip="Methods for initializing a scalar field."
     discussion=xmlmenudump.loadFile(
         'DISCUSSIONS/engine/reg/scalar_field_init.xml')
+    xrefs = ["Section-Tasks-FieldsEquations", "Section-Tasks-Solver"]
 fieldInitDict['ScalarField'] = ScalarFieldInit
 fieldInitDict['ScalarFieldBase'] = ScalarFieldInit
 
@@ -102,6 +103,7 @@ class TwoVectorFieldInit(registeredclass.RegisteredClass, FieldInit):
     tip="Methods for initializing a two dimensional vector field."
     discussion=xmlmenudump.loadFile(
         'DISCUSSIONS/engine/reg/two_vector_field_init.xml')
+    xrefs = ["Section-Tasks-FieldsEquations", "Section-Tasks-Solver"]
 fieldInitDict['TwoVectorField'] = TwoVectorFieldInit
 fieldInitDict['TwoVectorFieldBase'] = TwoVectorFieldInit
 
@@ -111,6 +113,7 @@ class ThreeVectorFieldInit(registeredclass.RegisteredClass, FieldInit):
     tip="Methods for initializing a three dimensional vector field."
     discussion=xmlmenudump.loadFile(
         'DISCUSSIONS/engine/reg/three_vector_field_init.xml')
+    xrefs = ["Section-Tasks-FieldsEquations", "Section-Tasks-Solver"]
 
 fieldInitDict['ThreeVectorField'] = ThreeVectorFieldInit
 
@@ -124,6 +127,7 @@ class SymmetricTensorFieldInit(registeredclass.RegisteredClass, FieldInit):
     tip="Methods for initializing a symmetric tensor field."
     discussion=xmlmenudump.loadFile(
         'DISCUSSIONS/engine/reg/symten_field_init.xml')
+    xrefs = ["Section-Tasks-FieldsEquations", "Section-Tasks-Solver"]
 
 fieldInitDict['SymmetricTensorField'] = SymmetricTensorFieldInit
 

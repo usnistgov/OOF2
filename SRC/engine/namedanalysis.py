@@ -200,6 +200,7 @@ registeredclass.Registration(
             tip="Name of the analysis operation to perform.  Named analyses can be created on the Analysis and Boundary Analysis Pages.")
         ],
     tip="Use a predefined bulk or boundary Analysis method.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/namedanalysis.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/namedanalysis.xml'),
+    xrefs=["Section-Tasks-Analysis", "Section-Tasks-BdyAnalysis"]
 )
         

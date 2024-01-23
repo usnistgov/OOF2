@@ -84,7 +84,8 @@ class Rationalizer(registeredclass.RegisteredClass):
 
     tip = "Specific tools to remove badly shaped Elements from Skeletons."
     discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/rationalizer.xml')
-
+    xrefs = ["RegisteredClass-Rationalize", "Section-Tasks-Skeleton"]
+    
 ################################################################
 
 ## In order for the widget for the list of RationalizeMethods to come

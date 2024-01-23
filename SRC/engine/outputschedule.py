@@ -31,6 +31,7 @@ class ScheduleType(registeredclass.RegisteredClass):
     registry = []
     tip="How output Schedules are interpreted."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/scheduletype.xml')
+    xrefs=["Section-Tasks-ScheduledOutput"]
 
     def shortrepr(self):
         return self.getRegistration().name()
@@ -99,6 +100,7 @@ class Schedule(registeredclass.RegisteredClass):
     registry = []
     tip="Ways to specify when Scheduled Output will be produced."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/schedule.xml')
+    xrefs=["Section-Tasks-ScheduledOutput"]
     def __init__(self):
         self.time0 = 0.0
     def reset(self, continuing):

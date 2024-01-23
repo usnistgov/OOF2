@@ -25,7 +25,10 @@ import math
 class RefinementTarget(registeredclass.RegisteredClass):
     registry = []
     tip = "Determine which Skeleton segments will be refined."
-    discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/refinementtarget.xml')
+    discussion = xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/refinementtarget.xml')
+    xrefs=["Section-Tasks-Skeleton", "MenuItem-OOF.Skeleton.Modify",
+           "RegisteredClass-Refine"]
 
 # ElementRefinementTarget marks all segments of a set of elements.  If
 # you don't want to mark all segments of an element, use
@@ -94,7 +97,10 @@ registeredclass.Registration(
     tip="Refine selected elements.",
     discussion= """<para>
     Refine all segments of the currently selected elements.
-    </para>""")
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonSelection",
+           "Section-Graphics-SkeletonSelection"]
+)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -111,12 +117,14 @@ registeredclass.Registration(
     RefinementTarget,
     CheckElementsInGroup,
     ordering=1.5,
-    params=[skeletongroupparams.ElementGroupParameter('group',
-                                                      tip='Refine the elements in this group.')],
+    params=[skeletongroupparams.ElementGroupParameter(
+        'group', tip='Refine the elements in this group.')],
     tip="Refine elements in an element group.",
     discussion= """<para>
     Refine all segments of the elements in the given element group.
-    </para>""")
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonSelection"]
+)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -150,7 +158,8 @@ registeredclass.Registration(
     is less than the given <varname>threshold</varname> will be
     refined.  <xref linkend='Figure-refine'/> illustrates the
     refinement of all elements with homogeneity less than 1.0.
-    </para>""")
+    </para>"""
+)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -208,7 +217,10 @@ registeredclass.Registration(
     linkend='RegisteredClass-CheckHeterogeneousSegments'>heterogeneous</link>
     &sgmts; to <link linkend='RegisteredClass-Refine'>refine</link>,
     consider only the currently selected &sgmts;.
-    </para>""")
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonSelection",
+           "Section-Graphics-SkeletonSelection"]
+)
 
 class SegsFromSelectedElementsIterator(skeleton.SkeletonSegmentIterator):
     def __init__(self, context):
@@ -245,7 +257,10 @@ registeredclass.Registration(
     linkend='RegisteredClass-CheckHeterogeneousSegments'>heterogeneous</link>
     &sgmts; to <link linkend='RegisteredClass-Refine'>refine</link>,
     consider only the edges of the currently selected &elems;.
-    </para>""")
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonSelection",
+           "Section-Graphics-SkeletonSelection"]
+)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -420,9 +435,9 @@ registeredclass.Registration(
         'group', tip='Examine segments in this group')],
     tip="Refine segments in a segment group",
     discussion="""<para>
-    Refine a Skeleton by divided the segments in the given segment group.
-    </para>"""
-    )
+    Refine a Skeleton by dividing the segments in the given segment group.
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonSelection"])
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
