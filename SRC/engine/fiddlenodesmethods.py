@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -49,9 +48,9 @@ registeredclass.Registration(
     AnnealMovePosition,
     ordering=0,
     params = [
-    parameter.FloatParameter("delta",
-                             1.0,
-                             tip='width of gaussian distribution of node motions, in pixel units')
+    parameter.FloatParameter(
+        "delta", 1.0,
+        tip='width of gaussian distribution of node motions, in pixel units')
     ])
 
 
@@ -74,19 +73,22 @@ registeredclass.Registration(
     skeletonmodifier.SkeletonModifier,
     Anneal,
     ordering=3,
-    params=[parameter.RegisteredParameter('targets', FiddleNodesTargets,
-                                          tip='Which nodes to move.'),
-            parameter.RegisteredParameter('criterion',
-                                          skeletonmodifier.SkelModCriterion,
-                                          tip = 'Acceptance criterion'),
-            parameter.FloatParameter('T', value = 0.0,
-                                     tip='Failed moves will be accepted if T>0 and exp(-diffE/T) > r, where diffE is the energy gained and r is a random number between 0 and 1.'),
-            parameter.FloatParameter('delta', value=1.0,
-                                     tip='Width of the distribution of attempted node motions, in units of the pixel size.'),
-            parameter.RegisteredParameter('iteration', IterationManager,
-                                          tip='Iteration method.')
+    params=[
+        parameter.RegisteredParameter(
+            'targets', FiddleNodesTargets, tip='Which nodes to move.'),
+        parameter.RegisteredParameter(
+            'criterion', skeletonmodifier.SkelModCriterion,
+            tip = 'Acceptance criterion'),
+        parameter.FloatParameter(
+            'T', value = 0.0,
+            tip='Failed moves will be accepted if T>0 and exp(-diffE/T) > r, where diffE is the energy gained and r is a random number between 0 and 1.'),
+        parameter.FloatParameter(
+            'delta', value=1.0,
+            tip='Width of the distribution of attempted node motions, in units of the pixel size.'),
+        parameter.RegisteredParameter(
+            'iteration', IterationManager, tip='Iteration method.')
     ],
-    tip='Move nodes randomly and accept the ones that meet the acceptance criterion.',
+    tip='Move nodes randomly and accept the moves that meet the acceptance criterion.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/anneal.xml')
     )
 

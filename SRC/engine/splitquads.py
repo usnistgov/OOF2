@@ -96,6 +96,7 @@ class SplitQuadMethod(registeredclass.RegisteredClass):
     Values of the <varname>split_how</varname> parameter used in
     <xref linkend='RegisteredClass-SplitQuads'/>.
     </para>"""
+    xrefs=["Section-Tasks-Skeleton", "RegisteredClass-SplitQuads"]
 
 #############################
 

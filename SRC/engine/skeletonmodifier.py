@@ -48,6 +48,7 @@ class SkelModTargets(registeredclass.RegisteredClass):
     linkend='RegisteredClass-SkeletonModifier'/> is applied to a
     &skel;.
     </para>"""
+    xrefs=["Section-Tasks-Skeleton"]
 
 class AllElements(SkelModTargets):
     def __call__(self, skeleton, context, copy=None):
@@ -93,8 +94,11 @@ registeredclass.Registration(
     <varname>targets</varname> parameter in <link
     linkend='RegisteredClass-SkeletonModifier'><classname>SkeletonModifiers</classname></link>.
     It specifies that only the currently selected &elems; of a &skel;
-    are to be modified.
-    </para>""")
+    (and perhaps their neighbors) are to be modified.
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonSelection",
+           "Section-Graphics-SkeletonSelection"]
+)
 
 class HeterogeneousElements(SkelModTargets):
     def __init__(self,threshold = 0.9):
@@ -126,8 +130,8 @@ registeredclass.Registration(
     linkend='RegisteredClass-SkeletonModifier'><classname>SkeletonModifiers</classname></link>. It
     specifies that only the &elems; whose <link
     linkend='Section-Concepts-Skeleton-Homogeneity'>homogeneity</link>
-    is less than the given <varname>threshold</varname> will be
-    modified.
+    is less than the given <varname>threshold</varname> (and perhaps
+    their neighbors) will be modified.
     </para>""")
 
 class BadlyShapedElements(SkelModTargets):
@@ -160,7 +164,8 @@ registeredclass.Registration(
     specifies that only the &elems; whose <link
     linkend='Section-Concepts-Skeleton-Shape_Energy'>shape
     energy</link> is greater than the given
-    <varname>threshold</varname> will be modified.
+    <varname>threshold</varname> (and perhaps their neighbors) will be
+    modified.
     </para>""")
 
 class ElementsInGroup(SkelModTargets):
@@ -181,15 +186,15 @@ registeredclass.Registration(
                                                       tip='Choose the elements in this group')],
     tip='Operate on an Element group',
     discussion="""<para>
-
     <classname>ElementsInGroup</classname> is a <xref
     linkend='RegisteredClass-SkelModTargets'/> subclass, used as the
     <varname>targets</varname> parameter in <link
     linkend='RegisteredClass-SkeletonModifier'><classname>SkeletonModifiers</classname></link>. It
-    specifies that only the &elems; in a particular &elemgroup; will
-    be modified.
-
-    </para>""")
+    specifies that only the &elems; in a particular &elemgroup; (and
+    perhaps their neighbors) will be modified.
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonSelection"]
+)
 
 #################################################
 
@@ -426,6 +431,7 @@ registeredclass.Registration(
 class SkeletonModifier(registeredclass.RegisteredClass):
     ok_illegal = 0  # can it handle illegal skeletons?
     registry = []
+    xrefs=["Section-Tasks-Skeleton"]
     def postProcess(self, context):
         pass
 
@@ -436,7 +442,9 @@ class SkeletonModifier(registeredclass.RegisteredClass):
     discussion = """<para>
 
     <classname>SkeletonModifiers</classname> are applied to &skels; by
-    the <xref linkend='MenuItem-OOF.Skeleton.Modify'/> command.
+    the <xref linkend='MenuItem-OOF.Skeleton.Modify'/> command.  They
+    are used to make the &skel; a better representation of the &micro;
+    and to improve its quality.
 
     </para>"""
 

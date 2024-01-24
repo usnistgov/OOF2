@@ -104,6 +104,7 @@ class SkeletonGeometry(registeredclass.RegisteredClass):
     specify the shape of the &elems; in the uniform &skel; created by
     <xref linkend='MenuItem-OOF.Skeleton.New'/>.
     </para>"""
+    xrefs=["Section-Tasks-Skeleton"]
 
     # much of the code needed by TriSkeleton and QuadSkeleton is repeated
     def createGridOfNodes(self, skel, prog, m, n):

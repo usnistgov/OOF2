@@ -256,7 +256,9 @@ registeredclass.Registration(
     When choosing <link
     linkend='RegisteredClass-CheckHeterogeneousSegments'>heterogeneous</link>
     &sgmts; to <link linkend='RegisteredClass-Refine'>refine</link>,
-    consider only the edges of the currently selected &elems;.
+    consider only the edges of the currently selected &elems;.  All
+    &elem; edges will be used, not only the ones on the perimeter of
+    the &elem; set.
     </para>""",
     xrefs=["Section-Tasks-SkeletonSelection",
            "Section-Graphics-SkeletonSelection"]

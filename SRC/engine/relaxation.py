@@ -323,7 +323,7 @@ registeredclass.Registration(
     params=[
         skeletonmodifier.alphaParameter,
         parameter.FloatParameter(name = 'gamma', value = 0.5,
-                                 tip='Node mobility'),
+                                 tip='Node mobility.'),
         parameter.IntParameter('iterations', value = 1, tip='number of steps')
         ],
     tip='Improve a skeleton by solving a finite element system where the properties are functions of the underlying homogeneity and shape',

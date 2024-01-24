@@ -59,7 +59,7 @@ def outputDump(file):
     <para>
      The three categories of outputs are
      <itemizedlist>
-      <listitem><para id='Section-Output-Scalar'>
+      <listitem><para><anchor id='Section-Output-Scalar'/>
        <classname>ScalarOutputs</classname>:
        These are Outputs whose result is a single number at each evaluation
        point.  They are used as the <varname>what</varname> argument
@@ -75,7 +75,7 @@ def outputDump(file):
     print("""
        </itemizedlist>
       </para></listitem>
-      <listitem><para id='Section-Output-Position'>
+      <listitem><para><anchor id='Section-Output-Position'/>
        <classname>PositionOutputs</classname>:
        These are Outputs whose result is a position.  They are used as the
        <varname>where</varname> argument in plotting commands.
@@ -90,7 +90,7 @@ def outputDump(file):
     print("""
        </itemizedlist>
       </para></listitem>
-      <listitem><para id='Section-Output-Aggregate'>
+      <listitem><para><anchor id='Section-Output-Aggregate'/>
        <classname>AggregateOutputs</classname>:
 
        These are Outputs whose result is a (possibly) multidimensional
