@@ -326,7 +326,7 @@ registeredclass.Registration(
                                  tip='Node mobility.'),
         parameter.IntParameter('iterations', value = 1, tip='number of steps')
         ],
-    tip='Improve a skeleton by solving a finite element system where the properties are functions of the underlying homogeneity and shape',
+    tip='Improve a skeleton by solving a finite element system where the properties are functions of the underlying homogeneity and shape.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/relax.xml')
     )
 

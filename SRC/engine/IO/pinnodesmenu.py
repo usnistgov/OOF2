@@ -25,8 +25,9 @@ pinnodesmenu = skelmenu.addItem(oofmenu.OOFMenuItem(
     'PinNodes',
     cli_only=1,
     help='Pin and unpin nodes in a Skeleton.',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/pinnodes.xml'))
-    )
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/pinnodes.xml'),
+    xrefs=["Section-Tasks-Skeleton", "Section-Tasks-PinNodes",
+           "Section-Graphics-PinNodes"]))
 
 # Make menu
 def makeMenu():

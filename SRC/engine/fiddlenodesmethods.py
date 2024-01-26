@@ -88,7 +88,7 @@ registeredclass.Registration(
         parameter.RegisteredParameter(
             'iteration', IterationManager, tip='Iteration method.')
     ],
-    tip='Move nodes randomly and accept the moves that meet the acceptance criterion.',
+    tip='Move nodes randomly to improve element shape and homogeneity.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/anneal.xml')
     )
 
@@ -189,7 +189,7 @@ registeredclass.Registration(
             parameter.RegisteredParameter('iteration', IterationManager,
                                           tip='Iteration method.')
     ],
-    tip='Move nodes to the average position of their neighbors and accept ones that meet the acceptance criterion.',
+    tip='Move nodes to the average position of their neighbors.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/smooth.xml'))
 
 
