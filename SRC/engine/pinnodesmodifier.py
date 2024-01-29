@@ -46,6 +46,8 @@ def pinnodesmod(menuitem, skeleton, **params):
     modifier = registration(**params)
     modifier(skeleton)
 
+## TODO PYTHON3: Why don't this class and its subclasses appear in the
+## documentation?
 class PinNodesModifier(registeredclass.RegisteredClass):
     registry = []
 

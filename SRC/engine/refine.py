@@ -69,6 +69,7 @@ class SegmentDivider(registeredclass.RegisteredClass):
         self.minLength2 = minlength*minlength
     tip="How segments are subdivided during refinement."
     discussion=xmlmenudump.loadFile("DISCUSSIONS/engine/reg/segmentdivider.xml")
+    xrefs=["Section-Tasks-Skeleton", "RegisteredClass-Refine"]
 
 minLengthParam = parameter.NonNegativeFloatParameter(
     "minlength", value=2.0,

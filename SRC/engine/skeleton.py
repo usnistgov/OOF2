@@ -3069,6 +3069,16 @@ class ProvisionalChanges:
     def deltaE(self, alpha):
         # Return the change in energy per element if this move were to
         # be accepted.
+
+        ## TODO: Should the average homogeneity energy be weighted by
+        ## element area?  Changes that involve multiple elements
+        ## should be accepted if they improve the overall homogeneity,
+        ## ie the homogeneity index of the set. OTOH, we don't want a
+        ## lot of small inhomogeneous elements on boundaries, which
+        ## might make them appear to be rougher than they actually
+        ## are. Weighting by area would make the small elements less
+        ## important.
+        
         if self.cachedDeltaE is None:
             # Energy before the change
             oldE = 0.0
