@@ -46,11 +46,12 @@ def pinnodesmod(menuitem, skeleton, **params):
     modifier = registration(**params)
     modifier(skeleton)
 
-## TODO PYTHON3: Why don't this class and its subclasses appear in the
-## documentation?
 class PinNodesModifier(registeredclass.RegisteredClass):
     registry = []
-
+    # Menu items are created from the subclasses, and the
+    # documentation is in the menu items.  Why not use a
+    # PinnedNodes.Modify menu item that takes a PinNodesModifier as an
+    # argument?
 
 class PinNodeSelection(PinNodesModifier):
     def __call__(self, skeleton):

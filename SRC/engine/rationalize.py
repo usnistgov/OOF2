@@ -10,11 +10,6 @@
 # oof_manager@nist.gov. 
 
 
-## NOTE: Each RationalizeMethod is initialized with an internal
-## gerund parameter. This parameter reports via the progress bar
-## (through the progress bar message) the gerund of the action
-## (rationalize method) that is being executed. 
-
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import switchboard
@@ -111,7 +106,8 @@ switchboard.requestCallback(Rationalizer, _updateDefaults)
 class RationalizeMethod(registeredclass.RegisteredClass):
     registry = []
     tip = "Methods for removing bad elements from a Skeleton."
-    discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/rationalizemethod.xml')
+    discussion = xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/rationalizemethod.xml')
     xrefs=["Section-Tasks-Skeleton"]
 
 ## The Automatic RationalizeMethod applies the rationalizers to *all*
@@ -129,7 +125,8 @@ class AutomaticRationalization(RationalizeMethod):
                     # doesn't use the Rationalizer's parameters, just use the
                     # default values.
                     ratmethod = ratreg()
-                    ratmethod(skel, context, targets, criterion, ratmethod.fixAll)
+                    ratmethod(skel, context, targets, criterion,
+                              ratmethod.fixAll)
                     if prog.stopped():
                         return
         finally:
@@ -138,7 +135,8 @@ class AutomaticRationalization(RationalizeMethod):
 registeredclass.Registration(
     'Automatic', RationalizeMethod, AutomaticRationalization, ordering=1,
     tip = 'Automatically fix badly shaped Skeleton elements.',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/ration_automatic.xml')
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/ration_automatic.xml')
     ) 
 
 class SpecificRationalization(RationalizeMethod):
