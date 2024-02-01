@@ -149,11 +149,11 @@ registeredclass.Registration(
     ConstScalarFieldInit,
     0,
     params= [parameter.FloatParameter('value', 0.0,
-                                      tip='Value to assign to the Field.')],
+                                      tip='Value of the Field.')],
     tip="Initialize a scalar field with a constant value.",
     discussion=xmlmenudump.loadFile(
         'DISCUSSIONS/engine/reg/const_scalar_field_init.xml')
-    )
+)
 
 ################
 
@@ -174,15 +174,15 @@ registeredclass.Registration(
     ConstTwoVectorFieldInit,
     0,
     params=[
-    parameter.FloatParameter('cx', 0.0,
-                      tip='Value to assign to the x component of the Field.'),
-    parameter.FloatParameter('cy', 0.0,
-                      tip='Value to assign to the y component of the Field.')
+        parameter.FloatParameter('cx', 0.0,
+                                 tip='The x component of the Field.'),
+        parameter.FloatParameter('cy', 0.0,
+                                 tip='The y component of the Field.')
     ],
     tip="Initialize a two-vector field with a constant value.",
     discussion=xmlmenudump.loadFile(
         'DISCUSSIONS/engine/reg/const_twovec_init.xml')
-    )
+)
 
 ################
 
@@ -211,17 +211,17 @@ registeredclass.Registration(
     ConstThreeVectorFieldInit,
     0,
     params=[
-    parameter.FloatParameter('cx', 0.0,
-                   tip='Value to assign to the x component of the Field.'),
-    parameter.FloatParameter('cy', 0.0,
-                   tip='Value to assign to the y component of the Field.'),
-    parameter.FloatParameter('cz', 0.0,
-                   tip='Value to assign to the z component of the Field.') 
+        parameter.FloatParameter('cx', 0.0,
+                                 tip='The x component of the Field.'),
+        parameter.FloatParameter('cy', 0.0,
+                   tip='The y component of the Field.'),
+        parameter.FloatParameter('cz', 0.0,
+                   tip='The z component of the Field.') 
     ],
     tip="Initialize a two-vector field with a constant value.",
     discussion=xmlmenudump.loadFile(
         'DISCUSSIONS/engine/reg/const_threevec_init.xml')
-    )
+)
 
 ################
 
@@ -249,18 +249,18 @@ registeredclass.Registration(
     ConstSymmetricTensorFieldInit,
     1,
     params=[
-    strfunction.XYStrFunctionParameter('vxx', value='0.0',
-                                       tip="The xx component of the field."),
-    strfunction.XYStrFunctionParameter('vyy', value='0.0',
-                                       tip="The yy component of the field."),
-    strfunction.XYStrFunctionParameter('vzz', value='0.0',
-                                       tip="The zz component of the field."),
-    strfunction.XYStrFunctionParameter('vyz', value='0.0',
-                                       tip="The yz component of the field."),
-    strfunction.XYStrFunctionParameter('vxz', value='0.0',
-                                       tip="The xz component of the field."),
-    strfunction.XYStrFunctionParameter('vxy', value='0.0',
-                                       tip="The xy component of the field."),
+        parameter.FloatParameter('vxx', value=0.0,
+                                 tip="The xx component of the field."),
+        parameter.FloatParameter('vyy', value=0.0,
+                                 tip="The yy component of the field."),
+        parameter.FloatParameter('vzz', value=0.0,
+                                 tip="The zz component of the field."),
+        parameter.FloatParameter('vyz', value=0.0,
+                                 tip="The yz component of the field."),
+        parameter.FloatParameter('vxz', value=0.0,
+                                 tip="The xz component of the field."),
+        parameter.FloatParameter('vxy', value=0.0,
+                                 tip="The xy component of the field."),
     
     ],
     tip="Initialize a symmetric tensor field with a constant value.",
