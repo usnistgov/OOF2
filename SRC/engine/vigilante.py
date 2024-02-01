@@ -24,22 +24,23 @@ class FixIllegal(skeletonmodifier.SkeletonModifier):
         # vigilante doesn't really need a properCopy!
         skel = oldskeleton.deputyCopy()
         skel.activate()
+        # suckers is a *list* of illegal elements, used to loop over
+        # them randomly.  illegalset is a *set* used to quickly tell
+        # if an element is known to be illegal.  New elements can be
+        # added to both if moving one node fixes two elements and
+        # breaks one.
         suckers = list(skel.illegalElements())
-        # illegalset holds the elements to be checked.  It is
-        # initially set to the illegal elements in the unmodified
-        # skeleton, but new elements can be added to it if moving one
-        # node fixes two elements and breaks one.
-        # illegalset = set()
         illegalset = {el for el in suckers}
-        crandom.shuffle(suckers)
         nguilty = len(suckers)
 
         # arbitrary number just to keep us out of an infinite loop
-        max = 222
-        count = 0
-        while illegalset and count < max:
-            count += 1
-            self.smoothIllegalElements(skel, illegalset, suckers)
+        maxiters = 222
+        for iteration in range(maxiters):
+            crandom.shuffle(suckers)
+            movedsomething = self.smoothIllegalElements(
+                skel, illegalset, suckers)
+            if not movedsomething or len(illegalset) == 0:
+                break
 
         ndone = nguilty - len(illegalset)
         if illegalset:
@@ -57,6 +58,7 @@ class FixIllegal(skeletonmodifier.SkeletonModifier):
         return skel
 
     def smoothIllegalElements(self, skel, illegalset, suckers):
+        movedsomething = False
         for element in suckers:
             if element in illegalset:
                 node_indices = list(range(element.nnodes()))
@@ -64,7 +66,9 @@ class FixIllegal(skeletonmodifier.SkeletonModifier):
                 for i in node_indices:
                     node = element.nodes[i]
                     #if element.getRealAngle(i) < 0.0:  # bad angle
-                    self.smoothTheNode(skel, node, illegalset, suckers)
+                    if self.smoothTheNode(skel, node, illegalset, suckers):
+                        movedsomething = True
+        return movedsomething
     
     def smoothTheNode(self, skel, node, illegalset, suckers):
         # how many illegal elements?
@@ -95,16 +99,18 @@ class FixIllegal(skeletonmodifier.SkeletonModifier):
 
         if nguilty <= len(still_guilty): # no improvement
             skel.moveNodeBack(node)
-        else:
-            # accept the move
-            for e in node.neighborElements():
-                estillguilty = e in still_guilty
-                ewasguilty = e in illegalset
-                if ewasguilty and not estillguilty:
-                    illegalset.remove(e)
-                elif estillguilty and not ewasguilty:
-                    suckers.append(e)
-                    illegalset.add(e)
+            return False
+
+        # accept the move
+        for e in node.neighborElements():
+            estillguilty = e in still_guilty
+            ewasguilty = e in illegalset
+            if ewasguilty and not estillguilty:
+                illegalset.remove(e)
+            elif estillguilty and not ewasguilty:
+                suckers.append(e)
+                illegalset.add(e)
+        return True
                 
 #########################
 
@@ -114,4 +120,6 @@ registeredclass.Registration(
     ordering=99,
     ok_illegal = 1,  # It can deal with illegal skeletons 
     tip = 'Remove illegal elements from a Skeleton.',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/fix_illegal.xml'))
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/fix_illegal.xml'),
+    xrefs=["RegisteredClass-SkeletonIllegalElementDisplay"]
+)
