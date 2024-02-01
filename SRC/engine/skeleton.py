@@ -15,6 +15,7 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import coord
+from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import progress
 from ooflib.SWIG.common import switchboard
