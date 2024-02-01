@@ -25,7 +25,7 @@ entiremeshreg = registeredclass.Registration(
 
     An <classname>EntireMeshSubProblem</classname> includes all
     &elems; in the &mesh;.  The <userinput>default</userinput>
-    &subproblem; created whenever a &mesh; is created is a
+    &subproblem; created in all new &meshes; is a
     <classname>EntireMeshSubProblem</classname>.  Because
     &subproblems; can overlap, there can be more than one
     <classname>EntireMeshSubProblem</classname> in the same &mesh;.

@@ -71,7 +71,10 @@ registeredclass.Registration(
     <link linkend='MenuItem-OOF.Skeleton.PinNodes'>Pin</link> the
     currently <link
     linkend='MenuItem-OOF.NodeSelection'>selected</link> &nodes;.
-    </para>""")
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonSelection",
+           "Section-Graphics-SkeletonSelection"]
+)
 
 
 class UnPinNodeSelection(PinNodesModifier):
@@ -92,7 +95,10 @@ registeredclass.Registration(
     <link linkend='MenuItem-OOF.Skeleton.PinNodes'>Unpin</link> the
     currently <link
     linkend='MenuItem-OOF.NodeSelection'>selected</link> &nodes;.
-    </para>""")
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonSelection",
+           "Section-Graphics-SkeletonSelection"]
+)
 
 
 class PinInternalBoundaryNodes(PinNodesModifier):
@@ -119,7 +125,7 @@ registeredclass.Registration(
     ordering=2,
     tip="Pin all internal boundary nodes.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/pininternal.xml')
-    )
+)
 
 class PinSelectedSegments(PinNodesModifier):
     def __call__(self, skeleton):
@@ -143,7 +149,10 @@ registeredclass.Registration(
     <link linkend='MenuItem-OOF.Skeleton.PinNodes'>Pin</link> the
     &nodes; at the ends of the currently selected &sgmts; in the given
     &skel;.
-    </para> """)
+    </para> """,
+    xrefs=["Section-Tasks-SkeletonSelection",
+           "Section-Graphics-SkeletonSelection"]
+)
 
 
 class PinSelectedElements(PinNodesModifier):
@@ -204,5 +213,7 @@ registeredclass.Registration(
             parameter.BooleanParameter('boundary', 1,
                                        tip='Select boundary nodes.')],
     tip="Pin nodes of selected elements.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/pinelements.xml')
-    )
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/pinelements.xml'),
+    xrefs=["Section-Tasks-SkeletonSelection",
+           "Section-Graphics-SkeletonSelection"]
+)

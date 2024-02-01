@@ -74,12 +74,11 @@ class TranslucentColor(Color):
     The <classname>TranslucentColor</classname> class contains various
     ways of describing translucent colors.  The subclasses all have
     <varname>alpha</varname> parameters. A color with
-    <varname>alpha</varname>=<userinput>0</userinput> is fully
-    transparent, and a color with
-    <varname>alpha</varname>=<userinput>1</userinput> is fully opaque.
-    The different representations are provided for convenience.  The
-    behavior of the program never depends on the format in which a
-    color was specified.
+    <code>alpha=0</code> is fully transparent, and a color with
+    <code>alpha=1</code> is fully opaque.  The different
+    representations are provided for convenience.  The behavior of the
+    program never depends on the format in which a color was
+    specified.
 
     </para>"""
     def translucent(self):
@@ -233,7 +232,7 @@ ColorRegistration(
                                 tip="Opacity.")],
     from_base=_rgba_from_base,
     tip="Color specified as a Red, Green, Blue, Alpha quartet.",
-    discussion=xmlmenudump.loadFile("DISCUSSIONS/common/reg/rgbcolor.xml")
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/common/reg/rgbacolor.xml")
     )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -263,7 +262,7 @@ ColorRegistration(
     OpaqueColor,
     Gray, 3,
     params=[FloatRangeParameter('value', (0., 1., 0.01), 0.0,
-                                tip="Gray value (0==black, 1==white).")],
+                                tip="Gray value (0=black, 1=white).")],
     from_base=_gray_from_base,
     tip="A gray color.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/graycolor.xml')
@@ -295,12 +294,12 @@ ColorRegistration(
     TranslucentColor,
     TranslucentGray, 6,
     params=[FloatRangeParameter('value', (0., 1., 0.01), 0.0,
-                                tip="Gray value (0==black, 1==white)."),
+                                tip="Gray value (0=black, 1=white)."),
             FloatRangeParameter('alpha', (0., 1., 0.01), 0.0,
                                 tip="Opacity.")],
     from_base=_tgray_from_base,
     tip="A gray color with an opacity component.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/graycolor.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/grayacolor.xml')
     )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -431,7 +430,7 @@ ColorRegistration(
     from_base=_hsva_from_base,
     translucent=True,
     tip="Color specified by Hue, Saturation, Value, and Alpha.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/hsvcolor.xml'))
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/hsvacolor.xml'))
 
 
 #=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#

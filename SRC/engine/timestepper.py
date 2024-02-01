@@ -112,6 +112,7 @@ class TimeStepper(registeredclass.RegisteredClass):
     registry = []
     tip="Ways of taking a single time step."
     discussion=xmlmenudump.loadFile("DISCUSSIONS/engine/reg/timestepper.xml")
+    xrefs=["Section-Tasks-Solver"]
 
     def initialize(self, *args):
         pass

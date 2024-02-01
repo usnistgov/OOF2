@@ -256,9 +256,10 @@ registeredclass.Registration(
     SnapAll,
     0,
     tip="Try to move all nodes to pixel boundaries.",
-    discussion="""<para> In <xref
-    linkend='RegisteredClass-SnapNodes'/>, move all &nodes; of
-    the &skel; </para>""")
+    discussion="""<para>
+    In <xref linkend='RegisteredClass-SnapNodes'/>, move all &nodes;
+    of the &skel;.
+    </para>""")
 
 #=--=##=--=##=--=#
 
@@ -274,9 +275,10 @@ registeredclass.Registration(
     SnapSelectedNodes,
     ordering=1,
     tip="Try to move the selected nodes to pixel boundaries.",
-    discussion="""<para> In <xref
-    linkend='RegisteredClass-SnapNodes'/>, move the currently
-    selected &nodes; of the &skel; </para>"""
+    discussion="""<para>
+    In <xref linkend='RegisteredClass-SnapNodes'/>, move the currently
+    selected &nodes; of the &skel;.
+    </para>"""
 )
 
 #=--=##=--=##=--=#

@@ -25,13 +25,18 @@ from ooflib.common.IO import xmlmenudump
 # change the conditional in pyroelectricity.C, in the
 # effective-modulus computation.
 
-class ConstancyEnum (enum.EnumClass('Constant stress','Constant strain')):
+class Constancy (enum.EnumClass('Constant stress','Constant strain')):
     tip="Choose between constant stress or constant strain pyroelectricity."
     discussion = """<para>
-    Interpretation for the coefficients of the Pyroelectricity
-    property. Constant-stress coefficients can be modified by secondary
-    pyroelectricity in the presence of thermal expansion,
-    piezoelectricity, and elasticity. Constant-strain coefficients cannot.
+
+    This governs how the coefficients of the <link
+    linkend="Property-Couplings-PyroElectricity">PyroElectricity</link>
+    property are interpreted. <userinput>Constant stress</userinput>
+    coefficients can be modified by secondary pyroelectricity in the
+    presence of thermal expansion, piezoelectricity, and
+    elasticity. <userinput>Constant strain</userinput> coefficients
+    cannot.
+    
     </para>"""
 
 
@@ -52,7 +57,7 @@ reg = PropertyRegistration(
             tip="Crystal Z component of polarization contribution due to temperature change."),
      parameter.FloatParameter('T0', 0.0, tip="Reference temperature."),
      enum.EnumParameter(
-            'coefficient_type', ConstancyEnum,
+            'coefficient_type', Constancy,
             value='Constant stress',
             tip="Interpretation of the p coefficients, constant strain or constant stress.")],
     outputs=["Energy"],

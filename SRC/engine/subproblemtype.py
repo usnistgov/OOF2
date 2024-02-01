@@ -23,6 +23,8 @@ class SubProblemType(registeredclass.RegisteredClass):
     registry = []
     tip = "Different varieties of Subproblems."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/subproblemtype.xml')
+    xrefs=["Section-Tasks-FEMesh"]
+    
     def get_dependencies(self):
         # Return the paths (colon separated strings) to the other
         # subproblems on which this one depends. 

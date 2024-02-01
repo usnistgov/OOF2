@@ -81,8 +81,13 @@ registeredclass.Registration(
 
     A <classname>MaterialSubProblem</classname> includes all &elems;
     with the given &material; type.  The &material; type of an &elem;
-    is the &material; type of the <link linkend="Section-Concepts-Skeleton-Homogeneity">dominant pixel</link> within the &elem;.
+    is the &material; type of the <link
+    linkend="Section-Concepts-Skeleton-Homogeneity">dominant
+    pixel</link> within the &elem;, or the &material; assigned
+    explicitly to an &elem; group by <xref
+    linkend="MenuItem-OOF.ElementGroup.Assign_Material"/>.
 
-    </para>"""
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonSelection"]
     )
                              

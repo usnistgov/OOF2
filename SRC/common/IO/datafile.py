@@ -32,7 +32,7 @@ if not config.nanoHUB():
     class DataFileFormat(enum.EnumClass(
         ('script',
  'A fully functioning Python script.  Flexible and editable, but insecure.'),
-        ('ascii', 'An ASCII file with Python-like syntax that will NOT be parsed by the Python interpreter.  Inflexible, editable, but secure.'),
+        ('ascii', 'An ASCII file with Python-like syntax that will NOT be parsed by the Python interpreter.  Editable and secure, but inflexible.'),
         ('binary', 'A binary file. Inflexible and uneditable, but secure, compact and not subject to round-off error.')
         )):
         tip = "Types of &oof2; data files."
@@ -40,7 +40,7 @@ if not config.nanoHUB():
 
 else:                           # in nanoHUB mode scripts aren't allowed
     class DataFileFormat(enum.EnumClass(
-        ('ascii', 'An ASCII file with Python-like syntax that will NOT be parsed by the Python interpreter.  Inflexible, editable, but secure.'),
+        ('ascii', 'An ASCII file with Python-like syntax that will NOT be parsed by the Python interpreter.  Editable and secure, but inflexible.'),
         ('binary', 'A binary file. Inflexible and uneditable, but secure, compact and not subject to round-off error.')
         )):
         tip = "Types of &oof2; data files."

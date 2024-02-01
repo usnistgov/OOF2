@@ -24,6 +24,7 @@ class SolverMode(registeredclass.RegisteredClass):
     registry = []
     tip='How to choose the solution methods.'
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/solvermode.xml')
+    xrefs=["Section-Tasks-Solver"]
 
 class BasicSolverMode(SolverMode):
     def __init__(self, time_stepper, matrix_method):
