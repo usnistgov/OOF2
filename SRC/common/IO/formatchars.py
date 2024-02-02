@@ -37,7 +37,7 @@ class Separator(enum.EnumClass("space", "comma", "tab")):
     menu write columns of data to output files.  The commands have a
     <varname>separator</varname> argument that sets the character that
     divides one column of data from the next.  The
-    <classname>Separator</classname> contains all of the allowed
+    <classname>Separator</classname> class contains all of the allowed
     separators.
     </para>"""
 

@@ -842,13 +842,12 @@ class LatticeSymmetryRegistration(registeredclass.ConvertibleRegistration):
 
 class InternationalName(enum.EnumClass(*internationalGroupNames)):
     tip="The short International (Hermann-Mauguin) name for a point group."
-    discussion="""
-<para>
-
-Names allowed by <xref linkend="RegisteredClass-International"/>.  See
-  <ulink
-  url="https://en.wikipedia.org/wiki/Crystallographic_point_group%23The_correspondence_between_different_notations"
-  role="external">Wikipedia</ulink> for details.</para> """
+    discussion="""<para>
+    Names of point groups in the <xref
+    linkend="RegisteredClass-International"/> notation.  See <ulink
+    url="https://en.wikipedia.org/wiki/Crystallographic_point_group%23The_correspondence_between_different_notations"
+    role="external">Wikipedia</ulink> for details.
+    </para> """
 
 def internationalFromSpaceGroup(n):
     return InternationalName(space2PointDict[n][0])
@@ -923,11 +922,12 @@ LatticeSymmetryRegistration(
 
 class SchoenfliesName(enum.EnumClass(*schoenfliesSymbols)):
     tip="The Schoenflies name for a point group."
-    discussion="""
-<para>Names allowed by <xref linkend="RegisteredClass-Schoenflies"/>. See
-<ulink
-  url="https://en.wikipedia.org/wiki/Crystallographic_point_group%23The_correspondence_between_different_notations"
-  role="external">Wikipedia</ulink> for details.</para> """
+    discussion="""<para>
+    Names of point groups in the <xref
+    linkend="RegisteredClass-Schoenflies"/> notation. See <ulink
+    url="https://en.wikipedia.org/wiki/Crystallographic_point_group%23The_correspondence_between_different_notations"
+    role="external">Wikipedia</ulink> for details.
+    </para> """
     
 def schoenfliesFromSpaceGroup(n):
     return SchoenfliesName(space2PointDict[n][1])

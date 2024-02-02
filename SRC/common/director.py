@@ -24,6 +24,7 @@ class Director(enum.EnumClass('Clockwise','Counterclockwise',
     linkend='Section-Concepts-Skeleton-Boundary-Edge'>edge
     boundaries</link>.
     </para>"""
+    xrefs=["Section-Tasks-SkeletonBoundaries"]
 
 
 utils.OOFdefine('Director', Director)

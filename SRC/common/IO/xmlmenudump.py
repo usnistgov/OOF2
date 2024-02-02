@@ -781,6 +781,12 @@ def enumSection(phile):
         print("  </itemizedlist>", file=phile)
             
         print("  </refsect1>", file=phile)
+        xrefs = getattr(enumclass, "xrefs", [])
+        if xrefs:
+            print("<refsect1>", file=phile)
+            print("<title>See Also</title>", file=phile)
+            print(f"<simpara>{xrefListing(xrefs)}</simpara>", file=phile)
+            print("</refsect1>", file=phile)
         print("</refentry>", file=phile)
     print("</section>", file=phile)         # end of enum section
 

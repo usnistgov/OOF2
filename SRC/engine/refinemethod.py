@@ -96,7 +96,7 @@ largeRules = RefinementRuleSet(
 
 class RuleSet(enum.EnumClass(*[(r.name(), r.help())
                                for r in RefinementRuleSet.allRuleSets])):
-    pass
+    xrefs=["Section-Tasks-Skeleton", "RegisteredClass-Refine"]
 utils.OOFdefine('RuleSet', RuleSet)
 
 RuleSet.tip = "Refinement rule sets."

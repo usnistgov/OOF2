@@ -35,25 +35,26 @@ if not config.nanoHUB():
         ('ascii', 'An ASCII file with Python-like syntax that will NOT be parsed by the Python interpreter.  Editable and secure, but inflexible.'),
         ('binary', 'A binary file. Inflexible and uneditable, but secure, compact and not subject to round-off error.')
         )):
-        tip = "Types of &oof2; data files."
-        discussion = "<para>See <xref linkend='Section-Concepts-FileFormats'/>.</para>"
+        tip = "Types of oof2 data files."
+        discussion = "<para>Formats for writing data files.</para>"
+        xrefs=["Section-Concepts-FileFormats"]
 
 else:                           # in nanoHUB mode scripts aren't allowed
     class DataFileFormat(enum.EnumClass(
         ('ascii', 'An ASCII file with Python-like syntax that will NOT be parsed by the Python interpreter.  Editable and secure, but inflexible.'),
         ('binary', 'A binary file. Inflexible and uneditable, but secure, compact and not subject to round-off error.')
         )):
-        tip = "Types of &oof2; data files."
-        discussion = "<para>See <xref linkend='Section-Concepts-FileFormats'/>.</para>"
-
+        tip = "Types of oof2 data files."
+        discussion = "<para>Formats for writing data files.</para>"
+        xrefs=["Section-Concepts-FileFormats"]
 utils.OOFdefine('DataFileFormat', DataFileFormat)
 
 
 class DataFileFormatExt(
     enum.subClassEnum(DataFileFormat, ('abaqus', 'An ABAQUS-style text file'))):
-    tip = "More types of &oof2; data files."
-    discussion = "<para>See <xref linkend='Section-Concepts-FileFormats'/>.</para>"
-
+    tip = "Types of oof2 data files."
+    discussion = """<para> Types of oof2 data files, extended for
+    &skels; and &meshes;.  </para>"""
     
 utils.OOFdefine('DataFileFormatExt', DataFileFormatExt)
 

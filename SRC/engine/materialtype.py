@@ -31,6 +31,7 @@ class MaterialType(enum.EnumClass(
     wasn't fully implemented. It will be reintroduced sometime, we
     hope.
     </para>"""
+    xrefs=["Section-Tasks-Materials"]
 
 if runtimeflags.surface_mode:
     enum.addEnumName(

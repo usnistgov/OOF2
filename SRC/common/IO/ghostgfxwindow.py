@@ -79,7 +79,8 @@ class NewLayerPolicy(
              """Automatically add display layers for all newly created
              Images, Skeletons, and Meshes."""))):
     tip = "How the graphics window reacts when new Images, Skeletons, or Meshes are created."
-    discussion='<para>See <xref linkend="Section-Graphics-New-Layer-Policy"/>.</para>'
+    discussion=xmlmenudump.emptyDiscussion
+    xrefs=["Section-Graphics-New-Layer-Policy"]
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -87,7 +88,10 @@ class OutputImageFormat(enum.EnumClass(
         ("pdf", "Save image as a pdf file."),
         ("png", "Save image as a png file."))):
     tip="File format for the image."
-    discussion="""<para>Images can be saved as either pdf or png files.</para>"""
+    discussion="""<para>
+    Images can be saved as either pdf or png files.
+    </para>"""
+    xrefs=["Chapter-Graphics"]
 
 if debug.debug():
     enum.addEnumName(OutputImageFormat, "datadump",

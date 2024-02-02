@@ -68,18 +68,16 @@ class SpaceComponent(enum.EnumClass('x', 'y', 'z')):
     choose one of the components of a vector quantity.
     </para>"""
 
-if config.dimension() == 2:    
-    class InPlaneSpaceComponent(enum.EnumClass('x', 'y')):
-        tip="The in-plane components of vectors."
-        discussion="""<para>
-        <classname>InPlaneSpaceComponent</classname> is used by various
-        <link
-        linkend='Section-Output'><classname>Outputs</classname></link> to
-        choose one of the in-plane components of a vector quantity.
-        </para>"""
-elif config.dimension() == 3:
-    InPlaneSpaceComponent = SpaceComponent
-
+class InPlaneSpaceComponent(enum.EnumClass('x', 'y')):
+    tip="The in-plane components of vectors."
+    discussion="""<para>
+    <classname>InPlaneSpaceComponent</classname> is used by various
+    <link
+    linkend='Section-Output'><classname>Outputs</classname></link> to
+    choose one of the in-plane components of a vector quantity.
+    </para>"""
+    xrefs=["Section-Concepts-Mesh-3D"]
+    
 #=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#
 
 # FieldOutput is for fields which are defined on the Mesh.  Fields

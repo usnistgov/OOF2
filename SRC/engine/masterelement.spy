@@ -77,6 +77,7 @@ def getMasterElementEnums():
             enumclass.tip = f"{n} cornered finite elements."
             enumclass.discussion = xmlmenudump.loadFile(
                 f"DISCUSSIONS/engine/enum/element{n}.xml")
+            enumclass.xrefs = ["Section-Concepts-Mesh-Geometry"]
             _masterElementEnumDict[n] = enumclass
             enumclass._sorted = 1
         if name not in enumclass.names:

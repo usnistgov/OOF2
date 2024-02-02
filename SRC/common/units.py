@@ -25,7 +25,7 @@ class Units(enum.EnumClass(
     ('Physical', 'Lengths are given in physical units'),
     ('Fractional', 'Lengths are fractions of the dimensions of the microstructure')
     )):
-    tip="Specify units for inputs"
+    tip="Specify units for inputs."
     discussion="""<para>
 
     This type is used to specify whether a length is being given in

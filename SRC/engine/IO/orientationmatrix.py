@@ -99,7 +99,7 @@ class Orientation(registeredclass.ConvertibleRegisteredClass, metaclass=utils.Pr
 # This allows a subclass to be passeed in to C++.
 
 class OrientationEnum(enum.EnumClass()):
-    tip="Various ways to specify an Orientation"
+    tip="Various ways to specify an Orientation."
     discussion = """<para><classname>OrientationEnum</classname> is
     used to select a representation for displaying an <xref
     linkend="RegisteredClass-Orientation"/>.  The details of each

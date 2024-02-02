@@ -33,6 +33,7 @@ class ElementShapeType(enum.EnumClass(('triangle', 'triangular elements'),
     cases where it's necessary to distinguish between &elem; shapes in
     the &oof2; commands.
     </para>"""
+    xrefs=["MenuItem-OOF.ElementSelection.Select_by_Element_Type"]
     
 
 
