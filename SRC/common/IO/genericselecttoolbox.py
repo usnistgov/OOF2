@@ -136,7 +136,8 @@ class GenericSelectToolbox(toolbox.Toolbox):
                 </para><para>
 
                 This command is equivalent to <xref
-                linkend="MenuItem-OOF.%(obj)sSelection.Undo"/>.
+                linkend="MenuItem-OOF.%(obj)sSelection.Undo"/>, which
+                performs the same task from the main &oof2; window.
                 
                 </para>""" % {'obj':self.objName(),
                               'source':self.sourceName(),
@@ -163,7 +164,8 @@ class GenericSelectToolbox(toolbox.Toolbox):
                 </para><para>
 
                 This command is equivalent to <xref
-                linkend="MenuItem-OOF.%(obj)sSelection.Redo"/>.
+                linkend="MenuItem-OOF.%(obj)sSelection.Redo"/>, which
+                performs the same task from the main &oof2; window.
                 
                 </para>""" % {'obj':self.objName(),
                               'source':self.sourceName(),
