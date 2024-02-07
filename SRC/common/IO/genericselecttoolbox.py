@@ -106,24 +106,38 @@ class GenericSelectToolbox(toolbox.Toolbox):
                               'source':self.sourceName(),
                               'param':self.sourceParamName()}
                 ))
+
+            ## TODO: Why do these define Undo and Redo commands?
+            ## Can't we just use the commands on the main pixel
+            ## selection and skeleton selection pages?  The old
+            ## commands will need to be kept for backwards
+            ## compatibility.
             self.menu.addItem(oofmenu.OOFMenuItem(
                 'Undo',
                 params=sourceparams,
                 callback=self.undoCB,
                 help="Undo the selection.",
                 discussion="""<para>
-                Undo the previous %(obj)s selection in the
-                %(source)s named by the <varname>%(param)s</varname>
-                parameter.  Previous selections are stored on a stack,
-                and the <command>Undo</command> pops off the top of
-                the stack.  The popped selection is not lost, however.
-                It can be recovered with the <link
+
+                Undo the previous %(obj)s selection in the %(source)s
+                named in the <varname>%(param)s</varname> parameter.
+                Undone selections can be redone with the <link
                 linkend='MenuItem-%(parent)s.Redo'><command>Redo</command></link>
                 command.
-
+                
                 </para><para>
-                The stack has a finite size.  Once it is full, old
-                selections will be lost when new selections are made.
+
+                Selections are stored in a buffer with a finite size,
+                which limits the number of operations that can be
+                undone.  When the buffer is full, old selections will
+                be lost when new selections are made.  The size of the
+                buffer can be changed by <xref
+                linkend="MenuItem-OOF.Settings.UndoBuffer_Size"/>.
+                </para><para>
+
+                This command is equivalent to <xref
+                linkend="MenuItem-OOF.%(obj)sSelection.Undo"/>.
+                
                 </para>""" % {'obj':self.objName(),
                               'source':self.sourceName(),
                               'param':self.sourceParamName(),
@@ -135,20 +149,22 @@ class GenericSelectToolbox(toolbox.Toolbox):
                 callback=self.redoCB,
                 help="Redo the latest undone selection.",
                 discussion="""<para>
+
                 Redo the previously undone %(obj)s selection in the
-                %(source)s named in the <varname>%(param)s</varname>
-                parameter.  Selections are stored on a stack, and the
-                <link
-                linkend='MenuItem-%(parent)s.Undo'><command>Undo</command></link>
-                pops a selection off the stack.  The
-                <command>Redo</command> places a selection back onto
-                the stack.
-                </para>
-                <para>
+                %(source)s named by the <varname>%(param)s</varname>
+                parameter.  This undoes a previous <link
+                linkend='MenuItem-%(parent)s.Undo'><command>Undo</command></link>.
+                </para><para>
+                
                 It's only possible to <command>Redo</command> a
                 selection if no other %(obj)ss have been selected
                 since the last <link
                 linkend='MenuItem-%(parent)s.Undo'><command>Undo</command></link>.
+                </para><para>
+
+                This command is equivalent to <xref
+                linkend="MenuItem-OOF.%(obj)sSelection.Redo"/>.
+                
                 </para>""" % {'obj':self.objName(),
                               'source':self.sourceName(),
                               'param':self.sourceParamName(),

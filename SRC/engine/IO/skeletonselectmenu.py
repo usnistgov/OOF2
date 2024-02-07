@@ -135,7 +135,7 @@ def makeMenu(menu, modifier, selection_name):
         whoville.WhoParameter("skeleton",
                               whoville.getClass('Skeleton'),
                               tip=parameter.emptyTipString)],
-        help="Undo the latest Skeleton %s selection operation." % objname,
+        help="Undo a Skeleton %s selection." % objname,
         discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/%s_undo.xml'
                                         % objname)
         ))
@@ -147,8 +147,7 @@ def makeMenu(menu, modifier, selection_name):
         whoville.WhoParameter("skeleton",
                               whoville.getClass('Skeleton'),
                               tip=parameter.emptyTipString)],
-        help="Redo the latest undone Skeleton %s selection operation."\
-        % objname,
+        help="Redo a Skeleton %s selection." % objname,
         discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/%s_redo.xml'
                                         % objname)
         ))
