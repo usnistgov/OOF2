@@ -76,10 +76,10 @@ NodeSelectionRegistration(
 
 class RectangleNodeSelect(NodeSelectMethod):
     def iterator(self, skeletoncontext, pointlist):
-        xmin = min(pointlist[0].x, pointlist[1].x)
-        xmax = max(pointlist[0].x, pointlist[1].x)
-        ymin = min(pointlist[0].y, pointlist[1].y)
-        ymax = max(pointlist[0].y, pointlist[1].y)
+        xmin = min(pointlist[0].x, pointlist[-1].x)
+        xmax = max(pointlist[0].x, pointlist[-1].x)
+        ymin = min(pointlist[0].y, pointlist[-1].y)
+        ymax = max(pointlist[0].y, pointlist[-1].y)
         for n in skeletoncontext.getObject().nodes:
             if xmin < n.position().x < xmax and \
                ymin < n.position().y < ymax:
@@ -97,7 +97,7 @@ rectangleNodeSelector = NodeSelectionRegistration(
 class CircleNodeSelect(NodeSelectMethod):
     def iterator(self, skeletoncontext, pointlist):
         center = pointlist[0]
-        radius2 = (pointlist[1]-pointlist[0])**2
+        radius2 = (pointlist[-1]-pointlist[0])**2
 
         for n in skeletoncontext.getObject().nodes:
             dist2 = (n.position() - center)**2
@@ -174,10 +174,10 @@ SegmentSelectionRegistration(
 class AreaSegmentSelect(SegmentSelectMethod):
     def iterator(self, skeletoncontext, pointlist):
         self.first = pointlist[0]
-        self.xmin = min(pointlist[0].x, pointlist[1].x)
-        self.xmax = max(pointlist[0].x, pointlist[1].x)
-        self.ymin = min(pointlist[0].y, pointlist[1].y)
-        self.ymax = max(pointlist[0].y, pointlist[1].y)
+        self.xmin = min(pointlist[0].x, pointlist[-1].x)
+        self.xmax = max(pointlist[0].x, pointlist[-1].x)
+        self.ymin = min(pointlist[0].y, pointlist[-1].y)
+        self.ymax = max(pointlist[0].y, pointlist[-1].y)
         self.xspan2 = (self.xmax-self.xmin)**2
         self.yspan2 = (self.ymax-self.ymin)**2
         self.center = primitives.Point(0.5*(self.xmax+self.xmin),

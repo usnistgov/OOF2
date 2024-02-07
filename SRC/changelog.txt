@@ -20,6 +20,12 @@ OOF2 2.3.3
 * Fixed a bug that was preventing boundary condition initializers
   from being copied.
 
+* All of the skeleton selection commands that have a list of points as
+  an argument but only use two of them now use the first and the last
+  points.  It was inconsistent before.  This probably doesn't matter to
+  anyone because the GUI only put two points in the list.  But if you
+  edited scripts and added points to a list it might have an effect.
+
 OOF2 2.3.2
 
 * Eliminated some opportunities for roundoff error in Rationalize that
