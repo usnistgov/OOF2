@@ -26,6 +26,11 @@ OOF2 2.3.3
   anyone because the GUI only put two points in the list.  But if you
   edited scripts and added points to a list it might have an effect.
 
+* Fixed a bug that was making normally unlisted layers in the graphics
+  window's layer list become listed after they were edited.  That
+  itself wasn't really so bad, but it meant that they were deleted
+  when the window was cleared.
+
 OOF2 2.3.2
 
 * Eliminated some opportunities for roundoff error in Rationalize that

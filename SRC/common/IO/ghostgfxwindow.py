@@ -1380,6 +1380,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                 # Replace the selected layer with the new layer.
                 which = self.layerID(self.selectedLayer)
                 layer.frozen = self.selectedLayer.frozen
+                layer.listed = self.selectedLayer.listed
                 oldlayer = self.selectedLayer
                 self.layers[which] = layer
                 # Do not call self.selectLayer here.  It'll try to
