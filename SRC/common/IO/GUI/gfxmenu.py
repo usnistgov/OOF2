@@ -95,7 +95,13 @@ class MenuCallBackWrapper:
                 self.menuitem()
         else:
             # Call, but don't log, the gui callback.  The gui callback
-            # will (probably) call and log the cli callback.
+            # will (probably) call and log the cli callback.  If there
+            # is no cli callback, nothing will be logged.  This isn't
+            # really a problem -- if there is no cli callback, nothing
+            # will be done when a script encounters the menu item.
+            # Scripts don't call gui callbacks.  Any command that
+            # needs to be logged needs to be routed through a non-gui
+            # callback, which can be a no-op in text mode.
             self.menuitem.gui_callback(self.menuitem)
     def findParentWindow(self, menuitem=None):
         m = menuitem or self.menuitem
@@ -491,7 +497,7 @@ OOFMenuItem.add_gui_callback = _OOFMenuItem_add_gui_callback
 
 ####################################################
 
-def _invokeGUICallback(self):
-    self.gui_callback(self)
+# def _invokeGUICallback(self):
+#     self.gui_callback(self)
 
-OOFMenuItem.invokeGUICallback = _invokeGUICallback
+# OOFMenuItem.invokeGUICallback = _invokeGUICallback
