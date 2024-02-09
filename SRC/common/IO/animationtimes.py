@@ -26,6 +26,7 @@ class AnimationTimes(registeredclass.RegisteredClass):
     registry = []
     tip="Ways to choose frames for an animation."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/animationtimes.xml')
+    xrefs=["Section-Graphics-Time"]
 
 def isPlaceHolder(time):
     return (time is placeholder.earliest or
