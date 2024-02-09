@@ -137,7 +137,7 @@ registeredclass.Registration(
     create &pixelgroups; based on an <link
     linkend="Section-Concepts-Microstructure-OrientationMap">orientation
     map</link>.  Given two pixels, it uses the <link
-    linkend="Section-Concepts-Microstructure-Misorientation">
+    linkend="Section-Concepts-Material-Orientation">
     misorientation</link> of their orientations as the distance
     between them in orientation space. </para>
 
