@@ -45,7 +45,6 @@ elif config.dimension() == 3:
     from ooflib.engine import skeletonelement3d as skeletonelement
 from ooflib.engine.IO import meshparameters
 from ooflib.engine.IO import outputdestination
-#from ooflib.engine.IO import profileIO
 from ooflib.engine.IO import scheduledoutput
 from ooflib.engine.IO.skeletonIO import rearrangeEdges
 import ooflib.SWIG.engine.equation
