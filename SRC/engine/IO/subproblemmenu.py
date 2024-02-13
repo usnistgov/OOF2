@@ -41,6 +41,12 @@ if parallel_enable.enabled():
 subproblemMenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'Subproblem',
     help="Tools for creating and solving sections of meshes",
+    discussion="""<para>
+    The <command>Subproblem</command> menu contains tools for creating
+    and manipulating &subproblems;, including working with &fields;
+    and &equations;, and assigning <link
+    linkend="Section-Concepts-Mesh-Solvers">solvers</link>.
+    </para>""",
     cli_only=1))
 
 # Look for an enclosing subproblem parameter -- if not found, use the
@@ -87,12 +93,12 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     ),
     help="Define a new subproblem",
     discussion="""<para>
-
     Create a new &subproblem; in the given &mesh;.  If the given name
     is not unique in the &mesh;, <userinput>&lt;x&gt;</userinput> will
     be appended to it, where <userinput>x</userinput> is an integer
     chosen to make the name unique.  </para>
-    """
+    """,
+    xrefs=["Section-Tasks-FEMesh-Subproblems"]
     ))
 
 #############
@@ -165,8 +171,9 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     &materials;, <foreignphrase>etc.</foreignphrase> that don't exist
     in the destination &mesh;, then the copied &subproblem; will
     contain no &elems;.
-    </para>"""
-    ))
+    </para>""",
+    xrefs=["Section-Tasks-FEMesh-Subproblems"]
+))
 
 #############
 
@@ -248,7 +255,8 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     &fields; and &equations; defined in the old &subproblem; are
     copied to the new one.
 
-    </para>"""
+    </para>""",
+    xrefs=["Section-Tasks-FEMesh-Subproblems"]
     ))
 
 #############
@@ -279,7 +287,8 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
             whoville.WhoNameParameter('name', value='',
                                        tip='New name for the subproblem.')],
     help='Rename a Subproblem.',
-    discussion="<para> Assign a new name to a &subproblem;</para>"))
+    discussion="<para> Assign a new name to a &subproblem;</para>",
+    xrefs=["Section-Tasks-FEMesh-Subproblems"]))
 
 #############
 
@@ -306,7 +315,8 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
                                   ooflib.engine.subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString)],
     help='Delete a Subproblem.',
-    discussion="<para>Delete the given &subproblem; from its &mesh;.</para>"
+    discussion="<para>Delete the given &subproblem; from its &mesh;.</para>",
+    xrefs=["Section-Tasks-FEMesh-Subproblems"]
     ))
 
 
@@ -343,7 +353,8 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     Print information about the given &subproblem;.  In graphics mode,
     the information appears in the message window.
 
-    </para>"""))
+    </para>""",
+    xrefs=["Section-Tasks-FEMesh-Subproblems"]))
 
 ###################################
 
@@ -353,7 +364,9 @@ fieldmenu = subproblemMenu.addItem(oofmenu.OOFMenuItem(
     discussion="""<para>
     The <command>Field</command> menu contains the commands that
     define and set the properties of &fields; on &meshes;.
-    </para>"""))
+    </para>""",
+    xrefs=["Section-Tasks-FieldsEquations", "Section-Tasks-Solver"]
+))
 
 def _defineField(menuitem, subproblem, field):
     if parallel_enable.enabled():
@@ -395,9 +408,9 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
             meshparameters.FieldParameter('field', tip=parameter.emptyTipString)
     ],
     help="Define a Field on a Subproblem. Only defined Fields may be given values.",
-    ## TODO: Fix discussion
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/definefield.xml')
-    ))
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/menu/definesubprobfield.xml')
+))
 
 
 def _undefineField(menuitem, subproblem, field):
@@ -511,7 +524,8 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
             meshparameters.FieldParameter('field', tip=parameter.emptyTipString)
     ],
     help="Activate a Field.  The solver finds the values of active Fields.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/activatefield.xml')
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/menu/activatesubproblemfield.xml')
     ))
 
 fieldmenu.addItem(oofmenu.OOFMenuItem(
@@ -538,7 +552,9 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
 ############################
 
 eqnmenu = subproblemMenu.addItem(oofmenu.OOFMenuItem(
-    'Equation', help='Activate equations.'))
+    'Equation', help='Activate equations.',
+    xrefs=["Section-Tasks-FieldsEquations", "Section-Tasks-Solver"]
+))
 
 def _activateEquation(menuitem, subproblem, equation):
     if parallel_enable.enabled():
@@ -835,7 +851,9 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
                                   ooflib.engine.subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString)],
     help="Enable a subproblem's solution by the next Solve command.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/enablesoln.xml')))
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/enablesoln.xml'),
+    xrefs=["Section-Tasks-Solver"]
+))
 
 subproblemMenu.addItem(oofmenu.OOFMenuItem(
     'Disable_Solution',
@@ -845,7 +863,9 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
                                   ooflib.engine.subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString)],
     help="Prevent a subproblem's solution by the next Solve command.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/disablesoln.xml')))
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/disablesoln.xml'),
+    xrefs=["Section-Tasks-Solver"]
+))
 
 ################
 
@@ -863,21 +883,22 @@ def setSolver(menuitem, subproblem, solver_mode):
     subpctxt.getParent().setStatus(meshstatus.Unsolved("Solver changed"))
 
 subproblemMenu.addItem(oofmenu.OOFMenuItem(
-        'Set_Solver',
-        callback=setSolver,
-        threadable=oofmenu.THREADABLE,
-        params=[
-            whoville.WhoParameter('subproblem',
-                                  ooflib.engine.subproblemcontext.subproblems,
-                                  tip=parameter.emptyTipString),
-            parameter.RegisteredParameter(
-                'solver_mode',
-                solvermode.SolverMode,
-                tip="Various ways to set time-stepping parameters.")
-            ],
-        help="Specify the solution method for a subproblem.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/setsolver.xml')
-        ))
+    'Set_Solver',
+    callback=setSolver,
+    threadable=oofmenu.THREADABLE,
+    params=[
+        whoville.WhoParameter('subproblem',
+                              ooflib.engine.subproblemcontext.subproblems,
+                              tip=parameter.emptyTipString),
+        parameter.RegisteredParameter(
+            'solver_mode',
+            solvermode.SolverMode,
+            tip="Various ways to set time-stepping parameters.")
+    ],
+    help="Specify the solution method for a subproblem.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/setsolver.xml'),
+    xrefs=["Section-Tasks-Solver"]
+))
 
 ################
 
@@ -892,20 +913,21 @@ def _copySolver(menuitem, source, target):
     _setSolver(menuitem, target, solver)
 
 subproblemMenu.addItem(oofmenu.OOFMenuItem(
-        'Copy_Solver',
-        callback=_copySolver,
-        params=[
-            whoville.WhoParameter('source',
-                                  ooflib.engine.subproblemcontext.subproblems,
-                                  tip="Subproblem to copy the solver from."),
-            whoville.WhoParameter('target',
-                                  ooflib.engine.subproblemcontext.subproblems,
-                                  tip="Subproblem to which to copy the solver.")
-            ],
-        help="Copy a solver from one subproblem to another.",
-        discussion=xmlmenudump.loadFile(
-            'DISCUSSIONS/engine/menu/copysolver.xml')
-        ))
+    'Copy_Solver',
+    callback=_copySolver,
+    params=[
+        whoville.WhoParameter('source',
+                              ooflib.engine.subproblemcontext.subproblems,
+                              tip="Subproblem to copy the solver from."),
+        whoville.WhoParameter('target',
+                              ooflib.engine.subproblemcontext.subproblems,
+                              tip="Subproblem to which to copy the solver.")
+    ],
+    help="Copy a solver from one subproblem to another.",
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/menu/copysolver.xml'),
+    xrefs=["Section-Tasks-Solver"]
+))
 
 ################
 
@@ -927,8 +949,9 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
                                   ooflib.engine.subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString)],
     help="Unspecify the solution method for a subproblem.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/removesolver.xml')
-    ))
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/removesolver.xml'),
+    xrefs=["Section-Tasks-Solver"]
+))
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

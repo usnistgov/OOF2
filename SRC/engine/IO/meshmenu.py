@@ -60,8 +60,11 @@ meshmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     discussion="""<para>
     The <command>Mesh</command> menu contains tools for creating and
     manipulating finite element &meshes;, including methods for
-    defining &fields; and determining which &equations; to <link
-    linkend='MenuItem-OOF.Mesh.Solve'>solve</link>.
+    initializing &fields; setting <link
+    linkend="Section-Concepts-Mesh-BoundaryCondition">boundary
+    conditions</link>, and solving &equations;.  To
+    <emphasis>define</emphasis> fields and equations, see the <xref
+    linkend="MenuItem-OOF.Subproblem"/> menu.
     </para>""",
     xrefs=["Section-Tasks-FEMesh"]
 ))
@@ -553,7 +556,7 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
 
 fieldmenu = meshmenu.addItem(oofmenu.OOFMenuItem(
     'Field',
-    help='Define and activate Fields.',
+    help='Define and activate Fields. (Deprecated)',
     discussion="""<para>
 
     The <command>Field</command> menu contains the commands that
@@ -1065,7 +1068,7 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
 eqnmenu = meshmenu.addItem(
     oofmenu.OOFMenuItem(
         'Equation',
-        help='Activate and deactivate equations.',
+        help='Activate and deactivate equations. (Deprecated)',
         discussion="""<para>
         These are deprecated commands for activating and deactivating
         equations on a &mesh;. The preferred commands in <xref

@@ -827,10 +827,12 @@ assignmatl = oofmenu.OOFMenuItem(
             whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
                                   tip=parameter.emptyTipString),
             ElementGroupParameter("group", tip="Name of the group."),
-            materialparameter.BulkMaterialParameter('material', tip="Name of the material.")],
+            materialparameter.BulkMaterialParameter(
+                'material', tip="Name of the material.")],
     help="Assign a bulk material to an element group.",
     discussion=xmlmenudump.loadFile(
-        'DISCUSSIONS/engine/menu/assignelementmat.xml')
+        'DISCUSSIONS/engine/menu/assignelementmat.xml'),
+    xrefs=["MenuItem-OOF.ElementGroup.Remove_Material"]
     )
 assignmatl.data = "elementgroups"
 elementgroupmenu.addItem(assignmatl)
@@ -845,7 +847,8 @@ removematl = oofmenu.OOFMenuItem(
             ElementGroupParameter("group", tip="Name of the group.")],
     help="Remove a bulk material from an element group.",
     discussion=xmlmenudump.loadFile(
-        'DISCUSSIONS/engine/menu/removeelementmat.xml')
+        'DISCUSSIONS/engine/menu/removeelementmat.xml'),
+    xrefs=["MenuItem-OOF.ElementGroup.Assign_Material"]
     )
 removematl.data = "elementgroups"
 elementgroupmenu.addItem(removematl)
