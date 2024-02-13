@@ -14,87 +14,8 @@
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common import registeredclass
-from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
-from ooflib.engine import materialmanager
 from ooflib.engine import meshstatus
-from ooflib.engine import skeletoncontext
-from ooflib.engine.IO import materialmenu
-from ooflib.engine.IO import materialparameter
-from ooflib.engine.IO import skeletongroupparams
-
-##############
-
-# class MeshModTargets(registeredclass.RegisteredClass):
-#     registry = []
-#     tip = "Target elements for Mesh modification."
-#     discussion = """<para>
-#     Objects in the <classname>MeshModTargets</classname> class are
-#     used as the <varname>target</varname> argument of <xref
-#     linkend='RegisteredClass-MeshModification'/> subclasses. They
-#     specify to which &mesh; elements a modification applies.
-#     </para>"""
-
-# class AllMeshElements(MeshModTargets):
-#     def __call__(self, meshcontext):
-#         els = []
-#         iter = meshcontext.getObject().element_iterator()
-#         while not iter.end():
-#             els.append(iter.element())
-#             iter.next()
-#         return els
-
-# registeredclass.Registration(
-#     'All Elements',
-#     MeshModTargets,
-#     AllMeshElements,
-#     ordering=0,
-#     tip="Operate on all Mesh elements",
-#     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/all_elements.xml')
-#     )
-                             
-# class SelectedMeshElements(MeshModTargets):
-#     def __call__(self, meshcontext):
-#         mesh = meshcontext.getObject()
-#         skel = meshcontext.skeleton
-#         skelcontext = skeletoncontext.skeletonContexts[
-#             skeletoncontext.extractSkeletonPath(meshcontext.path())]
-#         elements = skelcontext.elementselection.retrieveFromSkeleton(skel)
-#         return [mesh.getElement(el.meshindex) for el in elements]
-
-# registeredclass.Registration(
-#     'Selected Elements',
-#     MeshModTargets,
-#     SelectedMeshElements,
-#     ordering=1,
-#     tip="Operate on Mesh elements that are selected in the corresponding Skeleton.",
-#     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/selected_elements.xml')
-#     )
-
-# class MeshElementGroup(MeshModTargets):
-#     def __init__(self, group):
-#         self.group = group
-#     def __call__(self, meshcontext):
-#         mesh = meshcontext.getObject()
-#         skel = meshcontext.skeleton
-#         skelcontext = skeletoncontext.skeletonContexts[
-#             skeletoncontext.extractSkeletonPath(meshcontext.path())]
-#         elements = skelcontext.elementgroups.get_groupFromSkeleton(self.group,
-#                                                                    skel)
-#         return [mesh.getElement(el.meshindex) for el in elements]
-
-# registeredclass.Registration(
-#     'Element Group',
-#     MeshModTargets,
-#     MeshElementGroup,
-#     ordering=2,
-#     params=[
-#     skeletongroupparams.ElementGroupParameter('group',
-#                                               tip='Assign the Material to elements in this group.')
-#     ],
-#     tip="Operate on Mesh elements in a given element group.",
-#     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/element_group.xml'))
-                      
 
 ###############
     

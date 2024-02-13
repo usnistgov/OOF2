@@ -570,7 +570,7 @@ DirectSampleSetRegistration(
     DiscretePointSampleSet,
     ordering=1,
     sample_type=POINT,
-    tip='Evaluate data at a the given point(s).',
+    tip='Evaluate data at the given point(s).',
     discussion=xmlmenudump.loadFile(
         'DISCUSSIONS/engine/reg/discreteptsampleset.xml')
     )
