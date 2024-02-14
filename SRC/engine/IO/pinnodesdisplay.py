@@ -70,7 +70,9 @@ mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
     This command may be put in the &oof2rc; file to set defaults
     for all &oof2; sessions.
 
-    </para>"""))
+    </para>""",
+    xrefs=["Section-Tasks-PinNodes", "Section-Graphics-PinNodes"]
+))
 
 pinnedNodesDisplay = registeredclass.Registration(
     'Pinned Nodes',
@@ -82,7 +84,9 @@ pinnedNodesDisplay = registeredclass.Registration(
     whoclasses=('Skeleton',),
     tip="Display the pinned nodes.",
     discussion=xmlmenudump.loadFile(
-        'DISCUSSIONS/engine/reg/pinnodesdisplay.xml')
+        'DISCUSSIONS/engine/reg/pinnodesdisplay.xml'),
+    xrefs=["Section-Tasks-PinNodes", "Section-Graphics-PinNodes",
+           "MenuItem-OOF.Settings.Graphics_Defaults.Skeletons.Pinned_Nodes"]
     )
 
 def defaultPinnedNodesDisplay():

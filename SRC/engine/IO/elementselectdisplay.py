@@ -76,7 +76,9 @@ mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
     for a discussion of the parameters. This command may be put in the
     &oof2rc; file to set defaults for all &oof2; sessions.
     
-    </para>"""))
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonSelection"]
+))
 
 elementSelectDisplay = registeredclass.Registration(
     'Selected Elements',
@@ -88,7 +90,8 @@ elementSelectDisplay = registeredclass.Registration(
     whoclasses=('Skeleton',),
     tip="Display the currently selected elements",
     discussion=xmlmenudump.loadFile(
-        'DISCUSSIONS/engine/reg/elementselectdisplay.xml')
+        'DISCUSSIONS/engine/reg/elementselectdisplay.xml'),
+    xrefs=["Section-Tasks-SkeletonSelection"]
 )
 
 def predefinedElemSelLayer():

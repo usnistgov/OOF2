@@ -83,7 +83,9 @@ mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
     for a discussion of the parameters. This command may be put in the
     &oof2rc; file to set defaults for all &oof2; sessions.
     
-    </para>"""))
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonSelection"]
+))
 
 nodeSelectDisplay = registeredclass.Registration(
     'Selected Nodes',
@@ -95,7 +97,8 @@ nodeSelectDisplay = registeredclass.Registration(
     whoclasses=('Skeleton',),
     tip="Display the currently selected nodes.",
     discussion=xmlmenudump.loadFile(
-        'DISCUSSIONS/engine/reg/nodeselectdisplay.xml')
+        'DISCUSSIONS/engine/reg/nodeselectdisplay.xml'),
+    xrefs=["Section-Tasks-SkeletonSelection"]
     )
 
 def defaultNodeSelectDisplay():

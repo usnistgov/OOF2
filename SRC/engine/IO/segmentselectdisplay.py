@@ -90,7 +90,9 @@ mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
     for a discussion of the parameters. This command may be put in the
     &oof2rc; file to set defaults for all &oof2; sessions.
     
-    </para>"""))
+    </para>""",
+    xrefs=["Section-Tasks-SkeletonSelection"]
+))
 
 segmentSelectDisplay = registeredclass.Registration(
     'Selected Segments',
@@ -102,7 +104,8 @@ segmentSelectDisplay = registeredclass.Registration(
     whoclasses=('Skeleton',),
     tip="Display the currently selected segments.",
     discussion=xmlmenudump.loadFile(
-        'DISCUSSIONS/engine/reg/segmentselectdisplay.xml')
+        'DISCUSSIONS/engine/reg/segmentselectdisplay.xml'),
+    xrefs=["Section-Tasks-SkeletonSelection"]
     )
 
 def defaultSegmentSelectDisplay():
