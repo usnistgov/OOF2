@@ -317,6 +317,7 @@ class SampleSet(registeredclass.RegisteredClass):
 
     tip = "Container for samples. Outputs are evaluated at samples."
     discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/sampleset.xml')
+    xrefs=["Section-Tasks-Analysis"]
 
 # Utility function, for encapsulating the transformation from column
 # names to attribute names.  The booleans that indicate which columns

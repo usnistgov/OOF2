@@ -108,7 +108,9 @@ meshCrossSectionDisplay = registeredclass.Registration(
     layerordering=display.SemiLinear,
     whoclasses=('Mesh',),
     tip="Determine which cross sections are displayed, and how.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/meshcsdisplay.xml',)
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/meshcsdisplay.xml',),
+    xrefs=["Section-Graphics-CrossSection"]
     )
 
 

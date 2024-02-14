@@ -496,9 +496,9 @@ registeredclass.Registration(
             value=None,
             tip='Profile describing how this condition varies in space and time.'),
         bc_point_bdy_param],
-    tip="Apply a force to all nodes on a boundary.  A force is a divergence of a flux (eg, stress, heat flux).  The condition is applied independently at each node, and is therefore sensitive to node density.",
+    tip="Apply a force to all nodes on a boundary.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/forcebc.xml')
-    )
+)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
