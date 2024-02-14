@@ -513,6 +513,12 @@ registeredclass.Registration(
 
 ######################
 
+## TODO: This should not just inherit the Skeleton's definition of
+## "exterior", which is the edge of the rectangular Microstructure.
+## It should draw any segment that has a Material on only one side,
+## either because it's on the edge of the Microstructure or because
+## one of its Elements is empty.
+
 class PerimeterDisplay(MeshDisplayMethod):
     def __init__(self, when, where, width=0, color=color.black):
         self.where = where.clone()
