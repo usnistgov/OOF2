@@ -938,8 +938,7 @@ class OOFMenuItem:
         return self.parent._xmlXRefs() + self.xrefs
         
     def xmlXRefs(self):
-        from ooflib.common.IO import xmlmenudump
-        return xmlmenudump.xrefListing(self._xmlXRefs())
+        return self._xmlXRefs()
         
 ##################################
     

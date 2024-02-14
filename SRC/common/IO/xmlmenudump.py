@@ -13,6 +13,7 @@ from ooflib.common import enum
 from ooflib.common import labeltree
 from ooflib.common import utils
 from ooflib.common.IO import parameter
+import sys
 
 enumdict = {}
 regclassdict = {}
@@ -78,6 +79,7 @@ def registrationID(reg):
 # either xml ids (strings) or a tuple (xmlid, text). 
 
 def xrefListing(xrefs):
+    assert len(xrefs) > 0
     texts = []
     done = []                   # check for duplicates
     for xref in xrefs:
@@ -86,8 +88,36 @@ def xrefListing(xrefs):
                 texts.append(f'<xref linkend="{xref}"/>')
             elif isinstance(xref, tuple):
                 texts.append(f'<xref linkend="{xref[0]}" endterm="{xref[1]}"/>')
+            else:
+                raise ooferror.PyErrPyProgrammingError(f"bad xref: {xref}")
             done.append(xref)
-    return ", ".join(texts)
+
+    # TODO: Sorting here isn't the right thing to do. The goal is to
+    # have all of the "See Also" links on a page appear in a sensible
+    # order - numerical for Sections, alphabetical for menu items,
+    # etc. But this sorts the docbook ids (eg, "MenuItem-..."), not
+    # the link text generated from them.  In particular, sections
+    # whose ids are "Section-something" are sorted by the "something"
+    # and not by the section number.  It's not quite useless,though,
+    # because it will group all of the MenuItems together, but it
+    # doesn't do what we want.
+    #
+    # Sorting by the final text could be done here only if all xrefs
+    # include an explicit endterm.  That's not possible for generic
+    # sections that ought to be sorted by number because we don't have
+    # access to the docbook generated numbers.
+    #
+    # Perhaps we need a dict of docbook ids that assigns sorting keys
+    # to them.  We'd have to maintain it here, which would be a pain.
+    # Or we could require that the ids themselves sort into the proper
+    # order, which would make them hard to remember and harder to
+    # modify.
+    texts.sort()
+
+    listitems = [f'<listitem><simpara>{t}</simpara></listitem>' for t in texts]
+    return ("<itemizedlist>" +
+            "\n".join(listitems) +
+            "</itemizedlist>")
         
     
 
@@ -269,7 +299,7 @@ def dumpMenu(phile, menu, toplevel):
     if xrefs:
         print(" <simplesect>", file=phile)
         print("   <title>See Also</title>", file=phile)
-        print(f"   <simpara>{xrefs}</simpara>", file=phile)
+        print(f"   <para>{xrefListing(xrefs)}</para>", file=phile)
         print(" </simplesect>", file=phile)
 
     if not toplevel:
@@ -345,11 +375,11 @@ def dumpMenuItem(phile, menuitem):
             print(f"  {discus}", file=phile)
             print(" </refsect1>", file=phile)
 
-    xrefs = menuitem.xmlXRefs()
+    xrefs = menuitem.xmlXRefs() 
     if xrefs:
         print(" <refsect1>", file=phile)
         print("   <title>See Also</title>", file=phile)
-        print(f"   <simpara>{xrefs}</simpara>", file=phile)
+        print(f"   <para>{xrefListing(xrefs)}</para>", file=phile)
         print(" </refsect1>", file=phile)
     
     print("</refentry>", file=phile)
@@ -581,7 +611,7 @@ may be members of more than one
         if xrefs:
             print("<refsect1>", file=phile)
             print("<title>See Also</title>", file=phile)
-            print(f"<simpara>{xrefListing(xrefs)}</simpara>", file=phile)
+            print(f"<para>{xrefListing(xrefs)}</para>", file=phile)
             print("</refsect1>", file=phile)
 
         print(" </refentry>", file=phile) # end refentry for registered base class
@@ -677,7 +707,7 @@ may be members of more than one
         if reg.xrefs:
             print("   <refsect1>", file=phile)
             print("   <title>See Also</title>", file=phile)
-            print(f"   <simpara>{xrefListing(reg.xrefs)}</simpara>",
+            print(f"   <para>{xrefListing(reg.xrefs)}</para>",
                   file=phile)
             print("   </refsect1>", file=phile)
         print(" </refentry>", file=phile)
@@ -785,7 +815,7 @@ def enumSection(phile):
         if xrefs:
             print("<refsect1>", file=phile)
             print("<title>See Also</title>", file=phile)
-            print(f"<simpara>{xrefListing(xrefs)}</simpara>", file=phile)
+            print(f"<para>{xrefListing(xrefs)}</para>", file=phile)
             print("</refsect1>", file=phile)
         print("</refentry>", file=phile)
     print("</section>", file=phile)         # end of enum section
