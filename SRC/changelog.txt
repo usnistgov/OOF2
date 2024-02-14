@@ -31,6 +31,9 @@ OOF2 2.3.3
   itself wasn't really so bad, but it meant that they were deleted
   when the window was cleared.
 
+* Fixed a bug that was garbling the Mesh Info toolbox's list of field
+  values at a node when the set of defined fields changed.
+
 OOF2 2.3.2
 
 * Eliminated some opportunities for roundoff error in Rationalize that

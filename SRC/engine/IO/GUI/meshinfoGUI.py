@@ -250,6 +250,12 @@ class NodeMode(MeshInfoMode):
                 entry.destroy()
             for widget in self.fieldvalWidgets:
                 widget.destroy()
+                # Each row from 4 on has to be removed from the
+                # table. But each time row 4 is removed, row 5 becomes
+                # row 4, so instead of figuring out which row
+                # corresponds to which widget, we can just remove row
+                # 4 repeatedly.
+                self.table.remove_row(4)
             self.fieldvalEntries.clear()
             self.fieldvalWidgets.clear()
             # Since we're using Gtk.Grid.attach_next_to, we need to
