@@ -1031,6 +1031,9 @@ requires and which &fluxes; and/or &equations; it contributes to.
         except AttributeError:
             print("<para>MISSING PROPERTY DISCUSSION: %s</para>" % name, file=phile)
         print('</refsect1> <!-- Discussion -->', file=phile)
+
+        ## TODO: Tie this in to the xrefs mechanism used for other
+        ## manual pages?
         print('<refsect1>', file=phile)
         print('  <title>See Also</title>', file=phile)
         print('  <simpara>', file=phile)

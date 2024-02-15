@@ -100,11 +100,13 @@ class Orientation(registeredclass.ConvertibleRegisteredClass, metaclass=utils.Pr
 
 class OrientationEnum(enum.EnumClass()):
     tip="Various ways to specify an Orientation."
-    discussion = """<para><classname>OrientationEnum</classname> is
-    used to select a representation for displaying an <xref
+    discussion = """<para>
+    <classname>OrientationEnum</classname> is used to select a
+    representation for displaying an <xref
     linkend="RegisteredClass-Orientation"/>.  The details of each
     representation are explained pages for the subclasses of <xref
-    linkend="RegisteredClass-Orientation"/>.</para>"""
+    linkend="RegisteredClass-Orientation"/>.
+    </para>"""
 
 # Registration object hosts the "call points" for to_base
 # routines.  These are used by the GUI when switching types.
@@ -118,7 +120,9 @@ class OrientationRegistration(registeredclass.ConvertibleRegistration):
             from_base=from_base,
             to_base=to_base,
             params=params,
-            tip=tip, discussion=discussion)
+            tip=tip, discussion=discussion,
+            xrefs = ["Property-Orientation",
+                     "Section-Concepts-Material-Orientation"])
         enum.addEnumName(OrientationEnum, name, help=tip)
     def zero(self):
         # Computes the null rotation in the subclass's format.
