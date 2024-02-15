@@ -74,12 +74,14 @@ def registrationID(reg):
 
 ###################
 
-# Convert a list of xml ids to a list of links for the "See Also"
-# sections of menuitems and registeredclasses.  The list items are
-# either xml ids (strings) or a tuple (xmlid, text). 
+# xrefListing converts a list of docbook ids to a list of xref links
+# for the "See Also" sections of menuitems and registeredclasses.  The
+# input list items are either docbook ids (strings) or a tuple (id,
+# text).
 
 def xrefListing(xrefs):
     assert len(xrefs) > 0
+    xrefs.sort(key=sectionsorter)
     texts = []
     done = []                   # check for duplicates
     for xref in xrefs:
@@ -92,34 +94,53 @@ def xrefListing(xrefs):
                 raise ooferror.PyErrPyProgrammingError(f"bad xref: {xref}")
             done.append(xref)
 
-    # TODO: Sorting here isn't the right thing to do. The goal is to
-    # have all of the "See Also" links on a page appear in a sensible
-    # order - numerical for Sections, alphabetical for menu items,
-    # etc. But this sorts the docbook ids (eg, "MenuItem-..."), not
-    # the link text generated from them.  In particular, sections
-    # whose ids are "Section-something" are sorted by the "something"
-    # and not by the section number.  It's not quite useless,though,
-    # because it will group all of the MenuItems together, but it
-    # doesn't do what we want.
-    #
-    # Sorting by the final text could be done here only if all xrefs
-    # include an explicit endterm.  That's not possible for generic
-    # sections that ought to be sorted by number because we don't have
-    # access to the docbook generated numbers.
-    #
-    # Perhaps we need a dict of docbook ids that assigns sorting keys
-    # to them.  We'd have to maintain it here, which would be a pain.
-    # Or we could require that the ids themselves sort into the proper
-    # order, which would make them hard to remember and harder to
-    # modify.
-    texts.sort()
-
     listitems = [f'<listitem><simpara>{t}</simpara></listitem>' for t in texts]
     return ("<itemizedlist>" +
             "\n".join(listitems) +
             "</itemizedlist>")
         
-    
+# Sorting key function for docbook ids. iddict is populated when
+# xmlmenudump() is called.  It is a dictionary whose keys are the
+# docbook ids of the xref targets that are *not* created automatically
+# by xmlmenudump, and whose values are the sorting order of those
+# targets.  It's computed by the manual-generating script,
+# MAN_OOF2/xmldump.py, before it calls xmlmenudump.
+
+iddict = {}                     # iddict[docbook_id] = sorting_order
+
+def sectionsorter(xmlid):
+    # A tuple of the form (id, text) is sorted on the id, even though
+    # the replacement text will be printed.  I'm not sure this is a
+    # good idea, but I'm also not sure we use it.
+    if isinstance(xmlid, (tuple, list)):
+        return sectionsorter(xmlid[0])
+
+    # Sections of the manual with ids in iddict are listed first, in
+    # the order in which the targets appear in the manual.
+    try:
+        return (0, iddict[xmlid])
+    except KeyError:
+        pass
+    # MenuItems, RegisteredClasses, etc, are listed in alphabetical
+    # order within their category.  This relies on all of the ids
+    # starting with the proper prefix.
+    if xmlid.startswith("MenuItem-"):
+        return (1, xmlid)
+    if xmlid.startswith("RegisteredClass-"):
+        return (2, xmlid)
+    if xmlid.startswith("Property-"):
+        return (3, xmlid)
+    if xmlid.startswith("Enum-"):
+        return (4, xmlid)
+    if xmlid.startswith("Object-"):
+        return (5, xmlid)
+    if xmlid.startswith("Figure-"):
+        return (6, xmlid)
+
+    print(f"*** xmlmenudump: Uncategorized docbook id {xmlid}",
+          file=sys.stderr)
+    return (100, xmlid)
+   
 
 ###################
 
@@ -386,7 +407,9 @@ def dumpMenuItem(phile, menuitem):
 
 ###################        
 
-def xmlmenudump(phile):
+def xmlmenudump(phile, xmlids):
+    global iddict
+    iddict = xmlids
 
     # Clear global dictionaries, in case this isn't the first time
     # this function has been run.

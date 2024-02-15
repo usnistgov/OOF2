@@ -22,7 +22,7 @@ import ooflib.common.IO.automaticdoc
 import ooflib.common.IO.bitmapdisplay
 import ooflib.common.IO.bitoverlaydisplay
 import ooflib.common.IO.colormap
-import ooflib.common.IO.menudump
+#import ooflib.common.IO.menudump
 import ooflib.common.IO.microstructuremenu
 import ooflib.common.IO.pixelgroupmenu
 import ooflib.common.IO.pixelinfo
