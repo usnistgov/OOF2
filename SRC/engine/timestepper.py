@@ -30,7 +30,8 @@ class StepDriver(registeredclass.RegisteredClass):
     registry = []
     tip="How to use time steps: dynamically or not at all."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/stepdriver.xml')
-
+    xrefs=["Section-Tasks-Solver", "Section-Concepts-Mesh-Solvers"]
+    
     def __init__(self, stepper):
         assert isinstance(stepper, (TimeStepper, QCTimeStepper))
         self.stepper = stepper  # A TimeStepper or QCTimeStepper object
