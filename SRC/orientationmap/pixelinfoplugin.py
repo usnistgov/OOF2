@@ -28,7 +28,13 @@ class MisorientationPlugIn(pixelinfo.PixelInfoPlugIn):
         pixelinfo.PixelInfoPlugIn.__init__(self, toolbox)
 
     def makeMenu(self, menu):
-        mismenu = menu.addItem(oofmenu.OOFMenuItem('Misorientation'))
+        mismenu = menu.addItem(oofmenu.OOFMenuItem(
+            'Misorientation',
+            discussion="""<para>
+            Commands used by the Pixel Info toolbox when computing
+            misorientations between two pixels.
+            </para>"""
+            ))
         mismenu.addItem(
             oofmenu.OOFMenuItem(
                 "Set_Reference",

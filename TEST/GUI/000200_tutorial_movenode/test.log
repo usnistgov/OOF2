@@ -689,7 +689,7 @@ checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
-findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Messages', 'Message_1']).activate()
+findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Messages', 'Messages_1']).activate()
 findWidget('OOF2 Messages 1').resize(622, 244)
 findWidget('OOF2 Activity Viewer').resize(400, 300)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Undo').clicked()

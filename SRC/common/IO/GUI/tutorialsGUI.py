@@ -17,6 +17,7 @@ from ooflib.common.IO import filenameparam
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
+from ooflib.common.IO import xmlmenudump
 from ooflib.common.IO.GUI import fileselector
 from ooflib.common.IO.GUI import fontselector
 from ooflib.common.IO.GUI import gtklogger
@@ -77,6 +78,7 @@ def raise_tutorial(menuitem):
 mainmenu.OOF.Windows.addItem(oofmenu.OOFMenuItem(
     'Tutorial',
     help="Raise the tutorial window.",
+    discussion=xmlmenudump.emptyDiscussion,
     callback=raise_tutorial,
     threadable=oofmenu.UNTHREADABLE,
     gui_only=1,

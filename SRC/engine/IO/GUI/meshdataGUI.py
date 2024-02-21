@@ -48,7 +48,17 @@ import sys
 
 allMeshDataWindows = []
 
-mdWindowMenu = mainmenu.OOF.Windows.addItem(oofmenu.OOFMenuItem("Mesh_Data"))
+mdWindowMenu = mainmenu.OOF.Windows.addItem(oofmenu.OOFMenuItem(
+    "Mesh_Data",
+    help="Raise the Mesh Data Viewer windows.",
+    discussion="""<para>
+    <link linkend="Section-Graphics-MeshInfo-DataViewer">Mesh Data
+    Viewer</link> windows are created by the <link
+    linkend="Section-Graphics-MeshInfo">Mesh Info</link> toolbox.
+    Selecting one of the windows in this menu will raise above all
+    other windows.
+    </para>"""
+))
 
 class MeshDataGUI(widgetscope.WidgetScope):
     count = 1

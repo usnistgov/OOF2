@@ -88,7 +88,7 @@ checkpoint OOF.Microstructure.Create_From_ImageFile
 assert tests.whoNameCheck('Microstructure', ['small.ppm'])
 assert tests.chooserCheck('OOF2:Microstructure Page:Microstructure', ['small.ppm'])
 assert tests.msPageSensitizationCheck1()
-findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Messages', 'Message_1']).activate()
+findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Messages', 'Messages_1']).activate()
 findWidget('OOF2 Messages 1').resize(410, 130)
 findWidget('Basics:Next').clicked()
 findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()

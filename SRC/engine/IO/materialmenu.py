@@ -70,6 +70,14 @@ _materialmenu = OOFMenuItem(
     'Material',
     cli_only=1,
     help='Create Materials and assign them to pixels.',
+    discussion="""<para>
+    
+    The <command>Material</command> menu contains tools for building
+    &materials; from &properties;, assigning &materials; to pixels,
+    and other &material; management tasks.  To construct &properties;,
+    see <xref linkend="MenuItem-OOF.Property"/>.
+
+    </para>""",
     xrefs=["Section-Tasks-Materials"])
 
 mainmenu.OOF.addItem(_materialmenu)

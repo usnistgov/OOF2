@@ -38,6 +38,7 @@ imagemenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'Image',
     cli_only=1,
     help='Operations involving Images.',
+    discussion=xmlmenudump.emptyDiscussion,
     xrefs=["Section-Tasks-Image"]
 ))
 

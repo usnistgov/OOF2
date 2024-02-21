@@ -552,7 +552,8 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
 ############################
 
 eqnmenu = subproblemMenu.addItem(oofmenu.OOFMenuItem(
-    'Equation', help='Activate equations.',
+    'Equation', help='Activate and deactivate equations.',
+    discussion=xmlmenudump.emptyDiscussion,
     xrefs=["Section-Tasks-FieldsEquations", "Section-Tasks-Solver"]
 ))
 
@@ -966,7 +967,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
 _symmetryTestMenu = subproblemMenu.addItem(oofmenu.OOFMenuItem(
         'SymmetryTest',
         help='Testing tools for checking matrix symmetry',
-        secret=1))
+        secret=True, no_doc=True))
 
 def _checkSymmetry(subproblem, material, fn, symmetric):
     subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblem]

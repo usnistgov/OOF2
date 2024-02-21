@@ -172,7 +172,8 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
     callback=loadLog,
     params=[filenameparam.ReadFileNameParameter('filename', ident='guilog',
                                                 tip="Name of the file."),
-            parameter.BooleanParameter('checkpoints', True, 'obey checkpoints?')
+            parameter.BooleanParameter('checkpoints', True,
+                                       tip='obey checkpoints?')
             ],
     ellipsis=1,
     help="Load a GUI log file.",
@@ -227,7 +228,8 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
     params=[
         filenameparam.FileNameParameter('filename', ident='guilog',
                                         tip='Name of the log file'),
-        parameter.BooleanParameter('checkpoints', True, 'obey checkpoints?'),
+        parameter.BooleanParameter('checkpoints', True,
+                                   tip='obey checkpoints?'),
         parameter.BooleanParameter('use_gui', True,
                                    tip="Use the logger gui to insert comments?")
             ],

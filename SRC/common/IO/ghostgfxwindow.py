@@ -225,7 +225,8 @@ class GhostGfxWindow:
             ))
         filemenu = self.menu.addItem(OOFMenuItem(
             'File',
-            help='General graphics window operations.'))
+            help='General graphics window operations.',
+            discussion=xmlmenudump.emptyDiscussion))
         filemenu.addItem(OOFMenuItem(
             'Clone',
             callback=self.cloneWindow,
@@ -675,6 +676,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         zoommenu = settingmenu.addItem(
             OOFMenuItem('Zoom',
                         help="Change the scale in the display.",
+                        discussion=xmlmenudump.emptyDiscussion,
                         xrefs=["Section-Graphics-Viewer"]))
         zoommenu.addItem(OOFMenuItem(
             'In',
@@ -749,7 +751,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             </para>"""))
         colormenu = settingmenu.addItem(OOFMenuItem(
             'Color',
-            help='Set the color of various parts of the display.'
+            help='Set the color of various parts of the display.',
+            discussion=xmlmenudump.emptyDiscussion,
             ))
         colormenu.addItem(OOFMenuItem(
             'Background',

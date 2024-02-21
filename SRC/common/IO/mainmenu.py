@@ -98,7 +98,8 @@ atexit.register(cleanlog)
 
 _filemenu = OOF.addItem(OOFMenuItem(
     'File',
-    help="Commands for saving and loading data, and quitting."))
+    help="Commands for saving and loading data, and quitting.",
+    discussion=xmlmenudump.emptyDiscussion))
 
 _loadmenu = _filemenu.addItem(OOFMenuItem(
     'Load',
@@ -253,7 +254,8 @@ def saveLog(menuitem, filename, mode):
 _savemenu = _filemenu.addItem(OOFMenuItem(
     'Save',
     ordering=1,
-    help='Create data files and scripts.'))
+    help='Create data files and scripts.',
+    discussion=xmlmenudump.emptyDiscussion))
 
 _savemenu.addItem(OOFMenuItem(
     'Python_Log',
@@ -464,7 +466,8 @@ _annotatelogmenu = _filemenu.addItem(OOFMenuItem(
 
 _windowmenu = OOFMenuItem(
     'Windows',
-    help="Menus for opening and raising windows.")
+    help="Menus for opening and raising windows.",
+    discussion=xmlmenudump.emptyDiscussion)
 OOF.addItem(_windowmenu)
 
 def dummy(menuitem): pass   # Dummy callback, so trivial menu items get logged.

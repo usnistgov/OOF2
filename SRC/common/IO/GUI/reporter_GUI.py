@@ -52,7 +52,7 @@ class MessageWindow(subWindow.SubWindow):
         self.menu_name = "MessageWindow_%d" % MessageWindow.count
         self.title = "%s Messages %d" % (subWindow.oofname(),
                                          MessageWindow.count)
-        self.windows_menu_name = "Message_%d" % MessageWindow.count
+        self.windows_menu_name = "Messages_%d" % MessageWindow.count
         
         subWindow.SubWindow.__init__(
             self, title=self.title, menu=self.menu_name)
@@ -62,10 +62,14 @@ class MessageWindow(subWindow.SubWindow):
         self.gtk.connect("destroy", self.destroy)
 
         # raise_window function is provided by the SubWindow class.
-        OOF.Windows.Messages.addItem(
-            oofmenu.OOFMenuItem(
+        OOF.Windows.Messages.addItem(oofmenu.OOFMenuItem(
             self.windows_menu_name,
-            help="Raise Message window %d." % MessageWindow.count,
+            help="Raise the window named Messages_%d." % MessageWindow.count,
+            discussion="""<para>
+            Bring the <link
+            linkend="Section-Windows-Messages">Messages Window</link>
+            named <quote>Messages_n</quote> to the front.
+            </para>""",
             cli_only=0, no_log=1,
             gui_callback=self.raise_window) )
             

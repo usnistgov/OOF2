@@ -12,6 +12,7 @@ from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import progressbar_delay
+from ooflib.common.IO import xmlmenudump
 from ooflib.common.threadmanager import threadManager
 
 activityviewermenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
@@ -39,7 +40,8 @@ filemenu = activityviewermenu.addItem(oofmenu.OOFMenuItem('File', no_doc=True))
 
 settingsmenu = activityviewermenu.addItem(oofmenu.OOFMenuItem(
     'Settings',
-    help='Parameters controlling the behavior of the Activity Viewer window.'
+    help='Parameters controlling the behavior of the Activity Viewer window.',
+    discussion=xmlmenudump.emptyDiscussion
     ))
 
 autoDismiss = True
