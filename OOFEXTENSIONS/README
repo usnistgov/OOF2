@@ -1,0 +1,113 @@
+# -*- text -*-
+# $RCSfile: README,v $
+# $Revision: 1.2 $
+# $Author: langer $
+# $Date: 2011-02-18 22:07:15 $
+
+/* This software was produced by NIST, an agency of the U.S. government,
+ * and by statute is not subject to copyright in the United States.
+ * Recipients of this software assume all responsibilities associated
+ * with its operation, modification and maintenance. However, to
+ * facilitate maintenance we ask that before distributing modified
+ * versions of this software, you first contact the authors at
+ * oof_manager@nist.gov.
+ */
+
+This directory contains extensions to OOF2.  It requires OOF2 version
+2.1.0 or later.
+
+The easiest way to add your own nonlinear and nonconstant material
+properties to OOF2 is to edit an existing example.  This directory
+contains examples of seven different properties.  Six of them,
+  general_nonlinear_elasticity_example
+  nonconstant_force_density_example
+  nonconstant_heat_source_example
+  nonlinear_force_density_example
+  nonlinear_heat_conductivity_example
+  nonlinear_heat_source_example
+contain template code that can be converted into an actual OOF2
+Property by running the copy_extension.py script.  Do not try to build
+and run the files in these directories directly!  The ramberg-osgood
+directory contains a nonlinear Property that can be used without
+modification.
+
+The remainder of this file contains instructions for using
+copy_extension.py and customizing the resultant Property code.
+
+These Properties make use of Property base classes in the main OOF2
+program that are designed to make it easy to change the form of a
+Property's nonlinearity or variability, without requiring the user to
+be familiar with the full Property API.  As a result, these Properties
+may not be suitable for all applications.  
+
+(1) Make a copy of the example code by running the copy_extension.py
+    script, like this:
+       python copy_extension.py --template=nonconstant_force_density_example
+
+    It has four required arguments (although for simplicity only the
+    template argument was shown above):
+
+    --template=<directory name>      The template directory to copy.
+    --module=<module name>           The name of the python module to create.
+         The new Property will be importable from this module.  The
+         module name needs to be unique and should not conflict with
+         the name of any other Python module on your computer.
+    --dir=<directory name>           The name of a directory for the new code.
+          copy_extension.py will copy files to this directory.  It is
+          where you will edit and build your new Property.  (If the
+          directory is outside the OOFEXTENSIONS directory, then it
+          won't be overwritten if you install a new version of
+          OOFEXTENSIONS.)
+     --class=<name>                   The name of the C++ Property class.
+          This name must be a valid C++ variable name.  It will also
+          be used for the name of the Property in the GUI and in
+          scripts.
+
+(2) Change to the directory that you used for the --dir argument.  It
+    will contain a setup.py file and a subdirectory whose name is the
+    name you used for the --module argument.  Change to this
+    subdirectory.
+
+(3) Inside the subdirectory there will be a C++ file whose name is the
+    name of the module, plus ".C".  Edit this file and follow the
+    instructions inside it.  This is where the definitions of your own
+    particular nonlinearity go.
+
+(3a) If you need to add, remove, or change the Property's parameters
+    (parameters which will be settable via the GUI and/or scripts),
+    you'll need to change the Property's constructor and its
+    arguments.  Change the .h and .swg files so that they're
+    consistent with the .C file.  You'll also have to change the
+    parameter list in the PropertyRegistration in the .spy file.
+
+(3c) If you want to change where the Property appears in the hierarchy
+     in the Material page, edit the first argument of the
+     PropertyRegistration in the .spy file.
+
+(4) Move back up to the --dir directory.  Build your Property by running
+       python setup.py build install --prefix=<installation prefix>
+    The --prefix argument is optional.  It can be the same as the
+    --prefix argument that was used to build OOF2.  (If it's different,
+    you'll have to make sure that PYTHONPATH and possibly
+    LD_LIBRARY_PATH include the new directory structure, as described
+    in the main OOF2 README file.)
+
+(5) Run OOF2 and load your extension.  One way to do this is
+    to put it on the command line, like this:
+        oof2 --import <module>
+    where <module> is the name you assigned to the --module arg to
+    copy_extension.
+
+    If you want it to load every time you run OOF2, put this line in a
+    file named ".oof2rc" in your home directory:
+        import <module>
+    Don't put any spaces at the beginning of the line.
+
+    You can also use the "File/Load/Script..." menu item to load the file
+       <prefix>/library/<python2.x>/site-packages/<module>/__init__.py
+    where <prefix> means the directory you specified with --prefix
+    when building the extension and <python2.x> is your python
+    version.  If you didn't use --prefix, then <directory> may vary
+    depending on your operating system and python variety, but
+    /usr/local is a good guess.
+

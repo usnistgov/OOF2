@@ -1,0 +1,144 @@
+\documentclass[10pt]{article}
+\pdfcompresslevel = 9
+\pdfoutput = 1
+\usepackage[pdftex]{graphicx}
+% \renewcommand{\thesection}{\arabic{section}}
+% \renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+\begin{document}
+\title{Ramberg-Osgood Elasticity Property for OOF}
+\author{Andrew Reid}
+\date{Dec. 16, 2008}
+\maketitle
+
+This software package provides a particular form of nonlinear
+elasticity property for the OOF software.  It is written as an OOF
+extension, and so needs to be separately built and installed in order
+to run within OOF.  It is compatible with the 2.1 version of the
+OOF code base.
+
+\section{Constitutive Rule}
+
+Ramberg-Osgood elasticity is a form of nonlinear elasticity designed
+to emulate plastic yield.  Unlike true plasticity, there is no
+stress-free strain in the Ramberg-Osgood scheme --- deformation
+following this rule is fully recovered when the load is removed.
+
+The strain as a function of the stress is given by
+
+\begin{equation}
+\varepsilon_{ij}={1+\nu \over E}\sigma_{ij}-
+	  {\nu \over E}\sigma_{kk}\delta_{ij}+
+          {{3 \over 2} \alpha}\left({q \over s_0}\right)^{n-1}
+	    (\sigma_{ij}-{1 \over 3}\sigma_{kk}\delta_{ij})
+\label{eqn:base} 
+\end{equation}
+where $\varepsilon_{ij}$ is the strain tensor, $\sigma_{ij}$ is the
+stress tensor, $E$ and $\nu$ are the Young's modulus and Poisson ratio
+of the material, $s_0$ is a reference stress value, which may be
+usefully thought of as the yield stress.  $\alpha$ is a constitutive
+parameter with dimensions of inverse stress, and $q$ is the Von Mises
+equivalent stress, given by
+\[
+q=\sqrt{{3 \over 2}(\sigma_{ij}\sigma_{ij}-{1 \over 3}\sigma_{kk}^2)}
+\]
+
+This can also be expressed slightly more awkwardly in terms of the
+tensor elastic constants, which are more directly available in OOF:
+
+\begin{equation}
+\varepsilon_{ij}=A\sigma_{ij}-
+	  B\sigma_{kk}\delta_{ij}+ 
+          {{3 \over 2} \alpha}\left({q \over s_0}\right)^{n-1}
+	  (\sigma_{ij}-{1 \over 3}\sigma_{kk}\delta_{ij})
+\label{eqn:rule}
+\end{equation}
+
+with
+
+\begin{equation}
+A={1 \over c_{11}-c_{12}} \qquad\mathrm{and}\qquad 
+B={c_{12} \over (c_{11}-c_{12})(c_{11}+2c_{12})}.
+\end{equation}
+
+The first two terms of the constitutive rule, Eq.~\ref{eqn:rule}, are
+those of conventional linear elasticity.  The third term provides for
+potentially rapid increases in strain for modest increases in the
+shear part of the stress, which is characteristic of a yielding
+material.
+
+\section{The OOF Property}
+
+This OOF property uses the constitutive rule above, and provides for
+user input of the parameters $\alpha$, $n$, and $s_0$, along with the
+isotropic linear elastic parameters in whatever form the user prefers.
+
+The architecture of the OOF software is such that properties are asked
+to specify their fluxes in terms of the fields being solved for in the
+computation. For elasticity, this means that constitutive rules should
+give the stress as a function of the strain.
+
+Obviously, the constitutive rule in Eq.~\ref{eqn:rule} does not do
+this.  In the present implementation, what the property does is, for
+each evaluation point, first determine the local value of the strain,
+and then numerically compute the local stress by solving
+Eq.~\ref{eqn:rule} via a Newton-Raphson scheme.  Once the local stress
+is known, the property can then compute the local compliance matrix,
+which is the derivative of Eq.~\ref{eqn:rule} with respect to stress.
+The local stiffness matrix is then the inverse of this matrix.  An
+additional stress offset is also computed, so that what is finally
+returned to the OOF software is the best local linear approximation to
+the constitutive rule, with the independent variable being the strain.
+
+The OOF code then takes care of solving this problem using an
+appropriate nonlinear solver, iterating the system as a whole to
+convergence.
+
+\section{Building}
+
+First, make sure that OOF2 is built and installed.
+
+The extension source code and a setup.py script are located in the
+ramberg\-osgood directory of the OOFEXTENSIONS package.  This code
+requires SWIG version 1.1 build 883 in order to work. Unlike the OOF
+distribution, it is not possible to skip running SWIG when building
+this extension.  If a functional OOF2 installation is present on the
+system, and SWIG is available, it should be sufficient to cd to the
+directory of the setup script, and run:
+\begin{obeylines}
+\tt{
+> python setup.py install --prefix=<oof-installation-target>
+}
+\end{obeylines}
+The installation target should be the same one that was used when
+installing the main OOF program. If this target is not specified, it
+defaults to /usr/local.
+
+Once installed, the property will not automatically be loaded into the
+OOF software. To accomplish this, either start OOF2 with the
+{\tt--import} command line argument, like this:
+\begin{obeylines}
+\tt
+  oof2 --import ramberg\_osgood
+\end{obeylines}
+or after it's started, open an OOF console (or run OOF in
+text mode) and type:
+\begin{obeylines}
+\tt{
+>>> import ramberg\_osgood
+}
+\end{obeylines}
+The Ramberg-Osgood elasticity property should then appear in the list
+of available properties under Mechanical and Elasticity in the
+property pane on the OOF materials page.
+
+\section{Disclaimer}
+
+This software was produced by NIST, an agency of the United States
+government, and by statute is not subject to copyright in the United
+States. Recipients of this software assume all responsibilities
+associated with its operation, modification, and maintenance. However,
+to facilitate maintenance, we ask that before distributing modified
+versions of this software, you first contact the authors at
+oof\_manager@nist.gov.
+
+\end{document}

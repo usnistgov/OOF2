@@ -1,0 +1,38 @@
+# -*- python -*-
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.
+
+from ooflib.common.IO import parameter
+from ooflib.engine import problem
+from ooflib.engine import propertyregistration
+from ooflib.engine.IO import isocijkl
+from ooflib.common.IO import parameter
+
+
+PropertyRegistration = propertyregistration.PropertyRegistration
+
+
+## General Nonlinear Elasticity Example
+
+reg = PropertyRegistration(
+    'Mechanical:Elasticity:RambergOsgood',
+    RambergOsgood,
+    "ramberg_osgood_SWIG.ramberg_osgood",
+    202,
+    [isocijkl.IsotropicCijklParameter('cijkl',
+                 isocijkl.IsotropicRank4TensorCij(c11=1.0,c12=0.5),
+                                    tip=parameter.emptyTipString),
+     parameter.FloatParameter('alpha',0.0,tip=parameter.emptyTipString),
+     parameter.FloatParameter('s0',1.0,tip=parameter.emptyTipString),
+     parameter.FloatParameter('n',1.0,tip=parameter.emptyTipString)],
+    propertyType="Elasticity",
+    tip="Nonlinear elasticity of the Ramberg-Osgood type."
+    )
+
+reg.fluxInfo( fluxes=[problem.Stress], fields=[problem.Displacement],
+              time_derivs=[0], nonlinear=True, time_dependent=False )

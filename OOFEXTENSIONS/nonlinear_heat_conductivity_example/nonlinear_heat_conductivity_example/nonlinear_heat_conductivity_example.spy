@@ -1,0 +1,35 @@
+# -*- python -*-
+# $RCSfile: nonlinear_heat_conductivity_example.spy,v $
+# $Revision: 1.4 $
+# $Author: langer $
+# $Date: 2011-02-17 22:44:41 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.
+
+
+from ooflib.common.IO import parameter
+from ooflib.engine import problem
+from ooflib.engine import propertyregistration
+
+## Nonlinear heat conductivity example
+
+reg = propertyregistration.PropertyRegistration(
+    'Thermal:Conductivity:%CLASS%',
+    %CLASS%,
+    "%MODULENAME%_SWIG.%MODULENAME%",
+    %SEQNO%,
+    [parameter.FloatParameter('parameter1', 0.0, tip="First parameter."),
+     parameter.FloatParameter('parameter2', 0.0, tip="Second parameter.")],
+    propertyType="ThermalConductivity",
+    tip="Uesr-defined nonlinear thermal conductivity."
+    )
+
+reg.fluxInfo(fluxes=[problem.Heat_Flux], fields=[problem.Temperature],
+             time_derivs=[0], nonlinear=True, time_dependent=False)
+

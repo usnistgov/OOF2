@@ -1,0 +1,51 @@
+# -*- text -*-
+# $RCSfile: README,v $
+# $Revision: 1.4 $
+# $Author: reida $
+# $Date: 2011-05-05 18:11:38 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+
+
+See the included readme.pdf file for the details of Ramberg-Osgood elasticity.
+
+INSTALLATION
+
+First, make sure that OOF2 is built and installed.
+
+ The extension source code and a setup.py script are located in the
+ramberg-osgood directory of the OOFEXTENSIONS package. This code
+requires SWIG version 1.1 build 883 in order to work. Unlike the OOF
+distribution, it is not possible to skip running SWIG when building
+this extension. If a functional OOF2 installation is present on the
+system, and SWIG is available, it should be sufficient to cd to the
+directory of the setup script, and run:
+
+   python setup.py install --prefix=<oof-installation-target>
+
+The installation target should be the same one that was used when
+installing the main OOF program. If this target is not specified, it
+defaults to /usr/local.
+
+LOADING
+
+Once installed, the property will not automatically be loaded into the
+OOF software. To accomplish this, either start OOF2 with the --import
+command line argument, like this:
+
+   oof2 --import ramberg_osgood
+
+or after it’s started, open an OOF console (or run OOF in text mode) and type:
+
+   import ramberg_osgood
+
+The Ramberg-Osgood elasticity property should then appear in the list
+of available properties under Mechanical and Elasticity in the
+property pane on the OOF materials page.
