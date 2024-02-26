@@ -18,30 +18,23 @@ from ooflib.engine import conjugate
 
 # Define a field.  This creates an object named 'Concentration' in the
 # OOF namespace.
-Concentration = problem.advertise(field.ScalarField('Concentration'))
+Concentration = field.ScalarField('Concentration')
 # Define a flux
-Atom_Flux = problem.advertise(flux.VectorFlux('Atom_Flux'))
-Charge_Flux = problem.advertise(flux.VectorFlux('Charge_Flux'))
+Atom_Flux = flux.VectorFlux('Atom_Flux')
+Charge_Flux = flux.VectorFlux('Charge_Flux')
 
 # And equations
-AtomBalanceEquation = problem.advertise(equation.DivergenceEquation(
-    'Atom_Eqn',
-    Atom_Flux,
-    1
-    ))
+AtomBalanceEquation = equation.DivergenceEquation(
+    'Atom_Eqn', Atom_Flux, 1)
 
-ChargeBalanceEquation = problem.advertise(equation.DivergenceEquation(
-    'Charge_Eqn',
-    Charge_Flux,
-    1
-    ))
+ChargeBalanceEquation = equation.DivergenceEquation(
+    'Charge_Eqn', Charge_Flux, 1)
 
 
-if config.dimension() == 2:
-    AtomOutOfPlane = problem.advertise(equation.PlaneFluxEquation(
-            'Plane_Atom_Flux', Atom_Flux, 1))
-    ChargeOutOfPlane = problem.advertise(equation.PlaneFluxEquation(
-            'Plane_Charge_Flux', Charge_Flux, 1))
+AtomOutOfPlane = equation.PlaneFluxEquation(
+    'Plane_Atom_Flux', Atom_Flux, 1)
+ChargeOutOfPlane = equation.PlaneFluxEquation(
+            'Plane_Charge_Flux', Charge_Flux, 1)
 
 ##
 ## Atom flux equation
@@ -60,14 +53,13 @@ conjugate.conjugatePair("Current", ChargeBalanceEquation, DivJd,
  ## $\nabla \cdot \vec{Jd}$ is conjugate to C
 
 ## out-of-plane components, $\frac{\partial C}{\partial z}$
-if config.dimension() == 2:
-    C_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
-    Jd_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+C_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+Jd_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
 
-    conjugate.conjugatePair("Diffusivity", AtomOutOfPlane, Jd_z,
-                            Concentration.out_of_plane(), C_z)
-    conjugate.conjugatePair("Current", ChargeOutOfPlane, Jd_z,
-                            problem.Voltage.out_of_plane(), C_z)
+conjugate.conjugatePair("Diffusivity", AtomOutOfPlane, Jd_z,
+                        Concentration.out_of_plane(), C_z)
+conjugate.conjugatePair("Current", ChargeOutOfPlane, Jd_z,
+                        problem.Voltage.out_of_plane(), C_z)
 
  ##  $Jd_{z}$ is conjugate to $\frac{\partial C}{\partial z}$
 
