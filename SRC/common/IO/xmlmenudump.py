@@ -18,6 +18,10 @@ import sys
 enumdict = {}
 regclassdict = {}
 
+## TODO MANUAL: What determines the order of the refsects?  The List
+## of Figures for menu items and registered classes seems to be almost
+## completely random.
+
 #################
 
 # Keep track of which parameter types need to be documented.  This

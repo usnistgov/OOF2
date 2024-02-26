@@ -941,6 +941,10 @@ class OOFMenuItem:
         return self._xmlXRefs()
         
 ##################################
+
+## TODO MANUAL: Change the CheckOOFMenuItem values from (0,1) to
+## (False,True).  This may break some test scripts, but it shouldn't
+## break any user scripts.
     
 class CheckOOFMenuItem(OOFMenuItem):
     # CheckOOFMenuItems have a value which is either 0 or 1.
