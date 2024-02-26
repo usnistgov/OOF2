@@ -8,9 +8,10 @@ Install the templates into <prefix>/share/oof2/templates.
 oof2_extension_setup will create files in its current directory and
 copy files from the share directory.
 
-Files in share/oof2/templates:
+Files in <prefix>/share/oof2/templates:
    CMakeLists.txt
-   template-name/
+   README
+   template-name/     [for each template]
        CMakeLists.txt
        template-name.C
        template-name.h
@@ -18,21 +19,24 @@ Files in share/oof2/templates:
        template-name.spy
 
 In the directory where oof2_extension_setup is run, create:
-  CMakeLists.txt
   README
   module/
      CMakeLists.txt
-     module.C
-     module.h
-     module.swg
-     module.spy
-  build/
+     source/
+        CMakeLists.txt
+        module.C
+        module.h
+        module.swg
+        module.spy
+     build/
 
 DON'T overwrite files in module if they already exist, because that
-would overwrite the user's edits.  DO overwrite the top
-CMakeLists.txt, because the Python or Swig version numbers might have
-changed.  MAYBE clear build.
+would overwrite the user's edits, unless --force is given.
 
-oof2_extension_setup.py should have an --overwrite option that forces it to
-backup and overwrite the files in the module directory.
+Without --force, if the module already exists, don't do anything.  If
+the top CMakeLists.txt and/or README exist but the module doesn't,
+don't replace them, but do install the module.
+
+Can the new CMakeLists.txt files reuse things from the oof2
+CMakeLists.txt?
 

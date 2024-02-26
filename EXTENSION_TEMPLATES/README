@@ -20,13 +20,13 @@ contains examples of seven different properties.  Six of them,
   nonlinear_heat_conductivity_example
   nonlinear_heat_source_example
 contain template code that can be converted into an actual OOF2
-Property by running the copy_extension.py script.  Do not try to build
-and run the files in these directories directly!  The ramberg-osgood
-directory contains a nonlinear Property that can be used without
-modification.
+Property by running the oof2_extension_setup script and editing the
+resulting files.  Do not try to build and run the files in these
+directories directly!  The ramberg-osgood directory contains a
+nonlinear Property that can be used without modification.
 
 The remainder of this file contains instructions for using
-copy_extension.py and customizing the resultant Property code.
+oof2_extension_setup.py and customizing the resultant Property code.
 
 These Properties make use of Property base classes in the main OOF2
 program that are designed to make it easy to change the form of a
@@ -37,7 +37,7 @@ may not be suitable for all applications.
 (0) Create a directory for your extension module's source code, and cd
     to it.  The directory should be outside of the OOF2 source
     directory so that it's not overwritten if a new version of OOF2 is
-    installed.
+    installed.  Multiple extensions may share the same directory.
 
 (1) Make a copy of the example code by running the oof2_extension_setup.py
     script, like this:
@@ -46,32 +46,37 @@ may not be suitable for all applications.
     It has three required arguments (although for simplicity only the
     template argument was shown above):
 
-    --template=<directory name>      The template directory to copy.
-         It is one of the subdirectories of OOF2/EXTENSION_TEMPLATES.
-    --module=<module name>           The name of the python module to create.
-         The new Property will be importable from this module.  The
-         module name needs to be unique and should not conflict with
-         the name of any other Python module on your computer.
-    --class=<name>                   The name of the C++ Property class.
-         This name must be a valid C++ variable name.  It will also
-         be used for the name of the Property in the GUI and in scripts.
+    --template=<directory name>
+         The template directory to copy.  It is one of the
+         subdirectories of OOF2/EXTENSION_TEMPLATES.
+    --module=<module name>
+         The name of the python module to create.  The new Property
+         will be importable from this module.  The module name needs
+         to be unique and should not conflict with the name of any
+         other Python module on your computer.
+    --class=<name>
+         The name of the C++ Property class.  This name must be a
+         valid C++ variable name.  It will also be used for the name
+         of the Property in the GUI and in scripts.
 
-    There is also one optional argument:
+    There are also some optional arguments:
 
     --sequenceno=<number>
          Determines the ordering of this property in the GUI. Larger
          numbers appear later.  The default value is 1000, which will
          put it after any predefined Properties.
+    --force
+	 If this is present, oof2_extension_setup will overwrite
+	 existing files.
 
-(2) Change to the directory that you used for the --dir argument.  It
-    will contain a CMakeLists.txt file, an empty "build" directory,
-    and a subdirectory whose name is the name you used for the
-    --module argument.  Change to this subdirectory.
+(2) Step 1 created a directory whose name was given by the --module
+    argument.  It contains a CMakeLists.txt file, a source directory,
+    and empty "build" directory, Change to the source subdirectory.
 
-(3) Inside the subdirectory there will be a C++ file whose name is the
-    name of the module, plus ".C".  Edit this file and follow the
-    instructions inside it.  This is where the definitions of your own
-    particular nonlinearity go.
+(3) Inside the source subdirectory there is be a C++ file whose name
+    is the name of the module, plus ".C".  Edit this file and follow
+    the instructions inside it.  This is where the definitions of your
+    own particular nonlinearity go.
 
 (3a) If you need to add, remove, or change the Property's parameters
     (parameters which will be settable via the GUI and/or scripts),

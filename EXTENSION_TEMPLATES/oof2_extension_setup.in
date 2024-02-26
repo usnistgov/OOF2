@@ -19,17 +19,31 @@
 # new property will have an incremented sequence number (this means
 # multiple copies might have the same sequence number).
 
+# These values are set by cmake when installing OOF2, so that they can
+# be used by cmake when installing extensions:
+
+python_version = "@OOF2_PYTHON3_VERSION@"
+swig_version = "@OOF2_SWIG_VERSION@"
+install_prefix = "@CMAKE_INSTALL_PREFIX@"
+
+# These are the strings in the template files that will be
+# replaced when the files are copied.
+refmodule = '%MODULENAME%'      # replaced by the argument from --module
+refheader = '%HEADER%'          # module_H (for #ifndef guards)
+refclass = '%CLASS%'            # from --class
+refseqno = '%SEQNO%'            # from --sequenceno
+
+
 import getopt, sys, subprocess, os
 
 def usage(err):
     print(err, file=sys.stderr)
     print(f"""
 Usage:
-
   {sys.argv[0]} --template=<template-dir-name> --module=<new-module-name> --dir=<new-dir-name> \
---class=<new-class-name> --sequenceno=<number>
+--class=<new-class-name> [--sequenceno=<number>] [--force]
 
-Short options are -t, -m, -d, -c, and -s, in the same order as above.
+Short options are -t, -m, -d, -c, -s, and -f, in the same order as above.
 
 """ , file=sys.stderr)
 
@@ -48,15 +62,15 @@ def is_source_file(filename, exclude=[]):
 if __name__ == '__main__':
     templatedir = None
     modulename = None
-    dirname = None
     classname = None
-    sequenceno = None
+    sequenceno = 1000
+    force = False
 
     try:
         opts, args = getopt.getopt(
             sys.argv[1:],
-            't:f:d:c:s:',
-            ["template=","module=","dir=","class=","sequenceno="])
+            't:f:c:s:f',
+            ["template=","module=","class=","sequenceno=","force"])
 
     except getopt.GetoptError, err:
         usage(err)
@@ -69,8 +83,6 @@ if __name__ == '__main__':
                 templatedir = templatedir[:-1]
         elif o in ["-m","--module"]:
             modulename = a
-        elif o in ["-d","--dir"]:
-            dirname = a
         elif o in ["-c","--class"]:
             classname = a
         elif o in ["-s","--sequenceno"]:
@@ -79,20 +91,14 @@ if __name__ == '__main__':
             except ValueError:
                 usage("Sequence number must be an integer.")
                 sys.exit(1)
+        elif o in ["-f", "--force"]:
+            force = True
         else:
             usage("Unrecognized option '%s'." % o)
             sys.exit(2)
 
     if templatedir is None:
         usage("template must be provided.")
-        sys.exit(2)
-
-    if dirname is None:
-        usage("dirname must be provided.")
-        sys.exit(2)
-
-    if os.path.exists(dirname):
-        print dirname, "already exists.  Please remove it or choose another name."
         sys.exit(2)
 
     refextdir = templatedir #os.path.join(templatedir, "oofextensions")
@@ -102,29 +108,9 @@ if __name__ == '__main__':
         usage("Module name argument is mandatory.")
         sys.exit(2)
 
-    if dirname==None:
-        usage("Directory name argument is mandatory.")
-        sys.exit(2)
-
     if classname==None:
         usage("Class name argument is mandatory.")
         sys.exit(2)
-
-    if sequenceno == None:
-        sequenceno = 1000
-
-    # files/dirs not to be copied
-    blacklist = ["README", "build", modulename+"_SWIG", "substitutions"]
-
-    # These are the strings in the template files that will be
-    # replaced when the files are copied.
-    refmodule = '%MODULENAME%'
-    refheader = '%HEADER%'
-    refclass = '%CLASS%'
-    refseqno = '%SEQNO%'
-
-
-    header = modulename.upper()+"_H"
 
     # The general scheme is to copy all the files, and in every case, change:
     #  - the file name itself, from refmodule<ext> to modulename<ext>
@@ -132,53 +118,54 @@ if __name__ == '__main__':
     #  - the classname, from refclass to classname
     #  - the header line, from refheader to header.
     #  - the sequence number, from refseqno to the new one.
-    sedstart = ["sed", "-e", f"s/{refmodule}/{modulename}/g",
+    sedstart = ["sed",
+                "-e", f"s/{refmodule}/{modulename}/g",
                 "-e", f"s/{refclass}/{classname}/g",
-                "-e", f"s/{refheader}/{header}/g" %,
+                "-e", f"s/{refheader}/{header}_H/g" %,
                 "-e", f"s/{refseqno},/{str(sequenceno)},/"]
 
-
-    # We assume we are in the parent directory of both the source and
-    # target directories.  This should probably actually be checked,
-    # although if we're not, the "read" operation will fail anyways.
+    # Create the target directory.
     try:
-        # Create ./dirname and ./dirname/modulename
-        targetdir = dirname
-        os.mkdir(dirname, 0755)  # Octal!
-        targetdir = os.path.join(targetdir, modulename)
-        os.mkdir(targetdir, 0755)  # dirname/modulename
-    except OSError:
-        print("Unable to create target directory %s."%targetdir, file=sys.stderr)
-        print("Exiting.", file=sys.stderr)
-        sys.exit(4)
+        # Create ./modulename
+        os.mkdir(modulename, mode=0755)
+    except FileExistsError:
+        if not force:
+            print(f"Directory {modulename} already exists. Remove it or use --force to overwrite.",
+                  file=sys.stderr)
+            print("Exiting.", file=sys.stderr)
+            sys.exit(4)
+
+    # Install the top CMakeLists.txt file. If it already exists, let
+    # it be, unless --force was given.
+    if 
+    
 
     file_list = ([os.path.join("template", "setup.py")]
                   + [os.path.join(refdir,f)
                      for f in os.listdir(refdir)])
     # print file_list
     for source in file_list:
-        if is_source_file(source, blacklist):
-            targetpath = source.split(os.sep)
-            # print "targetpath0=", targetpath
-            targetpath[0] = dirname
-            # print "targetpath1=", targetpath
-            for level, pathcomp in enumerate(targetpath[1:]):
-                targetpath[level+1] = pathcomp.replace(templatedir, modulename)
-            # print "targetpath2=", targetpath
-            sedcmd = sedstart + [source]
-            # print "targetpath=", targetpath
-            target = os.path.join(*targetpath)
-            try:
-                fout = file(target, "w")
-            except:
-                print("Unable to open target file %s" % target, file=sys.stderr)
-                print("Exiting.", file=sys.stderr)
-                sys.exit(4)
-            print("Copying", source, "to", target)
-            p1 = subprocess.Popen(sedcmd, stdout=subprocess.PIPE)
-            for ell in p1.communicate():
-                if ell is not None:
-                    fout.write(ell)
-            fout.close()
+        targetpath = source.split(os.sep)
+        # print "targetpath0=", targetpath
+        targetpath[0] = dirname
+        # print "targetpath1=", targetpath
+        for level, pathcomp in enumerate(targetpath[1:]):
+            targetpath[level+1] = pathcomp.replace(templatedir, modulename)
+        # print "targetpath2=", targetpath
+        sedcmd = sedstart + [source]
+        # print "targetpath=", targetpath
+        target = os.path.join(*targetpath)
+        try:
+            fout = file(target, "w")
+        except:
+            print("Unable to open target file %s" % target, file=sys.stderr)
+            print("Exiting.", file=sys.stderr)
+            sys.exit(4)
+        print("Copying", source, "to", target)
+        p1 = subprocess.Popen(sedcmd, stdout=subprocess.PIPE)
+        for ell in p1.communicate():
+            if ell is not None:
+                fout.write(ell)
+        fout.close()
         # else:
         #     print "Not copying", source
