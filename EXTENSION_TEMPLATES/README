@@ -1,9 +1,3 @@
-# -*- text -*-
-# $RCSfile: README,v $
-# $Revision: 1.2 $
-# $Author: langer $
-# $Date: 2011-02-18 22:07:15 $
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -14,7 +8,7 @@
  */
 
 This directory contains extensions to OOF2.  It requires OOF2 version
-2.1.0 or later.
+2.3.0 or later.
 
 The easiest way to add your own nonlinear and nonconstant material
 properties to OOF2 is to edit an existing example.  This directory
@@ -38,35 +32,41 @@ These Properties make use of Property base classes in the main OOF2
 program that are designed to make it easy to change the form of a
 Property's nonlinearity or variability, without requiring the user to
 be familiar with the full Property API.  As a result, these Properties
-may not be suitable for all applications.  
+may not be suitable for all applications.
 
-(1) Make a copy of the example code by running the copy_extension.py
+(0) Create a directory for your extension module's source code, and cd
+    to it.  The directory should be outside of the OOF2 source
+    directory so that it's not overwritten if a new version of OOF2 is
+    installed.
+
+(1) Make a copy of the example code by running the oof2_extension_setup.py
     script, like this:
-       python copy_extension.py --template=nonconstant_force_density_example
+       oof2_extension_setup --template=nonconstant_force_density_example
 
-    It has four required arguments (although for simplicity only the
+    It has three required arguments (although for simplicity only the
     template argument was shown above):
 
     --template=<directory name>      The template directory to copy.
+         It is one of the subdirectories of OOF2/EXTENSION_TEMPLATES.
     --module=<module name>           The name of the python module to create.
          The new Property will be importable from this module.  The
          module name needs to be unique and should not conflict with
          the name of any other Python module on your computer.
-    --dir=<directory name>           The name of a directory for the new code.
-          copy_extension.py will copy files to this directory.  It is
-          where you will edit and build your new Property.  (If the
-          directory is outside the OOFEXTENSIONS directory, then it
-          won't be overwritten if you install a new version of
-          OOFEXTENSIONS.)
-     --class=<name>                   The name of the C++ Property class.
-          This name must be a valid C++ variable name.  It will also
-          be used for the name of the Property in the GUI and in
-          scripts.
+    --class=<name>                   The name of the C++ Property class.
+         This name must be a valid C++ variable name.  It will also
+         be used for the name of the Property in the GUI and in scripts.
+
+    There is also one optional argument:
+
+    --sequenceno=<number>
+         Determines the ordering of this property in the GUI. Larger
+         numbers appear later.  The default value is 1000, which will
+         put it after any predefined Properties.
 
 (2) Change to the directory that you used for the --dir argument.  It
-    will contain a setup.py file and a subdirectory whose name is the
-    name you used for the --module argument.  Change to this
-    subdirectory.
+    will contain a CMakeLists.txt file, an empty "build" directory,
+    and a subdirectory whose name is the name you used for the
+    --module argument.  Change to this subdirectory.
 
 (3) Inside the subdirectory there will be a C++ file whose name is the
     name of the module, plus ".C".  Edit this file and follow the
@@ -84,14 +84,32 @@ may not be suitable for all applications.
      in the Material page, edit the first argument of the
      PropertyRegistration in the .spy file.
 
-(4) Move back up to the --dir directory.  Build your Property by running
-       python setup.py build install --prefix=<installation prefix>
-    The --prefix argument is optional.  It can be the same as the
-    --prefix argument that was used to build OOF2.  (If it's different,
-    you'll have to make sure that PYTHONPATH and possibly
-    LD_LIBRARY_PATH include the new directory structure, as described
-    in the main OOF2 README file.)
+(3d) If you need to add new C++ source files or header files in the
+     build directory, add them to the lists in CMakeLists.txt in the
+     build directory.
 
+(4) Move to the empty build directory.  Run "ccmake ..", and press "c"
+    to do the initial configuration.  Set
+
+       * OOF2_PYTHON3_VERSION: the version of Python that was used to
+          build OOF2.  This is preset from the value used to build
+          OOF2 and should probably not be changed.
+       *  OOF2_SWIG_VERSION: the version of Swig that was used to build
+          OOF2. This is also preset from the value used to build
+          OOF2 and should also probably not be changed.
+       * CMAKE_INSTALL_PREFIX: the location where the extension should
+          be installed.  This does *not* have to be the location where
+          OOF2 was installed.
+    Press "c" to configure the build.
+    Press "g" to generate the Makefile and exit ccmake.
+
+(5) Run "make" and "make install".  If you're installing into a
+    system  directory, use "sudo make install" instead.
+
+(6) If CMAKE_INSTALL_PREFIX was not the same location where OOF2 was
+    installed, set the PYTHONPATH enviroment variable, as described in
+    the OOF2 manual and README file.
+     
 (5) Run OOF2 and load your extension.  One way to do this is
     to put it on the command line, like this:
         oof2 --import <module>
@@ -104,10 +122,10 @@ may not be suitable for all applications.
     Don't put any spaces at the beginning of the line.
 
     You can also use the "File/Load/Script..." menu item to load the file
-       <prefix>/library/<python2.x>/site-packages/<module>/__init__.py
-    where <prefix> means the directory you specified with --prefix
-    when building the extension and <python2.x> is your python
-    version.  If you didn't use --prefix, then <directory> may vary
-    depending on your operating system and python variety, but
-    /usr/local is a good guess.
+       <prefix>/library/<python3.x>/site-packages/<module>/__init__.py
+    where <prefix> means the directory you specified with
+    CMAKE_INSTALL_PREFIX when building the extension and <python3.x>
+    is your python version.  If you didn't set CMAKE_INSTALL_PREFIX,
+    then <directory> may vary depending on your operating system and
+    python variety, but /usr/local is a good guess.
 

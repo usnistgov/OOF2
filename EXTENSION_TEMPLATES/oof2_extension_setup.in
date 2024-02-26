@@ -1,8 +1,5 @@
+#!@Python3_EXECUTABLE@
 # -*- python -*-
-# $RCSfile: copy_extension.py,v $
-# $Revision: 1.1 $
-# $Author: langer $
-# $Date: 2011-02-17 22:44:02 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
@@ -12,30 +9,29 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-
-# This is a script to automatically make a copy of the example
-# general nonlinear elasticity property, taking care of all of the
-# renaming of files and things in the files.  Takes as input the desired
-# filename, the new property's classname, and the new property's
-# sequence number.  If the new classname is unqualified, it will be
-# added in "Mechanical:Elasticity:<classname>", but if it's
-# fully-qualified, the full path will be used.  If the sequence number
-# is omitted, the new property will have an incremented sequence
-# number (this means multiple copies might have the same sequence number).
+# This is a script to automatically make a copy of the example oof2
+# extension properties, taking care of all of the renaming of files
+# and things in the files.  It takes as input the desired filename,
+# the new property's classname, and the new property's sequence
+# number.  If the new classname is unqualified, it will be added in
+# "Mechanical:Elasticity:<classname>", but if it's fully-qualified,
+# the full path will be used.  If the sequence number is omitted, the
+# new property will have an incremented sequence number (this means
+# multiple copies might have the same sequence number).
 
 import getopt, sys, subprocess, os
 
 def usage(err):
-    print >> sys.stderr,  err
-    print >> sys.stderr, """
+    print(err, file=sys.stderr)
+    print(f"""
 Usage:
 
-# python %s --template=<template-dir-name> --module=<new-module-name> --dir=<new-dir-name> \
+  {sys.argv[0]} --template=<template-dir-name> --module=<new-module-name> --dir=<new-dir-name> \
 --class=<new-class-name> --sequenceno=<number>
 
 Short options are -t, -m, -d, -c, and -s, in the same order as above.
 
-""" % sys.argv[0]
+""" , file=sys.stderr)
 
 ###############
 
@@ -118,7 +114,7 @@ if __name__ == '__main__':
         sequenceno = 1000
 
     # files/dirs not to be copied
-    blacklist = ["README", "CVS", "build", modulename+"_SWIG", "substitutions"]
+    blacklist = ["README", "build", modulename+"_SWIG", "substitutions"]
 
     # These are the strings in the template files that will be
     # replaced when the files are copied.
@@ -136,10 +132,10 @@ if __name__ == '__main__':
     #  - the classname, from refclass to classname
     #  - the header line, from refheader to header.
     #  - the sequence number, from refseqno to the new one.
-    sedstart = ["sed", "-e", "s/%s/%s/g" % (refmodule, modulename),
-                "-e", "s/%s/%s/g" % (refclass, classname),
-                "-e", "s/%s/%s/g" % (refheader, header),
-                "-e", "s/%s,/%s,/" % (refseqno, str(sequenceno))]
+    sedstart = ["sed", "-e", f"s/{refmodule}/{modulename}/g",
+                "-e", f"s/{refclass}/{classname}/g",
+                "-e", f"s/{refheader}/{header}/g" %,
+                "-e", f"s/{refseqno},/{str(sequenceno)},/"]
 
 
     # We assume we are in the parent directory of both the source and
@@ -152,8 +148,8 @@ if __name__ == '__main__':
         targetdir = os.path.join(targetdir, modulename)
         os.mkdir(targetdir, 0755)  # dirname/modulename
     except OSError:
-        print >> sys.stderr, "Unable to create target directory %s."%targetdir
-        print >> sys.stderr, "Exiting."
+        print("Unable to create target directory %s."%targetdir, file=sys.stderr)
+        print("Exiting.", file=sys.stderr)
         sys.exit(4)
 
     file_list = ([os.path.join("template", "setup.py")]
@@ -175,10 +171,10 @@ if __name__ == '__main__':
             try:
                 fout = file(target, "w")
             except:
-                print >> sys.stderr, "Unable to open target file %s" % target
-                print >> sys.stderr, "Exiting."
+                print("Unable to open target file %s" % target, file=sys.stderr)
+                print("Exiting.", file=sys.stderr)
                 sys.exit(4)
-            print "Copying", source, "to", target
+            print("Copying", source, "to", target)
             p1 = subprocess.Popen(sedcmd, stdout=subprocess.PIPE)
             for ell in p1.communicate():
                 if ell is not None:

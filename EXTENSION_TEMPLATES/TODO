@@ -1,0 +1,38 @@
+Rename copy_extension.py to "oof2_extension_setup.py".  Install it
+into bin when OOF2 is installed.  It should know OOF2_PYTHON3_VERSION
+and OOF2_SWIG_VERSION, and CMAKE_INSTALL_PREFIX from the OOF2 build.
+Make oof2_extension_setup executable
+
+Install the templates into <prefix>/share/oof2/templates.
+
+oof2_extension_setup will create files in its current directory and
+copy files from the share directory.
+
+Files in share/oof2/templates:
+   CMakeLists.txt
+   template-name/
+       CMakeLists.txt
+       template-name.C
+       template-name.h
+       template-name.swg
+       template-name.spy
+
+In the directory where oof2_extension_setup is run, create:
+  CMakeLists.txt
+  README
+  module/
+     CMakeLists.txt
+     module.C
+     module.h
+     module.swg
+     module.spy
+  build/
+
+DON'T overwrite files in module if they already exist, because that
+would overwrite the user's edits.  DO overwrite the top
+CMakeLists.txt, because the Python or Swig version numbers might have
+changed.  MAYBE clear build.
+
+oof2_extension_setup.py should have an --overwrite option that forces it to
+backup and overwrite the files in the module directory.
+
