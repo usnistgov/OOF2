@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: general_nonlinear_elasticity_example.C,v $
-// $Revision: 1.6 $
-// $Author: langer $
-// $Date: 2011-02-17 22:44:05 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
@@ -12,8 +8,6 @@
  * versions of this software, you first contact the authors at
  * oof_manager@nist.gov.
  */
-
-
 
 // This file contains the functions that are called by the general
 // nonlinear elasticity property.

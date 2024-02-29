@@ -21,10 +21,9 @@
 
 # These values are set by cmake when installing OOF2, so that they can
 # be used by cmake when installing extensions:
-
 python_version = "@OOF2_PYTHON3_VERSION@"
 swig_version = "@OOF2_SWIG_VERSION@"
-install_prefix = "@CMAKE_INSTALL_PREFIX@"
+oof_install_prefix = "@CMAKE_INSTALL_PREFIX@"
 
 # These are the strings in the template files that will be
 # replaced when the files are copied.
@@ -32,6 +31,9 @@ refmodule = '%MODULENAME%'      # replaced by the argument from --module
 refheader = '%HEADER%'          # module_H (for #ifndef guards)
 refclass = '%CLASS%'            # from --class
 refseqno = '%SEQNO%'            # from --sequenceno
+refpython = '%PYTHON%'
+refswig = '%SWIG%'
+refoof2prefix = '%OOF2PREFIX%'
 
 
 import getopt, sys, subprocess, os
@@ -49,13 +51,33 @@ Short options are -t, -m, -d, -c, -s, and -f, in the same order as above.
 
 ###############
 
-def is_source_file(filename, exclude=[]):
-    if os.path.isdir(filename) or (os.path.basename(filename) in exclude):
-        return False
-    for ext in [".py", ".spy", ".swg", ".h", ".c", ".C", ".cpp"]:
-        if filename.endswith(ext):
-            return True
-    return False
+# def is_source_file(filename, exclude=[]):
+#     if os.path.isdir(filename) or (os.path.basename(filename) in exclude):
+#         return False
+#     for ext in [".py", ".spy", ".swg", ".h", ".c", ".C", ".cpp"]:
+#         if filename.endswith(ext):
+#             return True
+#     return False
+
+def install_file(src, dest, sedcmd, force=False):
+    # sedcmd is a list of strings, including "sed" and all its
+    # arguments *except* the source file name.
+    if os.path.exists(dest) and not force:
+        print(f"File {dest} exists. Remove it or use --force to overwrite.",
+              file=sys.stderr)
+        sys.exit(1)
+    try:
+        fout = file(dest, "w")
+    except:
+        print(f"Unable to open target file {dest}!", file=sys.stderr)
+        print("Exiting.")
+        sys.exit(1)
+    print(f"Copying {src} to {dest}.")
+    p1 = subprocess.Popen(sedcmd + [src], stdout=subprocess.PIPE)
+    for ell in p1.communicate():
+        if ell is not None:
+            fout.write(ell)
+    fout.close()
 
 ###############
 
@@ -101,8 +123,11 @@ if __name__ == '__main__':
         usage("template must be provided.")
         sys.exit(2)
 
-    refextdir = templatedir #os.path.join(templatedir, "oofextensions")
-    refdir = os.path.join(templatedir, templatedir)
+    # templatedir is the name of a directory that was installed (by
+    # OOF2/CMakeLists.txt) in <prefix>/share/oof2/templates.  refdir
+    # is the full path to it.
+    refbase = os.path.join(oof2_install_prefix, "share", "oof2", "templates")
+    refdir = os.path.join(refbase, templatedir)
 
     if modulename==None:
         usage("Module name argument is mandatory.")
@@ -118,11 +143,15 @@ if __name__ == '__main__':
     #  - the classname, from refclass to classname
     #  - the header line, from refheader to header.
     #  - the sequence number, from refseqno to the new one.
-    sedstart = ["sed",
-                "-e", f"s/{refmodule}/{modulename}/g",
-                "-e", f"s/{refclass}/{classname}/g",
-                "-e", f"s/{refheader}/{header}_H/g" %,
-                "-e", f"s/{refseqno},/{str(sequenceno)},/"]
+    sedcmd = ["sed",
+              "-e", f"s/{refmodule}/{modulename}/g",
+              "-e", f"s/{refclass}/{classname}/g",
+              "-e", f"s/{refheader}/{header}_H/g",
+              "-e", f"s/{refseqno}/{str(sequenceno)}/",
+              "-e", f"s/{refpython}/{python_version}/g",
+              "-e", f"s/{refswig}/{swig_version}/g",
+              "-e", f"s/{refoof2prefix}/{oof_install_prefix}/g"
+              ]
 
     # Create the target directory.
     try:
@@ -135,37 +164,55 @@ if __name__ == '__main__':
             print("Exiting.", file=sys.stderr)
             sys.exit(4)
 
-    # Install the top CMakeLists.txt file. If it already exists, let
-    # it be, unless --force was given.
-    if 
+    # Install CMakeLists.txt and README in the top module directory
+    for f in ("CMakeLists.txt", "README"):
+        install_file(os.path.join(refbase, f), os.path.join(modulename, f),
+                     force)
     
+    # Create the source and build directories
+    for d in ("source", "build"):
+        os.mkdir(os.path.join(modulename, d), mode=0755)
 
-    file_list = ([os.path.join("template", "setup.py")]
-                  + [os.path.join(refdir,f)
-                     for f in os.listdir(refdir)])
-    # print file_list
-    for source in file_list:
-        targetpath = source.split(os.sep)
-        # print "targetpath0=", targetpath
-        targetpath[0] = dirname
-        # print "targetpath1=", targetpath
-        for level, pathcomp in enumerate(targetpath[1:]):
-            targetpath[level+1] = pathcomp.replace(templatedir, modulename)
-        # print "targetpath2=", targetpath
-        sedcmd = sedstart + [source]
-        # print "targetpath=", targetpath
-        target = os.path.join(*targetpath)
-        try:
-            fout = file(target, "w")
-        except:
-            print("Unable to open target file %s" % target, file=sys.stderr)
-            print("Exiting.", file=sys.stderr)
-            sys.exit(4)
-        print("Copying", source, "to", target)
-        p1 = subprocess.Popen(sedcmd, stdout=subprocess.PIPE)
-        for ell in p1.communicate():
-            if ell is not None:
-                fout.write(ell)
-        fout.close()
-        # else:
-        #     print "Not copying", source
+    # Copy the source files from the template directory to source,
+    # changing their names from oof2template.* to modulename.*
+    suffixes = [".C", ".h", ".spy", ".swg"]
+    for suffix in suffixes:
+        install_file(os.path.join(refdir, "oof2template"+suffix),
+                     os.path.join(modulename, "source", modulename+suffix),
+                     force)
+    # Create CMakeLists.txt in the subdirectory.
+    install_file(os.path.join(basedir, "CMakeLists_subdir.txt"),
+                 os.path.join(modulename, "source", "CMakeLists.txt"),
+                 force)
+        
+    
+    # file_list = [os.path.join(refdir,f) for f in os.listdir(refdir)]
+    # # print file_list
+    # for source in file_list:
+    #     targetpath = source.split(os.sep)
+    #     # print "targetpath0=", targetpath
+    #     targetpath[0] = dirname
+    #     # print "targetpath1=", targetpath
+    #     for level, pathcomp in enumerate(targetpath[1:]):
+    #         targetpath[level+1] = pathcomp.replace(templatedir, modulename)
+    #     # print "targetpath2=", targetpath
+    #     sedcmd = sedstart + [source]
+    #     # print "targetpath=", targetpath
+    #     target = os.path.join(*targetpath)
+
+    #     install_file(source, target, sedcmd)
+        
+        # try:
+        #     fout = file(target, "w")
+        # except:
+        #     print("Unable to open target file %s" % target, file=sys.stderr)
+        #     print("Exiting.", file=sys.stderr)
+        #     sys.exit(4)
+        # print("Copying", source, "to", target)
+        # p1 = subprocess.Popen(sedcmd, stdout=subprocess.PIPE)
+        # for ell in p1.communicate():
+        #     if ell is not None:
+        #         fout.write(ell)
+        # fout.close()
+        # # else:
+        # #     print "Not copying", source
