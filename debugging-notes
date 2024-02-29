@@ -1,0 +1,257 @@
+
+On alice, after building oof2 with
+  % python-dbg oof2-build debug
+and running with
+  % gdb python-dbg
+  (gdb) run regression.py solver_test.py
+
+OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh', endtime=0.0)
+[ 63%] eltest.log: Read 23/36 lines[New Thread 0x7fffdd7b1700 (LWP 8562)]
+Fatal Python error: PyThreadState_Get: no current thread
+
+Thread 168 "python-dbg" received signal SIGABRT, Aborted.
+[Switching to Thread 0x7fffdd7b1700 (LWP 8562)]
+__GI_raise (sig=sig@entry=6) at ../sysdeps/unix/sysv/linux/raise.c:51
+51	../sysdeps/unix/sysv/linux/raise.c: No such file or directory.
+
+
+#0  __GI_raise (sig=sig@entry=6) at ../sysdeps/unix/sysv/linux/raise.c:51
+#1  0x00007ffff6f2c42a in __GI_abort () at abort.c:89
+#2  0x00005555556f8794 in Py_FatalError (msg=0x5555557f6a28 "PyThreadState_Get: no current thread") at ../Python/pythonrun.c:1700
+#3  0x00005555556f3d27 in PyThreadState_Get () at ../Python/pystate.c:330
+#4  0x000055555563fa3e in tupledealloc (op=0x7fffdc34aa38) at ../Objects/tupleobject.c:218
+#5  0x000055555561f0bb in _Py_Dealloc (op=(<float at remote 0x7fffd81db510>, <float at remote 0x7fffd81db3f8>)) at ../Objects/object.c:2262
+#6  0x00007fffefe55d38 in SymmetricTensorFlux::BCCallback (this=0x555555f61720, pos=..., time=0, nrm=..., distance=0.0034715922101486887, fraction=0.0086789805253717212, wrapper=<function at remote 0x7fffebc896f0>, pyfunction=
+    <FluxProfileSet(data=[<ConstantProfile(timestamp=<TimeStamp(this='_7fffd800b060_TimeStamp_p', thisown=1) at remote 0x7fffdcaccb28>, conditions=[<NeumannBC(profile=<...>, meshctxt=<Mesh(cross_sections=<CrossSectionSet(namelist=[], data={}, _selection=None, timestamp=<TimeStamp(this='_7fffd078de20_TimeStamp_p', thisown=1) at remote 0x7fffdcaf18d0>) at remote 0x7fffdcaf1948>, elementdict={3: <MasterElementPtr(this='_7ffff0221220_MasterElement_p', thisown=0, protodic={'interior': [], 0: [], 2: [], 1: []}) at remote 0x7fffe4a98c90>, 4: <MasterElementPtr(this='_7ffff0220d20_MasterElement_p', thisown=0, protodic={'interior': [], 0: [], 2: [], 3: [], 1: []}) at remote 0x7fffe4a96ab0>}, solverDelta=None, datacache=<MemoryDataCache(this='_7fffd0630c40_MemoryDataCache_p', thisown=1) at remote 0x7fffdcaf1858>, classname='Mesh', noCacheReadersCond=<Condition(this='_7fffd0780740_Condition_p', thisown=1) at remote 0x7fffdcaf16f0>, parent=<SkeletonContext(pinnednodes=<PinnedNodeSelection(sbcallbacks=[<_SwitchboardCallbackThr...(truncated))
+    at ./SRC/engine/flux.C:457
+
+
+
+Created an oof2-2.1.16-zombie branch from the old oof2-2.1.16
+branch. Modified it to use the SHLIB_EXT code from develop, so that it
+can be built and run using python-dbg.  It also gives
+"PyThreadState_Get: no current thread" in solver_test.
+
+OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh', endtime=0.0)
+[ 63%] eltest.log: Read 23/36 lines[New Thread 0x7fffde0d7700 (LWP 19978)]
+Fatal Python error: PyThreadState_Get: no current thread
+
+Thread 168 "python-dbg" received signal SIGABRT, Aborted.
+[Switching to Thread 0x7fffde0d7700 (LWP 19978)]
+__GI_raise (sig=sig@entry=6) at ../sysdeps/unix/sysv/linux/raise.c:51
+51	../sysdeps/unix/sysv/linux/raise.c: No such file or directory.
+
+#0  __GI_raise (sig=sig@entry=6) at ../sysdeps/unix/sysv/linux/raise.c:51
+#1  0x00007ffff6f2c42a in __GI_abort () at abort.c:89
+#2  0x00005555556f8794 in Py_FatalError (msg=0x5555557f6a28 "PyThreadState_Get: no current thread") at ../Python/pythonrun.c:1700
+#3  0x00005555556f3d27 in PyThreadState_Get () at ../Python/pystate.c:330
+#4  0x000055555563fa3e in tupledealloc (op=0x7fffdd772240) at ../Objects/tupleobject.c:218
+#5  0x000055555561f0bb in _Py_Dealloc (op=(<float at remote 0x7fffd81f6210>, <float at remote 0x7fffd81f6440>)) at ../Objects/object.c:2262
+#6  0x00007fffefe41f82 in SymmetricTensorFlux::BCCallback (this=0x555556860430, pos=..., time=0, nrm=..., distance=0.0034715922101486887, fraction=0.0086789805253717212, 
+    wrapper=<function at remote 0x7fffebce18e8>, pyfunction=
+    <FluxProfileSet(data=[<ConstantProfile(timestamp=<TimeStamp(this='_7fffd821f1b0_TimeStamp_p', thisown=1) at remote 0x7fffdd68e7e0>, conditions=[<NeumannBC(profile=<...>, meshctxt=<Mesh(cross_sections=<CrossSectionSet(namelist=[], data={}, _selection=None, timestamp=<TimeStamp(this='_7fffd02eb8d0_TimeStamp_p', thisown=1) at remote 0x7fffdd6563a8>) at remote 0x7fffdd656498>, elementdict={3: <MasterElementPtr(this='_7ffff01fbf00_MasterElement_p', thisown=0, protodic={'interior': [], 0: [], 2: [], 1: []}) at remote 0x7fffe4d57498>, 4: <MasterElementPtr(this='_7ffff01fba00_MasterElement_p', thisown=0, protodic={'interior': [], 0: [], 2: [], 3: [], 1: []}) at remote 0x7fffe4d552b8>}, solverDelta=None, datacache=<MemoryDataCache(this='_7fffd016c510_MemoryDataCache_p', thisown=1) at remote 0x7fffdd6562b8>, classname='Mesh', noCacheReadersCond=<Condition(this='_7fffd016c5a0_Condition_p', thisown=1) at remote 0x7fffdd656240>, parent=<SkeletonContext(pinnednodes=<PinnedNodeSelection(sbcallbacks=[<_SwitchboardCallbackThr...(truncated)) at ./SRC/engine/flux.C:457
+
+
+Fixed by calling Py_XDECREF before releasing the python interpreter lock.
+
+
+
+OOF2 skeleton_periodic_test is failing when run after skeleton_basic_test
+on develop branch.  Also on detached HEAD 11bc3e2e.
+gtk3-conversion branch does not have the problem.
+
+-----------------------
+
+2021-06-28
+vtk9-compatibility branch on VM, using vtk8.2
+
+This traceback is from running oof3d's solver_test within gdb on the
+ubuntu VM.  Reporter.display_bar fails to store text in
+self.thread_bars, which is an OrderedDict.  The key is the thread
+number, which is 0.
+
+#0  __GI_raise (sig=sig@entry=6) at ../sysdeps/unix/sysv/linux/raise.c:51
+#1  0x00007ffff6e41921 in __GI_abort () at abort.c:79
+#2  0x00005555556f457a in Py_FatalError (msg=0x5555557d6506 "UNREF invalid object") at ../Python/pythonrun.c:1712
+#3  0x000055555561ceb3 in _Py_ForgetReference (op=(<OrderedDict(_keys=[0]) at remote 0x7ffff69ce1c0>, 0, '[  2%] Solving: time=     0.014468 dt= 0.000396'))
+    at ../Objects/object.c:2247
+#4  0x000055555561cf07 in _Py_Dealloc (op=(<OrderedDict(_keys=[0]) at remote 0x7ffff69ce1c0>, 0, '[  2%] Solving: time=     0.014468 dt= 0.000396')) at ../Objects/object.c:2266
+#5  0x00005555556c28f4 in do_call (func=<wrapper_descriptor at remote 0x7ffff7fb6760>, pp_stack=0x7fffffff6e98, na=3, nk=0) at ../Python/ceval.c:4595
+#6  0x00005555556c1c0d in call_function (pp_stack=0x7fffffff6e98, oparg=3) at ../Python/ceval.c:4398
+#7  0x00005555556bc074 in PyEval_EvalFrameEx (
+    f=Frame 0x7fffcd695e10, for file /home/langer/lib/python2.7/site-packages/oof3d/ooflib/common/utils.py, line 400, in __setitem__ (self=<OrderedDict(_keys=[0]) at remote 0x7ffff69ce1c0>, key=0, value='[  2%] Solving: time=     0.014468 dt= 0.000396'), throwflag=0) at ../Python/ceval.c:3013
+#8  0x00005555556bf083 in PyEval_EvalCodeEx (co=0x7fffe7480880, 
+    globals={'flatten_all': <function at remote 0x7fffe7491530>, 'OrderedDict': <type at remote 0x555555d37eb0>, 'lock': <module at remote 0x7fffe7f8fe60>, 'flatten2': <function at remote 0x7fffe7491480>, 'OOFexecfile': <function at remote 0x7fffe7492110>, 'flatten1': <function at remote 0x7fffe74913d0>, 'OOFdefine': <function at remote 0x7fffe7492270>, 'flatten': <function at remote 0x7fffe7491320>, 'degenerate': <function at remote 0x7fffe7491ab0>, '_do_unflatten': <function at remote 0x7fffe7491a00>, 'OOFrun': <function at remote 0x7fffe74921c0>, 'Flattener': <type at remote 0x555555d36000>, 'OOFexec': <function at remote 0x7fffe7491ed0>, 'unflatten': <function at remote 0x7fffe7491950>, 'menUniqueName': <function at remote 0x7fffe7492480>, 'format': <function at remote 0x7fffe7492740>, 'itertools': <module at remote 0x7ffff6aaedf0>, '__package__': 'ooflib.common', 're': <module at remote 0x7ffff7ea5bc0>, 'OOFeval': <function at remote 0x7fffe7492060>, 'machine_epsilon': <float at remote 0x555555c93158>, '__doc__': No...(truncated), 
+    locals=0x0, args=0x7fffbede2508, argcount=3, kws=0x0, kwcount=0, defs=0x0, defcount=0, closure=0x0) at ../Python/ceval.c:3608
+#9  0x00005555555f2a63 in function_call (func=<function at remote 0x7fffe7492950>, 
+    arg=(<OrderedDict(_keys=[0]) at remote 0x7ffff69ce1c0>, 0, '[  2%] Solving: time=     0.014468 dt= 0.000396'), kw=0x0) at ../Objects/funcobject.c:523
+#10 0x00005555555b29dd in PyObject_Call (func=<function at remote 0x7fffe7492950>, 
+    arg=(<OrderedDict(_keys=[0]) at remote 0x7ffff69ce1c0>, 0, '[  2%] Solving: time=     0.014468 dt= 0.000396'), kw=0x0) at ../Objects/abstract.c:2544
+#11 0x00005555555ce856 in instancemethod_call (func=<function at remote 0x7fffe7492950>, 
+    arg=(<OrderedDict(_keys=[0]) at remote 0x7ffff69ce1c0>, 0, '[  2%] Solving: time=     0.014468 dt= 0.000396'), kw=0x0) at ../Objects/classobject.c:2600
+#12 0x00005555555b29dd in PyObject_Call (func=<instancemethod at remote 0x7fffca9a6e60>, arg=(0, '[  2%] Solving: time=     0.014468 dt= 0.000396'), kw=0x0)
+    at ../Objects/abstract.c:2544
+#13 0x00005555556426a3 in call_method (o=<OrderedDict(_keys=[0]) at remote 0x7ffff69ce1c0>, name=0x5555557db071 "__setitem__", nameobj=0x555555b64238 <setitem_str>, 
+    format=0x5555557db12b "(OO)") at ../Objects/typeobject.c:1283
+#14 0x00005555556504a3 in slot_mp_ass_subscript (self=<OrderedDict(_keys=[0]) at remote 0x7ffff69ce1c0>, key=0, value='[  2%] Solving: time=     0.014468 dt= 0.000396')
+    at ../Objects/typeobject.c:5283
+#15 0x00005555555ac02f in PyObject_SetItem (o=<OrderedDict(_keys=[0]) at remote 0x7ffff69ce1c0>, key=0, value='[  2%] Solving: time=     0.014468 dt= 0.000396')
+    at ../Objects/abstract.c:173
+#16 0x00005555556b5d4a in PyEval_EvalFrameEx (
+    f=Frame 0x7fffcda9a190, for file /home/langer/lib/python2.7/site-packages/oof3d/ooflib/common/IO/reporter.py, line 119, in display_bar (self=<MessageManager(flag_dict={'Log': True, 'Warning': True, 'Error': True, 'Report': True, 'Query': True, 'Data': True}, bar_text='[  2%] Solving: time=     0.014468 dt= 0.000396', lock=<SLock(this='_555555d41b50_SLock_p', thisown=1) at remote 0x7fffe722a160>, thread_bars=<OrderedDict(_keys=[0]) at remote 0x7ffff69ce1c0>, gui_mode=False, outlock=<SLock(this='_555555d44240_SLock_p', thisown=1) at remote 0x7fffe722a1e0>, _pop_up_warnings=True, _warnings_are_errors=False, message_list=[("OOF.File.Load.Data(filename='/home/langer/OOF3D/TEST3D/mesh_data/simple_mesh')", 'Log'), ("OOF.Subproblem.Set_Solver(subproblem='microstructure:skeleton:mesh:default', solver_mode=BasicSolverMode(time_stepper=BasicStaticDriver(),matrix_method=BasicIterative(tolerance=1e-13,max_iterations=1000)))", 'Log'), ("OOF.Microstructure.Delete(microstructure='microstructure')", 'Log'), ("OOF.Material.Delet...(truncated), throwflag=0)
+    at ../Python/ceval.c:1925
+
+
+Same thing (oof3d regression.py solver_test run within gdb) with a
+different result, but still related to progress bars:
+
+#0  __GI_raise (sig=sig@entry=6) at ../sysdeps/unix/sysv/linux/raise.c:51
+#1  0x00007ffff6e41921 in __GI_abort () at abort.c:79
+#2  0x00005555556f457a in Py_FatalError (msg=0x5555557d6506 "UNREF invalid object") at ../Python/pythonrun.c:1712
+#3  0x000055555561ceb3 in _Py_ForgetReference (op=129L) at ../Objects/object.c:2247
+#4  0x000055555561cf07 in _Py_Dealloc (op=129L) at ../Objects/object.c:2266
+#5  0x000055555563d41b in tupledealloc (op=0x7fffd04a0990) at ../Objects/tupleobject.c:222
+#6  0x000055555561cf14 in _Py_Dealloc (op=(129L,)) at ../Objects/object.c:2267
+#7  0x00005555556c30a0 in ext_do_call (func=<function at remote 0x7fffe74748a0>, pp_stack=0x7fffd141da10, flags=1, na=2, nk=0) at ../Python/ceval.c:4694
+#8  0x00005555556bc44f in PyEval_EvalFrameEx (f=
+    Frame 0x7fffe5efa460, for file /home/langer/lib/python2.7/site-packages/oof3d/ooflib/SWIG/common/switchboard.py, line 214, in cnotify (self=<_Switchboard(lock=<SLock(this='_555555d3c4c0_SLock_p', thisown=1) at remote 0x7fffe7fbf7e0>, taskdict={<type at remote 0x555556614010>: <_SwitchboardTaskList(lock=<SLock(this='_5555566cd530_SLock_p', thisown=1) at remote 0x7fffd3016f60>, callbacks=[<_SwitchboardCallbackThread(args=(<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Analyze', parent=<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Mesh', parent=<OOFRootMenu(threadable='Threadable', _logchanged=1, ordering=0, discussion=<DiscussionFile(func=None, filename='DISCUSSIONS/common/menu/oof.xml') at remote 0x7fffe6bcbf60>, help_menu=0, gui_callback=None, secret=0, params=[], ellipsis=0, loggers=[<MenuLogger(prefix='', outputfn=<function at remote 0x7fffe6bb8cc0>) at remote 0x7fffe6bbc560>, <function at remote 0x7fffe722c7f0>], parent=None, accel=None, _loghalted=1, loglock=<SLock(this='_555555...(truncated), throwflag=0)
+    at ../Python/ceval.c:3052
+#9  0x00005555556bf083 in PyEval_EvalCodeEx (co=0x7ffff69d2e00, 
+    globals={'verbose': <function at remote 0x7fffe7476060>, 'dump': <function at remote 0x7fffe7476110>, 'mainthread': <module at remote 0x7fffe7fa37d0>, 'init_switchboard_api': <built-in function init_switchboard_api>, 'notify': <function at remote 0x7fffe7474e20>, 'OOFMessage': <classobj at remote 0x7ffff69d71a0>, '_SwitchboardTaskList': <classobj at remote 0x7fffe7463600>, 'OOFMessagePtr': <classobj at remote 0x7ffff69d7100>, 'thread_enable': <module at remote 0x7fffe7f9dc30>, '_Switchboard': <classobj at remote 0x7fffe74636a0>, 'requestCallbackMain': <function at remote 0x7fffe7474f80>, '__package__': 'ooflib.SWIG.common', 'lock': <module at remote 0x7fffe7f8fe60>, 'requestCallback': <function at remote 0x7fffe7fa4e20>, '__doc__': None, 'removeCallback': <function at remote 0x7fffe7474ed0>, '__builtins__': {'bytearray': <type at remote 0x555555a3d3c0>, 'IndexError': <type at remote 0x555555a43800>, 'all': <built-in function all>, 'help': <_Helper at remote 0x7ffff7e5ba70>, 'vars': <built-in function vars>, 'SyntaxEr...(truncated), 
+    locals=0x0, args=0x7fffd055d608, argcount=2, kws=0x0, kwcount=0, defs=0x0, defcount=0, closure=0x0) at ../Python/ceval.c:3608
+#10 0x00005555555f2a63 in function_call (func=<function at remote 0x7fffe7474950>, 
+    arg=(<_Switchboard(lock=<SLock(this='_555555d3c4c0_SLock_p', thisown=1) at remote 0x7fffe7fbf7e0>, taskdict={<type at remote 0x555556614010>: <_SwitchboardTaskList(lock=<SLock(this='_5555566cd530_SLock_p', thisown=1) at remote 0x7fffd3016f60>, callbacks=[<_SwitchboardCallbackThread(args=(<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Analyze', parent=<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Mesh', parent=<OOFRootMenu(threadable='Threadable', _logchanged=1, ordering=0, discussion=<DiscussionFile(func=None, filename='DISCUSSIONS/common/menu/oof.xml') at remote 0x7fffe6bcbf60>, help_menu=0, gui_callback=None, secret=0, params=[], ellipsis=0, loggers=[<MenuLogger(prefix='', outputfn=<function at remote 0x7fffe6bb8cc0>) at remote 0x7fffe6bbc560>, <function at remote 0x7fffe722c7f0>], parent=None, accel=None, _loghalted=1, loglock=<SLock(this='_555555d96c00_SLock_p', thisown=1) at remote 0x7fffe6bbbf60>, helpstr=None, data=None, radiogroups=[], name='OOF', items=[<OOFMenuItem(radiogroups...(truncated), kw=0x0)
+    at ../Objects/funcobject.c:523
+#11 0x00005555555b29dd in PyObject_Call (func=<function at remote 0x7fffe7474950>, 
+    arg=(<_Switchboard(lock=<SLock(this='_555555d3c4c0_SLock_p', thisown=1) at remote 0x7fffe7fbf7e0>, taskdict={<type at remote 0x555556614010>: <_SwitchboardTaskList(lock=<SLock(this='_5555566cd530_SLock_p', thisown=1) at remote 0x7fffd3016f60>, callbacks=[<_SwitchboardCallbackThread(args=(<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Analyze', parent=<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Mesh', parent=<OOFRootMenu(threadable='Threadable', _logchanged=1, ordering=0, discussion=<DiscussionFile(func=None, filename='DISCUSSIONS/common/menu/oof.xml') at remote 0x7fffe6bcbf60>, help_menu=0, gui_callback=None, secret=0, params=[], ellipsis=0, loggers=[<MenuLogger(prefix='', outputfn=<function at remote 0x7fffe6bb8cc0>) at remote 0x7fffe6bbc560>, <function at remote 0x7fffe722c7f0>], parent=None, accel=None, _loghalted=1, loglock=<SLock(this='_555555d96c00_SLock_p', thisown=1) at remote 0x7fffe6bbbf60>, helpstr=None, data=None, radiogroups=[], name='OOF', items=[<OOFMenuItem(radiogroups...(truncated), kw=0x0)
+    at ../Objects/abstract.c:2544
+#12 0x00005555555ce856 in instancemethod_call (func=<function at remote 0x7fffe7474950>, 
+    arg=(<_Switchboard(lock=<SLock(this='_555555d3c4c0_SLock_p', thisown=1) at remote 0x7fffe7fbf7e0>, taskdict={<type at remote 0x555556614010>: <_SwitchboardTaskList(lock=<SLock(this='_5555566cd530_SLock_p', thisown=1) at remote 0x7fffd3016f60>, callbacks=[<_SwitchboardCallbackThread(args=(<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Analyze', parent=<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Mesh', parent=<OOFRootMenu(threadable='Threadable', _logchanged=1, ordering=0, discussion=<DiscussionFile(func=None, filename='DISCUSSIONS/common/menu/oof.xml') at remote 0x7fffe6bcbf60>, help_menu=0, gui_callback=None, secret=0, params=[], ellipsis=0, loggers=[<MenuLogger(prefix='', outputfn=<function at remote 0x7fffe6bb8cc0>) at remote 0x7fffe6bbc560>, <function at remote 0x7fffe722c7f0>], parent=None, accel=None, _loghalted=1, loglock=<SLock(this='_555555d96c00_SLock_p', thisown=1) at remote 0x7fffe6bbbf60>, helpstr=None, data=None, radiogroups=[], name='OOF', items=[<OOFMenuItem(radiogroups...(truncated), kw=0x0)
+    at ../Objects/classobject.c:2600
+#13 0x00005555555b29dd in PyObject_Call (func=<instancemethod at remote 0x7fffe7469960>, 
+    arg=(<OOFMessagePtr(this='_7fffd141e2a0_OOFMessage_p', thisown=0) at remote 0x7fffd047c3e0>,), kw=0x0) at ../Objects/abstract.c:2544
+#14 0x00005555555b2b39 in call_function_tail (callable=<instancemethod at remote 0x7fffe7469960>, 
+    args=(<OOFMessagePtr(this='_7fffd141e2a0_OOFMessage_p', thisown=0) at remote 0x7fffd047c3e0>,)) at ../Objects/abstract.c:2576
+#15 0x00005555555b2ca7 in PyObject_CallFunction (callable=<instancemethod at remote 0x7fffe7469960>, format=0x7ffff5e71878 "O") at ../Objects/abstract.c:2600
+#16 0x00007ffff5e08c22 in switchboard_notify (msg=...) at ./SRC/common/switchboard.C:59
+#17 0x00007ffff5e0e1ab in Progress::start (this=0x7fffc407ed60) at ./SRC/common/progress.C:82
+#18 0x00007ffff5e0e2f4 in Progress::setMessage (this=0x7fffc407ed60, msg="0/1000") at ./SRC/common/progress.C:108
+
+
+And again, this time failing in _Switchboard.cnotify during Skeleton
+construction:
+
+#0  __GI_raise (sig=sig@entry=6) at ../sysdeps/unix/sysv/linux/raise.c:51
+#1  0x00007ffff6e41921 in __GI_abort () at abort.c:79
+#2  0x00005555556f457a in Py_FatalError (msg=0x5555557d6506 "UNREF invalid object") at ../Python/pythonrun.c:1712
+#3  0x000055555561ceb3 in _Py_ForgetReference (op=858L) at ../Objects/object.c:2247
+#4  0x000055555561cf07 in _Py_Dealloc (op=858L) at ../Objects/object.c:2266
+#5  0x000055555563d41b in tupledealloc (op=0x7fffc9f6adf0) at ../Objects/tupleobject.c:222
+#6  0x000055555561cf14 in _Py_Dealloc (op=(858L,)) at ../Objects/object.c:2267
+#7  0x00005555556c30a0 in ext_do_call (func=<function at remote 0x7fffe74748a0>, pp_stack=0x7fffd1c1e3e0, flags=1, na=2, nk=0) at ../Python/ceval.c:4694
+#8  0x00005555556bc44f in PyEval_EvalFrameEx (f=
+    Frame 0x7fffe5efa460, for file /home/langer/lib/python2.7/site-packages/oof3d/ooflib/SWIG/common/switchboard.py, line 214, in cnotify (self=<_Switchboard(lock=<SLock(this='_555555d3c4c0_SLock_p', thisown=1) at remote 0x7fffe7fbf7e0>, taskdict={<type at remote 0x555556614010>: <_SwitchboardTaskList(lock=<SLock(this='_5555566cd530_SLock_p', thisown=1) at remote 0x7fffd3016f60>, callbacks=[<_SwitchboardCallbackThread(args=(<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Analyze', parent=<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Mesh', parent=<OOFRootMenu(threadable='Threadable', _logchanged=1, ordering=0, discussion=<DiscussionFile(func=None, filename='DISCUSSIONS/common/menu/oof.xml') at remote 0x7fffe6bcbf60>, help_menu=0, gui_callback=None, secret=0, params=[], ellipsis=0, loggers=[<MenuLogger(prefix='', outputfn=<function at remote 0x7fffe6bb8cc0>) at remote 0x7fffe6bbc560>, <function at remote 0x7fffe722c7f0>], parent=None, accel=None, _loghalted=0, loglock=<SLock(this='_555555...(truncated), throwflag=0)
+    at ../Python/ceval.c:3052
+#9  0x00005555556bf083 in PyEval_EvalCodeEx (co=0x7ffff69d2e00, 
+    globals={'verbose': <function at remote 0x7fffe7476060>, 'dump': <function at remote 0x7fffe7476110>, 'mainthread': <module at remote 0x7fffe7fa37d0>, 'init_switchboard_api': <built-in function init_switchboard_api>, 'notify': <function at remote 0x7fffe7474e20>, 'OOFMessage': <classobj at remote 0x7ffff69d71a0>, '_SwitchboardTaskList': <classobj at remote 0x7fffe7463600>, 'OOFMessagePtr': <classobj at remote 0x7ffff69d7100>, 'thread_enable': <module at remote 0x7fffe7f9dc30>, '_Switchboard': <classobj at remote 0x7fffe74636a0>, 'requestCallbackMain': <function at remote 0x7fffe7474f80>, '__package__': 'ooflib.SWIG.common', 'lock': <module at remote 0x7fffe7f8fe60>, 'requestCallback': <function at remote 0x7fffe7fa4e20>, '__doc__': None, 'removeCallback': <function at remote 0x7fffe7474ed0>, '__builtins__': {'bytearray': <type at remote 0x555555a3d3c0>, 'IndexError': <type at remote 0x555555a43800>, 'all': <built-in function all>, 'help': <_Helper at remote 0x7ffff7e5ba70>, 'vars': <built-in function vars>, 'SyntaxEr...(truncated), 
+    locals=0x0, args=0x7fffc966cc88, argcount=2, kws=0x0, kwcount=0, defs=0x0, defcount=0, closure=0x0) at ../Python/ceval.c:3608
+#10 0x00005555555f2a63 in function_call (func=<function at remote 0x7fffe7474950>, 
+    arg=(<_Switchboard(lock=<SLock(this='_555555d3c4c0_SLock_p', thisown=1) at remote 0x7fffe7fbf7e0>, taskdict={<type at remote 0x555556614010>: <_SwitchboardTaskList(lock=<SLock(this='_5555566cd530_SLock_p', thisown=1) at remote 0x7fffd3016f60>, callbacks=[<_SwitchboardCallbackThread(args=(<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Analyze', parent=<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Mesh', parent=<OOFRootMenu(threadable='Threadable', _logchanged=1, ordering=0, discussion=<DiscussionFile(func=None, filename='DISCUSSIONS/common/menu/oof.xml') at remote 0x7fffe6bcbf60>, help_menu=0, gui_callback=None, secret=0, params=[], ellipsis=0, loggers=[<MenuLogger(prefix='', outputfn=<function at remote 0x7fffe6bb8cc0>) at remote 0x7fffe6bbc560>, <function at remote 0x7fffe722c7f0>], parent=None, accel=None, _loghalted=0, loglock=<SLock(this='_555555d96c00_SLock_p', thisown=1) at remote 0x7fffe6bbbf60>, helpstr=None, data=None, radiogroups=[], name='OOF', items=[<OOFMenuItem(radiogroups...(truncated), kw=0x0)
+    at ../Objects/funcobject.c:523
+#11 0x00005555555b29dd in PyObject_Call (func=<function at remote 0x7fffe7474950>, 
+    arg=(<_Switchboard(lock=<SLock(this='_555555d3c4c0_SLock_p', thisown=1) at remote 0x7fffe7fbf7e0>, taskdict={<type at remote 0x555556614010>: <_SwitchboardTaskList(lock=<SLock(this='_5555566cd530_SLock_p', thisown=1) at remote 0x7fffd3016f60>, callbacks=[<_SwitchboardCallbackThread(args=(<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Analyze', parent=<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Mesh', parent=<OOFRootMenu(threadable='Threadable', _logchanged=1, ordering=0, discussion=<DiscussionFile(func=None, filename='DISCUSSIONS/common/menu/oof.xml') at remote 0x7fffe6bcbf60>, help_menu=0, gui_callback=None, secret=0, params=[], ellipsis=0, loggers=[<MenuLogger(prefix='', outputfn=<function at remote 0x7fffe6bb8cc0>) at remote 0x7fffe6bbc560>, <function at remote 0x7fffe722c7f0>], parent=None, accel=None, _loghalted=0, loglock=<SLock(this='_555555d96c00_SLock_p', thisown=1) at remote 0x7fffe6bbbf60>, helpstr=None, data=None, radiogroups=[], name='OOF', items=[<OOFMenuItem(radiogroups...(truncated), kw=0x0)
+    at ../Objects/abstract.c:2544
+#12 0x00005555555ce856 in instancemethod_call (func=<function at remote 0x7fffe7474950>, 
+    arg=(<_Switchboard(lock=<SLock(this='_555555d3c4c0_SLock_p', thisown=1) at remote 0x7fffe7fbf7e0>, taskdict={<type at remote 0x555556614010>: <_SwitchboardTaskList(lock=<SLock(this='_5555566cd530_SLock_p', thisown=1) at remote 0x7fffd3016f60>, callbacks=[<_SwitchboardCallbackThread(args=(<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Analyze', parent=<OOFMenuItem(radiogroups=[], threadable='Threadable', name='Mesh', parent=<OOFRootMenu(threadable='Threadable', _logchanged=1, ordering=0, discussion=<DiscussionFile(func=None, filename='DISCUSSIONS/common/menu/oof.xml') at remote 0x7fffe6bcbf60>, help_menu=0, gui_callback=None, secret=0, params=[], ellipsis=0, loggers=[<MenuLogger(prefix='', outputfn=<function at remote 0x7fffe6bb8cc0>) at remote 0x7fffe6bbc560>, <function at remote 0x7fffe722c7f0>], parent=None, accel=None, _loghalted=0, loglock=<SLock(this='_555555d96c00_SLock_p', thisown=1) at remote 0x7fffe6bbbf60>, helpstr=None, data=None, radiogroups=[], name='OOF', items=[<OOFMenuItem(radiogroups...(truncated), kw=0x0)
+    at ../Objects/classobject.c:2600
+#13 0x00005555555b29dd in PyObject_Call (func=<instancemethod at remote 0x7fffe7469960>, 
+    arg=(<OOFMessagePtr(this='_7fffd1c1ec70_OOFMessage_p', thisown=0) at remote 0x7fffc932f0e0>,), kw=0x0) at ../Objects/abstract.c:2544
+#14 0x00005555555b2b39 in call_function_tail (callable=<instancemethod at remote 0x7fffe7469960>, 
+    args=(<OOFMessagePtr(this='_7fffd1c1ec70_OOFMessage_p', thisown=0) at remote 0x7fffc932f0e0>,)) at ../Objects/abstract.c:2576
+#15 0x00005555555b2ca7 in PyObject_CallFunction (callable=<instancemethod at remote 0x7fffe7469960>, format=0x7ffff5e71878 "O") at ../Objects/abstract.c:2600
+#16 0x00007ffff5e08c22 in switchboard_notify (msg=...) at ./SRC/common/switchboard.C:59
+#17 0x00007ffff5e0e1ab in Progress::start (this=0x7fffcc102980) at ./SRC/common/progress.C:82
+#18 0x00007ffff5e0e48e in DefiniteProgress::setFraction (this=0x7fffcc102980, x=0) at ./SRC/common/progress.C:164
+#19 0x00007fffe47e4623 in CSkeleton::createTetra (this=0x7fffceb70c60, arrangement=0x7fffd1c1ef1c, m=6, n=6, l=6) at ./SRC/engine/cskeleton2.C:371
+#20 0x00007fffd7b413f7 in _wrap_CSkeleton_createTetra (self=0x0, 
+    args=(<CSkeletonPtr(this='_7fffceb70c60_CSkeleton_p', thisown=0) at remote 0x7fffc9559d60>, <Arrangement(name='moderate') at remote 0x7fffc942c9e0>, 6, 6, 6))
+    at SRC/SWIG3D/engine/cskeleton2cmodule.C:8704
+#21 0x0000555555616654 in PyCFunction_Call (func=<built-in function CSkeleton_createTetra>, 
+    arg=(<CSkeletonPtr(this='_7fffceb70c60_CSkeleton_p', thisown=0) at remote 0x7fffc9559d60>, <Arrangement(name='moderate') at remote 0x7fffc942c9e0>, 6, 6, 6), kw={})
+    at ../Objects/methodobject.c:81
+
+
+On alice.nist.gov, built with python-dbg and vtk-9.0.1-debug:
+
+ *** Running test 158: skeleton_select_test.Element_Selection_BlueGreen50.SelectGroup ***
+
+OOF.Microstructure.Create_From_ImageFile(filenames=ThreeDImageDirectory(directory='/users/langer/FE/OOF3D/TEST3D/ms_data/bluegreen50',sort=NumericalOrder()), microstructure_name='skeltest', height=automatic, width=automatic, depth=automatic)
+[New Thread 0x7fffceb6d700 (LWP 9084)]
+Reading 10 files.
+[Thread 0x7fffceb6d700 (LWP 9084) exited]
+OOF.Image.AutoGroup(image='skeltest:bluegreen50', name_template='%c')
+[New Thread 0x7fffceb6d700 (LWP 9085)]
+[ 85%] AutoGroup: Examining 840/1000 pixels[Thread 0x7fffceb6d700 (LWP 9085) exited]
+OOF.Skeleton.New(name='skeleton', microstructure='skeltest', x_elements=2, y_elements=2, z_elements=2, skeleton_geometry=TetraSkeleton(arrangement='moderate'))
+[New Thread 0x7fffceb6d700 (LWP 9086)]
+Fatal Python error: UNREF invalid object
+
+Thread 5525 "python-dbg" received signal SIGABRT, Aborted.
+[Switching to Thread 0x7fffceb6d700 (LWP 9086)]
+
+where:
+
+__GI_raise (sig=sig@entry=6) at ../sysdeps/unix/sysv/linux/raise.c:51
+51      ../sysdeps/unix/sysv/linux/raise.c: No such file or directory.
+
+#0  __GI_raise (sig=sig@entry=6) at ../sysdeps/unix/sysv/linux/raise.c:51
+#1  0x00007ffff6f2c42a in __GI_abort () at abort.c:89
+#2  0x00005555556f8794 in Py_FatalError (msg=0x5555557e04de "UNREF invalid object") at ../Python/pythonrun.c:1700
+#3  0x000055555561f05a in _Py_ForgetReference (op=167L) at ../Objects/object.c:2242
+#4  0x000055555561f0ae in _Py_Dealloc (op=167L) at ../Objects/object.c:2261
+#5  0x000055555563fb0b in tupledealloc (op=0x7fffcd91e8b0) at ../Objects/tupleobject.c:222
+#6  0x000055555561f0bb in _Py_Dealloc (op=(167L,)) at ../Objects/object.c:2262
+#7  0x00005555556c669e in ext_do_call (func=<function at remote 0x7fffe3ca8258>, pp_stack=0x7fffceb69558, flags=1, na=2, nk=0) at ../Python/ceval.c:4670
+#8  0x00005555556bf9f6 in PyEval_EvalFrameEx (f=
+    Frame 0x7fffe24f9260, for file /users/langer/lib/homepython/oof3d/ooflib/SWIG/common/switchboard.py, line 214, in cnotify (self=<_Switchboard(lock=<SLock(this='_555555d8d930_SLock_p', thisown=1) at remote 0x7fffe4724b28>, taskdict={'new_material': <_SwitchboardTaskList(lock=<SLock(this='_55555622f1f0_SLock_p', thisown=1) at remote 0x7fffd9a4b0d8>, callbacks=[<_SwitchboardCallbackThread(args=(), msgname='new_material', caller=None, func=<function at remote 0x7fffd9a428e8>, kwargs={}, blocked=0) at remote 0x7fffd9a4b150>], msgname='new_material') at remote 0x7fffd9a4b060>, <classobj at remote 0x7fffd14fa190>: <_SwitchboardTaskList(lock=<SLock(this='_5555567deed0_SLock_p', thisown=1) at remote 0x7fffd14fc948>, callbacks=[<_SwitchboardCallbackThread(args=(...), msgname=<classobj at remote 0x7fffd14fa190>, caller=None, func=<function at remote 0x7fffd14f96f0>, kwargs={}, blocked=0) at remote 0x7fffd14fc9c0>], msgname=<classobj at remote 0x7fffd14fa190>) at remote 0x7fffd14fc8d0>, 'equation activated': <_Switchboar...(truncated), throwflag=0) at ../Python/ceval.c:3028
+#9  0x00005555556c2628 in PyEval_EvalCodeEx (co=0x7ffff6c4e7d0, 
+    globals={'verbose': <function at remote 0x7fffe3ca8990>, 'dump': <function at remote 0x7fffe3ca8a38>, 'mainthread': <module at remote 0x7fffe470cf00>, 'init_switchboard_api': <built-in function init_switchboard_api>, 'notify': <function at remote 0x7fffe3ca8798>, 'OOFMessage': <classobj at remote 0x7ffff6c429e0>, '_SwitchboardTaskList': <classobj at remote 0x7fffe3ca70f8>, 'OOFMessagePtr': <classobj at remote 0x7ffff6c42948>, 'thread_enable': <module at remote 0x7fffe470cc28>, '_Switchboard': <classobj at remote 0x7fffe3ca7190>, 'requestCallbackMain': <function at remote 0x7fffe3ca88e8>, '__package__': 'ooflib.SWIG.common', 'lock': <module at remote 0x7ffff6c5caf0>, 'requestCallback': <function at remote 0x7fffe3ca5108>, '__doc__': None, 'removeCallback': <function at remote 0x7fffe3ca8840>, '__builtins__': {'bytearray': <type at remote 0x555555a46d20>, 'IndexError': <type at remote 0x555555a4d160>, 'all': <built-in function all>, 'help': <_Helper at remote 0x7ffff7e19060>, 'vars': <built-in function vars>, 'SyntaxEr...(truncated), locals=0x0, args=0x7fffcd7cf808, argcount=2, 
+    kws=0x0, kwcount=0, defs=0x0, defcount=0, closure=0x0) at ../Python/ceval.c:3584
+#10 0x00005555555f465f in function_call (func=<function at remote 0x7fffe3ca8300>, 
+    arg=(<_Switchboard(lock=<SLock(this='_555555d8d930_SLock_p', thisown=1) at remote 0x7fffe4724b28>, taskdict={'new_material': <_SwitchboardTaskList(lock=<SLock(this='_55555622f1f0_SLock_p', thisown=1) at remote 0x7fffd9a4b0d8>, callbacks=[<_SwitchboardCallbackThread(args=(), msgname='new_material', caller=None, func=<function at remote 0x7fffd9a428e8>, kwargs={}, blocked=0) at remote 0x7fffd9a4b150>], msgname='new_material') at remote 0x7fffd9a4b060>, <classobj at remote 0x7fffd14fa190>: <_SwitchboardTaskList(lock=<SLock(this='_5555567deed0_SLock_p', thisown=1) at remote 0x7fffd14fc948>, callbacks=[<_SwitchboardCallbackThread(args=(...), msgname=<classobj at remote 0x7fffd14fa190>, caller=None, func=<function at remote 0x7fffd14f96f0>, kwargs={}, blocked=0) at remote 0x7fffd14fc9c0>], msgname=<classobj at remote 0x7fffd14fa190>) at remote 0x7fffd14fc8d0>, 'equation activated': <_SwitchboardTaskList(lock=<SLock(this='_555556225bd0_SLock_p', thisown=1) at remote 0x7fffda0cf498>, callbacks=[<_SwitchboardCallbackThrea...(truncated), kw=0x0) at ../Objects/funcobject.c:523
+#11 0x00005555555b3131 in PyObject_Call (func=<function at remote 0x7fffe3ca8300>, 
+    arg=(<_Switchboard(lock=<SLock(this='_555555d8d930_SLock_p', thisown=1) at remote 0x7fffe4724b28>, taskdict={'new_material': <_SwitchboardTaskList(lock=<SLock(this='_55555622f1f0_SLock_p', thisown=1) at remote 0x7fffd9a4b0d8>, callbacks=[<_SwitchboardCallbackThread(args=(), msgname='new_material', caller=None, func=<function at remote 0x7fffd9a428e8>, kwargs={}, blocked=0) at remote 0x7fffd9a4b150>], msgname='new_material') at remote 0x7fffd9a4b060>, <classobj at remote 0x7fffd14fa190>: <_SwitchboardTaskList(lock=<SLock(this='_5555567deed0_SLock_p', thisown=1) at remote 0x7fffd14fc948>, callbacks=[<_SwitchboardCallbackThread(args=(...), msgname=<classobj at remote 0x7fffd14fa190>, caller=None, func=<function at remote 0x7fffd14f96f0>, kwargs={}, blocked=0) at remote 0x7fffd14fc9c0>], msgname=<classobj at remote 0x7fffd14fa190>) at remote 0x7fffd14fc8d0>, 'equation activated': <_SwitchboardTaskList(lock=<SLock(this='_555556225bd0_SLock_p', thisown=1) at remote 0x7fffda0cf498>, callbacks=[<_SwitchboardCallbackThrea...(truncated), kw=0x0) at ../Objects/abstract.c:2547
+#12 0x00005555555cf6c1 in instancemethod_call (func=<function at remote 0x7fffe3ca8300>, 
+    arg=(<_Switchboard(lock=<SLock(this='_555555d8d930_SLock_p', thisown=1) at remote 0x7fffe4724b28>, taskdict={'new_material': <_SwitchboardTaskList(lock=<SLock(this='_55555622f1f0_SLock_p', thisown=1) at remote 0x7fffd9a4b0d8>, callbacks=[<_SwitchboardCallbackThread(args=(), msgname='new_material', caller=None, func=<function at remote 0x7fffd9a428e8>, kwargs={}, blocked=0) at remote 0x7fffd9a4b150>], msgname='new_material') at remote 0x7fffd9a4b060>, <classobj at remote 0x7fffd14fa190>: <_SwitchboardTaskList(lock=<SLock(this='_5555567deed0_SLock_p', thisown=1) at remote 0x7fffd14fc948>, callbacks=[<_SwitchboardCallbackThread(args=(...), msgname=<classobj at remote 0x7fffd14fa190>, caller=None, func=<function at remote 0x7fffd14f96f0>, kwargs={}, blocked=0) at remote 0x7fffd14fc9c0>], msgname=<classobj at remote 0x7fffd14fa190>) at remote 0x7fffd14fc8d0>, 'equation activated': <_SwitchboardTaskList(lock=<SLock(this='_555556225bd0_SLock_p', thisown=1) at remote 0x7fffda0cf498>, callbacks=[<_SwitchboardCallbackThrea...(truncated), kw=0x0) at ../Objects/classobject.c:2602
+#13 0x00005555555b3131 in PyObject_Call (func=<instancemethod at remote 0x7fffe3c976e0>, 
+    arg=(<OOFMessagePtr(this='_7fffceb69df0_OOFMessage_p', thisown=0) at remote 0x7fffcd7c8e70>,), kw=0x0) at ../Objects/abstract.c:2547
+#14 0x00005555555b328d in call_function_tail (callable=<instancemethod at remote 0x7fffe3c976e0>, 
+    args=(<OOFMessagePtr(this='_7fffceb69df0_OOFMessage_p', thisown=0) at remote 0x7fffcd7c8e70>,)) at ../Objects/abstract.c:2579
+#15 0x00005555555b340d in PyObject_CallFunction (callable=<instancemethod at remote 0x7fffe3c976e0>, format=0x7ffff5e7a298 "O") at ../Objects/abstract.c:2603
+#16 0x00007ffff5e0b2ce in switchboard_notify (msg=...) at ./SRC/common/switchboard.C:59
+#17 0x00007ffff5e10b5d in Progress::start (this=0x7fffa5a0bb10) at ./SRC/common/progress.C:82
+#18 0x00007ffff5e10eb9 in DefiniteProgress::setFraction (this=0x7fffa5a0bb10, x=0) at ./SRC/common/progress.C:164
+#19 0x00007fffe0ff1b4f in CSkeleton::createTetra (this=0x7fffa5a0b400, arrangement=0x7fffceb6a02c, m=2, n=2, l=2) at ./SRC/engine/cskeleton2.C:371
+
+
+-------
+
+2021-07-01
+
+Why does "python-dbg regression.py" run (often ending in "Fatal Python
+error: UNREF invalid object") using both oof2 and oof3d, built with
+python-dbg, but oof2 and oof3d built with python-dbg don't even start?
+
+oof2: ImportError: /usr/lib/python2.7/dist-packages/gi/_gi.x86_64-linux-gnu.so: undefined symbol: Py_InitModule4_64.
+oof3d: /usr/bin/python-dbg: symbol lookup error: /usr/lib/python2.7/dist-packages/glib/_glib.x86_64-linux-gnu.so: undefined symbol: Py_InitModule4_64
+
+oof2 guitests don't run either.
+
+gtk components aren't compatible with python-dbg?
+==> Need to install python-gi-dbg
+
+oof2 now runs, but oof3d doesn't. 
+/usr/bin/python-dbg: symbol lookup error: /usr/lib/python2.7/dist-packages/glib/_glib.x86_64-linux-gnu.so: undefined symbol: Py_InitModule4_64
+
+
+-------

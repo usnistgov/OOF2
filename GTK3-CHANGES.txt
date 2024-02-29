@@ -1,0 +1,13 @@
+
+Switching to Python3 seems to require more Gtk3 changes.
+(Maybe just that non-keyword arguments are deprecated.)
+
+Gtk.Button(lbl) ==> Gtk.Button(label=lbl)
+Gtk.Window(wtype) ==> Gtk.Window(type=wtype)
+Gtk.ScrolledWindow(hadj, vadj) ==>
+    Gtk.ScrolledWindow(hadjustment=hadj, vadjustment=vadj)
+
+
+Get rid of the std::string typemaps?  Just the "in" typemaps?  Tell
+swig that the args are char* or const char* and let it handle the
+string conversion.

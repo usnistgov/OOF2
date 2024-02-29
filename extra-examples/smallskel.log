@@ -1,0 +1,8 @@
+OOF.Microstructure.Create_From_ImageFile(filename='small.ppm', microstructure_name='small.ppm', height=automatic, width=automatic)
+OOF.Windows.Graphics.New()
+OOF.Graphics_1.Toolbox.Pixel_Select.Burn(source='small.ppm:small.ppm', local_flammability=0.1, global_flammability=0.2, color_space_norm='L1', next_nearest=False, points=[Point(78.2423580786,46.53930131)], shift=0, ctrl=0)
+OOF.PixelGroup.New(name='pixelgroup', microstructure='small.ppm')
+OOF.PixelGroup.AddSelection(microstructure='small.ppm', group='pixelgroup')
+OOF.Skeleton.New(name='skeleton', microstructure='small.ppm', x_elements=4, y_elements=4, skeleton_geometry=QuadSkeleton(left_right_periodicity=False,top_bottom_periodicity=False))
+from ooflib.SWIG.common.cdebug import cvar
+print cvar.countleft

@@ -1,0 +1,318 @@
+Notes on the Property Output machinery, concentrating on what was done
+in OOF2 in order to allow Materials Constants to be used as outputs.
+These notes are mostly to make it easier to implement the same things
+in OOF3D, and aren't (yet) intended to be a manual on creating or
+using the outputs.
+
+The more-property-outputs branch started in OOF2 at git commit 26c3f0.
+But other relevant changes were done before the branch, so start
+comparing with commit cb44d9e.
+
+Changes described below are the changes made on the
+more-property-outputs branch.  Changes that mention OOF3D are
+differences between OOF3D and the beginning of the
+more-property-outputs branch.
+
+----
+
+common/array.h:
+Improved SimpleArray2D, which has no counterpart in OOF3D.
+
+common/direction.[Ch]:
+Delete all reference to corientation.
+
+common/IO/GUI/labelledslider.py:
+Use clippers instead of a simple range.
+OOF3D allows a gtk.Adjustment to be passed in.
+
+common/IO/GUI/matrixparamwidgets.py:
+Refactored to allow things other than floats, mainly bools.
+OOF3D version was identical to OOF2 except for verbose option.
+
+common/IO/GUI/parameterwidgets.py:
+Added 'compact' option in base class, bool widget, float widget, int
+widget. Not needed in OOF3D until the MeshDataGUI is added.
+Add block/unblock_signal to BooleanWidget.
+Add AngleRangeWidget.
+
+common/IO/GUI/whowidget.py:
+Move "fixed whoclass" machinery into WhoWidgetBase.
+OOF3D has no "fixed whoclass" at all.  Only used by EBSD stuff?
+OOF3D has verbose, different signalling.
+OOF3D doesn't have set_sensitive().
+
+common/IO/parameter.py:
+Add AngleRangeParameter.  Not needed for PropertyOutputs, just EBSD stuff.
+Add MetaRegisteredParameter.clone() -- not used in OOF3D,
+used in OOF2 only for choosing angle type in EBSD file reaader.
+OOF3D parameters have auxData, OOF2 doesn't.
+OOF2 parameters have timestamps, but they're commented out of OOF3D.
+OOF2 has ListOfStringIntTuplesParameter, OOF3D doesn't.  Used in EBSD reader.
+OOF2 has complete PositiveIntParameter.  OOF3D has just a shell.
+
+common/registeredclass.py:
+Add getRegistrationForSubclass(), getRegistrationForName().
+Timestamps have been removed from OOF3D.
+
+common/smallmatrix.[Ch]:
+Added operator*(double, SmallMatrix)
+OOF3D uses BLAS but OOF2 uses Eigen, changes not directly copyable.
+
+common/typemaps.swg:
+Just added comments.
+Tons of differences between OOF2 & OOF3D
+
+common/utils.py:
+Added try/except in classes(), and explicit init in PrintableClass.
+Changes between OOF2 & OOF3D not crucial for now.
+
+----
+
+engine/bdyanalysis.[Ch]:
+engine/celectricfield.C:
+engine/edge.*
+engine/element.*
+engine/field.*
+engine/flux.[Ch]
+engine/invariant.*
+engine/nodalfluxes.[Ch]
+EXTENSIONS/diffusion/charge.C      (Not in OOF3D)
+EXTENSIONS/diffusion/diffusion.C   (Not in OOF3D)
+EXTENSIONS/diffusion/ion.C         (Not in OOF3D)
+Change OutputValue -> ArithmeticOutputValue,
+       OutputValueVec -> ArithmeticOutputValueVec
+
+engine/analysissample.py:
+Don't compute one if not needed.
+OOF3D is completely differnet and already does the check.
+
+engine/angle2color.C:
+Import corientation from engine
+
+engine/corientation.{C, h, spy, swg}
+Moved from common to engine.
+Derive COrientation from NonArithmeticOutputVal
+Add COrientation::copyMatrix
+Add copyFrom() method to all subclasses
+Add arguments, classname(), clone(), zero(), value_list() to all subclasses
+Use covariant return values for clone(), zero()
+Add orientationFactory()
+Add OrientationPropertyOutputInit
+Monkeypatch __getitem__ in .spy
+
+engine/cstrain.*
+Change OutputValue -> ArithmeticOutputValue
+POInitGeometricStrain derived from PropertyOutputValInit, not
+SymmMatrix3PropertyOutputInit
+Use SymmMatrix2PropertyOutputRegistration from propertyoutputreg, not
+from propertyoutput
+
+engine/field.swg:
+Remove fieldInitCallback
+
+engine/fieldindex.{h, swg}
+Make FieldIndex::in_plane() non-virtual.
+Add size() method to IteratorP, FieldIterator and subclasses.
+Delete newSymTensorOutputValue().
+
+engine/fieldindex.spy:
+Return shortstring() from _shortrepr().
+
+engine/initialize.py:
+import propertyoutputreg
+
+engine/IO/analyzemenu.py:
+Check for 'direct' in _ops_callback
+
+engine/IO/GUI/analyzePage.py:
+includeRegistration() checks 'direct'
+Add updateOperations() and call it from sb instead of calling
+sensitize_widgets directly.
+Add outputAllowsArithmetic()
+
+engine/IO/GUI/cijklparamwidgets.py
+Remove 'C' from call to base class __init__s
+Change self.floats to self.widgets
+Add CijklBoolWidget  (Only used for MeshDataGUI)
+OOF3D has verbose flag
+
+engine/IO/GUI/meshdataGUI.py:
+not used in OOF3D yet, but copy changes anyway
+
+engine/IO/GUI/outputvalwidgets.py:
+New version handles absence of data better
+VectorWidget applied to ListOutputVal and COrientation
+Add ConcatenatedOutputsWidget
+Only needed for MeshDataGUI?
+
+engine/IO/GUI/outputwidget.py:
+Added get_proto().
+In OOF2, get_value() clones the output.  OOF3D clones it in
+makeParameterTable().  OOF2 has to save paramhier because of this.
+Not sure which is better, or if it matters.
+OOF3D has simple ValueOutputParameterWidget b/c no Aggregate/Scalar
+split.
+
+engine/IO/GUI/rank3tensorwidgets.py:
+Change self.floats to self.widgets
+MatrixInput.__init__ has no "" arg
+OOF3D has verbose arg.
+
+engine/IO/GUI/tensorwidgets.py:
+Change self.floats to self.widgets
+Add SymmTensor3BoolWidget, Rank3TensorBoolWidget
+OOF3D has verbose arg.
+
+engine/IO/orientationmatrix.py:
+Add OrientationEnum class
+Add OrientationRegistration.zero()
+Change FloatRangeParameter to AngleRangeParameter
+OOF3D doesn't have misorientation
+OOF3D doesn't normalize quaternion
+OOF3D initializes quaternion to 0,0,0,0 instead of 0,0,0,1
+Use the OOF2 version of all of those differences
+
+engine/IO/output.py:
+Add **kwargs to Output.
+Fix __getattr__ exception
+Add allowsArithmetic()
+Add incomputable() to Parameters
+OOF3D doesn't have OutputType
+OOF3D has bulk_only, surface_only, isSurfaceOnly
+OOF3D sets 'Output' in param data.
+OOF3D has allInputs()
+OOF3D convertNameHierarchy doesn't make clones of params.  OOF2 does.
+OOF3D evaluate() handles bulk vs surface
+OOF3D doesn't have isAggregateOutput, isScalarOutput, isPositionOutput
+OOF3D output tree is different
+
+engine/IO/outputClones.py:
+Added ConcatenatedOutputs class, ConcatenateOutput instance
+OOF3D has bulk_only
+OOF3D has getInvariandClass, for invariantwidget, which doesn't exist in OOF2.
+OOF3D uses ValueOutputParameter instead of AggregateOutputParameter
+OOF3D defines dot product, normal vector
+
+engine/IO/outputDefs.py:
+Use propertyoutputreg instead of propertyoutput
+Add ReferenceFrame, VoigtPairListParameter,
+SymmIndexPairListParameter, Rank3TensorIndexParameter, registrations
+for Material Constants outputs
+Changes from OOF3D are all related to output tree differences
+
+engine/IO/propertyoutput.*:
+engine/IO/propertyoutputreg.py:
+Lots of changes on more-property-outputs branch.
+Changes from OOF3D are just in propertyoutput.spy and related to
+trees.  Outputs are now put in trees by propertyoutputreg.py.
+Probably just fix trees in propertyoutputreg.py and copy all other
+files directly to OOF3D.
+
+engine/materialplugin.py:
+Send "mesh data changed" from matChanged().
+
+engine/ooferror.h:
+Make ErrNoSuchProperty::material public
+
+engine/outputval.*:
+Arithmetic and NonArithmetic subclasses of OutputVal and OutputValue.
+Added ListOutputVal, and index and iterator for it.
+OOF3D adds dot product operators, component_abs()
+OOF3D stores VectorOutputVal data in a DoubleVec, not double*.
+OOF3D has outputValueLock & global count (for debugging?)
+
+engine/property/*:
+Add to output() methods.
+output() is no longer const.
+FEMesh arg to output() is no longer const.
+Change OutputValue to ArithmeticOutputValue.
+Add "Material Constants:..." to outputs data in PropertyRegistrations
+engine/property/elasticity/elasticity.C:
+engine/property/elasticity/visco/visco.C:
+OOF3D has different sign for fluxdata in static_flux_value and flux_matrix
+
+engine/property/elasticity/cijkl.[Ch]:
+Add copyOutputVals()
+
+engine/property/forcedensity/forcedensity.C:
+ForceDensity constructor in OOF3D doesn't set displacement &
+stress_flux.  Doesn't need them!  Neither does 2D.
+
+engine/property/orientataion/orientation.swg:
+import corientation from engine, not common
+
+engine/property/permittivity/permittivity.C:
+Change qdot_ to q_.
+
+engine/property/piezoelectricity/piezoelectricity.C:
+Better try/except in AnisoPiezoElectricity::cross_reference
+
+engine/property.h:
+Property::output() is not const, and FEMesh* arg is not const
+
+OOF3D doesn't have subproblem-dependent flags and functions to set
+them: computability, activity, nonlinearity.  They don't seem to be
+used in OOF2 either.
+
+engine/pypropertywrapper.C:
+Non-const FEMesh arg in PyPropertyMethods::py_output.
+Copy, don't add *cresult to *oval.
+
+engine/pypropertywrapper.h:
+Remove const's in args to py_output.
+OOF3D has comment about compiler warnings, probably from this.
+
+engine/rank3tensor.*:
+Add copyOutputVals()
+Import corientation from engine, not common
+
+engine/symeig.C:
+Move static const double thirdtwopi to inside getEigenvalues().
+Already done in OOF3D, although it lost its const staticness.
+
+engine/symmmatrix.*:
+Import corientation from engine, not common
+Add operator=(OutputVal)
+Covariant return values
+Two-step conversion enforced in SymmMatrix3::operator[] (already in OOF3D)
+Change OutputValue to ArithmeticOutputValue
+Add SymmMatrix3PropertyOutputInit, copyOutputVals
+Inline operators rewritten for readability? Fewer casts?
+OOF3D has dot products for SymmMatrix3
+OOF3D value_list returns DoubleVec
+
+engine/typemaps.swg:
+Add ArithmeticOutputValueVec*, NonArithmeticOutputValue* out typemaps
+OOF3D still has old PY_SSIZE_T_MIN checks
+
+----
+
+orientationmap/*:
+No orientation map code is active in OOF3D.
+Import corientation from engine instead of common
+
+orientationmap/genericreader.py: 
+Use getRegistrationForSubclass() in readData()
+
+orientationmap/orientmapproperty.[Ch]:
+Add OrientationMapProp::output()
+
+orientationmap/orientmapproperty.spy:
+Add outputs to registration
+
+
+
+
+ 
+----------------
+
+OOF3D has lots of explicit (char*) casts that probably aren't
+necessary and aren't in OOF2, eg in calling
+PropertyOutput::getRegisteredParamName() and
+PropertyOutput::getEnumParam in piezoelectricity.C.
+
+
+
+
+
+

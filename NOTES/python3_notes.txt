@@ -1,0 +1,91 @@
+Python files
+
+Run "2to3 -nw -f all -f idioms <files>"
+
+2to3 changes calls to xxxx.next() to next(xxxx), apparently assuming
+that xxxx is a real python iterator object.  Check that that's really
+the case.
+
+Make FieldIterator classes real iterators. See
+file:///Users/langer/html/python-3.7.12-docs-html/library/stdtypes.html#typeiter
+Same for ElementIterator, etc.
+
+Search for TODO PYTHON3 for more instances.
+
+Find all swigged functions that take a list argument and allow them to
+take an iterator instead.
+Similarly convert lists returned from C++ to iterators.
+
+Use proc=subprocess.run() instead of os.system(), subprocess.call(), or
+subprocess.Popen().  Use kwarg capture_output=True if necessary, and
+examine proc.stdout.  proc.stdout.decode() converts from bytes to string.
+
+Any integer division operation that has been forced to operate on
+floats by converting one of the integers doesn't need convert
+anymore.  x/y doesn't truncate. x//y does.
+
+__div__ is now __truediv__, __idiv__ is now __itruediv__, and __rdiv__
+is now __rtruediv__.  These do x/y.  To do x//y, use __floordiv__,
+etc.
+
+All classes are new style classes.  Not necessary to use "object" as a
+base class.
+
+Use 't' and 'b' file mode flags when opening text and binary files.
+Does common/IO/menuparser.py work properly on binary and/or unicode
+files?  Does it have to?
+
+list.sort() has different arguments. Instead of a (postional)
+comparator function, it takes a (keyword) key function.
+Check all sort() and sorted() calls to be sure the key arg is correct,
+and the cmp arg is not used.
+__cmp__() is no longer used for sorting.  Use __lt__, __eq__, __ne__,
+__gt__, __le__, __ge__.  Comparision methods should return
+NotImplemented if they can't compare with the given object.
+
+
+Named parameters after *args in a function definition must be provided
+with keyword arguments.
+
+Some functions in the string module are now just string methods:
+string.join([strings], joinchar) ==>  joinchar.join([strings])
+string.find(source, target) ==> source.find(target)
+string.split(source, div)  ==> source.split(div)
+New stuff that might be useful:
+set literals:  {1,2,3} and {x for x in y} are sets.
+
+A bare * in a function parameter list means that there is no variable
+length argument list but there are keyword parameters.
+
+f-strings: New way to format strings
+https://realpython.com/python-f-strings/
+f"This sets x to {x}"  replaces {x} with the current value of the
+variable x.
+
+-----
+
+C++ files
+
+PyObject_HEAD_INIT(NULL) --> PyVarObject_HEAD_INIT(NULL, 0)
+
+
+------
+
+SWIG ISSUES
+
+Python3 exceptions need to be derived from Exception or
+BaseException.  Can SWIG4 do that for us?
+
+------
+
+Things I did that might have consequences:
+
+Changed the "object" kwarg to "obj" in LabelTree and LabelTreeNode
+__init__ methods.  Same for MeshQueryContainer.set,
+SkeletonQueryContainer.set, SkeletonQueryContainer.finishQuery
+
+-------
+
+On ubuntu, install python-dev-is-python3 (?) It seems rude to require
+users to do that, since it also aliases python to python3.  Perhaps
+there's a way to tell cmake to use python3.

@@ -1,0 +1,7 @@
+TODO:
+
+On nanoHUB, store temp files in home directory?  Give them names
+that encode the date.  All files on nanoHUB are temp files and will be
+deleted eventually?
+
+Problem with pinnodes on nanoHUB?  Auto skeleton crashes?

@@ -1,0 +1,72 @@
+testing-tcmalloc-again branch(OOF2 2.2.0 with a modified setup.py)
+Using the "dist" build
+
+oof2-test skeleton_basic_test
+With tcmalloc           : real	0m56.528s user	0m41.902s sys   0m2.795s
+                        : real	0m55.923s user	0m41.183s sys	0m2.473s
+                        : real	0m56.439s user	0m41.328s sys	0m2.732s
+
+Without tcmalloc        : real	1m6.179s user	0m43.279s sys	0m2.300s
+(but with tcmalloc      : real	0m57.851s user	0m43.420s sys	0m2.760s
+in oofcanvas)           : real	0m58.109s user	0m43.729s sys   0m2.700s
+                        : real	0m55.999s user	0m41.188s sys	0m2.308s
+
+ALSO w/out tcmalloc in oofcanvas
+                        : real	0m59.866s user	0m43.546s sys	0m2.646s
+                        : real	0m58.382s user	0m44.027s sys	0m2.948s
+
+oof2-test solver_test
+With tcmalloc in both   : real	9m32.532s user	9m9.895s sys	0m2.366s
+With no tcmalloc        : real	10m20.461s user	9m47.243s sys	0m12.851s
+
+----
+
+oof2-test --from amr_test
+
+Without tcmalloc        : real	0m19.455s user	0m12.775s sys	0m0.936s
+
+With tcmalloc           : real	0m17.915s user	0m11.789s sys	0m0.867s
+                        : real	0m17.894s user	0m11.886s sys	0m0.854s
+
+
+
+
+But using the gui...
+
+No tcmalloc in oof2 or oofcanvas: ok
+
+tcmalloc in oof2, but not oofcanvas: aborts in gdk_display_manager_open_display
+
+tcmalloc in oof2 and in oofcanvas: aborts in gdk_display_manager_open_display
+
+----------
+
+On Ubuntu 20.04 VM:
+
+oof2-test skeleton_basic_test
+With tcmalloc           : real	1m12.083s user	0m46.146s sys	0m0.324s
+                        : real	1m11.795s user	0m46.005s sys   0m0.341s
+without tcmalloc        : real	1m9.887s user	0m45.868s sys	0m0.683s
+                        : real	1m9.795s user	0m46.530s sys	0m0.339s
+
+
+oof2-test solver_test
+With tcmalloc           : fails solver_test.OOF_ThermalDiffusionTSPlaneFlux
+Without tcmalloc        : real	205m8.909s user	197m15.668s sys	0m19.036s
+                        : real	 87m5.585s user	 85m6.785s  sys	0m8.075s
+                        : real	 75m3.942s user	 73m36.828s sys	0m10.536s
+
+
+-------
+
+On alice.nist.gov 
+
+oof2-test skeleton_basic_test
+Without tcmalloc        : real	1m36.079s user	1m13.324s sys	0m5.744s
+                        : real	1m34.954s user	1m13.064s sys	0m6.040s
+
+oof2-test solver_test
+Without tcmalloc        : real	15m19.822s user	17m13.372s sys	0m8.268s
+                        : real	15m15.121s user	17m10.164s sys	0m8.160s
+With tcmalloc           : real	15m4.890s  user	16m59.052s sys	0m8.432s
+                        : real	15m10.336s user	17m2.080s  sys	0m8.936s

@@ -1,0 +1,133 @@
+Trying to understand why classes from flux.h are included in a lot of
+swig-generated C++ files that shouldn't need them, requiring flux.h to
+be #included in the %{ .. %} section.
+
+
+The problem is that we've worked to reduce the number of #includes in
+the C++ header files, using forward declarations in the headers when
+possible and only putting the #includes in the .C files.  So the
+C++ header inclusions in the .swg files don't pick up all of the
+actual class definitions.  But we don't do the same thing to reduce
+the number of %imports in the .swg files.   It's not clear that we
+can.
+
+Can we use preprocessor definitions to suppress second-order %imports?
+
+swig %import tree in engine.
+Child nodes import their parents.
+
+flux.swg
+  bdyanalysis.swg
+  csubproblem.swg
+    compoundsubproblem.swg
+    element.swg
+      csubproblem.swg
+      edge.swg
+        edgeset.swg
+          bdyanalysis.swg
+        element.swg
+          IO/contour.swg
+          csubproblem.swg
+          edge.swg
+          femesh.swg
+          masterelement.swg
+          meshiterator.swg
+          pypropertywrapper.swg
+      femesh.swg
+      masterelement.swg
+      meshiterator.swg
+      pypropertywrapper.swg
+    entiremeshsubproblem.swg
+    equation.swg
+      cconjugate.swg
+      csubproblem.swg
+    field.swg
+      bdyanalysis.swg
+      cconjugate.swg
+      csubproblem.swg
+      edge.swg
+      element.swg
+      femesh.swg
+      node.swg
+      pointdata.swg
+    materialsubproblem.swg
+    pixelgroupsubproblem.swg
+  equation.swg
+    cconjugate.swg
+    csubproblem.swg
+
+---
+
+C++ #include tree
+
+flux.h -- only included by *.C files and
+  flux.swg
+  boundarycond.swg
+  bdyanalysis.swg
+  csubproblem.swg
+
+---
+
+*wrap.cxx files that contain "SymmetricTensorFlux" and the files that
+ their .swg files %import:
+
+./SRC/engine/CMakeFiles/bdyanalysis.dir/bdyanalysisPYTHON_wrap.cxx
+%import "engine/outputval.swg"
+%import "engine/flux.swg"
+%import "engine/field.swg"
+%import "engine/edgeset.swg"
+
+./SRC/engine/CMakeFiles/compoundsubproblem.dir/compoundsubproblemPYTHON_wrap.cxx
+%import "engine/csubproblem.swg"
+
+./SRC/engine/CMakeFiles/csubproblem.dir/csubproblemPYTHON_wrap.cxx
+%import "common/cmicrostructure.swg"
+%import "common/doublevec.swg"
+%import "common/lock.swg"
+%import "engine/element.swg"
+%import "engine/equation.swg"
+%import "engine/femesh.swg"
+%import "engine/field.swg"
+%import "engine/flux.swg"
+%import "engine/linearizedsystem.swg"
+%import "engine/material.swg"
+%import "engine/meshiterator.swg"
+%import "engine/node.swg"
+
+./SRC/engine/CMakeFiles/edge.dir/edgePYTHON_wrap.cxx
+%import "engine/field.swg"
+%import "engine/node.swg"
+%import "engine/element.swg"
+%import "engine/mastercoord.swg"
+%import "engine/outputval.swg"
+
+./SRC/engine/CMakeFiles/element.dir/elementPYTHON_wrap.cxx
+%import "common/coord.swg"
+%import "engine/csubproblem.swg"
+%import "engine/edge.swg"
+%import "engine/elementnodeiterator.swg"
+%import "engine/femesh.swg"
+%import "engine/field.swg"
+%import "engine/indextypes.swg"
+%import "engine/mastercoord.swg"
+%import "engine/material.swg"
+%import "engine/outputval.swg"
+
+./SRC/engine/CMakeFiles/equation.dir/equationPYTHON_wrap.cxx
+%import "engine/nodalequation.swg"
+%import "engine/planarity.swg"
+%import "engine/flux.swg"
+%import "engine/csubproblem.swg"
+
+./SRC/engine/CMakeFiles/flux.dir/fluxPYTHON_wrap.cxx
+%import "engine/fieldindex.swg"
+%import "engine/outputval.swg"
+
+./SRC/engine/CMakeFiles/material.dir/materialPYTHON_wrap.cxx
+%import "common/abstractimage.swg"
+%import "common/canvasimage.swg"
+%import "common/pixelattribute.swg"
+%import "common/timestamp.swg"
+%import "engine/femesh.swg"
+
+

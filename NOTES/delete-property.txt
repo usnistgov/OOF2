@@ -1,0 +1,106 @@
+When the property tree on the materials page contains two named
+instances of a property that appear on consecutive lines in the tree,
+if the first property is deleted while recording a gui script, the
+script cannot be replayed.  It hangs on a "Materials page updated"
+checkpoint.
+
+The problem seems to be that PropertyPane.proptreeCB, the GfxLabelTree
+callback, is called twice when recording and once when replaying.
+
+
+Event sequence during recording
+
+* Press Delete.
+* Button is logged: findWidget('OOF2:Materials Page:Pane:Property:Delete').clicked()
+ * PropertyPane.GUIdelete callback opens Questioner
+ * Click Questioner:OK (logged)
+ * OOF.Property.Delete called
+ * Calls PropertyManager.delete(property)
+   * Calls MaterialManager.delete_prop() but we don't have a material
+     so what happens here doesn't matter.
+   * Calls LabelTree.delete  (PropertyManager.data is the LabelTree)
+     * Property is removed from the LabelTree, which sends switchboard
+       	      (labeltree.root, "delete") message.
+       * Signal caught by GfxLabelTree.deleteCB 
+       	 * Gets iterator for deleted node
+       	 * Removes node from treestore
+       	   * GtkTreeStore.remove apparently signals "GtkTreeSelection
+             changed" twice 
+             * Each GtkTreeSelection changed calls the GfxLabelTree
+	       callback twice -- once to deselect and once to select and 
+	       each call calls PropertyPane.proptreeCB, which
+	       eventually calls MaterialsPage.sensitize, which writes
+	       the "Materials page updated" checkpoint.
+	       
+On replay, sending the selection changed signal doesn't do anything
+the second time, so the program hangs on the second checkpoint.
+NO -- it fails before that
+
+TreeSelectionLogger writes findWidget("...").select_path(Gtk.TreePath(path))
+for a selection and findWidget("...").unselect_all() for a deselection.
+
+When recording we get
+  TreeSelectionLogger:  ...select_path() 
+    gfxLabelTree.selectionChangedCB (iter != None)
+      proptreeCB deselect
+        checkpoint Materials page updated
+      proptreeCB select
+        checkpoint Materials page updated
+
+On replay, selectionChangedCB is getting iter==None, so it's only
+doing the deselect!
+This is the correct behavior -- the first selection change due to the
+deletion should be to deselect object being deleted.
+So is the problem occuring during recording?
+
+Typing this in the Console window works as expected
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([0, 0]))
+
+-------------
+
+After changing GfxLabelTree.selectionChangedCB so that it doesn't call
+self.callback twice when changing the selection, and checks to see if
+the selection has changed before calling it at all.
+
+Recording:
+
+////// findWidget('Questioner:OK').clicked()
+Delete property Color:instance? OK
+-0012-00-------------- ====0002==== OOF.Property.Delete(property='Color:instance')
+# Calling treestore.remove
+////// findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([0, 0])) # TreeSelectionLogger changed
+-0011-00------------- gfxLabelTree.py(132):selectionChangedCB selection = LabelTreeNode(instance_2):
+-0012-00-------------- materialsPage.py(261):proptreeCB select
+////// checkpoint Materials page updated
+////// checkpoint property selected
+////// findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([0, 0])) # TreeSelectionLogger changed
+-0011-00------------- gfxLabelTree.py(132):selectionChangedCB selection = LabelTreeNode(instance_2):
+# Back from treestore.remove
+////// checkpoint OOF.Property.Delete
+
+Replaying:
+
+Delete property Color:instance? OK
+-0015-00----------------- ====0002==== OOF.Property.Delete(property='Color:instance')
+###### 41/51 # Calling treestore.remove
+////// 42/51 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([0, 0])) # TreeSelectionLogger changed
+////// 43/51 checkpoint Materials page updated
+-0011-00------------- gfxLabelTree.py(125):selectionChangedCB selection = None
+-0012-00-------------- materialsPage.py(261):proptreeCB deselect
+////// 44/51 checkpoint property selected
+
+selectionChangedCB is being called with selection==None !????
+
+==> We can't log the TreeSelection 'changed' signal.
+Log the GfxLabelTree changed callback.
+When replaying, gtklogger will need to make the selection and then
+call the GfxLabelTree handler.
+This is somewhat counter to the whole point of gtklogger.  We will no
+longer be testing that we're using gtk properly.
+  * GfxLabelTree connects to TreeSelection changed, but does *not* log it.
+  * Log file needs a way to find the GfxLabelTree.
+     * Create a WeakValueDictionary keyed by the gtklogger widget path
+  * GfxLabelTree logs its own methods:
+       * simulateSelect(labeltreepath): unselects if necessary and then selects
+       * simulateUnselect(): unselects all
+  

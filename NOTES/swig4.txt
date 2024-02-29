@@ -1,0 +1,5 @@
+Use -builtin ?
+
+%new is deprecated.  Use
+  %newobject func
+to declare that func returns a new object

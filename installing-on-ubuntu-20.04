@@ -1,0 +1,21 @@
+
+On Ubuntu 20.04
+
+For OOFCanvas
+   python2
+   python2-dev
+   libmagick++-dev
+   libgtk-3-dev
+   libcairomm-1.0-dev
+   python-gi-dev
+   python-gi-cairo
+   g++
+   make
+   bison
+
+For OOF2, also need
+apt install 
+   libblas-dev
+   liblapack-dev
+
+Run setup.py, oof-build etc with python2 instead of python

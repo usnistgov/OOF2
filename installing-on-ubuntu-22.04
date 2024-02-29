@@ -1,0 +1,25 @@
+On Ubuntu 22.04
+
+
+General dependencies:
+cmake-curses-gui
+g++
+swig
+pkg-config
+
+OOFCanvas dependencies:
+python3-dev
+libgtk-3-dev
+libcairomm-1.0-dev
+libmagick++-dev
+python-gi-dev
+python3-skimage
+
+Additional OOF2 dependencies:
+liblapack-dev
+
+Building:
+
+Set PKG_CONFIG_PATH before running ccmake for oof2.
+Set swigversion to 4.0
+

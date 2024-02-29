@@ -1,0 +1,83 @@
+solver_test.py
+
+Ubuntu 16.10 VirtualBox, 4 cores, MacBook Pro 2.3GHz Intel i7, gperftools 2.5, oof2 2.1.13, gcc 6.2.0
+OpenMP tcmalloc    user    real   sys
+  Y      Y         9:16    8:43   0:06
+  Y      Y         9:23    8:46   0:06
+  Y      Y         9:32
+  Y      Y         9:35
+
+  N      Y         7:53    ???  openMP is slower?
+  N      Y         7:49    8:20   0:03
+
+  N      N         8:04
+
+  Y      N         9:15
+
+Debian (nestor), 8 cores, gcc 4.9.2, gperftools 2.2 
+  N      Y        12:51   13:45
+  N      Y        12:50   13:40   0:24
+  Y      Y        18:21   13:46   0:20
+
+--------------------------------
+
+3/10/23 Compare numpy and non-numpy versions, and the old 2.1.19
+
+Run OOF.Image.Modify.Fade 30 times on a 476x444 rgb image
+Fade is hand-coded using the ImageMagick API in non-numpy and 2.1.19
+
+Non-numpy, with graphics display
+real	0m33.557s user	0m31.041s sys	0m3.911s
+real	0m33.236s user	0m31.086s sys	0m3.834s
+
+Numpy, with graphics display
+real	0m8.903s user	0m5.832s sys	0m3.781s
+real	0m8.646s user	0m5.641s sys	0m3.775s
+
+Version 2.1.19, with graphics display
+real	0m26.611s user	0m26.334s sys	0m0.509s
+real	0m26.106s user	0m25.817s sys	0m0.512s
+
+
+Non-numpy, batch mode
+real	0m41.009s user	0m27.516s sys	0m0.511s  <-- outlier?
+real	0m26.006s user	0m25.061s sys	0m0.490s
+real	0m27.190s user	0m25.045s sys	0m0.489s
+
+Numpy, batch mode
+real	0m1.509s user	0m1.276s sys	0m0.534s
+real	0m1.250s user	0m1.276s sys	0m0.537s
+
+Version 2.1.19, batch mode
+real	0m26.628s user	0m24.512s sys	0m0.260s
+real	0m25.464s user	0m23.712s sys	0m0.246s
+
+
+Run OOF.Image.Modify.Blur(radius=5, sigma=3) 30 times on the same image
+Blur is built-in to numpy and ImageMagick
+
+Non-numpy, with graphics display
+real	0m9.567s user	0m6.843s sys	0m3.688s
+real	0m9.154s user	0m6.535s sys	0m3.674s
+
+Numpy, with graphics display
+real	0m9.697s user	0m6.736s sys	0m3.795s
+real	0m9.187s user	0m6.216s sys	0m3.781s
+
+Version 2.1.19, with graphics
+real	0m3.178s user	0m2.417s sys	0m0.564s
+real	0m2.869s user	0m2.468s sys	0m0.464s
+
+
+Non-numpy, batch mode
+real	0m1.800s user	0m1.532s sys	0m0.463s
+real	0m2.102s user	0m1.536s sys	0m0.460s
+
+Numpy, batch mode
+real	0m1.822s user	0m1.484s sys	0m0.533s
+real	0m1.820s user	0m1.483s sys	0m0.535s
+
+Version 2.1.19, batch mode
+real	0m1.865s user	0m0.885s sys	0m0.232s
+real	0m1.856s user	0m0.886s sys	0m0.224s
+

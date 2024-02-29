@@ -1,0 +1,283 @@
+<p>This is the README file for OOF2, version 2.3.1 or later.</p>
+<h1 id="what-is-oof2">What is OOF2?</h1>
+<p><a href="http://www.ctcms.nist.gov/oof/">OOF2</a> is designed to help
+materials scientists calculate macroscopic properties from images of
+real or simulated microstructures. It reads an image, assigns material
+properties to features in the image, and conducts virtual experiments to
+determine the macroscopic properties of the microstructure.</p>
+<p>The programs are written in C++ and Python and benefit from an
+object-oriented design. The underlying numerical solutions rely on
+finite element technology. Hence the name OOF, for object-oriented
+finite element analysis.</p>
+<h1 id="installation">Installation</h1>
+<p>The executive summary of steps (to be typed in a terminal window)
+is:</p>
+<pre><code>mkdir oof2
+cd oof2
+tar -xzf /download_directory_name/oof2-&lt;version&gt;.tar.gz
+mkdir build
+cd build
+cmake ../oof2-&lt;version&gt;
+make
+sudo make install</code></pre>
+<p>but please read the rest of this file before proceeding.</p>
+<p>If something goes wrong, your system adminstrator may be able to help
+you, or you can contact the oof developers at oof_manager@nist.gov. It’s
+diagnostically useful to include all of the output from the installation
+commands.</p>
+<p>OOF2 has been built and tested on Ubuntu Linux and macOS 13
+(Ventura). It ought to work on other varieties of Linux.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>A computer running a variant of the Unix operating system, including
+Linux and Macintosh. OOF2 currently does <em>not</em> run on Microsoft
+Windows, but ought to run inside a Linux virtual machine on Windows.</p>
+<p>The following external programs and libraries must be present before
+you can run OOF2. To compile OOF2 from sources, you will also require
+the header files (“includes”) associated with these programs and
+libraries. These are usually available as part of a “development”
+version of the library software.</p>
+<ul>
+<li><a href="/cgi-bin/redirect.py?url=http://www.python.org">Python 3 (3.8 or later)</a></li>
+<li>[Swig (4.0 or 4.1)] (https://www.swig.org)</li>
+<li><a href="/cgi-bin/redirect.py?url=http://www.imagemagick.org/Magick++/index.html">Magick++
+(6.x, but not 7.x)</a></li>
+<li><a href="/cgi-bin/redirect.py?url=http://www.gtk.org/download/">gtk3 (3.22 or later)</a></li>
+<li><a href="/cgi-bin/redirect.py?url=https://pypi.org/project/PyGObject/">pygobject (3.28 or
+later)</a></li>
+<li><a href="/cgi-bin/redirect.py?url=https://www.cairographics.org/cairomm/">cairomm (1.12 or
+later)</a></li>
+<li><a href="/cgi-bin/redirect.py?url=https://pango.gnome.org/">pango (1.40 or later)</a></li>
+<li><a
+href="/cgi-bin/redirect.py?url=https://gnome.pages.gitlab.gnome.org/pango/PangoCairo/">pangocairo
+(1.40 or later)</a></li>
+<li><a href="http://www.ctcms.nist.gov/oof/oofcanvas">OOFCanvas (1.1 or
+later)</a></li>
+</ul>
+<p>Please note that the words “or later” do not include later major
+versions. OOF2 will not work with gtk 4.x. It is recommended that you
+use a package manager to install the prerequisites, rather than
+compiling them yourself.</p>
+<p>Macintosh users can install either native Quartz or X11 versions of
+gtk3, cairo, and pango. If using X11, they will have to also install an
+X11 server to run OOF2. But there seem to be some problems with gtk3 and
+X11 on Macs, so Quartz is recommended.</p>
+<p>You should also have the ability to run <em>lapack</em> and the
+<em>blas</em> basic linear algebra subroutines. On macOS no special
+libraries are required. On Linux and commercial Unix systems, they may
+have to be installed, and you may require headers (sometimes provided as
+part of a “-dev” package).</p>
+<p>Detailed instructions for installing the OOF2 prerequisites on a
+number of different operating systems can be found on the <a
+href="http://www.ctcms.nist.gov/oof/oof2/prerequisites.html">OOF2
+Prerequisites page</a>.</p>
+<h2 id="installing-oof2">Installing OOF2</h2>
+<p>Commands in the following steps should be typed into a terminal
+window, after you have installed all the OOF2 prerequisites. In the
+commands below, type everything after the initial “%” into a terminal
+window.</p>
+<h3 id="disclaimer">0. Disclaimer</h3>
+<p>Please read the <a href="#disclaimerlink">Disclaimer</a> at the end
+of this file before proceeding.</p>
+<h3 id="download">1. Download</h3>
+<p>Download the latest OOF2 source distribution from the <a
+href="http://www.ctcms.nist.gov/oof/oof2/">OOF2 website</a>. That will
+create a file called something like oof2-2.3.0.tar.gz.</p>
+<h3 id="create-a-working-directory-and-move-to-it">2. Create a working
+directory and move to it</h3>
+<p>In your home directory or some other convenient location, enter</p>
+<pre><code>% mkdir oof2
+% cd oof2</code></pre>
+<h3 id="unpack">3. Unpack</h3>
+<p>Unpack the .tar.gz file. The usual way is to run <code>tar -xf</code>
+on the file you want to unpack. If the file is in your Downloads
+directory, type</p>
+<pre><code>% tar -xf ~/Downloads/oof2-2.3.0.tar.gz</code></pre>
+<p>This will create a subdirectory named <code>oof2-2.3.0</code> in the
+oof2 directory (if you followed the instructions in step 2).</p>
+<h3 id="set-pkg_config_path">4. Set PKG_CONFIG_PATH</h3>
+<p>The OOF2 installation process uses the <code>pkg-config</code>
+utility to gather information about its dependencies. The data for
+OOFCanvas needs to be in a spot where <code>pkg-config</code> can find
+it. Test it by running the command</p>
+<pre><code>% pkg-config --modversion oofcanvas</code></pre>
+<p>If <code>pkg-config</code> reports the correct OOFCanvas version
+number, nothing needs to be done. If it says it can’t find oofcanvas,
+set the environment variable <code>PKG_CONFIG_PATH</code> to the
+location of <code>oofcanvas.pc</code>. For example, if OOFCanvas was
+installed into your home directory, the file will be in
+<code>~/lib/pgkconfig</code>, and after you run</p>
+<pre><code>% export PKG_CONFIG_PATH=~/lib/pkgconfig</code></pre>
+<p><code>pgk-config</code> will be able to find it. (The syntax for
+setting environment variables depends on what shell you’re using.)</p>
+<h3 id="configure">5. Configure</h3>
+<p>Create a build directory.</p>
+<pre><code>% mkdir build
+% cd build</code></pre>
+<p>If you want to use the default settings, run <code>cmake</code>,
+pointing it to the unpacked source directory:</p>
+<pre><code>% cmake ../oof2-2.3.0</code></pre>
+<p>but beware that this will cause OOF2 to be installed in a system
+directory like <code>/usr</code> or <code>/usr/local</code>, where you
+might not have permission to create files. It’s better to use
+<code>ccmake</code>, which will let you edit settings:</p>
+<pre><code>% ccmake ../oof2-2.3.0</code></pre>
+<p>See https://cmake.org/cmake/help/latest/manual/ccmake.1.html for full
+instructions on how to use ccmake. At a minimum</p>
+<ul>
+<li>Type <code>c</code> to do the initial configuration</li>
+<li>Use the arrow keys to navigate to <code>CMAKE_INSTALL_PREFIX</code>,
+which is where OOF2 will be installed.</li>
+<li>Type <code>&lt;return&gt;</code>, edit the prefix, and type
+<code>&lt;return&gt;</code> again. Set the prefix to a directory where
+you can write files, such as your home directory. If you’re installing
+into an Anaconda environment named <code>OOF2</code>, set
+<code>CMAKE_INSTALL_PREFIX</code> to
+<code>~/Anaconda3/envs/OOF2</code>.</li>
+<li>Similarly, change <code>OOF2_PYTHON_VERSION</code> to the version of
+python3 that you have installed, and <code>OOF2_SWIG_VERSION</code> to
+the version of swig4. Use the same values you used when installing
+OOFCanvas.</li>
+<li>Type <code>c</code> to update the configuration.</li>
+<li>Type <code>g</code> to generate the build scripts and exit.</li>
+<li>If <code>g</code> wassn’t an option at the bottom of the screen in
+the previous step and ccmake didn’t exit, the previous <code>c</code>
+probably added new variables. Check their values and type <code>c</code>
+again until the <code>g</code> appears, then type <code>g</code>.</li>
+</ul>
+<h3 id="build-and-install">6. Build and install</h3>
+<p>Run</p>
+<pre><code>% make install</code></pre>
+<p>If your computer’s version of <code>make</code> can run parallel
+jobs, you can build OOF2 faster by including the <code>-j</code>
+option</p>
+<pre><code>% make -j 10 install</code></pre>
+<p>Replace <code>10</code> by however many compilation processes you can
+run simultaneously.</p>
+<p>If you don’t have permission to create files in the installation
+directory (possibly because you didn’t change
+<code>CMAKE_INSTALL_PREFIX</code> in step 3) you should run the build
+and installation steps separately so that you can use superuser
+privileges for installation:</p>
+<pre><code>% make -j 10
+% sudo make -j 10 install</code></pre>
+<p>The installation procedure will create executable scripts called
+<code>oof2</code>, <code>oof2-test</code>, and <code>oof2-guitest</code>
+in <code>&lt;prefix&gt;/bin</code>, a bunch of shared libraries called
+<code>liboof2*.so</code> or <code>liboof2*.dylib</code> in
+<code>&lt;prefix&gt;/lib</code>, a directory called <code>oof2</code> in
+<code>&lt;prefix&gt;/lib/python3.x/site-packages</code> (where 3.x is
+your python version number), and some example files in
+<code>&lt;prefix&gt;/share/oof2/examples</code>.</p>
+<h3 id="set-environment-variables">6. Set environment variables</h3>
+<p>If <code>&lt;prefix&gt;/bin</code> is not in your Unix command path,
+you’ll need to add it to the <code>PATH</code> environment variable, or
+create a symbolic link from a directory that is in your path (or start
+OOF2 the hard way by by typing <code>&lt;prefix&gt;/bin/oof2</code>).
+<code>&lt;prefix&gt;</code> is the value you gave to
+<code>CMAKE_INSTALL_PREFIX</code> in ccmake. (Typing
+<code>echo $PATH</code> will print the current value of your path. The
+method for setting environment variables depends on which Unix shell
+you’re using.)</p>
+<p>On Linux, if <code>&lt;prefix&gt;/lib</code> is not in the list of
+directories that the dynamic linker searches for libraries, you’ll have
+to add it by setting the <code>LD_LIBRARY_PATH</code> environment
+variable. This should <em>not</em> be necessary on macOS.</p>
+<h3 id="test">7. Test</h3>
+<p>If you want to test the installation, run <code>oof2-test</code> and
+<code>oof2-guitest</code>.</p>
+<p><code>oof2-test</code> runs a variety of tests that don’t depend on
+the GUI. It can take a long time to complete. <code>oof2-guitest</code>
+runs GUI-dependent tests. It doesn’t takes as long but it can get
+confused if you accidentally click or type in one of its windows, so
+it’s best to just sit back and watch it run.</p>
+<p>The test files are installed into
+<code>&lt;prefix&gt;/lib/python3.x/site-packages/oof2/TEST</code> and
+<code>&lt;prefix&gt;/lib/python3.x/site-packages/oof2/TEST/GUI</code>.
+Each of those directories has a <code>README</code> file that may be
+helpful.</p>
+<p>In version 2.3.0 there is something wrong with the GUI testing
+apparatus that makes a few of the tests fail erratically. If
+<code>oof2-guitest</code> fails, note the name of the failed test and
+restart the test with
+<code>oof2-guitest --from &lt;name of failed test&gt;</code>. You may
+have to do this more than once.</p>
+<h2 id="uninstalling-oof2">Uninstalling OOF2</h2>
+<p>Go to the build directory and run <code>make uninstall</code>. This
+deletes all the installed files but unfortunately leaves empty
+directories behind.</p>
+<h1 id="running-oof2">Running OOF2</h1>
+<p>At this point, you should have an executable file named
+<code>oof2</code> in a <code>bin</code> directory in your execution
+path. You can now simply type <code>oof2</code> at your shell prompt,
+and OOF2 will start up.</p>
+<p>If you get a message like <code>oof2: command not found</code>, try
+opening a new terminal window – the old one doesn’t know that a new
+command has been added.</p>
+<p>OOF2 also has many command line options, and you can get a summary of
+them by typing <code>oof2 --help</code>.</p>
+<p>By default, OOF2 runs in graphics mode, opening a couple of windows
+to get you started. If you don’t want this, you can use the
+<code>--text</code> option to run it in command-line mode.</p>
+<p>Be sure to read the <a
+href="http://www.ctcms.nist.gov/~langer/oof2man/">OOF manual</a> and to
+go through the tutorials provided in the OOF2 Help menu.</p>
+<h1 id="reporting-bugs">Reporting Bugs</h1>
+<p>If you encounter bugs in the program, please send e-mail to <a
+href="mailto:oof_bugs@nist.gov">oof_bugs@nist.gov</a>. Include as much
+information as possible – it is extremely difficult for us to fix a bug
+if we can’t reproduce it. In particular, include</p>
+<ul>
+<li><p>What version of OOF2 you’re using. Starting OOF with the
+<code>-version</code> flag will print the version number.</p></li>
+<li><p>What type of computer and what operating system you’re
+using.</p></li>
+<li><p>A complete description of the problem: what happened and what did
+you do to make it happen?</p></li>
+<li><p>If possible, an OOF2 script that reproduces the problem. A script
+can be saved from the <code>File/Save/Python Log</code> menu item in the
+main OOF2 window, or the <code>Save</code> button in the
+<code>Quit</code> dialog box.</p>
+<p>If OOF2 crashes before you get a chance to save a script, a script
+will be saved automatically in the your operating system’s temp
+directory, which is probably named <code>tmp</code>. Look for a file
+named <code>oof2-abcdef.py</code> where <code>abcdef</code> is a random
+string of characters. You can change the location of the temp directory
+by setting the <code>OOFTMP</code> environment variable.</p></li>
+<li><p>Be sure to include any files that the script requires, such as
+images or other scripts that it loads.</p></li>
+</ul>
+<h1 id="contact-us">Contact Us</h1>
+<p>Other communications, including requests for help and suggestions for
+new features, can be sent to <a
+href="mailto:oof_manager@nist.gov">oof_manager@nist.gov</a>.</p>
+<h1 id="disclaimerlink">Disclaimer</h1>
+<p>This software provided is provided by NIST as a public service. You
+may use, copy and distribute copies of the software in any medium,
+provided that you keep intact this entire notice. You may improve,
+modify and create derivative works of the software or any portion of the
+software, and you may copy and distribute such modifications or works.
+Modified works should carry a notice stating that you changed the
+software and should note the date and nature of any such change. Please
+explicitly acknowledge the National Institute of Standards and
+Technology as the source of the software. To facilitate maintenance we
+ask that before distributing modified versions of this software, you
+first contact the authors at oof_manager@nist.gov.</p>
+<p>The software is expressly provided “AS IS”. NIST MAKES NO WARRANTY OF
+ANY KIND, EXPRESS, IMPLIED, IN FACT OR ARISING BY OPERATION OF LAW,
+INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTY OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT AND DATA ACCURACY.
+NIST NEITHER REPRESENTS NOR WARRANTS THAT THE OPERATION OF THE SOFTWARE
+WILL BE UNINTERRUPTED OR ERROR-FREE, OR THAT ANY DEFECTS WILL BE
+CORRECTED. NIST DOES NOT WARRANT OR MAKE ANY REPRESENTATIONS REGARDING
+THE USE OF THE SOFTWARE OR THE RESULTS THEREOF, INCLUDING BUT NOT
+LIMITED TO THE CORRECTNESS, ACCURACY, RELIABILITY, OR USEFULNESS OF THE
+SOFTWARE.</p>
+<p>You are solely responsible for determining the appropriateness of
+using and distributing the software and you assume all risks associated
+with its use, including but not limited to the risks and costs of
+program errors, compliance with applicable laws, damage to or loss of
+data, programs or equipment, and the unavailability or interruption of
+operation. This software is not intended to be used in any situation
+where a failure could cause risk of injury or damage to property. The
+software was developed by NIST employees. NIST employee contributions
+are not subject to copyright protection within the United States.</p>
