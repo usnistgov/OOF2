@@ -26,6 +26,8 @@ include("oofbuildtools.cmake")
 option(OOF2_SYSTEM_INSTALL OFF "Install in system directory?")
 mark_as_advanced(OOF2_SYSTEM_INSTALL)
 
+option(OOF2_DEV_INSTALL OFF "Install development files?")
+
 
 ## TODO PYTHON3: Get openMP working. See the openmp-branch branch.
 
@@ -77,6 +79,21 @@ include(FindBLAS)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# SITE_PACKAGES is used to set the path in oof2.in, oof2-test.in and
+# oof2-guitest.in so that users can run the top level scripts without
+# setting PYTHONPATH.
+if(OOF2_SYSTEM_INSTALL)
+  set(SITE_PACKAGES ${Python3_LIBRARY_DIRS}/${PYLIBPATH})
+else()
+  set(SITE_PACKAGES lib/${PYLIBPATH})
+endif()
+# PYDEST is the destination for installing OOF2 python files.
+set(PYDEST ${SITE_PACKAGES}/${CMAKE_PROJECT_NAME})
+
+# message("PYDEST is ${PYDEST}")
+# message("SITE_PACKAGES is ${SITE_PACKAGES}")
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Use pkg-config to get info about dependencies
 include(FindPkgConfig)
@@ -307,43 +324,58 @@ install(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Install the script for building extensions into bin, and the
-# extension templates into <prefix>/share/oof2/templates.
+# Machinery for building extensions.  Everything that an extension
+# might require from the oof2 source directory has to be installed
+# somewhere under CMAKE_INSTALL_PREFIX because the source directory
+# might not be available when a user is building an extension.  If
+# oof2 was installed via a package manager, the source directory might
+# not have ever been installed.
 
-configure_file(
-  ${PROJECT_SOURCE_DIR}/EXTENSION_TEMPLATES/oof2-extension-setup.in
-  ${PROJECT_BINARY_DIR}/oof2-extension-setup
-  @ONLY
+# Create the script for creating the structure of an extension and
+# install it into bin.
+
+if(OOF2_DEV_INSTALL)
+
+  configure_file(
+    ${PROJECT_SOURCE_DIR}/EXTENSION_TEMPLATES/oof2-extension-setup.in
+    ${PROJECT_BINARY_DIR}/oof2-extension-setup
+    @ONLY
   )
 
-install(
-  PROGRAMS
-  ${CMAKE_BINARY_DIR}/oof2-extension-setup
-  DESTINATION ${CMAKE_INSTALL_BINDIR}
-  )
-
-install(
-  DIRECTORY EXTENSION_TEMPLATES/ # trailing slash means copy subdirectories
-  DESTINATION ${CMAKE_INSTALL_DATADIR}/oof2/templates
-  PATTERN "oof2-extension-setup.in" EXCLUDE
-  PATTERN "TODO" EXCLUDE
-)
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-# Extensions can't be built without access to the oof2 header files,
-# so this copies them out of the source directory.
-
-# list of directories whose headers need to be copied
-set(headerdirs common engine image orientationmap)
-
-foreach(headerdir ${headerdirs})
   install(
-    DIRECTORY ${PROJECT_SOURCE_DIR}/SRC/${headerdir}/
-    DESTINATION include/oof2/${headerdir}
-    FILES_MATCHING PATTERN "*.h"
+    PROGRAMS
+    ${CMAKE_BINARY_DIR}/oof2-extension-setup
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
+
+  # Install the extension templates into share/oof2/templates.
+  install(
+    DIRECTORY EXTENSION_TEMPLATES/ # trailing slash means copy subdirectories
+    DESTINATION share/oof2/templates
+    PATTERN "oof2-extension-setup.in" EXCLUDE
+    PATTERN "TODO" EXCLUDE
+  )
+
+  # Install the oof2 header and swig files into include/oof2, if in dev
+  # mode.
+  set(headerdirs common engine image orientationmap) # dirs with headers
+
+  foreach(headerdir ${headerdirs})
+    install(
+      DIRECTORY ${PROJECT_SOURCE_DIR}/SRC/${headerdir}/
+      DESTINATION include/oof2/${headerdir}
+      FILES_MATCHING REGEX ".*\\.(h|swg|spy)$"
     )
   endforeach()
+
+  # Install the cmake functions (also used in this file) into
+  # share/oof2/templates
+  install(
+    FILES ${PROJECT_SOURCE_DIR}/oofbuildtools.cmake
+    DESTINATION share/oof2/templates
+  )
+
+endif()  # OOF2_DEV_INSTALL
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
