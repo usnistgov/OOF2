@@ -19,35 +19,30 @@
 # new property will have an incremented sequence number (this means
 # multiple copies might have the same sequence number).
 
-# These values are set by cmake when installing OOF2, so that they can
-# be used by cmake when installing extensions:
-python_version = "@OOF2_PYTHON3_VERSION@"
-swig_version = "@OOF2_SWIG_VERSION@"
-oof_install_prefix = "@CMAKE_INSTALL_PREFIX@"
-
 # These are the strings in the template files that will be
 # replaced when the files are copied.
-refmodule = '%MODULENAME%'      # replaced by the argument from --module
-refheader = '%HEADER%'          # module_H (for #ifndef guards)
-refclass = '%CLASS%'            # from --class
-refseqno = '%SEQNO%'            # from --sequenceno
-refpython = '%PYTHON%'
-refswig = '%SWIG%'
-refoof2prefix = '%OOF2PREFIX%'
-
+refmodule = '%MODULENAME%'      # replaced by the --module argument
+refheader = '%HEADER%'          # replaced by module_H (for #ifndef guards)
+refclass = '%CLASS%'            # replaced by the --class argument
+refseqno = '%SEQNO%'            # replaced by the --sequenceno argument
+refpython = '%PYTHON%'          # replaced by python version used by oof2
+refswig = '%SWIG%'              # replaced by swig version used by oof2
+refoof2prefix = '%OOF2PREFIX%'  # replaced by installation prefix used by oof2
+refoof2source = '%OOF2SOURCE%'  # replaced by oof2 source directory path
 
 import getopt, sys, subprocess, os
 
 def usage(err):
-    print(err, file=sys.stderr)
+    print(err)
+    me = os.path.split(sys.argv[0])[-1]
     print(f"""
 Usage:
-  {sys.argv[0]} --template=<template-dir-name> --module=<new-module-name> --dir=<new-dir-name> \
+  {me} --template=<template-dir-name> --module=<new-module-name> \
 --class=<new-class-name> [--sequenceno=<number>] [--force]
 
-Short options are -t, -m, -d, -c, -s, and -f, in the same order as above.
+Short options are -t, -m, -c, -s, and -f, in the same order as above.
 
-""" , file=sys.stderr)
+""")
 
 ###############
 
@@ -62,18 +57,18 @@ Short options are -t, -m, -d, -c, -s, and -f, in the same order as above.
 def install_file(src, dest, sedcmd, force=False):
     # sedcmd is a list of strings, including "sed" and all its
     # arguments *except* the source file name.
+    print(f"Copying {src} to {dest}.")
     if os.path.exists(dest) and not force:
-        print(f"File {dest} exists. Remove it or use --force to overwrite.",
-              file=sys.stderr)
+        print(f"File {dest} exists. Remove it or use --force to overwrite.")
         sys.exit(1)
     try:
-        fout = file(dest, "w")
+        fout = open(dest, "w")
     except:
-        print(f"Unable to open target file {dest}!", file=sys.stderr)
+        print(f"Unable to open target file {dest}!")
         print("Exiting.")
-        sys.exit(1)
-    print(f"Copying {src} to {dest}.")
-    p1 = subprocess.Popen(sedcmd + [src], stdout=subprocess.PIPE)
+        raise
+    #print(f"   {' '.join(sedcmd + [src])}")
+    p1 = subprocess.Popen(sedcmd + [src], stdout=subprocess.PIPE, text=True)
     for ell in p1.communicate():
         if ell is not None:
             fout.write(ell)
@@ -94,7 +89,7 @@ if __name__ == '__main__':
             't:f:c:s:f',
             ["template=","module=","class=","sequenceno=","force"])
 
-    except getopt.GetoptError, err:
+    except getopt.GetoptError as err:
         usage(err)
         sys.exit(1)
 
@@ -126,7 +121,8 @@ if __name__ == '__main__':
     # templatedir is the name of a directory that was installed (by
     # OOF2/CMakeLists.txt) in <prefix>/share/oof2/templates.  refdir
     # is the full path to it.
-    refbase = os.path.join(oof2_install_prefix, "share", "oof2", "templates")
+    refbase = os.path.join('@CMAKE_INSTALL_PREFIX@',
+                           "share", "oof2", "templates")
     refdir = os.path.join(refbase, templatedir)
 
     if modulename==None:
@@ -137,41 +133,41 @@ if __name__ == '__main__':
         usage("Class name argument is mandatory.")
         sys.exit(2)
 
-    # The general scheme is to copy all the files, and in every case, change:
-    #  - the file name itself, from refmodule<ext> to modulename<ext>
-    #  - the file name in the file, from refmodule to modulename.
-    #  - the classname, from refclass to classname
-    #  - the header line, from refheader to header.
-    #  - the sequence number, from refseqno to the new one.
+    # sedcmd is the sed command that makes all of the substitutions
+    # that we need to make in the template files.  These are the
+    # replacements for the "%xxxxx%" strings defined earlier.
     sedcmd = ["sed",
               "-e", f"s/{refmodule}/{modulename}/g",
               "-e", f"s/{refclass}/{classname}/g",
-              "-e", f"s/{refheader}/{header}_H/g",
+              "-e", f"s/{refheader}/{modulename}_H/g",
               "-e", f"s/{refseqno}/{str(sequenceno)}/",
-              "-e", f"s/{refpython}/{python_version}/g",
-              "-e", f"s/{refswig}/{swig_version}/g",
-              "-e", f"s/{refoof2prefix}/{oof_install_prefix}/g"
+              "-e", f"s/{refpython}/@OOF2_PYTHON3_VERSION@/g",
+              "-e", f"s/{refswig}/@OOF2_SWIG_VERSION@/g",
+              # Use ? instead of / as a delimiter because the prefix
+              # may contain /.
+              "-e", f"s?{refoof2prefix}?@CMAKE_INSTALL_PREFIX@?g"
               ]
 
     # Create the target directory.
     try:
         # Create ./modulename
-        os.mkdir(modulename, mode=0755)
+        os.mkdir(modulename, mode=0o755)
     except FileExistsError:
         if not force:
-            print(f"Directory {modulename} already exists. Remove it or use --force to overwrite.",
-                  file=sys.stderr)
-            print("Exiting.", file=sys.stderr)
+            print(f"Directory {modulename} already exists. Remove it or use --force to overwrite.")
+            print("Exiting.")
             sys.exit(4)
 
     # Install CMakeLists.txt and README in the top module directory
     for f in ("CMakeLists.txt", "README"):
         install_file(os.path.join(refbase, f), os.path.join(modulename, f),
-                     force)
+                     sedcmd, force)
     
     # Create the source and build directories
     for d in ("source", "build"):
-        os.mkdir(os.path.join(modulename, d), mode=0755)
+        dirpath = os.path.join(modulename, d)
+        if not os.path.exists(dirpath):
+            os.mkdir(os.path.join(modulename, d), mode=0o755)
 
     # Copy the source files from the template directory to source,
     # changing their names from oof2template.* to modulename.*
@@ -179,11 +175,11 @@ if __name__ == '__main__':
     for suffix in suffixes:
         install_file(os.path.join(refdir, "oof2template"+suffix),
                      os.path.join(modulename, "source", modulename+suffix),
-                     force)
+                     sedcmd, force)
     # Create CMakeLists.txt in the subdirectory.
-    install_file(os.path.join(basedir, "CMakeLists_subdir.txt"),
+    install_file(os.path.join(refbase, "CMakeLists_subdir.txt"),
                  os.path.join(modulename, "source", "CMakeLists.txt"),
-                 force)
+                 sedcmd, force)
         
     
     # file_list = [os.path.join(refdir,f) for f in os.listdir(refdir)]

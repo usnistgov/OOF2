@@ -336,12 +336,12 @@ install(
 
 if(OOF2_DEV_INSTALL)
 
+  # configure  oof2-extension-setup and install it into bin
   configure_file(
     ${PROJECT_SOURCE_DIR}/EXTENSION_TEMPLATES/oof2-extension-setup.in
     ${PROJECT_BINARY_DIR}/oof2-extension-setup
     @ONLY
   )
-
   install(
     PROGRAMS
     ${CMAKE_BINARY_DIR}/oof2-extension-setup
@@ -356,10 +356,8 @@ if(OOF2_DEV_INSTALL)
     PATTERN "TODO" EXCLUDE
   )
 
-  # Install the oof2 header and swig files into include/oof2, if in dev
-  # mode.
+  # Install the oof2 header and swig files into include/oof2.
   set(headerdirs common engine image orientationmap) # dirs with headers
-
   foreach(headerdir ${headerdirs})
     install(
       DIRECTORY ${PROJECT_SOURCE_DIR}/SRC/${headerdir}/
@@ -367,6 +365,11 @@ if(OOF2_DEV_INSTALL)
       FILES_MATCHING REGEX ".*\\.(h|swg|spy)$"
     )
   endforeach()
+  # Copy oofconfig.h from the build directory.
+  install(
+    FILES ${PROJECT_BINARY_DIR}/oofconfig.h
+    DESTINATION include/oof2
+    )
 
   # Install the cmake functions (also used in this file) into
   # share/oof2/templates

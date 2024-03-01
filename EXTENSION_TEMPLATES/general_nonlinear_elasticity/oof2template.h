@@ -12,7 +12,7 @@
 #ifndef %HEADER%
 #define %HEADER%
 
-#include "engine/property/elasticity/nonlinear/general_nonlinear_elasticity.h"
+#include "engine/properties/elasticity/nonlinear/general_nonlinear_elasticity.h"
 #include <string>
 #include <vector>
 
