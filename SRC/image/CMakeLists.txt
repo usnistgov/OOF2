@@ -18,7 +18,7 @@ target_sources(oof2image
   pixeldifferentiator.C
   pixeldifferentiator.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   autogroup
   oofimage

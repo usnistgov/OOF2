@@ -18,19 +18,15 @@
 #include "%MODULENAME%.h"
 %}
 
-//%include "common/typemaps.swg"
-//%import "engine/property.swg"
+%include "common/typemaps.swg"
+%import "engine/property.swg"
 %import "engine/properties/elasticity/nonlinear/general_nonlinear_elasticity.swg"
-%pythoncode %{
-  from ooflib.SWIG.engine.properties.elasticity.nonlinear.general_nonlinear_elasticity import GeneralNonlinearElasticityPtr
-    %}
-
-%pythoncode "%MODULENAME%.spy"
-
 
 class %CLASS% : public GeneralNonlinearElasticity {
 public:
   %CLASS%(PyObject *reg, char *name, double param1, double param2);
 };
+
+%pythoncode "%MODULENAME%.spy"
 
 #endif // %MODULENAME%_SWG

@@ -19,7 +19,7 @@ target_sources(oof2orientationmap
   pixeldifferentiatoro.C
   pixeldifferentiatoro.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   orientmapdata
   orientmapproperty

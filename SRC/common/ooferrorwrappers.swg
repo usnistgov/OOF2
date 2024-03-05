@@ -15,7 +15,7 @@
 // This file doesn't define a module.  It's just a place to put the
 // WRAP_OOFERROR_CLASS macro so that it can import pyErrorWrappers
 // without causing an import loop.  It should *not* be included in
-// swig_sources in CMakeLists.txt.
+// oof_swig_sources in CMakeLists.txt.
 
 // Python exceptions must be derived from Exception, so swigged C++
 // exception classes can't be raised or caught by Python.  However, we

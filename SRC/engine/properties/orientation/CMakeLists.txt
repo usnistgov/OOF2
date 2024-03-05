@@ -12,7 +12,7 @@ target_sources(oof2engine
   orientation.h
   )
  
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   orientation
   LIBRARIES

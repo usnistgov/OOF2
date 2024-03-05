@@ -11,7 +11,7 @@ target_sources(oof2engine
   iso.C
   iso.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   iso
   LIBRARIES

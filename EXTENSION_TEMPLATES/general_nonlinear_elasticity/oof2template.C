@@ -220,8 +220,8 @@
 #include <oofconfig.h>
 #include <math.h>
 #include "%MODULENAME%.h"
-#include "engine/doublevec.h"
-#include "engine/smallmatrix.h"
+#include "common/doublevec.h"
+#include "common/smallmatrix.h"
 #include "engine/smalltensor.h"
 
 

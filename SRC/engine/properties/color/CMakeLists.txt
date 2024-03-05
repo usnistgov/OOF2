@@ -11,7 +11,7 @@ target_sources(oof2engine
   color.C
   color.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   color
   LIBRARIES

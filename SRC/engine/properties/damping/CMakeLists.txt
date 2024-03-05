@@ -11,7 +11,7 @@ target_sources(oof2engine
   damping.C
   damping.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   damping
   LIBRARIES

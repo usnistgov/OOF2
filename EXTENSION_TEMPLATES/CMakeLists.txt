@@ -23,9 +23,12 @@ set(OOF2_SWIG_VERSION %SWIG% CACHE STRING "Use this version of swig")
 
 include("%OOF2PREFIX%/share/oof2/templates/oofbuildtools.cmake")
 
+find_library(OOF2COMMON oof2common %OOF2PREFIX%/lib)
+find_library(OOF2ENGINE oof2engine %OOF2PREFIX%/lib)
 
-# PYDEST is used by swig_sources, which is defined in
-# oofbuildtools.cmake and called in source/CMakeLists.txt.
-set(PYDEST ${CMAKE_INSTALL_PREFIX}/lib/${PYLIBPATH})
+install(
+  FILES
+  ${PROJECT_SOURCE_DIR}/__init__.py
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/%MODULENAME%)
 
-add_subdirectory("source")
+add_subdirectory("source") # This does all the real work

@@ -103,7 +103,7 @@ set_property(
   PROPERTY OBJECT_DEPENDS swigruntime.h
 )
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   abstractimage
   activearea

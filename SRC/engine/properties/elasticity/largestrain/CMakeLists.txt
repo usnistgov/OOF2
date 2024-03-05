@@ -12,7 +12,7 @@ target_sources(oof2engine
   largestrain.h
   )
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   largestrain
   LIBRARIES

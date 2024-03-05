@@ -11,7 +11,7 @@ target_sources(oof2engine
   general_nonlinear_elasticity.C
   general_nonlinear_elasticity.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   general_nonlinear_elasticity
   LIBRARIES

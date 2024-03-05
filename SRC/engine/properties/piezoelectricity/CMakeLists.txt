@@ -11,7 +11,7 @@ target_sources(oof2engine
   piezoelectricity.C
   piezoelectricity.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   piezoelectricity
   LIBRARIES

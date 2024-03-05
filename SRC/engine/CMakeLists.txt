@@ -4,7 +4,7 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modifed
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. add_subdirectory(GUI)
+# oof_manager@nist.gov. 
 
 target_sources(oof2engine
   PRIVATE
@@ -130,7 +130,7 @@ target_sources(oof2engine
   symmmatrix.h
   )
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   angle2color
   bdyanalysis
@@ -186,7 +186,7 @@ swig_sources(
   oof2engine
   )
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   ooferror
   LIBRARIES

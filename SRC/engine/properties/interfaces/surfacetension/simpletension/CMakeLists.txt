@@ -11,7 +11,7 @@ target_sources(oof2engine
   simpletension.C
   simpletension.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   simpletension
   LIBRARIES

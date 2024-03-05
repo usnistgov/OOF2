@@ -14,7 +14,7 @@ target_sources(oof2engine
   forcedensity.C
   forcedensity.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   forcedensity
   LIBRARIES

@@ -180,7 +180,10 @@ if __name__ == '__main__':
     install_file(os.path.join(refbase, "CMakeLists_subdir.txt"),
                  os.path.join(modulename, "source", "CMakeLists.txt"),
                  sedcmd, force)
-        
+    # Create __init__.py in the subdirectory
+    install_file(os.path.join(refbase, "__init__.py"),
+                 os.path.join(modulename, "__init__.py"),
+                 sedcmd, force)
     
     # file_list = [os.path.join(refdir,f) for f in os.listdir(refdir)]
     # # print file_list

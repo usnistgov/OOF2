@@ -14,7 +14,7 @@ target_sources(oof2engine
   elasticity.h
   )
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   cijkl
   elasticity

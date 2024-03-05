@@ -189,12 +189,42 @@ foreach(olib ${ooflibs})
     ${OOFCANVAS_CFLAGS})
 endforeach()
 
-# oofconfig.h is used when building oof2, but is not installed.
+# oofconfig.h is used when building oof2.
 configure_file(
   ${PROJECT_SOURCE_DIR}/oofconfig.h.in
   ${PROJECT_BINARY_DIR}/oofconfig.h
   @ONLY
-  )
+)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# The swig_sources() function defined in oofbuildtools.cmake needs to
+# be wrapped so that the files are installed in the right spots.
+
+function(oof_swig_sources)
+    # Get the path from the top of the source directory hierarchy to
+    # the current directory.  This is the path from the top of the
+    # installation directory hierarchy to the installation directory
+    # for the compiled swig output and python file.
+
+    # file(RELATIVE_PATH ...) has been superseded by cmake_path(...)
+    # in cmake 3.20, but 3.20 isn't available on Ubuntu 20.04.
+    if(${CMAKE_VERSION} VERSION_LESS "3.20")
+      file(
+	RELATIVE_PATH relpath	     # this is the path ...
+	${PROJECT_SOURCE_DIR}/SRC    # ... from here ...
+	${CMAKE_CURRENT_SOURCE_DIR}) # ... to here
+    else()
+      set(relpath ${CMAKE_CURRENT_SOURCE_DIR})
+      cmake_path(
+	RELATIVE_PATH
+	relpath			# Change this path ...
+	BASE_DIRECTORY ${PROJECT_SOURCE_DIR}/SRC) # ... to be relative to this
+    endif()
+    set(OOF2PYDEST ${PYDEST}/ooflib/SWIG/${relpath})
+
+    swig_sources(${ARGV} SWIGDEST ${OOF2PYDEST})
+endfunction()
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -336,7 +366,7 @@ install(
 
 if(OOF2_DEV_INSTALL)
 
-  # configure  oof2-extension-setup and install it into bin
+  # Configure  oof2-extension-setup and install it into bin
   configure_file(
     ${PROJECT_SOURCE_DIR}/EXTENSION_TEMPLATES/oof2-extension-setup.in
     ${PROJECT_BINARY_DIR}/oof2-extension-setup
@@ -365,9 +395,18 @@ if(OOF2_DEV_INSTALL)
       FILES_MATCHING REGEX ".*\\.(h|swg|spy)$"
     )
   endforeach()
-  # Copy oofconfig.h from the build directory.
+
+  # Some of the Eigen files don't have .h suffixes, so copy that whole
+  # directory.
+  install(
+    DIRECTORY ${PROJECT_SOURCE_DIR}/SRC/Eigen
+    DESTINATION include/oof2
+  )
+  
+  # Copy oofconfig.h and swigruntime.h from the build directory.
   install(
     FILES ${PROJECT_BINARY_DIR}/oofconfig.h
+    ${PROJECT_BINARY_DIR}/swigruntime.h
     DESTINATION include/oof2
     )
 
@@ -376,7 +415,7 @@ if(OOF2_DEV_INSTALL)
   install(
     FILES ${PROJECT_SOURCE_DIR}/oofbuildtools.cmake
     DESTINATION share/oof2/templates
-  )
+    )
 
 endif()  # OOF2_DEV_INSTALL
 

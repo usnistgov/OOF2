@@ -15,15 +15,17 @@ from ooflib.engine import propertyregistration
 ## General Nonlinear Elasticity Example
 
 reg = propertyregistration.PropertyRegistration(
-    'Mechanical:Elasticity:%CLASS%',
-    %CLASS%,
-    "%MODULENAME%_SWIG.%MODULENAME%",
-    %SEQNO%,
-    [parameter.FloatParameter('parameter1', 3.0, tip="First parameter."),
-     parameter.FloatParameter('parameter2', 1.0, tip="Second parameter.")],
+    name='Mechanical:Elasticity:%CLASS%',
+    subclass=%CLASS%,
+    ordering=%SEQNO%,
+    params=[parameter.FloatParameter('parameter1', 3.0, tip="First parameter."),
+            parameter.FloatParameter('parameter2', 1.0, tip="Second parameter.")
+            ],
     propertyType="Elasticity",
-    tip="User-defined nonlinear elasticity."
-    )
+    tip="User-defined nonlinear elasticity.")
 
-reg.fluxInfo( fluxes=[problem.Stress], fields=[problem.Displacement],
-              time_derivs=[0], nonlinear=True )
+reg.fluxInfo(
+    fluxes=[problem.Stress],
+    fields=[problem.Displacement],
+    time_derivs=[0],
+    nonlinear=True)

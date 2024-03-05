@@ -11,7 +11,7 @@ target_sources(oof2engine
   pyroelectricity.C
   pyroelectricity.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   pyroelectricity
   LIBRARIES

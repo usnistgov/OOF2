@@ -1,51 +1,8 @@
-Install oof2_extension_setup.py into bin when OOF2 is installed.  It
-should know OOF2_PYTHON3_VERSION and OOF2_SWIG_VERSION, and
-CMAKE_INSTALL_PREFIX from the OOF2 build.  Make oof2_extension_setup
-executable.  DONE
-
-For the cmake file in extensions to find the cmake definitions in
-OOF2, the script will need to know the oof2 source directory location.
-
-Install the templates into <prefix>/share/oof2/templates.
-
-oof2_extension_setup will create files in its current directory and
-copy files from the share directory.
-
-Files in <prefix>/share/oof2/templates:
-   CMakeLists.txt
-   CMakeLists_subdir.txt
-   README
-   template-name/     [for each template]
-       template-name.C
-       template-name.h
-       template-name.swg
-       template-name.spy
-
-In the directory where oof2_extension_setup is run, create:
-  module/
-     README 
-     CMakeLists.txt
-     oofbuildtools.cmake
-     source/
-        CMakeLists.txt   (from CMakeLists_subdir.txt)
-        module.C
-        module.h
-        module.swg
-        module.spy
-     build/
-
-oofbuildtools.cmake needs to be copied because if oof2 was installed
-by a package manager, the oof2 source directory might not be present
-or accessible.  That means that all of the oof2 header files need to
-be installed too.
-
-DON'T overwrite files in module if they already exist, because that
-would overwrite the user's edits, unless --force is given.
-
 Without --force, if the module already exists, don't do anything.  If
 the top CMakeLists.txt and/or README exist but the module doesn't,
 don't replace them, but do install the module.
 
-Can the new CMakeLists.txt files reuse things from the oof2
-CMakeLists.txt?
+Create basic templates for creating all the different kinds of
+properties, not just the nonlinear/nonconstant ones we have now.
+Ie, sources, K, C, M moduli.
 

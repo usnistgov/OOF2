@@ -11,7 +11,7 @@ target_sources(oof2engine
   nonlinear_heat_conductivity.C
   nonlinear_heat_conductivity.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   nonlinear_heat_conductivity
   LIBRARIES
