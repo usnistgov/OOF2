@@ -202,6 +202,24 @@ _startupmenu.addItem(OOFMenuItem(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loadscript.xml'),
     ))
 
+def loadmodule(menuitem, module):
+    if module is not None:
+        exec(f"import {module}")
+
+_loadmenu.addItem(OOFMenuItem(
+    'Module',
+    callback=loadmodule,
+    params=[parameter.StringParameter("module",
+                                      tip="The name of a Python module")],
+    ellipsis=1,
+    help="Load a Python module.",
+    discussion="""<para>
+    Load a Python module, such as an OOF extension module.  The module
+    must be located within the Python search path.  The search path
+    can be adjusted by setting the <varname>PYTHONPATH</varname>
+    environment variable.
+    </para>"""))
+
 # "Data" files are distinguished from scripts in that they're not read
 # by the Python interpreter directly, and therefore can't contain
 # arbitrary Python code.  They can only contain menu commands from the

@@ -278,7 +278,7 @@ def process_inline_options():
             no_rc = True
             remove_option(opt[0])
         elif opt[0] in ('--pathdir',):
-            sys.path.append(opt[1])
+            sys.path.append(os.path.expanduser(opt[1]))
             remove_option(opt[0], opt[1])
         elif opt[0] in ('--quiet',):
             quiet_mode = True
@@ -387,6 +387,7 @@ def front_end(no_interp=None):
         crandom.rndmseed(randomseed)
 
     for module in startupimports:
+        debug.fmsg(f"{sys.path}")
         exec('import ' + module)
 
     if not (runtimeflags.text_mode or config.no_gui()):
@@ -539,6 +540,7 @@ class StartUpRerecord(StartUpFile):
 def loadStartUpFiles(files):
     # Files is a list of StartUpFile-like objects
     for phile in files:
+        debug.fmsg(f"{phile=}")
         phile.load()
 
 ###########################        

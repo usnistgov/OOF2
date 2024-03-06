@@ -34,6 +34,15 @@ OOF2 2.3.3
 * Fixed a bug that was garbling the Mesh Info toolbox's list of field
   values at a node when the set of defined fields changed.
 
+* Added OOF.File.Load.Module, to load python modules.
+
+* Brought the extension machinery for adding Properties up to date.
+  If OOF2 is built with OOF2_DEV_INSTALL=ON, template Properties will
+  be installed into <prefix>/share/oof2/templates, and
+  oof2-extension-setup, a tool for instantiating the templates, will
+  be installed into <prefix>/bin.  See the README file in
+  OOF2/EXTENSION_TEMPLATES or <prefix>/share/oof2/templates.
+
 OOF2 2.3.2
 
 * Eliminated some opportunities for roundoff error in Rationalize that

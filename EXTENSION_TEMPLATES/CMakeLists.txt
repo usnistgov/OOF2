@@ -25,6 +25,7 @@ include("%OOF2PREFIX%/share/oof2/templates/oofbuildtools.cmake")
 
 find_library(OOF2COMMON oof2common %OOF2PREFIX%/lib)
 find_library(OOF2ENGINE oof2engine %OOF2PREFIX%/lib)
+mark_as_advanced(OOF2COMMON OOF2ENGINE)
 
 install(
   FILES
