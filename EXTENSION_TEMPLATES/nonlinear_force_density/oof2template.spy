@@ -1,9 +1,4 @@
 # -*- python -*-
-# $RCSfile: nonlinear_force_density_example.spy,v $
-# $Revision: 1.4 $
-# $Author: langer $
-# $Date: 2011-02-17 22:44:31 $
-
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
@@ -20,16 +15,17 @@ from ooflib.engine import propertyregistration
 ## Nonlinear Force Density Example
 
 reg = propertyregistration.PropertyRegistration(
-    'Mechanical:ForceDensity:%CLASS%',
-    %CLASS%,
-    "%MODULENAME%_SWIG.%MODULENAME%",
-    %SEQNO%,
-    [parameter.FloatParameter('parameter1', 3.0, tip="First parameter."),
-     parameter.FloatParameter('parameter2', 1.0, tip="Second parameter.")],
+    name='Mechanical:ForceDensity:%CLASS%',
+    subclass=%CLASS%,
+    ordering=%SEQNO%,
+    params=[parameter.FloatParameter('parameter1', 3.0, tip="First parameter."),
+            parameter.FloatParameter('parameter2', 1.0, tip="Second parameter.")
+            ],
     propertyType="ForceDensity",
     tip="User-defined nonlinear force density."
     )
 
-reg.eqnInfo( equations=[problem.ForceBalanceEquation],
-             time_dependent=False,
-             nonlinear=True)
+reg.eqnInfo(
+    equations=[problem.ForceBalanceEquation],
+    time_dependent=False,
+    nonlinear=True)

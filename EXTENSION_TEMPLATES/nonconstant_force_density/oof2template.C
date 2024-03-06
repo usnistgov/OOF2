@@ -1,9 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: nonconstant_force_density_example.C,v $
-// $Revision: 1.6 $
-// $Author: langer $
-// $Date: 2011-02-17 22:44:12 $
-
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
@@ -11,10 +6,8 @@
  * with its operation, modification and maintenance. However, to
  * facilitate maintenance we ask that before distributing modified
  * versions of this software, you first contact the authors at
- * oof_manager@ctcms.nist.gov.
+ * oof_manager@nist.gov.
  */
-
-
 
 // This file contains the functions that are called by the nonconstant
 // force density property.

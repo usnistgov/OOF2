@@ -1,9 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: nonlinear_heat_conductivity_example.swg,v $
-// $Revision: 1.5 $
-// $Author: langer $
-// $Date: 2011-02-18 19:32:26 $
-
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
@@ -14,8 +9,8 @@
  * oof_manager@nist.gov.
  */
 
-#ifndef %HEADER%_SWG
-#define %HEADER%_SWG
+#ifndef %MODULENAME%_SWG
+#define %MODULENAME%_SWG
 
 %module %MODULENAME%
 
@@ -24,15 +19,14 @@
 %}
 
 %include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
-%extern "engine/property/heatconductivity/nonlinear/nonlinear_heat_conductivity.swg"
-%pragma(python) code="from ooflib.SWIG.engine.property.heatconductivity.nonlinear.nonlinear_heat_conductivity import NonlinearHeatConductivityPtr"
-%pragma(python) include="%MODULENAME%.spy"
-
+%import "engine/property.swg"
+%import "engine/properties/heatconductivity/nonlinear/nonlinear_heat_conductivity.swg"
 
 class %CLASS% : public NonlinearHeatConductivity {
 public:
   %CLASS%(PyObject *reg, char *name, double param1, double param2);
 };
 
-#endif 
+%pythoncode "%MODULENAME%.spy"
+
+#endif	// %MODULENAME%_SWG

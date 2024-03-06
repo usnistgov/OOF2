@@ -14,7 +14,6 @@
 
 #include "engine/properties/elasticity/nonlinear/general_nonlinear_elasticity.h"
 #include <string>
-#include <vector>
 
 class DoubleVec;
 class SmallMatrix;
@@ -29,9 +28,12 @@ private:
 public:
   %CLASS%(PyObject *registry, const std::string &name,
 	 double param1, double param2)
-    : GeneralNonlinearElasticity( registry, name ),
-      parameter1(param1), parameter2(param2) {};
-  virtual ~%CLASS%() {};
+    : GeneralNonlinearElasticity(registry, name),
+      parameter1(param1),
+      parameter2(param2)
+    {}
+  
+  virtual ~%CLASS%() {}
 
 protected:
 

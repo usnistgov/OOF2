@@ -28,4 +28,5 @@ reg.fluxInfo(
     fluxes=[problem.Stress],
     fields=[problem.Displacement],
     time_derivs=[0],
+    time_dependent = False,
     nonlinear=True)

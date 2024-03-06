@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: nonlinear_heat_source_example.C,v $
-// $Revision: 1.5 $
-// $Author: langer $
-// $Date: 2011-02-17 22:44:47 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
@@ -12,8 +8,6 @@
  * versions of this software, you first contact the authors at
  * oof_manager@nist.gov.
  */
-
-
 
 // The user can change the functions given below and specify other
 // functional forms to define other nonlinear heat sources.
@@ -84,7 +78,7 @@ double %CLASS%::nonlin_heat_source(
   double c1 = parameter1;
   double c2 = parameter2;
 
-  source_value = c1 * exp( c2*temperature );
+  source_value = c1 * exp(c2*temperature);
 
   // ========  END OF CHANGES =============================================
 
@@ -110,7 +104,7 @@ double %CLASS%::nonlin_heat_source_deriv_wrt_temperature(
   double c1 = parameter1;
   double c2 = parameter2;
 
-  source_deriv_value = c1*c2 * exp( c2*temperature );
+  source_deriv_value = c1*c2 * exp(c2*temperature);
 
 
   // ========  END OF CHANGES =============================================

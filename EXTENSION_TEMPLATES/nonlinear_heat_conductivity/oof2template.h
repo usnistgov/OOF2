@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: nonlinear_heat_conductivity_example.h,v $
-// $Revision: 1.8 $
-// $Author: langer $
-// $Date: 2011-02-18 19:45:12 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
@@ -17,7 +13,7 @@
 #define %HEADER%
 
 
-#include "engine/property/heatconductivity/nonlinear/nonlinear_heat_conductivity.h"
+#include "engine/properties/heatconductivity/nonlinear/nonlinear_heat_conductivity.h"
 #include <string>
 #include <vector>
 
@@ -32,9 +28,10 @@ private:
 
 public:
   %CLASS%(PyObject *registry, const std::string &name,
-				   double param1, double param2)
+	  double param1, double param2)
     : NonlinearHeatConductivity( registry, name ),
-      parameter1( param1 ), parameter2( param2 )
+      parameter1(param1),
+      parameter2(param2)
   {}
   
   virtual ~%CLASS%() {}

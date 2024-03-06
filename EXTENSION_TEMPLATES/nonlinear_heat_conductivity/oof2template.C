@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: nonlinear_heat_conductivity_example.C,v $
-// $Revision: 1.8 $
-// $Author: langer $
-// $Date: 2011-02-18 19:45:12 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
@@ -12,8 +8,6 @@
  * versions of this software, you first contact the authors at
  * oof_manager@nist.gov.
  */
-
-
 
 // This file contains the functions that are called by the following
 // material properties nonlinear heat flux property,
@@ -146,7 +140,7 @@
 #include <oofconfig.h>
 #include <math.h>
 #include "%MODULENAME%.h"
-#include "engine/smallmatrix.h"
+#include "common/smallmatrix.h"
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -167,8 +161,8 @@ void %CLASS%::nonlin_heat_flux(double x, double y, double z,
 
   // double c1 = parameter1, c2 = parameter2; // user-input problem parameters
 
-  heat_flux[0] = -atan( temperature_gradient[0] );
-  heat_flux[1] = -atan( temperature_gradient[1] );
+  heat_flux[0] = -atan(temperature_gradient[0]);
+  heat_flux[1] = -atan(temperature_gradient[1]);
   heat_flux[2] =  0.0;
 
   // ========  END OF CHANGES =============================================
@@ -211,12 +205,12 @@ void %CLASS%::nonlin_heat_flux_deriv_wrt_temperature_gradient(
 {
   // ========  CHANGE THESE LINES FOR OTHER NONLINEAR HEAT FLUX DERIVATIVES
 
-  heat_flux_deriv(0,0) = -1.0 / (1.0 + pow( temperature_gradient[0], 2.0 ));
+  heat_flux_deriv(0,0) = -1.0 / (1.0 + pow(temperature_gradient[0], 2.0));
   heat_flux_deriv(0,1) =  0.0;
   heat_flux_deriv(0,2) =  0.0;
 
   heat_flux_deriv(1,0) =  0.0;
-  heat_flux_deriv(1,1) = -1.0 / (1.0 + pow( temperature_gradient[1], 2.0 ));
+  heat_flux_deriv(1,1) = -1.0 / (1.0 + pow(temperature_gradient[1], 2.0));
   heat_flux_deriv(1,2) =  0.0;
 
   heat_flux_deriv(2,0) =  0.0;

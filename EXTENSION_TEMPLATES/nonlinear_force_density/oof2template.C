@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: nonlinear_force_density_example.C,v $
-// $Revision: 1.6 $
-// $Author: langer $
-// $Date: 2011-02-17 22:44:30 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
@@ -12,8 +8,6 @@
  * versions of this software, you first contact the authors at
  * oof_manager@nist.gov.
  */
-
-
 
 // This file contains the functions that are called by the nonlinear
 // force density property.
@@ -120,7 +114,7 @@
 #include <oofconfig.h>
 #include <math.h>
 #include "%MODULENAME%.h"
-#include "engine/smallmatrix.h"
+#include "common/smallmatrix.h"
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -147,11 +141,11 @@ void %CLASS%::nonlin_force_density(
   uex0 = sin(m0*pi*x) * sin(n0*pi*y);
   uex1 = sin(m1*pi*x) * sin(n1*pi*y);
 
-  f0 = (m0*m0 + n0*n0)*pi*pi * uex0 - uex0 + coefficient * pow( uex0, exponent );
-  f1 = (m1*m1 + n1*n1)*pi*pi * uex1 - uex1 + coefficient * pow( uex1, exponent );
+  f0 = (m0*m0 + n0*n0)*pi*pi*uex0 - uex0 + coefficient*pow(uex0, exponent);
+  f1 = (m1*m1 + n1*n1)*pi*pi*uex1 - uex1 + coefficient*pow(uex1, exponent);
 
-  result[0] = displacement[0] - coefficient * pow( displacement[0], exponent ) + f0;
-  result[1] = displacement[1] - coefficient * pow( displacement[1], exponent ) + f1;
+  result[0] = displacement[0] - coefficient*pow(displacement[0], exponent) + f0;
+  result[1] = displacement[1] - coefficient*pow(displacement[1], exponent) + f1;
   result[2] = 0.0;
 
   // ========  END OF CHANGES ==============================================
@@ -177,12 +171,12 @@ void %CLASS%::nonlin_force_density_deriv(
   double exponent = parameter1;
   double coefficient = parameter2;
 
-  result(0,0) = 1.0 - coefficient * exponent * pow( displacement[0], exponent-1.0 );
+  result(0,0) = 1.0 - coefficient*exponent * pow(displacement[0], exponent-1.0);
   result(0,1) = 0.0;
   result(0,2) = 0.0;
 
   result(1,0) = 0.0;
-  result(1,1) = 1.0 - coefficient * exponent * pow( displacement[1], exponent-1.0 );
+  result(1,1) = 1.0 - coefficient*exponent*pow(displacement[1], exponent-1.0);
   result(1,2) = 0.0;
 
   result(2,0) = result(2,1) = result(2,2) = 0.0;
