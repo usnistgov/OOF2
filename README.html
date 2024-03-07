@@ -1,4 +1,4 @@
-<p>This is the README file for OOF2, version 2.3.1 or later.</p>
+<p>This is the README file for OOF2, version 2.3.3 or later.</p>
 <h1 id="what-is-oof2">What is OOF2?</h1>
 <p><a href="http://www.ctcms.nist.gov/oof/">OOF2</a> is designed to help
 materials scientists calculate macroscopic properties from images of
@@ -37,18 +37,18 @@ the header files (“includes”) associated with these programs and
 libraries. These are usually available as part of a “development”
 version of the library software.</p>
 <ul>
-<li><a href="/cgi-bin/redirect.py?url=http://www.python.org">Python 3 (3.8 or later)</a></li>
+<li><a href="http://www.python.org">Python 3 (3.8 or later)</a></li>
 <li>[Swig (4.0 or 4.1)] (https://www.swig.org)</li>
-<li><a href="/cgi-bin/redirect.py?url=http://www.imagemagick.org/Magick++/index.html">Magick++
+<li><a href="http://www.imagemagick.org/Magick++/index.html">Magick++
 (6.x, but not 7.x)</a></li>
-<li><a href="/cgi-bin/redirect.py?url=http://www.gtk.org/download/">gtk3 (3.22 or later)</a></li>
-<li><a href="/cgi-bin/redirect.py?url=https://pypi.org/project/PyGObject/">pygobject (3.28 or
+<li><a href="http://www.gtk.org/download/">gtk3 (3.22 or later)</a></li>
+<li><a href="https://pypi.org/project/PyGObject/">pygobject (3.28 or
 later)</a></li>
-<li><a href="/cgi-bin/redirect.py?url=https://www.cairographics.org/cairomm/">cairomm (1.12 or
+<li><a href="https://www.cairographics.org/cairomm/">cairomm (1.12 or
 later)</a></li>
-<li><a href="/cgi-bin/redirect.py?url=https://pango.gnome.org/">pango (1.40 or later)</a></li>
+<li><a href="https://pango.gnome.org/">pango (1.40 or later)</a></li>
 <li><a
-href="/cgi-bin/redirect.py?url=https://gnome.pages.gitlab.gnome.org/pango/PangoCairo/">pangocairo
+href="https://gnome.pages.gitlab.gnome.org/pango/PangoCairo/">pangocairo
 (1.40 or later)</a></li>
 <li><a href="http://www.ctcms.nist.gov/oof/oofcanvas">OOFCanvas (1.1 or
 later)</a></li>
@@ -115,12 +115,12 @@ setting environment variables depends on what shell you’re using.)</p>
 % cd build</code></pre>
 <p>If you want to use the default settings, run <code>cmake</code>,
 pointing it to the unpacked source directory:</p>
-<pre><code>% cmake ../oof2-2.3.0</code></pre>
+<pre><code>% cmake ../oof2-2.3.3</code></pre>
 <p>but beware that this will cause OOF2 to be installed in a system
 directory like <code>/usr</code> or <code>/usr/local</code>, where you
 might not have permission to create files. It’s better to use
 <code>ccmake</code>, which will let you edit settings:</p>
-<pre><code>% ccmake ../oof2-2.3.0</code></pre>
+<pre><code>% ccmake ../oof2-2.3.3</code></pre>
 <p>See https://cmake.org/cmake/help/latest/manual/ccmake.1.html for full
 instructions on how to use ccmake. At a minimum</p>
 <ul>
@@ -137,6 +137,9 @@ into an Anaconda environment named <code>OOF2</code>, set
 python3 that you have installed, and <code>OOF2_SWIG_VERSION</code> to
 the version of swig4. Use the same values you used when installing
 OOFCanvas.</li>
+<li>If you are going to build OOF2 extension modules, set
+<code>OOF2_DEV_INSTALL</code> to <code>ON</code>. This will install the
+C++ headers and other useful files.</li>
 <li>Type <code>c</code> to update the configuration.</li>
 <li>Type <code>g</code> to generate the build scripts and exit.</li>
 <li>If <code>g</code> wassn’t an option at the bottom of the screen in
@@ -168,6 +171,12 @@ in <code>&lt;prefix&gt;/bin</code>, a bunch of shared libraries called
 <code>&lt;prefix&gt;/lib/python3.x/site-packages</code> (where 3.x is
 your python version number), and some example files in
 <code>&lt;prefix&gt;/share/oof2/examples</code>.</p>
+<p>In addition, if <code>OOF2_DEV_INSTALL</code> was set,
+<code>oof2-extension-setup</code> will be installed in
+<code>&lt;prefix&gt;/bin</code>, the OOF2 C++ headers and swig files
+will be installed in <code>&lt;prefix&gt;/include/oof2</code>, and
+templates used by <code>oof2-extension-setup</code> will be installed in
+<code>&lt;prefix&gt;/share/oof2/templates</code>.</p>
 <h3 id="set-environment-variables">6. Set environment variables</h3>
 <p>If <code>&lt;prefix&gt;/bin</code> is not in your Unix command path,
 you’ll need to add it to the <code>PATH</code> environment variable, or
@@ -195,12 +204,11 @@ it’s best to just sit back and watch it run.</p>
 <code>&lt;prefix&gt;/lib/python3.x/site-packages/oof2/TEST/GUI</code>.
 Each of those directories has a <code>README</code> file that may be
 helpful.</p>
-<p>In version 2.3.0 there is something wrong with the GUI testing
+<p>In version 2.3.x there is something wrong with the GUI testing
 apparatus that makes a few of the tests fail erratically. If
-<code>oof2-guitest</code> fails, note the name of the failed test and
-restart the test with
-<code>oof2-guitest --from &lt;name of failed test&gt;</code>. You may
-have to do this more than once.</p>
+<code>oof2-guitest</code> fails, you can tell it to keep trying the
+tests (within reason) until they work, with</p>
+<pre><code>% oof2-guitest --retries=20</code></pre>
 <h2 id="uninstalling-oof2">Uninstalling OOF2</h2>
 <p>Go to the build directory and run <code>make uninstall</code>. This
 deletes all the installed files but unfortunately leaves empty

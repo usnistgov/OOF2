@@ -1,4 +1,4 @@
-This is the README file for OOF2, version 2.3.0 or later.
+This is the README file for OOF2, version 2.3.3 or later.
 
 # What is OOF2?
 
@@ -80,7 +80,7 @@ Detailed instructions for installing the OOF2 prerequisites on a number
 of different operating systems can be found on the [OOF2 Prerequisites
 page](http://www.ctcms.nist.gov/oof/oof2/prerequisites.html).
 
-## Detailed Installation Procedure
+## Installing OOF2
 
 Commands in the following steps should be typed into a terminal window,
 after you have installed all the OOF2 prerequisites. In the commands
@@ -122,11 +122,11 @@ in a spot where `pkg-config` can find it. Test it by running the command
 
     % pkg-config --modversion oofcanvas
 
-If it reports a version number, nothing needs to be done. If it says it
-can't find oofcanvas, set the environment variable `PKG_CONFIG_PATH` to
-the location of `oofcanvas.pc`. For example, if OOFCanvas was installed
-into your home directory, the file will be in `~/lib/pgkconfig`, and
-after you run
+If `pkg-config` reports the correct OOFCanvas version number, nothing
+needs to be done. If it says it can't find oofcanvas, set the
+environment variable `PKG_CONFIG_PATH` to the location of
+`oofcanvas.pc`. For example, if OOFCanvas was installed into your home
+directory, the file will be in `~/lib/pgkconfig`, and after you run
 
     % export PKG_CONFIG_PATH=~/lib/pkgconfig
 
@@ -143,14 +143,14 @@ Create a build directory.
 If you want to use the default settings, run `cmake`, pointing it to the
 unpacked source directory:
 
-    % cmake ../oof2-2.3.0
+    % cmake ../oof2-2.3.3
 
 but beware that this will cause OOF2 to be installed in a system
 directory like `/usr` or `/usr/local`, where you might not have
 permission to create files. It's better to use `ccmake`, which will let
 you edit settings:
 
-    % ccmake ../oof2-2.3.0
+    % ccmake ../oof2-2.3.3
 
 See https://cmake.org/cmake/help/latest/manual/ccmake.1.html for full
 instructions on how to use ccmake. At a minimum
@@ -162,11 +162,18 @@ instructions on how to use ccmake. At a minimum
     prefix to a directory where you can write files, such as your home
     directory. If you're installing into an Anaconda environment named
     `OOF2`, set `CMAKE_INSTALL_PREFIX` to `~/Anaconda3/envs/OOF2`.
--   Similarly, change `DESIRED_PYTHON_VERSION` to the version of python3
-    that you have installed, and `DESIRED_SWIG_VERSION` to the version
-    of swig4. Use the same values you used when installing OOFCanvas.
+-   Similarly, change `OOF2_PYTHON_VERSION` to the version of python3
+    that you have installed, and `OOF2_SWIG_VERSION` to the version of
+    swig4. Use the same values you used when installing OOFCanvas.
+-   If you are going to build OOF2 extension modules, set
+    `OOF2_DEV_INSTALL` to `ON`. This will install the C++ headers and
+    other useful files.
 -   Type `c` to update the configuration.
 -   Type `g` to generate the build scripts and exit.
+-   If `g` wassn't an option at the bottom of the screen in the previous
+    step and ccmake didn't exit, the previous `c` probably added new
+    variables. Check their values and type `c` again until the `g`
+    appears, then type `g`.
 
 ### 6. Build and install
 
@@ -196,6 +203,12 @@ libraries called `liboof2*.so` or `liboof2*.dylib` in `<prefix>/lib`, a
 directory called `oof2` in `<prefix>/lib/python3.x/site-packages` (where
 3.x is your python version number), and some example files in
 `<prefix>/share/oof2/examples`.
+
+In addition, if `OOF2_DEV_INSTALL` was set, `oof2-extension-setup` will
+be installed in `<prefix>/bin`, the OOF2 C++ headers and swig files will
+be installed in `<prefix>/include/oof2`, and templates used by
+`oof2-extension-setup` will be installed in
+`<prefix>/share/oof2/templates`.
 
 ### 6. Set environment variables
 
@@ -228,11 +241,12 @@ The test files are installed into
 `<prefix>/lib/python3.x/site-packages/oof2/TEST/GUI`. Each of those
 directories has a `README` file that may be helpful.
 
-In version 2.3.0 there is something wrong with the GUI testing apparatus
+In version 2.3.x there is something wrong with the GUI testing apparatus
 that makes a few of the tests fail erratically. If `oof2-guitest` fails,
-note the name of the failed test and restart the test with
-`oof2-guitest --from <name of failed test>`. You may have to do this
-more than once.
+you can tell it to keep trying the tests (within reason) until they
+work, with
+
+    % oof2-guitest --retries=20
 
 ## Uninstalling OOF2
 
@@ -249,8 +263,8 @@ If you get a message like `oof2: command not found`, try opening a new
 terminal window -- the old one doesn't know that a new command has been
 added.
 
-OOF2 also has many options, and you can get a summary of them by typing
-`oof2 --help`.
+OOF2 also has many command line options, and you can get a summary of
+them by typing `oof2 --help`.
 
 By default, OOF2 runs in graphics mode, opening a couple of windows to
 get you started. If you don't want this, you can use the `--text` option
@@ -260,19 +274,39 @@ Be sure to read the [OOF
 manual](http://www.ctcms.nist.gov/~langer/oof2man/) and to go through
 the tutorials provided in the OOF2 Help menu.
 
-# Contact Us
+# Reporting Bugs
 
 If you encounter bugs in the program, please send e-mail to
-`oof_bugs@nist.gov`. Tell us what version of OOF2 you're using, what
-operating system you're using, and *exactly* what you did to encounter
-the error. It is helpful to include an OOF2 script (which you can save
-with the "File/Save/Python Log" menu item) and a copy of any input files
-(images, oof data files, etc) required to run the script. It is
-extremely difficult for us to fix a bug if we can't reproduce it
-ourselves.
+<oof_bugs@nist.gov>. Include as much information as possible -- it is
+extremely difficult for us to fix a bug if we can't reproduce it. In
+particular, include
+
+-   What version of OOF2 you're using. Starting OOF with the `-version`
+    flag will print the version number.
+
+-   What type of computer and what operating system you're using.
+
+-   A complete description of the problem: what happened and what did
+    you do to make it happen?
+
+-   If possible, an OOF2 script that reproduces the problem. A script
+    can be saved from the `File/Save/Python Log` menu item in the main
+    OOF2 window, or the `Save` button in the `Quit` dialog box.
+
+    If OOF2 crashes before you get a chance to save a script, a script
+    will be saved automatically in the your operating system's temp
+    directory, which is probably named `tmp`. Look for a file named
+    `oof2-abcdef.py` where `abcdef` is a random string of characters.
+    You can change the location of the temp directory by setting the
+    `OOFTMP` environment variable.
+
+-   Be sure to include any files that the script requires, such as
+    images or other scripts that it loads.
+
+# Contact Us
 
 Other communications, including requests for help and suggestions for
-new features, can be sent to oof_manager@nist.gov.
+new features, can be sent to <oof_manager@nist.gov>.
 
 # Disclaimer {#disclaimerlink}
 
