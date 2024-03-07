@@ -29,13 +29,13 @@
 
 # This loads all modules if --autoload has been specified.
 
-from ooflib.common import autoload
+from ooflib.common import runtimeflags
 import sys
 import os.path
 
 extmodname = 'ooflib.EXTENSIONS'
 
-if autoload.autoload:
+if runtimeflags.autoload:
     extensionsmodule = sys.modules[extmodname]
     extensionsdir = extensionsmodule.__path__[0]
     files = os.listdir(extensionsdir)

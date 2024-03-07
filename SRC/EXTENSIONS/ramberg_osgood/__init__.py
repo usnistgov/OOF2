@@ -8,9 +8,4 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-# This is just a parking space for the autoload flag, which is set in
-# oof.py and used by EXTENSIONS/initialize.py.  If the flag is true,
-# then extensions modules in EXTENSIONS are loaded automatically at
-# start-up time.
-
-autoload = False
+import ooflib.SWIG.EXTENSIONS.ramberg_osgood.ramberg_osgood

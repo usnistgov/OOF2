@@ -42,7 +42,6 @@ from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import oofversion
-from ooflib.common import autoload
 from ooflib.common import mainthread
 from ooflib.common import oof_getopt as getopt
 from ooflib.common import parallel_enable
@@ -295,7 +294,7 @@ def process_inline_options():
             runtimeflags.surface_mode = True
             remove_option(opt[0])
         elif opt[0] in ('--autoload',):
-            autoload.autoload = True
+            runtimeflags.autoload = True
             remove_option(opt[0])
         elif opt[0] == '--seed':
             randomseed = int(opt[1])

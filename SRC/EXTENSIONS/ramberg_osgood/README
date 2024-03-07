@@ -10,7 +10,10 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
+
+TODO: Update this file.  Update the rest of the ramberg-osgood code
+for cmake.
 
 
 

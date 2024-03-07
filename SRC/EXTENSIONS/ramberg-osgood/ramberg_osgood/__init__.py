@@ -1,1 +1,0 @@
-import ramberg_osgood_SWIG.ramberg_osgood
