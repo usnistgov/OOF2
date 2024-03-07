@@ -1,4 +1,4 @@
-This is the README file for OOF2, version 2.3.1 or later.
+This is the README file for OOF2, version 2.3.3 or later.
 
 # What is OOF2?
 
@@ -148,14 +148,14 @@ Create a build directory.
 If you want to use the default settings, run `cmake`, pointing it to
 the unpacked source directory:
 
-    % cmake ../oof2-2.3.0
+    % cmake ../oof2-2.3.3
     
 but beware that this will cause OOF2 to be installed in a system
 directory like `/usr` or `/usr/local`, where you might not have
 permission to create files.  It's better to use `ccmake`, which will
 let you edit settings:
 
-    % ccmake ../oof2-2.3.0
+    % ccmake ../oof2-2.3.3
     
 See https://cmake.org/cmake/help/latest/manual/ccmake.1.html for
 full instructions on how to use ccmake.  At a minimum
@@ -170,6 +170,9 @@ full instructions on how to use ccmake.  At a minimum
 - Similarly, change `OOF2_PYTHON_VERSION` to the version of python3
   that you have installed, and `OOF2_SWIG_VERSION` to the version
   of swig4.  Use the same values you used when installing OOFCanvas.
+- If you are going to build OOF2 extension modules, set
+  `OOF2_DEV_INSTALL` to `ON`.  This will install the C++ headers and
+  other useful files.
 - Type `c` to update the configuration.
 - Type `g` to generate the build scripts and exit.
 - If `g` wassn't an option at the bottom of the screen in the previous
@@ -207,6 +210,12 @@ shared libraries called `liboof2*.so` or `liboof2*.dylib` in
 version number), and some example files in
 `<prefix>/share/oof2/examples`.
 
+In addition, if `OOF2_DEV_INSTALL` was set, `oof2-extension-setup`
+will be installed in `<prefix>/bin`, the OOF2 C++ headers and swig
+files will be installed in `<prefix>/include/oof2`, and templates used
+by `oof2-extension-setup` will be installed in
+`<prefix>/share/oof2/templates`.
+
 ### 6. Set environment variables
 
 If `<prefix>/bin` is not in your Unix command path, you'll need to add
@@ -238,11 +247,12 @@ The test files are installed into
 `<prefix>/lib/python3.x/site-packages/oof2/TEST/GUI`.  Each of those
 directories has a `README` file that may be helpful.
 
-In version 2.3.0 there is something wrong with the GUI testing
+In version 2.3.x there is something wrong with the GUI testing
 apparatus that makes a few of the tests fail erratically.  If
-`oof2-guitest` fails, note the name of the failed test and restart the
-test with `oof2-guitest --from <name of failed test>`.  You may have
-to do this more than once.
+`oof2-guitest` fails, you can tell it to keep trying the tests (within
+reason) until they work, with
+
+    % oof2-guitest --retries=20
 
 ## Uninstalling OOF2
 

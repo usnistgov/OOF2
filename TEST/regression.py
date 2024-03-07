@@ -104,15 +104,17 @@ def run_modules(test_module_names, oofglobals, backwards):
     return True
 
 def printhelp():
-    print("Usage : %s [options] [test names]" % os.path.split(sys.argv[0])[1], file=sys.stderr)
-    print("""Options are:
+    print(f"""
+    Usage : {os.path.split(sys.argv[0])[1]} [options] [test names]
+
+Options are:
    --list             List test names in order, but don't run any of them.
-   --from=  testname  Start with the given test.
-   --after= testname  Start after the given test.
-   --to=    testname  Stop at the given test.
+   --from   testname  Start with the given test.
+   --after  testname  Start after the given test.
+   --to     testname  Stop at the given test.
    --forever          Repeat tests until they fail.
    --backwards        Run tests in reverse order.
-   --oofargs=args     Pass arguments to oof2.
+   --oofargs args     Pass arguments to oof2.
    --debug            Run oof2 in debug mode.
    --help             Print this message.
 The options --from, --after, and --to cannot be used if test names are 

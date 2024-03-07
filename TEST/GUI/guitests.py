@@ -251,24 +251,24 @@ def linkfile(homedir, filename):
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def printhelp():
-    print("""
-Usage:  python guitests.py [options] [test directories]
+    print(f"""
+Usage:  {os.path.split(sys.argv[0])[1]} [options] [test names]
 
 Options are:
-   --list       List test names in order, but don't run any of them.
-   --from=dir   Start tests at directory dir.
-   --after=dir  Start tests at the first one following dir.
-   --to=dir     End tests at directory dir.
-   --delay=ms   Specify delay (in milliseconds) between lines of each test.
-   --debug      Run tests in debug mode.
-   --unthreaded Run tests in unthreaded mode.
-   --sync       Run tests in X11 sync mode (very slow over a network!).
-   --rerecord   Re-record log files, and ignore 'assert' statements in them.
-                This is useful if new checkpoints have been added.
-   --no-checkpoints Ignore checkpoints in log files (not very useful).
-   --forever    Repeat tests until they fail.
-   --retries=n  Repeat failed tests at most this many times (default=0)
-   --help       Print this message.
+   --list             List test names in order, but don't run any of them.
+   --from   testname  Start with the given test.
+   --after  testname  Start after the given test.
+   --to     testname  Stop at the given test.
+   --retries n        Repeat failed tests at most this many times (default=0)
+   --forever          Repeat tests until they fail.
+   --delay  ms        Delay (in milliseconds) between lines of each test.
+   --debug            Run tests in debug mode.
+   --unthreaded       Run tests in unthreaded mode.
+   --sync             Run tests in X11 sync mode (very slow over a network!).
+   --rerecord         Re-record log files, without actually testing.
+                      This is useful if new checkpoints have been added.
+   --no-checkpoints   Ignore checkpoints in log files (not very useful).
+   --help             Print this message.
 """, file=sys.stderr)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
