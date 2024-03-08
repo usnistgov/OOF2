@@ -7,13 +7,8 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// Lines modified for OOF are marked commented with "OOF"
-
 #ifndef EIGEN_CONJUGATE_GRADIENT_H
 #define EIGEN_CONJUGATE_GRADIENT_H
-
-#include "common/progress.h"	      // OOF
-#include "common/tostring.h"
 
 namespace Eigen { 
 
@@ -55,9 +50,8 @@ void conjugate_gradient(const MatrixType& mat, const Rhs& rhs, Dest& x,
     tol_error = 0;
     return;
   }
-  double tol0 = tol_error; 	// OOF
   const RealScalar considerAsZero = (std::numeric_limits<RealScalar>::min)();
-  RealScalar threshold = numext::maxi(tol*tol*rhsNorm2,considerAsZero);
+  RealScalar threshold = numext::maxi(RealScalar(tol*tol*rhsNorm2),considerAsZero);
   RealScalar residualNorm2 = residual.squaredNorm();
   if (residualNorm2 < threshold)
   {
@@ -72,15 +66,7 @@ void conjugate_gradient(const MatrixType& mat, const Rhs& rhs, Dest& x,
   VectorType z(n), tmp(n);
   RealScalar absNew = numext::real(residual.dot(p));  // the square of the absolute value of r scaled by invM
   Index i = 0;
-
-  LogDefiniteProgress *progress =	// OOF
-    dynamic_cast<LogDefiniteProgress*>( // OOF
-		       getProgress("matrix solver", LOGDEFINITE)); // OOF
-  progress->setRange(tol_error, tol0); // OOF
-
-  while(i < maxIters
-	&& !progress->stopped()	// OOF
-	)
+  while(i < maxIters)
   {
     tmp.noalias() = mat * p;                    // the bottleneck of the algorithm
 
@@ -99,16 +85,10 @@ void conjugate_gradient(const MatrixType& mat, const Rhs& rhs, Dest& x,
     RealScalar beta = absNew / absOld;          // calculate the Gram-Schmidt value used to create the new search direction
     p = z + beta * p;                           // update search direction
     i++;
-
-    tol_error = sqrt(residualNorm2/rhsNorm2); // OOF2
-    progress->setFraction(tol_error); // OOF
-    progress->setMessage(tostring(tol_error) +"/" + tostring(tol0)); // OOF
   }
-  progress->finish(); 		// OOF
   tol_error = sqrt(residualNorm2 / rhsNorm2);
   iters = i;
 }
-  
 
 }
 
@@ -215,7 +195,7 @@ public:
 
   /** \internal */
   template<typename Rhs,typename Dest>
-  void _solve_with_guess_impl(const Rhs& b, Dest& x) const
+  void _solve_vector_with_guess_impl(const Rhs& b, Dest& x) const
   {
     typedef typename Base::MatrixWrapper MatrixWrapper;
     typedef typename Base::ActualMatrixType ActualMatrixType;
@@ -231,30 +211,13 @@ public:
                                            RowMajorWrapper,
                                            typename MatrixWrapper::template ConstSelfAdjointViewReturnType<UpLo>::Type
                                           >::type SelfAdjointWrapper;
+
     m_iterations = Base::maxIterations();
     m_error = Base::m_tolerance;
 
-    for(Index j=0; j<b.cols(); ++j)
-    {
-      m_iterations = Base::maxIterations();
-      m_error = Base::m_tolerance;
-
-      typename Dest::ColXpr xj(x,j);
-      RowMajorWrapper row_mat(matrix());
-      internal::conjugate_gradient(SelfAdjointWrapper(row_mat), b.col(j), xj, Base::m_preconditioner, m_iterations, m_error);
-    }
-
-    m_isInitialized = true;
+    RowMajorWrapper row_mat(matrix());
+    internal::conjugate_gradient(SelfAdjointWrapper(row_mat), b, x, Base::m_preconditioner, m_iterations, m_error);
     m_info = m_error <= Base::m_tolerance ? Success : NoConvergence;
-  }
-  
-  /** \internal */
-  using Base::_solve_impl;
-  template<typename Rhs,typename Dest>
-  void _solve_impl(const MatrixBase<Rhs>& b, Dest& x) const
-  {
-    x.setZero();
-    _solve_with_guess_impl(b.derived(),x);
   }
 
 protected:

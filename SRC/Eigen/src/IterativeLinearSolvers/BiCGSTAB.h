@@ -8,13 +8,8 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// Lines modified for OOF are marked commented with "OOF"
-
 #ifndef EIGEN_BICGSTAB_H
 #define EIGEN_BICGSTAB_H
-
-#include "common/progress.h"	// OOF
-#include "common/tostring.h"
 
 namespace Eigen { 
 
@@ -69,14 +64,7 @@ bool bicgstab(const MatrixType& mat, const Rhs& rhs, Dest& x,
   Index i = 0;
   Index restarts = 0;
 
-  LogDefiniteProgress *progress =	// OOF
-    dynamic_cast<LogDefiniteProgress*>( // OOF
-		       getProgress("matrix solver", LOGDEFINITE)); // OOF
-  progress->setRange(sqrt(r.squaredNorm()), tol); // OOF
-
-  while ( r.squaredNorm() > tol2 && i<maxIters
-	  && !progress->stopped() // OOF
-	  )
+  while ( r.squaredNorm() > tol2 && i<maxIters )
   {
     Scalar rho_old = rho;
 
@@ -112,14 +100,8 @@ bool bicgstab(const MatrixType& mat, const Rhs& rhs, Dest& x,
     x += alpha * y + w * z;
     r = s - w * t;
     ++i;
-
-    // remove rhs normalization so that the limit of the progress bar is tol
-    double res = sqrt(r.squaredNorm()/rhs_sqnorm); // OOF
-    progress->setFraction(res);	    // OOF
-    progress->setMessage(tostring(res) + "/" + tostring(tol)); // OOF
   }
-  tol_error = sqrt(r.squaredNorm()/rhs_sqnorm); 
-  progress->finish();		// OOF
+  tol_error = sqrt(r.squaredNorm()/rhs_sqnorm);
   iters = i;
   return true; 
 }
@@ -209,32 +191,16 @@ public:
 
   /** \internal */
   template<typename Rhs,typename Dest>
-  void _solve_with_guess_impl(const Rhs& b, Dest& x) const
+  void _solve_vector_with_guess_impl(const Rhs& b, Dest& x) const
   {    
-    bool failed = false;
-    for(Index j=0; j<b.cols(); ++j)
-    {
-      m_iterations = Base::maxIterations();
-      m_error = Base::m_tolerance;
-      
-      typename Dest::ColXpr xj(x,j);
-      if(!internal::bicgstab(matrix(), b.col(j), xj, Base::m_preconditioner, m_iterations, m_error))
-        failed = true;
-    }
-    m_info = failed ? NumericalIssue
+    m_iterations = Base::maxIterations();
+    m_error = Base::m_tolerance;
+    
+    bool ret = internal::bicgstab(matrix(), b, x, Base::m_preconditioner, m_iterations, m_error);
+
+    m_info = (!ret) ? NumericalIssue
            : m_error <= Base::m_tolerance ? Success
            : NoConvergence;
-    m_isInitialized = true;
-  }
-
-  /** \internal */
-  using Base::_solve_impl;
-  template<typename Rhs,typename Dest>
-  void _solve_impl(const MatrixBase<Rhs>& b, Dest& x) const
-  {
-    x.resize(this->rows(),b.cols());
-    x.setZero();
-    _solve_with_guess_impl(b,x);
   }
 
 protected:
