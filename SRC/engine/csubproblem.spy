@@ -73,6 +73,11 @@ CSubProblem.check_flux = _check_flux
 # equations.  This doesn't have to check equations that may have been
 # implicitly defined at a Node, since they've been put there by a
 # Material Property.
+## TODO: This isn't sufficient.  There needs to be a contribution to
+## the highest derivative (?) term in the equation from all Materials.
+## If solving the heat equation and some material have no thermal
+## conductivity, the matrices will not be square.
+
 def _check_equations(self):
     bad_eqns = []
     for e in self.all_equations():

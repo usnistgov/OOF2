@@ -73,6 +73,7 @@ target_sources(oof2engine
   boundarycond.h
   cconjugate.h
   celectricfield.h
+  cmatrixmethods.h
   cnonlinearsolver.h
   compoundsubproblem.h
   contourcell.h

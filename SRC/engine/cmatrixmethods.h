@@ -22,7 +22,8 @@
 #include "Eigen/OrderingMethods"
 #include "engine/sparsemat.h"
 
-// TODO: Add progress bars for Eigen solvers, somehow.
+// TODO: Progress bars are hacked into Eigen solvers.  Do they work?
+// Search for "OOF" in the Eigen source code to find the hacks.
 
 enum class Precond {Uncond=1, Diag=2, ILUT=3, IC=4};
 
@@ -124,6 +125,11 @@ public:
   }
 
   void compute(const SparseMat& m) {
+    if(m.ncols() != m.nrows()) {
+      std::cerr << "IterativeSolver::compute: rows=" << m.nrows() << " cols="
+		<< m.ncols() << std::endl;
+      throw ErrSetupError("Matrix is not square!");
+    }
     solver_.compute(m.data);
   }
 
@@ -134,6 +140,11 @@ public:
   }
 
   DoubleVec solve(const SparseMat& m, const DoubleVec& rhs) {
+    if(m.ncols() != m.nrows()) {
+      std::cerr << "IterativeSolver::solve: rows=" << m.nrows() << " cols="
+		<< m.ncols() << " r=" << rhs.size() << std::endl;
+      throw ErrSetupError("Matrix is not square!");
+    }
     DoubleVec x;
     solver_.compute(m.data);
     x.data = solver_.solve(rhs.data);
@@ -141,6 +152,11 @@ public:
   }
 
   int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x) {
+    if(m.ncols() != m.nrows()) {
+      std::cerr << "IterativeSolver::solve: rows=" << m.nrows() << " cols="
+		<< m.ncols() << " r=" << rhs.size() << std::endl;
+      throw ErrSetupError("Matrix is not square!");
+    }
     solver_.compute(m.data);
     x.data = solver_.solve(rhs.data);
     return solver_.info();
@@ -188,6 +204,11 @@ public:
   }
 
   void compute(const SparseMat& m) {
+    if(m.nrows() != m.ncols()) {
+      std::cerr << "DirectSolver::compute: nrows=" << m.nrows()
+		<< " ncols=" << m.ncols() << std::endl;
+      throw ErrSetupError("Matrix is not square!");
+    }
     solver_.compute(m.data);
   }
 
@@ -198,6 +219,11 @@ public:
   }
 
   DoubleVec solve(const SparseMat& m, const DoubleVec& rhs) {
+    if(m.nrows() != m.ncols()) {
+      std::cerr << "DirectSolver::solve: nrows=" << m.nrows()
+		<< " ncols=" << m.ncols() << std::endl;
+      throw ErrSetupError("Matrix is not square!");
+    }
     DoubleVec x;
     solver_.compute(m.data);
     x.data = solver_.solve(rhs.data);
@@ -205,6 +231,11 @@ public:
   }
 
   int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x) {
+    if(m.nrows() != m.ncols()) {
+      std::cerr << "DirectSolver::solve: nrows=" << m.nrows()
+		<< " ncols=" << m.ncols() << std::endl;
+      throw ErrSetupError("Matrix is not square!");
+    }
     solver_.compute(m.data);
     x.data = solver_.solve(rhs.data);
     return solver_.info();

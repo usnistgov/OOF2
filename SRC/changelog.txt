@@ -43,6 +43,14 @@ OOF2 2.3.3
   be installed into <prefix>/bin.  See the README file in
   OOF2/EXTENSION_TEMPLATES or <prefix>/share/oof2/templates.
 
+* Upgraded Eigen to version 3.4.0.
+
+* Marginally better error detection.  Some incompletely defined
+  problems aren't detected before attempting to solve them, causing
+  non-square matrices being passed to the solver.  Now the matrix
+  methods detect non-square matrices and raise an exception, which is
+  better than crashing.
+
 OOF2 2.3.2
 
 * Eliminated some opportunities for roundoff error in Rationalize that
