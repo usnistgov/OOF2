@@ -39,6 +39,7 @@ def usage(err):
 Usage:
   {me} --template=<template-dir-name> --module=<new-module-name> \
 --class=<new-class-name> [--sequenceno=<number>] [--force]
+  {me} --list
 
 Short options are -t, -m, -c, -s, and -f, in the same order as above.
 
@@ -74,6 +75,18 @@ def install_file(src, dest, sedcmd, force=False):
             fout.write(ell)
     fout.close()
 
+def listdirs():
+    # List the available templates
+    refbase = os.path.join('@CMAKE_INSTALL_PREFIX@', "share", "oof2",
+                           "templates")
+    dirs = []
+    for entry in os.scandir(refbase):
+        if entry.is_dir():
+            dirs.append(entry.name)
+    dirs.sort()
+    for template in dirs:
+        print(template)
+
 ###############
 
 if __name__ == '__main__':
@@ -86,8 +99,8 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(
             sys.argv[1:],
-            't:f:c:s:f',
-            ["template=","module=","class=","sequenceno=","force"])
+            't:f:c:s:fl',
+            ["template=","module=","class=","sequenceno=","force","list"])
 
     except getopt.GetoptError as err:
         usage(err)
@@ -110,6 +123,9 @@ if __name__ == '__main__':
                 sys.exit(1)
         elif o in ["-f", "--force"]:
             force = True
+        elif o in ["-l", "--list"]:
+            listdirs()
+            sys.exit(0)
         else:
             usage("Unrecognized option '%s'." % o)
             sys.exit(2)

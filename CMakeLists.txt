@@ -411,10 +411,10 @@ if(OOF2_DEV_INSTALL)
     )
 
   # Install the cmake functions (also used in this file) into
-  # share/oof2/templates
+  # share/oof2/tools
   install(
     FILES ${PROJECT_SOURCE_DIR}/oofbuildtools.cmake
-    DESTINATION share/oof2/templates
+    DESTINATION share/oof2/tools
     )
 
 endif()  # OOF2_DEV_INSTALL

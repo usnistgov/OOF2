@@ -21,7 +21,7 @@ project(%MODULENAME% VERSION 0.0.0)
 set(OOF2_PYTHON3_VERSION %PYTHON% CACHE STRING "Use this version of Python")
 set(OOF2_SWIG_VERSION %SWIG% CACHE STRING "Use this version of swig")
 
-include("%OOF2PREFIX%/share/oof2/templates/oofbuildtools.cmake")
+include("%OOF2PREFIX%/share/oof2/tools/oofbuildtools.cmake")
 
 find_library(OOF2COMMON oof2common %OOF2PREFIX%/lib)
 find_library(OOF2ENGINE oof2engine %OOF2PREFIX%/lib)

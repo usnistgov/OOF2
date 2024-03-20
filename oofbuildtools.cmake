@@ -6,9 +6,10 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-# This file contains cmake function definitions and other code that is
-# used when building oof2 but are also used when building extensions.
-# They're in a separate file so that they can be shared easily.
+# This file contains cmake function definitions and other bits of code
+# that are used when building oof2 and also used when building
+# extensions.  They're in a separate file so that they can be shared
+# easily.
 
 
 set(OOF2_SWIG_VERSION 4.1 CACHE STRING "Use this version of swig")
@@ -131,6 +132,9 @@ set(PYLIBPATH
 #        INCLUDE_DIRECTORIES additional dirs for C++ and swig includes
 #        TARGET_SFX suffix to use for the cmake target.  See below
 #  )
+
+## TODO: Can this be made to work with .i suffixes as well as .swg?
+## .i is more standard.
 
 function(swig_sources)
   set(multiValueArgs
