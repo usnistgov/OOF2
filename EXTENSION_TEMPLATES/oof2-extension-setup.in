@@ -99,7 +99,7 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(
             sys.argv[1:],
-            't:f:c:s:fl',
+            't:m:c:s:fl',
             ["template=","module=","class=","sequenceno=","force","list"])
 
     except getopt.GetoptError as err:
