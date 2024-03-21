@@ -201,33 +201,3 @@ if __name__ == '__main__':
                  os.path.join(modulename, "__init__.py"),
                  sedcmd, force)
     
-    # file_list = [os.path.join(refdir,f) for f in os.listdir(refdir)]
-    # # print file_list
-    # for source in file_list:
-    #     targetpath = source.split(os.sep)
-    #     # print "targetpath0=", targetpath
-    #     targetpath[0] = dirname
-    #     # print "targetpath1=", targetpath
-    #     for level, pathcomp in enumerate(targetpath[1:]):
-    #         targetpath[level+1] = pathcomp.replace(templatedir, modulename)
-    #     # print "targetpath2=", targetpath
-    #     sedcmd = sedstart + [source]
-    #     # print "targetpath=", targetpath
-    #     target = os.path.join(*targetpath)
-
-    #     install_file(source, target, sedcmd)
-        
-        # try:
-        #     fout = file(target, "w")
-        # except:
-        #     print("Unable to open target file %s" % target, file=sys.stderr)
-        #     print("Exiting.", file=sys.stderr)
-        #     sys.exit(4)
-        # print("Copying", source, "to", target)
-        # p1 = subprocess.Popen(sedcmd, stdout=subprocess.PIPE)
-        # for ell in p1.communicate():
-        #     if ell is not None:
-        #         fout.write(ell)
-        # fout.close()
-        # # else:
-        # #     print "Not copying", source

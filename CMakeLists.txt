@@ -199,7 +199,8 @@ configure_file(
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # The swig_sources() function defined in oofbuildtools.cmake needs to
-# be wrapped so that the files are installed in the right spots.
+# be wrapped so that the files are installed in the right spots and
+# the SRC directory is searched for header files.
 
 function(oof_swig_sources)
     # Get the path from the top of the source directory hierarchy to
@@ -223,7 +224,10 @@ function(oof_swig_sources)
     endif()
     set(OOF2PYDEST ${PYDEST}/ooflib/SWIG/${relpath})
 
-    swig_sources(${ARGV} SWIGDEST ${OOF2PYDEST})
+    swig_sources(${ARGV}
+      SWIGDEST ${OOF2PYDEST}
+      INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/SRC
+    )
 endfunction()
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

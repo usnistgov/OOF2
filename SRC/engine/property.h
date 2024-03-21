@@ -290,6 +290,8 @@ public:
   // Linearization/derivative of the flux with respect to field and
   // field derivatives.
   // Used to assemble the stiffness matrix and the Jacobian matrix.
+  // The default implementation of flux_matrix computes the numerical
+  // derivative of the result returned by static_flux_value().
   virtual void flux_matrix(const FEMesh*, const Element*,
 			   const ElementFuncNodeIterator&,
 			   const Flux*, const MasterPosition&,
@@ -302,7 +304,8 @@ public:
 			  double time, SmallSystem *fluxdata) const;
 
   // The static portion of the flux vector/tensor, equal to flux_value
-  // for most cases, but not for viscoelasticity.
+  // for most cases, but not for viscoelasticity.  The default
+  // implementation returns flux_matrix()*field + flux_offset.
   virtual void static_flux_value(const FEMesh *mesh, const Element *element,
 				 const Flux *flux, const MasterPosition &pt,
 				 double time, SmallSystem *fluxdata) const;
