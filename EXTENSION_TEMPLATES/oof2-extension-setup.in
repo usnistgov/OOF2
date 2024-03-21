@@ -19,6 +19,18 @@
 # new property will have an incremented sequence number (this means
 # multiple copies might have the same sequence number).
 
+# TODO: The README file shouldn't contain info about running
+# oof2-extension-setup.  If the user is reading it, they've already
+# run it.  Info on running it should be in the man page, and the
+# --help option should point there.
+
+# TODO: Add a --help option.
+
+# TODO: The README file is specific to property extensions.  We should
+# have other kinds of extensions too.  We could have a bunch of README
+# files, and copy the appropriate one to each installation.
+
+
 # These are the strings in the template files that will be
 # replaced when the files are copied.
 refmodule = '%MODULENAME%'      # replaced by the --module argument
