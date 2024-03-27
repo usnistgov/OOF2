@@ -586,13 +586,13 @@ class PropertyRegistration(PropertyRegistrationParent):
     def interfaceCompatibility(self):
         return self._interfaceCompatibility
 
-    # "Call" method creates a property instance from a registration.
-    # This is the only way to create a property instance, and this
-    # routine does not do any book-keeping with the AllProperties
-    # object.  We do not use the Registration class's __call__ method,
-    # because we need to pass the registration itself as an argument to
-    # the property constructor.
-    def __call__(self):
+    # "createProperty" creates a property instance from a
+    # registration.  This is the only way to create a property
+    # instance, and this routine does not do any book-keeping with the
+    # AllProperties object.
+    def createProperty(self):
+        # debug.fmsg(f"creating {self._name} {self.subclass=}")
+        # debug.fmsg(f"self.params={[p.value for p in self.params]}")
         return self.subclass(self, self._name, *[p.value for p in self.params])
 
 
@@ -634,7 +634,7 @@ class PropertyRegistration(PropertyRegistrationParent):
                     pass
         # "m" is a MaterialProps object, "o" is the old property instance.
         for (m, o) in list(self.materials.values()):
-            newcopy = self() # Run the registration to get the prop.
+            newcopy = self.createProperty() 
             m.new_params(o, newcopy)
             self.materials[m.name]=(m, newcopy)
             switchboard.notify("material changed", m.name)
@@ -739,7 +739,7 @@ class NamedPropertyRegistration(PropertyRegistration):
     # We do not expect NamedPropertyRegistrations to be used
     # for anything other than direct instantiation via the pre-set
     # params, so no kwargs for this one.  2nd argument is name.
-    def __call__(self):
+    def createProperty(self):
         return self.subclass(self, self._name, 
                              *[p.value for p in self.params[1:]])
 

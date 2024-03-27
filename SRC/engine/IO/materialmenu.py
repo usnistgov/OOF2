@@ -509,7 +509,7 @@ switchboard.requestCallback("remove_material", _fixmenu)
 ## "MaterialandType" that does.
 
 def loadMaterial(menuitem, name, properties):
-    props = [AllProperties[propname]()  # create instances
+    props = [AllProperties[propname].createProperty()  # create instances
              for propname in properties]
     materialmanager.materialmanager.new_material(
         name, MATERIALTYPE_BULK, *props)
@@ -529,7 +529,7 @@ mainmenu.OOF.LoadData.addItem(oofmenu.OOFMenuItem(
 
 #Interface branch.
 def loadMaterialandType(menuitem, name, properties, materialtype):
-    props = [AllProperties[propname]()  # create instances
+    props = [AllProperties[propname].createProperty()  # create instances
              for propname in properties]
     if materialtype is None:
         materialtype=MATERIALTYPE_BULK

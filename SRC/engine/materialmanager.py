@@ -42,8 +42,8 @@ class MaterialProps:
     
     # Detect name collisions, and check against existing props
     # for category collisions.
-    # For starters, "key" is the fully qualified property name,
-    # and "value" is the associated PropertyRegistration object.
+    # For starters, "propname" is the fully qualified property name,
+    # and "propreg" is the associated PropertyRegistration object.
     # Store a reference to a copy of the property instance.
     #
     # Materials do not own their properties, they have pointers to the
@@ -53,14 +53,16 @@ class MaterialProps:
     # parameters change.  When materials are destroyed, these
     # properties must also be destroyed -- material manager calls the
     # delete_all_props routine below to accomplish this.
-    def __setitem__(self, key, value):
-        if key in self.data:
+    def __setitem__(self, propname, propreg):
+        if propname in self.data:
             raise KeyError("Collision in Material Property List, key %s."
-                           % key)
-        propcopy = value()          # instantiate Property from registration
-        self.data[key]=value        # prop. registrations, keyed by path
+                           % propname)
+        # This is where a Property object is created from a
+        # PropertyRegistration.
+        propcopy = propreg.createProperty()     
+        self.data[propname] = propreg # prop. registrations, keyed by path
         self.actual.addProperty(propcopy)
-        value.add_material(self.name, (self, propcopy))
+        propreg.add_material(self.name, (self, propcopy))
 
     # Add a propertyregistration entry to the dict without adding the
     # property to the "actual" Material.  Used when loading a material
@@ -132,9 +134,9 @@ class MaterialManager:
     # signals instead.
     def add_prop(self, matname, propname):
         prop_reg = AllProperties[propname]
-        mat = self[matname]
+        mat = self[matname]     # MaterialProps object
         if prop_reg: # Can be None for nonparametrizable properties.
-            mat[propname]=prop_reg 
+            mat[propname] = prop_reg
         else:
             reporter.report("Nonparametrizable property is not loadable.")
 
