@@ -26,9 +26,9 @@ import ooflib.SWIG.engine.properties.elasticity.aniso.aniso
 import ooflib.SWIG.engine.properties.elasticity.elasticity
 import ooflib.SWIG.engine.properties.elasticity.iso.iso
 import ooflib.SWIG.engine.properties.elasticity.largestrain.largestrain
+import ooflib.SWIG.engine.properties.elasticity.nonlinear.general_nonlinear_elasticity
 import ooflib.SWIG.engine.properties.elasticity.thermo.thermo
 import ooflib.SWIG.engine.properties.elasticity.visco.visco
-import ooflib.SWIG.engine.properties.elasticity.nonlinear.general_nonlinear_elasticity
 import ooflib.SWIG.engine.properties.forcedensity.forcedensity
 import ooflib.SWIG.engine.properties.forcedensity.nonconstant.nonconstant_force_density
 import ooflib.SWIG.engine.properties.forcedensity.nonlinear.nonlinear_force_density
@@ -42,14 +42,11 @@ import ooflib.SWIG.engine.properties.massdensity.massdensity
 import ooflib.SWIG.engine.properties.orientation.orientation
 import ooflib.SWIG.engine.properties.permittivity.permittivity
 import ooflib.SWIG.engine.properties.piezoelectricity.piezoelectricity
+import ooflib.SWIG.engine.properties.planestrain.planestrain
 import ooflib.SWIG.engine.properties.pyroelectricity.pyroelectricity
 import ooflib.SWIG.engine.properties.stressfreestrain.stressfreestrain
 import ooflib.SWIG.engine.properties.thermalexpansion.thermalexpansion
 import ooflib.engine.properties.plasticity.plasticity
-
-# Planar strain only makes sense in 2D.
-if config.dimension() == 2:
-    import ooflib.SWIG.engine.properties.planestrain.planestrain
 
 #Interface branch
 if config.dimension() == 2:
@@ -58,6 +55,11 @@ if config.dimension() == 2:
 #     import ooflib.SWIG.engine.properties.interfaces.surfacetension.simpletension2.simpletension2
 
 
+# These are imported, but are secret, so as not to clutter up the GUI.
+# They're only used to test the pure python properties.  They
+# shouldn't be used otherwise, because they're slower versions of
+# other Properties.
 import ooflib.engine.properties.heatconductivity.pyheatconductivity
 import ooflib.engine.properties.elasticity.pyelasticity
 import ooflib.engine.properties.stressfreestrain.pystressfreestrain
+

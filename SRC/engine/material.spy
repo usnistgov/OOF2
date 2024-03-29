@@ -30,6 +30,8 @@ def _Material___init__(self, name, mattype=materialtype.MATERIALTYPE_BULK):
     # property instances, which ensures that there exists a Python
     # reference to each property in a material.  Reference-count
     # manipulations are not required in the C++ code.
+    # Don't change self.properties to a set.  Preserving order is
+    # important for tests.
     self.properties = []
 
 Material.__init__ = _Material___init__

@@ -23,11 +23,14 @@ class IsoElasticityProp(CIsoElasticityProp):
 
 # Property class registration code
 reg = IsotropicElasticity = PropertyRegistration(
-    "Mechanical:Elasticity:Isotropic", IsoElasticityProp,
-    10,
-    [isocijkl.IsotropicCijklParameter('cijkl',
-                          isocijkl.IsotropicRank4TensorCij(c11=1.0, c12=0.5),
-                                            tip=parameter.emptyTipString)],
+    name="Mechanical:Elasticity:Isotropic",
+    subclass=IsoElasticityProp,
+    ordering=10,
+    params=[
+        isocijkl.IsotropicCijklParameter(
+            'cijkl',
+            isocijkl.IsotropicRank4TensorCij(c11=1.0, c12=0.5),
+            tip=parameter.emptyTipString)],
     outputs=["Energy", "Material Constants:Mechanical:Elastic Modulus C"],
     propertyType="Elasticity",
     tip='Isotropic linear elasticity.',

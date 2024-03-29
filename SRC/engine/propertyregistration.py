@@ -591,8 +591,6 @@ class PropertyRegistration(PropertyRegistrationParent):
     # instance, and this routine does not do any book-keeping with the
     # AllProperties object.
     def createProperty(self):
-        # debug.fmsg(f"creating {self._name} {self.subclass=}")
-        # debug.fmsg(f"self.params={[p.value for p in self.params]}")
         return self.subclass(self, self._name, *[p.value for p in self.params])
 
 

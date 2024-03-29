@@ -25,10 +25,10 @@
 
 class CIsoElasticityProp : public Elasticity {
 public:
-  CIsoElasticityProp(PyObject*, PyObject*, char*, Cijkl&);
+  CIsoElasticityProp(PyObject*, PyObject*, std::string&, Cijkl&);
   ~CIsoElasticityProp();
 };
 
-%pythoncode "engine/properties/elasticity/iso/iso.spy"
+%pythoncode "iso.spy"
 
 #endif // ISO_SWG
