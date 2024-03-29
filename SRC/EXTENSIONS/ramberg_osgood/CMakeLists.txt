@@ -6,16 +6,12 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-target_sources(
-  oof2engine
-  PRIVATE
-  ramberg_osgood.C
-  ramberg_osgood.h
-  )
-
 oof_swig_sources(
   SWIGFILES
   ramberg_osgood
+  SOURCES
+  ramberg_osgood.C
+  ramberg_osgood.h
   LIBRARIES
   oof2common
   oof2engine

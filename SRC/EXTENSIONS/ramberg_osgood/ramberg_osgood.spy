@@ -14,7 +14,20 @@ from ooflib.engine import propertyregistration
 from ooflib.engine.IO import isocijkl
 from ooflib.common.IO import parameter
 
-## General Nonlinear Elasticity Example
+# The Python RambergOsgood class is an almost trival wrapper for the
+# C++ CRambergOsgood class.  The wrapper just converts the modulus
+# argument from a Python IsotropicRank4TensorCij object to a C++ Cijkl
+# object.  That could be done with a typemap instead.  It's done this
+# way only because other Elasticity classes do it this way.  They do
+# it because AnsioElasticity classes need to be wrapped because they
+# are derived from PythonNative, because they are subclassed in
+# Python.
+
+class RambergOsgood(CRambergOsgood):
+    def __init__(self, registration, name, cijkl, alpha, s0, n):
+        CRambergOsgood.__init__(self, registration, self, name,
+                                cijkl.tensorForm(),
+                                alpha, s0, n)
 
 reg = propertyregistration.PropertyRegistration(
     name='Mechanical:Elasticity:RambergOsgood',
@@ -25,9 +38,10 @@ reg = propertyregistration.PropertyRegistration(
             'cijkl',
             isocijkl.IsotropicRank4TensorCij(c11=1.0,c12=0.5),
             tip=parameter.emptyTipString),
+        # TODO: alpha needs a tip string
         parameter.FloatParameter('alpha',0.0,tip=parameter.emptyTipString),
-        parameter.FloatParameter('s0',1.0,tip=parameter.emptyTipString),
-        parameter.FloatParameter('n',1.0,tip=parameter.emptyTipString)],
+        parameter.FloatParameter('s0',1.0,tip="Yield stress"),
+        parameter.FloatParameter('n',1.0,tip="Exponent")],
     propertyType="Elasticity",
     tip="Nonlinear elasticity of the Ramberg-Osgood type."
 )

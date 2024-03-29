@@ -20,7 +20,9 @@ class Doublevec;
 class SmallMatrix;
 class SmallTensor4;
 
-class RambergOsgood : public GeneralNonlinearElasticity {
+class CRambergOsgood
+  : public GeneralNonlinearElasticity, virtual public PythonNative<Property>
+{
 
 private:
   int invert(SmallMatrix &ein, SmallMatrix &sout,
@@ -31,15 +33,16 @@ private:
   double n;
 
 public:
-  RambergOsgood(PyObject *registry, const std::string &name,
+  CRambergOsgood(PyObject *registry, PyObject *self, const std::string &name,
 		const Cijkl &cijkl, double alpha, double s0, double n)
     : GeneralNonlinearElasticity(registry, name),
+      PythonNative<Property>(self),
       cijkl(cijkl),
       alpha(alpha),
       s0(s0),
       n(n)
   {}
-  virtual ~RambergOsgood() {};
+  virtual ~CRambergOsgood() {};
 
 protected:
   virtual void nonlin_stress(double x, double y, double z,
