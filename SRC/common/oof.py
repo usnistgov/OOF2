@@ -137,6 +137,7 @@ The following options are for debugging:
 --unthreaded             Don't use multiple execution threads.
 --no-fakefileselector    Don't use the fake file selector in gui tests.
 --fakefileselector       Use the fake file selector even outside of gui tests.
+--no-transients          Don't use transient windows for dialogs.
 """
     print(main_options_string, end=' ')
     if config.devel()>=1:
@@ -192,7 +193,7 @@ def process_inline_options():
                    'record=', 'rerecord=', 'replay=', 'replaydelay=',
                    'pathdir=', 'no-checkpoints', 'autoload', 'geometry=',
                    'no-fakefileselector', 'fakefileselector', 'surface', 
-                   'no-bars', 'verbose-switchboard']
+                   'no-bars', 'verbose-switchboard', 'separate-dialogs']
     if config.enablempi():
         option_list += ['parallel']
     try:
@@ -299,6 +300,9 @@ def process_inline_options():
         elif opt[0] == '--seed':
             randomseed = int(opt[1])
             remove_option(opt[0],opt[1])
+        elif opt[0] == '--separate-dialogs':
+            runtimeflags.separate_dialogs = True
+            remove_option(opt[0])
     if help_mode:
         state_options_and_quit()
     if version_mode:

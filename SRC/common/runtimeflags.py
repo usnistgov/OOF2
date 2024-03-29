@@ -18,6 +18,7 @@ batch_mode = False
 text_mode = False
 surface_mode = False
 autoload = False
+separate_dialogs = False
 
 useFakeFileSelector = 'sometimes' # use only in gui test mode
 

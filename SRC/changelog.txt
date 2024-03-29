@@ -51,6 +51,9 @@ OOF2 2.3.3
   methods detect non-square matrices and raise an exception, which is
   better than crashing.
 
+* Added a utility script, oof2-extension-setup, to make it easier to
+  build extensions from the templates in EXTENSION_TEMPLATES.
+
 OOF2 2.3.2
 
 * Eliminated some opportunities for roundoff error in Rationalize that
