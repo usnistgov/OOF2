@@ -10,6 +10,8 @@ Python command line options that might be useful
 
 Run swig with -DSWIG_TYPE_TABLE=oof2 in OOF2, =oofcanvas in OOFCanvas.
 http://www.swig.org/Doc4.0/Modules.html#Modules_nn2
+OOF2 and OOFCanvas aren't doing this... it appears to be unnecessary
+or impossible or incorrect.
 
 If multiple modules contain cvar, only one can be imported. Change the
 name of cvar with -globals.

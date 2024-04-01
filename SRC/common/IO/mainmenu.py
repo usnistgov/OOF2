@@ -220,6 +220,11 @@ _loadmenu.addItem(OOFMenuItem(
     environment variable.
     </para>"""))
 
+# TODO: A "Load/Extension" command, to make loading extension modules
+# easier.  It would list all of the extensions found in
+# SRC/EXTENSIONS, plus any others found in additional paths that the
+# user could define.
+
 # "Data" files are distinguished from scripts in that they're not read
 # by the Python interpreter directly, and therefore can't contain
 # arbitrary Python code.  They can only contain menu commands from the

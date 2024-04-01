@@ -23,29 +23,7 @@
   #include <oofcanvas.h>
   typedef OOFCanvas::Color CanvasColor;
   using namespace OOFCanvas;
-  //typedef OOFCanvas::RubberBand CanvasRubberBand;
 %}
-
-// This typemap converts any Python object with red, green, and blue
-// data members to a C++ OOFCanvas::Color.  Here it's used to convert
-// a Python OOFCanvas::Color to a C++ OOFCanvas::Color.  This isn't
-// necessary if OOF2 and OOFCanvas share the same value of
-// SWIG_TYPE_TABLE, which is set (or not) in the top CMakeLists.txt
-// file.
-
-// %typemap(in) const CanvasColor& (CanvasColor color) {
-//   // typemap(in) OOFCanvas::Color
-//   PyObject *red = PyObject_GetAttrString($input, "red");
-//   PyObject *green = PyObject_GetAttrString($input, "green");
-//   PyObject *blue = PyObject_GetAttrString($input, "blue");
-//   color.red = PyFloat_AsDouble(red);
-//   color.green = PyFloat_AsDouble(green);
-//   color.blue = PyFloat_AsDouble(blue);
-//   Py_XDECREF(red);
-//   Py_XDECREF(green);
-//   Py_XDECREF(blue);
-//   $1 = &color;
-// }
 
 class BrushRubberBand : public RubberBand {
 public:
