@@ -64,7 +64,7 @@ class Relax(skeletonmodifier.SkeletonModifier):
             named_copy("__relaxationrate%d__" % threadno, secret=True)
         relaxPropReg.getParameter("gamma").value = self.gamma
         relaxPropReg.getParameter("alpha").value = self.alpha
-        self.skelRelRate = relaxPropReg()
+        self.skelRelRate = relaxPropReg.createProperty()
         # gamma_parameter = \
         #     skeletonrelaxationrate.SkeletonRelaxationRateTensor.getParameter(
         #     'gamma')
@@ -83,7 +83,7 @@ class Relax(skeletonmodifier.SkeletonModifier):
             "__stiffness%d__" % threadno, secret=True)
         stiffnessPropReg.getParameter('cijkl').value = \
             isocijkl.IsotropicRank4TensorCij(c11=1.0, c12=0.5)
-        self.stiffness = stiffnessPropReg()
+        self.stiffness = stiffnessPropReg.createProperty()
         materialmanager.materialmanager.add_prop(
             self.materialName, self.stiffness.name())
 
