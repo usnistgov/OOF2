@@ -66,10 +66,10 @@ utils.OOFdefine('getField', getField)
 def allFields():
     return list(_allFields.values())
 
-# finishConstruction is called after the swigged constructors for all
-# of the Field subclasses.  It's installed by %pythonappend lines in
-# field.swg.
-def finishConstruction(fld):
+# finishCompoundFieldConstruction is called after the swigged
+# constructors for all of the CompoundField subclasses.  It's
+# installed by %pythonappend lines in field.swg.
+def finishCompoundFieldConstruction(fld):
     newCompoundField(fld)
     newField(fld.c_time_derivative())
     newField(fld.c_out_of_plane())
