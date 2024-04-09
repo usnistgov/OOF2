@@ -170,15 +170,16 @@ full instructions on how to use ccmake.  At a minimum
 - Similarly, change `OOF2_PYTHON_VERSION` to the version of python3
   that you have installed, and `OOF2_SWIG_VERSION` to the version
   of swig4.  Use the same values you used when installing OOFCanvas.
+  Use `<return>` to cycle through the allowed values.
 - If you are going to build OOF2 extension modules, set
   `OOF2_DEV_INSTALL` to `ON`.  This will install the C++ headers and
   other useful files.
 - Type `c` to update the configuration.
 - Type `g` to generate the build scripts and exit.
-- If `g` wassn't an option at the bottom of the screen in the previous
+- If `g` wasn't an option at the bottom of the screen in the previous
   step and ccmake didn't exit, the previous `c` probably added new
   variables.  Check their values and type `c` again until the `g`
-  appears, then type `g`.
+  appears, and then type `g`.
 
 ### 6. Build and install
 
