@@ -75,24 +75,11 @@ class Property;
 // is virtual, even though the component argument doesn't make sense
 // for some fields.
 
-// From the point of view of the matrix construction, the fields
-// themselves either have in-plane or out-of-plane degrees of freedom
-// -- this status is stored in the in_plane_ data member, and can be
-// queried by the in_plane_part function.  Fields are in_plane by
-// default, and can be set out-of-plane by calling the set_oop
-// function.  NOTE that this is different than the value returned by
-// CompoundField::in_plane(FEMesh*), which indicates whether or not a
-// compound field has an out-of-plane part on a particular mesh.  For
-// example, the out-of-plane part of the temperature field, dT/dz,
-// always return in_plane_part=0, but the compound Temperature field
-// can return in_plane=0 or 1, depending on the problem being solved.
-
 class Field : public IdentifiedObject
 {
 private:
   const std::string name_;
   const unsigned int index_;
-  bool in_plane_;
 protected:
   const int dim;
   Field *time_derivative_;
@@ -113,11 +100,7 @@ public:
 
   void set_time_derivative(Field *f) { time_derivative_ = f; }
 
-  // See comment above about in_plane() and in_plane_part().
-  void set_oop() { in_plane_ = false; }
-  bool in_plane_part() const { return in_plane_; }
-  
-  virtual void activate(CSubProblem*) const;
+ virtual void activate(CSubProblem*) const;
   virtual void deactivate(CSubProblem*) const;
   bool is_active(const CSubProblem*) const;
   

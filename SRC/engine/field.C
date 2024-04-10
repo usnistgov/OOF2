@@ -92,7 +92,6 @@ Field *Field::getField(const std::string &nm) {
 Field::Field(const std::string &nm, int dofs)
   : name_(nm),
     index_(all().size()),
-    in_plane_(true),
     dim(dofs),
     time_derivative_(0)
 {
@@ -192,7 +191,6 @@ CompoundField::CompoundField(const std::string &name, int dim,
     cfield_indx(allcompoundfields().size())
 {
   time_derivative_ = timederiv;
-  zfield_->set_oop(); // Set z component to be out-of-plane.
   zfield_->set_time_derivative(outofplanetimederiv);
   allcompoundfields().push_back(this);
 }
