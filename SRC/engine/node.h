@@ -19,7 +19,6 @@ class Node;
 #include "engine/field.h"
 #include "engine/fieldeqnlist.h"
 #include "engine/freedom.h"
-#include "engine/pointdata.h"
 #include "common/pythonexportable.h"
 #include <vector>
 #include <iostream>
@@ -60,7 +59,7 @@ public:
 // Node at which function parameters (degrees of freedom, nodal
 // equations) are defined
 
-class FuncNode : public Node, public PointData {
+class FuncNode : public Node {
 private:
   static const std::string classname_;
 #ifdef HAVE_MPI
@@ -71,16 +70,38 @@ private:
 protected:
   FuncNode(FEMesh*, int n, const Coord &p);
                   // only called by FEMesh::newFuncNode()
+  friend class FEMesh;
 public:
   virtual ~FuncNode() {}
   virtual const std::string &classname() const { return classname_; }
+
+  std::vector<DegreeOfFreedom*> doflist;
+  std::vector<NodalEquation*> eqnlist;
+
   // Used by the regression tests to check solutions.
   Coord displaced_position(const FEMesh*) const;
-  virtual Coord position() const { return Node::position(); }
-  
-  friend class FEMesh;
-  
-  // virtual const std::string *repr() const;
+
+  int ndof() const { return doflist.size(); }
+  int neqn() const { return eqnlist.size(); }
+
+  void addField(FEMesh*, const Field&);
+  void removeField(FEMesh*, const Field&);
+    bool hasField(const Field&) const;
+  // Returns the number of subproblems containing this point for which
+  // the passed-in field is defined.
+  int fieldDefCount(const Field&) const;
+
+  void addEquation(FEMesh*, const Equation&);
+  void removeEquation(FEMesh*, const Equation&);
+  bool hasEquation(const Equation&) const;
+
+  typedef FieldEqnList<Field> FieldSet;
+  typedef FieldEqnList<Equation> EquationSet;
+  FieldSet fieldset;
+  EquationSet equationset;
+
+  int fieldSetID() const { return fieldset.id(); }
+
   virtual const std::string *ctor() const;
 
   virtual std::vector<std::string> *fieldNames() const;
@@ -90,7 +111,10 @@ public:
 //   void notShared(){ _bshare=false; }
 //   bool isShared(){ return _bshare; }
 #endif
+
 };				// FuncNode
+
+std::ostream &operator<<(std::ostream&, const FuncNode::FieldSet&);
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

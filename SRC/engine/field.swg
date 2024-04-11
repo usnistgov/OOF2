@@ -21,13 +21,11 @@
 %import "engine/freedom.swg"
 %import "engine/outputval.swg"
 %import "engine/planarity.swg"
-%import "engine/pointdata.swg"
 
 %{
 #include "common/coord.h"
 #include "engine/field.h"
 #include "engine/outputval.h"
-#include "engine/pointdata.h"
   #include "engine/flux.h"	// SWIGBUG
   #include "engine/node.h"	// SWIGBUG
   #include "engine/property.h"	// SWIGBUG?
@@ -119,14 +117,14 @@ public:
   bool is_active(CSubProblem*);
   bool is_defined(CSubProblem*);
 
-  double value(FEMesh*, PointData *n, int component);
+  double value(FEMesh*, FuncNode *n, int component);
 
-  void setValueFromOutputValue(FEMesh*, PointData&, OutputValue*);
+  void setValueFromOutputValue(FEMesh*, FuncNode&, OutputValue*);
 
   NewFieldIndex *getIndex(const std::string&) const;
   
   ArithmeticOutputValue newOutputValue();
-  ArithmeticOutputValue output(FEMesh*, PointData&);
+  ArithmeticOutputValue output(FEMesh*, FuncNode&);
 };
 
 %extend Field {
@@ -135,10 +133,10 @@ public:
   // setvalue is used in _loadFieldValues in meshIO.py, and also in
   // the field initialization code in fieldinit.py. And in
   // Dirichlet.__call__ and FloatBC.fixFloatTree in bdycondition.py.
-  void setvalue(FEMesh *mesh, PointData *n, int component, double x) {
+  void setvalue(FEMesh *mesh, FuncNode *n, int component, double x) {
     (*self)(*n, component)->value(mesh) = x;
   }
-  DegreeOfFreedom *dof(PointData *n, int component) {
+  DegreeOfFreedom *dof(FuncNode *n, int component) {
     return (*self)(*n, component);
   }
 };

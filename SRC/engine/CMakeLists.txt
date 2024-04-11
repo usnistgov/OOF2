@@ -56,7 +56,6 @@ target_sources(oof2engine
   outputval.C
   pixelgroupsubproblem.C
   pixelselectioncouriere.C
-  pointdata.C
   property.C
   pypropertywrapper.C
   rank3tensor.C
@@ -117,7 +116,6 @@ target_sources(oof2engine
   outputval.h
   pixelgroupsubproblem.h
   pixelselectioncouriere.h
-  pointdata.h
   property.h
   pypropertywrapper.h
   rank3tensor.h
@@ -174,7 +172,6 @@ oof_swig_sources(
   pixelgroupsubproblem
   pixelselectioncouriere
   planarity
-  pointdata
   property
   pypropertywrapper
   rank3tensor

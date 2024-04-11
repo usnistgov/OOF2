@@ -40,7 +40,6 @@ class ElementFuncNodeIterator;
 class FEMesh;
 class FuncNode;
 class OutputValue;
-class PointData;
 class Property;
 
 // There is one Field for each physical field.  There should be only
@@ -92,7 +91,7 @@ public:
   static Field *getField(const std::string &name);
 
   // where a given component lives in the dof lists in a Node
-  int localindex(const PointData*, const FieldIndex &component) const;
+  int localindex(const FuncNode*, const FieldIndex &component) const;
 
   int ndof() const { return dim; } // number of degrees of freedom
 
@@ -116,7 +115,7 @@ public:
   // it's needed.
   static std::vector<Field*> &all();
 
-  double value(const FEMesh*, const PointData*, int component) const;
+  double value(const FEMesh*, const FuncNode*, int component) const;
   double value(const FEMesh*, const ElementFuncNodeIterator&, int component)
     const;
 
@@ -128,8 +127,8 @@ public:
   // form. This will be useful in Outputs, and maybe elsewhere.  See
   // ThermalExpansion::output.
   
-  virtual DegreeOfFreedom *operator()(const PointData*, int component) const=0;
-  DegreeOfFreedom *operator()(const PointData &n, int component) const
+  virtual DegreeOfFreedom *operator()(const FuncNode*, int component) const=0;
+  DegreeOfFreedom *operator()(const FuncNode &n, int component) const
   {
     return operator()(&n, component);
   }
@@ -147,9 +146,9 @@ public:
   virtual ArithmeticOutputValue output(const FEMesh*,
 				       const ElementFuncNodeIterator&)
     const = 0;
-  virtual ArithmeticOutputValue output(const FEMesh*, const PointData&)
+  virtual ArithmeticOutputValue output(const FEMesh*, const FuncNode&)
     const = 0;
-  virtual void setValueFromOutputValue(FEMesh*, const PointData&,
+  virtual void setValueFromOutputValue(FEMesh*, const FuncNode&,
 				       const OutputValue*) = 0;
 
   friend bool operator==(const Field &f1, const Field &f2) {
@@ -257,13 +256,13 @@ private:
 public:
   ScalarFieldBase(const std::string &name) : Field(name, 1) {}
   virtual ~ScalarFieldBase() {}
-  DegreeOfFreedom *operator()(const PointData*) const;
-  DegreeOfFreedom *operator()(const PointData &n) const {
+  DegreeOfFreedom *operator()(const FuncNode*) const;
+  DegreeOfFreedom *operator()(const FuncNode &n) const {
     return operator()(&n);
   }
   DegreeOfFreedom *operator()(const ElementFuncNodeIterator&) const;
-  virtual DegreeOfFreedom *operator()(const PointData*, int) const;
-  virtual DegreeOfFreedom *operator()(const PointData &n, int i) const {
+  virtual DegreeOfFreedom *operator()(const FuncNode*, int) const;
+  virtual DegreeOfFreedom *operator()(const FuncNode &n, int i) const {
     return operator()(&n, i);
   }
   virtual DegreeOfFreedom *operator()(const ElementFuncNodeIterator&, int)
@@ -271,8 +270,8 @@ public:
   virtual ArithmeticOutputValue newOutputValue() const;
   virtual ArithmeticOutputValue output(const FEMesh*,
 				       const ElementFuncNodeIterator&) const;
-  virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
-  virtual void setValueFromOutputValue(FEMesh*, const PointData&,
+  virtual ArithmeticOutputValue output(const FEMesh*, const FuncNode&) const;
+  virtual void setValueFromOutputValue(FEMesh*, const FuncNode&,
 				       const OutputValue*);
 
   virtual ComponentsP components(Planarity=ALL_INDICES/*irrelevant*/) const;
@@ -299,8 +298,8 @@ private:
 public:
   TwoVectorFieldBase(const std::string &name) : Field(name, 2) {}
   virtual ~TwoVectorFieldBase() {}
-  virtual DegreeOfFreedom *operator()(const PointData*, int component) const;
-  virtual DegreeOfFreedom *operator()(const PointData &n, int component) const {
+  virtual DegreeOfFreedom *operator()(const FuncNode*, int component) const;
+  virtual DegreeOfFreedom *operator()(const FuncNode &n, int component) const {
     return operator()(&n, component);
   }
   virtual DegreeOfFreedom *operator()(const ElementFuncNodeIterator&,
@@ -308,8 +307,8 @@ public:
   virtual ArithmeticOutputValue newOutputValue() const;
   virtual ArithmeticOutputValue output(const FEMesh*,
 				       const ElementFuncNodeIterator&) const;
-  virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
-  virtual void setValueFromOutputValue(FEMesh*, const PointData&,
+  virtual ArithmeticOutputValue output(const FEMesh*, const FuncNode&) const;
+  virtual void setValueFromOutputValue(FEMesh*, const FuncNode&,
 				       const OutputValue*);
   virtual ComponentsP components(Planarity /*irrelevant*/) const;
   virtual ComponentsP outOfPlaneComponents() const;
@@ -338,8 +337,8 @@ public:
   {}
   virtual const std::string &classname() const { return classname_; }
   virtual ~VectorFieldBase() {}
-  virtual DegreeOfFreedom *operator()(const PointData*, int component) const;
-  DegreeOfFreedom *operator()(const PointData &n, int component) const {
+  virtual DegreeOfFreedom *operator()(const FuncNode*, int component) const;
+  DegreeOfFreedom *operator()(const FuncNode &n, int component) const {
     return operator()(&n, component);
   }
   virtual DegreeOfFreedom *operator()(const ElementFuncNodeIterator&,
@@ -347,8 +346,8 @@ public:
   virtual ArithmeticOutputValue newOutputValue() const;
   virtual ArithmeticOutputValue output(const FEMesh*,
 				       const ElementFuncNodeIterator&) const;
-  virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
-  virtual void setValueFromOutputValue(FEMesh*, const PointData&,
+  virtual ArithmeticOutputValue output(const FEMesh*, const FuncNode&) const;
+  virtual void setValueFromOutputValue(FEMesh*, const FuncNode&,
 				       const OutputValue*);
   virtual ComponentsP components(Planarity=ALL_INDICES) const;
   virtual ComponentsP outOfPlaneComponents() const;
@@ -377,20 +376,20 @@ public:
   SymmetricTensorField(const std::string &name) : Field(name, 6) {}
   virtual ~SymmetricTensorField() {}
 
-  virtual DegreeOfFreedom *operator()(const PointData*, int comp) const;
-  DegreeOfFreedom *operator()(const PointData &pd, int comp) const {
+  virtual DegreeOfFreedom *operator()(const FuncNode*, int comp) const;
+  DegreeOfFreedom *operator()(const FuncNode &pd, int comp) const {
     return operator()(&pd, comp);
   }
   virtual DegreeOfFreedom *operator()(const ElementFuncNodeIterator&,
 				      int component) const;
   DegreeOfFreedom *operator()(const ElementFuncNodeIterator&,
 			      SymTensorIndex&) const;
-  DegreeOfFreedom *operator()(const PointData&, SymTensorIndex&) const;
+  DegreeOfFreedom *operator()(const FuncNode&, SymTensorIndex&) const;
   virtual ArithmeticOutputValue newOutputValue() const;
   virtual ArithmeticOutputValue output(const FEMesh*, 
 			     const ElementFuncNodeIterator&) const;
-  virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
-  virtual void setValueFromOutputValue(FEMesh*, const PointData&,
+  virtual ArithmeticOutputValue output(const FEMesh*, const FuncNode&) const;
+  virtual void setValueFromOutputValue(FEMesh*, const FuncNode&,
 				       const OutputValue*);
   virtual ComponentsP components(Planarity) const;
   virtual ComponentsP outOfPlaneComponents() const;

@@ -17,7 +17,6 @@
 %include "common/typemaps.swg"
 %import "common/coord.swg"
 %import "engine/field.swg"
-%import "engine/pointdata.swg"
 
 %{
 #include "engine/node.h"
@@ -53,9 +52,12 @@ public:
 
 %nodefaultctor FuncNode;
 
-class FuncNode : public Node, public PointData {
+class FuncNode : public Node {
 public:
   Coord displaced_position(FEMesh*);
+  bool hasField(const Field&);
+  int fieldDefCount(const Field&);
+  int fieldSetID();
 };
 
 %pythoncode "engine/node.spy"

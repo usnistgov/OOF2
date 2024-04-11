@@ -26,7 +26,6 @@
 #include "engine/linearizedsystem.h"
 #include "engine/meshiterator.h"
 #include "engine/nodalequation.h"
-#include "engine/pointdata.h"
 #include "engine/node.h"
 #include "engine/sparsemat.h"
 

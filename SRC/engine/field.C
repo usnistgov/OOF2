@@ -26,7 +26,6 @@
 #include "engine/node.h"
 #include "engine/ooferror.h"
 #include "engine/outputval.h"
-#include "engine/pointdata.h"
 #include "engine/property.h"
 #include "engine/symmmatrix.h"
 #include <iostream>
@@ -159,7 +158,7 @@ void CompoundField::registerProperty(Property *prop) const {
 
 // position of a given component in the dof lists in the nodes
 
-int Field::localindex(const PointData *node, const FieldIndex &component) const
+int Field::localindex(const FuncNode *node, const FieldIndex &component) const
 {
   // offset() will raise ErrNoSuchField if this field isn't defined at the node.
   return node->fieldset.offset(this) + component.integer();
@@ -167,7 +166,7 @@ int Field::localindex(const PointData *node, const FieldIndex &component) const
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-double Field::value(const FEMesh *mesh, const PointData *node, int component)
+double Field::value(const FEMesh *mesh, const FuncNode *node, int component)
   const
 {
   return operator()(node, component)->value(mesh);
@@ -243,7 +242,7 @@ ScalarField::ScalarField(const std::string &nm)
 
 const std::string ScalarField::classname_("ScalarField");
 
-DegreeOfFreedom *ScalarFieldBase::operator()(const PointData *node) const {
+DegreeOfFreedom *ScalarFieldBase::operator()(const FuncNode *node) const {
   // offset() will raise ErrNoSuchField if this field isn't defined at the node.
   return node->doflist[node->fieldset.offset(this)];
 }
@@ -258,7 +257,7 @@ DegreeOfFreedom *ScalarFieldBase::operator()(const ElementFuncNodeIterator &ei)
 // have to be virtual in the Field base class. That's because
 // CompoundField::out_of_plane returns a pointer to a Field base class
 // object.
-DegreeOfFreedom *ScalarFieldBase::operator()(const PointData *node,
+DegreeOfFreedom *ScalarFieldBase::operator()(const FuncNode *node,
 					     int component) const
 {
   assert(component == 0);
@@ -278,7 +277,7 @@ ArithmeticOutputValue ScalarFieldBase::newOutputValue() const {
 }
 
 ArithmeticOutputValue ScalarFieldBase::output(const FEMesh *mesh,
-					      const PointData &node)
+					      const FuncNode &node)
   const
 {
   if(node.hasField(*this))
@@ -299,7 +298,7 @@ ArithmeticOutputValue ScalarFieldBase::output(const FEMesh *mesh,
 }
 
 void ScalarFieldBase::setValueFromOutputValue(FEMesh *mesh, 
-					      const PointData &node,
+					      const FuncNode &node,
 					      const OutputValue *ov)
 {
   assert(node.hasField(*this));
@@ -343,7 +342,7 @@ TwoVectorField::TwoVectorField(const std::string &nm)
 
 const std::string TwoVectorField::classname_("TwoVectorField");
 
-DegreeOfFreedom *TwoVectorFieldBase::operator()(const PointData *node, int comp)
+DegreeOfFreedom *TwoVectorFieldBase::operator()(const FuncNode *node, int comp)
   const
 {
   assert(comp >= 0 && comp < 2);
@@ -363,7 +362,7 @@ ArithmeticOutputValue TwoVectorFieldBase::newOutputValue() const {
 }
 
 ArithmeticOutputValue TwoVectorFieldBase::output(const FEMesh *mesh,
-						 const PointData &node)
+						 const FuncNode &node)
   const
 {
   VectorOutputVal *vov = new VectorOutputVal(2);
@@ -390,7 +389,7 @@ ArithmeticOutputValue TwoVectorFieldBase::output(const FEMesh *mesh,
 
 void TwoVectorFieldBase::setValueFromOutputValue(
 					 FEMesh *mesh,
-					 const PointData &node,
+					 const FuncNode &node,
 					 const OutputValue *ov)
 {
   assert(node.hasField(*this));
@@ -421,7 +420,7 @@ const std::string TwoVectorFieldBase::classname_("TwoVectorFieldBase");
 
 const std::string VectorFieldBase::classname_("VectorFieldBase");
 
-DegreeOfFreedom *VectorFieldBase::operator()(const PointData *node, int comp)
+DegreeOfFreedom *VectorFieldBase::operator()(const FuncNode *node, int comp)
   const
 {
   assert(comp >= 0 && comp < dim);
@@ -441,7 +440,7 @@ ArithmeticOutputValue VectorFieldBase::newOutputValue() const {
 }
 
 ArithmeticOutputValue VectorFieldBase::output(const FEMesh *mesh,
-					      const PointData &node)
+					      const FuncNode &node)
   const 
 {
   VectorOutputVal *vov = new VectorOutputVal(dim);
@@ -464,7 +463,7 @@ ArithmeticOutputValue VectorFieldBase::output(const FEMesh *mesh,
 }
 
 void VectorFieldBase::setValueFromOutputValue(FEMesh *mesh,
-					      const PointData &node,
+					      const FuncNode &node,
 					      const OutputValue *ov)
 {
   assert(node.hasField(*this));
@@ -518,7 +517,7 @@ const std::string ThreeVectorField::classname_("ThreeVectorField");
 const std::string SymmetricTensorField::classname_("SymmetricTensorField");
 
 DegreeOfFreedom *SymmetricTensorField::operator()
-  (const PointData* pd, int comp) const
+  (const FuncNode* pd, int comp) const
 {
   assert ((comp >= 0) && (comp <= 6));
   return pd->doflist[pd->fieldset.offset(this) + comp];
@@ -537,7 +536,7 @@ DegreeOfFreedom *SymmetricTensorField::operator()
 }
 
 DegreeOfFreedom *SymmetricTensorField::operator()
-  (const PointData &pd, SymTensorIndex& sti) const 
+  (const FuncNode &pd, SymTensorIndex& sti) const 
 {
   return this->operator()(&pd, sti.integer());
 }
@@ -547,7 +546,7 @@ ArithmeticOutputValue SymmetricTensorField::newOutputValue() const {
 }
 
 ArithmeticOutputValue SymmetricTensorField::output(const FEMesh *mesh,
-					 const PointData &pd) const 
+					 const FuncNode &pd) const 
 {
   SymmMatrix3 *oval = new SymmMatrix3();
   ArithmeticOutputValue ov(oval);
@@ -574,7 +573,7 @@ SymmetricTensorField::output(const FEMesh *mesh,
 
 
 void SymmetricTensorField::setValueFromOutputValue(FEMesh* m,
-						   const PointData &pd,
+						   const FuncNode &pd,
 						   const OutputValue *v) 
 {  
   assert(pd.hasField(*this));
