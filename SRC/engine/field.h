@@ -100,7 +100,7 @@ public:
 
   void set_time_derivative(Field *f) { time_derivative_ = f; }
 
- virtual void activate(CSubProblem*) const;
+  virtual void activate(CSubProblem*) const;
   virtual void deactivate(CSubProblem*) const;
   bool is_active(const CSubProblem*) const;
   
@@ -109,20 +109,6 @@ public:
   bool is_defined(const CSubProblem*) const;
 
   virtual void registerProperty(Property*) const;
-
-//   // First, a way to initialize just with a function pointer that
-//   // takes a position and a degree-of-freedom index
-//   virtual void initialize(CSubProblem*, double (*f)(const Coord &pos, int dof));
-
-//   // Second, a way to initialize with a function pointer that takes
-//   // a position, a DOF index, and a generic pointer-to-void that
-//   // can contain some state information, as well as the pointer-to-void
-//   // itself. This is to be able to initialize from Python in a generic
-//   // way to keep the python dependent code independent from this
-//   // implementation, but not have to use global or static variables.
-//   virtual void initialize(CSubProblem*,
-// 			  double (*f)(const Coord &pos, int dof, void *p2v),
-// 			  void *p2v);
 
   // all() needs to be a function, because it is used during the
   // construction of global Field objects.  Making it a function
