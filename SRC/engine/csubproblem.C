@@ -350,17 +350,14 @@ void CSubProblem::fieldLooper(
 const
 {
   const std::vector<CompoundField*> *fields = all_compound_fields();
-  for(unsigned int f=0; f<fields->size(); ++f) {
-    CompoundField *field = (*fields)[f];
+  for(CompoundField *field : *fields) {
     if(is_defined_field(*field)) {
       Field *tdfield = field->time_derivative();
       bool tddefined = is_defined_field(*tdfield);
       (*fn)(data, *field, *tdfield, tddefined);
-#if DIM==2
       Field *zfield = field->out_of_plane();
       Field *tdzfield = field->out_of_plane_time_derivative();
       (*fn)(data, *zfield, *tdzfield, tddefined);
-#endif	// DIM==2
     }
   }
   delete fields;
@@ -370,6 +367,12 @@ const
 
 // Return a list of all the defined compound fields.  Compound fields
 // are the ones that correspond directly to physical fields.
+
+// TODO: all_compound_fields should return a std::vector and not a
+// pointer to a new one.  The move constructor will eliminate the
+// copy.  Or maybe it should return a reference to a list that's
+// stored in the class and updated when a field is defined or
+// undefined.
 
 std::vector<CompoundField*>* CSubProblem::all_compound_fields() const {
   std::vector<CompoundField*>* flist = new std::vector<CompoundField*>;
