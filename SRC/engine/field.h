@@ -213,23 +213,18 @@ std::ostream &operator<<(std::ostream &, const Field&);
 
 class CompoundField : public virtual Field {
 private:
-  //  Field * const time_derivative_;
   Field * const zfield_;	// the out-of-plane field
-  Field * const zfield_time_derivative_;
   int cfield_indx;
 protected:
   CompoundField(const std::string &name, int dim, Field *outofplane,
 		Field *timederiv, Field *outofplanetimederiv);
   virtual ~CompoundField();
 public:
-  //  Field *time_derivative() const {
-  //   return time_derivative_;
-  // }
   Field *out_of_plane() const {
     return zfield_;
   }
   Field *out_of_plane_time_derivative() const {
-    return zfield_time_derivative_;
+    return zfield_->time_derivative();
   }
   bool in_plane(const FEMesh*) const;
   bool in_plane(const CSubProblem*) const;

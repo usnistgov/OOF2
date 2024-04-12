@@ -186,7 +186,6 @@ CompoundField::CompoundField(const std::string &name, int dim,
 			     Field *outofplanetimederiv)
   : Field(name, dim),
     zfield_(outofplane),
-    zfield_time_derivative_(outofplanetimederiv),
     cfield_indx(allcompoundfields().size())
 {
   time_derivative_ = timederiv;
@@ -214,7 +213,7 @@ void CompoundField::define(CSubProblem *subproblem) const {
 void CompoundField::undefine(CSubProblem *subproblem) const {
   subproblem->do_undefine_field(*this);
   subproblem->do_undefine_field(*zfield_);
-  subproblem->do_undefine_field(*zfield_time_derivative_);
+  subproblem->do_undefine_field(*zfield_->time_derivative());
   subproblem->do_undefine_field(*time_derivative_);
 }
 
