@@ -80,12 +80,12 @@ def finishCompoundFieldConstruction(fld):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# See comment in field.swg about Field::time_derivative.
+# See comment in CompoundField in field.swg about these functions.
 
 def _Field_time_derivative(self):
     return _allFields[self.name() + "_t"]
 
-Field.time_derivative = _Field_time_derivative
+CompoundField.time_derivative = _Field_time_derivative
 
 def _Field_out_of_plane(self):
     return _allFields[self.name() + "_z"]

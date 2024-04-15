@@ -40,8 +40,11 @@ public:
   FloatBCApp() {}
   ~FloatBCApp() {}
   void editmap(LinearizedSystem*,
-	       double, FuncNode *, Field *, int,
-	       Equation *, int, int, int, int, double);
+	       double, FuncNode*, CompoundField*, int,
+	       Equation*, int, int, int, int, double);
+  void editmapSimple(LinearizedSystem*,
+		     double, FuncNode*, Field*, int,
+		     Equation*, int, int, int, double);
   typedef std::map<int, double> ProfileData;
   ProfileData profile_data;
 };

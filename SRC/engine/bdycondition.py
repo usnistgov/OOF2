@@ -730,13 +730,33 @@ class FloatBCBase(BC):
             # This is not the first application of this FloatBC to
             # a node in this boundary. 
             try:
-                self.root.applicator.editmap(linearsystem, value, node,
-                                             self.field, fldcomp,
-                                             self.equation, eqncomp,
-                                             self.root.dofmappingIndex,
-                                             self.root.eqnmappingIndex,
-                                             self.root.derivmappingIndex,
-                                             self.root.profileStart)
+                # We need to do this check before calling editmap or
+                # editmapSimple because editmap expects a
+                # CompoundField and editmapSimple expects a Field.
+                # The CompoundField is used when the time derivative
+                # field needs to be mapped, which is why it depends on
+                # the value of derivmappingIndex.
+                ## TODO: This is ugly.  The previous solution was to
+                ## give all Fields a time_derivative method so that
+                ## they could be passed to editmap.  That was uglier.
+                if self.root.derivmappingIndex != -1:
+                    self.root.applicator.editmap(
+                        linearsystem, value, node,
+                        self.field, fldcomp,
+                        self.equation, eqncomp,
+                        self.root.dofmappingIndex,
+                        self.root.eqnmappingIndex,
+                        self.root.derivmappingIndex,
+                        self.root.profileStart)
+                else:
+                    self.root.applicator.editmapSimple(
+                        linearsystem, value, node,
+                        self.field, fldcomp,
+                        self.equation, eqncomp,
+                        self.root.dofmappingIndex,
+                        self.root.eqnmappingIndex,
+                        self.root.profileStart)
+                                                       
             except ooferror.PyErrNoSuchField:
                 # Field or Eqn isn't defined at the node
                 pass

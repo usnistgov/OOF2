@@ -53,24 +53,22 @@ class Property;
 // Fields are *defined* if the nodes contain values for them.
 
 // Because a Field may be defined, or active, or in-plane, on one
-// CSubProblem, but not on another CSubProblem, much of the data for a Field is
-// stored in a CSubProblem::FieldData class inside the CSubProblem class.  This
-// is meant to be completely transparent, but it does mean that a
-// CSubProblem pointer has to be passed to some Field functions.
+// CSubProblem, but not on another CSubProblem, much of the data for a
+// Field is stored in a CSubProblem::FieldData class inside the
+// CSubProblem class.  This is meant to be completely transparent, but
+// it does mean that a CSubProblem pointer has to be passed to some
+// Field functions.
 
 // Access to degrees of freedom at Nodes (specifically, FuncNodes) is
 // done via routines like DegreeOfFreedom *Field::operator()(const
 // FuncNode&), but these aren't defined in the base class, because
 // they can act very differently depending on the type of
-// field. (Since the Fields are global variables, there's no need to
-// use virtual functions -- any Property needing to get the value of a
-// Field has access to the derived class functions.)
+// field.
 
-// ARRGH! That's not quite right! CompoundField::out_of_plane()
-// returns a pointer to a Field (base class). So we need at least one
-// way of accessing DegreeOfFreedom objects through the base
-// class. Therefore the function
-//    DegreeOfFreedom *Field::operator()(const FuncNode&, int component)
+// CompoundField::out_of_plane() returns a pointer to a Field (base
+// class). So we need at least one way of accessing DegreeOfFreedom
+// objects through the base class. Therefore the function
+// DegreeOfFreedom *Field::operator()(const FuncNode&, int component)
 // is virtual, even though the component argument doesn't make sense
 // for some fields.
 
@@ -81,7 +79,6 @@ private:
   const unsigned int index_;
 protected:
   const int dim;
-  Field *time_derivative_;
 public:
   Field(const std::string &, int);
 
@@ -94,10 +91,6 @@ public:
   int localindex(const FuncNode*, const FieldIndex &component) const;
 
   int ndof() const { return dim; } // number of degrees of freedom
-
-  Field *time_derivative() const { return time_derivative_; }
-
-  void set_time_derivative(Field *f) { time_derivative_ = f; }
 
   virtual void activate(CSubProblem*) const;
   virtual void deactivate(CSubProblem*) const;
@@ -213,18 +206,23 @@ std::ostream &operator<<(std::ostream &, const Field&);
 
 class CompoundField : public virtual Field {
 private:
+  Field * const time_derivative_;
   Field * const zfield_;	// the out-of-plane field
+  Field * const zfield_time_derivative_;
   int cfield_indx;
 protected:
   CompoundField(const std::string &name, int dim, Field *outofplane,
 		Field *timederiv, Field *outofplanetimederiv);
   virtual ~CompoundField();
 public:
+  Field *time_derivative() const {
+    return time_derivative_;
+  }
   Field *out_of_plane() const {
     return zfield_;
   }
   Field *out_of_plane_time_derivative() const {
-    return zfield_->time_derivative();
+    return zfield_time_derivative_;
   }
   bool in_plane(const FEMesh*) const;
   bool in_plane(const CSubProblem*) const;

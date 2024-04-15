@@ -83,7 +83,6 @@ typedef FieldIndex NewFieldIndex;
 %nodefaultctor Field;
 %nodefaultdtor Field;
 
-%rename(c_time_derivative) Field::time_derivative;
 %rename(c_components) Field::components;
 %rename(c_outOfPlaneComponents) Field::outOfPlaneComponents;
 
@@ -96,18 +95,6 @@ public:
   int ndof();
 
   const std::string &classname();
-
-  // The time_derivative, out_of_plane, and
-  // out_of_plane_time_derivative parts of a Field cannot be returned
-  // from C++ to Python in the usual way, because swig would create a
-  // separate object each time, and we want all the Field objects to
-  // be singletons in Python (one for Temperature, one for
-  // Displacement, etc).  So there are separate Python definitions of
-  // those methods in field.spy that retrieve cached singleton objects
-  // from a dictionary.  To create that dictionary, the newField
-  // function in problem.py calls Field.c_time_derivative, etc.
-  // c_time_derivative should not be used anywhere else.
-  Field *time_derivative(); // renamed to c_time_derivative
 
   ComponentsP components(Planarity p);
   ComponentsP outOfPlaneComponents();
@@ -144,6 +131,7 @@ public:
 %nodefaultctor CompoundField;
 %nodefaultdtor CompoundField;
 
+%rename(c_time_derivative) Field::time_derivative;
 %rename(c_out_of_plane) CompoundField::out_of_plane();
 %rename(c_out_of_plane_time_derivative) CompoundField::out_of_plane_time_derivative();
 
@@ -151,8 +139,18 @@ class CompoundField : public Field {
 public:
   bool in_plane(FEMesh*);
 
-  // See comment above re Field::time_derivative.
-  Field *out_of_plane();		 // renamed to c_out_of_plane
+  // The time_derivative, out_of_plane, and
+  // out_of_plane_time_derivative parts of a CompoundField cannot be
+  // returned from C++ to Python in the usual way, because swig would
+  // create a separate object each time, and we want all the Field
+  // objects to be singletons in Python (one for Temperature, one for
+  // Displacement, etc).  So there are separate Python definitions of
+  // those methods in field.spy that retrieve cached singleton objects
+  // from a dictionary.  To create that dictionary, the newField
+  // function in problem.py calls Field.c_time_derivative, etc.
+  // c_time_derivative should not be used anywhere else.
+  Field *time_derivative();	// renamed to c_time_derivative
+  Field *out_of_plane();	// renamed to c_out_of_plane
   Field *out_of_plane_time_derivative(); // to c_out_of_plane_time_derivative
 };
 

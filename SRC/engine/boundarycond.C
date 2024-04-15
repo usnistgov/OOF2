@@ -36,8 +36,8 @@ class Element;
 
 
 
-// FloatBCApp is a bit of a special case, it's the C implementation of
-// the "apply" function from the Python FloatBC class.  It does the
+// FloatBCApp is a bit of a special case.  It's the C implementation
+// of the "apply" function from the Python FloatBC class.  It does the
 // leg-work of changing the mapping lists so that they're
 // many-to-not-quite-so-many, aggregating DOF's and nodal equations
 // correctly.
@@ -51,7 +51,7 @@ class Element;
 // of the profile function.
 void FloatBCApp::editmap(LinearizedSystem *linsys,
 			 double val, FuncNode *node,
-			 Field *field, int fcomp,
+			 CompoundField *field, int fcomp,
 			 Equation *eqn, int eqcomp,
 			 int newdofindex, int neweqnindex, int newderivindex,
 			 double initprof)
@@ -79,8 +79,26 @@ void FloatBCApp::editmap(LinearizedSystem *linsys,
 		       derivindex, newderivindex);
 
   profile_data[doflistindex] += val - initprof;
-  // std::cerr << "FloatBCApp::editmap: profile_data[" << doflistindex
-  // 	    << "] = " << profile_data[doflistindex] << std::endl;
+ }
+
+// editmapSimple is just like editmap, except it has a Field argument
+// instead of a CompoundField, and it doesn't handle the time
+// derivative Field.
+
+void FloatBCApp::editmapSimple(LinearizedSystem *linsys,
+			 double val, FuncNode *node,
+			 Field *field, int fcomp,
+			 Equation *eqn, int eqcomp,
+			 int newdofindex, int neweqnindex,
+			 double initprof)
+{
+  int doflistindex = linsys->getSubproblemDoFIndex(node, field, fcomp);
+  int ndqlistindex = linsys->getSubproblemEqnIndex(node, eqn, eqcomp);
+  linsys->applyFloatBC(doflistindex, newdofindex,
+		       ndqlistindex, neweqnindex,
+		       -1, -1);	// derivindex, newderivindex don't exist
+
+  profile_data[doflistindex] += val - initprof;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

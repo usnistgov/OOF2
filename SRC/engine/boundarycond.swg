@@ -38,8 +38,11 @@ public:
   FloatBCApp();
   ~FloatBCApp();
   void editmap(LinearizedSystem*, double, FuncNode *, 
-	       Field *, int,
+	       CompoundField *, int,
 	       Equation *, int, int, int, int, double);
+  void editmapSimple(LinearizedSystem*, double, FuncNode *, 
+		     Field *, int,
+		     Equation *, int, int, int, double);
 };
 
 

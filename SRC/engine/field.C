@@ -91,8 +91,7 @@ Field *Field::getField(const std::string &nm) {
 Field::Field(const std::string &nm, int dofs)
   : name_(nm),
     index_(all().size()),
-    dim(dofs),
-    time_derivative_(0)
+    dim(dofs)
 {
   all().push_back(this);
 }
@@ -185,11 +184,11 @@ CompoundField::CompoundField(const std::string &name, int dim,
 			     Field *timederiv,
 			     Field *outofplanetimederiv)
   : Field(name, dim),
+    time_derivative_(timederiv),
     zfield_(outofplane),
+    zfield_time_derivative_(outofplanetimederiv),
     cfield_indx(allcompoundfields().size())
 {
-  time_derivative_ = timederiv;
-  zfield_->set_time_derivative(outofplanetimederiv);
   allcompoundfields().push_back(this);
 }
 
@@ -213,7 +212,7 @@ void CompoundField::define(CSubProblem *subproblem) const {
 void CompoundField::undefine(CSubProblem *subproblem) const {
   subproblem->do_undefine_field(*this);
   subproblem->do_undefine_field(*zfield_);
-  subproblem->do_undefine_field(*zfield_->time_derivative());
+  subproblem->do_undefine_field(*zfield_time_derivative_);
   subproblem->do_undefine_field(*time_derivative_);
 }
 
