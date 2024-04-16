@@ -28,7 +28,6 @@ class FEMesh;
 class MasterPosition;
 class SmallSystem;
 class TwoVectorField;
-class ThreeVectorField;
 class SymmetricTensorFlux;
 
 // TODO: Add all symmetries.
@@ -36,11 +35,7 @@ class SymmetricTensorFlux;
 class CViscoElasticity : public FluxProperty {
 private:
   Cijkl g_ijkl;
-#if DIM==2
   TwoVectorField *displacement;
-#elif DIM==3
-  ThreeVectorField *displacement;
-#endif
   SymmetricTensorFlux *stress_flux;
 public:
   CViscoElasticity(PyObject *registry, const std::string &name, Cijkl &g);

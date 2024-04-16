@@ -25,7 +25,6 @@ class Material;
 class FEMesh;
 class Position;
 class TwoVectorField;
-class ThreeVectorField;
 class SymmetricTensorFlux;
 class ElementNodeIterator;
 class DoubleVec;

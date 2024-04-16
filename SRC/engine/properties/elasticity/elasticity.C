@@ -33,11 +33,7 @@
 Elasticity::Elasticity(const std::string &nm, PyObject *registration)
   : FluxProperty(nm, registration)
 {
-#if DIM==2
   displacement = dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));
-#elif DIM==3
-  displacement = dynamic_cast<ThreeVectorField*>(Field::getField("Displacement"));
-#endif
   stress_flux = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
 }
 
@@ -46,10 +42,8 @@ void Elasticity::precompute(FEMesh*) {
 
 int Elasticity::integration_order(const CSubProblem *subp,
 				  const Element *el) const {
-#if DIM==2
   if(displacement->in_plane(subp))
     return el->dshapefun_degree();
-#endif
   return el->shapefun_degree();
 }
 
@@ -99,9 +93,6 @@ void Elasticity::flux_matrix(const FEMesh *mesh, const Element *element,
   shapeFuncVal     = node.shapefunction( x );
   shapeFuncGrad[0] = node.dshapefunction( 0, x );
   shapeFuncGrad[1] = node.dshapefunction( 1, x );
-#if DIM==3
-  shapeFuncGrad[2] = node.dshapefunction( 2, x );
-#endif
 
   const Cijkl modulus = cijkl( mesh, element, x );
 

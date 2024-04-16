@@ -30,7 +30,6 @@ class Position;
 class PropertyOutput;
 class SymmetricTensorFlux;
 class TwoVectorField;
-class ThreeVectorField;
 class SmallSystem;
 
 
@@ -64,11 +63,7 @@ public:
   virtual void geometricStrain(const FEMesh*, const Element*,
 			       const MasterPosition&, SymmMatrix3*) const;
 protected:
-#if DIM==2
   TwoVectorField *displacement;
-#elif DIM==3
-  ThreeVectorField *displacement;
-#endif
   SymmetricTensorFlux *stress_flux;
 };
 

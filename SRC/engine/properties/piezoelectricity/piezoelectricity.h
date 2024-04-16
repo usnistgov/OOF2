@@ -27,7 +27,6 @@ class Flux;
 class Material;
 class Position;
 class TwoVectorField;
-class ThreeVectorField;
 class OrientationPropBase;
 class OutputVal;
 class PropertyOutput;
@@ -40,11 +39,7 @@ class PiezoElectricity : public FluxProperty {
 protected:
   // Physical parameters.
   Elasticity *elasticity;	// pointer to this Material's Elasticity
-#if DIM==2
   TwoVectorField *displacement;
-#elif DIM==3
-  ThreeVectorField *displacement;
-#endif
   SymmetricTensorFlux *stress_flux;
   ScalarField *voltage;
   VectorFlux *total_polarization;

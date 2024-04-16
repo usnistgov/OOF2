@@ -31,7 +31,6 @@ class SmallTensor3;
 class SmallTensor4;
 class SmallSystem;
 class SymmetricTensorFlux;
-class ThreeVectorField;
 class TwoVectorField;
 
 
@@ -48,11 +47,7 @@ public:
 				 double time,
 				 SmallSystem *) const;
 protected:
-#if DIM==2
   TwoVectorField *displacement;
-#elif DIM==3
-  ThreeVectorField *displacement;
-#endif
   SymmetricTensorFlux *stress_flux;
 
   virtual void nonlin_stress(double x, double y, double z,

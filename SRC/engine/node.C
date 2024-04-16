@@ -63,24 +63,13 @@ bool operator==(const Node &n1, const Node &n2)
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 Coord FuncNode::displaced_position(const FEMesh *mesh) const {
-#if DIM==2
   static TwoVectorField *displcmnt = 0;
   if(!displcmnt)
     displcmnt = dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));
-#elif DIM==3
-  static ThreeVectorField *displcmnt = 0;
-  if(!displcmnt)
-    displcmnt = dynamic_cast<ThreeVectorField*>(Field::getField("Displacement"));
-#endif
   if(hasField(*displcmnt)) {
     double dx = (*displcmnt)(this, 0)->value(mesh);
     double dy = (*displcmnt)(this, 1)->value(mesh);
-#if DIM==2
     return pos + Coord(dx, dy);
-#elif DIM==3
-    double dz = (*displcmnt)(this, 2)->value(mesh);
-    return pos + Coord(dx, dy, dz);
-#endif
   }
   return pos;
 }

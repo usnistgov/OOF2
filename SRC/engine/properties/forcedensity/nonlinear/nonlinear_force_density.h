@@ -25,7 +25,6 @@ class Material;
 class FEMesh;
 class Position;
 class TwoVectorField;
-class ThreeVectorField;
 class SymmetricTensorFlux;
 class ElementNodeIterator;
 class SmallMatrix;
@@ -42,11 +41,7 @@ public:
   virtual void force_value(const FEMesh*, const Element*, const Equation*,
 			   const MasterPosition&, double time, SmallSystem*) const;
 protected:
-#if DIM==2
   TwoVectorField *displacement;
-#elif DIM==3
-  ThreeVectorField *displacement;
-#endif
   SymmetricTensorFlux *stress_flux;
 
   virtual void nonlin_force_density(double x, double y, double z, double time,
