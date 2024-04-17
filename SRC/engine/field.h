@@ -267,7 +267,7 @@ public:
   virtual void setValueFromOutputValue(FEMesh*, const FuncNode&,
 				       const OutputValue*);
 
-  virtual ComponentsP components(Planarity=ALL_INDICES/*irrelevant*/) const;
+  virtual ComponentsP components(Planarity=ALL_INDICES) const;
   virtual ComponentsP outOfPlaneComponents() const;
   virtual FieldIndex *getIndex(const std::string&) const;
   virtual const std::string &classname() const { return classname_; }
@@ -303,7 +303,7 @@ public:
   virtual ArithmeticOutputValue output(const FEMesh*, const FuncNode&) const;
   virtual void setValueFromOutputValue(FEMesh*, const FuncNode&,
 				       const OutputValue*);
-  virtual ComponentsP components(Planarity /*irrelevant*/) const;
+  virtual ComponentsP components(Planarity) const;
   virtual ComponentsP outOfPlaneComponents() const;
   virtual FieldIndex *getIndex(const std::string&) const;
   virtual const std::string &classname() const { return classname_; }
