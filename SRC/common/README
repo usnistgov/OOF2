@@ -3,5 +3,5 @@
 The Common module contains code used by both the Image and Engine
 modules.
 
-Nothing in the Common module should import anything in the Import or
+Nothing in the Common module should import anything in the Image or
 Engine modules.  oof.py is the one exception to this rule.

@@ -1,3 +1,13 @@
+OOF2 2.3.4
+
+* ScalarField::components(Planarity) and
+  TwoVectorField::components(Planarity) no longer ignore their
+  arguments.  They now return no components if Planarity is
+  OUT_OF_PLANE.  This probably had no real world consequences.
+
+* Fixed some internal inconsistencies in the Field class hierarchy.
+  This had no computational consequences.
+
 OOF2 2.3.3
 
 * Disabled selection of interface segments since interface properties
