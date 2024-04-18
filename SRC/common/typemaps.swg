@@ -69,7 +69,7 @@
 
 // ADD_REPR_GENERIC uses the tostring template (from
 // common/tostring.h, not std::to_string) instead of a class method,
-// so it's useful as long as the class has defines operator<<.  It
+// so it's useful as long as the class has defined operator<<.  It
 // should come before the class declaration in the swig file if the
 // swig file hasn't already #included common/tostring.h.
 // TODO PYTHON3? Implement it for -builtin.

@@ -171,8 +171,8 @@ public:
   
   virtual void boundary_integral(const CSubProblem*, LinearizedSystem*,
 				 const Flux*, 
-				 const BoundaryEdge *, const EdgeGaussPoint&, 
-				 const FluxNormal *) 
+				 const BoundaryEdge*, const EdgeGaussPoint&, 
+				 const FluxNormal*) 
     const;
   virtual int integration_order(const Element*) const;
 
@@ -200,7 +200,7 @@ public:
   virtual void boundary_integral(const CSubProblem*, LinearizedSystem*,
 				 const Flux*, 
 				 const BoundaryEdge*, const EdgeGaussPoint&, 
-				 const FluxNormal *)
+				 const FluxNormal*)
     const;
   virtual int integration_order(const Element*) const;
 

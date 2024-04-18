@@ -1140,7 +1140,8 @@ eqnmenu.addItem(oofmenu.OOFMenuItem(
     those &properties; must couple to <link
     linkend='MenuItem-OOF.Mesh.Field.Define'>defined</link> &fields;.
     There must be as many active &equations; as there are <link
-    linkend='MenuItem-OOF.Mesh.Field.Activate'>active</link> &fields;</para>
+    linkend='MenuItem-OOF.Mesh.Field.Activate'>active</link> &fields;.
+    </para>
 
     <para> DEPRECATED. Use <xref
     linkend="MenuItem-OOF.Subproblem.Equation.Activate"/> instead.

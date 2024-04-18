@@ -618,7 +618,7 @@ eqnmenu.addItem(oofmenu.OOFMenuItem(
     must couple to <link
     linkend='MenuItem-OOF.Subproblem.Field.Define'>defined</link> &fields;.
     There must be as many active &equations; as there are <link
-    linkend='MenuItem-OOF.Subproblem.Field.Activate'>active</link> &fields;
+    linkend='MenuItem-OOF.Subproblem.Field.Activate'>active</link> &fields;.
 
 
     </para>"""
