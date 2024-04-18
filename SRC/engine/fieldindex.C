@@ -100,6 +100,10 @@ bool OutOfPlaneVectorFieldCompIterator::operator!=(
   return other.index != index;
 }
 
+void OutOfPlaneVectorFieldIndex::print(std::ostream &os) const {
+  os << "OutOfPlaneVectorFieldIndex(" << index_ << ")";
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 static const int rowset[] = { 0, 1, 2, 1, 0, 0 };

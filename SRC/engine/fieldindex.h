@@ -187,6 +187,7 @@ public:
   virtual FieldIndex *clone() const {
     return new OutOfPlaneVectorFieldIndex(*this);
   }
+  virtual void print(std::ostream&) const;
 };
 
 // The SymTensorIndex stores the Voigt representation of the ij index
