@@ -151,6 +151,10 @@ void SymTensorIndex::print(std::ostream &os) const {
   os << "SymTensorIndex(" << row() << "," << col() << ")";
 }
 
+void OutOfPlaneSymTensorIndex::print(std::ostream &os) const {
+  os << "OutOfPlaneSymTensorIndex(" << row() << ", " << col() << ")";
+}
+
 // SymTensor components are often needed independent of a flux or
 // field, so they can be retrieved from this...
 SymTensorIJComponents symTensorIJComponents;

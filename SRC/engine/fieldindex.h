@@ -242,6 +242,7 @@ public:
     return new OutOfPlaneSymTensorIndex(*this);
   }
   virtual int integer() const { return v - 2; }
+  virtual void print(std::ostream&) const;
 };
 
 

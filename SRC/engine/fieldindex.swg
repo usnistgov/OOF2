@@ -73,7 +73,7 @@ public:
   OutOfPlaneSymTensorIndex(int, int);
 };
 
-ADD_REPR_GENERIC(SymTensorIndex);
+ADD_REPR_GENERIC(OutOfPlaneSymTensorIndex);
 
 //==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//
 
