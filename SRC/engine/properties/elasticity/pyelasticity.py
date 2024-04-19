@@ -24,13 +24,12 @@
 ## expect different kinds of indices.  These need to be unified.  For
 ## example, in this file, cijkl is indexed by passing a 2-tuple of
 ## integers, which are obtained by the 'integer' method of an
-## IteratorP, to Cijkl.__getitem__.  In pystressfreestrain.py, getting
+## FieldIndex, to Cijkl.__getitem__.  In pystressfreestrain.py, getting
 ## a component of a SymmMatrix3 requires passing a SymTensorIterator's
-## .col() and .rol() to SymmMatrix3.get().
+## .col() and .row() to SymmMatrix3.get().
 ##
-## Also, this code would be a lot neater if FieldIterator classes were
-## really Python iterators.  The loop in flux_matrix(), below, should
-## look something like this:
+## Also, the loop in flux_matrix(), below, should look something like
+## this:
 # for ij in problem.Stress.iterator(planarity.ALL_INDICES):
 #     for ell in problem.Displacement.iterator(planarity.ALL_INDICES):
 #         for k in (0, 1):

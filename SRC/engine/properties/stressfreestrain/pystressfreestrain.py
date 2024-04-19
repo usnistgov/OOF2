@@ -16,9 +16,6 @@ from ooflib.common import debug
 from ooflib.engine import problem
 from ooflib.engine import propertyregistration
 
-## TODO: See the TODO in pyelasticity.py about improving the Python
-## Properties.
-
 class PyStressFreeStrain(pypropertywrapper.PyFluxProperty):
 
     def cross_reference(self, material):
@@ -29,6 +26,7 @@ class PyStressFreeStrain(pypropertywrapper.PyFluxProperty):
         strain0 = symmmatrix.SymmMatrix3(0.1, 0.1, 0.1, 0, 0, 0)
         for ij in problem.Stress.components(planarity.ALL_INDICES):
             for kl in fieldindex.symTensorIJComponents:
+                # TODO: use strain0(kl)
                 strain_kl = strain0.get(kl.row(), kl.col()) # TODO: too ugly
                 if kl.diagonal(): 
                     fluxdata.add_offset_vector_element(
@@ -38,8 +36,9 @@ class PyStressFreeStrain(pypropertywrapper.PyFluxProperty):
                     fluxdata.add_offset_vector_element(
                         ij,
                         2.0*cijkl[ij.integer(), kl.integer()]*strain_kl)
-        
-        ## It would be nice if this could have been written like this:
+
+        ## TODO: Use cijkl(ij, kl) instead of the mess above.
+        ## TODO: It would be nice if this could be written like this:
         # for ij in problem.Stress.components(planarity.ALL_INDICES):
         #     for kl in fieldindex.symTensorIJComponents:
         #         if kl.diagonal():

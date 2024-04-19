@@ -103,7 +103,7 @@
 #include "engine/indextypes.h"
 #include "engine/planarity.h"
 
-class Components; // iterator over the components of a Field, Flux or Equation
+class Components; // "container" for the components of a Field, Flux or Equation
 class ComponentsP;	     // wrapper around a pointer to Components
 
 class FieldIndex : public PythonExportable<FieldIndex> {

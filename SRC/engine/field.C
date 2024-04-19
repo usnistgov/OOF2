@@ -305,11 +305,6 @@ void ScalarFieldBase::setValueFromOutputValue(FEMesh *mesh,
   operator()(node)->value(mesh) = sov.value();
 }
 
-
-// IteratorP ScalarFieldBase::iterator(Planarity) const {
-//   return IteratorP(new ScalarFieldIterator);
-// }
-
 ComponentsP ScalarFieldBase::components(Planarity planarity) const {
   if(planarity == OUT_OF_PLANE) {
     static const EmptyFieldComponents comps;
@@ -478,12 +473,6 @@ void VectorFieldBase::setValueFromOutputValue(FEMesh *mesh,
   for(int i=0; i<dim; i++)
     (*this)(node, i)->value(mesh) = vov[i];
 }
-
-// IteratorP VectorFieldBase::iterator(Planarity planarity) const {
-//   int mindim = (planarity == OUT_OF_PLANE ? 2 : 0);
-//   int maxdim = (planarity == IN_PLANE ? 2 : ndof());
-//   return IteratorP(new VectorFieldIterator(mindim, maxdim));
-// }
 
 ComponentsP VectorFieldBase::components(Planarity planarity) const {
   static const VectorFieldComponents allcomps(0, dim);

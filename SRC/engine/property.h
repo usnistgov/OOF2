@@ -230,7 +230,7 @@ public:
     : Property(nm, registration)
   {}
   // this function returns the polynomial order (in x and y) of the
-  // quantity computed by fluxmatrix.
+  // quantity computed by flux_matrix.
   virtual int integration_order(const CSubProblem*, const Element*) const = 0;
 };
 
