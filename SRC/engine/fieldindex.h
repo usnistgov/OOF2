@@ -110,7 +110,6 @@ class FieldIndex : public PythonExportable<FieldIndex> {
 public:
   FieldIndex() {}
   virtual ~FieldIndex() { }
-  virtual FieldIndex *clone() const = 0; // create a copy
 
   // The possible values of the index must be ordered in some
   // (possibly arbitrary) way, so that, for example, the corresponding
@@ -146,7 +145,6 @@ public:
   ScalarFieldIndex() {}
   virtual ~ScalarFieldIndex() {}
   virtual const std::string &classname() const;
-  virtual FieldIndex *clone() const { return new ScalarFieldIndex; }
   virtual int integer() const { return 0; }
   virtual bool in_plane() const { return true; }
   virtual void print(std::ostream&) const;
@@ -165,7 +163,6 @@ public:
   VectorFieldIndex(const VectorFieldIndex &o) : index_(o.index_) {}
   virtual ~VectorFieldIndex() {}
   virtual const std::string &classname() const;
-  virtual FieldIndex *clone() const { return new VectorFieldIndex(*this); }
   virtual int integer() const { return index_; }
   virtual bool in_plane() const { return index_ < 2; }
   virtual void print(std::ostream&) const;
@@ -184,9 +181,6 @@ public:
   OutOfPlaneVectorFieldIndex(SpaceIndex i) : VectorFieldIndex(i) {}
   virtual const std::string &classname() const;
   virtual int integer() const { return index_ - 2; }
-  virtual FieldIndex *clone() const {
-    return new OutOfPlaneVectorFieldIndex(*this);
-  }
   virtual void print(std::ostream&) const;
 };
 
@@ -215,7 +209,6 @@ public:
   SymTensorIndex(const SymTensorIndex &o) : v(o.v) {}
   virtual ~SymTensorIndex() {}
   virtual const std::string &classname() const;
-  virtual FieldIndex *clone() const { return new SymTensorIndex(*this); }
   virtual int integer() const { return v; }
   int row() const;		// i
   int col() const;		// j
@@ -239,9 +232,6 @@ public:
   OutOfPlaneSymTensorIndex(SpaceIndex i) : SymTensorIndex(i) {}
   OutOfPlaneSymTensorIndex(SpaceIndex i, SpaceIndex j) : SymTensorIndex(i,j) {}
   virtual const std::string &classname() const;
-  virtual FieldIndex *clone() const {
-    return new OutOfPlaneSymTensorIndex(*this);
-  }
   virtual int integer() const { return v - 2; }
   virtual void print(std::ostream&) const;
 };
@@ -256,7 +246,7 @@ protected:
   FieldIndex *fieldindex;
 public:
   IndexP(FieldIndex *i) : fieldindex(i) {}
-  IndexP(const IndexP &o) : fieldindex(o.fieldindex->clone()) {}
+  IndexP(const IndexP &o) : fieldindex(o.fieldindex) {}
   IndexP(IndexP &&o) : fieldindex(o.fieldindex) { o.fieldindex = nullptr; }
   ~IndexP() { delete fieldindex; }
   int integer() const { return fieldindex->integer(); }
@@ -264,9 +254,6 @@ public:
   // Allow IndexP to be used where a FieldIndex& or FieldIndex* is expected
   operator const FieldIndex&() const { return *fieldindex; }
   operator const FieldIndex*() const { return fieldindex; }
-  IndexP clone() const {
-    return IndexP(fieldindex->clone());
-  }
   const std::string &shortrepr() const {
     return fieldindex->shortrepr();
   }
@@ -294,7 +281,6 @@ public:
   virtual ComponentIterator& operator++() = 0;
   virtual FieldIndex *fieldindex() const = 0; // returns new FieldIndex
   IndexP operator*() const { return IndexP(fieldindex()); }
-  virtual ComponentIterator *clone() const = 0;
   virtual void print(std::ostream&) const = 0;
 };
 
@@ -314,9 +300,6 @@ public:
   {
     other.iter = nullptr; // move constructor takes ownership of the pointer
   }
-  ComponentIteratorP(const ComponentIteratorP &other)
-    : iter(other.iter->clone())
-  {}
   bool operator!=(const ComponentIteratorP &other) const {
     return *iter != *other.iter;
   }
@@ -367,9 +350,6 @@ public:
   virtual EmptyFieldIterator &operator++() { return *this; }
   virtual bool operator!=(const ComponentIterator&) const { return false; }
   virtual FieldIndex *fieldindex() const { return nullptr; }
-  virtual ComponentIterator *clone() const {
-    return new EmptyFieldIterator();
-  }
   virtual void print(std::ostream&) const;
 };
 
@@ -393,9 +373,6 @@ public:
   virtual ScalarFieldCompIterator &operator++();
   virtual bool operator!=(const ComponentIterator&) const;
   virtual FieldIndex *fieldindex() const;
-  virtual ComponentIterator *clone() const {
-    return new ScalarFieldCompIterator(*this);
-  }
   virtual void print(std::ostream&) const;
 };
 
@@ -425,9 +402,6 @@ public:
   virtual bool operator!=(const ComponentIterator&) const;
   virtual FieldIndex *fieldindex() const {
     return new VectorFieldIndex(index);
-  }
-  virtual ComponentIterator *clone() const {
-    return new VectorFieldCompIterator(*this);
   }
   virtual void print(std::ostream&) const;
 };
@@ -468,9 +442,6 @@ public:
   virtual bool operator!=(const ComponentIterator&) const;
   virtual FieldIndex *fieldindex() const {
     return new OutOfPlaneVectorFieldIndex(index);
-  }
-  virtual ComponentIterator *clone() const {
-    return new OutOfPlaneVectorFieldCompIterator(*this);
   }
   virtual void print(std::ostream&) const;
 };
@@ -526,9 +497,6 @@ public:
   virtual FieldIndex *fieldindex() const {
     return new SymTensorIndex(v);
   }
-  virtual ComponentIterator *clone() const {
-    return new SymTensorIterator(*this);
-  }
   // SymTensorIterator is sometimes used directly, where the
   // generalization introduced by Components just gets in the way.
   // Giving it some of the SymTensorIndex methods is convenient.
@@ -548,9 +516,6 @@ public:
     if(v == 2) v = 5;
     return *this;
   }
-  virtual ComponentIterator *clone() const {
-    return new SymTensorInPlaneIterator(*this);
-  }
   virtual void print(std::ostream&) const;
 };
 
@@ -561,9 +526,6 @@ public:
   SymTensorOutOfPlaneIterator(int i, int j) : SymTensorIterator(i, j) {}
   SymTensorOutOfPlaneIterator &operator++() { v++; return *this; }
   virtual int integer() const { return v; }
-  virtual ComponentIterator *clone() const {
-    return new SymTensorOutOfPlaneIterator(*this);
-  }
   virtual void print(std::ostream&) const;
 };
 
@@ -576,9 +538,6 @@ public:
     return new OutOfPlaneSymTensorIndex(v);
   }
   virtual int integer() const { return v - 2; }
-  virtual ComponentIterator *clone() const {
-    return new OutOfPlaneSymTensorIterator(*this);
-  }
   virtual void print(std::ostream&) const;
 };
 
