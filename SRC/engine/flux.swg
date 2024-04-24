@@ -22,6 +22,7 @@
 %{
 #include "engine/flux.h"
 #include "engine/outputval.h"
+typedef FieldIndex NewFieldIndex;
 %}
 
 PYTHONEXPORTABLE(Flux);
@@ -42,6 +43,7 @@ public:
   ComponentsP components(Planarity) const;
   ComponentsP divergenceComponents() const;
   ComponentsP outOfPlaneComponents() const;
+  NewFieldIndex *getIndex(const std::string&) const;
 };
 
 ADD_REPR(Flux, repr);
