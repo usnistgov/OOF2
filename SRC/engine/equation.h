@@ -24,7 +24,6 @@ class Equation;
 #include "common/identification.h"
 #include "common/pythonexportable.h"
 #include "engine/fieldeqnlist.h"
-#include "engine/indextypes.h"
 #include <string>
 #include <vector>
 

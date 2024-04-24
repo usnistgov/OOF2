@@ -21,7 +21,6 @@ class MasterElement;
 #include "common/pythonexportable.h"
 #include "engine/gausspoint.h"
 #include "engine/indextypes.h"
-#include "engine/indextypes.h"
 #include "engine/shapefunction.h"
 #include <string>
 #include <vector>

@@ -611,9 +611,14 @@ void testIterator_(const Field *field) {
       std::cerr << "OUT_OF_PLANE";
     else
       std::cerr << "ALL_INDICES";
-    std::cerr << ":";
+    std::cerr << ":" << std::endl;
     for(IndexP fieldcomp : field->components(planarity)) {
 	std::cerr << " " << fieldcomp;
+    }
+    std::cerr << std::endl;
+    ComponentsP comps = field->components(planarity);
+    for(ComponentIteratorP i=comps.begin(); i!=comps.end(); ++i) {
+      std::cerr << " " << *i;
     }
     std::cerr << std::endl;
   }

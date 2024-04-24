@@ -93,7 +93,7 @@ public:
 // Because the COrientation classes are derived from OutputVal, they
 // need a mechanism to fetch the names and values of their parameters
 // using index and iterator classes derived from FieldIndex and
-// FieldIterator.  This has to be done separately for each
+// ComponentIterator.  This has to be done separately for each
 // COrientation subclass, but fortunately can be done with templates.
 // See the TODO in outputval.h about misusing FieldIndex.
 
