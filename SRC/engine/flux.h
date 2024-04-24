@@ -77,9 +77,9 @@ public:
   const std::string &name() const { return name_; }
   std::string *repr() const { return new std::string(name_); }
 
-  virtual ComponentsP components(Planarity) const = 0;
-  virtual ComponentsP divergenceComponents() const = 0;
-  virtual ComponentsP outOfPlaneComponents() const = 0;
+  virtual const Components* components(Planarity) const = 0;
+  virtual const Components* divergenceComponents() const = 0;
+  virtual const Components* outOfPlaneComponents() const = 0;
   virtual FieldIndex *getIndex(const std::string&) const = 0;
   virtual FieldIndex *getOutOfPlaneIndex(const std::string&) const = 0;
   virtual FieldIndex *divergence_getIndex(const std::string&) const = 0;
@@ -168,9 +168,9 @@ public:
 			      const FluxNormal *,
 			      DoubleVec&) const;
 
-  virtual ComponentsP components(Planarity) const;
-  virtual ComponentsP divergenceComponents() const;
-  virtual ComponentsP outOfPlaneComponents() const;
+  virtual const Components* components(Planarity) const;
+  virtual const Components* divergenceComponents() const;
+  virtual const Components* outOfPlaneComponents() const;
 
   virtual FieldIndex *getIndex(const std::string&) const;
   virtual FieldIndex *getOutOfPlaneIndex(const std::string&) const;
@@ -224,9 +224,9 @@ public:
 
   virtual ArithmeticOutputValue newOutputValue() const;
 
-  virtual ComponentsP components(Planarity) const;
-  virtual ComponentsP divergenceComponents() const;
-  virtual ComponentsP outOfPlaneComponents() const;
+  virtual const Components* components(Planarity) const;
+  virtual const Components* divergenceComponents() const;
+  virtual const Components* outOfPlaneComponents() const;
   virtual FieldIndex *getIndex(const std::string&) const;
   virtual FieldIndex *getOutOfPlaneIndex(const std::string&) const;
   virtual FieldIndex *divergence_getIndex(const std::string&) const;

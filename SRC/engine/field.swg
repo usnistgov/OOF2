@@ -96,8 +96,8 @@ public:
 
   const std::string &classname();
 
-  ComponentsP components(Planarity p);
-  ComponentsP outOfPlaneComponents();
+  const Components* components(Planarity p);
+  const Components* outOfPlaneComponents();
 
   void registerProperty(Property*);
 

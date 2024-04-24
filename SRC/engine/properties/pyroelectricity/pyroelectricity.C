@@ -171,7 +171,7 @@ void PyroElectricity::flux_matrix(const FEMesh *mesh,
 
   double sf = nu.shapefunction(pos);
   if(*flux==*total_polarization)
-    for(IndexP i : flux->components(ALL_INDICES)) {
+    for(IndexP i : *flux->components(ALL_INDICES)) {
       fluxdata->stiffness_matrix_element(i,temperature,nu) +=
 	effective_modulus[i.integer()]*sf;
     }
@@ -191,7 +191,7 @@ void PyroElectricity::flux_offset(const FEMesh *mesh,
     set_effective_modulus(mesh, element, pos);
 
   if(*flux==*total_polarization)
-    for(IndexP i : flux->components(ALL_INDICES)) {
+    for(IndexP i : *flux->components(ALL_INDICES)) {
       // It's T-T0, so minus.  
       fluxdata->offset_vector_element(i) -=
 	effective_modulus[i.integer()]*tzero;

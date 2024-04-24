@@ -59,7 +59,7 @@ def finishConstruction(eqn):
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def _Equation_components(self):
-    comps = self.c_components() # a swigged generic ComponentsP object
+    comps = self.c_components() # a swigged Components object
     beginp = comps.begin()      # generic ComponentIteratorP object
     endp = comps.end()
     while beginp != endp:

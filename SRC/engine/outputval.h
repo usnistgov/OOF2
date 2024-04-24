@@ -51,8 +51,8 @@ public:
   virtual FieldIndex *getIndex(const std::string&) const = 0;
   // Like Fields, Fluxes, and Equations, OutputVal components are
   // indexed by FieldIndex objects and can be iterated over with
-  // ComponentsP.
-  virtual ComponentsP components() const = 0;
+  // Components.
+  virtual const Components* components() const = 0;
 
   friend class OutputValue;
 };
@@ -136,7 +136,7 @@ public:
   virtual double operator[](const FieldIndex&) const;
   virtual double &operator[](const FieldIndex&);
   virtual FieldIndex *getIndex(const std::string&) const;
-  virtual ComponentsP components() const;
+  virtual const Components* components() const;
   virtual void print(std::ostream&) const;
 };
 
@@ -202,7 +202,7 @@ public:
   double dot(const std::vector<double>&) const;
 
   virtual std::vector<double> *value_list() const;
-  virtual ComponentsP components() const;
+  virtual const Components* components() const;
   double operator[](int i) const { return data[i]; }
   double &operator[](int i) { return data[i]; }
   virtual double operator[](const FieldIndex&) const;
@@ -287,7 +287,7 @@ public:
 
 // TODO: ListOutputValComponents doesn't really need to be a separate
 // class. ListOutputVal could be derived from Components, and
-// ListOutputVal::components() coudl return ComponentsP(this).
+// ListOutputVal::components() could return (this).
 
 class ListOutputVal : public NonArithmeticOutputVal {
 private:
@@ -308,7 +308,7 @@ public:
   unsigned int size() const { return size_; }  
   virtual ListOutputVal *zero() const;
   virtual ListOutputVal *clone() const;
-  virtual ComponentsP components() const;
+  virtual const Components* components() const;
   double &operator[](int i) { return data[i]; }
   double operator[](int i) const { return data[i]; }
   virtual double operator[](const FieldIndex&) const;

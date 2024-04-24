@@ -156,9 +156,9 @@ FieldIndex *ScalarOutputVal::getIndex(const std::string&) const {
   return new ScalarFieldIndex();
 }
 
-ComponentsP ScalarOutputVal::components() const {
+const Components* ScalarOutputVal::components() const {
   static const ScalarFieldComponents comps;
-  return ComponentsP(&comps);
+  return &comps;
 }
 
 ScalarOutputVal operator+(const ScalarOutputVal &a, const ScalarOutputVal &b) {
@@ -275,19 +275,16 @@ double VectorOutputVal::dot(const std::vector<double> &other) const {
   return sum;
 }
 
-ComponentsP VectorOutputVal::components() const {
-  // Because ComponentsP doesn't delete its Components, we can't
-  // allocate and return a new Components object each time this is
-  // called.  But we can't create a Components object in the
-  // VectorOutputVal constructor, because we might not know the size
-  // yet.
+const Components* VectorOutputVal::components() const {
+  // We can't create a Components object in the VectorOutputVal
+  // constructor, because we might not know the size yet.
   if(components_ == nullptr ||
      components_->min() != 0 || components_->max() != size_)
     {
       delete components_;
       components_ = new VectorFieldComponents(0, size_);
     }
-  return ComponentsP(components_);
+  return components_;
 }
 
 double VectorOutputVal::operator[](const FieldIndex &fi) const {
@@ -385,8 +382,8 @@ ListOutputVal::~ListOutputVal() {
   delete [] data;
 }
 
-ComponentsP ListOutputVal::components() const {
-  return ComponentsP(&components_);
+const Components* ListOutputVal::components() const {
+  return &components_;
 }
 
 double ListOutputVal::operator[](const FieldIndex &fi) const {

@@ -99,10 +99,11 @@ public:
   bool operator!=(const ComponentIteratorP&) const;
 };
 
-%nodefaultctor ComponentsP;
-%feature("valuewrapper") ComponentsP;
+%nodefaultctor Components;
+%nodefaultdtor Components;
+%feature("valuewrapper") Components;
 
-class ComponentsP {
+class Components {
 public:
   ComponentIteratorP begin() const;
   ComponentIteratorP end() const;
@@ -132,7 +133,7 @@ public:
 
 extern const SymTensorIJComponents symTensorIJComponents;
 
-ComponentsP getSymTensorComponents(Planarity);
+const Components* getSymTensorComponents(Planarity);
 
 %pythoncode "engine/fieldindex.spy"
 

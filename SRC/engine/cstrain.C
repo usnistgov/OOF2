@@ -72,14 +72,14 @@ void computeDisplacementGradient(const FEMesh *mesh, const Element *element,
     ArithmeticOutputValue oddisp =
       element->outputFieldDeriv(mesh, *displacement, &j, pt);
     // loop over field components
-    for(IndexP i : displacement->components(ALL_INDICES)) 
+    for(IndexP i : *displacement->components(ALL_INDICES)) 
       grad(i.integer(), j) += oddisp[i];
   }
 
   if(!displacement->in_plane(mesh)) {
     Field *oop = displacement->out_of_plane();
     ArithmeticOutputValue oddispz = element->outputField(mesh, *oop, pt);
-    for(IndexP i : oop->components(ALL_INDICES))
+    for(IndexP i : *oop->components(ALL_INDICES))
       grad(i.integer(), 2) += oddispz[i]; 
   }
 }
@@ -92,7 +92,7 @@ void computeDisplacement(const FEMesh *mesh, const Element *element,
     dynamic_cast<CompoundField*>(Field::getField("Displacement"));
   assert(disp.size() == 3);
   ArithmeticOutputValue odisp = element->outputField(mesh, *displacement, pt);
-  for(IndexP i : displacement->components(ALL_INDICES))
+  for(IndexP i : *displacement->components(ALL_INDICES))
     disp[i.integer()] += odisp[i];
 }
 

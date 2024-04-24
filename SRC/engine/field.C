@@ -21,7 +21,6 @@
 #include "engine/field.h"
 #include "engine/fieldeqnlist.h"
 #include "engine/fieldindex.h"
-#include "engine/indextypes.h"
 #include "engine/meshiterator.h"
 #include "engine/node.h"
 #include "engine/ooferror.h"
@@ -305,18 +304,18 @@ void ScalarFieldBase::setValueFromOutputValue(FEMesh *mesh,
   operator()(node)->value(mesh) = sov.value();
 }
 
-ComponentsP ScalarFieldBase::components(Planarity planarity) const {
+const Components* ScalarFieldBase::components(Planarity planarity) const {
   if(planarity == OUT_OF_PLANE) {
     static const EmptyFieldComponents comps;
-    return ComponentsP(&comps);
+    return &comps;
   }
   static const ScalarFieldComponents comps;
-  return ComponentsP(&comps);
+  return &comps;
 }
 
-ComponentsP ScalarFieldBase::outOfPlaneComponents() const {
+const Components* ScalarFieldBase::outOfPlaneComponents() const {
   static const EmptyFieldComponents comps;
-  return ComponentsP(&comps);
+  return &comps;
 }
 
 FieldIndex *ScalarFieldBase::getIndex(const std::string &) const {
@@ -396,18 +395,18 @@ void TwoVectorFieldBase::setValueFromOutputValue(
   (*this)(node, 1)->value(mesh) = vov[1];
 }
 
-ComponentsP TwoVectorFieldBase::components(Planarity planarity) const {
+const Components* TwoVectorFieldBase::components(Planarity planarity) const {
   if(planarity == OUT_OF_PLANE) {
     static const EmptyFieldComponents comps;
-    return ComponentsP(&comps);
+    return &comps;
   }
   static VectorFieldComponents comps(0, 2);
-  return ComponentsP(&comps);
+  return &comps;
 }
 
-ComponentsP TwoVectorFieldBase::outOfPlaneComponents() const {
+const Components* TwoVectorFieldBase::outOfPlaneComponents() const {
   static const EmptyFieldComponents comps;
-  return ComponentsP(&comps);
+  return &comps;
 }
 
 FieldIndex *TwoVectorFieldBase::getIndex(const std::string &str) const {
@@ -474,24 +473,24 @@ void VectorFieldBase::setValueFromOutputValue(FEMesh *mesh,
     (*this)(node, i)->value(mesh) = vov[i];
 }
 
-ComponentsP VectorFieldBase::components(Planarity planarity) const {
+const Components* VectorFieldBase::components(Planarity planarity) const {
   static const VectorFieldComponents allcomps(0, dim);
   static const VectorFieldComponents inplane(0, 2);
   static const VectorFieldComponents outofplane(2,dim);
     
   if(planarity == ALL_INDICES) 
-    return ComponentsP(&allcomps);
+    return &allcomps;
   if(planarity == IN_PLANE)
-    return ComponentsP(&inplane);
-  return ComponentsP(&outofplane);
+    return &inplane;
+  return &outofplane;
 }
 
 // Out of plane components returns just one component, 'z', but its an
 // OutOfPlaneVectorFieldIndex, not a VectorFieldIndex.
 
-ComponentsP VectorFieldBase::outOfPlaneComponents() const {
+const Components* VectorFieldBase::outOfPlaneComponents() const {
   static OutOfPlaneVectorFieldComponents comp(dim);
-  return ComponentsP(&comp);
+  return &comp;
 }
 
 FieldIndex *VectorFieldBase::getIndex(const std::string &str) const {
@@ -580,24 +579,24 @@ void SymmetricTensorField::setValueFromOutputValue(FEMesh* m,
   free(vvec);
 }
 
-ComponentsP SymmetricTensorField::components(Planarity planarity) const {
+const Components* SymmetricTensorField::components(Planarity planarity) const {
   static const SymTensorComponents allcomps;
   static const SymTensorInPlaneComponents inplane;
   static const SymTensorOutOfPlaneComponents outofplane;
   if(planarity == ALL_INDICES)
-    return ComponentsP(&allcomps);
+    return &allcomps;
   if(planarity == IN_PLANE)
-    return ComponentsP(&inplane);
-  return ComponentsP(&outofplane);
+    return &inplane;
+  return &outofplane;
 }
 
 FieldIndex *SymmetricTensorField::getIndex(const std::string& str) const {
   return new SymTensorIndex(SymTensorIndex::str2voigt(str));
 }
 
-ComponentsP SymmetricTensorField::outOfPlaneComponents() const {
+const Components* SymmetricTensorField::outOfPlaneComponents() const {
   static const OutOfPlaneSymTensorComponents comps;
-  return ComponentsP(&comps);
+  return &comps;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -612,12 +611,12 @@ void testIterator_(const Field *field) {
     else
       std::cerr << "ALL_INDICES";
     std::cerr << ":" << std::endl;
-    for(IndexP fieldcomp : field->components(planarity)) {
+    for(IndexP fieldcomp : *field->components(planarity)) {
 	std::cerr << " " << fieldcomp;
     }
     std::cerr << std::endl;
-    ComponentsP comps = field->components(planarity);
-    for(ComponentIteratorP i=comps.begin(); i!=comps.end(); ++i) {
+    const Components* comps = field->components(planarity);
+    for(ComponentIteratorP i=comps->begin(); i!=comps->end(); ++i) {
       std::cerr << " " << *i;
     }
     std::cerr << std::endl;

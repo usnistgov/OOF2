@@ -118,10 +118,10 @@ void NonlinearForceDensity::force_deriv_matrix(const FEMesh   *mesh,
 
   shapeFuncVal = j.shapefunction( point );
 
-  for(IndexP eqncomp : eqn->components()) {
+  for(IndexP eqncomp : *eqn->components()) {
     int eqno = eqncomp.integer();
 
-    for (IndexP fieldcomp : displacement->components(ALL_INDICES)) {
+    for (IndexP fieldcomp : *displacement->components(ALL_INDICES)) {
       int fieldno = fieldcomp.integer();
 
       eqndata->force_deriv_matrix_element( eqncomp, displacement, fieldcomp, j )

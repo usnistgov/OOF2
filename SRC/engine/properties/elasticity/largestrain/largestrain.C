@@ -154,7 +154,7 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
     if ( !inplane ) // now contributions from z-deriv of displacement field
     {
       Field *disp_z_deriv = displacement->out_of_plane();
-      for(IndexP k_iter : disp_z_deriv->components(ALL_INDICES)) {
+      for(IndexP k_iter : *disp_z_deriv->components(ALL_INDICES)) {
 	double diag_factor = ( k_iter.integer()==2 ? 1.0 : 0.5 );
 
 	k2 = ij2voigt( 2, k_iter.integer() );

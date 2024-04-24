@@ -92,7 +92,7 @@ public:
   NewOutputVal *zero();
   %newobject value_list;
   std::vector<double> *value_list();
-  ComponentsP components();
+  const Components* components();
 };
 
 %nodefaultctor NonArithmeticOutputVal;

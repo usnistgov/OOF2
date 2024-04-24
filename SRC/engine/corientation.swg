@@ -37,7 +37,7 @@ public:
   COrientAxis axis();
   COrientRodrigues rodrigues();
   double misorientation(COrientation&, char*);
-  ComponentsP components();
+  const Components* components();
 };
 
 %extend COrientation {

@@ -1,6 +1,5 @@
 // -*- C++ -*-
 
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -11,7 +10,6 @@
  */
 
 #include <oofconfig.h>
-
 
 #include "common/coord.h"
 #include "common/doublevec.h"
@@ -76,13 +74,13 @@ void PiezoElectricity::flux_matrix(const FEMesh *mesh,
   double dsf1 = nu.dshapefunction(1, pos);
 
   if(*flux == *stress_flux) {
-    for(IndexP ij : flux->components(ALL_INDICES)) { // stress component ij
+    for(IndexP ij : *flux->components(ALL_INDICES)) { // stress component ij
       fluxdata->stiffness_matrix_element(ij, voltage, nu)
 	-= eijk(0,ij.integer())*dsf0 + eijk(1,ij.integer())*dsf1;
     }
     if(!voltage->in_plane(mesh)) {
       Field *voop = voltage->out_of_plane();
-      for(IndexP ij : flux->components(ALL_INDICES)) {
+      for(IndexP ij : *flux->components(ALL_INDICES)) {
 	fluxdata->stiffness_matrix_element(ij, voop, nu)
 	  -= eijk(2,ij.integer())*sf;
       }
@@ -90,10 +88,10 @@ void PiezoElectricity::flux_matrix(const FEMesh *mesh,
   }
 
   if(*flux == *total_polarization) {
-    for(IndexP i : flux->components(ALL_INDICES)) { // polarization components
+    for(IndexP i : *flux->components(ALL_INDICES)) { // polarization components
       // in-plane displacement gradient contributions
       int ii = i.integer();
-      for(IndexP ell : displacement->components(ALL_INDICES)) {
+      for(IndexP ell : *displacement->components(ALL_INDICES)) {
 	SymTensorIndex ell0(0, ell.integer());
 	SymTensorIndex ell1(1, ell.integer());
 	
@@ -103,7 +101,7 @@ void PiezoElectricity::flux_matrix(const FEMesh *mesh,
 
       if(!displacement->in_plane(mesh)) {
 	Field *oop = displacement->out_of_plane();
-	for(IndexP kay : oop->components(ALL_INDICES)) {
+	for(IndexP kay : *oop->components(ALL_INDICES)) {
 	  fluxdata->stiffness_matrix_element(i, oop, kay, nu) +=
 	    sf * eijk(ii, SymTensorIndex(2, kay.integer()));
 	}

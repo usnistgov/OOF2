@@ -139,7 +139,7 @@ void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
     int i = ij.row();
     int j = ij.col();
 
-    for(IndexP kay : displacement->components(ALL_INDICES)) {
+    for(IndexP kay : *displacement->components(ALL_INDICES)) {
       int k = kay.integer();
       fluxmtx->stiffness_matrix_element( ij, displacement, kay, node ) -=
 	stressDeriv1(i,j,k) * shapeFuncVal +
@@ -149,7 +149,7 @@ void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
 
     if ( !displacement->in_plane( mesh ) ){
       Field *disp_z_deriv = displacement->out_of_plane();
-      for(IndexP kayo : disp_z_deriv->components(ALL_INDICES)) {
+      for(IndexP kayo : *disp_z_deriv->components(ALL_INDICES)) {
 	int ko = kayo.integer();
 	fluxmtx->stiffness_matrix_element( ij, disp_z_deriv, kayo, node ) -=
 	  stressDeriv2(i,j,ko,2) * shapeFuncVal;

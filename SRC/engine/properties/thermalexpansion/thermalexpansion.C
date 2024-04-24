@@ -71,7 +71,7 @@ void ThermalExpansion::flux_matrix(const FEMesh *mesh,
   double sfval = nu.shapefunction(x);
   // Loop over all tensor components.
   SymmMatrix3 expten = expansiontensor(mesh, element, x);
-  for(IndexP ij : flux->components(ALL_INDICES)) {
+  for(IndexP ij : *flux->components(ALL_INDICES)) {
     double &mtx_el = fluxdata->stiffness_matrix_element(ij, temperature, nu);
     // Loop over strain tensor components.
     for(SymTensorIndex kl : symTensorIJComponents) {
@@ -98,7 +98,7 @@ void ThermalExpansion::flux_offset(const FEMesh *mesh,
   }
   const Cijkl modulus = elasticity->cijkl(mesh, element, x);
   SymmMatrix3 expten = expansiontensor(mesh, element, x);
-  for(IndexP ij : flux->components(ALL_INDICES)) {
+  for(IndexP ij : *flux->components(ALL_INDICES)) {
     double &offset_el = fluxdata->offset_vector_element(ij); // reference!
     for(SymTensorIndex kl : symTensorIJComponents) {
       if(kl.diagonal()) {

@@ -100,7 +100,7 @@ CompoundField.out_of_plane_time_derivative = _Field_out_of_plane_time_derivative
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def _fielditer(comps):
-    # comps is a swigged generic ComponentsP object
+    # comps is a swigged generic Components object
     beginp = comps.begin()      # generic ComponentIteratorP object
     endp = comps.end()          # generic ComponentIteratorP object
     while beginp != endp:

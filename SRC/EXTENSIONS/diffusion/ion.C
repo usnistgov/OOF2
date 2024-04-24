@@ -88,7 +88,7 @@ void IonDiffusion::static_flux_value(const FEMesh  *mesh,
 	element->outputField(mesh, *concentration->out_of_plane(), pt);
       fieldGradient[2] = ov[ScalarFieldIndex()];
     }
-    for(IndexP i : flux->components(ALL_INDICES)) {
+    for(IndexP i : *flux->components(ALL_INDICES)) {
       fluxdata->flux_vector_element(i) -= \
 	z_*c*(cndct(i.integer(),0)*fieldGradient[0]+
 	     cndct(i.integer(),1)*fieldGradient[1]+
@@ -107,7 +107,7 @@ void IonDiffusion::static_flux_value(const FEMesh  *mesh,
 	element->outputField(mesh, *concentration->out_of_plane(), pt);
       fieldGradient[2] = ov[ScalarFieldIndex()];
     }
-    for(IndexP i : flux->components(ALL_INDICES)) {
+    for(IndexP i : *flux->components(ALL_INDICES)) {
       fluxdata->flux_vector_element(i) -=		\
 	z_*c*(cndct(i.integer(),0)*fieldGradient[0]+
 	     cndct(i.integer(),1)*fieldGradient[1]+
@@ -166,7 +166,7 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
 
     // Now we have all the field data and shape functions, build the
     // matrix elements.
-    for(IndexP i : flux->components(ALL_INDICES)) {
+    for(IndexP i : *flux->components(ALL_INDICES)) {
 
       // First term, derivatives wrt field gradient.
       double t1 = z_*c*cndct(i.integer(),0)*dsf0 + 
@@ -203,7 +203,7 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
 
     // Now (again) we have all the field data and shape functions,
     // build the matrix elements.
-    for(IndexP i : flux->components(ALL_INDICES)) {
+    for(IndexP i : *flux->components(ALL_INDICES)) {
 
       // First term, derivatives wrt field gradient.
       double t1 = z_*c*cndct(i.integer(),0)*dsf0 + 

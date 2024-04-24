@@ -38,7 +38,7 @@ void HeatCapacityProp::first_time_deriv_matrix(const FEMesh *mesh,
 
   // Optional -- check that the equation is the right one.
   double shapeFuncVal = eni.shapefunction( mpos );
-  for(IndexP eqncomp : eqn->components()) {
+  for(IndexP eqncomp : *eqn->components()) {
     eqdata->damping_matrix_element(eqncomp, temperature, eqncomp, eni) += \
       cv_ * shapeFuncVal;
   }

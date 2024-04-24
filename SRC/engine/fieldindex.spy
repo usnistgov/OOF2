@@ -19,11 +19,11 @@ def _SymTensorIJComponents__iter__(self):
         
 SymTensorIJComponents.__iter__ = _SymTensorIJComponents__iter__
 
-def _ComponentsP__iter__(self):
+def _Components__iter__(self):
     beginp = self.begin()
     endp = self.end()
     while beginp != endp:
         yield beginp.current()
         beginp.increment()
 
-ComponentsP.__iter__ = _ComponentsP__iter__
+Components.__iter__ = _Components__iter__

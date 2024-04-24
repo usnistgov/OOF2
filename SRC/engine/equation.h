@@ -31,7 +31,7 @@ class Equation;
 class BoundaryEdge;
 class CNonlinearSolver;
 class CSubProblem;
-class ComponentsP;
+class Components;
 class Edge;
 class EdgeGaussPoint;
 class Element;
@@ -76,7 +76,7 @@ public:
   // divergence of the host flux, for DivergenceEquations, and
   // out-of-plane components of the flux for PlaneFluxEquation
   // objects.
-  virtual ComponentsP components() const = 0;
+  virtual const Components* components() const = 0;
   virtual FieldIndex *getIndex(const std::string&) const = 0;
 
   static std::vector<Equation*> &all();
@@ -175,7 +175,7 @@ public:
     const;
   virtual int integration_order(const Element*) const;
 
-  virtual ComponentsP components() const;
+  virtual const Components* components() const;
   virtual FieldIndex *getIndex(const std::string&) const;
 
   virtual const std::string &classname() const;
@@ -203,7 +203,7 @@ public:
     const;
   virtual int integration_order(const Element*) const;
 
-  virtual ComponentsP components() const;
+  virtual const Components* components() const;
   virtual FieldIndex *getIndex(const std::string&) const;
 
   virtual const std::string &classname() const;
@@ -231,7 +231,7 @@ public:
  				 const FluxNormal *) const;
 
   virtual int integration_order(const Element*) const;
-  virtual ComponentsP components() const;
+  virtual const Components* components() const;
   virtual FieldIndex *getIndex(const std::string&) const;
   virtual const std::string &classname() const;
   virtual bool allow_boundary_conditions() const { return false; }

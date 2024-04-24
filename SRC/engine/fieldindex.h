@@ -50,18 +50,15 @@
 // purpose is to serve as the container that the iterator iterates
 // over.  It has begin() and end() methods that return an appropriate
 // ComponentIteratorP.  Each Field has a components() method that
-// returns a ComponentsP object, which wraps Components like IndexP
-// wraps FieldIndex.  Since the Components classes don't contain any
-// data and aren't actually changed in any way when they're iterated
-// over, the Fields contain static instances of their Components
-// subclass and ComponentsP doesn't have to worry about allocation.
+// returns a pointer to a static instance of the Field's Components
+// object.
 
 // So, to iterate over a Field's components in C++, you treat the
 // return value of Field::components like an STL forward-iterable
 // container of IndexPs:
 //
-//   for(ComponentIteratorP iter = field->components().begin();
-//       iter != field->components().end();
+//   for(ComponentIteratorP iter = field->components()->begin();
+//       iter != field->components()->end();
 //       ++iter)
 //   {
 //      IndexP index = *iter;
@@ -70,7 +67,7 @@
 //
 // or, equivalently and more simply,
 //
-//   for(IndexP index: field->components()) {
+//   for(IndexP index: *field->components()) {
 //      ...
 //   }
 
@@ -85,7 +82,7 @@
 //        # index is an instance of a swigged FieldIndex subclass
 //
 // In Python, Field.components() is a generator function that uses the
-// begin() and end() methods of the ComponentsP object, which it
+// begin() and end() methods of the Components object, which it
 // obtains by calling the C++ Field::components() method.  (There's a
 // little bit of swig renaming trickery involved so that the C++
 // components() method and the Python components() method can have the
@@ -93,8 +90,7 @@
 // field.swg) The index is a swigged FieldIndex of the appropriate
 // subclass, because FieldIndex is derived from PythonExportable.
 // (Components and ComponentIterator don't have be be
-// PythonExportable, and there's no need in Python for IndexP or
-// ComponentIteratorP.)
+// PythonExportable, and there's no need in Python for IndexP.)
 
 #include <iostream>
 #include <string>
@@ -104,7 +100,6 @@
 #include "engine/planarity.h"
 
 class Components; // "container" for the components of a Field, Flux or Equation
-class ComponentsP;	     // wrapper around a pointer to Components
 
 class FieldIndex : public PythonExportable<FieldIndex> {
 public:
@@ -325,15 +320,6 @@ public:
   // are const.
   virtual ComponentIteratorP begin() const = 0;
   virtual ComponentIteratorP end() const = 0;
-};
-
-class ComponentsP {
-private:
-  const Components *components;
-public:
-  ComponentsP(const Components *c) : components(c) {}
-  ComponentIteratorP begin() const { return components->begin(); }
-  ComponentIteratorP end() const { return components->end(); }
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -581,7 +567,7 @@ public:
   }
 };
 
-ComponentsP getSymTensorComponents(Planarity p);
+const Components* getSymTensorComponents(Planarity p);
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

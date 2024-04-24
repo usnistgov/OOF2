@@ -153,8 +153,8 @@ public:
   // used in python.
   virtual FieldIndex *getIndex(const std::string&) const = 0;
 
-  virtual ComponentsP components(Planarity p=ALL_INDICES) const = 0;
-  virtual ComponentsP outOfPlaneComponents() const = 0;
+  virtual const Components* components(Planarity p=ALL_INDICES) const = 0;
+  virtual const Components* outOfPlaneComponents() const = 0;
 
   // Stuff required by fieldeqnlist.h templates, which handle Field
   // data that varies from Node to Node, such as specifying which
@@ -267,8 +267,8 @@ public:
   virtual void setValueFromOutputValue(FEMesh*, const FuncNode&,
 				       const OutputValue*);
 
-  virtual ComponentsP components(Planarity=ALL_INDICES) const;
-  virtual ComponentsP outOfPlaneComponents() const;
+  virtual const Components* components(Planarity=ALL_INDICES) const;
+  virtual const Components* outOfPlaneComponents() const;
   virtual FieldIndex *getIndex(const std::string&) const;
   virtual const std::string &classname() const { return classname_; }
 };
@@ -303,8 +303,8 @@ public:
   virtual ArithmeticOutputValue output(const FEMesh*, const FuncNode&) const;
   virtual void setValueFromOutputValue(FEMesh*, const FuncNode&,
 				       const OutputValue*);
-  virtual ComponentsP components(Planarity) const;
-  virtual ComponentsP outOfPlaneComponents() const;
+  virtual const Components* components(Planarity) const;
+  virtual const Components* outOfPlaneComponents() const;
   virtual FieldIndex *getIndex(const std::string&) const;
   virtual const std::string &classname() const { return classname_; }
 };
@@ -342,8 +342,8 @@ public:
   virtual ArithmeticOutputValue output(const FEMesh*, const FuncNode&) const;
   virtual void setValueFromOutputValue(FEMesh*, const FuncNode&,
 				       const OutputValue*);
-  virtual ComponentsP components(Planarity=ALL_INDICES) const;
-  virtual ComponentsP outOfPlaneComponents() const;
+  virtual const Components* components(Planarity=ALL_INDICES) const;
+  virtual const Components* outOfPlaneComponents() const;
   virtual FieldIndex *getIndex(const std::string&) const;
 };
 
@@ -384,8 +384,8 @@ public:
   virtual ArithmeticOutputValue output(const FEMesh*, const FuncNode&) const;
   virtual void setValueFromOutputValue(FEMesh*, const FuncNode&,
 				       const OutputValue*);
-  virtual ComponentsP components(Planarity) const;
-  virtual ComponentsP outOfPlaneComponents() const;
+  virtual const Components* components(Planarity) const;
+  virtual const Components* outOfPlaneComponents() const;
   virtual FieldIndex *getIndex(const std::string&) const;
 
   virtual const std::string &classname() const {

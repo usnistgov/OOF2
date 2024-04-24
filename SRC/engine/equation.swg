@@ -47,7 +47,7 @@ public:
   int is_active(const CSubProblem*);
   bool allow_boundary_conditions();
   static Equation *getEquation(const std::string&);
-  ComponentsP components();
+  const Components* components();
   NewFieldIndex *getIndex(const std::string&) const;
 };
 

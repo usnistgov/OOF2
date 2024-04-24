@@ -475,7 +475,7 @@ void DivergenceEquation::boundary_integral(const CSubProblem *subp,
   }
 }
 
-ComponentsP DivergenceEquation::components() const {
+const Components* DivergenceEquation::components() const {
   return fflux->divergenceComponents();
 }
 
@@ -509,7 +509,7 @@ int PlaneFluxEquation::integration_order(const Element *el) const {
   return el->shapefun_degree();
 }
 
-ComponentsP PlaneFluxEquation::components() const {
+const Components* PlaneFluxEquation::components() const {
   return fflux->outOfPlaneComponents();
 }
 
@@ -567,9 +567,9 @@ void NaturalEquation::boundary_integral(const CSubProblem *subp,
 }
 
 
-ComponentsP NaturalEquation::components() const {
+const Components* NaturalEquation::components() const {
   static const ScalarFieldComponents comps;
-  return ComponentsP(&comps);
+  return &comps;
 }
 
 FieldIndex *NaturalEquation::getIndex(const std::string&str) const {

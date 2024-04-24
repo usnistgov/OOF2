@@ -250,7 +250,7 @@ void FluxProperty::flux_matrix(const FEMesh *mesh, const Element *element,
     if (node.hasField( *field ) && field->is_active( subproblem ))
     {
       // Loop over field components
-      for(IndexP fieldcomp : field->components(ALL_INDICES)) {
+      for(IndexP fieldcomp : *field->components(ALL_INDICES)) {
 	DegreeOfFreedom *dof = (*field)(node, fieldcomp.integer());
 	double oldValue = dof->value( mesh );
 
@@ -278,7 +278,7 @@ void FluxProperty::flux_matrix(const FEMesh *mesh, const Element *element,
 	fluxVec1 /= (upValue - dnValue);
 
 	// Assign the derivative value to flux_matrix
-	for(IndexP fluxcomp : flux->components(ALL_INDICES))
+	for(IndexP fluxcomp : *flux->components(ALL_INDICES))
 	  fluxdata->stiffness_matrix_element( fluxcomp, field, fieldcomp, node )
 	    += fluxVec1[ fluxcomp.integer() ];
 
@@ -410,7 +410,7 @@ void EqnProperty::force_deriv_matrix(const FEMesh *mesh, const Element *element,
     if (node.hasField( *field ) && field->is_active( subproblem ))
     {
       // Loop over field components
-      for(IndexP fieldcomp : field->components(ALL_INDICES)) {
+      for(IndexP fieldcomp : *field->components(ALL_INDICES)) {
 	DegreeOfFreedom *dof = (*field)(node, fieldcomp.integer());
 	double oldValue = dof->value( mesh );
 
@@ -435,7 +435,7 @@ void EqnProperty::force_deriv_matrix(const FEMesh *mesh, const Element *element,
 	forceVec1 /= (upValue - dnValue);
 
 	// Assign the derivative value to force_deriv_matrix
-	for(IndexP eqncomp : eqn->components())
+	for(IndexP eqncomp : *eqn->components())
 	  eqndata->force_deriv_matrix_element( eqncomp, field, fieldcomp, node )
 	    += forceVec1[ eqncomp.integer() ];
 

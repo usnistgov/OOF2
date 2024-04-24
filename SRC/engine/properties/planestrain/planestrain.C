@@ -58,7 +58,7 @@ void PlaneStrain::flux_offset(const FEMesh *mesh, const Element *element,
   }
   const Cijkl modulus = elasticity->cijkl(mesh, element, x);
   // Modulus is the rotated cijkl.
-  for(IndexP ij : flux->components(ALL_INDICES)) {
+  for(IndexP ij : *flux->components(ALL_INDICES)) {
     double &offset_el = fluxdata->offset_vector_element(ij);
     SymTensorIndex zz(2);
     offset_el -= modulus(ij, zz)*ezz_; // Sign gives physical results

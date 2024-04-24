@@ -116,7 +116,7 @@ void HeatConductivity::flux_matrix(const FEMesh  *mesh,
   // the flux is in-plane, because the out-of-plane components of
   // the flux matrix are used to construct the constraint equation.
 
-  for(IndexP i : flux->components(ALL_INDICES)) {
+  for(IndexP i : *flux->components(ALL_INDICES)) {
     // in-plane temperature gradient contributions
     fluxdata->stiffness_matrix_element( i, temperature, j ) -=
                   cond(i.integer(), 0) * dsf0 + cond(i.integer(), 1) * dsf1;

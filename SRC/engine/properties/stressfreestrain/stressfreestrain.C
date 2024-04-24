@@ -46,7 +46,7 @@ void StressFreeStrain::flux_offset(const FEMesh *mesh, const Element *element,
   }
   const Cijkl modulus = elasticity->cijkl(mesh, element, x);
   SymmMatrix3 sfs = stressfreestrain(mesh, element, x);
-  for(IndexP ij : flux->components(ALL_INDICES)) {
+  for(IndexP ij : *flux->components(ALL_INDICES)) {
     double &offset_el = fluxdata->offset_vector_element(ij);
     for(SymTensorIndex kl : symTensorIJComponents) {
       if(kl.diagonal()) {

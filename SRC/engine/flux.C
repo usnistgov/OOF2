@@ -114,25 +114,25 @@ const std::string &SymmetricTensorFlux::classname() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-ComponentsP VectorFlux::components(Planarity planarity) const {
+const Components* VectorFlux::components(Planarity planarity) const {
   static const VectorFieldComponents allcomps(0, 3);
   static const VectorFieldComponents inplane(0, 2);
   static const VectorFieldComponents outofplane(2, 3);
   if(planarity == ALL_INDICES)
-    return ComponentsP(&allcomps);
+    return &allcomps;
   if(planarity == IN_PLANE)
-    return ComponentsP(&inplane);
-  return ComponentsP(&outofplane);
+    return &inplane;
+  return &outofplane;
 }
 
-ComponentsP VectorFlux::divergenceComponents() const {
+const Components* VectorFlux::divergenceComponents() const {
   static const ScalarFieldComponents comp;
-  return ComponentsP(&comp);
+  return &comp;
 }
 
-ComponentsP VectorFlux::outOfPlaneComponents() const {
+const Components* VectorFlux::outOfPlaneComponents() const {
   static OutOfPlaneVectorFieldComponents comp(3);
-  return ComponentsP(&comp);
+  return &comp;
 }
 
 FieldIndex *VectorFlux::getIndex(const std::string &str) const {
@@ -147,18 +147,18 @@ FieldIndex *VectorFlux::divergence_getIndex(const std::string&) const {
   return new ScalarFieldIndex();
 }
 
-ComponentsP SymmetricTensorFlux::components(Planarity planarity) const {
+const Components* SymmetricTensorFlux::components(Planarity planarity) const {
   static const SymTensorComponents allcomps;
   static const SymTensorInPlaneComponents inplane;
   static const SymTensorOutOfPlaneComponents outofplane;
   if(planarity == ALL_INDICES)
-    return ComponentsP(&allcomps);
+    return &allcomps;
   if(planarity == IN_PLANE)
-    return ComponentsP(&inplane);
-  return ComponentsP(&outofplane);
+    return &inplane;
+  return &outofplane;
 }
 
-ComponentsP SymmetricTensorFlux::divergenceComponents() const {
+const Components* SymmetricTensorFlux::divergenceComponents() const {
   // TODO: This just returns the in-plane components.  Is that
   // correct?  It's currently only used in situations in which the
   // in-plane components are desired, but possibly the planarity
@@ -166,12 +166,12 @@ ComponentsP SymmetricTensorFlux::divergenceComponents() const {
   // DivergenceEquation::components() and
   // IntegrateBdyFlux::columnNames().
   static const VectorFieldComponents comps(0, 2);
-  return ComponentsP(&comps);
+  return &comps;
 }
 
-ComponentsP SymmetricTensorFlux::outOfPlaneComponents() const {
+const Components* SymmetricTensorFlux::outOfPlaneComponents() const {
   static const OutOfPlaneSymTensorComponents comps;
-  return ComponentsP(&comps);
+  return &comps;
 }
 
 FieldIndex *SymmetricTensorFlux::getIndex(const std::string &str) const {
@@ -453,7 +453,7 @@ ArithmeticOutputValue Flux::output(const FEMesh *mesh, const Element *el,
   // std::cerr << "Flux::output: pos=" << pos << " el=" << *el << std::endl;
   DoubleVec *fluxvals = evaluate( mesh, el, pos );
   ArithmeticOutputValue ov = newOutputValue();
-  for(IndexP it : components(ALL_INDICES)) 
+  for(IndexP it : *components(ALL_INDICES)) 
     ov[it] = (*fluxvals)[it.integer()];
   delete fluxvals;
   // When we started using Eigen's matrix solvers, we learned that we

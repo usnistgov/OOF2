@@ -790,7 +790,7 @@ void CSubProblem::post_process() {
 void mapLocalNonConjField(const Field &field, std::vector<int> &lmap,
 			  int &lowestrow, FuncNode::FieldSet &fieldset)
 {
-  for(IndexP fieldcomp : field.components(ALL_INDICES)) {
+  for(IndexP fieldcomp : *field.components(ALL_INDICES)) {
     if(lowestrow == -1 || lowestrow >= (int) lmap.size())
       throw ErrSetupError("Too many degrees of freedom! Not enough equations?");
     int dof_indx = fieldset.offset(&field) + fieldcomp.integer();

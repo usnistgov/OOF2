@@ -96,10 +96,10 @@ void Elasticity::flux_matrix(const FEMesh *mesh, const Element *element,
 
   const Cijkl modulus = cijkl( mesh, element, x );
 
-  for(IndexP ij : flux->components(ALL_INDICES)) {
+  for(IndexP ij : *flux->components(ALL_INDICES)) {
 
     // loop over displacement components for in-plane strain contributions
-    for(IndexP ell : displacement->components(ALL_INDICES)) {
+    for(IndexP ell : *displacement->components(ALL_INDICES)) {
 
       // loop over k=0,1 is written out explicitly to save a tiny bit of time
       SymTensorIndex ell0( 0, ell.integer() );
@@ -114,7 +114,7 @@ void Elasticity::flux_matrix(const FEMesh *mesh, const Element *element,
     if (!displacement->in_plane(mesh)) {
       Field *oop = displacement->out_of_plane();
 
-      for(IndexP kay : oop->components(ALL_INDICES))
+      for(IndexP kay : *oop->components(ALL_INDICES))
       {
 	// There are no net factors of 1/2 or 2 here for the
 	// off-diagonal terms, dammit.

@@ -662,7 +662,7 @@ std::vector<int> Element::localDoFmap() const {
   for(std::vector<Field*>::size_type fi=0; fi< Field::all().size(); fi++) {
     Field &field = *Field::all()[fi];
     // Field components.
-    for(IndexP fcomp : field.components(ALL_INDICES)) {
+    for(IndexP fcomp : *field.components(ALL_INDICES)) {
       // Nodes
       for(CleverPtr<ElementFuncNodeIterator> node(funcnode_iterator());
 	  !node->end(); ++*node)
@@ -689,7 +689,7 @@ void Element::localDoFs(const FEMesh *mesh, DoubleVec &doflist) const
   for(std::vector<Field*>::size_type fi=0; fi<Field::all().size(); fi++) {
     Field &field = *Field::all()[fi];
     // loop over field components
-    for(IndexP fcomp : field.components(ALL_INDICES)) {
+    for(IndexP fcomp : *field.components(ALL_INDICES)) {
       // loop over nodes
       for(CleverPtr<ElementFuncNodeIterator> node(funcnode_iterator());
 	  !node->end(); ++*node)

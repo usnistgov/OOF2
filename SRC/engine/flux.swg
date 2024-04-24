@@ -40,9 +40,9 @@ public:
   const std::string &name();
   int objectid();
   ArithmeticOutputValue newOutputValue();
-  ComponentsP components(Planarity) const;
-  ComponentsP divergenceComponents() const;
-  ComponentsP outOfPlaneComponents() const;
+  const Components* components(Planarity) const;
+  const Components* divergenceComponents() const;
+  const Components* outOfPlaneComponents() const;
   NewFieldIndex *getIndex(const std::string&) const;
 };
 

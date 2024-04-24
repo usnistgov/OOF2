@@ -111,8 +111,8 @@ public:
   virtual FieldIndex *getIndex(const std::string &s) const {
     return new OIndex<ORIENT>(dynamic_cast<const ORIENT*>(this), s);
   }
-  virtual ComponentsP components() const {
-    return ComponentsP(&comps);
+  virtual const Components* components() const {
+    return &comps;
   }
 };
 

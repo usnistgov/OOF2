@@ -167,7 +167,7 @@ public:
   double contract(const SymmMatrix3&) const;
 
   virtual FieldIndex *getIndex(const std::string&) const;
-  virtual ComponentsP components() const;
+  virtual const Components* components() const;
   virtual void print(std::ostream&) const;
 };
 
