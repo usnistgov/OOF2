@@ -45,18 +45,18 @@ const std::string& ScalarFieldIndex::classname() const {
   return nm;
 }
 
-ScalarFieldCompIterator &ScalarFieldCompIterator::operator++() {
+ScalarFieldIterator &ScalarFieldIterator::operator++() {
   done = true;
   return *this;
 }
 
-bool ScalarFieldCompIterator::operator!=(const ComponentIterator &othr) const {
-  const ScalarFieldCompIterator& other =
-    dynamic_cast<const ScalarFieldCompIterator&>(othr);
+bool ScalarFieldIterator::operator!=(const ComponentIterator &othr) const {
+  const ScalarFieldIterator& other =
+    dynamic_cast<const ScalarFieldIterator&>(othr);
   return other.done != done;
 }
 
-FieldIndex *ScalarFieldCompIterator::fieldindex() const {
+FieldIndex *ScalarFieldIterator::fieldindex() const {
   assert(!done);
   return new ScalarFieldIndex();
 }
@@ -79,9 +79,9 @@ void VectorFieldIndex::print(std::ostream &os) const {
   os << "VectorFieldIndex(" << index_ << ")";
 }
 
-bool VectorFieldCompIterator::operator!=(const ComponentIterator &othr) const {
-  const VectorFieldCompIterator &other =
-    dynamic_cast<const VectorFieldCompIterator&>(othr);
+bool VectorFieldIterator::operator!=(const ComponentIterator &othr) const {
+  const VectorFieldIterator &other =
+    dynamic_cast<const VectorFieldIterator&>(othr);
   return other.index != index;
 }
 
@@ -92,11 +92,11 @@ const std::string &OutOfPlaneVectorFieldIndex::classname() const {
   return nm;
 }
 
-bool OutOfPlaneVectorFieldCompIterator::operator!=(
+bool OutOfPlaneVectorFieldIterator::operator!=(
 					   const ComponentIterator &othr) const
 {
-  const OutOfPlaneVectorFieldCompIterator &other =
-    dynamic_cast<const OutOfPlaneVectorFieldCompIterator&>(othr);
+  const OutOfPlaneVectorFieldIterator &other =
+    dynamic_cast<const OutOfPlaneVectorFieldIterator&>(othr);
   return other.index != index;
 }
 
@@ -196,16 +196,16 @@ void EmptyFieldIterator::print(std::ostream& os) const {
   os << "EmptyFieldIterator";
 }
 
-void ScalarFieldCompIterator::print(std::ostream &os) const {
-  os << "ScalarFieldCompIterator(" << (done?"done":"not done") << ")";
+void ScalarFieldIterator::print(std::ostream &os) const {
+  os << "ScalarFieldIterator(" << (done?"done":"not done") << ")";
 }
 
-void VectorFieldCompIterator::print(std::ostream &os) const {
-  os << "VectorFieldCompIterator(" << index << ")";
+void VectorFieldIterator::print(std::ostream &os) const {
+  os << "VectorFieldIterator(" << index << ")";
 }
 
-void OutOfPlaneVectorFieldCompIterator::print(std::ostream &os) const {
-  os << "OutOfPlaneVectorFieldCompIterator(" << index << ")";
+void OutOfPlaneVectorFieldIterator::print(std::ostream &os) const {
+  os << "OutOfPlaneVectorFieldIterator(" << index << ")";
 }
 
 void SymTensorIterator::print(std::ostream &os) const {

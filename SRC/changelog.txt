@@ -8,6 +8,14 @@ OOF2 2.3.4
 * Fixed some internal inconsistencies in the Field class hierarchy.
   This had no computational consequences.
 
+* Deleted the ComponentIteratorP class because it didn't serve a
+  purpose and I didn't want to document it.  ComponentIterator* does
+  just the same thing.
+
+* Renamed ScalarFieldCompIterator to ScalarFieldIterator,
+  VectorFieldCompIterator to VectorFieldIterator, and
+  OutOfPlaneVectorFieldCompIterator to OutOfPlaneVectorFieldIterator.
+
 OOF2 2.3.3
 
 * Disabled selection of interface segments since interface properties

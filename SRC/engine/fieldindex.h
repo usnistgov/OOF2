@@ -162,7 +162,7 @@ public:
   virtual bool in_plane() const { return index_ < 2; }
   virtual void print(std::ostream&) const;
   virtual const std::string &shortrepr() const;
-  friend class VectorFieldCompIterator;
+  friend class VectorFieldIterator;
 };
 
 // The OutOfPlaneVectorFieldIndex is a VectorFieldIndex that only
@@ -351,12 +351,12 @@ public:
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-class ScalarFieldCompIterator : public ComponentIterator {
+class ScalarFieldIterator : public ComponentIterator {
 private:
   bool done;
 public:
-  ScalarFieldCompIterator(bool done=false) : done(done) {}
-  virtual ScalarFieldCompIterator &operator++();
+  ScalarFieldIterator(bool done=false) : done(done) {}
+  virtual ScalarFieldIterator &operator++();
   virtual bool operator!=(const ComponentIterator&) const;
   virtual FieldIndex *fieldindex() const;
   virtual void print(std::ostream&) const;
@@ -365,23 +365,23 @@ public:
 class ScalarFieldComponents : public Components {
 public:
   virtual ComponentIteratorP begin() const {
-    return ComponentIteratorP(new ScalarFieldCompIterator(false)); 
+    return ComponentIteratorP(new ScalarFieldIterator(false)); 
   }
   virtual ComponentIteratorP end() const {
-    return ComponentIteratorP(new ScalarFieldCompIterator(true)); 
+    return ComponentIteratorP(new ScalarFieldIterator(true)); 
   }
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-class VectorFieldCompIterator : public ComponentIterator {
+class VectorFieldIterator : public ComponentIterator {
 protected:
   SpaceIndex index, imax;
 public:
-  VectorFieldCompIterator(SpaceIndex imin, SpaceIndex imax)
+  VectorFieldIterator(SpaceIndex imin, SpaceIndex imax)
     : index(imin), imax(imax)
   {}
-  virtual VectorFieldCompIterator &operator++() {
+  virtual VectorFieldIterator &operator++() {
     ++index;
     return *this;
   }
@@ -400,28 +400,28 @@ public:
     : imin(imin), imax(imax)
   {}
   virtual ComponentIteratorP begin() const {
-    return ComponentIteratorP(new VectorFieldCompIterator(imin, imax));
+    return ComponentIteratorP(new VectorFieldIterator(imin, imax));
   }
   virtual ComponentIteratorP end() const {
-    return ComponentIteratorP(new VectorFieldCompIterator(imax, imax));
+    return ComponentIteratorP(new VectorFieldIterator(imax, imax));
   }
   int min() const { return imin; }
   int max() const { return imax; }
 };
 
-// OutOfPlaneVectorFieldCompIterator iterates over the out-of-plane
-// components of a vector field, like VectorFieldCompIterator with
+// OutOfPlaneVectorFieldIterator iterates over the out-of-plane
+// components of a vector field, like VectorFieldIterator with
 // planarity=OUT_OF_PLANE, but it dereferences into an
 // OutOfPlaneVectorFieldIndex instead of a VectorFieldIndex.
 
-class OutOfPlaneVectorFieldCompIterator : public ComponentIterator {
+class OutOfPlaneVectorFieldIterator : public ComponentIterator {
 protected:
   SpaceIndex index, imax;
 public:
-  OutOfPlaneVectorFieldCompIterator(SpaceIndex imin, SpaceIndex imax)
+  OutOfPlaneVectorFieldIterator(SpaceIndex imin, SpaceIndex imax)
     : index(imin), imax(imax)
   {}
-  virtual OutOfPlaneVectorFieldCompIterator &operator++() {
+  virtual OutOfPlaneVectorFieldIterator &operator++() {
     ++index;
     return *this;
   }
@@ -438,11 +438,11 @@ protected:
 public:
   OutOfPlaneVectorFieldComponents(SpaceIndex imax): imax(imax) {}
   virtual ComponentIteratorP begin() const {
-    return ComponentIteratorP(new OutOfPlaneVectorFieldCompIterator(2, imax));
+    return ComponentIteratorP(new OutOfPlaneVectorFieldIterator(2, imax));
   }
   virtual ComponentIteratorP end() const {
     return ComponentIteratorP(
-		      new OutOfPlaneVectorFieldCompIterator(imax, imax));
+		      new OutOfPlaneVectorFieldIterator(imax, imax));
   }
 };
 
