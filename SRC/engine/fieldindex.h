@@ -231,7 +231,6 @@ public:
   virtual void print(std::ostream&) const;
 };
 
-
 // Wrapper class so that Fluxes and Fields can return an appropriate
 // type of FieldIndex, other classes don't have to worry about
 // deallocating it, and the virtual functions still work.
@@ -305,7 +304,7 @@ public:
   IndexP operator*() const {
     return **iter;
   }
-  ComponentIterator *iterator() const { return iter; }
+  ComponentIterator *iterator() const { return iter; } // only used in print()
   FieldIndex *current() const {
     return iter->fieldindex();	// returns a new FieldIndex*.
   }
@@ -461,6 +460,12 @@ public:
 // numbered 0, 1, and 5.  The field has out-of-plane components, but
 // they're not iterated over.
 
+// TODO: Why is there a separate class for in plane components?  Can't
+// symtensors be handled like vectors, using Planarity?
+// SymTensorFlux::components has a Planarity argument.  It's the only
+// thing that uses SymTensorInPlaneComponents explicitly.
+
+
 // SymTensorOutOfPlaneComponents contains the out-of-plane components
 // of a symmetric tensor field.  The components are zz, yz, and xz,
 // and are numbered 2, 3, and 4.  The field has in-plane components,
@@ -469,7 +474,19 @@ public:
 // OutOfPlaneSymTensorComponents contains the components of a
 // out-of-plane symmetric tensor field.  The field has components zz,
 // yz, and xz, numbered 0, 1, and 2.  The *field* has no in-plane
-// components.
+// components (or at least the list or array being iterated over isn't
+// storing them).
+
+// TODO: Do we need InPlaneSymTensorIndex, analogous to
+// OutOfPlaneSymTensorIndex?  It would return the in-plane components
+// (xx, yy, xy) but give them sequential indices (0, 1, 2) instead of
+// (0, 1, 5).  We would also need InPlaneXXXXIndex for the other
+// classes as well, although it would only be different for
+// SymTensorIndex.  We'd also need Components and ComponentIterator
+// subclasses.
+
+
+
 
 class SymTensorIterator : public ComponentIterator {
 protected:

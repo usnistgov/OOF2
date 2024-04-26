@@ -78,11 +78,6 @@ ADD_REPR_GENERIC(OutOfPlaneSymTensorIndex);
 //==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//==\\==//
 
 %nodefaultctor ComponentIteratorP;
-
-// The only thing we need from ComponentIteratorP is direct access to
-// the FieldIndex that it's current referring to.
-
-%nodefaultctor ComponentIteratorP;
 %feature("valuewrapper") ComponentIteratorP;
 %rename(increment) ComponentIteratorP::operator++;
 

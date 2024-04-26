@@ -601,27 +601,35 @@ const Components* SymmetricTensorField::outOfPlaneComponents() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-void testIterator_(const Field *field) {
+template <class ITERBLE>
+void testIterator_(const ITERBLE *field) {
   std::cerr << "testIterator: " << field->name() << std::endl;
   for(Planarity planarity : {ALL_INDICES, IN_PLANE, OUT_OF_PLANE}) {
     if (planarity == IN_PLANE)
-      std::cerr << "IN_PLANE";
+      std::cerr << "Planarity=IN_PLANE";
     else if(planarity == OUT_OF_PLANE)
-      std::cerr << "OUT_OF_PLANE";
+      std::cerr << "Planarity=OUT_OF_PLANE";
     else
-      std::cerr << "ALL_INDICES";
+      std::cerr << "Planarity=ALL_INDICES";
     std::cerr << ":" << std::endl;
     for(IndexP fieldcomp : *field->components(planarity)) {
-	std::cerr << " " << fieldcomp;
+      std::cerr << " " << fieldcomp << " (" << fieldcomp.integer() << ")";
     }
     std::cerr << std::endl;
     const Components* comps = field->components(planarity);
     for(ComponentIteratorP i=comps->begin(); i!=comps->end(); ++i) {
-      std::cerr << " " << *i;
+      IndexP indx = *i;
+      std::cerr << " " << indx << " (" << indx.integer() << ")";
     }
+    std::cerr << std::endl;
+    std::cerr << "OUT_OF_PLANE_COMPONENTS:" << std::endl;
+    for(IndexP indx : *field->outOfPlaneComponents())
+      std::cerr << " " << indx << " (" << indx.integer() << ")";
     std::cerr << std::endl;
   }
 }
+
+#include "engine/flux.h"
 
 void testIterators() {
   for(int i=0; i<countCompoundFields(); i++) {
@@ -629,6 +637,7 @@ void testIterators() {
     testIterator_(field);
     testIterator_(field->out_of_plane());
   }
+  testIterator_(Flux::getFlux("Stress"));
 }
 
   
