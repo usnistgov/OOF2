@@ -1023,12 +1023,12 @@ requires and which &fluxes; and/or &equations; it contributes to.
         print('</refsect1> <!-- Details -->', file=phile)
 
         print('<refsect1>', file=phile)
-        print('<title>Discussion</title>', file=phile)
+        print('<title>Description</title>', file=phile)
         try:
             print(xmlmenudump.getDiscussion(reg), file=phile)
         except AttributeError:
             print("<para>MISSING PROPERTY DISCUSSION: %s</para>" % name, file=phile)
-        print('</refsect1> <!-- Discussion -->', file=phile)
+        print('</refsect1> <!-- Description -->', file=phile)
 
         ## TODO: Tie this in to the xrefs mechanism used for other
         ## manual pages?
