@@ -41,25 +41,35 @@ ChargeOutOfPlane = equation.PlaneFluxEquation(
 ##
 ## In-plane components, C
 ##
-C = fieldindex.ScalarFieldIndex()
-DivJd = fieldindex.ScalarFieldIndex()
+# C = fieldindex.ScalarFieldIndex()
+# DivJd = fieldindex.ScalarFieldIndex()
+# $\nabla \cdot \vec{Jd}$ is conjugate to C
 
-conjugate.conjugatePair("Diffusivity", AtomBalanceEquation, DivJd,
-                        Concentration, C)
+conjugate.conjugatePair("Diffusivity",
+                        AtomBalanceEquation,
+                        AtomBalanceEquation.components()
+                        Concentration,
+                        Concentration.components())
 
-conjugate.conjugatePair("Current", ChargeBalanceEquation, DivJd,
-                        problem.Voltage, C)
-
- ## $\nabla \cdot \vec{Jd}$ is conjugate to C
+conjugate.conjugatePair("Current",
+                        ChargeBalanceEquation,
+                        ChargeBalanceEquation.components(),
+                        problem.Voltage,
+                        problem.Voltage.components())
 
 ## out-of-plane components, $\frac{\partial C}{\partial z}$
-C_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
-Jd_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+# C_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+# Jd_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+##  $Jd_{z}$ is conjugate to $\frac{\partial C}{\partial z}$
 
-conjugate.conjugatePair("Diffusivity", AtomOutOfPlane, Jd_z,
-                        Concentration.out_of_plane(), C_z)
-conjugate.conjugatePair("Current", ChargeOutOfPlane, Jd_z,
-                        problem.Voltage.out_of_plane(), C_z)
+conjugate.conjugatePair("Diffusivity", AtomOutOfPlane,
+                        AtomOutOfPlane.components(),
+                        Concentration.out_of_plane(),
+                        Concentration.out_of_plane().components())
+conjugate.conjugatePair("Current",
+                        ChargeOutOfPlane,
+                        ChargeOutOfPlane.components(),
+                        problem.Voltage.out_of_plane(),
+                        problem.Voltage.out_of_plane().components())
 
- ##  $Jd_{z}$ is conjugate to $\frac{\partial C}{\partial z}$
 

@@ -21,6 +21,8 @@ from ooflib.common import debug
 from ooflib.engine import propertyregistration
 from ooflib.engine import symstate
 
+import itertools
+
 # It is not possible to remove a ConjugatePair object from the list.
 # This is OK, since the conjugate pair objects express simple facts
 # about the relevant fields, equations, and property categories.
@@ -131,13 +133,16 @@ def conjugatePair(name, equation, eqncomp, field, fieldcomp):
         eqncomp = [eqncomp]
     if isinstance(fieldcomp, fieldindex.FieldIndex):
         fieldcomp = [fieldcomp]
-    if len(eqncomp) != len(fieldcomp):
-        raise ooferror.PyErrPyProgrammingError(
-            "Bad index specification in conjugatePair")
-    for (ecomp, fcomp) in zip(eqncomp, fieldcomp):
+
+    for (ecomp, fcomp) in itertools.zip_longest(eqncomp, fieldcomp):
+        # eqncomp and fieldcomp might be iterators so we can't check
+        # that their lengths agree before iterating.  If eqncomp and
+        # fieldcomp don't have the same length one of ecomp or fcomp
+        # will be None.
+        assert ecomp is not None and fcomp is not None
         listofconjugatepairs.add(
             ConjugatePairObj(name, equation, ecomp, field, fcomp))
-
+    
 ######################################
 
 def find_relevant_pairs(subpcontext):

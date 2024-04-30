@@ -80,65 +80,67 @@ PolarizationOutOfPlane = equation.PlaneFluxEquation(
 ##
 ## In-plane components (u,v)
 ##
-## The 3D displacement vector is (u, v, w),
-## where
-## u lies along the x-direction,
-## v, along the y-direction,
-## and w, out-of-the-plane, or along
-## the z-direction
-u = fieldindex.VectorFieldIndex(0)
-v = fieldindex.VectorFieldIndex(1)
+## The 3D displacement vector is (u, v, w), where u lies along the
+## x-direction, v, along the y-direction, and w, out-of-the-plane, or
+## along the z-direction
 
-fx = fieldindex.VectorFieldIndex(0)
-fy = fieldindex.VectorFieldIndex(1)
+conjugate.conjugatePair("Elasticity",
+                        ForceBalanceEquation,
+                        ForceBalanceEquation.components(),
+                        Displacement,
+                        Displacement.components())
 
-# fx is conjugate to u and fy is conjugate to v for Elasticity
-conjugate.conjugatePair("Elasticity", ForceBalanceEquation, [fx, fy],
-                    Displacement, [u, v]) 
-
-## out-of-plane compoments
-
-## The available out-of-plane components of stress are $\sigma_{zz},
-## \sigma_{zy}, \sigma_{zx}$, in *that* order, (0, 1, 2).  The
-## out-of-plane displacement is (\frac{\partial u}{\partial z},
-## \frac{\partial v}{partial z}, \frac{\partial w}{\partial z}.
-
-u_xz = fieldindex.VectorFieldIndex(0)
-u_yz = fieldindex.VectorFieldIndex(1)
-u_zz = fieldindex.VectorFieldIndex(2)
-sigma_xz = fieldindex.OutOfPlaneSymTensorIndex(2,0)
-sigma_yz = fieldindex.OutOfPlaneSymTensorIndex(2,1)
-sigma_zz = fieldindex.OutOfPlaneSymTensorIndex(2,2)
+## out-of-plane components
 
 ## \sigma_{zz} is conjugate to \frac{\partial w}{\partial z}
 ## \sigma_{xz} is conjugate to \frac{\partial u}{\partial z}
 ## \sigma_{yz} is conjugate to \frac{\partial v}{\partial z}
 
+# OutOfPlaneSymTensorIndex.components() returns the components in
+# Voigt-index order, which does NOT correspond to the order of
+# ThreeVectorField.components():
+#   Displacement.out_of_plane().components() =
+#     [VectorFieldIndex(0),                  u_xz
+#      VectorFieldIndex(1),                  u_yz
+#      VectorFieldIndex(2)]                  u_zz
+#   ForcesOutOfPlane.components() =
+#     [OutOfPlaneSymTensorIndex(2, 2),       sigma_zz
+#      OutOfPlaneSymTensorIndex(1, 2),       sigma_yz
+#      OutOfPlaneSymTensorIndex(0, 2)]       sigma_xz
+
+# So we need to change the order of one of them when calling conjugatePair.
+uz = list(Displacement.out_of_plane().components())
+
 conjugate.conjugatePair("Elasticity",
-                        ForcesOutOfPlane, [sigma_zz, sigma_xz, sigma_yz],
-                        Displacement.out_of_plane(), [u_zz, u_xz, u_yz])
-
-
+                        ForcesOutOfPlane, ForcesOutOfPlane.components(),
+                        Displacement.out_of_plane(),
+                        [uz[2], uz[1], uz[0]])
 ###############################################################
 ##
 ## Heat flux equation
 ##
 ## In-plane components, T
 ##
-T = fieldindex.ScalarFieldIndex()
-DivJ = fieldindex.ScalarFieldIndex()
+# T = fieldindex.ScalarFieldIndex()
+# DivJ = fieldindex.ScalarFieldIndex()
+# $\nabla \cdot \vec{J}$ is conjugate to T
 
-conjugate.conjugatePair("ThermalConductivity", HeatBalanceEquation, DivJ,
-                        Temperature, T)
-## $\nabla \cdot \vec{J}$ is conjugate to T
+conjugate.conjugatePair("ThermalConductivity",
+                        HeatBalanceEquation,
+                        HeatBalanceEquation.components(),
+                        Temperature,
+                        Temperature.components())
 
 ## out-of-plane components, $\frac{\partial T}{\partial z}$
-T_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
-J_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+# T_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+# J_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+# $J_{z}$ is conjugate to $\frac{\partial T}{\partial z}$
 
-conjugate.conjugatePair("ThermalConductivity", HeatOutOfPlane, J_z,
-                        Temperature.out_of_plane(), T_z)
-##  $J_{z}$ is conjugate to $\frac{\partial T}{\partial z}$
+conjugate.conjugatePair("ThermalConductivity",
+                        HeatOutOfPlane,
+                        HeatOutOfPlane.components(),
+                        Temperature.out_of_plane(),
+                        Temperature.out_of_plane().components())
 
 ###############################################################
 ##
@@ -146,22 +148,27 @@ conjugate.conjugatePair("ThermalConductivity", HeatOutOfPlane, J_z,
 ##
 ## In-plane components, phi
 ##
-phi = fieldindex.ScalarFieldIndex()
-DivD = fieldindex.ScalarFieldIndex()
-
-conjugate.conjugatePair("DielectricPermittivity",
-                        CoulombEquation, DivD,
-                        Voltage, phi)
+# phi = fieldindex.ScalarFieldIndex()
+# DivD = fieldindex.ScalarFieldIndex()
  ## $\nabla \cdot \vec{D}$ is conjugate to D
 
+conjugate.conjugatePair("DielectricPermittivity",
+                        CoulombEquation,
+                        CoulombEquation.components(),
+                        Voltage,
+                        Voltage.components())
+
 ## out-of-plane components, $\frac{\partial D}{\partial z}$
-phi_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
-D_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+# phi_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+# D_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+##  $D_{z}$ is conjugate to $\frac{\partial phi}{\partial z}$
 
 conjugate.conjugatePair("DielectricPermittivity",
-                        PolarizationOutOfPlane, D_z,
-                        Voltage.out_of_plane(), phi_z)
-##  $D_{z}$ is conjugate to $\frac{\partial phi}{\partial z}$
+                        PolarizationOutOfPlane,
+                        PolarizationOutOfPlane.components(),
+                        Voltage.out_of_plane(),
+                        Voltage.out_of_plane().components())
+
 
 
 

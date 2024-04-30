@@ -106,6 +106,10 @@ public:
   FieldIndex() {}
   virtual ~FieldIndex() { }
 
+  // We need a clone function because we CConjugatePair needs to copy
+  // an index and only has a base class pointer.
+  virtual FieldIndex *clone() const = 0;
+
   // The possible values of the index must be ordered in some
   // (possibly arbitrary) way, so that, for example, the corresponding
   // degrees of freedom of a Field at a Node can be listed in order.
@@ -140,6 +144,7 @@ public:
   ScalarFieldIndex() {}
   virtual ~ScalarFieldIndex() {}
   virtual const std::string &classname() const;
+  virtual FieldIndex *clone() const { return new ScalarFieldIndex(); }
   virtual int integer() const { return 0; }
   virtual bool in_plane() const { return true; }
   virtual void print(std::ostream&) const;
@@ -157,6 +162,7 @@ public:
   VectorFieldIndex(SpaceIndex i) : index_(i) {}
   VectorFieldIndex(const VectorFieldIndex &o) : index_(o.index_) {}
   virtual ~VectorFieldIndex() {}
+  virtual FieldIndex *clone() const { return new VectorFieldIndex(index_); }
   virtual const std::string &classname() const;
   virtual int integer() const { return index_; }
   virtual bool in_plane() const { return index_ < 2; }
@@ -174,6 +180,9 @@ class OutOfPlaneVectorFieldIndex : public VectorFieldIndex {
 public:
   OutOfPlaneVectorFieldIndex() : VectorFieldIndex(2) {}
   OutOfPlaneVectorFieldIndex(SpaceIndex i) : VectorFieldIndex(i) {}
+  virtual FieldIndex *clone() const {
+    return new OutOfPlaneVectorFieldIndex(index_);
+  }
   virtual const std::string &classname() const;
   virtual int integer() const { return index_ - 2; }
   virtual void print(std::ostream&) const;
@@ -204,6 +213,7 @@ public:
   SymTensorIndex(const SymTensorIndex &o) : v(o.v) {}
   virtual ~SymTensorIndex() {}
   virtual const std::string &classname() const;
+  virtual FieldIndex *clone() const { return new SymTensorIndex(v); }
   virtual int integer() const { return v; }
   int row() const;		// i
   int col() const;		// j
@@ -226,6 +236,7 @@ public:
   OutOfPlaneSymTensorIndex() : SymTensorIndex(2) {}
   OutOfPlaneSymTensorIndex(SpaceIndex i) : SymTensorIndex(i) {}
   OutOfPlaneSymTensorIndex(SpaceIndex i, SpaceIndex j) : SymTensorIndex(i,j) {}
+  virtual FieldIndex *clone() const { return new OutOfPlaneSymTensorIndex(v); }
   virtual const std::string &classname() const;
   virtual int integer() const { return v - 2; }
   virtual void print(std::ostream&) const;

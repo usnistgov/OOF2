@@ -16,12 +16,17 @@
 #include "engine/field.h"
 #include "engine/fieldindex.h"
 
+// The constructor needs to clone the FieldIndexes because they might
+// have been created by iterating over a Components object, and they
+// will vanish at the end of the loop.  The CConjugatePair object is
+// persistent.
+
 CConjugatePair::CConjugatePair(const Equation *eqn, const FieldIndex *eqncomp,
 			       const Field *field, const FieldIndex *fieldcomp)
     : field_(field),
-      fieldcomp_(fieldcomp),
+      fieldcomp_(fieldcomp->clone()),
       eqn_(eqn),
-      eqncomp_(eqncomp)
+      eqncomp_(eqncomp->clone())
 {
 }
 
