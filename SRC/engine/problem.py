@@ -109,12 +109,13 @@ conjugate.conjugatePair("Elasticity",
 #      OutOfPlaneSymTensorIndex(0, 2)]       sigma_xz
 
 # So we need to change the order of one of them when calling conjugatePair.
-uz = list(Displacement.out_of_plane().components())
 
 conjugate.conjugatePair("Elasticity",
                         ForcesOutOfPlane, ForcesOutOfPlane.components(),
                         Displacement.out_of_plane(),
-                        [uz[2], uz[1], uz[0]])
+                        reversed(list(Displacement.out_of_plane().components()))
+                        )
+
 ###############################################################
 ##
 ## Heat flux equation
