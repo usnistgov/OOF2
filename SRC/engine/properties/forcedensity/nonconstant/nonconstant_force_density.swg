@@ -23,10 +23,10 @@
 
 %nodefaultctor NonconstantForceDensity;
 
-class NonconstantForceDensity : public Property {
+class NonconstantForceDensity : public EqnProperty {
 };
 
-class TestNonconstantForceDensity : public Property {
+class TestNonconstantForceDensity : public NonconstantForceDensity {
 public:
   TestNonconstantForceDensity(PyObject *reg, char *name, int testno);
 };

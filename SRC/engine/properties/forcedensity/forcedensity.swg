@@ -21,7 +21,7 @@
 #include "engine/properties/forcedensity/forcedensity.h"
 %}
 
-class ForceDensity : public Property {
+class ForceDensity : public EqnProperty {
 public:
   ForceDensity(PyObject *self, char *, double, double);
   double fdensity_x();

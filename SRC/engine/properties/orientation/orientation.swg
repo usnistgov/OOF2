@@ -35,7 +35,11 @@
   SWIG_ConvertPtr(py_orient, (void**) &$1, $1_descriptor, 0);
 }
 
-class OrientationProp : public Property {
+%nodefaultctor OrientationPropBase;
+
+class OrientationPropBase : public AuxiliaryProperty {};
+
+class OrientationProp : public OrientationPropBase {
 public:
   OrientationProp(PyObject *registry, char *name, COrientation *orient);
   const COrientation *orientation();

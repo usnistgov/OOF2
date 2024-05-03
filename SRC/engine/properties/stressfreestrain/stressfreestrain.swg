@@ -22,12 +22,12 @@
 #include "engine/properties/stressfreestrain/stressfreestrain.h"
 %}
 
-class IsotropicStressFreeStrain : public Property {
+class IsotropicStressFreeStrain : public FluxProperty {
 public:
   IsotropicStressFreeStrain(PyObject *reg, char *name, double e);
 };
 
-class AnisotropicStressFreeStrain : public Property {
+class AnisotropicStressFreeStrain : public FluxProperty {
 public:
   AnisotropicStressFreeStrain(PyObject *reg, char *name, SymmMatrix3 *e);
 };

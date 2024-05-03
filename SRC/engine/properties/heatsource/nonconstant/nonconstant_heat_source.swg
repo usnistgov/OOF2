@@ -24,7 +24,7 @@
 
 %nodefaultctor NonconstantHeatSource;
 
-class NonconstantHeatSource : public Property {
+class NonconstantHeatSource : public EqnProperty {
 };
 
 

@@ -24,13 +24,13 @@
 #include "engine/properties/piezoelectricity/piezoelectricity.h"
 %}
 
-class IsotropicPiezoElectricity : public Property {
+class IsotropicPiezoElectricity : public FluxProperty {
 public:
   IsotropicPiezoElectricity(PyObject *reg, char *name, double d);
 };
 
 
-class AnisotropicPiezoElectricity : public Property {
+class AnisotropicPiezoElectricity : public FluxProperty {
 public:
   AnisotropicPiezoElectricity(PyObject *registry, char *name,
 			      Rank3Tensor *dijkTensor);

@@ -21,7 +21,7 @@
 
 %nodefaultctor Elasticity;
 
-class Elasticity : public Property {
+class Elasticity : public FluxProperty {
 public:
   Cijkl cijkl(const FEMesh*, const Element*, const MasterPosition&);
 };

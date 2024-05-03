@@ -20,7 +20,7 @@
 %import "common/ccolor.swg"
 %import "engine/property.swg"
 
-class ColorProp : public Property {
+class ColorProp : public AuxiliaryProperty {
 public:
   ColorProp(PyObject *self, char *name, CColor *cv);
   CColor color();

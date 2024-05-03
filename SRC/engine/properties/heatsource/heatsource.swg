@@ -22,7 +22,7 @@
 #include "engine/properties/heatsource/heatsource.h"
 %}
 
-class HeatSourceProp : public Property {
+class HeatSourceProp : public EqnProperty {
 public:
   HeatSourceProp(PyObject *reg, char *name, double qdot);
 };

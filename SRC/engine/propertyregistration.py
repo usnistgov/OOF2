@@ -524,6 +524,7 @@ class PropertyRegistration(PropertyRegistrationParent):
 
     def fluxInfo(self, fluxes, fields=[None], time_derivs=[], nonlinear=False,
                  time_dependent=False):
+        assert issubclass(self.subclass, property.FluxProperty)
         for flux in fluxes:
             for field in fields:
                 nl = ((isinstance(nonlinear, (list, tuple))
@@ -537,6 +538,7 @@ class PropertyRegistration(PropertyRegistrationParent):
         # contribution to the equation when no fields are defined.
         # fields==[] is different!  It means that the property makes
         # no contributions.
+        assert issubclass(self.subclass, property.EqnProperty)
         for eqn in equations:
             for field in fields:
                 nl = ((isinstance(nonlinear, (list, tuple))

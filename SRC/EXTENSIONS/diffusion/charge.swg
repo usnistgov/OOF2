@@ -22,12 +22,12 @@
 %import "engine/property.swg"
 %import "engine/symmmatrix.swg"
 
-class IsoCurrent : public Property {
+class IsoCurrent : public FluxProperty {
 public:
   IsoCurrent(PyObject *reg, char *name, double kappa);
 };
 
-class AnisoCurrent : public Property {
+class AnisoCurrent : public FluxProperty {
 public:
   AnisoCurrent(PyObject *reg, char *name, SymmMatrix3 *k);
 };

@@ -21,7 +21,7 @@
 #include "engine/properties/massdensity/massdensity.h"
 %}
 
-class MassDensityProp : public Property {
+class MassDensityProp : public EqnProperty {
 public:
   MassDensityProp(PyObject *self, char *, double);
 };

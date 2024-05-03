@@ -23,7 +23,7 @@
 
 %nodefaultctor GeneralNonlinearElasticityNoDeriv;
 
-class GeneralNonlinearElasticityNoDeriv : public Property {
+class GeneralNonlinearElasticityNoDeriv : public FluxProperty {
 };
 
 %nodefaultctor GeneralNonlinearElasticity;

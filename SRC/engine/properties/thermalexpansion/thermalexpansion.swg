@@ -22,13 +22,13 @@
 %import "engine/property.swg"
 %import "engine/symmmatrix.swg"
 
-class IsotropicThermalExpansion : public Property {
+class IsotropicThermalExpansion : public FluxProperty {
 public:
   IsotropicThermalExpansion(PyObject *reg, char *name, double alpha, double t0);
 };
 
 
-class AnisotropicThermalExpansion : public Property {
+class AnisotropicThermalExpansion : public FluxProperty {
 public:
   AnisotropicThermalExpansion(PyObject *registry, char *name, SymmMatrix3 *alpha, double t0);
 };

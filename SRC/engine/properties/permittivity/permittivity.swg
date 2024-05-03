@@ -22,17 +22,17 @@
 %import "engine/property.swg"
 %import "engine/symmmatrix.swg"
 
-class IsoDielectricPermittivity : public Property {
+class IsoDielectricPermittivity : public FluxProperty {
 public:
   IsoDielectricPermittivity(PyObject *reg, char *name, double epsilon);
 };
 
-class AnisoDielectricPermittivity : public Property {
+class AnisoDielectricPermittivity : public FluxProperty {
 public:
   AnisoDielectricPermittivity(PyObject *reg, char *name, SymmMatrix3 *k);
 };
 
-class ChargeDensity : public Property {
+class ChargeDensity : public EqnProperty {
 public:
   ChargeDensity(PyObject *reg, char *name, double qdot);
   double rho();

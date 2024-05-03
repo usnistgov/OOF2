@@ -113,6 +113,11 @@ public:
 				double, SmallSystem*);
 };
 
+%nodefaultctor AuxiliaryProperty;
+
+class AuxiliaryProperty : public Property {};
+  
+
 double deriv_eps;
 
 %pythoncode "engine/property.spy"

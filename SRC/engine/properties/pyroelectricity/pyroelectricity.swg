@@ -52,7 +52,7 @@
 }
 
 
-class PyroElectricity : public Property {
+class PyroElectricity : public FluxProperty {
 public:
   PyroElectricity(PyObject *reg, char *name,
 		  double px, double py, double pz, double t0,

@@ -21,7 +21,7 @@
 %include "common/typemaps.swg"
 %import "engine/property.swg"
 
-class HeatCapacityProp : public Property {
+class HeatCapacityProp : public EqnProperty {
 public:
   HeatCapacityProp(PyObject *self, char *, double);
 };

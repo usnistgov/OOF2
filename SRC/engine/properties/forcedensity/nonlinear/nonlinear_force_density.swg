@@ -23,7 +23,7 @@
 
 %nodefaultctor NonlinearForceDensityNoDeriv;
 
-class NonlinearForceDensityNoDeriv : public Property {
+class NonlinearForceDensityNoDeriv : public EqnProperty {
 };
 
 %nodefaultctor NonlinearForceDensity;

@@ -25,7 +25,7 @@
 %import "engine/properties/elasticity/elasticity.swg"
 %import "engine/properties/elasticity/cijkl.swg"
 
-class CViscoElasticity : public Property {
+class CViscoElasticity : public FluxProperty {
 public:
   CViscoElasticity(PyObject *, const std::string&, Cijkl&);
   ~CViscoElasticity();

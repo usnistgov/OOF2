@@ -22,12 +22,12 @@
 #include "engine/properties/heatconductivity/heatconductivity.h"
 %}
 
-class IsoHeatConductivity : public Property {
+class IsoHeatConductivity : public FluxProperty {
 public:
   IsoHeatConductivity(PyObject *reg, char *name, double kappa);
 };
 
-class AnisoHeatConductivity : public Property {
+class AnisoHeatConductivity : public FluxProperty {
 public:
   AnisoHeatConductivity(PyObject *reg, char *name, SymmMatrix3 *k);
 };

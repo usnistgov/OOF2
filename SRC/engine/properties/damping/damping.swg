@@ -21,7 +21,7 @@
 %include "common/typemaps.swg"
 %import "engine/property.swg"
 
-class IsotropicDampingProp : public Property {
+class IsotropicDampingProp : public EqnProperty {
 public:
   IsotropicDampingProp(PyObject*, char*, double);
 };

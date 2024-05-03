@@ -19,23 +19,23 @@
 %import "engine/property.swg"
 %import "engine/symmmatrix.swg"
 
-class IsoDiffusion : public Property {
+class IsoDiffusion : public FluxProperty {
 public:
   IsoDiffusion(PyObject *reg, char *name, double kappa);
 };
 
-class AnisoDiffusion : public Property {
+class AnisoDiffusion : public FluxProperty {
 public:
   AnisoDiffusion(PyObject *reg, char *name, SymmMatrix3 *k);
 };
 
-class Mobility : public Property {
+class Mobility : public FluxProperty {
 public:
   Mobility(PyObject *reg, char *name);
 };
 
 
-class AtomFluxJumpTest : public Property
+class AtomFluxJumpTest : public FluxProperty
 {
 public:
   AtomFluxJumpTest(PyObject *self, char*, double);

@@ -24,7 +24,7 @@
 
 %nodefaultctor NonlinearHeatConductivityNoDeriv;
 
-class NonlinearHeatConductivityNoDeriv : public Property {
+class NonlinearHeatConductivityNoDeriv : public FluxProperty {
 };
 
 %nodefaultctor NonlinearHeatConductivity;

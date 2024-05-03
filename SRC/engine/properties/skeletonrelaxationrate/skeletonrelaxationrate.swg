@@ -21,7 +21,7 @@
 #include "engine/properties/skeletonrelaxationrate/skeletonrelaxationrate.h"
 %}
 
-class SkeletonRelaxationRate : public Property {
+class SkeletonRelaxationRate : public FluxProperty {
 public:
   SkeletonRelaxationRate(PyObject *reg, char *name, double alpha, double beta);
   const double alpha();

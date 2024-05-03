@@ -16,12 +16,13 @@
 
 %include "common/typemaps.swg"
 %import "engine/property.swg"
+%import "engine/properties/orientation/orientation.swg"
 
 %{
 #include "orientationmap/orientmapproperty.h"
 %}
 
-class OrientationMapProp : public Property {
+class OrientationMapProp : public OrientationPropBase {
 public:
   OrientationMapProp(PyObject *registry, char *name);
 };

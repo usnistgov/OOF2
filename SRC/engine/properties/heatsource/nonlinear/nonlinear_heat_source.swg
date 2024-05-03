@@ -24,7 +24,7 @@
 
 %nodefaultctor NonlinearHeatSourceNoDeriv;
 
-class NonlinearHeatSourceNoDeriv : public Property {
+class NonlinearHeatSourceNoDeriv : public EqnProperty {
 };
 
 %nodefaultctor NonlinearHeatSource;

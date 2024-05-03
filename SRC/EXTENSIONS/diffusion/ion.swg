@@ -19,7 +19,7 @@
 %import "engine/property.swg"
 %import "engine/symmmatrix.swg"
    
-class IonDiffusion : public Property {
+class IonDiffusion : public FluxProperty {
 public:
   IonDiffusion(PyObject *reg, char *name, double z);
 };

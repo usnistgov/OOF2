@@ -21,7 +21,7 @@
 %include "common/typemaps.swg"
 %import "engine/property.swg"
 
-class PlaneStrain : public Property {
+class PlaneStrain : public FluxProperty {
 public:
   PlaneStrain(PyObject *reg, char *name, double e);
 };
