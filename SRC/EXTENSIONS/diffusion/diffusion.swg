@@ -29,13 +29,13 @@ public:
   AnisoDiffusion(PyObject *reg, char *name, SymmMatrix3 *k);
 };
 
-class Mobility : public FluxProperty {
+class Mobility : public EqnProperty {
 public:
   Mobility(PyObject *reg, char *name);
 };
 
 
-class AtomFluxJumpTest : public FluxProperty
+class AtomFluxJumpTest : public EqnProperty
 {
 public:
   AtomFluxJumpTest(PyObject *self, char*, double);

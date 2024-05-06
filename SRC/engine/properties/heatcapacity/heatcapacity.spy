@@ -9,15 +9,18 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.engine import equation
+from ooflib.SWIG.engine import field
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
-from ooflib.engine import problem
 from ooflib.engine import propertyregistration
 
 reg = propertyregistration.PropertyRegistration(
-    'Thermal:HeatCapacity:ConstantHeatCapacity', HeatCapacityProp,
-    100,
-    [parameter.FloatParameter(
+    name='Thermal:HeatCapacity:ConstantHeatCapacity',
+    subclass=HeatCapacityProp,
+    ordering=100,
+    params=[
+        parameter.FloatParameter(
             'cv', 1.0, tip="accumulated thermal energy per unit volume")],
     outputs=["Material Constants:Thermal:Heat Capacity"],
     propertyType="HeatCapacity",
@@ -25,6 +28,6 @@ reg = propertyregistration.PropertyRegistration(
     discussion=xmlmenudump.loadFile(
         'DISCUSSIONS/engine/property/heatcapacity.xml'))
 
-reg.eqnInfo(equations=[problem.HeatBalanceEquation],
-            fields=[problem.Temperature],
+reg.eqnInfo(equations=[equation.getEquation("Heat_Eqn")],
+            fields=[field.getField("Temperature")],
             time_derivs=[1])

@@ -23,10 +23,10 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 # TODO: PlaneStrain is a dumb name.  ZOffsetStrain?
 
 reg = PropertyRegistration(
-    'Mechanical:ZStrain',
-    PlaneStrain,
-    23,
-    [parameter.FloatParameter('ezz', 0.0, tip="Out of plane strain")],
+    name='Mechanical:ZStrain',
+    subclass=PlaneStrain,
+    ordering=23,
+    params=[parameter.FloatParameter('ezz', 0.0, tip="Out of plane strain")],
     outputs=["Strain"],
     propertyType="ZStrain",
     tip="Out-of-plane strain",

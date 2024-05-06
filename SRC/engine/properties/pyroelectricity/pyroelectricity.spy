@@ -43,10 +43,10 @@ class Constancy (enum.EnumClass('Constant stress','Constant strain')):
 ######################################################
 
 reg = PropertyRegistration(
-    'Couplings:PyroElectricity',
-    PyroElectricity,
-    500,
-    [parameter.FloatParameter(
+    name='Couplings:PyroElectricity',
+    subclass=PyroElectricity,
+    ordering=500,
+    params=[parameter.FloatParameter(
             'px', 0.0,
             tip="Crystal X component of polarization contribution due to temperature change."),
      parameter.FloatParameter(

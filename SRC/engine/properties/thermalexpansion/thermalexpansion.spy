@@ -22,11 +22,13 @@ T0tip = "Temperature at which the thermal expansion vanishes."
 #########
 
 reg = PropertyRegistration(
-    'Couplings:ThermalExpansion:Isotropic', IsotropicThermalExpansion,
-    200,
-    [parameter.FloatParameter('alpha', 1.0,
-                              tip="Thermal expansion coefficient."),
-     parameter.FloatParameter('T0', 0.0, tip=T0tip)],
+    name='Couplings:ThermalExpansion:Isotropic',
+    subclass=IsotropicThermalExpansion,
+    ordering=200,
+    params=[
+        parameter.FloatParameter('alpha', 1.0,
+                                 tip="Thermal expansion coefficient."),
+        parameter.FloatParameter('T0', 0.0, tip=T0tip)],
     outputs=["Strain", "Energy",
              "Material Constants:Couplings:Thermal Expansion alpha",
              "Material Constants:Couplings:Thermal Expansion T0"],
@@ -41,14 +43,15 @@ reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Temperature],
 #########
 
 reg = PropertyRegistration(
-    'Couplings:ThermalExpansion:Anisotropic:Triclinic',
-    AnisotropicThermalExpansion,
-    210,
-    [symmmatrix.TriclinicRank2TensorParameter(
+    name='Couplings:ThermalExpansion:Anisotropic:Triclinic',
+    subclass=AnisotropicThermalExpansion,
+    ordering=210,
+    params=[
+        symmmatrix.TriclinicRank2TensorParameter(
             'alpha',
             symmmatrix.TriclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
             tip="Thermal expansion tensor."),
-     parameter.FloatParameter('T0', 0.0, tip=T0tip)],
+        parameter.FloatParameter('T0', 0.0, tip=T0tip)],
     outputs=["Strain", "Energy",
              "Material Constants:Couplings:Thermal Expansion alpha",
              "Material Constants:Couplings:Thermal Expansion T0"],
@@ -63,14 +66,15 @@ reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Temperature],
 #########
 
 reg = PropertyRegistration(
-    'Couplings:ThermalExpansion:Anisotropic:Monoclinic',
-    AnisotropicThermalExpansion,
-    209,
-    [symmmatrix.MonoclinicRank2TensorParameter(
+    name='Couplings:ThermalExpansion:Anisotropic:Monoclinic',
+    subclass=AnisotropicThermalExpansion,
+    ordering=209,
+    params=[
+        symmmatrix.MonoclinicRank2TensorParameter(
             'alpha',
             symmmatrix.MonoclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
             tip="Thermal expansion tensor."),
-     parameter.FloatParameter('T0', 0.0, tip=T0tip)],
+        parameter.FloatParameter('T0', 0.0, tip=T0tip)],
     outputs=["Strain", "Energy",
              "Material Constants:Couplings:Thermal Expansion alpha",
              "Material Constants:Couplings:Thermal Expansion T0"],
@@ -85,14 +89,15 @@ reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Temperature],
 #########
 
 reg = PropertyRegistration(
-    'Couplings:ThermalExpansion:Anisotropic:Orthorhombic',
-    AnisotropicThermalExpansion,
-    208,
-    [symmmatrix.OrthorhombicRank2TensorParameter(
+    name='Couplings:ThermalExpansion:Anisotropic:Orthorhombic',
+    subclass=AnisotropicThermalExpansion,
+    ordering=208,
+    params=[
+        symmmatrix.OrthorhombicRank2TensorParameter(
             'alpha',
             symmmatrix.OrthorhombicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
             tip="Thermal expansion tensor."),
-     parameter.FloatParameter('T0', 0.0, tip=T0tip)],
+        parameter.FloatParameter('T0', 0.0, tip=T0tip)],
     outputs=["Strain", "Energy",
              "Material Constants:Couplings:Thermal Expansion alpha",
              "Material Constants:Couplings:Thermal Expansion T0"],
@@ -107,14 +112,15 @@ reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Temperature],
 #########
 
 reg = PropertyRegistration(
-    'Couplings:ThermalExpansion:Anisotropic:Tetragonal',
-    AnisotropicThermalExpansion,
-    207,
-    [symmmatrix.TetragonalRank2TensorParameter(
+    name='Couplings:ThermalExpansion:Anisotropic:Tetragonal',
+    subclass=AnisotropicThermalExpansion,
+    ordering=207,
+    params=[
+        symmmatrix.TetragonalRank2TensorParameter(
             'alpha',
             symmmatrix.TetragonalRank2Tensor(xx=1.0, zz=0.5),
             tip="Thermal expansion tensor."),
-     parameter.FloatParameter('T0', 0.0, tip=T0tip)],
+        parameter.FloatParameter('T0', 0.0, tip=T0tip)],
     outputs=["Strain", "Energy",
              "Material Constants:Couplings:Thermal Expansion alpha",
              "Material Constants:Couplings:Thermal Expansion T0"],
@@ -129,14 +135,15 @@ reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Temperature],
 #########
 
 reg = PropertyRegistration(
-    'Couplings:ThermalExpansion:Anisotropic:Trigonal',
-    AnisotropicThermalExpansion,
-    206,
-    [symmmatrix.TrigonalRank2TensorParameter(
+    name='Couplings:ThermalExpansion:Anisotropic:Trigonal',
+    subclass=AnisotropicThermalExpansion,
+    ordering=206,
+    params=[
+        symmmatrix.TrigonalRank2TensorParameter(
             'alpha',
             symmmatrix.TrigonalRank2Tensor(xx=1.0, zz=0.5),
             tip="Thermal expansion tensor."),
-     parameter.FloatParameter('T0', 0.0, tip=T0tip)],
+        parameter.FloatParameter('T0', 0.0, tip=T0tip)],
     outputs=["Strain", "Energy",
              "Material Constants:Couplings:Thermal Expansion alpha",
              "Material Constants:Couplings:Thermal Expansion T0"],
@@ -151,14 +158,15 @@ reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Temperature],
 #########
 
 reg = PropertyRegistration(
-    'Couplings:ThermalExpansion:Anisotropic:Hexagonal',
-    AnisotropicThermalExpansion,
-    205,
-    [symmmatrix.HexagonalRank2TensorParameter(
+    name='Couplings:ThermalExpansion:Anisotropic:Hexagonal',
+    subclass=AnisotropicThermalExpansion,
+    ordering=205,
+    params=[
+        symmmatrix.HexagonalRank2TensorParameter(
             'alpha',
             symmmatrix.HexagonalRank2Tensor(xx=1.0, zz=0.5),
             tip="Thermal expansion tensor."),
-     parameter.FloatParameter('T0', 0.0, tip=T0tip)],
+        parameter.FloatParameter('T0', 0.0, tip=T0tip)],
     outputs=["Strain", "Energy",
              "Material Constants:Couplings:Thermal Expansion alpha",
              "Material Constants:Couplings:Thermal Expansion T0"],
@@ -173,14 +181,15 @@ reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Temperature],
 #########
 
 reg = PropertyRegistration(
-    'Couplings:ThermalExpansion:Anisotropic:Cubic',
-    AnisotropicThermalExpansion,
-    204,
-    [symmmatrix.CubicRank2TensorParameter(
+    name='Couplings:ThermalExpansion:Anisotropic:Cubic',
+    subclass=AnisotropicThermalExpansion,
+    ordering=204,
+    params=[
+        symmmatrix.CubicRank2TensorParameter(
             'alpha',
             symmmatrix.CubicRank2Tensor(xx=1.0),
             tip="Thermal expansion tensor."),
-     parameter.FloatParameter('T0', 0.0, tip=T0tip)],
+        parameter.FloatParameter('T0', 0.0, tip=T0tip)],
     outputs=["Strain", "Energy",
              "Material Constants:Couplings:Thermal Expansion alpha",
              "Material Constants:Couplings:Thermal Expansion T0"],

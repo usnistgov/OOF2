@@ -20,10 +20,10 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 ## Nonlinear heat source test property without the analytical derivative
 
 reg = PropertyRegistration(
-    'Thermal:HeatSource:TestNonlinearHeatSourceNoDeriv',
-    TestNonlinearHeatSourceNoDeriv,
-    151,
-    [parameter.IntParameter('testno', 1, tip="Test number for the nonlinear heat source property.")],
+    name='Thermal:HeatSource:TestNonlinearHeatSourceNoDeriv',
+    subclass=TestNonlinearHeatSourceNoDeriv,
+    ordering=151,
+    params=[parameter.IntParameter('testno', 1, tip="Test number for the nonlinear heat source property.")],
     propertyType="HeatSource",
     secret=True,
     tip="Nonlinear heat source property with no derivative used for testing.")
@@ -35,10 +35,10 @@ reg.eqnInfo( equations=[problem.HeatBalanceEquation],
 ## Nonlinear heat source test property
 
 reg = PropertyRegistration(
-    'Thermal:HeatSource:TestNonlinearHeatSource',
-    TestNonlinearHeatSource,
-    152,
-    [parameter.IntParameter('testno', 1, tip="Test number for the nonlinear heat source property.")],
+    name='Thermal:HeatSource:TestNonlinearHeatSource',
+    subclass=TestNonlinearHeatSource,
+    ordering=152,
+    params=[parameter.IntParameter('testno', 1, tip="Test number for the nonlinear heat source property.")],
     propertyType="HeatSource",
     secret=True,
     tip="Nonlinear heat source property used for testing.")

@@ -21,10 +21,10 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 #########
 
 reg = PropertyRegistration(
-    'Mechanical:StressFreeStrain:Isotropic',
-    IsotropicStressFreeStrain,
-    22,
-    [parameter.FloatParameter('epsilon0', 0.0, tip="StressFreeStrain")],
+    name='Mechanical:StressFreeStrain:Isotropic',
+    subclass=IsotropicStressFreeStrain,
+    ordering=22,
+    params=[parameter.FloatParameter('epsilon0', 0.0, tip="StressFreeStrain")],
     outputs=["Strain", "Energy", "Material Constants:Mechanical:Stress-free Strain epsilon0"],
     propertyType="StressFreeStrain",
     tip="Isotropic stress-free strain",
@@ -36,10 +36,10 @@ reg.fluxInfo(fluxes=[problem.Stress])
 #########
 
 reg = PropertyRegistration(
-    'Mechanical:StressFreeStrain:Anisotropic:Cubic',
-    AnisotropicStressFreeStrain,
-    23,
-    [symmmatrix.CubicRank2TensorParameter(
+    name='Mechanical:StressFreeStrain:Anisotropic:Cubic',
+    subclass=AnisotropicStressFreeStrain,
+    ordering=23,
+    params=[symmmatrix.CubicRank2TensorParameter(
             'epsilon0',
             symmmatrix.CubicRank2Tensor(xx=1.0),
             tip='Stress-free strain tensor')],
@@ -54,10 +54,10 @@ reg.fluxInfo(fluxes=[problem.Stress])
 #########
 
 reg = PropertyRegistration(
-    'Mechanical:StressFreeStrain:Anisotropic:Hexagonal',
-    AnisotropicStressFreeStrain,
-    24,
-    [symmmatrix.HexagonalRank2TensorParameter(
+    name='Mechanical:StressFreeStrain:Anisotropic:Hexagonal',
+    subclass=AnisotropicStressFreeStrain,
+    ordering=24,
+    params=[symmmatrix.HexagonalRank2TensorParameter(
             'epsilon0',
             symmmatrix.HexagonalRank2Tensor(xx=1.0, zz=0.5),
             tip='Stress-free strain tensor')],
@@ -72,10 +72,10 @@ reg.fluxInfo(fluxes=[problem.Stress])
 #########
 
 reg = PropertyRegistration(
-    'Mechanical:StressFreeStrain:Anisotropic:Trigonal',
-    AnisotropicStressFreeStrain,
-    25,
-    [symmmatrix.TrigonalRank2TensorParameter(
+    name='Mechanical:StressFreeStrain:Anisotropic:Trigonal',
+    subclass=AnisotropicStressFreeStrain,
+    ordering=25,
+    params=[symmmatrix.TrigonalRank2TensorParameter(
             'epsilon0',
             symmmatrix.TrigonalRank2Tensor(xx=1.0, zz=0.5),
             tip='Stress-free strain tensor')],
@@ -90,10 +90,10 @@ reg.fluxInfo(fluxes=[problem.Stress])
 #########
 
 reg = PropertyRegistration(
-    'Mechanical:StressFreeStrain:Anisotropic:Tetragonal',
-    AnisotropicStressFreeStrain,
-    26,
-    [symmmatrix.TetragonalRank2TensorParameter(
+    name='Mechanical:StressFreeStrain:Anisotropic:Tetragonal',
+    subclass=AnisotropicStressFreeStrain,
+    ordering=26,
+    params=[symmmatrix.TetragonalRank2TensorParameter(
             'epsilon0',
             symmmatrix.TetragonalRank2Tensor(xx=1.0, zz=0.5),
             tip='Stress-free strain tensor')],
@@ -108,10 +108,10 @@ reg.fluxInfo(fluxes=[problem.Stress])
 #########
 
 reg = PropertyRegistration(
-    'Mechanical:StressFreeStrain:Anisotropic:Orthorhombic',
-    AnisotropicStressFreeStrain,
-    27,
-    [symmmatrix.OrthorhombicRank2TensorParameter(
+    name='Mechanical:StressFreeStrain:Anisotropic:Orthorhombic',
+    subclass=AnisotropicStressFreeStrain,
+    ordering=27,
+    params=[symmmatrix.OrthorhombicRank2TensorParameter(
             'epsilon0',
             symmmatrix.OrthorhombicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
             tip='Stress-free strain tensor')],
@@ -126,10 +126,10 @@ reg.fluxInfo(fluxes=[problem.Stress])
 #########
 
 reg = PropertyRegistration(
-    'Mechanical:StressFreeStrain:Anisotropic:Monoclinic',
-    AnisotropicStressFreeStrain,
-    26,
-    [symmmatrix.MonoclinicRank2TensorParameter(
+    name='Mechanical:StressFreeStrain:Anisotropic:Monoclinic',
+    subclass=AnisotropicStressFreeStrain,
+    ordering=26,
+    params=[symmmatrix.MonoclinicRank2TensorParameter(
             'epsilon0',
             symmmatrix.MonoclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
             tip='Stress-free strain tensor')],
@@ -144,10 +144,10 @@ reg.fluxInfo(fluxes=[problem.Stress])
 #########
 
 reg = PropertyRegistration(
-    'Mechanical:StressFreeStrain:Anisotropic:Triclinic',
-    AnisotropicStressFreeStrain,
-    26,
-    [symmmatrix.TriclinicRank2TensorParameter(
+    name='Mechanical:StressFreeStrain:Anisotropic:Triclinic',
+    subclass=AnisotropicStressFreeStrain,
+    ordering=26,
+    params=[symmmatrix.TriclinicRank2TensorParameter(
             'epsilon0',
             symmmatrix.TriclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
             tip='Stress-free strain tensor')],

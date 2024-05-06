@@ -14,12 +14,12 @@ from ooflib.engine import problem
 from ooflib.engine import propertyregistration
 
 reg = propertyregistration.PropertyRegistration(
-    'Mechanical:Damping:Isotropic',
-    IsotropicDampingProp,
-    1010,
-    [parameter.FloatParameter('damping', 1.0, tip="The damping coefficient.")],
-    outputs=["Material Constants:Mechanical:Damping"],
+    name='Mechanical:Damping:Isotropic',
+    subclass=IsotropicDampingProp,
+    ordering=1010,
     propertyType="Damping",
+    params=[parameter.FloatParameter('damping', 1.0, tip="The damping coefficient.")],
+    outputs=["Material Constants:Mechanical:Damping"],
     tip="Isotropic linear damping (probably unphysical).",
     discussion=xmlmenudump.loadFile(
         'DISCUSSIONS/engine/property/isodamping.xml'))

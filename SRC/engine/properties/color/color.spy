@@ -17,13 +17,14 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.engine.IO import interfaceparameters
 
 propertyregistration.PropertyRegistration(
-    'Color', ColorProp,
-    0,
-    [
+    name='Color',
+    subclass=ColorProp,
+    ordering=0,
+    propertyType="Color",
+    params=[
         color.TranslucentColorParameter('color', color.black,
                                         tip=parameter.emptyTipString)
     ],
-    propertyType="Color",
     #Interface branch
     interfaceCompatibility=interfaceparameters.COMPATIBILITY_BULK_INTERFACE,
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/property/color.xml'),

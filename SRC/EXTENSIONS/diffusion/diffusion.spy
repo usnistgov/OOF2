@@ -27,9 +27,9 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 ## ISOTROPIC
 
 reg = PropertyRegistration(
-    'Migration:Diffusivity:Isotropic',
-    IsoDiffusion,
-    97,
+    name='Migration:Diffusivity:Isotropic',
+    subclass=IsoDiffusion,
+    ordering=97,
     params=[parameter.FloatParameter('D',
                                      1.0, tip=parameter.emptyTipString)],
     propertyType="Diffusivity",
@@ -44,13 +44,13 @@ reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
 ## TRICLINIC
 
 reg = PropertyRegistration(
-    'Migration:Diffusivity:Anisotropic:Triclinic',
-    AnisoDiffusion,
-    105,
-    [symmmatrix.TriclinicRank2TensorParameter(
-    'D',
-    symmmatrix.TriclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
-    tip=parameter.emptyTipString)],
+    name='Migration:Diffusivity:Anisotropic:Triclinic',
+    subclass=AnisoDiffusion,
+    ordering=105,
+    params=[symmmatrix.TriclinicRank2TensorParameter(
+        'D',
+        symmmatrix.TriclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
+        tip=parameter.emptyTipString)],
     propertyType="Diffusivity",
     tip="Triclinic diffusivity"
     )
@@ -63,13 +63,13 @@ reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
 ## MONOCLINIC
 
 reg = PropertyRegistration(
-    'Migration:Diffusivity:Anisotropic:Monoclinic',
-    AnisoDiffusion,
-    104,
-    [symmmatrix.MonoclinicRank2TensorParameter(
-    'D',
-    symmmatrix.MonoclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
-    tip=parameter.emptyTipString)],
+    name='Migration:Diffusivity:Anisotropic:Monoclinic',
+    subclass=AnisoDiffusion,
+    ordering=104,
+    params=[symmmatrix.MonoclinicRank2TensorParameter(
+        'D',
+        symmmatrix.MonoclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
+        tip=parameter.emptyTipString)],
     propertyType="Diffusivity",
     tip="Monoclinic diffusivity."
     )
@@ -82,13 +82,13 @@ reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
 ## ORTHORHOMBIC
 
 reg = PropertyRegistration(
-    'Migration:Diffusivity:Anisotropic:Orthorhombic',
-    AnisoDiffusion,
-    103,
-    [symmmatrix.OrthorhombicRank2TensorParameter(
-    'D',
-    symmmatrix.OrthorhombicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
-    tip=parameter.emptyTipString)],
+    name='Migration:Diffusivity:Anisotropic:Orthorhombic',
+    subclass=AnisoDiffusion,
+    ordering=103,
+    params=[symmmatrix.OrthorhombicRank2TensorParameter(
+        'D',
+        symmmatrix.OrthorhombicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
+        tip=parameter.emptyTipString)],
     propertyType="Diffusivity",
     tip="Orthorhombic diffusivity."
     )
@@ -101,13 +101,13 @@ reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
 ## TETRAGONAL
 
 reg = PropertyRegistration(
-    'Migration:Diffusivity:Anisotropic:Tetragonal',
-    AnisoDiffusion,
-    101,
-    [symmmatrix.TetragonalRank2TensorParameter(
-    'D',
-    symmmatrix.TetragonalRank2Tensor(xx=1.0, zz=0.5),
-    tip=parameter.emptyTipString)],
+    name='Migration:Diffusivity:Anisotropic:Tetragonal',
+    subclass=AnisoDiffusion,
+    ordering=101,
+    params=[symmmatrix.TetragonalRank2TensorParameter(
+        'D',
+        symmmatrix.TetragonalRank2Tensor(xx=1.0, zz=0.5),
+        tip=parameter.emptyTipString)],
     propertyType="Diffusivity",
     tip="Tetragonal diffusivity."
     )
@@ -120,13 +120,13 @@ reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
 ## TRIGONAL
 
 reg = PropertyRegistration(
-    'Migration:Diffusivity:Anisotropic:Trigonal',
-    AnisoDiffusion,
-    102,
-    [symmmatrix.TrigonalRank2TensorParameter(
-    'D',
-    symmmatrix.TrigonalRank2Tensor(xx=1.0, zz=0.5),
-    tip=parameter.emptyTipString)],
+    name='Migration:Diffusivity:Anisotropic:Trigonal',
+    subclass=AnisoDiffusion,
+    ordering=102,
+    params=[symmmatrix.TrigonalRank2TensorParameter(
+        'D',
+        symmmatrix.TrigonalRank2Tensor(xx=1.0, zz=0.5),
+        tip=parameter.emptyTipString)],
     propertyType="Diffusivity",
     tip="Trigonal diffusivity."
     )
@@ -139,13 +139,13 @@ reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
 ## HEXAGONAL
 
 reg = PropertyRegistration(
-    'Migration:Diffusivity:Anisotropic:Hexagonal',
-    AnisoDiffusion,
-    100,
-    [symmmatrix.HexagonalRank2TensorParameter(
-    'D',
-    symmmatrix.HexagonalRank2Tensor(xx=1.0, zz=0.5),
-    tip=parameter.emptyTipString)],
+    name='Migration:Diffusivity:Anisotropic:Hexagonal',
+    subclass=AnisoDiffusion,
+    ordering=100,
+    params=[symmmatrix.HexagonalRank2TensorParameter(
+        'D',
+        symmmatrix.HexagonalRank2Tensor(xx=1.0, zz=0.5),
+        tip=parameter.emptyTipString)],
     propertyType="Diffusivity",
     tip="Hexagonal diffusivity."
     )
@@ -158,10 +158,10 @@ reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
 ## CUBIC
 
 reg = PropertyRegistration(
-    'Migration:Diffusivity:Anisotropic:Cubic',
-    AnisoDiffusion,
-    99,
-    [symmmatrix.CubicRank2TensorParameter(
+    name='Migration:Diffusivity:Anisotropic:Cubic',
+    subclass=AnisoDiffusion,
+    ordering=99,
+    params=[symmmatrix.CubicRank2TensorParameter(
             'D',
             symmmatrix.CubicRank2Tensor(xx=1.0),
             tip=parameter.emptyTipString)],
@@ -176,9 +176,9 @@ reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
 
 
 reg = PropertyRegistration(
-    'Migration:Mobility:Mobility',
-    Mobility,
-    101,
+    name='Migration:Mobility:Mobility',
+    subclass=Mobility,
+    ordering=101,
     propertyType="Mobility",
     tip="Mobility."
     )
@@ -193,9 +193,10 @@ reg.eqnInfo(equations=[diff_problem.AtomBalanceEquation],
 if runtimeflags.surface_mode:
 
     reg = propertyregistration.PropertyRegistration(
-        'Migration:Interface:FluxJump', AtomFluxJumpTest,
-        315,
-        [
+        name='Migration:Interface:FluxJump',
+        subclass=AtomFluxJumpTest,
+        ordering=315,
+        params=[
         parameter.FloatParameter('coef', 0.01, tip="value of the coefficient"),
         ],
         propertyType="_interfaces_flux_surfacetest",

@@ -28,10 +28,10 @@ class IsoLargeStrainElasticity(CIsoLargeStrainElasticity):
                                            cijkl.tensorForm())
 
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:LargeStrain:Isotropic',
-    IsoLargeStrainElasticity, 
-    200,
-    [
+    name='Mechanical:Elasticity:LargeStrain:Isotropic',
+    subclass=IsoLargeStrainElasticity, 
+    ordering=200,
+    params=[
         isocijkl.IsotropicCijklParameter(
             'cijkl',
             isocijkl.IsotropicRank4TensorEnu(young=1.0, poisson=0.2),
@@ -60,14 +60,14 @@ class CubicLargeStrainElasticity(AnisoLargeStrainElasticity):
     pass
 
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:LargeStrain:Anisotropic:Cubic',
-    CubicLargeStrainElasticity,
-    211,
-    [anisocijkl.CubicCijklParameter('cijkl',
-                                    anisocijkl.CubicRank4TensorCij(c11=1.0,
-                                                                   c12=0.5,
-                                                                   c44=0.25),
-                                    tip=parameter.emptyTipString)],
+    name='Mechanical:Elasticity:LargeStrain:Anisotropic:Cubic',
+    subclass=CubicLargeStrainElasticity,
+    ordering=211,
+    params=[
+        anisocijkl.CubicCijklParameter(
+            'cijkl',
+            anisocijkl.CubicRank4TensorCij(c11=1.0, c12=0.5, c44=0.25),
+            tip=parameter.emptyTipString)],
     outputs=["Energy"],
     propertyType="Elasticity",
     tip="Cubic large-strain elasticity.",
@@ -84,13 +84,14 @@ class HexagonalLargeStrainElasticityProp(AnisoLargeStrainElasticity):
     pass
 
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:LargeStrain:Anisotropic:Hexagonal',
-    HexagonalLargeStrainElasticityProp,
-    212,
-    [anisocijkl.HexagonalCijklParameter(
-    'cijkl', anisocijkl.HexagonalRank4TensorCij(c11=1.0,
-                                                c12=0.5, c13=0.5,
-                                                c33=1.0, c44=0.25),
+    name='Mechanical:Elasticity:LargeStrain:Anisotropic:Hexagonal',
+    subclass=HexagonalLargeStrainElasticityProp,
+    ordering=212,
+    params=[
+        anisocijkl.HexagonalCijklParameter(
+            'cijkl',
+            anisocijkl.HexagonalRank4TensorCij(c11=1.0, c12=0.5, c13=0.5,
+                                               c33=1.0, c44=0.25),
     tip=parameter.emptyTipString)],
     outputs=["Energy"],
     propertyType="Elasticity",
@@ -108,12 +109,14 @@ class TetragonalLargeStrainElasticity(AnisoLargeStrainElasticity):
     pass
 
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:LargeStrain:Anisotropic:Tetragonal',
-    TetragonalLargeStrainElasticity,
-    213,
-    [anisocijkl.TetragonalCijklParameter(
-    'cijkl', anisocijkl.TetragonalRank4TensorCij(
-    c11=1.0, c12=0.5, c13=0.5, c33=1.0, c44=0.25, c66=0.25, c16=0.0),
+    name='Mechanical:Elasticity:LargeStrain:Anisotropic:Tetragonal',
+    subclass=TetragonalLargeStrainElasticity,
+    ordering=213,
+    params=[
+        anisocijkl.TetragonalCijklParameter(
+            'cijkl', anisocijkl.TetragonalRank4TensorCij(
+                c11=1.0, c12=0.5, c13=0.5, c33=1.0, c44=0.25,
+                c66=0.25, c16=0.0),
     tip=parameter.emptyTipString)],
     outputs=["Energy"],
     propertyType="Elasticity",
@@ -131,13 +134,15 @@ class TrigonalALargeStrainElasticity(AnisoLargeStrainElasticity):
     pass
 
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:LargeStrain:Anisotropic:TrigonalA',
-    TrigonalALargeStrainElasticity,
-    214,
-    [anisocijkl.TrigonalACijklParameter('cijkl',
-                                        anisocijkl.TrigonalARank4TensorCij(
-    c11=1.0, c12=0.5, c13=0.5, c33=1.0, c44=0.25, c14=0.0, c15=0.0),
-                                        tip=parameter.emptyTipString)],
+    name='Mechanical:Elasticity:LargeStrain:Anisotropic:TrigonalA',
+    subclass=TrigonalALargeStrainElasticity,
+    ordering=214,
+    params=[
+        anisocijkl.TrigonalACijklParameter(
+            'cijkl',
+            anisocijkl.TrigonalARank4TensorCij(
+                c11=1.0, c12=0.5, c13=0.5, c33=1.0, c44=0.25, c14=0.0, c15=0.0),
+            tip=parameter.emptyTipString)],
     outputs=["Energy"],
     propertyType="Elasticity",
     tip="Trigonal-A large-strain elasticity.",
@@ -153,10 +158,11 @@ class TrigonalBLargeStrainElasticity(AnisoLargeStrainElasticity):
     pass
 
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:LargeStrain:Anisotropic:TrigonalB',
-    TrigonalBLargeStrainElasticity,
-    215,
-    [anisocijkl.TrigonalBCijklParameter(
+    name='Mechanical:Elasticity:LargeStrain:Anisotropic:TrigonalB',
+    subclass=TrigonalBLargeStrainElasticity,
+    ordering=215,
+    params=[
+        anisocijkl.TrigonalBCijklParameter(
             'cijkl',
             anisocijkl.TrigonalBRank4TensorCij(
                 c11=1.0, c12=0.5,c13=0.5,c33=1.0,c44=0.25,c14=0.0),
@@ -176,10 +182,11 @@ class OrthorhombicLargeStrainElasticity(AnisoLargeStrainElasticity):
     pass
 
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:LargeStrain:Anisotropic:Orthorhombic',
-    OrthorhombicLargeStrainElasticity,
-    216,
-    [anisocijkl.OrthorhombicCijklParameter(
+    name='Mechanical:Elasticity:LargeStrain:Anisotropic:Orthorhombic',
+    subclass=OrthorhombicLargeStrainElasticity,
+    ordering=216,
+    params=[
+        anisocijkl.OrthorhombicCijklParameter(
             'cijkl',
             anisocijkl.OrthorhombicRank4TensorCij(c11=1.0, c12=0.5, c13=0.5,
                                                   c22=1.0, c23=0.5, c33=1.0,
@@ -200,10 +207,11 @@ class MonoclinicLargeStrainElasticity(AnisoLargeStrainElasticity):
     pass
 
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:LargeStrain:Anisotropic:Monoclinic',
-    MonoclinicLargeStrainElasticity,
-    217,
-    [anisocijkl.MonoclinicCijklParameter(
+    name='Mechanical:Elasticity:LargeStrain:Anisotropic:Monoclinic',
+    subclass=MonoclinicLargeStrainElasticity,
+    ordering=217,
+    params=[
+        anisocijkl.MonoclinicCijklParameter(
             'cijkl',
             anisocijkl.MonoclinicRank4TensorCij(
                 c11=1.0, c12=0.5, c13=0.5, c15=0.0,
@@ -226,10 +234,11 @@ class TriclinicLargeStrainElasticity(AnisoLargeStrainElasticity):
     pass
     
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:LargeStrain:Anisotropic:Triclinic',
-    TriclinicLargeStrainElasticity,
-    218,
-    [anisocijkl.TriclinicCijklParameter(
+    name='Mechanical:Elasticity:LargeStrain:Anisotropic:Triclinic',
+    subclass=TriclinicLargeStrainElasticity,
+    ordering=218,
+    params=[
+        anisocijkl.TriclinicCijklParameter(
             'cijkl',
             anisocijkl.TriclinicRank4TensorCij(
                 c11=1.0, c12=0.5, c13=0.5, c14=0.0,

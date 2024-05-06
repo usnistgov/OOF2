@@ -11,10 +11,9 @@
 from ooflib.engine import propertyregistration
 
 propertyregistration.PropertyRegistration(
-    'OrientationMap',
-    OrientationMapProp,
-    1010,
-    [],
+    name='OrientationMap',
+    subclass=OrientationMapProp,
+    ordering=1010,
     outputs=["Material Constants:Orientation"],
     propertyType="Orientation",
     tip="Get orientation data from the Microstructure's orientation map.",

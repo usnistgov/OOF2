@@ -457,8 +457,9 @@ class PropertyRegistrationParent:
 # recomputation of the stiffness matrix when mesh.make_stiffness is
 # called, even if the mesh itself hasn't changed.
 class PropertyRegistration(PropertyRegistrationParent):
-    def __init__(self, name, subclass, ordering, params=[],
+    def __init__(self, name=None, subclass=None, ordering=None,
                  propertyType=None,
+                 params=[],
                  outputs=[],
                  secret=0,
                  interfaceCompatibility=interfaceparameters.COMPATIBILITY_BULK_ONLY,
@@ -466,6 +467,11 @@ class PropertyRegistration(PropertyRegistrationParent):
                  tip=None,
                  discussion=None):
 
+        assert name is not None
+        assert subclass is not None
+        assert ordering is not None
+        assert propertyType is not None
+        
         PropertyRegistrationParent.__init__(self, subclass, ordering, secret)
 
         # Save the fully-qualified name for error reporting.  This
@@ -522,8 +528,8 @@ class PropertyRegistration(PropertyRegistrationParent):
     # which the Property is nonlinear, or a bool.  If it's a bool, it
     # applies to all Fields in the fields arg.
 
-    def fluxInfo(self, fluxes, fields=[None], time_derivs=[], nonlinear=False,
-                 time_dependent=False):
+    def fluxInfo(self, fluxes, fields=[None], time_derivs=[0],
+                 nonlinear=False, time_dependent=False):
         assert issubclass(self.subclass, property.FluxProperty)
         for flux in fluxes:
             for field in fields:
@@ -532,7 +538,7 @@ class PropertyRegistration(PropertyRegistrationParent):
                       or nonlinear)
                 self._fluxes.add(flux, field, time_derivs, nl, time_dependent)
 
-    def eqnInfo(self, equations, fields=[None], time_derivs=[],
+    def eqnInfo(self, equations, fields=[None], time_derivs=[0],
                 nonlinear=False, time_dependent=False):
         # fields == [None] means that the property makes a
         # contribution to the equation when no fields are defined.

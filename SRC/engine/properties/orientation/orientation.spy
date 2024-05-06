@@ -14,10 +14,10 @@ from ooflib.engine import propertyregistration
 from ooflib.engine.IO import orientationmatrix
 
 orientationReg = propertyregistration.PropertyRegistration(
-    'Orientation',
-    OrientationProp,
-    1000,
-    [parameter.ConvertibleRegisteredParameter(
+    name='Orientation',
+    subclass=OrientationProp,
+    ordering=1000,
+    params=[parameter.ConvertibleRegisteredParameter(
        'angles', orientationmatrix.Orientation,
         orientationmatrix.Abg(0.0, 0.0, 0.0), tip=parameter.emptyTipString)],
     outputs=["Material Constants:Orientation"],

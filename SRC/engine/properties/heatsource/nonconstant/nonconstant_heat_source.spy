@@ -21,10 +21,10 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 ## Nonconstant heat source test property
 
 reg = PropertyRegistration(
-    'Thermal:HeatSource:TestNonconstantHeatSource',
-    TestNonconstantHeatSource,
-    151,
-    [parameter.IntParameter('testno', 1, tip="Test number for the nonconstant heat source property.")],
+    name='Thermal:HeatSource:TestNonconstantHeatSource',
+    subclass=TestNonconstantHeatSource,
+    ordering=151,
+    params=[parameter.IntParameter('testno', 1, tip="Test number for the nonconstant heat source property.")],
     propertyType="HeatSource",
     secret=True,
     tip="Nonconstant heat source property used for testing.")

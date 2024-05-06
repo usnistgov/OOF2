@@ -20,10 +20,10 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 ## Nonconstant force density Example
 
 reg = PropertyRegistration(
-    'Mechanical:ForceDensity:TestNonconstantForceDensity',
-    TestNonconstantForceDensity,
-    102,
-    [parameter.IntParameter('testno', 1, tip="Test number for the nonconstant force density property.")],
+    name='Mechanical:ForceDensity:TestNonconstantForceDensity',
+    subclass=TestNonconstantForceDensity,
+    ordering=102,
+    params=[parameter.IntParameter('testno', 1, tip="Test number for the nonconstant force density property.")],
     propertyType="ForceDensity",
     secret=True,
     tip="Test property for nonconstant force density."

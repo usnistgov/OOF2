@@ -31,13 +31,14 @@ class CubicElasticityProp(AnisoElasticity):
     pass
 
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:Anisotropic:Cubic', CubicElasticityProp,
-    11,
-    [anisocijkl.CubicCijklParameter('cijkl',
-                                    anisocijkl.CubicRank4TensorCij(c11=1.0,
-                                                                   c12=0.5,
-                                                                   c44=0.25),
-                                    tip=parameter.emptyTipString)],
+    name='Mechanical:Elasticity:Anisotropic:Cubic',
+    subclass=CubicElasticityProp,
+    ordering=11,
+    params=[
+        anisocijkl.CubicCijklParameter(
+            'cijkl',
+            anisocijkl.CubicRank4TensorCij(c11=1.0, c12=0.5, c44=0.25),
+            tip=parameter.emptyTipString)],
     outputs=["Energy", "Material Constants:Mechanical:Elastic Modulus C"],
     propertyType="Elasticity",
     tip="Cubic linear elasticity.",
@@ -54,14 +55,15 @@ class HexagonalElasticityProp(AnisoElasticity):
     pass
 
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:Anisotropic:Hexagonal',
-    HexagonalElasticityProp,
-    12,
-    [anisocijkl.HexagonalCijklParameter(
-    'cijkl', anisocijkl.HexagonalRank4TensorCij(c11=1.0,
-                                                c12=0.5, c13=0.5,
-                                                c33=1.0, c44=0.25),
-    tip=parameter.emptyTipString)],
+    name='Mechanical:Elasticity:Anisotropic:Hexagonal',
+    subclass=HexagonalElasticityProp,
+    ordering=12,
+    params=[
+        anisocijkl.HexagonalCijklParameter(
+            'cijkl',
+            anisocijkl.HexagonalRank4TensorCij(c11=1.0, c12=0.5, c13=0.5,
+                                               c33=1.0, c44=0.25),
+            tip=parameter.emptyTipString)],
     outputs=["Energy", "Material Constants:Mechanical:Elastic Modulus C"],
     propertyType="Elasticity",
     tip="Hexagonal linear elasticity.",
@@ -77,10 +79,11 @@ class TetragonalElasticityProp(AnisoElasticity):
     pass
 
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:Anisotropic:Tetragonal',
-    TetragonalElasticityProp,
-    13,
-    [anisocijkl.TetragonalCijklParameter(
+    name='Mechanical:Elasticity:Anisotropic:Tetragonal',
+    subclass=TetragonalElasticityProp,
+    ordering=13,
+    params=[
+        anisocijkl.TetragonalCijklParameter(
             'cijkl', anisocijkl.TetragonalRank4TensorCij(
                 c11=1.0, c12=0.5, c13=0.5,
                 c33=1.0, c44=0.25, c66=0.25, c16=0.0),
@@ -100,13 +103,15 @@ class TrigonalAElasticityProp(AnisoElasticity):
     pass
 
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:Anisotropic:TrigonalA',
-    TrigonalAElasticityProp,
-    14,
-    [anisocijkl.TrigonalACijklParameter('cijkl',
-                                        anisocijkl.TrigonalARank4TensorCij(
-    c11=1.0, c12=0.5, c13=0.5, c33=1.0, c44=0.25, c14=0.0, c15=0.0),
-                                        tip=parameter.emptyTipString)],
+    name='Mechanical:Elasticity:Anisotropic:TrigonalA',
+    subclass=TrigonalAElasticityProp,
+    ordering=14,
+    params=[
+        anisocijkl.TrigonalACijklParameter(
+            'cijkl',
+            anisocijkl.TrigonalARank4TensorCij(
+                c11=1.0, c12=0.5, c13=0.5, c33=1.0, c44=0.25, c14=0.0, c15=0.0),
+            tip=parameter.emptyTipString)],
     outputs=["Energy", "Material Constants:Mechanical:Elastic Modulus C"],
     propertyType="Elasticity",
     tip="Trigonal-A linear elasticity.",
@@ -122,12 +127,14 @@ class TrigonalBElasticityProp(AnisoElasticity):
     pass
 
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:Anisotropic:TrigonalB',
-    TrigonalBElasticityProp,
-    15,
-    [anisocijkl.TrigonalBCijklParameter(
-            'cijkl', anisocijkl.TrigonalBRank4TensorCij(
-                c11=1.0, c12=0.5,c13=0.5,c33=1.0,c44=0.25,c14=0.0),
+    name='Mechanical:Elasticity:Anisotropic:TrigonalB',
+    subclass=TrigonalBElasticityProp,
+    ordering=15,
+    params=[
+        anisocijkl.TrigonalBCijklParameter(
+            'cijkl',
+            anisocijkl.TrigonalBRank4TensorCij(c11=1.0, c12=0.5,  c13=0.5,
+                                               c33=1.0, c44=0.25, c14=0.0),
             tip=parameter.emptyTipString)],
     outputs=["Energy", "Material Constants:Mechanical:Elastic Modulus C"],
     propertyType="Elasticity",
@@ -144,15 +151,16 @@ class OrthorhombicElasticityProp(AnisoElasticity):
     pass
 
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:Anisotropic:Orthorhombic',
-    OrthorhombicElasticityProp,
-    16,
-    [anisocijkl.OrthorhombicCijklParameter(
-    'cijkl',
-    anisocijkl.OrthorhombicRank4TensorCij(c11=1.0, c12=0.5, c13=0.5,
-                                      c22=1.0, c23=0.5, c33=1.0,
-                                      c44=0.25, c55=0.25, c66=0.25),
-    tip=parameter.emptyTipString)],
+    name='Mechanical:Elasticity:Anisotropic:Orthorhombic',
+    subclass=OrthorhombicElasticityProp,
+    ordering=16,
+    params=[
+        anisocijkl.OrthorhombicCijklParameter(
+            'cijkl',
+            anisocijkl.OrthorhombicRank4TensorCij(c11=1.0, c12=0.5, c13=0.5,
+                                                  c22=1.0, c23=0.5, c33=1.0,
+                                                  c44=0.25, c55=0.25, c66=0.25),
+            tip=parameter.emptyTipString)],
     outputs=["Energy", "Material Constants:Mechanical:Elastic Modulus C"],
     propertyType="Elasticity",
     tip="Orthorhombic linear elasticity.",
@@ -168,15 +176,17 @@ class MonoclinicElasticityProp(AnisoElasticity):
     pass
 
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:Anisotropic:Monoclinic',
-    MonoclinicElasticityProp,
-    17,
-    [anisocijkl.MonoclinicCijklParameter(
-    'cijkl',
-    anisocijkl.MonoclinicRank4TensorCij(c11=1.0, c12=0.5, c13=0.5, c15=0.0,
-                                        c22=1.0, c23=0.5, c25=0.0,
-                                        c33=0.25, c35=0.0, c44=0.25,
-                                        c46=0.0, c55=0.25, c66=0.25),
+    name='Mechanical:Elasticity:Anisotropic:Monoclinic',
+    subclass=MonoclinicElasticityProp,
+    ordering=17,
+    params=[
+        anisocijkl.MonoclinicCijklParameter(
+            'cijkl',
+            anisocijkl.MonoclinicRank4TensorCij(
+                c11=1.0, c12=0.5, c13=0.5, c15=0.0,
+                c22=1.0, c23=0.5, c25=0.0,
+                c33=0.25, c35=0.0, c44=0.25,
+                c46=0.0, c55=0.25, c66=0.25),
     tip=parameter.emptyTipString)],
     outputs=["Energy", "Material Constants:Mechanical:Elastic Modulus C"],
     propertyType="Elasticity",
@@ -193,17 +203,18 @@ class TriclinicElasticityProp(AnisoElasticity):
     pass
     
 reg = PropertyRegistration(
-    'Mechanical:Elasticity:Anisotropic:Triclinic',
-    TriclinicElasticityProp,
-    18,
-    [anisocijkl.TriclinicCijklParameter(
-    'cijkl',
-    anisocijkl.TriclinicRank4TensorCij(c11=1.0, c12=0.5, c13=0.5, c14=0.0,
-                                   c15=0.0, c16=0.0, c22=1.0, c23=0.5,
-                                   c24=0.0, c25=0.0, c26=0.0, c33=1.0,
-                                   c34=0.0, c35=0.0, c36=0.0, c44=0.25,
-                                   c45=0.0, c46=0.0, c55=0.25, c56=0.0,
-                                   c66=0.25),
+    name='Mechanical:Elasticity:Anisotropic:Triclinic',
+    subclass=TriclinicElasticityProp,
+    ordering=18,
+    params=[
+        anisocijkl.TriclinicCijklParameter(
+            'cijkl',
+            anisocijkl.TriclinicRank4TensorCij(
+                c11=1.0, c12=0.5, c13=0.5, c14=0.0,
+                c15=0.0, c16=0.0, c22=1.0, c23=0.5,
+                c24=0.0, c25=0.0, c26=0.0, c33=1.0,
+                c34=0.0, c35=0.0, c36=0.0, c44=0.25,
+                c45=0.0, c46=0.0, c55=0.25, c56=0.0, c66=0.25),
     tip=parameter.emptyTipString)],
     outputs=["Energy", "Material Constants:Mechanical:Elastic Modulus C"],
     propertyType="Elasticity",

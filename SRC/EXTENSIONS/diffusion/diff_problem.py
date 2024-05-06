@@ -47,7 +47,7 @@ ChargeOutOfPlane = equation.PlaneFluxEquation(
 
 conjugate.conjugatePair("Diffusivity",
                         AtomBalanceEquation,
-                        AtomBalanceEquation.components()
+                        AtomBalanceEquation.components(),
                         Concentration,
                         Concentration.components())
 

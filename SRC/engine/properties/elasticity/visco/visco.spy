@@ -19,10 +19,10 @@ class ViscoElasticity(CViscoElasticity):
         CViscoElasticity.__init__(self, registration, name, cijkl.tensorForm())
 
 reg = propertyregistration.PropertyRegistration(
-    "Mechanical:Viscosity:Isotropic",
-    ViscoElasticity,
-    1000,
-    [isocijkl.IsotropicCijklParameter('gijkl',
+    name="Mechanical:Viscosity:Isotropic",
+    subclass=ViscoElasticity,
+    ordering=1000,
+    params=[isocijkl.IsotropicCijklParameter('gijkl',
                           isocijkl.IsotropicRank4TensorCij(c11=1.0, c12=0.5),
                                             tip=parameter.emptyTipString)],
     outputs=["Material Constants:Mechanical:Viscosity"],

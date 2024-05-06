@@ -31,9 +31,9 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 ## ISOTROPIC
 
 reg = PropertyRegistration(
-    'Migration:Charge:Isotropic',
-    IsoCurrent,
-    98,
+    name='Migration:Charge:Isotropic',
+    subclass=IsoCurrent,
+    ordering=98,
     params=[parameter.FloatParameter('K',
                                      1.0, tip=parameter.emptyTipString)],
     propertyType="Current",
@@ -48,10 +48,10 @@ reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
 ## TRICLINIC
 
 reg = PropertyRegistration(
-    'Migration:Charge:Anisotropic:Triclinic',
-    AnisoCurrent,
-    105,
-    [symmmatrix.TriclinicRank2TensorParameter(
+    name='Migration:Charge:Anisotropic:Triclinic',
+    subclass=AnisoCurrent,
+    ordering=105,
+    params=[symmmatrix.TriclinicRank2TensorParameter(
     'K',
     symmmatrix.TriclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
     tip=parameter.emptyTipString)],
@@ -67,10 +67,10 @@ reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
 ## MONOCLINIC
 
 reg = PropertyRegistration(
-    'Migration:Charge:Anisotropic:Monoclinic',
-    AnisoCurrent,
-    104,
-    [symmmatrix.MonoclinicRank2TensorParameter(
+    name='Migration:Charge:Anisotropic:Monoclinic',
+    subclass=AnisoCurrent,
+    ordering=104,
+    params=[symmmatrix.MonoclinicRank2TensorParameter(
     'K',
     symmmatrix.MonoclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
     tip=parameter.emptyTipString)],
@@ -86,10 +86,10 @@ reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
 ## ORTHORHOMBIC
 
 reg = PropertyRegistration(
-    'Migration:Charge:Anisotropic:Orthorhombic',
-    AnisoCurrent,
-    103,
-    [symmmatrix.OrthorhombicRank2TensorParameter(
+    name='Migration:Charge:Anisotropic:Orthorhombic',
+    subclass=AnisoCurrent,
+    ordering=103,
+    params=[symmmatrix.OrthorhombicRank2TensorParameter(
     'K',
     symmmatrix.OrthorhombicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
     tip=parameter.emptyTipString)],
@@ -105,10 +105,10 @@ reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
 ## TETRAGONAL
 
 reg = PropertyRegistration(
-    'Migration:Charge:Anisotropic:Tetragonal',
-    AnisoCurrent,
-    101,
-    [symmmatrix.TetragonalRank2TensorParameter(
+    name='Migration:Charge:Anisotropic:Tetragonal',
+    subclass=AnisoCurrent,
+    ordering=101,
+    params=[symmmatrix.TetragonalRank2TensorParameter(
     'K',
     symmmatrix.TetragonalRank2Tensor(xx=1.0, zz=0.5),
     tip=parameter.emptyTipString)],
@@ -124,10 +124,10 @@ reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
 ## TRIGONAL
 
 reg = PropertyRegistration(
-    'Migration:Charge:Anisotropic:Trigonal',
-    AnisoCurrent,
-    102,
-    [symmmatrix.TrigonalRank2TensorParameter(
+    name='Migration:Charge:Anisotropic:Trigonal',
+    subclass=AnisoCurrent,
+    ordering=102,
+    params=[symmmatrix.TrigonalRank2TensorParameter(
     'K',
     symmmatrix.TrigonalRank2Tensor(xx=1.0, zz=0.5),
     tip=parameter.emptyTipString)],
@@ -143,10 +143,10 @@ reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
 ## HEXAGONAL
 
 reg = PropertyRegistration(
-    'Migration:Charge:Anisotropic:Hexagonal',
-    AnisoCurrent,
-    100,
-    [symmmatrix.HexagonalRank2TensorParameter(
+    name='Migration:Charge:Anisotropic:Hexagonal',
+    subclass=AnisoCurrent,
+    ordering=100,
+    params=[symmmatrix.HexagonalRank2TensorParameter(
     'K',
     symmmatrix.HexagonalRank2Tensor(xx=1.0, zz=0.5),
     tip=parameter.emptyTipString)],
@@ -162,10 +162,10 @@ reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
 ## CUBIC
 
 reg = PropertyRegistration(
-    'Migration:Charge:Anisotropic:Cubic',
-    AnisoCurrent,
-    99,
-    [symmmatrix.CubicRank2TensorParameter(
+    name='Migration:Charge:Anisotropic:Cubic',
+    subclass=AnisoCurrent,
+    ordering=99,
+    params=[symmmatrix.CubicRank2TensorParameter(
             'K',
             symmmatrix.CubicRank2Tensor(xx=1.0),
             tip=parameter.emptyTipString)],

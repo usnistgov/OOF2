@@ -16,10 +16,11 @@ from ooflib.engine import skeletonmodifier
 PropertyRegistration = propertyregistration.PropertyRegistration
 
 SkeletonRelaxationRateTensor = PropertyRegistration(
-    'SkeletonRelaxationRate', SkeletonRelaxationRate,
-    9000,
-    [parameter.FloatParameter('gamma', 1,), # force prefactor
-     skeletonmodifier.alphaParameter],
+    name='SkeletonRelaxationRate',
+    subclass=SkeletonRelaxationRate,
+    ordering=9000,
+    params=[parameter.FloatParameter('gamma', 1,), # force prefactor
+            skeletonmodifier.alphaParameter],
     outputs=[],
     propertyType="SkeletonRelaxationRate",
     secret=True)
