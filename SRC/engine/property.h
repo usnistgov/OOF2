@@ -182,8 +182,8 @@ public:
 
   // This function is called after equilibration, to allow the
   // computation of auxiliary fields which may depend on equilibrium
-  // fluxes -- the canoncal example is plasticity, where the
-  // yield condition is stress-dependent.
+  // fluxes -- the canonical example is plasticity, where the yield
+  // condition is stress-dependent.
   virtual void post_process(CSubProblem *, const Element *) const {}
 
 
