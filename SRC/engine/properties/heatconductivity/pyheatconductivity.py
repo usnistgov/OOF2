@@ -21,31 +21,36 @@ from ooflib.SWIG.engine import symmmatrix
 from ooflib.engine import problem
 from ooflib.engine import propertyregistration
 
-## TODO: See the TODO in pyelasticity.py about improving the Python
-## Properties.
-
 class PyHeatConductivity(pypropertywrapper.PyFluxProperty):
     def flux_matrix(self, mesh, element, nodeiterator, flux, point, time,
                     fluxdata):
         sf = nodeiterator.shapefunction(point)
         dsf0 = nodeiterator.dshapefunction(0, point)
         dsf1 = nodeiterator.dshapefunction(1, point)
+
+        # This demo Property uses a hard coded conductivity tensor.  A
+        # real Property would set it from a Parameter.
         cond = symmmatrix.SymmMatrix3(1., 1., 1., 0., 0., 0.)
+        
         for fluxindex in problem.Heat_Flux.components(planarity.ALL_INDICES):
+            ij0 = fieldindex.SymTensorIndex(fluxindex, 0)
+            ij1 = fieldindex.SymTensorIndex(fluxindex, 1)
             fluxdata.add_stiffness_matrix_element(
                 fluxindex,
                 problem.Temperature,
                 problem.Temperature.getIndex(""), # scalar field dummy 'index'
                 nodeiterator,
-                -(cond.get(fluxindex.integer(), 0) * dsf0 +
-                  cond.get(fluxindex.integer(), 1) * dsf1))
+                -(cond[ij0]*dsf0 + cond[ij1]*dsf1)
+            )
             if not problem.Temperature.in_plane(mesh):
+                ij2 = fieldindex.SymTensorIndex(fluxindex, 2)
                 fluxdata.add_stiffness_matrix_element(
                     fluxindex,
                     problem.Temperature.out_of_plane(), # also a scalar
                     problem.Temperature.getIndex(""),   # also a dummy
                     nodeiterator,
-                    cond.get(fluxiterator.integer(), 2) * sf)
+                    cond[ij2]*sf
+                )
     def integration_order(self, subproblem, element):
         if problem.Temperature.in_plane(subproblem.get_mesh()):
             return element.dshapefun_degree()

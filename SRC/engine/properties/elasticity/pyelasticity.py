@@ -17,28 +17,28 @@
 ## just looks like a PyFluxProperty, which doesn't have a cijkl
 ## method.  Fix this somehow.
 
-## TODO INDEXING: This and the other Python Properties are quite a
-## mess, and writing them isn't much easier than writing C++
-## Properties.  A big part of the problem is that there are too many
-## indexing and iterator classes, and different kinds of objects
-## expect different kinds of indices.  These need to be unified.  For
-## example, in this file, cijkl is indexed by passing a 2-tuple of
-## integers, which are obtained by the 'integer' method of an
-## FieldIndex, to Cijkl.__getitem__.  In pystressfreestrain.py, getting
-## a component of a SymmMatrix3 requires passing a SymTensorIterator's
-## .col() and .row() to SymmMatrix3.get().
-##
-## Also, the loop in flux_matrix(), below, should look something like
-## this:
-# for ij in problem.Stress.iterator(planarity.ALL_INDICES):
-#     for ell in problem.Displacement.iterator(planarity.ALL_INDICES):
+## TODO? the loop in flux_matrix(), below, would be neater if it could
+## be written like this:
+# for ij in problem.Stress.components(planarity.ALL_INDICES):
+#     for ell in problem.Displacement.components(planarity.ALL_INDICES):
 #         for k in (0, 1):
 #             fluxdata.stiffness_matrix_element(
 #                 ij, problem.Displacement, ell, node) -= cijkl[ij, k, l]*dsf[k]
-## SmallSystem.stiffness_matrix_element will have to return some kind
-## of helper object whose += can be defined.  Cijkl will have to have
-## some kind of flexible indexing that can take mixtures of
-## SymTensorIndex, VectorFieldIndex, and integer arguments.
+
+## The trouble with that is that it would require
+## SmallSystem.stiffness_matrix_element to return some sort of proxy
+## object to be the lhs operand of -=, and that's a SyntaxError:
+## 'function call' is an illegal expression for augmented assignment
+## Also, cijkl[ij, k, l] could be done, but it's still ugly.
+
+## What works is 
+# for ij in problem.Stress.components(planarity.ALL_INDICES):
+#     for ell in problem.Displacement.components(planarity.ALL_INDICES):
+#         for k in (0, 1):
+#             fluxdata.stiffness_matrix_element(
+#                 ij, problem.Displacement, ell, node).value -= cijkl[ij, k, l]*dsf[k]
+## Where value is a property (in the python sense) of the proxy class
+## that has a setter method that updates the fluxdata object.
 
 from ooflib.SWIG.engine import cstrain
 from ooflib.SWIG.engine import fieldindex
@@ -63,24 +63,21 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
         cijkl = self.modulus()
         for ij in problem.Stress.components(planarity.ALL_INDICES):
             for ell in problem.Displacement.components(planarity.ALL_INDICES):
-                ell0 = fieldindex.SymTensorIndex(0, ell.integer())
-                ell1 = fieldindex.SymTensorIndex(1, ell.integer())
+                ell0 = fieldindex.SymTensorIndex(0, ell)
+                ell1 = fieldindex.SymTensorIndex(1, ell)
                 fluxdata.add_stiffness_matrix_element(
                     ij,
                     problem.Displacement,
                     ell,
                     nodeiterator,
-                    -(cijkl[(ij.integer(), ell0.integer())]*dsf0
-                     + cijkl[(ij.integer(), ell1.integer())]*dsf1)
-                    )
+                    -(cijkl[ij, ell0]*dsf0 + cijkl[ij, ell1]*dsf1))
             if not problem.Displacement.in_plane(mesh):
                 oop = problem.Displacement.out_of_plane()
                 for k in oop.components(planarity.ALL_INDICES):
-                    kl = fieldindex.SymTensorIndex(2, ell.integer)
+                    kl = fieldindex.SymTensorIndex(2, ell)
                     fluxdata.add_stiffness_matrix_element(
                         ij, oop, kay, nodeiterator,
-                        -cijkl[(ij.integer(), kl.integer())]*sf
-                        )
+                        -cijkl[ij, kl]*sf)
 
     def integration_order(self, subproblem, element):
         if problem.Displacement.in_plane(subproblem.get_mesh()):

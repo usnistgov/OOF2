@@ -27,3 +27,19 @@ def _Components__iter__(self):
         beginp.increment()
 
 Components.__iter__ = _Components__iter__
+
+################
+
+# SymTensorIndex's constructor args can be either ints or
+# VectorFieldIndexes.
+
+oldSymTensorIndex_init = SymTensorIndex.__init__
+
+def SymTensorIndex___init__(self, i, j):
+    if not isinstance(i, int):
+        i = i.integer()
+    if not isinstance(j, int):
+        j = j.integer()
+    oldSymTensorIndex_init(self, i, j)
+
+SymTensorIndex.__init__ = SymTensorIndex___init__

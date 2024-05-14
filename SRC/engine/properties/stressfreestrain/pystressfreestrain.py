@@ -23,21 +23,21 @@ class PyStressFreeStrain(pypropertywrapper.PyFluxProperty):
 
     def flux_offset(self, mesh, element, flux, point, time, fluxdata):
         cijkl = self.elasticity.cijkl(mesh, element, point)
+        # This uses a fixed value of strain0. A real Property should
+        # probably use a user-defined Parameter instead.
         strain0 = symmmatrix.SymmMatrix3(0.1, 0.1, 0.1, 0, 0, 0)
+        
         for ij in problem.Stress.components(planarity.ALL_INDICES):
             for kl in fieldindex.symTensorIJComponents:
-                # TODO: use strain0(kl)
-                strain_kl = strain0.get(kl.row(), kl.col()) # TODO: too ugly
                 if kl.diagonal(): 
                     fluxdata.add_offset_vector_element(
                         ij,
-                        cijkl[ij.integer(), kl.integer()]*strain_kl)
+                        cijkl[ij, kl]*strain0[kl])
                 else:
                     fluxdata.add_offset_vector_element(
                         ij,
-                        2.0*cijkl[ij.integer(), kl.integer()]*strain_kl)
+                        2.0*cijkl[ij, kl]*strain0[kl])
 
-        ## TODO: Use cijkl(ij, kl) instead of the mess above.
         ## TODO: It would be nice if this could be written like this:
         # for ij in problem.Stress.components(planarity.ALL_INDICES):
         #     for kl in fieldindex.symTensorIJComponents:

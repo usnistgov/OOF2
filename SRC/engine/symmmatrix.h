@@ -70,7 +70,7 @@ public:
   friend SymmMatrix operator*(double, const SymmMatrix&);
   friend SymmMatrix operator*(const SymmMatrix&, double);
   friend DoubleVec operator*(const SymmMatrix&, const DoubleVec&);
-};
+};				// SymmMatrix
 
 class SymmMatrix3 : public ArithmeticOutputVal, public SymmMatrix {
 // OutputVal is a PythonExportable class, and must be the first base
@@ -169,7 +169,7 @@ public:
   virtual FieldIndex *getIndex(const std::string&) const;
   virtual const Components* components() const;
   virtual void print(std::ostream&) const;
-};
+};				// SymmMatrix3
 
 SymmMatrix3 operator+(const SymmMatrix3&, const SymmMatrix3&);
 SymmMatrix3 operator-(const SymmMatrix3&, const SymmMatrix3&);

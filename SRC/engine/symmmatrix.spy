@@ -144,11 +144,6 @@ def _SymmMatrix3___repr__(self):
 
 SymmMatrix3.__repr__ = _SymmMatrix3___repr__
 
-def _SymmMatrix3_component(self, component): # used in Output, below
-    # component is a VoigtComponent Enum object
-    return self.get(*voigtIndices[component.index()])
-SymmMatrix3.component = _SymmMatrix3_component
-
 utils.OOFdefine('SymmMatrix3', SymmMatrix3)
 
 ############

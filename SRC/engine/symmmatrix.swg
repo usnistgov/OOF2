@@ -90,6 +90,9 @@ public:
   void _mul(double other) {
     (*self) *= other;
   }
+  double __getitem__(SymTensorIndex ij) {
+    return (*self)[ij];
+  }
 };
 
 %newobject newSymTensorOutputValue;
