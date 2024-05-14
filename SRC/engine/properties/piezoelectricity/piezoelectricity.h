@@ -49,7 +49,6 @@ public:
 		   const std::string &nm);
   virtual ~PiezoElectricity() {}
   virtual void cross_reference(Material*) = 0;
-  virtual void precompute(FEMesh*);
 
   virtual void flux_matrix(const FEMesh*, const Element*,
 			   const ElementFuncNodeIterator&,
@@ -60,7 +59,6 @@ public:
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);
 
-  virtual bool constant_in_space() const { return true; }
   virtual int integration_order(const CSubProblem*, const Element*) const;
 
   virtual const Rank3Tensor dijk(const FEMesh*, const Element*,

@@ -36,8 +36,6 @@ public:
 	      const std::string &nm, double ezz);
   virtual ~PlaneStrain() {}
   virtual void cross_reference(Material*);
-  virtual bool constant_in_space() const { return true; }
-
   virtual void flux_offset(const FEMesh*, const Element*,
 			   const Flux*, const MasterPosition&,
 			   double time, SmallSystem*) const;

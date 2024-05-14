@@ -48,8 +48,6 @@ PiezoElectricity::PiezoElectricity(PyObject *reg,
 }
 
 
-void PiezoElectricity::precompute(FEMesh*) {}
-
 int PiezoElectricity::integration_order(const CSubProblem *subproblem,
 					const Element *el) const {
   if(displacement->in_plane(subproblem))

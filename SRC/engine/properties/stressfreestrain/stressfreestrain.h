@@ -37,7 +37,6 @@ public:
 	      const std::string &nm);
   virtual ~StressFreeStrain() {}
   virtual void cross_reference(Material*) = 0;
-  virtual bool constant_in_space() const { return true; }
   virtual const SymmMatrix3 stressfreestrain(const FEMesh*, const Element*,
 					     const MasterPosition&) const = 0;
 

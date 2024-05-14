@@ -35,7 +35,6 @@ public:
 				       double time,
 				       SmallSystem*) const;
   virtual int integration_order(const CSubProblem*, const Element*) const;
-  virtual bool constant_in_space() const { return true; }
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);
 };

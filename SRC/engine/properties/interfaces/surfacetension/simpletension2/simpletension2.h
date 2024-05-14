@@ -27,7 +27,6 @@ public:
 		 double k_right, double T_c_right);
   virtual ~SimpleTension2() {}
   virtual int integration_order(const CSubProblem*, const Element*) const;
-  virtual bool constant_in_space() const { return true; }
   virtual void end_element(const CSubProblem*, const Element*);
 
   virtual void cross_reference(Material*);

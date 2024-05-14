@@ -47,7 +47,6 @@ public:
 		       double gamma, double alpha);
   virtual ~SkeletonRelaxationRate() {}
   virtual void cross_reference(Material*);
-  virtual void precompute(FEMesh*);
 
   virtual void flux_offset(const FEMesh*, const Element*,
 			   const Flux*, const MasterPosition&,
@@ -56,7 +55,6 @@ public:
   virtual int integration_order(const CSubProblem*, const Element*) const;
 
   double alpha() const { return alpha_; }
-  virtual bool constant_in_space() const { return true; }
 };
 
 #endif

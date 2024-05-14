@@ -46,8 +46,6 @@ public:
 		   double t0);
   virtual ~ThermalExpansion() {}
   virtual void cross_reference(Material*) = 0;
-  virtual void precompute(FEMesh*);
-  virtual bool constant_in_space() const { return true; }
 
   virtual void flux_matrix(const FEMesh*, const Element*,
 			   const ElementFuncNodeIterator&,

@@ -36,7 +36,6 @@ public:
   ForceDensity(PyObject *reg, const std::string &name, double x, double y, double z);
 #endif
   virtual ~ForceDensity() {}
-  virtual void precompute(FEMesh*);
   virtual void force_value(const FEMesh*, const Element*, const Equation*,
 			   const MasterPosition&, double time, SmallSystem*) const;
   virtual int integration_order(const CSubProblem*, const Element*) const;
@@ -46,7 +45,6 @@ public:
   double fdensity_z() const { return gz; }
 #endif
 
-  virtual bool constant_in_space() const { return true; }
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);
 };

@@ -34,7 +34,6 @@ public:
 					  const MasterPosition&) const = 0;
   virtual const COrientation *orientation(const CMicrostructure*, const ICoord&)
     const = 0;
-  virtual bool constant_in_space() const = 0;
 };
 
 class OrientationProp : public OrientationPropBase {
@@ -49,7 +48,6 @@ public:
 				    const MasterPosition&) const;
   virtual const COrientation *orientation(const CMicrostructure*, const ICoord&)
     const;
-  virtual bool constant_in_space() const { return true; }
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);
 };

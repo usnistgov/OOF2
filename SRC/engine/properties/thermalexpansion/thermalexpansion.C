@@ -39,8 +39,6 @@ ThermalExpansion::ThermalExpansion(PyObject *reg,
 }
 
 
-void ThermalExpansion::precompute(FEMesh*) {}
-
 int ThermalExpansion::integration_order(const CSubProblem*,
 					const Element *el) const {
   return el->shapefun_degree();

@@ -162,7 +162,7 @@ public:
   // TODO: Some properties redefine a trivial precompute(). Why?  Delete it.
   virtual void precompute(FEMesh*) {}
 
-  virtual bool constant_in_space() const = 0;
+  virtual bool constant_in_space() const { return true; }
 
   // These routines allow Properties to precompute and store
   // mesh-specific data.  Since Materials and Properties are shared
@@ -221,7 +221,6 @@ public:
   AuxiliaryProperty(const std::string &nm, PyObject *registration)
     : Property(nm, registration)
   {}
-  virtual bool constant_in_space() const { return true; }
 };
 
 class PhysicalProperty: public Property {

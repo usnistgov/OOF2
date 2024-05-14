@@ -37,9 +37,6 @@ Elasticity::Elasticity(const std::string &nm, PyObject *registration)
   stress_flux = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
 }
 
-void Elasticity::precompute(FEMesh*) {
-}
-
 int Elasticity::integration_order(const CSubProblem *subp,
 				  const Element *el) const {
   if(displacement->in_plane(subp))

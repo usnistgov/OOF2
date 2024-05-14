@@ -28,7 +28,6 @@ public:
 	      double coef);
   virtual ~ForceSurfaceTest() {}
   virtual int integration_order(const CSubProblem*, const Element*) const;
-  virtual bool constant_in_space() const { return true; }
   virtual void begin_element(const CSubProblem*, const Element*);
   virtual void end_element(const CSubProblem*, const Element*);
 
@@ -60,7 +59,6 @@ public:
 		  double coef);
   virtual ~FluxSurfaceTest() {}
   virtual int integration_order(const CSubProblem*, const Element*) const;
-  virtual bool constant_in_space() const { return true; }
   virtual void begin_element(const CSubProblem*, const Element*);
   virtual void end_element(const CSubProblem*, const Element*);
   virtual void cross_reference(Material*);

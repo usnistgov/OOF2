@@ -30,7 +30,6 @@ public:
 		double gamma_left, double gamma_right);
   virtual ~SimpleTension() {}
   virtual int integration_order(const CSubProblem*, const Element*) const;
-  virtual bool constant_in_space() const { return true; }
   virtual void begin_element(const CSubProblem*, const Element*);
   virtual void end_element(const CSubProblem*, const Element*);
 

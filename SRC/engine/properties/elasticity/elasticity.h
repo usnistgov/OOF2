@@ -37,7 +37,6 @@ class Elasticity : public FluxProperty {
 public:
   Elasticity(const std::string &name, PyObject *registry);
   virtual ~Elasticity() {}
-  virtual void precompute(FEMesh*);
   virtual void flux_matrix(const FEMesh *mesh,
 			   const Element *element,
 			   const ElementFuncNodeIterator &nu,

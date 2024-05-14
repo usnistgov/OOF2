@@ -84,7 +84,6 @@ public:
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);
 
-  virtual bool constant_in_space() const { return true; }
   virtual int integration_order(const CSubProblem*, const Element*) const;
 
   virtual bool is_symmetric_K(const CSubProblem*) const;

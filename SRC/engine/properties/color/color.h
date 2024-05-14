@@ -42,8 +42,6 @@ public:
   ColorProp(PyObject *reg, const std::string &nm, CColor *c);
   virtual ~ColorProp() {}
   const CColor &color() const { return cvalue_; }
-
-  virtual bool constant_in_space() const { return true; }
 };
 
 #endif // COLORPROP_H

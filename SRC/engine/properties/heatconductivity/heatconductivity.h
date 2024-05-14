@@ -45,7 +45,6 @@ public:
 				 SmallSystem *) const;
   virtual void cross_reference(Material*) = 0;
   virtual int  integration_order(const CSubProblem*, const Element*) const;
-  virtual bool constant_in_space() const { return true; }
   virtual const SymmMatrix3 conductivitytensor(const FEMesh*, const Element*,
 					       const MasterPosition&) const = 0;
 protected:
