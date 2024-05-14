@@ -73,45 +73,20 @@ public:
 
 PYTHONEXPORTABLE(Property);
 
+// None of the methods defined in the derived classes need to be
+// called from Python, but the class hierarchy has to be known.
+
 %nodefaultctor PhysicalProperty;
 
-class PhysicalProperty : public Property {
-public:
-  int integration_order(CSubProblem*, Element*);
-};
+class PhysicalProperty : public Property {};
 
 %nodefaultctor FluxProperty;
 
-class FluxProperty : public PhysicalProperty {
-public:
-  void flux_matrix(FEMesh*, Element*, ElementFuncNodeIterator&, Flux*,
-		   MasterPosition&, double, SmallSystem*);
-  void flux_value(FEMesh*, Element*, Flux*, MasterPosition&, double,
-		  SmallSystem*);
-  void static_flux_value(FEMesh*, Element*, Flux*, MasterPosition&,
-			 double, SmallSystem*);
-  void flux_offset(FEMesh*, Element*, Flux*, MasterPosition&,
-		   double, SmallSystem*);
-  void begin_point(FEMesh*, Element*, Flux*, MasterPosition&);
-  void end_point(FEMesh*, Element*, Flux*, MasterPosition&);
-};
+class FluxProperty : public PhysicalProperty {};
 
 %nodefaultctor EqnProperty;
 
-class EqnProperty : public PhysicalProperty {
-public:
-  void force_deriv_matrix(FEMesh*, Element*, Equation*,
-			  ElementFuncNodeIterator&, MasterPosition&, double,
-			  SmallSystem*);
-  void force_value(FEMesh*, Element*, Equation*, MasterPosition&, double,
-		   SmallSystem*);
-  void first_time_deriv_matrix(FEMesh*, Element*, Equation*, 
-			       ElementFuncNodeIterator&, MasterPosition&,
-			       double, SmallSystem*);
-  void second_time_deriv_matrix(FEMesh*, Element*, Equation*, 
-				ElementFuncNodeIterator&, MasterPosition&,
-				double, SmallSystem*);
-};
+class EqnProperty : public PhysicalProperty {};
 
 %nodefaultctor AuxiliaryProperty;
 

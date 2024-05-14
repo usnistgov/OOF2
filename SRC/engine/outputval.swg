@@ -207,6 +207,8 @@ class ListOutputValIndex : public FieldIndex {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+// OutputValue classes wrap the OutputVal classes
+
 %nodefaultctor OutputValue;
 
 class OutputValue {

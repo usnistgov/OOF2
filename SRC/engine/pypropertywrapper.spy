@@ -30,11 +30,6 @@ from ooflib.SWIG.engine import smallsystem
 from ooflib.SWIG.engine.IO import propertyoutput
 from ooflib.common import debug
 
-# Wrapper functions for Python Property methods.  These functions are
-# monkeypatched into PyFluxProperty and PyEqnProperty.  They're called
-# by the C++ routines in pypropertywrapper.C, and call Python methods
-# in user-defined PyFluxProperty and PyEqnProperty derived classes.
-
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # C++ PyPropertyWrapper objects need access to "self", since they
@@ -58,14 +53,15 @@ PyEqnProperty.__init__ = _PyEqnProperty___init__
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Utility functions to support storing data in an element.
-def _PyPropertyWrapper_data_to_element(self, element, name, data):
-    pass
+# Commented this out to see if it's used. 
 
-# Sensible display string for element data.
-def _PyPropertyElementData___repr__(self):
-    return "PyPropertyElementData(%s,%s)" % (self.name(), repr(self.data()))
+# # Utility functions to support storing data in an element.
+# def _PyPropertyWrapper_data_to_element(self, element, name, data):
+#     pass
 
-PyPropertyElementData.__repr__ = _PyPropertyElementData___repr__
+# # Sensible display string for element data.
+# def _PyPropertyElementData___repr__(self):
+#     return "PyPropertyElementData(%s,%s)" % (self.name(), repr(self.data()))
 
+# PyPropertyElementData.__repr__ = _PyPropertyElementData___repr__
 

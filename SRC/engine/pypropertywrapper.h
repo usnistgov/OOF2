@@ -9,9 +9,9 @@
  * oof_manager@nist.gov. 
  */
 
-// Structure to wrap a pure-Python property, and make it available by
-// way of the usual interface to the stiffness-matrix construction
-// process.
+// Base classes for Properties that are defined in Python.  The
+// methods in the C++ base class calls the equivalently-named methods
+// in the derived Python class via the Python API.
 
 #ifndef PYPROPERTYWRAPPER_H
 #define PYPROPERTYWRAPPER_H
@@ -37,7 +37,8 @@ public:
   virtual ~PyPropertyMethods();
   // A "py_" prefix was added to these method names to keep the clang
   // compiler from complaining about hidden overloaded virtual
-  // functions.
+  // functions.  They will call the corresponding method, without the
+  // prefix, in the derived Python class.
   virtual void py_precompute(FEMesh*);
   virtual void py_cross_reference(Material*);
   virtual void py_begin_element(const CSubProblem*, const Element*);
@@ -69,7 +70,7 @@ class PyFluxProperty : public FluxProperty,
 {
 public:
   PyFluxProperty(PyObject *referent, PyObject *regstn,
-			const std::string &name);
+		 const std::string &name);
   virtual ~PyFluxProperty();
   virtual void flux_matrix(const FEMesh*, const Element*,
 			   const ElementFuncNodeIterator&,
@@ -193,6 +194,10 @@ public:
     return PyPropertyMethods::is_symmetric_M(sb);
   }
 };
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// TODO: Add PyAuxProperty?
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
