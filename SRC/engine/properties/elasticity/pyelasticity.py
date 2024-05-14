@@ -19,26 +19,33 @@
 
 ## TODO? the loop in flux_matrix(), below, would be neater if it could
 ## be written like this:
+##
 # for ij in problem.Stress.components(planarity.ALL_INDICES):
-#     for ell in problem.Displacement.components(planarity.ALL_INDICES):
-#         for k in (0, 1):
-#             fluxdata.stiffness_matrix_element(
-#                 ij, problem.Displacement, ell, node) -= cijkl[ij, k, l]*dsf[k]
-
+#  for ell in problem.Displacement.components(planarity.ALL_INDICES):
+#   for k in (0, 1):
+#     fluxdata.stiffness_matrix_element(
+#         ij, problem.Displacement, ell, node) -= cijkl[ij, k, l]*dsf[k]
+##
 ## The trouble with that is that it would require
 ## SmallSystem.stiffness_matrix_element to return some sort of proxy
 ## object to be the lhs operand of -=, and that's a SyntaxError:
 ## 'function call' is an illegal expression for augmented assignment
 ## Also, cijkl[ij, k, l] could be done, but it's still ugly.
-
-## What works is 
+##
+## What works is
+##
 # for ij in problem.Stress.components(planarity.ALL_INDICES):
-#     for ell in problem.Displacement.components(planarity.ALL_INDICES):
-#         for k in (0, 1):
-#             fluxdata.stiffness_matrix_element(
-#                 ij, problem.Displacement, ell, node).value -= cijkl[ij, k, l]*dsf[k]
+#  for ell in problem.Displacement.components(planarity.ALL_INDICES):
+#   for k in (0, 1):
+#    fluxdata.stiffness_matrix_element(
+#         ij, problem.Displacement, ell, node).value -= cijkl[ij, k, l]*dsf[k]
+##
 ## Where value is a property (in the python sense) of the proxy class
-## that has a setter method that updates the fluxdata object.
+## that has a setter method that updates the fluxdata object.  The
+## trouble is that the proxy's getter will also be called (by -=), so
+## all of the indexing computation will be done twice.  This could be
+## fudged, eg by having the getter return 0 instead of getting, and
+## the setter decrement instead of setting, but that is even uglier.
 
 from ooflib.SWIG.engine import cstrain
 from ooflib.SWIG.engine import fieldindex
