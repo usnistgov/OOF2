@@ -42,6 +42,11 @@ A computer running a variant of the Unix operating system, including
 Linux and Macintosh. OOF2 currently does *not* run on Microsoft Windows,
 but ought to run inside a Linux virtual machine on Windows.
 
+Detailed instructions for installing the OOF2 prerequisites on a number
+of different operating systems can be found on the [OOF2 Prerequisites
+page](http://www.ctcms.nist.gov/oof/oof2/prerequisites.html). Those
+instructions may be more up-to-date than the ones here.
+
 The following external programs and libraries must be present before you
 can run OOF2. To compile OOF2 from sources, you will also require the
 header files ("includes") associated with these programs and libraries.
@@ -49,7 +54,7 @@ These are usually available as part of a "development" version of the
 library software.
 
 -   [Python 3 (3.8 or later)](http://www.python.org)
--   \[Swig (4.0 or 4.1)\] (https://www.swig.org)
+-   [SWIG (4.0 or later)](https://www.swig.org)
 -   [Magick++ (6.x, but not
     7.x)](http://www.imagemagick.org/Magick++/index.html)
 -   [gtk3 (3.22 or later)](http://www.gtk.org/download/)
@@ -75,10 +80,6 @@ linear algebra subroutines. On macOS no special libraries are required.
 On Linux and commercial Unix systems, they may have to be installed, and
 you may require headers (sometimes provided as part of a "-dev"
 package).
-
-Detailed instructions for installing the OOF2 prerequisites on a number
-of different operating systems can be found on the [OOF2 Prerequisites
-page](http://www.ctcms.nist.gov/oof/oof2/prerequisites.html).
 
 ## Installing OOF2
 
@@ -164,16 +165,17 @@ instructions on how to use ccmake. At a minimum
     `OOF2`, set `CMAKE_INSTALL_PREFIX` to `~/Anaconda3/envs/OOF2`.
 -   Similarly, change `OOF2_PYTHON_VERSION` to the version of python3
     that you have installed, and `OOF2_SWIG_VERSION` to the version of
-    swig4. Use the same values you used when installing OOFCanvas.
+    swig4. Use the same values you used when installing OOFCanvas. Use
+    `<return>` to cycle through the allowed values.
 -   If you are going to build OOF2 extension modules, set
     `OOF2_DEV_INSTALL` to `ON`. This will install the C++ headers and
     other useful files.
 -   Type `c` to update the configuration.
 -   Type `g` to generate the build scripts and exit.
--   If `g` wassn't an option at the bottom of the screen in the previous
+-   If `g` wasn't an option at the bottom of the screen in the previous
     step and ccmake didn't exit, the previous `c` probably added new
     variables. Check their values and type `c` again until the `g`
-    appears, then type `g`.
+    appears, and then type `g`.
 
 ### 6. Build and install
 
