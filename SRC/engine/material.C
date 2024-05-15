@@ -451,17 +451,14 @@ void Material::make_linear_system(const CSubProblem *subproblem,
     EqnPropMap::const_iterator stupid = eqnpropmap.find(*eqn);
     const EqnPropList &eqn_prop_list = (*stupid).second;
 
-    // TODO MAYBE: In principle, there could be another begin_point
-    // hook here to call the property with the appropriate equation.
-    // If such a thing turns out to be needed, follow the begin_point
-    // pattern for fluxes.
     for(std::vector<EqnProperty*>::const_iterator property=eqn_prop_list.begin();
 	property != eqn_prop_list.end(); ++property)
       {
 	if ( (*property)->currently_active(subproblem) ) {
+	  (*property)->begin_point(mesh, el, *eqn, pt);
 	  (*property)->make_equation_contributions(mesh, el, *eqn, pt, time,
 						   nlsolver, property_eqn_info);
-
+	  (*property)->end_point(mesh, el, *eqn, pt);
 	  // add the eqn contributions of the property to the eqn
 	  // small system
 	  *eqndata += *property_eqn_info;

@@ -169,6 +169,10 @@ public:
   virtual void end_element(const CSubProblem *sb, const Element *e) {
     PyPropertyMethods::py_end_element(sb, e);
   }
+  virtual void begin_point(const FEMesh *m, const Element *e,
+			   const Equation *f, const MasterPosition &p);
+  virtual void end_point(const FEMesh *m, const Element *e,
+			 const Equation *f, const MasterPosition &p);
   virtual void post_process(CSubProblem *sb, const Element *e) const {
     PyPropertyMethods::py_post_process(sb, e);
   }

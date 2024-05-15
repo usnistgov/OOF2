@@ -379,6 +379,15 @@ public:
 					double time, SmallSystem* )
     const { return; }
 
+  // These functions are called from material.C before and after the
+  // equation contributions are requested.  If properties have
+  // per-evaluation-point expensive operations they want to perform,
+  // they should do them in these functions.
+  virtual void begin_point(const FEMesh*, const Element*,
+			   const Equation*, const MasterPosition&) {}
+  virtual void end_point(const FEMesh*, const Element*,
+			 const Equation*, const MasterPosition&) {}
+  
 }; // end of EqnProperty class definition
 
 extern double deriv_eps;
