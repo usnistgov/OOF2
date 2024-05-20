@@ -103,10 +103,23 @@ private:
   std::vector<double> *dofvalues;
   double time;		       // max time attained by all subproblems
   CSubProblem *currentSubProblem_;
+  PyObject *pymesh;		// ref to corresponding Python object
 public:
   FEMesh(CMicrostructure *);
   virtual ~FEMesh();
   CMicrostructure *get_microstructure() const { return microstructure; }
+
+  // When a FEMesh is returned from C++ to Python, it's important to
+  // recover the original FEMesh, not a newly swigged copy.  So
+  // setPyMesh is called when the FEMesh is originally created, and a
+  // typemap in femesh.swg ensures that the original object is
+  // returned whenever a swigged function returns an FEMesh*.  When a
+  // Python function is called from C++ via Python API methods, not
+  // via swig, it's necessary to call getPyMesh manually (see
+  // pypropertywrapper.C).
+  void setPyMesh(PyObject *obj);
+  void unsetPyMesh();
+  PyObject *getPyMesh() const { return pymesh; }
 
   VContainer<Element>* c_elements() const;
   VContainer<Node>* c_nodes() const;

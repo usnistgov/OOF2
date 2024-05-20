@@ -23,17 +23,26 @@ from ooflib.engine import bdycondition
 from ooflib.engine import profile
 from ooflib.engine import conjugate
 
-# Over-ride for the FEMesh initializer.  FEMesh objects are only
-# created in Python, and never returned from C++ to Python.  That
-# means that the extra data added by the initializer here can be
-# safely stored in the swig wrapper class.
-# We can't use %pythonappend to do this because we're adding an
-# argument to the constructor, as well as extending it.
+# Over-ride for the FEMesh initializer.  We can't use %pythonappend to
+# do this because we're adding an argument to the constructor, as well
+# as extending it.
 
 old_FEMesh__init__ = FEMesh.__init__
 
 def new_FEMesh__init__(self, microstructure, order):
     old_FEMesh__init__(self, microstructure)
+
+    # An FEMesh is created by calling the C++ constructor from
+    # Skeleton.femesh().  When the FEMesh is returned to Python, extra
+    # Python data is added to the swigged object in this function.  If
+    # the same C++ FEMesh is ever returned from C++ to Python again,
+    # it needs to refer to the same swigged Python object, so that it
+    # has the extra data.  So the C++ FEMesh saves a pointer to its
+    # initial Python FEMesh by calling setPyMesh(), a typemap in
+    # femesh.swg returns that pointer instead of creating a new
+    # wrapper.
+    self.setPyMesh(self)        
+
     # order of femesh
     self._order = order
     
@@ -64,6 +73,8 @@ def new_FEMesh__init__(self, microstructure, order):
     self._interfaceFloatBCs=[] #Float BC objects
     self._interfaceVisibleBCs=[] #BC names
 
+    self.propData = {}
+    
 FEMesh.__init__ = new_FEMesh__init__
 
 #-#=#*#=#-#=#*#=#-#=#*#=#-#=#*#=#-#=#*#=#-#=#*#=#-#=#*#=#-#=#*#=#-#=#*#=#-#
@@ -122,6 +133,12 @@ def _FEMesh_destroy(self):
     # deleted?
     self.boundaries = {}
     #del self.boundaries
+
+    for (prop, data) in self.propData.items():
+        prop.clear_mesh_data(self, data)
+    self.propData = {}
+
+    self.unsetPyMesh()
 
 FEMesh.destroy = _FEMesh_destroy
 
@@ -964,4 +981,23 @@ def _enclosingElement(self, skeleton, point):
 
 FEMesh.enclosingElement = _enclosingElement
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# The set_mesh_data/get_mesh_data machinery in Python is completely
+# independent of the machinery in C++.
+
+def _set_mesh_data(self, prop, data):
+    try:
+        old = self.propData[prop]
+    except KeyError:
+        pass
+    else:
+        prop.clear_mesh_data(self, old)
+    self.propData[prop] = data
+    
+FEMesh.set_mesh_data = _set_mesh_data
+
+def _get_mesh_data(self, prop):
+    return self.propData[prop]
+
+FEMesh.get_mesh_data = _get_mesh_data

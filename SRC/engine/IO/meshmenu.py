@@ -1687,6 +1687,9 @@ def _solve(menuitem, mesh, endtime):
         # old data.
         meshctxt.restoreLatestData() # a no-op, if nothing has been cached yet
         evolve.evolve(meshctxt, endtime)
+    except Exception as exc:
+        debug.fmsg(f"Exception {exc=}")
+        raise
     finally:
         meshctxt.releaseLatestData() # allow data cache to restore old data
         meshctxt.end_writing()

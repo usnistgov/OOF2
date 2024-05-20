@@ -21,6 +21,7 @@
 #include "common/doublevec.h"
 #include "common/lock.h"
 #include "common/printvec.h"
+#include "common/pythonlock.h"
 #include "common/smallmatrix.h"
 #include "common/tostring.h"
 #include "common/trace.h"
@@ -53,6 +54,7 @@ FEMesh::FEMesh(CMicrostructure * mc)
     dofvalues(new vector<double>),
     time(0.0),
     currentSubProblem_(0),
+    pymesh(0),
     ncount(0),			// used as a Node ID only
     dof_list_needs_cleaning(false),
     nodaleqn_list_needs_cleaning(false)
@@ -102,6 +104,30 @@ FEMesh::~FEMesh() {
 
 long get_globalFEMeshCount() {
   return FEMesh::globalFEMeshCount;
+}
+
+void FEMesh::setPyMesh(PyObject *obj) {
+  PYTHON_THREAD_BEGIN_BLOCK;
+  Py_XINCREF(obj);
+  pymesh = obj;
+}
+
+void FEMesh::unsetPyMesh() {
+  PYTHON_THREAD_BEGIN_BLOCK;
+#ifdef DEBUG
+  PyObject *sys = PyImport_ImportModule("sys");
+  PyObject *grc = PyObject_GetAttrString(sys, "getrefcount");
+  PyObject *nrefs = PyObject_CallFunctionObjArgs(grc, pymesh, NULL);
+  std::cerr << "FEMesh::unsetPyMesh: pymesh=" << pymesh
+	    << " refcount=" << repr(nrefs) << std::endl;
+  PyObject *gc = PyImport_ImportModule("gc");
+  PyObject *gr = PyObject_GetAttrString(gc, "get_referrers");
+  PyObject *refs = PyObject_CallFunctionObjArgs(gr, pymesh, NULL);
+  std::cerr << "FEMesh::unsetPyMesh: referrers = " << repr(refs) << std::endl;
+#endif // DEBUG
+  
+  Py_XDECREF(pymesh);
+  pymesh = 0;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
