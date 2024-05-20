@@ -75,3 +75,27 @@ def _Property_is_nonlinear(self, fields):
     return self.registration().nonlinear(fields)
 
 Property.is_nonlinear = _Property_is_nonlinear
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# The set_mesh_data/get_mesh_data machinery in Python is completely
+# independent of the machinery in C++.  Properties defined in Python
+# can call set_mesh_data and get_mesh_data to store and retrieve
+# FEMesh-specific data.
+
+def _set_mesh_data(self, mesh, data):
+    mesh.set_mesh_data(self, data)
+
+Property.set_mesh_data = _set_mesh_data
+
+def _get_mesh_data(self, mesh):
+    return mesh.get_mesh_data(self)
+
+Property.get_mesh_data = _get_mesh_data
+
+def _clear_mesh_data(self, mesh, data):
+    # Callback function to be redefined in derived classes.  Called
+    # when  destroyed or data is overwritten in FEMesh.
+    pass
+
+Property.clear_mesh_data = _clear_mesh_data
