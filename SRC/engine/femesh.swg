@@ -41,11 +41,31 @@ typedef VContainer<InterfaceElement> VContainerInterfaceElement;
 typedef std::vector<FuncNode*> FuncNodeVector;
 %}
 
+// The FEMesh typemap here ensures that when an FEMesh* is returned
+// from C++ to Python, the Python object is the original FEMesh
+// object, and not a newly wrapped copy of the C++ pointer.  This is
+// important because there is data stored on the Python side of the
+// original FEMesh.
+
+%typemap(out) FEMesh* {
+  // typemap(out) FEMesh*
+  $result = $1->getPyMesh();
+  if($result == nullptr) {
+    $result = SWIG_NewPointerObj(SWIG_as_voidptr($1), $descriptor(FEMesh*),
+				 1); // 1 ==> python takes ownership
+  }
+  else {
+    Py_INCREF($result); 
+  }
+}
+
 class FEMesh {
 public:
   FEMesh(CMicrostructure*);
   ~FEMesh();
-
+  void setPyMesh(PyObject*);
+  void unsetPyMesh();
+  
   void refreshMaterials(PyObject *skeletoncontext);
   void addMaterial(Material*);
   void removeMaterial(Material*);
