@@ -46,6 +46,7 @@ public:
   bool nonzero(int, int) const;
 };
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 class SmallSystem {
 

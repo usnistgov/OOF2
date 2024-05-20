@@ -8,27 +8,14 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-# These are the Pythonized wrappers for the virtual functions
-# of the Property class, as seen from Python.  They are called
-# back from the C++ PyPropertyWrapper class, and in turn call
-# the corresponding methods of the derived pure-Python
-# property.  Their primary function is to wrap their arguments
-# in the swigged constructors, so all the SWIG'd methods
-# are available in the derived-class routine.
-
-from ooflib.SWIG.common import ooferror
-from ooflib.SWIG.engine import csubproblem
-from ooflib.SWIG.engine import element
-from ooflib.SWIG.engine import elementnodeiterator
-from ooflib.SWIG.engine import equation
-from ooflib.SWIG.engine import femesh
-from ooflib.SWIG.engine import flux
-from ooflib.SWIG.engine import property
-from ooflib.SWIG.engine import mastercoord
-from ooflib.SWIG.engine import material
-from ooflib.SWIG.engine import smallsystem
-from ooflib.SWIG.engine.IO import propertyoutput
 from ooflib.common import debug
+
+## TODO: FIX THIS.  We shouldn't have to import smallsystem here.  But
+## if we don't, then the SmallSystem that gets passed to flux_matrix
+## in PyHeatConductivity, for example, doesn't have the methods that
+## are added to it by smallsystem.py.  The simplest fix would be to
+## move those methods to C++ and swig them.
+from ooflib.SWIG.engine import smallsystem
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -53,9 +40,10 @@ PyEqnProperty.__init__ = _PyEqnProperty___init__
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Commented this out to see if it's used. 
+# Utility functions to support storing data in an element.
 
-# # Utility functions to support storing data in an element.
+## TODO: Finish writing this.
+
 # def _PyPropertyWrapper_data_to_element(self, element, name, data):
 #     pass
 

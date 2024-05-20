@@ -169,7 +169,7 @@ public:
   // between Meshes, Properties can't store mesh-specific data
   // themselves.  set_mesh_data stores data in the Mesh, and
   // get_mesh_data retrieves it. clear_mesh_data is a callback, called
-  // when the Mesh is being destroyed and the data must be deleted.
+  // when the Mesh is being destroyed or the data is being overwritten.
   void set_mesh_data(FEMesh*, void *) const;
   void *get_mesh_data(const FEMesh*) const;
   virtual void clear_mesh_data(FEMesh*, void*) const {}

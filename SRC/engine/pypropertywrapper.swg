@@ -24,15 +24,11 @@
   #include "engine/flux.h"	// SWIGBUG
 %}
 
-// Not much has to be done here.  The Python functions which are
-// called from the C++ side are defined in pypropertywrapper.spy.
-// Authors of extensions should derive new classes from PyFluxProperty
-// and/or PyEqnProperty.  The derived classes can define the same
-// methods, with the same arguments, as the corresponding C++ classes,
-// FluxProperty and EqnProperty.  Almost all methods definitions are
-// optional, except for integration_order and constant_in_space, which
-// are required.  The default C++ base class method will be used if no
-// Python method has been provided.
+// Not much has to be done here.  When the C++ code uses a Property
+// defined in Python, it calls the methods in pypropertywrapper.C,
+// which use the PyObject* passed in to the PyFluxProperty or
+// PyEqnProperty constructor to call the Property's Python methods.
+// All we need to do here is to swig the constructors and destructors.
 
 class PyFluxProperty : public FluxProperty {
 public:

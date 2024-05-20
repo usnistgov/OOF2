@@ -59,7 +59,7 @@ class TestPlasticityProp(pypropertywrapper.PyFluxProperty):
     # def precompute(self, mesh):
     #     pass
     
-    # We only have a fluxrhs, because we just subtract the
+    # We only have a flux_offset, because we just subtract the
     # elastic constants times the stress-free strain from the
     # stress.
     def flux_offset(self, mesh, element, flux, masterpos, time, smallsystem):

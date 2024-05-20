@@ -41,8 +41,8 @@ public:
   // Methods that are redefined in pypropertywrapper.h must be swigged
   // under different names, so that Python won't call the wrapper
   // function recursively if the method is *not* redefined in a
-  // derived Python Property class.
-
+  // derived Python Property class.  The following swig %rename
+  // command prepends "c_" to the method name.
   // ********* CAUTION *********************************************
   // The %rename line below applies to all member functions below it
   // in this *file*, not just the ones in this class.  That's ok, at

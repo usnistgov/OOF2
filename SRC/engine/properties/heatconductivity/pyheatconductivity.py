@@ -20,8 +20,20 @@ from ooflib.SWIG.engine import pypropertywrapper
 from ooflib.SWIG.engine import symmmatrix
 from ooflib.engine import problem
 from ooflib.engine import propertyregistration
+import sys
 
 class PyHeatConductivity(pypropertywrapper.PyFluxProperty):
+
+    ## This code was used to test set_mesh_data, get_mesh_data, and
+    ## clear_mesh_data in python Properties.
+    # def precompute(self, mesh):
+    #     self.set_mesh_data(mesh, "set/get mesh_data works")
+    # def begin_element(self, subp, element):
+    #     print("PyHeatConductivity:", self.get_mesh_data(subp.get_mesh()),
+    #           file=sys.stderr)
+    # def clear_mesh_data(self, mesh, data):
+    #     debug.fmsg("Clearing data")
+
     def flux_matrix(self, mesh, element, nodeiterator, flux, point, time,
                     fluxdata):
         sf = nodeiterator.shapefunction(point)
@@ -51,6 +63,7 @@ class PyHeatConductivity(pypropertywrapper.PyFluxProperty):
                     nodeiterator,
                     cond[ij2]*sf
                 )
+
     def integration_order(self, subproblem, element):
         if problem.Temperature.in_plane(subproblem.get_mesh()):
             return element.dshapefun_degree()
