@@ -35,6 +35,10 @@ class PyHeatConductivity(pypropertywrapper.PyFluxProperty):
         self.set_mesh_data(mesh, self.heatcondvalue.value)
     def cross_reference(self, material):
         self.heatcondvalue = material.fetchProperty("TESTING")
+        ## Checking that a C++ Property can be cross referenced by a
+        ## Python Property.
+        # orientation = material.fetchProperty("Orientation")
+        # debug.fmsg(f"orientation={orientation.orientation()}")
 
     def flux_matrix(self, mesh, element, nodeiterator, flux, point, time,
                     fluxdata):
@@ -77,7 +81,7 @@ reg = propertyregistration.PropertyRegistration(
     ordering=10000,
     propertyType="ThermalConductivity",
     secret=True
-    )
+)
 
 reg.fluxInfo(fluxes=[problem.Heat_Flux], fields=[problem.Temperature],
              time_derivs=[0])
@@ -94,4 +98,5 @@ reg = propertyregistration.PropertyRegistration(
     ProfessorButts,
     ordering=12345678,
     propertyType="TESTING",
-    secret=True)
+    secret=True
+)

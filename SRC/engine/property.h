@@ -192,6 +192,7 @@ public:
 		      const MasterPosition&, OutputVal*)
     { return; }
 
+  // TODO: Can these be moved to PhysicalProperty?
   virtual bool is_symmetric_K(const CSubProblem*) const;
   virtual bool is_symmetric_C(const CSubProblem*) const;
   virtual bool is_symmetric_M(const CSubProblem*) const;
