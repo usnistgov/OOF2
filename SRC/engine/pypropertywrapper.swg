@@ -42,6 +42,12 @@ public:
   ~PyEqnProperty();
 };
 
+class PyAuxProperty : public AuxiliaryProperty {
+public:
+  PyAuxProperty(PyObject*, PyObject*, char*);
+  ~PyAuxProperty();
+};
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Since PyProperties are spoken to/about from Python, they have

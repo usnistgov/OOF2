@@ -38,6 +38,13 @@ def _PyEqnProperty___init__(self, *args, **kwargs):
 
 PyEqnProperty.__init__ = _PyEqnProperty___init__
 
+def _PyAuxProperty___init__(self, *args, **kwargs):
+    realargs = (self,) + args
+    _pypropertywrapper.PyAuxProperty_swiginit(
+        self, _pypropertywrapper.new_PyAuxProperty(*realargs, **kwargs))
+
+PyAuxProperty.__init__ = _PyAuxProperty___init__
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Utility functions to support storing data in an element.

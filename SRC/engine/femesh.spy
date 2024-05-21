@@ -986,7 +986,7 @@ FEMesh.enclosingElement = _enclosingElement
 # The set_mesh_data/get_mesh_data machinery in Python is completely
 # independent of the machinery in C++.
 
-def _set_mesh_data(self, prop, data):
+def _set_pyproperty_data(self, prop, data):
     try:
         old = self.propData[prop]
     except KeyError:
@@ -995,9 +995,9 @@ def _set_mesh_data(self, prop, data):
         prop.clear_mesh_data(self, old)
     self.propData[prop] = data
     
-FEMesh.set_mesh_data = _set_mesh_data
+FEMesh.set_pyproperty_data = _set_pyproperty_data
 
-def _get_mesh_data(self, prop):
+def _get_pyproperty_data(self, prop):
     return self.propData[prop]
 
-FEMesh.get_mesh_data = _get_mesh_data
+FEMesh.get_pyproperty_data = _get_pyproperty_data

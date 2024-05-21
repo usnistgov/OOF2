@@ -771,6 +771,17 @@ void PyEqnProperty::second_time_deriv_matrix(
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+PyAuxProperty::PyAuxProperty(PyObject *referent, PyObject *regstn,
+			     const std::string &name)
+  : PythonNative<Property>(referent),
+    AuxiliaryProperty(name, regstn),
+    PyPropertyMethods(referent)
+{}
+
+PyAuxProperty::~PyAuxProperty() {}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 std::string PyPropertyElementData::classname_("PyPropertyElementData");
 
 PyPropertyElementData::PyPropertyElementData(const std::string & name,

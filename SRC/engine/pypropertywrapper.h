@@ -201,7 +201,19 @@ public:
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// TODO: Add PyAuxProperty?
+// PyAuxProperty doesn't have any swigged methods of its own. An
+// AuxiliaryProperty used in Python will have Python methods in its
+// derived class, but none of them will be accessible from C++.
+
+class PyAuxProperty : public AuxiliaryProperty,
+		      public PyPropertyMethods,
+		      virtual public PythonNative<Property>
+{
+public:
+  PyAuxProperty(PyObject *referent, PyObject *regstn,
+		const std::string &name);
+  virtual ~PyAuxProperty();
+};
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

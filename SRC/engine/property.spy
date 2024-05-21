@@ -84,12 +84,12 @@ Property.is_nonlinear = _Property_is_nonlinear
 # FEMesh-specific data.
 
 def _set_mesh_data(self, mesh, data):
-    mesh.set_mesh_data(self, data)
+    mesh.set_pyproperty_data(self, data)
 
 Property.set_mesh_data = _set_mesh_data
 
 def _get_mesh_data(self, mesh):
-    return mesh.get_mesh_data(self)
+    return mesh.get_pyproperty_data(self)
 
 Property.get_mesh_data = _get_mesh_data
 

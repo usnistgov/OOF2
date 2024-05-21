@@ -53,6 +53,9 @@ class OOF_PyProperties(unittest.TestCase):
         OOF.Material.Add_property(
             name='material',
             property='Thermal:Conductivity:PyIsotropic')
+        OOF.Material.Add_property(
+            name="material",
+            property='HeatCondValue')
         OOF.Subproblem.Field.Define(
             subproblem='microstructure:skeleton:mesh:default',
             field=Temperature)
