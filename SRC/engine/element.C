@@ -511,6 +511,26 @@ int Element::mapfun_degree() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+// Given a scalar function that takes a node as an argument,
+// interpolate the function to an arbitrary point within the element.
+// This doesn't have the generality of Element::outputField(), but
+// also has less overhead.
+
+double Element::interpolate(const MasterPosition &pos,
+			    ScalarFuncNodeFunc &nodefunc)
+  const
+{
+  double sum = 0;
+  for(CleverPtr<ElementFuncNodeIterator> node(funcnode_iterator());
+      !node->end(); ++*node)
+    {
+      sum += node->shapefunction(pos) * nodefunc(node->funcnode());
+    }
+  return sum;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 ArithmeticOutputValue Element::outputField(const FEMesh *mesh,
 					   const Field &field,
 					   const MasterPosition &pos)

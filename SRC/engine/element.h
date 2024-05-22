@@ -25,6 +25,7 @@ class MasterElement;
 #include <string>
 #include <vector>
 
+class ArithmeticOutputValue;
 class BoundaryEdge;
 class CMicrostructure;
 class CNonlinearSolver;
@@ -33,7 +34,6 @@ class CSubProblem;
 class DoubleVec;
 class Edge;
 class EdgeSet;
-class InterfaceElementFuncNodeIterator;
 class ElementCornerNodeIterator;
 class ElementFuncNodeIterator;
 class ElementMapNodeIterator;
@@ -43,12 +43,13 @@ class FEMesh;
 class Field;
 class Flux;
 class FuncNode;
+class InterfaceElementFuncNodeIterator;
 class LinearizedSystem;
 class MasterElement;
 class MasterPosition;
 class Material;
 class Node;
-class ArithmeticOutputValue;
+class ScalarFuncNodeFunc;
 
 //-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//
 
@@ -215,6 +216,9 @@ public:
 
   GaussPointIntegrator integrator(int order) const;
   // int ngauss(int order);	// number of gauss points used at this order
+
+  // Scalar interpolation.
+  double interpolate(const MasterPosition&, ScalarFuncNodeFunc&) const;
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
