@@ -36,9 +36,11 @@ class VectorFieldBase;
 
 class ArithmeticOutputValue;
 class CSubProblem;
+class Element;
 class ElementFuncNodeIterator;
 class FEMesh;
 class FuncNode;
+class MasterPosition;
 class OutputValue;
 class Property;
 
@@ -108,18 +110,27 @@ public:
   // it's needed.
   static std::vector<Field*> &all();
 
+  // Evaluate a component of a Field at a Node.
   double value(const FEMesh*, const FuncNode*, int component) const;
   double value(const FEMesh*, const ElementFuncNodeIterator&, int component)
     const;
-
-  // TODO: Add
-  // double value(const FEMesh*, const Element*, const MasterPosition&);
-  // double value(const FEMesh*, const Coord&);
-  // which will interpolate to the given position.  The second form
-  // will find the Element and MasterCoord and call the first
-  // form. This will be useful in Outputs, and maybe elsewhere.  See
-  // ThermalExpansion::output.
   
+  // Evaluate a component of a Field at a given point, interpolated in
+  // an Element.  ScalarFields have a version of this that doesn't
+  // have a FieldIndex argument.
+  virtual double value(const FEMesh*, const Element*, const MasterPosition&,
+		       const FieldIndex&) const;
+  // Evaluate a component of a Field derivative at a given point,
+  // interpolated in an Element.
+  virtual double gradient(const FEMesh*, const Element*, const MasterPosition&,
+			  const FieldIndex&, const SpaceIndex) const;
+  
+  // TODO: Find element, then evaluate:
+  // double value(const FEMesh*, const Coord&, const FieldIndex&) const;
+  // double deriv(const FEMesh*, const Coord&, const FieldIndex&,
+  //              const SpaceIndex) const;
+
+  // Get the DegreeOfFreedom for a Field at a Node.
   virtual DegreeOfFreedom *operator()(const FuncNode*, int component) const=0;
   DegreeOfFreedom *operator()(const FuncNode &n, int component) const
   {
@@ -249,6 +260,17 @@ private:
 public:
   ScalarFieldBase(const std::string &name) : Field(name, 1) {}
   virtual ~ScalarFieldBase() {}
+  virtual double value(const FEMesh*, const Element*, const MasterPosition&,
+   		       const FieldIndex&) const;
+  virtual double gradient(const FEMesh*, const Element*, const MasterPosition&,
+			  const FieldIndex&, SpaceIndex) const;
+  // These versions of value() and gradient() are non-virtual versions
+  // of the base class methods. They omit the FieldIndex argument,
+  // which is meaningless for ScalarFields.
+  double value(const FEMesh*, const Element*, const MasterPosition&) const;
+  double gradient(const FEMesh*, const Element*, const MasterPosition&,
+		  const SpaceIndex) const;
+  
   DegreeOfFreedom *operator()(const FuncNode*) const;
   DegreeOfFreedom *operator()(const FuncNode &n) const {
     return operator()(&n);

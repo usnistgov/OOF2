@@ -63,22 +63,17 @@ void NonlinearHeatConductivityNoDeriv::static_flux_value(
   DoubleVec fieldGradient(3), fluxVector(3);
   double fieldValue;
 
-  ArithmeticOutputValue outputVal =
-    element->outputField( mesh, *temperature, pt );
-  fieldValue = outputVal[ScalarFieldIndex()];
+  fieldValue = temperature->value(mesh, element, pt);
 
   for (SpaceIndex i=0; i<DIM; ++i){
-    ArithmeticOutputValue outputVal =
-      element->outputFieldDeriv(mesh, *temperature, &i, pt );
-    fieldGradient[i] = outputVal[ScalarFieldIndex()];
+    fieldGradient[i] = temperature->gradient(mesh, element, pt, i);
   }
 
   // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane
   // field
   if ( !temperature->in_plane(mesh) ){
-    ArithmeticOutputValue outputVal =
-      element->outputField(mesh, *temperature->out_of_plane(), pt );
-    fieldGradient[2] = outputVal[ScalarFieldIndex()];
+    fieldGradient[2] = temperature->out_of_plane()->value(mesh, element, pt,
+							  ScalarFieldIndex());
   }
 
   // evaluate the value of the flux with the given pt, time and
@@ -117,22 +112,17 @@ void NonlinearHeatConductivity::flux_matrix(const FEMesh  *mesh,
   double fieldValue;
   SmallMatrix fluxDerivMtx(3);
 
-  ArithmeticOutputValue outputVal
-    = element->outputField( mesh, *temperature, pt );
-  fieldValue = outputVal[ScalarFieldIndex()];
+  fieldValue = temperature->value(mesh, element, pt);
 
   for (SpaceIndex i=0; i<DIM; ++i){
-    ArithmeticOutputValue outputVal =
-      element->outputFieldDeriv(mesh, *temperature, &i, pt);
-    fieldGradient[i] = outputVal[ScalarFieldIndex()];
+    fieldGradient[i] = temperature->gradient(mesh, element, pt, i);
   }
 
   // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane
   // field
   if(!temperature->in_plane(mesh)) {
-    ArithmeticOutputValue outputVal =
-      element->outputField(mesh, *temperature->out_of_plane(), pt );
-    fieldGradient[2] = outputVal[ScalarFieldIndex()];
+    fieldGradient[2] = temperature->out_of_plane()->value(mesh, element, pt,
+							  ScalarFieldIndex());
   }
 
   // evaluate the value of the flux derivatives with the given pt,

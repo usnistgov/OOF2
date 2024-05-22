@@ -529,6 +529,20 @@ double Element::interpolate(const MasterPosition &pos,
   return sum;
 }
 
+double Element::interpolate_deriv(const MasterPosition &pos,
+				  SpaceIndex i,
+				  ScalarFuncNodeFunc &nodefunc)
+  const
+{
+  double sum = 0;
+  for(CleverPtr<ElementFuncNodeIterator> node(funcnode_iterator());
+      !node->end(); ++*node)
+    {
+      sum += node->dshapefunction(i, pos) * nodefunc(node->funcnode());
+    }
+  return sum;
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 ArithmeticOutputValue Element::outputField(const FEMesh *mesh,

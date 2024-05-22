@@ -36,12 +36,7 @@ ThermoElasticityProp::ThermoElasticityProp(PyObject *registry,
 const Cijkl ThermoElasticityProp::cijkl(const FEMesh *mesh, const Element *e, 
 				    const MasterPosition &x) const {
   // Get local temperature
-  //* TODO: This is baroque and may be slow.  Make a specialized
-  //* function for getting the value of a scalar field. temperature(e, x)?
-  const ArithmeticOutputValue tfield = e->outputField(mesh, *temperature, x);
-  const ScalarOutputVal *tval =
-    dynamic_cast<const ScalarOutputVal*>(tfield.valuePtr());
-  double temp = tval->value();
+  double temp = temperature->value(mesh, e, x);
 
   Cijkl modulus;
   // Because temperature variation of modulus is defined in terms

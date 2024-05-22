@@ -60,16 +60,13 @@ void Current::static_flux_value(const FEMesh  *mesh,
   std::vector<double> fieldGradient(3);
 
   for (SpaceIndex i=0; i<DIM; ++i){
-    ArithmeticOutputValue outputVal =
-      element->outputFieldDeriv( mesh, *voltage, &i, pt );
-    fieldGradient[i] = outputVal[ScalarFieldIndex()];
+    fieldGradient[i] = voltage->gradient(mesh, element, pt, i);
   }
 
  // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane field
   if ( !voltage->in_plane(mesh) ){
-    ArithmeticOutputValue outputVal =
-      element->outputField( mesh, *voltage->out_of_plane(), pt );
-    fieldGradient[2] = outputVal[ScalarFieldIndex()];
+    fieldGradient[2] = voltage->out_of_plane()->value(mesh, element, pt,
+						      ScalarFieldIndex());
   }
 
   // now compute the flux elements by the following summation

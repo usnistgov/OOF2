@@ -164,6 +164,8 @@ int Field::localindex(const FuncNode *node, const FieldIndex &component) const
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+// Get the value of a Field at a Node.
+
 double Field::value(const FEMesh *mesh, const FuncNode *node, int component)
   const
 {
@@ -174,6 +176,30 @@ double Field::value(const FEMesh *mesh, const ElementFuncNodeIterator &node,
 		    int component) const 
 {
   return operator()(node, component)->value(mesh);
+}
+
+// Get the value and derivative of a Field at a given point inside an Element.
+//
+// These generic functions can be made more efficient in derived
+// classes by not using the OutputValue mechanism.
+
+double Field::value(const FEMesh *mesh, const Element *element,
+		    const MasterPosition &pt, const FieldIndex &index)
+  const
+
+{
+  ArithmeticOutputValue ov = element->outputField(mesh, *this, pt);
+  return ov[index];
+}
+
+double Field::gradient(const FEMesh *mesh, const Element *element,
+		       const MasterPosition &pt, const FieldIndex &index,
+		       SpaceIndex derivIndex)
+  const
+{
+  ArithmeticOutputValue ov = element->outputFieldDeriv(
+				       mesh, *this, &derivIndex, pt);
+  return ov[index];
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -228,6 +254,25 @@ void CompoundField::deactivate(CSubProblem *subproblem) const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+// Utility class used in ScalarFieldBase::value
+
+class ScalarFieldFunc : public ScalarFuncNodeFunc {
+protected:
+  const FEMesh *mesh;
+  const ScalarFieldBase &field;
+public:
+  ScalarFieldFunc(const FEMesh *mesh, const ScalarFieldBase &field)
+    : mesh(mesh),
+      field(field)
+  {}
+  virtual double operator()(const FuncNode *node) {
+    DegreeOfFreedom *dof = field(node);
+    return dof->value(mesh);
+  }
+};
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+  
 ScalarField::ScalarField(const std::string &nm)
   : Field(nm, 1),
     ScalarFieldBase(nm),
@@ -238,6 +283,40 @@ ScalarField::ScalarField(const std::string &nm)
 }
 
 const std::string ScalarField::classname_("ScalarField");
+
+double ScalarFieldBase::value(const FEMesh *mesh, const Element *element,
+			      const MasterPosition &pos)
+  const
+{
+  ScalarFieldFunc func(mesh, *this);
+  return element->interpolate(pos, func);
+}
+
+double ScalarFieldBase::value(const FEMesh *mesh, const Element *element,
+			      const MasterPosition &pos,
+			      const FieldIndex&)
+  const
+{
+  return value(mesh, element, pos);
+}
+
+double ScalarFieldBase::gradient(const FEMesh *mesh, const Element *element,
+				 const MasterPosition &pos,
+				 SpaceIndex gradindex)
+  const
+{
+  ScalarFieldFunc func(mesh, *this);
+  return element->interpolate_deriv(pos, gradindex, func);
+}
+
+double ScalarFieldBase::gradient(const FEMesh *mesh, const Element *element,
+				 const MasterPosition &pos, const FieldIndex&,
+				 SpaceIndex gradindex)
+  const
+{
+  return gradient(mesh, element, pos, gradindex);
+}
+
 
 DegreeOfFreedom *ScalarFieldBase::operator()(const FuncNode *node) const {
   // offset() will raise ErrNoSuchField if this field isn't defined at the node.

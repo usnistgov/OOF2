@@ -219,6 +219,8 @@ public:
 
   // Scalar interpolation.
   double interpolate(const MasterPosition&, ScalarFuncNodeFunc&) const;
+  double interpolate_deriv(const MasterPosition&, SpaceIndex,
+			   ScalarFuncNodeFunc&) const;
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

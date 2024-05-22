@@ -59,16 +59,16 @@ void HeatConductivity::static_flux_value(const FEMesh  *mesh,
   DoubleVec fieldGradient(3);
 
   for (SpaceIndex i=0; i<DIM; ++i){
-    ArithmeticOutputValue outputVal = 
-      element->outputFieldDeriv( mesh, *temperature, &i, pt );
-    fieldGradient[i] = outputVal[ScalarFieldIndex()];
+    fieldGradient[i] = temperature->gradient(mesh, element, pt, i);
   }
 
   // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane field
   if ( !temperature->in_plane(mesh) ){
-    ArithmeticOutputValue outputVal = 
-      element->outputField( mesh, *temperature->out_of_plane(), pt );
-    fieldGradient[2] = outputVal[ScalarFieldIndex()];
+    // CompoundField::out_of_plane returns a Field*, not a
+    // ScalarField*, so we need to call the generic Field::value that
+    // requires the FieldIndex to be provided.
+    fieldGradient[2] = temperature->out_of_plane()->value(mesh, element, pt,
+							  ScalarFieldIndex());
   }
 
   // now compute the flux elements by the following summation

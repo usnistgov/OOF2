@@ -133,20 +133,13 @@ void ThermalExpansion::output(FEMesh *mesh,
 			      OutputVal *data)
 {
   const std::string &outputname = output->name();
+  
   if(outputname == "Strain") {
     // The parameter is a Python StrainType instance.  Extract its name.
     const std::string *stype = output->getRegisteredParamName("type");
     SymmMatrix3 *sdata = dynamic_cast<SymmMatrix3*>(data);
     // Compute alpha*T with T interpolated to position pos
-    //* TODO: This is baroque and may be slow.  Make a specialized
-    //* function for getting the value of a scalar field.
-    //* See TODO in field.h.
-   
-    const OutputValue tfield = element->outputField(mesh, *temperature, pos);
-    const ScalarOutputVal *tval =
-      dynamic_cast<const ScalarOutputVal*>(tfield.valuePtr());
-    double t = tval->value();
-
+    double t = temperature->value(mesh, element, pos);
     if(*stype == "Thermal")
       *sdata += expansiontensor(mesh, element, pos)*(t-tzero_);
     else if(*stype == "Elastic")
@@ -162,10 +155,7 @@ void ThermalExpansion::output(FEMesh *mesh,
       SymmMatrix3 thermalstrain;
       // 'modulus' is lab reference system stiffness
       const Cijkl modulus = elasticity->cijkl(mesh, element, pos);
-      const OutputValue tfield = element->outputField(mesh, *temperature, pos);
-      const ScalarOutputVal *tval =
-	dynamic_cast<const ScalarOutputVal*>(tfield.valuePtr());
-      double t = tval->value();
+      double t = temperature->value(mesh, element, pos);
       thermalstrain = expansiontensor(mesh, element, pos)*(t-tzero_);
       SymmMatrix3 thermalstress(modulus*thermalstrain);
       SymmMatrix3 strain;

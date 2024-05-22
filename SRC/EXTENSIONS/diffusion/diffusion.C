@@ -71,16 +71,16 @@ void Diffusion::static_flux_value(const FEMesh  *mesh,
   std::vector<double> fieldGradient(3);
 
   for (SpaceIndex i=0; i<DIM; ++i){
-    ArithmeticOutputValue outputVal =
-      element->outputFieldDeriv( mesh, *concentration, &i, pt );
-    fieldGradient[i] = outputVal[ScalarFieldIndex()];
+    fieldGradient[i] = concentration->gradient(mesh, element, pt, i);
   }
 
-  // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane field
+  // If plane-flux eqn, then dT/dz is kept as a separate out_of_plane
+  // field.  Because CompoundField::out_of_plane() returns a Field
+  // pointer, not a ScalarField pointer, this needs to use the generic
+  // version of Field::value(), which requires a FieldIndex argument.
   if ( !concentration->in_plane(mesh) ){
-    ArithmeticOutputValue outputVal
-      = element->outputField( mesh, *concentration->out_of_plane(), pt );
-    fieldGradient[2] = outputVal[ScalarFieldIndex()];
+    fieldGradient[2] = concentration->out_of_plane()->value(mesh, element, pt,
+							    ScalarFieldIndex());
   }
 
   // now compute the flux elements by the following summation

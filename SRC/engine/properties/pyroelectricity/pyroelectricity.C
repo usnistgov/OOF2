@@ -47,7 +47,7 @@ PyroElectricity::PyroElectricity(PyObject *reg,
   modulus[0] = px;
   modulus[1] = py;
   modulus[2] = pz;
-  temperature=dynamic_cast<ScalarField*>(Field::getField("Temperature"));
+  temperature = dynamic_cast<ScalarField*>(Field::getField("Temperature"));
   total_polarization =
     dynamic_cast<VectorFlux*>(Flux::getFlux("Total_Polarization"));
 }
@@ -215,13 +215,11 @@ void PyroElectricity::output(FEMesh *mesh,
       ScalarOutputVal *edata = dynamic_cast<ScalarOutputVal*>(data);
       if(!modulus_ok)
 	set_effective_modulus(mesh, element, pos);
-      const OutputValue tfield = element->outputField(mesh, *temperature, pos);
-      const ScalarOutputVal *tval =
-	dynamic_cast<const ScalarOutputVal*>(tfield.valuePtr());
+      double t = temperature->value(mesh, element, pos);
       DoubleVec efield(3,0.0);
       findElectricField(mesh, element, pos, efield);
       for(int i=0;i<3;++i) {
-	*edata += effective_modulus[i]*efield[i]*(tval->value()-tzero);
+	*edata += effective_modulus[i]*efield[i]*(t-tzero);
       }
     }
     delete etype;
