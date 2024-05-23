@@ -43,13 +43,13 @@ class FEMesh;
 class Field;
 class Flux;
 class FuncNode;
+class FuncNodeFunction;
 class InterfaceElementFuncNodeIterator;
 class LinearizedSystem;
 class MasterElement;
 class MasterPosition;
 class Material;
 class Node;
-class ScalarFuncNodeFunc;
 
 //-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//
 
@@ -218,9 +218,9 @@ public:
   // int ngauss(int order);	// number of gauss points used at this order
 
   // Scalar interpolation.
-  double interpolate(const MasterPosition&, ScalarFuncNodeFunc&) const;
+  double interpolate(const MasterPosition&, FuncNodeFunction&) const;
   double interpolate_deriv(const MasterPosition&, SpaceIndex,
-			   ScalarFuncNodeFunc&) const;
+			   FuncNodeFunction&) const;
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

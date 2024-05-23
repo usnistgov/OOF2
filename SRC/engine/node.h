@@ -118,11 +118,12 @@ std::ostream &operator<<(std::ostream&, const FuncNode::FieldSet&);
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// Base class for functionals evaluated by Element::interpolate().
+// Base class for functionals evaluated by Element::interpolate() -- a
+// scalar valued function evaluated at a FuncNode.
 
-class ScalarFuncNodeFunc {
+class FuncNodeFunction {
 public:
-  virtual ~ScalarFuncNodeFunc() {}
+  virtual ~FuncNodeFunction() {}
   virtual double operator()(const FuncNode*) = 0;
 };
 

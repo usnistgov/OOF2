@@ -517,7 +517,7 @@ int Element::mapfun_degree() const {
 // also has less overhead.
 
 double Element::interpolate(const MasterPosition &pos,
-			    ScalarFuncNodeFunc &nodefunc)
+			    FuncNodeFunction &nodefunc)
   const
 {
   double sum = 0;
@@ -529,9 +529,8 @@ double Element::interpolate(const MasterPosition &pos,
   return sum;
 }
 
-double Element::interpolate_deriv(const MasterPosition &pos,
-				  SpaceIndex i,
-				  ScalarFuncNodeFunc &nodefunc)
+double Element::interpolate_deriv(const MasterPosition &pos, SpaceIndex i,
+				  FuncNodeFunction &nodefunc)
   const
 {
   double sum = 0;

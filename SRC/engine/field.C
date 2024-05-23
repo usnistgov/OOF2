@@ -1,6 +1,5 @@
 // -*- C++ -*-
 
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -111,7 +110,7 @@ const std::string &Field::name() const {
   return name_;
 }
 
-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 void Field::define(CSubProblem *subproblem) const {
   subproblem->do_define_field(*this);
@@ -125,7 +124,7 @@ bool Field::is_defined(const CSubProblem *subproblem) const {
   return subproblem->is_defined_field(*this);
 }
 
-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 void Field::activate(CSubProblem *subproblem) const {
   subproblem->do_activate_field(*this);
@@ -147,9 +146,7 @@ void Field::registerProperty(Property *prop) const {
 
 void CompoundField::registerProperty(Property *prop) const {
   prop->require_field(*this);
-#if DIM==2
   prop->require_field(*zfield_);
-#endif
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -178,28 +175,46 @@ double Field::value(const FEMesh *mesh, const ElementFuncNodeIterator &node,
   return operator()(node, component)->value(mesh);
 }
 
-// Get the value and derivative of a Field at a given point inside an Element.
-//
-// These generic functions can be made more efficient in derived
-// classes by not using the OutputValue mechanism.
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Utility class used in Field::value() and Field::gradient().
+
+class GenericFieldFunc : public FuncNodeFunction {
+protected:
+  const FEMesh *mesh;
+  const Field *field;
+  const FieldIndex &comp;
+public:
+  GenericFieldFunc(const FEMesh *mesh, const Field *field,
+		   const FieldIndex &comp)
+    : mesh(mesh),
+      field(field),
+      comp(comp)
+  {}
+  virtual double operator()(const FuncNode *node) {
+    DegreeOfFreedom *dof = (*field)(node, comp.integer());
+    return dof->value(mesh);
+  }
+};
+
+// Get the value and derivative of a Field at a given point inside an
+// Element.
 
 double Field::value(const FEMesh *mesh, const Element *element,
-		    const MasterPosition &pt, const FieldIndex &index)
+		    const MasterPosition &pos, const FieldIndex &comp)
   const
-
 {
-  ArithmeticOutputValue ov = element->outputField(mesh, *this, pt);
-  return ov[index];
+  GenericFieldFunc func(mesh, this, comp);
+  return element->interpolate(pos, func);
 }
 
 double Field::gradient(const FEMesh *mesh, const Element *element,
-		       const MasterPosition &pt, const FieldIndex &index,
-		       SpaceIndex derivIndex)
+		       const MasterPosition &pos, const FieldIndex &comp,
+		       SpaceIndex gradindex)
   const
 {
-  ArithmeticOutputValue ov = element->outputFieldDeriv(
-				       mesh, *this, &derivIndex, pt);
-  return ov[index];
+  GenericFieldFunc func(mesh, this, comp);
+  return element->interpolate_deriv(pos, gradindex, func);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -256,7 +271,7 @@ void CompoundField::deactivate(CSubProblem *subproblem) const {
 
 // Utility class used in ScalarFieldBase::value
 
-class ScalarFieldFunc : public ScalarFuncNodeFunc {
+class ScalarFieldFunc : public FuncNodeFunction {
 protected:
   const FEMesh *mesh;
   const ScalarFieldBase &field;
@@ -403,7 +418,7 @@ FieldIndex *ScalarFieldBase::getIndex(const std::string &) const {
 
 const std::string ScalarFieldBase::classname_("ScalarFieldBase");
 
-//------------------------------
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 TwoVectorField::TwoVectorField(const std::string &nm)
   : Field(nm, 2),
@@ -494,10 +509,11 @@ FieldIndex *TwoVectorFieldBase::getIndex(const std::string &str) const {
 
 const std::string TwoVectorFieldBase::classname_("TwoVectorFieldBase");
 
-//-------------------------------
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 
 const std::string VectorFieldBase::classname_("VectorFieldBase");
+
 
 DegreeOfFreedom *VectorFieldBase::operator()(const FuncNode *node, int comp)
   const
@@ -576,6 +592,8 @@ FieldIndex *VectorFieldBase::getIndex(const std::string &str) const {
   return new VectorFieldIndex(str[0] - 'x');
 }
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 ThreeVectorField::ThreeVectorField(const std::string &nm)
   : Field(nm, 3),
     VectorFieldBase(nm, 3)
@@ -584,8 +602,7 @@ ThreeVectorField::ThreeVectorField(const std::string &nm)
 
 const std::string ThreeVectorField::classname_("ThreeVectorField");
 
-
-//////////////////////
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 const std::string SymmetricTensorField::classname_("SymmetricTensorField");
 
