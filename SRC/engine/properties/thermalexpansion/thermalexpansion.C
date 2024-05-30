@@ -32,7 +32,7 @@ ThermalExpansion::ThermalExpansion(PyObject *reg,
 				   const std::string &nm,
 				   double t0)
   : FluxProperty(nm,reg),
-    tzero_(t0)
+    T0(t0)
 {
   temperature=dynamic_cast<ScalarField*>(Field::getField("Temperature"));
   stress_flux=dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
@@ -100,10 +100,10 @@ void ThermalExpansion::flux_offset(const FEMesh *mesh,
     double &offset_el = fluxdata->offset_vector_element(ij); // reference!
     for(SymTensorIndex kl : symTensorIJComponents) {
       if(kl.diagonal()) {
-	offset_el -= modulus(ij,kl)*expten[kl]*tzero_;
+	offset_el -= modulus(ij,kl)*expten[kl]*T0;
       }
       else {
-	offset_el -= 2.0*modulus(ij,kl)*expten[kl]*tzero_;
+	offset_el -= 2.0*modulus(ij,kl)*expten[kl]*T0;
       }
     }
   }
@@ -141,9 +141,9 @@ void ThermalExpansion::output(FEMesh *mesh,
     // Compute alpha*T with T interpolated to position pos
     double t = temperature->value(mesh, element, pos);
     if(*stype == "Thermal")
-      *sdata += expansiontensor(mesh, element, pos)*(t-tzero_);
+      *sdata += expansiontensor(mesh, element, pos)*(t-T0);
     else if(*stype == "Elastic")
-      *sdata -= expansiontensor(mesh, element, pos)*(t-tzero_);
+      *sdata -= expansiontensor(mesh, element, pos)*(t-T0);
     delete stype;
   } // strain output ends here
 
@@ -156,14 +156,14 @@ void ThermalExpansion::output(FEMesh *mesh,
       // 'modulus' is lab reference system stiffness
       const Cijkl modulus = elasticity->cijkl(mesh, element, pos);
       double t = temperature->value(mesh, element, pos);
-      thermalstrain = expansiontensor(mesh, element, pos)*(t-tzero_);
+      thermalstrain = expansiontensor(mesh, element, pos)*(t-T0);
       SymmMatrix3 thermalstress(modulus*thermalstrain);
       SymmMatrix3 strain;
       elasticity->geometricStrain(mesh, element, pos, &strain);
       double e = 0;
-      for(int i=0; i<3; i++) {
+      for(SpaceIndex i=0; i<3; i++) {
 	e += thermalstress(i,i)*(-strain(i,i) + 0.5*thermalstrain(i,i));
-	int j = (i+1)%3;
+	SpaceIndex j = (i+1)%3;
 	e += 2*thermalstress(i,j)*(-strain(i,j) + 0.5*thermalstrain(i,j));
       }
       *edata += e;
@@ -173,7 +173,7 @@ void ThermalExpansion::output(FEMesh *mesh,
 
   if(outputname == "Material Constants:Couplings:Thermal Expansion T0") {
     ScalarOutputVal *sdata = dynamic_cast<ScalarOutputVal*>(data);
-    *sdata = tzero_;
+    *sdata = T0;
   }
 }
 

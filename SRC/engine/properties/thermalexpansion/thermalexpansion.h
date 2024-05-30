@@ -35,7 +35,7 @@ class SymmetricTensorFlux;
 class ThermalExpansion : public FluxProperty {
 protected:
   // Physical parameters.
-  double tzero_;
+  double T0;
   Elasticity *elasticity;	// pointer to this Material's Elasticity
   ScalarField *temperature;
   SymmetricTensorFlux *stress_flux;
