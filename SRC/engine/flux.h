@@ -106,8 +106,6 @@ public:
 			       const MasterPosition&) const;
   virtual ArithmeticOutputValue newOutputValue() const = 0;
 
-  int eqn_integration_order(const CSubProblem*, const Element*) const;
-
   virtual std::vector<int> contraction_map(int) const = 0;
   virtual const std::vector<int> &outofplane_map() const = 0;
 

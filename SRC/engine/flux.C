@@ -214,21 +214,6 @@ DoubleVec *Flux::evaluate(const FEMesh *mesh,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-int Flux::eqn_integration_order(const CSubProblem *subp, const Element *el)
-  const
-{
-  int order = 0;
-  for(std::vector<Equation*>::size_type i=0; i<eqnlist.size(); ++i) {
-    Equation *eqn = eqnlist[i];
-    if(subp->is_active_equation(*eqn)) {
-      int ord = eqn->integration_order(el);
-      if(ord > order)
-	order = ord;
-    }
-  }
-  return order;
-}
-
 // Flux boundary condition uses the same mechanism as the stiffness
 // matrix, only it makes its contribution to the boundary right-hand-side,
 // rather than to the global stiffness matrix.
@@ -247,7 +232,6 @@ void Flux::boundary_integral(const CSubProblem *subp, LinearizedSystem *ls,
 
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
 
 // Contraction maps are used by the Divergence equation to map between
 // equation components and flux components.  Since they're only really
