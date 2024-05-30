@@ -43,8 +43,8 @@ int HeatConductivity::integration_order(const CSubProblem *subp,
 					const Element *el) const
 {
   if(temperature->in_plane(subp))
-    return el->dshapefun_degree();
-  return el->shapefun_degree();
+    return 2*el->dshapefun_degree();
+  return el->shapefun_degree() + el->dshapefun_degree();
 }
 
 

@@ -40,8 +40,14 @@ ThermalExpansion::ThermalExpansion(PyObject *reg,
 
 
 int ThermalExpansion::integration_order(const CSubProblem*,
-					const Element *el) const {
-  return el->shapefun_degree();
+					const Element *el)
+  const
+{
+  // For the flux_matrix contribution, the integrand has a factor of
+  // the shape function derivative for the divergence, AND either a
+  // factor of the shape function for the temperature field or a
+  // factor of the derivative for the strain.  Use the larger one.
+  return el->shapefun_degree() + el->dshapefun_degree();
 }
 
 

@@ -52,9 +52,12 @@ void SkeletonRelaxationRate::cross_reference(Material *mat) {
   }
 }
 
-int SkeletonRelaxationRate::integration_order(const CSubProblem *mesh,
-					      const Element *el) const
+int SkeletonRelaxationRate::integration_order(const CSubProblem*,
+					      const Element*)
+  const
 {
+  // This doesn't use shape functions, and the integrand doesn't vary
+  // inside elements.
   return 0;
 }
 

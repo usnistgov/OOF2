@@ -28,7 +28,7 @@ ForceSurfaceTest::ForceSurfaceTest(PyObject *reg, const std::string &nm,
 int ForceSurfaceTest::integration_order(const CSubProblem*, 
 				     const Element *el) const
 {
-  return 0;
+  return 0;			// TODO: certainly incorrect.
 }
 
 // InterfaceElements can have split nodes.  The InterfaceElement class
@@ -86,7 +86,7 @@ FluxSurfaceTest::FluxSurfaceTest(PyObject *reg, const std::string &nm,
 
 int FluxSurfaceTest::integration_order(const CSubProblem* s,
 				       const Element *el) const {
-  return 0;
+  return 0;			// TODO: certainly incorrect
 }
 
 void FluxSurfaceTest::begin_element(const CSubProblem *sp,

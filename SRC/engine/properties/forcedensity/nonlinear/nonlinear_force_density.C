@@ -30,7 +30,9 @@
 #include "nonlinear_force_density.h"
 
 
-NonlinearForceDensityNoDeriv::NonlinearForceDensityNoDeriv(PyObject *reg, const std::string &nm)
+NonlinearForceDensityNoDeriv::NonlinearForceDensityNoDeriv(
+						   PyObject *reg,
+						   const std::string &nm)
   : EqnProperty(nm,reg)
 {
   displacement = dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));
@@ -40,21 +42,24 @@ NonlinearForceDensityNoDeriv::NonlinearForceDensityNoDeriv(PyObject *reg, const 
 void NonlinearForceDensityNoDeriv::precompute(FEMesh*) {
 }
 
-int NonlinearForceDensityNoDeriv::integration_order(const CSubProblem*, const Element *el) const
+int NonlinearForceDensityNoDeriv::integration_order(const CSubProblem*,
+						    const Element *el)
+  const
 {
   return el->shapefun_degree();
 }
 
 
 void NonlinearForceDensityNoDeriv::force_value(
-                                const FEMesh *mesh, const Element *element,
-				const Equation *eqn, const MasterPosition &point,
-				double time, SmallSystem *eqndata) const
+			      const FEMesh *mesh, const Element *element,
+			      const Equation *eqn, const MasterPosition &point,
+			      double time, SmallSystem *eqndata) const
 {
   DoubleVec fieldVal(3), force(3);
   Coord coord;
 
-  // first compute the current value of the displacement field at the gauss point
+  // first compute the current value of the displacement field at the
+  // gauss point
 
   fieldVal[0] = fieldVal[1] = 0.0;
   for(CleverPtr<ElementFuncNodeIterator> node(element->funcnode_iterator());
@@ -92,7 +97,8 @@ void NonlinearForceDensity::force_deriv_matrix(const FEMesh   *mesh,
   double shapeFuncVal;
   Coord  coord;
 
-  // first compute the current value of the displacement field at the gauss point
+  // first compute the current value of the displacement field at the
+  // gauss point
 
   fieldVal[0] = fieldVal[1] = 0.0;
   for(CleverPtr<ElementFuncNodeIterator> node(element->funcnode_iterator());
@@ -103,8 +109,8 @@ void NonlinearForceDensity::force_deriv_matrix(const FEMesh   *mesh,
   }
 
   // now compute the value of the force density derivative function
-  // for the current coordinate x,y,z, time and displacement,
-  // the nonlinear force density derivative function returns the
+  // for the current coordinate x,y,z, time and displacement, the
+  // nonlinear force density derivative function returns the
   // corresponding force derivative value in the array 'forceDeriv',
   // the function definition is given in USER_CODE.C
 
@@ -113,8 +119,9 @@ void NonlinearForceDensity::force_deriv_matrix(const FEMesh   *mesh,
   nonlin_force_density_deriv( coord[0], coord[1], 0.0,
 			      time, fieldVal, forceDeriv );
 
-  // compute the value of the jth shape function at gauss point point and add
-  // its contribution Df(point,field)*phi_j(point) to the small mass-like matrix
+  // compute the value of the jth shape function at gauss point point
+  // and add its contribution Df(point,field)*phi_j(point) to the
+  // small mass-like matrix
 
   shapeFuncVal = j.shapefunction( point );
 

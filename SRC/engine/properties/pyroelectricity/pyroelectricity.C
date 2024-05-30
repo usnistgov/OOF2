@@ -92,9 +92,13 @@ void PyroElectricity::precompute(FEMesh*) {
     lab_modulus = modulus;
 }
 
-int PyroElectricity::integration_order(const CSubProblem *subproblem,
-					const Element *el) const {
-  return el->shapefun_degree();
+int PyroElectricity::integration_order(const CSubProblem *subp,
+				       const Element *el)
+  const
+{
+  if(temperature->in_plane(subp))
+    return 2*el->dshapefun_degree(); 
+  return el->shapefun_degree() + el->dshapefun_degree();
 }
 
 

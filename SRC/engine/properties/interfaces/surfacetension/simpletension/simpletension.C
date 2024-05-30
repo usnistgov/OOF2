@@ -31,7 +31,7 @@ SimpleTension::SimpleTension(PyObject *reg, const std::string &nm,
 int SimpleTension::integration_order(const CSubProblem*, 
 				     const Element *el) const
 {
-  return 0;
+  return 2*el->dshapefun_degree(); // TODO: check this
 }
 
 // InterfaceElements can have split nodes.  The InterfaceElement class
@@ -108,7 +108,7 @@ void SimpleTension::force_value(const FEMesh *mesh,
   }
   
   double normalization= 1.0/sqrt(dot(dstrn,dstrn));
-
+  // TODO: Finish this?
 }
 
 

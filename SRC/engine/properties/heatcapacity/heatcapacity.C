@@ -44,9 +44,10 @@ void HeatCapacityProp::first_time_deriv_matrix(const FEMesh *mesh,
   }
 }
 
-int HeatCapacityProp::integration_order(const CSubProblem* subp,
-				       const Element *lmnt) const {
-  return 1;
+int HeatCapacityProp::integration_order(const CSubProblem*, const Element *el)
+  const
+{
+  return el->shapefun_degree();
 }
 
 void HeatCapacityProp::output(FEMesh *mesh,

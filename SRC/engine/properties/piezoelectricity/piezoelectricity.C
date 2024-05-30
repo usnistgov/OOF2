@@ -49,10 +49,12 @@ PiezoElectricity::PiezoElectricity(PyObject *reg,
 
 
 int PiezoElectricity::integration_order(const CSubProblem *subproblem,
-					const Element *el) const {
+					const Element *el)
+  const
+{
   if(displacement->in_plane(subproblem))
-    return el->dshapefun_degree();
-  return el->shapefun_degree();
+    return 2*el->dshapefun_degree();
+  return el->shapefun_degree() + el->dshapefun_degree();
 }
 
 void PiezoElectricity::flux_matrix(const FEMesh *mesh,

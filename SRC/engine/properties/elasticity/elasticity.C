@@ -37,11 +37,12 @@ Elasticity::Elasticity(const std::string &nm, PyObject *registration)
   stress_flux = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
 }
 
-int Elasticity::integration_order(const CSubProblem *subp,
-				  const Element *el) const {
+int Elasticity::integration_order(const CSubProblem *subp, const Element *el)
+  const
+{
   if(displacement->in_plane(subp))
-    return el->dshapefun_degree();
-  return el->shapefun_degree();
+    return 2*el->dshapefun_degree();
+  return el->shapefun_degree() + el->dshapefun_degree();
 }
 
 void Elasticity::static_flux_value(const FEMesh *mesh, const Element *element,

@@ -43,8 +43,8 @@ int DielectricPermittivity::integration_order(const CSubProblem *mesh,
 					      const Element *el) const
 {
   if(voltage->in_plane(mesh))
-    return el->dshapefun_degree();
-  return el->shapefun_degree();
+    return 2*el->dshapefun_degree();
+  return el->shapefun_degree() + el->dshapefun_degree();
 }
 
 void DielectricPermittivity::flux_matrix(const FEMesh *mesh,
@@ -233,8 +233,10 @@ ChargeDensity::ChargeDensity(PyObject *reg,
       (Flux::getFlux("Total_Polarization"));
 }
 
-int ChargeDensity::integration_order(const CSubProblem*, const Element*) const {
-  return 0;
+int ChargeDensity::integration_order(const CSubProblem*, const Element *el)
+  const
+{
+  return el->shapefun_degree();
 }
 
 // Adds to the right-hand side of the Coulomb equation, so we want

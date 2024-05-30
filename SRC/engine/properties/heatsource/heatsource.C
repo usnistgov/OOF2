@@ -38,10 +38,10 @@ HeatSourceProp::HeatSourceProp(PyObject *reg,
     heat_flux = dynamic_cast<VectorFlux*>(Flux::getFlux("Heat_Flux"));
 }
 
-int HeatSourceProp::integration_order(const CSubProblem*, const Element*)
+int HeatSourceProp::integration_order(const CSubProblem*, const Element *el)
   const
 {
-  return 0;
+  return el->shapefun_degree();
 }
 
 

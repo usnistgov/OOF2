@@ -48,10 +48,10 @@ void IsotropicDampingProp::first_time_deriv_matrix(
 }
 
 int IsotropicDampingProp::integration_order(const CSubProblem*,
-					    const Element*) 
+					    const Element *el) 
   const 
 {
-  return 1;
+  return 2*el->shapefun_degree();
 }
 
 void IsotropicDampingProp::output(FEMesh *mesh,

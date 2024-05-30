@@ -26,10 +26,8 @@
 #include "common/ooferror.h"
 
 
-
-
-
-NonconstantForceDensity::NonconstantForceDensity(PyObject *reg, const std::string &nm)
+NonconstantForceDensity::NonconstantForceDensity(PyObject *reg,
+						 const std::string &nm)
   : EqnProperty(nm,reg)
 {
   displacement = dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));
@@ -39,7 +37,9 @@ NonconstantForceDensity::NonconstantForceDensity(PyObject *reg, const std::strin
 void NonconstantForceDensity::precompute(FEMesh*) {
 }
 
-int NonconstantForceDensity::integration_order(const CSubProblem*, const Element *el) const
+int NonconstantForceDensity::integration_order(const CSubProblem*,
+					       const Element *el)
+  const
 {
   return el->shapefun_degree();
 }
@@ -58,9 +58,6 @@ void NonconstantForceDensity::force_value(const FEMesh *mesh,
 
   eqndata->force_vector_element(0) -= force[0];
   eqndata->force_vector_element(1) -= force[1];
-#if DIM==3
-  eqndata->force_vector_element(2) -= force[2];
-#endif
 }
 
 

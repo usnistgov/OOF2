@@ -30,8 +30,10 @@ StressFreeStrain::StressFreeStrain(PyObject *reg,
   stress_flux = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
 }
 
-int StressFreeStrain::integration_order(const CSubProblem*, const Element*el) const {
-  return el->shapefun_degree();
+int StressFreeStrain::integration_order(const CSubProblem*, const Element*el)
+  const
+{
+  return el->dshapefun_degree();
 }
 
 void StressFreeStrain::flux_offset(const FEMesh *mesh, const Element *element,

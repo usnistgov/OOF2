@@ -34,8 +34,8 @@ int CViscoElasticity::integration_order(const CSubProblem *subp,
   const
 {
   if(displacement->in_plane(subp))
-    return el->dshapefun_degree();
-  return el->shapefun_degree();
+    return 2*el->dshapefun_degree();
+  return el->shapefun_degree() + el->dshapefun_degree();
 }
 
 void CViscoElasticity::flux_matrix(const FEMesh *mesh,
