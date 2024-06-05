@@ -45,6 +45,11 @@ int Elasticity::integration_order(const CSubProblem *subp, const Element *el)
   return el->shapefun_degree() + el->dshapefun_degree();
 }
 
+// If static_flux_value isn't defined in a derived class, the base
+// class version FluxProperty::static_flux_value will produce the same
+// result by calling flux_matrix and flux_offset.  It may be less
+// efficient though.
+
 void Elasticity::static_flux_value(const FEMesh *mesh, const Element *element,
 				   const Flux *flux, const MasterPosition &pt,
 				   double time, SmallSystem *fluxdata)

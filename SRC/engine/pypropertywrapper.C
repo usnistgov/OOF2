@@ -456,7 +456,8 @@ void PyFluxProperty::flux_value(const FEMesh *mesh,
     PyObject *timep = PyFloat_FromDouble(time);
     PyObject *fluxdatap = NEWSWIGPTR(fluxdata, "SmallSystem");
     PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
-						  mesh->getPyMesh(), elp, fluxp, mpp, timep,
+						  mesh->getPyMesh(), elp,
+						  fluxp, mpp, timep,
 						  fluxdatap, NULL);
     Py_XDECREF(method);
     Py_XDECREF(elp);
