@@ -1414,5 +1414,7 @@ class EmptyTip:
         return False
     def read(self, *args):              # for xmlmenudump.getHelp()
         return ""
+    def __repr__(self):
+        return "EmptyTip"
 
 emptyTipString = EmptyTip()

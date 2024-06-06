@@ -51,6 +51,10 @@
     Py_XDECREF(module);
     if(!CLASS##Class)
       SWIG_fail;
+    // This incref will never be decreffed.  It would probably be safe
+    // to omit it, but we are storing a reference here so increffing
+    // is technically correct. 
+    Py_XINCREF(CLASS##Class); 
   }
 %enddef // FETCH_CLASS
 
