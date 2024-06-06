@@ -33,7 +33,8 @@
 
 
 GeneralNonlinearElasticityNoDeriv::GeneralNonlinearElasticityNoDeriv(
-			     PyObject *registration, const std::string &nm)
+				     const std::string &nm,
+				     PyObject *registration)
   : FluxProperty(nm, registration)
 {
   displacement = dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));

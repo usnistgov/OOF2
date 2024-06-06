@@ -30,7 +30,7 @@ class ElementNodeIterator;
 
 class NonlinearHeatSourceNoDeriv : public EqnProperty {
 public:
-  NonlinearHeatSourceNoDeriv(PyObject *registry, const std::string &name);
+  NonlinearHeatSourceNoDeriv(const std::string &name, PyObject *registration);
   virtual ~NonlinearHeatSourceNoDeriv() {}
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return false; }
@@ -50,8 +50,9 @@ protected:
 
 class NonlinearHeatSource : public NonlinearHeatSourceNoDeriv {
 public:
-  NonlinearHeatSource(PyObject *registry, const std::string &name)
-    : NonlinearHeatSourceNoDeriv(registry, name) {};
+  NonlinearHeatSource(const std::string &name, PyObject *registration)
+    : NonlinearHeatSourceNoDeriv(name, registration)
+  {}
   virtual ~NonlinearHeatSource() {}
   virtual void force_deriv_matrix(const FEMesh *mesh,
 				  const Element *el,
@@ -69,10 +70,12 @@ protected:
 
 class TestNonlinearHeatSourceNoDeriv : public NonlinearHeatSourceNoDeriv {
 public:
-  TestNonlinearHeatSourceNoDeriv(PyObject *registry, const std::string &name,
-				 int testno)
-    : NonlinearHeatSourceNoDeriv( registry, name), testNo(testno) {};
-  virtual ~TestNonlinearHeatSourceNoDeriv() {};
+  TestNonlinearHeatSourceNoDeriv(const std::string &name,
+				 PyObject *registration, int testno)
+    : NonlinearHeatSourceNoDeriv(name, registration),
+      testNo(testno)
+  {}
+  virtual ~TestNonlinearHeatSourceNoDeriv() {}
 protected:
   int testNo;
   virtual double nonlin_heat_source(double x, double y, double z,
@@ -82,9 +85,12 @@ protected:
 
 class TestNonlinearHeatSource : public NonlinearHeatSource {
 public:
-  TestNonlinearHeatSource(PyObject *registry, const std::string &name, int testno)
-    : NonlinearHeatSource( registry, name ), testNo(testno) {};
-  virtual ~TestNonlinearHeatSource() {};
+  TestNonlinearHeatSource(const std::string &name, PyObject *registration,
+			  int testno)
+    : NonlinearHeatSource(name, registration),
+      testNo(testno)
+  {}
+  virtual ~TestNonlinearHeatSource() {}
 protected:
   int testNo;
   virtual double nonlin_heat_source(double x, double y, double z,

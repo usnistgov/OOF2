@@ -32,14 +32,13 @@ class ColorProp : public AuxiliaryProperty {
 private:
   CColor cvalue_;
 public:
-  ColorProp(PyObject *reg, const std::string &nm, double g);
-  ColorProp(PyObject *reg, const std::string &nm, double g, double a);
-  ColorProp(PyObject *reg, const std::string &nm,
-	    double r, double g, double b);
-  ColorProp(PyObject *reg, const std::string &nm,
+  ColorProp(const std::string &nm, PyObject *reg, double g);
+  ColorProp(const std::string &nm, PyObject *reg, double g, double a);
+  ColorProp(const std::string &nm, PyObject *reg, double r, double g, double b);
+  ColorProp(const std::string &nm, PyObject *reg,
 	    double r, double g, double b, double a);
-  ColorProp(PyObject *reg, const std::string &nm, CColor &c);
-  ColorProp(PyObject *reg, const std::string &nm, CColor *c);
+  ColorProp(const std::string &nm, PyObject *reg, CColor &c);
+  ColorProp(const std::string &nm, PyObject *reg, CColor *c);
   virtual ~ColorProp() {}
   const CColor &color() const { return cvalue_; }
 };

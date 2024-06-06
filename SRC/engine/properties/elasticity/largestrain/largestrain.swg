@@ -26,13 +26,13 @@
 
 class CIsoLargeStrainElasticity : public Elasticity {
 public:
-  CIsoLargeStrainElasticity(PyObject*, PyObject*, char*, Cijkl&);
+  CIsoLargeStrainElasticity(std::string&, PyObject*, PyObject*, Cijkl&);
   ~CIsoLargeStrainElasticity();
 };
 
 class CAnisoLargeStrainElasticity : public Elasticity {
 public:
-  CAnisoLargeStrainElasticity(PyObject*, PyObject*, char*, Cijkl&);
+  CAnisoLargeStrainElasticity(std::string&, PyObject*, PyObject*, Cijkl&);
   ~CAnisoLargeStrainElasticity();
 };
 

@@ -69,8 +69,7 @@ class PyFluxProperty : public FluxProperty,
 		       virtual public PythonNative<Property>
 {
 public:
-  PyFluxProperty(PyObject *referent, PyObject *regstn,
-		 const std::string &name);
+  PyFluxProperty(const std::string &name, PyObject *regstn, PyObject *referent);
   virtual ~PyFluxProperty();
   virtual void flux_matrix(const FEMesh*, const Element*,
 			   const ElementFuncNodeIterator&,
@@ -136,8 +135,7 @@ class PyEqnProperty : public EqnProperty,
 		      virtual public PythonNative<Property>
 {
 public:
-  PyEqnProperty(PyObject *referent, PyObject *regstn,
-		       const std::string &name);
+  PyEqnProperty(const std::string &name,  PyObject *regstn, PyObject *referent);
   virtual ~PyEqnProperty();
   virtual void force_deriv_matrix(const FEMesh*, const Element*,
 				  const Equation*,
@@ -210,8 +208,7 @@ class PyAuxProperty : public AuxiliaryProperty,
 		      virtual public PythonNative<Property>
 {
 public:
-  PyAuxProperty(PyObject *referent, PyObject *regstn,
-		const std::string &name);
+  PyAuxProperty(const std::string &name, PyObject *regstn, PyObject *referent);
   virtual ~PyAuxProperty();
 };
 

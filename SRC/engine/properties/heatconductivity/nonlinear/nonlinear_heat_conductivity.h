@@ -38,7 +38,7 @@ class ElementNodeIterator;
 
 class NonlinearHeatConductivityNoDeriv : public FluxProperty {
 public:
-  NonlinearHeatConductivityNoDeriv(PyObject *registry, const std::string &name);
+  NonlinearHeatConductivityNoDeriv(const std::string &name, PyObject *reg);
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return false; }
   // virtual bool is_symmetric_K(const CSubProblem*) const { return false; }
@@ -60,9 +60,10 @@ protected:
 
 class NonlinearHeatConductivity : public NonlinearHeatConductivityNoDeriv {
 public:
-  NonlinearHeatConductivity(PyObject *registry, const std::string &name)
-    : NonlinearHeatConductivityNoDeriv(registry, name) {};
-  virtual ~NonlinearHeatConductivity() {};
+  NonlinearHeatConductivity(const std::string &name, PyObject *registration)
+    : NonlinearHeatConductivityNoDeriv(name, registration)
+  {}
+  virtual ~NonlinearHeatConductivity() {}
   virtual void flux_matrix(const FEMesh*, const Element*,
 			   const ElementFuncNodeIterator&,
 			   const Flux*,
@@ -87,13 +88,17 @@ protected:
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 
-class TestNonlinearHeatConductivityNoDeriv : public NonlinearHeatConductivityNoDeriv {
+class TestNonlinearHeatConductivityNoDeriv
+  : public NonlinearHeatConductivityNoDeriv
+{
 
 public:
-  TestNonlinearHeatConductivityNoDeriv(PyObject *registry,
-				       const std::string &name, int testno)
-    : NonlinearHeatConductivityNoDeriv( registry, name ), testNo(testno) {};
-  virtual ~TestNonlinearHeatConductivityNoDeriv() {};
+  TestNonlinearHeatConductivityNoDeriv(const std::string &name,
+				       PyObject *registration, int testno)
+    : NonlinearHeatConductivityNoDeriv(name, registration),
+      testNo(testno)
+  {}
+  virtual ~TestNonlinearHeatConductivityNoDeriv() {}
 
 protected:
   int testNo;
@@ -107,10 +112,12 @@ protected:
 class TestNonlinearHeatConductivity : public NonlinearHeatConductivity {
 
 public:
-  TestNonlinearHeatConductivity(PyObject *registry,
-				const std::string &name, int testno)
-    : NonlinearHeatConductivity( registry, name ), testNo(testno) {};
-  virtual ~TestNonlinearHeatConductivity() {};
+  TestNonlinearHeatConductivity(const std::string &name, PyObject *registration,
+				int testno)
+    : NonlinearHeatConductivity(name, registration),
+      testNo(testno)
+  {}
+  virtual ~TestNonlinearHeatConductivity() {}
 
 protected:
   int testNo;

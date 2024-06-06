@@ -21,7 +21,7 @@ private:
   double coeff;
   Field *displacement;
 public:
-  IsotropicDampingProp(PyObject*, const std::string&, double);
+  IsotropicDampingProp(const std::string&, PyObject*, double);
   virtual ~IsotropicDampingProp() {}
   virtual void precompute(FEMesh*);
   virtual void first_time_deriv_matrix(const FEMesh*,

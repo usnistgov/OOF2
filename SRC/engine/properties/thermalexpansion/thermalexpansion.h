@@ -41,9 +41,7 @@ protected:
   SymmetricTensorFlux *stress_flux;
   SymmMatrix3 expansiontensor_; //lab reference system tensor
 public:
-  ThermalExpansion(PyObject *registry,
-		   const std::string &nm,
-		   double t0);
+  ThermalExpansion(const std::string &nm, PyObject *registration, double t0);
   virtual ~ThermalExpansion() {}
   virtual void cross_reference(Material*) = 0;
 
@@ -68,10 +66,8 @@ public:
 
 class IsotropicThermalExpansion: public ThermalExpansion {
 public:
-  IsotropicThermalExpansion(PyObject *registry,
-			    const std::string &name,
-			    double alpha,
-			    double t0);
+  IsotropicThermalExpansion(const std::string &name, PyObject *registration,
+			    double alpha, double t0);
   virtual void cross_reference(Material*);
   virtual void precompute(FEMesh*);
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
@@ -84,8 +80,7 @@ private:
 
 class AnisotropicThermalExpansion: public ThermalExpansion {
 public:
-  AnisotropicThermalExpansion(PyObject *registry,
-			      const std::string &nm,
+  AnisotropicThermalExpansion(const std::string &nm, PyObject *registration,
 			      SymmMatrix3 *alpha, double t0);
   virtual void cross_reference(Material*); // finds Orientation
   virtual void precompute(FEMesh*);

@@ -594,13 +594,25 @@ class PropertyRegistration(PropertyRegistrationParent):
     def interfaceCompatibility(self):
         return self._interfaceCompatibility
 
-    # "createProperty" creates a property instance from a
-    # registration.  This is the only way to create a property
-    # instance, and this routine does not do any book-keeping with the
-    # AllProperties object.
     def createProperty(self):
-        return self.subclass(self, self._name, *[p.value for p in self.params])
-
+        # createProperty() creates a property instance from a
+        # registration.  This and
+        # NamedPropertyRegistration.createProperty() are the only ways
+        # to create a Property.
+        #
+        # The Python constructor for a Property subclass must have the
+        # arguments (name, registration, extra_args), where extra_args
+        # are listed in PropertyRegistration.params.
+        #
+        # The C++ constructor may need additional arguments which can
+        # be added by redefining the Python constructor.  In
+        # particular, subclasses derived from PythonNative need an
+        # additional "self" argument so that C++ can store a pointer
+        # to the Python object.  See
+        # properties/elasticity/aniso/aniso.spy for an example.
+        return self.subclass(self._name,
+                             self, # PropertyRegistration
+                             *[p.value for p in self.params])
 
     # Collision looks for the name under this tree, and if it finds
     # it, checks if the parameter values are all equal.  Called by
@@ -742,11 +754,10 @@ class NamedPropertyRegistration(PropertyRegistration):
     def interfaceCompatibility(self):
         return self.parent.interfaceCompatibility()
 
-    # We do not expect NamedPropertyRegistrations to be used
-    # for anything other than direct instantiation via the pre-set
-    # params, so no kwargs for this one.  2nd argument is name.
+    # Creating a NamedProperty is just like creating a Property, but
+    # the name stored in params[0] needs to be skipped.
     def createProperty(self):
-        return self.subclass(self, self._name, 
+        return self.subclass(self._name, self,
                              *[p.value for p in self.params[1:]])
 
     def __repr__(self):

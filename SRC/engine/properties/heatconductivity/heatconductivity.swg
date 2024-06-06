@@ -24,12 +24,12 @@
 
 class IsoHeatConductivity : public FluxProperty {
 public:
-  IsoHeatConductivity(PyObject *reg, char *name, double kappa);
+  IsoHeatConductivity(std::string &name, PyObject *reg, double kappa);
 };
 
 class AnisoHeatConductivity : public FluxProperty {
 public:
-  AnisoHeatConductivity(PyObject *reg, char *name, SymmMatrix3 *k);
+  AnisoHeatConductivity(std::string &name, PyObject *reg, SymmMatrix3 *k);
 };
 
 %pythoncode "engine/properties/heatconductivity/heatconductivity.spy"

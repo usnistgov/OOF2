@@ -26,13 +26,13 @@
 
 class IsotropicPiezoElectricity : public FluxProperty {
 public:
-  IsotropicPiezoElectricity(PyObject *reg, char *name, double d);
+  IsotropicPiezoElectricity(std::string &name, PyObject *reg, double d);
 };
 
 
 class AnisotropicPiezoElectricity : public FluxProperty {
 public:
-  AnisotropicPiezoElectricity(PyObject *registry, char *name,
+  AnisotropicPiezoElectricity(std::string &name, PyObject *reg,
 			      Rank3Tensor *dijkTensor);
   Rank3Tensor dijk();
 };

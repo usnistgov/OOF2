@@ -23,7 +23,7 @@
 
 class HeatCapacityProp : public EqnProperty {
 public:
-  HeatCapacityProp(PyObject *self, char *, double);
+  HeatCapacityProp(std::string&, PyObject *self, double);
 };
 
 %pythoncode "engine/properties/heatcapacity/heatcapacity.spy"

@@ -30,9 +30,9 @@
 #include "engine/properties/orientation/orientation.h"
 #include "engine/properties/permittivity/permittivity.h"
 
-DielectricPermittivity::DielectricPermittivity(PyObject *registry,
-				   const std::string &nm)
-  : FluxProperty(nm, registry)
+DielectricPermittivity::DielectricPermittivity(const std::string &nm,
+					       PyObject *registration)
+  : FluxProperty(nm, registration)
 {
   voltage = dynamic_cast<ScalarField*>(Field::getField("Voltage"));
   total_polarization = dynamic_cast<VectorFlux*>
@@ -118,10 +118,10 @@ void DielectricPermittivity::output(FEMesh *mesh,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-IsoDielectricPermittivity::IsoDielectricPermittivity(PyObject *reg,
-						     const std::string &nm,
+IsoDielectricPermittivity::IsoDielectricPermittivity(const std::string &nm,
+						     PyObject *reg,
 						     double epsilon)
-  : DielectricPermittivity(reg, nm),
+  : DielectricPermittivity(nm, reg),
     epsilon_(epsilon)
 {
 }
@@ -158,10 +158,10 @@ void IsoDielectricPermittivity::output(FEMesh *mesh,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-AnisoDielectricPermittivity::AnisoDielectricPermittivity(PyObject *reg,
-							 const std::string &nm,
+AnisoDielectricPermittivity::AnisoDielectricPermittivity(const std::string &nm,
+							 PyObject *reg,
 							 SymmMatrix3 *k)
-  : DielectricPermittivity(reg,nm),
+  : DielectricPermittivity(nm, reg),
     epsilon_(*k),
     orientation(0)
 {
@@ -225,9 +225,9 @@ void AnisoDielectricPermittivity::output(FEMesh *mesh,
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-ChargeDensity::ChargeDensity(PyObject *reg,
-			       const std::string &name, double q)
-  : EqnProperty(name,reg),
+ChargeDensity::ChargeDensity(const std::string &name, PyObject *reg,
+			     double q)
+  : EqnProperty(name, reg),
     q_(q) {
     total_polarization = dynamic_cast<VectorFlux*>
       (Flux::getFlux("Total_Polarization"));

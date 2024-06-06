@@ -30,11 +30,10 @@
 
 
 
-SkeletonRelaxationRate::SkeletonRelaxationRate(PyObject *reg,
-			     const std::string &nm,
-			     double gamma,
-			     double alpha)
-  : FluxProperty(nm,reg),
+SkeletonRelaxationRate::SkeletonRelaxationRate(const std::string &nm,
+					       PyObject *reg,
+					       double gamma, double alpha)
+  : FluxProperty(nm, reg),
     gamma_(gamma),
     alpha_(alpha)
 {

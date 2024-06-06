@@ -24,7 +24,7 @@ private:
   double cv_;
   Field *temperature;
 public:
-  HeatCapacityProp(PyObject*, const std::string&, double);
+  HeatCapacityProp(const std::string&, PyObject*, double);
   virtual ~HeatCapacityProp() {}
   virtual void precompute(FEMesh*);
   virtual void first_time_deriv_matrix(const FEMesh*,

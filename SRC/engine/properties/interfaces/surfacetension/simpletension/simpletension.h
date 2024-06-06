@@ -26,7 +26,7 @@ private:
   double _gamma_left, _gamma_right;
   Coord delta_r; // Populated by begin_element operations.
 public:
-  SimpleTension(PyObject *reg, const std::string &name,
+  SimpleTension(const std::string &name, PyObject *reg, 
 		double gamma_left, double gamma_right);
   virtual ~SimpleTension() {}
   virtual int integration_order(const CSubProblem*, const Element*) const;

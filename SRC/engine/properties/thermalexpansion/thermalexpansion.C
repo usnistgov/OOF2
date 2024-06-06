@@ -28,10 +28,9 @@
 #include "thermalexpansion.h"
 
 
-ThermalExpansion::ThermalExpansion(PyObject *reg,
-				   const std::string &nm,
+ThermalExpansion::ThermalExpansion(const std::string &nm, PyObject *reg,
 				   double t0)
-  : FluxProperty(nm,reg),
+  : FluxProperty(nm, reg),
     T0(t0)
 {
   temperature=dynamic_cast<ScalarField*>(Field::getField("Temperature"));
@@ -115,23 +114,6 @@ void ThermalExpansion::flux_offset(const FEMesh *mesh,
   }
 }
 
-const SymmMatrix3
-IsotropicThermalExpansion::expansiontensor(const FEMesh*, const Element*,
-					   const MasterPosition&) const
-{
-  return expansiontensor_;
-}
-
-const SymmMatrix3
-AnisotropicThermalExpansion::expansiontensor(const FEMesh *mesh,
-					     const Element *elem,
-					     const MasterPosition &pos) const
-{
-  if(orientation->constant_in_space())
-    return expansiontensor_;
-  return alpha_.transform(orientation->orientation(mesh, elem, pos));
-}
-
 void ThermalExpansion::output(FEMesh *mesh,
 			      const Element *element,
 			      const PropertyOutput *output,
@@ -193,17 +175,24 @@ bool ThermalExpansion::is_symmetric_K(const CSubProblem* mesh) const {
 	   temperature->is_active(mesh));
 }
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-IsotropicThermalExpansion::IsotropicThermalExpansion(PyObject *registry,
-						     const std::string &name,
+IsotropicThermalExpansion::IsotropicThermalExpansion(const std::string &name,
+						     PyObject *registration,
 						     double alpha,
 						     double t0)
-  : ThermalExpansion(registry, name, t0),
+  : ThermalExpansion(name, registration, t0),
     alpha_(alpha)
 {
 
 }
 
+const SymmMatrix3
+IsotropicThermalExpansion::expansiontensor(const FEMesh*, const Element*,
+					   const MasterPosition&) const
+{
+  return expansiontensor_;
+}
 
 void IsotropicThermalExpansion::cross_reference(Material *mat) {
   // find out which property is the elasticity
@@ -220,34 +209,6 @@ void IsotropicThermalExpansion::precompute(FEMesh *mesh) {
   ThermalExpansion::precompute(mesh);
   expansiontensor_(0,0) = expansiontensor_(1,1) = expansiontensor_(2,2)
     = alpha_;
-}
-
-AnisotropicThermalExpansion::AnisotropicThermalExpansion(PyObject *registry,
-							 const std::string &nm,
-							 SymmMatrix3 *alpha,
-							 double t0)
-  : ThermalExpansion(registry, nm, t0),
-    alpha_(*alpha),
-    orientation(0)
-{}
-
-void AnisotropicThermalExpansion::cross_reference(Material *mat) {
-  // find out which property is the elasticity
-  try {
-    elasticity = dynamic_cast<Elasticity*>(mat->fetchProperty("Elasticity"));
-    orientation = dynamic_cast<OrientationPropBase*>
-      (mat->fetchProperty("Orientation"));
-  }
-  catch (ErrNoSuchProperty&) {
-    elasticity = 0;
-    orientation = 0;
-    throw;
-  }
-}
-
-void AnisotropicThermalExpansion::precompute(FEMesh*) {
-  if(orientation && orientation->constant_in_space())
-    expansiontensor_ = alpha_.transform(orientation->orientation());
 }
 
 void IsotropicThermalExpansion::output(FEMesh *mesh,
@@ -271,6 +232,47 @@ void IsotropicThermalExpansion::output(FEMesh *mesh,
     delete idxstrs;
   }
   ThermalExpansion::output(mesh, element, output, pos, data);
+}
+
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+AnisotropicThermalExpansion::AnisotropicThermalExpansion(const std::string &nm,
+							 PyObject *registration,
+							 SymmMatrix3 *alpha,
+							 double t0)
+  : ThermalExpansion(nm, registration, t0),
+    alpha_(*alpha),
+    orientation(0)
+{}
+
+const SymmMatrix3
+AnisotropicThermalExpansion::expansiontensor(const FEMesh *mesh,
+					     const Element *elem,
+					     const MasterPosition &pos) const
+{
+  if(orientation->constant_in_space())
+    return expansiontensor_;
+  return alpha_.transform(orientation->orientation(mesh, elem, pos));
+}
+
+void AnisotropicThermalExpansion::cross_reference(Material *mat) {
+  // find out which property is the elasticity
+  try {
+    elasticity = dynamic_cast<Elasticity*>(mat->fetchProperty("Elasticity"));
+    orientation = dynamic_cast<OrientationPropBase*>
+      (mat->fetchProperty("Orientation"));
+  }
+  catch (ErrNoSuchProperty&) {
+    elasticity = 0;
+    orientation = 0;
+    throw;
+  }
+}
+
+void AnisotropicThermalExpansion::precompute(FEMesh*) {
+  if(orientation && orientation->constant_in_space())
+    expansiontensor_ = alpha_.transform(orientation->orientation());
 }
 
 void AnisotropicThermalExpansion::output(FEMesh *mesh,

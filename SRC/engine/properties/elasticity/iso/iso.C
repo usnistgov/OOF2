@@ -14,12 +14,12 @@
 #include "engine/mastercoord.h"
 #include "engine/properties/elasticity/iso/iso.h"
 
-CIsoElasticityProp::CIsoElasticityProp(PyObject *registration,
+CIsoElasticityProp::CIsoElasticityProp(const std::string &nm, 
+				       PyObject *registration,
 				       PyObject *self,
-				       const std::string &nm, 
 				       const Cijkl &c)
   : PythonNative<Property>(self),
-    Elasticity(nm,registration),
+    Elasticity(nm, registration),
     c_ijkl(c)
 {
 }

@@ -23,8 +23,8 @@ FloatParameter = parameter.FloatParameter
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class IsoLargeStrainElasticity(CIsoLargeStrainElasticity):
-    def __init__(self, registration, name, cijkl):
-        CIsoLargeStrainElasticity.__init__(self, registration, self, name,
+    def __init__(self, name, registration, cijkl):
+        CIsoLargeStrainElasticity.__init__(self, name, registration, self,
                                            cijkl.tensorForm())
 
 reg = PropertyRegistration(
@@ -49,8 +49,8 @@ reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Displacement],
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class AnisoLargeStrainElasticity(CAnisoLargeStrainElasticity):
-    def __init__(self, registration, name, cijkl):
-        CAnisoLargeStrainElasticity.__init__(self, registration, self, name,
+    def __init__(self, name, registration, cijkl):
+        CAnisoLargeStrainElasticity.__init__(self, name, registration, self,
                                              cijkl.tensorForm())
 
 

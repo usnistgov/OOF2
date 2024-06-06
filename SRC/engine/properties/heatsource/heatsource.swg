@@ -24,7 +24,7 @@
 
 class HeatSourceProp : public EqnProperty {
 public:
-  HeatSourceProp(PyObject *reg, char *name, double qdot);
+  HeatSourceProp(std::string &name, PyObject *reg, double qdot);
 };
 
 %pythoncode "engine/properties/heatsource/heatsource.spy"

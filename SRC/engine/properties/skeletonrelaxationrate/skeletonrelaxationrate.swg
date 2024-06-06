@@ -23,7 +23,8 @@
 
 class SkeletonRelaxationRate : public FluxProperty {
 public:
-  SkeletonRelaxationRate(PyObject *reg, char *name, double alpha, double beta);
+  SkeletonRelaxationRate(std::string &nm, PyObject *reg,
+			 double alpha, double beta);
   const double alpha();
 };
 

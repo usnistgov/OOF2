@@ -17,8 +17,8 @@
 #include "engine/smallsystem.h"
 
 
-MassDensityProp::MassDensityProp(PyObject *registration,
-				 const std::string &name,
+MassDensityProp::MassDensityProp(const std::string &name,
+				 PyObject *registration,
 				 double rho)
   : EqnProperty(name, registration), rho_(rho)
 {}

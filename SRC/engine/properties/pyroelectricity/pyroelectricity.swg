@@ -54,7 +54,7 @@
 
 class PyroElectricity : public FluxProperty {
 public:
-  PyroElectricity(PyObject *reg, char *name,
+  PyroElectricity(std::string &name, PyObject *reg,
 		  double px, double py, double pz, double t0,
 		  std::string *coefficient_type);
 };

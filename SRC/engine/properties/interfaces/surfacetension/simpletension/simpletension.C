@@ -21,9 +21,9 @@
 #include "engine/smallsystem.h"
 #include "simpletension.h"
 
-SimpleTension::SimpleTension(PyObject *reg, const std::string &nm,
+SimpleTension::SimpleTension(const std::string &nm, PyObject *reg, 
 			     double gamma_left, double gamma_right)
-  : EqnProperty(nm,reg), _gamma_left(gamma_left), _gamma_right(gamma_right)
+  : EqnProperty(nm, reg), _gamma_left(gamma_left), _gamma_right(gamma_right)
 {
   delta_r = Coord(0,0);
 }

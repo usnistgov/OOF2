@@ -40,9 +40,9 @@
 // displacement, which will have to be included in the LHS when
 // solving large strain elasticity problems.
 
-CLargeStrainElasticity::CLargeStrainElasticity(PyObject *registry,
-					       const std::string &nm)
-  : Elasticity( nm, registry )
+CLargeStrainElasticity::CLargeStrainElasticity(const std::string &nm,
+					       PyObject *registration)
+  : Elasticity(nm, registration)
 {}
 
 bool CLargeStrainElasticity::is_symmetric_K(const CSubProblem*) const {
@@ -180,23 +180,23 @@ void CLargeStrainElasticity::geometricStrain(const FEMesh *mesh,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-CIsoLargeStrainElasticity::CIsoLargeStrainElasticity(PyObject *registry,
+CIsoLargeStrainElasticity::CIsoLargeStrainElasticity(const std::string &name,
+						     PyObject *registration,
 						     PyObject *self,
-						     const std::string &name,
 						     const Cijkl &c)
   : PythonNative<Property>(self),
-    CLargeStrainElasticity(registry, name),
+    CLargeStrainElasticity(name, registration),
     c_ijkl(c)
 {}
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-CAnisoLargeStrainElasticity::CAnisoLargeStrainElasticity(PyObject *registry,
+CAnisoLargeStrainElasticity::CAnisoLargeStrainElasticity(const std::string &nm,
+							 PyObject *registration,
 							 PyObject *self,
-							 const std::string &nm,
 							 const Cijkl &c)
   : PythonNative<Property>(self),
-    CLargeStrainElasticity(registry, nm),
+    CLargeStrainElasticity(nm, registration),
     orientation(0),
     crystal_cijkl_(c)
 {}

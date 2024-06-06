@@ -33,9 +33,8 @@
 #include "engine/rank3tensor.h"
 #include "engine/smallsystem.h"
 
-PiezoElectricity::PiezoElectricity(PyObject *reg,
-				   const std::string &nm)
-  : FluxProperty(nm,reg)
+PiezoElectricity::PiezoElectricity(const std::string &nm, PyObject *reg)
+  : FluxProperty(nm, reg)
 {
 
   stress_flux=dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
@@ -166,14 +165,12 @@ void PiezoElectricity::output(FEMesh *mesh,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-IsotropicPiezoElectricity::IsotropicPiezoElectricity(PyObject *registry,
-						     const std::string &name,
+IsotropicPiezoElectricity::IsotropicPiezoElectricity(const std::string &name,
+						     PyObject *registration,
 						     double d)
-  : PiezoElectricity(registry, name),
+  : PiezoElectricity(name, registration),
     _dijkValue(d)
-{
-
-}
+{}
 
 
 void IsotropicPiezoElectricity::cross_reference(Material *mat) {
@@ -219,15 +216,15 @@ void IsotropicPiezoElectricity::output(FEMesh *mesh,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-AnisotropicPiezoElectricity::AnisotropicPiezoElectricity(PyObject *registry,
-							 const std::string &nm,
-							 Rank3Tensor *dijkTensor)
-  : PiezoElectricity(registry, nm),
+AnisotropicPiezoElectricity::AnisotropicPiezoElectricity(
+						 const std::string &nm,
+						 PyObject *registration,
+						 Rank3Tensor *dijkTensor)
+  : PiezoElectricity(nm, registration),
     _dijkValue(*dijkTensor),
     orientation(0)
-{
+{}
 
-}
 void AnisotropicPiezoElectricity::cross_reference(Material *mat) {
   std::string err_mat, err_prop;
   try {

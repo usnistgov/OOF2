@@ -31,9 +31,9 @@
 
 
 
-HeatSourceProp::HeatSourceProp(PyObject *reg,
-			       const std::string &name, double qd)
-  : EqnProperty(name,reg),
+HeatSourceProp::HeatSourceProp(const std::string &name, PyObject *reg,
+			       double qd)
+  : EqnProperty(name, reg),
     qdot_(qd) {
     heat_flux = dynamic_cast<VectorFlux*>(Flux::getFlux("Heat_Flux"));
 }

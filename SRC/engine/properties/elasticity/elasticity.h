@@ -35,7 +35,7 @@ class SmallSystem;
 
 class Elasticity : public FluxProperty {
 public:
-  Elasticity(const std::string &name, PyObject *registry);
+  Elasticity(const std::string &name, PyObject *registration);
   virtual ~Elasticity() {}
   virtual void flux_matrix(const FEMesh *mesh,
 			   const Element *element,

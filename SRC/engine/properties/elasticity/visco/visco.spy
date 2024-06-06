@@ -15,8 +15,8 @@ from ooflib.engine import propertyregistration
 from ooflib.engine.IO import isocijkl
 
 class ViscoElasticity(CViscoElasticity):
-    def __init__(self, registration, name, cijkl):
-        CViscoElasticity.__init__(self, registration, name, cijkl.tensorForm())
+    def __init__(self, name, registration, cijkl):
+        CViscoElasticity.__init__(self, name, registration, cijkl.tensorForm())
 
 reg = propertyregistration.PropertyRegistration(
     name="Mechanical:Viscosity:Isotropic",

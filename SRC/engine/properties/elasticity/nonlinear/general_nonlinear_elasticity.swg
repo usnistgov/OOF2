@@ -35,12 +35,13 @@ class TestGeneralNonlinearElasticityNoDeriv
   : public GeneralNonlinearElasticityNoDeriv
 {
 public:
-  TestGeneralNonlinearElasticityNoDeriv(PyObject *reg, char *name, int testno);
+  TestGeneralNonlinearElasticityNoDeriv(std::string& name, PyObject *reg,
+					int testno);
 };
 
 class TestGeneralNonlinearElasticity : public GeneralNonlinearElasticity {
 public:
-  TestGeneralNonlinearElasticity(PyObject *reg, char *name, int testno);
+  TestGeneralNonlinearElasticity(std::string &name, PyObject *reg, int testno);
 };
 
 %pythoncode "engine/properties/elasticity/nonlinear/general_nonlinear_elasticity.spy"

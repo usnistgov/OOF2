@@ -25,7 +25,7 @@
 
 class CIsoElasticityProp : public Elasticity {
 public:
-  CIsoElasticityProp(PyObject*, PyObject*, std::string&, Cijkl&);
+  CIsoElasticityProp(const std::string&, PyObject*, PyObject*, Cijkl&);
   ~CIsoElasticityProp();
 };
 

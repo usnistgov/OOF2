@@ -89,8 +89,8 @@ reg.fluxInfo(fluxes=[problem.Heat_Flux], fields=[problem.Temperature],
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class ProfessorButts(pypropertywrapper.PyAuxProperty):
-    def __init__(self, registration, name):
-        super(ProfessorButts, self).__init__(registration, name)
+    def __init__(self, name, registration):
+        super(ProfessorButts, self).__init__(name, registration)
         self.value = symmmatrix.SymmMatrix3(1., 1., 1., 0., 0., 0.)
     
 reg = propertyregistration.PropertyRegistration(

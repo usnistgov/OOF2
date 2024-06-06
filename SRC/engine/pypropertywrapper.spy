@@ -19,27 +19,30 @@ from ooflib.SWIG.engine import smallsystem
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# C++ PyPropertyWrapper objects need access to "self", since they
-# store a reference to the Python object.  Instead of passing it in
-# twice, we redefine the SWIG-generated __init__ to use the single
-# argument in two ways.
+# C++ PyPropertyWrapper objects need access to self, since they store
+# a reference to the Python object.  Redefine the SWIG-generated
+# __init__ so that self is passed as the "referent" argument to the
+# C++ constructor.
 
 def _PyFluxProperty___init__(self, *args, **kwargs):
-    realargs = (self,) + args
+    realargs = list(args)
+    realargs.insert(2, self)
     _pypropertywrapper.PyFluxProperty_swiginit(
         self, _pypropertywrapper.new_PyFluxProperty(*realargs, **kwargs))
 
 PyFluxProperty.__init__ = _PyFluxProperty___init__
 
 def _PyEqnProperty___init__(self, *args, **kwargs):
-    realargs = (self,) + args
+    realargs = list(args)
+    realargs.insert(2, self)
     _pypropertywrapper.PyEqnProperty_swiginit(
         self, _pypropertywrapper.new_PyEqnProperty(*realargs, **kwargs))
 
 PyEqnProperty.__init__ = _PyEqnProperty___init__
 
 def _PyAuxProperty___init__(self, *args, **kwargs):
-    realargs = (self,) + args
+    realargs = list(args)
+    realargs.insert(2, self)
     _pypropertywrapper.PyAuxProperty_swiginit(
         self, _pypropertywrapper.new_PyAuxProperty(*realargs, **kwargs))
 

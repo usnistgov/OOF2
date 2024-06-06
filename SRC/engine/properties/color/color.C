@@ -14,38 +14,38 @@
 #include "color.h"
 #include "engine/material.h"
 
-ColorProp::ColorProp(PyObject *reg, const std::string &nm, double g)
-  : AuxiliaryProperty(nm,reg),
+ColorProp::ColorProp(const std::string &nm, PyObject *reg, double g)
+  : AuxiliaryProperty(nm, reg),
     cvalue_(g,g,g) // Color is gray, but object is CColor.
 {
 }
 
-ColorProp::ColorProp(PyObject *reg, const std::string &nm, double g, double a)
-  : AuxiliaryProperty(nm,reg),
+ColorProp::ColorProp(const std::string &nm, PyObject *reg, double g, double a)
+  : AuxiliaryProperty(nm, reg),
     cvalue_(g,g,g,a)
 {
 }
 
-ColorProp::ColorProp(PyObject *reg, const std::string &nm,
+ColorProp::ColorProp(const std::string &nm, PyObject *reg, 
 		     double r, double g, double b)
-  : AuxiliaryProperty(nm,reg),
+  : AuxiliaryProperty(nm, reg),
     cvalue_(r,g,b)
 {
 }
-ColorProp::ColorProp(PyObject *reg, const std::string &nm,
+ColorProp::ColorProp(const std::string &nm, PyObject *reg, 
 		     double r, double g, double b, double a)
-  : AuxiliaryProperty(nm,reg),
+  : AuxiliaryProperty(nm, reg),
     cvalue_(r,g,b,a)
 {
 }
 
-ColorProp::ColorProp(PyObject *reg, const std::string &nm, CColor &cv)
-  : AuxiliaryProperty(nm,reg),
+ColorProp::ColorProp(const std::string &nm, PyObject *reg, CColor &cv)
+  : AuxiliaryProperty(nm, reg),
     cvalue_(cv)
 {
 }
 
-ColorProp::ColorProp(PyObject *reg, const std::string &nm, CColor *cv)
+ColorProp::ColorProp(const std::string &nm, PyObject *reg, CColor *cv)
   : AuxiliaryProperty(nm, reg),
     cvalue_(*cv)
 {

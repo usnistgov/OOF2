@@ -24,7 +24,7 @@
 
 class OrientationMapProp : public OrientationPropBase {
 public:
-  OrientationMapProp(PyObject *registry, char *name);
+  OrientationMapProp(std::string &name, PyObject *registration);
 };
 
 %pythoncode "orientationmap/orientmapproperty.spy"

@@ -31,7 +31,7 @@ class ElementNodeIterator;
 
 class HeatConductivity : public FluxProperty {
 public:
-  HeatConductivity(PyObject *registry, const std::string &name);
+  HeatConductivity(const std::string &name, PyObject *registration);
   virtual void flux_matrix(const FEMesh*, const Element*,
 			   const ElementFuncNodeIterator&,
 			   const Flux*,
@@ -56,8 +56,8 @@ protected:
 
 class IsoHeatConductivity : public HeatConductivity {
 public:
-  IsoHeatConductivity(PyObject *registry,
-		      const std::string &name, double kappa);
+  IsoHeatConductivity(const std::string &name, PyObject *registration,
+		      double kappa);
   virtual void cross_reference(Material*) {}
   virtual void precompute(FEMesh*);
   virtual const SymmMatrix3 conductivitytensor(const FEMesh*, const Element*,
@@ -71,7 +71,8 @@ private:
 
 class AnisoHeatConductivity : public HeatConductivity {
 public:
-  AnisoHeatConductivity(PyObject *registry, const std::string &name, SymmMatrix3 *kappa);
+  AnisoHeatConductivity(const std::string &name, PyObject *registration,
+			SymmMatrix3 *kappa);
   virtual void cross_reference(Material*); // finds Orientation
   virtual void precompute(FEMesh*);
   virtual const SymmMatrix3 conductivitytensor(const FEMesh*, const Element*,

@@ -31,7 +31,7 @@ class ElementNodeIterator;
 
 class NonconstantHeatSource : public EqnProperty {
 public:
-  NonconstantHeatSource(PyObject *registry, const std::string &name);
+  NonconstantHeatSource(const std::string &name, PyObject *registration);
   virtual ~NonconstantHeatSource() {};
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return false; }
@@ -56,9 +56,12 @@ protected:
   double nonconst_heat_source_8(double x, double y, double z, double time) const;
   virtual double nonconst_heat_source(double x, double y, double z, double time) const;
 public:
-  TestNonconstantHeatSource(PyObject *registry, const std::string &name, int testno)
-    : NonconstantHeatSource( registry, name ), testNo(testno) {};
-  virtual ~TestNonconstantHeatSource() {};
+  TestNonconstantHeatSource(const std::string &name, PyObject *registration,
+			    int testno)
+    : NonconstantHeatSource(name, registration),
+      testNo(testno)
+  {}
+  virtual ~TestNonconstantHeatSource() {}
 };
 
 #endif

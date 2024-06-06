@@ -38,7 +38,7 @@ private:
   TwoVectorField *displacement;
   SymmetricTensorFlux *stress_flux;
 public:
-  CViscoElasticity(PyObject *registry, const std::string &name, Cijkl &g);
+  CViscoElasticity(const std::string &name, PyObject *registration, Cijkl &g);
   virtual ~CViscoElasticity() {}
   virtual void flux_matrix(const FEMesh *mesh,
 			   const Element *element,

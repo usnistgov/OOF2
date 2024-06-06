@@ -32,8 +32,8 @@
 #include <fstream>
 #include <string>
 
-HeatConductivity::HeatConductivity(PyObject *reg, const std::string &nm)
-  : FluxProperty(nm,reg)
+HeatConductivity::HeatConductivity(const std::string &nm, PyObject *reg)
+  : FluxProperty(nm, reg)
 {
   temperature = dynamic_cast<ScalarField*>(Field::getField("Temperature"));
   heat_flux = dynamic_cast<VectorFlux*>(Flux::getFlux("Heat_Flux"));
@@ -133,10 +133,10 @@ void HeatConductivity::flux_matrix(const FEMesh  *mesh,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-IsoHeatConductivity::IsoHeatConductivity(PyObject *reg,
-					 const std::string &nm,
+IsoHeatConductivity::IsoHeatConductivity(const std::string &nm,
+					 PyObject *reg,
 					 double kppa)
-  : HeatConductivity(reg, nm),
+  : HeatConductivity(nm, reg),
     kappa_(kppa)
 {
 }
@@ -158,10 +158,10 @@ IsoHeatConductivity::conductivitytensor(const FEMesh*,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-AnisoHeatConductivity::AnisoHeatConductivity(PyObject *reg,
-					     const std::string &nm,
+AnisoHeatConductivity::AnisoHeatConductivity(const std::string &nm,
+					     PyObject *reg,
 					     SymmMatrix3 *k)
-  : HeatConductivity(reg,nm),
+  : HeatConductivity(nm, reg),
     kappa_(*k),
     orientation(0)
 {}

@@ -26,7 +26,7 @@ class MasterPosition;
 
 class OrientationMapProp : public OrientationPropBase {
 public:
-  OrientationMapProp(PyObject *registry, const std::string &name);
+  OrientationMapProp(const std::string &name, PyObject *registration);
   ~OrientationMapProp();
   virtual const COrientation *orientation() const; // not used -- poor design?!
   virtual const COrientation *orientation(const FEMesh*, const Element*,

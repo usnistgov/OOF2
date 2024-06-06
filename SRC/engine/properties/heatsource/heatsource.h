@@ -38,7 +38,7 @@ private:
 protected:
   VectorFlux *heat_flux;
 public:
-  HeatSourceProp(PyObject *registry, const std::string &name, double qd);
+  HeatSourceProp(const std::string &name, PyObject *registration, double qd);
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual void force_value(const FEMesh*, const Element*,
 			   const Equation*,

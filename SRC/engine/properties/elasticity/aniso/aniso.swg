@@ -26,7 +26,8 @@
 
 class CAnisoElasticity : public Elasticity {
 public:
-  CAnisoElasticity(PyObject *registry, PyObject *self, char *name, Cijkl &c);
+  CAnisoElasticity(std::string &name, PyObject *registration,
+		   PyObject *self, Cijkl&);
   ~CAnisoElasticity();
   const Cijkl crystal_cijkl();
 };

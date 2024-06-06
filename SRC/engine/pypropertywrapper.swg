@@ -32,19 +32,19 @@
 
 class PyFluxProperty : public FluxProperty {
 public:
-  PyFluxProperty(PyObject*, PyObject*, char *name);
+  PyFluxProperty(std::string&, PyObject*, PyObject*);
   ~PyFluxProperty();
 };
 
 class PyEqnProperty : public EqnProperty {
 public:
-  PyEqnProperty(PyObject*, PyObject*, char *name);
+  PyEqnProperty(std::string&, PyObject*, PyObject*);
   ~PyEqnProperty();
 };
 
 class PyAuxProperty : public AuxiliaryProperty {
 public:
-  PyAuxProperty(PyObject*, PyObject*, char*);
+  PyAuxProperty(std::string&, PyObject*, PyObject*);
   ~PyAuxProperty();
 };
 

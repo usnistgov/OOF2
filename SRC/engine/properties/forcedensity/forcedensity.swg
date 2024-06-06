@@ -23,7 +23,7 @@
 
 class ForceDensity : public EqnProperty {
 public:
-  ForceDensity(PyObject *self, char *, double, double);
+  ForceDensity(std::string&, PyObject*, double, double);
   double fdensity_x();
   double fdensity_y();
 };

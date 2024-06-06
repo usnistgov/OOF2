@@ -30,7 +30,7 @@ class NonconstantHeatSource : public EqnProperty {
 
 class TestNonconstantHeatSource : public NonconstantHeatSource {
 public:
-  TestNonconstantHeatSource(PyObject *reg, char *name, int testno);
+  TestNonconstantHeatSource(std::string &name, PyObject *reg, int testno);
 };
 
 %pythoncode "engine/properties/heatsource/nonconstant/nonconstant_heat_source.spy"

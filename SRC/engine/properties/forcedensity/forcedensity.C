@@ -28,23 +28,12 @@
 #include "forcedensity.h"
 
 
-#if DIM==2
-ForceDensity::ForceDensity(PyObject *reg, const std::string &nm,
+ForceDensity::ForceDensity(const std::string &nm, PyObject *reg, 
 			   double x, double y)
-  : EqnProperty(nm,reg),
+  : EqnProperty(nm, reg),
     gx(x),
     gy(y)
-{
-}
-#elif DIM==3
-ForceDensity::ForceDensity(PyObject *reg, const std::string &nm,
-			   double x, double y, double z)
-  : EqnProperty(nm,reg),
-    gx(x),
-    gy(y),
-    gz(z)
-{
-#endif
+{}
 
 int ForceDensity::integration_order(const CSubProblem*, const Element *el) const
 {
@@ -57,9 +46,6 @@ void ForceDensity::force_value(const FEMesh *mesh, const Element *element,
 {
   eqndata->force_vector_element(0) -= gx;
   eqndata->force_vector_element(1) -= gy;
-#if DIM==3
-  eqndata->force_vector_element(2) -= gz;
-#endif
 }
 
 void ForceDensity::output(FEMesh *mesh,

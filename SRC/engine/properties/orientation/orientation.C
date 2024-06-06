@@ -19,9 +19,9 @@
 #include "engine/properties/orientation/orientation.h"
 #include "engine/symmmatrix.h"
 
-OrientationProp::OrientationProp(PyObject *registry, const std::string &nm,
+OrientationProp::OrientationProp(const std::string &nm, PyObject *registration,
 				 const COrientation *orient)
-  : OrientationPropBase(registry,nm),
+  : OrientationPropBase(nm, registration),
     orient(orient)
 {}
 

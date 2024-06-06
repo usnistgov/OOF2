@@ -19,9 +19,8 @@
 #include "engine/smallsystem.h"
 
 
-CViscoElasticity::CViscoElasticity(PyObject *registration,
-				   const std::string &nm,
-				   Cijkl &g)
+CViscoElasticity::CViscoElasticity(const std::string &nm,
+				   PyObject *registration, Cijkl &g)
   : FluxProperty(nm,registration),
     g_ijkl(g)
 {

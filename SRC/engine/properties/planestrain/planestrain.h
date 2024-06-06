@@ -32,8 +32,7 @@ protected:
   Elasticity *elasticity;
   SymmetricTensorFlux *stress_flux;
 public:
-  PlaneStrain(PyObject *registry,
-	      const std::string &nm, double ezz);
+  PlaneStrain(const std::string &nm, PyObject *registration, double ezz);
   virtual ~PlaneStrain() {}
   virtual void cross_reference(Material*);
   virtual void flux_offset(const FEMesh*, const Element*,

@@ -24,7 +24,7 @@
 class SimpleTension2 : public Property
 {
 public:
-  SimpleTension2(PyObject *self, char *, double, double, double, double);
+  SimpleTension2(std::string&, PyObject *self, double, double, double, double);
 };
 
 %pythoncode "engine/properties/interfaces/surfacetension/simpletension2/simpletension2.spy"

@@ -24,13 +24,15 @@
 
 class IsotropicThermalExpansion : public FluxProperty {
 public:
-  IsotropicThermalExpansion(PyObject *reg, char *name, double alpha, double t0);
+  IsotropicThermalExpansion(std::string &nm, PyObject *reg,
+			    double alpha, double t0);
 };
 
 
 class AnisotropicThermalExpansion : public FluxProperty {
 public:
-  AnisotropicThermalExpansion(PyObject *registry, char *name, SymmMatrix3 *alpha, double t0);
+  AnisotropicThermalExpansion(std::string &nm, PyObject *reg,
+			      SymmMatrix3 *alpha, double t0);
 };
 
 %pythoncode "engine/properties/thermalexpansion/thermalexpansion.spy"

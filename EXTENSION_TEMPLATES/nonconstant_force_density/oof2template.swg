@@ -24,7 +24,8 @@
 
 class %CLASS% : public NonconstantForceDensity {
 public:
-  %CLASS%(PyObject *reg, char *name, double parameter1, double parameter2);
+  %CLASS%(std::string &name, PyObject *reg,
+	  double parameter1, double parameter2);
 };
 
 %pythoncode "%MODULENAME%.spy"

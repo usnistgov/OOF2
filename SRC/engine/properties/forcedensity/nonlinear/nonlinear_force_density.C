@@ -31,8 +31,8 @@
 
 
 NonlinearForceDensityNoDeriv::NonlinearForceDensityNoDeriv(
-						   PyObject *reg,
-						   const std::string &nm)
+						   const std::string &nm,
+						   PyObject *reg)
   : EqnProperty(nm,reg)
 {
   displacement = dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));

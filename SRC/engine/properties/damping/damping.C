@@ -17,8 +17,8 @@
 #include "engine/properties/damping/damping.h"
 #include "engine/smallsystem.h"
 
-IsotropicDampingProp::IsotropicDampingProp(PyObject *registration,
-					   const std::string &name,
+IsotropicDampingProp::IsotropicDampingProp(const std::string &name,
+					   PyObject *registration,
 					   double coeff)
   : EqnProperty(name, registration),
     coeff(coeff)

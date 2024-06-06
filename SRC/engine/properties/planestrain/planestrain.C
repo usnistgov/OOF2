@@ -23,10 +23,9 @@
 #include "engine/properties/planestrain/planestrain.h"
 #include "engine/smallsystem.h"
 
-PlaneStrain::PlaneStrain(PyObject *reg,
-			 const std::string &nm,
-			 double ezz)
-  : FluxProperty(nm, reg), ezz_(ezz)
+PlaneStrain::PlaneStrain(const std::string &nm, PyObject *reg, double ezz)
+  : FluxProperty(nm, reg),
+    ezz_(ezz)
 {
   stress_flux = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
 }

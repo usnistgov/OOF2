@@ -26,8 +26,8 @@ class MasterPosition;
 
 class OrientationPropBase : public AuxiliaryProperty {
 public:
-  OrientationPropBase(PyObject *registry, const std::string &name)
-    : AuxiliaryProperty(name, registry)
+  OrientationPropBase(const std::string &name, PyObject *registration)
+    : AuxiliaryProperty(name, registration)
   {}
   virtual const COrientation *orientation() const = 0;
   virtual const COrientation *orientation(const FEMesh*, const Element*,
@@ -40,7 +40,7 @@ class OrientationProp : public OrientationPropBase {
 private:
   const COrientation *orient;
 public:
-  OrientationProp(PyObject *registry, const std::string &name,
+  OrientationProp(const std::string &name, PyObject *registration, 
 		  const COrientation *orient);
   ~OrientationProp();
   virtual const COrientation *orientation() const { return orient; }

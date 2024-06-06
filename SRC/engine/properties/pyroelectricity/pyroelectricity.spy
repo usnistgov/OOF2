@@ -14,8 +14,6 @@ from ooflib.common.IO import parameter
 from ooflib.engine import problem
 from ooflib.engine import propertyregistration
 
-PropertyRegistration = propertyregistration.PropertyRegistration
-
 # Only one kind of pyroelectricity.
 
 from ooflib.common import enum
@@ -42,7 +40,7 @@ class Constancy (enum.EnumClass('Constant stress','Constant strain')):
 
 ######################################################
 
-reg = PropertyRegistration(
+reg = propertyregistration.PropertyRegistration(
     name='Couplings:PyroElectricity',
     subclass=PyroElectricity,
     ordering=500,

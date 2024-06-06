@@ -24,7 +24,7 @@
 
 class %CLASS% : public NonconstantHeatSource {
 public:
-  %CLASS%(PyObject *reg, char *name, double param1, double param2);
+  %CLASS%(std::string &name, PyObject *reg, double param1, double param2);
 };
 
 %pythoncode "%MODULENAME%.spy"

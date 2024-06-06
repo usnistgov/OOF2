@@ -63,8 +63,7 @@ private:
   mutable DoubleVec effective_modulus;
   mutable bool modulus_ok;
 public:
-  PyroElectricity(PyObject *registry,
-		  const std::string &nm,
+  PyroElectricity(const std::string &nm, PyObject *registration,
 		  double px, double py, double pz, double t0,
 		  std::string *ctype);
   virtual ~PyroElectricity() {}

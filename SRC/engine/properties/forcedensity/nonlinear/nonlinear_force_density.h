@@ -33,13 +33,14 @@ class DoubleVec;
 
 class NonlinearForceDensityNoDeriv : public EqnProperty {
 public:
-  NonlinearForceDensityNoDeriv(PyObject *reg, const std::string &name);
+  NonlinearForceDensityNoDeriv(const std::string &name, PyObject *reg);
   virtual ~NonlinearForceDensityNoDeriv() {}
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return false; }
   virtual void precompute(FEMesh*);
-  virtual void force_value(const FEMesh*, const Element*, const Equation*,
-			   const MasterPosition&, double time, SmallSystem*) const;
+  virtual void force_value(
+		   const FEMesh*, const Element*, const Equation*,
+		   const MasterPosition&, double time, SmallSystem*) const;
 protected:
   TwoVectorField *displacement;
   SymmetricTensorFlux *stress_flux;
@@ -52,8 +53,9 @@ protected:
 
 class NonlinearForceDensity : public NonlinearForceDensityNoDeriv {
 public:
-  NonlinearForceDensity(PyObject *reg, const std::string &name)
-    : NonlinearForceDensityNoDeriv( reg, name ) {};
+  NonlinearForceDensity(const std::string &name, PyObject *reg)
+    : NonlinearForceDensityNoDeriv(name, reg)
+  {}
   virtual ~NonlinearForceDensity() {}
   virtual void force_deriv_matrix(const FEMesh *mesh,
 				  const Element  *element,
@@ -62,7 +64,8 @@ public:
 				  const MasterPosition &point,	double time,
 				  SmallSystem *eqndata) const;
 protected:
-  virtual void nonlin_force_density_deriv(double x, double y, double z, double time,
+  virtual void nonlin_force_density_deriv(double x, double y, double z,
+					  double time,
 					  DoubleVec &displacement,
 					  SmallMatrix &result) const = 0;
 };
@@ -70,10 +73,13 @@ protected:
 
 class TestNonlinearForceDensityNoDeriv : public NonlinearForceDensityNoDeriv {
 public:
-  TestNonlinearForceDensityNoDeriv(PyObject *registry, const std::string &name,
+  TestNonlinearForceDensityNoDeriv(const std::string &name,
+				   PyObject *registration,
 				   int testno)
-    : NonlinearForceDensityNoDeriv( registry, name ), testNo(testno) {};
-  virtual ~TestNonlinearForceDensityNoDeriv() {};
+    : NonlinearForceDensityNoDeriv(name, registration),
+      testNo(testno)
+  {}
+  virtual ~TestNonlinearForceDensityNoDeriv() {}
 protected:
   int testNo;
   virtual void nonlin_force_density(double x, double y, double z, double time,
@@ -84,10 +90,12 @@ protected:
 
 class TestNonlinearForceDensity : public NonlinearForceDensity {
 public:
-  TestNonlinearForceDensity(PyObject *registry, const std::string &name,
+  TestNonlinearForceDensity(const std::string &name, PyObject *registration, 
 			    int testno)
-    : NonlinearForceDensity( registry, name ), testNo(testno) {};
-  virtual ~TestNonlinearForceDensity() {};
+    : NonlinearForceDensity(name, registration),
+      testNo(testno)
+  {}
+  virtual ~TestNonlinearForceDensity() {}
 protected:
   int testNo;
   virtual void nonlin_force_density(double x, double y, double z, double time,

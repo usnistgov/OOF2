@@ -17,8 +17,8 @@
 #include "engine/smallsystem.h"
 
 
-HeatCapacityProp::HeatCapacityProp(PyObject *registration,
-				   const std::string &name,
+HeatCapacityProp::HeatCapacityProp(const std::string &name,
+				   PyObject *registration,
 				   double cv)
   : EqnProperty(name, registration), cv_(cv)
 {}
@@ -27,15 +27,15 @@ void HeatCapacityProp::precompute(FEMesh *mesh) {
   temperature = Field::getField("Temperature");
 }
 
-void HeatCapacityProp::first_time_deriv_matrix(const FEMesh *mesh,
-					       const Element *lmnt,
-					       const Equation *eqn,
-					       const ElementFuncNodeIterator &eni,
-					       const MasterPosition &mpos,
-					       double time,
-					       SmallSystem *eqdata) const
+void HeatCapacityProp::first_time_deriv_matrix(
+				       const FEMesh *mesh,
+				       const Element *lmnt,
+				       const Equation *eqn,
+				       const ElementFuncNodeIterator &eni,
+				       const MasterPosition &mpos,
+				       double time,
+				       SmallSystem *eqdata) const
 {
-
   // Optional -- check that the equation is the right one.
   double shapeFuncVal = eni.shapefunction( mpos );
   for(IndexP eqncomp : *eqn->components()) {

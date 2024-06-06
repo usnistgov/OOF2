@@ -17,8 +17,8 @@ from ooflib.engine.IO import isocijkl
 PropertyRegistration = propertyregistration.PropertyRegistration
 
 class IsoElasticityProp(CIsoElasticityProp):
-    def __init__(self, registration, name, cijkl):
-        CIsoElasticityProp.__init__(self, registration, self, name,
+    def __init__(self, name, registration, cijkl):
+        CIsoElasticityProp.__init__(self, name, registration, self,
                                     cijkl.tensorForm())
 
 # Property class registration code

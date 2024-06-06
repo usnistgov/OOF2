@@ -28,7 +28,7 @@ private:
   double rho_;
   Field *disp;
 public:
-  MassDensityProp(PyObject *, const std::string&, double);
+  MassDensityProp(const std::string&, PyObject *, double);
   virtual ~MassDensityProp() {}
   virtual void precompute(FEMesh*);
   virtual void second_time_deriv_matrix(const FEMesh*,

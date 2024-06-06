@@ -24,8 +24,8 @@ from ooflib.common.IO import parameter
 # Python.
 
 class RambergOsgood(CRambergOsgood):
-    def __init__(self, registration, name, cijkl, alpha, s0, n):
-        CRambergOsgood.__init__(self, registration, self, name,
+    def __init__(self, name, registration, cijkl, alpha, s0, n):
+        CRambergOsgood.__init__(self, name, registration, self,
                                 cijkl.tensorForm(),
                                 alpha, s0, n)
 

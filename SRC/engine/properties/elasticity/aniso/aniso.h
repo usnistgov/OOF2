@@ -27,10 +27,10 @@ class CAnisoElasticity
   : public Elasticity, virtual public PythonNative<Property>
 {
 public:
-  CAnisoElasticity(PyObject *registry, PyObject *self, 
-		  const std::string &nm, const Cijkl &c)
+  CAnisoElasticity(const std::string &nm, PyObject *registration,
+		   PyObject *self, const Cijkl &c)
     :   PythonNative<Property>(self),
-	Elasticity(nm, registry),
+	Elasticity(nm, registration),
 	orientation(0),
 	crystal_cijkl_(c)
   {}

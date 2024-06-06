@@ -20,9 +20,9 @@
 #include "engine/ooferror.h"
 #include "orientationmap/orientmapproperty.h"
 
-OrientationMapProp::OrientationMapProp(PyObject *registry,
-				       const std::string &name)
-  : OrientationPropBase(registry, name)
+OrientationMapProp::OrientationMapProp(const std::string &name,
+				       PyObject *registration)
+  : OrientationPropBase(name, registration)
 {}
 
 OrientationMapProp::~OrientationMapProp() {}

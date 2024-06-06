@@ -25,7 +25,7 @@
 
 class CRambergOsgood : public GeneralNonlinearElasticity {
 public:
-  CRambergOsgood(PyObject *reg, PyObject *self, const std::string &name,
+  CRambergOsgood(const std::string &name, PyObject *reg, PyObject *self,
 		 Cijkl &cijkl, double alpha, double s0, double n);
   ~CRambergOsgood();
 };

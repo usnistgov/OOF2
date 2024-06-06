@@ -37,7 +37,8 @@ class TwoVectorField;
 
 class GeneralNonlinearElasticityNoDeriv : public FluxProperty {
 public:
-  GeneralNonlinearElasticityNoDeriv(PyObject *registry, const std::string &name);
+  GeneralNonlinearElasticityNoDeriv(const std::string &name,
+				    PyObject *registration);
   virtual ~GeneralNonlinearElasticityNoDeriv() {}
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return false; }
@@ -60,8 +61,9 @@ protected:
 
 class GeneralNonlinearElasticity : public GeneralNonlinearElasticityNoDeriv {
 public:
-  GeneralNonlinearElasticity(PyObject *registry, const std::string &name)
-    : GeneralNonlinearElasticityNoDeriv( registry, name ) {};
+  GeneralNonlinearElasticity(const std::string &name, PyObject *registration)
+    : GeneralNonlinearElasticityNoDeriv(name, registration)
+  {};
   virtual ~GeneralNonlinearElasticity() {}
   virtual void flux_matrix(const FEMesh *mesh,
 			   const Element *element,
@@ -91,9 +93,12 @@ protected:
 class TestGeneralNonlinearElasticityNoDeriv : public GeneralNonlinearElasticityNoDeriv {
 
 public:
-  TestGeneralNonlinearElasticityNoDeriv(PyObject *registry,
-					const std::string &name, int testno)
-    : GeneralNonlinearElasticityNoDeriv( registry, name ), testNo(testno) {};
+  TestGeneralNonlinearElasticityNoDeriv(const std::string &name,
+					PyObject *registration,
+					int testno)
+    : GeneralNonlinearElasticityNoDeriv(name, registration),
+      testNo(testno)
+  {};
   virtual ~TestGeneralNonlinearElasticityNoDeriv() {}
 
 protected:
@@ -108,9 +113,12 @@ protected:
 class TestGeneralNonlinearElasticity : public GeneralNonlinearElasticity{
 
 public:
-  TestGeneralNonlinearElasticity(PyObject *registry,
-				 const std::string &name, int testno)
-    : GeneralNonlinearElasticity(registry, name), testNo(testno) {};
+  TestGeneralNonlinearElasticity(const std::string &name,
+				 PyObject *registration,
+				 int testno)
+    : GeneralNonlinearElasticity(name, registration),
+      testNo(testno)
+  {};
   virtual ~TestGeneralNonlinearElasticity() {};
 
 protected:

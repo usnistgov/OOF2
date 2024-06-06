@@ -20,7 +20,7 @@
 #include "engine/sparsemat.h"
 #include "simpletension2.h"
 
-SimpleTension2::SimpleTension2(PyObject *reg, const std::string &nm,
+SimpleTension2::SimpleTension2(const std::string &nm, PyObject *reg, 
 			       double k_left, double T_c_left,
 			       double k_right, double T_c_right)
   : InterfaceProperty(nm,reg),

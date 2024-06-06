@@ -27,9 +27,9 @@ private:
   double parameter1, parameter2;
 
 public:
-  %CLASS%(PyObject *registry, const std::string &name,
+  %CLASS%(const std::string &name, PyObject *registration,
 	  double param1, double param2)
-    : NonlinearHeatConductivity( registry, name ),
+    : NonlinearHeatConductivity(name, registration),
       parameter1(param1),
       parameter2(param2)
   {}

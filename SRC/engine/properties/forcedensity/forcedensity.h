@@ -26,24 +26,14 @@ class SmallSystem;
 class ForceDensity : public EqnProperty {
 private:
   double gx, gy;
-#if DIM==3
-  double gz;
-#endif
 public:
-#if DIM==2
-  ForceDensity(PyObject *reg, const std::string &name, double x, double y);
-#elif DIM==3
-  ForceDensity(PyObject *reg, const std::string &name, double x, double y, double z);
-#endif
+  ForceDensity(const std::string &name, PyObject *reg, double x, double y);
   virtual ~ForceDensity() {}
   virtual void force_value(const FEMesh*, const Element*, const Equation*,
 			   const MasterPosition&, double time, SmallSystem*) const;
   virtual int integration_order(const CSubProblem*, const Element*) const;
   double fdensity_x() const { return gx; }
   double fdensity_y() const { return gy; }
-#if DIM==3
-  double fdensity_z() const { return gz; }
-#endif
 
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);

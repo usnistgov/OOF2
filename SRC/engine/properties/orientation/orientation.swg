@@ -41,7 +41,7 @@ class OrientationPropBase : public AuxiliaryProperty {};
 
 class OrientationProp : public OrientationPropBase {
 public:
-  OrientationProp(PyObject *registry, char *name, COrientation *orient);
+  OrientationProp(std::string &name, PyObject *reg, COrientation *orient);
   const COrientation *orientation();
 };
 

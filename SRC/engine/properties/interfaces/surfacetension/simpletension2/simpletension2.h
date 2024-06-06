@@ -22,7 +22,7 @@ class SimpleTension2 : public InterfaceProperty
 private:
   double _k_left, _T_c_left, _k_right, _T_c_right;
 public:
-  SimpleTension2(PyObject *reg, const std::string &name,
+  SimpleTension2(const std::string &name, PyObject *reg, 
 		 double k_left, double T_c_left,
 		 double k_right, double T_c_right);
   virtual ~SimpleTension2() {}

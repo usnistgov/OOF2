@@ -26,9 +26,9 @@
 #include "common/ooferror.h"
 
 
-NonconstantForceDensity::NonconstantForceDensity(PyObject *reg,
-						 const std::string &nm)
-  : EqnProperty(nm,reg)
+NonconstantForceDensity::NonconstantForceDensity(const std::string &nm,
+						 PyObject *reg)
+  : EqnProperty(nm, reg)
 {
   displacement = dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));
   stress_flux  = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));

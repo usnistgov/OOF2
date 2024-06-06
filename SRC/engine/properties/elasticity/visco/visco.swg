@@ -27,7 +27,7 @@
 
 class CViscoElasticity : public FluxProperty {
 public:
-  CViscoElasticity(PyObject *, const std::string&, Cijkl&);
+  CViscoElasticity(const std::string&, PyObject*, Cijkl&);
   ~CViscoElasticity();
 };
 

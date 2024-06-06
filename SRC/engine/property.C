@@ -57,6 +57,18 @@ Property::Property(const std::string &nm, PyObject *registration)
   classname_ = getPyStringData(psub, "__name__");
   Py_XDECREF(psub);
   Py_INCREF(registration_);
+#ifdef DEBUG
+  static PyObject *propregclass = nullptr;
+  if(!propregclass) {
+    PyObject *mod = PyImport_ImportModule("ooflib.engine.propertyregistration");
+    assert(mod != nullptr);
+    propregclass = PyObject_GetAttrString(mod, "PropertyRegistration");
+    assert(propregclass != nullptr);
+    Py_XDECREF(mod);
+    Py_XINCREF(propregclass);
+  }
+  assert(PyObject_IsInstance(registration, propregclass));
+#endif // DEBUG
 }
 
 Property::~Property()

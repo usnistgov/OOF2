@@ -32,7 +32,7 @@ class DoubleVec;
 
 class NonconstantForceDensity : public EqnProperty {
 public:
-  NonconstantForceDensity(PyObject *reg, const std::string &name);
+  NonconstantForceDensity(const std::string &name, PyObject *reg);
   virtual ~NonconstantForceDensity() {}
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return false; }
@@ -64,9 +64,12 @@ protected:
   virtual void nonconst_force_density(double x, double y, double z, double time,
 				      DoubleVec &result) const;
 public:
-  TestNonconstantForceDensity(PyObject *registry, const std::string &name, int testno)
-    : NonconstantForceDensity( registry, name ), testNo(testno) {};
-  virtual ~TestNonconstantForceDensity() {};
+  TestNonconstantForceDensity(const std::string &name, PyObject *registration,
+			      int testno)
+    : NonconstantForceDensity(name, registration),
+      testNo(testno)
+  {}
+  virtual ~TestNonconstantForceDensity() {}
 };
 
 #endif

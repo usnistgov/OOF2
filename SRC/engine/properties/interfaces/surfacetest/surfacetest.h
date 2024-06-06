@@ -24,8 +24,7 @@ class ForceSurfaceTest : public EqnProperty {
 private:
   double coef;
 public:
-  ForceSurfaceTest(PyObject *reg, const std::string &name,
-	      double coef);
+  ForceSurfaceTest(const std::string &name, PyObject *reg, double coef);
   virtual ~ForceSurfaceTest() {}
   virtual int integration_order(const CSubProblem*, const Element*) const;
   virtual void begin_element(const CSubProblem*, const Element*);
@@ -55,8 +54,7 @@ class FluxSurfaceTest : public FluxProperty
 private:
   double coef;
 public:
-  FluxSurfaceTest(PyObject *reg, const std::string &name,
-		  double coef);
+  FluxSurfaceTest(const std::string &name, PyObject *reg, double coef);
   virtual ~FluxSurfaceTest() {}
   virtual int integration_order(const CSubProblem*, const Element*) const;
   virtual void begin_element(const CSubProblem*, const Element*);

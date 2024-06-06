@@ -21,11 +21,11 @@
 // mu0 + alpha*(T-t0), i.e. varies with slope alpha relative to 
 // reference temperature t0.  In principle, could be arbitrarily
 // complex, of course.
-ThermoElasticityProp::ThermoElasticityProp(PyObject *registry,
-					   const std::string &nm, 
+ThermoElasticityProp::ThermoElasticityProp(const std::string &nm,
+					   PyObject *registration,
 					   Cijkl &cijkl,
 					   double t0, double alpha)
-  : Elasticity(nm, registry),
+  : Elasticity(nm, registration),
     cijkl_(cijkl),
     tzero_(t0),
     dmudt_(alpha)

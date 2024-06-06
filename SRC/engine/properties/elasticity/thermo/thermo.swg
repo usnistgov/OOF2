@@ -25,7 +25,7 @@
 
 class ThermoElasticityProp : public Elasticity {
 public:
-  ThermoElasticityProp(PyObject *, char *, Cijkl &cijkl,
+  ThermoElasticityProp(std::string&, PyObject*, Cijkl &cijkl,
 		       double t0, double dmudt);
 };
 

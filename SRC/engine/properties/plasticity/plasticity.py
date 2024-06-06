@@ -36,12 +36,12 @@ Stress = problem.Stress
 
 
 class TestPlasticityProp(pypropertywrapper.PyFluxProperty):
-    def __init__(self, registration, name, yield_stress):
+    def __init__(self, name, registration, yield_stress):
         self.name_ = name
         self.elasticity = None
         self.current_el_data=None
         self.yield_stress = yield_stress
-        pypropertywrapper.PyFluxProperty.__init__(self, registration, name)
+        pypropertywrapper.PyFluxProperty.__init__(self, name, registration)
 
     def order(self, function_order):
         return function_order+1

@@ -24,12 +24,12 @@
 
 class IsotropicStressFreeStrain : public FluxProperty {
 public:
-  IsotropicStressFreeStrain(PyObject *reg, char *name, double e);
+  IsotropicStressFreeStrain(std::string &name, PyObject *reg, double e);
 };
 
 class AnisotropicStressFreeStrain : public FluxProperty {
 public:
-  AnisotropicStressFreeStrain(PyObject *reg, char *name, SymmMatrix3 *e);
+  AnisotropicStressFreeStrain(std::string &name, PyObject *reg, SymmMatrix3 *e);
 };
 
 %pythoncode "engine/properties/stressfreestrain/stressfreestrain.spy"

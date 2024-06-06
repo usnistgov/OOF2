@@ -34,12 +34,12 @@
 
 // TODO: Use an enum for coefficient_type, instead of a string.
 
-PyroElectricity::PyroElectricity(PyObject *reg,
-				 const std::string &nm,
+PyroElectricity::PyroElectricity(const std::string &nm,
+				 PyObject *reg,
 				 double px, double py, double pz,
 				 double t0,
 				 std::string *ctype)
-  : FluxProperty(nm,reg), elasticity(0), piezoelectricity(0),
+  : FluxProperty(nm, reg), elasticity(0), piezoelectricity(0),
     thermalexpansion(0), orientation(0), modulus(3),
     lab_modulus(3), tzero(t0), coefficient_type(*ctype),
     effective_modulus(0), modulus_ok(false)

@@ -43,7 +43,7 @@ private:
   SymmetricTensorFlux *stress_flux;
   SymmMatrix3 shapetensor(const Element*) const;
 public:
-  SkeletonRelaxationRate(PyObject *registry, const std::string &nm,
+  SkeletonRelaxationRate( const std::string &nm, PyObject *registration,
 		       double gamma, double alpha);
   virtual ~SkeletonRelaxationRate() {}
   virtual void cross_reference(Material*);

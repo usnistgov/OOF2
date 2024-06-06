@@ -23,7 +23,7 @@ class OrientationPropBase;
 class CLargeStrainElasticity : public Elasticity
 {
 public:
-  CLargeStrainElasticity(PyObject *registry, const std::string &name);
+  CLargeStrainElasticity(const std::string &name, PyObject *registration);
   virtual ~CLargeStrainElasticity() {}
   virtual void flux_matrix(const FEMesh *mesh,
 			   const Element *element,
@@ -43,8 +43,9 @@ class CIsoLargeStrainElasticity
 private:
   Cijkl c_ijkl;
 public:
-  CIsoLargeStrainElasticity(PyObject *registry, PyObject *self,
-			    const std::string &name, const Cijkl &c);
+  CIsoLargeStrainElasticity(const std::string &name,
+			    PyObject *registration, PyObject *self,
+			    const Cijkl &c);
   virtual ~CIsoLargeStrainElasticity() {}
   virtual const Cijkl cijkl(const FEMesh*, const Element*,
 			    const MasterPosition&) const
@@ -63,8 +64,9 @@ private:
   Cijkl crystal_cijkl_;
   Cijkl lab_cijkl;
 public:
-  CAnisoLargeStrainElasticity(PyObject *registry, PyObject *self,
-			      const std::string &nm, const Cijkl &c);
+  CAnisoLargeStrainElasticity(const std::string &nm,
+			      PyObject *registration, PyObject *self,
+			      const Cijkl &c);
   virtual ~CAnisoLargeStrainElasticity() {}
   virtual const Cijkl cijkl(const FEMesh*, const Element*,
 			    const MasterPosition&) const;

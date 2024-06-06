@@ -33,12 +33,12 @@ class NonlinearForceDensity : public NonlinearForceDensityNoDeriv {
 
 class TestNonlinearForceDensityNoDeriv : public NonlinearForceDensityNoDeriv {
 public:
-  TestNonlinearForceDensityNoDeriv(PyObject *reg, char *name, int testno);
+  TestNonlinearForceDensityNoDeriv(std::string&, PyObject*, int testno);
 };
 
 class TestNonlinearForceDensity : public NonlinearForceDensity {
 public:
-  TestNonlinearForceDensity(PyObject *reg, char *name, int testno);
+  TestNonlinearForceDensity(std::string&, PyObject*, int testno);
 };
 
 %pythoncode "engine/properties/forcedensity/nonlinear/nonlinear_force_density.spy"

@@ -45,8 +45,7 @@ protected:
   VectorFlux *total_polarization;
   Rank3Tensor _dijkLab; //lab reference system piezoelectric tensor
 public:
-  PiezoElectricity(PyObject *registry,
-		   const std::string &nm);
+  PiezoElectricity(const std::string &nm, PyObject *registration);
   virtual ~PiezoElectricity() {}
   virtual void cross_reference(Material*) = 0;
 
@@ -74,8 +73,7 @@ public:
 
 class IsotropicPiezoElectricity: public PiezoElectricity {
 public:
-  IsotropicPiezoElectricity(PyObject *registry,
-			    const std::string &name,
+  IsotropicPiezoElectricity(const std::string &name, PyObject *registration,
 			    double d);
   virtual void cross_reference(Material*);
   virtual void precompute(FEMesh*);
@@ -93,8 +91,7 @@ private:
 
 class AnisotropicPiezoElectricity: public PiezoElectricity {
 public:
-  AnisotropicPiezoElectricity(PyObject *registry,
-			      const std::string &nm,
+  AnisotropicPiezoElectricity(const std::string &nm, PyObject *registration,
 			      Rank3Tensor *piezoTensor);
   virtual void cross_reference(Material*); // finds Orientation
   virtual void precompute(FEMesh*);

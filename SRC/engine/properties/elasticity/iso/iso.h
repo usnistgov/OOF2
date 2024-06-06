@@ -26,8 +26,8 @@ class CIsoElasticityProp
 private:
   Cijkl c_ijkl;
 public:
-  CIsoElasticityProp(PyObject *registry, PyObject *self,
-		     const std::string &name, const Cijkl &c);
+  CIsoElasticityProp(const std::string &name, PyObject *registration,
+		     PyObject *self, const Cijkl &c);
   virtual ~CIsoElasticityProp() {}
 protected:
   virtual const Cijkl cijkl(const FEMesh*, const Element*, 

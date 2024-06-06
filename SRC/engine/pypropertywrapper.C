@@ -331,8 +331,9 @@ int PyPhysicalPropertyMethods::py_integration_order(
 // object and so forth.  Because of this, we probably don't have to 
 // do indirection on the repr's.
 
-PyFluxProperty::PyFluxProperty(PyObject *referent, PyObject *regstn,
-			       const std::string &name)
+PyFluxProperty::PyFluxProperty(const std::string &name,
+			       PyObject *regstn,
+			       PyObject *referent)
   : PythonNative<Property>(referent),
     FluxProperty(name, regstn),
     PyPropertyMethods(referent)
@@ -547,8 +548,9 @@ void PyFluxProperty::flux_offset(const FEMesh *mesh, const Element *el,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-PyEqnProperty::PyEqnProperty(PyObject *referent, PyObject *regstn,
-			     const std::string &name)
+PyEqnProperty::PyEqnProperty(const std::string &name,
+			     PyObject *regstn,
+			     PyObject *referent)
   : PythonNative<Property>(referent),
     EqnProperty(name, regstn),
     PyPropertyMethods(referent)
@@ -772,8 +774,8 @@ void PyEqnProperty::second_time_deriv_matrix(
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-PyAuxProperty::PyAuxProperty(PyObject *referent, PyObject *regstn,
-			     const std::string &name)
+PyAuxProperty::PyAuxProperty(const std::string &name,
+			     PyObject *regstn, PyObject *referent)
   : PythonNative<Property>(referent),
     AuxiliaryProperty(name, regstn),
     PyPropertyMethods(referent)

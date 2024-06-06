@@ -34,12 +34,13 @@ class NonlinearHeatConductivity : public NonlinearHeatConductivityNoDeriv {
 
 class TestNonlinearHeatConductivityNoDeriv : public NonlinearHeatConductivityNoDeriv {
 public:
-  TestNonlinearHeatConductivityNoDeriv(PyObject *reg, char *name, int testno);
+  TestNonlinearHeatConductivityNoDeriv(std::string &name, PyObject *reg,
+				       int testno);
 };
 
 class TestNonlinearHeatConductivity : public NonlinearHeatConductivity {
 public:
-  TestNonlinearHeatConductivity(PyObject *reg, char *name, int testno);
+  TestNonlinearHeatConductivity(std::string &name, PyObject *reg, int testno);
 };
 
 %pythoncode "engine/properties/heatconductivity/nonlinear/nonlinear_heat_conductivity.spy"

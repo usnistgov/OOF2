@@ -28,7 +28,7 @@ class NonconstantForceDensity : public EqnProperty {
 
 class TestNonconstantForceDensity : public NonconstantForceDensity {
 public:
-  TestNonconstantForceDensity(PyObject *reg, char *name, int testno);
+  TestNonconstantForceDensity(std::string &name, PyObject *reg, int testno);
 };
 
 %pythoncode "engine/properties/forcedensity/nonconstant/nonconstant_force_density.spy"

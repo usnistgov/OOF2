@@ -23,7 +23,7 @@
 
 class PlaneStrain : public FluxProperty {
 public:
-  PlaneStrain(PyObject *reg, char *name, double e);
+  PlaneStrain(std::string &name, PyObject *reg, double e);
 };
 
 %pythoncode "engine/properties/planestrain/planestrain.spy"

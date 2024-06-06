@@ -34,12 +34,12 @@ class NonlinearHeatSource : public NonlinearHeatSourceNoDeriv {
 
 class TestNonlinearHeatSourceNoDeriv : public NonlinearHeatSourceNoDeriv {
 public:
-  TestNonlinearHeatSourceNoDeriv(PyObject *reg, char *name, int testno);
+  TestNonlinearHeatSourceNoDeriv(std::string &name, PyObject *reg, int testno);
 };
 
 class TestNonlinearHeatSource : public NonlinearHeatSource {
 public:
-  TestNonlinearHeatSource(PyObject *reg, char *name, int testno);
+  TestNonlinearHeatSource(std::string &name, PyObject *reg, int testno);
 };
 
 %pythoncode "engine/properties/heatsource/nonlinear/nonlinear_heat_source.spy"

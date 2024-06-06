@@ -35,7 +35,7 @@ class VectorFlux;
 
 class DielectricPermittivity : public FluxProperty {
 public:
-  DielectricPermittivity(PyObject *registry, const std::string &name);
+  DielectricPermittivity(const std::string &name, PyObject *registration);
   virtual void flux_matrix(const FEMesh*, const Element*,
 			   const ElementFuncNodeIterator&,
 			   const Flux*,
@@ -59,8 +59,8 @@ protected:
 
 class IsoDielectricPermittivity : public DielectricPermittivity {
 public:
-  IsoDielectricPermittivity(PyObject *registry,
-		      const std::string &name, double epsilon);
+  IsoDielectricPermittivity(const std::string &name, PyObject *registration,
+			    double epsilon);
   virtual void cross_reference(Material*) {}
   virtual void precompute(FEMesh*);
   virtual const SymmMatrix3 permittivityTensor(const FEMesh *mesh,
@@ -77,9 +77,8 @@ private:
 
 class AnisoDielectricPermittivity : public DielectricPermittivity {
 public:
-  AnisoDielectricPermittivity(PyObject *registry,
-			    const std::string &name,
-			    SymmMatrix3 *epsilon);
+  AnisoDielectricPermittivity(const std::string &name, PyObject *registration,
+			      SymmMatrix3 *epsilon);
   virtual void cross_reference(Material*); // finds Orientation
   virtual void precompute(FEMesh*);
   virtual const SymmMatrix3 permittivityTensor(const FEMesh *mesh,
@@ -101,7 +100,7 @@ private:
   double q_;
   VectorFlux *total_polarization;
 public:
-  ChargeDensity(PyObject *registry, const std::string &name, double qd);
+  ChargeDensity(const std::string &name, PyObject *registration, double qd);
   double rho() { return q_; }
   virtual int integration_order(const CSubProblem*, const Element*) const;
   virtual void force_value(const FEMesh*, const Element*,

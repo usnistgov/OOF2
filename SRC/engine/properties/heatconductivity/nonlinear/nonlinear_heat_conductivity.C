@@ -32,8 +32,9 @@
 
 
 NonlinearHeatConductivityNoDeriv::NonlinearHeatConductivityNoDeriv(
-				     PyObject *reg, const std::string &nm)
-  : FluxProperty(nm,reg)
+						   const std::string &nm,
+						   PyObject *reg)
+  : FluxProperty(nm, reg)
 {
   temperature = dynamic_cast<ScalarField*>(Field::getField("Temperature"));
   heat_flux = dynamic_cast<VectorFlux*>(Flux::getFlux("Heat_Flux"));

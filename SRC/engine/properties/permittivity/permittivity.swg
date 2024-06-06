@@ -24,17 +24,17 @@
 
 class IsoDielectricPermittivity : public FluxProperty {
 public:
-  IsoDielectricPermittivity(PyObject *reg, char *name, double epsilon);
+  IsoDielectricPermittivity(std::string &name, PyObject *reg, double epsilon);
 };
 
 class AnisoDielectricPermittivity : public FluxProperty {
 public:
-  AnisoDielectricPermittivity(PyObject *reg, char *name, SymmMatrix3 *k);
+  AnisoDielectricPermittivity(std::string &name, PyObject *reg, SymmMatrix3 *k);
 };
 
 class ChargeDensity : public EqnProperty {
 public:
-  ChargeDensity(PyObject *reg, char *name, double qdot);
+  ChargeDensity(std::string &name, PyObject *reg, double qdot);
   double rho();
 };
 

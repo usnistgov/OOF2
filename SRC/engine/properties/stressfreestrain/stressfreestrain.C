@@ -23,8 +23,7 @@
 #include "engine/properties/stressfreestrain/stressfreestrain.h"
 #include "engine/smallsystem.h"
 
-StressFreeStrain::StressFreeStrain(PyObject *reg,
-			 const std::string &nm)
+StressFreeStrain::StressFreeStrain(const std::string &nm, PyObject *reg)
   : FluxProperty(nm, reg)
 {
   stress_flux = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
@@ -61,10 +60,10 @@ void StressFreeStrain::flux_offset(const FEMesh *mesh, const Element *element,
   }
 }
 
-IsotropicStressFreeStrain::IsotropicStressFreeStrain(PyObject *registry,
-						     const std::string &name,
+IsotropicStressFreeStrain::IsotropicStressFreeStrain(const std::string &name,
+						     PyObject *registration,
 						     double e)
-  : StressFreeStrain(registry, name),
+  : StressFreeStrain(name, registration),
     e_(e)
 {}
 
@@ -83,10 +82,11 @@ void IsotropicStressFreeStrain::precompute(FEMesh *mesh) {
   stressfreestrain_(0,0) = stressfreestrain_(1,1) = stressfreestrain_(2,2) = e_;
 }
 
-AnisotropicStressFreeStrain::AnisotropicStressFreeStrain(PyObject *registry,
-					       const std::string &name,
-					       SymmMatrix3 *e)
-  : StressFreeStrain(registry, name),
+AnisotropicStressFreeStrain::AnisotropicStressFreeStrain(
+						 const std::string &name,
+						 PyObject *registration,
+						 SymmMatrix3 *e)
+  : StressFreeStrain(name, registration),
     e_(*e),
     orientation(0)
 {}

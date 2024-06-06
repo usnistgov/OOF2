@@ -24,14 +24,14 @@
 class ForceSurfaceTest : public Property
 {
 public:
-  ForceSurfaceTest(PyObject *self, char *, double);
+  ForceSurfaceTest(std::string&, PyObject *self, double);
 };
 
 
 class FluxSurfaceTest : public Property
 {
 public:
-  FluxSurfaceTest(PyObject *self, char*, double);
+  FluxSurfaceTest(std::string&, PyObject *self, double);
 };
 
 %pythoncode "engine/properties/interfaces/surfacetest/surfacetest.spy"

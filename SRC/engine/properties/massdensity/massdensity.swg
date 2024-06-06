@@ -23,7 +23,7 @@
 
 class MassDensityProp : public EqnProperty {
 public:
-  MassDensityProp(PyObject *self, char *, double);
+  MassDensityProp(std::string&, PyObject *self, double);
 };
 
 %pythoncode "engine/properties/massdensity/massdensity.spy"

@@ -19,11 +19,11 @@
 #include "engine/material.h"
 #include "engine/smallsystem.h"
 
-ForceSurfaceTest::ForceSurfaceTest(PyObject *reg, const std::string &nm,
-			     double coef)
-  : EqnProperty(nm,reg),coef(coef)
-{
-}
+ForceSurfaceTest::ForceSurfaceTest(const std::string &nm, PyObject *reg,
+				   double coef)
+  : EqnProperty(nm,reg),
+    coef(coef)
+{}
 
 int ForceSurfaceTest::integration_order(const CSubProblem*, 
 				     const Element *el) const
@@ -80,9 +80,11 @@ void ForceSurfaceTest::force_deriv_matrix(const FEMesh *mesh,
 
 
 
-FluxSurfaceTest::FluxSurfaceTest(PyObject *reg, const std::string &nm,
+FluxSurfaceTest::FluxSurfaceTest(const std::string &nm, PyObject *reg,
 				 double coef) :
-  FluxProperty(nm,reg),coef(coef) {}
+  FluxProperty(nm,reg),
+  coef(coef)
+{}
 
 int FluxSurfaceTest::integration_order(const CSubProblem* s,
 				       const Element *el) const {

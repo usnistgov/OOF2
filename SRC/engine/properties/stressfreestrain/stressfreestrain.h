@@ -33,8 +33,7 @@ protected:
   SymmetricTensorFlux *stress_flux;
   SymmMatrix3 stressfreestrain_;
 public:
-  StressFreeStrain(PyObject *registry,
-	      const std::string &nm);
+  StressFreeStrain(const std::string &nm, PyObject *registration);
   virtual ~StressFreeStrain() {}
   virtual void cross_reference(Material*) = 0;
   virtual const SymmMatrix3 stressfreestrain(const FEMesh*, const Element*,
@@ -52,9 +51,8 @@ public:
 
 class IsotropicStressFreeStrain: public StressFreeStrain {
 public:
-  IsotropicStressFreeStrain(PyObject *registry,
-		       const std::string &name,
-		       double e);
+  IsotropicStressFreeStrain(const std::string &name, PyObject *registration,
+			    double e);
   virtual void cross_reference(Material*);
   virtual void precompute(FEMesh*);
   virtual const SymmMatrix3 stressfreestrain(const FEMesh*, const Element*,
@@ -70,9 +68,8 @@ private:
 
 class AnisotropicStressFreeStrain: public StressFreeStrain {
 public:
-  AnisotropicStressFreeStrain(PyObject *registry,
-			 const std::string &nm,
-			 SymmMatrix3 *e);
+  AnisotropicStressFreeStrain(const std::string &nm, PyObject *registration,
+			      SymmMatrix3 *e);
   virtual void cross_reference(Material*);
   virtual void precompute(FEMesh*);
   virtual const SymmMatrix3 stressfreestrain(const FEMesh*, const Element*,

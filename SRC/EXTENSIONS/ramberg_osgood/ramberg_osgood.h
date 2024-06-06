@@ -33,9 +33,10 @@ private:
   double n;
 
 public:
-  CRambergOsgood(PyObject *registry, PyObject *self, const std::string &name,
+  CRambergOsgood(const std::string &name, PyObject *registration,
+		 PyObject *self, 
 		const Cijkl &cijkl, double alpha, double s0, double n)
-    : GeneralNonlinearElasticity(registry, name),
+    : GeneralNonlinearElasticity(name, registration),
       PythonNative<Property>(self),
       cijkl(cijkl),
       alpha(alpha),

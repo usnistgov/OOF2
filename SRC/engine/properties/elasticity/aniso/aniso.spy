@@ -20,8 +20,8 @@ from ooflib.engine.IO import anisocijkl
 PropertyRegistration = propertyregistration.PropertyRegistration
 
 class AnisoElasticity(CAnisoElasticity):
-    def __init__(self, registration, name, cijkl):
-        CAnisoElasticity.__init__(self, registration, self, name,
+    def __init__(self, name, registration, cijkl):
+        CAnisoElasticity.__init__(self, name, registration, self,
                                   cijkl.tensorForm())
 
 

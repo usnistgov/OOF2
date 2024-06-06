@@ -22,7 +22,7 @@
 
 class ColorProp : public AuxiliaryProperty {
 public:
-  ColorProp(PyObject *self, char *name, CColor *cv);
+  ColorProp(std::string &name, PyObject *registration, CColor *cv);
   CColor color();
 };
 

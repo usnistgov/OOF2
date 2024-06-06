@@ -26,7 +26,7 @@ private:
   double tzero_;   // Temperature at which mu is unchanged.
   double dmudt_;   // Change in mu per unit change in T.
 public:
-  ThermoElasticityProp(PyObject *registry, const std::string &name, 
+  ThermoElasticityProp(const std::string &name, PyObject *registration, 
 		       Cijkl &c, double tzero, double dmudt);
   virtual ~ThermoElasticityProp() {}
   const Cijkl cijkl(const FEMesh*, const Element*, const MasterPosition&) const;

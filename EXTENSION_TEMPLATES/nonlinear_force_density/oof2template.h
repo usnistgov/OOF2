@@ -24,11 +24,13 @@ private:
   double parameter1, parameter2;
 
 public:
-  %CLASS%(PyObject *registry, const std::string &name,
+  %CLASS%(const std::string &name, PyObject *registration,
 	  double param1, double param2)
-    : NonlinearForceDensity( registry, name ),
-      parameter1( param1 ), parameter2( param2 ) {};
-  virtual ~%CLASS%() {};
+    : NonlinearForceDensity(name, registration),
+      parameter1(param1),
+      parameter2(param2)
+    {}
+  virtual ~%CLASS%() {}
 
 protected:
 

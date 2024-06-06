@@ -23,7 +23,7 @@
 
 class IsotropicDampingProp : public EqnProperty {
 public:
-  IsotropicDampingProp(PyObject*, char*, double);
+  IsotropicDampingProp(std::string&, PyObject*, double);
 };
 
 %pythoncode "engine/properties/damping/damping.spy"
