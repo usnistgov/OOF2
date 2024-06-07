@@ -55,16 +55,17 @@ protected:
   PyObject *referent_;		// pointer to the actual Python Property object
 };
 
-class PyPhysicalPropertyMethods {
+class PyPhysicalPropertyMethods : public PyPropertyMethods {
 public:
-  virtual int py_integration_order(
-		   PyObject*, const CSubProblem*, const Element*) const;
+  PyPhysicalPropertyMethods(PyObject *referent)
+    : PyPropertyMethods(referent)
+  {}
+  virtual int py_integration_order(const CSubProblem*, const Element*) const;
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 class PyFluxProperty : public FluxProperty,
-		       public PyPropertyMethods, 
 		       public PyPhysicalPropertyMethods,
 		       virtual public PythonNative<Property>
 {
@@ -114,7 +115,7 @@ public:
     PyPropertyMethods::py_output(m, e, po, p, ov);
   }
   virtual int integration_order(const CSubProblem *sb, const Element *e) const {
-    return PyPhysicalPropertyMethods::py_integration_order(referent_, sb, e);
+    return PyPhysicalPropertyMethods::py_integration_order(sb, e);
   }
   bool is_symmetric_K(const CSubProblem *sb) const {
     return PyPropertyMethods::is_symmetric_K(sb);
@@ -130,7 +131,6 @@ public:
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 class PyEqnProperty : public EqnProperty,
-		      public PyPropertyMethods,
 		      public PyPhysicalPropertyMethods,
 		      virtual public PythonNative<Property>
 {
@@ -184,7 +184,7 @@ public:
     PyPropertyMethods::py_output(m, e, po, p, ov);
   }
   virtual int integration_order(const CSubProblem *sb, const Element *e) const {
-    return PyPhysicalPropertyMethods::py_integration_order(referent_, sb, e);
+    return PyPhysicalPropertyMethods::py_integration_order(sb, e);
   }
   bool is_symmetric_K(const CSubProblem *sb) const {
     return PyPropertyMethods::is_symmetric_K(sb);

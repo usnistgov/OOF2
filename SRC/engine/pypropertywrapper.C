@@ -295,21 +295,19 @@ bool PyPropertyMethods::is_symmetric_M(const CSubProblem *subp) const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-int PyPhysicalPropertyMethods::py_integration_order(
-					    PyObject *referent,
-					    const CSubProblem *subp, 
-					    const Element *el)
+int PyPhysicalPropertyMethods::py_integration_order(const CSubProblem *subp, 
+						    const Element *el)
   const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
-  if(!PyObject_HasAttrString(referent, "integration_order")) {
+  if(!PyObject_HasAttrString(referent_, "integration_order")) {
     throw ErrUserError("integration_order method is missing from Property " 
 		       + dynamic_cast<const Property*>(this)->name());
   }
   PyObject *method = PyUnicode_FromString("integration_order");
   PyObject *subpp = NEWSWIGPTR(subp, "CSubProblem");
   PyObject *elp = NEWSWIGPTR(el, "Element");
-  PyObject *result = PyObject_CallMethodObjArgs(referent, method, subpp, elp,
+  PyObject *result = PyObject_CallMethodObjArgs(referent_, method, subpp, elp,
 						NULL);
   Py_XDECREF(method);
   Py_XDECREF(subpp);
@@ -336,7 +334,7 @@ PyFluxProperty::PyFluxProperty(const std::string &name,
 			       PyObject *referent)
   : PythonNative<Property>(referent),
     FluxProperty(name, regstn),
-    PyPropertyMethods(referent)
+    PyPhysicalPropertyMethods(referent)
 {}
 
 PyFluxProperty::~PyFluxProperty() {}
@@ -553,7 +551,7 @@ PyEqnProperty::PyEqnProperty(const std::string &name,
 			     PyObject *referent)
   : PythonNative<Property>(referent),
     EqnProperty(name, regstn),
-    PyPropertyMethods(referent)
+    PyPhysicalPropertyMethods(referent)
 {}
 
 PyEqnProperty::~PyEqnProperty() {}
