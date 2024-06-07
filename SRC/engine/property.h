@@ -192,7 +192,11 @@ public:
 		      const MasterPosition&, OutputVal*)
     { return; }
 
-  // TODO: Can these be moved to PhysicalProperty?
+  // TODO?  These belong more naturally in PhysicalProperty, but
+  // putting them there breaks the is_symmetric_X methods defined in
+  // material.spy.  Those methods loop over all Properties, including
+  // AuxiliaryProperties.  One could argue that AuxiliaryProperties
+  // *are* symmetric, since they don't actually affect the matrices.
   virtual bool is_symmetric_K(const CSubProblem*) const;
   virtual bool is_symmetric_C(const CSubProblem*) const;
   virtual bool is_symmetric_M(const CSubProblem*) const;
