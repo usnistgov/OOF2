@@ -52,36 +52,89 @@ void findGeometricStrain(const FEMesh *mesh, const Element *element,
   }
 } // end of 'findGeometricStrain'
 
+
+void findGeometricStrainRate(const FEMesh *mesh, const Element *element,
+			     const MasterPosition &pos, SymmMatrix3 *straindot,
+			     bool nonlinear)
+{
+  SmallMatrix dU(3); // dU(i,j) = d(du_i/dx_j)/dt
+  computeDisplacementGradientRate(mesh, element, pos, dU);
+  for(SymTensorIndex ij : symTensorIJComponents) {
+    int i = ij.row();
+    int j = ij.col();
+    (*straindot)[ij] += 0.5 * (dU(i,j) + dU(j,i));
+  }
+  if(nonlinear) {
+    for(SymTensorIndex ij : symTensorIJComponents) {
+      int i = ij.row();
+      int j = ij.col();
+      (*straindot)[ij] +=
+	0.5*(dU(0,i)*dU(0,j) + dU(1,i)*dU(1,j) + dU(2,i)*dU(2,j));
+    }
+  }
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // TODO: Create a non-symmetric 3x3 tensor OutputValue class and
 // return it from this function, instead of passing in a SmallMatrix.
+// Or just return a SmallMatrix.
+
+// TODO: Using the Output machinery for this feels wrong.  The
+// versions of Field::value() that interpolate within a Element would
+// be more natural, but perhaps slower.  The Output machinery does all
+// the interpolation for all field components at once, whereas
+// Field::value would have to be called for each component
+// individually.
+
+static void computeFieldGradient(const FEMesh *mesh, const Element *element,
+				 const MasterPosition &pt, const Field *field,
+				 Field *oop, SmallMatrix &grad)
+{
+
+  assert(grad.rows() == 3 && grad.cols() == 3);
+  
+  for(SpaceIndex j=0; j<DIM; ++j) { // loop over gradient components
+    ArithmeticOutputValue oddisp =
+      element->outputFieldDeriv(mesh, *field, &j, pt);
+    // loop over field components
+    for(IndexP i : *field->components(ALL_INDICES)) 
+      grad(i.integer(), j) += oddisp[i];
+  }
+
+  if(oop) {
+    ArithmeticOutputValue oddispz = element->outputField(mesh, *oop, pt);
+    for(IndexP i : *oop->components(ALL_INDICES))
+      grad(i.integer(), 2) += oddispz[i]; 
+  }
+}
 
 void computeDisplacementGradient(const FEMesh *mesh, const Element *element,
-				 const MasterPosition &pt,
-				 SmallMatrix &grad)
+				 const MasterPosition &pt, SmallMatrix &grad)
 {
   // compute the matrix dU(i,j) = d/dx_j (u_i)
 
   static CompoundField *displacement =
     dynamic_cast<CompoundField*>(Field::getField("Displacement"));
 
-  assert(grad.rows() == 3 && grad.cols() == 3);
-  
-  for(SpaceIndex j=0; j<DIM; ++j) { // loop over gradient components
-    ArithmeticOutputValue oddisp =
-      element->outputFieldDeriv(mesh, *displacement, &j, pt);
-    // loop over field components
-    for(IndexP i : *displacement->components(ALL_INDICES)) 
-      grad(i.integer(), j) += oddisp[i];
-  }
+  computeFieldGradient(
+       mesh, element, pt, displacement,
+       (displacement->in_plane(mesh) ? nullptr : displacement->out_of_plane()),
+       grad);
+}
 
-  if(!displacement->in_plane(mesh)) {
-    Field *oop = displacement->out_of_plane();
-    ArithmeticOutputValue oddispz = element->outputField(mesh, *oop, pt);
-    for(IndexP i : *oop->components(ALL_INDICES))
-      grad(i.integer(), 2) += oddispz[i]; 
-  }
+void computeDisplacementGradientRate(const FEMesh *mesh,
+				     const Element *element,
+				     const MasterPosition &pt,
+				     SmallMatrix &grad)
+{
+  static CompoundField *displacement =
+    dynamic_cast<CompoundField*>(Field::getField("Displacement"));
+  computeFieldGradient(
+       mesh, element, pt, displacement->time_derivative(),
+       (displacement->in_plane(mesh) ? nullptr :
+	displacement->out_of_plane_time_derivative()),
+       grad);
 }
 
 void computeDisplacement(const FEMesh *mesh, const Element *element,
@@ -95,6 +148,7 @@ void computeDisplacement(const FEMesh *mesh, const Element *element,
   for(IndexP i : *displacement->components(ALL_INDICES))
     disp[i.integer()] += odisp[i];
 }
+
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

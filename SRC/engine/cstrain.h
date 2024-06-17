@@ -27,8 +27,14 @@ class SymmMatrix3;
 void findGeometricStrain(const FEMesh*, const Element*,
 			 const MasterPosition&, SymmMatrix3*, bool);
 
+void findGeometricStrainRate(const FEMesh*, const Element*,
+			     const MasterPosition&, SymmMatrix3*, bool);
+
 void computeDisplacementGradient(const FEMesh*, const Element*,
 				 const MasterPosition&, SmallMatrix&);
+
+void computeDisplacementGradientRate(const FEMesh*, const Element*,
+				     const MasterPosition&, SmallMatrix&);
 
 void computeDisplacement(const FEMesh*, const Element*,
 			 const MasterPosition&, DoubleVec&);
