@@ -18,8 +18,6 @@
 
 #include "common/doublevec.h"
 
-//class Cijkl;
-
 // The "SmallMatrix" class is a general (i.e. not symmetric or
 // positive-definite or anything) real-valued dense matrix.
 
@@ -33,9 +31,6 @@ public:
   SmallMatrix(const SmallMatrix& other) : data(other.data) {}
   virtual ~SmallMatrix() {}
 
-  // TODO(lizhong): remove Cijkl from this class
-  //SmallMatrix(const Cijkl*);	// for SCPR
-  
   /* Matrix property methods */
 
   void resize(int rows, int cols);
@@ -78,13 +73,6 @@ public:
 };
 
 SmallMatrix operator*(double, const SmallMatrix&);
-
-// class SmallMatrix3x3 : public SmallMatrix {
-// public:
-//   SmallMatrix3x3(double a00, double a01, double a02,
-// 		 double a10, double a11, double a12,
-// 		 double a20, double a21, double a22);
-// };
 
 std::ostream &operator<<(std::ostream&, const SmallMatrix&);
 
