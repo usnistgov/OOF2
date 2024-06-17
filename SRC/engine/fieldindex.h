@@ -92,6 +92,27 @@
 // (Components and ComponentIterator don't have be be
 // PythonExportable, and there's no need in Python for IndexP.)
 
+// TODO? There's currently no easy way to get a concrete FieldIndex
+// object out of a concrete Components object.  For example, in
+// ThermalExpansion::flux_offset, you'd think we could avoid having to
+// use symTensorIJComponents if we cast a generic Components pointer
+// to a SymTensorComponents pointer:
+//
+// const SymTensorComponents *klcomps =
+//   dynamic_cast<const SymTensorComponents*>(flux->components(ALL_INDICES));
+// for(IndexP kl : *klcomps) {
+//   // diagonal is a SymTensorIndex method, so the next line won't work
+//   if(kl->diagonal()) {...} 
+//   [etc]
+// }
+//
+// but iterating over SymTensorComponents only returns generic
+// IndexPs, so the FieldIndex would have to be cast, which is ugly.  A
+// solution could be for each concrete Components subclass to have a
+// non-virtual set of iterators that can be converted into concrete
+// FieldIndexes.
+
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -248,19 +269,22 @@ public:
 
 class IndexP {
 protected:
-  FieldIndex *fieldindex;
+  FieldIndex *fieldindex_;
 public:
-  IndexP(FieldIndex *i) : fieldindex(i) {}
-  IndexP(const IndexP &o) : fieldindex(o.fieldindex) {}
-  IndexP(IndexP &&o) : fieldindex(o.fieldindex) { o.fieldindex = nullptr; }
-  ~IndexP() { delete fieldindex; }
-  int integer() const { return fieldindex->integer(); }
-  bool in_plane() const { return fieldindex->in_plane(); }
+  IndexP(FieldIndex *i) : fieldindex_(i) {}
+  IndexP(const IndexP &o) : fieldindex_(o.fieldindex_) {}
+  IndexP(IndexP &&o) : fieldindex_(o.fieldindex_) { o.fieldindex_ = nullptr; }
+  ~IndexP() { delete fieldindex_; }
+  int integer() const { return fieldindex_->integer(); }
+  bool in_plane() const { return fieldindex_->in_plane(); }
+
   // Allow IndexP to be used where a FieldIndex& or FieldIndex* is expected
-  operator const FieldIndex&() const { return *fieldindex; }
-  operator const FieldIndex*() const { return fieldindex; }
+  operator const FieldIndex&() const { return *fieldindex_; }
+  operator const FieldIndex*() const { return fieldindex_; }
+  const FieldIndex* fieldindex() const { return fieldindex_; }
+
   const std::string &shortrepr() const {
-    return fieldindex->shortrepr();
+    return fieldindex_->shortrepr();
   }
 };
 
@@ -496,9 +520,6 @@ public:
 // SymTensorIndex.  We'd also need Components and ComponentIterator
 // subclasses.
 
-
-
-
 class SymTensorIterator : public ComponentIterator {
 protected:
   int v;
@@ -518,6 +539,7 @@ public:
   int col() const;
   int integer() const { return v; }
   virtual void print(std::ostream&) const;
+  bool diagonal() const { return v < 3; }
 };
 
 class SymTensorInPlaneIterator : public SymTensorIterator {
