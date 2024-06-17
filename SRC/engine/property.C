@@ -369,7 +369,7 @@ void FluxProperty::flux_value(const FEMesh *mesh, const Element *element,
 #endif
 
   recurse = false;
-  static_flux_value( mesh, element, flux, pt, time, fluxdata);
+  static_flux_value(mesh, element, flux, pt, time, fluxdata);
   recurse = false;
 }
 

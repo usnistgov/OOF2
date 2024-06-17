@@ -28,6 +28,12 @@
 
 #include <vector>
 
+// SmallSparseMatrix is actually a dense matrix, but it's meant to be
+// used as a step in generating a large sparse matrix.  Since it's
+// small, it doesn't matter that it's dense.  It keeps track of which
+// of its elements have been modified, so that it doesn't copy the
+// zeros when it's merged into the large sparse matrix.
+
 class SmallSparseMatrix : public SmallMatrix {
 
 private:
