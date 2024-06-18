@@ -395,11 +395,10 @@ void Material::make_linear_system(const CSubProblem *subproblem,
        fluxi != active_fluxes.end(); ++fluxi)
     {
       // "SmallSystem" is a set of 3 matrices and a vector.
-      SmallSystem *flux_small_sys = (*fluxi)->initializeSystem( el );
-      SmallSystem *property_flux_info = (*fluxi)->initializeSystem( el );
+      SmallSystem *flux_small_sys = (*fluxi)->initializeSystem(el);
+      SmallSystem *property_flux_info = (*fluxi)->initializeSystem(el);
 	  
-      // Use "at", because everything is const. Actually, don't use it,
-      // because it's not standard.  Use "find" instead.
+      // Use "find", because everything is const.
       FluxPropMap::const_iterator stupid = fluxpropmap.find(*fluxi);
       const FluxPropList &flux_prop_list = (*stupid).second;
 
@@ -442,19 +441,17 @@ void Material::make_linear_system(const CSubProblem *subproblem,
   const std::vector<Equation*> &active_eqns = 
     subproblem->active_equations(this);
 
-  for(std::vector<Equation*>::const_iterator eqn = active_eqns.begin();
-      eqn != active_eqns.end();  ++eqn)
-  {
-    SmallSystem *eqndata = (*eqn)->initializeSystem( el );
+  for(auto eqn = active_eqns.begin(); eqn != active_eqns.end(); ++eqn) {
+    SmallSystem *eqndata = (*eqn)->initializeSystem(el);
     SmallSystem *property_eqn_info = (*eqn)->initializeSystem(el);
 
     EqnPropMap::const_iterator stupid = eqnpropmap.find(*eqn);
     const EqnPropList &eqn_prop_list = (*stupid).second;
 
-    for(std::vector<EqnProperty*>::const_iterator property=eqn_prop_list.begin();
-	property != eqn_prop_list.end(); ++property)
+    for(auto property=eqn_prop_list.begin(); property!=eqn_prop_list.end();
+	++property)
       {
-	if ( (*property)->currently_active(subproblem) ) {
+	if((*property)->currently_active(subproblem)) {
 	  (*property)->begin_point(mesh, el, *eqn, pt);
 	  (*property)->make_equation_contributions(mesh, el, *eqn, pt, time,
 						   nlsolver, property_eqn_info);
@@ -471,15 +468,15 @@ void Material::make_linear_system(const CSubProblem *subproblem,
     // Here dofmap is the Element's localDoFmap, which maps local
     // element dof indices to global ones.
 
-    (*eqn)->make_linear_system( subproblem, el, pt, dofmap,
-			        fluxdata, eqndata,
-				nlsolver, linearized_system );
+    (*eqn)->make_linear_system(subproblem, el, pt, dofmap,
+			       fluxdata, eqndata,
+			       nlsolver, linearized_system);
     delete eqndata;
     delete property_eqn_info;
   } // End of equation loop.
 
   // Clean up fluxdata map.
-  for (FluxSysMap::iterator fi = fluxdata.begin(); fi != fluxdata.end(); ++fi) {
+  for(FluxSysMap::iterator fi = fluxdata.begin(); fi != fluxdata.end(); ++fi) {
     delete (*fi).second;
     (*fi).second = 0;
   }

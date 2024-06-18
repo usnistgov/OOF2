@@ -352,6 +352,19 @@ void FluxProperty::static_flux_value(const FEMesh *mesh, const Element *element,
 
   fluxdata->fluxVector() += localFluxData.offsetVector();
   fluxdata->fluxVector() += localFluxData.kMatrix*localdofs;
+  // localdofs includes time derivative fields.  So we can do this:
+  //
+  fluxdata->fluxVector() += localFluxData.cMatrix*localdofs;
+  //
+  // Right? Wrong.  Only if SmallSystem::damping_matrix_element was
+  // called with the time derivative field, which it's not.
+  //
+  // std::cerr << "FluxProperty::static_flux_value: localdofs=" << localdofs.size()
+  // 	    << " kMatrix=(" << localFluxData.kMatrix.rows()
+  // 	    << "," << localFluxData.kMatrix.cols() << ")"
+  // 	    << " cMatrix=(" << localFluxData.cMatrix.rows()
+  // 	    << "," << localFluxData.cMatrix.cols() << ")"
+  // 	    << std::endl;
 }
 
 //=\\=//=\\=//=\\=//

@@ -87,7 +87,7 @@ void Elasticity::flux_matrix(const FEMesh *mesh, const Element *element,
 			     double time, SmallSystem *fluxmtx)
   const
 {
-  double shapeFuncVal, shapeFuncGrad[3];
+  double shapeFuncVal, shapeFuncGrad[2];
   // Unexpected fluxes are bad.
   if (*flux != *stress_flux) {
     throw ErrProgrammingError("Unexpected flux", __FILE__, __LINE__);

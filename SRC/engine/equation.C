@@ -135,7 +135,7 @@ SmallSystem *Equation::initializeSystem(const Element *e) {
 // flux matrix for the Flux at the current GaussPoint.
 // Equation::make_linear_system has to use the flux matrix to compute
 // the GaussPoints contribution to the global stiffness matrix.
-#include "engine/masterelement.h"
+
 void
 DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 				       const Element *element,
@@ -159,24 +159,29 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
     for(int i=0; i<DIM; i++)
       dsf[i] = mu->dshapefunction(i, gpt);
 
-    for (int eqcomp = 0; eqcomp < dim(); ++eqcomp) {
+    for(int eqcomp = 0; eqcomp < dim(); ++eqcomp) {
       // Use the un-mapped row.  The matrix will be symmetrized,
       // if possible, afterwards by the subproblem.
       int global_row = nodaleqn( *mu->funcnode(), eqcomp )->ndq_index();
 
-      FluxSysMap::iterator fi = fluxdata.find( fflux );
+      FluxSysMap::iterator fi = fluxdata.find(fflux);
 
-      if ( fi != fluxdata.end() ) {
+      if(fi != fluxdata.end()) {
 
 	// (*fi).first is a Flux*
-	std::vector<int> cmap = (*fi).first->contraction_map( eqcomp );
-
+	std::vector<int> cmap = (*fi).first->contraction_map(eqcomp);
 	// (*fi).second is a SmallSystem*
-	if ( !(*fi).second->k_clean ) {
+	if(!(*fi).second->k_clean) {
 	  const SmallSparseMatrix &k = (*fi).second->kMatrix;
 
-      int nldof = element->ndof();
-	  for (int ldof = 0; ldof < nldof; ++ldof) {
+	  // This loops over all dofs, not just the ones that
+	  // contribute to K.  That's ok, because k won't have
+	  // non-zero entries for dofs that don't contribute.  It's
+	  // easier to check k.nonzero() inside this loop than it is
+	  // to have a mapping scheme that allows a shorter dof vector
+	  // to be use.
+	  int nldof = element->ndof();
+	  for(int ldof = 0; ldof < nldof; ++ldof) {
 	    // dofmap is the Element's localDoFmap, which maps local
 	    // element dof indices to global ones.
 	    int global_col = dofmap[ldof];
@@ -184,25 +189,25 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	    bool nonzero = false;
 	    for(int cc = 0; cc < DIM; ++cc) {
 	      if(k.nonzero(cmap[cc], ldof)) {
-            nonzero = true;
-            // The minus sign here comes from integration by
-            // parts, presumably.
-            double value = -dsf[cc] * k(cmap[cc], ldof);
-            sum += value;
-          }
+		nonzero = true;
+		// The minus sign here comes from integration by
+		// parts, presumably.
+		double value = -dsf[cc] * k(cmap[cc], ldof);
+		sum += value;
+	      }
 	    }
 
 	    if(nonzero) {
 	      linsys.insertK(global_row, global_col, sum*weight);
 	      if(needJacobian)
-            linsys.insertJ(global_row, global_col, sum*weight);
+		linsys.insertJ(global_row, global_col, sum*weight);
 	    }
 	  }
 	} // End of k-matrix loop.
 
-	if ( !(*fi).second->c_clean ) {
+	if(!(*fi).second->c_clean) {
 	  const SmallSparseMatrix &c = (*fi).second->cMatrix;
-	  for (int ldof = 0; ldof < element->ndof(); ++ldof) {
+	  for(int ldof = 0; ldof < element->ndof(); ++ldof) {
 	    int global_col = dofmap[ldof];
 	    double sum = 0.0;
 	    bool nonzero = false;
@@ -213,16 +218,22 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 		sum += value;
 	      }
 	    }
+	    // TODO: If SmallSystem::damping_matrix_element was called
+	    // with a time-derivative field, the global_col here needs
+	    // to be adjusted, or a different dofmap used.  Current
+	    // global_col assumes that damping_matrix_element was
+	    // called with the non-derivative field.  Maybe use an
+	    // additional map that coverts time-deriv indices to
+	    // non-deriv indices?
 	    if(nonzero)
 	      linsys.insertC(global_row, global_col, sum*weight);
 	  }
 	} // End of c-matrix loop.
-
-
-	if ( !(*fi).second->m_clean ) {
+	
+	if (!(*fi).second->m_clean) {
 	  const SmallSparseMatrix &m = (*fi).second->mMatrix;
-
-	  for (int ldof = 0; ldof < element->ndof(); ++ldof) {
+	  
+	  for(int ldof = 0; ldof < element->ndof(); ++ldof) {
 	    int global_col = dofmap[ldof];
 	    double sum = 0.0;
 	    bool nonzero = false;
@@ -237,12 +248,11 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	  }
 	} // End of m-matrix loop.
 
-
-	if ( !(*fi).second->flux_clean && needResidual) {
+	if(!(*fi).second->flux_clean && needResidual) {
 	  const DoubleVec &flux = (*fi).second->fluxVector();
 	  double sum = 0.0;
 	  bool nonzero = false;
-	  for (int cc = 0; cc < DIM; ++cc) {
+	  for(int cc = 0; cc < DIM; ++cc) {
 	    double flx = flux[cmap[cc]];
 	    if(flx != 0.0) {
 	      nonzero = true;
@@ -253,8 +263,7 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	    linsys.insert_static_residual(global_row, sum*weight);
 	} // End of flux-vector loop.
 
-
-	if ( !(*fi).second->offset_clean ) {
+	if(!(*fi).second->offset_clean) {
 	  const DoubleVec &offset = (*fi).second->offsetVector();
 	  double sum = 0.0;
 	  bool nonzero = false;
@@ -271,43 +280,42 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 
       } // End if fi != fluxdata.end()
 
-
       // Direct equation contributions.
 
-      if ( !eqndata->df_clean && needJacobian ) {
+      if(!eqndata->df_clean && needJacobian) {
 	const SmallSparseMatrix &df = eqndata->dfMatrix;
 	for(int ldof = 0; ldof < element->ndof(); ++ldof) {
 	  if(df.nonzero(eqcomp, ldof)) {
 	    int global_col = dofmap[ldof];
-	    double value = sf * df(eqcomp,ldof);
-	    linsys.insertJ( global_row, global_col, value*weight );
+	    double value = sf * df(eqcomp, ldof);
+	    linsys.insertJ(global_row, global_col, value*weight);
 	  }
 	}
       }
 
-      if ( !eqndata->c_clean ) {
+      if(!eqndata->c_clean) {
 	const SmallSparseMatrix &c = eqndata->cMatrix;
 	for (int ldof = 0; ldof < element->ndof(); ++ldof) {
 	  if(c.nonzero(eqcomp, ldof)) {
 	    int global_col = dofmap[ldof];
-	    double value = sf * c(eqcomp,ldof);
-	    linsys.insertC( global_row, global_col, value*weight );
+	    double value = sf * c(eqcomp, ldof);
+	    linsys.insertC(global_row, global_col, value*weight);
 	  }
 	}
       }
 
-      if ( !eqndata->m_clean ) {
+      if(!eqndata->m_clean) {
 	const SmallSparseMatrix &m = eqndata->mMatrix;
 	for (int ldof = 0; ldof < element->ndof(); ++ldof) {
 	  if(m.nonzero(eqcomp, ldof)) {
 	    int global_col = dofmap[ldof];
 	    double value = sf * m(eqcomp,ldof);
-	    linsys.insertM( global_row, global_col, value*weight );
+	    linsys.insertM(global_row, global_col, value*weight);
 	  }
 	}
       }
 
-      if ( !eqndata->force_clean ) {
+      if(!eqndata->force_clean) {
 	const DoubleVec &force = eqndata->forceVector();
 	double f = force[eqcomp];
 	if(f != 0.0) {

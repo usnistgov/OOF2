@@ -39,7 +39,7 @@ double& SmallMatrix::operator()(int row, int col) {
   return data.coeffRef(row, col);
 }
 
-const double &SmallMatrix::operator()(int row, int col) const 
+const double SmallMatrix::operator()(int row, int col) const 
 {
   assert(row >= 0 && col >= 0 && row < data.rows() && col < data.cols());
   return data.coeffRef(row, col);

@@ -46,7 +46,7 @@ public:
   SmallSparseMatrix(int, int);
 
   virtual double &operator()(int row, int col);
-  virtual const double &operator()(int row, int col) const;
+  virtual const double operator()(int row, int col) const;
   void operator+=(const SmallSparseMatrix&);
 
   bool nonzero(int, int) const;
@@ -101,16 +101,16 @@ public:
 				   const Field*,
 				   const ElementFuncNodeIterator&
 				   );
-  const double &stiffness_matrix_element(const FieldIndex&,
-					 const Field*,
-					 const FieldIndex&,
-					 const ElementFuncNodeIterator&
-					 ) const;
-  const double &stiffness_matrix_element(const FieldIndex&,
-					 const Field*,
-					 const ElementFuncNodeIterator&
-					 ) const;
-
+  double stiffness_matrix_element(const FieldIndex&,
+				  const Field*,
+				  const FieldIndex&,
+				  const ElementFuncNodeIterator&
+				  ) const;
+  double stiffness_matrix_element(const FieldIndex&,
+				  const Field*,
+				  const ElementFuncNodeIterator&
+				  ) const;
+  
   double &force_deriv_matrix_element(const FieldIndex&,
 				     const Field*,
 				     const FieldIndex&,
@@ -120,16 +120,16 @@ public:
 				     const Field*,
 				     const ElementFuncNodeIterator&
                                      );
-  const double &force_deriv_matrix_element(const FieldIndex&,
-					   const Field*,
-					   const FieldIndex&,
-					   const ElementFuncNodeIterator&
-                                           ) const;
-  const double &force_deriv_matrix_element(const FieldIndex&,
-					   const Field*,
-					   const ElementFuncNodeIterator&
-                                           ) const;
-
+  double force_deriv_matrix_element(const FieldIndex&,
+				    const Field*,
+				    const FieldIndex&,
+				    const ElementFuncNodeIterator&
+				    ) const;
+  double force_deriv_matrix_element(const FieldIndex&,
+				    const Field*,
+				    const ElementFuncNodeIterator&
+				    ) const;
+  
   double &damping_matrix_element(const FieldIndex&,
 				 const Field*,
 				 const FieldIndex&,
@@ -139,15 +139,15 @@ public:
 				 const Field*,
 				 const ElementFuncNodeIterator&
 				 );
-  const double &damping_matrix_element(const FieldIndex&,
-				       const Field*,
-				       const FieldIndex&,
-				       const ElementFuncNodeIterator&
-				       ) const;
-  const double &damping_matrix_element(const FieldIndex&,
-				       const Field*,
-				       const ElementFuncNodeIterator&
-                                       ) const;
+  double damping_matrix_element(const FieldIndex&,
+				const Field*,
+				const FieldIndex&,
+				const ElementFuncNodeIterator&
+				) const;
+  double damping_matrix_element(const FieldIndex&,
+				const Field*,
+				const ElementFuncNodeIterator&
+				) const;
 
   double &mass_matrix_element(const FieldIndex&,
 			      const Field*,
@@ -158,39 +158,39 @@ public:
 			      const Field*,
 			      const ElementFuncNodeIterator&
 			      );
-  const double &mass_matrix_element(const FieldIndex&,
-				    const Field*,
-				    const FieldIndex&,
-				    const ElementFuncNodeIterator&
-			            ) const;
-  const double &mass_matrix_element(const FieldIndex&,
-				    const Field*,
-				    const ElementFuncNodeIterator&
-				    ) const;
+  double mass_matrix_element(const FieldIndex&,
+			     const Field*,
+			     const FieldIndex&,
+			     const ElementFuncNodeIterator&
+			     ) const;
+  double mass_matrix_element(const FieldIndex&,
+			     const Field*,
+			     const ElementFuncNodeIterator&
+			     ) const;
 
   double &flux_vector_element(const FieldIndex&);
 
   double &flux_vector_element(const int&);
 
-  const double &flux_vector_element(const FieldIndex&) const;
+  double flux_vector_element(const FieldIndex&) const;
 
-  const double &flux_vector_element(const int&) const;
+  double flux_vector_element(const int&) const;
 
   double &force_vector_element(const FieldIndex&);
 
   double &force_vector_element(const int&);
 
-  const double &force_vector_element(const FieldIndex&) const;
+  double force_vector_element(const FieldIndex&) const;
 
-  const double &force_vector_element(const int&) const;
+  double force_vector_element(const int&) const;
 
   double &offset_vector_element(const FieldIndex&);
 
   double &offset_vector_element(const int&);
 
-  const double &offset_vector_element(const FieldIndex&) const;
+  double offset_vector_element(const FieldIndex&) const;
 
-  const double &offset_vector_element(const int&) const;
+  double offset_vector_element(const int&) const;
 
   friend std::ostream& operator<<(std::ostream &,
 				  const SmallSystem&);

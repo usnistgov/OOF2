@@ -38,7 +38,7 @@ public:
   std::size_t cols() const { return data.cols(); }
   void clear() { data.setZero(data.rows(), data.cols()); }
   virtual double& operator()(int row, int col);
-  virtual const double& operator()(int row, int col) const;
+  virtual const double operator()(int row, int col) const;
 
   /* Arithmetic operations */
 
