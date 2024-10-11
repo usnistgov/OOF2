@@ -13,7 +13,7 @@
 
 
 set(OOF2_SWIG_VERSION 4.1 CACHE STRING "Use this version of swig")
-set_property(CACHE OOF2_SWIG_VERSION PROPERTY STRINGS 4.0 4.1 4.2)
+set_property(CACHE OOF2_SWIG_VERSION PROPERTY STRINGS 4.0 4.1 4.2 4.3)
 
 # The initial value of OOF2_PYTHON3_VERSION is "Latest" so that the
 # initial configuration pass doesn't raise an error if the requested
