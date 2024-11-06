@@ -543,7 +543,6 @@ class StartUpRerecord(StartUpFile):
 def loadStartUpFiles(files):
     # Files is a list of StartUpFile-like objects
     for phile in files:
-        debug.fmsg(f"{phile=}")
         phile.load()
 
 ###########################        
