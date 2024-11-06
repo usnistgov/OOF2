@@ -38,7 +38,7 @@
 static const double min_eps = 16*DBL_EPSILON;
 
 // eps value used for finite difference approx. of numerical derivatives
-double deriv_eps = 1e-5;
+double deriv_eps = 1e-8;
 
 inline double max(double x, double y)
 {
@@ -90,7 +90,14 @@ void Property::require_field(const Field &field) {
   fields_reqd.push_back(&field);
 }
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 // A property is computable if all fields that it uses are defined.
+
+// TODO: currently_computable() and find_computable() aren't used.
+// Apparently they were intended to cache the result of
+// is_computable().  Is there any need to do that?  The functions
+// should probably be deleted.
 
 bool Property::is_computable(const CSubProblem *subproblem) const {
   for(std::vector<Field*>::size_type i=0; i<fields_reqd.size(); i++) {
@@ -100,6 +107,20 @@ bool Property::is_computable(const CSubProblem *subproblem) const {
   }
   return true;
 }
+
+bool Property::currently_computable(const CSubProblem *subproblem) const {
+  SubProblemFlagCache::const_iterator where = computability.find(subproblem);
+  if(where != computability.end())
+    return (*where).second;
+  return false;
+}
+
+void Property::find_computable(const CSubProblem *subproblem) {
+  computability[subproblem] = is_computable(subproblem);
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 
 // A property is active if it's computable and is used in an active
 // Flux or Equation.
@@ -116,20 +137,9 @@ void Property::cache_active(const CSubProblem *subproblem, bool active) {
   activity[subproblem] = active;
 }
 
-void Property::find_computable(const CSubProblem *subproblem) {
-  computability[subproblem] = is_computable(subproblem);
-}
-
 bool Property::currently_active(const CSubProblem *subproblem) const {
   SubProblemFlagCache::const_iterator where = activity.find(subproblem);
   if(where != activity.end())
-    return (*where).second;
-  return false;
-}
-
-bool Property::currently_computable(const CSubProblem *subproblem) const {
-  SubProblemFlagCache::const_iterator where = computability.find(subproblem);
-  if(where != computability.end())
     return (*where).second;
   return false;
 }
@@ -222,10 +232,10 @@ void FluxProperty::make_flux_contributions(const FEMesh *mesh,
   recurse = false;
 }
 
-//=\\=//=\\=//=\\=//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Private utility function that computes the flux matrix by
-// numerically differentiating with respect to a single Field
+// numerically differentiating the flux with respect to a single Field
 // component.
 
 DoubleVec &FluxProperty::fluxDeriv(const FEMesh *mesh, const Element *element,
@@ -240,6 +250,8 @@ DoubleVec &FluxProperty::fluxDeriv(const FEMesh *mesh, const Element *element,
 			      )
   const
 {
+  fluxDataLo.fluxVector().zero();
+  fluxDataHi.fluxVector().zero();
   DegreeOfFreedom *dof = (*field)(node, fieldcomp.integer());
   double oldValue = dof->value(mesh);
 
@@ -259,6 +271,11 @@ DoubleVec &FluxProperty::fluxDeriv(const FEMesh *mesh, const Element *element,
   static_flux_value(mesh, element, flux, pt, time, &fluxDataHi);
   DoubleVec &fluxVecHi= fluxDataHi.fluxVector();
 
+  // std::cerr << "FluxProperty::fluxDeriv: field=" << *field << " flux=" << *flux << std::endl;
+  // std::cerr << "FluxProperty::fluxDeriv: oldValue=" << oldValue << std::endl;
+  // std::cerr << "FluxProperty::fluxDeriv: fluxVecLo=" << fluxVecLo << std::endl;
+  // std::cerr << "FluxProperty::fluxDeriv: fluxVecHi=" << fluxVecHi << std::endl;
+
   // Reset to original value
   dof->setValue(mesh, oldValue);
 
@@ -268,10 +285,13 @@ DoubleVec &FluxProperty::fluxDeriv(const FEMesh *mesh, const Element *element,
   return fluxVecHi;
 }
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 // The base class version of flux_matrix() computes the matrix by
 // numerically differentiating the flux with respect to the fields.
 // The flux is obtained from flux_value(), which must be defined in
 // the derived class.
+
 
 void FluxProperty::flux_matrix(const FEMesh *mesh, const Element *element,
 			       const ElementFuncNodeIterator &node,
@@ -279,13 +299,34 @@ void FluxProperty::flux_matrix(const FEMesh *mesh, const Element *element,
 			       double time, SmallSystem *fluxdata)
   const
 {
-  // The default version of flux_matrix() assumes that
+  // The default version of flux_matrix() (this method) assumes that
   // static_flux_value() has been defined, and numerically
   // differentiates it.  The default version of static_flux_value()
   // assumes that flux_matrix() has been defined, and multiplies it by
   // the DoF values.  If neither is defined, which is possible if the
   // Property only contributes to the flux offset, we therefore have
   // to avoid an infinite loop, which is done with the recurse flag.
+
+  // The flux sigma is a function of the field phi, field gradient
+  // dphi, and their time derivatives phi_t and dphi_t.  The various
+  // parts of the modulus can be found by differentiating the flux
+  // with respect to the field and its derivatives.  The flux matrix
+  // is the modulus times the gradient of the shape function.
+
+  // TODO: This is an expensive no-op to perform if neither
+  // flux_matrix() or static_flux_value() is redefined in the derived
+  // class.  Similarly, FluxProperty::flux_offset() is expensive.  Can
+  // the base class have null versions that are redefined in mix-in
+  // classes, one mix-in each to provide the default versions of
+  // static_flux_value(), flux_matrix(), and flux_offset()?  Maybe the
+  // base class methods should be pure virtual, and there should be
+  // mix-ins that provide the null methods and other mix-ins that
+  // provided the old default methods.
+
+  // std::cerr << "FluxProperty::flux_matrix: node=" << *node.node()
+  // 	    <<  " pt=" << pt << std::endl;
+  std::cerr << "-------------" << std::endl;
+     
 
 #ifdef HAVE_OPENMP
   bool& recurse = recurse_flags[omp_get_thread_num()];
@@ -302,50 +343,140 @@ void FluxProperty::flux_matrix(const FEMesh *mesh, const Element *element,
   DoubleVec fluxVecHi(nrows);
   SmallSystem fluxDataLo(nrows, ncols);
   SmallSystem fluxDataHi(nrows, ncols);
-  CSubProblem *subproblem = mesh->getCurrentSubProblem();
 
-  // Get the current subproblem, to check if the fields are active
+  // Get the current subproblem, to check if the fields are active.
+  CSubProblem *subproblem = mesh->getCurrentSubProblem();
   if(!subproblem)
     throw ErrProgrammingError("Current subproblem not defined",
 			      __FILE__, __LINE__);
 
-  // Loop over all the fields (that the node might have)
-
-  // TODO: Give FieldEqnList an iterator, and iterate over
+  // TODO OPT: Give FieldEqnList an iterator, and iterate over
   // Node::fieldset instead of looping over all fields and checking
-  // Node::hasField().
-  for(std::vector<Field*>::size_type fi=0; fi<Field::all().size(); fi++) {
-    Field *field = &(*Field::all()[fi]);
+  // Node::hasField().  Also, the PropertyRegistration knows which
+  // Fields are relevant.  Can we get that data from Python?  Fields
+  // that are defined and active but not relevant won't make a
+  // contribution, so should be skipped.
+
+  double shapefn = node.shapefunction(pt);
+  const MasterCoord mpt = pt.mastercoord(); // debugging
+
+  for(CompoundField *field : CompoundField::allcompoundfields()) {
+
     if(node.hasField(*field) && field->is_active(subproblem)) {
 
-      // TODO TIMEDERIV: What should this do with time derivative
-      // fields?  sigma = sigma0 + K*u is an expansion in u, about
-      // u=0.  It should expand the flux in du/dt around du/dt=0 too,
-      // and make a contribution to the damping matrix.
-
-      // Loop is currently over all Fields, including time
-      // derivatives.  So this needs to either not loop over time
-      // derivatives, or it has to detect them and make damping matrix
-      // contributions instead of stiffness matrix contributions.
+      // The flux matrix is
+      //   K_{ik\nu} = Modulus_{ijk} {\partial N_\nu / \partial x_j}
+      //      i = flux component
+      //      k = field component
+      //     nu = node or shapefunction index
+      // The Modulus is the derivative of the stress wrt the field
+      // gradient component, not wrt the field component.
 
       // Loop over field components
-      for(IndexP fieldcomp : *field->components(ALL_INDICES)) {
+      for(IndexP fieldcomp : *field->components(IN_PLANE)) {
+	// fluxDeriv computes the numerical derivative of the flux
+	// with respect to one field component.
 	DoubleVec &deriv = fluxDeriv(mesh, element, node, flux, pt, time,
 				     field, fieldcomp, fluxDataLo, fluxDataHi);
-	// Assign the derivative value to flux_matrix
-	for(IndexP fluxcomp : *flux->components(ALL_INDICES))
-	  {
-	    fluxdata->stiffness_matrix_element(fluxcomp, field, fieldcomp, node)
-	      += deriv[fluxcomp.integer()];
-	  }
 
-	  fluxDataLo.fluxVector().zero();
-	  fluxDataHi.fluxVector().zero();
+	
+	// Assign the derivative value to flux_matrix
+	for(IndexP fluxcomp : *flux->components(ALL_INDICES)) {
+
+	  std::cerr << "flux_matrix:"
+		    << " el=" << element->get_index()
+		    << " mpt=(" << mpt(0) << "," << mpt(1) << ")"
+		    << " " << *field << " " << *node.node()
+		    << " ij=" << *fluxcomp.fieldindex()
+		    << " k=" << *fieldcomp.fieldindex()
+		    << " mtx el=" << deriv[fluxcomp.integer()]
+		    << std::endl;
+	  
+	  fluxdata->stiffness_matrix_element(fluxcomp, field, fieldcomp, node)
+	    += deriv[fluxcomp.integer()];
+	  ///// TODO:  CHECK THIS
+	  // The shape function derivative term cancels a factor of
+	  // one over the derivative that comes from converting the
+	  // derivative wrt the field into a derivative wrt the field
+	  // gradient.
+	  
+	}
       } // loop over field components
     } // end if(node.hasfield())
-  } // loop over all fields
 
+    // For the out-of-plane part of the field, the flux matrix is the
+    // derivative wrt to the field, not the field gradient, since the
+    // field is really the z-derivative of the field.  This means that
+    // the shape function term isn't cancelled, as it is for the
+    // in-plane contribution.  Because the field is already a
+    // derivative, multiply by the shape function, not its derivative.
+    
+    Field *oop = field->out_of_plane();
+    if(node.hasField(*oop) && oop->is_active(subproblem)) {
+      for(IndexP fluxcomp : *flux->components(ALL_INDICES)) {
+	for(IndexP fieldcomp : *oop->components(ALL_INDICES)) {
+	  DoubleVec &deriv = fluxDeriv(mesh, element, node, flux, pt, time,
+				       oop, fieldcomp, fluxDataLo, fluxDataHi);
+	  // std::cerr << "FluxProperty::flux_matrix: "
+	  // 	  << "k=" << *fieldcomp.fieldindex()
+	  // 	  << " oop deriv= " << deriv << std::endl;
+	  std::cerr << "flux_matrix:"
+		    << " el=" << element->get_index()
+		    << " mpt=(" << mpt(0) << "," << mpt(1) << ")"
+		    << " " << *oop << " " << *node.node()
+		    << " ij=" << *fluxcomp.fieldindex()
+		    << " k=" << *fieldcomp.fieldindex()
+		    << " sf=" << shapefn
+		    << " modulus=" << deriv[fluxcomp.integer()]
+		    << std::endl;
+
+	  // Factor of shapefn needs to be deleted here in order to
+	  // get agreement with Elasticity::flux_matrix.  WTF?
+	  fluxdata->stiffness_matrix_element(fluxcomp, oop, fieldcomp, node)
+	    += deriv[fluxcomp.integer()]; // * shapefn;
+	}
+      }
+    }
+
+    // Same for the time-derivative part of the Field.
+    Field *tdf = field->time_derivative();
+    // std::cerr << "FluxProperty::flux_matrix: " << *tdf
+    // 	      << " hasField=" << node.hasField(*tdf)
+    // 	      << " active=" << tdf->is_active(subproblem)
+    // 	      << std::endl;
+    if(node.hasField(*tdf) && field->is_active(subproblem)) {
+      for(IndexP fieldcomp : *tdf->components(ALL_INDICES)) {
+	DoubleVec &deriv = fluxDeriv(mesh, element, node, flux, pt, time,
+				     tdf, fieldcomp, fluxDataLo, fluxDataHi);
+	// std::cerr << "FluxProperty::flux_matrix:     " << fieldcomp
+	// 	  << " deriv=" << deriv << std::endl;
+	for(IndexP fluxcomp : *flux->components(ALL_INDICES)) {
+	  // Index is determined by field, not tdf.
+	  // std::cerr << "FluxProperty::flux_matrix: setting damping_matrix_element: " << fluxcomp << " " << *field << " " << fieldcomp << " " << deriv[fluxcomp.integer()] << std::endl;
+	  fluxdata->damping_matrix_element(fluxcomp, field, fieldcomp, node)
+	    += deriv[fluxcomp.integer()];
+	}
+      }
+    }
+
+    // Same for the time derivative of the out-of-plane part of the Field.
+    Field *ooptdf = field->out_of_plane_time_derivative();
+    if(node.hasField(*ooptdf) && ooptdf->is_active(subproblem)) {
+      for(IndexP fieldcomp : *ooptdf->components(ALL_INDICES)) {
+	DoubleVec &deriv = fluxDeriv(mesh, element, node, flux, pt, time,
+				     ooptdf, fieldcomp, fluxDataLo, fluxDataHi);
+	for(IndexP fluxcomp : *flux->components(ALL_INDICES)) {
+	  // Index is determined by field, not tdf.
+	  fluxdata->damping_matrix_element(fluxcomp, oop, fieldcomp, node)
+	    += deriv[fluxcomp.integer()];
+	}
+      }
+    }
+    
+  } // loop over all compound fields
 } // end of 'FluxProperty::flux_matrix'
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Compute the offset.  This is the flux when all fields are zero.
 // TODO: Don't do this for Properties that won't have an offset.  Do
@@ -396,7 +527,6 @@ void FluxProperty::flux_offset(const FEMesh *mesh,
   static_flux_value(mesh, element, flux, pt, time, &fluxData0);
   // Store the flux as the offset in fluxdata
   fluxdata->offsetVector() += fluxData0.fluxVector();
-
   // Restore Field values
   int i = 0;
   for(std::vector<Field*>::size_type fi=0; fi<Field::all().size(); fi++) {
@@ -413,7 +543,7 @@ void FluxProperty::flux_offset(const FEMesh *mesh,
   }
 } 
 
-//=\\=//=\\=//=\\=//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // The default computation for the flux
 //
@@ -436,6 +566,9 @@ void FluxProperty::static_flux_value(const FEMesh *mesh, const Element *element,
     return;
   }
   recurse = true;
+
+  std::cerr << "FluxProperty::static_flux_value calling flux_matrix "
+	    << "element=" << element->get_index() << std::endl;
 
   // retrieve the local coefficients for the field(s) into localdofs.
   DoubleVec localdofs(element->localDoFs(mesh));
@@ -481,7 +614,7 @@ void FluxProperty::static_flux_value(const FEMesh *mesh, const Element *element,
 
 } // FluxProperty::static_flux_value
 
-//=\\=//=\\=//=\\=//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // The default flux_value is the static_flux_value.  Properties that
 // make non-static contributions to the flux need to redefine this
@@ -500,7 +633,7 @@ void FluxProperty::flux_value(const FEMesh *mesh, const Element *element,
   recurse = false;
 }
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 void EqnProperty::make_equation_contributions(const FEMesh *mesh,
 					      const Element *element,
@@ -522,7 +655,7 @@ void EqnProperty::make_equation_contributions(const FEMesh *mesh,
   force_value(mesh, element, eqn, pt, time, eqndata);
 }
 
-//=\\=//=\\=//=\\=//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 void EqnProperty::force_deriv_matrix(const FEMesh *mesh, const Element *element,
 				     const Equation *eqn,
@@ -584,8 +717,7 @@ void EqnProperty::force_deriv_matrix(const FEMesh *mesh, const Element *element,
 
 } // end of force_deriv_matrix
 
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 std::ostream &operator<<(std::ostream &os, const Property &prop) {
   return os << "Property(" << prop.name() << ")";

@@ -36,6 +36,7 @@ int CViscoElasticity::integration_order(const CSubProblem *subp,
   return el->shapefun_degree() + el->dshapefun_degree();
 }
 
+#ifdef DEFINE_FLUX_MATRIX
 void CViscoElasticity::flux_matrix(const FEMesh *mesh,
 				   const Element *element,
 				   const ElementFuncNodeIterator &nu,
@@ -73,30 +74,58 @@ void CViscoElasticity::flux_matrix(const FEMesh *mesh,
     }
   }
 }
+#endif // DEFINE_FLUX_MATRIX
 
-// THIS VERSION ONLY WORKS IF THE TIME DERIVATIVE FIELD IS
-// DEFINED AT THE NODES. findGeometricStrainRate will return zeros if
-// the time derivative field isn't defined.
 
-// TODO TIMEDERIV:  Does this work now?
 
-// void CViscoElasticity::flux_value(const FEMesh *mesh, const Element *element,
-// 				  const Flux *flux, const MasterPosition &pt,
-// 				  double time, SmallSystem *fluxdata)
-//   const
-// {
-//   if(*flux != *stress_flux) {
-//     throw ErrProgrammingError("Unexpected flux", __FILE__, __LINE__);
-//   }
 
-//   SymmMatrix3 strainrate;
-//   findGeometricStrainRate(mesh, element, pt, &strainrate, false);
+// TODO TIMEDERIV: Does flux_value work now?  No.  It doesn't crash,
+// but it's also not called...
 
-//   SymmMatrix3 stress = g_ijkl*strainrate;
+// WHAT IS GOING ON?
+//
+// The default FluxProperty::flux_matrix() numerically differentiates
+// static_flux_value(), not flux_value().  That's why defining
+// flux_value here isn't doing anything.  flux_value() is called only
+// by Material::find_fluxdata() when evaluating a flux output.
+//
+// Should a property like viscoelasticity, which makes a flux
+// contribution with no static part, define flux_value() but not
+// static_flux_value()???
+//
+// What does DivergenceEquation::make_linear_system() do with stress
+// components computed here?  They should be used by
+// FluxProperty::flux_matrix(), maybe after numerical differentiation.
+
+#ifdef DEFINE_STATIC_FLUX_VALUE
+void CViscoElasticity::static_flux_value(const FEMesh *mesh, const Element *element,
+				  const Flux *flux, const MasterPosition &pt,
+				  double time, SmallSystem *fluxdata)
+  const
+{
+  if(*flux != *stress_flux) {
+    throw ErrProgrammingError("Unexpected flux", __FILE__, __LINE__);
+  }
+
+  SymmMatrix3 strainrate;
+  findGeometricStrainRate(mesh, element, pt, &strainrate, false);
+
+  SymmMatrix3 stress = g_ijkl*strainrate;
+  // std::cerr << "CViscoElasticity::static_flux_value: strainrate="
+  // 	   << strainrate << " stress=" << stress << std::endl;
   
-//   for(IndexP ij : *stress.components())
-//     fluxdata->flux_vector_element(ij) += stress[ij];
-// }
+  for(IndexP ij : *stress.components())
+    fluxdata->flux_vector_element(ij) += stress[ij];
+}
+#endif // DEFINE_STATIC_FLUX_VALUE
+
+void CViscoElasticity::flux_offset(const FEMesh *mesh,
+				   const Element *element,
+				   const Flux *flux,
+				   const MasterPosition &pt,
+				   double time, SmallSystem *fluxdata)
+  const
+{}
 
 void CViscoElasticity::output(FEMesh *mesh,
 			      const Element *element,

@@ -87,17 +87,18 @@ void Elasticity::flux_matrix(const FEMesh *mesh, const Element *element,
 			     double time, SmallSystem *fluxmtx)
   const
 {
-  double shapeFuncVal, shapeFuncGrad[2];
   // Unexpected fluxes are bad.
   if (*flux != *stress_flux) {
     throw ErrProgrammingError("Unexpected flux", __FILE__, __LINE__);
   }
+  std::cerr << "-------------" << std::endl;
 
-  shapeFuncVal     = node.shapefunction( x );
-  shapeFuncGrad[0] = node.dshapefunction( 0, x );
-  shapeFuncGrad[1] = node.dshapefunction( 1, x );
+  double shapeFuncVal = node.shapefunction(x);
+  double shapeFuncGrad[] = {node.dshapefunction(0, x),
+   			    node.dshapefunction(1, x)};
 
-  const Cijkl modulus = cijkl( mesh, element, x );
+  const Cijkl modulus = cijkl(mesh, element, x);
+  const MasterCoord mpt = x.mastercoord(); // debugging
 
   for(IndexP ij : *flux->components(ALL_INDICES)) {
 
@@ -105,12 +106,24 @@ void Elasticity::flux_matrix(const FEMesh *mesh, const Element *element,
     for(IndexP ell : *displacement->components(ALL_INDICES)) {
 
       // loop over k=0,1 is written out explicitly to save a tiny bit of time
-      SymTensorIndex ell0( 0, ell.integer() );
-      SymTensorIndex ell1( 1, ell.integer() );
+      SymTensorIndex ell0(0, ell.integer());
+      SymTensorIndex ell1(1, ell.integer());
 
-      fluxmtx->stiffness_matrix_element( *ij, displacement, ell, node ) -=
-                                   modulus( *ij, ell0 ) * shapeFuncGrad[0] +
-                                   modulus( *ij, ell1 ) * shapeFuncGrad[1];
+      for(int k=0; k<2; k++)
+	std::cerr << "flux_matrix:"
+		  << " el=" << element->get_index()
+		  << " mpt=(" << mpt(0) << "," << mpt(1) << ")"
+		  << " " << *displacement << " " << *node.node()
+		  << " ij=" << *ij.fieldindex()
+		  << " k=VectorFieldIndex(" << k << ")"
+		  << " mtx el=" << (modulus(*ij,
+					     SymTensorIndex(k, ell.integer()))
+				     * shapeFuncGrad[k])
+		  << std::endl;
+
+      fluxmtx->stiffness_matrix_element(*ij, displacement, ell, node) -=
+                                   modulus(*ij, ell0) * shapeFuncGrad[0] +
+                                   modulus(*ij, ell1) * shapeFuncGrad[1];
     } // end of loop over ell
 
     // loop over out-of-plane strains
@@ -119,10 +132,21 @@ void Elasticity::flux_matrix(const FEMesh *mesh, const Element *element,
 
       for(IndexP kay : *oop->components(ALL_INDICES))
       {
+	std::cerr << "flux_matrix:"
+		  << " el=" << element->get_index()
+		  << " mpt=(" << mpt(0) << "," << mpt(1) << ")"
+		  << " " << *oop
+		  << " " << *node.node()
+		  << " ij=" << *ij.fieldindex()
+		  << " k=" << *kay.fieldindex()
+		  << " sf=" << shapeFuncVal
+		  << " flxumatrx="
+		  << -modulus(ij, SymTensorIndex(2, kay.integer()))*shapeFuncVal
+		  << std::endl;
 	// There are no net factors of 1/2 or 2 here for the
 	// off-diagonal terms, dammit.
-	fluxmtx->stiffness_matrix_element( ij, oop, kay, node )
-	  -= shapeFuncVal * modulus( ij, SymTensorIndex( 2, kay.integer()) );
+	fluxmtx->stiffness_matrix_element(ij, oop, kay, node)
+	  -= shapeFuncVal * modulus(ij, SymTensorIndex( 2, kay.integer()));
       }
     } // end if
   } // end of loop over ij

@@ -1,0 +1,50 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.
+
+from ooflib.common import debug
+from ooflib.common.IO import parameter
+from ooflib.common.IO import xmlmenudump
+from ooflib.engine import problem
+from ooflib.engine import propertyregistration
+from ooflib.engine.IO import isocijkl
+
+class AltElasticityProp(CAltElasticityProp):
+    def __init__(self, name, registration, cijkl):
+        CAltElasticityProp.__init__(self, name, registration,
+                                    cijkl.tensorForm())
+
+reg = propertyregistration.PropertyRegistration(
+    name="Mechanical:Elasticity:Alt",
+    subclass=AltElasticityProp,
+    ordering=0,
+    params=[
+        isocijkl.IsotropicCijklParameter(
+            'cijkl',
+            isocijkl.IsotropicRank4TensorCij(c11=1.0, c12=0.5),
+            tip=parameter.emptyTipString)],
+    outputs=["Energy", "Material Constants:Mechanical:Elastic Modulus C"],
+    propertyType="Elasticity",
+    secret = not debug.debug(),  # not usually visible
+    tip='Alternative isotropic linear elasticity.',
+    discussion="""
+    <para>
+    Isotropic elasticity property that uses numerical differentiation of the
+    stress to find the modulus.  For debugging and testing only.
+    </para>"""
+)
+
+reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Displacement],
+             time_derivs=[0])
+
+
+## TODO: Why are there empty directories or directories containing
+## only __init__.py like
+# ~/lib/python3.11/site-packages/oof2/ooflib/engine/properties/elasticity/iso
+# ?

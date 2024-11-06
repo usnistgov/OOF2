@@ -63,3 +63,4 @@ import ooflib.engine.properties.heatconductivity.pyheatconductivity
 import ooflib.engine.properties.elasticity.pyelasticity
 import ooflib.engine.properties.stressfreestrain.pystressfreestrain
 
+import ooflib.SWIG.engine.properties.elasticity.alt.alt

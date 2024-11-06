@@ -1792,6 +1792,12 @@ class OOF_ElasticPlaneStressPlaneStrainExact(SaveableMeshTest):
             field=Displacement,
             initializer=ConstTwoVectorFieldInit(cx=0.0,cy=0.0))
 
+        # This is the tolerance used when comparing results to
+        # expected values.  It is set differently in the subclasses
+        # that use AltElasticityProp, which uses numerical
+        # differentiation and is less accurate.
+        self.tolerance = 1.e-10
+
     @memorycheck.check("microstructure")
     def StaticPlaneStrain(self):
         OOF.Mesh.Field.In_Plane(mesh='microstructure:skeleton:mesh',
@@ -1820,8 +1826,10 @@ class OOF_ElasticPlaneStressPlaneStrainExact(SaveableMeshTest):
             boundary='right',
             analyzer=IntegrateBdyFlux(flux=Stress),
             destination=OutputStream(filename='test.dat', mode='w'))
-        self.assertTrue(file_utils.compare_last('test.dat',
-                                             (0.0, 0.0740740741, 0.0)))
+        self.assertTrue(
+            file_utils.compare_last('test.dat',
+                                    (0.0, 0.0740740741, 0.0),
+                                    tolerance=self.tolerance))
         OOF.Mesh.Analyze.Average(
             mesh='microstructure:skeleton:mesh',
             time=latest,
@@ -1882,6 +1890,32 @@ class OOF_ElasticPlaneStressPlaneStrainExact(SaveableMeshTest):
 
     def tearDown(self):
         outputdestination.forgetTextOutputStreams()
+        OOF.Property.Delete(property='Mechanical:Elasticity:Isotropic:iso8')
+        OOF.Material.Delete(name="material")
+
+# OOF_EPSPSE_Alt uses the Alt elasticity, which numerically
+# differentiates the stress to obtain the stiffness matrix.
+
+class OOF_EPSPSE_Alt(OOF_ElasticPlaneStressPlaneStrainExact):
+    def setUp(self):
+        super().setUp()
+        # Substitute
+        OOF.Material.Remove_property(
+            name='material',
+            property='Mechanical:Elasticity:Isotropic:iso8')
+        OOF.Property.Copy(
+            property='Mechanical:Elasticity:Alt',
+            new_name='iso8')
+        OOF.Property.Parametrize.Mechanical.Elasticity.Alt.iso8(
+            cijkl=IsotropicRank4TensorEnu(young=0.66666666666666663,
+                                          poisson=0.2))
+        OOF.Material.Add_property(
+            name='material', property='Mechanical:Elasticity:Alt:iso8')
+        self.tolerance = 1.e-4
+    
+    def tearDown(self):
+        outputdestination.forgetTextOutputStreams()
+        OOF.Property.Delete(property='Mechanical:Elasticity:Alt:iso8')
         OOF.Property.Delete(property='Mechanical:Elasticity:Isotropic:iso8')
         OOF.Material.Delete(name="material")
 
@@ -3396,6 +3430,8 @@ static_set = [
     OOF_1x1ElasticDynamic("Static"),
     OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStrain"),
     OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStress"),
+    OOF_EPSPSE_Alt("StaticPlaneStrain"),
+    OOF_EPSPSE_Alt("StaticPlaneStress"),
     ThermalExpansionTest("Basic"),
     ThermalExpansionTest("Advanced")
 ]
@@ -3478,12 +3514,17 @@ test_set = (static_set +
             oop_periodic_set)
 
 ## Uncomment this to run just a few tests when debugging.
-# test_set = [
-#     #OOF_ViscoElasticity("SS22"),
-#     OOF_ThermalDiffusionTSPlaneFlux("CNSaveRestore")
-# ]
+test_set = [
+    # OOF_ViscoElasticity("SS22"),
+    # OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStress")
+    # OOF_ThermalDiffusionTSPlaneFlux("CNSaveRestore")
+    #OOF_EPSPSE_Alt("StaticPlaneStrain"),
+    OOF_EPSPSE_Alt("StaticPlaneStress")
+]
 # for test in test_set:
 #     test.shortening = 1.0
 #     test.suffix = ""
 #     # test.shortening = 0.1
 #     # test.suffix = "-short"
+
+# test_set = static_set

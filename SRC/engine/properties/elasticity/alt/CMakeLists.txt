@@ -8,24 +8,12 @@
 
 target_sources(oof2engine
   PRIVATE
-  cijkl.C
-  cijkl.h
-  elasticity.C
-  elasticity.h
-  )
+  alt.C
+  alt.h)
 
 oof_swig_sources(
   SWIGFILES
-  cijkl
-  elasticity
+  alt
   LIBRARIES
   oof2common
   oof2engine)
-
-add_subdirectory(aniso)
-add_subdirectory(iso)
-add_subdirectory(thermo)
-add_subdirectory(visco)
-add_subdirectory(nonlinear)
-add_subdirectory(largestrain)
-add_subdirectory(alt)

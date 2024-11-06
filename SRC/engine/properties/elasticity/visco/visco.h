@@ -32,6 +32,9 @@ class SymmetricTensorFlux;
 
 // TODO: Add all symmetries.
 
+#define DEFINE_FLUX_MATRIX
+#define DEFINE_STATIC_FLUX_VALUE
+
 class CViscoElasticity : public FluxProperty {
 private:
   Cijkl g_ijkl;
@@ -40,6 +43,7 @@ private:
 public:
   CViscoElasticity(const std::string &name, PyObject *registration, Cijkl &g);
   virtual ~CViscoElasticity() {}
+#ifdef DEFINE_FLUX_MATRIX
   virtual void flux_matrix(const FEMesh *mesh,
 			   const Element *element,
 			   const ElementFuncNodeIterator &nu,
@@ -47,8 +51,15 @@ public:
 			   const MasterPosition &x,
 			   double time,
 			   SmallSystem *fluxmtx) const;
-  // virtual void flux_value(const FEMesh*, const Element*, const Flux*,
-  // 			  const MasterPosition&, double, SmallSystem*) const;
+#endif // DEFINE_FLUX_MATRIX
+#ifdef DEFINE_STATIC_FLUX_VALUE
+  virtual void static_flux_value(const FEMesh*, const Element*, const Flux*,
+    			  const MasterPosition&, double, SmallSystem*) const;
+#endif // DEFINE_STATIC_FLUX_VALUE
+  virtual void flux_offset(const FEMesh*, const Element*,
+			   const Flux*, const MasterPosition&, double time,
+			   SmallSystem*)
+    const;
   virtual int integration_order(const CSubProblem*, const Element*) const;
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);
