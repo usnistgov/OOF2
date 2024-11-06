@@ -135,7 +135,14 @@ const std::string DoubleVec::str() const {
 }
 
 std::ostream& operator<<(std::ostream& os, const DoubleVec& vec) {
-  os << vec.data;  
+  bool notfirst = false;
+  for(double x : vec) {
+    if(notfirst)
+      os << " ";
+    else
+      notfirst = true;
+    os << x;
+  }
   return os;
 }
 
