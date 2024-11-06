@@ -80,32 +80,27 @@ void findGeometricStrainRate(const FEMesh *mesh, const Element *element,
 // return it from this function, instead of passing in a SmallMatrix.
 // Or just return a SmallMatrix.
 
-// TODO: Using the Output machinery for this feels wrong.  The
-// versions of Field::value() that interpolate within a Element would
-// be more natural, but perhaps slower.  The Output machinery does all
-// the interpolation for all field components at once, whereas
-// Field::value would have to be called for each component
-// individually.
-
 static void computeFieldGradient(const FEMesh *mesh, const Element *element,
 				 const MasterPosition &pt, const Field *field,
 				 Field *oop, SmallMatrix &grad)
 {
 
   assert(grad.rows() == 3 && grad.cols() == 3);
-  
-  for(SpaceIndex j=0; j<DIM; ++j) { // loop over gradient components
-    ArithmeticOutputValue oddisp =
-      element->outputFieldDeriv(mesh, *field, &j, pt);
-    // loop over field components
-    for(IndexP i : *field->components(ALL_INDICES)) 
-      grad(i.integer(), j) += oddisp[i];
-  }
 
+  // TODO: This is inefficient, beccause the repeated calls to
+  // Field::value() and Field::gradient() are recomputing identical
+  // shape functions.  There could be versions of those functions that
+  // operate on non-scalar data.  OTOH, the shape function values are
+  // cached and evaluating them should be quick.
+  for(SpaceIndex j=0; j<DIM; ++j) { // gradient component
+    for(IndexP i : *field->components(ALL_INDICES)) {
+      grad(i.integer(), j) += field->gradient(mesh, element, pt, i, j);
+    }
+  }
   if(oop) {
-    ArithmeticOutputValue oddispz = element->outputField(mesh, *oop, pt);
-    for(IndexP i : *oop->components(ALL_INDICES))
-      grad(i.integer(), 2) += oddispz[i]; 
+    for(IndexP i : *oop->components(ALL_INDICES)) {
+      grad(i.integer(), 2) += oop->value(mesh, element, pt, i);
+    }
   }
 }
 
