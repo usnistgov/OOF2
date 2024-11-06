@@ -22,6 +22,10 @@ file_utils.generate = True
 ## TODO: Add tests for all different domain and sampling types.
 ## Include non-rectangular pixel groups and selections.
 
+## TODO TIMEDEP: Solve visco elastic time dependent problem w/o mass.
+## Then evaluate some output at t=0 and make sure it's the same as the
+## initial value.
+
 class OOF_Output(unittest.TestCase):
     def setUp(self):
         global femesh, cskeleton
