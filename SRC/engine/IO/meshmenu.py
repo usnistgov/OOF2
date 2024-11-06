@@ -49,6 +49,7 @@ if parallel_enable.enabled():
     from ooflib.engine.IO import meshIPC
 
 import ooflib.engine.mesh
+import sys
 
 SyncMeshParameter = ooflib.engine.mesh.SyncMeshParameter
 
@@ -1712,3 +1713,30 @@ OOF.Mesh.addItem(oofmenu.OOFMenuItem(
     xrefs=["Section-Tasks-Solver"]
 ))
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+def _compare(menuitem, mesh1, mesh2, tolerance):
+    meshctxt1 = ooflib.engine.mesh.meshes[mesh1]
+    meshctxt2 = ooflib.engine.mesh.meshes[mesh2]
+
+    message = meshctxt1.compare(meshctxt2, tolerance)
+    if message:
+        reporter.report("Mesh comparison failed!", message)
+    else:
+        reporter.report("Meshes agree.")
+        
+
+mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem(
+    'Compare_Meshes',
+    callback=_compare,
+    params=[
+        whoville.WhoParameter('mesh1', ooflib.engine.mesh.meshes,
+                              tip=parameter.emptyTipString),
+        whoville.WhoParameter('mesh2', ooflib.engine.mesh.meshes,
+                              tip=parameter.emptyTipString),
+        parameter.FloatParameter("tolerance", value=1.e-10,
+                                 tip="Absolute tolerance")
+        ],
+    help='Compare two Meshes, mostly for debugging.',
+    ))
+            

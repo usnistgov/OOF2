@@ -1139,14 +1139,13 @@ class Mesh(whoville.Who):
                                 return ("Field activity differs for %s"
                                         " on subproblem %s" % 
                                         (repr(field), subpname))
-                            if config.dimension() == 2:
-                                if (mymesh.in_plane(field)
-                                    != othermesh.in_plane(field)):
-                                    return (
-                                        "Field planarity differs for %s on"
-                                        " subproblem %s" % (repr(field), subpname))
-                                oop = (not mymesh.in_plane(field) and
-                                       field.out_of_plane())
+                            if (mymesh.in_plane(field)
+                                != othermesh.in_plane(field)):
+                                return (
+                                    "Field planarity differs for %s on"
+                                    " subproblem %s" % (repr(field), subpname))
+                            oop = (not mymesh.in_plane(field) and
+                                   field.out_of_plane())
 
                             # Check that the field values agree at the
                             # nodes.  This is the only part of the
@@ -1162,8 +1161,8 @@ class Mesh(whoville.Who):
                                             " subproblem %s: %s!=%s"
                                             % (subpname, mynode.position(),
                                                othernode.position()))
-                                if _fielddiff(field, mymesh, mynode,
-                                              othermesh, othernode) > tol2:
+                                if (ms :=_fielddiff(field, mymesh, mynode,
+                                              othermesh, othernode)) > tol2:
                                     debug.fmsg(mynode,
                                                [field.value(mymesh, mynode, i)
                                                 for i in range(field.ndof())],
@@ -1171,17 +1170,28 @@ class Mesh(whoville.Who):
                                                [field.value(othermesh,
                                                             othernode, i)
                                                 for i in range(field.ndof())])
-                                    return ("%s values differ for"
-                                            " subproblem %s" %
-                                            (repr(field), subpname))
-                                if config.dimension() == 2:
-                                    if (oop and (_fielddiff(oop, mymesh, mynode,
-                                                           othermesh, othernode)
-                                                 > tol2)):
-                                        return ("Out-of-plane %s values"
-                                                " differ for subproblem %s",
-                                                (repr(field), subpname))
-
+                                    return (f"{field} values differ for "
+                                            f"subproblem {subpname}: "
+                                            f"rms={math.sqrt(ms)}")
+                                if (oop and (ms := _fielddiff(oop, mymesh,
+                                                               mynode,
+                                                               othermesh,
+                                                               othernode))
+                                    > tol2):
+                                    debug.fmsg(mynode,
+                                               [oop.value(mymesh, mynode, i)
+                                                for i in range(oop.ndof())])
+                                    debug.fmsg(othernode,
+                                               [oop.value(othermesh,
+                                                            othernode, i)
+                                                for i in range(oop.ndof())])
+                                    debug.fmsg("diffs:", [
+                                        (oop.value(mymesh, mynode, i) -
+                                        oop.value(othermesh, othernode, i))
+                                        for i in range(oop.ndof())])
+                                    return (f"Out-of-plane {field} values "
+                                            f"differ for subproblem {subpname} "
+                                            f"rms diff={math.sqrt(ms)}")
 
                 finally:
                     self.releaseCachedData()
