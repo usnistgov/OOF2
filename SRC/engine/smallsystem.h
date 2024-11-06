@@ -208,9 +208,13 @@ inline void SmallSystem::_set_index(const FieldIndex &fluxindex,
   const {
   // TODO OPT: Compute and cache the global index for the
   // field/node/component combo that you can see here.
+
+  // TODO: This should be a preprocessor macro, so that current_row
+  // and current_col can be local variables instead of class data.
   current_row = fluxindex.integer();
   current_col = efi.localindex(*field, &fieldindex);
-  // TODO: Bounds check?  Or is that too slow?
+  assert(0 <= current_row && current_row < nrows());
+  assert(0 <= current_col && current_col < ncols());
 }
 
 

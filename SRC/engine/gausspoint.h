@@ -84,7 +84,7 @@ public:
   int index() const; // So the cache can unambiguously identify gausspoints.
   Coord coord() const;
   virtual MasterCoord mastercoord() const;
-  virtual Coord position() const {return coord(); }
+  virtual Coord position() const { return coord(); }
   int order() const {return order_; }
   virtual double shapefunction(const ShapeFunction&, ShapeFunctionIndex)
     const;

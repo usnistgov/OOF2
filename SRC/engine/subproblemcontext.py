@@ -658,10 +658,10 @@ class SubProblemContext(whoville.Who):
         # be useful when debugging.
 
         # 'always' can be set with the command line option 
-        ##     --command "always=True".
+        #     --command "always_recompute=True".
         always = False   
         try:
-            always = utils.OOFeval('always')
+            always = utils.OOFeval('always_recompute')
         except NameError:
             pass
 
@@ -680,6 +680,7 @@ class SubProblemContext(whoville.Who):
         newDefinition = self.defnChanged > linsysComputed or always
         newFieldValues = (max(self.fieldsInstalled, mesh.fieldsInitialized)
                           > linsysComputed) or always
+        # debug.fmsg(f"{linsysComputed=} {self.fieldsInstalled=} {mesh.fieldsInitialized=} {always=} {newFieldValues=}")
         newTime = linsys is None or linsys.time() != time or always
         newBdys = (mesh.boundariesChanged > linsysComputed
                    or (newTime and self.timeDependentBCs())
@@ -703,6 +704,7 @@ class SubProblemContext(whoville.Who):
                   linsysComputed)))
             or (newTime and self.timeDependentProperties(flds))
             or always)
+        # debug.fmsg(f"{rebuildMatrices=}")
 
         if newDefinition:
             self.getObject().mapFields()
@@ -750,6 +752,7 @@ class SubProblemContext(whoville.Who):
         # the Fields, the old Dirichlet BCs may have been overwritten,
         # so they have to be reapplied.
         if bcsReset or newFieldValues:
+            # debug.fmsg(f"Calling resetFieldFlags: {bcsReset=} {newFieldValues=}")
             linsys.resetFieldFlags()
             femesh.invoke_fixed_bcs(subpobj, linsys, time)
         # utils.memusage("End if bcsReset or newFieldValues %s" %datetime.datetime.now())
@@ -841,6 +844,7 @@ class SubProblemContext(whoville.Who):
         derivOrder = self.time_stepper.derivOrder()
         if derivOrder == 0 or self.lowestTimeDerivative() < derivOrder:
             unknowns = self.get_unknowns(linsys)
+            # debug.fmsg(f"Initializing {len(unknowns)} unknowns")
             self.computeStaticFields(linsys, unknowns)
             self.installValues(linsys, unknowns, linsys.time())
 
@@ -879,6 +883,12 @@ class SubProblemContext(whoville.Who):
 
         # u0 = fields that have no time derivative terms.  These
         # correspond to empty columns in both M and C.
+
+        ## TODO: Something is wrong here now that time deriv fields
+        ## are defined for first order problems.  They should be
+        ## defined but not active, and not included in the counts, and
+        ## not initialized.  The non-time deriv fields shouldn't be
+        ## initialized here either.
 
         # u1, u2, and u2dot are set by initial conditions.  We're
         # solving for u0 and u1dot.
@@ -1013,7 +1023,7 @@ class SubProblemContext(whoville.Who):
             # Field values in the subproblem (not just the unknowns),
             # such as returned by CSubProblem::get_meshdofs().
             linsys.set_unknowns_Cdot_inplace(u1dot, endValues)
-
+        # debug.fmsg("done")
             
     ## Time stepping utilities
 
@@ -1075,7 +1085,7 @@ class SubProblemContext(whoville.Who):
         # needs to know the matrices, and therefore can only be called
         # after make_linear_system() is done.  So calling it here in
         # endStep() is correct.
-        
+
         self.computeAuxFirstDerivs(linsys, stepResult.endValues, self.endValues)
         
         self.endTime = stepResult.endTime
