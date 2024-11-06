@@ -132,8 +132,8 @@ public:
   void cache_active(const CSubProblem*, bool);
   bool currently_active(const CSubProblem*) const; // returns cached value
   bool is_computable(const CSubProblem*) const;
-  void find_computable(const CSubProblem*);
-  bool currently_computable(const CSubProblem*) const;
+  // void find_computable(const CSubProblem*);
+  // bool currently_computable(const CSubProblem*) const;
   void cache_nonlinearity(const CSubProblem*, bool);
   bool currently_nonlinear(const CSubProblem*) const;
 
@@ -242,45 +242,19 @@ public:
 
 
 class FluxProperty: public PhysicalProperty {
-private:
-  // 'recurse' is used to prevent the default versions of flux_matrix
-  // and static_flux_value from both being used at once, since they
-  // call each other.  recurse must be mutable because flux_matrix and
-  // static_flux_value are const functions.
-#ifdef HAVE_OPENMP
-  // recurse is shared by multiple threads when make_linear_system is
-  // running in parallel. So it has a copy for each thread.
-  mutable std::deque<bool> recurse_flags;
-#else
-  mutable bool recurse;
-#endif
-  DoubleVec &fluxDeriv(const FEMesh*, const Element*,
-		       const ElementFuncNodeIterator&, const Flux*,
-		       const MasterPosition&, double time, const Field*,
-		       const IndexP&, SmallSystem&, SmallSystem&) const;
-
 public:
   FluxProperty(const std::string &nm, PyObject *registration)
     : PhysicalProperty(nm,registration)
-  {
-#ifdef HAVE_OPENMP
-    recurse_flags.resize(omp_get_max_threads(), true);
-#endif
-  }
+  {}
 
-  // The flux is currently considered to have one of the following forms
+  // The flux is currently considered to have the following form
   //
-  //  (1)  flux = sigma(x,u,Du) + C Du^dot
-  //
-  //  (2)  flux = K(x,u,Du) Du + sigma_0(x,u,Du) + C Du^dot
+  //  flux = K(x,u,Du) Du + sigma_0(x,u,Du) + C Du^dot
   //
   // where u is the field and Du is its gradient,
   //       Du^dot is the time derivative of Du.
   //
-  // In (1), sigma(x,u,Du) is the possibly nonlinear static part
-  // of the flux, depending on x, u, Du.
-  //
-  // In (2), K(x,u,Du) is the linearization/derivative of the flux
+  // K(x,u,Du) is the linearization/derivative of the flux
   // with respect to Du and is typically only x-dependent for linear
   // problems. sigma_0(x,u,Du) is the flux offset that captures
   // remaining dependences on u & Du. The following is true by definition
@@ -295,30 +269,33 @@ public:
     const;
 
   // Redefining each of the following functions is optional in derived
-  // classes, but at least one of them must be redefined.  TODO: Fix
-  // this comment.
+  // classes.
 
   // Linearization/derivative of the flux with respect to field and
-  // field derivatives.
-  // Used to assemble the stiffness matrix and the Jacobian matrix.
-  // The default implementation of flux_matrix computes the numerical
-  // derivative of the result returned by static_flux_value().
+  // field derivatives.  Used to assemble the stiffness matrix and the
+  // Jacobian matrix.  The default implementation of flux_matrix
+  // computes the numerical derivative of the result returned by
+  // static_flux_value().
   virtual void flux_matrix(const FEMesh*, const Element*,
 			   const ElementFuncNodeIterator&,
 			   const Flux*, const MasterPosition&,
-			   double time, SmallSystem*)
-    const;
+			   double time, SmallSystem*) const
+  {}
 
   // Flux offset as described above.
   virtual void flux_offset(const FEMesh*, const Element*,
 			   const Flux*, const MasterPosition&, double time,
-			   SmallSystem*)
-    const;
+			   SmallSystem*) const
+  {}
 
   // The actual value of the flux at the given element and given point.
+
+  // TODO: If eliminating static_flux_value, the default version of
+  // flux_value should be what static_flux_value is now.
   virtual void flux_value(const FEMesh *mesh, const Element *element,
 			  const Flux *flux, const MasterPosition &pt,
 			  double time, SmallSystem *fluxdata) const;
+  
 
   // The static portion of the flux vector/tensor, equal to flux_value
   // for most cases, but not for viscoelasticity.  The default
@@ -326,7 +303,6 @@ public:
   virtual void static_flux_value(const FEMesh *mesh, const Element *element,
 				 const Flux *flux, const MasterPosition &pt,
 				 double time, SmallSystem *fluxdata) const;
-
 
   // These functions are called from material.C before and after the
   // flux contributions are requested.  If properties have
@@ -359,21 +335,22 @@ public:
     const;
 
   // A derived class can optionally redefine any of these functions.
-  // It must redefine at least one of them.
+  // It must redefine at least one of them if it is to have any
+  // effect.
 
   // The linearization/derivative of force with respect to field.
   virtual void force_deriv_matrix(const FEMesh*, const Element*,
 				  const Equation*,
 				  const ElementFuncNodeIterator&,
 				  const MasterPosition&,
-				  double time, SmallSystem* )
-    const;
+				  double time, SmallSystem* ) const
+  {}
 
   // The value of the force at a given element and given point.
   virtual void force_value(const FEMesh*, const Element*,
 			   const Equation*, const MasterPosition&,
 			   double time, SmallSystem* )
-    const { return; }
+    const { }
 
   // Contributions to the coefficient of the 1st time-deriv of the field.
   // An example of this is heat capacity.
@@ -382,7 +359,7 @@ public:
 				       const ElementFuncNodeIterator&,
 				       const MasterPosition&,
 				       double time, SmallSystem* )
-    const { return; }
+    const { }
 
   // Contributions to the coefficient of the 2nd time-deriv of the field.
   // An example of this is mass density.
@@ -391,7 +368,7 @@ public:
 					const ElementFuncNodeIterator&,
 					const MasterPosition&,
 					double time, SmallSystem* )
-    const { return; }
+    const { }
 
   // These functions are called from material.C before and after the
   // equation contributions are requested.  If properties have
@@ -404,6 +381,4 @@ public:
   
 }; // end of EqnProperty class definition
 
-extern double deriv_eps;
-
-#endif
+#endif	// PROPERTY_H

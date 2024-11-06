@@ -93,8 +93,6 @@ class EqnProperty : public PhysicalProperty {};
 class AuxiliaryProperty : public Property {};
   
 
-double deriv_eps;
-
 %pythoncode "engine/property.spy"
 
 // Cancel the earlier %rename, so that this file can be safely

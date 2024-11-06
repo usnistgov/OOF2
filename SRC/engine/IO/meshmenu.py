@@ -1549,50 +1549,6 @@ meshsettingsmenu.addItem(oofmenu.OOFMenuItem(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-## TODO: Either deriv_eps needs to be local to a solver, or there
-## needs to be a way to ensure that it's not changed while a solver is
-## using it.
-
-from ooflib.SWIG.engine import property
-
-def _numericalDiff(menuitem, epsilon):
-    property.cvar.deriv_eps = epsilon
-
-solversettingsmenu.addItem(oofmenu.OOFMenuItem(
-    "Numerical_Differentiation",
-    callback=_numericalDiff,
-    params=[
-        parameter.FloatParameter(
-            "epsilon",
-            property.cvar.deriv_eps,
-            tip="Increment for numerical differentiation")],
-    help="Set the increment used for numerical differentiation.",
-    discussion=xmlmenudump.loadFile(
-        'DISCUSSIONS/engine/menu/numericaldiff.xml')
-))
-
-# Numerical_Differentiation was moved from Settings.Mesh_Defaults to
-# Settings.Solver.  This is an invisible copy of it in Mesh_Defaults
-# so that scripts don't break.
-meshsettingsmenu.addItem(oofmenu.OOFMenuItem(
-    "Numerical_Differentiation",
-    callback=_numericalDiff,
-    params=[
-        parameter.FloatParameter(
-            "epsilon",
-            property.cvar.deriv_eps,
-            tip="Increment for numerical differentiation")],
-    secret=1, no_doc=1, cli_only=1,
-    help="Set the increment used for numerical differentiation.",
-    discussion="""<para>
-    Use <xref
-    linkend="OOF.Settings.SolverSettings.Numerical_Differentiation"/>
-    instead.
-    </para>"""
-))
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
 def _removeAllSolvers(menuitem, mesh):
     meshctxt = ooflib.engine.mesh.meshes[mesh]
     for subprob in meshctxt.subproblems():
