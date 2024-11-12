@@ -192,8 +192,11 @@ public:
       comp(comp)
   {}
   virtual double operator()(const FuncNode *node) {
-    DegreeOfFreedom *dof = (*field)(node, comp.integer());
-    return dof->value(mesh);
+    if(node->hasField(*field)) {
+      DegreeOfFreedom *dof = (*field)(node, comp.integer());
+      return dof->value(mesh);
+    }
+    return 0;
   }
 };
 
