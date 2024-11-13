@@ -8,7 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-## This tests for the absense of a bug that crashed the program when
+## This tests for the absence of a bug that crashed the program when
 ## computing PropertyOutputs of Meshes that had elements with no
 ## assigned Material.
 
