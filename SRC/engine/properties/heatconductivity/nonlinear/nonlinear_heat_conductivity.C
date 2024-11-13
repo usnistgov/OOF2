@@ -50,13 +50,12 @@ int NonlinearHeatConductivityNoDeriv::integration_order(const CSubProblem *subp,
 }
 
 
-void NonlinearHeatConductivityNoDeriv::static_flux_value(
-						 const FEMesh  *mesh,
-						 const Element *element,
-						 const Flux    *flux,
-						 const MasterPosition &pt,
-						 double time,
-						 SmallSystem *fluxdata)
+void NonlinearHeatConductivityNoDeriv::flux_value(const FEMesh *mesh,
+						  const Element *element,
+						  const Flux *flux,
+						  const MasterPosition &pt,
+						  double time,
+						  SmallSystem *fluxdata)
   const
 {
   // first evaluate the temperature field and the temperature gradient
@@ -89,7 +88,7 @@ void NonlinearHeatConductivityNoDeriv::static_flux_value(
   // which will later be added to the global div_flux vector
   fluxdata->fluxVector() += fluxVector;
 
-} // end of 'NonlinearHeatConductivityNoDeriv::static_flux_value'
+} // end of 'NonlinearHeatConductivityNoDeriv::flux_value'
 
 
 void NonlinearHeatConductivity::flux_matrix(const FEMesh  *mesh,

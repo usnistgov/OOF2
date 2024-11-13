@@ -48,12 +48,10 @@ int HeatConductivity::integration_order(const CSubProblem *subp,
 }
 
 
-void HeatConductivity::static_flux_value(const FEMesh  *mesh,
-					 const Element *element,
-					 const Flux    *flux,
-					 const MasterPosition &pt,
-					 double time,
-					 SmallSystem *fluxdata) const
+void HeatConductivity::flux_value(const FEMesh *mesh, const Element *element,
+				  const Flux *flux, const MasterPosition &pt,
+				  double time, SmallSystem *fluxdata)
+  const
 {
   // first evaluate the temperature gradient
   DoubleVec fieldGradient(3);
@@ -63,7 +61,7 @@ void HeatConductivity::static_flux_value(const FEMesh  *mesh,
   }
 
   // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane field
-  if ( !temperature->in_plane(mesh) ){
+  if (!temperature->in_plane(mesh)){
     // CompoundField::out_of_plane returns a Field*, not a
     // ScalarField*, so we need to call the generic Field::value that
     // requires the FieldIndex to be provided.
@@ -76,15 +74,15 @@ void HeatConductivity::static_flux_value(const FEMesh  *mesh,
   // where 'cond' is the conductivity tensor and dT_j is
   // jth component of the gradient of the temperature field
 
-  const SymmMatrix3 cond( conductivitytensor( mesh, element, pt ) );
+  const SymmMatrix3 cond(conductivitytensor(mesh, element, pt));
 
   for(int i=0; i<3; i++) 
-    fluxdata->flux_vector_element( i ) -= 
-      cond( i, 0 ) * fieldGradient[0] +
-      cond( i, 1 ) * fieldGradient[1] +
-      cond( i, 2 ) * fieldGradient[2];
+    fluxdata->flux_vector_element(i) -= 
+      cond(i, 0) * fieldGradient[0] +
+      cond(i, 1) * fieldGradient[1] +
+      cond(i, 2) * fieldGradient[2];
 
-} // end of 'HeatConductivity::static_flux_value'
+} // end of 'HeatConductivity::flux_value'
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -106,11 +104,11 @@ void HeatConductivity::flux_matrix(const FEMesh  *mesh,
     throw ErrProgrammingError("Unexpected flux", __FILE__, __LINE__);
   }
 
-  double sf   = j.shapefunction( pt );
-  double dsf0 = j.dshapefunction( 0, pt );
-  double dsf1 = j.dshapefunction( 1, pt );
+  double sf   = j.shapefunction(pt);
+  double dsf0 = j.dshapefunction(0, pt);
+  double dsf1 = j.dshapefunction(1, pt);
 
-  const SymmMatrix3 cond( conductivitytensor( mesh, el, pt ) );
+  const SymmMatrix3 cond(conductivitytensor(mesh, el, pt));
 
   // Loop over flux components.  Loop over all components, even if
   // the flux is in-plane, because the out-of-plane components of
@@ -118,7 +116,7 @@ void HeatConductivity::flux_matrix(const FEMesh  *mesh,
 
   for(IndexP i : *flux->components(ALL_INDICES)) {
     // in-plane temperature gradient contributions
-    fluxdata->stiffness_matrix_element( i, temperature, j ) -=
+    fluxdata->stiffness_matrix_element(i, temperature, j) -=
                   cond(i.integer(), 0) * dsf0 + cond(i.integer(), 1) * dsf1;
 
     // out-of-plane temperature gradient contribution

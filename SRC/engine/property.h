@@ -85,12 +85,16 @@ class SmallSystem;
 //  - force_deriv_matrix
 //  - first_time_deriv_matrix
 //  - second_time_deriv_matrix
+// The default definitions of the EqnProperty methods are no-ops, but
+// some must be redefined for a EqnProperty to be useful.
 //
 // The FluxProperty API contains
-//  - flux_value
-//  - static_flux_value
-//  - flux_offset
-//  - flux_matrix
+//  - flux_value           (default definition uses flux_matrix and flux_offset)
+//  - static_flux_value    (default definition is flux_value)
+//  - flux_offset          (default definition is a no-op)
+//  - flux_matrix          (default definition is a no-op)
+// Either flux_matrix or flux_offset must be defined for a
+// FluxProperty to be useful.
 
 
 class Property: virtual public PythonExportable<Property> {
@@ -249,17 +253,17 @@ public:
 
   // The flux is currently considered to have the following form
   //
-  //  flux = K(x,u,Du) Du + sigma_0(x,u,Du) + C Du^dot
+  //    flux = K(x,u,Du) Du + sigma_0(x,u,Du) + C Du^dot
   //
-  // where u is the field and Du is its gradient,
-  //       Du^dot is the time derivative of Du.
+  // where u is the field and Du is its gradient, and Du^dot is the
+  // time derivative of Du.
   //
   // K(x,u,Du) is the linearization/derivative of the flux
   // with respect to Du and is typically only x-dependent for linear
   // problems. sigma_0(x,u,Du) is the flux offset that captures
   // remaining dependences on u & Du. The following is true by definition
   //
-  //    sigma(x,u,Du) = K(x,u,Du) Du + sigma_0(x,u,Du)
+  //    sigma(x,u,Du) = K(x,u,Du) Du + C(x) Du^dot + sigma_0(x,u,Du)
   //
 
   void make_flux_contributions(const FEMesh*, const Element*,
@@ -268,30 +272,31 @@ public:
 			       const CNonlinearSolver*, SmallSystem*)
     const;
 
-  // Redefining each of the following functions is optional in derived
-  // classes.
+  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+  
+  // Redefining each of the following four methods is optional in
+  // derived classes, but if the FluxProperty is to have an effect,
+  // either flux_matrix or flux_offset must be redefined.  The methods
+  // all store their results in the passed-in SmallSystem object.
 
   // Linearization/derivative of the flux with respect to field and
   // field derivatives.  Used to assemble the stiffness matrix and the
-  // Jacobian matrix.  The default implementation of flux_matrix
-  // computes the numerical derivative of the result returned by
-  // static_flux_value().
+  // Jacobian matrix. 
   virtual void flux_matrix(const FEMesh*, const Element*,
 			   const ElementFuncNodeIterator&,
 			   const Flux*, const MasterPosition&,
 			   double time, SmallSystem*) const
   {}
 
-  // Flux offset as described above.
+  // Value of the flux when Du and Du^dot are zero.
   virtual void flux_offset(const FEMesh*, const Element*,
 			   const Flux*, const MasterPosition&, double time,
 			   SmallSystem*) const
   {}
 
-  // The actual value of the flux at the given element and given point.
-
-  // TODO: If eliminating static_flux_value, the default version of
-  // flux_value should be what static_flux_value is now.
+  // The actual value of the flux at the given element and given
+  // point.  The default definition computes the flux from the flux
+  // matrix and offset.  Specialized properties can redefine it.
   virtual void flux_value(const FEMesh *mesh, const Element *element,
 			  const Flux *flux, const MasterPosition &pt,
 			  double time, SmallSystem *fluxdata) const;
@@ -299,10 +304,20 @@ public:
 
   // The static portion of the flux vector/tensor, equal to flux_value
   // for most cases, but not for viscoelasticity.  The default
-  // implementation returns flux_matrix()*field + flux_offset.
+  // implementation returns flux_value.
+  
+  // oof2 assumes that nonlinearities in a FluxProperty only depend on
+  // the field and its gradient, not on its time derivative.  The
+  // nonlinear solvers need to compute the static part of the flux in
+  // order to find the residual at each step.  static_flux_value needs
+  // to be redefined in any FluxProperty subclass that is both
+  // non-linear and dependent on the time derivative of an active
+  // field.
   virtual void static_flux_value(const FEMesh *mesh, const Element *element,
 				 const Flux *flux, const MasterPosition &pt,
 				 double time, SmallSystem *fluxdata) const;
+
+  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
   // These functions are called from material.C before and after the
   // flux contributions are requested.  If properties have
@@ -343,14 +358,14 @@ public:
 				  const Equation*,
 				  const ElementFuncNodeIterator&,
 				  const MasterPosition&,
-				  double time, SmallSystem* ) const
+				  double time, SmallSystem*) const
   {}
 
   // The value of the force at a given element and given point.
   virtual void force_value(const FEMesh*, const Element*,
 			   const Equation*, const MasterPosition&,
-			   double time, SmallSystem* )
-    const { }
+			   double time, SmallSystem*)
+    const {}
 
   // Contributions to the coefficient of the 1st time-deriv of the field.
   // An example of this is heat capacity.
@@ -358,8 +373,8 @@ public:
 				       const Equation*,
 				       const ElementFuncNodeIterator&,
 				       const MasterPosition&,
-				       double time, SmallSystem* )
-    const { }
+				       double time, SmallSystem*)
+    const {}
 
   // Contributions to the coefficient of the 2nd time-deriv of the field.
   // An example of this is mass density.
@@ -367,8 +382,8 @@ public:
 					const Equation*,
 					const ElementFuncNodeIterator&,
 					const MasterPosition&,
-					double time, SmallSystem* )
-    const { }
+					double time, SmallSystem*)
+    const {}
 
   // These functions are called from material.C before and after the
   // equation contributions are requested.  If properties have

@@ -48,11 +48,9 @@ public:
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return false; }
   // virtual bool is_symmetric_K(const CSubProblem*) const { return false; }
-  virtual void static_flux_value(const FEMesh*, const Element*,
-				 const Flux*,
-				 const MasterPosition&,
-				 double time,
-				 SmallSystem *) const;
+  virtual void flux_value(const FEMesh*, const Element*, const Flux*,
+			  const MasterPosition&, double time, SmallSystem*)
+    const;
 protected:
   ScalarField *temperature;
   VectorFlux  *heat_flux;

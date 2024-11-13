@@ -1,6 +1,5 @@
 // -*- C++ -*-
 
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -44,11 +43,12 @@ public:
 			   const MasterPosition &x,
 			   double time,
 			   SmallSystem *fluxmtx) const;
-  virtual void static_flux_value(const FEMesh*, const Element*,
-				 const Flux*,
-				 const MasterPosition&,
-				 double time,
-				 SmallSystem *) const;
+  virtual void flux_value(const FEMesh*,
+			  const Element*,
+			  const Flux*,
+			  const MasterPosition&,
+			  double time,
+			  SmallSystem *) const;
   virtual int integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return true; }
 
@@ -67,4 +67,4 @@ protected:
 };
 
 
-#endif
+#endif	// ELASTICITY_H

@@ -190,7 +190,7 @@ void FluxProperty::make_flux_contributions(const FEMesh *mesh,
     // TODO TIMEDERIV: Check how nonlinear solvers use the residual.
     // Is it really just the static part of the flux?  What would
     // happen with a nonlinear flux with a linear viscoelastic part?
-    static_flux_value(mesh, element, flux, pt, time, fluxdata);
+    flux_value(mesh, element, flux, pt, time, fluxdata);
   }
 }
 
@@ -203,10 +203,9 @@ void FluxProperty::make_flux_contributions(const FEMesh *mesh,
 // This is the default computation if the flux property does not
 // specify its own definition.
 
-void FluxProperty::static_flux_value(const FEMesh *mesh, const Element *element,
-				     const Flux *flux,
-				     const MasterPosition &pt,
-				     double time, SmallSystem *fluxdata)
+void FluxProperty::flux_value(const FEMesh *mesh, const Element *element,
+			      const Flux *flux, const MasterPosition &pt,
+			      double time, SmallSystem *fluxdata)
   const
 {
   // retrieve the local coefficients for the field(s) into localdofs.
@@ -235,35 +234,25 @@ void FluxProperty::static_flux_value(const FEMesh *mesh, const Element *element,
   fluxdata->fluxVector() += localFluxData.offsetVector();
   fluxdata->fluxVector() += localFluxData.kMatrix*localdofs;
 
-  // TODO: Check to see if localdofs includes time derivatives.  If it
-  // doesn't, then compute dU/dt by inverting C?  Do we have enough
-  // information to do that?  It should be done only once for the
-  // whole Mesh, if possible.
-
-  // What if dU/dt is in localdofs for some nodes but not others?
-
-  // Don't worry about Property::flux_matrix() trying to numerically
-  // differentiate this function.  If flux_matrix() isn't redefined in
-  // the subclass, then static_flux_value() must be redefined, so this
-  // version of static_flux_value() won't be used.
-
-  
-  // If localdofs includes time derivative fields we can do this:
+  // If localdofs includes time derivative fields we can do this.  If
+  // localdofs doesn't include time derivative fields, then doing this
+  // is a no-op. TODO: Skip the call if it's a no-op.
   fluxdata->fluxVector() += localFluxData.cMatrix*localdofs;
 
-} // FluxProperty::static_flux_value
+} // FluxProperty::flux_value
 
 //=\\=//=\\=//=\\=//
 
-// The default flux_value is the static_flux_value.  Properties that
+// The default static_flux_value is the flux_value.  Properties that
 // make non-static contributions to the flux need to redefine this
 // function.
 
-void FluxProperty::flux_value(const FEMesh *mesh, const Element *element,
-			      const Flux *flux, const MasterPosition &pt,
-			      double time, SmallSystem *fluxdata) const
+void FluxProperty::static_flux_value(
+			     const FEMesh *mesh, const Element *element,
+			     const Flux *flux, const MasterPosition &pt,
+			     double time, SmallSystem *fluxdata) const
 {
-  static_flux_value(mesh, element, flux, pt, time, fluxdata);
+  flux_value(mesh, element, flux, pt, time, fluxdata);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

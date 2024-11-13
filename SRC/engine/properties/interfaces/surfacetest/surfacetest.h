@@ -62,7 +62,7 @@ public:
   virtual void cross_reference(Material*);
   virtual void post_process(CSubProblem*, const Element*) const;
 
-  virtual void static_flux_value(const FEMesh *mesh, const Element *element,
+  virtual void flux_value(const FEMesh *mesh, const Element *element,
 				 const Flux *flux, const MasterPosition &pt,
 				 double time, SmallSystem *fluxdata) const;
   virtual void flux_matrix(const FEMesh *mesh, const Element *el,

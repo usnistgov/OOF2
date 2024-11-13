@@ -48,12 +48,12 @@ int Current::integration_order(const CSubProblem *subp,
 
 
 
-void Current::static_flux_value(const FEMesh  *mesh,
-				const Element *element,
-				const Flux    *flux,
-				const MasterPosition &pt,
-				double time,
-				SmallSystem *fluxdata) const
+void Current::flux_value(const FEMesh *mesh,
+			 const Element *element,
+			 const Flux *flux,
+			 const MasterPosition &pt,
+			 double time,
+			 SmallSystem *fluxdata) const
 {
   // first evaluate the voltage gradient
 
@@ -82,7 +82,7 @@ void Current::static_flux_value(const FEMesh  *mesh,
       cond( i.integer(), 1 ) * fieldGradient[1] +
       cond( i.integer(), 2 ) * fieldGradient[2];
 
-} // end of 'Current::static_flux_value'
+} // end of 'Current::flux_value'
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

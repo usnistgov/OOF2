@@ -58,12 +58,12 @@ void IonDiffusion::cross_reference(Material *mat) {
   diffusion = dynamic_cast<Diffusion*>(mat->fetchProperty("Diffusion"));
 }
 
-void IonDiffusion::static_flux_value(const FEMesh  *mesh,
-				     const Element *element,
-				     const Flux    *flux,
-				     const MasterPosition &pt,
-				     double time,
-				     SmallSystem *fluxdata) const
+void IonDiffusion::flux_value(const FEMesh  *mesh,
+			      const Element *element,
+			      const Flux    *flux,
+			      const MasterPosition &pt,
+			      double time,
+			      SmallSystem *fluxdata) const
 {
   // Find the concentration value at this point.
   double c = concentration->value(mesh, element, pt);
@@ -108,7 +108,7 @@ void IonDiffusion::static_flux_value(const FEMesh  *mesh,
     throw ErrProgrammingError("Unexpected flux", __FILE__,__LINE__);
 
 
-} // end of 'IonDiffusion::static_flux_value'
+} // end of 'IonDiffusion::flux_value'
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

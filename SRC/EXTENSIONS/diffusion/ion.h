@@ -35,7 +35,7 @@ class ElementNodeIterator;
 // ion in an electrolyte.  It needs a diffusion coefficient, which it
 // gets from the Diffusion property in the material.  Its actual
 // arguments are the charge.  In principle, this property also
-// dependson the temperature.  For now, we fold all the stuff into the
+// depends on the temperature.  For now, we fold all the stuff into the
 // "z" parameter, but this isn't really right.
 
 class IonDiffusion : public FluxProperty {
@@ -47,11 +47,11 @@ public:
 			   const MasterPosition&,
 			   double time,
 			   SmallSystem *) const;
-  virtual void static_flux_value(const FEMesh*, const Element*,
-				 const Flux*,
-				 const MasterPosition&,
-				 double time,
-				 SmallSystem *) const;
+  virtual void flux_value(const FEMesh*, const Element*,
+			  const Flux*,
+			  const MasterPosition&,
+			  double time,
+			  SmallSystem *) const;
   virtual void cross_reference(Material*);
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return true; }

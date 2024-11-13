@@ -59,12 +59,12 @@ int Mobility::integration_order(const CSubProblem *subp,
 }
 
 
-void Diffusion::static_flux_value(const FEMesh  *mesh,
-					 const Element *element,
-					 const Flux    *flux,
-					 const MasterPosition &pt,
-					 double time,
-					 SmallSystem *fluxdata) const
+void Diffusion::flux_value(const FEMesh  *mesh,
+			   const Element *element,
+			   const Flux    *flux,
+			   const MasterPosition &pt,
+			   double time,
+			   SmallSystem *fluxdata) const
 {
   // first evaluate the concentration gradient
 
@@ -96,7 +96,7 @@ void Diffusion::static_flux_value(const FEMesh  *mesh,
       cond( i.integer(), 1 ) * fieldGradient[1] +
       cond( i.integer(), 2 ) * fieldGradient[2];
   
-} // end of 'Diffusion::static_flux_value'
+} // end of 'Diffusion::flux_value'
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

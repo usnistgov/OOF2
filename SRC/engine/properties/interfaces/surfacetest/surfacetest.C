@@ -108,13 +108,13 @@ void FluxSurfaceTest::cross_reference(Material *m) {
 void FluxSurfaceTest::post_process(CSubProblem *sp,
 				   const Element *e) const {}
 
-void FluxSurfaceTest::static_flux_value(const FEMesh *mesh,
-					const Element *element,
-					const Flux *flux,
-					const MasterPosition &pt,
-					double time,
-					SmallSystem *fluxdata) const {
-  std::cerr << "FluxSurfaceTest::static_flux_value called." << std::endl;
+void FluxSurfaceTest::flux_value(const FEMesh *mesh,
+				 const Element *element,
+				 const Flux *flux,
+				 const MasterPosition &pt,
+				 double time,
+				 SmallSystem *fluxdata) const {
+  std::cerr << "FluxSurfaceTest::flux_value called." << std::endl;
 }
 
 void FluxSurfaceTest::flux_matrix(const FEMesh *mesh,

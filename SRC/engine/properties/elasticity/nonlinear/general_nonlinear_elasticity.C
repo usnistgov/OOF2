@@ -52,30 +52,29 @@ int GeneralNonlinearElasticityNoDeriv::integration_order(
 }
 
 
-void GeneralNonlinearElasticityNoDeriv::static_flux_value(
-				  const FEMesh  *mesh,
-				  const Element *element,
-				  const Flux    *flux,
-				  const MasterPosition &pt,
-				  double time,
-				  SmallSystem *fluxdata) const
+void GeneralNonlinearElasticityNoDeriv::flux_value(const FEMesh  *mesh,
+						   const Element *element,
+						   const Flux *flux,
+						   const MasterPosition &pt,
+						   double time,
+						   SmallSystem *fluxdata)
+  const
 {
   DoubleVec dispVec(3);
   SmallMatrix dispGrad(3);
   SmallMatrix stress(3);
 
-
   // first compute the displacement and its gradient at the given point
 
-  computeDisplacement( mesh, element, pt, dispVec );
-  computeDisplacementGradient( mesh, element, pt, dispGrad );
+  computeDisplacement(mesh, element, pt, dispVec);
+  computeDisplacementGradient(mesh, element, pt, dispGrad);
 
 
   // compute the value of stress with the user-defined function
 
-  Coord coord = element->from_master( pt );
+  Coord coord = element->from_master(pt);
 
-  nonlin_stress( coord[0], coord[1], 0.0, time, dispVec, dispGrad, stress );
+  nonlin_stress(coord[0], coord[1], 0.0, time, dispVec, dispGrad, stress);
 
 
   // now we can plug in the flux element values to fluxdata
@@ -84,7 +83,7 @@ void GeneralNonlinearElasticityNoDeriv::static_flux_value(
     fluxdata->flux_vector_element(ij) -= stress(ij.row(), ij.col());
 
 
-} // end of 'GeneralNonlinearElasticityNoDeriv::static_flux_value'
+} // end of 'GeneralNonlinearElasticityNoDeriv::flux_value'
 
 
 void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
@@ -111,28 +110,28 @@ void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
 
   // first compute the displacement and its gradient at the given point
 
-  computeDisplacement( mesh, element, pt, dispVec );
-  computeDisplacementGradient( mesh, element, pt, dispGrad );
+  computeDisplacement(mesh, element, pt, dispVec);
+  computeDisplacementGradient(mesh, element, pt, dispGrad);
 
 
   // evaluate the value of flux derivatives with the given pt, time,
   // displacement etc
 
-  Coord coord = element->from_master( pt );
+  Coord coord = element->from_master(pt);
 
   // the derivative of the stress flux mapping w.r.t. displacement field
-  nonlin_stress_deriv_wrt_displacement( coord[0], coord[1], 0.0, time,
-					dispVec, dispGrad, stressDeriv1 );
+  nonlin_stress_deriv_wrt_displacement(coord[0], coord[1], 0.0, time,
+					dispVec, dispGrad, stressDeriv1);
   // the derivative of the stress flux mapping w.r.t. displacement gradient
-  nonlin_stress_deriv_wrt_displacement_gradient( coord[0], coord[1], 0.0, time,
-						 dispVec, dispGrad, stressDeriv2 );
+  nonlin_stress_deriv_wrt_displacement_gradient(coord[0], coord[1], 0.0, time,
+						 dispVec, dispGrad, stressDeriv2);
 
 
   // evaluate the shape function and its gradient at the given node j
 
-  double shapeFuncVal     = node.shapefunction( pt );
-  double shapeFuncGrad0 = node.dshapefunction( 0, pt );
-  double shapeFuncGrad1 = node.dshapefunction( 1, pt );
+  double shapeFuncVal     = node.shapefunction(pt);
+  double shapeFuncGrad0 = node.dshapefunction(0, pt);
+  double shapeFuncGrad1 = node.dshapefunction(1, pt);
 
   // finally add the contributions to the stiffness matrix element
 
@@ -142,17 +141,17 @@ void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
 
     for(IndexP kay : *displacement->components(ALL_INDICES)) {
       int k = kay.integer();
-      fluxmtx->stiffness_matrix_element( ij, displacement, kay, node ) -=
+      fluxmtx->stiffness_matrix_element(ij, displacement, kay, node) -=
 	stressDeriv1(i,j,k) * shapeFuncVal +
 	stressDeriv2(i,j,k,0) * shapeFuncGrad0 +
 	stressDeriv2(i,j,k,1) * shapeFuncGrad1;
     } // End of kay loop.
 
-    if ( !displacement->in_plane( mesh ) ){
+    if (!displacement->in_plane(mesh)) {
       Field *disp_z_deriv = displacement->out_of_plane();
       for(IndexP kayo : *disp_z_deriv->components(ALL_INDICES)) {
 	int ko = kayo.integer();
-	fluxmtx->stiffness_matrix_element( ij, disp_z_deriv, kayo, node ) -=
+	fluxmtx->stiffness_matrix_element(ij, disp_z_deriv, kayo, node) -=
 	  stressDeriv2(i,j,ko,2) * shapeFuncVal;
       }
     }
@@ -165,8 +164,8 @@ void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 
-inline double SQR(double x){ return x*x; }
-inline double CUBE(double x){ return x*x*x; }
+inline double SQR(double x) { return x*x; }
+inline double CUBE(double x) { return x*x*x; }
 
 
 void nonlin_stress_1(double x, double y, double z, double time,
@@ -174,12 +173,12 @@ void nonlin_stress_1(double x, double y, double z, double time,
 		     SmallMatrix &dispGrad,
 		     SmallMatrix &stress)
 {
-  stress(0,0) = dispGrad(0,0) + CUBE( dispGrad(0,0) );
+  stress(0,0) = dispGrad(0,0) + CUBE(dispGrad(0,0));
   stress(0,1) = dispGrad(0,1) + dispGrad(1,0);
   stress(0,2) = 0.0;
 
   stress(1,0) = dispGrad(0,1) + dispGrad(1,0);
-  stress(1,1) = dispGrad(1,1) + CUBE( dispGrad(1,1) );
+  stress(1,1) = dispGrad(1,1) + CUBE(dispGrad(1,1));
   stress(1,2) = 0.0;
 
   stress(2,0) = 0.0;
@@ -217,10 +216,10 @@ void nonlin_stress_deriv_wrt_displacement_gradient_1(
       stress_deriv(i,j,2,0) = stress_deriv(i,j,2,1) = stress_deriv(i,j,2,2) = 0.0;
     }
 
-  stress_deriv(0,0,0,0) = 1.0 + 3.0 * SQR( dispGrad(0,0) );
+  stress_deriv(0,0,0,0) = 1.0 + 3.0 * SQR(dispGrad(0,0));
   stress_deriv(0,1,0,1) = 1.0;
   stress_deriv(0,1,1,0) = 1.0;
-  stress_deriv(1,1,1,1) = 1.0 + 3.0 * SQR( dispGrad(1,1) );
+  stress_deriv(1,1,1,1) = 1.0 + 3.0 * SQR(dispGrad(1,1));
   stress_deriv(1,0,0,1) = 1.0;
   stress_deriv(1,0,1,0) = 1.0;
 
@@ -232,19 +231,19 @@ void nonlin_stress_2(double x, double y, double z, double time,
 		     SmallMatrix &dispGrad,
 		     SmallMatrix &stress)
 {
-  stress(0,0) = dispGrad(0,0) + CUBE( dispGrad(0,0) ) +
-                 ( dispGrad(0,2) + dispGrad(2,0) + dispGrad(2,2) )/20.0;
+  stress(0,0) = dispGrad(0,0) + CUBE(dispGrad(0,0)) +
+                 (dispGrad(0,2) + dispGrad(2,0) + dispGrad(2,2))/20.0;
   stress(0,1) = dispGrad(0,1);
-  stress(0,2) = dispGrad(0,0)/20.0 + atan( dispGrad(0,2) + dispGrad(2,0) );
+  stress(0,2) = dispGrad(0,0)/20.0 + atan(dispGrad(0,2) + dispGrad(2,0));
 
   stress(1,0) = dispGrad(1,0);
-  stress(1,1) = dispGrad(1,1) + CUBE( dispGrad(1,1) ) +
- 	         ( dispGrad(1,2) + dispGrad(2,1) + dispGrad(2,2) )/20.0;
-  stress(1,2) = dispGrad(1,1)/20.0 + atan( dispGrad(1,2) + dispGrad(2,1) );
+  stress(1,1) = dispGrad(1,1) + CUBE(dispGrad(1,1)) +
+ 	         (dispGrad(1,2) + dispGrad(2,1) + dispGrad(2,2))/20.0;
+  stress(1,2) = dispGrad(1,1)/20.0 + atan(dispGrad(1,2) + dispGrad(2,1));
 
-  stress(2,0) = dispGrad(0,0)/20.0 + atan( dispGrad(0,2) + dispGrad(2,0) );
-  stress(2,1) = dispGrad(1,1)/20.0 + atan( dispGrad(1,2) + dispGrad(2,1) );
-  stress(2,2) = ( dispGrad(0,0) + dispGrad(1,1) )/20.0 + atan( dispGrad(2,2) );
+  stress(2,0) = dispGrad(0,0)/20.0 + atan(dispGrad(0,2) + dispGrad(2,0));
+  stress(2,1) = dispGrad(1,1)/20.0 + atan(dispGrad(1,2) + dispGrad(2,1));
+  stress(2,2) = (dispGrad(0,0) + dispGrad(1,1))/20.0 + atan(dispGrad(2,2));
 
 } // end of 'nonlin_stress_2'
 
@@ -277,17 +276,17 @@ void nonlin_stress_deriv_wrt_displacement_gradient_2(
       s(i,j,2,0) = s(i,j,2,1) = s(i,j,2,2) = 0.0;
     }
 
-  s(0,0,0,0) = 1.0 + 3.0 * SQR( du(0,0) );
-  s(1,1,1,1) = 1.0 + 3.0 * SQR( du(1,1) );
-  s(2,2,2,2) = 1.0 / (1.0 + SQR( du(2,2) ));
+  s(0,0,0,0) = 1.0 + 3.0 * SQR(du(0,0));
+  s(1,1,1,1) = 1.0 + 3.0 * SQR(du(1,1));
+  s(2,2,2,2) = 1.0 / (1.0 + SQR(du(2,2)));
 
   s(0,1,0,1) = s(1,0,1,0) = 1.0;
 
   s(0,2,0,2) = s(0,2,2,0) = s(2,0,0,2) = s(2,0,2,0)
-                = 1.0 / (1.0 + SQR( du(0,2) + du(2,0) ));
+                = 1.0 / (1.0 + SQR(du(0,2) + du(2,0)));
 
   s(1,2,1,2) = s(1,2,2,1) = s(2,1,1,2) = s(2,1,2,1)
-                = 1.0 / (1.0 + SQR( du(1,2) + du(2,1) ));
+                = 1.0 / (1.0 + SQR(du(1,2) + du(2,1)));
 
   s(0,0,0,2) = s(0,0,2,0) = s(0,0,2,2) = s(0,2,0,0)
              = s(1,1,1,2) = s(1,1,2,1) = s(1,1,2,2)
@@ -306,11 +305,11 @@ void TestGeneralNonlinearElasticityNoDeriv::nonlin_stress(
   switch (testNo)
   {
     case 1:
-      nonlin_stress_1( x, y, z, time, displacement, dispGrad, stress );
+      nonlin_stress_1(x, y, z, time, displacement, dispGrad, stress);
       return;
 
     case 2:
-      nonlin_stress_2( x, y, z, time, displacement, dispGrad, stress );
+      nonlin_stress_2(x, y, z, time, displacement, dispGrad, stress);
       return;
 
     default:
@@ -330,11 +329,11 @@ void TestGeneralNonlinearElasticity::nonlin_stress(
   switch (testNo)
   {
     case 1:
-      nonlin_stress_1( x, y, z, time, displacement, dispGrad, stress );
+      nonlin_stress_1(x, y, z, time, displacement, dispGrad, stress);
       return;
 
     case 2:
-      nonlin_stress_2( x, y, z, time, displacement, dispGrad, stress );
+      nonlin_stress_2(x, y, z, time, displacement, dispGrad, stress);
       return;
 
     default:
@@ -354,13 +353,13 @@ void TestGeneralNonlinearElasticity::nonlin_stress_deriv_wrt_displacement(
   switch (testNo)
   {
     case 1:
-      nonlin_stress_deriv_wrt_displacement_1( x, y, z, time,
-					      displacement, dispGrad, stress_deriv );
+      nonlin_stress_deriv_wrt_displacement_1(x, y, z, time,
+					      displacement, dispGrad, stress_deriv);
       return;
 
     case 2:
-      nonlin_stress_deriv_wrt_displacement_2( x, y, z, time,
-					      displacement, dispGrad, stress_deriv );
+      nonlin_stress_deriv_wrt_displacement_2(x, y, z, time,
+					      displacement, dispGrad, stress_deriv);
       return;
 
     default:
@@ -383,15 +382,15 @@ void TestGeneralNonlinearElasticity::nonlin_stress_deriv_wrt_displacement_gradie
   switch (testNo)
   {
     case 1:
-      nonlin_stress_deriv_wrt_displacement_gradient_1( x, y, z, time,
+      nonlin_stress_deriv_wrt_displacement_gradient_1(x, y, z, time,
 						       displacement, dispGrad,
-						       stress_deriv );
+						       stress_deriv);
       return;
 
     case 2:
-      nonlin_stress_deriv_wrt_displacement_gradient_2( x, y, z, time,
+      nonlin_stress_deriv_wrt_displacement_gradient_2(x, y, z, time,
 						       displacement, dispGrad,
-						       stress_deriv );
+						       stress_deriv);
       return;
 
     default:

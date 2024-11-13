@@ -42,11 +42,9 @@ public:
   virtual ~GeneralNonlinearElasticityNoDeriv() {}
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return false; }
-  virtual void static_flux_value(const FEMesh*, const Element*,
-				 const Flux*,
-				 const MasterPosition&,
-				 double time,
-				 SmallSystem *) const;
+  virtual void flux_value(const FEMesh*, const Element*, const Flux*,
+			  const MasterPosition&, double time, SmallSystem*)
+    const;
 protected:
   TwoVectorField *displacement;
   SymmetricTensorFlux *stress_flux;
@@ -90,8 +88,9 @@ protected:
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 
-class TestGeneralNonlinearElasticityNoDeriv : public GeneralNonlinearElasticityNoDeriv {
-
+class TestGeneralNonlinearElasticityNoDeriv :
+  public GeneralNonlinearElasticityNoDeriv
+{
 public:
   TestGeneralNonlinearElasticityNoDeriv(const std::string &name,
 					PyObject *registration,

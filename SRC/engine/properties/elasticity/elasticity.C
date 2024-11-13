@@ -45,14 +45,14 @@ int Elasticity::integration_order(const CSubProblem *subp, const Element *el)
   return el->shapefun_degree() + el->dshapefun_degree();
 }
 
-// If static_flux_value isn't defined in a derived class, the base
-// class version FluxProperty::static_flux_value will produce the same
+// If flux_value isn't defined in a derived class, the base
+// class version FluxProperty::flux_value will produce the same
 // result by calling flux_matrix and flux_offset.  It may be less
 // efficient though.
 
-void Elasticity::static_flux_value(const FEMesh *mesh, const Element *element,
-				   const Flux *flux, const MasterPosition &pt,
-				   double time, SmallSystem *fluxdata)
+void Elasticity::flux_value(const FEMesh *mesh, const Element *element,
+			    const Flux *flux, const MasterPosition &pt,
+			    double time, SmallSystem *fluxdata)
   const
 {
   // Unexpected fluxes are bad.
@@ -77,7 +77,7 @@ void Elasticity::static_flux_value(const FEMesh *mesh, const Element *element,
        2*modulus( i,j,0,2 ) * strain( 0,2 ) +
        2*modulus( i,j,1,2 ) * strain( 1,2 ));
   }
-} // end of 'Elasticity::static_flux_value'
+} // end of 'Elasticity::flux_value'
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
