@@ -32,9 +32,15 @@ class ElementNodeIterator;
 // properties that don't provide a flux_matrix method can be defined.
 // These are used in the regression tests.  Users deriving their own
 // nonlinear heat conductivity properties using the examples in
-// OOFEXTENSIONS should ignore NonlinearHeatConductivityBase and
+// EXTENSION_TEMPLATES should ignore NonlinearHeatConductivityBase and
 // TestNonlinearHeatConductivity, and just use
 // NonlinearHeatConductivity.
+
+// NOTE: defining Properties without providing a flux_matrix method is
+// currently not allowed.  The class definitions have been kept here
+// so that they can be restored if and when numerical differentiation
+// in the FluxProperty base class is fixed, but the tests that use the
+// Properties in nonlinear_property_test have been commented out.
 
 class NonlinearHeatConductivityNoDeriv : public FluxProperty {
 public:

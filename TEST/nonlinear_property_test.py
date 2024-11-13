@@ -942,13 +942,13 @@ class NonlinearPropertyTest(unittest.TestCase):
 
 test_set = [
     NonlinearPropertyTest("NonlinearHeatSource"),
-    NonlinearPropertyTest("NonlinearHeatSourceNoDeriv"),
+    # NonlinearPropertyTest("NonlinearHeatSourceNoDeriv"),
     NonlinearPropertyTest("NonlinearHeatConductivity"),
-    NonlinearPropertyTest("NonlinearHeatConductivityNoDeriv"),
+    # NonlinearPropertyTest("NonlinearHeatConductivityNoDeriv"),
     NonlinearPropertyTest("NonlinearForceDensity"),
-    NonlinearPropertyTest("NonlinearForceDensityNoDeriv"),
+    # NonlinearPropertyTest("NonlinearForceDensityNoDeriv"),
     NonlinearPropertyTest("NonlinearElasticity"),
-    NonlinearPropertyTest("NonlinearElasticityNoDeriv"),
+    # NonlinearPropertyTest("NonlinearElasticityNoDeriv"),
     NonlinearPropertyTest("LargeStrain"),
     RotatingSquare("Static"),
     RotatingSquare("QuasiStatic"),

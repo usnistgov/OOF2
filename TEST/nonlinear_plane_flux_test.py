@@ -83,7 +83,7 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
             OOF.Mesh.Boundary_Conditions.New(
                 name = 'bc<' + str(BC_no) + '>',
                 mesh = 'microstructure:skeleton:mesh',
-                condition = new_BC )
+                condition = new_BC)
 
         self.boundary_condition_count = BC_no
 
@@ -152,8 +152,8 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
                 material='material', microstructure='microstructure', pixels=all)
 
             # set the boundary conditions for the given test no
-            self.setBoundaryConditions( 'Dirichlet', Temperature, Heat_Eqn,
-                                        self.heat_solns[soln_no]["DirichletBC"] )
+            self.setBoundaryConditions('Dirichlet', Temperature, Heat_Eqn,
+                                        self.heat_solns[soln_no]["DirichletBC"])
 
             # compute the solution using Newton's method
             test_solver = Newton(
@@ -161,7 +161,7 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
                 absolute_tolerance=1e-13,
                 maximum_iterations=20)
 
-            self.heatEqnEngine( soln_no, z_soln_no, test_solver )
+            self.heatEqnEngine(soln_no, z_soln_no, test_solver)
 
             # remove the boundary conditions for the given test no
             self.removeBoundaryConditions()
@@ -234,8 +234,8 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
                 material='material', microstructure='microstructure', pixels=all)
 
             # set the boundary conditions for the given test no
-            self.setBoundaryConditions( 'Dirichlet', Temperature, Heat_Eqn,
-                                        self.heat_solns[soln_no]["DirichletBC"] )
+            self.setBoundaryConditions('Dirichlet', Temperature, Heat_Eqn,
+                                        self.heat_solns[soln_no]["DirichletBC"])
 
             # compute the solution using Newton's method
             test_solver = Newton(
@@ -243,7 +243,7 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
                 absolute_tolerance=1e-13,
                 maximum_iterations=20)
 
-            self.heatEqnEngine( soln_no, z_soln_no, test_solver )
+            self.heatEqnEngine(soln_no, z_soln_no, test_solver)
 
             # remove the boundary conditions for the given test no
             self.removeBoundaryConditions()
@@ -316,8 +316,8 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
                 material='material', microstructure='microstructure', pixels=all)
 
             # set the boundary conditions for the given test no
-            self.setBoundaryConditions( 'Dirichlet', Temperature, Heat_Eqn,
-                                        self.heat_solns[soln_no]["DirichletBC"] )
+            self.setBoundaryConditions('Dirichlet', Temperature, Heat_Eqn,
+                                       self.heat_solns[soln_no]["DirichletBC"])
 
             # compute the solution using Newton's method
             test_solver = Newton(
@@ -325,7 +325,7 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
                 absolute_tolerance=1e-13,
                 maximum_iterations=20)
 
-            self.heatEqnEngine( soln_no, z_soln_no, test_solver )
+            self.heatEqnEngine(soln_no, z_soln_no, test_solver)
 
             # remove the boundary conditions for the given test no
             self.removeBoundaryConditions()
@@ -393,20 +393,20 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
         mesh_obj  = mesh.meshes["microstructure:skeleton:mesh"].getObject()
 
         # first compute the numerical error in the computed temperature field
-        field_ptr = field.getField( "Temperature" )
+        field_ptr = field.getField("Temperature")
 
-        L2_error = computeScalarErrorL2( soln_func, mesh_obj, field_ptr,
-                                         self.numX, self.numY, time=self.time )
+        L2_error = computeScalarErrorL2(soln_func, mesh_obj, field_ptr,
+                                         self.numX, self.numY, time=self.time)
         print("Temperature L2 error: ", L2_error)
-        self.assertTrue( L2_error < 1.e-2 )
+        self.assertTrue(L2_error < 1.e-2)
 
         # now compute the numerical error in the computed temperature_z field
-        field_ptr = field.getField( "Temperature_z" )
+        field_ptr = field.getField("Temperature_z")
 
-        L2_error = computeScalarErrorL2( z_soln_func, mesh_obj, field_ptr,
-                                         self.numX, self.numY, time=self.time )
+        L2_error = computeScalarErrorL2(z_soln_func, mesh_obj, field_ptr,
+                                         self.numX, self.numY, time=self.time)
         print("Temperture_z L2 error: ", L2_error)
-        self.assertTrue( L2_error < 1.e-2 )
+        self.assertTrue(L2_error < 1.e-2)
 
 
     @memorycheck.check("microstructure")
@@ -471,8 +471,8 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
                 material='material', microstructure='microstructure', pixels=all)
 
             # set the boundary conditions for the given test no
-            self.setBoundaryConditions( 'Dirichlet', Displacement, Force_Balance,
-                                        self.elasticity_solns[soln_no]["DirichletBC"] )
+            self.setBoundaryConditions('Dirichlet', Displacement, Force_Balance,
+                                        self.elasticity_solns[soln_no]["DirichletBC"])
 
             # compute the solution using Newton's method
             test_solver = Newton(
@@ -480,7 +480,7 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
                 absolute_tolerance=1e-13,
                 maximum_iterations=20)
 
-            self.elasticityEqnEngine( soln_no, z_soln_no, test_solver )
+            self.elasticityEqnEngine(soln_no, z_soln_no, test_solver)
 
             # remove the boundary conditions for the given test no
             self.removeBoundaryConditions()
@@ -560,8 +560,8 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
                 material='material', microstructure='microstructure', pixels=all)
 
             # set the boundary conditions for the given test no
-            self.setBoundaryConditions( 'Dirichlet', Displacement, Force_Balance,
-                                        self.elasticity_solns[soln_no]["DirichletBC"] )
+            self.setBoundaryConditions('Dirichlet', Displacement, Force_Balance,
+                                        self.elasticity_solns[soln_no]["DirichletBC"])
 
             # compute the solution using Newton's method
             test_solver = Newton(
@@ -569,7 +569,7 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
                 absolute_tolerance=1e-13,
                 maximum_iterations=20)
 
-            self.elasticityEqnEngine( soln_no, z_soln_no, test_solver )
+            self.elasticityEqnEngine(soln_no, z_soln_no, test_solver)
 
             # remove the boundary conditions for the given test no
             self.removeBoundaryConditions()
@@ -649,8 +649,8 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
                 material='material', microstructure='microstructure', pixels=all)
 
             # set the boundary conditions for the given test no
-            self.setBoundaryConditions( 'Dirichlet', Displacement, Force_Balance,
-                                        self.elasticity_solns[soln_no]["DirichletBC"] )
+            self.setBoundaryConditions('Dirichlet', Displacement, Force_Balance,
+                                        self.elasticity_solns[soln_no]["DirichletBC"])
 
             # compute the solution using Newton's method
             test_solver = Newton(
@@ -658,7 +658,7 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
                 absolute_tolerance=1e-13,
                 maximum_iterations=20)
 
-            self.elasticityEqnEngine( soln_no, z_soln_no, test_solver )
+            self.elasticityEqnEngine(soln_no, z_soln_no, test_solver)
 
             # remove the boundary conditions for the given test no
             self.removeBoundaryConditions()
@@ -721,21 +721,21 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
         from ooflib.SWIG.engine import field
 
         mesh_obj  = mesh.meshes["microstructure:skeleton:mesh"].getObject()
-        field_ptr = field.getField( "Displacement" )
+        field_ptr = field.getField("Displacement")
 
-        L2_error = computeVector2DErrorL2( soln_func, mesh_obj, field_ptr,
-                                           self.numX, self.numY, time=self.time )
+        L2_error = computeVector2DErrorL2(soln_func, mesh_obj, field_ptr,
+                                           self.numX, self.numY, time=self.time)
         print("Displacement L2 error: ", L2_error)
 
-        self.assertTrue( L2_error < 6.e-2 )
+        self.assertTrue(L2_error < 6.e-2)
 
-        field_ptr = field.getField( "Displacement_z" )
+        field_ptr = field.getField("Displacement_z")
 
-        L2_error = computeVector3DErrorL2( z_soln_func, mesh_obj, field_ptr,
-                                           self.numX, self.numY, time=self.time )
+        L2_error = computeVector3DErrorL2(z_soln_func, mesh_obj, field_ptr,
+                                           self.numX, self.numY, time=self.time)
         print("Displacement_z L2 error: ", L2_error)
 
-        self.assertTrue( L2_error < 1.1e-1 )
+        self.assertTrue(L2_error < 1.1e-1)
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -743,8 +743,8 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
 test_set = [
     NonlinearPlaneFluxTest("LinearHeatConductivity"),
     NonlinearPlaneFluxTest("NonlinearHeatConductivity"),
-    NonlinearPlaneFluxTest("NonlinearHeatConductivityNoDeriv"),
+#    NonlinearPlaneFluxTest("NonlinearHeatConductivityNoDeriv"),
     NonlinearPlaneFluxTest("LinearElasticity"),
     NonlinearPlaneFluxTest("NonlinearElasticity"),
-    NonlinearPlaneFluxTest("NonlinearElasticityNoDeriv"),
+#    NonlinearPlaneFluxTest("NonlinearElasticityNoDeriv"),
 ]
