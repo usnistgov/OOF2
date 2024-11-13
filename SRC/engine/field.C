@@ -192,11 +192,10 @@ public:
       comp(comp)
   {}
   virtual double operator()(const FuncNode *node) {
-    if(node->hasField(*field)) {
-      DegreeOfFreedom *dof = (*field)(node, comp.integer());
-      return dof->value(mesh);
-    }
-    return 0;
+    if(!node->hasField(*field))
+      throw ErrNoSuchField(field->name());
+    DegreeOfFreedom *dof = (*field)(node, comp.integer());
+    return dof->value(mesh);
   }
 };
 
@@ -219,6 +218,10 @@ double Field::gradient(const FEMesh *mesh, const Element *element,
   GenericFieldFunc func(mesh, this, comp);
   return element->interpolate_deriv(pos, gradindex, func);
 }
+
+// TODO: Concrete subclasses of Field should define a non-virtual
+// method, value(mesh, element, pt), that returns an appropriate object
+// (scalar, vector, etc).
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

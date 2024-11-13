@@ -76,9 +76,13 @@ void findGeometricStrainRate(const FEMesh *mesh, const Element *element,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// TODO: Create a non-symmetric 3x3 tensor OutputValue class and
-// return it from this function, instead of passing in a SmallMatrix.
-// Or just return a SmallMatrix.
+// TODO: These functions don't belong here.  Concrete Field classes
+// should have non-virtual value() and gradient() methods that return
+// scalars, vectors, or tensors as appropriate, in addition to the
+// virtual methods that return generic Output objects.
+
+// TODO: This function doesn't belong here.  Make it a Field class
+// method?
 
 static void computeFieldGradient(const FEMesh *mesh, const Element *element,
 				 const MasterPosition &pt, const Field *field,
@@ -87,19 +91,28 @@ static void computeFieldGradient(const FEMesh *mesh, const Element *element,
 
   assert(grad.rows() == 3 && grad.cols() == 3);
 
-  // TODO: This is inefficient, beccause the repeated calls to
+  // TODO: This is inefficient, because the repeated calls to
   // Field::value() and Field::gradient() are recomputing identical
   // shape functions.  There could be versions of those functions that
   // operate on non-scalar data.  OTOH, the shape function values are
   // cached and evaluating them should be quick.
-  for(SpaceIndex j=0; j<DIM; ++j) { // gradient component
-    for(IndexP i : *field->components(ALL_INDICES)) {
-      grad(i.integer(), j) += field->gradient(mesh, element, pt, i, j);
+  try {
+    for(SpaceIndex j=0; j<DIM; ++j) { // gradient component
+      for(IndexP i : *field->components(ALL_INDICES)) {
+	grad(i.integer(), j) = field->gradient(mesh, element, pt, i, j);
+      }
     }
   }
+  catch (ErrNoSuchField &exc) {
+  }
+
   if(oop) {
-    for(IndexP i : *oop->components(ALL_INDICES)) {
-      grad(i.integer(), 2) += oop->value(mesh, element, pt, i);
+    try {
+      for(IndexP i : *oop->components(ALL_INDICES)) {
+	grad(i.integer(), 2) = oop->value(mesh, element, pt, i);
+      }
+    }
+    catch (ErrNoSuchField &exc) {
     }
   }
 }
@@ -139,9 +152,14 @@ void computeDisplacement(const FEMesh *mesh, const Element *element,
   static CompoundField *displacement =
     dynamic_cast<CompoundField*>(Field::getField("Displacement"));
   assert(disp.size() == 3);
-  ArithmeticOutputValue odisp = element->outputField(mesh, *displacement, pt);
-  for(IndexP i : *displacement->components(ALL_INDICES))
-    disp[i.integer()] += odisp[i];
+  try {
+    for(IndexP i : *displacement->components(ALL_INDICES))
+      disp[i.integer()] = displacement->value(mesh, element, pt, i);
+  }
+  catch (ErrNoSuchField &exc) {
+    // Displacement is 0 if the Field isn't defined on all nodes of
+    // the element.
+  }
 }
 
 
