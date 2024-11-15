@@ -47,6 +47,7 @@ public:
   SymmMatrix() : m(0), nrows(0) {}
   SymmMatrix(int);		// specifies size
   SymmMatrix(const SymmMatrix&); // copy constructor
+  SymmMatrix(SymmMatrix&&); 
   virtual ~SymmMatrix();
   SymmMatrix &operator=(const SymmMatrix&);
   SymmMatrix &operator*=(double);

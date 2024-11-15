@@ -34,6 +34,15 @@ SymmMatrix::SymmMatrix(const SymmMatrix& sm) : m(0), nrows(sm.nrows) {
   allocate();
   copy(sm.m);
 }
+
+// move constructor
+
+SymmMatrix::SymmMatrix(SymmMatrix&& sm)
+  : m(sm.m), nrows(sm.nrows)
+{
+  sm.m = 0;
+  sm.nrows = 0;
+}
     
 SymmMatrix::~SymmMatrix() {
 //   std::cerr << "SymmMatrix::~SymmMatrix" << this << std::endl;

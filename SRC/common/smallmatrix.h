@@ -29,6 +29,7 @@ public:
   SmallMatrix(int size);
   SmallMatrix(int rows, int cols); 
   SmallMatrix(const SmallMatrix& other) : data(other.data) {}
+  SmallMatrix(SmallMatrix &&other) : data(std::move(other.data)) {}
   virtual ~SmallMatrix() {}
 
   /* Matrix property methods */
