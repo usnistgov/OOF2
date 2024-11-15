@@ -98,7 +98,6 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
 					 SmallSystem *fluxmtx) const
 {
   int (*ij2voigt)(int,int) = &SymTensorIndex::ij2voigt; // shorter func name
-  SmallMatrix dU(3);	// gradient of displacement
   double Fval;		// the value of the shape function (for node)
   DoubleVec dF(3);	// and its derivative at the given pt
   bool inplane = false;	// needed both in 2D & 3D versions regardless,
@@ -119,7 +118,7 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
   dF[0] = node.dshapefunction( 0, pt ); // x-deriv of the shape function
   dF[1] = node.dshapefunction( 1, pt ); // y-deriv of the shape function
 
-  computeDisplacementGradient( mesh, element, pt, dU );
+  SmallMatrix dU(findDisplacementGradient(mesh, element, pt));
 
   const Cijkl CC = cijkl( mesh, element, pt ); // elasticity modulus
 

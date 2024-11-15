@@ -1,6 +1,5 @@
 // -*- C++ -*-
 
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -22,6 +21,83 @@
 #include "engine/mastercoord.h"
 #include "engine/symmmatrix.h"
 
+DoubleVec findDisplacement(const FEMesh *mesh, const Element *element,
+			   const MasterPosition &pt)
+{
+  static const TwoVectorField *displacement =
+    dynamic_cast<const TwoVectorField*>(Field::getField("Displacement"));
+  return displacement->values(mesh, element, pt);
+}
+
+SmallMatrix findDisplacementGradient(const FEMesh *mesh, const Element *element,
+				     const MasterPosition &pt)
+{
+  // compute the matrix dU(i,j) = d/dx_j (u_i)
+
+  // TODO: This is slightly inefficient, because the repeated calls to
+  // Field::value() and Field::gradient() are recomputing identical
+  // shape functions.  There could be versions of those functions that
+  // operate on non-scalar data.  OTOH, the shape function values are
+  // cached and evaluating them should be quick.
+  
+  static const TwoVectorField *displacement =
+    dynamic_cast<const TwoVectorField*>(Field::getField("Displacement"));
+  static const ThreeVectorField *displacement_z =
+    dynamic_cast<const ThreeVectorField*>(displacement->out_of_plane());
+  SmallMatrix result(3, 3);
+  try {
+    for(SpaceIndex j=0; j<2; j++) { // gradient component
+      DoubleVec du = displacement->gradients(mesh, element, pt, j);
+      for(int i=0; i<2; i++)	// field component
+	result(i, j) = du[i];
+    }
+    if(!displacement->in_plane(mesh)) {
+      DoubleVec uz = displacement_z->values(mesh, element, pt);
+      for(int i=0; i<3; i++)
+	result(i, 2) = uz[i];
+    }
+  }
+  catch (ErrNoSuchField &exc) {
+    // The gradient is 0 if the field isn't defined.
+  }
+  
+  return result;
+}
+
+SmallMatrix findDisplacementGradientRate(const FEMesh *mesh,
+					 const Element *element,
+					 const MasterPosition &pt)
+{
+  // compute the matrix dU(i,j) = d/dx_j d(u_i)/dt
+
+  static const TwoVectorField *displacement =
+    dynamic_cast<const TwoVectorField*>(Field::getField("Displacement"));
+  static const TwoVectorField *displacement_t =
+    dynamic_cast<const TwoVectorField*>(displacement->time_derivative());
+  static const ThreeVectorField *displacement_zt =
+    dynamic_cast<const ThreeVectorField*>(
+			     displacement->out_of_plane_time_derivative());
+  SmallMatrix result(3, 3);
+  try {
+    for(SpaceIndex j=0; j<2; j++) { // gradient component
+      DoubleVec du = displacement_t->gradients(mesh, element, pt, j);
+      for(int i=0; i<2; i++)	// field component
+	result(i, j) = du[i];
+    }
+    if(!displacement->in_plane(mesh)) {
+      DoubleVec uz = displacement_zt->values(mesh, element, pt);
+      for(int i=0; i<3; i++)
+	result(i, 2) = uz[i];
+    }
+  }
+  catch (ErrNoSuchField &exc) {
+    // The gradient is 0 if the field isn't defined.    
+  }
+  
+  return result;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // The following function adds the local geometrical strain at a given
 // master position in the given element to the given SymmMatrix3.
@@ -30,8 +106,8 @@ void findGeometricStrain(const FEMesh *mesh, const Element *element,
 			 const MasterPosition &pos, SymmMatrix3 *strain,
 			 bool nonlinear)
 {
-  SmallMatrix dU(3); // dU(i,j) = du_i/dx_j 
-  computeDisplacementGradient(mesh, element, pos, dU);
+  // dU(i,j) = du_i/dx_j 
+  SmallMatrix dU(findDisplacementGradient(mesh, element, pos));
 
   // TODO OPT: Earlier versions of this routine had unrolled loops.
   // They could be unrolled again if necessary.
@@ -57,8 +133,8 @@ void findGeometricStrainRate(const FEMesh *mesh, const Element *element,
 			     const MasterPosition &pos, SymmMatrix3 *straindot,
 			     bool nonlinear)
 {
-  SmallMatrix dU(3); // dU(i,j) = d(du_i/dx_j)/dt
-  computeDisplacementGradientRate(mesh, element, pos, dU);
+  // dU(i,j) = d(du_i/dx_j)/dt
+  SmallMatrix dU(findDisplacementGradientRate(mesh, element, pos));
   for(SymTensorIndex ij : symTensorIJComponents) {
     int i = ij.row();
     int j = ij.col();
@@ -73,95 +149,6 @@ void findGeometricStrainRate(const FEMesh *mesh, const Element *element,
     }
   }
 }
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// TODO: These functions don't belong here.  Concrete Field classes
-// should have non-virtual value() and gradient() methods that return
-// scalars, vectors, or tensors as appropriate, in addition to the
-// virtual methods that return generic Output objects.
-
-// TODO: This function doesn't belong here.  Make it a Field class
-// method?
-
-static void computeFieldGradient(const FEMesh *mesh, const Element *element,
-				 const MasterPosition &pt, const Field *field,
-				 Field *oop, SmallMatrix &grad)
-{
-
-  assert(grad.rows() == 3 && grad.cols() == 3);
-
-  // TODO: This is inefficient, because the repeated calls to
-  // Field::value() and Field::gradient() are recomputing identical
-  // shape functions.  There could be versions of those functions that
-  // operate on non-scalar data.  OTOH, the shape function values are
-  // cached and evaluating them should be quick.
-  try {
-    for(SpaceIndex j=0; j<DIM; ++j) { // gradient component
-      for(IndexP i : *field->components(ALL_INDICES)) {
-	grad(i.integer(), j) = field->gradient(mesh, element, pt, i, j);
-      }
-    }
-  }
-  catch (ErrNoSuchField &exc) {
-  }
-
-  if(oop) {
-    try {
-      for(IndexP i : *oop->components(ALL_INDICES)) {
-	grad(i.integer(), 2) = oop->value(mesh, element, pt, i);
-      }
-    }
-    catch (ErrNoSuchField &exc) {
-    }
-  }
-}
-
-void computeDisplacementGradient(const FEMesh *mesh, const Element *element,
-				 const MasterPosition &pt, SmallMatrix &grad)
-{
-  // compute the matrix dU(i,j) = d/dx_j (u_i)
-
-  static CompoundField *displacement =
-    dynamic_cast<CompoundField*>(Field::getField("Displacement"));
-
-  computeFieldGradient(
-       mesh, element, pt, displacement,
-       (displacement->in_plane(mesh) ? nullptr : displacement->out_of_plane()),
-       grad);
-}
-
-void computeDisplacementGradientRate(const FEMesh *mesh,
-				     const Element *element,
-				     const MasterPosition &pt,
-				     SmallMatrix &grad)
-{
-  static CompoundField *displacement =
-    dynamic_cast<CompoundField*>(Field::getField("Displacement"));
-  computeFieldGradient(
-       mesh, element, pt, displacement->time_derivative(),
-       (displacement->in_plane(mesh) ? nullptr :
-	displacement->out_of_plane_time_derivative()),
-       grad);
-}
-
-void computeDisplacement(const FEMesh *mesh, const Element *element,
-			 const MasterPosition &pt,
-			 DoubleVec &disp)
-{
-  static CompoundField *displacement =
-    dynamic_cast<CompoundField*>(Field::getField("Displacement"));
-  assert(disp.size() == 3);
-  try {
-    for(IndexP i : *displacement->components(ALL_INDICES))
-      disp[i.integer()] = displacement->value(mesh, element, pt, i);
-  }
-  catch (ErrNoSuchField &exc) {
-    // Displacement is 0 if the Field isn't defined on all nodes of
-    // the element.
-  }
-}
-
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

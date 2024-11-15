@@ -30,14 +30,14 @@ void findGeometricStrain(const FEMesh*, const Element*,
 void findGeometricStrainRate(const FEMesh*, const Element*,
 			     const MasterPosition&, SymmMatrix3*, bool);
 
-void computeDisplacementGradient(const FEMesh*, const Element*,
-				 const MasterPosition&, SmallMatrix&);
+SmallMatrix findDisplacementGradient(const FEMesh*, const Element*,
+				     const MasterPosition&);
 
-void computeDisplacementGradientRate(const FEMesh*, const Element*,
-				     const MasterPosition&, SmallMatrix&);
+SmallMatrix findDisplacementGradientRate(const FEMesh*, const Element*,
+					 const MasterPosition&);
 
-void computeDisplacement(const FEMesh*, const Element*,
-			 const MasterPosition&, DoubleVec&);
+DoubleVec findDisplacement(const FEMesh*, const Element*,
+			   const MasterPosition&);
 
 class POInitGeometricStrain : public PropertyOutputValInit {
 public:

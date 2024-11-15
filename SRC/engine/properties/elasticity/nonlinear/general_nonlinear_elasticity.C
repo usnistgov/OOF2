@@ -60,30 +60,23 @@ void GeneralNonlinearElasticityNoDeriv::flux_value(const FEMesh  *mesh,
 						   SmallSystem *fluxdata)
   const
 {
-  DoubleVec dispVec(3);
-  SmallMatrix dispGrad(3);
   SmallMatrix stress(3);
 
   // first compute the displacement and its gradient at the given point
-
-  computeDisplacement(mesh, element, pt, dispVec);
-  computeDisplacementGradient(mesh, element, pt, dispGrad);
-
+  DoubleVec dispVec(findDisplacement(mesh, element, pt));
+  SmallMatrix dispGrad(findDisplacementGradient(mesh, element, pt));
 
   // compute the value of stress with the user-defined function
-
   Coord coord = element->from_master(pt);
 
+  // TODO: nonlin_stress should return a SmallMatrix.
   nonlin_stress(coord[0], coord[1], 0.0, time, dispVec, dispGrad, stress);
 
-
   // now we can plug in the flux element values to fluxdata
-
   for(SymTensorIndex ij : symTensorIJComponents) 
     fluxdata->flux_vector_element(ij) -= stress(ij.row(), ij.col());
 
-
-} // end of 'GeneralNonlinearElasticityNoDeriv::flux_value'
+} // GeneralNonlinearElasticityNoDeriv::flux_value
 
 
 void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
@@ -95,30 +88,21 @@ void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
 					     SmallSystem *fluxmtx)
   const
 {
-  DoubleVec dispVec(3, 0.0);
-  SmallMatrix dispGrad(3);
   SmallTensor3 stressDeriv1;
   SmallTensor4 stressDeriv2;
 
-
   // check for unexpected flux, should be stress flux
-
   if (*flux != *stress_flux) {
     throw ErrProgrammingError("Unexpected flux", __FILE__, __LINE__);
   }
 
-
   // first compute the displacement and its gradient at the given point
-
-  computeDisplacement(mesh, element, pt, dispVec);
-  computeDisplacementGradient(mesh, element, pt, dispGrad);
-
+  DoubleVec dispVec(findDisplacement(mesh, element, pt));
+  SmallMatrix dispGrad(findDisplacementGradient(mesh, element, pt));
 
   // evaluate the value of flux derivatives with the given pt, time,
   // displacement etc
-
   Coord coord = element->from_master(pt);
-
   // the derivative of the stress flux mapping w.r.t. displacement field
   nonlin_stress_deriv_wrt_displacement(coord[0], coord[1], 0.0, time,
 					dispVec, dispGrad, stressDeriv1);
@@ -126,15 +110,12 @@ void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
   nonlin_stress_deriv_wrt_displacement_gradient(coord[0], coord[1], 0.0, time,
 						 dispVec, dispGrad, stressDeriv2);
 
-
   // evaluate the shape function and its gradient at the given node j
-
-  double shapeFuncVal     = node.shapefunction(pt);
+  double shapeFuncVal   = node.shapefunction(pt);
   double shapeFuncGrad0 = node.dshapefunction(0, pt);
   double shapeFuncGrad1 = node.dshapefunction(1, pt);
 
   // finally add the contributions to the stiffness matrix element
-
   for (SymTensorIndex ij : symTensorIJComponents) {
     int i = ij.row();
     int j = ij.col();

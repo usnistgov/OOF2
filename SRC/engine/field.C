@@ -306,7 +306,7 @@ ScalarField::ScalarField(const std::string &nm)
 const std::string ScalarField::classname_("ScalarField");
 
 double ScalarFieldBase::value(const FEMesh *mesh, const Element *element,
-			      const MasterPosition &pos)
+			       const MasterPosition &pos)
   const
 {
   ScalarFieldFunc func(mesh, *this);
@@ -446,6 +446,31 @@ DegreeOfFreedom *TwoVectorFieldBase::operator()(const FuncNode *node, int comp)
   return node->doflist[node->fieldset.offset(this) + comp];
 }
 
+DoubleVec TwoVectorFieldBase::values(const FEMesh *mesh, const Element *element,
+				     const MasterPosition &mpt)
+  const
+{
+  DoubleVec v(2);
+  const Field *field = dynamic_cast<const Field*>(this);
+  for(IndexP i : *components(ALL_INDICES))
+    v[i.integer()] = field->value(mesh, element, mpt, i);
+  return v;
+}
+
+DoubleVec TwoVectorFieldBase::gradients(const FEMesh *mesh,
+					const Element *element,
+					const MasterPosition &mpt,
+					SpaceIndex gradindex)
+  const
+{
+  DoubleVec v(2);
+  const Field *field = dynamic_cast<const Field*>(this);
+  for(IndexP i : *components(ALL_INDICES)) {
+    v[i.integer()] = field->gradient(mesh, element, mpt, i, gradindex);
+  }
+  return v;
+}
+
 DegreeOfFreedom *
 TwoVectorFieldBase::operator()(const ElementFuncNodeIterator &ei, int comp)
   const
@@ -534,6 +559,31 @@ DegreeOfFreedom *VectorFieldBase::operator()(const ElementFuncNodeIterator &ei,
   const
 {
   return operator()(ei.funcnode(), comp);
+}
+
+DoubleVec VectorFieldBase::values(const FEMesh *mesh, const Element *el,
+				  const MasterPosition &mpt)
+  const
+{
+  DoubleVec v(dim);
+  const Field *field = dynamic_cast<const Field*>(this);
+  for(auto i : *components(ALL_INDICES)) {
+    v[i.integer()] = field->value(mesh, el, mpt, *i);
+  }
+  return v;
+}
+
+DoubleVec VectorFieldBase::gradients(const FEMesh *mesh, const Element *el,
+				     const MasterPosition &mpt,
+				     const SpaceIndex gradindex)
+  const
+{
+  DoubleVec v(dim);
+  const Field *field = dynamic_cast<const Field*>(this);
+  for(auto i : *components(ALL_INDICES)) {
+    v[i.integer()] = field->gradient(mesh, el, mpt, *i, gradindex);
+  }
+  return v;
 }
 
 ArithmeticOutputValue VectorFieldBase::newOutputValue() const {
@@ -635,6 +685,32 @@ DegreeOfFreedom *SymmetricTensorField::operator()
   (const FuncNode &pd, SymTensorIndex& sti) const 
 {
   return this->operator()(&pd, sti.integer());
+}
+
+SymmMatrix3 SymmetricTensorField::values(const FEMesh *mesh, const Element *el,
+					 const MasterPosition &mpt)
+  const
+{
+  SymmMatrix3 v;
+  const Field *field = dynamic_cast<const Field*>(this);
+  for(IndexP i : *components(ALL_INDICES)) {
+    v[i.integer()] = field->value(mesh, el, mpt, i);
+  }
+  return v;
+}
+
+SymmMatrix3 SymmetricTensorField::gradients(const FEMesh *mesh,
+					    const Element *el,
+					    const MasterPosition &mpt,
+					    SpaceIndex gradindex)
+  const
+{
+  SymmMatrix3 v;
+  const Field *field = dynamic_cast<const Field*>(this);
+  for(IndexP i : *components(ALL_INDICES)) {
+    v[i.integer()] = field->gradient(mesh, el, mpt, i, gradindex);
+  }
+  return v;
 }
 
 ArithmeticOutputValue SymmetricTensorField::newOutputValue() const {

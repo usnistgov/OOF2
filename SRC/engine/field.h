@@ -36,6 +36,7 @@ class VectorFieldBase;
 
 class ArithmeticOutputValue;
 class CSubProblem;
+class DoubleVec;
 class Element;
 class ElementFuncNodeIterator;
 class FEMesh;
@@ -43,6 +44,7 @@ class FuncNode;
 class MasterPosition;
 class OutputValue;
 class Property;
+class SymmMatrix3;
 
 // There is one Field for each physical field.  There should be only
 // one instance of each derived Field class.  These are just
@@ -115,13 +117,10 @@ public:
   double value(const FEMesh*, const ElementFuncNodeIterator&, int component)
     const;
   
-  // Evaluate a component of a Field at a given point, interpolated in
-  // an Element.  ScalarFields have a version of this that doesn't
-  // have a FieldIndex argument.
+  // Evaluate a component of a Field or its gradient at a given point,
+  // interpolated within an Element.
   virtual double value(const FEMesh*, const Element*, const MasterPosition&,
 		       const FieldIndex&) const;
-  // Evaluate a component of a Field derivative at a given point,
-  // interpolated in an Element.
   virtual double gradient(const FEMesh*, const Element*, const MasterPosition&,
 			  const FieldIndex&, const SpaceIndex) const;
   
@@ -264,12 +263,11 @@ public:
    		       const FieldIndex&) const;
   virtual double gradient(const FEMesh*, const Element*, const MasterPosition&,
 			  const FieldIndex&, SpaceIndex) const;
-  // These versions of value() and gradient() are non-virtual versions
-  // of the base class methods. They omit the FieldIndex argument,
-  // which is meaningless for ScalarFields.
+  // Non-virtual versions of value and gradient that don't have a
+  // FieldIndex argument.
   double value(const FEMesh*, const Element*, const MasterPosition&) const;
   double gradient(const FEMesh*, const Element*, const MasterPosition&,
-		  const SpaceIndex) const;
+		   const SpaceIndex) const;
   
   DegreeOfFreedom *operator()(const FuncNode*) const;
   DegreeOfFreedom *operator()(const FuncNode &n) const {
@@ -319,6 +317,11 @@ public:
   }
   virtual DegreeOfFreedom *operator()(const ElementFuncNodeIterator&,
 				      int component) const;
+  // Non-virtual values and gradients return a vector containing all components
+  DoubleVec values(const FEMesh*, const Element*, const MasterPosition&) const;
+  DoubleVec gradients(const FEMesh*, const Element*, const MasterPosition&,
+		      const SpaceIndex) const;
+  
   virtual ArithmeticOutputValue newOutputValue() const;
   virtual ArithmeticOutputValue output(const FEMesh*,
 				       const ElementFuncNodeIterator&) const;
@@ -358,6 +361,11 @@ public:
   }
   virtual DegreeOfFreedom *operator()(const ElementFuncNodeIterator&,
 				      int component) const;
+  // Non-virtual value and gradient return a vector containing all components
+  DoubleVec values(const FEMesh*, const Element*, const MasterPosition&) const;
+  DoubleVec gradients(const FEMesh*, const Element*, const MasterPosition&,
+		      const SpaceIndex) const;
+
   virtual ArithmeticOutputValue newOutputValue() const;
   virtual ArithmeticOutputValue output(const FEMesh*,
 				       const ElementFuncNodeIterator&) const;
@@ -400,6 +408,14 @@ public:
   DegreeOfFreedom *operator()(const ElementFuncNodeIterator&,
 			      SymTensorIndex&) const;
   DegreeOfFreedom *operator()(const FuncNode&, SymTensorIndex&) const;
+
+  // Non-virtual value and gradient return a vector containing all components
+  SymmMatrix3 values(const FEMesh*, const Element*, const MasterPosition&)
+    const;
+  SymmMatrix3 gradients(const FEMesh*, const Element*,
+			const MasterPosition&, const SpaceIndex) const;
+
+
   virtual ArithmeticOutputValue newOutputValue() const;
   virtual ArithmeticOutputValue output(const FEMesh*, 
 			     const ElementFuncNodeIterator&) const;
