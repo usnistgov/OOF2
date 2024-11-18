@@ -41,7 +41,7 @@ public:
 				  const MasterPosition &pos, bool nonlinear)
   {
     SymmMatrix3 *strain = new SymmMatrix3();
-    findGeometricStrain(mesh, el, pos, strain, nonlinear);
+    *strain = findGeometricStrain(mesh, el, pos, nonlinear);
     return strain;
   }
 %}

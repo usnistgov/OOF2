@@ -59,8 +59,8 @@ public:
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);
 
-  virtual void geometricStrain(const FEMesh*, const Element*,
-			       const MasterPosition&, SymmMatrix3*) const;
+  virtual SymmMatrix3 geometricStrain(const FEMesh*, const Element*,
+				      const MasterPosition&) const;
 protected:
   TwoVectorField *displacement;
   SymmetricTensorFlux *stress_flux;

@@ -24,11 +24,11 @@ class SymmMatrix3;
 #include "engine/IO/propertyoutput.h"
 
 
-void findGeometricStrain(const FEMesh*, const Element*,
-			 const MasterPosition&, SymmMatrix3*, bool);
+SymmMatrix3 findGeometricStrain(const FEMesh*, const Element*,
+				const MasterPosition&, bool);
 
-void findGeometricStrainRate(const FEMesh*, const Element*,
-			     const MasterPosition&, SymmMatrix3*, bool);
+SymmMatrix3 findGeometricStrainRate(const FEMesh*, const Element*,
+				    const MasterPosition&, bool);
 
 SmallMatrix findDisplacementGradient(const FEMesh*, const Element*,
 				     const MasterPosition&);

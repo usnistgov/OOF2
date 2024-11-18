@@ -88,6 +88,7 @@ public:
   SymmMatrix3(double, double, double, double, double, double); // voigt order
   SymmMatrix3(const SymmMatrix3&);
   SymmMatrix3(const SymmMatrix&);
+  SymmMatrix3(SymmMatrix3&&);
   virtual const SymmMatrix3 &operator=(const OutputVal &other);
   virtual unsigned int dim() const { return 6; }
   virtual OutputVal *clone() const;

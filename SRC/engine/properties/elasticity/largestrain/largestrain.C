@@ -168,13 +168,15 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-void CLargeStrainElasticity::geometricStrain(const FEMesh *mesh,
-					     const Element *element,
-					     const MasterPosition &pos,
-					     SymmMatrix3 *strain)
+SymmMatrix3 CLargeStrainElasticity::geometricStrain(const FEMesh *mesh,
+						    const Element *element,
+						    const MasterPosition &pos)
   const
 {
-  findGeometricStrain(mesh, element, pos, strain, true);
+  // The difference between this method and the base class version in
+  // Elasticity is that here the nonlinear arg to findGeometricStrain
+  // is true.
+  return findGeometricStrain(mesh, element, pos, true);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

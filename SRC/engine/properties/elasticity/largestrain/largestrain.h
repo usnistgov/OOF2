@@ -32,8 +32,8 @@ public:
 			   const MasterPosition &x,
 			   double time,
 			   SmallSystem *fluxmtx) const;
-  virtual void geometricStrain(const FEMesh*, const Element*, 
-			       const MasterPosition&, SymmMatrix3*) const;
+  virtual SymmMatrix3 geometricStrain(const FEMesh*, const Element*, 
+				      const MasterPosition&) const;
   virtual bool is_symmetric_K(const CSubProblem*) const;
 };
 

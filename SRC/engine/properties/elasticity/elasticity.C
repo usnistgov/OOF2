@@ -60,9 +60,8 @@ void Elasticity::flux_value(const FEMesh *mesh, const Element *element,
     throw ErrProgrammingError("Unexpected flux", __FILE__, __LINE__);
   }
 
-  SymmMatrix3 strain;
-  geometricStrain(mesh, element, pt, &strain);
-  const Cijkl modulus = cijkl( mesh, element, pt );
+  SymmMatrix3 strain = geometricStrain(mesh, element, pt);
+  const Cijkl modulus = cijkl(mesh, element, pt);
 
   for(SymTensorIndex ij : symTensorIJComponents) {
     // TODO OPT: Use modulus(ij,kl) where ij and kl are voigt ints.
@@ -131,12 +130,12 @@ void Elasticity::flux_matrix(const FEMesh *mesh, const Element *element,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-void Elasticity::geometricStrain(const FEMesh *mesh, const Element *element,
-				 const MasterPosition &pos,
-				 SymmMatrix3 *strain)
+SymmMatrix3 Elasticity::geometricStrain(const FEMesh *mesh,
+					const Element *element,
+					const MasterPosition &pos)
   const
 {
-  findGeometricStrain(mesh, element, pos, strain, false);
+  return findGeometricStrain(mesh, element, pos, false);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -155,9 +154,8 @@ void Elasticity::output(FEMesh *mesh,
     const std::string *etype = output->getEnumParam("etype");
     if(*etype == "Total" || *etype == "Elastic") {
       ScalarOutputVal *edata = dynamic_cast<ScalarOutputVal*>(data);
-      SymmMatrix3 strain;
       const Cijkl modulus = cijkl(mesh, element, pos);
-      geometricStrain(mesh, element, pos, &strain);
+      SymmMatrix3 strain = geometricStrain(mesh, element, pos);
       SymmMatrix stress(modulus*strain);
       double e = 0;
       for(int i=0; i<3; i++) {

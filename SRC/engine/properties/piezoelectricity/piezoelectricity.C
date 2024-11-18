@@ -161,8 +161,7 @@ void PiezoElectricity::output(FEMesh *mesh,
       findElectricField(mesh, element, pos, E_field);
       piezoelectricStrain = dijk(mesh, element, pos)*E_field;
       SymmMatrix electricstress(modulus*piezoelectricStrain);
-      SymmMatrix3 strain;
-      elasticity->geometricStrain(mesh, element, pos, &strain);
+      SymmMatrix3 strain = elasticity->geometricStrain(mesh, element, pos);
       double e = 0;
       for(int i=0; i<3; i++) {
 	e += electricstress(i,i)*strain(i,i);

@@ -175,8 +175,7 @@ void ThermalExpansion::output(FEMesh *mesh,
       double t = temperature->value(mesh, element, pos);
       thermalstrain = expansiontensor(mesh, element, pos)*(t-T0);
       SymmMatrix3 thermalstress(modulus*thermalstrain);
-      SymmMatrix3 strain;
-      elasticity->geometricStrain(mesh, element, pos, &strain);
+      SymmMatrix3 strain = elasticity->geometricStrain(mesh, element, pos);
       double e = 0;
       for(SpaceIndex i=0; i<3; i++) {
 	e += thermalstress(i,i)*(-strain(i,i) + 0.5*thermalstrain(i,i));

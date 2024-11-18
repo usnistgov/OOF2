@@ -11,6 +11,7 @@
 
 #include <oofconfig.h>
 
+#include "common/cdebug.h"
 #include "common/doublevec.h"
 #include "common/smallmatrix.h"
 #include "engine/cstrain.h"
@@ -60,7 +61,6 @@ SmallMatrix findDisplacementGradient(const FEMesh *mesh, const Element *element,
   catch (ErrNoSuchField &exc) {
     // The gradient is 0 if the field isn't defined.
   }
-  
   return result;
 }
 
@@ -102,52 +102,52 @@ SmallMatrix findDisplacementGradientRate(const FEMesh *mesh,
 // The following function adds the local geometrical strain at a given
 // master position in the given element to the given SymmMatrix3.
 
-void findGeometricStrain(const FEMesh *mesh, const Element *element,
-			 const MasterPosition &pos, SymmMatrix3 *strain,
-			 bool nonlinear)
+SymmMatrix3 findGeometricStrain(const FEMesh *mesh, const Element *element,
+				const MasterPosition &pos, bool nonlinear)
 {
   // dU(i,j) = du_i/dx_j 
   SmallMatrix dU(findDisplacementGradient(mesh, element, pos));
+  SymmMatrix3 strain;
 
   // TODO OPT: Earlier versions of this routine had unrolled loops.
   // They could be unrolled again if necessary.
-
   for(SymTensorIndex ij : symTensorIJComponents) {
     int i = ij.row();
     int j = ij.col();
-    (*strain)[ij] += 0.5*(dU(i,j) + dU(j,i));
+    strain[ij] = 0.5*(dU(i,j) + dU(j,i));
   }
 
   if(nonlinear) {
     for(SymTensorIndex ij : symTensorIJComponents) {
       int i = ij.row();
       int j = ij.col();
-      (*strain)[ij] += 
-	0.5*(dU(0,i)*dU(0,j) + dU(1,i)*dU(1,j) + dU(2,i)*dU(2,j));
+      strain[ij] += 0.5*(dU(0,i)*dU(0,j) + dU(1,i)*dU(1,j) + dU(2,i)*dU(2,j));
     }
   }
-} // end of 'findGeometricStrain'
+  return strain;
+}
 
 
-void findGeometricStrainRate(const FEMesh *mesh, const Element *element,
-			     const MasterPosition &pos, SymmMatrix3 *straindot,
-			     bool nonlinear)
+SymmMatrix3 findGeometricStrainRate(const FEMesh *mesh, const Element *element,
+				    const MasterPosition &pos, 
+				    bool nonlinear)
 {
   // dU(i,j) = d(du_i/dx_j)/dt
+  SymmMatrix3 straindot;
   SmallMatrix dU(findDisplacementGradientRate(mesh, element, pos));
   for(SymTensorIndex ij : symTensorIJComponents) {
     int i = ij.row();
     int j = ij.col();
-    (*straindot)[ij] += 0.5 * (dU(i,j) + dU(j,i));
+    straindot[ij] = 0.5 * (dU(i,j) + dU(j,i));
   }
   if(nonlinear) {
     for(SymTensorIndex ij : symTensorIJComponents) {
       int i = ij.row();
       int j = ij.col();
-      (*straindot)[ij] +=
-	0.5*(dU(0,i)*dU(0,j) + dU(1,i)*dU(1,j) + dU(2,i)*dU(2,j));
+      straindot[ij] = 0.5*(dU(0,i)*dU(0,j) + dU(1,i)*dU(1,j) + dU(2,i)*dU(2,j));
     }
   }
+  return straindot;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -164,10 +164,10 @@ OutputVal *POInitGeometricStrain::operator()(
   // computed. It's a RegisteredParameter.
   const std::string *straintype = po->getRegisteredParamName("type");
   if(*straintype == "Geometric" || *straintype == "Elastic") {
-    findGeometricStrain(mesh, element, pos, strain, false);
+    *strain = findGeometricStrain(mesh, element, pos, false);
   }
   else if(*straintype == "Nonlinear Geometric") {
-    findGeometricStrain(mesh, element, pos, strain, true);
+    *strain = findGeometricStrain(mesh, element, pos, true);
   }
   delete straintype;
   return strain;
@@ -185,10 +185,10 @@ OutputVal *POInitGeometricStrainRate::operator()(
   // computed. It's a RegisteredParameter.
   const std::string *straintype = po->getRegisteredParamName("type");
   if(*straintype == "Geometric" || *straintype == "Elastic") {
-    findGeometricStrainRate(mesh, element, pos, strain, false);
+    *strain = findGeometricStrainRate(mesh, element, pos, false);
   }
   else if(*straintype == "Nonlinear Geometric") {
-    findGeometricStrainRate(mesh, element, pos, strain, true);
+    *strain = findGeometricStrainRate(mesh, element, pos, true);
   }
   delete straintype;
   return strain;

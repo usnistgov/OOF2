@@ -147,9 +147,8 @@ void StressFreeStrain::output(FEMesh *mesh,
     if(*etype == "Total" || *etype == "Elastic") {
       ScalarOutputVal *edata = dynamic_cast<ScalarOutputVal*>(data);
       const Cijkl modulus = elasticity->cijkl(mesh, element, pos);
-      SymmMatrix3 strain;
       SymmMatrix3 sfs = stressfreestrain(mesh, element, pos);
-      elasticity->geometricStrain(mesh, element, pos, &strain);
+      SymmMatrix3 strain = elasticity->geometricStrain(mesh, element, pos);
       SymmMatrix3 stress(modulus*sfs);
       double e = 0;
       for(int i=0; i<3; i++) {

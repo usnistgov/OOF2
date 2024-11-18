@@ -259,12 +259,6 @@ void SymmMatrix::copy(double **smd) {	// copy data from another data array
   (void) memcpy(&m[0][0], &smd[0][0], sz*sizeof(double));
 }
 
-const SymmMatrix3 &SymmMatrix3::operator=(const OutputVal &other) {
-  const SymmMatrix3 &othr = dynamic_cast<const SymmMatrix3&>(other);
-  *this = othr;
-  return *this;
-}
-
 void SymmMatrix::resize(unsigned int n) {
   if(n == nrows) return;
   free();
@@ -335,6 +329,10 @@ SymmMatrix3::SymmMatrix3(const SymmMatrix &mat)
   copy(mat.m);
 }
 
+SymmMatrix3::SymmMatrix3(SymmMatrix3 &&other)
+  : SymmMatrix(std::move(other))
+{}
+
 std::ostream &operator<<(std::ostream &os, const SymmMatrix3 &a) {
   a.print(os);		// The OutputVal way of doing it.
   return os;
@@ -343,6 +341,12 @@ std::ostream &operator<<(std::ostream &os, const SymmMatrix3 &a) {
 // SymmMatrix3::~SymmMatrix3() {
 //   std::cerr << "SymmMatrix3::~SymmMatrix3: " << this << std::endl;
 // }
+
+const SymmMatrix3 &SymmMatrix3::operator=(const OutputVal &other) {
+  const SymmMatrix3 &othr = dynamic_cast<const SymmMatrix3&>(other);
+  *this = othr;
+  return *this;
+}
 
 SymmMatrix3 operator+(const SymmMatrix3 &a, const SymmMatrix3 &b) {
   SymmMatrix3 result(a);
