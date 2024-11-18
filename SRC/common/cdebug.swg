@@ -32,6 +32,11 @@ void spinCycle(int);
 
 int countleft;			// in pixelsetboundary.h
 
+void openDumpFile(const std::string&);
+void closeDumpFile();
+%rename(dump) c_dump;
+void dump(const std::string&);
+
 %pythoncode "common/cdebug.spy"
 
 #endif // CDEBUG_SWG

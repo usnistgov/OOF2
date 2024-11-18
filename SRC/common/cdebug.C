@@ -1,6 +1,5 @@
 // -*- C++ -*-
 
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -15,11 +14,13 @@
 // Routines used to catch C++ signals and dump the current Python
 // stack before bailing out.
 
-#include <string>
-#include <signal.h>
-#include <pthread.h>
-#include <unistd.h>
+#include <fstream>
 #include <iostream>
+#include <pthread.h>
+#include <signal.h>
+#include <string>
+#include <unistd.h>
+
 #include "cdebug.h"
 
 #include "common/pythonlock.h"
@@ -185,5 +186,27 @@ void memusage(const std::string &comment) {
   if(!result)
     pythonErrorRelay();
   Py_XDECREF(result);
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+static std::ofstream *dumpstream = nullptr;
+
+void openDumpFile(const std::string &filename) {
+  if(dumpstream)
+    closeDumpFile();
+  dumpstream = new std::ofstream(filename.c_str());
+}
+
+void closeDumpFile() {
+  if(dumpstream) {
+    dumpstream->close();
+    dumpstream = nullptr;
+  }
+}
+
+void dump(const std::string &line) {
+  if(dumpstream)
+    *dumpstream << line << std::endl;
 }
 

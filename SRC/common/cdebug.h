@@ -43,4 +43,8 @@ void spinCycle(int);
 
 void memusage(const std::string&);
 
+void openDumpFile(const std::string &filename);
+void closeDumpFile();
+void dump(const std::string&);
+
 #endif // CDEBUG_H

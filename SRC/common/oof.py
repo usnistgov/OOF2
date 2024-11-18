@@ -37,6 +37,7 @@ from ooflib.common import debug
 # directly or indirectly create OOFMenuItems.  Some of the menus are
 # built differently in debug mode, which is set by a command line flag
 # that hasn't been read yet.
+from ooflib.SWIG.common import cdebug
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import lock
@@ -166,6 +167,7 @@ no_checkpoints = False
 no_rc = False
 recording = replaying = False
 quiet_mode = False
+dump_file = None
 
 def process_inline_options():
     # process_inline_options should not import any oof modules or rely
@@ -193,7 +195,8 @@ def process_inline_options():
                    'record=', 'rerecord=', 'replay=', 'replaydelay=',
                    'pathdir=', 'no-checkpoints', 'autoload', 'geometry=',
                    'no-fakefileselector', 'fakefileselector', 'surface', 
-                   'no-bars', 'verbose-switchboard', 'separate-dialogs']
+                   'no-bars', 'verbose-switchboard', 'separate-dialogs',
+                   'dump-file=']
     if config.enablempi():
         option_list += ['parallel']
     try:
@@ -303,6 +306,9 @@ def process_inline_options():
         elif opt[0] == '--separate-dialogs':
             runtimeflags.separate_dialogs = True
             remove_option(opt[0])
+        elif opt[0] == '--dump-file':
+            cdebug.openDumpFile(opt[1])
+            remove_option(opt[0], opt[1])
     if help_mode:
         state_options_and_quit()
     if version_mode:

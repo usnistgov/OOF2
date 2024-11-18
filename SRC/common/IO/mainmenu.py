@@ -986,3 +986,32 @@ debugmenu.addItem(OOFMenuItem(
     Being able to generate reproducible random numbers is important
     for the test suite.</para>"""
 ))
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Set the file to be used by the "dump" function in cdebug.C.  It's
+# useful when dumping too much data for stdout or stderr.
+
+dumpmenu = debugmenu.addItem(OOFMenuItem("Data_Dump"))
+
+def openDumpFile(menuitem, filename):
+    print(f"Opening {filename} for data dump.")
+    cdebug.openDumpFile(filename)
+    
+def closeDumpFile(menuitem):
+    cdebug.closeDumpFile()
+
+dumpmenu.addItem(OOFMenuItem(
+    "Open",
+    callback=openDumpFile,
+    params=[
+        filenameparam.WriteFileNameParameter(
+            "filename", tip="Dump data to this file")],
+    help="Set a file name and start dumping data to it",
+    discussion=xmlmenudump.emptyDiscussion))
+
+dumpmenu.addItem(OOFMenuItem(
+    "Close",
+    callback=closeDumpFile,
+    help="Stop dumping data and close the file.",
+    discussion=xmlmenudump.emptyDiscussion))
