@@ -21,7 +21,8 @@ class PyStressFreeStrain(pypropertywrapper.PyFluxProperty):
     def cross_reference(self, material):
         self.elasticity = material.fetchProperty("Elasticity")
 
-    def flux_offset(self, mesh, element, flux, point, time, fluxdata):
+    def flux_offset(self, mesh, element, flux, point, time, localdata,
+                    fluxdata):
         cijkl = self.elasticity.cijkl(mesh, element, point)
         # This uses a fixed value of strain0. A real Property should
         # probably use a user-defined Parameter instead.

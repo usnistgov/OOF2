@@ -41,7 +41,7 @@ class PyHeatConductivity(pypropertywrapper.PyFluxProperty):
         # debug.fmsg(f"orientation={orientation.orientation()}")
 
     def flux_matrix(self, mesh, element, nodeiterator, flux, point, time,
-                    fluxdata):
+                    localdata, fluxdata):
         sf = nodeiterator.shapefunction(point)
         dsf0 = nodeiterator.dshapefunction(0, point)
         dsf1 = nodeiterator.dshapefunction(1, point)

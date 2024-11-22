@@ -346,91 +346,105 @@ void PyFluxProperty::flux_matrix(const FEMesh *mesh,
 				 const ElementFuncNodeIterator &efni,
 				 const Flux *flux,
 				 const MasterPosition &gpt,
-				 double time,
+				 double time, void *localdata,
 				 SmallSystem *fluxdata)
   const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "flux_matrix")) {
-    this->FluxProperty::flux_matrix(mesh, el, efni, flux, gpt, time, fluxdata);
+    this->FluxProperty::flux_matrix(mesh, el, efni, flux, gpt, time,
+				    localdata, fluxdata);
+    return;
   }
-  else {
-    PyObject *method = PyUnicode_FromString("flux_matrix");
-    PyObject *elp = NEWSWIGPTR(el, "Element");
-    PyObject *efnip = NEWSWIGPTR(&efni, "ElementFuncNodeIterator");
-    PyObject *fluxp = NEWSWIGPTR(flux, "Flux");
-    PyObject *mpp = NEWSWIGPTR(&gpt, "MasterPosition");
-    PyObject *timep = PyFloat_FromDouble(time);
-    PyObject *fluxdatap = NEWSWIGPTR(fluxdata, "SmallSystem");
-    PyObject *result = PyObject_CallMethodObjArgs(
-	  referent_, method,
-	  mesh->getPyMesh(), elp, efnip, fluxp, mpp, timep, fluxdatap, NULL);
-    Py_XDECREF(method);
-    Py_XDECREF(elp);
-    Py_XDECREF(efnip);
-    Py_XDECREF(fluxp);
-    Py_XDECREF(mpp);
-    Py_XDECREF(timep);
-    Py_XDECREF(fluxdatap);
-    if(result==NULL) {
-      pythonErrorRelay();
-    }
-    Py_XDECREF(result);
+  PyObject *method = PyUnicode_FromString("flux_matrix");
+  PyObject *elp = NEWSWIGPTR(el, "Element");
+  PyObject *efnip = NEWSWIGPTR(&efni, "ElementFuncNodeIterator");
+  PyObject *fluxp = NEWSWIGPTR(flux, "Flux");
+  PyObject *mpp = NEWSWIGPTR(&gpt, "MasterPosition");
+  PyObject *timep = PyFloat_FromDouble(time);
+  PyObject *fluxdatap = NEWSWIGPTR(fluxdata, "SmallSystem");
+  if(!localdata)
+    localdata = Py_None;
+  PyObject *result = PyObject_CallMethodObjArgs(
+				referent_, method,
+				mesh->getPyMesh(), elp, efnip, fluxp, mpp,
+				timep, localdata,
+				fluxdatap, NULL);
+  Py_XDECREF(method);
+  Py_XDECREF(elp);
+  Py_XDECREF(efnip);
+  Py_XDECREF(fluxp);
+  Py_XDECREF(mpp);
+  Py_XDECREF(timep);
+  Py_XDECREF(fluxdatap);
+  if(result==NULL) {
+    pythonErrorRelay();
   }
+  Py_XDECREF(result);
 }
 
 //=\\=//=\\=//
 
-void PyFluxProperty::begin_point(const FEMesh *mesh, const Element *el,
-				 const Flux *flx, const MasterPosition &mpos) 
+// What happens if the user defines begin_point() in python but
+// doesn't redefine end_point()?  The PyObject* pointing to localdata
+// will be passed to end_point as a void*, but it's ok because the
+// default version of end_point() doesn't do anything.  What if the
+// user defines end_point but not start_point()?  The default C++
+// version of start_point() returns a null pointer.  The end_point()
+// wrapper here can detect that and pass a reference to None instead.
+
+void* PyFluxProperty::begin_point(const FEMesh *mesh, const Element *el,
+				  const Flux *flx,
+				  const MasterPosition &mpos) 
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "begin_point")) {
-    this->FluxProperty::begin_point(mesh, el, flx, mpos);
+    return this->FluxProperty::begin_point(mesh, el, flx, mpos);
   }
-  else {
-    PyObject *method = PyUnicode_FromString("begin_point");
-    PyObject *elp = NEWSWIGPTR(el, "Element");
-    PyObject *flxp = NEWSWIGPTR(flx, "Flux");
-    PyObject *mpp = NEWSWIGPTR(&mpos, "MasterPosition");
-    PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
-						  mesh->getPyMesh(),
-						  elp, flxp, mpp, NULL);
-    Py_XDECREF(method);
-    Py_XDECREF(elp);
-    Py_XDECREF(flxp);
-    Py_XDECREF(mpp);
-    if(result==NULL) {
-      pythonErrorRelay();
-    }
-    Py_XDECREF(result);
+  PyObject *method = PyUnicode_FromString("begin_point");
+  PyObject *elp = NEWSWIGPTR(el, "Element");
+  PyObject *flxp = NEWSWIGPTR(flx, "Flux");
+  PyObject *mpp = NEWSWIGPTR(&mpos, "MasterPosition");
+  PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
+						mesh->getPyMesh(),
+						elp, flxp, mpp, NULL);
+  Py_XDECREF(method);
+  Py_XDECREF(elp);
+  Py_XDECREF(flxp);
+  Py_XDECREF(mpp);
+  if(result==NULL) {
+    pythonErrorRelay();
   }
+  return result;
 }
 
 void PyFluxProperty::end_point(const FEMesh *mesh, const Element *el,
-			       const Flux *flx, const MasterPosition &mpos) 
+			       const Flux *flx, const MasterPosition &mpos,
+			       void *localdata) 
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "end_point")) {
-    this->FluxProperty::end_point(mesh, el, flx, mpos);
+    this->FluxProperty::end_point(mesh, el, flx, mpos, localdata);
+    return;
   }
-  else {
-    PyObject *method = PyUnicode_FromString("end_point");
-    PyObject *elp = NEWSWIGPTR(el, "Element");
-    PyObject *flxp = NEWSWIGPTR(flx, "Flux");
-    PyObject *mpp = NEWSWIGPTR(&mpos, "MasterPosition");
-    PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
-						  mesh->getPyMesh(),
-						  elp, flxp, mpp, NULL);
-    Py_XDECREF(method);
-    Py_XDECREF(elp);
-    Py_XDECREF(flxp);
-    Py_XDECREF(mpp);
-    if(result==NULL) {
-      pythonErrorRelay();
-    }
-    Py_XDECREF(result);
+  PyObject *method = PyUnicode_FromString("end_point");
+  PyObject *elp = NEWSWIGPTR(el, "Element");
+  PyObject *flxp = NEWSWIGPTR(flx, "Flux");
+  PyObject *mpp = NEWSWIGPTR(&mpos, "MasterPosition");
+  if(!localdata)
+    localdata = Py_None;
+  PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
+						mesh->getPyMesh(),
+						elp, flxp, mpp, localdata,
+						NULL);
+  Py_XDECREF(method);
+  Py_XDECREF(elp);
+  Py_XDECREF(flxp);
+  Py_XDECREF(mpp);
+  if(result==NULL) {
+    pythonErrorRelay();
   }
+  Py_XDECREF(result);
 }
 
 //=\\=//=\\=//
@@ -439,35 +453,38 @@ void PyFluxProperty::flux_value(const FEMesh *mesh,
 				const Element *element,
 				const Flux *flux, 
 				const MasterPosition &pt,
-				double time, 
+				double time,
+				void *localdata,
 				SmallSystem *fluxdata)
   const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "flux_value")) {
-    this->FluxProperty::flux_value(mesh, element, flux, pt, time, fluxdata);
+    this->FluxProperty::flux_value(mesh, element, flux, pt, time, localdata,
+				   fluxdata);
+    return;
   }
-  else {
-    PyObject *method = PyUnicode_FromString("flux_value");
-    PyObject *elp = NEWSWIGPTR(element, "Element");
-    PyObject *fluxp = NEWSWIGPTR(flux, "Flux");
-    PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
-    PyObject *timep = PyFloat_FromDouble(time);
-    PyObject *fluxdatap = NEWSWIGPTR(fluxdata, "SmallSystem");
-    PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
-						  mesh->getPyMesh(), elp,
-						  fluxp, mpp, timep,
-						  fluxdatap, NULL);
-    Py_XDECREF(method);
-    Py_XDECREF(elp);
-    Py_XDECREF(fluxp);
-    Py_XDECREF(mpp);
-    Py_XDECREF(fluxdatap);
-    if(result == NULL) {
-      pythonErrorRelay();
-    }
-    Py_XDECREF(result);
+  PyObject *method = PyUnicode_FromString("flux_value");
+  PyObject *elp = NEWSWIGPTR(element, "Element");
+  PyObject *fluxp = NEWSWIGPTR(flux, "Flux");
+  PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
+  PyObject *timep = PyFloat_FromDouble(time);
+  PyObject *fluxdatap = NEWSWIGPTR(fluxdata, "SmallSystem");
+  if(!localdata)
+    localdata = Py_None;
+  PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
+						mesh->getPyMesh(), elp,
+						fluxp, mpp, timep, localdata,
+						fluxdatap, NULL);
+  Py_XDECREF(method);
+  Py_XDECREF(elp);
+  Py_XDECREF(fluxp);
+  Py_XDECREF(mpp);
+  Py_XDECREF(fluxdatap);
+  if(result == NULL) {
+    pythonErrorRelay();
   }
+  Py_XDECREF(result);
 }
 
 //=\\=//=\\=//
@@ -476,36 +493,37 @@ void PyFluxProperty::static_flux_value(const FEMesh *mesh,
 				       const Element *element,
 				       const Flux *flux, 
 				       const MasterPosition &pt,
-				       double time, 
+				       double time, void *localdata,
 				       SmallSystem *fluxdata)
   const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "static_flux_value")) {
     this->FluxProperty::static_flux_value(mesh, element, flux, pt, time,
-					  fluxdata);
+					  localdata, fluxdata);
+    return;
   }
-  else {
-    PyObject *method = PyUnicode_FromString("static_flux_value");
-    PyObject *elp = NEWSWIGPTR(element, "Element");
-    PyObject *fluxp = NEWSWIGPTR(flux, "Flux");
-    PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
-    PyObject *timep = PyFloat_FromDouble(time);
-    PyObject *fluxdatap = NEWSWIGPTR(fluxdata, "SmallSystem");
-    PyObject *result = PyObject_CallMethodObjArgs(
-			  referent_, method,
-			  mesh->getPyMesh(),
-			  elp, fluxp, mpp, timep, fluxdatap, NULL);
-    Py_XDECREF(method);
-    Py_XDECREF(elp);
-    Py_XDECREF(fluxp);
-    Py_XDECREF(mpp);
-    Py_XDECREF(timep);
-    Py_XDECREF(fluxdatap);
-    if(result == NULL)
-      pythonErrorRelay();
-    Py_XDECREF(result);
-  }
+  PyObject *method = PyUnicode_FromString("static_flux_value");
+  PyObject *elp = NEWSWIGPTR(element, "Element");
+  PyObject *fluxp = NEWSWIGPTR(flux, "Flux");
+  PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
+  PyObject *timep = PyFloat_FromDouble(time);
+  PyObject *fluxdatap = NEWSWIGPTR(fluxdata, "SmallSystem");
+  if(!localdata)
+    localdata = Py_None;
+  PyObject *result = PyObject_CallMethodObjArgs(
+				referent_, method, mesh->getPyMesh(),
+				elp, fluxp, mpp, timep, localdata, fluxdatap,
+				NULL);
+  Py_XDECREF(method);
+  Py_XDECREF(elp);
+  Py_XDECREF(fluxp);
+  Py_XDECREF(mpp);
+  Py_XDECREF(timep);
+  Py_XDECREF(fluxdatap);
+  if(result == NULL)
+    pythonErrorRelay();
+  Py_XDECREF(result);
 }
 
 //=\\=//=\\=//
@@ -513,35 +531,37 @@ void PyFluxProperty::static_flux_value(const FEMesh *mesh,
 void PyFluxProperty::flux_offset(const FEMesh *mesh, const Element *el,
 				 const Flux *flux, 
 				 const MasterPosition &gpt,
-				 double time,
+				 double time, void *localdata,
 				 SmallSystem *fluxdata) 
   const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "flux_offset")) {
-    this->FluxProperty::flux_offset(mesh, el, flux, gpt, time, fluxdata);
+    this->FluxProperty::flux_offset(mesh, el, flux, gpt, time, localdata,
+				    fluxdata);
+    return;
   }
-  else {
-    PyObject *method = PyUnicode_FromString("flux_offset");
-    PyObject *elp = NEWSWIGPTR(el, "Element");
-    PyObject *fluxp = NEWSWIGPTR(flux, "Flux");
-    PyObject *fluxdatap = NEWSWIGPTR(fluxdata, "SmallSystem");
-    PyObject *mpp = NEWSWIGPTR(&gpt, "MasterPosition");
-    PyObject *timep = PyFloat_FromDouble(time);
-    PyObject *result = PyObject_CallMethodObjArgs(
-			  referent_, method,
-			  mesh->getPyMesh(),
-			  elp, fluxp, mpp, timep, fluxdatap, NULL);
-    Py_XDECREF(method);
-    Py_XDECREF(elp);
-    Py_XDECREF(fluxp);
-    Py_XDECREF(mpp);
-    Py_XDECREF(timep);
-    Py_XDECREF(fluxdatap);
-    if(result == NULL)
-      pythonErrorRelay();
-    Py_XDECREF(result);
-  }
+  PyObject *method = PyUnicode_FromString("flux_offset");
+  PyObject *elp = NEWSWIGPTR(el, "Element");
+  PyObject *fluxp = NEWSWIGPTR(flux, "Flux");
+  PyObject *fluxdatap = NEWSWIGPTR(fluxdata, "SmallSystem");
+  PyObject *mpp = NEWSWIGPTR(&gpt, "MasterPosition");
+  PyObject *timep = PyFloat_FromDouble(time);
+  if(!localdata)
+    localdata = Py_None;
+  PyObject *result = PyObject_CallMethodObjArgs(
+				referent_, method, mesh->getPyMesh(),
+				elp, fluxp, mpp, timep, localdata, fluxdatap,
+				NULL);
+  Py_XDECREF(method);
+  Py_XDECREF(elp);
+  Py_XDECREF(fluxp);
+  Py_XDECREF(mpp);
+  Py_XDECREF(timep);
+  Py_XDECREF(fluxdatap);
+  if(result == NULL)
+    pythonErrorRelay();
+  Py_XDECREF(result);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -564,23 +584,21 @@ void PyEqnProperty::begin_point(const FEMesh *mesh, const Element *el,
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "begin_point")) {
     this->EqnProperty::begin_point(mesh, el, eqn, mpos);
+    return;
   }
-  else {
-    PyObject *method = PyUnicode_FromString("begin_point");
-    PyObject *elp = NEWSWIGPTR(el, "Element");
-    PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
-    PyObject *mpp = NEWSWIGPTR(&mpos, "MasterPosition");
-    PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
-						  mesh->getPyMesh(),
-						  elp, eqnp, mpp, NULL);
-    Py_XDECREF(method);
-    Py_XDECREF(elp);
-    Py_XDECREF(eqnp);
-    Py_XDECREF(mpp);
-    if(result==NULL) {
-      pythonErrorRelay();
-    }
-    Py_XDECREF(result);
+  PyObject *method = PyUnicode_FromString("begin_point");
+  PyObject *elp = NEWSWIGPTR(el, "Element");
+  PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
+  PyObject *mpp = NEWSWIGPTR(&mpos, "MasterPosition");
+  PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
+						mesh->getPyMesh(),
+						elp, eqnp, mpp, NULL);
+  Py_XDECREF(method);
+  Py_XDECREF(elp);
+  Py_XDECREF(eqnp);
+  Py_XDECREF(mpp);
+  if(result==NULL) {
+    pythonErrorRelay();
   }
 }
 
@@ -590,24 +608,24 @@ void PyEqnProperty::end_point(const FEMesh *mesh, const Element *el,
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "end_point")) {
     this->EqnProperty::end_point(mesh, el, eqn, mpos);
+    return;
   }
-  else {
-    PyObject *method = PyUnicode_FromString("end_point");
-    PyObject *elp = NEWSWIGPTR(el, "Element");
-    PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
-    PyObject *mpp = NEWSWIGPTR(&mpos, "MasterPosition");
-    PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
-						  mesh->getPyMesh(),
-						  elp, eqnp, mpp, NULL);
-    Py_XDECREF(method);
-    Py_XDECREF(elp);
-    Py_XDECREF(eqnp);
-    Py_XDECREF(mpp);
-    if(result==NULL) {
-      pythonErrorRelay();
-    }
-    Py_XDECREF(result);
+  PyObject *method = PyUnicode_FromString("end_point");
+  PyObject *elp = NEWSWIGPTR(el, "Element");
+  PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
+  PyObject *mpp = NEWSWIGPTR(&mpos, "MasterPosition");
+  PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
+						mesh->getPyMesh(),
+						elp, eqnp, mpp,
+						NULL);
+  Py_XDECREF(method);
+  Py_XDECREF(elp);
+  Py_XDECREF(eqnp);
+  Py_XDECREF(mpp);
+  if(result==NULL) {
+    pythonErrorRelay();
   }
+  Py_XDECREF(result);
 }
 
 //=\\=//=\\=//
@@ -625,30 +643,30 @@ void PyEqnProperty::force_deriv_matrix(const FEMesh *mesh,
   if(!PyObject_HasAttrString(referent_, "force_deriv_matrix")) {
     this->EqnProperty::force_deriv_matrix(mesh, element, eqn, efni, pt, time,
 					  eqndata);
+    return;
   }
-  else {
-    PyObject *method = PyUnicode_FromString("force_deriv_matrix");
-    PyObject *elp = NEWSWIGPTR(element, "Element");
-    PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
-    PyObject *efnip = NEWSWIGPTR(&efni, "ElementFuncNodeIterator");
-    PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
-    PyObject *timep = PyFloat_FromDouble(time);
-    PyObject *eqndatap = NEWSWIGPTR(eqndata, "SmallSystem");
-    PyObject *result = PyObject_CallMethodObjArgs(
-		  referent_, method,
-		  mesh->getPyMesh(),
-		  elp, eqnp, efnip, mpp, timep, eqndatap, NULL);
-    Py_XDECREF(method);
-    Py_XDECREF(elp);
-    Py_XDECREF(eqnp);
-    Py_XDECREF(efnip);
-    Py_XDECREF(mpp);
-    Py_XDECREF(timep);
-    Py_XDECREF(eqndatap);
-    if(result == NULL)
-      pythonErrorRelay();
-    Py_XDECREF(result);
-  }
+  PyObject *method = PyUnicode_FromString("force_deriv_matrix");
+  PyObject *elp = NEWSWIGPTR(element, "Element");
+  PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
+  PyObject *efnip = NEWSWIGPTR(&efni, "ElementFuncNodeIterator");
+  PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
+  PyObject *timep = PyFloat_FromDouble(time);
+  PyObject *eqndatap = NEWSWIGPTR(eqndata, "SmallSystem");
+  PyObject *result = PyObject_CallMethodObjArgs(
+					referent_, method,
+					mesh->getPyMesh(),
+					elp, eqnp, efnip, mpp, timep, eqndatap,
+					NULL);
+  Py_XDECREF(method);
+  Py_XDECREF(elp);
+  Py_XDECREF(eqnp);
+  Py_XDECREF(efnip);
+  Py_XDECREF(mpp);
+  Py_XDECREF(timep);
+  Py_XDECREF(eqndatap);
+  if(result == NULL)
+    pythonErrorRelay();
+  Py_XDECREF(result);
 }
 
 //=\\=//=\\=//
@@ -664,28 +682,28 @@ void PyEqnProperty::force_value(const FEMesh *mesh,
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "force_value")) {
     this->EqnProperty::force_value(mesh, element, eqn, pt, time, eqndata);
+    return;
   }
-  else {
-    PyObject *method = PyUnicode_FromString("force_value");
-    PyObject *elp = NEWSWIGPTR(element, "Element");
-    PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
-    PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
-    PyObject *timep = PyFloat_FromDouble(time);
-    PyObject *eqndatap = NEWSWIGPTR(eqndata, "SmallSystem");
-    PyObject *result = PyObject_CallMethodObjArgs(
-			  referent_, method,
-			  mesh->getPyMesh(),
-			  elp, eqnp, mpp, timep, eqndatap, NULL);
-    Py_XDECREF(method);
-    Py_XDECREF(elp);
-    Py_XDECREF(eqnp);
-    Py_XDECREF(mpp);
-    Py_XDECREF(timep);
-    Py_XDECREF(eqndatap);
-    if(result == NULL)
-      pythonErrorRelay();
-    Py_XDECREF(result);
-  }
+  PyObject *method = PyUnicode_FromString("force_value");
+  PyObject *elp = NEWSWIGPTR(element, "Element");
+  PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
+  PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
+  PyObject *timep = PyFloat_FromDouble(time);
+  PyObject *eqndatap = NEWSWIGPTR(eqndata, "SmallSystem");
+  PyObject *result = PyObject_CallMethodObjArgs(
+					referent_, method,
+					mesh->getPyMesh(),
+					elp, eqnp, mpp, timep, eqndatap,
+					NULL);
+  Py_XDECREF(method);
+  Py_XDECREF(elp);
+  Py_XDECREF(eqnp);
+  Py_XDECREF(mpp);
+  Py_XDECREF(timep);
+  Py_XDECREF(eqndatap);
+  if(result == NULL)
+    pythonErrorRelay();
+  Py_XDECREF(result);
 }
 
 //=\\=//=\\=//
@@ -702,30 +720,30 @@ void PyEqnProperty::first_time_deriv_matrix(const FEMesh *mesh,
   if(!PyObject_HasAttrString(referent_, "first_time_deriv_matrix")) {
     this->EqnProperty::first_time_deriv_matrix(mesh, element, eqn, efni, pt,
 					       time, eqndata);
+    return;
   }
-  else {
-    PyObject *method = PyUnicode_FromString("first_time_deriv_matrix");
-    PyObject *elp = NEWSWIGPTR(element, "Element");
-    PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
-    PyObject *efnip = NEWSWIGPTR(&efni, "ElementFuncNodeIterator");
-    PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
-    PyObject *timep = PyFloat_FromDouble(time);
-    PyObject *eqndatap = NEWSWIGPTR(eqndata, "SmallSystem");
-    PyObject *result = PyObject_CallMethodObjArgs(
-			  referent_, method,
-			  mesh->getPyMesh(),
-			  elp, eqnp, efnip, mpp, timep, eqndatap, NULL);
-    Py_XDECREF(method);
-    Py_XDECREF(elp);
-    Py_XDECREF(eqnp);
-    Py_XDECREF(efnip);
-    Py_XDECREF(mpp);
-    Py_XDECREF(timep);
-    Py_XDECREF(eqndatap);
-    if(result == NULL)
-      pythonErrorRelay();
-    Py_XDECREF(result);
-  }
+  PyObject *method = PyUnicode_FromString("first_time_deriv_matrix");
+  PyObject *elp = NEWSWIGPTR(element, "Element");
+  PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
+  PyObject *efnip = NEWSWIGPTR(&efni, "ElementFuncNodeIterator");
+  PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
+  PyObject *timep = PyFloat_FromDouble(time);
+  PyObject *eqndatap = NEWSWIGPTR(eqndata, "SmallSystem");
+  PyObject *result = PyObject_CallMethodObjArgs(
+					referent_, method,
+					mesh->getPyMesh(),
+					elp, eqnp, efnip, mpp, timep, eqndatap,
+					NULL);
+  Py_XDECREF(method);
+  Py_XDECREF(elp);
+  Py_XDECREF(eqnp);
+  Py_XDECREF(efnip);
+  Py_XDECREF(mpp);
+  Py_XDECREF(timep);
+  Py_XDECREF(eqndatap);
+  if(result == NULL)
+    pythonErrorRelay();
+  Py_XDECREF(result);
 }
 
 //=\\=//=\\=//
@@ -744,30 +762,30 @@ void PyEqnProperty::second_time_deriv_matrix(
   if(!PyObject_HasAttrString(referent_, "second_time_deriv_matrix")) {
     this->EqnProperty::second_time_deriv_matrix(mesh, element, eqn, efni, pt,
 						time, eqndata);
+    return;
   }
-  else {
-    PyObject *method = PyUnicode_FromString("second_time_deriv_matrix");
-    PyObject *elp = NEWSWIGPTR(element, "Element");
-    PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
-    PyObject *efnip = NEWSWIGPTR(&efni, "ElementFuncNodeIterator");
-    PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
-    PyObject *timep = PyFloat_FromDouble(time);
-    PyObject *eqndatap = NEWSWIGPTR(eqndata, "SmallSystem");
-    PyObject *result = PyObject_CallMethodObjArgs(
-			  referent_, method,
-			  mesh->getPyMesh(),
-			  elp, eqnp, efnip, mpp, timep, eqndatap, NULL);
-    Py_XDECREF(method);
-    Py_XDECREF(elp);
-    Py_XDECREF(eqnp);
-    Py_XDECREF(efnip);
-    Py_XDECREF(mpp);
-    Py_XDECREF(timep);
-    Py_XDECREF(eqndatap);
-    if(result == NULL)
-      pythonErrorRelay();
-    Py_XDECREF(result);
-  }
+  PyObject *method = PyUnicode_FromString("second_time_deriv_matrix");
+  PyObject *elp = NEWSWIGPTR(element, "Element");
+  PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
+  PyObject *efnip = NEWSWIGPTR(&efni, "ElementFuncNodeIterator");
+  PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
+  PyObject *timep = PyFloat_FromDouble(time);
+  PyObject *eqndatap = NEWSWIGPTR(eqndata, "SmallSystem");
+  PyObject *result = PyObject_CallMethodObjArgs(
+					referent_, method,
+					mesh->getPyMesh(),
+					elp, eqnp, efnip, mpp, timep, eqndatap,
+					NULL);
+  Py_XDECREF(method);
+  Py_XDECREF(elp);
+  Py_XDECREF(eqnp);
+  Py_XDECREF(efnip);
+  Py_XDECREF(mpp);
+  Py_XDECREF(timep);
+  Py_XDECREF(eqndatap);
+  if(result == NULL)
+    pythonErrorRelay();
+  Py_XDECREF(result);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

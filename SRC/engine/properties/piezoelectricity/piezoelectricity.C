@@ -61,7 +61,7 @@ void PiezoElectricity::flux_matrix(const FEMesh *mesh,
 				   const ElementFuncNodeIterator &nu,
 				   const Flux *flux,
 				   const MasterPosition &pos,
-				   double time,
+				   double time, void*,
 				   SmallSystem *fluxdata) const
 {
   const Rank3Tensor eijk =

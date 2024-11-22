@@ -380,7 +380,7 @@ void SimpleTension2::post_process(CSubProblem* pSubp, const Element *pElem)
 void SimpleTension2::flux_matrix(const FEMesh*, const Element*,
 				 const ElementFuncNodeIterator&,
 				 const Flux*, const MasterPosition&,
-				 double time, SmallSystem *fluxdata)
+				 double time, void*, SmallSystem *fluxdata)
   const
 {
   //Do nothing
@@ -389,7 +389,7 @@ void SimpleTension2::flux_matrix(const FEMesh*, const Element*,
 void SimpleTension2::flux_offset(const FEMesh*, const Element*,
 				 const Flux*,
 				 const MasterPosition&,
-				 double time,
+				 double time, void*,
 				 SmallSystem *fluxdata)
     const
 {

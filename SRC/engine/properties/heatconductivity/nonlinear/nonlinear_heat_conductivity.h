@@ -49,7 +49,8 @@ public:
   virtual bool constant_in_space() const { return false; }
   // virtual bool is_symmetric_K(const CSubProblem*) const { return false; }
   virtual void flux_value(const FEMesh*, const Element*, const Flux*,
-			  const MasterPosition&, double time, SmallSystem*)
+			  const MasterPosition&, double time, void*,
+			  SmallSystem*)
     const;
 protected:
   ScalarField *temperature;
@@ -72,7 +73,7 @@ public:
 			   const ElementFuncNodeIterator&,
 			   const Flux*,
 			   const MasterPosition&,
-			   double time,
+			   double time, void*,
 			   SmallSystem*) const;
 
 protected:

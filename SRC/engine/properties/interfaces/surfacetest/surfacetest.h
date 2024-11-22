@@ -63,12 +63,12 @@ public:
   virtual void post_process(CSubProblem*, const Element*) const;
 
   virtual void flux_value(const FEMesh *mesh, const Element *element,
-				 const Flux *flux, const MasterPosition &pt,
-				 double time, SmallSystem *fluxdata) const;
+			  const Flux *flux, const MasterPosition &pt,
+			  double time, void*, SmallSystem *fluxdata) const;
   virtual void flux_matrix(const FEMesh *mesh, const Element *el,
 			   const ElementFuncNodeIterator &efi,
 			   const Flux *flux, const MasterPosition &pt,
-			   double time, SmallSystem *fluxdata) const;
+			   double time, void*, SmallSystem *fluxdata) const;
   
 };
 

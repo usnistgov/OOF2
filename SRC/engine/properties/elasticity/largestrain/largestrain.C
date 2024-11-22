@@ -94,7 +94,7 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
 					 const ElementFuncNodeIterator &node,
 					 const Flux    *flux,
 					 const MasterPosition &pt,
-					 double time,
+					 double time, void*, 
 					 SmallSystem *fluxmtx) const
 {
   int (*ij2voigt)(int,int) = &SymTensorIndex::ij2voigt; // shorter func name

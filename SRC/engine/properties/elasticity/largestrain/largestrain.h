@@ -30,7 +30,7 @@ public:
 			   const ElementFuncNodeIterator &nu,
 			   const Flux *flux,
 			   const MasterPosition &x,
-			   double time,
+			   double time, void*, 
 			   SmallSystem *fluxmtx) const;
   virtual SymmMatrix3 geometricStrain(const FEMesh*, const Element*, 
 				      const MasterPosition&) const;

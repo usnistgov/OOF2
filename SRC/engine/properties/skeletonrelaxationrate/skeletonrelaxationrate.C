@@ -66,6 +66,7 @@ void SkeletonRelaxationRate::flux_offset(const FEMesh *mesh,
 					 const Flux *flux,
 					 const MasterPosition &x,
 					 double time,
+					 void *localdata,
 					 SmallSystem *fluxdata) const {
   if(*flux!=*stress_flux) {
     throw ErrProgrammingError("Unexpected flux." __FILE__, __LINE__);

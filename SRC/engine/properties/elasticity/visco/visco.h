@@ -45,7 +45,7 @@ public:
 			   const ElementFuncNodeIterator &nu,
 			   const Flux *flux,
 			   const MasterPosition &x,
-			   double time,
+			   double time, void*,
 			   SmallSystem *fluxmtx) const;
   // virtual void flux_value(const FEMesh*, const Element*, const Flux*,
   // 			  const MasterPosition&, double, SmallSystem*) const;

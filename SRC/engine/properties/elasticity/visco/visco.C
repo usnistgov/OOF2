@@ -41,7 +41,7 @@ void CViscoElasticity::flux_matrix(const FEMesh *mesh,
 				   const ElementFuncNodeIterator &nu,
 				   const Flux *flux,
 				   const MasterPosition &x,
-				   double time,
+				   double time, void*, 
 				   SmallSystem *fluxmtx) const
 {
   if(*flux != *stress_flux) {

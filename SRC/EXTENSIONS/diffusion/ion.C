@@ -62,7 +62,7 @@ void IonDiffusion::flux_value(const FEMesh  *mesh,
 			      const Element *element,
 			      const Flux    *flux,
 			      const MasterPosition &pt,
-			      double time,
+			      double time, void*, 
 			      SmallSystem *fluxdata) const
 {
   // Find the concentration value at this point.
@@ -117,7 +117,7 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
 			       const ElementFuncNodeIterator &j,
 			       const Flux    *flux,
 			       const MasterPosition &pt,
-			       double time,
+			       double time, void*, 
 			       SmallSystem *fluxdata)
   const
 {

@@ -175,22 +175,23 @@ void FluxProperty::make_flux_contributions(const FEMesh *mesh,
 					   const MasterPosition &pt,
 					   double time,
 					   const CNonlinearSolver *nlsolver,
+					   void *localdata,
 					   SmallSystem *fluxdata)
   const
 {
   for(CleverPtr<ElementFuncNodeIterator>node(element->funcnode_iterator()); 
       !node->end(); ++*node)
     {
-      flux_matrix(mesh, element, *node, flux, pt, time, fluxdata);
+      flux_matrix(mesh, element, *node, flux, pt, time, localdata, fluxdata);
     }
 
-  flux_offset(mesh, element, flux, pt, time, fluxdata);
+  flux_offset(mesh, element, flux, pt, time, localdata, fluxdata);
   
   if(nlsolver->needsResidual()) {
     // TODO TIMEDERIV: Check how nonlinear solvers use the residual.
     // Is it really just the static part of the flux?  What would
     // happen with a nonlinear flux with a linear viscoelastic part?
-    flux_value(mesh, element, flux, pt, time, fluxdata);
+    flux_value(mesh, element, flux, pt, time, localdata, fluxdata);
   }
 }
 
@@ -205,7 +206,8 @@ void FluxProperty::make_flux_contributions(const FEMesh *mesh,
 
 void FluxProperty::flux_value(const FEMesh *mesh, const Element *element,
 			      const Flux *flux, const MasterPosition &pt,
-			      double time, SmallSystem *fluxdata)
+			      double time, void *localdata,
+			      SmallSystem *fluxdata)
   const
 {
   // retrieve the local coefficients for the field(s) into localdofs.
@@ -222,12 +224,13 @@ void FluxProperty::flux_value(const FEMesh *mesh, const Element *element,
       !eni->end(); ++*eni)
     {
       try {
-	flux_matrix(mesh, element, *eni, flux, pt, time, &localFluxData);
+	flux_matrix(mesh, element, *eni, flux, pt, time, localdata,
+		    &localFluxData);
       }
       catch (ErrNoSuchField &exc) {} // benign
     }
   try {
-    flux_offset(mesh, element, flux, pt, time, &localFluxData);
+    flux_offset(mesh, element, flux, pt, time, localdata, &localFluxData);
   }
   catch (ErrNoSuchField &exc) {}
 
@@ -250,9 +253,10 @@ void FluxProperty::flux_value(const FEMesh *mesh, const Element *element,
 void FluxProperty::static_flux_value(
 			     const FEMesh *mesh, const Element *element,
 			     const Flux *flux, const MasterPosition &pt,
-			     double time, SmallSystem *fluxdata) const
+			     double time, void *localdata,
+			     SmallSystem *fluxdata) const
 {
-  flux_value(mesh, element, flux, pt, time, fluxdata);
+  flux_value(mesh, element, flux, pt, time, localdata, fluxdata);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

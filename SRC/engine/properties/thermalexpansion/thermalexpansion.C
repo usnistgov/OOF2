@@ -55,7 +55,7 @@ void ThermalExpansion::flux_matrix(const FEMesh *mesh,
 				   const ElementFuncNodeIterator &nu,
 				   const Flux *flux,
 				   const MasterPosition &x,
-				   double time,
+				   double time, void*,
 				   SmallSystem *fluxdata) const
 {
   // The stress-free strain is $\epsilon_{kl}^0(T) = \alpha T$
@@ -93,7 +93,7 @@ void ThermalExpansion::flux_offset(const FEMesh *mesh,
 				   const Element *element,
 				   const Flux *flux,
 				   const MasterPosition &x,
-				   double time,
+				   double time, void*, 
 				   SmallSystem *fluxdata) const {
 
   if(*flux!=*stress_flux) {

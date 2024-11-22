@@ -41,7 +41,7 @@ public:
 
   virtual void flux_offset(const FEMesh*, const Element*,
 			   const Flux*, const MasterPosition&,
-			   double time, SmallSystem*) const;
+			   double time, void*, SmallSystem*) const;
 
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);

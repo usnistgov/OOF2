@@ -112,7 +112,7 @@ void FluxSurfaceTest::flux_value(const FEMesh *mesh,
 				 const Element *element,
 				 const Flux *flux,
 				 const MasterPosition &pt,
-				 double time,
+				 double time, void*, 
 				 SmallSystem *fluxdata) const {
   std::cerr << "FluxSurfaceTest::flux_value called." << std::endl;
 }
@@ -122,7 +122,7 @@ void FluxSurfaceTest::flux_matrix(const FEMesh *mesh,
 				  const ElementFuncNodeIterator &efi,
 				  const Flux *flux,
 				  const MasterPosition &pt,
-				  double time,
+				  double time, void*,
 				  SmallSystem *fluxdata) const {
   std::cerr << "FluxSurfaceTest::flux_matrix called." << std::endl;
 }

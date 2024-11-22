@@ -52,7 +52,7 @@ int Elasticity::integration_order(const CSubProblem *subp, const Element *el)
 
 void Elasticity::flux_value(const FEMesh *mesh, const Element *element,
 			    const Flux *flux, const MasterPosition &pt,
-			    double time, SmallSystem *fluxdata)
+			    double time, void*, SmallSystem *fluxdata)
   const
 {
   // Unexpected fluxes are bad.
@@ -83,7 +83,7 @@ void Elasticity::flux_value(const FEMesh *mesh, const Element *element,
 void Elasticity::flux_matrix(const FEMesh *mesh, const Element *element,
 			     const ElementFuncNodeIterator &node,
 			     const Flux *flux, const MasterPosition &x,
-			     double time, SmallSystem *fluxmtx)
+			     double time, void*, SmallSystem *fluxmtx)
   const
 {
   double shapeFuncVal, shapeFuncGrad[2];

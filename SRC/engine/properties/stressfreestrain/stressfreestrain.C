@@ -38,7 +38,7 @@ int StressFreeStrain::integration_order(const CSubProblem*, const Element *el)
 void StressFreeStrain::flux_offset(const FEMesh *mesh, const Element *element,
 				   const Flux *flux,
 				   const MasterPosition &x,
-				   double time,
+				   double time, void*,
 				   SmallSystem *fluxdata)
   const
 {

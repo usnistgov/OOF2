@@ -36,12 +36,12 @@ public:
 			   const ElementFuncNodeIterator&,
 			   const Flux*,
 			   const MasterPosition&,
-			   double time,
+			   double time, void*,
 			   SmallSystem *) const;
   virtual void flux_value(const FEMesh*, const Element*,
 			  const Flux*,
 			  const MasterPosition&,
-			  double time,
+			  double time, void*,
 			  SmallSystem *) const;
   virtual void cross_reference(Material*) = 0;
   virtual int  integration_order(const CSubProblem*, const Element*) const;

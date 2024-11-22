@@ -269,7 +269,8 @@ public:
   void make_flux_contributions(const FEMesh*, const Element*,
 			       const Flux*,
 			       const MasterPosition&, double time,
-			       const CNonlinearSolver*, SmallSystem*)
+			       const CNonlinearSolver*,
+			       void *, SmallSystem*)
     const;
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -285,13 +286,13 @@ public:
   virtual void flux_matrix(const FEMesh*, const Element*,
 			   const ElementFuncNodeIterator&,
 			   const Flux*, const MasterPosition&,
-			   double time, SmallSystem*) const
+			   double time, void*, SmallSystem*) const
   {}
 
   // Value of the flux when Du and Du^dot are zero.
   virtual void flux_offset(const FEMesh*, const Element*,
 			   const Flux*, const MasterPosition&, double time,
-			   SmallSystem*) const
+			   void*, SmallSystem*) const
   {}
 
   // The actual value of the flux at the given element and given
@@ -299,7 +300,7 @@ public:
   // matrix and offset.  Specialized properties can redefine it.
   virtual void flux_value(const FEMesh *mesh, const Element *element,
 			  const Flux *flux, const MasterPosition &pt,
-			  double time, SmallSystem *fluxdata) const;
+			  double time, void*, SmallSystem *fluxdata) const;
   
 
   // The static portion of the flux vector/tensor, equal to flux_value
@@ -315,19 +316,25 @@ public:
   // field.
   virtual void static_flux_value(const FEMesh *mesh, const Element *element,
 				 const Flux *flux, const MasterPosition &pt,
-				 double time, SmallSystem *fluxdata) const;
+				 double time, void*,
+				 SmallSystem *fluxdata) const;
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
   // These functions are called from material.C before and after the
   // flux contributions are requested.  If properties have
   // per-evaluation-point expensive operations they want to perform,
-  // they should do them in these functions.
+  // they should do them in these functions.  An object allocated and
+  // returned by begin_point is passed to all the FluxProperty
+  // methods, and can be deallocated by end_point.
 
-  virtual void begin_point(const FEMesh*, const Element*,
-			   const Flux*, const MasterPosition&) {}
+  virtual void* begin_point(const FEMesh*, const Element*,
+			    const Flux*, const MasterPosition&)
+  {
+    return nullptr;
+  }
   virtual void end_point(const FEMesh*, const Element*,
-			 const Flux*, const MasterPosition&) {}
+			 const Flux*, const MasterPosition&, void*) {}
 
 }; // end of FluxProperty class definition
 

@@ -43,7 +43,8 @@ public:
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return false; }
   virtual void flux_value(const FEMesh*, const Element*, const Flux*,
-			  const MasterPosition&, double time, SmallSystem*)
+			  const MasterPosition&, double time,  void*,
+			  SmallSystem*)
     const;
 protected:
   TwoVectorField *displacement;
@@ -68,7 +69,7 @@ public:
 			   const ElementFuncNodeIterator &nu,
 			   const Flux *flux,
 			   const MasterPosition &x,
-			   double time,
+			   double time, void*, 
 			   SmallSystem *fluxmtx) const;
 protected:
   virtual void nonlin_stress_deriv_wrt_displacement(

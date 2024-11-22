@@ -62,7 +62,8 @@ class TestPlasticityProp(pypropertywrapper.PyFluxProperty):
     # We only have a flux_offset, because we just subtract the
     # elastic constants times the stress-free strain from the
     # stress.
-    def flux_offset(self, mesh, element, flux, masterpos, time, smallsystem):
+    def flux_offset(self, mesh, element, flux, masterpos, time, localdata,
+                    smallsystem):
 
         # Retrieve the plastic strain field and evaluate it at this
         # masterposition.

@@ -166,7 +166,7 @@ void PyroElectricity::flux_matrix(const FEMesh *mesh,
 				  const ElementFuncNodeIterator &nu,
 				  const Flux *flux,
 				  const MasterPosition &pos,
-				  double time,
+				  double time, void*,
 				  SmallSystem *fluxdata) const
 {
 
@@ -188,7 +188,7 @@ void PyroElectricity::flux_offset(const FEMesh *mesh,
 				  const Element *element,
 				  const Flux *flux,
 				  const MasterPosition &pos,
-				  double time,
+				  double time, void*,
 				  SmallSystem *fluxdata) const {
 
   if(!modulus_ok)

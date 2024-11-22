@@ -52,7 +52,7 @@ void DielectricPermittivity::flux_matrix(const FEMesh *mesh,
 					 const ElementFuncNodeIterator &j,
 					 const Flux *flux,
 					 const MasterPosition &pt,
-					 double time,
+					 double time, void*, 
 					 SmallSystem *fluxdata)
   const
 {

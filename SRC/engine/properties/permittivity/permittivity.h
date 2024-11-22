@@ -40,7 +40,7 @@ public:
 			   const ElementFuncNodeIterator&,
 			   const Flux*,
 			   const MasterPosition&,
-			   double time,
+			   double time, void*,
 			   SmallSystem*) const;
 
   virtual void cross_reference(Material*) = 0;
