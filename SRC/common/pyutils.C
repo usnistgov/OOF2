@@ -52,7 +52,9 @@ std::string getPyStringData(PyObject *obj, const char *attr) {
 // interpreter lock does not need to be acquired.
 
 std::string repr_nolock(PyObject *obj) {
-  assert(obj != 0);
+  if(!obj) {
+    return std::string("[*obj is 0x0]");
+  }
   PyObject *repr = PyObject_Repr(obj);
   if(!repr)
     pythonErrorRelay();
