@@ -395,23 +395,26 @@ void PyFluxProperty::flux_matrix(const FEMesh *mesh,
 
 void* PyFluxProperty::begin_point(const FEMesh *mesh, const Element *el,
 				  const Flux *flx,
-				  const MasterPosition &mpos) 
+				  const MasterPosition &mpos,
+				  double time)
+  const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "begin_point")) {
-    return this->FluxProperty::begin_point(mesh, el, flx, mpos);
+    return this->FluxProperty::begin_point(mesh, el, flx, mpos, time);
   }
   PyObject *method = PyUnicode_FromString("begin_point");
   PyObject *elp = NEWSWIGPTR(el, "Element");
   PyObject *flxp = NEWSWIGPTR(flx, "Flux");
   PyObject *mpp = NEWSWIGPTR(&mpos, "MasterPosition");
-  PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
-						mesh->getPyMesh(),
-						elp, flxp, mpp, NULL);
+  PyObject *timep = PyFloat_FromDouble(time);
+  PyObject *result = PyObject_CallMethodObjArgs(
+	referent_, method, mesh->getPyMesh(), elp, flxp, mpp, timep,NULL);
   Py_XDECREF(method);
   Py_XDECREF(elp);
   Py_XDECREF(flxp);
   Py_XDECREF(mpp);
+  Py_XDECREF(timep);
   if(result==NULL) {
     pythonErrorRelay();
   }
@@ -420,27 +423,29 @@ void* PyFluxProperty::begin_point(const FEMesh *mesh, const Element *el,
 
 void PyFluxProperty::end_point(const FEMesh *mesh, const Element *el,
 			       const Flux *flx, const MasterPosition &mpos,
-			       void *localdata) 
+			       double time, void *localdata)
+  const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "end_point")) {
-    this->FluxProperty::end_point(mesh, el, flx, mpos, localdata);
+    this->FluxProperty::end_point(mesh, el, flx, mpos, time, localdata);
     return;
   }
   PyObject *method = PyUnicode_FromString("end_point");
   PyObject *elp = NEWSWIGPTR(el, "Element");
   PyObject *flxp = NEWSWIGPTR(flx, "Flux");
   PyObject *mpp = NEWSWIGPTR(&mpos, "MasterPosition");
+  PyObject *timep = PyFloat_FromDouble(time);
   if(!localdata)
     localdata = Py_None;
-  PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
-						mesh->getPyMesh(),
-						elp, flxp, mpp, localdata,
-						NULL);
+  PyObject *result = PyObject_CallMethodObjArgs(
+	referent_, method, mesh->getPyMesh(), elp, flxp, mpp, timep, localdata,
+	NULL);
   Py_XDECREF(method);
   Py_XDECREF(elp);
   Py_XDECREF(flxp);
   Py_XDECREF(mpp);
+  Py_XDECREF(timep);
   if(result==NULL) {
     pythonErrorRelay();
   }

@@ -410,11 +410,12 @@ void Material::make_linear_system(const CSubProblem *subproblem,
 	  // if the property is active in the current subproblem,
 	  // calculate its contributions to the active flux
 	  if((*property)->currently_active(subproblem)) {
-	    void *data = (*property)->begin_point(mesh, el, (*fluxi), pt);
+	    void *ldata = (*property)->begin_point(mesh, el, (*fluxi), pt,
+						   time);
 	    (*property)->make_flux_contributions(mesh, el, *fluxi, pt, time,
-						 nlsolver, data,
+						 nlsolver, ldata,
 						 property_flux_info);
-	    (*property)->end_point(mesh, el, (*fluxi), pt, data);
+	    (*property)->end_point(mesh, el, (*fluxi), pt, time, ldata);
 	    
 	    // add the flux contributions of the property to the flux
 	    // small system
@@ -496,7 +497,7 @@ void Material::find_fluxdata(const FEMesh *mesh, const Element *el,
   double time = mesh->getCurrentTime();
   
   for(FluxPropList::const_iterator fp=fpl.begin(); fp!=fpl.end(); ++fp) {
-    void *localdata = (*fp)->begin_point(mesh, el, flux, mpos);
+    void *localdata = (*fp)->begin_point(mesh, el, flux, mpos, time);
     // Instead of checking fields, we rely on the field-evaluation
     // exception, because field activities are not necessarily set
     // correctly except during linearized-system construction.
@@ -505,7 +506,7 @@ void Material::find_fluxdata(const FEMesh *mesh, const Element *el,
     }
     catch (ErrNoSuchField &exc) {
     }
-    (*fp)->end_point(mesh, el, flux, mpos, localdata);
+    (*fp)->end_point(mesh, el, flux, mpos, time, localdata);
   }
 }
 

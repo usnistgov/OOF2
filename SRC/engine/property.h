@@ -180,9 +180,11 @@ public:
   void *get_mesh_data(const FEMesh*) const;
   virtual void clear_mesh_data(FEMesh*, void*) const {}
 
-  // these functions are called when beginning and ending the
+  // These functions are called when beginning and ending the
   // computations on an Element, allowing Element-dependent
-  // precomputation and caching
+  // precomputation and caching.
+  // TODO: Should begin_element return a void* that is passed in to
+  // the other methods, like FluxProperty::begin_point?
   virtual void begin_element(const CSubProblem*, const Element*) {}
   virtual void end_element(const CSubProblem*, const Element*) {}
 
@@ -329,12 +331,14 @@ public:
   // methods, and can be deallocated by end_point.
 
   virtual void* begin_point(const FEMesh*, const Element*,
-			    const Flux*, const MasterPosition&)
+			    const Flux*, const MasterPosition&, double) const
   {
     return nullptr;
   }
   virtual void end_point(const FEMesh*, const Element*,
-			 const Flux*, const MasterPosition&, void*) {}
+			 const Flux*, const MasterPosition&, double, void*)
+    const
+  {}
 
 }; // end of FluxProperty class definition
 

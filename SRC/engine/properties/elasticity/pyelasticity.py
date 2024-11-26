@@ -70,10 +70,10 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
     def modulus(self):
         return isocijkl.IsotropicRank4TensorCij(c11=1.0, c12=0.5).tensorForm()
 
-    def begin_point(self, mesh, element, flux, point):
+    def begin_point(self, mesh, element, flux, point, time):
         return DummyData("hello")
 
-    def end_point(self, mesh, element, flux, point, localdata):
+    def end_point(self, mesh, element, flux, point, time, localdata):
         assert localdata.x == "hello"
 
     def flux_matrix(self, mesh, element, nodeiterator, flux, point, time,

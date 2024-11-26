@@ -99,9 +99,11 @@ public:
     PyPropertyMethods::py_end_element(sb, e);
   }
   virtual void* begin_point(const FEMesh *m, const Element *e,
-				const Flux *f, const MasterPosition &p);
+			    const Flux *f, const MasterPosition &p,
+			    double time) const;
   virtual void end_point(const FEMesh *m, const Element *e,
-			 const Flux *f, const MasterPosition &p, void*);
+			 const Flux *f, const MasterPosition &p,
+			 double time, void*) const;
   virtual void post_process(CSubProblem *sb, const Element *e) const {
     PyPropertyMethods::py_post_process(sb, e);
   }
