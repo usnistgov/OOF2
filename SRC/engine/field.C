@@ -338,6 +338,20 @@ double ScalarFieldBase::gradient(const FEMesh *mesh, const Element *element,
   return gradient(mesh, element, pos, gradindex);
 }
 
+DoubleVec ScalarField::gradient(const FEMesh *mesh, const Element *element,
+				const MasterPosition &pos)
+  const
+{
+  DoubleVec grad(3);
+  grad[0] = ScalarFieldBase::gradient(mesh, element, pos, 0);
+  grad[1] = ScalarFieldBase::gradient(mesh, element, pos, 1);
+  if(in_plane(mesh))
+    grad[2] = 0;
+  else
+    grad[2] = out_of_plane()->value(mesh, element, pos, ScalarFieldIndex());
+  return grad;
+}
+
 
 DegreeOfFreedom *ScalarFieldBase::operator()(const FuncNode *node) const {
   // offset() will raise ErrNoSuchField if this field isn't defined at the node.

@@ -53,34 +53,13 @@ void HeatConductivity::flux_value(const FEMesh *mesh, const Element *element,
 				  double time, void*, SmallSystem *fluxdata)
   const
 {
-  // first evaluate the temperature gradient
-  DoubleVec fieldGradient(3);
 
-  for (SpaceIndex i=0; i<DIM; ++i){
-    fieldGradient[i] = temperature->gradient(mesh, element, pt, i);
-  }
-
-  // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane field
-  if (!temperature->in_plane(mesh)){
-    // CompoundField::out_of_plane returns a Field*, not a
-    // ScalarField*, so we need to call the generic Field::value that
-    // requires the FieldIndex to be provided.
-    fieldGradient[2] = temperature->out_of_plane()->value(mesh, element, pt,
-							  ScalarFieldIndex());
-  }
-
-  // now compute the flux elements by the following summation
-  //    flux_i = cond(i,j) * dT_j
-  // where 'cond' is the conductivity tensor and dT_j is
-  // jth component of the gradient of the temperature field
-
+  // Get the temperature gradient.
+  DoubleVec fieldGradient = temperature->gradient(mesh, element, pt);
+  // Get the thermal conductivity.
   const SymmMatrix3 cond(conductivitytensor(mesh, element, pt));
-
-  for(int i=0; i<3; i++) 
-    fluxdata->flux_vector_element(i) -= 
-      cond(i, 0) * fieldGradient[0] +
-      cond(i, 1) * fieldGradient[1] +
-      cond(i, 2) * fieldGradient[2];
+  // Add the flux to the pre-existing flux.
+  fluxdata->fluxVector() -= cond*fieldGradient; // tensor*vector => vector
 
 } // end of 'HeatConductivity::flux_value'
 

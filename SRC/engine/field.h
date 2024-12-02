@@ -301,6 +301,12 @@ public:
   ScalarField(const std::string &name);
   virtual ~ScalarField() {}
   virtual const std::string &classname() const { return classname_; }
+
+  // Version of gradient() without a SpaceIndex arg returns an xyz
+  // vector.  This needs to check planarity, so it must be in a
+  // CompoundField subclass, not in ScalarFieldBase.
+  DoubleVec gradient(const FEMesh*, const Element*, const MasterPosition&)
+    const;
 };
 
 //------------------------

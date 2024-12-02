@@ -67,35 +67,18 @@ void Diffusion::flux_value(const FEMesh  *mesh,
 			   SmallSystem *fluxdata) const
 {
   // first evaluate the concentration gradient
-
-  std::vector<double> fieldGradient(3);
-
-  for (SpaceIndex i=0; i<DIM; ++i){
-    fieldGradient[i] = concentration->gradient(mesh, element, pt, i);
-  }
-
-  // If plane-flux eqn, then dT/dz is kept as a separate out_of_plane
-  // field.  Because CompoundField::out_of_plane() returns a Field
-  // pointer, not a ScalarField pointer, this needs to use the generic
-  // version of Field::value(), which requires a FieldIndex argument.
-  if ( !concentration->in_plane(mesh) ){
-    fieldGradient[2] = concentration->out_of_plane()->value(mesh, element, pt,
-							    ScalarFieldIndex());
-  }
+  DoubleVec fieldGradient = concentration->gradient(mesh, element, pt);
 
   // now compute the flux elements by the following summation
   //    flux_i = cond(i,j) * dT_j
   // where 'cond' is the conductivity tensor and dT_j is
   // jth component of the gradient of the concentration field
 
-  const SymmMatrix3 cond( conductivitytensor( mesh, element, pt ) );
+  const SymmMatrix3 cond( conductivitytensor(mesh, element, pt));
+  DoubleVec flx = cond*fieldGradient;
+  for(int i=0; i<3; i++)
+    fluxdata->flux_vector_element(i) -= flx[i];
 
-  for(IndexP i : *flux->components(ALL_INDICES))
-    fluxdata->flux_vector_element( i ) -=
-      cond( i.integer(), 0 ) * fieldGradient[0] +
-      cond( i.integer(), 1 ) * fieldGradient[1] +
-      cond( i.integer(), 2 ) * fieldGradient[2];
-  
 } // end of 'Diffusion::flux_value'
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -119,9 +102,9 @@ void Diffusion::flux_matrix(const FEMesh  *mesh,
     throw ErrProgrammingError("Unexpected flux", __FILE__, __LINE__);
   }
 
-  double sf   = j.shapefunction( pt );
-  double dsf0 = j.dshapefunction( 0, pt );
-  double dsf1 = j.dshapefunction( 1, pt );
+  double sf   = j.shapefunction(pt);
+  double dsf0 = j.dshapefunction(0, pt);
+  double dsf1 = j.dshapefunction(1, pt);
 
   const SymmMatrix3 cond( conductivitytensor( mesh, el, pt ) );
 

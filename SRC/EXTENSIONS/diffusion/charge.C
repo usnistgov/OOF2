@@ -47,7 +47,6 @@ int Current::integration_order(const CSubProblem *subp,
 }
 
 
-
 void Current::flux_value(const FEMesh *mesh,
 			 const Element *element,
 			 const Flux *flux,
@@ -56,31 +55,17 @@ void Current::flux_value(const FEMesh *mesh,
 			 SmallSystem *fluxdata) const
 {
   // first evaluate the voltage gradient
-
-  std::vector<double> fieldGradient(3);
-
-  for (SpaceIndex i=0; i<DIM; ++i){
-    fieldGradient[i] = voltage->gradient(mesh, element, pt, i);
-  }
-
- // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane field
-  if ( !voltage->in_plane(mesh) ){
-    fieldGradient[2] = voltage->out_of_plane()->value(mesh, element, pt,
-						      ScalarFieldIndex());
-  }
+  DoubleVec fieldGradient =  voltage->gradient(mesh, element, pt);
 
   // now compute the flux elements by the following summation
   //    flux_i = cond(i,j) * dT_j
   // where 'cond' is the conductivity tensor and dT_j is
   // jth component of the gradient of the voltage field
 
-  const SymmMatrix3 cond( conductivitytensor( mesh, element, pt ) );
-
-  for(IndexP i : *flux->components(ALL_INDICES))
-    fluxdata->flux_vector_element( i ) -=
-      cond( i.integer(), 0 ) * fieldGradient[0] +
-      cond( i.integer(), 1 ) * fieldGradient[1] +
-      cond( i.integer(), 2 ) * fieldGradient[2];
+  const SymmMatrix3 cond(conductivitytensor(mesh, element, pt));
+  DoubleVec flx = cond*fieldGradient;
+  for(int i=0; i<3; i++)
+    fluxdata->flux_vector_element(i) = flx[i];
 
 } // end of 'Current::flux_value'
 
@@ -117,7 +102,7 @@ void Current::flux_matrix(const FEMesh  *mesh,
 
   for(IndexP i : *flux->components(ALL_INDICES)) {
     // in-plane voltage gradient contributions
-    fluxdata->stiffness_matrix_element( i, voltage, j ) -=
+    fluxdata->stiffness_matrix_element(i, voltage, j) -=
                   cond(i.integer(), 0) * dsf0 + cond(i.integer(), 1) * dsf1;
 
     // out-of-plane voltage gradient contribution
