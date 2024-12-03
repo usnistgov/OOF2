@@ -117,17 +117,17 @@ void FEMesh::setPyMesh(PyObject *obj) {
 
 void FEMesh::unsetPyMesh() {
   PYTHON_THREAD_BEGIN_BLOCK;
-#ifdef DEBUG
-  PyObject *sys = PyImport_ImportModule("sys");
-  PyObject *grc = PyObject_GetAttrString(sys, "getrefcount");
-  PyObject *nrefs = PyObject_CallFunctionObjArgs(grc, pymesh, NULL);
-  std::cerr << "FEMesh::unsetPyMesh: pymesh=" << pymesh
-	    << " refcount=" << repr(nrefs) << std::endl;
-  PyObject *gc = PyImport_ImportModule("gc");
-  PyObject *gr = PyObject_GetAttrString(gc, "get_referrers");
-  PyObject *refs = PyObject_CallFunctionObjArgs(gr, pymesh, NULL);
-  std::cerr << "FEMesh::unsetPyMesh: referrers = " << repr(refs) << std::endl;
-#endif // DEBUG
+// #ifdef DEBUG
+//   PyObject *sys = PyImport_ImportModule("sys");
+//   PyObject *grc = PyObject_GetAttrString(sys, "getrefcount");
+//   PyObject *nrefs = PyObject_CallFunctionObjArgs(grc, pymesh, NULL);
+//   std::cerr << "FEMesh::unsetPyMesh: pymesh=" << pymesh
+// 	    << " refcount=" << repr(nrefs) << std::endl;
+//   PyObject *gc = PyImport_ImportModule("gc");
+//   PyObject *gr = PyObject_GetAttrString(gc, "get_referrers");
+//   PyObject *refs = PyObject_CallFunctionObjArgs(gr, pymesh, NULL);
+//   std::cerr << "FEMesh::unsetPyMesh: referrers = " << repr(refs) << std::endl;
+// #endif // DEBUG
   
   Py_XDECREF(pymesh);
   pymesh = 0;

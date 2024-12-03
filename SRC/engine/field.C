@@ -440,6 +440,11 @@ const std::string ScalarFieldBase::classname_("ScalarFieldBase");
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+// TODO: Add non-virtual index-less gradient methods to the
+// TwoVectorField (and other compound fields if any) that return all
+// components in a single object.  See ScalarField::gradient(mesh,
+// element, pt).
+
 TwoVectorField::TwoVectorField(const std::string &nm)
   : Field(nm, 2),
     TwoVectorFieldBase(nm),

@@ -26,6 +26,9 @@ file_utils.generate = True
 ## Then evaluate some output at t=0 and make sure it's the same as the
 ## initial value.
 
+## TODO: Add tests with non-trivial z-components of fluxes and field
+## gradients.  There don't appear to be any for heat flux, at least. 
+
 class OOF_Output(unittest.TestCase):
     def setUp(self):
         global femesh, cskeleton

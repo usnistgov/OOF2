@@ -134,9 +134,6 @@ std::ostream &operator<<(std::ostream &os, const Cijkl &cijkl) {
 // Tensor multiplication C_ijkl * M_kl
 
 SymmMatrix3 operator*(const Cijkl &cijkl, const SymmMatrix3 &m) {
-  if(m.size() != 3) {
-    throw ErrProgrammingError("Incompatible matrix size", __FILE__, __LINE__);
-  }
   DoubleVec mv(6);
   mv[0] = m(0,0);
   mv[1] = m(1,1);
