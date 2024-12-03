@@ -62,21 +62,8 @@ void Elasticity::flux_value(const FEMesh *mesh, const Element *element,
 
   SymmMatrix3 strain = geometricStrain(mesh, element, pt);
   const Cijkl modulus = cijkl(mesh, element, pt);
-
-  for(SymTensorIndex ij : symTensorIJComponents) {
-    // TODO OPT: Use modulus(ij,kl) where ij and kl are voigt ints.
-    // Unroll the ij loop too.
-    int i = ij.row();
-    int j = ij.col();
-    fluxdata->flux_vector_element( ij ) -=
-      (modulus( i,j,0,0 ) * strain( 0,0 ) +
-       modulus( i,j,1,1 ) * strain( 1,1 ) +
-       modulus( i,j,2,2 ) * strain( 2,2 ) +
-       2*modulus( i,j,0,1 ) * strain( 0,1 ) +
-       2*modulus( i,j,0,2 ) * strain( 0,2 ) +
-       2*modulus( i,j,1,2 ) * strain( 1,2 ));
-  }
-} // end of 'Elasticity::flux_value'
+  fluxdata->fluxVector() -= modulus*strain;
+}
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

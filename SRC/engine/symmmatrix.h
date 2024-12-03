@@ -178,7 +178,8 @@ SymmMatrix3 operator-(const SymmMatrix3&, const SymmMatrix3&);
 SymmMatrix3 operator*(const SymmMatrix3&, double);
 SymmMatrix3 operator*(double, const SymmMatrix3&);
 SymmMatrix3 operator/(SymmMatrix3&, double);
-
+DoubleVec& operator+=(DoubleVec&, const SymmMatrix3&);
+DoubleVec& operator-=(DoubleVec&, const SymmMatrix3&);
 
 ArithmeticOutputValue *newSymTensorOutputValue();
 
@@ -196,7 +197,6 @@ std::ostream& operator<<(std::ostream&, const SymmMatrix&);
 // SymmMatrix3 needs operator<< to disambiguate the base class
 // operators.
 std::ostream& operator<<(std::ostream&, const SymmMatrix3&);
-
 
 
 #endif

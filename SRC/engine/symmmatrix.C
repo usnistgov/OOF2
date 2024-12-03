@@ -156,6 +156,18 @@ DoubleVec operator*(const SymmMatrix &a, const DoubleVec &x) {
   return result;
 }
 
+DoubleVec& operator+=(DoubleVec &vec, const SymmMatrix3 &mat) {
+  for(SymTensorIndex ij : symTensorIJComponents)
+    vec[ij.integer()] += mat[ij];
+  return vec;
+}
+
+DoubleVec& operator-=(DoubleVec &vec, const SymmMatrix3 &mat) {
+  for(SymTensorIndex ij : symTensorIJComponents)
+    vec[ij.integer()] -= mat[ij];
+  return vec;
+}
+
 // Compute A^ T (*this) A
 
 /*
