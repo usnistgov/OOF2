@@ -101,32 +101,34 @@ void ThermalExpansion::flux_offset(const FEMesh *mesh,
   }
   const Cijkl modulus = elasticity->cijkl(mesh, element, x);
   SymmMatrix3 expten = expansiontensor(mesh, element, x);
-  for(IndexP ij : *flux->components(ALL_INDICES)) {
-    double &offset_el = fluxdata->offset_vector_element(ij); // reference!
+  fluxdata->offsetVector() -= (modulus*expten)*T0;
+  
+  // for(IndexP ij : *flux->components(ALL_INDICES)) {
+  //   double &offset_el = fluxdata->offset_vector_element(ij); // reference!
 
-    for(SymTensorIndex kl : symTensorIJComponents) {
-      if(kl.diagonal()) {
-	offset_el -= modulus(ij,kl)*expten[kl]*T0;
-      }
-      else {
-	offset_el -= 2.0*modulus(ij,kl)*expten[kl]*T0;
-      }
-    }
+  //   for(SymTensorIndex kl : symTensorIJComponents) {
+  //     if(kl.diagonal()) {
+  // 	offset_el -= modulus(ij,kl)*expten[kl]*T0;
+  //     }
+  //     else {
+  // 	offset_el -= 2.0*modulus(ij,kl)*expten[kl]*T0;
+  //     }
+  //   }
 
-    // // Alternate way of looping over kl, using Flux::components, but
-    // // casting the generic index in order to call SymTensorIndex::diagonal().
-    // for(IndexP kl : *flux->components(ALL_INDICES)) {
-    //   const SymTensorIndex* kayell = dynamic_cast<const SymTensorIndex*>(
-    //    		  			 kl.fieldindex());
-    //   if(kayell->diagonal()) {
-    // 	offset_el -= modulus(ij,kl)*expten[kl]*T0;
-    //   }
-    //   else {
-    // 	offset_el -= 2.0*modulus(ij,kl)*expten[kl]*T0;
-    //   }
-    // }
+  //   // // Alternate way of looping over kl, using Flux::components, but
+  //   // // casting the generic index in order to call SymTensorIndex::diagonal().
+  //   // for(IndexP kl : *flux->components(ALL_INDICES)) {
+  //   //   const SymTensorIndex* kayell = dynamic_cast<const SymTensorIndex*>(
+  //   //    		  			 kl.fieldindex());
+  //   //   if(kayell->diagonal()) {
+  //   // 	offset_el -= modulus(ij,kl)*expten[kl]*T0;
+  //   //   }
+  //   //   else {
+  //   // 	offset_el -= 2.0*modulus(ij,kl)*expten[kl]*T0;
+  //   //   }
+  //   // }
 
-  } // end loop over ij
+  // } // end loop over ij
 }
 
 void ThermalExpansion::output(FEMesh *mesh,
