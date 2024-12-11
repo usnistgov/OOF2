@@ -25,7 +25,7 @@ Skeleton.EdgeBoundary(skeleton='microstructure:skeleton', name='top', edges=[(24
 Mesh.New(name='mesh', masterelems=['D2_2', 'T3_3', 'Q4_4'], skeleton='microstructure:skeleton')
 Subproblem.Fields(subproblem='microstructure:skeleton:mesh:default', defined=['Displacement'], active=['Displacement'], inplane=[])
 Subproblem.Equations(subproblem='microstructure:skeleton:mesh:default', equations=['Force_Balance', 'Plane_Stress'])
-Subproblem.Solver(subproblem='microstructure:skeleton:mesh:default', solver_mode=BasicSolverMode(time_stepper=BasicStaticDriver(),matrix_method=BasicIterative(tolerance=1e-13,max_iterations=1000)))
+Subproblem.Solver(subproblem='microstructure:skeleton:mesh:default', solver_mode=BasicSolverMode(time_stepper=BasicStaticDriver(),matrix_method=BasicIterative(tolerance=1e-13,max_iterations=2000)))
 Mesh.Boundary_Condition(mesh='microstructure:skeleton:mesh', bcname='bc', bc=DirichletBC(field=Displacement,field_component='y',equation=Force_Balance,eqn_component='y',profile=ConstantProfile(value=0.0),boundary='bottom'))
 Mesh.Boundary_Condition(mesh='microstructure:skeleton:mesh', bcname='bc<2>', bc=DirichletBC(field=Displacement,field_component='y',equation=Force_Balance,eqn_component='y',profile=ConstantProfile(value=0.10000000000000001),boundary='top'))
 Mesh.Boundary_Condition(mesh='microstructure:skeleton:mesh', bcname='bc<3>', bc=DirichletBC(field=Displacement,field_component='x',equation=Force_Balance,eqn_component='x',profile=ConstantProfile(value=0.0),boundary='bottomleft'))
