@@ -75,13 +75,13 @@ void PiezoElectricity::flux_matrix(const FEMesh *mesh,
   if(*flux == *stress_flux) {
     for(IndexP ij : *flux->components(ALL_INDICES)) { // stress component ij
       fluxdata->stiffness_matrix_element(ij, voltage, nu)
-	-= eijk(0,ij.integer())*dsf0 + eijk(1,ij.integer())*dsf1;
+	+= eijk(0,ij.integer())*dsf0 + eijk(1,ij.integer())*dsf1;
     }
     if(!voltage->in_plane(mesh)) {
       Field *voop = voltage->out_of_plane();
       for(IndexP ij : *flux->components(ALL_INDICES)) {
 	fluxdata->stiffness_matrix_element(ij, voop, nu)
-	  -= eijk(2,ij.integer())*sf;
+	  += eijk(2,ij.integer())*sf;
       }
     }
   }

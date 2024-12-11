@@ -60,13 +60,7 @@ void PlaneStrain::flux_offset(const FEMesh *mesh, const Element *element,
   for(IndexP ij : *flux->components(ALL_INDICES)) {
     double &offset_el = fluxdata->offset_vector_element(ij);
     SymTensorIndex zz(2);
-    offset_el -= modulus(ij, zz)*ezz_; // Sign gives physical results
-    // OLD VERSION WAS THIS, WITH MYSTERIOUS LOOP
-    // for(SymTensorIterator kl; !kl.end(); ++kl) {
-    //   if(kl.integer()==2) { // Index 2 is voigt-order for the zz component.
-    // 	offset_el -= modulus(ij, kl)*ezz_; // Sign gives physical results.
-    //   }
-    // }
+    offset_el += modulus(ij, zz)*ezz_;
   }
 }
 

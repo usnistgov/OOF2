@@ -33,11 +33,11 @@ class PyStressFreeStrain(pypropertywrapper.PyFluxProperty):
                 if kl.diagonal(): 
                     fluxdata.add_offset_vector_element(
                         ij,
-                        cijkl[ij, kl]*strain0[kl])
+                        -cijkl[ij, kl]*strain0[kl])
                 else:
                     fluxdata.add_offset_vector_element(
                         ij,
-                        2.0*cijkl[ij, kl]*strain0[kl])
+                        -2.0*cijkl[ij, kl]*strain0[kl])
 
         ## TODO: It would be nice if this could be written like this:
         # for ij in problem.Stress.components(planarity.ALL_INDICES):
@@ -46,6 +46,8 @@ class PyStressFreeStrain(pypropertywrapper.PyFluxProperty):
         #             fluxdata(element, ij) -= cijkl[ij, kl]*strain0[kl]
         #         else:
         #             fluxdata(element, ij) -= 2*cijkl[ij, ik]*strain0[kl]
+        # Even nicer would be:
+        #     fluxdata.offsetVector() -= cijkl*strain
 
     def integration_order(self, subproblem, element):
         return element.shapefun_degree()
