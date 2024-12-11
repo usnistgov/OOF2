@@ -71,7 +71,7 @@ ADD_REPR(VectorFlux, repr);
 
 class SymmetricTensorFlux : public Flux {
 public:
-  SymmetricTensorFlux(char *name, bool negate);
+  SymmetricTensorFlux(char *name);
 };
 
 ADD_REPR(SymmetricTensorFlux, repr);

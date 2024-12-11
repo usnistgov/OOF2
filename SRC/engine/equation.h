@@ -96,7 +96,7 @@ public:
 
   SmallSystem* initializeSystem(const Element*);
 
-  // This is the new one for time-dependene.
+  // This is the new one for time-dependence.
   virtual void make_linear_system(const CSubProblem*, const Element*,
 				  const GaussPoint&,
 				  const std::vector<int>&,
