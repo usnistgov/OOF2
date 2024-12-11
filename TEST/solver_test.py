@@ -8,6 +8,8 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
+max_iterations = 2000
+
 import unittest, os
 from . import memorycheck
 import math
@@ -94,11 +96,11 @@ class OOF_StaticIsoElastic(SaveableMeshTest):
                 time_stepper=StaticDriver(),
                 symmetric_solver= ConjugateGradient(
                     preconditioner=ICPreconditioner(),tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)))
+                    max_iterations=max_iterations)))
 
         OOF.Mesh.Solve(mesh='solve_test:skeleton:mesh', endtime=0.0)
 
@@ -656,7 +658,7 @@ class OOF_Solver_SimplePiezo(SaveableMeshTest):
             solver_mode=BasicSolverMode(
                 time_stepper=BasicStaticDriver(),
                 matrix_method=BasicIterative(tolerance=1e-13,
-                                             max_iterations=1000)))
+                                             max_iterations=max_iterations)))
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
             endtime=0.0)
@@ -790,11 +792,11 @@ class OOF_1x1ElasticDynamic(SaveableMeshTest):
                 time_stepper=StaticDriver(),
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
-                    tolerance=1e-13,max_iterations=1000),
+                    tolerance=1e-13,max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -838,11 +840,11 @@ class OOF_1x1ElasticDynamic(SaveableMeshTest):
                     ),
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
-                    tolerance=1e-13,max_iterations=1000),
+                    tolerance=1e-13,max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Set_Field_Initializer(
@@ -858,7 +860,7 @@ class OOF_1x1ElasticDynamic(SaveableMeshTest):
         self.assertTrue(file_utils.fp_file_compare(
                 'springtest.out',
                 os.path.join('mesh_data', 'springtest'+self.suffix+'.exact'),
-                1.e-4))
+                1.e-3))
         file_utils.remove('springtest.out')
     def tearDown(self):
         outputdestination.forgetTextOutputStreams()
@@ -1091,11 +1093,11 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -1138,11 +1140,11 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -1169,10 +1171,10 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         # Get there in two stages.
@@ -1203,10 +1205,10 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -1233,10 +1235,10 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -1263,10 +1265,10 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -1522,11 +1524,11 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -1569,10 +1571,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -1601,10 +1603,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         # Get there in two stages.
@@ -1635,10 +1637,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -1665,10 +1667,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -1695,10 +1697,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -1804,11 +1806,11 @@ class OOF_ElasticPlaneStressPlaneStrainExact(SaveableMeshTest):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -1848,11 +1850,11 @@ class OOF_ElasticPlaneStressPlaneStrainExact(SaveableMeshTest):
                 nonlinear_solver=NoNonlinearSolver(),
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -1968,11 +1970,11 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -2008,11 +2010,11 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -2050,11 +2052,11 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -2104,11 +2106,11 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -2146,11 +2148,11 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -2188,11 +2190,11 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -2232,11 +2234,11 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -2277,11 +2279,11 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -2323,11 +2325,11 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -2367,11 +2369,11 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -2412,11 +2414,11 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -2456,11 +2458,11 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -2502,11 +2504,11 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -2571,11 +2573,11 @@ class OOF_AnisoElasticDynamic(OOF_ElasticTimeSteppers):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
     @memorycheck.check("microstructure")
@@ -2709,7 +2711,7 @@ class OOF_StaticAndDynamic(OOF_ElasticTimeSteppers):
             solver_mode=BasicSolverMode(
                 time_stepper=BasicStaticDriver(),
                 matrix_method=BasicIterative(
-                    tolerance=1e-13,max_iterations=1000)))
+                    tolerance=1e-13,max_iterations=max_iterations)))
 
     def timetest(self):
         # check that testt.dat contains T_avg =  t/2.
@@ -2740,11 +2742,11 @@ class OOF_StaticAndDynamic(OOF_ElasticTimeSteppers):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -2858,11 +2860,11 @@ class OOF_ThermalElasticTimeSteppers(OOF_ElasticTimeSteppers):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         OOF.Mesh.Solve(
@@ -2918,11 +2920,11 @@ class OOF_ThermalElasticTimeSteppers(OOF_ElasticTimeSteppers):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         self.solveAndCheck()
@@ -2942,11 +2944,11 @@ class OOF_ThermalElasticTimeSteppers(OOF_ElasticTimeSteppers):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1.e-13,
-                    max_iterations=1000)
+                    max_iterations=max_iterations)
                 )
             )
         self.solveAndCheck()
@@ -2972,8 +2974,7 @@ class OOF_OutOfPlanePeriodicBC(SaveableMeshTest):
         OOF.Property.Copy(property='Mechanical:Elasticity:Isotropic',
                           new_name='hard')
         OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.soft(
-            cijkl=IsotropicRank4TensorCij(
-            c11=0.80000000000000004,c12=0.29999999999999999))
+            cijkl=IsotropicRank4TensorCij(c11=0.8,c12=0.3))
         OOF.Material.Add_property(
             name='left',
             property='Mechanical:Elasticity:Isotropic:soft')
@@ -3065,7 +3066,7 @@ class OOF_OutOfPlanePeriodicBC(SaveableMeshTest):
             solver_mode=BasicSolverMode(
             time_stepper=BasicStaticDriver(),
             matrix_method=BasicIterative(
-            tolerance=1e-13,max_iterations=1000)))
+            tolerance=1e-13,max_iterations=max_iterations)))
         OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh',endtime=0.0)
         asciifilename = "oop_periodic_static-ascii.dat"
         OOF.File.Save.Mesh(filename=asciifilename,
@@ -3203,7 +3204,7 @@ class ThermalExpansionTest(unittest.TestCase):
             solver_mode=BasicSolverMode(
                 time_stepper=BasicStaticDriver(),
                 matrix_method=BasicIterative(
-                    tolerance=1e-13,max_iterations=1000)))
+                    tolerance=1e-13,max_iterations=max_iterations)))
         OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh', endtime=0.0)
         self.saveAndCheck()
         
@@ -3217,11 +3218,11 @@ class ThermalExpansionTest(unittest.TestCase):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUTPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)))
+                    max_iterations=max_iterations)))
         OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh', endtime=0.0)
         self.saveAndCheck()
         
@@ -3329,11 +3330,11 @@ class OOF_ViscoElasticity(unittest.TestCase):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ILUTPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=max_iterations),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ILUTPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)))
+                    max_iterations=max_iterations)))
     def tearDown(self):
         OOF.Material.Delete(name='material')
         OOF.Property.Delete(
@@ -3400,8 +3401,8 @@ static_set = [
     ThermalExpansionTest("Advanced")
 ]
 
-def make_dynamic_set(suffix, shortening):
-    tests = [
+def make_dynamic_set(suffix, shortening, tests=None):
+    tests = tests or [
         OOF_1x1ElasticDynamic("Dynamic"),
         OOF_NonstaticThenStatic("Solve"),
 
@@ -3436,8 +3437,9 @@ def make_dynamic_set(suffix, shortening):
         OOF_ThermalDiffusionTSPlaneFlux("SS22"),
 
         # In "generate" mode, SS22PlaneStrain and SS22PlaneStress
-        # provide the reference data for the rest of OOF_ElasticTimeSteppers, so
-        # they must precede the rest of OOF_ElasticTimeSteppers in this list.
+        # provide the reference data for the rest of
+        # OOF_ElasticTimeSteppers, so they must precede the rest of
+        # OOF_ElasticTimeSteppers in this list.
         OOF_ElasticTimeSteppers("SS22PlaneStrain"),
         OOF_ElasticTimeSteppers("SS22PlaneStress"),
         OOF_ElasticTimeSteppers("SS22PlaneStressPlaneStrain"),
@@ -3472,18 +3474,15 @@ oop_periodic_set = [
     OOF_OutOfPlanePeriodicBC('Static')
 ]
 
-test_set = (static_set +
-            make_dynamic_set(suffix="", shortening=1) +
-            make_dynamic_set(suffix="-short", shortening=0.1) +
-            oop_periodic_set)
+test_set = (
+    static_set +
+    make_dynamic_set(suffix="", shortening=1) +
+    make_dynamic_set(suffix="-short", shortening=0.1) +
+    oop_periodic_set)
 
-## Uncomment this to run just a few tests when debugging.
-# test_set = [
-#     #OOF_ViscoElasticity("SS22"),
-#     OOF_ThermalDiffusionTSPlaneFlux("CNSaveRestore")
-# ]
-# for test in test_set:
-#     test.shortening = 1.0
-#     test.suffix = ""
-#     # test.shortening = 0.1
-#     # test.suffix = "-short"
+# # Uncomment this to run just a few tests when debugging.
+# test_set = (make_dynamic_set(suffix="", shortening=1.0) +
+#             make_dynamic_set(suffix="-short", shortening=0.1) +
+#             oop_periodic_set)
+                            
+

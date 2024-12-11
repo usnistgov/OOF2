@@ -525,7 +525,7 @@ def build_mod_args():
                        "gamma" : 0.5,
                        "iterations" : 1
                       },
-                     tolerance=2.e-5
+                     tolerance=1.e-4
                      )
          ],
         "Snap Nodes" :

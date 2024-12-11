@@ -490,11 +490,11 @@ class NonlinearPropertyTest(unittest.TestCase):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=2000),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)))
+                    max_iterations=2000)))
 
         OOF.Mesh.Set_Field_Initializer(
             mesh='microstructure:skeleton:mesh',
@@ -908,11 +908,11 @@ class NonlinearPropertyTest(unittest.TestCase):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000),
+                    max_iterations=2000),
                 asymmetric_solver=BiConjugateGradient(
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
-                    max_iterations=1000)))
+                    max_iterations=2000)))
 
         OOF.Mesh.Set_Field_Initializer(
             mesh='microstructure:skeleton:mesh',
