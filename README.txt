@@ -33,8 +33,8 @@ you, or you can contact the oof developers at oof_manager@nist.gov. It's
 diagnostically useful to include all of the output from the installation
 commands.
 
-OOF2 has been built and tested on Ubuntu Linux and macOS 13 (Ventura).
-It ought to work on other varieties of Linux.
+OOF2 has been built and tested on recent versions of Ubuntu Linux and
+macOS. It ought to work on other varieties of Linux.
 
 ## Prerequisites
 
@@ -47,39 +47,21 @@ of different operating systems can be found on the [OOF2 Prerequisites
 page](http://www.ctcms.nist.gov/oof/oof2/prerequisites.html). Those
 instructions may be more up-to-date than the ones here.
 
-The following external programs and libraries must be present before you
-can run OOF2. To compile OOF2 from sources, you will also require the
-header files ("includes") associated with these programs and libraries.
-These are usually available as part of a "development" version of the
-library software.
-
--   [Python 3 (3.8 or later)](http://www.python.org)
--   [SWIG (4.0 or later)](https://www.swig.org)
--   [Magick++ (6.x, but not
-    7.x)](http://www.imagemagick.org/Magick++/index.html)
--   [gtk3 (3.22 or later)](http://www.gtk.org/download/)
--   [pygobject (3.28 or later)](https://pypi.org/project/PyGObject/)
--   [cairomm (1.12 or later)](https://www.cairographics.org/cairomm/)
--   [pango (1.40 or later)](https://pango.gnome.org/)
--   [pangocairo (1.40 or
-    later)](https://gnome.pages.gitlab.gnome.org/pango/PangoCairo/)
--   [OOFCanvas (1.1 or later)](http://www.ctcms.nist.gov/oof/oofcanvas)
-
-Please note that the words "or later" do not include later major
-versions. OOF2 will not work with gtk 4.x. It is recommended that you
-use a package manager to install the prerequisites, rather than
-compiling them yourself.
-
-Macintosh users can install either native Quartz or X11 versions of
-gtk3, cairo, and pango. If using X11, they will have to also install an
-X11 server to run OOF2. But there seem to be some problems with gtk3 and
-X11 on Macs, so Quartz is recommended.
+OOF2 requires [OOFCanvas](http://www.ctcms.nist.gov/oof/oofcanvas),
+version 1.1 or later. Most of the other OOF2 prerequisites are also
+OOFCanvas prerequisites, and are listed on the
+[OOFCanvas](http://www.ctcms.nist.gov/oof/oofcanvas) page.
 
 You should also have the ability to run *lapack* and the *blas* basic
 linear algebra subroutines. On macOS no special libraries are required.
 On Linux and commercial Unix systems, they may have to be installed, and
 you may require headers (sometimes provided as part of a "-dev"
 package).
+
+Macintosh users can install either native Quartz or X11 versions of
+gtk3, cairo, and pango. If using X11, they will have to also install an
+X11 server to run OOF2. But there seem to be some problems with gtk3 and
+X11 on Macs, so Quartz is recommended.
 
 ## Installing OOF2
 
