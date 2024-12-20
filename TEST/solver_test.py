@@ -8,7 +8,10 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-max_iterations = 2000
+## TODO: Add static tests using more combinations of solvers and
+## preconditioners, for both symmetric and asymmetric problems.
+
+max_iterations = 1000
 
 import unittest, os
 from . import memorycheck
@@ -95,15 +98,18 @@ class OOF_StaticIsoElastic(SaveableMeshTest):
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver= ConjugateGradient(
-                    preconditioner=ICPreconditioner(),tolerance=1e-13,
+                    # This test requires an exorbitant number of
+                    # iterations if it uses the ICPreconditioner,
+                    # unless the force balance equation is multiplied
+                    # by -1.
+                    preconditioner=ILUTPreconditioner(),tolerance=1e-13,
                     max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
-                    preconditioner=ICPreconditioner(),
+                    preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=max_iterations)))
 
         OOF.Mesh.Solve(mesh='solve_test:skeleton:mesh', endtime=0.0)
-
 
         # Then look for evidence that it worked.  Direct evidence
         # would be that the solution exists and is right, so poll
@@ -791,10 +797,10 @@ class OOF_1x1ElasticDynamic(SaveableMeshTest):
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ICPreconditioner(),
+                    preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
-                    preconditioner=ICPreconditioner(),
+                    preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=max_iterations)
                 )
@@ -842,7 +848,7 @@ class OOF_1x1ElasticDynamic(SaveableMeshTest):
                     preconditioner=ICPreconditioner(),
                     tolerance=1e-13,max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
-                    preconditioner=ICPreconditioner(),
+                    preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=max_iterations)
                 )
@@ -1808,7 +1814,7 @@ class OOF_ElasticPlaneStressPlaneStrainExact(SaveableMeshTest):
                     tolerance=1e-13,
                     max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
-                    preconditioner=ICPreconditioner(),
+                    preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=max_iterations)
                 )
@@ -1852,7 +1858,7 @@ class OOF_ElasticPlaneStressPlaneStrainExact(SaveableMeshTest):
                     preconditioner=ICPreconditioner(),tolerance=1e-13,
                     max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
-                    preconditioner=ICPreconditioner(),
+                    preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=max_iterations)
                 )
@@ -1972,7 +1978,7 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                     tolerance=1e-13,
                     max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
-                    preconditioner=ICPreconditioner(),
+                    preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=max_iterations)
                 )
@@ -2012,7 +2018,7 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                     tolerance=1e-13,
                     max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
-                    preconditioner=ICPreconditioner(),
+                    preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=max_iterations)
                 )
@@ -2054,7 +2060,7 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
                     tolerance=1e-13,
                     max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
-                    preconditioner=ICPreconditioner(),
+                    preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=max_iterations)
                 )
@@ -2575,7 +2581,7 @@ class OOF_AnisoElasticDynamic(OOF_ElasticTimeSteppers):
                     tolerance=1e-13,
                     max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
-                    preconditioner=ICPreconditioner(),
+                    preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=max_iterations)
                 )
@@ -2862,7 +2868,7 @@ class OOF_ThermalElasticTimeSteppers(OOF_ElasticTimeSteppers):
                     tolerance=1e-13,
                     max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
-                    preconditioner=ICPreconditioner(),
+                    preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=max_iterations)
                 )
@@ -2922,7 +2928,7 @@ class OOF_ThermalElasticTimeSteppers(OOF_ElasticTimeSteppers):
                     tolerance=1e-13,
                     max_iterations=max_iterations),
                 asymmetric_solver=StabilizedBiConjugateGradient(
-                    preconditioner=ICPreconditioner(),
+                    preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=max_iterations)
                 )
@@ -3081,7 +3087,7 @@ class OOF_OutOfPlanePeriodicBC(SaveableMeshTest):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Additional test added to be sure we've tested a asymmetric matrix in
+# Additional test added to be sure we've tested an asymmetric matrix in
 # basic solver mode.
 
 class ThermalExpansionTest(unittest.TestCase):
@@ -3480,9 +3486,10 @@ test_set = (
     make_dynamic_set(suffix="-short", shortening=0.1) +
     oop_periodic_set)
 
-# # Uncomment this to run just a few tests when debugging.
-# test_set = (make_dynamic_set(suffix="", shortening=1.0) +
-#             make_dynamic_set(suffix="-short", shortening=0.1) +
-#             oop_periodic_set)
+##Uncomment this to run just a few tests when debugging.
+# test_set = (make_dynamic_set(suffix="", shortening=1.0,
+#                              tests=[OOF_1x1ElasticDynamic("Dynamic")])
+#             #+ make_dynamic_set(suffix="-short", shortening=0.1)
+#             #+ oop_periodic_set
+#             )
                             
-

@@ -51,19 +51,19 @@ class IterativeMethods(unittest.TestCase):
         solver.solveMatrix(self.matrix, self.rhs, solution)
         self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
-    # def CG_ILU(self):
-    #     solution = doublevec.DoubleVec(0)
-    #     pc = preconditioner.ILUPreconditioner()
-    #     solver = matrixmethod.ConjugateGradient(pc, self.tolerance, self.max_iterations)
-    #     solver.solveMatrix(self.matrix, self.rhs, solution)
-    #     self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
+    def CG_ILU(self):
+        solution = doublevec.DoubleVec(0)
+        pc = preconditioner.ILUPreconditioner()
+        solver = matrixmethod.ConjugateGradient(pc, self.tolerance, self.max_iterations)
+        solver.solveMatrix(self.matrix, self.rhs, solution)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
 
-    # def CG_ILUT(self):
-    #     solution = doublevec.DoubleVec(0)
-    #     pc = preconditioner.ILUTPreconditioner()
-    #     solver = matrixmethod.ConjugateGradient(pc, self.tolerance, self.max_iterations)
-    #     solver.solveMatrix(self.matrix, self.rhs, solution)
-    #     self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
+    def CG_ILUT(self):
+        solution = doublevec.DoubleVec(0)
+        pc = preconditioner.ILUTPreconditioner()
+        solver = matrixmethod.ConjugateGradient(pc, self.tolerance, self.max_iterations)
+        solver.solveMatrix(self.matrix, self.rhs, solution)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
     def CG_Jacobi(self):
         solution = doublevec.DoubleVec(0)
@@ -263,17 +263,19 @@ class BCTest(unittest.TestCase):
     # ILU(T) is not guaranteed to work with CG, and doesn't in this
     # case, using Eigen 3.3.9.  It did work with Eigen 3.2.91.  Also,
     # Eigen only provides ILUT, not ILU, so OOF2's ILU is the same as
-    # ILUT.
-    # def CG_ILU(self):
-    #     self.solve(
-    #         matrixmethod.ConjugateGradient(
-    #             preconditioner.ILUPreconditioner(),
-    #             self.tolerance, self.max_iterations))
-    # def CG_ILUT(self):
-    #     self.solve(
-    #         matrixmethod.ConjugateGradient(
-    #             preconditioner.ILUTPreconditioner(),
-    #             self.tolerance, self.max_iterations))
+    # ILUT.   See comments in SRC/engine/preconditioner.py.
+    #
+    # With Eigen 3.4.0, CG with ILUT works again, at least on Macs.
+    def CG_ILU(self):
+        self.solve(
+            matrixmethod.ConjugateGradient(
+                preconditioner.ILUPreconditioner(),
+                self.tolerance, self.max_iterations))
+    def CG_ILUT(self):
+        self.solve(
+            matrixmethod.ConjugateGradient(
+                preconditioner.ILUTPreconditioner(),
+                self.tolerance, self.max_iterations))
     def CG_Jacobi(self):
         self.solve(
             matrixmethod.ConjugateGradient(
@@ -350,8 +352,8 @@ class BCTest(unittest.TestCase):
 
 iter_set = [
     IterativeMethods("CG"),
-    # IterativeMethods("CG_ILU"),
-    # IterativeMethods("CG_ILUT"),
+    IterativeMethods("CG_ILU"),
+    IterativeMethods("CG_ILUT"),
     IterativeMethods("CG_Jacobi"),
     IterativeMethods("CG_IC"),
     IterativeMethods("GMRES"),
