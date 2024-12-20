@@ -913,6 +913,16 @@ class SubProblemContext(whoville.Who):
                 rhs -= K02*u2
             # utils.memusage("Before Matrix Method Solve")
             self.matrix_method(self.asymmetricK).solve(K00, rhs, u0)
+            # See comment in preconditioner.py about ICPreconditioner.
+            # The static force balance equation builds a negative
+            # definite matrix unless stress is defined internally with
+            # an unphysical minus sign, and that makes the
+            # CG+ICPreconditioner solver very slow to converge.
+            # Changing the sign of the equation here like this:
+            #   self.matrix_method(self.asymmetricK).solve(-1*K00, -1*rhs, u0)
+            # instead of the previous line makes it converge quickly,
+            # but this isn't a good general solution.
+            
             # utils.memusage("After Matrix Method Solve")
             self.time_stepper.set_unknowns_part('K', linsys, u0, unknowns)
             # utils.memusage("K computed")

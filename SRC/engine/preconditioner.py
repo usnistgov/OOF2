@@ -18,6 +18,25 @@ from ooflib.common.IO import xmlmenudump
 ## PreconditionedMatrixMethod classes in matrixmethod.py to choose the
 ## correct Eigen routine.
 
+## TODO: Don't allow ICPreconditioner to be used on asymmetric
+## matrices.  It can be used with asymmetric solvers as long as
+## they're not applied to asymmetric matrices, I think.
+
+## TODO: The ICPreconditioner works very badly on *negative* definite
+## matrices, such as the one constructed by the static force balance
+## equation. It takes a long time to converge.  Multiplying the
+## equation by -1 makes the convergence faster.  Can we detect this
+## case and do the multiplication?  It can be done simply in
+## SubProblemContext.computeStaticFieldsL by multiplying K00 and rhs
+## in the call to matrix_method().solve(), but only if the force
+## balance equation is the only equation being solved.
+
+## TODO: Is it legal to use the ILUT preconditioner with CG?  It seems
+## to work in most cases, but is it guaranteed to preserve the matrix
+## symmetry?  Does IC have to be used instead?  It has the problem
+## mentioned above.  Eigen certainly allows ILUT to be used with CG.
+## See comments in TEST/matrix_method_test.py.
+
 class Preconditioner(registeredclass.RegisteredClass):
     registry = []
     tip = "Preconditioners for efficient solution of matrix equations."
@@ -107,7 +126,7 @@ registeredclass.Registration(
     "Incomplete Cholesky",
     Preconditioner,
     ICPreconditioner,
-    ordering=100,
+    ordering=102,
     params=[],
     tip="Incomplete Cholesky factorization with dual thresholding.",
     discussion="""<para>
