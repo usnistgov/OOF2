@@ -84,3 +84,19 @@ Basics/Error Handling -- continued:  Should tell the user to click "OK".
 TODOs from the store-time-derivatives branch:
 
 Is the new "time" output documented?
+
+
+
+THINGS TO FIX ON develop AFTER MERGING undo-elasticity-sign-change BRANCH
+
+elasticity/nonlinear/general_nonlinear_elasticity.C:
+  TODO re vector += stress
+properties/forcedensity/forcedensity.C
+  TODO re vector += g
+properties/forcedensity/nonconstant/nonconstant_force_density.C
+  TODO re vector += f
+properties/forcedensity/nonlinear/nonlinear_force_density.C
+  TODOS re vector += f
+Same for heatconductivity.C ?
+
+TODO in massdensity.C to explain minus sign
