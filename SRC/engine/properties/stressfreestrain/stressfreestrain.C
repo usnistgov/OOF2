@@ -53,12 +53,10 @@ void StressFreeStrain::flux_offset(const FEMesh *mesh, const Element *element,
     double &offset_el = fluxdata->offset_vector_element(ij);
     for(SymTensorIndex kl : symTensorIJComponents) {
       if(kl.diagonal()) {
-	// TODO_FLUX_SIGN
-	offset_el += modulus(ij, kl)*sfs[kl];
+	offset_el -= modulus(ij, kl)*sfs[kl];
       }
       else {
-	// TODO_FLUX_SIGN
-	offset_el += 2.0*modulus(ij, kl)*sfs[kl];
+	offset_el -= 2.0*modulus(ij, kl)*sfs[kl];
       }
     }
   }

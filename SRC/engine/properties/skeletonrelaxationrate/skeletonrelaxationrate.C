@@ -84,13 +84,11 @@ void SkeletonRelaxationRate::flux_offset(const FEMesh *mesh,
     double &offset_el = fluxdata->offset_vector_element(ij); // reference!
     for(SymTensorIndex kl : symTensorIJComponents) {
       if(kl.diagonal()) {
-	// TODO_FLUX_SIGN
-	offset_el -= alpha_*modulus(ij,kl)*gamma_*(1.0+energyH)*energyH;
-	offset_el -= (1.0-alpha_)*modulus(ij,kl)*gamma_*S(kl.row(),kl.col());
+	offset_el += alpha_*modulus(ij,kl)*gamma_*(1.0+energyH)*energyH;
+	offset_el += (1.0-alpha_)*modulus(ij,kl)*gamma_*S(kl.row(),kl.col());
       }
       else {
-	// TODO_FLUX_SIGN
-	offset_el -= (2.0*(1.0-alpha_)*modulus(ij,kl)*gamma_
+	offset_el += (2.0*(1.0-alpha_)*modulus(ij,kl)*gamma_
 		      *S(kl.row(),kl.col()));
       }
     }

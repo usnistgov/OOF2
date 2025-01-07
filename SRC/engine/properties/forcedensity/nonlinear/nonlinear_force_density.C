@@ -79,9 +79,8 @@ void NonlinearForceDensityNoDeriv::force_value(
 
   nonlin_force_density( coord[0], coord[1], 0.0, time, fieldVal, force );
 
-  // TODO_FLUX_SIGN
-  eqndata->force_vector_element(0) -= force[0];
-  eqndata->force_vector_element(1) -= force[1];
+  eqndata->force_vector_element(0) += force[0];
+  eqndata->force_vector_element(1) += force[1];
   // TODO: Can this be replaced by eqndata->forceVector() -= force; ?
 
 
@@ -136,8 +135,7 @@ void NonlinearForceDensity::force_deriv_matrix(const FEMesh   *mesh,
       int fieldno = fieldcomp.integer();
 
       eqndata->force_deriv_matrix_element( eqncomp, displacement, fieldcomp, j )
-	// TODO_FLUX_SIGN
-	-= forceDeriv( eqno, fieldno ) * shapeFuncVal;
+	+= forceDeriv( eqno, fieldno ) * shapeFuncVal;
     }
   }
 

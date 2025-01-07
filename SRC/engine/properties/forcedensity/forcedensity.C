@@ -44,10 +44,9 @@ void ForceDensity::force_value(const FEMesh *mesh, const Element *element,
 			       const Equation *eqn, const MasterPosition &x,
 			       double time, SmallSystem *eqndata) const
 {
-  // TODO_FLUX_SIGN
-  eqndata->force_vector_element(0) -= gx;
-  eqndata->force_vector_element(1) -= gy;
-  // TODO: Store gx, gy as a vector g and use eqndata->forceVector() -= g; 
+  eqndata->force_vector_element(0) += gx;
+  eqndata->force_vector_element(1) += gy;
+  // TODO: Store gx, gy as a vector g and use eqndata->forceVector() += g; 
 }
 
 void ForceDensity::output(FEMesh *mesh,

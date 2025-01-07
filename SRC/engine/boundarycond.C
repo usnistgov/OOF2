@@ -151,15 +151,6 @@ void NeumannBCApp::integrate(PyObject *wrapper, PyObject *pyfun,
 						 wrapper,
 						 pyfun);
 
-	// TODO_FLUX_SIGN
-	// When we started using Eigen's matrix solvers, we learned
-	// that we had been constructing *negative* definite matrices
-	// for the force balance equation.  The previous CG solver
-	// worked with them, but Eigen didn't.  Changing the sign of
-	// the force balance equation fixed the problem, but required
-	// changing the sign of the Stress.  To make this sign change
-	// invisible to users, the sign is switched back here and in
-	// Flux::output.
 	if(flux->negate())
 	  *flxnormal *= -1.0;
 	

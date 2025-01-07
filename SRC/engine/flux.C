@@ -440,14 +440,6 @@ ArithmeticOutputValue Flux::output(const FEMesh *mesh, const Element *el,
   for(IndexP it : *components(ALL_INDICES)) 
     ov[it] = (*fluxvals)[it.integer()];
   delete fluxvals;
-  // TODO_FLUX_SIGN
-  // When we started using Eigen's matrix solvers, we learned that we
-  // had been constructing *negative* definite matrices for the force
-  // balance equation.  The previous CG solver worked with them, but
-  // Eigen didn't.  Changing the sign of the force balance equation
-  // fixed the problem, but required changing the sign of the Stress.
-  // To make this sign change invisible to users, the sign is switched
-  // back here and in NeumannBCApp::integrate.
   if(negate_)
     return -1.0*ov;
   return ov;

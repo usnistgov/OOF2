@@ -150,6 +150,8 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
   bool needResidual = nlsolver->needsResidual();
   bool needJacobian = nlsolver->needsJacobian();
 
+  int negfactor = flux()->negate() ? -1 : 1;
+
   for (CleverPtr<ElementFuncNodeIterator>mu(element->funcnode_iterator());
        !mu->end(); ++*mu)
   {
@@ -198,9 +200,9 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	    }
 
 	    if(nonzero) {
-	      linsys.insertK(global_row, global_col, sum*weight);
+	      linsys.insertK(global_row, global_col, negfactor*sum*weight);
 	      if(needJacobian)
-		linsys.insertJ(global_row, global_col, sum*weight);
+		linsys.insertJ(global_row, global_col, negfactor*sum*weight);
 	    }
 	  }
 	} // End of k-matrix loop.
