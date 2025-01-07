@@ -3400,8 +3400,8 @@ static_set = [
     ThermalExpansionTest("Advanced")
 ]
 
-def make_dynamic_set(suffix, shortening):
-    tests = [
+def make_dynamic_set(suffix, shortening, tests=None):
+    tests = tests or [
         OOF_1x1ElasticDynamic("Dynamic"),
         OOF_NonstaticThenStatic("Solve"),
 
@@ -3436,8 +3436,9 @@ def make_dynamic_set(suffix, shortening):
         OOF_ThermalDiffusionTSPlaneFlux("SS22"),
 
         # In "generate" mode, SS22PlaneStrain and SS22PlaneStress
-        # provide the reference data for the rest of OOF_ElasticTimeSteppers, so
-        # they must precede the rest of OOF_ElasticTimeSteppers in this list.
+        # provide the reference data for the rest of
+        # OOF_ElasticTimeSteppers, so they must precede the rest of
+        # OOF_ElasticTimeSteppers in this list.
         OOF_ElasticTimeSteppers("SS22PlaneStrain"),
         OOF_ElasticTimeSteppers("SS22PlaneStress"),
         OOF_ElasticTimeSteppers("SS22PlaneStressPlaneStrain"),
@@ -3472,18 +3473,18 @@ oop_periodic_set = [
     OOF_OutOfPlanePeriodicBC('Static')
 ]
 
-test_set = (static_set +
-            make_dynamic_set(suffix="", shortening=1) +
-            make_dynamic_set(suffix="-short", shortening=0.1) +
-            oop_periodic_set)
+test_set = (
+    static_set +
+    make_dynamic_set(suffix="", shortening=1) +
+    make_dynamic_set(suffix="-short", shortening=0.1) +
+    oop_periodic_set)
+
 
 ## Uncomment this to run just a few tests when debugging.
-# test_set = [
-#     #OOF_ViscoElasticity("SS22"),
-#     OOF_ThermalDiffusionTSPlaneFlux("CNSaveRestore")
-# ]
-# for test in test_set:
-#     test.shortening = 1.0
-#     test.suffix = ""
-#     # test.shortening = 0.1
-#     # test.suffix = "-short"
+# test_set = (make_dynamic_set(suffix="", shortening=1.0,
+#                              tests=[OOF_1x1ElasticDynamic("Dynamic")])
+#             #+ make_dynamic_set(suffix="-short", shortening=0.1)
+#             #+ oop_periodic_set
+#             )
+                            
+

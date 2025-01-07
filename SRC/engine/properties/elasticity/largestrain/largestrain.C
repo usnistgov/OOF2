@@ -136,6 +136,7 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
     nonlinear_part = contract_C_dU_dF(CC, dU, dF, ij, 0, inplane ); // at ij, k=0
     fluxmtx->stiffness_matrix_element( ij_iter, displacement,
 				       VectorFieldIndex(0), node )
+      // TODO_FLUX_SIGN
       -= CC( ij,k0 ) * dF[0] + CC( ij,k1 ) * dF[1]
       + nonlinear_part;
 
@@ -146,6 +147,7 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
     nonlinear_part = contract_C_dU_dF( CC, dU, dF, ij, 1, inplane ); // at ij, k=1
     fluxmtx->stiffness_matrix_element( ij_iter, displacement,
 				       VectorFieldIndex(1), node )
+      // TODO_FLUX_SIGN
       -= CC( ij,k0 ) * dF[0] + CC( ij,k1 ) * dF[1]
       + nonlinear_part;
 
@@ -158,6 +160,7 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
 
 	k2 = ij2voigt( 2, k_iter.integer() );
 
+	// TODO_FLUX_SIGN
 	fluxmtx->stiffness_matrix_element( ij_iter, disp_z_deriv, k_iter, node )
  	             -= diag_factor * Fval * CC( ij,k2 );
       }

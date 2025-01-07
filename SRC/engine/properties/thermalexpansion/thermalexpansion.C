@@ -80,9 +80,11 @@ void ThermalExpansion::flux_matrix(const FEMesh *mesh,
     for(SymTensorIndex kl : symTensorIJComponents) {
       double ca = modulus(ij, kl)*expten(kl.row(), kl.col())*sfval;
       if(kl.diagonal()) {
+	// TODO_FLUX_SIGN
 	mtx_el += ca;
       }
       else {
+	// TODO_FLUX_SIGN
 	mtx_el += 2.0*ca;
       }
     }
@@ -101,6 +103,7 @@ void ThermalExpansion::flux_offset(const FEMesh *mesh,
   }
   const Cijkl modulus = elasticity->cijkl(mesh, element, x);
   SymmMatrix3 expten = expansiontensor(mesh, element, x);
+  // TODO_FLUX_SIGN
   fluxdata->offsetVector() -= (modulus*expten)*T0;
   
   // for(IndexP ij : *flux->components(ALL_INDICES)) {

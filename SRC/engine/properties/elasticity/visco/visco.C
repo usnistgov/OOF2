@@ -59,6 +59,7 @@ void CViscoElasticity::flux_matrix(const FEMesh *mesh,
       SymTensorIndex ell0(0, ell.integer());
       SymTensorIndex ell1(1, ell.integer());
       fluxmtx->damping_matrix_element(ij, displacement, ell, nu)
+	// TODO_FLUX_SIGN
 	-= g_ijkl(ij, ell0)*dsf0 + g_ijkl(ij, ell1)*dsf1;
     }
 
@@ -68,6 +69,7 @@ void CViscoElasticity::flux_matrix(const FEMesh *mesh,
       for(IndexP ell : *oopfield->components(ALL_INDICES)) {
 	double diag_factor = ( ell.integer()==2 ? 1.0 : 0.5);
 	fluxmtx->damping_matrix_element(ij, oopfield, ell, nu)
+	  // TODO_FLUX_SIGN
 	  -= g_ijkl(ij, SymTensorIndex(2, ell.integer())) * sf * diag_factor;
       }
     }

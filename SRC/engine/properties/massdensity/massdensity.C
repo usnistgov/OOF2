@@ -33,9 +33,8 @@ void MassDensityProp::second_time_deriv_matrix(const FEMesh *mesh,
 					       const ElementFuncNodeIterator &eni,
 					       const MasterPosition &mpos,
 					       double time,
-					       SmallSystem *eqdata) const {
-
-  // Optional -- check that the equation is the right one.
+					       SmallSystem *eqdata) const
+{
   double shapeFuncVal = eni.shapefunction(mpos);
   for(IndexP component : *eqn->components()) {
     eqdata->mass_matrix_element(component, disp, component, eni)

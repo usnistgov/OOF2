@@ -79,7 +79,7 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
     def flux_matrix(self, mesh, element, nodeiterator, flux, point, time,
                     localdata,
                     fluxdata):
-        assert localdata.x == "hello"
+        assert localdata.x == "hello" #  testing the python Property machinery
         sf = nodeiterator.shapefunction(point)
         dsf0 = nodeiterator.dshapefunction(0, point)
         dsf1 = nodeiterator.dshapefunction(1, point)
@@ -93,6 +93,7 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
                     problem.Displacement,
                     ell,
                     nodeiterator,
+                    # TODO_FLUX_SIGN
                     -(cijkl[ij, ell0]*dsf0 + cijkl[ij, ell1]*dsf1))
             if not problem.Displacement.in_plane(mesh):
                 oop = problem.Displacement.out_of_plane()
@@ -100,6 +101,7 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
                     kl = fieldindex.SymTensorIndex(2, ell)
                     fluxdata.add_stiffness_matrix_element(
                         ij, oop, kay, nodeiterator,
+                        # TODO_FLUX_SIGN
                         -cijkl[ij, kl]*sf)
 
     def integration_order(self, subproblem, element):

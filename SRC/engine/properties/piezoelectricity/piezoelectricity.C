@@ -67,7 +67,7 @@ void PiezoElectricity::flux_matrix(const FEMesh *mesh,
   const Rank3Tensor eijk =
     elasticity->cijkl(mesh, element, pos) * dijk(mesh, element, pos);
 
-  //shape functions and their derivatives
+  // shape functions and their derivatives
   double sf = nu.shapefunction(pos);
   double dsf0 = nu.dshapefunction(0, pos);
   double dsf1 = nu.dshapefunction(1, pos);
@@ -75,12 +75,14 @@ void PiezoElectricity::flux_matrix(const FEMesh *mesh,
   if(*flux == *stress_flux) {
     for(IndexP ij : *flux->components(ALL_INDICES)) { // stress component ij
       fluxdata->stiffness_matrix_element(ij, voltage, nu)
+	// TODO_FLUX_SIGN
 	-= eijk(0,ij.integer())*dsf0 + eijk(1,ij.integer())*dsf1;
     }
     if(!voltage->in_plane(mesh)) {
       Field *voop = voltage->out_of_plane();
       for(IndexP ij : *flux->components(ALL_INDICES)) {
 	fluxdata->stiffness_matrix_element(ij, voop, nu)
+	  // TODO_FLUX_SIGN
 	  -= eijk(2,ij.integer())*sf;
       }
     }
