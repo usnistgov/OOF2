@@ -52,6 +52,8 @@ mainmenu.OOF.Windows.Activity_Viewer.add_gui_callback(open_activityviewer)
 
 ############################
 
+## TODO: Setting the widget font crashes the program.
+
 def setFont_gui(menuitem):
     fontname = fontselector.getFontName()
     if fontname:

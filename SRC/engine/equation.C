@@ -136,6 +136,10 @@ SmallSystem *Equation::initializeSystem(const Element *e) {
 // Equation::make_linear_system uses the flux matrix to compute the
 // GaussPoint's contribution to the global stiffness matrix.
 
+// TODO: Find out why changing the sign of the stress makes CG
+// converge slower, but still gets the right answer.  Do other solvers
+// also converge slower?  
+
 void
 DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 				       const Element *element,
@@ -441,9 +445,9 @@ PlaneFluxEquation::make_linear_system(const CSubProblem *subproblem,
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 
-DivergenceEquation::DivergenceEquation(const std::string &name, Flux &flx,
+DivergenceEquation::DivergenceEquation(const std::string &name, Flux &flux,
 				       int d)
-  : FluxEquation(name, flx, d)
+  : FluxEquation(name, flux, d)
 {}
 
 const std::string &DivergenceEquation::classname() const {
@@ -475,7 +479,7 @@ void DivergenceEquation::boundary_integral(const CSubProblem *subp,
     // And distribute the values to the boundary rhs vector.
     for(DoubleVec::size_type i=0; i<J_dot_normal.size(); i++) {
       int rownum = nodaleqn(*edi.funcnode(), i)->ndq_index();
-
+      
       // The invisible + sign here determines the sense of Neumann
       // boundary conditions.  The convention is that the boundary
       // condition specifies the dot product of a flux at the boundary
