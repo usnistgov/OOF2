@@ -50,7 +50,7 @@ int HeatConductivity::integration_order(const CSubProblem *subp,
 
 void HeatConductivity::flux_value(const FEMesh *mesh, const Element *element,
 				  const Flux *flux, const MasterPosition &pt,
-				  double time, void*, SmallSystem *fluxdata)
+				  double time, void*, SmallSystem *linsys)
   const
 {
 
@@ -59,7 +59,7 @@ void HeatConductivity::flux_value(const FEMesh *mesh, const Element *element,
   // Get the thermal conductivity.
   const SymmMatrix3 cond(conductivitytensor(mesh, element, pt));
   // Add the flux to the pre-existing flux.
-  fluxdata->fluxVector() -= cond*fieldGradient; // tensor*vector => vector
+  linsys->fluxVector() -= cond*fieldGradient; // tensor*vector => vector
 
 } // end of 'HeatConductivity::flux_value'
 
@@ -71,7 +71,7 @@ void HeatConductivity::flux_matrix(const FEMesh  *mesh,
 				   const Flux    *flux,
 				   const MasterPosition &pt,
 				   double time, void*,
-				   SmallSystem *fluxdata) const
+				   SmallSystem *linsys) const
 {
   // The heat flux matrix M_{ij} multiplies the vector of nodal
   // temperatures to give the vector heat current J at point pt.
@@ -95,15 +95,13 @@ void HeatConductivity::flux_matrix(const FEMesh  *mesh,
 
   for(IndexP i : *flux->components(ALL_INDICES)) {
     // in-plane temperature gradient contributions
-    fluxdata->stiffness_matrix_element(i, temperature, j) -=
+    linsys->stiffness_matrix_element(i, temperature, j) -=
                   cond(i.integer(), 0) * dsf0 + cond(i.integer(), 1) * dsf1;
 
     // out-of-plane temperature gradient contribution
     if(!temperature->in_plane(mesh))
-      fluxdata->stiffness_matrix_element(i, temperature->out_of_plane(), j)
+      linsys->stiffness_matrix_element(i, temperature->out_of_plane(), j)
                                           -= cond(i.integer(), 2) * sf;
-
-
   }
 } // end of 'HeatConductivity::flux_matrix'
 

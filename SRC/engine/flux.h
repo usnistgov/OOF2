@@ -119,6 +119,7 @@ public:
 			      const EdgeGaussPoint&, const FluxNormal *,
 			      DoubleVec&) const = 0;
 
+  // TODO_FLUX_SIGN
   // When we started using Eigen's matrix solvers, we
   // learned that we had been constructing *negative* definite
   // matrices for the force balance equation.  The previous CG solver

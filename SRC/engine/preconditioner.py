@@ -12,11 +12,19 @@ from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 
-## In the Eigen matrix method templates, the preconditioner isn't a
-## separate object from the solver.  The Preconditioner subclasses
-## here are just placeholders that are used in the
-## PreconditionedMatrixMethod classes in matrixmethod.py to choose the
-## correct Eigen routine.
+# In the Eigen matrix method templates, the preconditioner isn't a
+# separate object from the solver.  The Preconditioner subclasses here
+# are just placeholders that are used in the
+# PreconditionedMatrixMethod classes in matrixmethod.py to choose the
+# correct Eigen routine.
+
+## TODO? Don't allow ICPreconditioner to be used on asymmetric
+## matrices.  It can be used with asymmetric solvers as long as
+## they're not applied to asymmetric matrices, I think.
+
+## TODO? Is it legal to use ILUTPreconditioner with CG?  It seems to
+## work in most cases, but is it guaranteed to preserve the matrix
+## symmetry?
 
 class Preconditioner(registeredclass.RegisteredClass):
     registry = []

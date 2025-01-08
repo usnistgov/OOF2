@@ -440,6 +440,7 @@ ArithmeticOutputValue Flux::output(const FEMesh *mesh, const Element *el,
   for(IndexP it : *components(ALL_INDICES)) 
     ov[it] = (*fluxvals)[it.integer()];
   delete fluxvals;
+  // TODO_FLUX_SIGN
   // When we started using Eigen's matrix solvers, we learned that we
   // had been constructing *negative* definite matrices for the force
   // balance equation.  The previous CG solver worked with them, but

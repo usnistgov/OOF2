@@ -39,6 +39,7 @@ HeatOutOfPlane = equation.PlaneFluxEquation('Plane_Heat_Flux', Heat_Flux, 1)
 
 ## this creates the Displacement, Stress, and Mechanical Equilibrium equations
 Displacement = field.TwoVectorField('Displacement')
+## TODO_FLUX_SIGN
 ## When we started using Eigen's matrix solvers, we learned that we
 ## had been constructing *negative* definite matrices for the force
 ## balance equation.  The previous CG solver worked with them, but
@@ -48,10 +49,8 @@ Displacement = field.TwoVectorField('Displacement')
 ## "negate" here via the second constructor argument.
 
 Stress = flux.SymmetricTensorFlux('Stress', True)
-
 ForceBalanceEquation = equation.DivergenceEquation(
     'Force_Balance', Stress, config.dimension())
-
 ForcesOutOfPlane = equation.PlaneFluxEquation('Plane_Stress', Stress, 3)
 
 
