@@ -819,7 +819,7 @@ class SubProblemContext(whoville.Who):
         # ## likely to be needed later.
         # global debugcount
         # debugcount += 1
-        # if debugcount==3:
+        # if debugcount==1:
         #     if always:
         #         dumpfile = "dump-always"
         #     else:

@@ -440,8 +440,8 @@ ArithmeticOutputValue Flux::output(const FEMesh *mesh, const Element *el,
   for(IndexP it : *components(ALL_INDICES)) 
     ov[it] = (*fluxvals)[it.integer()];
   delete fluxvals;
-  if(negate_)
-    return -1.0*ov;
+  // if(negate_)
+  //   return -1.0*ov;
   return ov;
 }
 

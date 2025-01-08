@@ -357,6 +357,8 @@ PlaneFluxEquation::make_linear_system(const CSubProblem *subproblem,
 				      LinearizedSystem &linsys) const
 {
   double weight = gpt.weight();
+  int negfactor = flux()->negate() ? -1 : 1;
+
   for (CleverPtr<ElementFuncNodeIterator>mu(element->funcnode_iterator()); 
        !mu->end(); ++*mu)
     {
@@ -381,9 +383,11 @@ PlaneFluxEquation::make_linear_system(const CSubProblem *subproblem,
 	      if(k.nonzero(fluxcomp, ldof)) {
 		int global_col = dofmap[ldof];
 		double value = -sf * k( fluxcomp, ldof );
-		linsys.insertK( global_row, global_col, value*weight );
+		linsys.insertK(global_row, global_col,
+			       negfactor*value*weight);
 		if ( nlsolver->needsJacobian() )
-		  linsys.insertJ( global_row, global_col, value*weight );
+		  linsys.insertJ(global_row, global_col,
+				 negfactor*value*weight);
 	      }
 	    }
 	  }
