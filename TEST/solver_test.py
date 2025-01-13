@@ -3482,7 +3482,7 @@ test_set = (
 
 ## Uncomment this to run just a few tests when debugging.
 # test_set = (make_dynamic_set(suffix="", shortening=1.0,
-#                              tests=[OOF_1x1ElasticDynamic("Dynamic")])
+#                              tests=[OOF_ViscoElasticity("SS22")])
 #             #+ make_dynamic_set(suffix="-short", shortening=0.1)
 #             #+ oop_periodic_set
 #             )

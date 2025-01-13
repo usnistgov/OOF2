@@ -230,7 +230,7 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	    // call damping_matrix_element with a time deriv field.)
 	    // (This may have already been fixed.)
 	    if(nonzero)
-	      linsys.insertC(global_row, global_col, sum*weight);
+	      linsys.insertC(global_row, global_col, negfactor*sum*weight);
 	  }
 	} // End of c-matrix loop.
 	
