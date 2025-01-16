@@ -244,6 +244,12 @@ _materialmenu.addItem(OOFMenuItem(
 
 # Property operations.  Properties can be added or removed.
 
+
+## TODO: Make menu names consistent.  Add_property and Remove_property
+## should have a capital P.  The lower case versions should be secret
+## aliases.
+
+
 # "property" is actually the name of the property.  It's done
 # this way so it looks sensible to the user.
 def _addprop(menuitem,name,property):

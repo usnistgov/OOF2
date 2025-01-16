@@ -60,8 +60,7 @@ void PlaneStrain::flux_offset(const FEMesh *mesh, const Element *element,
   for(IndexP ij : *flux->components(ALL_INDICES)) {
     double &offset_el = fluxdata->offset_vector_element(ij);
     SymTensorIndex zz(2);
-    // TODO_FLUX_SIGN
-    offset_el -= modulus(ij, zz)*ezz_; // Sign gives physical results
+    offset_el += modulus(ij, zz)*ezz_;
   }
 }
 

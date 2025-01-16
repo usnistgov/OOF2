@@ -56,10 +56,9 @@ void NonconstantForceDensity::force_value(const FEMesh *mesh,
 
   nonconst_force_density( coord[0], coord[1], 0.0, time, force );
 
-  // TODO_FLUX_SIGN
-  // TODO: Use eqndata->force_vector() -= force; ?
-  eqndata->force_vector_element(0) -= force[0];
-  eqndata->force_vector_element(1) -= force[1];
+  // TODO: Use eqndata->force_vector() += force; ?
+  eqndata->force_vector_element(0) += force[0];
+  eqndata->force_vector_element(1) += force[1];
 }
 
 

@@ -89,20 +89,16 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
                 ell0 = fieldindex.SymTensorIndex(0, ell)
                 ell1 = fieldindex.SymTensorIndex(1, ell)
                 fluxdata.add_stiffness_matrix_element(
-                    ij,
-                    problem.Displacement,
-                    ell,
+                    ij, problem.Displacement, ell,
                     nodeiterator,
-                    # TODO_FLUX_SIGN
-                    -(cijkl[ij, ell0]*dsf0 + cijkl[ij, ell1]*dsf1))
+                    (cijkl[ij, ell0]*dsf0 + cijkl[ij, ell1]*dsf1))
             if not problem.Displacement.in_plane(mesh):
                 oop = problem.Displacement.out_of_plane()
                 for k in oop.components(planarity.ALL_INDICES):
                     kl = fieldindex.SymTensorIndex(2, ell)
                     fluxdata.add_stiffness_matrix_element(
                         ij, oop, kay, nodeiterator,
-                        # TODO_FLUX_SIGN
-                        -cijkl[ij, kl]*sf)
+                        cijkl[ij, kl]*sf)
 
     def integration_order(self, subproblem, element):
         if problem.Displacement.in_plane(subproblem.get_mesh()):

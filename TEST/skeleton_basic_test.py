@@ -21,6 +21,9 @@
 ## TODO: Copy the reference file generation code from
 ## skeleton_periodic_test.py.
 
+## TODO: Split this file up.  Move the Skeleton modification tests to
+## their own file.
+
 import unittest, os
 from . import memorycheck
 from .UTILS.file_utils import reference_file

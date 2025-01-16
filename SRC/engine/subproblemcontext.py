@@ -819,7 +819,7 @@ class SubProblemContext(whoville.Who):
         # ## likely to be needed later.
         # global debugcount
         # debugcount += 1
-        # if debugcount==3:
+        # if debugcount==1:
         #     if always:
         #         dumpfile = "dump-always"
         #     else:
@@ -888,7 +888,7 @@ class SubProblemContext(whoville.Who):
         ## are defined for first order problems.  They should be
         ## defined but not active, and not included in the counts, and
         ## not initialized.  The non-time deriv fields shouldn't be
-        ## initialized here either.
+        ## initialized here either.  (Is this still true?)
 
         # u1, u2, and u2dot are set by initial conditions.  We're
         # solving for u0 and u1dot.

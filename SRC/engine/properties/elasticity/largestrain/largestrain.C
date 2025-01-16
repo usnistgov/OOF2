@@ -69,13 +69,13 @@ inline double contract_C_dU_dF(const Cijkl &C,
 			       const DoubleVec &dF,
 			       int ij, int k, bool inplane)
 {
-  if ( inplane )
-    return ( dU(k,0) * ( C(ij,0)*dF[0] + C(ij,5)*dF[1] ) +
-	     dU(k,1) * ( C(ij,5)*dF[0] + C(ij,1)*dF[1] ) );
+  if (inplane)
+    return (dU(k,0) * (C(ij,0)*dF[0] + C(ij,5)*dF[1]) +
+	     dU(k,1) * (C(ij,5)*dF[0] + C(ij,1)*dF[1]));
   else
-    return ( dU(k,0) * ( C(ij,0)*dF[0] + C(ij,5)*dF[1] ) +
-	     dU(k,1) * ( C(ij,5)*dF[0] + C(ij,1)*dF[1] ) +
-	     dU(k,2) * ( C(ij,4)*dF[0] + C(ij,3)*dF[1] ) );
+    return (dU(k,0) * (C(ij,0)*dF[0] + C(ij,5)*dF[1]) +
+	     dU(k,1) * (C(ij,5)*dF[0] + C(ij,1)*dF[1]) +
+	     dU(k,2) * (C(ij,4)*dF[0] + C(ij,3)*dF[1]));
 
 } // end of 'contract_C_dU_dF'
 
@@ -106,7 +106,7 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
   // in 2D, check if it is an in-plane eqn or a plane-flux eqn.
   static CompoundField *displacement =
     dynamic_cast<CompoundField*>(Field::getField("Displacement"));
-  inplane = displacement->in_plane( mesh );
+  inplane = displacement->in_plane(mesh);
 
   // check for unexpected flux, flux should be a stress flux
   if (*flux != *stress_flux) {
@@ -114,13 +114,13 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
   }
 
   // evaluate the shape function and its gradient (of node) at the given pt
-  Fval  = node.shapefunction( pt );     // value of the shape function
-  dF[0] = node.dshapefunction( 0, pt ); // x-deriv of the shape function
-  dF[1] = node.dshapefunction( 1, pt ); // y-deriv of the shape function
+  Fval  = node.shapefunction(pt);     // value of the shape function
+  dF[0] = node.dshapefunction(0, pt); // x-deriv of the shape function
+  dF[1] = node.dshapefunction(1, pt); // y-deriv of the shape function
 
   SmallMatrix dU(findDisplacementGradient(mesh, element, pt));
 
-  const Cijkl CC = cijkl( mesh, element, pt ); // elasticity modulus
+  const Cijkl CC = cijkl(mesh, element, pt); // elasticity modulus
 
   // add the flux contributions to stiffness matrix element
 
@@ -131,38 +131,35 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
     // TODO: Use tensor iterators for k0, k1, k2.
 
     // sum CC(i,j,k,l)*dF(l),  k=0   over l=0,1, then add to stiffness_mtx
-    k0 = ij2voigt( 0,0 );
-    k1 = ij2voigt( 0,1 );
-    nonlinear_part = contract_C_dU_dF(CC, dU, dF, ij, 0, inplane ); // at ij, k=0
-    fluxmtx->stiffness_matrix_element( ij_iter, displacement,
-				       VectorFieldIndex(0), node )
-      // TODO_FLUX_SIGN
-      -= CC( ij,k0 ) * dF[0] + CC( ij,k1 ) * dF[1]
+    k0 = ij2voigt(0,0);
+    k1 = ij2voigt(0,1);
+    nonlinear_part = contract_C_dU_dF(CC, dU, dF, ij, 0, inplane); // at ij, k=0
+    fluxmtx->stiffness_matrix_element(ij_iter, displacement,
+				       VectorFieldIndex(0), node)
+      += CC(ij,k0) * dF[0] + CC(ij,k1) * dF[1]
       + nonlinear_part;
 
 
     // sum CC(i,j,k,l)*dF(l),  k=1   over l=0,1, then add to stiffness_mtx
-    k0 = ij2voigt( 1,0 );
-    k1 = ij2voigt( 1,1 );
-    nonlinear_part = contract_C_dU_dF( CC, dU, dF, ij, 1, inplane ); // at ij, k=1
-    fluxmtx->stiffness_matrix_element( ij_iter, displacement,
-				       VectorFieldIndex(1), node )
-      // TODO_FLUX_SIGN
-      -= CC( ij,k0 ) * dF[0] + CC( ij,k1 ) * dF[1]
+    k0 = ij2voigt(1,0);
+    k1 = ij2voigt(1,1);
+    nonlinear_part = contract_C_dU_dF(CC, dU, dF, ij, 1, inplane); // at ij, k=1
+    fluxmtx->stiffness_matrix_element(ij_iter, displacement,
+				       VectorFieldIndex(1), node)
+      += CC(ij,k0) * dF[0] + CC(ij,k1) * dF[1]
       + nonlinear_part;
 
 
-    if ( !inplane ) // now contributions from z-deriv of displacement field
+    if (!inplane) // now contributions from z-deriv of displacement field
     {
       Field *disp_z_deriv = displacement->out_of_plane();
       for(IndexP k_iter : *disp_z_deriv->components(ALL_INDICES)) {
-	double diag_factor = ( k_iter.integer()==2 ? 1.0 : 0.5 );
+	double diag_factor = (k_iter.integer()==2 ? 1.0 : 0.5);
 
-	k2 = ij2voigt( 2, k_iter.integer() );
+	k2 = ij2voigt(2, k_iter.integer());
 
-	// TODO_FLUX_SIGN
-	fluxmtx->stiffness_matrix_element( ij_iter, disp_z_deriv, k_iter, node )
- 	             -= diag_factor * Fval * CC( ij,k2 );
+	fluxmtx->stiffness_matrix_element(ij_iter, disp_z_deriv, k_iter, node)
+	  += diag_factor * Fval * CC(ij,k2);
       }
     } // end of 'if (!inplane)'
   } // end of loop over ij

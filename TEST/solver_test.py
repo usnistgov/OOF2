@@ -8,6 +8,9 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
+## TODO: Split this file up.  Separate the static and dynamic tests,
+## maybe.
+
 import unittest, os
 from . import memorycheck
 import math
@@ -743,6 +746,246 @@ class OOF_Solver_SimplePiezo(SaveableMeshTest):
     def tearDown(self):
         OOF.Material.Delete(name='material')
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Check that the direction of a ForceDensity property, which
+# contributes to the RHS, is correct. 
+
+class OOF_Gravity(unittest.TestCase):
+    def setUp(self):
+        global outputdestination
+        from ooflib.engine.IO import outputdestination
+        OOF.Microstructure.New(
+            name='microstructure',
+            width=1, height=1,
+            width_in_pixels=10, height_in_pixels=10)
+        OOF.Material.New(name='material', material_type='bulk')
+        OOF.Material.Assign(
+            material='material',
+            microstructure='microstructure',
+            pixels=every)
+        OOF.Property.Copy(
+            property='Mechanical:ForceDensity:ConstantForceDensity',
+            new_name='gravity')
+        OOF.Property.Parametrize.Mechanical.ForceDensity.ConstantForceDensity.gravity(
+            gx=0, gy=-0.1)
+        OOF.Material.Add_property(
+            name='material',
+            property='Mechanical:ForceDensity:ConstantForceDensity:gravity')
+        OOF.Material.Add_property(
+            name='material',
+            property='Mechanical:Elasticity:Isotropic')
+        OOF.Skeleton.New(
+            name='skeleton',
+            microstructure='microstructure',
+            x_elements=10, y_elements=10,
+            skeleton_geometry=QuadSkeleton(left_right_periodicity=False,
+                                           top_bottom_periodicity=False))
+        OOF.Mesh.New(
+            name='mesh',
+            skeleton='microstructure:skeleton',
+            element_types=['D2_3', 'T3_6', 'Q4_8'])
+        OOF.Subproblem.Field.Define(
+            subproblem='microstructure:skeleton:mesh:default',
+            field=Displacement)
+        OOF.Subproblem.Field.Activate(
+            subproblem='microstructure:skeleton:mesh:default',
+            field=Displacement)
+        OOF.Subproblem.Equation.Activate(
+            subproblem='microstructure:skeleton:mesh:default',
+            equation=Force_Balance)
+        OOF.Mesh.Boundary_Conditions.New(
+            name='bc',
+            mesh='microstructure:skeleton:mesh',
+            condition=DirichletBC(
+                field=Displacement, field_component='y',
+                equation=Force_Balance, eqn_component='y',
+                profile=ConstantProfile(value=0),
+                boundary='bottom'))
+        OOF.Mesh.Boundary_Conditions.New(
+            name='bc<2>',
+            mesh='microstructure:skeleton:mesh',
+            condition=DirichletBC(
+                field=Displacement, field_component='x',
+                equation=Force_Balance, eqn_component='x',
+                profile=ConstantProfile(value=0),
+                boundary='bottom'))
+        OOF.Subproblem.Set_Solver(
+            subproblem='microstructure:skeleton:mesh:default',
+            solver_mode=BasicSolverMode(
+                time_stepper=BasicStaticDriver(),
+                matrix_method=BasicIterative(
+                    tolerance=1e-13,max_iterations=1000)))
+    def tearDown(self):
+        outputdestination.forgetTextOutputStreams()
+        OOF.Material.Delete(name="material")
+        OOF.Property.Delete(
+            property="Mechanical:ForceDensity:ConstantForceDensity:gravity")
+
+    @memorycheck.check("microstructure")
+    def PlaneStrain(self):
+        OOF.Mesh.Field.In_Plane(
+            mesh='microstructure:skeleton:mesh',
+            field=Displacement)
+        OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh', endtime=0.0)
+        OOF.Mesh.Boundary_Analysis.Analyze(
+            mesh='microstructure:skeleton:mesh',
+            time=latest,
+            boundary='top',
+            analyzer=AverageField(field=Displacement),
+            destination=OutputStream(filename='test.dat', mode='w'))
+        self.assertTrue(file_utils.compare_last('test.dat',
+                                                (0.0, 0.0, -0.0626556318)))
+        file_utils.remove('test.dat')
+
+    @memorycheck.check("microstructure")
+    def PlaneStress(self):
+        OOF.Subproblem.Equation.Activate(
+            subproblem='microstructure:skeleton:mesh:default',
+            equation=Plane_Stress)
+        OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh', endtime=0.0)
+        OOF.Mesh.Boundary_Analysis.Analyze(
+            mesh='microstructure:skeleton:mesh',
+            time=latest,
+            boundary='top',
+            analyzer=AverageField(field=Displacement),
+            destination=OutputStream(filename='test.dat', mode='w'))
+        self.assertTrue(file_utils.compare_last('test.dat',
+                                                (0.0, 0.0, -0.072926179)))
+        file_utils.remove('test.dat')
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Ensure that the sign of the flux offset vector as used in equation.C
+# is correct by checking that a simple stress-free strain property
+# produces the correct geometric strain after equilibration.
+
+class OOF_FluxOffset(unittest.TestCase):
+    def setUp(self):
+        global outputdestination
+        from ooflib.engine.IO import outputdestination
+        OOF.Microstructure.New(
+            name='microstructure',
+            width=1, height=1,
+            width_in_pixels=10, height_in_pixels=10)
+        OOF.Skeleton.New(
+            name='skeleton',
+            microstructure='microstructure',
+            x_elements=10, y_elements=10,
+            skeleton_geometry=QuadSkeleton(
+                left_right_periodicity=False,top_bottom_periodicity=False))
+        OOF.Material.New(name='material', material_type='bulk')
+        OOF.Material.Assign(
+            material='material',
+            microstructure='microstructure',
+            pixels=every)
+        OOF.Property.Copy(
+            property='Mechanical:Elasticity:Isotropic',
+            new_name='instance')
+        OOF.Material.Add_property(
+            name='material',
+            property='Mechanical:Elasticity:Isotropic:instance')
+        # Add non-zero stress free strain in the x direction only
+        OOF.Property.Copy(
+            property='Mechanical:StressFreeStrain:Anisotropic:Orthorhombic',
+            new_name='instance')
+        OOF.Property.Parametrize.Mechanical.StressFreeStrain.Anisotropic.Orthorhombic.instance(
+            epsilon0=OrthorhombicRank2Tensor(xx=0.1, yy=0.0, zz=0.0))
+        OOF.Material.Add_property(
+            name='material',
+            property='Mechanical:StressFreeStrain:Anisotropic:Orthorhombic:instance')
+        OOF.Property.Copy(
+            property='Orientation',
+            new_name='instance')
+        OOF.Property.Parametrize.Orientation.instance(
+            angles=Abg(alpha=0,beta=0,gamma=0))
+        OOF.Material.Add_property(
+            name='material',
+            property='Orientation:instance')
+        OOF.Mesh.New(
+            name='mesh',
+            skeleton='microstructure:skeleton',
+            element_types=['D2_3', 'T3_6', 'Q4_8'])
+        OOF.Subproblem.Field.Define(
+            subproblem='microstructure:skeleton:mesh:default',
+            field=Displacement)
+        OOF.Subproblem.Field.Activate(
+            subproblem='microstructure:skeleton:mesh:default',
+            field=Displacement)
+        OOF.Subproblem.Equation.Activate(
+            subproblem='microstructure:skeleton:mesh:default',
+            equation=Force_Balance)
+        OOF.Mesh.Boundary_Conditions.New(
+            name='bc',
+            mesh='microstructure:skeleton:mesh',
+            condition=DirichletBC(
+                field=Displacement,field_component='x',
+                equation=Force_Balance,eqn_component='x',
+                profile=ConstantProfile(value=0),
+                boundary='left'))
+        OOF.Mesh.Boundary_Conditions.New(
+            name='bc<2>',
+            mesh='microstructure:skeleton:mesh',
+            condition=DirichletBC(
+                field=Displacement,field_component='y',
+                equation=Force_Balance,eqn_component='y',
+                profile=ConstantProfile(value=0),
+                boundary='bottomleft'))
+        OOF.Subproblem.Set_Solver(
+            subproblem='microstructure:skeleton:mesh:default',
+            solver_mode=BasicSolverMode(
+                time_stepper=BasicStaticDriver(),
+                matrix_method=BasicIterative(
+                    tolerance=1e-13,
+                    max_iterations=1000)))
+
+    def tearDown(self):
+        outputdestination.forgetTextOutputStreams()
+        OOF.Material.Delete(name="material")
+        OOF.Property.Delete(
+            property="Mechanical:StressFreeStrain:Anisotropic:Orthorhombic:instance")
+        OOF.Property.Delete(
+            property="Orientation:instance")
+        OOF.Property.Delete(
+            property="Mechanical:Elasticity:Isotropic:instance")
+
+    @memorycheck.check("microstructure")
+    def PlaneStrain(self):
+        OOF.Mesh.Field.In_Plane(
+            mesh='microstructure:skeleton:mesh',
+            field=Displacement)
+        OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh', endtime=0.0)
+        OOF.Mesh.Analyze.Average(
+            mesh='microstructure:skeleton:mesh',
+            time=latest,
+            data=getOutput('Strain:Value',type=GeometricStrain()),
+            domain=EntireMesh(),
+            sampling=ElementSampleSet(order=automatic),
+            destination=OutputStream(filename='test.dat', mode='w'))
+        self.assertTrue(file_utils.compare_last(
+            'test.dat',
+            (0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0)))
+        file_utils.remove('test.dat')
+
+    @memorycheck.check("microstructure")
+    def PlaneStress(self):
+        OOF.Subproblem.Equation.Activate(
+            subproblem='microstructure:skeleton:mesh:default',
+            equation=Plane_Stress)
+        OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh', endtime=0.0)
+        OOF.Mesh.Analyze.Average(
+            mesh='microstructure:skeleton:mesh',
+            time=latest,
+            data=getOutput('Strain:Value',type=GeometricStrain()),
+            domain=EntireMesh(),
+            sampling=ElementSampleSet(order=automatic),
+            destination=OutputStream(filename='test.dat', mode='w'))
+        self.assertTrue(file_utils.compare_last(
+            'test.dat',
+            (0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0)))
+        file_utils.remove('test.dat')
+        
+        
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Check that solving a static problem after a nonstatic problem on the
@@ -3397,7 +3640,11 @@ static_set = [
     OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStrain"),
     OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStress"),
     ThermalExpansionTest("Basic"),
-    ThermalExpansionTest("Advanced")
+    ThermalExpansionTest("Advanced"),
+    OOF_Gravity("PlaneStrain"),
+    OOF_Gravity("PlaneStress"),
+    OOF_FluxOffset("PlaneStrain"),
+    OOF_FluxOffset("PlaneStress")
 ]
 
 def make_dynamic_set(suffix, shortening, tests=None):
@@ -3480,11 +3727,14 @@ test_set = (
     oop_periodic_set)
 
 
-## Uncomment this to run just a few tests when debugging.
+## Uncomment this, or parts of it, to run just a few tests when debugging.
 # test_set = (make_dynamic_set(suffix="", shortening=1.0,
-#                              tests=[OOF_1x1ElasticDynamic("Dynamic")])
+#                              tests=[OOF_ViscoElasticity("SS22")])
 #             #+ make_dynamic_set(suffix="-short", shortening=0.1)
 #             #+ oop_periodic_set
 #             )
                             
-
+# test_set = [
+#     OOF_FluxOffset("PlaneStrain"),
+#     OOF_FluxOffset("PlaneStress")
+# ]

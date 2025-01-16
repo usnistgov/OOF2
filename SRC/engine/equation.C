@@ -150,6 +150,8 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
   bool needResidual = nlsolver->needsResidual();
   bool needJacobian = nlsolver->needsJacobian();
 
+  int negfactor = flux()->negate() ? -1 : 1;
+
   for (CleverPtr<ElementFuncNodeIterator>mu(element->funcnode_iterator());
        !mu->end(); ++*mu)
   {
@@ -198,12 +200,12 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	    }
 
 	    if(nonzero) {
-	      linsys.insertK(global_row, global_col, sum*weight);
+	      linsys.insertK(global_row, global_col, negfactor*sum*weight);
 	      if(needJacobian)
-		linsys.insertJ(global_row, global_col, sum*weight);
+		linsys.insertJ(global_row, global_col, negfactor*sum*weight);
 	    }
 	  }
-	} // End of k-matrix loop.
+	} // k-matrix
 
 	if(!(*fi).second->c_clean) {
 	  const SmallSparseMatrix &c = (*fi).second->cMatrix;
@@ -218,19 +220,10 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 		sum += value;
 	      }
 	    }
-	    // TODO TIMEDERIV: If SmallSystem::damping_matrix_element
-	    // was called with a time-derivative field, the global_col
-	    // here needs to be adjusted, or a different dofmap used.
-	    // Current global_col assumes that damping_matrix_element
-	    // was called with the non-derivative field.  Maybe use an
-	    // additional map that converts time-deriv indices to
-	    // non-deriv indices?  (visco.C and damping.C do *not*
-	    // call damping_matrix_element with a time deriv field.)
-	    // (This may have already been fixed.)
 	    if(nonzero)
-	      linsys.insertC(global_row, global_col, sum*weight);
+	      linsys.insertC(global_row, global_col, negfactor*sum*weight);
 	  }
-	} // End of c-matrix loop.
+	} // c-matrix 
 	
 	if (!(*fi).second->m_clean) {
 	  const SmallSparseMatrix &m = (*fi).second->mMatrix;
@@ -262,7 +255,7 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	    }
 	  }
 	  if(nonzero)
-	    linsys.insert_static_residual(global_row, sum*weight);
+	    linsys.insert_static_residual(global_row, sum*weight*negfactor);
 	} // End of flux-vector loop.
 
 	if(!(*fi).second->offset_clean) {
@@ -273,11 +266,11 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	    double off = offset[cmap[cc]];
 	    if(off != 0.0) {
 	      nonzero = true;
-	      sum += -dsf[cc] * off;
+	      sum += dsf[cc] * off;
 	    }
 	  }
 	  if(nonzero)
-	    linsys.insert_body_rhs(global_row, -sum*weight);
+	    linsys.insert_body_rhs(global_row, sum*weight*negfactor);
 	} // End of flux-offset loop.
 
       } // End if fi != fluxdata.end()
@@ -290,7 +283,7 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	  if(df.nonzero(eqcomp, ldof)) {
 	    int global_col = dofmap[ldof];
 	    double value = sf * df(eqcomp, ldof);
-	    linsys.insertJ(global_row, global_col, value*weight);
+	    linsys.insertJ(global_row, global_col, negfactor*value*weight);
 	  }
 	}
       }
@@ -301,6 +294,7 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	  if(c.nonzero(eqcomp, ldof)) {
 	    int global_col = dofmap[ldof];
 	    double value = sf * c(eqcomp, ldof);
+	    // TODO: Does this need negfactor?
 	    linsys.insertC(global_row, global_col, value*weight);
 	  }
 	}
@@ -312,6 +306,8 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	  if(m.nonzero(eqcomp, ldof)) {
 	    int global_col = dofmap[ldof];
 	    double value = sf * m(eqcomp,ldof);
+	    // TODO: Is is possible for a Flux to contribute to M?  If
+	    // so, do we need negfactor here?
 	    linsys.insertM(global_row, global_col, value*weight);
 	  }
 	}
@@ -322,13 +318,13 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	double f = force[eqcomp];
 	if(f != 0.0) {
 	  // force contribution
-	  double value = sf * f;
+	  double value = sf * weight * f * negfactor;
 	  // add to residual
 	  if(needResidual) {
-	    linsys.insert_static_residual(global_row, value*weight);
+	    linsys.insert_static_residual(global_row, value);
 	  }
 	  // subtract from rhs
-	  linsys.insert_body_rhs(global_row, -value*weight);
+	  linsys.insert_body_rhs(global_row, -value);
 	}
       }
 
@@ -355,6 +351,8 @@ PlaneFluxEquation::make_linear_system(const CSubProblem *subproblem,
 				      LinearizedSystem &linsys) const
 {
   double weight = gpt.weight();
+  int negfactor = flux()->negate() ? -1 : 1;
+
   for (CleverPtr<ElementFuncNodeIterator>mu(element->funcnode_iterator()); 
        !mu->end(); ++*mu)
     {
@@ -379,23 +377,25 @@ PlaneFluxEquation::make_linear_system(const CSubProblem *subproblem,
 	      if(k.nonzero(fluxcomp, ldof)) {
 		int global_col = dofmap[ldof];
 		double value = -sf * k( fluxcomp, ldof );
-		linsys.insertK( global_row, global_col, value*weight );
+		linsys.insertK(global_row, global_col,
+			       negfactor*value*weight);
 		if ( nlsolver->needsJacobian() )
-		  linsys.insertJ( global_row, global_col, value*weight );
+		  linsys.insertJ(global_row, global_col,
+				 negfactor*value*weight);
 	      }
 	    }
-	  }
+	  } // k-matrix
 
 	  if ( !(*fi).second->c_clean ) {
 	    const SmallSparseMatrix &c = (*fi).second->cMatrix;
 	    for(int ldof = 0; ldof < element->ndof(); ++ldof) {
 	      if(c.nonzero(fluxcomp, ldof)) {
 		int global_col = dofmap[ldof];
-		double value = -sf * c( fluxcomp, ldof );
-		linsys.insertC( global_row, global_col, value*weight );
+		double value = -sf * c(fluxcomp, ldof);
+		linsys.insertC(global_row, global_col, negfactor*value*weight);
 	      }
 	    }
-	  }
+	  } // c-matrix
 
 	  if ( !(*fi).second->m_clean ) {
 	    const SmallSparseMatrix &m = (*fi).second->mMatrix;
@@ -406,14 +406,14 @@ PlaneFluxEquation::make_linear_system(const CSubProblem *subproblem,
 		linsys.insertM( global_row, global_col, value*weight );
 	      }
 	    }
-	  }
+	  } // m-matrix
 
 	  if ( !(*fi).second->flux_clean && nlsolver->needsResidual() ) {
 	    const DoubleVec &flux = (*fi).second->fluxVector();
 	    double f = flux[fluxcomp];
 	    if(f != 0.0) {
 	      double value = -sf * f;
-	      linsys.insert_static_residual(global_row, value*weight);
+	      linsys.insert_static_residual(global_row, negfactor*value*weight);
 	    }
 	  }
 
@@ -423,7 +423,7 @@ PlaneFluxEquation::make_linear_system(const CSubProblem *subproblem,
 	    if(off != 0.0) {
 	      double value = -sf * off;
 	      // subtract from rhs
-	      linsys.insert_body_rhs(global_row, -value*weight);
+	      linsys.insert_body_rhs(global_row, -value*weight*negfactor);
 	    }
 	  }
 

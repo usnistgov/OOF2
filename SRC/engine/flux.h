@@ -119,14 +119,6 @@ public:
 			      const EdgeGaussPoint&, const FluxNormal *,
 			      DoubleVec&) const = 0;
 
-  // TODO_FLUX_SIGN
-  // When we started using Eigen's matrix solvers, we
-  // learned that we had been constructing *negative* definite
-  // matrices for the force balance equation.  The previous CG solver
-  // worked with them, but Eigen didn't.  Changing the sign of the
-  // force balance equation fixed the problem, but required changing
-  // the sign of the Stress.  The "negate" flag is used to make this
-  // sign change invisible to users.
   bool negate() const { return negate_; }
 
   friend bool operator==(const Flux&, const Flux&);
