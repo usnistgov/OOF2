@@ -136,7 +136,7 @@ class OOF_LinearDiffusion(unittest.TestCase):
                     tolerance=1e-13,
                     max_iterations=1000),
                 asymmetric_solver=StabilizedBiConjugateGradient(
-                    preconditioner=ICPreconditioner(),
+                    preconditioner=ILUTPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
         OOF.Mesh.Solve(
@@ -794,7 +794,7 @@ class OOF_NLPlaneStress2(unittest.TestCase):
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 test_set = [
-    ## RKLinear just generates the reference files for the rest of
+    ## RKlinear just generates the reference files for the rest of
     ## the LinearDiffusion tests.  It should come first.
     OOF_LinearDiffusion("RKlinear"),
     OOF_LinearDiffusion("CN"),

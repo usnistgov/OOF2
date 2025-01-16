@@ -15,6 +15,7 @@
 
 import unittest, os
 
+from . import memorycheck
 from .UTILS import file_utils
 reference_file = file_utils.reference_file
 # Flag that says whether to generate missing reference data files.
@@ -40,12 +41,12 @@ class AnisoTest(unittest.TestCase):
                     tolerance=1.e-13,
                     max_iterations=1000)))
     def tearDown(self):
-        OOF.Microstructure.Delete(microstructure="microstructure")
         OOF.Property.Delete(property='Color:light')
         OOF.Property.Delete(property='Color:dark')
         OOF.Material.Delete(name='middle')
         OOF.Material.Delete(name='edges')
 
+    @memorycheck.check("microstructure")
     def Elasticity(self):
         OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic(
             cijkl=IsotropicRank4TensorCij(c11=1.0,c12=0.5))
@@ -126,6 +127,7 @@ class AnisoTest(unittest.TestCase):
         OOF.Property.Delete(
             property='Orientation:new')
 
+    @memorycheck.check("microstructure")
     def StressFreeStrain(self):
         OOF.Material.Add_property(
             name='middle',
@@ -202,6 +204,7 @@ class AnisoTest(unittest.TestCase):
         OOF.Property.Delete(
             property='Mechanical:StressFreeStrain:Anisotropic:Orthorhombic:new')
 
+    @memorycheck.check("microstructure")
     def ThermalConductivity(self):
         OOF.Material.Add_property(
             name='edges', property='Thermal:Conductivity:Isotropic')
