@@ -223,7 +223,7 @@ class PropertyPane:
     def on_prop_load(self,button):      # gtk callback
         propname = self.current_property[0]
         mat = self.parent.currentMaterial()
-        OOF.Material.Add_property(name=mat.name(), property=propname)
+        OOF.Material.Add_Property(name=mat.name(), property=propname)
         self.parent.materialpane.select_property(propname)
 
     #######################################################################
@@ -608,7 +608,7 @@ class MaterialPane:
         if name is not None:
             propname = self.currentPropertyName()
             if propname is not None:
-                OOF.Material.Remove_property(name=name, property=propname)
+                OOF.Material.Remove_Property(name=name, property=propname)
 
     def on_assignment(self, button):    # gtk callback
         menuitem = OOF.Material.Assign

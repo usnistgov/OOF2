@@ -245,11 +245,6 @@ _materialmenu.addItem(OOFMenuItem(
 # Property operations.  Properties can be added or removed.
 
 
-## TODO: Make menu names consistent.  Add_property and Remove_property
-## should have a capital P.  The lower case versions should be secret
-## aliases.
-
-
 # "property" is actually the name of the property.  It's done
 # this way so it looks sensible to the user.
 def _addprop(menuitem,name,property):
@@ -267,7 +262,7 @@ def _addprop(menuitem,name,property):
             pass
 
 _materialmenu.addItem(OOFMenuItem(
-    'Add_property',
+    'Add_Property',
     callback=_addprop,
     params=[parameter.StringParameter('name', tip="Name of the material."),
             parameter.StringParameter('property', tip="Name of the property.")],
@@ -282,6 +277,14 @@ _materialmenu.addItem(OOFMenuItem(
     
     </para>"""
     ))
+
+_materialmenu.addItem(
+    _materialmenu.Add_Property.clone(
+        name='Add_property',
+        secret=True,
+        discussion="""
+        <para>Clone of Add_Property, for backwards compatibility</para>""" 
+    )) 
 
 # Remove the named property from the named material.
 def _removeprop(menuitem, name, property):
@@ -298,7 +301,7 @@ def _removeprop(menuitem, name, property):
     switchboard.notify("redraw")
 
 _materialmenu.addItem(OOFMenuItem(
-    'Remove_property',
+    'Remove_Property',
     callback=_removeprop,
     params = [parameter.StringParameter('name', tip="Name of the material."),
               parameter.StringParameter('property',
@@ -312,6 +315,15 @@ _materialmenu.addItem(OOFMenuItem(
     &property;.
 
     </para>"""
+    ))
+
+_materialmenu.addItem(
+    _materialmenu.Remove_Property.clone(
+        name="Remove_property",
+        secret=True,
+        discussion="""
+        <para>Clone of Remove_Property, for backwards compatibility</para>
+        """
     ))
                       
 # Saving and loading are done via the "file" menu, so they're not here.

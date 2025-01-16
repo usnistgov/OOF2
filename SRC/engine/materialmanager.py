@@ -130,7 +130,7 @@ class MaterialManager:
     # Add a property to the named material.
     # This function does *not* send switchboard signals, because it's
     # used in situations in which the signal shouldn't be set (ie,
-    # when copying a Material).  The Add_property menu item sends
+    # when copying a Material).  The Add_Property menu item sends
     # signals instead.
     def add_prop(self, matname, propname):
         prop_reg = AllProperties[propname]

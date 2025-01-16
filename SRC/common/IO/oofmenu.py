@@ -530,7 +530,8 @@ class OOFMenuItem:
             else:
                 raise AttributeError('Unknown OOFMenu option: ' + opt)
 
-    def clone(self,name=None, help=None, discussion=None, xrefs=[]):
+    def clone(self,name=None, help=None, discussion=None, secret=False,
+              xrefs=[]):
         # Clone menu item, but NOT its submenus.  self.params may be a
         # ParameterGroup or a list, so we have to check the type when
         # copying.  Unfortunately, list and ParameterGroup have
