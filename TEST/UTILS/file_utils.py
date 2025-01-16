@@ -379,7 +379,7 @@ def compare_last(filename, numbers, tolerance=1.e-10):
     filenumbers = eval(phile.readlines()[-1])
     if len(numbers) != len(filenumbers):
         print("*** Expected", len(numbers), "numbers.  Got",\
-            len(philenumbers), file=sys.stderr)
+            len(filenumbers), file=sys.stderr)
         return False
     for (x, y) in zip(numbers, filenumbers):
         if math.fabs(x-y) > tolerance:

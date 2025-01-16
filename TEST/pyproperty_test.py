@@ -254,15 +254,22 @@ class OOF_PyProperties(unittest.TestCase):
             initializer=ConstTwoVectorFieldInit(cx=0.0,cy=0.0))
         self.stressFreeStrainTest()
 
-        OOF.Property.Parametrize.Mechanical.StressFreeStrain.Isotropic(
-            epsilon0=0.1)
-        OOF.Material.Add_property(
-            name='material', 
-            property='Mechanical:StressFreeStrain:Isotropic')
+        # Compare to the C++ StressFreeStrain Property
         OOF.Material.Remove_property(
             name='material', 
             property='Mechanical:StressFreeStrain:PyIsotropic')
+        OOF.Property.Copy(
+            property='Mechanical:StressFreeStrain:Isotropic',
+            new_name='instance')
+        OOF.Property.Parametrize.Mechanical.StressFreeStrain.Isotropic.instance(
+            epsilon0=0.1)
+        OOF.Material.Add_property(
+            name='material', 
+            property='Mechanical:StressFreeStrain:Isotropic:instance')
         self.stressFreeStrainTest()
+        
+        OOF.Property.Delete(
+            property='Mechanical:StressFreeStrain:Isotropic:instance')
 
     def stressFreeStrainTest(self):
         OOF.Mesh.Apply_Field_Initializers(
