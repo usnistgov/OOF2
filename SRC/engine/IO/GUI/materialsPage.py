@@ -237,7 +237,20 @@ class PropertyPane:
         treenode = AllProperties.data[name]
         self.propertytree.blockSignals()
         if treenode.object is not None:
-            self.propertytree.expandToPath(name)
+            # Ignoring a KeyError here avoids crashes when running
+            # test scripts that use "secret" Properties.  Secret
+            # Properties don't appear in the GUI and shouldn't be used
+            # by users, but are used in the regression tests.  Those
+            # tests generally don't use the GUI, but the GUI might be
+            # used when debugging the tests.
+            ## TODO MAYBE: only ignore the errors when actually
+            ## running tests (cf Dieselgate). The problem with that is
+            ## that the program being tested would be different from
+            ## the program usually being run.
+            try:
+                self.propertytree.expandToPath(name)
+            except KeyError:
+                return
             self.propertytree.selectObject(treenode.object)
             self.current_property = (name, treenode.object)
         else:
