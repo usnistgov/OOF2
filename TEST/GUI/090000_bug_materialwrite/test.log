@@ -39,7 +39,7 @@ findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expa
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([1, 0]), open_all=False)
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized

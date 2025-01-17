@@ -80,7 +80,7 @@ checkpoint OOF.Property.Parametrize.Couplings.ThermalExpansion.Anisotropic.Cubic
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open hexagonal thermal expansion
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -139,7 +139,7 @@ checkpoint OOF.Property.Parametrize.Couplings.ThermalExpansion.Anisotropic.Hexag
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open trigonal thermal expansion
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -198,7 +198,7 @@ checkpoint OOF.Property.Parametrize.Couplings.ThermalExpansion.Anisotropic.Trigo
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open tetragonal thermalexpansion
 getTree('PropertyTree').simulateSelect('Couplings:ThermalExpansion:Anisotropic:Tetragonal')
@@ -256,7 +256,7 @@ checkpoint OOF.Property.Parametrize.Couplings.ThermalExpansion.Anisotropic.Tetra
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open orthorhombic thermalexpansion
 getTree('PropertyTree').simulateSelect('Couplings:ThermalExpansion:Anisotropic:Orthorhombic')
@@ -332,7 +332,7 @@ checkpoint OOF.Property.Parametrize.Couplings.ThermalExpansion.Anisotropic.Ortho
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open monoclinic thermalexpansion
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -429,7 +429,7 @@ checkpoint OOF.Property.Parametrize.Couplings.ThermalExpansion.Anisotropic.Monoc
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open triclinic thermalexpansion
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -558,7 +558,7 @@ checkpoint OOF.Property.Parametrize.Couplings.ThermalExpansion.Anisotropic.Tricl
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Save material to rank2mat.dat
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Materials']).activate()

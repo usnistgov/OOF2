@@ -151,7 +151,7 @@ checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 event(Gdk.EventType.BUTTON_PRESS,x= 7.5000000000000e+01,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['FE Mesh']).activate() # MenuItemLogger
@@ -593,7 +593,7 @@ checkpoint Solver page sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
-checkpoint OOF.Material.Remove_property
+checkpoint OOF.Material.Remove_Property
 findWidget('OOF2:Navigation:PrevHist').clicked()
 checkpoint Solver page sensitized
 checkpoint page installed Solver
@@ -639,7 +639,7 @@ checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 findWidget('OOF2:Navigation:PrevHist').clicked()
 checkpoint Materials page updated
 checkpoint page installed Materials
@@ -789,7 +789,7 @@ checkpoint Solver page sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
-checkpoint OOF.Material.Remove_property
+checkpoint OOF.Material.Remove_Property
 findWidget('OOF2:Navigation:PrevHist').clicked()
 checkpoint Materials page updated
 checkpoint page installed Materials
@@ -820,7 +820,7 @@ checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 event(Gdk.EventType.BUTTON_PRESS,x= 7.9000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Solver']).activate() # MenuItemLogger

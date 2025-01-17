@@ -84,7 +84,7 @@ checkpoint OOF.Material.New
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open piezoelectricity hexagonal D3h
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -127,7 +127,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Hexagonal.D3h
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open piezoelectricity Hexagonal C6v
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Hexagonal:C6v')
@@ -216,7 +216,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Hexagonal.C6v
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open piezoelectricity hexagonal D6
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Hexagonal:D6')
@@ -254,7 +254,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Hexagonal.D6
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open piezoelectricity hexagonal D6i
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -321,7 +321,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Hexagonal.D6i
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open piezoelectricity hexagonal C6
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Hexagonal:C6')
@@ -420,7 +420,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Hexagonal.C6
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open piezoelectricity trigonal C3v
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -528,7 +528,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Trigonal.C3v
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open piezoelectricity Trigonal D3
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -591,7 +591,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Trigonal.D3
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open piezoelectricity trigonal C3
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Trigonal:C3')
@@ -716,7 +716,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Trigonal.C3
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open piezoelectricity tetragonal D2d
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
@@ -863,7 +863,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Tetragonal.D2d
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open piezoelectricity tetragonal C4v
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Tetragonal:C4v')
@@ -941,7 +941,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Tetragonal.C4v
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open piezoelectricity tetragonal D4
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Tetragonal:D4')
@@ -978,7 +978,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Tetragonal.D4
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open piezoelectricity tetragonal C4i
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Tetragonal:C4i')
@@ -1067,7 +1067,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Tetragonal.C4i
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open piezoelectricity tetragonal C4
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Tetragonal:C4')
@@ -1160,7 +1160,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Tetragonal.C4
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open piezoelectricity orthorhombic C2v
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -1278,7 +1278,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Orthorhombic.C2v
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open piezoelectricity orthorhombic D2
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -1350,7 +1350,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Orthorhombic.D2
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_property('vadjustment').set_value( 9.0000000000000e+00)
 
 # Open piezoelectricity monoclinic Cs
@@ -1548,7 +1548,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Monoclinic.Cs
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_property('vadjustment').set_value( 2.7000000000000e+01)
 
 # Open piezoelectricity monoclinic C2
@@ -1720,7 +1720,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Monoclinic.C2
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_property('vadjustment').set_value( 9.0000000000000e+00)
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_property('vadjustment').set_value( 4.5000000000000e+01)
 
@@ -1914,7 +1914,7 @@ checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Triclinic.C1
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_property('vadjustment').set_value( 9.0000000000000e+00)
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_property('vadjustment').set_value( 6.3000000000000e+01)
 

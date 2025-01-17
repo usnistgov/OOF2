@@ -1,6 +1,6 @@
 OOF.Microstructure.New(name='microstructure', width=1, height=1, width_in_pixels=10, height_in_pixels=10)
 OOF.Material.New(name='material', material_type='bulk')
-OOF.Material.Add_property(name='material', property='Mechanical:Elasticity:Isotropic')
+OOF.Material.Add_Property(name='material', property='Mechanical:Elasticity:Isotropic')
 OOF.Material.Assign(material='material', microstructure='microstructure', pixels=every)
 OOF.Skeleton.New(name='skeleton', microstructure='microstructure', x_elements=10, y_elements=10, skeleton_geometry=QuadSkeleton(left_right_periodicity=False,top_bottom_periodicity=False))
 OOF.Mesh.New(name='mesh', skeleton='microstructure:skeleton', element_types=['D2_2', 'T3_3', 'Q4_4'])

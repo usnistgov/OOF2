@@ -104,7 +104,7 @@ wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Assign the material to all pixels in the first microstructure
 findWidget('OOF2:Materials Page:Pane:Material:Assign').clicked()
@@ -129,7 +129,7 @@ checkpoint OOF.Material.New
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Assign the second material to pixels in the second microstructure
 findWidget('OOF2:Materials Page:Pane:Material:Assign').clicked()

@@ -96,7 +96,7 @@ checkpoint OOF.Property.Parametrize.Orientation.green
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 checkpoint Materials page updated
 checkpoint property selected
 checkpoint OOF.Property.Copy
@@ -104,7 +104,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Property.Parametrize.Orientation.blue
 checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 checkpoint OOF.File.LoadStartUp.Script
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction

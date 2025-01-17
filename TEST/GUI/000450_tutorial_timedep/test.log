@@ -99,7 +99,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 getTree('PropertyTree').simulateUnselect()
 checkpoint Materials page updated
 checkpoint property deselected
@@ -129,7 +129,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.ForceDensity.ConstantForceDensity
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 getTree("PropertyTree").simulateUnselect()
 checkpoint Materials page updated
 checkpoint property deselected
@@ -153,7 +153,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.MassDensity.ConstantMassDensity
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([1, 5]), open_all=False)
 event(Gdk.EventType.BUTTON_RELEASE,x= 2.5000000000000e+01,y= 1.5100000000000e+02,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 getTree("PropertyTree").simulateSelect(Gtk.TreePath([1,5,0]))
@@ -181,7 +181,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Viscosity.Isotropic
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 findWidget('OOF2:Materials Page:Pane:Material:Assign').clicked()
 checkpoint toplevel widget mapped Dialog-Assign material material to pixels
 findWidget('Dialog-Assign material material to pixels').resize(235, 122)

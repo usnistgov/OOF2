@@ -27,7 +27,7 @@ OOF.Mesh.New(name='mesh', skeleton='small.ppm:skeleton', element_types=['D2_2', 
 OOF.Material.New(name='material', material_type='bulk')
 OOF.Material.Assign(material='material', microstructure='small.ppm', pixels=every)
 OOF.Property.Parametrize.Color(color=TranslucentGray(value=0.5,alpha=1))
-OOF.Material.Add_property(name='material', property='Color')
+OOF.Material.Add_Property(name='material', property='Color')
 OOF.Subproblem.Field.Define(subproblem='small.ppm:skeleton:mesh:default', field=Temperature)
 OOF.Mesh.Set_Field_Initializer(mesh='small.ppm:skeleton:mesh', field=Temperature, initializer=FuncScalarFieldInit(function='x*y'))
 OOF.Mesh.Apply_Field_Initializers(mesh='small.ppm:skeleton:mesh')

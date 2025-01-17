@@ -1,6 +1,6 @@
 OOF.Microstructure.New(name='microstructure', width=1.0, height=1.0, width_in_pixels=4, height_in_pixels=4)
 OOF.Material.New(name='material', material_type='bulk')
-OOF.Material.Add_property(name='material', property='Mechanical:Elasticity:Isotropic')
+OOF.Material.Add_Property(name='material', property='Mechanical:Elasticity:Isotropic')
 OOF.Settings.Graphics_Defaults.New_Layer_Policy(policy='Single')
 OOF.Windows.Graphics.New()
 OOF.Graphics_1.Layer.New(category='Microstructure', what='microstructure', how=MicrostructureMaterialDisplay(no_material=TranslucentGray(value=0.0,alpha=1.0),no_color=RGBAColor(red=0.0,green=0.0,blue=1.0,alpha=1.0)))

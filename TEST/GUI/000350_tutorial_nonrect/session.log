@@ -6,7 +6,7 @@ OOF.PixelGroup.Rename(microstructure='el_shape.png', group='#00ff00', new_name='
 OOF.Material.New(name='green-material', material_type='bulk')
 OOF.Property.Copy(property='Mechanical:Elasticity:Isotropic', new_name='green_elasticity')
 OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.green_elasticity(cijkl=IsotropicRank4TensorEnu(young=1.0,poisson=0.3))
-OOF.Material.Add_property(name='green-material', property='Mechanical:Elasticity:Isotropic:green_elasticity')
+OOF.Material.Add_Property(name='green-material', property='Mechanical:Elasticity:Isotropic:green_elasticity')
 OOF.Material.Assign(material='green-material', microstructure='el_shape.png', pixels='green')
 OOF.Skeleton.New(name='skeleton', microstructure='el_shape.png', x_elements=20, y_elements=20, skeleton_geometry=QuadSkeleton(left_right_periodicity=False,top_bottom_periodicity=False))
 OOF.Graphics_1.Toolbox.Select_Segment.Rectangle(skeleton='el_shape.png:skeleton', points=[Point(3.09,9.76), Point(10.475,10.215)], shift=False, ctrl=False)

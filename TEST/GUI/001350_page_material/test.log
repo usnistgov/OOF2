@@ -193,7 +193,7 @@ checkpoint OOF.Property.Parametrize.Color.green
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 assert tests.materialPropertyListCheck('Color:green')
 assert tests.sensitization4()
 
@@ -229,7 +229,7 @@ checkpoint OOF.Property.Parametrize.Thermal.Conductivity.Anisotropic.Cubic
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 assert tests.materialPropertyListCheck('Color:green', 'Thermal:Conductivity:Anisotropic:Cubic')
 assert tests.sensitization5()
 
@@ -274,7 +274,7 @@ assert tests.sensitization5()
 # Remove the property from the material
 findWidget('OOF2:Materials Page:Pane:Material:RemoveProperty').clicked()
 checkpoint Materials page updated
-checkpoint OOF.Material.Remove_property
+checkpoint OOF.Material.Remove_Property
 assert tests.materialPropertyListCheck('Color:green')
 assert tests.propertyTreeCheck('Thermal:Conductivity:Anisotropic:Cubic')
 assert tests.materialPropertyCheck(None)
@@ -413,7 +413,7 @@ findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expa
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 assert tests.propertyTreeCheck('Thermal:Conductivity:Anisotropic:Cubic:cubic_copy')
 assert tests.currentPropertyCheck('Thermal:Conductivity:Anisotropic:Cubic:cubic_copy')
 

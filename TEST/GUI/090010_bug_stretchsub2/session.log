@@ -1,7 +1,7 @@
 OOF.Microstructure.Create_From_ImageFile(filename='examples/cyallow.png', microstructure_name='cyallow.png', height=automatic, width=automatic)
 OOF.Image.AutoGroup(image='cyallow.png:cyallow.png', name_template='%c')
 OOF.Material.New(name='material', material_type='bulk')
-OOF.Material.Add_property(name='material', property='Mechanical:Elasticity:Isotropic')
+OOF.Material.Add_Property(name='material', property='Mechanical:Elasticity:Isotropic')
 OOF.Material.Assign(material='material', microstructure='cyallow.png', pixels=every)
 OOF.Settings.Graphics_Defaults.New_Layer_Policy(policy='Single')
 OOF.Windows.Graphics.New()

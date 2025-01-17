@@ -289,7 +289,7 @@ findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 assert tests.matlPageSensitizationCheck4()
 assert tests.selectedMatlPropertyCheck('Mechanical:Elasticity:Isotropic:yellow_elasticity')
 findWidget('A Simple Example:Next').clicked()
@@ -334,20 +334,20 @@ findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 assert tests.materialCheck('cyan-material', ['Mechanical:Elasticity:Isotropic:cyan_elasticity'])
 assert tests.selectedMatlPropertyCheck('Mechanical:Elasticity:Isotropic:cyan_elasticity')
 findWidget('OOF2:Materials Page:Pane:Material:RemoveProperty').clicked()
 checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Material.Remove_property
+checkpoint OOF.Material.Remove_Property
 assert tests.selectedMatlPropertyCheck(None)
 assert tests.materialCheck('cyan-material', [])
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 assert tests.materialCheck('cyan-material', ['Mechanical:Elasticity:Isotropic:cyan_elasticity'])
 assert tests.selectedMatlPropertyCheck('Mechanical:Elasticity:Isotropic:cyan_elasticity')
 findWidget('A Simple Example:Next').clicked()
@@ -409,7 +409,7 @@ findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 assert tests.materialCheck('yellow-material',  ['Mechanical:Elasticity:Isotropic:yellow_elasticity', 'Color:yellow'])
 assert tests.selectedMatlPropertyCheck('Color:yellow')
 getTree('PropertyTree').simulateSelect('Color')
@@ -491,7 +491,7 @@ findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 assert tests.materialCheck('cyan-material',  ['Mechanical:Elasticity:Isotropic:cyan_elasticity', 'Color:cyan'])
 assert tests.selectedMatlPropertyCheck('Color:cyan')
 findWidget('A Simple Example:Next').clicked()

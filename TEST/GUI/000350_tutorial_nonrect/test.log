@@ -259,7 +259,7 @@ findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 findWidget('Nonrectangular Domain:Next').clicked()
 findWidget('OOF2:Materials Page:Pane:Material:Assign').clicked()
 checkpoint toplevel widget mapped Dialog-Assign material green-material to pixels

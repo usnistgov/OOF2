@@ -184,7 +184,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.instance
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Make a copy of the isotropic elasticity instance
 findWidget('OOF2:Materials Page:Pane:Property:Copy').clicked()
@@ -226,7 +226,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.instance_2
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Make a copy, instance_3
 findWidget('OOF2:Materials Page:Pane:Property:Copy').clicked()
@@ -277,7 +277,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.instance_3
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Reopen instance_3
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
@@ -312,7 +312,7 @@ findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
 # Remove illegal property from material
 findWidget('OOF2:Materials Page:Pane:Material:RemoveProperty').clicked()
 checkpoint Materials page updated
-checkpoint OOF.Material.Remove_property
+checkpoint OOF.Material.Remove_Property
 
 # Open the illegal property -- get error message
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -334,7 +334,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.instance_3
 
 # Add illegal property to the material -- get error message
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(266, 162)
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
@@ -365,7 +365,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.instance_3
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Make another copy, instance_4
 findWidget('OOF2:Materials Page:Pane:Property:Copy').clicked()
@@ -409,7 +409,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.instance_4
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Save materials to a file
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Materials']).activate()

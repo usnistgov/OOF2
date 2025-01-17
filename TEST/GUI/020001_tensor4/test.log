@@ -181,7 +181,7 @@ checkpoint OOF.Material.New
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Copy the instance to create instance_2
 findWidget('OOF2').resize(782, 545)
@@ -218,7 +218,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.Cubic.inst
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Make a copy of instance_2
 findWidget('OOF2:Materials Page:Pane:Property:Copy').clicked()
@@ -267,7 +267,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.Cubic.inst
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Copy instance_3
 findWidget('OOF2:Materials Page:Pane:Property:Copy').clicked()
@@ -303,7 +303,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.Cubic.inst
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Save the material
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Materials']).activate()

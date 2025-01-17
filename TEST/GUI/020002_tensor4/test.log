@@ -138,7 +138,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.Hexagonal
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open Tetragonal elasticity
 getTree('PropertyTree').simulateSelect('Mechanical:Elasticity:Anisotropic:Tetragonal')
@@ -301,7 +301,7 @@ wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Open TrigonalA
 getTree('PropertyTree').simulateSelect('Mechanical:Elasticity:Anisotropic:TrigonalA')
@@ -474,7 +474,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.TrigonalA
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # TrigonalB
 getTree('PropertyTree').simulateSelect('Mechanical:Elasticity:Anisotropic:TrigonalB')
@@ -642,7 +642,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.TrigonalB
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Orthorhombic
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
@@ -833,7 +833,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.Orthorhomb
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Monoclinic
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -1094,7 +1094,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.Monoclinic
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 
 # Triclinic
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -1187,7 +1187,7 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.Triclinic
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 # Save material to a file
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Materials']).activate()
 checkpoint toplevel widget mapped Dialog-Materials

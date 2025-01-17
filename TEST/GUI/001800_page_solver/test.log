@@ -100,7 +100,7 @@ event(Gdk.EventType.BUTTON_RELEASE,x= 7.9000000000000e+01,y= 6.6000000000000e+01
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([1, 4]), open_all=False)
 event(Gdk.EventType.BUTTON_RELEASE,x= 2.7000000000000e+01,y= 1.6900000000000e+02,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 getTree("PropertyTree").simulateSelect(Gtk.TreePath([1, 4, 0]))
@@ -110,7 +110,7 @@ event(Gdk.EventType.BUTTON_RELEASE,x= 8.3000000000000e+01,y= 1.8500000000000e+02
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 # Create a Skeleton
 event(Gdk.EventType.BUTTON_PRESS,x= 5.7000000000000e+01,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu

@@ -78,7 +78,7 @@ event(Gdk.EventType.BUTTON_RELEASE,x= 8.2000000000000e+01,y= 6.0000000000000e+01
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
-checkpoint OOF.Material.Add_property
+checkpoint OOF.Material.Add_Property
 findWidget('OOF2:Materials Page:Pane:Material:Assign').clicked()
 checkpoint toplevel widget mapped Dialog-Assign material material to pixels
 findWidget('Dialog-Assign material material to pixels').resize(235, 122)
