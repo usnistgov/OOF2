@@ -38,6 +38,7 @@ public:
   int ndof();
   int divergence_dim();
   const std::string &name();
+  void negate();
   int objectid();
   ArithmeticOutputValue newOutputValue();
   const Components* components(Planarity) const;
@@ -71,7 +72,7 @@ ADD_REPR(VectorFlux, repr);
 
 class SymmetricTensorFlux : public Flux {
 public:
-  SymmetricTensorFlux(char *name, bool negate);
+  SymmetricTensorFlux(char *name);
 };
 
 ADD_REPR(SymmetricTensorFlux, repr);

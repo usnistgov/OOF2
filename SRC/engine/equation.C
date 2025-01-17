@@ -150,7 +150,7 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
   bool needResidual = nlsolver->needsResidual();
   bool needJacobian = nlsolver->needsJacobian();
 
-  int negfactor = flux()->negate() ? -1 : 1;
+  int negfactor = flux()->negated() ? -1 : 1;
 
   for (CleverPtr<ElementFuncNodeIterator>mu(element->funcnode_iterator());
        !mu->end(); ++*mu)
@@ -351,7 +351,7 @@ PlaneFluxEquation::make_linear_system(const CSubProblem *subproblem,
 				      LinearizedSystem &linsys) const
 {
   double weight = gpt.weight();
-  int negfactor = flux()->negate() ? -1 : 1;
+  int negfactor = flux()->negated() ? -1 : 1;
 
   for (CleverPtr<ElementFuncNodeIterator>mu(element->funcnode_iterator()); 
        !mu->end(); ++*mu)

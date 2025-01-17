@@ -61,8 +61,8 @@ protected:
   int divdim;			// number of components in divergence
 public:
   Flux(const std::string &name, int dimension, int divdim);
-  Flux(const std::string &name, int dimension, int divdim, bool negate);
   virtual ~Flux() {}
+  void negate() { negate_ = true; }
   static std::vector<Flux*> &allfluxes();
   static Flux *getFlux(const std::string &name);
   int index() const { return index_; }
@@ -119,7 +119,7 @@ public:
 			      const EdgeGaussPoint&, const FluxNormal *,
 			      DoubleVec&) const = 0;
 
-  bool negate() const { return negate_; }
+  bool negated() const { return negate_; }
 
   friend bool operator==(const Flux&, const Flux&);
   friend bool operator!=(const Flux&, const Flux&);
@@ -197,8 +197,8 @@ private:
 public:
   static std::vector< std::vector<int> > build_contraction_map();
   static std::vector<int> build_outofplane_map();
-  SymmetricTensorFlux(const std::string &name, bool negate)
-    : Flux(name, SYMTEN_FLUX_DIM, SYMTEN_DIV_DIM, negate)
+  SymmetricTensorFlux(const std::string &name)
+    : Flux(name, SYMTEN_FLUX_DIM, SYMTEN_DIV_DIM)
   {}
   virtual ~SymmetricTensorFlux() {}
   virtual const std::string &classname() const;

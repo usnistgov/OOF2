@@ -39,13 +39,13 @@ HeatOutOfPlane = equation.PlaneFluxEquation('Plane_Heat_Flux', Heat_Flux, 1)
 
 ## this creates the Displacement, Stress, and Mechanical Equilibrium equations
 Displacement = field.TwoVectorField('Displacement')
-# The second argument to the constructor indicates that the Stress as
-# computed by the Properties and Outputs is the negative of stress
-# that's used internally in the equations being solved.  This allows
-# us to keep the natural definitions (as seen by the user) and use the
-# same internal mechanisms for stress (which has negate=True) and heat
-# flux (which doesn't).
-Stress = flux.SymmetricTensorFlux('Stress', True)
+Stress = flux.SymmetricTensorFlux('Stress')
+# Indicate that Stress as computed by the Properties and Outputs is
+# the negative of stress that's used internally in the equations being
+# solved.  This allows us to keep the natural definitions (as seen by
+# the user) and use the same internal mechanisms for stress (which has
+# negate=True) and heat flux (which doesn't).
+Stress.negate()
 ForceBalanceEquation = equation.DivergenceEquation(
     'Force_Balance', Stress, config.dimension())
 ForcesOutOfPlane = equation.PlaneFluxEquation('Plane_Stress', Stress, 3)

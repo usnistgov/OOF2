@@ -64,16 +64,6 @@ Flux::Flux(const std::string &nm, int d, int dvdim)
   allfluxes().push_back(this);
 }
 
-Flux::Flux(const std::string &nm, int d, int dvdim, bool neg)
-  : name_(nm),
-    negate_(neg),
-    dim(d),
-    divdim(dvdim)
-{
-  index_ = allfluxes().size();
-  allfluxes().push_back(this);
-}
-
 bool operator==(const Flux &fluxa, const Flux &fluxb) {
   return fluxa.index_ == fluxb.index_;
 }
@@ -440,8 +430,6 @@ ArithmeticOutputValue Flux::output(const FEMesh *mesh, const Element *el,
   for(IndexP it : *components(ALL_INDICES)) 
     ov[it] = (*fluxvals)[it.integer()];
   delete fluxvals;
-  // if(negate_)
-  //   return -1.0*ov;
   return ov;
 }
 

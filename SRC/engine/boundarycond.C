@@ -151,7 +151,7 @@ void NeumannBCApp::integrate(PyObject *wrapper, PyObject *pyfun,
 						 wrapper,
 						 pyfun);
 
-	if(flux->negate())
+	if(flux->negated())
 	  *flxnormal *= -1.0;
 	
 	// egpt.normal() is the normal at this point -- do the
