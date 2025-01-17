@@ -244,7 +244,7 @@ def addSection(callback, ordering):
 ###################
 
 def dumpMenu(phile, menu, toplevel):
-    if menu.getOption('no_doc'):
+    if menu.getOption('no_doc') or menu.secret:
         return
     path = menu.path()
     if not toplevel:
@@ -276,7 +276,7 @@ def dumpMenu(phile, menu, toplevel):
     commands = []
     submenus = []
     for item in menu.items:
-        if not item.getOption('no_doc'):
+        if not item.getOption('no_doc') and not item.secret:
             if item.items:
                 submenus.append(item.name)
             else:
@@ -290,6 +290,8 @@ def dumpMenu(phile, menu, toplevel):
         print(f" <title>{path} Submenus</title>", file=phile)
         for submenu in submenus:
             item = menu.getItem(submenu)
+            if item.secret:
+                continue
             itempath = item.path()
             print(" <listitem><simpara>", file=phile)
             print(f"  <link linkend='MenuItem-{itempath}'><command>{itempath}</command></link>",
@@ -308,6 +310,8 @@ def dumpMenu(phile, menu, toplevel):
         print(f" <title>{path} Commands</title>", file=phile)
         for command in commands:
             item = menu.getItem(command)
+            if item.secret:
+                continue
             itempath = item.path()
             print(" <listitem><simpara>", file=phile)
             print(f"  <xref linkend='MenuItem-{itempath}'/>", file=phile)
@@ -338,7 +342,7 @@ def dumpMenu(phile, menu, toplevel):
 
 
 def dumpMenuItem(phile, menuitem):
-    if menuitem.getOption('no_doc'):
+    if menuitem.getOption('no_doc') or menuitem.secret:
         return
     path = menuitem.path()
     xmlIndexEntry(path, "Menu Item", "MenuItem-%s" % path)

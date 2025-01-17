@@ -530,7 +530,7 @@ class OOFMenuItem:
             else:
                 raise AttributeError('Unknown OOFMenu option: ' + opt)
 
-    def clone(self,name=None, help=None, discussion=None, secret=False,
+    def clone(self,name=None, help=None, discussion=None, secret=None,
               xrefs=[]):
         # Clone menu item, but NOT its submenus.  self.params may be a
         # ParameterGroup or a list, so we have to check the type when
@@ -545,7 +545,8 @@ class OOFMenuItem:
                                  callback=self.callback,
                                  gui_callback=self.gui_callback,
                                  accel=self.accel,
-                                 secret=self.secret,
+                                 secret=(secret if secret is not None
+                                         else self.secret),
                                  ellipsis=self.ellipsis,
                                  help_menu=self.help_menu,
                                  help=help or self.helpstr,

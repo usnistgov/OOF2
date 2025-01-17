@@ -268,13 +268,17 @@ _materialmenu.addItem(OOFMenuItem(
             parameter.StringParameter('property', tip="Name of the property.")],
     help='Add a Property to a Material.',
     discussion = """<para>
-
     Add the given &property; to the given &material;.  The
     <varname>property</varname> parameter is the <link
     linkend='Section-Concepts-Property-Path'>path</link> to the
     &property;.  A single &property; can be added to more than one
     &material;.
-    
+    </para>
+    <para>
+    This menu item used to be called
+    <command>Add_property</command>, with a lower case
+    <command>p</command>.  The old version is still available for
+    backwards compatibility in scripts.
     </para>"""
     ))
 
@@ -282,8 +286,7 @@ _materialmenu.addItem(
     _materialmenu.Add_Property.clone(
         name='Add_property',
         secret=True,
-        discussion="""
-        <para>Clone of Add_Property, for backwards compatibility</para>""" 
+        discussion=xmlmenudump.emptyDiscussion
     )) 
 
 # Remove the named property from the named material.
@@ -313,7 +316,12 @@ _materialmenu.addItem(OOFMenuItem(
     <varname>property</varname> parameter is the <link
     linkend='Section-Concepts-Property-Path'>path</link> to the
     &property;.
-
+    </para>
+    <para>
+    This menu item used to be called
+    <command>Remove_property</command>, with a lower case
+    <command>p</command>.  The old version is still available for
+    backwards compatibility in scripts.
     </para>"""
     ))
 
@@ -321,9 +329,7 @@ _materialmenu.addItem(
     _materialmenu.Remove_Property.clone(
         name="Remove_property",
         secret=True,
-        discussion="""
-        <para>Clone of Remove_Property, for backwards compatibility</para>
-        """
+        discussion=xmlmenudump.emptyDiscussion
     ))
                       
 # Saving and loading are done via the "file" menu, so they're not here.
