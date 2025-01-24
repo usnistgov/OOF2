@@ -163,6 +163,8 @@ int Field::localindex(const FuncNode *node, const FieldIndex &component) const
 
 // Get the value of a Field at a Node.
 
+// TODO: Should the last argument be a FieldIndex?
+
 double Field::value(const FEMesh *mesh, const FuncNode *node, int component)
   const
 {
@@ -440,11 +442,6 @@ const std::string ScalarFieldBase::classname_("ScalarFieldBase");
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// TODO: Add non-virtual index-less gradient methods to the
-// TwoVectorField (and other compound fields if any) that return all
-// components in a single object.  See ScalarField::gradient(mesh,
-// element, pt).
-
 TwoVectorField::TwoVectorField(const std::string &nm)
   : Field(nm, 2),
     TwoVectorFieldBase(nm),
@@ -594,7 +591,7 @@ DoubleVec VectorFieldBase::values(const FEMesh *mesh, const Element *el,
 
 DoubleVec VectorFieldBase::gradients(const FEMesh *mesh, const Element *el,
 				     const MasterPosition &mpt,
-				     const SpaceIndex gradindex)
+				     SpaceIndex gradindex)
   const
 {
   DoubleVec v(dim);

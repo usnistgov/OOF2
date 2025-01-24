@@ -122,12 +122,12 @@ public:
   virtual double value(const FEMesh*, const Element*, const MasterPosition&,
 		       const FieldIndex&) const;
   virtual double gradient(const FEMesh*, const Element*, const MasterPosition&,
-			  const FieldIndex&, const SpaceIndex) const;
+			  const FieldIndex&, SpaceIndex) const;
   
-  // TODO: Find element, then evaluate:
+  // TODO? Find element, then evaluate:
   // double value(const FEMesh*, const Coord&, const FieldIndex&) const;
   // double deriv(const FEMesh*, const Coord&, const FieldIndex&,
-  //              const SpaceIndex) const;
+  //              SpaceIndex) const;
 
   // Get the DegreeOfFreedom for a Field at a Node.
   virtual DegreeOfFreedom *operator()(const FuncNode*, int component) const=0;
@@ -267,7 +267,7 @@ public:
   // FieldIndex argument.
   double value(const FEMesh*, const Element*, const MasterPosition&) const;
   double gradient(const FEMesh*, const Element*, const MasterPosition&,
-		   const SpaceIndex) const;
+		  SpaceIndex) const;
   
   DegreeOfFreedom *operator()(const FuncNode*) const;
   DegreeOfFreedom *operator()(const FuncNode &n) const {
@@ -326,7 +326,7 @@ public:
   // Non-virtual values and gradients return a vector containing all components
   DoubleVec values(const FEMesh*, const Element*, const MasterPosition&) const;
   DoubleVec gradients(const FEMesh*, const Element*, const MasterPosition&,
-		      const SpaceIndex) const;
+		      SpaceIndex) const;
   
   virtual ArithmeticOutputValue newOutputValue() const;
   virtual ArithmeticOutputValue output(const FEMesh*,
@@ -367,10 +367,10 @@ public:
   }
   virtual DegreeOfFreedom *operator()(const ElementFuncNodeIterator&,
 				      int component) const;
-  // Non-virtual value and gradient return a vector containing all components
+  // Non-virtual values and gradients return a vector containing all components
   DoubleVec values(const FEMesh*, const Element*, const MasterPosition&) const;
   DoubleVec gradients(const FEMesh*, const Element*, const MasterPosition&,
-		      const SpaceIndex) const;
+		      SpaceIndex) const;
 
   virtual ArithmeticOutputValue newOutputValue() const;
   virtual ArithmeticOutputValue output(const FEMesh*,
@@ -419,7 +419,7 @@ public:
   SymmMatrix3 values(const FEMesh*, const Element*, const MasterPosition&)
     const;
   SymmMatrix3 gradients(const FEMesh*, const Element*,
-			const MasterPosition&, const SpaceIndex) const;
+			const MasterPosition&, SpaceIndex) const;
 
 
   virtual ArithmeticOutputValue newOutputValue() const;
