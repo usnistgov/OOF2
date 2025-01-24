@@ -293,16 +293,16 @@ public:
 
   // Value of the flux when Du and Du^dot are zero.
   virtual void flux_offset(const FEMesh*, const Element*,
-			   const Flux*, const MasterPosition&, double time,
-			   void*, SmallSystem*) const
+			   const Flux*, const MasterPosition&,
+			   double time, void*, SmallSystem*) const
   {}
 
   // The actual value of the flux at the given element and given
   // point.  The default definition computes the flux from the flux
   // matrix and offset.  Specialized properties can redefine it.
-  virtual void flux_value(const FEMesh *mesh, const Element *element,
-			  const Flux *flux, const MasterPosition &pt,
-			  double time, void*, SmallSystem *fluxdata) const;
+  virtual void flux_value(const FEMesh*, const Element*,
+			  const Flux*, const MasterPosition&,
+			  double time, void*, SmallSystem*) const;
   
 
   // The static portion of the flux vector/tensor, equal to flux_value
@@ -316,10 +316,9 @@ public:
   // to be redefined in any FluxProperty subclass that is both
   // non-linear and dependent on the time derivative of an active
   // field.
-  virtual void static_flux_value(const FEMesh *mesh, const Element *element,
-				 const Flux *flux, const MasterPosition &pt,
-				 double time, void*,
-				 SmallSystem *fluxdata) const;
+  virtual void static_flux_value(const FEMesh*, const Element*,
+				 const Flux*, const MasterPosition&,
+				 double time, void*, SmallSystem*) const;
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

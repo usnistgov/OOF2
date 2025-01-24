@@ -53,7 +53,6 @@ void HeatConductivity::flux_value(const FEMesh *mesh, const Element *element,
 				  double time, void*, SmallSystem *linsys)
   const
 {
-
   // Get the temperature gradient.
   DoubleVec fieldGradient = temperature->gradient(mesh, element, pt);
   // Get the thermal conductivity.
