@@ -1,3 +1,10 @@
+<!-- 
+    To generate an html version of this file suitable for the NIST
+    website, generate html with pandoc and pipe the output through
+    fixlinks.py:
+       pandoc -t html README.md | python fixlinks.py > README.html
+-->
+ 
 This is the README file for OOF2, version 2.3.3 or later.
 
 # What is OOF2?

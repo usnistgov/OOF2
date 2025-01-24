@@ -220,6 +220,7 @@ try:
     ]
 
     excludeFiles = [
+        "fixlinks.py",
         "make_dist.in",
         "oof2-build", "oof2-clean",
         "SRC/header", "SRC/header.py",
