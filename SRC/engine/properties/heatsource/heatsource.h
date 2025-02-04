@@ -43,7 +43,7 @@ public:
   virtual void force_value(const FEMesh*, const Element*,
 			   const Equation*,
 			   const MasterPosition&,
-			   double time,
+			   double time, void*,
 			   SmallSystem *) const;
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);

@@ -38,7 +38,8 @@ public:
   virtual bool constant_in_space() const { return false; }
   virtual void precompute(FEMesh*);
   virtual void force_value(const FEMesh*, const Element*, const Equation*,
-			   const MasterPosition&, double time, SmallSystem*) const;
+			   const MasterPosition&, double time, void*, 
+			   SmallSystem*) const;
 protected:
   TwoVectorField *displacement;
   SymmetricTensorFlux *stress_flux;

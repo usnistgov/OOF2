@@ -33,6 +33,7 @@ public:
 				       const ElementFuncNodeIterator&,
 				       const MasterPosition&,
 				       double time,
+				       void*, 
 				       SmallSystem*) const;
   virtual int integration_order(const CSubProblem*, const Element*) const;
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,

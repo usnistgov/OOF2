@@ -34,6 +34,7 @@ void HeatCapacityProp::first_time_deriv_matrix(
 				       const ElementFuncNodeIterator &eni,
 				       const MasterPosition &mpos,
 				       double time,
+				       void*, 
 				       SmallSystem *eqdata) const
 {
   // Optional -- check that the equation is the right one.

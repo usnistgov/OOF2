@@ -48,7 +48,7 @@ void NonconstantForceDensity::force_value(const FEMesh *mesh,
 					  const Element *element,
 					  const Equation *eqn,
 					  const MasterPosition &masterpos,
-					  double time,
+					  double time, void*,
 					  SmallSystem *eqndata) const
 {
   Coord  coord = element->from_master( masterpos );

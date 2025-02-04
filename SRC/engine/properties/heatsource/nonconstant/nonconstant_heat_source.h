@@ -36,7 +36,9 @@ public:
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return false; }
   virtual void force_value(const FEMesh*, const Element*, const Equation*,
-			   const MasterPosition&, double time, SmallSystem *) const;
+			   const MasterPosition&, double time, void*,
+			   SmallSystem*)
+    const;
 protected:
   VectorFlux *heat_flux;
   virtual double nonconst_heat_source(double x, double y, double z, double time) const = 0;

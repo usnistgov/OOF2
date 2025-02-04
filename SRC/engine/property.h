@@ -354,8 +354,10 @@ public:
 
   void make_equation_contributions(const FEMesh*, const Element*,
 				   const Equation*,
-				   const MasterPosition&, double time,
+				   const MasterPosition&,
+				   double time,
 				   const CNonlinearSolver*,
+				   void*,
 				   SmallSystem*)
     const;
 
@@ -368,13 +370,15 @@ public:
 				  const Equation*,
 				  const ElementFuncNodeIterator&,
 				  const MasterPosition&,
-				  double time, SmallSystem*) const
+				  double time,
+				  void*, 
+				  SmallSystem*) const
   {}
 
   // The value of the force at a given element and given point.
   virtual void force_value(const FEMesh*, const Element*,
 			   const Equation*, const MasterPosition&,
-			   double time, SmallSystem*)
+			   double time, void*, SmallSystem*)
     const {}
 
   // Contributions to the coefficient of the 1st time-deriv of the field.
@@ -383,7 +387,9 @@ public:
 				       const Equation*,
 				       const ElementFuncNodeIterator&,
 				       const MasterPosition&,
-				       double time, SmallSystem*)
+				       double time,
+				       void*,
+				       SmallSystem*)
     const {}
 
   // Contributions to the coefficient of the 2nd time-deriv of the field.
@@ -392,17 +398,25 @@ public:
 					const Equation*,
 					const ElementFuncNodeIterator&,
 					const MasterPosition&,
-					double time, SmallSystem*)
+					double time,
+					void*,
+					SmallSystem*)
     const {}
 
   // These functions are called from material.C before and after the
   // equation contributions are requested.  If properties have
   // per-evaluation-point expensive operations they want to perform,
   // they should do them in these functions.
-  virtual void begin_point(const FEMesh*, const Element*,
-			   const Equation*, const MasterPosition&) {}
+  virtual void* begin_point(const FEMesh*, const Element*,
+			   const Equation*, const MasterPosition&,
+			   double time) const
+  {
+    return nullptr;
+  }
   virtual void end_point(const FEMesh*, const Element*,
-			 const Equation*, const MasterPosition&) {}
+			 const Equation*, const MasterPosition&,
+			 double time, void*) const
+  {}
   
 }; // end of EqnProperty class definition
 

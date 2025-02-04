@@ -48,7 +48,7 @@ int HeatSourceProp::integration_order(const CSubProblem*, const Element *el)
 void HeatSourceProp::force_value(const FEMesh *mesh, const Element *element,
 				 const Equation *eqn,
 				 const MasterPosition &masterpos,
-				 double time,
+				 double time, void*,
 				 SmallSystem *eqndata) const
 {
   eqndata->force_vector_element(0) -= qdot_;

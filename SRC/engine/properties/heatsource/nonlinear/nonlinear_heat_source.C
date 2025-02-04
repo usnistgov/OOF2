@@ -45,11 +45,11 @@ int NonlinearHeatSourceNoDeriv::integration_order(const CSubProblem *,
 
 
 void NonlinearHeatSourceNoDeriv::force_value(const FEMesh *mesh,
-				      const Element *element,
-				      const Equation *eqn,
-				      const MasterPosition &pt,
-				      double time,
-				      SmallSystem *eqndata) const
+					     const Element *element,
+					     const Equation *eqn,
+					     const MasterPosition &pt,
+					     double time, void*,
+					     SmallSystem *eqndata) const
 {
   double fieldVal, sourceVal;
   Coord coord;
@@ -59,16 +59,16 @@ void NonlinearHeatSourceNoDeriv::force_value(const FEMesh *mesh,
   fieldVal = 0.0;
   for(CleverPtr<ElementFuncNodeIterator> node(element->funcnode_iterator());
       !node->end(); ++*node){
-    double shapeFuncVal = node->shapefunction( pt );
-    fieldVal += shapeFuncVal * (*temperature)( *node )->value( mesh );
+    double shapeFuncVal = node->shapefunction(pt);
+    fieldVal += shapeFuncVal * (*temperature)(*node)->value(mesh);
   }
 
 
   // now use the world coord and temperature value to compute the value
   // of nonlinear weight function and the contribution to force_vector_element
 
-  coord = element->from_master( pt );
-  sourceVal = nonlin_heat_source( coord[0], coord[1], 0.0, time, fieldVal );
+  coord = element->from_master(pt);
+  sourceVal = nonlin_heat_source(coord[0], coord[1], 0.0, time, fieldVal);
   eqndata->force_vector_element(0) = -sourceVal;
 
 } // NonlinearHeatSourceNoDeriv::force_value
@@ -80,7 +80,8 @@ void NonlinearHeatSource::force_deriv_matrix(const FEMesh   *mesh,
 					     const ElementFuncNodeIterator &j,
 					     const MasterPosition &point,
 					     double time,
-					     SmallSystem *eqndata ) const
+					     void*,
+					     SmallSystem *eqndata) const
 {
   double fieldVal, funcDerivVal, shapeFuncVal;
   Coord  coord;
@@ -90,25 +91,25 @@ void NonlinearHeatSource::force_deriv_matrix(const FEMesh   *mesh,
   fieldVal = 0.0;
   for(CleverPtr<ElementFuncNodeIterator> node(element->funcnode_iterator());
       !node->end(); ++*node){
-    shapeFuncVal = node->shapefunction( point );
-    fieldVal += shapeFuncVal * (*temperature)( *node )->value( mesh );
+    shapeFuncVal = node->shapefunction(point);
+    fieldVal += shapeFuncVal * (*temperature)(*node)->value(mesh);
   }
 
   // compute the value of the deriv of the nonlinear source function
   // using the world coordinates and the value of the temperature field
 
-  coord = element->from_master( point );
+  coord = element->from_master(point);
 
   funcDerivVal = nonlin_heat_source_deriv_wrt_temperature(
-			  coord[0], coord[1], 0.0, time, fieldVal );
+			  coord[0], coord[1], 0.0, time, fieldVal);
 
   // compute the value of the jth shape function at gauss point point and
   // add its contribution f(point)*phi_j(point) to the small stiffness-like matrix
 
-  shapeFuncVal = j.shapefunction( point );
+  shapeFuncVal = j.shapefunction(point);
 
   for (IndexP eqncomp : *eqn->components())
-    eqndata->force_deriv_matrix_element( eqncomp, temperature, j )
+    eqndata->force_deriv_matrix_element(eqncomp, temperature, j)
                 -= funcDerivVal * shapeFuncVal;
 
 } // NonlinearHeatSource::force_deriv_matrix
@@ -131,7 +132,7 @@ double nonlin_heat_source_1(double x, double y, double z,
 
   uex = sin(m*pi*x) * sin(n*pi*y);
   f = -(m*m + n*n)*pi*pi*uex + uex - CUBE(uex);
-  source_value = -temperature + CUBE( temperature ) + f;
+  source_value = -temperature + CUBE(temperature) + f;
 
   return source_value;
 
@@ -142,7 +143,7 @@ double nonlin_heat_source_deriv_wrt_temperature_1(
                                   double x, double y, double z,
 				  double time, double temperature)
 {
-  double source_deriv_value = -1.0 + 3.0 * SQR( temperature );
+  double source_deriv_value = -1.0 + 3.0 * SQR(temperature);
 
   return source_deriv_value;
 
@@ -158,7 +159,7 @@ double nonlin_heat_source_2(double x, double y, double z,
 
   uex = exp(-w*time) * sin(m*pi*x) * sin(n*pi*y);
   f = (w -(m*m + n*n)*pi*pi)*uex + uex - CUBE(uex);
-  source_value = -temperature + CUBE( temperature ) + f;
+  source_value = -temperature + CUBE(temperature) + f;
 
   return source_value;
 
@@ -169,7 +170,7 @@ double nonlin_heat_source_deriv_wrt_temperature_2(
                                   double x, double y, double z,
 				  double time, double temperature)
 {
-  double source_deriv_value = -1.0 + 3.0 * SQR( temperature );
+  double source_deriv_value = -1.0 + 3.0 * SQR(temperature);
 
   return source_deriv_value;
 
@@ -179,7 +180,7 @@ double nonlin_heat_source_deriv_wrt_temperature_2(
 double nonlin_heat_source_3(double x, double y, double z,
 			    double time, double temperature)
 {
-  double source_value = 4.0 * exp( temperature );
+  double source_value = 4.0 * exp(temperature);
 
   return source_value;
 
@@ -190,7 +191,7 @@ double nonlin_heat_source_deriv_wrt_temperature_3(
                                   double x, double y, double z,
 				  double time, double temperature)
 {
-  double source_deriv_value = 4.0 * exp( temperature );
+  double source_deriv_value = 4.0 * exp(temperature);
 
   return source_deriv_value;
 
@@ -200,7 +201,7 @@ double nonlin_heat_source_deriv_wrt_temperature_3(
 double nonlin_heat_source_4(double x, double y, double z,
 			    double time, double temperature)
 {
-  double source_value = 2.0 * CUBE( temperature );
+  double source_value = 2.0 * CUBE(temperature);
 
   return source_value;
 
@@ -211,7 +212,7 @@ double nonlin_heat_source_deriv_wrt_temperature_4(
                                   double x, double y, double z,
 				  double time, double temperature)
 {
-  double source_deriv_value = 6.0 * SQR( temperature );
+  double source_deriv_value = 6.0 * SQR(temperature);
 
   return source_deriv_value;
 
@@ -221,7 +222,7 @@ double nonlin_heat_source_deriv_wrt_temperature_4(
 double nonlin_heat_source_5(double x, double y, double z,
 			    double time, double temperature)
 {
-  double source_value = -2.0 + 8.0 * exp( 2.0 * temperature );
+  double source_value = -2.0 + 8.0 * exp(2.0 * temperature);
 
   return source_value;
 
@@ -232,7 +233,7 @@ double nonlin_heat_source_deriv_wrt_temperature_5(
                                   double x, double y, double z,
 				  double time, double temperature)
 {
-  double source_deriv_value = 16.0 * exp( 2.0 * temperature );
+  double source_deriv_value = 16.0 * exp(2.0 * temperature);
 
   return source_deriv_value;
 
@@ -246,15 +247,15 @@ double TestNonlinearHeatSourceNoDeriv::nonlin_heat_source(
   switch (testNo)
   {
     case 1:
-      return -nonlin_heat_source_1( x, y, z, time, temperature );
+      return -nonlin_heat_source_1(x, y, z, time, temperature);
     case 2:
-      return -nonlin_heat_source_2( x, y, z, time, temperature );
+      return -nonlin_heat_source_2(x, y, z, time, temperature);
     case 3:
-      return -nonlin_heat_source_3( x, y, z, time, temperature );
+      return -nonlin_heat_source_3(x, y, z, time, temperature);
     case 4:
-      return -nonlin_heat_source_4( x, y, z, time, temperature );
+      return -nonlin_heat_source_4(x, y, z, time, temperature);
     case 5:
-      return -nonlin_heat_source_5( x, y, z, time, temperature );
+      return -nonlin_heat_source_5(x, y, z, time, temperature);
     default:
       return 0.0;
   }
@@ -269,15 +270,15 @@ double TestNonlinearHeatSource::nonlin_heat_source(
   switch (testNo)
   {
     case 1:
-      return -nonlin_heat_source_1( x, y, z, time, temperature );
+      return -nonlin_heat_source_1(x, y, z, time, temperature);
     case 2:
-      return -nonlin_heat_source_2( x, y, z, time, temperature );
+      return -nonlin_heat_source_2(x, y, z, time, temperature);
     case 3:
-      return -nonlin_heat_source_3( x, y, z, time, temperature );
+      return -nonlin_heat_source_3(x, y, z, time, temperature);
     case 4:
-      return -nonlin_heat_source_4( x, y, z, time, temperature );
+      return -nonlin_heat_source_4(x, y, z, time, temperature);
     case 5:
-      return -nonlin_heat_source_5( x, y, z, time, temperature );
+      return -nonlin_heat_source_5(x, y, z, time, temperature);
     default:
       return 0.0;
   }
@@ -292,15 +293,15 @@ double TestNonlinearHeatSource::nonlin_heat_source_deriv_wrt_temperature(
   switch (testNo)
   {
     case 1:
-      return -nonlin_heat_source_deriv_wrt_temperature_1( x, y, z, time, temperature );
+      return -nonlin_heat_source_deriv_wrt_temperature_1(x, y, z, time, temperature);
     case 2:
-      return -nonlin_heat_source_deriv_wrt_temperature_2( x, y, z, time, temperature );
+      return -nonlin_heat_source_deriv_wrt_temperature_2(x, y, z, time, temperature);
     case 3:
-      return -nonlin_heat_source_deriv_wrt_temperature_3( x, y, z, time, temperature );
+      return -nonlin_heat_source_deriv_wrt_temperature_3(x, y, z, time, temperature);
     case 4:
-      return -nonlin_heat_source_deriv_wrt_temperature_4( x, y, z, time, temperature );
+      return -nonlin_heat_source_deriv_wrt_temperature_4(x, y, z, time, temperature);
     case 5:
-      return -nonlin_heat_source_deriv_wrt_temperature_5( x, y, z, time, temperature );
+      return -nonlin_heat_source_deriv_wrt_temperature_5(x, y, z, time, temperature);
     default:
       return 0.0;
   }

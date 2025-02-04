@@ -53,7 +53,8 @@ int NonlinearForceDensityNoDeriv::integration_order(const CSubProblem*,
 void NonlinearForceDensityNoDeriv::force_value(
 			      const FEMesh *mesh, const Element *element,
 			      const Equation *eqn, const MasterPosition &point,
-			      double time, SmallSystem *eqndata) const
+			      double time, void*,
+			      SmallSystem *eqndata) const
 {
   DoubleVec fieldVal(3), force(3);
   Coord coord;
@@ -92,7 +93,7 @@ void NonlinearForceDensity::force_deriv_matrix(const FEMesh   *mesh,
 					       const Equation *eqn,
 					       const ElementFuncNodeIterator &j,
 					       const MasterPosition &point,
-					       double time,
+					       double time, void*,
 					       SmallSystem *eqndata) const
 {
   SmallMatrix forceDeriv(3);

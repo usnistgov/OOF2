@@ -40,7 +40,8 @@ public:
   virtual void precompute(FEMesh*);
   virtual void force_value(
 		   const FEMesh*, const Element*, const Equation*,
-		   const MasterPosition&, double time, SmallSystem*) const;
+		   const MasterPosition&, double time, void*,
+		   SmallSystem*) const;
 protected:
   TwoVectorField *displacement;
   SymmetricTensorFlux *stress_flux;
@@ -62,6 +63,7 @@ public:
 				  const Equation *eqn,
 				  const ElementFuncNodeIterator &node,
 				  const MasterPosition &point,	double time,
+				  void*, 
 				  SmallSystem *eqndata) const;
 protected:
   virtual void nonlin_force_density_deriv(double x, double y, double z,

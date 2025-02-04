@@ -37,7 +37,7 @@ public:
   virtual void force_value(const FEMesh*, const Element*,
 			   const Equation*,
 			   const MasterPosition&,
-			   double time,
+			   double time, void*,
 			   SmallSystem *) const;
 protected:
   ScalarField *temperature;
@@ -59,7 +59,7 @@ public:
 				  const Equation *eqn,
 				  const ElementFuncNodeIterator &j,
 				  const MasterPosition &pt,
-				  double time,
+				  double time, void*,
 				  SmallSystem *eqndata ) const;
 protected:
   virtual double nonlin_heat_source_deriv_wrt_temperature(

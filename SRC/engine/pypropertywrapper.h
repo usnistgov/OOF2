@@ -143,20 +143,23 @@ public:
 				  const Equation*,
 				  const ElementFuncNodeIterator&,
 				  const MasterPosition&,
-				  double time, SmallSystem*) const;
+				  double time, void *localdata,
+				  SmallSystem*) const;
   virtual void force_value(const FEMesh*, const Element*,
 			   const Equation*, const MasterPosition&,
-			   double time, SmallSystem*) const;
+			   double time, void *localdata, SmallSystem*) const;
   virtual void first_time_deriv_matrix(const FEMesh*, const Element*,
 				       const Equation*,
 				       const ElementFuncNodeIterator&,
 				       const MasterPosition&,
-				       double time, SmallSystem*) const;
+				       double time, void *localdata,
+				       SmallSystem*) const;
   virtual void second_time_deriv_matrix(const FEMesh*, const Element*,
-				       const Equation*,
-				       const ElementFuncNodeIterator&,
-				       const MasterPosition&,
-					double time, SmallSystem*) const;
+					const Equation*,
+					const ElementFuncNodeIterator&,
+					const MasterPosition&,
+					double time, void* localdata,
+					SmallSystem*) const;
   virtual void precompute(FEMesh *m) {
     PyPropertyMethods::py_precompute(m);
   }
@@ -169,10 +172,12 @@ public:
   virtual void end_element(const CSubProblem *sb, const Element *e) {
     PyPropertyMethods::py_end_element(sb, e);
   }
-  virtual void begin_point(const FEMesh *m, const Element *e,
-			   const Equation *f, const MasterPosition &p);
+  virtual void* begin_point(const FEMesh *m, const Element *e,
+			    const Equation *f, const MasterPosition &p,
+			    double time) const;
   virtual void end_point(const FEMesh *m, const Element *e,
-			 const Equation *f, const MasterPosition &p);
+			 const Equation *f, const MasterPosition &p,
+			 double time, void*) const;
   virtual void post_process(CSubProblem *sb, const Element *e) const {
     PyPropertyMethods::py_post_process(sb, e);
   }

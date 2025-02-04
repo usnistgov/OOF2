@@ -30,7 +30,8 @@ public:
   ForceDensity(const std::string &name, PyObject *reg, double x, double y);
   virtual ~ForceDensity() {}
   virtual void force_value(const FEMesh*, const Element*, const Equation*,
-			   const MasterPosition&, double time, SmallSystem*) const;
+			   const MasterPosition&, double time, void*,
+			   SmallSystem*) const;
   virtual int integration_order(const CSubProblem*, const Element*) const;
   double fdensity_x() const { return gx; }
   double fdensity_y() const { return gy; }

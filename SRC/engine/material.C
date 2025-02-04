@@ -410,12 +410,12 @@ void Material::make_linear_system(const CSubProblem *subproblem,
 	  // if the property is active in the current subproblem,
 	  // calculate its contributions to the active flux
 	  if((*property)->currently_active(subproblem)) {
-	    void *ldata = (*property)->begin_point(mesh, el, (*fluxi), pt,
-						   time);
+	    void *localdata = (*property)->begin_point(mesh, el, *fluxi, pt,
+						       time);
 	    (*property)->make_flux_contributions(mesh, el, *fluxi, pt, time,
-						 nlsolver, ldata,
+						 nlsolver, localdata,
 						 property_flux_info);
-	    (*property)->end_point(mesh, el, (*fluxi), pt, time, ldata);
+	    (*property)->end_point(mesh, el, (*fluxi), pt, time, localdata);
 	    
 	    // add the flux contributions of the property to the flux
 	    // small system
@@ -454,10 +454,11 @@ void Material::make_linear_system(const CSubProblem *subproblem,
 	++property)
       {
 	if((*property)->currently_active(subproblem)) {
-	  (*property)->begin_point(mesh, el, *eqn, pt);
+	  void *localdata = (*property)->begin_point(mesh, el, *eqn, pt, time);
 	  (*property)->make_equation_contributions(mesh, el, *eqn, pt, time,
-						   nlsolver, property_eqn_info);
-	  (*property)->end_point(mesh, el, *eqn, pt);
+						   nlsolver, localdata,
+						   property_eqn_info);
+	  (*property)->end_point(mesh, el, *eqn, pt, time, localdata);
 	  // add the eqn contributions of the property to the eqn
 	  // small system
 	  *eqndata += *property_eqn_info;

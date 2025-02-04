@@ -42,7 +42,8 @@ int ForceDensity::integration_order(const CSubProblem*, const Element *el) const
 
 void ForceDensity::force_value(const FEMesh *mesh, const Element *element,
 			       const Equation *eqn, const MasterPosition &x,
-			       double time, SmallSystem *eqndata) const
+			       double time, void *data,
+			       SmallSystem *eqndata) const
 {
   eqndata->force_vector_element(0) += gx;
   eqndata->force_vector_element(1) += gy;

@@ -32,7 +32,7 @@ void MassDensityProp::second_time_deriv_matrix(const FEMesh *mesh,
 					       const Equation *eqn,
 					       const ElementFuncNodeIterator &eni,
 					       const MasterPosition &mpos,
-					       double time,
+					       double time, void*,
 					       SmallSystem *eqdata) const
 {
   double shapeFuncVal = eni.shapefunction(mpos);

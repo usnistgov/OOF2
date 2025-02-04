@@ -125,12 +125,12 @@ void Diffusion::flux_matrix(const FEMesh  *mesh,
 } // end of 'Diffusion::flux_matrix'
 
 void Mobility::first_time_deriv_matrix(const FEMesh *mesh,
-					const Element *lmnt,
-					const Equation *eqn,
-					const ElementFuncNodeIterator &eni,
-					const MasterPosition &mpos,
-					double time,
-					SmallSystem *eqdata) const {
+				       const Element *lmnt,
+				       const Equation *eqn,
+				       const ElementFuncNodeIterator &eni,
+				       const MasterPosition &mpos,
+				       double time, void*,
+				       SmallSystem *eqdata) const {
 
   double shapeFuncVal = eni.shapefunction( mpos );
   for(IndexP eqncomp : *eqn->components()) {
@@ -310,7 +310,8 @@ void AtomFluxJumpTest::force_deriv_matrix(const FEMesh* mesh,
 					  const Equation* eqn,
 					  const ElementFuncNodeIterator &efi,
 					  const MasterPosition& gpt,
-					  double time, SmallSystem *eqndata) 
+					  double time, void*,
+					  SmallSystem *eqndata) 
   const 
 {
   FuncNode *left,*right;
@@ -322,7 +323,8 @@ void AtomFluxJumpTest::force_deriv_matrix(const FEMesh* mesh,
 void AtomFluxJumpTest::force_value(const FEMesh* mesh, const Element* element,
 				   const Equation* eqn,
 				   const MasterPosition& gpt,
-				   double time, SmallSystem *eqndata) const
+				   double time, void*,
+				   SmallSystem *eqndata) const
 {
   const InterfaceElement *ie = dynamic_cast<const InterfaceElement*>(element);
   if (ie->side()==LEFT) {

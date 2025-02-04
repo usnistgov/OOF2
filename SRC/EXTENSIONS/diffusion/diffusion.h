@@ -89,6 +89,7 @@ public:
 				       const ElementFuncNodeIterator&,
 				       const MasterPosition&,
 				       double time,
+				       void*,
 				       SmallSystem *) const;
   virtual void cross_reference(Material*) {}
   virtual int integration_order(const CSubProblem*, const Element*) const;
@@ -121,10 +122,11 @@ public:
   				  const Equation*,
   				  const ElementFuncNodeIterator&,
   				  const MasterPosition&,
-  				  double time, SmallSystem* ) const;
+  				  double time, void*,
+				  SmallSystem*) const;
   virtual void force_value(const FEMesh*, const Element*,
   			   const Equation*, const MasterPosition&,
-  			   double time, SmallSystem* ) const;
+  			   double time, void*, SmallSystem*) const;
   
 
   // virtual void flux_offset(const FEMesh *mesh, const Element *element,

@@ -267,18 +267,22 @@ void EqnProperty::make_equation_contributions(const FEMesh *mesh,
 					      const MasterPosition &pt,
 					      double time,
 					      const CNonlinearSolver *nlsolver,
+					      void *localdata,
 					      SmallSystem *eqndata)
   const
 {
   for(CleverPtr<ElementFuncNodeIterator>node(element->funcnode_iterator()); 
       !node->end(); ++*node)
   {
-    first_time_deriv_matrix(mesh, element, eqn, *node, pt, time, eqndata);
-    second_time_deriv_matrix(mesh, element, eqn, *node, pt, time, eqndata);
+    first_time_deriv_matrix(mesh, element, eqn, *node, pt, time,
+			    localdata, eqndata);
+    second_time_deriv_matrix(mesh, element, eqn, *node, pt, time,
+			     localdata, eqndata);
     if(nlsolver->needsJacobian())
-      force_deriv_matrix(mesh, element, eqn, *node, pt, time, eqndata);
+      force_deriv_matrix(mesh, element, eqn, *node, pt, time,
+			 localdata, eqndata);
   }
-  force_value(mesh, element, eqn, pt, time, eqndata);
+  force_value(mesh, element, eqn, pt, time, localdata, eqndata);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
