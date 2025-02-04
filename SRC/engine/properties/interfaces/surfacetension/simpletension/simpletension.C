@@ -114,8 +114,8 @@ void SimpleTension::force_value(const FEMesh *mesh,
 
 void SimpleTension::force_deriv_matrix(const FEMesh *mesh, 
 				       const Element *element,
-				       const Equation *eqn, 
 				       const ElementFuncNodeIterator&,
+				       const Equation *eqn, 
 				       const MasterPosition &pt,
 				       double time, 
 				       SmallSystem *eqndata) const {

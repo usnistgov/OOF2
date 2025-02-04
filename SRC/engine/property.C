@@ -274,12 +274,12 @@ void EqnProperty::make_equation_contributions(const FEMesh *mesh,
   for(CleverPtr<ElementFuncNodeIterator>node(element->funcnode_iterator()); 
       !node->end(); ++*node)
   {
-    first_time_deriv_matrix(mesh, element, eqn, *node, pt, time,
+    first_time_deriv_matrix(mesh, element, *node, eqn, pt, time,
 			    localdata, eqndata);
-    second_time_deriv_matrix(mesh, element, eqn, *node, pt, time,
+    second_time_deriv_matrix(mesh, element, *node, eqn, pt, time,
 			     localdata, eqndata);
     if(nlsolver->needsJacobian())
-      force_deriv_matrix(mesh, element, eqn, *node, pt, time,
+      force_deriv_matrix(mesh, element, *node, eqn, pt, time,
 			 localdata, eqndata);
   }
   force_value(mesh, element, eqn, pt, time, localdata, eqndata);

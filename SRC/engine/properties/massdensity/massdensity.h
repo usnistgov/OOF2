@@ -33,8 +33,8 @@ public:
   virtual void precompute(FEMesh*);
   virtual void second_time_deriv_matrix(const FEMesh*,
 					const Element*,
-					const Equation*,
 					const ElementFuncNodeIterator&,
+					const Equation*,
 					const MasterPosition&,
 					double time,
 					void*,

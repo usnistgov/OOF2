@@ -70,8 +70,8 @@ void ForceSurfaceTest::force_value(const FEMesh *mesh,
 
 void ForceSurfaceTest::force_deriv_matrix(const FEMesh *mesh, 
 				     const Element *element,
-				     const Equation *eqn, 
 				     const ElementFuncNodeIterator&,
+				     const Equation *eqn, 
 				     const MasterPosition &pt,
 				     double time, 
 				     SmallSystem *eqndata) const {

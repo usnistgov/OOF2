@@ -126,8 +126,8 @@ void Diffusion::flux_matrix(const FEMesh  *mesh,
 
 void Mobility::first_time_deriv_matrix(const FEMesh *mesh,
 				       const Element *lmnt,
-				       const Equation *eqn,
 				       const ElementFuncNodeIterator &eni,
+				       const Equation *eqn,
 				       const MasterPosition &mpos,
 				       double time, void*,
 				       SmallSystem *eqdata) const {
@@ -302,15 +302,13 @@ void AtomFluxJumpTest::post_process(CSubProblem *sp,
 
 // }  
 
-
-
-
 void AtomFluxJumpTest::force_deriv_matrix(const FEMesh* mesh,
 					  const Element* element,
-					  const Equation* eqn,
 					  const ElementFuncNodeIterator &efi,
+					  const Equation* eqn,
 					  const MasterPosition& gpt,
-					  double time, void*,
+					  double time,
+					  void*,
 					  SmallSystem *eqndata) 
   const 
 {
@@ -320,10 +318,12 @@ void AtomFluxJumpTest::force_deriv_matrix(const FEMesh* mesh,
   right = dynamic_cast<FuncNode*>(efi.rightnode());
 }
 
-void AtomFluxJumpTest::force_value(const FEMesh* mesh, const Element* element,
+void AtomFluxJumpTest::force_value(const FEMesh* mesh,
+				   const Element* element,
 				   const Equation* eqn,
 				   const MasterPosition& gpt,
-				   double time, void*,
+				   double time,
+				   void*,
 				   SmallSystem *eqndata) const
 {
   const InterfaceElement *ie = dynamic_cast<const InterfaceElement*>(element);

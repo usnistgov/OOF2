@@ -29,14 +29,14 @@ void IsotropicDampingProp::precompute(FEMesh *mesh) {
 }
 
 void IsotropicDampingProp::first_time_deriv_matrix(
-			 const FEMesh *mesh,
-			 const Element *lmnt,
-			 const Equation *eqn,
-			 const ElementFuncNodeIterator &eni,
-			 const MasterPosition &mpos,
-			 double time,
-			 void*,
-			 SmallSystem *eqndata)
+					   const FEMesh *mesh,
+					   const Element *lmnt,
+					   const ElementFuncNodeIterator &eni,
+					   const Equation *eqn,
+					   const MasterPosition &mpos,
+					   double time,
+					   void*,
+					   SmallSystem *eqndata)
   const
 {
   double shapeFuncVal = eni.shapefunction(mpos);

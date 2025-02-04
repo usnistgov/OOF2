@@ -85,8 +85,8 @@ class Mobility : public EqnProperty {
 public:
   Mobility(PyObject *registry, const std::string &name);
   virtual void first_time_deriv_matrix(const FEMesh*, const Element*,
-				       const Equation*, 
 				       const ElementFuncNodeIterator&,
+				       const Equation*, 
 				       const MasterPosition&,
 				       double time,
 				       void*,
@@ -118,11 +118,13 @@ public:
   virtual void cross_reference(Material*);
   virtual void post_process(CSubProblem*, const Element*) const;
 
-  virtual void force_deriv_matrix(const FEMesh*, const Element*,
-  				  const Equation*,
+  virtual void force_deriv_matrix(const FEMesh*,
+				  const Element*,
   				  const ElementFuncNodeIterator&,
+  				  const Equation*,
   				  const MasterPosition&,
-  				  double time, void*,
+  				  double time,
+				  void*, 
 				  SmallSystem*) const;
   virtual void force_value(const FEMesh*, const Element*,
   			   const Equation*, const MasterPosition&,

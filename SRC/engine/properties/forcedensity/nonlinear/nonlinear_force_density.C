@@ -88,10 +88,10 @@ void NonlinearForceDensityNoDeriv::force_value(
 } // end of 'NonlinearForceDensityNoDeriv::force_value'
 
 
-void NonlinearForceDensity::force_deriv_matrix(const FEMesh   *mesh,
-					       const Element  *element,
-					       const Equation *eqn,
+void NonlinearForceDensity::force_deriv_matrix(const FEMesh *mesh,
+					       const Element *element,
 					       const ElementFuncNodeIterator &j,
+					       const Equation *eqn,
 					       const MasterPosition &point,
 					       double time, void*,
 					       SmallSystem *eqndata) const

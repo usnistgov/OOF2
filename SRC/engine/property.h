@@ -352,7 +352,8 @@ public:
     : PhysicalProperty(nm,registration)
   {};
 
-  void make_equation_contributions(const FEMesh*, const Element*,
+  void make_equation_contributions(const FEMesh*,
+				   const Element*,
 				   const Equation*,
 				   const MasterPosition&,
 				   double time,
@@ -366,56 +367,74 @@ public:
   // effect.
 
   // The linearization/derivative of force with respect to field.
-  virtual void force_deriv_matrix(const FEMesh*, const Element*,
-				  const Equation*,
+  virtual void force_deriv_matrix(const FEMesh*,
+				  const Element*,
 				  const ElementFuncNodeIterator&,
+				  const Equation*,
 				  const MasterPosition&,
 				  double time,
 				  void*, 
-				  SmallSystem*) const
+				  SmallSystem*)
+    const
   {}
 
   // The value of the force at a given element and given point.
-  virtual void force_value(const FEMesh*, const Element*,
-			   const Equation*, const MasterPosition&,
-			   double time, void*, SmallSystem*)
-    const {}
+  virtual void force_value(const FEMesh*,
+			   const Element*,
+			   const Equation*,
+			   const MasterPosition&,
+			   double time,
+			   void*,
+			   SmallSystem*)
+    const
+  {}
 
   // Contributions to the coefficient of the 1st time-deriv of the field.
   // An example of this is heat capacity.
-  virtual void first_time_deriv_matrix(const FEMesh*, const Element*,
-				       const Equation*,
+  virtual void first_time_deriv_matrix(const FEMesh*,
+				       const Element*,
 				       const ElementFuncNodeIterator&,
+				       const Equation*,
 				       const MasterPosition&,
 				       double time,
 				       void*,
 				       SmallSystem*)
-    const {}
+    const
+  {}
 
   // Contributions to the coefficient of the 2nd time-deriv of the field.
   // An example of this is mass density.
-  virtual void second_time_deriv_matrix(const FEMesh*, const Element*,
-					const Equation*,
+  virtual void second_time_deriv_matrix(const FEMesh*,
+					const Element*,
 					const ElementFuncNodeIterator&,
+					const Equation*,
 					const MasterPosition&,
 					double time,
 					void*,
 					SmallSystem*)
-    const {}
+    const
+  {}
 
   // These functions are called from material.C before and after the
   // equation contributions are requested.  If properties have
   // per-evaluation-point expensive operations they want to perform,
   // they should do them in these functions.
-  virtual void* begin_point(const FEMesh*, const Element*,
-			   const Equation*, const MasterPosition&,
-			   double time) const
+  virtual void* begin_point(const FEMesh*,
+			    const Element*,
+			    const Equation*,
+			    const MasterPosition&,
+			    double time)
+    const
   {
     return nullptr;
   }
-  virtual void end_point(const FEMesh*, const Element*,
-			 const Equation*, const MasterPosition&,
-			 double time, void*) const
+  virtual void end_point(const FEMesh*,
+			 const Element*,
+			 const Equation*,
+			 const MasterPosition&,
+			 double time,
+			 void*)
+    const
   {}
   
 }; // end of EqnProperty class definition

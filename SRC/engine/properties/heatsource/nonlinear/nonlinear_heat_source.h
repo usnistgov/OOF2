@@ -56,8 +56,8 @@ public:
   virtual ~NonlinearHeatSource() {}
   virtual void force_deriv_matrix(const FEMesh *mesh,
 				  const Element *el,
-				  const Equation *eqn,
 				  const ElementFuncNodeIterator &j,
+ 				  const Equation *eqn,
 				  const MasterPosition &pt,
 				  double time, void*,
 				  SmallSystem *eqndata ) const;

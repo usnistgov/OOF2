@@ -139,26 +139,36 @@ class PyEqnProperty : public EqnProperty,
 public:
   PyEqnProperty(const std::string &name,  PyObject *regstn, PyObject *referent);
   virtual ~PyEqnProperty();
-  virtual void force_deriv_matrix(const FEMesh*, const Element*,
-				  const Equation*,
+  virtual void force_deriv_matrix(const FEMesh*,
+				  const Element*,
 				  const ElementFuncNodeIterator&,
+				  const Equation*,
 				  const MasterPosition&,
-				  double time, void *localdata,
+				  double time,
+				  void *localdata,
 				  SmallSystem*) const;
-  virtual void force_value(const FEMesh*, const Element*,
-			   const Equation*, const MasterPosition&,
-			   double time, void *localdata, SmallSystem*) const;
-  virtual void first_time_deriv_matrix(const FEMesh*, const Element*,
-				       const Equation*,
+  virtual void force_value(const FEMesh*,
+			   const Element*,
+			   const Equation*,
+			   const MasterPosition&,
+			   double time,
+			   void *localdata,
+			   SmallSystem*) const;
+  virtual void first_time_deriv_matrix(const FEMesh*,
+				       const Element*,
 				       const ElementFuncNodeIterator&,
+				       const Equation*,
 				       const MasterPosition&,
-				       double time, void *localdata,
+				       double time,
+				       void *localdata,
 				       SmallSystem*) const;
-  virtual void second_time_deriv_matrix(const FEMesh*, const Element*,
-					const Equation*,
+  virtual void second_time_deriv_matrix(const FEMesh*,
+					const Element*,
 					const ElementFuncNodeIterator&,
+					const Equation*,
 					const MasterPosition&,
-					double time, void* localdata,
+					double time,
+					void* localdata,
 					SmallSystem*) const;
   virtual void precompute(FEMesh *m) {
     PyPropertyMethods::py_precompute(m);

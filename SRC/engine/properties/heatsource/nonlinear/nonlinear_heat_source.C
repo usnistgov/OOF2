@@ -76,9 +76,9 @@ void NonlinearHeatSourceNoDeriv::force_value(const FEMesh *mesh,
 
 void NonlinearHeatSource::force_deriv_matrix(const FEMesh   *mesh,
 					     const Element  *element,
-					     const Equation *eqn,
 					     const ElementFuncNodeIterator &j,
-					     const MasterPosition &point,
+					     const Equation *eqn,
+ 					     const MasterPosition &point,
 					     double time,
 					     void*,
 					     SmallSystem *eqndata) const

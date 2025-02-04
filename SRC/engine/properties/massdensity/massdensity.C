@@ -27,13 +27,15 @@ void MassDensityProp::precompute(FEMesh *mesh) {
   disp = Field::getField("Displacement");
 }
 
-void MassDensityProp::second_time_deriv_matrix(const FEMesh *mesh,
-					       const Element *lmnt,
-					       const Equation *eqn,
-					       const ElementFuncNodeIterator &eni,
-					       const MasterPosition &mpos,
-					       double time, void*,
-					       SmallSystem *eqdata) const
+void MassDensityProp::second_time_deriv_matrix(
+				       const FEMesh *mesh,
+				       const Element *lmnt,
+				       const ElementFuncNodeIterator &eni,
+				       const Equation *eqn,
+				       const MasterPosition &mpos,
+				       double time,
+				       void*,
+				       SmallSystem *eqdata) const
 {
   double shapeFuncVal = eni.shapefunction(mpos);
   for(IndexP component : *eqn->components()) {

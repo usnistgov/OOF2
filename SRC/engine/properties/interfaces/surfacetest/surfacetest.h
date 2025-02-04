@@ -42,8 +42,8 @@ public:
   
   // Derivatives of the force contributions wrt the DOFs.
   virtual void force_deriv_matrix(const FEMesh *mesh, const Element *element,
-				  const Equation *eqn, 
 				  const ElementFuncNodeIterator&,
+				  const Equation *eqn, 
 				  const MasterPosition &pt,
 				  double time, SmallSystem *eqndata) const;
   

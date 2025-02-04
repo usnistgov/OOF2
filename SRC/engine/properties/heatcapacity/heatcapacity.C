@@ -30,9 +30,9 @@ void HeatCapacityProp::precompute(FEMesh *mesh) {
 void HeatCapacityProp::first_time_deriv_matrix(
 				       const FEMesh *mesh,
 				       const Element *lmnt,
-				       const Equation *eqn,
 				       const ElementFuncNodeIterator &eni,
-				       const MasterPosition &mpos,
+				       const Equation *eqn,
+ 				       const MasterPosition &mpos,
 				       double time,
 				       void*, 
 				       SmallSystem *eqdata) const

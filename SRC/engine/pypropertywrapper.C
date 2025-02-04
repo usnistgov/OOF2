@@ -646,8 +646,8 @@ void PyEqnProperty::end_point(const FEMesh *mesh, const Element *el,
 
 void PyEqnProperty::force_deriv_matrix(const FEMesh *mesh,
 				       const Element *element,
-				       const Equation *eqn,
 				       const ElementFuncNodeIterator &efni,
+				       const Equation *eqn,
 				       const MasterPosition &pt,
 				       double time,
 				       void *localdata,
@@ -656,7 +656,7 @@ void PyEqnProperty::force_deriv_matrix(const FEMesh *mesh,
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "force_deriv_matrix")) {
-    this->EqnProperty::force_deriv_matrix(mesh, element, eqn, efni, pt, time,
+    this->EqnProperty::force_deriv_matrix(mesh, element, efni, eqn, pt, time,
 					  localdata, eqndata);
     return;
   }
@@ -671,8 +671,9 @@ void PyEqnProperty::force_deriv_matrix(const FEMesh *mesh,
     localdata=Py_None;
   PyObject *result = PyObject_CallMethodObjArgs(
 					referent_, method,
-					mesh->getPyMesh(),
-					elp, eqnp, efnip, mpp, timep,
+					mesh->getPyMesh(), elp, efnip,
+					eqnp,
+					mpp, timep,
 					localdata, eqndatap,
 					NULL);
   Py_XDECREF(method);
@@ -733,8 +734,8 @@ void PyEqnProperty::force_value(const FEMesh *mesh,
 
 void PyEqnProperty::first_time_deriv_matrix(const FEMesh *mesh,
 					    const Element *element,
-					    const Equation *eqn,
 					    const ElementFuncNodeIterator &efni,
+					    const Equation *eqn,
 					    const MasterPosition &pt,
 					    double time,
 					    void *localdata,
@@ -743,7 +744,7 @@ void PyEqnProperty::first_time_deriv_matrix(const FEMesh *mesh,
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "first_time_deriv_matrix")) {
-    this->EqnProperty::first_time_deriv_matrix(mesh, element, eqn, efni, pt,
+    this->EqnProperty::first_time_deriv_matrix(mesh, element, efni, eqn, pt,
 					       time, localdata, eqndata);
     return;
   }
@@ -757,7 +758,8 @@ void PyEqnProperty::first_time_deriv_matrix(const FEMesh *mesh,
   if(!localdata)
     localdata = Py_None;
   PyObject *result = PyObject_CallMethodObjArgs(
-	referent_, method, mesh->getPyMesh(), elp, eqnp, efnip, mpp,
+	referent_, method,
+	mesh->getPyMesh(), elp, efnip, eqnp, mpp,
 	timep, localdata, eqndatap, NULL);
   Py_XDECREF(method);
   Py_XDECREF(elp);
@@ -776,8 +778,8 @@ void PyEqnProperty::first_time_deriv_matrix(const FEMesh *mesh,
 void PyEqnProperty::second_time_deriv_matrix(
 				     const FEMesh *mesh,
 				     const Element *element,
-				     const Equation *eqn,
 				     const ElementFuncNodeIterator &efni,
+				     const Equation *eqn,
 				     const MasterPosition &pt,
 				     double time,
 				     void *localdata,
@@ -786,7 +788,7 @@ void PyEqnProperty::second_time_deriv_matrix(
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   if(!PyObject_HasAttrString(referent_, "second_time_deriv_matrix")) {
-    this->EqnProperty::second_time_deriv_matrix(mesh, element, eqn, efni, pt,
+    this->EqnProperty::second_time_deriv_matrix(mesh, element, efni, eqn, pt,
 						time, localdata, eqndata);
     return;
   }
@@ -800,7 +802,7 @@ void PyEqnProperty::second_time_deriv_matrix(
   if(!localdata)
     localdata = Py_None;
   PyObject *result = PyObject_CallMethodObjArgs(
-	referent_, method, mesh->getPyMesh(), elp, eqnp, efnip, mpp, timep,
+	referent_, method, mesh->getPyMesh(), elp, efnip, eqnp, mpp, timep,
 	localdata, eqndatap, NULL);
   Py_XDECREF(method);
   Py_XDECREF(elp);
