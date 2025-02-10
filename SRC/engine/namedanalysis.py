@@ -16,6 +16,7 @@ from ooflib.common import registeredclass
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
+from ooflib.engine import mesh
 from ooflib.engine import meshbdyanalysis
 from ooflib.engine.IO import analyze
 from ooflib.engine.IO import scheduledoutput
@@ -23,8 +24,6 @@ from ooflib.engine.IO import outputdestination
 
 import itertools
 
-_namedAnalyses = {}
-_namedBdyAnalyses = {}
 namelock = lock.SLock()
 
 class _nameResolver:
@@ -39,23 +38,43 @@ class _nameResolver:
             basename = name
         return utils.uniqueName(
             basename,
-            itertools.chain(_namedAnalyses.keys(), _namedBdyAnalyses.keys()))
-
+            itertools.chain(
+                NamedBulkAnalysis.allAnalyses.keys(),
+                NamedBdyAnalysis.allAnalyses.keys()))
+                
 nameResolver = _nameResolver('analysis')
 bdynameResolver = _nameResolver('bdy_analysis')
 
-class NamedBulkAnalysis:
-    def __init__(self, name, operation, data, domain, sampling):
+class NamedAnalysis:
+    def __init__(self, name):
         self.name = name
+        namelock.acquire()
+        try:
+            self.allAnalyses[name] = self
+        finally:
+            namelock.release()
+    def destroy(self):
+        namelock.acquire()
+        # Remove from all OutputSchedules.  Each Mesh has a single
+        # OutputSchedule, which may or may not use this NamedAnalysis.
+        for msh in mesh.meshes.actualMembers():
+            msh.outputSchedule.removeNamedAnalysis(self.name)
+        # Remove from the list of all named analyses.
+        try:
+            del self.allAnalyses[self.name]
+        finally:
+            namelock.release()
+        
+        
+
+class NamedBulkAnalysis(NamedAnalysis):
+    allAnalyses = {}
+    def __init__(self, name, operation, data, domain, sampling):
+        NamedAnalysis.__init__(self, name)
         self.operation = operation
         self.data = data
         self.domain = domain
         self.sampling = sampling
-        namelock.acquire()
-        try:
-            _namedAnalyses[name] = self
-        finally:
-            namelock.release()
     def start(self, meshcontext, time, continuing):
         self.domain.set_mesh(meshcontext.path())
         self.sampling.make_samples(self.domain)
@@ -75,23 +94,12 @@ class NamedBulkAnalysis:
         analyzemenu.printBulkHeaders(destination, self.operation, self.data,
                                      self.domain, self.sampling)
 
-    def destroy(self):
-        namelock.acquire()
-        try:
-            del _namedAnalyses[self.name]
-        finally:
-            namelock.release()
-
-class NamedBdyAnalysis:
+class NamedBdyAnalysis(NamedAnalysis):
+    allAnalyses = {}
     def __init__(self, name, boundary, analyzer):
-        self.name = name
+        NamedAnalysis.__init__(self, name)
         self.boundary = boundary
         self.analyzer = analyzer
-        namelock.acquire()
-        try:
-            _namedBdyAnalyses[name] = self
-        finally:
-            namelock.release()
     def start(self, meshcontext, time, continuing):
         pass
     def perform(self, namedoutput, meshcontext, time, destination):
@@ -100,35 +108,29 @@ class NamedBdyAnalysis:
         pass
     def printHeaders(self, destination):
         self.analyzer.printHeaders(destination, self.boundary)
-    def destroy(self):
-        namelock.acquire()
-        try:
-            del _namedBdyAnalyses[self.name]
-        finally:
-            namelock.release()
 
 def getNamedBulkAnalysis(name):
-    return _namedAnalyses[name]
+    return NamedBulkAnalysis.allAnalyses[name]
 
 def getNamedBdyAnalysis(name):
-    return _namedBdyAnalyses[name]
+    return NamedBdyAnalysis.allAnalyses[name]
 
 def getNamedAnalysis(name):
     try:
-        return _namedAnalyses[name]
+        return NamedBulkAnalysis.allAnalyses[name]
     except KeyError:
-        return _namedBdyAnalyses[name]
+        return NamedBdyAnalysis.allAnalyses[name]
 
 def bulkAnalysisNames():
-    return list(_namedAnalyses.keys())
+    return list(NamedBulkAnalysis.allAnalyses.keys())
 
 def bdyAnalysisNames():
-    return list(_namedBdyAnalyses.keys())
+    return list(NamedBdyAnalysis.allAnalyses.keys())
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def findNamedBulkAnalysis(operation, data, domain, sampling):
-    for name, analysis in _namedAnalyses.items():
+    for name, analysis in NamedBulkAnalysis.allAnalyses.items():
         if (analysis.operation == operation and
             analysis.data == data and
             analysis.domain == domain and
@@ -137,7 +139,7 @@ def findNamedBulkAnalysis(operation, data, domain, sampling):
     return None
 
 def findNamedBdyAnalysis(boundary, analyzer):
-    for name, analysis in _namedBdyAnalyses.items():
+    for name, analysis in NamedBdyAnalysis.allAnalyses.items():
         if (analysis.boundary == boundary and
             analysis.analyzer == analyzer):
             return name

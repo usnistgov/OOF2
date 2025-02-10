@@ -8,7 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import enum
@@ -307,6 +306,11 @@ class OutputSchedule:
         self.conditionalOutputs = utils.OrderedSet()
         self.nexttime = None
         self.finished = set()
+    def removeNamedAnalysis(self, name):
+        for i in range(len(self.outputs)):
+            if outputs[i].name() == name:
+                del self.outputs[i]
+                return
     def add(self, name, output): 
         output.setName(name)
         self.outputs.append(output)
