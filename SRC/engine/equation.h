@@ -119,6 +119,10 @@ public:
 
   virtual bool allow_boundary_conditions() const = 0;
 
+  friend bool operator==(const Equation&, const Equation&);
+  friend bool operator!=(const Equation&, const Equation&);
+
+
   // Stuff required by fieldeqnlist.h
   typedef FieldEqnData FEData;	// just use base class from fieldeqnlist.h
   class FindAllEquationWrappers {

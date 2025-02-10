@@ -20,6 +20,7 @@ class IsotropicDampingProp : public EqnProperty {
 private:
   double coeff;
   Field *displacement;
+  Equation *force_balance;
 public:
   IsotropicDampingProp(const std::string&, PyObject*, double);
   virtual ~IsotropicDampingProp() {}

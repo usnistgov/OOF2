@@ -82,6 +82,14 @@ FluxEquation::FluxEquation(const std::string &nm, Flux &flx, int d)
   fflux->addEquation(this);
 }
 
+bool operator==(const Equation &equationa, const Equation &equationb) {
+  return equationa.index_ == equationb.index_;
+}
+
+bool operator!=(const Equation &equationa, const Equation &equationb) {
+  return equationa.index_ != equationb.index_;
+}
+
 // position of a given component in the eqn lists in the nodes
 
 int Equation::localindex(const FuncNode &node, const FieldIndex &component)
@@ -121,8 +129,6 @@ const std::string &FluxEquation::fluxname() const {
 const Flux *FluxEquation::flux() const {
   return fflux;
 }
-
-
 
 SmallSystem *Equation::initializeSystem(const Element *e) {
   return new SmallSystem(dim_, e->ndof());

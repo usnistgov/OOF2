@@ -26,6 +26,7 @@ IsotropicDampingProp::IsotropicDampingProp(const std::string &name,
 
 void IsotropicDampingProp::precompute(FEMesh *mesh) {
   displacement = Field::getField("Displacement");
+  force_balance = Equation::getEquation("Force_Balance");
 }
 
 void IsotropicDampingProp::first_time_deriv_matrix(
@@ -39,6 +40,9 @@ void IsotropicDampingProp::first_time_deriv_matrix(
 					   SmallSystem *eqndata)
   const
 {
+  // TODO: Check the check.   Are there any tests that use this property?
+  if(*eqn != *force_balance)
+    throw ErrProgrammingError("Unexpected equation!", __FILE__, __LINE__);
   double shapeFuncVal = eni.shapefunction(mpos);
   for(IndexP ell : *displacement->components(IN_PLANE)) {
     for(IndexP eqncomp : *eqn->components()) {
