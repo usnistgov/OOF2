@@ -29,7 +29,7 @@ void IsotropicDampingProp::precompute(FEMesh *mesh) {
   force_balance = Equation::getEquation("Force_Balance");
 }
 
-void IsotropicDampingProp::first_time_deriv_matrix(
+void IsotropicDampingProp::time_deriv_matrices(
 					   const FEMesh *mesh,
 					   const Element *lmnt,
 					   const ElementFuncNodeIterator &eni,

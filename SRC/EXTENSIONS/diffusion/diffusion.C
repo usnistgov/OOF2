@@ -124,13 +124,13 @@ void Diffusion::flux_matrix(const FEMesh  *mesh,
   }
 } // end of 'Diffusion::flux_matrix'
 
-void Mobility::first_time_deriv_matrix(const FEMesh *mesh,
-				       const Element *lmnt,
-				       const ElementFuncNodeIterator &eni,
-				       const Equation *eqn,
-				       const MasterPosition &mpos,
-				       double time, void*,
-				       SmallSystem *eqdata) const {
+void Mobility::time_deriv_matrices(const FEMesh *mesh,
+				    const Element *lmnt,
+				    const ElementFuncNodeIterator &eni,
+				    const Equation *eqn,
+				    const MasterPosition &mpos,
+				    double time, void*,
+				    SmallSystem *eqdata) const {
 
   double shapeFuncVal = eni.shapefunction( mpos );
   for(IndexP eqncomp : *eqn->components()) {

@@ -154,22 +154,14 @@ public:
 			   double time,
 			   void *localdata,
 			   SmallSystem*) const;
-  virtual void first_time_deriv_matrix(const FEMesh*,
-				       const Element*,
-				       const ElementFuncNodeIterator&,
-				       const Equation*,
-				       const MasterPosition&,
-				       double time,
-				       void *localdata,
-				       SmallSystem*) const;
-  virtual void second_time_deriv_matrix(const FEMesh*,
-					const Element*,
-					const ElementFuncNodeIterator&,
-					const Equation*,
-					const MasterPosition&,
-					double time,
-					void* localdata,
-					SmallSystem*) const;
+  virtual void time_deriv_matrices(const FEMesh*,
+				   const Element*,
+				   const ElementFuncNodeIterator&,
+				   const Equation*,
+				   const MasterPosition&,
+				   double time,
+				   void *localdata,
+				   SmallSystem*) const;
   virtual void precompute(FEMesh *m) {
     PyPropertyMethods::py_precompute(m);
   }

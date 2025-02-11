@@ -84,13 +84,13 @@ private:
 class Mobility : public EqnProperty {
 public:
   Mobility(PyObject *registry, const std::string &name);
-  virtual void first_time_deriv_matrix(const FEMesh*, const Element*,
-				       const ElementFuncNodeIterator&,
-				       const Equation*, 
-				       const MasterPosition&,
-				       double time,
-				       void*,
-				       SmallSystem *) const;
+  virtual void time_deriv_matrices(const FEMesh*, const Element*,
+				   const ElementFuncNodeIterator&,
+				   const Equation*, 
+				   const MasterPosition&,
+				   double time,
+				   void*,
+				   SmallSystem *) const;
   virtual void cross_reference(Material*) {}
   virtual int integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return true; }

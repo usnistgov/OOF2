@@ -27,7 +27,7 @@ void MassDensityProp::precompute(FEMesh *mesh) {
   disp = Field::getField("Displacement");
 }
 
-void MassDensityProp::second_time_deriv_matrix(
+void MassDensityProp::time_deriv_matrices(
 				       const FEMesh *mesh,
 				       const Element *lmnt,
 				       const ElementFuncNodeIterator &eni,

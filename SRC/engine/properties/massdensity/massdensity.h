@@ -31,14 +31,14 @@ public:
   MassDensityProp(const std::string&, PyObject *, double);
   virtual ~MassDensityProp() {}
   virtual void precompute(FEMesh*);
-  virtual void second_time_deriv_matrix(const FEMesh*,
-					const Element*,
-					const ElementFuncNodeIterator&,
-					const Equation*,
-					const MasterPosition&,
-					double time,
-					void*,
-					SmallSystem*) const;
+  virtual void time_deriv_matrices(const FEMesh*,
+				   const Element*,
+				   const ElementFuncNodeIterator&,
+				   const Equation*,
+				   const MasterPosition&,
+				   double time,
+				   void*,
+				   SmallSystem*) const;
   virtual int integration_order(const CSubProblem*, const Element*) const;
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);

@@ -27,7 +27,7 @@ void HeatCapacityProp::precompute(FEMesh *mesh) {
   temperature = Field::getField("Temperature");
 }
 
-void HeatCapacityProp::first_time_deriv_matrix(
+void HeatCapacityProp::time_deriv_matrices(
 				       const FEMesh *mesh,
 				       const Element *lmnt,
 				       const ElementFuncNodeIterator &eni,

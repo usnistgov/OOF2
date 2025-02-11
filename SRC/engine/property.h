@@ -83,8 +83,7 @@ class SmallSystem;
 // functions:
 //  - force_value
 //  - force_deriv_matrix
-//  - first_time_deriv_matrix
-//  - second_time_deriv_matrix
+//  - time_deriv_matrices
 // The default definitions of the EqnProperty methods are no-ops, but
 // some must be redefined for a EqnProperty to be useful.
 //
@@ -389,29 +388,17 @@ public:
     const
   {}
 
-  // Contributions to the coefficient of the 1st time-deriv of the field.
-  // An example of this is heat capacity.
-  virtual void first_time_deriv_matrix(const FEMesh*,
-				       const Element*,
-				       const ElementFuncNodeIterator&,
-				       const Equation*,
-				       const MasterPosition&,
-				       double time,
-				       void*,
-				       SmallSystem*)
-    const
-  {}
-
-  // Contributions to the coefficient of the 2nd time-deriv of the field.
-  // An example of this is mass density.
-  virtual void second_time_deriv_matrix(const FEMesh*,
-					const Element*,
-					const ElementFuncNodeIterator&,
-					const Equation*,
-					const MasterPosition&,
-					double time,
-					void*,
-					SmallSystem*)
+  // Contributions to the coefficient of the 1st and 2nd time
+  // derivatives of the field.  Examples are heat capacity (1st
+  // derivative) and mass density (2nd derivative).
+  virtual void time_deriv_matrices(const FEMesh*,
+				   const Element*,
+				   const ElementFuncNodeIterator&,
+				   const Equation*,
+				   const MasterPosition&,
+				   double time,
+				   void*,
+				   SmallSystem*)
     const
   {}
 

@@ -732,23 +732,23 @@ void PyEqnProperty::force_value(const FEMesh *mesh,
 
 //=\\=//=\\=//
 
-void PyEqnProperty::first_time_deriv_matrix(const FEMesh *mesh,
-					    const Element *element,
-					    const ElementFuncNodeIterator &efni,
-					    const Equation *eqn,
-					    const MasterPosition &pt,
-					    double time,
-					    void *localdata,
-					    SmallSystem *eqndata)
+void PyEqnProperty::time_deriv_matrices(const FEMesh *mesh,
+					const Element *element,
+					const ElementFuncNodeIterator &efni,
+					const Equation *eqn,
+					const MasterPosition &pt,
+					double time,
+					void *localdata,
+					SmallSystem *eqndata)
   const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
-  if(!PyObject_HasAttrString(referent_, "first_time_deriv_matrix")) {
-    this->EqnProperty::first_time_deriv_matrix(mesh, element, efni, eqn, pt,
-					       time, localdata, eqndata);
+  if(!PyObject_HasAttrString(referent_, "time_deriv_matrices")) {
+    this->EqnProperty::time_deriv_matrices(mesh, element, efni, eqn, pt,
+					   time, localdata, eqndata);
     return;
   }
-  PyObject *method = PyUnicode_FromString("first_time_deriv_matrix");
+  PyObject *method = PyUnicode_FromString("time_deriv_matrices");
   PyObject *elp = NEWSWIGPTR(element, "Element");
   PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
   PyObject *efnip = NEWSWIGPTR(&efni, "ElementFuncNodeIterator");
@@ -761,49 +761,6 @@ void PyEqnProperty::first_time_deriv_matrix(const FEMesh *mesh,
 	referent_, method,
 	mesh->getPyMesh(), elp, efnip, eqnp, mpp,
 	timep, localdata, eqndatap, NULL);
-  Py_XDECREF(method);
-  Py_XDECREF(elp);
-  Py_XDECREF(eqnp);
-  Py_XDECREF(efnip);
-  Py_XDECREF(mpp);
-  Py_XDECREF(timep);
-  Py_XDECREF(eqndatap);
-  if(result == NULL)
-    pythonErrorRelay();
-  Py_XDECREF(result);
-}
-
-//=\\=//=\\=//
-
-void PyEqnProperty::second_time_deriv_matrix(
-				     const FEMesh *mesh,
-				     const Element *element,
-				     const ElementFuncNodeIterator &efni,
-				     const Equation *eqn,
-				     const MasterPosition &pt,
-				     double time,
-				     void *localdata,
-				     SmallSystem *eqndata)
-  const
-{
-  PYTHON_THREAD_BEGIN_BLOCK;
-  if(!PyObject_HasAttrString(referent_, "second_time_deriv_matrix")) {
-    this->EqnProperty::second_time_deriv_matrix(mesh, element, efni, eqn, pt,
-						time, localdata, eqndata);
-    return;
-  }
-  PyObject *method = PyUnicode_FromString("second_time_deriv_matrix");
-  PyObject *elp = NEWSWIGPTR(element, "Element");
-  PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
-  PyObject *efnip = NEWSWIGPTR(&efni, "ElementFuncNodeIterator");
-  PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
-  PyObject *timep = PyFloat_FromDouble(time);
-  PyObject *eqndatap = NEWSWIGPTR(eqndata, "SmallSystem");
-  if(!localdata)
-    localdata = Py_None;
-  PyObject *result = PyObject_CallMethodObjArgs(
-	referent_, method, mesh->getPyMesh(), elp, efnip, eqnp, mpp, timep,
-	localdata, eqndatap, NULL);
   Py_XDECREF(method);
   Py_XDECREF(elp);
   Py_XDECREF(eqnp);
