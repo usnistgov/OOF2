@@ -31,8 +31,8 @@ void IsotropicDampingProp::precompute(FEMesh *mesh) {
 
 void IsotropicDampingProp::time_deriv_matrices(
 					   const FEMesh *mesh,
-					   const Element *lmnt,
-					   const ElementFuncNodeIterator &eni,
+					   const Element *element,
+					   const ElementFuncNodeIterator &node,
 					   const Equation *eqn,
 					   const MasterPosition &mpos,
 					   double time,
@@ -43,12 +43,10 @@ void IsotropicDampingProp::time_deriv_matrices(
   // TODO: Check the check.   Are there any tests that use this property?
   if(*eqn != *force_balance)
     throw ErrProgrammingError("Unexpected equation!", __FILE__, __LINE__);
-  double shapeFuncVal = eni.shapefunction(mpos);
-  for(IndexP ell : *displacement->components(IN_PLANE)) {
-    for(IndexP eqncomp : *eqn->components()) {
-      eqndata->damping_matrix_element(eqncomp, displacement, ell, eni)
-	+= coeff * shapeFuncVal;
-    }
+  double shapeFuncVal = node.shapefunction(mpos);
+  for(IndexP component : *eqn->components()) {
+    eqndata->damping_matrix_element(component, displacement, component, node)
+      += coeff*shapeFuncVal;
   }
 }
 

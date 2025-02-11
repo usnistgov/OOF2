@@ -19,7 +19,7 @@ OOF2 2.3.4
 * Added StrainRate outputs.
 
 * Time-dependent meshes now store time derivative data for all fields,
-  which will increase memory requirements and data file sizes in same
+  which will increase memory requirements and data file sizes in some
   cases.
 
 * Added a "Time" output, which when concatenated with other outputs
@@ -32,6 +32,9 @@ OOF2 2.3.4
 * Added the GMRES matrix solver.  It had been removed when we started
   using the Eigen linear algebra package.  This version is provided
   by the "unsupported" code distributed with Eigen.
+
+* Fixed the isotropic damping property.  It had been including
+  off-diagonal terms.  It's not physical but ought to be correct.
 
 OOF2 2.3.3
 
