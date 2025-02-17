@@ -920,8 +920,9 @@ def _copyFieldInits(menuitem, source, target):
                     pass
                 else:
                     if isinstance(targetbc, bdycondition.FloatBC):
-                        how, value = initializer
-                        target_mesh.set_floatbc_initializer(bcname, how, value)
+                        target_mesh.set_bc_initializer(bcname, initializer)
+                        # how, value = initializer
+                        # target_mesh.set_floatbc_initializer(bcname, how, value)
         
     finally:
         source_mesh.end_reading()
