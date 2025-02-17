@@ -71,6 +71,9 @@ Interrupting Mesh construction leads to
 
 Add Progress bars inside Eigen iterative solvers, if possible.
 
+Is the new "time" output documented?
+
+Pipe output directly to matplotlib.  Can it go to an oof2 subwindow?
 
 THINGS TO FIX IN TUTORIALS
 
@@ -81,6 +84,3 @@ Also, the example may be too fast to bring up the activity viewer.
 Basics/Error Handling -- continued:  Should tell the user to click "OK".
 
 
-TODOs from the store-time-derivatives branch:
-
-Is the new "time" output documented?
