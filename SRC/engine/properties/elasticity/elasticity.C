@@ -41,8 +41,8 @@ int Elasticity::integration_order(const CSubProblem *subp, const Element *el)
   const
 {
   if(displacement->in_plane(subp))
-    return 2*el->dshapefun_degree();
-  return el->shapefun_degree() + el->dshapefun_degree();
+    return el->dshapefun_degree();
+  return el->shapefun_degree();
 }
 
 // If flux_value isn't defined in a derived class, the base

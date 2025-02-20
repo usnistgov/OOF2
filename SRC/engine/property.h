@@ -241,7 +241,11 @@ public:
     : Property(nm, registration)
   {}
   // this function returns the polynomial order (in x and y) of the
-  // quantity computed by flux_matrix.
+  // quantity computed the Property when making its contributions to
+  // the linear system (eg, from FluxProperty::flux_matrix() or
+  // EqnProperty::force_deriv_matrix().  It generally depends on the
+  // order of shape functions.  It should *not* include factors that
+  // come from the Equation in which the Property is used.
   virtual int integration_order(const CSubProblem*, const Element*) const = 0;
 };
 

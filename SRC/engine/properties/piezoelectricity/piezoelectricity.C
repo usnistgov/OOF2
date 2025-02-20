@@ -52,8 +52,8 @@ int PiezoElectricity::integration_order(const CSubProblem *subproblem,
   const
 {
   if(displacement->in_plane(subproblem))
-    return 2*el->dshapefun_degree();
-  return el->shapefun_degree() + el->dshapefun_degree();
+    return el->dshapefun_degree();
+  return el->shapefun_degree();
 }
 
 void PiezoElectricity::flux_matrix(const FEMesh *mesh,

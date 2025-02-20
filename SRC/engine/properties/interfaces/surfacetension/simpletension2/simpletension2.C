@@ -32,7 +32,7 @@ SimpleTension2::SimpleTension2(const std::string &nm, PyObject *reg,
 int SimpleTension2::integration_order(const CSubProblem*, const Element *el)
   const
 {
-  return 2*el->dshapefun_degree();
+  return 0;		    // TODO INTERFACE: this is probably wrong.
 }
 
 // TODO TDEP: This needs to be checked to make sure it still does the

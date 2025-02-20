@@ -47,8 +47,8 @@ int GeneralNonlinearElasticityNoDeriv::integration_order(
 						 const Element *el) const
 {
   if(displacement->in_plane(subp))
-    return 2*el->dshapefun_degree();
-  return el->shapefun_degree() + el->dshapefun_degree();
+    return el->dshapefun_degree();
+  return el->shapefun_degree();
 }
 
 

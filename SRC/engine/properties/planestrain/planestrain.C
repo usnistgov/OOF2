@@ -31,7 +31,7 @@ PlaneStrain::PlaneStrain(const std::string &nm, PyObject *reg, double ezz)
 }
 
 int PlaneStrain::integration_order(const CSubProblem*, const Element*el) const {
-  return el->dshapefun_degree();
+  return 0; 
 }
 
 void PlaneStrain::cross_reference(Material *mat) {

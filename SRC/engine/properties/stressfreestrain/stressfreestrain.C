@@ -32,7 +32,7 @@ StressFreeStrain::StressFreeStrain(const std::string &nm, PyObject *reg)
 int StressFreeStrain::integration_order(const CSubProblem*, const Element *el)
   const
 {
-  return el->dshapefun_degree();
+  return 0;
 }
 
 void StressFreeStrain::flux_offset(const FEMesh *mesh, const Element *element,

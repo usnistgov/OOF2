@@ -97,8 +97,8 @@ int PyroElectricity::integration_order(const CSubProblem *subp,
   const
 {
   if(temperature->in_plane(subp))
-    return 2*el->dshapefun_degree(); 
-  return el->shapefun_degree() + el->dshapefun_degree();
+    return el->dshapefun_degree(); 
+  return el->shapefun_degree();
 }
 
 

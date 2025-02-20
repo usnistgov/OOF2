@@ -37,7 +37,7 @@ ForceDensity::ForceDensity(const std::string &nm, PyObject *reg,
 
 int ForceDensity::integration_order(const CSubProblem*, const Element *el) const
 {
-  return el->shapefun_degree();
+  return 0;
 }
 
 void ForceDensity::force_value(const FEMesh *mesh, const Element *element,

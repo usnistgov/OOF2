@@ -46,7 +46,7 @@ void MassDensityProp::time_deriv_matrices(
 
 int MassDensityProp::integration_order(const CSubProblem* subp,
 				       const Element *el) const {
-  return 2*el->shapefun_degree();
+  return el->shapefun_degree();
 }
 
 void MassDensityProp::output(FEMesh *mesh,

@@ -41,7 +41,7 @@ HeatSourceProp::HeatSourceProp(const std::string &name, PyObject *reg,
 int HeatSourceProp::integration_order(const CSubProblem*, const Element *el)
   const
 {
-  return el->shapefun_degree();
+  return 0;
 }
 
 

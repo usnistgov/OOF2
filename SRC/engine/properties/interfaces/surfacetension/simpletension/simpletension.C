@@ -31,7 +31,7 @@ SimpleTension::SimpleTension(const std::string &nm, PyObject *reg,
 int SimpleTension::integration_order(const CSubProblem*, 
 				     const Element *el) const
 {
-  return 2*el->dshapefun_degree(); // TODO: check this
+  return 0;		    // TODO INTERFACE: this is probably wrong.
 }
 
 // InterfaceElements can have split nodes.  The InterfaceElement class
