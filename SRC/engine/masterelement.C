@@ -222,59 +222,128 @@ int MasterElement::ngauss_sets() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+// TODO: Add quadrature tests to the test suite.
+
 const GaussPtTable &TriangularMaster::gausspointtable(int deg) const {
   return gptable(deg);
 }
 
+// Gauss points for a triangle are from "High Degree Efficient
+// Symmetrical Gaussian Quadrature Rules for the Triangle",
+// D.A. Dunavant, International Journal for Numerical Methods in
+// Engineering, vol 21, 1129, (1985).
+// https://www2.karlin.mff.cuni.cz/~knobloch/FILES/MKP_20_21/g_quadr.pdf
+
+static void mktable(GaussPtTable &gptable, double weight,
+		    double alpha, double beta, double gamma)
+
+{
+  // Given the values from Dunavant's Appendix II, construct the
+  // actual gauss points.  The arguments to mktable are the same as
+  // the values in Dunavant, so it's possible to copy and paste lines
+  // from the paper.  Each line from the paper corresponds to one
+  // call to mktable.
+  
+  // The weights in the table don't account for the area of the
+  // triangle, so we have to divide by 2, since our master triangle
+  // has area 1/2.
+
+  // alpha, beta, and gamma are the barycentric coordinates of the
+  // gauss point in the element. All unique permutations of them are
+  // also reference points.  Because of the shape of our master
+  // element, the (x, y) coordinates of (alpha, beta, gamma) are just
+  // (alpha, beta).
+
+  if(alpha == beta && beta == gamma) {
+    assert(alpha == 1./3 && weight = 1.);
+    gptable.addpoint(MasterCoord(alpha, beta), 0.5);
+  }
+  else if(alpha == beta) {
+    gptable.addpoint(MasterCoord(alpha, gamma), 0.5*weight);
+    gptable.addpoint(MasterCoord(gamma, alpha), 0.5*weight);
+    gptable.addpoint(MasterCoord(alpha, alpha), 0.5*weight);
+  }
+  else if(beta == gamma) {
+    gptable.addpoint(MasterCoord(alpha, beta), 0.5*weight);
+    gptable.addpoint(MasterCoord(beta, alpha), 0.5*weight);
+    gptable.addpoint(MasterCoord(beta, beta), 0.5*weight);
+  }
+  else if(alpha == gamma) {
+    gptable.addpoint(MasterCoord(alpha, beta), 0.5*weight);
+    gptable.addpoint(MasterCoord(beta, alpha), 0.5*weight);
+    gptable.addpoint(MasterCoord(alpha, alpha), 0.5*weight);
+  }
+  else {
+    gptable.addpoint(MasterCoord(alpha, beta), 0.5*weight);
+    gptable.addpoint(MasterCoord(beta, alpha), 0.5*weight);
+    gptable.addpoint(MasterCoord(alpha, gamma), 0.5*weight);
+    gptable.addpoint(MasterCoord(gamma, alpha), 0.5*weight);
+    gptable.addpoint(MasterCoord(beta, gamma), 0.5*weight);
+    gptable.addpoint(MasterCoord(gamma, beta), 0.5*weight);
+  }
+}
+
 const std::vector<GaussPtTable> &TriangularMaster::gptable_vec() const {
   static std::vector<GaussPtTable> table;
-  static bool set = 0;
+  static bool set = false;
   if(!set) {
-    set = 1;
+    set = true;
 
-    // Gauss points for a triangle are from "High Degree Efficient
-    // Symmetrical Gaussian Quadrature Rules for the Triangle",
-    // D.A. Dunavant, International Journal for Numerical Methods in
-    // Engineering, vol 21, 1129, (1985).  The weights given there
-    // don't include the factor of the area of the triangle, so the
-    // weights used here all have an additional factor of 0.5.
-
-     // order = 0, npts = 1
+    // order = 0, npts = 1
+    // 1.000000000000000 0.333333333333333 0.333333333333333 0.333333333333333
     table.push_back(GaussPtTable(0, 1));
-    table[0].addpoint(MasterCoord(1./3., 1./3.), 0.5);
+    mktable(table[0], 1.0, 1./3., 1./3., 1./3.);
 
-     // order = 1, npts = 1
+    // order = 1, npts = 1
+    // 1.000000000000000 0.333333333333333 0.333333333333333 0.333333333333333
     table.push_back(GaussPtTable(1, 1));
-    table[1].addpoint(MasterCoord(1./3., 1./3.), 0.5);
+    mktable(table[1], 1.0, 1./3., 1./3., 1./3.);
 
-     // order = 2, npts = 3
+    // order = 2, npts = 3
+    // 0.333333333333333 0.666666666666667 0.166666666666667 0.166666666666667
     table.push_back(GaussPtTable(2, 3));
-    table[2].addpoint(MasterCoord(2./3., 1./6.), 1./6.);
-    table[2].addpoint(MasterCoord(1./6., 2./3.), 1./6.);
-    table[2].addpoint(MasterCoord(1./6., 1./6.), 1./6.);
+    mktable(table[2], 1./3., 2./3, 1./6., 1./6.);
 
     // order = 3, npts = 4
+    // -0.562500000000000 0.333333333333333 0,333333333333333 0.333333333333333
+    //  0.520833333333333 0.600000000000000 0.200000000000000 0.200000000000000
     table.push_back(GaussPtTable(3, 4));
-    table[3].addpoint(MasterCoord(1./3., 1./3.), -0.5*0.5625);
-    table[3].addpoint(MasterCoord(0.6, 0.2), 0.5*25./48.);
-    table[3].addpoint(MasterCoord(0.2, 0.6), 0.5*25./48.);
-    table[3].addpoint(MasterCoord(0.2, 0.2), 0.5*25./48.);
+    mktable(table[3], -0.5625, 1./3., 1./3., 1./3.);
+    mktable(table[3], 25./48., 0.6, 0.2, 0.2);
 
     // order = 4, npts = 6
+    // 0.223381589678011 0.108103018168070 0.445948490915965 0.445948490915965
+    // 0.109951743655322 0.816847572980459 0.091576213509771 0.091576213509771
     table.push_back(GaussPtTable(4, 6));
-    table[4].addpoint(MasterCoord(0.108103018168070, 0.445948490915965),
-		      0.5*0.223381589678011);
-    table[4].addpoint(MasterCoord(0.445948490915965, 0.108103018168070),
-		      0.5*0.223381589678011);
-    table[4].addpoint(MasterCoord(0.445948490915965, 0.445948490915965),
-		      0.5*0.223381589678011);
-    table[4].addpoint(MasterCoord(0.816847572980459, 0.091576213509771),
-		      0.5*0.109951743655322);
-    table[4].addpoint(MasterCoord(0.091576213509771, 0.816847572980459),
-		      0.5*0.109951743655322);
-    table[4].addpoint(MasterCoord(0.091576213509771, 0.091576213509771),
-		      0.5*0.109951743655322);
+    mktable(table[4], 0.223381589678011,
+	    0.108103018168070, 0.445948490915965, 0.445948490915965);
+    mktable(table[4], 0.109951743655322,
+	    0.816847572980459, 0.091576213509771, 0.091576213509771);
+
+    // order = 5, npts = 7
+    // 0.225000000000000 0.333333333333333 0.333333333333333 0.333333333333333
+    // 0.132394152788506 0.059715871789770 0.470142064105115 0.470142064105115
+    // 0.125939180544827 0.797426985353087 0.101286507323456 0.101286507323456
+    table.push_back(GaussPtTable(5, 7));
+    mktable(table[5], 0.225000000000000, 1./3., 1./3., 1./3.);
+    mktable(table[5], 0.132394152788506,
+	    0.059715871789770, 0.470142064105115, 0.470142064105115);
+    mktable(table[5], 0.125939180544827, 
+	    0.797426985353087, 0.101286507323456, 0.101286507323456);
+
+    // order=6, npts=12
+    // 0.116786275726379 0.501426509658179 0.249286745170910 0.249286745170910
+    // 0.050844906370207 0.873821971016996 0.063089014491502 0.063089014491502
+    // 0.082851075618374 0.053145049844817 0.310352451033784 0.636502499121399
+    table.push_back(GaussPtTable(6, 12));
+    mktable(table[6], 0.116786275726379,
+	    0.501426509658179, 0.249286745170910, 0.249286745170910);
+    mktable(table[6], 0.050844906370207,
+	    0.873821971016996, 0.063089014491502, 0.0630890144915020);
+    mktable(table[6], 0.082851075618374,
+	    0.053145049844817, 0.310352451033784, 0.636502499121399);
   }
+
   return table;
 }
 

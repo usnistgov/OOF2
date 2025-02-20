@@ -148,6 +148,7 @@ void Element::make_linear_system(const CSubProblem *const subproblem,
     // careful profiling before changing anything.  Preliminary tests
     // indicate that the time spent computing iorder is negligible.
     int iorder = mat->integrationOrder(subproblem, this);
+    std::cerr << "Element::make_linear_system: iorder=" << iorder << std::endl;
 
     // TODO OPT MAYBE: Use different integration orders for different
     // equations and properties.  That might make precomputations

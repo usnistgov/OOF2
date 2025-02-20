@@ -322,6 +322,7 @@ int Material::integrationOrder(const CSubProblem *subproblem,
   for(std::vector<Flux*>::const_iterator fluxi = active_fluxes.begin();
       fluxi != active_fluxes.end(); ++fluxi)
     {
+      std::cerr << "Material::integrationOrder: flux=" << **fluxi << std::endl;
       FluxPropMap::const_iterator stupid = fluxpropmap.find(*fluxi);
       const FluxPropList &flux_prop_list = (*stupid).second;
       const Flux *flux = (*stupid).first;
@@ -330,12 +331,17 @@ int Material::integrationOrder(const CSubProblem *subproblem,
       for(std::vector<Equation*>::const_iterator eqn=flux->getEqnList().begin();
 	  eqn!=flux->getEqnList().end(); ++eqn)
 	{
+	  std::cerr << "Material::integrationOrder:  eqn=" << **eqn << std::endl;
 
 	  for(FluxPropList::const_iterator property = flux_prop_list.begin();
 	      property != flux_prop_list.end(); ++property)
 	    {
 	      int order = (*property)->integration_order(subproblem, element) +
 		(*eqn)->integration_order(element);
+	      std::cerr << "Material::integrationOrder:    prop="
+			<< **property << " order=" << order
+			<< std::endl;
+
 	      if(order > maxorder)
 		maxorder = order;
 	    }
@@ -345,6 +351,7 @@ int Material::integrationOrder(const CSubProblem *subproblem,
   for(std::vector<Equation*>::const_iterator eqn=active_eqns.begin();
       eqn != active_eqns.end(); ++eqn)
     {
+      std::cerr << "Material::integrationOrder: eqn=" << **eqn << std::endl;
       EqnPropMap::const_iterator stupid = eqnpropmap.find(*eqn);
       const EqnPropList &proplist = (*stupid).second;
       for(std::vector<EqnProperty*>::const_iterator property=proplist.begin();
@@ -352,6 +359,8 @@ int Material::integrationOrder(const CSubProblem *subproblem,
 	{
 	  int order = (*property)->integration_order(subproblem, element) +
 	    (*eqn)->integration_order(element);
+	  std::cerr << "Material::integration_order:   prop=" << **property
+		    << " order=" << order << std::endl;
 	  if(order > maxorder)
 	    maxorder = order;
 	}
