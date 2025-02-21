@@ -11,8 +11,8 @@
 
 // Eight node quadrilateral element
 
-// This file is currently not loaded.  See comments in quad8_4.spy,
-// and commented-out lines in DIR.py and initialize.py.
+// This file is currently not loaded.  See comments in quad8_4.swg,
+// and commented-out lines in CMakeLists.txt and initialize.py.
 
 #include <oofconfig.h>
 #include "engine/masterelement.h"

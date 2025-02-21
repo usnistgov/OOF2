@@ -14,7 +14,7 @@ if config.dimension() == 2:
     import ooflib.SWIG.engine.elements.quad4
     import ooflib.SWIG.engine.elements.quad4_8
     import ooflib.SWIG.engine.elements.quad8
-#     import ooflib.SWIG.engine.elements.quad8_4 # see quad8_4.spy
+#     import ooflib.SWIG.engine.elements.quad8_4 # see quad8_4.swg
     import ooflib.SWIG.engine.elements.quad9
     import ooflib.SWIG.engine.elements.tri3
     import ooflib.SWIG.engine.elements.tri3_6

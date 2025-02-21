@@ -21,7 +21,7 @@ target_sources(oof2engine
   quad4shapefunction.C
   quad4shapefunction.h
   quad8.C
-  quad8_4.C
+  #quad8_4.C
   quad8shapefunction.C
   quad8shapefunction.h
   quad9.C
@@ -41,7 +41,7 @@ oof_swig_sources(
   quad4
   quad4_8
   quad8
-  quad8_4
+  #quad8_4
   quad9
   tri3
   tri3_6
