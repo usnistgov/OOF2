@@ -51,23 +51,18 @@ void NonconstantForceDensity::force_value(const FEMesh *mesh,
 					  double time, void*,
 					  SmallSystem *eqndata) const
 {
-  Coord  coord = element->from_master( masterpos );
-  DoubleVec force(3);
+  Coord  coord = element->from_master(masterpos);
+  DoubleVec force(2);
 
-  nonconst_force_density( coord[0], coord[1], 0.0, time, force );
+  nonconst_force_density(coord[0], coord[1], 0.0, time, force);
 
-  // TODO: Use eqndata->force_vector() += force; ?
-  eqndata->force_vector_element(0) += force[0];
-  eqndata->force_vector_element(1) += force[1];
+  eqndata->forceVector() += force;
 }
-
-
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-
-inline double SQR(double x){ return x*x; }
-inline double CUBE(double x){ return x*x*x; }
+inline double SQR(double x) { return x*x; }
+inline double CUBE(double x) { return x*x*x; }
 
 
 void TestNonconstantForceDensity::nonconst_force_density_1(
@@ -76,9 +71,8 @@ void TestNonconstantForceDensity::nonconst_force_density_1(
 {
   double m0 = 2.0, n0 = 3.0, m1 = 1.0, n1 = 2.0, pi = M_PI;
 
-  result[0] = (m0*m0 + n0*n0) * SQR(pi) * sin( m0*pi*x ) * sin( n0*pi*y );
-  result[1] = (m1*m1 + n1*n1) * SQR(pi) * sin( m1*pi*x ) * sin( n1*pi*y );
-  result[2] = 0.0;
+  result[0] = (m0*m0 + n0*n0) * SQR(pi) * sin(m0*pi*x) * sin(n0*pi*y);
+  result[1] = (m1*m1 + n1*n1) * SQR(pi) * sin(m1*pi*x) * sin(n1*pi*y);
 
 } // end of 'TestNonconstantForceDensity::nonconst_force_density_1'
 
@@ -91,8 +85,8 @@ void TestNonconstantForceDensity::nonconst_force_density_2(
   double soln0, c0 = -0.5, m0 = 2.0, n0 = 3.0;
   double soln1, c1 = -1.5, m1 = 1.0, n1 = 2.0;
 
-  soln0 = exp( c0*time ) * sin( m0*pi*x ) * sin( n0*pi*y );
-  soln1 = exp( c1*time ) * sin( m1*pi*x ) * sin( n1*pi*y );
+  soln0 = exp(c0*time) * sin(m0*pi*x) * sin(n0*pi*y);
+  soln1 = exp(c1*time) * sin(m1*pi*x) * sin(n1*pi*y);
 
   result[0] = (c0*c0 + (m0*m0 + n0*n0)*pi*pi) * soln0;
   result[1] = (c1*c1 + (m1*m1 + n1*n1)*pi*pi) * soln1;
@@ -119,8 +113,8 @@ void TestNonconstantForceDensity::nonconst_force_density_3(
   Vyy =  2.0;
   Vxy =  0.0;
 
-  result[0] = - ( (1.0 + 3.0*Ux*Ux)*Uxx + Uyy + Vxy );
-  result[1] = - ( Vxx + (1.0 + 3.0*Vy*Vy)*Vyy + Uyx );
+  result[0] = - ((1.0 + 3.0*Ux*Ux)*Uxx + Uyy + Vxy);
+  result[1] = - (Vxx + (1.0 + 3.0*Vy*Vy)*Vyy + Uyx);
 
 } // end of 'TestNonconstantForceDensity::nonconst_force_density_3'
 
@@ -142,8 +136,8 @@ void TestNonconstantForceDensity::nonconst_force_density_4(
   Vy  = c2 * 2.0*y;
   ddV = c2 * 4.0;
 
-  result[0] = -( (1.0 + Ux)*ddU + Vx*ddV );
-  result[1] = -( Uy*ddU + (1.0 + Vy)*ddV );
+  result[0] = -((1.0 + Ux)*ddU + Vx*ddV);
+  result[1] = -(Uy*ddU + (1.0 + Vy)*ddV);
 
 } // end of 'TestNonconstantForceDensity::nonconst_force_density_4'
 
@@ -173,18 +167,17 @@ void TestNonconstantForceDensity::nonconst_force_density_5(
 
   // V0 = -tan(dU0/dx/20),  V1 = -tan(dU1/dy / 20),
   // V2 = -tan((dU0/dx + dU1/dy) / 20),  // z-derivs of displacement
-  V0x = -(1.0 + SQR( tan(U0x/20.0) )) * U0xx / 20.0;
-  V1y = -(1.0 + SQR( tan(U1y/20.0) )) * U1yy / 20.0;
-  V2x = -(1.0 + SQR( tan((U0x+U1y)/20.0) )) * (U0xx + U1yx) / 20.0;
-  V2y = -(1.0 + SQR( tan((U0x+U1y)/20.0) )) * (U0xy + U1yy) / 20.0;
+  V0x = -(1.0 + SQR(tan(U0x/20.0))) * U0xx / 20.0;
+  V1y = -(1.0 + SQR(tan(U1y/20.0))) * U1yy / 20.0;
+  V2x = -(1.0 + SQR(tan((U0x+U1y)/20.0))) * (U0xx + U1yx) / 20.0;
+  V2y = -(1.0 + SQR(tan((U0x+U1y)/20.0))) * (U0xy + U1yy) / 20.0;
 //   V0x = -U0xx / 20.0;
 //   V1y = -U1yy / 20.0;
 //   V2x = -(U0xx + U1yx) / 20.0;
 //   V2y = -(U0xy + U1yy) / 20.0;
 
-  result[0] = -( (1.0 + 3.0*U0x*U0x)*U0xx + (V0x + V2x)/20.0 + U0yy );
-  result[1] = -( U1xx + (1.0 + 3.0*U1y*U1y)*U1yy + (V1y + V2y)/20.0 );
-  result[2] = 0.0;
+  result[0] = -((1.0 + 3.0*U0x*U0x)*U0xx + (V0x + V2x)/20.0 + U0yy);
+  result[1] = -(U1xx + (1.0 + 3.0*U1y*U1y)*U1yy + (V1y + V2y)/20.0);
 
 } // end of 'TestNonconstantForceDensity::nonconst_force_density_5'
 
@@ -196,22 +189,22 @@ void TestNonconstantForceDensity::nonconst_force_density(
   switch (testNo)
   {
     case 1:
-      nonconst_force_density_1( x, y, z, time, result );
+      nonconst_force_density_1(x, y, z, time, result);
       return;
     case 2:
-      nonconst_force_density_2( x, y, z, time, result );
+      nonconst_force_density_2(x, y, z, time, result);
       return;
     case 3:
-      nonconst_force_density_3( x, y, z, time, result );
+      nonconst_force_density_3(x, y, z, time, result);
       return;
     case 4:
-      nonconst_force_density_4( x, y, z, time, result );
+      nonconst_force_density_4(x, y, z, time, result);
       return;
     case 5:
-      nonconst_force_density_5( x, y, z, time, result );
+      nonconst_force_density_5(x, y, z, time, result);
       return;
     default:
-      result[0] = result[1] = result[2] = 0.0;
+      result.zero();
   }
 
 } // end of 'TestNonconstantForceDensity::nonconst_force_density'
