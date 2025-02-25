@@ -45,6 +45,7 @@ public:
   std::size_t size() const { return data.size(); }
   void resize(std::size_t size, double val=0) { data.setConstant(size, val); }
   void zero() { data.setZero(); }
+  void clear() { zero(); }
   void unit() { data.setOnes(); }
   double& operator[](int index) { return data[index]; }
   const double& operator[](int index) const { return data[index]; }
