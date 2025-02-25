@@ -14,6 +14,7 @@
 #define FORCEDENSITY_H
 
 #include <oofconfig.h>
+#include "common/doublevec.h"
 #include "engine/property.h"
 #include <string>
 
@@ -25,16 +26,16 @@ class SmallSystem;
 
 class ForceDensity : public EqnProperty {
 private:
-  double gx, gy;
+  DoubleVec g;
 public:
-  ForceDensity(const std::string &name, PyObject *reg, double x, double y);
+  ForceDensity(const std::string &name, PyObject *reg, double gx, double gy);
   virtual ~ForceDensity() {}
   virtual void force_value(const FEMesh*, const Element*, const Equation*,
 			   const MasterPosition&, double time, void*,
 			   SmallSystem*) const;
   virtual int integration_order(const CSubProblem*, const Element*) const;
-  double fdensity_x() const { return gx; }
-  double fdensity_y() const { return gy; }
+  double fdensity_x() const { return g[0]; }
+  double fdensity_y() const { return g[1]; }
 
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);

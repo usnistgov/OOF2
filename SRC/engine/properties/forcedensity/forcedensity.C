@@ -29,11 +29,11 @@
 
 
 ForceDensity::ForceDensity(const std::string &nm, PyObject *reg, 
-			   double x, double y)
+			   double gx, double gy)
   : EqnProperty(nm, reg),
-    gx(x),
-    gy(y)
-{}
+    g({gx, gy})
+{
+}
 
 int ForceDensity::integration_order(const CSubProblem*, const Element *el) const
 {
@@ -45,9 +45,7 @@ void ForceDensity::force_value(const FEMesh *mesh, const Element *element,
 			       double time, void *data,
 			       SmallSystem *eqndata) const
 {
-  eqndata->force_vector_element(0) += gx;
-  eqndata->force_vector_element(1) += gy;
-  // TODO: Store gx, gy as a vector g and use eqndata->forceVector() += g; 
+  eqndata->forceVector() += g;
 }
 
 void ForceDensity::output(FEMesh *mesh,
@@ -60,7 +58,7 @@ void ForceDensity::output(FEMesh *mesh,
   if(outputname == "Material Constants:Mechanical:Force Density F") {
     ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
     assert(listdata->size() == 2);
-    (*listdata)[0] = gx;
-    (*listdata)[1] = gy;
+    (*listdata)[0] = g[0];
+    (*listdata)[1] = g[1];
   }
 }
