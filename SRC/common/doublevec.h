@@ -15,6 +15,7 @@
 #include <iostream>
 #include <string>
 #include "Eigen/SparseCore"
+#include <initializer_list>
 
 class SparseMat;
 class SmallMatrix;
@@ -31,6 +32,7 @@ private:
 public:
   DoubleVec() = default;
   DoubleVec(int size, double val=0) { data.setConstant(size, val); }
+  DoubleVec(const std::initializer_list<double> &v) : data({v}) {}
   DoubleVec(const DoubleVec&) = default;
   DoubleVec(DoubleVec&&) = default;
   DoubleVec& operator=(const DoubleVec&) = default;
