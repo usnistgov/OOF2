@@ -748,3 +748,7 @@ test_set = [
     NonlinearPlaneFluxTest("NonlinearElasticity"),
 #    NonlinearPlaneFluxTest("NonlinearElasticityNoDeriv"),
 ]
+
+test_set = [
+    NonlinearPlaneFluxTest("NonlinearHeatConductivity"),
+]    

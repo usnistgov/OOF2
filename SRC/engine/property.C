@@ -10,6 +10,7 @@
  */
 
 #include <oofconfig.h>
+#include "common/cdebug.h"
 #include "common/cleverptr.h"
 #include "common/doublevec.h"
 #include "common/printvec.h"
@@ -193,6 +194,7 @@ void FluxProperty::make_flux_contributions(const FEMesh *mesh,
     // happen with a nonlinear flux with a linear viscoelastic part?
     flux_value(mesh, element, flux, pt, time, localdata, fluxdata);
   }
+  dump("FluxProperty::make_flux_contributions: vector=" + tostring(fluxdata->fluxVector()));
 }
 
 //=\\=//=\\=//=\\=//
