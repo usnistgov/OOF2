@@ -60,20 +60,16 @@ void GeneralNonlinearElasticityNoDeriv::flux_value(const FEMesh  *mesh,
 						   SmallSystem *fluxdata)
   const
 {
-  SmallMatrix stress(3);
-
   // first compute the displacement and its gradient at the given point
   DoubleVec dispVec(findDisplacement(mesh, element, pt));
   SmallMatrix dispGrad(findDisplacementGradient(mesh, element, pt));
 
   // compute the value of stress with the user-defined function
   Coord coord = element->from_master(pt);
-
-  // TODO: nonlin_stress should return a SmallMatrix.
-  nonlin_stress(coord[0], coord[1], 0.0, time, dispVec, dispGrad, stress);
+  SmallMatrix stress = nonlin_stress(coord, time, dispVec, dispGrad);
 
   // now we can plug in the flux element values to fluxdata
-  // TODO: Replace by
+  // TODO? Replace with
   //       fluxdata->fluxVector() -= stress;
   for(SymTensorIndex ij : symTensorIJComponents)
     fluxdata->flux_vector_element(ij) += stress(ij.row(), ij.col());
@@ -81,18 +77,16 @@ void GeneralNonlinearElasticityNoDeriv::flux_value(const FEMesh  *mesh,
 } // GeneralNonlinearElasticityNoDeriv::flux_value
 
 
-void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
-					     const Element *element,
-					     const ElementFuncNodeIterator &node,
-					     const Flux *flux,
-					     const MasterPosition &pt,
-					     double time, void*, 
-					     SmallSystem *fluxmtx)
+void GeneralNonlinearElasticity::flux_matrix(
+				     const FEMesh *mesh,
+				     const Element *element,
+				     const ElementFuncNodeIterator &node,
+				     const Flux *flux,
+				     const MasterPosition &pt,
+				     double time, void*, 
+				     SmallSystem *fluxmtx)
   const
 {
-  SmallTensor3 stressDeriv1;
-  SmallTensor4 stressDeriv2;
-
   // check for unexpected flux, should be stress flux
   if (*flux != *stress_flux) {
     throw ErrProgrammingError("Unexpected flux", __FILE__, __LINE__);
@@ -106,11 +100,11 @@ void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
   // displacement etc
   Coord coord = element->from_master(pt);
   // the derivative of the stress flux mapping w.r.t. displacement field
-  nonlin_stress_deriv_wrt_displacement(coord[0], coord[1], 0.0, time,
-					dispVec, dispGrad, stressDeriv1);
+  SmallTensor3 stressDeriv1 = nonlin_stress_deriv_wrt_displacement(
+					   coord, time, dispVec, dispGrad);
   // the derivative of the stress flux mapping w.r.t. displacement gradient
-  nonlin_stress_deriv_wrt_displacement_gradient(coord[0], coord[1], 0.0, time,
-						 dispVec, dispGrad, stressDeriv2);
+  SmallTensor4 stressDeriv2 =  nonlin_stress_deriv_wrt_displacement_gradient(
+					   coord, time, dispVec, dispGrad);
 
   // evaluate the shape function and its gradient at the given node j
   double shapeFuncVal   = node.shapefunction(pt);
@@ -151,11 +145,11 @@ inline double SQR(double x) { return x*x; }
 inline double CUBE(double x) { return x*x*x; }
 
 
-void nonlin_stress_1(double x, double y, double z, double time,
-		     DoubleVec &displacement,
-		     SmallMatrix &dispGrad,
-		     SmallMatrix &stress)
+SmallMatrix nonlin_stress_1(const Coord &pt, double time,
+			    const DoubleVec &displacement,
+			    const SmallMatrix &dispGrad)
 {
+  SmallMatrix stress(3);
   stress(0,0) = dispGrad(0,0) + CUBE(dispGrad(0,0));
   stress(0,1) = dispGrad(0,1) + dispGrad(1,0);
   stress(0,2) = 0.0;
@@ -168,52 +162,40 @@ void nonlin_stress_1(double x, double y, double z, double time,
   stress(2,1) = 0.0;
   stress(2,2) = 0.0;
 
-} // end of 'nonlin_stress_1'
+  return stress;
+}
 
 
-void nonlin_stress_deriv_wrt_displacement_1(double x, double y, double z,
-					    double time,
-					    DoubleVec &displacement,
-					    SmallMatrix &dispGrad,
-					    SmallTensor3 &stress_deriv)
+SmallTensor3 nonlin_stress_deriv_wrt_displacement_1(
+				    const Coord &pt, double time,
+				    const DoubleVec &displacement,
+				    const SmallMatrix &dispGrad)
 {
-  for (int i = 0; i < 3; i++) {
-    stress_deriv(i,0,0) = stress_deriv(i,0,1) = stress_deriv(i,0,2) = 0.0;
-    stress_deriv(i,1,0) = stress_deriv(i,1,1) = stress_deriv(i,1,2) = 0.0;
-    stress_deriv(i,2,0) = stress_deriv(i,2,1) = stress_deriv(i,2,2) = 0.0;
-  }
-
-} // end of 'nonlin_stress_deriv_wrt_displacement_1'
+  return SmallTensor3();
+}
 
 
-void nonlin_stress_deriv_wrt_displacement_gradient_1(
-                                        double x, double y, double z, double time,
-					DoubleVec &displacement,
-					SmallMatrix &dispGrad,
-					SmallTensor4 &stress_deriv)
+SmallTensor4 nonlin_stress_deriv_wrt_displacement_gradient_1(
+                                        const Coord &pt, double time,
+					const DoubleVec &displacement,
+					const SmallMatrix &dispGrad)
 {
-  for (int i = 0; i < 3; i++)
-    for (int j = 0; j < 3; j++) {
-      stress_deriv(i,j,0,0) = stress_deriv(i,j,0,1) = stress_deriv(i,j,0,2) = 0.0;
-      stress_deriv(i,j,1,0) = stress_deriv(i,j,1,1) = stress_deriv(i,j,1,2) = 0.0;
-      stress_deriv(i,j,2,0) = stress_deriv(i,j,2,1) = stress_deriv(i,j,2,2) = 0.0;
-    }
-
+  SmallTensor4 stress_deriv;
   stress_deriv(0,0,0,0) = 1.0 + 3.0 * SQR(dispGrad(0,0));
   stress_deriv(0,1,0,1) = 1.0;
   stress_deriv(0,1,1,0) = 1.0;
   stress_deriv(1,1,1,1) = 1.0 + 3.0 * SQR(dispGrad(1,1));
   stress_deriv(1,0,0,1) = 1.0;
   stress_deriv(1,0,1,0) = 1.0;
+  return stress_deriv;
+}
 
-} // end of 'nonlin_stress_deriv_wrt_displacement_gradient_1'
 
-
-void nonlin_stress_2(double x, double y, double z, double time,
-		     DoubleVec &displacement,
-		     SmallMatrix &dispGrad,
-		     SmallMatrix &stress)
+SmallMatrix nonlin_stress_2(const Coord &pt, double time,
+			    const DoubleVec &displacement,
+			    const SmallMatrix &dispGrad)
 {
+  SmallMatrix stress(3);
   stress(0,0) = dispGrad(0,0) + CUBE(dispGrad(0,0)) +
                  (dispGrad(0,2) + dispGrad(2,0) + dispGrad(2,2))/20.0;
   stress(0,1) = dispGrad(0,1);
@@ -227,37 +209,25 @@ void nonlin_stress_2(double x, double y, double z, double time,
   stress(2,0) = dispGrad(0,0)/20.0 + atan(dispGrad(0,2) + dispGrad(2,0));
   stress(2,1) = dispGrad(1,1)/20.0 + atan(dispGrad(1,2) + dispGrad(2,1));
   stress(2,2) = (dispGrad(0,0) + dispGrad(1,1))/20.0 + atan(dispGrad(2,2));
+  return stress;
+}
 
-} // end of 'nonlin_stress_2'
 
-
-void nonlin_stress_deriv_wrt_displacement_2(double x, double y, double z,
-					    double time,
-					    DoubleVec &displacement,
-					    SmallMatrix &dispGrad,
-					    SmallTensor3 &stress_deriv)
+SmallTensor3 nonlin_stress_deriv_wrt_displacement_2(
+					    const Coord &pt, double time,
+					    const DoubleVec &displacement,
+					    const SmallMatrix &dispGrad)
 {
-  for (int i = 0; i < 3; i++) {
-    stress_deriv(i,0,0) = stress_deriv(i,0,1) = stress_deriv(i,0,2) = 0.0;
-    stress_deriv(i,1,0) = stress_deriv(i,1,1) = stress_deriv(i,1,2) = 0.0;
-    stress_deriv(i,2,0) = stress_deriv(i,2,1) = stress_deriv(i,2,2) = 0.0;
-  }
-
-} // end of 'nonlin_stress_deriv_wrt_displacement_2'
+  return SmallTensor3();
+}
 
 
-void nonlin_stress_deriv_wrt_displacement_gradient_2(
-                                        double x, double y, double z, double time,
-					DoubleVec &u,
-					SmallMatrix &du,
-					SmallTensor4 &s)
+SmallTensor4 nonlin_stress_deriv_wrt_displacement_gradient_2(
+                                        const Coord &pt, double time,
+					const DoubleVec &u,
+					const SmallMatrix &du)
 {
-  for (int i = 0; i < 3; i++)
-    for (int j = 0; j < 3; j++) {
-      s(i,j,0,0) = s(i,j,0,1) = s(i,j,0,2) = 0.0;
-      s(i,j,1,0) = s(i,j,1,1) = s(i,j,1,2) = 0.0;
-      s(i,j,2,0) = s(i,j,2,1) = s(i,j,2,2) = 0.0;
-    }
+  SmallTensor4 s;
 
   s(0,0,0,0) = 1.0 + 3.0 * SQR(du(0,0));
   s(1,1,1,1) = 1.0 + 3.0 * SQR(du(1,1));
@@ -276,113 +246,78 @@ void nonlin_stress_deriv_wrt_displacement_gradient_2(
              = s(1,2,1,1) = s(2,0,0,0) = s(2,1,1,1)
              = s(2,2,0,0) = s(2,2,1,1) = 1.0/20.0;
 
-} // end of 'nonlin_stress_deriv_wrt_displacement_gradient_2'
+  return s;
+} 
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-void TestGeneralNonlinearElasticityNoDeriv::nonlin_stress(
-                                        double x, double y, double z, double time,
-					DoubleVec &displacement,
-					SmallMatrix &dispGrad,
-					SmallMatrix &stress) const
+SmallMatrix TestGeneralNonlinearElasticityNoDeriv::nonlin_stress(
+                                        const Coord &pt, double time,
+					const DoubleVec &displacement,
+					const SmallMatrix &dispGrad)
+  const
 {
-  switch (testNo)
-  {
-    case 1:
-      nonlin_stress_1(x, y, z, time, displacement, dispGrad, stress);
-      return;
-
-    case 2:
-      nonlin_stress_2(x, y, z, time, displacement, dispGrad, stress);
-      return;
-
-    default:
-      for (int i=0; i<3; i++)
-	stress(i,0) = stress(i,1) = stress(i,2) = 0.0;
+  switch (testNo) {
+  case 1:
+    return nonlin_stress_1(pt, time, displacement, dispGrad);
+  case 2:
+    return nonlin_stress_2(pt, time, displacement, dispGrad);
   }
+  return SmallMatrix(3);
+}
 
-} // end of 'TestGeneralNonlinearElasticityNoDeriv::nonlin_stress'
 
-
-void TestGeneralNonlinearElasticity::nonlin_stress(
-                                        double x, double y, double z, double time,
-					DoubleVec &displacement,
-					SmallMatrix &dispGrad,
-					SmallMatrix &stress) const
+SmallMatrix TestGeneralNonlinearElasticity::nonlin_stress(
+                                        const Coord &pt, double time,
+					const DoubleVec &displacement,
+					const SmallMatrix &dispGrad)
+  const
 {
-  switch (testNo)
-  {
-    case 1:
-      nonlin_stress_1(x, y, z, time, displacement, dispGrad, stress);
-      return;
-
-    case 2:
-      nonlin_stress_2(x, y, z, time, displacement, dispGrad, stress);
-      return;
-
-    default:
-      for (int i=0; i<3; i++)
-	stress(i,0) = stress(i,1) = stress(i,2) = 0.0;
+  switch (testNo) {
+  case 1:
+    return nonlin_stress_1(pt, time, displacement, dispGrad);
+  case 2:
+    return nonlin_stress_2(pt, time, displacement, dispGrad);
   }
+  return SmallMatrix(3);
+} 
 
-} // end of 'TestGeneralNonlinearElasticity::nonlin_stress'
 
-
-void TestGeneralNonlinearElasticity::nonlin_stress_deriv_wrt_displacement(
-                                        double x, double y, double z, double time,
-					DoubleVec &displacement,
-					SmallMatrix &dispGrad,
-					SmallTensor3 &stress_deriv) const
+SmallTensor3
+TestGeneralNonlinearElasticity::nonlin_stress_deriv_wrt_displacement(
+                                        const Coord &pt, double time,
+					const DoubleVec &displacement,
+					const SmallMatrix &dispGrad)
+  const
 {
-  switch (testNo)
-  {
-    case 1:
-      nonlin_stress_deriv_wrt_displacement_1(x, y, z, time,
-					      displacement, dispGrad, stress_deriv);
-      return;
-
-    case 2:
-      nonlin_stress_deriv_wrt_displacement_2(x, y, z, time,
-					      displacement, dispGrad, stress_deriv);
-      return;
-
-    default:
-      for (int i = 0; i < 3; i++) {
-	stress_deriv(i,0,0) = stress_deriv(i,0,1) = stress_deriv(i,0,2) = 0.0;
-	stress_deriv(i,1,0) = stress_deriv(i,1,1) = stress_deriv(i,1,2) = 0.0;
-	stress_deriv(i,2,0) = stress_deriv(i,2,1) = stress_deriv(i,2,2) = 0.0;
-      }
+  switch (testNo) {
+  case 1:
+    return nonlin_stress_deriv_wrt_displacement_1(pt, time,
+						  displacement, dispGrad);
+  case 2:
+    return nonlin_stress_deriv_wrt_displacement_2(pt, time,
+						  displacement, dispGrad);
   }
+  return SmallTensor3();
+} 
 
-} // end of 'TestGeneralNonlinearElasticity::nonlin_stress_deriv_wrt_displacement'
 
-
-void TestGeneralNonlinearElasticity::nonlin_stress_deriv_wrt_displacement_gradient(
-                                        double x, double y, double z, double time,
-					DoubleVec &displacement,
-					SmallMatrix &dispGrad,
-					SmallTensor4 &stress_deriv) const
+SmallTensor4
+TestGeneralNonlinearElasticity::nonlin_stress_deriv_wrt_displacement_gradient(
+                                        const Coord &pt, double time,
+					const DoubleVec &displacement,
+					const SmallMatrix &dispGrad)
+  const
 {
-  switch (testNo)
-  {
+  switch (testNo) {
     case 1:
-      nonlin_stress_deriv_wrt_displacement_gradient_1(x, y, z, time,
-						       displacement, dispGrad,
-						       stress_deriv);
-      return;
-
+      return nonlin_stress_deriv_wrt_displacement_gradient_1(
+						     pt, time,
+						     displacement, dispGrad);
     case 2:
-      nonlin_stress_deriv_wrt_displacement_gradient_2(x, y, z, time,
-						       displacement, dispGrad,
-						       stress_deriv);
-      return;
-
-    default:
-      for (int i = 0; i < 3; i++)
-	for (int j = 0; j < 3; j++) {
-	  stress_deriv(i,j,0,0) = stress_deriv(i,j,0,1) = stress_deriv(i,j,0,2) = 0.0;
-	  stress_deriv(i,j,1,0) = stress_deriv(i,j,1,1) = stress_deriv(i,j,1,2) = 0.0;
-	  stress_deriv(i,j,2,0) = stress_deriv(i,j,2,1) = stress_deriv(i,j,2,2) = 0.0;
-	}
+      return nonlin_stress_deriv_wrt_displacement_gradient_2(
+						     pt, time,
+						     displacement, dispGrad);
   }
-
-} // end of 'TestGeneralNonlinearElasticity::nonlin_stress_deriv_wrt_displacement_gradient'
+  return SmallTensor4();
+}

@@ -41,22 +41,22 @@ public:
     const;
 protected:
   VectorFlux *heat_flux;
-  virtual double nonconst_heat_source(double x, double y, double z, double time) const = 0;
+  virtual double nonconst_heat_source(const Coord &pt, double time) const = 0;
 };
 
 
 class TestNonconstantHeatSource : public NonconstantHeatSource {
 protected:
   int testNo;
-  double nonconst_heat_source_1(double x, double y, double z, double time) const;
-  double nonconst_heat_source_2(double x, double y, double z, double time) const;
-  double nonconst_heat_source_3(double x, double y, double z, double time) const;
-  double nonconst_heat_source_4(double x, double y, double z, double time) const;
-  double nonconst_heat_source_5(double x, double y, double z, double time) const;
-  double nonconst_heat_source_6(double x, double y, double z, double time) const;
-  double nonconst_heat_source_7(double x, double y, double z, double time) const;
-  double nonconst_heat_source_8(double x, double y, double z, double time) const;
-  virtual double nonconst_heat_source(double x, double y, double z, double time) const;
+  double nonconst_heat_source_1(const Coord &pt, double time) const;
+  double nonconst_heat_source_2(const Coord &pt, double time) const;
+  double nonconst_heat_source_3(const Coord &pt, double time) const;
+  double nonconst_heat_source_4(const Coord &pt, double time) const;
+  double nonconst_heat_source_5(const Coord &pt, double time) const;
+  double nonconst_heat_source_6(const Coord &pt, double time) const;
+  double nonconst_heat_source_7(const Coord &pt, double time) const;
+  double nonconst_heat_source_8(const Coord &pt, double time) const;
+  virtual double nonconst_heat_source(const Coord &pt, double time) const;
 public:
   TestNonconstantHeatSource(const std::string &name, PyObject *registration,
 			    int testno)

@@ -46,9 +46,9 @@ protected:
   TwoVectorField *displacement;
   SymmetricTensorFlux *stress_flux;
 
-  virtual void nonlin_force_density(double x, double y, double z, double time,
-				    DoubleVec &displacement,
-				    DoubleVec &result) const = 0;
+  virtual DoubleVec nonlin_force_density(const Coord &pt, double time,
+				    const DoubleVec &displacement)
+    const = 0;
 }; // NonlinearForceDensityNoDeriv
 
 
@@ -66,10 +66,9 @@ public:
 				  void*, 
 				  SmallSystem *eqndata) const;
 protected:
-  virtual void nonlin_force_density_deriv(double x, double y, double z,
-					  double time,
-					  DoubleVec &displacement,
-					  SmallMatrix &result) const = 0;
+  virtual SmallMatrix nonlin_force_density_deriv(const Coord &pt, double time,
+					  const DoubleVec &displacement)
+    const = 0;
 };
 
 
@@ -84,9 +83,8 @@ public:
   virtual ~TestNonlinearForceDensityNoDeriv() {}
 protected:
   int testNo;
-  virtual void nonlin_force_density(double x, double y, double z, double time,
-				    DoubleVec &displacement,
-				    DoubleVec &result) const;
+  virtual DoubleVec nonlin_force_density(const Coord &pt, double time,
+				    const DoubleVec &displacement) const;
 }; // TestNonlinearForceDensityNoDeriv
 
 
@@ -100,12 +98,10 @@ public:
   virtual ~TestNonlinearForceDensity() {}
 protected:
   int testNo;
-  virtual void nonlin_force_density(double x, double y, double z, double time,
-				    DoubleVec &displacement,
-				    DoubleVec &result) const;
-  virtual void nonlin_force_density_deriv(double x, double y, double z, double time,
-					  DoubleVec &displacement,
-					  SmallMatrix &result) const;
+  virtual DoubleVec nonlin_force_density(const Coord &pt, double time,
+				    const DoubleVec &displacement) const;
+  virtual SmallMatrix nonlin_force_density_deriv(const Coord &pt, double time,
+					  const DoubleVec &displacement) const;
 }; // TestNonlinearForceDensity
 
 #endif

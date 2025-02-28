@@ -17,23 +17,20 @@
 #include <string>
 
 class CSubProblem;
+class Coord;
 class DoubleVec;
 class Element;
-class ElementNodeIterator;
 class FEMesh;
 class Flux;
-class Material;
-class OutputVal;
-class Position;
-class PropertyOutput;
+class MasterPosition;
 class SmallMatrix;
+class SmallSystem;
 class SmallTensor3;
 class SmallTensor4;
-class SmallSystem;
 class SymmetricTensorFlux;
 class TwoVectorField;
 
-
+// TODO: No need for NoDeriv versions anymore. 
 
 class GeneralNonlinearElasticityNoDeriv : public FluxProperty {
 public:
@@ -50,10 +47,9 @@ protected:
   TwoVectorField *displacement;
   SymmetricTensorFlux *stress_flux;
 
-  virtual void nonlin_stress(double x, double y, double z,
-			     double time, DoubleVec &displacement,
-			     SmallMatrix &dispGrad,
-			     SmallMatrix &stress) const = 0;
+  virtual SmallMatrix nonlin_stress(const Coord &pt, double time,
+				    const DoubleVec &displacement,
+				    const SmallMatrix &dispGrad) const = 0;
 
 }; // GeneralNonlinearElasticityNoDeriv
 
@@ -72,17 +68,15 @@ public:
 			   double time, void*, 
 			   SmallSystem *fluxmtx) const;
 protected:
-  virtual void nonlin_stress_deriv_wrt_displacement(
-                             double x, double y, double z,
-			     double time, DoubleVec &displacement,
-			     SmallMatrix &dispGrad,
-			     SmallTensor3 &stress_deriv) const = 0;
+  virtual SmallTensor3 nonlin_stress_deriv_wrt_displacement(
+			    const Coord &pt, double time,
+			    const DoubleVec &displacement,
+			    const SmallMatrix &dispGrad) const = 0;
 
-  virtual void nonlin_stress_deriv_wrt_displacement_gradient(
-                             double x, double y, double z,
-			     double time, DoubleVec &displacement,
-			     SmallMatrix &dispGrad,
-			     SmallTensor4 &stress_deriv) const = 0;
+  virtual SmallTensor4 nonlin_stress_deriv_wrt_displacement_gradient(
+			     const Coord &pt, double time,
+			     const DoubleVec &displacement,
+			     const SmallMatrix &dispGrad) const = 0;
 
 }; // GeneralNonlinearElasticity
 
@@ -103,10 +97,9 @@ public:
 
 protected:
   int testNo;
-  virtual void nonlin_stress(double x, double y, double z, double time,
-			     DoubleVec &displacement,
-			     SmallMatrix &dispGrad,
-			     SmallMatrix &stress) const;
+  virtual SmallMatrix nonlin_stress(const Coord &pt, double time,
+			     const DoubleVec &displacement,
+			     const SmallMatrix &dispGrad) const;
 }; // TestGeneralNonlinearElasticityNoDeriv
 
 
@@ -123,20 +116,17 @@ public:
 
 protected:
   int testNo;
-  virtual void nonlin_stress(double x, double y, double z, double time,
-			     DoubleVec &displacement,
-			     SmallMatrix &dispGrad,
-			     SmallMatrix &stress) const;
-  virtual void nonlin_stress_deriv_wrt_displacement(
-                             double x, double y, double z, double time,
-			     DoubleVec &displacement,
-			     SmallMatrix &dispGrad,
-			     SmallTensor3 &stress_deriv) const;
-  virtual void nonlin_stress_deriv_wrt_displacement_gradient(
-                             double x, double y, double z, double time,
-			     DoubleVec &displacement,
-			     SmallMatrix &dispGrad,
-			     SmallTensor4 &stress_deriv) const;
+  virtual SmallMatrix nonlin_stress(const Coord &pt, double time,
+			     const DoubleVec &displacement,
+			     const SmallMatrix &dispGrad) const;
+  virtual SmallTensor3 nonlin_stress_deriv_wrt_displacement(
+                             const Coord &pt, double time,
+			     const DoubleVec &displacement,
+			     const SmallMatrix &dispGrad) const;
+  virtual SmallTensor4 nonlin_stress_deriv_wrt_displacement_gradient(
+                             const Coord &pt, double time,
+			     const DoubleVec &displacement,
+			     const SmallMatrix &dispGrad) const;
 
 }; // TestGeneralNonlinearElasticity
 

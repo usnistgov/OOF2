@@ -25,7 +25,7 @@ inline double CUBE(double x){ return x*x*x; }
 
 // Helper function.  Takes the displacement gradient, computes the
 // strain, and returns the R-O stress corresponding to that strain,
-// along with the matrix of derviatives of the stress with respect to
+// along with the matrix of derivatives of the stress with respect to
 // the *strain*.
 
 // TODO: This helper function is expensive, and needs to be called for
@@ -39,7 +39,7 @@ inline double CUBE(double x){ return x*x*x; }
 
 static int mapping[3][3] = { { 0, 5, 4 }, { 8, 1, 3 }, { 7, 6, 2 }};
 
-int CRambergOsgood::invert(SmallMatrix &displacement_gradient,
+int CRambergOsgood::invert(const SmallMatrix &displacement_gradient,
 			   SmallMatrix &s, SmallTensor4 &dsde) const {
 
   //  std::cerr << "Entering invert." << std::endl;
@@ -228,52 +228,45 @@ int CRambergOsgood::invert(SmallMatrix &displacement_gradient,
 // the displacement, and the displacement gradient and returns the
 // corresponding stress tensor.
 
-void CRambergOsgood::nonlin_stress(
-                                     double x, double y, double z,
-				     double time,
-				     DoubleVec &displacement,
-				     SmallMatrix &displacement_gradient,
-				     SmallMatrix &stress) const
+SmallMatrix CRambergOsgood::nonlin_stress(const Coord &pt, double time,
+				   const DoubleVec &displacement,
+				   const SmallMatrix &displacement_gradient)
+  const
 {
   SmallTensor4 stress_div;
-  int res = this->invert(displacement_gradient, stress, stress_div);
-
+  SmallMatrix stress(3);
   // Fills in the "stress" object.
-
-} // end of 'CRambergOsgood::nonlinear_stress'
+  int res = this->invert(displacement_gradient, stress, stress_div);
+  return stress;
+} 
 
 
 // The following function takes the spatial coordinate x,y,z, the time,
 // the displacement, and the displacement gradient and returns the
 // corresponding stress tensor derivative with respect to the displacement.
 
-void CRambergOsgood::nonlin_stress_deriv_wrt_displacement(
-                                         double x, double y, double z,
-					 double time,
-					 DoubleVec &displacement,
-					 SmallMatrix &displacement_gradient,
-					 SmallTensor3 &stress_deriv) const
+SmallTensor3 CRambergOsgood::nonlin_stress_deriv_wrt_displacement(
+				  const Coord &pt, double time,
+				  const DoubleVec &displacement,
+				  const SmallMatrix &displacement_gradient)
+  const
 {
-  for (int i = 0; i < 3; i++)
-    for (int j = 0; j < 3; j++)
-      for (int k = 0; k < 3; k++)
-	stress_deriv(i,j,k) = 0.0;
-
-} // end of 'CRambergOsgood::nonlinear_stress_deriv_wrt_displacement'
+  return SmallTensor3();
+}
 
 
 // The following function takes the spatial coordinate x,y,z, the time,
 // the displacement, and the displacement gradient and returns the
 // corresponding stress tensor derivative with respect to the displacement.
-void CRambergOsgood::nonlin_stress_deriv_wrt_displacement_gradient(
-                                         double x, double y, double z,
-					 double time,
-					 DoubleVec &displacement,
-					 SmallMatrix &displacement_gradient,
-		  			 SmallTensor4 &stress_deriv) const
+SmallTensor4 CRambergOsgood::nonlin_stress_deriv_wrt_displacement_gradient(
+				   const Coord &pt, double time,
+				   const DoubleVec &displacement,
+				   const SmallMatrix &displacement_gradient)
+  const
 {
   SmallTensor4 dsde;
   SmallMatrix stress(3);
+  SmallTensor4 stress_deriv;
 
   // std::cerr << "CRambergOsgood::nonlin_stress_deriv" << std::endl;
 
@@ -295,5 +288,6 @@ void CRambergOsgood::nonlin_stress_deriv_wrt_displacement_gradient(
       }
     }
   }
+  return stress_deriv;
 
 } // end of 'CRambergOsgood::nonlinear_stress_deriv_wrt_displacement_gradient'

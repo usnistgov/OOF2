@@ -29,6 +29,11 @@
 #include "engine/material.h"
 #include "nonlinear_force_density.h"
 
+// TODO: The NonLinearForceDensityNoDeriv base class was for testing
+// the numerical differentation that used to be supported, when users
+// didn't want to write the derivative classes.  It's not supported
+// any more, because it was too flaky.  The base class should be
+// merged into NonlinearForceDensity.
 
 NonlinearForceDensityNoDeriv::NonlinearForceDensityNoDeriv(
 						   const std::string &nm,
@@ -56,28 +61,18 @@ void NonlinearForceDensityNoDeriv::force_value(
 			      double time, void*,
 			      SmallSystem *eqndata) const
 {
-  DoubleVec fieldVal(2), force(2);
-  Coord coord;
-
   // first compute the current value of the displacement field at the
   // gauss point
-  // TODO: Use Field::value()
-
-  fieldVal[0] = fieldVal[1] = 0.0;
-  for(CleverPtr<ElementFuncNodeIterator> node(element->funcnode_iterator());
-      !node->end(); ++*node) {
-    double shapeFuncVal = node->shapefunction(point);
-    fieldVal[0] += shapeFuncVal * (*displacement)(*node, 0)->value(mesh);
-    fieldVal[1] += shapeFuncVal * (*displacement)(*node, 1)->value(mesh);
-  }
+  DoubleVec fieldVal = displacement->values(mesh, element, point);
 
   // now compute the force density value for the current coordinate x,y,z,
   // time and displacement,
   // the nonlinear force density function returns the corresponding
   // force value in the array 'force',
 
-  coord = element->from_master(point);
-  nonlin_force_density(coord[0], coord[1], 0.0, time, fieldVal, force);
+  Coord coord = element->from_master(point);
+  DoubleVec force = nonlin_force_density(coord, time, fieldVal);
+  
   eqndata->forceVector() += force;
 
 } // end of 'NonlinearForceDensityNoDeriv::force_value'
@@ -91,21 +86,9 @@ void NonlinearForceDensity::force_deriv_matrix(const FEMesh *mesh,
 					       double time, void*,
 					       SmallSystem *eqndata) const
 {
-  SmallMatrix forceDeriv(2);
-  DoubleVec fieldVal(2);
-  double shapeFuncVal;
-  Coord  coord;
-
   // first compute the current value of the displacement field at the
   // gauss point
-  // TODO: Use Field::value()
-  fieldVal[0] = fieldVal[1] = 0.0;
-  for(CleverPtr<ElementFuncNodeIterator> node(element->funcnode_iterator());
-      !node->end(); ++*node){
-    shapeFuncVal = node->shapefunction(point);
-    fieldVal[0] += shapeFuncVal * (*displacement)(*node, 0)->value(mesh);
-    fieldVal[1] += shapeFuncVal * (*displacement)(*node, 1)->value(mesh);
-  }
+  DoubleVec fieldVal = displacement->values(mesh, element, point);
 
   // now compute the value of the force density derivative function
   // for the current coordinate x,y,z, time and displacement, the
@@ -113,16 +96,14 @@ void NonlinearForceDensity::force_deriv_matrix(const FEMesh *mesh,
   // corresponding force derivative value in the array 'forceDeriv',
   // the function definition is given in USER_CODE.C
 
-  coord = element->from_master(point);
-
-  nonlin_force_density_deriv(coord[0], coord[1], 0.0,
-			     time, fieldVal, forceDeriv);
-
+  Coord coord = element->from_master(point);
+  SmallMatrix forceDeriv = nonlin_force_density_deriv(coord, time, fieldVal);
+  
   // compute the value of the jth shape function at gauss point point
   // and add its contribution Df(point,field)*phi_j(point) to the
   // small mass-like matrix
 
-  shapeFuncVal = j.shapefunction(point);
+  double shapeFuncVal = j.shapefunction(point);
 
   for(IndexP eqncomp : *eqn->components()) {
     int eqno = eqncomp.integer();
@@ -144,10 +125,11 @@ inline double SQR(double x){ return x*x; }
 inline double CUBE(double x){ return x*x*x; }
 
 
-void nonlin_force_density_1(double x, double y, double z, double time,
-			    DoubleVec &displacement,
-			    DoubleVec &result)
+DoubleVec nonlin_force_density_1(const Coord &pt, double time,
+				 const DoubleVec &displacement)
 {
+  double x = pt[0];
+  double y = pt[1];
   double pi = M_PI, uex0, uex1, f0, f1;
   double m0 = 2.0, n0 = 3.0, m1 = 1.0, n1 = 2.0;
 
@@ -157,27 +139,34 @@ void nonlin_force_density_1(double x, double y, double z, double time,
   f0 = (m0*m0 + n0*n0)*pi*pi * uex0 - uex0 + CUBE(uex0);
   f1 = (m1*m1 + n1*n1)*pi*pi * uex1 - uex1 + CUBE(uex1);
 
-  result[0] = displacement[0] - CUBE(displacement[0]) + f0;
-  result[1] = displacement[1] - CUBE(displacement[1]) + f1;
-
+  // TODO: Rewrite the rest of these functions to return initializer
+  // lists.
+  // TODO: initializer list constructor for SmallMatrix
+  return {
+    displacement[0] - CUBE(displacement[0]) + f0,
+    displacement[1] - CUBE(displacement[1]) + f1
+  };
+  
 } 
 
-void nonlin_force_density_deriv_1(double x, double y, double z, double time,
-				  DoubleVec &displacement,
-				  SmallMatrix &result)
+SmallMatrix nonlin_force_density_deriv_1(const Coord &pt, double time,
+					 const DoubleVec &displacement)
 {
+  SmallMatrix result(2);
   result(0,0) = 1.0 - 3.0 * SQR(displacement[0]);
   result(0,1) = 0.0;
 
   result(1,0) = 0.0;
   result(1,1) = 1.0 - 3.0 * SQR(displacement[1]);
+  return result;
 } 
 
 
-void nonlin_force_density_2(double x, double y, double z, double time,
-			    DoubleVec &displacement,
-			    DoubleVec &result)
+DoubleVec nonlin_force_density_2(const Coord &pt, double time,
+			    const DoubleVec &displacement)
 {
+  double x = pt[0];
+  double y = pt[1];
   double pi = M_PI, uex0, uex1, f0, f1;
   double a0 =  2.0, b0 = 3.0, m0 = 2.0, n0 = 3.0,
          a1 = -4.0, b1 = 5.0, m1 = 1.0, n1 = 2.0;
@@ -188,137 +177,120 @@ void nonlin_force_density_2(double x, double y, double z, double time,
   f0 = (m0*m0 + n0*n0)*pi*pi * uex0 - uex0 + CUBE(uex0);
   f1 = (m1*m1 + n1*n1)*pi*pi * uex1 - uex1 + CUBE(uex1);
 
-  result[0] = displacement[0] - CUBE(displacement[0]) + f0;
-  result[1] = displacement[1] - CUBE(displacement[1]) + f1;
+  return {
+      displacement[0] - CUBE(displacement[0]) + f0,
+      displacement[1] - CUBE(displacement[1]) + f1};
 } 
 
-void nonlin_force_density_deriv_2(double x, double y, double z, double time,
-				  DoubleVec &displacement,
-				  SmallMatrix &result)
+SmallMatrix nonlin_force_density_deriv_2(const Coord &pt, double time,
+					 const DoubleVec &displacement)
 {
+  SmallMatrix result(2);
   result(0,0) = 1.0 - 3.0 * SQR(displacement[0]);
   result(0,1) = 0.0;
 
   result(1,0) = 0.0;
   result(1,1) = 1.0 - 3.0 * SQR(displacement[1]);
+  return result;
 } 
 
 
-void nonlin_force_density_3(double x, double y, double z, double time,
-			    DoubleVec &displacement,
-			    DoubleVec &result)
+DoubleVec nonlin_force_density_3(const Coord &pt, double time,
+				 const DoubleVec &displacement)
 {
-  result[0] = -4.0 * exp(displacement[0]);
-  result[1] = -5.0 * exp(2.0*displacement[1]);
+  return {
+    -4.0 * exp(displacement[0]),
+    -5.0 * exp(2.0*displacement[1])
+  };
 } 
 
-void nonlin_force_density_deriv_3(double x, double y, double z, double time,
-				  DoubleVec &displacement,
-				  SmallMatrix &result)
+SmallMatrix nonlin_force_density_deriv_3(const Coord &pt, double time,
+				  const DoubleVec &displacement)
 {
+  SmallMatrix result(2);
   result(0,0) = -4.0 * exp(displacement[0]);
   result(0,1) =  0.0;
   result(1,0) =  0.0;
   result(1,1) = -10.0 * exp(2.0*displacement[1]);
+  return result;
 }
 
 
-void nonlin_force_density_4(double x, double y, double z, double time,
-			    DoubleVec &displacement,
-			    DoubleVec &result)
+DoubleVec nonlin_force_density_4(const Coord &pt, double time,
+				 const DoubleVec &displacement)
 {
-  result[0] = 12.0 * exp(-0.25*displacement[0]) - 9.0*exp(-0.5*displacement[0]);
-  result[1] = -4.0 * SQR(displacement[1]) + 8.0 * CUBE(displacement[1]);
+  return {
+    12.0 * exp(-0.25*displacement[0]) - 9.0*exp(-0.5*displacement[0]),
+    -4.0 * SQR(displacement[1]) + 8.0 * CUBE(displacement[1])
+  };
 }
 
-void nonlin_force_density_deriv_4(double x, double y, double z, double time,
-				  DoubleVec &displacement,
-				  SmallMatrix &result)
+SmallMatrix nonlin_force_density_deriv_4(const Coord &pt, double time,
+					 const DoubleVec &displacement)
 {
+  SmallMatrix result(2);
   result(0,0) = -3.0*exp(-0.25*displacement[0]) + 4.5*exp(-0.5*displacement[0]);
   result(0,1) =  0.0;
   result(1,0) =  0.0;
   result(1,1) = -8.0 * displacement[1] + 24.0 * SQR(displacement[1]);
+  return result;
 } 
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-void TestNonlinearForceDensity::nonlin_force_density(
-                                   double x, double y, double z, double time,
-				   DoubleVec &displacement,
-				   DoubleVec &result) const
+DoubleVec TestNonlinearForceDensity::nonlin_force_density(
+				     const Coord &pt, double time,
+				     const DoubleVec &displacement)
+  const
 {
-  switch (testNo)
-  {
+  switch (testNo) {
     case 1:
-      nonlin_force_density_1(x, y, z, time, displacement, result);
-      return;
+      return nonlin_force_density_1(pt, time, displacement);
     case 2:
-      nonlin_force_density_2(x, y, z, time, displacement, result);
-      return;
+      return nonlin_force_density_2(pt, time, displacement);
     case 3:
-      nonlin_force_density_3(x, y, z, time, displacement, result);
-      return;
+      return nonlin_force_density_3(pt, time, displacement);
     case 4:
-      nonlin_force_density_4(x, y, z, time, displacement, result);
-      return;
-    default:
-      result.zero();
-      return;
+      return nonlin_force_density_4(pt, time, displacement);
   }
+  return DoubleVec(2, 0.0);
+}
+
+
+DoubleVec TestNonlinearForceDensityNoDeriv::nonlin_force_density(
+				    const Coord &pt, double time,
+				    const DoubleVec &displacement)
+  const
+{
+  switch (testNo) {
+    case 1:
+      return nonlin_force_density_1(pt, time, displacement);
+    case 2:
+      return nonlin_force_density_2(pt, time, displacement);
+    case 3:
+      return nonlin_force_density_3(pt, time, displacement);
+    case 4:
+      return nonlin_force_density_4(pt, time, displacement);
+  }
+  return DoubleVec(2, 0.0);
 
 } // end of 'TestNonlinearForceDensity::nonlin_force_density'
 
-
-void TestNonlinearForceDensityNoDeriv::nonlin_force_density(
-                                   double x, double y, double z, double time,
-				   DoubleVec &displacement,
-				   DoubleVec &result) const
+SmallMatrix TestNonlinearForceDensity::nonlin_force_density_deriv(
+				   const Coord &pt, double time,
+				   const DoubleVec &displacement) const
 {
-  switch (testNo)
-  {
-    case 1:
-      nonlin_force_density_1(x, y, z, time, displacement, result);
-      return;
-    case 2:
-      nonlin_force_density_2(x, y, z, time, displacement, result);
-      return;
-    case 3:
-      nonlin_force_density_3(x, y, z, time, displacement, result);
-      return;
-    case 4:
-      nonlin_force_density_4(x, y, z, time, displacement, result);
-      return;
-    default:
-      result.zero();
-      return;
+  switch (testNo) {
+  case 1:
+      return nonlin_force_density_deriv_1(pt, time, displacement);
+  case 2:
+      return nonlin_force_density_deriv_2(pt, time, displacement);
+  case 3:
+    return nonlin_force_density_deriv_3(pt, time, displacement);
+  case 4:
+      return nonlin_force_density_deriv_4(pt, time, displacement);
   }
-
-} // end of 'TestNonlinearForceDensity::nonlin_force_density'
-
-void TestNonlinearForceDensity::nonlin_force_density_deriv(
-                                   double x, double y, double z, double time,
-				   DoubleVec &displacement,
-				   SmallMatrix &result) const
-{
-  switch (testNo)
-  {
-    case 1:
-      nonlin_force_density_deriv_1(x, y, z, time, displacement, result);
-      return;
-    case 2:
-      nonlin_force_density_deriv_2(x, y, z, time, displacement, result);
-      return;
-    case 3:
-      nonlin_force_density_deriv_3(x, y, z, time, displacement, result);
-      return;
-    case 4:
-      nonlin_force_density_deriv_4(x, y, z, time, displacement, result);
-      return;
-    default:
-      result.zero();
-      return;
-  }
+  return SmallMatrix(2);
 
 } // end of 'TestNonlinearForceDensity::nonlin_force_density_deriv'
 

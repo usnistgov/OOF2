@@ -25,8 +25,7 @@ class CRambergOsgood
 {
 
 private:
-  int invert(SmallMatrix &ein, SmallMatrix &sout,
-	     SmallTensor4 &dsde) const;
+  int invert(const SmallMatrix &ein, SmallMatrix &sout, SmallTensor4 &dsde) const;
   Cijkl cijkl;
   double alpha;
   double s0;
@@ -46,22 +45,22 @@ public:
   virtual ~CRambergOsgood() {};
 
 protected:
-  virtual void nonlin_stress(double x, double y, double z,
-			     double time, DoubleVec &displacement,
-			     SmallMatrix &displacement_gradient,
-			     SmallMatrix &stress) const;
+  virtual SmallMatrix nonlin_stress(const Coord &pt, double time,
+				    const DoubleVec &displacement,
+				    const SmallMatrix &displacement_gradient)
+    const;
 
-  virtual void nonlin_stress_deriv_wrt_displacement(
-                             double x, double y, double z,
-			     double time, DoubleVec &displacement,
-			     SmallMatrix &displacement_gradient,
-			     SmallTensor3 &stress_deriv) const;
+  virtual SmallTensor3 nonlin_stress_deriv_wrt_displacement(
+				    const Coord &pt, double time,
+				    const DoubleVec &displacement,
+				    const SmallMatrix &displacement_gradient)
+    const;
 
-  virtual void nonlin_stress_deriv_wrt_displacement_gradient(
-                             double x, double y, double z,
-			     double time, DoubleVec &displacement,
-			     SmallMatrix &displacement_gradient,
-			     SmallTensor4 &stress_deriv) const;
+  virtual SmallTensor4 nonlin_stress_deriv_wrt_displacement_gradient(
+				     const Coord &pt, double time,
+				     const DoubleVec &displacement,
+				     const SmallMatrix &displacement_gradient)
+    const;
 };
 
 #endif	// RAMBERGOSGOOD_H

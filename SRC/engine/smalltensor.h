@@ -9,26 +9,69 @@
  * oof_manager@nist.gov.
  */
 
-
 #ifndef SMALLTENSOR_H
 #define SMALLTENSOR_H
 
+#include <stdlib.h>
+#include <string.h>
 
-class SmallTensor3{
+class SmallTensor3 {
 protected:
-  double data[3][3][3];
+  double *data;
+  int index(int i, int j, int k) const {
+    return 9*i + 3*j + k;
+  }
 public:
-  double &operator()(int i, int j, int k){ return data[i][j][k]; };
-  double operator()(int i, int j, int k) const { return data[i][j][k]; };
+  SmallTensor3() {
+    data = (double *) calloc(27, sizeof(double));
+  }
+  SmallTensor3(const SmallTensor3 &other) {
+    memcpy(data, other.data, 27*sizeof(double));
+  }
+  SmallTensor3(SmallTensor3 &&other) {
+    delete data;
+    data = other.data;
+    other.data = nullptr;
+  }
+  virtual ~SmallTensor3() {
+    delete data;
+  }
+  double &operator()(int i, int j, int k) {
+    return data[index(i, j, k)];
+  }
+  double operator()(int i, int j, int k) const {
+    return data[index(i, j, k)];
+  }
 };
 
 
 class SmallTensor4{
 protected:
-  double data[3][3][3][3];
+  double *data;
+  int index(int i, int j, int k, int l) const {
+    return 27*i + 9*j + 3*k + l;
+  }
 public:
-  double &operator()(int i, int j, int k, int l){ return data[i][j][k][l]; };
-  double operator()(int i, int j, int k, int l) const { return data[i][j][k][l]; };
+  SmallTensor4() {
+    data = (double *) calloc(81, sizeof(double));
+  }
+  SmallTensor4(const SmallTensor4 &other) {
+    memcpy(data, other.data, 81*sizeof(double));
+  }
+  SmallTensor4(SmallTensor4 &&other) {
+    delete data;
+    data = other.data;
+    other.data = nullptr;
+  }
+  virtual ~SmallTensor4() {
+    delete data;
+  }
+  double &operator()(int i, int j, int k, int l) {
+    return data[index(i, j, k, l)];
+  };
+  double operator()(int i, int j, int k, int l) const {
+    return data[index(i, j, k, l)];
+  }
 };
 
 #endif

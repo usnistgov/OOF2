@@ -44,26 +44,24 @@ protected:
   TwoVectorField *displacement;
   SymmetricTensorFlux *stress_flux;
 
-  virtual void nonconst_force_density(double x, double y, double z, double time,
-				      DoubleVec &result) const = 0;
+  virtual DoubleVec nonconst_force_density(const Coord &pt, double time) const = 0;
 };
 
 
 class TestNonconstantForceDensity : public NonconstantForceDensity {
 protected:
   int testNo;
-  void nonconst_force_density_1(double x, double y, double z, double time,
-				DoubleVec &result) const;
-  void nonconst_force_density_2(double x, double y, double z, double time,
-				DoubleVec &result) const;
-  void nonconst_force_density_3(double x, double y, double z, double time,
-				DoubleVec &result) const;
-  void nonconst_force_density_4(double x, double y, double z, double time,
-				DoubleVec &result) const;
-  void nonconst_force_density_5(double x, double y, double z, double time,
-				DoubleVec &result) const;
-  virtual void nonconst_force_density(double x, double y, double z, double time,
-				      DoubleVec &result) const;
+  DoubleVec nonconst_force_density_1(const Coord &pt, double time)
+    const;
+  DoubleVec nonconst_force_density_2(const Coord &pt, double time)
+    const;
+  DoubleVec nonconst_force_density_3(const Coord &pt, double time)
+    const;
+  DoubleVec nonconst_force_density_4(const Coord &pt, double time)
+    const;
+  DoubleVec nonconst_force_density_5(const Coord &pt, double time)
+    const;
+  DoubleVec nonconst_force_density(const Coord &pt, double time) const;
 public:
   TestNonconstantForceDensity(const std::string &name, PyObject *registration,
 			      int testno)

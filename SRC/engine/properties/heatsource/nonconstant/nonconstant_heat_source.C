@@ -43,19 +43,16 @@ int NonconstantHeatSource::integration_order(const CSubProblem *subp,
   return el->shapefun_degree();
 }
 
-void NonconstantHeatSource::force_value(const FEMesh *mesh, const Element *element,
+void NonconstantHeatSource::force_value(const FEMesh *mesh,
+					const Element *element,
 					const Equation *eqn,
 					const MasterPosition &masterpos,
 					double time, void*, 
-					SmallSystem *eqndata) const
+					SmallSystem *eqndata)
+  const
 {
-  Coord coord = element->from_master( masterpos );
-
-#if DIM==2
-  eqndata->force_vector_element(0) -= nonconst_heat_source( coord[0], coord[1], 0.0, time );
-#elif DIM==3
-  eqndata->force_vector_element(0) -= nonconst_heat_source( coord[0], coord[1], coord.z, time );
-#endif
+  Coord coord = element->from_master(masterpos);
+  eqndata->force_vector_element(0) -= nonconst_heat_source(coord, time);
 }
 
 
@@ -66,139 +63,139 @@ void NonconstantHeatSource::force_value(const FEMesh *mesh, const Element *eleme
 inline double SQR(double x){ return x*x; }
 inline double CUBE(double x){ return x*x*x; }
 
+static double pi = M_PI;
+static double pi2 = M_PI*M_PI;
+
 
 double TestNonconstantHeatSource::nonconst_heat_source_1(
-                                  double x, double y, double z, double time) const
+                                  const Coord &pt, double time) const
 {
-  double source_value;
-  double m = 2.0, n = 3.0, pi = M_PI;
+  double m = 2.0;
+  double n = 3.0;
+  double x = pt[0];
+  double y = pt[1];
 
-  source_value = -(m*m + n*n) * SQR(pi) * sin( m*pi*x ) * sin( n*pi*y );
-
-  return source_value;
-
-} // end of 'TestNonconstantHeatSource::nonconstant_heat_source_1'
+  return -(m*m + n*n) * SQR(pi) * sin(m*pi*x) * sin(n*pi*y);
+} 
 
 
 double TestNonconstantHeatSource::nonconst_heat_source_2(
-                                  double x, double y, double z, double time) const
+                                  const Coord &pt, double time) const
 {
-  double source_value;
-  double m = 2.0, n = 3.0, pi = M_PI;
+  
+  double m = 2.0;
+  double n = 3.0;
+  double x = pt[0];
+  double y = pt[1];
 
-  source_value  = -(m*m + n*n) * SQR(pi) * sin( m*pi*x ) * sin( n*pi*y );
-  source_value -= SQR( m*pi* cos(m*pi*x)*sin(n*pi*y) )
-                  * SQR(m*pi) * sin( m*pi*x ) * sin( n*pi*y );
-  source_value -= pow( n*pi* sin(m*pi*x)*cos(n*pi*y), 4.0 )
-                  * SQR(n*pi) * sin( m*pi*x ) * sin( n*pi*y ) / 10.0;
+  double source_value  = -(m*m + n*n) * pi2 * sin(m*pi*x) * sin(n*pi*y);
+  source_value -= SQR(m*pi* cos(m*pi*x)*sin(n*pi*y))
+                  * SQR(m*pi) * sin(m*pi*x) * sin(n*pi*y);
+  source_value -= pow(n*pi* sin(m*pi*x)*cos(n*pi*y), 4.0)
+                  * SQR(n*pi) * sin(m*pi*x) * sin(n*pi*y) / 10.0;
 
   return source_value;
-
-} // end of 'TestNonconstantHeatSource::nonconstant_heat_source_2'
+}
 
 
 double TestNonconstantHeatSource::nonconst_heat_source_3(
-                                  double x, double y, double z, double time) const
+                                  const Coord &pt, double time) const
 {
-  double source_value;
-  double w = -1.5, m = 2.0, n = 3.0, pi = M_PI;
+  double w = -1.5;
+  double m = 2.0;
+  double n = 3.0;
+  double x = pt[0];
+  double y = pt[1];
 
-  source_value = -(w + (m*m + n*n)*pi*pi) * exp(w*time) * sin( m*pi*x ) * sin( n*pi*y );
-
-  return source_value;
-
-} // end of 'TestNonconstantHeatSource::nonconstant_heat_source_3'
-
+  return -(w + (m*m + n*n)*pi2) * exp(w*time) * sin(m*pi*x) * sin(n*pi*y);
+}
 
 double TestNonconstantHeatSource::nonconst_heat_source_4(
-                                  double x, double y, double z, double time) const
+                                  const Coord &pt, double time) const
 {
-  double Ux, Uy, Uz,Uxx, Uxy, Uyx, Uyy, Uzx, Uzy, source_value;
-  double m = 2.0, n = 3.0, pi = M_PI;
+  double m = 2.0;
+  double n = 3.0;
+  double x = pt[0];
+  double y = pt[1];
 
-  // nonlinear flux = -( Ux+Ux^3+Uz/20, Uy+Uy^3+Uz/20, Ux/20+Uy/20+arctan(Uz) )
-  Ux =  m*pi * cos(m*pi*x) * sin(n*pi*y);
-  Uy =  n*pi * sin(m*pi*x) * cos(n*pi*y);
-  Uz = -tan( (Ux + Uy) / 20.0 );
+  // nonlinear flux = -(Ux+Ux^3+Uz/20, Uy+Uy^3+Uz/20, Ux/20+Uy/20+arctan(Uz))
+  double Ux =  m*pi * cos(m*pi*x) * sin(n*pi*y);
+  double Uy =  n*pi * sin(m*pi*x) * cos(n*pi*y);
+  double Uz = -tan((Ux + Uy) / 20.0);
 
-  Uxx = -m*m*pi*pi * sin(m*pi*x) * sin(n*pi*y);
-  Uxy =  m*n*pi*pi * cos(m*pi*x) * cos(n*pi*y);
-  Uyx =  Uxy;
-  Uyy = -n*n*pi*pi * sin(m*pi*x) * sin(n*pi*y);
+  double Uxx = -m*m*pi2 * sin(m*pi*x) * sin(n*pi*y);
+  double Uxy =  m*n*pi2 * cos(m*pi*x) * cos(n*pi*y);
+  double Uyx =  Uxy;
+  double Uyy = -n*n*pi2 * sin(m*pi*x) * sin(n*pi*y);
 
-  Uzx = -(1.0 + Uz*Uz) * (Uxx + Uyx) / 20.0;
-  Uzy = -(1.0 + Uz*Uz) * (Uxy + Uyy) / 20.0;
+  double Uzx = -(1.0 + Uz*Uz) * (Uxx + Uyx) / 20.0;
+  double Uzy = -(1.0 + Uz*Uz) * (Uxy + Uyy) / 20.0;
 
-  // source = -div(flux) = -( d(flux0)/dx + d(flux1)/dy )
-  source_value  = (1.0 + 3.0*Ux*Ux)*Uxx + Uzx/20.0 +
-                  (1.0 + 3.0*Uy*Uy)*Uyy + Uzy/20.0;
-
-  return source_value;
-
-} // end of 'TestNonconstantHeatSource::nonconstant_heat_source_4'
+  // source = -div(flux) = -(d(flux0)/dx + d(flux1)/dy)
+  return (1.0 + 3.0*Ux*Ux)*Uxx + Uzx/20.0 + (1.0 + 3.0*Uy*Uy)*Uyy + Uzy/20.0;
+}
 
 
 double TestNonconstantHeatSource::nonconst_heat_source_5(
-                                  double x, double y, double z, double time) const
+                                  const Coord &pt, double time) const
 {
-  double Ux, Uy, Uxx, Uyy, source_value;
-  double m = 2.0, n = 3.0, pi = M_PI;
+  double m = 2.0;
+  double n = 3.0;
+  double x = pt[0];
+  double y = pt[1];
+  
+  double Ux  = m*pi * cos(m*pi*x) * sin(n*pi*y);
+  double Uy  = n*pi * sin(m*pi*x) * cos(n*pi*y);
 
-  Ux  = m*pi * cos(m*pi*x) * sin(n*pi*y);
-  Uy  = n*pi * sin(m*pi*x) * cos(n*pi*y);
+  double Uxx = -m*m*pi2 * sin(m*pi*x) * sin(n*pi*y);
+  double Uyy = -n*n*pi2 * sin(m*pi*x) * sin(n*pi*y);
 
-  Uxx = -m*m*pi*pi * sin(m*pi*x) * sin(n*pi*y);
-  Uyy = -n*n*pi*pi * sin(m*pi*x) * sin(n*pi*y);
-
-  source_value = Uxx / (1.0 + SQR(Ux)) + Uyy / (1.0 + SQR(Uy));
-
-  return source_value;
-
-} // end of 'TestNonconstantHeatSource::nonconstant_heat_source_5'
+  return Uxx / (1.0 + SQR(Ux)) + Uyy / (1.0 + SQR(Uy));
+}
 
 double TestNonconstantHeatSource::nonconst_heat_source_6(
-                                  double x, double y, double z, double time) const
+                                  const Coord &pt, double time) const
 {
-  double Ut, Ux, Uy, Uxx, Uyy, source_value;
-  double w = -1.5, m = 2.0, n = 3.0, pi = M_PI;
+  double w = -1.5;
+  double m = 2.0;
+  double n = 3.0;
+  double x = pt[0];
+  double y = pt[1];
 
-  Ut  = w * exp(w*time) * sin(m*pi*x) * sin(n*pi*y);
-  Ux  = m*pi * exp(w*time) * cos(m*pi*x) * sin(n*pi*y);
-  Uy  = n*pi * exp(w*time) * sin(m*pi*x) * cos(n*pi*y);
+  double Ut  = w * exp(w*time) * sin(m*pi*x) * sin(n*pi*y);
+  double Ux  = m*pi * exp(w*time) * cos(m*pi*x) * sin(n*pi*y);
+  double Uy  = n*pi * exp(w*time) * sin(m*pi*x) * cos(n*pi*y);
 
-  Uxx = -m*m*pi*pi * exp(w*time) * sin(m*pi*x) * sin(n*pi*y);
-  Uyy = -n*n*pi*pi * exp(w*time) * sin(m*pi*x) * sin(n*pi*y);
+  double Uxx = -m*m*pi2 * exp(w*time) * sin(m*pi*x) * sin(n*pi*y);
+  double Uyy = -n*n*pi2 * exp(w*time) * sin(m*pi*x) * sin(n*pi*y);
 
-  source_value = -Ut + Uxx*(1.0 + Ux*Ux) + Uyy*(1.0 + pow(Uy,4.0)/10.0);
-
-  return source_value;
-
-} // end of 'TestNonconstantHeatSource::nonconstant_heat_source_6'
+  return -Ut + Uxx*(1.0 + Ux*Ux) + Uyy*(1.0 + pow(Uy,4.0)/10.0);
+}
 
 double TestNonconstantHeatSource::nonconst_heat_source_7(
-                                  double x, double y, double z, double t) const
+                                  const Coord &pt, double t) const
 {
-  double Ut, Ux, Uy, Uxx, Uyy, source_value;
-  double w = 1.5, m = 2.0, n = 3.0, pi = M_PI;
+  double w = 1.5;
+  double m = 2.0;
+  double n = 3.0;
   double k = 1;
+  double x = pt[0];
+  double y = pt[1];
 
   // U = sin(m*pi*x) * sin(n*pi*y) * sin(pi*(k*x - w*t))
-  Ut  = -pi*w * sin(m*pi*x) * sin(n*pi*y) * cos(pi*(k*x-w*t));
+  double Ut  = -pi*w * sin(m*pi*x) * sin(n*pi*y) * cos(pi*(k*x-w*t));
 
-  Ux  = m*pi * cos(m*pi*x) * sin(n*pi*y) * sin(pi*(k*x-w*t)) 
+  double Ux  = m*pi * cos(m*pi*x) * sin(n*pi*y) * sin(pi*(k*x-w*t)) 
     + k*pi * sin(m*pi*x) * sin(n*pi*y) * cos(pi*(k*x - w*t));
   
-  Uxx = -(m*m + k*k)*pi*pi * sin(m*pi*x) * sin(n*pi*y)* sin(n*pi*(x-w*t))
-    + 2*m*k*pi*pi * cos(m*pi*x) * sin(n*pi*y) * cos(pi*(k*x - w*t));
+  double Uxx = -(m*m + k*k)*pi2 * sin(m*pi*x) * sin(n*pi*y)* sin(n*pi*(x-w*t))
+    + 2*m*k*pi2 * cos(m*pi*x) * sin(n*pi*y) * cos(pi*(k*x - w*t));
   
-  Uy  = n*pi * sin(m*pi*x) * cos(n*pi*y) * sin(pi*(k*x - w*t));
-  Uyy = -n*n*pi*pi * sin(m*pi*x) * sin(n*pi*y) * sin(pi*(k*x-w*t));
+  double Uy  = n*pi * sin(m*pi*x) * cos(n*pi*y) * sin(pi*(k*x - w*t));
+  double Uyy = -n*n*pi2 * sin(m*pi*x) * sin(n*pi*y) * sin(pi*(k*x-w*t));
 
-  source_value = -Ut + Uxx*(1.0 + Ux*Ux) + Uyy*(1.0 + pow(Uy,4.0)/10.0);
-
-  return source_value;
-
-} // end of 'TestNonconstantHeatSource::nonconstant_heat_source_7'
+  return -Ut + Uxx*(1.0 + Ux*Ux) + Uyy*(1.0 + pow(Uy,4.0)/10.0);
+}
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -225,13 +222,14 @@ static double dfdt(double x, double t) {
 }
 
 double TestNonconstantHeatSource::nonconst_heat_source_8(
-				    double x, double y, double z, double t)
+				    const Coord &pt, double t)
   const 
 {
   // For T = (x^2 - x) (y^2 - y) f(x,t) and the nonlinear
   // conductivity given by
   // TestNonlinearHeatConductivity::nonlin_heat_flux1.
-
+  double x = pt[0];
+  double y = pt[1];
   double xx1 = x*x - x;
   double yy1 = y*y - y;
   double fxt = f(x,t);
@@ -248,7 +246,7 @@ double TestNonconstantHeatSource::nonconst_heat_source_8(
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 double TestNonconstantHeatSource::nonconst_heat_source(
-			       double x, double y, double z, double time)
+			       const Coord &pt, double time)
   const
 {
   // The minus sign in all of these test functions is necessary
@@ -256,22 +254,21 @@ double TestNonconstantHeatSource::nonconst_heat_source(
   // for version 2.1.2.
   switch (testNo) {
   case 1:
-    return -nonconst_heat_source_1( x, y, z, time );
+    return -nonconst_heat_source_1(pt, time);
   case 2:
-    return -nonconst_heat_source_2( x, y, z, time );
+    return -nonconst_heat_source_2(pt, time);
   case 3:
-    return -nonconst_heat_source_3( x, y, z, time );
+    return -nonconst_heat_source_3(pt, time);
   case 4:
-    return -nonconst_heat_source_4( x, y, z, time );
+    return -nonconst_heat_source_4(pt, time);
   case 5:
-    return -nonconst_heat_source_5( x, y, z, time );
+    return -nonconst_heat_source_5(pt, time);
   case 6:
-    return -nonconst_heat_source_6(x, y, z, time);
+    return -nonconst_heat_source_6(pt, time);
   case 7:
-    return -nonconst_heat_source_7(x, y, z, time);
+    return -nonconst_heat_source_7(pt, time);
   case 8:
-    return -nonconst_heat_source_8(x, y, z, time);
-  default:
-    return 0.0;
+    return -nonconst_heat_source_8(pt, time);
   }
-} // end of 'TestNonconstantHeatSource::nonconst_heat_source'
+  return 0.0;
+}
