@@ -35,8 +35,6 @@ class ElementNodeIterator;
 class HeatSourceProp : public EqnProperty {
 private:
   double qdot_; // external heat dumped in per unit area per unit time.
-protected:
-  VectorFlux *heat_flux;
 public:
   HeatSourceProp(const std::string &name, PyObject *registration, double qd);
   virtual int  integration_order(const CSubProblem*, const Element*) const;
