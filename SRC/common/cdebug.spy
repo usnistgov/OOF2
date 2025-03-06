@@ -17,6 +17,7 @@ def stackDumper(signal):
 
 initDebug(stackDumper)
 
+# The python version allows multiple args, which will be concatenated.
 def dump(*strs):
     s = " ".join(strs)
     c_dump(s)

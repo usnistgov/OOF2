@@ -38,11 +38,13 @@ void DoubleVec::segment_copy(std::size_t toPos, const DoubleVec& other, std::siz
 }
 
 DoubleVec& DoubleVec::operator+=(const DoubleVec& other) {
+  assert(other.size() == size());
   data += other.data; 
   return *this;
 }
 
 DoubleVec& DoubleVec::operator-=(const DoubleVec& other) {
+  assert(other.size() == size());
   data -= other.data;
   return *this;
 }
@@ -62,30 +64,31 @@ void DoubleVec::scale(double alpha) {
 }
 
 void DoubleVec::axpy(double alpha, const DoubleVec& x) {
+  assert(x.size() == size());
   data += alpha * x.data;
 }
 
 DoubleVec DoubleVec::operator+(const DoubleVec& other) const {
-  DoubleVec rst;
-  rst.data = data + other.data;
+  DoubleVec rst(*this);
+  rst.data += other.data;
   return rst;
 }
 
 DoubleVec DoubleVec::operator-(const DoubleVec& other) const {
-  DoubleVec rst;
-  rst.data = data - other.data;
+  DoubleVec rst(*this);
+  rst.data -= other.data;
   return rst;
 }
 
 DoubleVec DoubleVec::operator*(double alpha) const {
-  DoubleVec rst;
-  rst.data = data * alpha;
+  DoubleVec rst(*this);
+  rst.data *= alpha;
   return rst;
 }
 
 DoubleVec DoubleVec::operator/(double alpha) const {
-  DoubleVec rst;
-  rst.data = data / alpha;
+  DoubleVec rst(*this);
+  rst.data /= alpha;
   return rst;
 }
 

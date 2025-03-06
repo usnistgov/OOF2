@@ -191,7 +191,6 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
 
     @memorycheck.check("microstructure")
     def NonlinearHeatConductivity(self):
-
         nonlin_heat_conductivity_tests = [ {"test_no":2,"heat_source_no":4,
                                             "soln_no":0,"z_soln_no":7} ]
 
@@ -212,7 +211,6 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
         # iterate through nonlinear heat conductivity test by alternating
         # between various test examples and nonlinear solvers
         for test in nonlin_heat_conductivity_tests:
-
             test_no   = test["test_no"]
             source_no = test["heat_source_no"]
             soln_no   = test["soln_no"]

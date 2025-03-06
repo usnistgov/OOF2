@@ -10,6 +10,7 @@
  */
 
 #include <oofconfig.h>
+#include "common/cdebug.h"
 #include "common/cleverptr.h"
 #include "common/doublevec.h"
 #include "common/printvec.h"
@@ -241,7 +242,6 @@ void FluxProperty::flux_value(const FEMesh *mesh, const Element *element,
   // localdofs doesn't include time derivative fields, then doing this
   // is a no-op. TODO: Skip the call if it's a no-op.
   fluxdata->fluxVector() += localFluxData.cMatrix*localdofs;
-
 } // FluxProperty::flux_value
 
 //=\\=//=\\=//=\\=//

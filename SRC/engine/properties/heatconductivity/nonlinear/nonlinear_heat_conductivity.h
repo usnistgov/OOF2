@@ -56,11 +56,11 @@ protected:
   ScalarField *temperature;
   VectorFlux  *heat_flux;
 
-  virtual void nonlin_heat_flux(double x, double y, double z,
-				double time, double temperature,
-				const DoubleVec &temperature_gradient,
-				DoubleVec &heat_flux) const = 0;
-}; // NonlinearHeatConductivityNoDeriv
+  virtual DoubleVec nonlin_heat_flux(const Coord &pt, double time,
+				     double temperature,
+				     const DoubleVec &temperature_gradient)
+    const = 0;
+};
 
 
 class NonlinearHeatConductivity : public NonlinearHeatConductivityNoDeriv {
@@ -77,18 +77,18 @@ public:
 			   SmallSystem*) const;
 
 protected:
-  virtual void nonlin_heat_flux_deriv_wrt_temperature(
-                                double x, double y, double z,
-				double time, double temperature,
-				const DoubleVec &temperature_gradient,
-				DoubleVec &heat_flux_deriv) const = 0;
+  virtual DoubleVec nonlin_heat_flux_deriv_wrt_temperature(
+				   const Coord &pt, double time,
+				   double temperature,
+				   const DoubleVec &temperature_gradient)
+    const = 0;
 
-  virtual void nonlin_heat_flux_deriv_wrt_temperature_gradient(
-                                double x, double y, double z,
-				double time, double temperature,
-				const DoubleVec &temperature_gradient,
-				SmallMatrix &heat_flux_deriv) const = 0;
-}; // NonlinearHeatConductivity
+  virtual SmallMatrix nonlin_heat_flux_deriv_wrt_temperature_gradient(
+				      const Coord &pt, double time,
+				      double temperature,
+				      const DoubleVec &temperature_gradient)
+    const = 0;
+}; 
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -107,11 +107,10 @@ public:
 
 protected:
   int testNo;
-  virtual void nonlin_heat_flux(double x, double y, double z,
+  virtual DoubleVec nonlin_heat_flux(const Coord &pt,
 				double time, double temperature,
-				const DoubleVec &temperature_gradient,
-				DoubleVec &heat_flux) const;
-}; // TestNonlinearHeatConductivityNoDeriv
+				const DoubleVec &temperature_gradient) const;
+};
 
 
 class TestNonlinearHeatConductivity : public NonlinearHeatConductivity {
@@ -126,20 +125,17 @@ public:
 
 protected:
   int testNo;
-  virtual void nonlin_heat_flux(double x, double y, double z,
+  virtual DoubleVec nonlin_heat_flux(const Coord &pt,
 				double time, double temperature,
-				const DoubleVec &temperature_gradient,
-				DoubleVec &heat_flux) const;
-  virtual void nonlin_heat_flux_deriv_wrt_temperature(
-                                double x, double y, double z,
+				const DoubleVec &temperature_gradient) const;
+  virtual DoubleVec nonlin_heat_flux_deriv_wrt_temperature(
+                                const Coord &pt,
 				double time, double temperature,
-				const DoubleVec &temperature_gradient,
-				DoubleVec &heat_flux_deriv) const;
-  virtual void nonlin_heat_flux_deriv_wrt_temperature_gradient(
-                                double x, double y, double z,
+				const DoubleVec &temperature_gradient) const;
+  virtual SmallMatrix nonlin_heat_flux_deriv_wrt_temperature_gradient(
+                                const Coord &pt,
 				double time, double temperature,
-				const DoubleVec &temperature_gradient,
-				SmallMatrix &heat_flux_deriv) const;
-}; // TestNonlinearHeatConductivity
+				const DoubleVec &temperature_gradient) const;
+};
 
 #endif

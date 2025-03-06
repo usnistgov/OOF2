@@ -1001,6 +1001,13 @@ def openDumpFile(menuitem, filename):
 def closeDumpFile(menuitem):
     cdebug.closeDumpFile()
 
+def openDumpFileSeries(menuitem, filename, width):
+    print(f"Opening data dump series {filename}{'0'*width} ...")
+    cdebug.openDumpFileSeries(filename, width)
+
+def nextDumpFile(menuitem):
+    cdebug.nextDumpFile()
+
 dumpmenu.addItem(OOFMenuItem(
     "Open",
     callback=openDumpFile,
@@ -1009,6 +1016,21 @@ dumpmenu.addItem(OOFMenuItem(
             "filename", tip="Dump data to this file")],
     help="Set a file name and start dumping data to it",
     discussion=xmlmenudump.emptyDiscussion))
+
+dumpmenu.addItem(OOFMenuItem(
+    "Open_Series",
+    callback=openDumpFileSeries,
+    params=[
+        filenameparam.WriteFileNameParameter(
+            "filename", tip="Create files with this base name, plus an integer"),
+        IntParameter('width', 5, "How many digits to append")],
+    help="Dump data to a series of files",
+    discussion=xmlmenudump.emptyDiscussion))
+
+dumpmenu.addItem(OOFMenuItem(
+    "Next",
+    callback=nextDumpFile,
+    help="Open the next file in a series"))
 
 dumpmenu.addItem(OOFMenuItem(
     "Close",

@@ -190,15 +190,23 @@ void memusage(const std::string &comment) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+static bool dumping = false;
 static std::ofstream *dumpstream = nullptr;
+static std::string dumpfilename;
+static std::string dumpseriesname;
+static int dumpcount = 0;
+static int dumpwidth = 0;
 
 void openDumpFile(const std::string &filename) {
-  if(dumpstream)
-    closeDumpFile();
+  closeDumpFile();
+  dumping = true;
+  dumpfilename = filename;
   dumpstream = new std::ofstream(filename.c_str());
 }
 
 void closeDumpFile() {
+  dumping = false;
+  dumpcount = 0;
   if(dumpstream) {
     dumpstream->close();
     dumpstream = nullptr;
@@ -206,7 +214,46 @@ void closeDumpFile() {
 }
 
 void dump(const std::string &line) {
-  if(dumpstream)
+  if(dumping) {
+    if(!dumpstream) {
+      // The file isn't opened until the last minute, to ensure that
+      // empty files are created.
+      dumpstream = new std::ofstream(dumpfilename.c_str());
+    }
     *dumpstream << line << std::endl;
+  }
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// To create a series of dump files, call openDumpFileSeries() instead
+// of openDumpFile(), and call nextDumpFile() to go to the next file in
+// the series.
+void openDumpFileSeries(const std::string &filename, int width) {
+  closeDumpFile();
+  dumpcount = 0;		// restarting
+  dumping = true;
+  dumpseriesname = filename;
+  dumpwidth = width;
+  nextDumpFile();
+}
+
+void nextDumpFile() {
+  // Close the current dump file and set the name for the next one,
+  // but only if the file was created with openDumpFileSeries().  This
+  // does *not* close the current file by calling closeDumpFile(),
+  // because that would stop future dumps.
+  if(dumpseriesname.size() > 0) {
+    dumpfilename = dumpseriesname +
+      (std::ostringstream()
+       << std::setfill('0')
+       << std::setw(dumpwidth)
+       << dumpcount).str();
+    if(dumpstream) {
+      dumpstream->close();
+      dumpstream = nullptr;
+    }
+    dumpcount++;
+  }
 }
 

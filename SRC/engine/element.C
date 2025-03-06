@@ -10,6 +10,7 @@
  */
 
 #include <oofconfig.h>
+#include "common/cdebug.h"
 #include "common/cleverptr.h"
 #include "common/cmicrostructure.h"
 #include "common/doublevec.h"
