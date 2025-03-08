@@ -196,7 +196,7 @@ public:
   virtual double operator()(const FuncNode *node) {
     if(!node->hasField(*field))
       throw ErrNoSuchField(field->name());
-    DegreeOfFreedom *dof = (*field)(node, comp.integer());
+    DegreeOfFreedom *dof = (*field)(node, comp);
     return dof->value(mesh);
   }
 };
@@ -584,7 +584,7 @@ DoubleVec VectorFieldBase::values(const FEMesh *mesh, const Element *el,
   DoubleVec v(dim);
   const Field *field = dynamic_cast<const Field*>(this);
   for(auto i : *components(ALL_INDICES)) {
-    v[i.integer()] = field->value(mesh, el, mpt, *i);
+    v[i] = field->value(mesh, el, mpt, *i);
   }
   return v;
 }
@@ -597,7 +597,7 @@ DoubleVec VectorFieldBase::gradients(const FEMesh *mesh, const Element *el,
   DoubleVec v(dim);
   const Field *field = dynamic_cast<const Field*>(this);
   for(auto i : *components(ALL_INDICES)) {
-    v[i.integer()] = field->gradient(mesh, el, mpt, *i, gradindex);
+    v[i] = field->gradient(mesh, el, mpt, *i, gradindex);
   }
   return v;
 }
@@ -694,13 +694,13 @@ DegreeOfFreedom *SymmetricTensorField::operator()
 DegreeOfFreedom *SymmetricTensorField::operator()
   (const ElementFuncNodeIterator &ei, SymTensorIndex &sti) const 
 {
-  return this->operator()(ei.funcnode(),sti.integer());
+  return this->operator()(ei.funcnode(),sti);
 }
 
 DegreeOfFreedom *SymmetricTensorField::operator()
   (const FuncNode &pd, SymTensorIndex& sti) const 
 {
-  return this->operator()(&pd, sti.integer());
+  return this->operator()(&pd, sti);
 }
 
 SymmMatrix3 SymmetricTensorField::values(const FEMesh *mesh, const Element *el,
@@ -710,7 +710,7 @@ SymmMatrix3 SymmetricTensorField::values(const FEMesh *mesh, const Element *el,
   SymmMatrix3 v;
   const Field *field = dynamic_cast<const Field*>(this);
   for(IndexP i : *components(ALL_INDICES)) {
-    v[i.integer()] = field->value(mesh, el, mpt, i);
+    v[i] = field->value(mesh, el, mpt, i);
   }
   return v;
 }
@@ -724,7 +724,7 @@ SymmMatrix3 SymmetricTensorField::gradients(const FEMesh *mesh,
   SymmMatrix3 v;
   const Field *field = dynamic_cast<const Field*>(this);
   for(IndexP i : *components(ALL_INDICES)) {
-    v[i.integer()] = field->gradient(mesh, el, mpt, i, gradindex);
+    v[i] = field->gradient(mesh, el, mpt, i, gradindex);
   }
   return v;
 }
@@ -740,7 +740,7 @@ ArithmeticOutputValue SymmetricTensorField::output(const FEMesh *mesh,
   ArithmeticOutputValue ov(oval);
   if(pd.hasField(*this)) {
     for(SymTensorIndex i : symTensorIJComponents) 
-      (*oval)[i] = operator()(pd, i.integer())->value(mesh);
+      (*oval)[i] = operator()(pd, i)->value(mesh);
   }
   return ov;
 }
@@ -754,7 +754,7 @@ SymmetricTensorField::output(const FEMesh *mesh,
   ArithmeticOutputValue ov(oval);
   if(pd.hasField(*this)) {
     for(SymTensorIndex i : symTensorIJComponents)
-      (*oval)[i] = operator()(pd, i.integer())->value(mesh);
+      (*oval)[i] = operator()(pd, i)->value(mesh);
   }
   return ov;
 }

@@ -128,7 +128,8 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
     int k0, k1, k2, ij = ij_iter.integer();
     double nonlinear_part; // to store the sum from the nonlinear terms
 
-    // TODO: Use tensor iterators for k0, k1, k2.
+    // TODO: Use tensor iterators for k0, k1, k2.  Shouldn't need to
+    // call integer() explicitly.
 
     // sum CC(i,j,k,l)*dF(l),  k=0   over l=0,1, then add to stiffness_mtx
     k0 = ij2voigt(0,0);
@@ -156,7 +157,7 @@ void CLargeStrainElasticity::flux_matrix(const FEMesh  *mesh,
       for(IndexP k_iter : *disp_z_deriv->components(ALL_INDICES)) {
 	double diag_factor = (k_iter.integer()==2 ? 1.0 : 0.5);
 
-	k2 = ij2voigt(2, k_iter.integer());
+	k2 = ij2voigt(2, k_iter);
 
 	fluxmtx->stiffness_matrix_element(ij_iter, disp_z_deriv, k_iter, node)
 	  += diag_factor * Fval * CC(ij,k2);

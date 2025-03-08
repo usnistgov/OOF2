@@ -69,15 +69,23 @@ double &Rank3Tensor::operator()(unsigned int i, unsigned int j, unsigned int k)
   return m2(j,k);
 }
 
-double &Rank3Tensor::operator()(int i, const SymTensorIndex &jk) {
+double &Rank3Tensor::operator()(unsigned int i, const SymTensorIndex &jk) {
   return operator()(i, jk.row(), jk.col());
 }
 
-double Rank3Tensor::operator()(int i, const SymTensorIndex &jk) const
+double Rank3Tensor::operator()(unsigned int i, const SymTensorIndex &jk) const
 {
   return operator()(i, jk.row(), jk.col());
 }
 
+double &Rank3Tensor::operator()(const IndexP &i, const SymTensorIndex &jk) {
+  return operator()(i.integer(), jk.row(), jk.col());
+}
+
+double Rank3Tensor::operator()(const IndexP &i, const SymTensorIndex &jk) const
+{
+  return operator()(i.integer(), jk.row(), jk.col());
+}
 
 Rank3Tensor &Rank3Tensor::operator+=(const Rank3Tensor &a) {
   m0 +=a.m0;
@@ -261,6 +269,6 @@ void copyOutputVals(const Rank3Tensor &modulus, ListOutputVal *listdata,
     const std::string &idxpair = idxstrs[i];
     int j = int(idxpair[0]-'1');	    // 1-3
     SymTensorIndex kl(int(idxpair[1]-'1')); // Voigt, 1-6
-    (*listdata)[i] = modulus(j, kl);
+    (*listdata)[i] = modulus(j, kl.row(), kl.col());
   }
 }

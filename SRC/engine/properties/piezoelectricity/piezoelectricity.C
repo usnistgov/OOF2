@@ -73,15 +73,17 @@ void PiezoElectricity::flux_matrix(const FEMesh *mesh,
   double dsf1 = nu.dshapefunction(1, pos);
 
   if(*flux == *stress_flux) {
-    for(IndexP ij : *flux->components(ALL_INDICES)) { // stress component ij
+    for(SymTensorIndex ij : symTensorIJComponents) { // stress component ij
       fluxdata->stiffness_matrix_element(ij, voltage, nu)
-	+= eijk(0,ij.integer())*dsf0 + eijk(1,ij.integer())*dsf1;
+	// The first index for a Rank3Tensor is an unsigned int if
+	// it's not an IndexP or FieldIndex.
+	+= eijk(0u, ij)*dsf0 + eijk(1u, ij)*dsf1;
     }
     if(!voltage->in_plane(mesh)) {
       Field *voop = voltage->out_of_plane();
-      for(IndexP ij : *flux->components(ALL_INDICES)) {
+      for(SymTensorIndex ij : symTensorIJComponents) {
 	fluxdata->stiffness_matrix_element(ij, voop, nu)
-	  += eijk(2,ij.integer())*sf;
+	  += eijk(2u, ij)*sf;
       }
     }
   }
@@ -89,20 +91,19 @@ void PiezoElectricity::flux_matrix(const FEMesh *mesh,
   if(*flux == *total_polarization) {
     for(IndexP i : *flux->components(ALL_INDICES)) { // polarization components
       // in-plane displacement gradient contributions
-      int ii = i.integer();
       for(IndexP ell : *displacement->components(ALL_INDICES)) {
-	SymTensorIndex ell0(0, ell.integer());
-	SymTensorIndex ell1(1, ell.integer());
+	SymTensorIndex ell0(0, ell);
+	SymTensorIndex ell1(1, ell);
 	
 	fluxdata->stiffness_matrix_element(i, displacement, ell, nu) +=
-	  eijk(ii, ell0)*dsf0 + eijk(ii, ell1)*dsf1;
+	  eijk(i, ell0)*dsf0 + eijk(i, ell1)*dsf1;
       }
 
       if(!displacement->in_plane(mesh)) {
 	Field *oop = displacement->out_of_plane();
 	for(IndexP kay : *oop->components(ALL_INDICES)) {
 	  fluxdata->stiffness_matrix_element(i, oop, kay, nu) +=
-	    sf * eijk(ii, SymTensorIndex(2, kay.integer()));
+	    sf * eijk(i, 2, kay);
 	}
       }
 
@@ -291,7 +292,6 @@ void AnisotropicPiezoElectricity::output(FEMesh *mesh,
     const std::string *frame = output->getEnumParam("frame");
     if(*frame == "Lab") {
       precompute(mesh);
-      const Rank3Tensor dd = dijk(mesh, element, pos);
       copyOutputVals(dijk(mesh, element, pos), listdata, *idxstrs);
     }
     else {

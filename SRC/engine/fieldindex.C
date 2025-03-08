@@ -18,6 +18,14 @@ bool operator==(const FieldIndex &a, const FieldIndex &b) {
   return a.integer() == b.integer();
 }
 
+bool operator==(const FieldIndex &a, int b) {
+  return a.integer() == b;
+}
+
+bool operator==(int a, const FieldIndex &b) {
+  return a == b.integer();
+}
+
 std::ostream &operator<<(std::ostream &os, const FieldIndex &fi) {
   fi.print(os);
   return os;

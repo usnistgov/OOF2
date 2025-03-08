@@ -120,6 +120,8 @@
 #include "engine/indextypes.h"
 #include "engine/planarity.h"
 
+class IndexP;
+
 class Components; // "container" for the components of a Field, Flux or Equation
 
 class FieldIndex : public PythonExportable<FieldIndex> {
@@ -137,8 +139,14 @@ public:
   // FieldIndex::integer() returns the rank of the index in this
   // arbitrary ordering.  For example, the VectorFieldIndex just
   // returns the value of the index, and the SymTensorIndex returns
-  // the index's Voigt representation.
+  // the index's Voigt representation.  
   virtual int integer() const = 0;
+  // Conversion operators allow a FieldIndex to be converted to an int
+  // or a SpaceIndex, which allows it to be used seamlessly as an
+  // argument to many functions.  (One could argue that this defeats
+  // the purpose of having a separate class for SpaceIndexes.)
+  operator int() const { return integer(); }
+  operator SpaceIndex() const { return SpaceIndex(integer()); }
 
   // in_plane() is false if the index represents an out-of-plane
   // component of a field.  This doesn't make sense in some
@@ -156,6 +164,8 @@ std::ostream &operator<<(std::ostream &os, const FieldIndex &fi);
 // the two FieldIndices have the same subclass.
 
 bool operator==(const FieldIndex&, const FieldIndex&);
+bool operator==(const FieldIndex&, int);
+bool operator==(int, const FieldIndex&);
 
 // The ScalarFieldIndex has no value, which is not to say that it is
 // worthless.  It just doesn't do anything.
@@ -276,6 +286,8 @@ public:
   IndexP(IndexP &&o) : fieldindex_(o.fieldindex_) { o.fieldindex_ = nullptr; }
   ~IndexP() { delete fieldindex_; }
   int integer() const { return fieldindex_->integer(); }
+  operator int() const { return fieldindex_->integer(); }
+  operator SpaceIndex() const { return fieldindex_->integer(); }
   bool in_plane() const { return fieldindex_->in_plane(); }
 
   // Allow IndexP to be used where a FieldIndex& or FieldIndex* is expected
@@ -657,6 +669,5 @@ public:
 };
 
 extern SymTensorIJComponents symTensorIJComponents;
-
 
 #endif // FIELDINDEX_H

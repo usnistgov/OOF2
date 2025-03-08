@@ -55,6 +55,10 @@ public:
   Rank3Tensor &operator/=(double);
   double &operator()(unsigned int i, unsigned int j, unsigned int k); 
   double operator()(unsigned int i, unsigned int j, unsigned int k) const;
+  double &operator()(unsigned int i, const SymTensorIndex &jk);
+  double operator()(unsigned int i, const SymTensorIndex &jk) const;
+  double &operator()(const IndexP &i, const SymTensorIndex &jk);
+  double operator()(const IndexP &i, const SymTensorIndex &jk) const;
   Rank3Tensor &operator+=(const Rank3Tensor&);
   Rank3Tensor &operator-=(const Rank3Tensor&);
   bool operator==(const Rank3Tensor&);

@@ -126,19 +126,18 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
     for(IndexP i : *flux->components(ALL_INDICES)) {
 
       // First term, derivatives wrt field gradient.
-      double t1 = z_*c*cndct(i.integer(),0)*dsf0 + 
-	z_*c*cndct(i.integer(),1)*dsf1;
+      double t1 = z_*c*cndct(i,0)*dsf0 + z_*c*cndct(i,1)*dsf1;
 
       
       // In 2D case with out-of-plane field, there's another piece.
       if(!concentration->in_plane(mesh)) {
-	t1 += z_*c*cndct(i.integer(),2)*sf;
+	t1 += z_*c*cndct(i,2)*sf;
       }
 
       // Second term, derivative wrt concentration field.
-      double t2 = z_*(cndct(i.integer(),0)*fieldGradient[0] +
-		      cndct(i.integer(),1)*fieldGradient[1] +
-		      cndct(i.integer(),2)*fieldGradient[2])*sf;
+      double t2 = z_*(cndct(i,0)*fieldGradient[0] +
+		      cndct(i,1)*fieldGradient[1] +
+		      cndct(i,2)*fieldGradient[2])*sf;
 
       fluxdata->stiffness_matrix_element(i, concentration, j) += t1;
       fluxdata->stiffness_matrix_element(i, concentration, j) += t2;
@@ -154,18 +153,17 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
     for(IndexP i : *flux->components(ALL_INDICES)) {
 
       // First term, derivatives wrt field gradient.
-      double t1 = z_*c*(cndct(i.integer(),0)*dsf0 + 
-			cndct(i.integer(),1)*dsf1);
+      double t1 = z_*c*(cndct(i,0)*dsf0 + cndct(i,1)*dsf1);
       
       // In 2D case with out-of-plane field, there's another piece.
       if(!voltage->in_plane(mesh)) {
-	t1 += z_*c*cndct(i.integer(),2)*sf;
+	t1 += z_*c*cndct(i,2)*sf;
       }
 
       // Second term, derivative wrt concentration field.
-      double t2 = z_*(cndct(i.integer(),0)*fieldGradient[0] +
-		     cndct(i.integer(),1)*fieldGradient[1] +
-		     cndct(i.integer(),2)*fieldGradient[2])*sf;
+      double t2 = z_*(cndct(i,0)*fieldGradient[0] +
+		     cndct(i,1)*fieldGradient[1] +
+		     cndct(i,2)*fieldGradient[2])*sf;
 
       fluxdata->stiffness_matrix_element(i, voltage, j) += t1;
       fluxdata->stiffness_matrix_element(i, concentration, j) += t2;

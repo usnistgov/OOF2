@@ -288,11 +288,11 @@ const Components* VectorOutputVal::components() const {
 }
 
 double VectorOutputVal::operator[](const FieldIndex &fi) const {
-  return data[fi.integer()];
+  return data[fi];
 }
 
 double &VectorOutputVal::operator[](const FieldIndex &fi) {
-  return data[fi.integer()];
+  return data[fi];
 }
 
 FieldIndex *VectorOutputVal::getIndex(const std::string &str) const {
@@ -387,11 +387,11 @@ const Components* ListOutputVal::components() const {
 }
 
 double ListOutputVal::operator[](const FieldIndex &fi) const {
-  return data[fi.integer()];
+  return data[fi];
 }
 
 double &ListOutputVal::operator[](const FieldIndex &fi) {
-  return data[fi.integer()];
+  return data[fi];
 }
 
 const ListOutputVal &ListOutputVal::operator=(const ListOutputVal &other) {

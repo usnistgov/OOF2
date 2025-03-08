@@ -138,11 +138,6 @@ public:
   virtual DegreeOfFreedom *operator()(const ElementFuncNodeIterator&,
 				      int component)
     const = 0;
-  DegreeOfFreedom *operator()(const ElementFuncNodeIterator &n,
-			      const IndexP &i) const
-  {
-    return operator()(n, i.integer());
-  }
 
   virtual ArithmeticOutputValue newOutputValue() const = 0;
 

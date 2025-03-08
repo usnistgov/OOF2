@@ -655,7 +655,7 @@ static void makeDoFmap_(const Element *element,
     {
       if(node->hasField(sourceField) && node->hasField(targetField)) {
 	for(IndexP fcomp : *sourceField.components(ALL_INDICES)) {
-	  DegreeOfFreedom *targetdof = targetField(*node, fcomp.integer());
+	  DegreeOfFreedom *targetdof = targetField(*node, fcomp);
 	  dofmap[node->localindex(sourceField, fcomp)] =
 	    targetdof->dofindex();
 	}
@@ -721,7 +721,7 @@ DoubleVec Element::localDoFs(const FEMesh *mesh) const
 	if(node->hasField(field)) {
 	  // loop over field components
 	  for(IndexP fcomp : *field.components(ALL_INDICES)) {
-	    DegreeOfFreedom *dof = field(*node, fcomp.integer());
+	    DegreeOfFreedom *dof = field(*node, fcomp);
 	    doflist[node->localindex(field, fcomp)] = dof->value(mesh);
 	  }
 	}

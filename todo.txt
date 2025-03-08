@@ -75,6 +75,10 @@ Is the new "time" output documented?
 
 Pipe output directly to matplotlib.  Can it go to an oof2 subwindow?
 
+Change all indices in vectors, matrices, etc from int to unsigned
+int. FieldIndex and IndexP should be convertible to unsigned int
+instead of int.  Or maybe to std::size_t.
+
 THINGS TO FIX IN TUTORIALS
 
 The Basics tutorial leaves out a step in the creation of pixel

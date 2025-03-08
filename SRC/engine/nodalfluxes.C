@@ -80,7 +80,7 @@ ArithmeticOutputValue NodalFluxes::get_flux_output(const Material *mat,
   DoubleVec *fv = (*(flux_values[imat]))[iflux]->get_flux_value();
   ArithmeticOutputValue output = fluks->newOutputValue();
   for(IndexP it : *fluks->components(ALL_INDICES))
-    output[it] = (*fv)[it.integer()];
+    output[it] = (*fv)[it];
   return output;
 }
 

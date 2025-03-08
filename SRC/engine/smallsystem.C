@@ -258,61 +258,30 @@ double SmallSystem::mass_matrix_element(const FieldIndex &fi,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-double& SmallSystem::flux_vector_element(const FieldIndex &fi) {
-  flux_clean = false;
-  return fluxVector_[fi.integer()];
-}
-
-double SmallSystem::flux_vector_element(const FieldIndex &fi) const {
-  return fluxVector_[fi.integer()];
-}
-
-double& SmallSystem::flux_vector_element(const int &fi) {
+double& SmallSystem::flux_vector_element(int fi) {
   flux_clean = false;
   return fluxVector_[fi];
 }
 
-double SmallSystem::flux_vector_element(const int &fi) const {
+double SmallSystem::flux_vector_element(int fi) const {
   return fluxVector_[fi];
 }
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-double& SmallSystem::force_vector_element(const FieldIndex &fi) {
-  force_clean = false;
-  return forceVector_[fi.integer()];
-}
-
-double SmallSystem::force_vector_element(const FieldIndex &fi) const {
-  return forceVector_[fi.integer()];
-}
-
-double& SmallSystem::force_vector_element(const int &fi) {
+double& SmallSystem::force_vector_element(int fi) {
   force_clean = false;
   return forceVector_[fi];
 }
 
-double SmallSystem::force_vector_element(const int &fi) const {
+double SmallSystem::force_vector_element(int fi) const {
   return forceVector_[fi];
 }
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-double& SmallSystem::offset_vector_element(const FieldIndex &fi) {
-  offset_clean = false;
-  return offsetVector_[fi.integer()];
-}
-
-double SmallSystem::offset_vector_element(const FieldIndex &fi) const {
-  return offsetVector_[fi.integer()];
-}
-
-double& SmallSystem::offset_vector_element(const int &fi) {
+double& SmallSystem::offset_vector_element(int fi) {
   offset_clean = false;
   return offsetVector_[fi];
 }
 
-double SmallSystem::offset_vector_element(const int &fi) const {
+double SmallSystem::offset_vector_element(int fi) const {
   return offsetVector_[fi];
 }
 

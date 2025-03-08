@@ -115,12 +115,12 @@ void Diffusion::flux_matrix(const FEMesh  *mesh,
   for(IndexP i : *flux->components(ALL_INDICES)) {
     // in-plane concentration gradient contributions
     fluxdata->stiffness_matrix_element( i, concentration, j ) -=
-                  cond(i.integer(), 0) * dsf0 + cond(i.integer(), 1) * dsf1;
+                  cond(i, 0) * dsf0 + cond(i, 1) * dsf1;
 
     // out-of-plane concentration gradient contribution
     if(!concentration->in_plane(mesh))
       fluxdata->stiffness_matrix_element(i, concentration->out_of_plane(), j)
-                                          -= cond(i.integer(), 2) * sf;
+                                          -= cond(i, 2) * sf;
   }
 } // end of 'Diffusion::flux_matrix'
 

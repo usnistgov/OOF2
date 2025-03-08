@@ -81,12 +81,12 @@ void DielectricPermittivity::flux_matrix(const FEMesh *mesh,
   for(IndexP i : *flux->components(ALL_INDICES)) {
     // in-plane voltage gradient contributions
     fluxdata->stiffness_matrix_element(i, voltage, j) -=
-      permit(i.integer(), 0) * dsf0 +
-      permit(i.integer(), 1) * dsf1;
+      permit(i, 0) * dsf0 +
+      permit(i, 1) * dsf1;
     // out-of-plane voltage gradient contribution
     if(!voltage->in_plane(mesh)) {
       fluxdata->stiffness_matrix_element(i, voltage->out_of_plane(), j)
-	-= permit(i.integer(), 2) * sf;
+	-= permit(i, 2) * sf;
     }
   }
 }

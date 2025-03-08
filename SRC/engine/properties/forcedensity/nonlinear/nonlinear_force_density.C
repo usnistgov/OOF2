@@ -106,13 +106,9 @@ void NonlinearForceDensity::force_deriv_matrix(const FEMesh *mesh,
   double shapeFuncVal = j.shapefunction(point);
 
   for(IndexP eqncomp : *eqn->components()) {
-    int eqno = eqncomp.integer();
-
     for (IndexP fieldcomp : *displacement->components(ALL_INDICES)) {
-      int fieldno = fieldcomp.integer();
-
       eqndata->force_deriv_matrix_element(eqncomp, displacement, fieldcomp, j)
-	+= forceDeriv(eqno, fieldno) * shapeFuncVal;
+	+= forceDeriv(eqncomp, fieldcomp) * shapeFuncVal;
     }
   }
 } // end of 'NonlinearForceDensity::force_deriv_matrix'
@@ -130,18 +126,18 @@ DoubleVec nonlin_force_density_1(const Coord &pt, double time,
 {
   double x = pt[0];
   double y = pt[1];
-  double pi = M_PI, uex0, uex1, f0, f1;
-  double m0 = 2.0, n0 = 3.0, m1 = 1.0, n1 = 2.0;
+  double pi = M_PI;
+  double m0 = 2.0;
+  double n0 = 3.0;
+  double m1 = 1.0;
+  double n1 = 2.0;
 
-  uex0 = sin(m0*pi*x) * sin(n0*pi*y);
-  uex1 = sin(m1*pi*x) * sin(n1*pi*y);
+  double uex0 = sin(m0*pi*x) * sin(n0*pi*y);
+  double uex1 = sin(m1*pi*x) * sin(n1*pi*y);
 
-  f0 = (m0*m0 + n0*n0)*pi*pi * uex0 - uex0 + CUBE(uex0);
-  f1 = (m1*m1 + n1*n1)*pi*pi * uex1 - uex1 + CUBE(uex1);
+  double f0 = (m0*m0 + n0*n0)*pi*pi * uex0 - uex0 + CUBE(uex0);
+  double f1 = (m1*m1 + n1*n1)*pi*pi * uex1 - uex1 + CUBE(uex1);
 
-  // TODO: Rewrite the rest of these functions to return initializer
-  // lists.
-  // TODO: initializer list constructor for SmallMatrix
   return {
     displacement[0] - CUBE(displacement[0]) + f0,
     displacement[1] - CUBE(displacement[1]) + f1
@@ -167,19 +163,26 @@ DoubleVec nonlin_force_density_2(const Coord &pt, double time,
 {
   double x = pt[0];
   double y = pt[1];
-  double pi = M_PI, uex0, uex1, f0, f1;
-  double a0 =  2.0, b0 = 3.0, m0 = 2.0, n0 = 3.0,
-         a1 = -4.0, b1 = 5.0, m1 = 1.0, n1 = 2.0;
+  double pi = M_PI;
+  double a0 =  2.0 ;
+  double b0 = 3.0;
+  double m0 = 2.0;
+  double n0 = 3.0;
+  double a1 = -4.0;
+  double b1 = 5.0;
+  double m1 = 1.0;
+  double n1 = 2.0;
 
-  uex0 = (a0*time + b0) * sin(m0*pi*x) * sin(n0*pi*y);
-  uex1 = (a1*time + b1) * sin(m1*pi*x) * sin(n1*pi*y);
+  double uex0 = (a0*time + b0) * sin(m0*pi*x) * sin(n0*pi*y);
+  double uex1 = (a1*time + b1) * sin(m1*pi*x) * sin(n1*pi*y);
 
-  f0 = (m0*m0 + n0*n0)*pi*pi * uex0 - uex0 + CUBE(uex0);
-  f1 = (m1*m1 + n1*n1)*pi*pi * uex1 - uex1 + CUBE(uex1);
+  double f0 = (m0*m0 + n0*n0)*pi*pi * uex0 - uex0 + CUBE(uex0);
+  double f1 = (m1*m1 + n1*n1)*pi*pi * uex1 - uex1 + CUBE(uex1);
 
   return {
       displacement[0] - CUBE(displacement[0]) + f0,
-      displacement[1] - CUBE(displacement[1]) + f1};
+      displacement[1] - CUBE(displacement[1]) + f1
+  };
 } 
 
 SmallMatrix nonlin_force_density_deriv_2(const Coord &pt, double time,

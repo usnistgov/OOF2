@@ -30,6 +30,9 @@ public:
   int integer();
   bool in_plane();
   const std::string &shortrepr();
+  %extend {
+    int __int__() { return self->integer(); }
+  }
 };
 
 bool operator==(const FieldIndex&, const FieldIndex&);

@@ -95,12 +95,12 @@ void HeatConductivity::flux_matrix(const FEMesh  *mesh,
   for(IndexP i : *flux->components(ALL_INDICES)) {
     // in-plane temperature gradient contributions
     linsys->stiffness_matrix_element(i, temperature, j) -=
-                  cond(i.integer(), 0) * dsf0 + cond(i.integer(), 1) * dsf1;
+                  cond(i, 0) * dsf0 + cond(i, 1) * dsf1;
 
     // out-of-plane temperature gradient contribution
     if(!temperature->in_plane(mesh))
       linsys->stiffness_matrix_element(i, temperature->out_of_plane(), j)
-                                          -= cond(i.integer(), 2) * sf;
+                                          -= cond(i, 2) * sf;
   }
 } // end of 'HeatConductivity::flux_matrix'
 

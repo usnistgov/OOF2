@@ -95,102 +95,72 @@ public:
   double &stiffness_matrix_element(const FieldIndex&,
 				   const Field*,
 				   const FieldIndex&,
-				   const ElementFuncNodeIterator&
-				   );
+				   const ElementFuncNodeIterator&);
   double &stiffness_matrix_element(const FieldIndex&,
 				   const Field*,
-				   const ElementFuncNodeIterator&
-				   );
+				   const ElementFuncNodeIterator&);
   double stiffness_matrix_element(const FieldIndex&,
 				  const Field*,
 				  const FieldIndex&,
-				  const ElementFuncNodeIterator&
-				  ) const;
+				  const ElementFuncNodeIterator&) const;
   double stiffness_matrix_element(const FieldIndex&,
 				  const Field*,
-				  const ElementFuncNodeIterator&
-				  ) const;
+				  const ElementFuncNodeIterator&) const;
   
   double &force_deriv_matrix_element(const FieldIndex&,
 				     const Field*,
 				     const FieldIndex&,
-				     const ElementFuncNodeIterator&
-                                     );
+				     const ElementFuncNodeIterator&);
   double &force_deriv_matrix_element(const FieldIndex&,
 				     const Field*,
-				     const ElementFuncNodeIterator&
-                                     );
+				     const ElementFuncNodeIterator&);
   double force_deriv_matrix_element(const FieldIndex&,
 				    const Field*,
 				    const FieldIndex&,
-				    const ElementFuncNodeIterator&
-				    ) const;
+				    const ElementFuncNodeIterator&) const;
   double force_deriv_matrix_element(const FieldIndex&,
 				    const Field*,
-				    const ElementFuncNodeIterator&
-				    ) const;
+				    const ElementFuncNodeIterator&) const;
   
   double &damping_matrix_element(const FieldIndex&,
 				 const Field*,
 				 const FieldIndex&,
-				 const ElementFuncNodeIterator&
-				 );
+				 const ElementFuncNodeIterator&);
   double &damping_matrix_element(const FieldIndex&,
 				 const Field*,
-				 const ElementFuncNodeIterator&
-				 );
+				 const ElementFuncNodeIterator&);
   double damping_matrix_element(const FieldIndex&,
 				const Field*,
 				const FieldIndex&,
-				const ElementFuncNodeIterator&
-				) const;
+				const ElementFuncNodeIterator&) const;
   double damping_matrix_element(const FieldIndex&,
 				const Field*,
-				const ElementFuncNodeIterator&
-				) const;
+				const ElementFuncNodeIterator&) const;
 
   double &mass_matrix_element(const FieldIndex&,
 			      const Field*,
 			      const FieldIndex&,
-			      const ElementFuncNodeIterator&
-                              );
+			      const ElementFuncNodeIterator&);
   double &mass_matrix_element(const FieldIndex&,
 			      const Field*,
-			      const ElementFuncNodeIterator&
-			      );
+			      const ElementFuncNodeIterator&);
   double mass_matrix_element(const FieldIndex&,
 			     const Field*,
 			     const FieldIndex&,
-			     const ElementFuncNodeIterator&
-			     ) const;
+			     const ElementFuncNodeIterator&) const;
   double mass_matrix_element(const FieldIndex&,
 			     const Field*,
-			     const ElementFuncNodeIterator&
-			     ) const;
+			     const ElementFuncNodeIterator&) const;
 
-  double &flux_vector_element(const FieldIndex&);
-
-  double &flux_vector_element(const int&);
-
-  double flux_vector_element(const FieldIndex&) const;
-
-  double flux_vector_element(const int&) const;
-
-  double &force_vector_element(const FieldIndex&);
-
-  double &force_vector_element(const int&);
-
-  double force_vector_element(const FieldIndex&) const;
-
-  double force_vector_element(const int&) const;
-
-  double &offset_vector_element(const FieldIndex&);
-
-  double &offset_vector_element(const int&);
-
-  double offset_vector_element(const FieldIndex&) const;
-
-  double offset_vector_element(const int&) const;
+  // It's not necessary to have access methods that take a FieldIndex,
+  // because FieldIndex can be converted to int.  TODO: These should
+  // probably use unsigned int instead of int, though.
+  double &flux_vector_element(int);
+  double flux_vector_element(int) const;
+  double &force_vector_element(int);
+  double force_vector_element(int) const;
+  double &offset_vector_element(int);
+  double offset_vector_element(int) const;
 
   friend std::ostream& operator<<(std::ostream &,
 				  const SmallSystem&);

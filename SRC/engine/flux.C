@@ -428,7 +428,7 @@ ArithmeticOutputValue Flux::output(const FEMesh *mesh, const Element *el,
   DoubleVec *fluxvals = evaluate( mesh, el, pos );
   ArithmeticOutputValue ov = newOutputValue();
   for(IndexP it : *components(ALL_INDICES)) 
-    ov[it] = (*fluxvals)[it.integer()];
+    ov[it] = (*fluxvals)[it];
   delete fluxvals;
   return ov;
 }

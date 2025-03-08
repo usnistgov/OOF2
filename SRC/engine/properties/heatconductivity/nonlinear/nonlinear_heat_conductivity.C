@@ -119,13 +119,13 @@ void NonlinearHeatConductivity::flux_matrix(const FEMesh *mesh,
   for(IndexP i : *flux->components(ALL_INDICES)) {
     // in-plane temperature gradient contributions
     fluxdata->stiffness_matrix_element(i, temperature, j)
-               += fluxDerivVec[i.integer()] * shapeFuncVal +
-                  fluxDerivMtx(i.integer(), 0) * shapeFuncGrad[0] +
-                  fluxDerivMtx(i.integer(), 1) * shapeFuncGrad[1];
+               += fluxDerivVec[i] * shapeFuncVal +
+                  fluxDerivMtx(i, 0) * shapeFuncGrad[0] +
+                  fluxDerivMtx(i, 1) * shapeFuncGrad[1];
 
     if (!temperature->in_plane(mesh))
       fluxdata->stiffness_matrix_element(i, temperature->out_of_plane(), j)
-	+= fluxDerivMtx(i.integer(), 2) * shapeFuncVal;
+	+= fluxDerivMtx(i, 2) * shapeFuncVal;
 
   }
 } // end of 'NonlinearHeatConductivity::flux_matrix'
