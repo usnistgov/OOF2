@@ -34,8 +34,10 @@ int countleft;			// in pixelsetboundary.h
 
 void openDumpFile(const std::string&);
 void closeDumpFile();
-%rename(dump) c_dump;
+%rename(c_dump) dump;
 void dump(const std::string&);
+void openDumpFileSeries(const std::string&, int);
+void nextDumpFile();
 
 %pythoncode "common/cdebug.spy"
 

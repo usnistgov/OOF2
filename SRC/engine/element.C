@@ -10,6 +10,7 @@
  */
 
 #include <oofconfig.h>
+#include "common/cdebug.h"
 #include "common/cleverptr.h"
 #include "common/cmicrostructure.h"
 #include "common/doublevec.h"
@@ -140,6 +141,7 @@ void Element::make_linear_system(const CSubProblem *const subproblem,
 				 LinearizedSystem &system) const
 {
   std::vector<int> dofmap = localDoFmap_noDerivs();
+  dump("Element::make_linear_system: " + tostring(*this));
 
   const Material *mat = material();
   if(mat) {

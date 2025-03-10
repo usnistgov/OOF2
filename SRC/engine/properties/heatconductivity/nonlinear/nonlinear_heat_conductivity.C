@@ -69,6 +69,7 @@ void NonlinearHeatConductivityNoDeriv::flux_value(const FEMesh *mesh,
   DoubleVec fluxVector(3);
   nonlin_heat_flux(coord[0], coord[1], 0.0, time,
 		    fieldValue, fieldGradient, fluxVector);
+  dump("NonlinearHeatConductivityNoDeriv: fluxVector= " + tostring(fluxVector));
 
   // add the heat flux contribution to the small system 'fluxdata',
   // which will later be added to the global div_flux vector
@@ -108,8 +109,8 @@ void NonlinearHeatConductivity::flux_matrix(const FEMesh *mesh,
   nonlin_heat_flux_deriv_wrt_temperature(
 			 coord[0], coord[1], 0.0, time,
 			 fieldValue, fieldGradient, fluxDerivVec);
-  // dump("NonlinearHeatConductivity:flux_matrix: fluxDerivVec=" +
-  //      tostring(fluxDerivVec));
+  dump("NonlinearHeatConductivity:flux_matrix: fluxDerivVec=" +
+       tostring(fluxDerivVec));
 
   // the derivative of the heat flux mapping w.r.t. temperature gradient
   SmallMatrix fluxDerivMtx(3,3);
@@ -232,8 +233,6 @@ void nonlin_heat_flux_deriv_wrt_temperature_gradient_2(
 				       const DoubleVec &temperature_gradient,
 				       SmallMatrix &heat_flux_deriv)
 {
-  dump("nonlin_heat_flux_deriv_wrt_temperature_gradient_2: grad=" +
-       tostring(temperature_gradient));
   heat_flux_deriv(0,0) = -1.0 - 3.0 * SQR( temperature_gradient[0] );
   heat_flux_deriv(0,1) =  0.0;
   heat_flux_deriv(0,2) = -1.0 / 20.0;
@@ -245,7 +244,6 @@ void nonlin_heat_flux_deriv_wrt_temperature_gradient_2(
   heat_flux_deriv(2,0) = -1.0 / 20.0;
   heat_flux_deriv(2,1) = -1.0 / 20.0;
   heat_flux_deriv(2,2) = -1.0 / (1.0 + SQR( temperature_gradient[2] ));
-  //dump("nonlin_heat_flux_deriv_wrt_temperature_gradient_2: " + tostring(heat_flux_deriv));
 } // end of 'nonlin_heat_flux_deriv_wrt_temperature_gradient_2'
 
 

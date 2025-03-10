@@ -601,6 +601,8 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 				     const CNonlinearSolver *nlsolver)
   const
 {
+  nextDumpFile();
+  dump("CSubProblem::make_linear_system: time=" + tostring(linearsystem->time()));
   double time = linearsystem->time();
   memusage("Start of make_linear_system (C)");
   linearsystem->allocateDoublets();

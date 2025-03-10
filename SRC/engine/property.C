@@ -239,6 +239,9 @@ void FluxProperty::flux_value(const FEMesh *mesh, const Element *element,
   fluxdata->fluxVector() += localFluxData.offsetVector();
   fluxdata->fluxVector() += localFluxData.kMatrix*localdofs;
 
+  dump("FluxProperty::make_flux_contributions: " + tostring(localFluxData.offsetVector()));
+  dump("FluxProperty::make_flux_contributions: " + tostring(localFluxData.kMatrix));
+  
   // If localdofs includes time derivative fields we can do this.  If
   // localdofs doesn't include time derivative fields, then doing this
   // is a no-op. TODO: Skip the call if it's a no-op.

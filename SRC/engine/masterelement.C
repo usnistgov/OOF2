@@ -255,7 +255,6 @@ static void mktable(GaussPtTable &gptable, double weight,
   // (alpha, beta).
 
   if(alpha == beta && beta == gamma) {
-    assert(alpha == 1./3 && weight = 1.);
     gptable.addpoint(MasterCoord(alpha, beta), 0.5);
   }
   else if(alpha == beta) {
