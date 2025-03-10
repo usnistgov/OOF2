@@ -38,6 +38,7 @@ public:
   std::size_t rows() const { return data.rows(); }
   std::size_t cols() const { return data.cols(); }
   void clear() { data.setZero(data.rows(), data.cols()); }
+  // TODO: row and col should be unsigned ints.
   virtual double& operator()(int row, int col);
   virtual double operator()(int row, int col) const;
 
