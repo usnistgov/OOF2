@@ -170,12 +170,11 @@ void FruitProperty::fluxmatrix(const FEMesh *mesh, const Element *element,
       // components of the Field, because they're the ones that are
       // stored in the nodes.
 
-      // The modulus is stored in a matrix type that doesn't
-      // understand an IteratorP, but IteratorP has a method that
-      // returns the correct integer index of a Flux or Field
-      // component.
-      local_modulus(iter.integer(), 0) * dsf0 + // j = 0 (x)
-      local_modulus(iter.integer(), 1) * dsf1;  // j = 1 (y)
+      // iter is automatically converted to an int when used as a
+      // matrix index here.  TODO: Does the second index need to be an
+      // unsigned int?
+      local_modulus(iter, 0) * dsf0 + // j = 0 (x)
+      local_modulus(iter, 1) * dsf1;  // j = 1 (y)
 
     // If the Field has an out-of-plane derivative, it's stored as a
     // separate degree of freedom, and makes a contribution to the
@@ -184,7 +183,7 @@ void FruitProperty::fluxmatrix(const FEMesh *mesh, const Element *element,
     // derivative.  See the manual for a better explanation.
     if(!strawberryField->in_plane(mesh)) {
       fluxdata->matrix_element(iter, strawberryField->out_of_plane(), nu)
-	-= local_modulus(iter.integer(), 2) *sf;
+	-= local_modulus(iter, 2) *sf;
     }
   }
 }

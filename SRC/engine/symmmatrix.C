@@ -156,17 +156,24 @@ DoubleVec operator*(const SymmMatrix &a, const DoubleVec &x) {
   return result;
 }
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// These two strange looking functions are used when storing a tensor
+// flux in a SmallSystem, which stores everything as a vector.
+
 DoubleVec& operator+=(DoubleVec &vec, const SymmMatrix3 &mat) {
   for(SymTensorIndex ij : symTensorIJComponents)
-    vec[ij.integer()] += mat[ij];
+    vec[ij] += mat[ij];
   return vec;
 }
 
 DoubleVec& operator-=(DoubleVec &vec, const SymmMatrix3 &mat) {
   for(SymTensorIndex ij : symTensorIJComponents)
-    vec[ij.integer()] -= mat[ij];
+    vec[ij] -= mat[ij];
   return vec;
 }
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Compute A^ T (*this) A
 

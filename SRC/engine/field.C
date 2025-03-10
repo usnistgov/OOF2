@@ -469,7 +469,7 @@ DoubleVec TwoVectorFieldBase::values(const FEMesh *mesh, const Element *element,
   DoubleVec v(2);
   const Field *field = dynamic_cast<const Field*>(this);
   for(IndexP i : *components(ALL_INDICES))
-    v[i.integer()] = field->value(mesh, element, mpt, i);
+    v[i] = field->value(mesh, element, mpt, i);
   return v;
 }
 
@@ -482,7 +482,7 @@ DoubleVec TwoVectorFieldBase::gradients(const FEMesh *mesh,
   DoubleVec v(2);
   const Field *field = dynamic_cast<const Field*>(this);
   for(IndexP i : *components(ALL_INDICES)) {
-    v[i.integer()] = field->gradient(mesh, element, mpt, i, gradindex);
+    v[i] = field->gradient(mesh, element, mpt, i, gradindex);
   }
   return v;
 }

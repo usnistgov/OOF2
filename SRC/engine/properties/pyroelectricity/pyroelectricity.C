@@ -177,7 +177,7 @@ void PyroElectricity::flux_matrix(const FEMesh *mesh,
   if(*flux==*total_polarization)
     for(IndexP i : *flux->components(ALL_INDICES)) {
       fluxdata->stiffness_matrix_element(i,temperature,nu) +=
-	effective_modulus[i.integer()]*sf;
+	effective_modulus[i]*sf;
     }
   else
     throw ErrProgrammingError("Unexpected flux.", __FILE__, __LINE__);
@@ -198,7 +198,7 @@ void PyroElectricity::flux_offset(const FEMesh *mesh,
     for(IndexP i : *flux->components(ALL_INDICES)) {
       // It's T-T0, so minus.  
       fluxdata->offset_vector_element(i) -=
-	effective_modulus[i.integer()]*tzero;
+	effective_modulus[i]*tzero;
     }
   else
     throw ErrProgrammingError("Unexpected flux.", __FILE__, __LINE__);
