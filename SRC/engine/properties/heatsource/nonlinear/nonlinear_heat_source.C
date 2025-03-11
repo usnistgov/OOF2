@@ -51,28 +51,13 @@ void NonlinearHeatSourceNoDeriv::force_value(const FEMesh *mesh,
 					     double time, void*,
 					     SmallSystem *eqndata) const
 {
-  double fieldVal, sourceVal;
-  Coord coord;
-
-  // first compute the current value of the temperature field at the gauss point
-
-  fieldVal = 0.0;
-  for(CleverPtr<ElementFuncNodeIterator> node(element->funcnode_iterator());
-      !node->end(); ++*node){
-    double shapeFuncVal = node->shapefunction(pt);
-    fieldVal += shapeFuncVal * (*temperature)(*node)->value(mesh);
-  }
-
-
-  // now use the world coord and temperature value to compute the value
-  // of nonlinear weight function and the contribution to force_vector_element
-
-  coord = element->from_master(pt);
-  sourceVal = nonlin_heat_source(coord[0], coord[1], 0.0, time, fieldVal);
+  double fieldVal = temperature->value(mesh, element, pt);
+  Coord coord = element->from_master(pt);
+  // TODO: pass a Coord to nonlin_heat_source.
+  double sourceVal = nonlin_heat_source(coord[0], coord[1], 0.0, time, fieldVal);
   eqndata->force_vector_element(0) = -sourceVal;
 
 } // NonlinearHeatSourceNoDeriv::force_value
-
 
 void NonlinearHeatSource::force_deriv_matrix(const FEMesh   *mesh,
 					     const Element  *element,
@@ -83,41 +68,19 @@ void NonlinearHeatSource::force_deriv_matrix(const FEMesh   *mesh,
 					     void*,
 					     SmallSystem *eqndata) const
 {
-  double fieldVal, funcDerivVal, shapeFuncVal;
-  Coord  coord;
-
-  // first compute the current value of the temperature field at the gauss point
-
-  fieldVal = 0.0;
-  for(CleverPtr<ElementFuncNodeIterator> node(element->funcnode_iterator());
-      !node->end(); ++*node){
-    shapeFuncVal = node->shapefunction(point);
-    fieldVal += shapeFuncVal * (*temperature)(*node)->value(mesh);
-  }
-
-  // compute the value of the deriv of the nonlinear source function
-  // using the world coordinates and the value of the temperature field
-
-  coord = element->from_master(point);
-
-  funcDerivVal = nonlin_heat_source_deriv_wrt_temperature(
+  Coord coord = element->from_master(point);
+  double fieldVal = temperature->value(mesh, element, point);
+  // TODO: Pass a Coord to nonlin_heat_source_deriv_wrt_temperature.
+  double funcDerivVal = nonlin_heat_source_deriv_wrt_temperature(
 			  coord[0], coord[1], 0.0, time, fieldVal);
-
-  // compute the value of the jth shape function at gauss point point and
-  // add its contribution f(point)*phi_j(point) to the small stiffness-like matrix
-
-  shapeFuncVal = j.shapefunction(point);
 
   for (IndexP eqncomp : *eqn->components())
     eqndata->force_deriv_matrix_element(eqncomp, temperature, j)
-                -= funcDerivVal * shapeFuncVal;
+      -= funcDerivVal;
 
-} // NonlinearHeatSource::force_deriv_matrix
-
-
+} 
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
 
 inline double SQR(double x){ return x*x; }
 inline double CUBE(double x){ return x*x*x; }

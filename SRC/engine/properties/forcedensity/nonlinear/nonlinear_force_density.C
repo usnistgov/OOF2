@@ -93,22 +93,15 @@ void NonlinearForceDensity::force_deriv_matrix(const FEMesh *mesh,
   // now compute the value of the force density derivative function
   // for the current coordinate x,y,z, time and displacement, the
   // nonlinear force density derivative function returns the
-  // corresponding force derivative value in the array 'forceDeriv',
-  // the function definition is given in USER_CODE.C
+  // corresponding force derivative value in the array 'forceDeriv'.
 
   Coord coord = element->from_master(point);
   SmallMatrix forceDeriv = nonlin_force_density_deriv(coord, time, fieldVal);
   
-  // compute the value of the jth shape function at gauss point point
-  // and add its contribution Df(point,field)*phi_j(point) to the
-  // small mass-like matrix
-
-  double shapeFuncVal = j.shapefunction(point);
-
   for(IndexP eqncomp : *eqn->components()) {
     for (IndexP fieldcomp : *displacement->components(ALL_INDICES)) {
       eqndata->force_deriv_matrix_element(eqncomp, displacement, fieldcomp, j)
-	+= forceDeriv(eqncomp, fieldcomp) * shapeFuncVal;
+	+= forceDeriv(eqncomp, fieldcomp);
     }
   }
 } // end of 'NonlinearForceDensity::force_deriv_matrix'
