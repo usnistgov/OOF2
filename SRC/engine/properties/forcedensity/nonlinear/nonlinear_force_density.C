@@ -235,58 +235,54 @@ SmallMatrix nonlin_force_density_deriv_4(const Coord &pt, double time,
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 DoubleVec TestNonlinearForceDensity::nonlin_force_density(
-				     const Coord &pt, double time,
-				     const DoubleVec &displacement)
+	     const Coord &pt, double time, const DoubleVec &displacement)
   const
 {
   switch (testNo) {
-    case 1:
-      return nonlin_force_density_1(pt, time, displacement);
-    case 2:
-      return nonlin_force_density_2(pt, time, displacement);
-    case 3:
-      return nonlin_force_density_3(pt, time, displacement);
-    case 4:
-      return nonlin_force_density_4(pt, time, displacement);
+  case 1:
+    return nonlin_force_density_1(pt, time, displacement);
+  case 2:
+    return nonlin_force_density_2(pt, time, displacement);
+  case 3:
+    return nonlin_force_density_3(pt, time, displacement);
+  case 4:
+    return nonlin_force_density_4(pt, time, displacement);
   }
-  return DoubleVec(2, 0.0);
+  throw ErrProgrammingError("Bad test number", __FILE__, __LINE__);
 }
 
 
 DoubleVec TestNonlinearForceDensityNoDeriv::nonlin_force_density(
-				    const Coord &pt, double time,
-				    const DoubleVec &displacement)
+	    const Coord &pt, double time, const DoubleVec &displacement)
   const
 {
   switch (testNo) {
-    case 1:
-      return nonlin_force_density_1(pt, time, displacement);
-    case 2:
-      return nonlin_force_density_2(pt, time, displacement);
-    case 3:
-      return nonlin_force_density_3(pt, time, displacement);
-    case 4:
-      return nonlin_force_density_4(pt, time, displacement);
+  case 1:
+    return nonlin_force_density_1(pt, time, displacement);
+  case 2:
+    return nonlin_force_density_2(pt, time, displacement);
+  case 3:
+    return nonlin_force_density_3(pt, time, displacement);
+  case 4:
+    return nonlin_force_density_4(pt, time, displacement);
   }
-  return DoubleVec(2, 0.0);
-
-} // end of 'TestNonlinearForceDensity::nonlin_force_density'
+  throw ErrProgrammingError("Bad test number", __FILE__, __LINE__);
+} 
 
 SmallMatrix TestNonlinearForceDensity::nonlin_force_density_deriv(
-				   const Coord &pt, double time,
-				   const DoubleVec &displacement) const
+		  const Coord &pt, double time, const DoubleVec &displacement)
+  const
 {
   switch (testNo) {
   case 1:
-      return nonlin_force_density_deriv_1(pt, time, displacement);
+    return nonlin_force_density_deriv_1(pt, time, displacement);
   case 2:
-      return nonlin_force_density_deriv_2(pt, time, displacement);
+    return nonlin_force_density_deriv_2(pt, time, displacement);
   case 3:
     return nonlin_force_density_deriv_3(pt, time, displacement);
   case 4:
-      return nonlin_force_density_deriv_4(pt, time, displacement);
+    return nonlin_force_density_deriv_4(pt, time, displacement);
   }
-  return SmallMatrix(2);
-
-} // end of 'TestNonlinearForceDensity::nonlin_force_density_deriv'
+  throw ErrProgrammingError("Bad test number", __FILE__, __LINE__);
+}
 

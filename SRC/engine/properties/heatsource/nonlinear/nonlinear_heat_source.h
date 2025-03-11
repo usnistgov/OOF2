@@ -43,8 +43,8 @@ protected:
   ScalarField *temperature;
   VectorFlux  *heat_flux;
 
-  virtual double nonlin_heat_source(double x, double y, double z,
-				    double time, double temperature) const = 0;
+  virtual double nonlin_heat_source(
+		    const Coord&, double time, double temperature) const = 0;
 }; // NonlinearHeatSourceNoDeriv
 
 
@@ -63,8 +63,8 @@ public:
 				  SmallSystem *eqndata ) const;
 protected:
   virtual double nonlin_heat_source_deriv_wrt_temperature(
-                                    double x, double y, double z,
-				    double time, double temperature) const = 0;
+			  const Coord &pt, double time, double temperature)
+    const = 0;
 }; // NonlinearHeatSource
 
 
@@ -78,8 +78,8 @@ public:
   virtual ~TestNonlinearHeatSourceNoDeriv() {}
 protected:
   int testNo;
-  virtual double nonlin_heat_source(double x, double y, double z,
-				    double time, double temperature) const;
+  virtual double nonlin_heat_source(
+		    const Coord &pt, double time, double temperature) const;
 }; // TestNonlinearHeatSourceNoDeriv
 
 
@@ -93,11 +93,10 @@ public:
   virtual ~TestNonlinearHeatSource() {}
 protected:
   int testNo;
-  virtual double nonlin_heat_source(double x, double y, double z,
-				    double time, double temperature) const;
+  virtual double nonlin_heat_source(
+		    const Coord &pt, double time, double temperature) const;
   virtual double nonlin_heat_source_deriv_wrt_temperature(
-                                    double x, double y, double z,
-				    double time, double temperature) const;
+		  const Coord &pt, double time, double temperature) const;
 
 }; // TestNonlinearHeatSource
 

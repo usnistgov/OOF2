@@ -12,6 +12,7 @@
 #include <oofconfig.h>
 #include "common/coord.h"
 #include "common/doublevec.h"
+#include "common/ooferror.h"
 #include "common/smallmatrix.h"
 #include "common/threadstate.h"
 #include "common/trace.h"
@@ -261,7 +262,7 @@ SmallMatrix TestGeneralNonlinearElasticityNoDeriv::nonlin_stress(
   case 2:
     return nonlin_stress_2(pt, time, displacement, dispGrad);
   }
-  return SmallMatrix(3);
+  throw ErrProgrammingError("Bad test number", __FILE__, __LINE__);
 }
 
 
@@ -277,7 +278,7 @@ SmallMatrix TestGeneralNonlinearElasticity::nonlin_stress(
   case 2:
     return nonlin_stress_2(pt, time, displacement, dispGrad);
   }
-  return SmallMatrix(3);
+  throw ErrProgrammingError("Bad test number", __FILE__, __LINE__);
 } 
 
 
@@ -296,7 +297,7 @@ TestGeneralNonlinearElasticity::nonlin_stress_deriv_wrt_displacement(
     return nonlin_stress_deriv_wrt_displacement_2(pt, time,
 						  displacement, dispGrad);
   }
-  return SmallTensor3();
+  throw ErrProgrammingError("Bad test number", __FILE__, __LINE__);
 } 
 
 
@@ -317,5 +318,5 @@ TestGeneralNonlinearElasticity::nonlin_stress_deriv_wrt_displacement_gradient(
 						     pt, time,
 						     displacement, dispGrad);
   }
-  return SmallTensor4();
+  throw ErrProgrammingError("Bad test number", __FILE__, __LINE__);
 }
