@@ -19,10 +19,10 @@ from ooflib.SWIG.engine import smallsystem
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# C++ PyPropertyWrapper objects need access to self, since they store
-# a reference to the Python object.  Redefine the SWIG-generated
-# __init__ so that self is passed as the "referent" argument to the
-# C++ constructor.
+# The C++ base classes for Python Property objects need access to
+# self, since they store a reference to the Python object.  Redefine
+# the SWIG-generated __init__ so that self is passed as the "referent"
+# argument to the C++ constructor.
 
 def _PyFluxProperty___init__(self, *args, **kwargs):
     realargs = list(args)
@@ -47,19 +47,4 @@ def _PyAuxProperty___init__(self, *args, **kwargs):
         self, _pypropertywrapper.new_PyAuxProperty(*realargs, **kwargs))
 
 PyAuxProperty.__init__ = _PyAuxProperty___init__
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-# Utility functions to support storing data in an element.
-
-## TODO: Finish writing this.
-
-# def _PyPropertyWrapper_data_to_element(self, element, name, data):
-#     pass
-
-# # Sensible display string for element data.
-# def _PyPropertyElementData___repr__(self):
-#     return "PyPropertyElementData(%s,%s)" % (self.name(), repr(self.data()))
-
-# PyPropertyElementData.__repr__ = _PyPropertyElementData___repr__
 

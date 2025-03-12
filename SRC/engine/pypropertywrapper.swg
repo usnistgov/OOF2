@@ -29,6 +29,10 @@
 // which use the PyObject* passed in to the PyFluxProperty or
 // PyEqnProperty constructor to call the Property's Python methods.
 // All we need to do here is to swig the constructors and destructors.
+//
+// The rest of the methods in Property and its subclasses don't have
+// to be swigged.  They are only called from C++, and call the Python
+// functions via the Python C API.
 
 class PyFluxProperty : public FluxProperty {
 public:
