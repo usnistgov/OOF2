@@ -207,6 +207,11 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 
 	    if(nonzero) {
 	      linsys.insertK(global_row, global_col, negfactor*sum*weight);
+	      // For a FluxProperty, the Jacobian *is *the
+	      // linearization factor, so FluxProperties don't need a
+	      // separate method to compute J.  J still needs to be
+	      // store separately from K, though, because other
+	      // properties may contribute to J but not K.
 	      if(needJacobian)
 		linsys.insertJ(global_row, global_col, negfactor*sum*weight);
 	    }

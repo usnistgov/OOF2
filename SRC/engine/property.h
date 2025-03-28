@@ -287,7 +287,7 @@ public:
 
   // Linearization/derivative of the flux with respect to field and
   // field derivatives.  Used to assemble the stiffness matrix and the
-  // Jacobian matrix. 
+  // Jacobian matrix, which are both linearizations of the flux.
   virtual void flux_matrix(const FEMesh*, const Element*,
 			   const ElementFuncNodeIterator&,
 			   const Flux*, const MasterPosition&,
