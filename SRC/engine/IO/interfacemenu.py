@@ -24,7 +24,7 @@ _interfacemenu = microstructuremenu.micromenu.addItem(
     oofmenu.OOFMenuItem(
         'Interface',
         help="Create and manipulate named interfaces.",
-        cli_only=1
+        no_gui=True
         ))
 
 def _newInterfaceCB(menuitem,microstructure,name,interface_type):

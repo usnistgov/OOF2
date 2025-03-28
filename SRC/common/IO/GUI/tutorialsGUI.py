@@ -56,7 +56,7 @@ mainmenu.OOF.Help.Tutorials.addItem(
     oofmenu.OOFMenuItem(
         'Resume',
         callback=resume_tutorial,
-        secret=1,
+        no_cli=True,
         ordering=10000,
         params=[
             parameter.StringParameter('subject',
@@ -81,7 +81,7 @@ mainmenu.OOF.Windows.addItem(oofmenu.OOFMenuItem(
     discussion=xmlmenudump.emptyDiscussion,
     callback=raise_tutorial,
     threadable=oofmenu.UNTHREADABLE,
-    gui_only=1,
+    no_cli=True,
     ordering=1000))
 mainmenu.OOF.Windows.Tutorial.disable() # there's no window to raise, yet.
 

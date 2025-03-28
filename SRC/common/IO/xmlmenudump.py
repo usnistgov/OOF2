@@ -244,7 +244,7 @@ def addSection(callback, ordering):
 ###################
 
 def dumpMenu(phile, menu, toplevel):
-    if menu.getOption('no_doc') or menu.secret:
+    if menu.getOption('no_doc'):
         return
     path = menu.path()
     if not toplevel:
@@ -276,7 +276,7 @@ def dumpMenu(phile, menu, toplevel):
     commands = []
     submenus = []
     for item in menu.items:
-        if not item.getOption('no_doc') and not item.secret:
+        if not item.getOption('no_doc'):
             if item.items:
                 submenus.append(item.name)
             else:
@@ -290,7 +290,7 @@ def dumpMenu(phile, menu, toplevel):
         print(f" <title>{path} Submenus</title>", file=phile)
         for submenu in submenus:
             item = menu.getItem(submenu)
-            if item.secret:
+            if item.getOption('no_doc'):
                 continue
             itempath = item.path()
             print(" <listitem><simpara>", file=phile)
@@ -310,7 +310,7 @@ def dumpMenu(phile, menu, toplevel):
         print(f" <title>{path} Commands</title>", file=phile)
         for command in commands:
             item = menu.getItem(command)
-            if item.secret:
+            if item.getOption('no_doc'):
                 continue
             itempath = item.path()
             print(" <listitem><simpara>", file=phile)
@@ -342,7 +342,7 @@ def dumpMenu(phile, menu, toplevel):
 
 
 def dumpMenuItem(phile, menuitem):
-    if menuitem.getOption('no_doc') or menuitem.secret:
+    if menuitem.getOption('no_doc'):
         return
     path = menuitem.path()
     xmlIndexEntry(path, "Menu Item", "MenuItem-%s" % path)
@@ -374,7 +374,9 @@ def dumpMenuItem(phile, menuitem):
         print("  </simpara></listitem>", file=phile)
 
     # Menu items are enabled and disabled dynamically, so the current
-    # state of the flag isn't relevant to the documentation.
+    # state of the flag isn't relevant to the documentation. Don't
+    # print options unless the option list contains something other
+    # than "disabled".
     ## TODO: "disabled" shouldn't be an OOFMenuItem option.
     if menuitem.options and list(menuitem.options.keys()) != ['disabled']:
         print("  <listitem><simpara>", file=phile)

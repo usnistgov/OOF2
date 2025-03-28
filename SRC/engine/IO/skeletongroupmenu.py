@@ -42,7 +42,7 @@ ElementGroupParameter = skeletongroupparams.ElementGroupParameter
 
 nodegroupmenu = oofmenu.OOFMenuItem(
     "NodeGroup",
-    cli_only=1,
+    no_bar=True,
     help='Create and manage NodeGroups.',
     xrefs=["Section-Tasks-SkeletonSelection"],
     discussion="""<para>
@@ -52,7 +52,7 @@ nodegroupmenu = oofmenu.OOFMenuItem(
 
 segmentgroupmenu = oofmenu.OOFMenuItem(
     "SegmentGroup",
-    cli_only=1,
+    no_bar=True,
     help='Create and manage SegmentGroups.',
     xrefs=["Section-Tasks-SkeletonSelection"],
     discussion="""<para>
@@ -62,7 +62,7 @@ segmentgroupmenu = oofmenu.OOFMenuItem(
 
 elementgroupmenu = oofmenu.OOFMenuItem(
     "ElementGroup",
-    cli_only=1,
+    no_bar=True,
     help='Create and manage ElementGroups.',
     xrefs=["Section-Tasks-SkeletonSelection"],
     discussion="""<para>
@@ -70,6 +70,9 @@ elementgroupmenu = oofmenu.OOFMenuItem(
     &elems; simultaneously.
     </para>""")
 
+## TODO: Many menu items here had cli_only=1.  Those have been changed
+## to no_gui=True, and commented out.  The no_gui flag in the parent
+## menus should be sufficient.  Check that this is correct.
 
 mainmenu.OOF.addItem(nodegroupmenu)
 mainmenu.OOF.addItem(segmentgroupmenu)
@@ -239,7 +242,7 @@ class CopyGroupNameResolver(GroupNameResolver):
 
 new = oofmenu.OOFMenuItem(
     "New_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_new_group,
     params=parameter.ParameterGroup(
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -257,7 +260,7 @@ nodegroupmenu.addItem(new)
 
 auto = oofmenu.OOFMenuItem(
     "Auto_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_auto_group,
     params=[whoville.WhoParameter("skeleton", whoville.getClass("Skeleton"),
                                   tip=parameter.emptyTipString)],
@@ -281,7 +284,8 @@ nodegroupmenu.addItem(auto)
 
 
 rename = oofmenu.OOFMenuItem(
-    "Rename_Group", cli_only=1,
+    "Rename_Group",
+    # no_gui=True,
     callback=_rename_group,
     params=parameter.ParameterGroup(
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -298,7 +302,7 @@ nodegroupmenu.addItem(rename)
 
 copy = oofmenu.OOFMenuItem(
     "Copy_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_copy_group,
     params=parameter.ParameterGroup(
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -317,7 +321,7 @@ nodegroupmenu.addItem(copy)
 
 remove = oofmenu.OOFMenuItem(
     "Delete_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_remove_group,
     params=[
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -333,7 +337,7 @@ nodegroupmenu.addItem(remove)
 
 removeall = oofmenu.OOFMenuItem(
     "Delete_All",
-    cli_only=1,
+    # no_gui=True,
     callback=_remove_all_groups,
     params=[
     whoville.WhoParameter('skeleton', whoville.getClass('Skeleton'),
@@ -348,7 +352,7 @@ nodegroupmenu.addItem(removeall)
 
 addselect = oofmenu.OOFMenuItem(
     "Add_to_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_add_selection_to_group,
     params=[
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -364,7 +368,7 @@ nodegroupmenu.addItem(addselect)
 
 removeselect = oofmenu.OOFMenuItem(
     "Remove_from_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_remove_selection_from_group,
     params=[whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
                                   tip=parameter.emptyTipString),
@@ -378,7 +382,8 @@ nodegroupmenu.addItem(removeselect)
 
 
 clear = oofmenu.OOFMenuItem(
-    "Clear_Group", cli_only=1,
+    "Clear_Group",
+    # no_gui=True,
     callback=_clear_group,
     params=[whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
                                   tip=parameter.emptyTipString),
@@ -394,7 +399,7 @@ nodegroupmenu.addItem(clear)
 
 clearall = oofmenu.OOFMenuItem(
     "Clear_All",
-    cli_only=1,
+    # no_gui=True,
     callback=_clear_all_groups,
     params=[whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
                                   tip=parameter.emptyTipString)],
@@ -414,7 +419,7 @@ def _query_node_group(menuitem, skeleton, group):
 
 nodegroupmenu.addItem(oofmenu.OOFMenuItem(
     "Query_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_query_node_group,
     params=[whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
                                   tip=parameter.emptyTipString),
@@ -428,7 +433,7 @@ nodegroupmenu.addItem(oofmenu.OOFMenuItem(
 
 new = oofmenu.OOFMenuItem(
     "New_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_new_group,
     params=parameter.ParameterGroup(
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -447,7 +452,7 @@ segmentgroupmenu.addItem(new)
 
 auto = oofmenu.OOFMenuItem(
     "Auto_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_auto_group,
     params=[whoville.WhoParameter("skeleton", whoville.getClass("Skeleton"),
                                   tip=parameter.emptyTipString)],
@@ -465,7 +470,7 @@ segmentgroupmenu.addItem(auto)
 
 rename = oofmenu.OOFMenuItem(
     "Rename_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_rename_group,
     params=parameter.ParameterGroup(
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -484,7 +489,7 @@ segmentgroupmenu.addItem(rename)
 
 copy = oofmenu.OOFMenuItem(
     "Copy_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_copy_group,
     params=parameter.ParameterGroup(
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -503,7 +508,7 @@ segmentgroupmenu.addItem(copy)
 
 remove = oofmenu.OOFMenuItem(
     "Delete_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_remove_group,
     params=[
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -520,7 +525,7 @@ segmentgroupmenu.addItem(remove)
 
 removeall = oofmenu.OOFMenuItem(
     "Delete_All",
-    cli_only=1,
+    # no_gui=True,
     callback=_remove_all_groups,
     params=[
     whoville.WhoParameter('skeleton', whoville.getClass('Skeleton'),
@@ -536,7 +541,7 @@ segmentgroupmenu.addItem(removeall)
 
 addselect = oofmenu.OOFMenuItem(
     "Add_to_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_add_selection_to_group,
     params=[
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -552,7 +557,7 @@ segmentgroupmenu.addItem(addselect)
 
 removeselect = oofmenu.OOFMenuItem(
     "Remove_from_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_remove_selection_from_group,
     params=[
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -568,7 +573,7 @@ segmentgroupmenu.addItem(removeselect)
 
 clear = oofmenu.OOFMenuItem(
     "Clear_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_clear_group,
     params=[
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -585,7 +590,7 @@ segmentgroupmenu.addItem(clear)
 
 clearall = oofmenu.OOFMenuItem(
     "Clear_All",
-    cli_only=1,
+    # no_gui=True,
     callback=_clear_all_groups,
     params=[whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
                                   tip=parameter.emptyTipString)],
@@ -606,7 +611,7 @@ def _query_sgmt_group(menuitem, skeleton, group):
 
 segmentgroupmenu.addItem(oofmenu.OOFMenuItem(
     "Query_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_query_sgmt_group,
     params=[whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
                                   tip=parameter.emptyTipString),
@@ -620,7 +625,7 @@ segmentgroupmenu.addItem(oofmenu.OOFMenuItem(
 
 new = oofmenu.OOFMenuItem(
     "New_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_new_group,
     params=parameter.ParameterGroup(
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -639,7 +644,7 @@ elementgroupmenu.addItem(new)
 
 auto = oofmenu.OOFMenuItem(
     "Auto_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_auto_group,
     params=[whoville.WhoParameter("skeleton", whoville.getClass("Skeleton"),
                                   tip=parameter.emptyTipString)],
@@ -658,7 +663,7 @@ elementgroupmenu.addItem(auto)
 
 rename = oofmenu.OOFMenuItem(
     "Rename_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_rename_group,
     params=parameter.ParameterGroup(
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -675,7 +680,7 @@ elementgroupmenu.addItem(rename)
 
 copy = oofmenu.OOFMenuItem(
     "Copy_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_copy_group,
     params=parameter.ParameterGroup(
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -694,7 +699,7 @@ elementgroupmenu.addItem(copy)
 
 remove = oofmenu.OOFMenuItem(
     "Delete_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_remove_group,
     params=[
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -711,7 +716,7 @@ elementgroupmenu.addItem(remove)
 
 removeall = oofmenu.OOFMenuItem(
     "Delete_All",
-    cli_only=1,
+    # no_gui=True,
     callback=_remove_all_groups,
     params=[
     whoville.WhoParameter('skeleton', whoville.getClass('Skeleton'),
@@ -727,7 +732,7 @@ elementgroupmenu.addItem(removeall)
 
 addselect = oofmenu.OOFMenuItem(
     "Add_to_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_add_selection_to_group,
     params=[
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -743,7 +748,7 @@ elementgroupmenu.addItem(addselect)
 
 removeselect = oofmenu.OOFMenuItem(
     "Remove_from_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_remove_selection_from_group,
     params=[
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -759,7 +764,7 @@ elementgroupmenu.addItem(removeselect)
 
 clear = oofmenu.OOFMenuItem(
     "Clear_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_clear_group,
     params=[whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
                                   tip=parameter.emptyTipString),
@@ -774,7 +779,7 @@ elementgroupmenu.addItem(clear)
 
 clearall = oofmenu.OOFMenuItem(
     "Clear_All",
-    cli_only=1,
+    # no_gui=True,
     callback=_clear_all_groups,
     params=[whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
                                   tip=parameter.emptyTipString)],
@@ -810,7 +815,7 @@ def _query_elem_group(menuitem, skeleton, group):
 #                     " area: ", area, ", average homogeneity: ", homog)
 elementgroupmenu.addItem(oofmenu.OOFMenuItem(
     "Query_Group",
-    cli_only=1,
+    # no_gui=True,
     callback=_query_elem_group,
     params=[
     whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -821,7 +826,7 @@ elementgroupmenu.addItem(oofmenu.OOFMenuItem(
 
 assignmatl = oofmenu.OOFMenuItem(
     "Assign_Material",
-    cli_only=1,
+    # no_gui=True,
     callback=_assign_matl,
     params=[
             whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),
@@ -839,7 +844,7 @@ elementgroupmenu.addItem(assignmatl)
 
 removematl = oofmenu.OOFMenuItem(
     "Remove_Material",
-    cli_only=1,
+    # no_gui=True,
     callback=_remove_matl,
     params=[
             whoville.WhoParameter("skeleton", whoville.getClass('Skeleton'),

@@ -52,7 +52,7 @@ OOF = mainmenu.OOF
 
 OOF.addItem(oofmenu.OOFMenuItem(
     'Property',
-    cli_only=1,
+    no_bar=True,
     help='Create, modify, and delete material properties.',
     discussion="""<para>
     The <command>Property</command> menu contains the basic tools for
@@ -461,7 +461,7 @@ class PropertyRegistration(PropertyRegistrationParent):
                  propertyType=None,
                  params=[],
                  outputs=[],
-                 secret=0,
+                 secret=False,
                  interfaceCompatibility=interfaceparameters.COMPATIBILITY_BULK_ONLY,
                  interfaceDiscontinuousFields=[],
                  tip=None,

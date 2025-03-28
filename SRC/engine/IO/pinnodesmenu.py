@@ -23,7 +23,7 @@ from ooflib.engine import pinnodesmodifier
 skelmenu = mainmenu.OOF.Skeleton
 pinnodesmenu = skelmenu.addItem(oofmenu.OOFMenuItem(
     'PinNodes',
-    cli_only=1,
+    no_gui=True,
     help='Pin and unpin nodes in a Skeleton.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/pinnodes.xml'),
     xrefs=["Section-Tasks-Skeleton", "Section-Tasks-PinNodes",

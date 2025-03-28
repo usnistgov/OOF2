@@ -53,10 +53,10 @@ import sys
 
 SyncMeshParameter = ooflib.engine.mesh.SyncMeshParameter
 
-OOF = mainmenu.OOF
+#OOF = mainmenu.OOF
 meshmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'Mesh',
-    cli_only=1,
+    no_bar=True,
     help='Tools for creating and manipulating Meshes.',
     discussion="""<para>
     The <command>Mesh</command> menu contains tools for creating and
@@ -1412,7 +1412,7 @@ def saveMesh(menuitem, filename, mode, format, mesh):
     finally:
         meshcontext.end_reading()
 
-OOF.File.Save.addItem(oofmenu.OOFMenuItem(
+mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     'Mesh',
     callback = saveMesh,
     ordering=80,
@@ -1430,9 +1430,9 @@ OOF.File.Save.addItem(oofmenu.OOFMenuItem(
 
 def _fixmenu(*args):
     if ooflib.engine.mesh.meshes.nActual() == 0:
-        OOF.File.Save.Mesh.disable()
+        mainmenu.OOF.File.Save.Mesh.disable()
     else:
-        OOF.File.Save.Mesh.enable()
+        mainmenu.OOF.File.Save.Mesh.enable()
 
 _fixmenu()
 
@@ -1455,7 +1455,7 @@ def modifyMesh(menuitem, mesh, modifier):
     modifier.setStatus(meshcontext)
     switchboard.notify('Mesh modified', mesh, modifier)
 
-OOF.Mesh.addItem(oofmenu.OOFMenuItem(
+mainmenu.OOF.Mesh.addItem(oofmenu.OOFMenuItem(
     'Modify',
     callback=modifyMesh,
     params=[
@@ -1479,7 +1479,7 @@ if config.devel()>=1:
         femesh.create_scpatch(skel)
         femesh.flux_recovery()
 
-    OOF.Mesh.addItem(oofmenu.OOFMenuItem(
+    mainmenu.OOF.Mesh.addItem(oofmenu.OOFMenuItem(
         'SCPRecovery',
         callback=recoverFluxes,
         params=[whoville.WhoParameter('mesh', ooflib.engine.mesh.meshes,
@@ -1531,7 +1531,8 @@ solversettingsmenu.addItem(oofmenu.OOFMenuItem(
 meshsettingsmenu.addItem(oofmenu.OOFMenuItem(
     "SelfConsistency",
     callback=_consistencyTolerance,
-    secret=1, no_doc=1, cli_only=1,
+    secret=True,
+    no_doc=True,
     params=[
         parameter.FloatParameter(
             "tolerance",
@@ -1560,7 +1561,7 @@ def _removeAllSolvers(menuitem, mesh):
             subprob.end_writing()
     switchboard.notify("subproblem solvers changed")
 
-OOF.Mesh.addItem(oofmenu.OOFMenuItem(
+mainmenu.OOF.Mesh.addItem(oofmenu.OOFMenuItem(
     'Remove_All_Solvers',
     callback=_removeAllSolvers,
     params=[whoville.WhoParameter('mesh', ooflib.engine.mesh.meshes,
@@ -1592,7 +1593,7 @@ def _copyAllSolvers(menuitem, source, target):
         else:
             subproblemmenu.setSolver(menuitem, subppath, solver)
 
-OOF.Mesh.addItem(oofmenu.OOFMenuItem(
+mainmenu.OOF.Mesh.addItem(oofmenu.OOFMenuItem(
     'Copy_All_Solvers',
     callback=_copyAllSolvers,
     params=[
@@ -1618,7 +1619,7 @@ def _setSubproblemOrder(menuitem, mesh, subproblems):
         subprob.solveOrder = order
     switchboard.notify("subproblems reordered", meshctxt)
 
-OOF.Mesh.addItem(oofmenu.OOFMenuItem(
+mainmenu.OOF.Mesh.addItem(oofmenu.OOFMenuItem(
     'ReorderSubproblems',
     callback=_setSubproblemOrder,
     params=[whoville.WhoParameter(
@@ -1658,7 +1659,7 @@ def _solve(menuitem, mesh, endtime):
     switchboard.notify("mesh solved", meshctxt)
     switchboard.notify("draw at time", meshctxt.getCurrentTime())
 
-OOF.Mesh.addItem(oofmenu.OOFMenuItem(
+mainmenu.OOF.Mesh.addItem(oofmenu.OOFMenuItem(
    'Solve',
    callback=_solve,
    params=[whoville.WhoParameter('mesh', ooflib.engine.mesh.meshes,

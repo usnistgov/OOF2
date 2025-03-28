@@ -27,7 +27,7 @@ from ooflib.SWIG.common import switchboard
 
 boundarymenu = skeletonmenu.skeletonmenu.addItem(mainmenu.OOFMenuItem(
     'Boundary',
-    cli_only=1,
+    no_gui=True,
     help='Tools for creating and manipulating Skeleton boundaries.',
     discussion="""<para>
     The <command>OOF.Skeleton.Boundary</command> menu contains tools

@@ -82,21 +82,35 @@ class SubWindow:
             # If no menu is provided, then build a non-logging local
             # one with 'Close' and 'Quit'.
             self.subwindow_menu = oofmenu.OOFMenuItem(
-                menu, secret=1, gui_only=1, no_log=1, no_doc=1)
+                menu,
+                secret=True,
+                no_log=True,
+                no_bar=True,
+                no_doc=True)
 
-            file_item = oofmenu.OOFMenuItem('File', gui_only=1, no_log=1)
+            file_item = oofmenu.OOFMenuItem('File',
+                                            no_cli=True,
+                                            no_gui=False,
+                                            no_log=True)
             self.subwindow_menu.addItem(file_item)
 
             file_item.addItem(oofmenu.OOFMenuItem(
-                'Close', help="Close this window.",
+                'Close',
+                help="Close this window.",
                 callback=self.menu_close,
-                no_log=1, gui_only=1, accel='w'))
+                no_log=True, # TODO: Why?
+                no_gui=False,
+                no_cli=True,
+                accel='w'))
             
             file_item.addItem(oofmenu.OOFMenuItem(
                 'Quit', gui_callback=quit.queryQuit,
-                no_log=1, gui_only=1,
+                no_log=True,
+                no_cli=True,
+                no_gui=False,
                 help="Quit the OOF application.",
-                accel='q', threadable = oofmenu.UNTHREADABLE))
+                accel='q',
+                threadable = oofmenu.UNTHREADABLE))
             # quit.queryQuit uses menuitem.data to know which window
             # to use as the base for its dialog box.
             file_item.Quit.data = self.gtk
@@ -106,11 +120,24 @@ class SubWindow:
         elif isinstance(menu, oofmenu.OOFMenuItem):
             self.subwindow_menu = menu
             self._local_menu = None # Flag indicating menu was passed in.
+            # # This menuitem is the parent menu of all of the items in
+            # # this window's menu bar.  The GUI pull-down menu will be
+            # # constructed for items in the menu bar, but not the
+            # # parent menu.
+
+            # # If an item in the submenu is *not* supposed to be
+            # # displayed, it will have no_gui==True.  But we can't use
+            # # getOption to discover that, because getoption will
+            # # search the hierarchy, including this menu, which should
+            # # already have no_gui==True so that it doesn't appear in
+            # # its main window's menu bar.
+            # for item in menu.items:
+            #     if item.
         else:
             raise TypeError("Incorrect type passed as menu to SubWindow.")
 
         # Build the menu bar and add it to the window.
-##        self.menu_bar = None
+        ## self.menu_bar = None
         self.accel_group = Gtk.AccelGroup()
         self.gtk.add_accel_group(self.accel_group)
         self.menu_bar = gfxmenu.gtkOOFMenuBar(

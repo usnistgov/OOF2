@@ -75,12 +75,13 @@ def xmlify(text):
     return "\n".join(xmllines)
 
 for key in words:
-    help = key + " information."
+    help_ = key + " information."
     menuitem = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
         key,
         callback=_fancyprint,
-        cli_only=1,
-        help=help,
+        no_bar=True,
+        secret=True,
+        help=help_,
         discussion=xmlify(words[key])
         ))
     menuitem.data = key

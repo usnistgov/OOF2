@@ -128,7 +128,6 @@ OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     'Property',
     callback=saveProperty,
     ordering=50,
-    gui_only=1,
     params=[
             filenameparam.WriteFileNameParameter('filename', tip="File name."),
             filenameparam.WriteModeParameter(

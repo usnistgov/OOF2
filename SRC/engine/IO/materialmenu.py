@@ -68,7 +68,7 @@ matmanager = materialmanager.materialmanager
 
 _materialmenu = OOFMenuItem(
     'Material',
-    cli_only=1,
+    no_bar=True,
     help='Create Materials and assign them to pixels.',
     discussion="""<para>
     
@@ -285,7 +285,8 @@ _materialmenu.addItem(OOFMenuItem(
 _materialmenu.addItem(
     _materialmenu.Add_Property.clone(
         name='Add_property',
-        secret=True,
+        no_doc=True,
+        # secret=True, ## TODO: Check that this is correct
         discussion=xmlmenudump.emptyDiscussion
     )) 
 
@@ -328,7 +329,7 @@ _materialmenu.addItem(OOFMenuItem(
 _materialmenu.addItem(
     _materialmenu.Remove_Property.clone(
         name="Remove_property",
-        secret=True,
+        secret=True,            ## TODO: Check that this is correct
         discussion=xmlmenudump.emptyDiscussion
     ))
                       

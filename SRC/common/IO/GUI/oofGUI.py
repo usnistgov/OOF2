@@ -88,6 +88,7 @@ class oofGUI(widgetscope.WidgetScope):
         self.oofmenu = gfxmenu.gtkOOFMenuBar(self.mainmenu, bar=self.menubar,
                                              accelgroup=accelgrp,
                                              parentwindow=self.gtk)
+        self.mainmenu.setOption("accelgroup", accelgrp)
         gtklogger.setWidgetName(self.oofmenu, "MenuBar")
         self.pageChooserFrame = Gtk.Frame()
         self.pageChooserFrame.set_shadow_type(Gtk.ShadowType.IN)

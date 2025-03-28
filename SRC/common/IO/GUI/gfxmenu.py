@@ -39,7 +39,7 @@ def gtkOOFMenu(menu, accelgroup=None, parentwindow=None):
     menu.setOption('accelgroup', accelgroup)
 
     for item in menu:
-        if not (item.secret or item.getOption('cli_only')):
+        if not item.getOption('no_gui'):
             item.construct_gui(menu, new_gtkmenu, accelgroup)
     return base
 
@@ -47,6 +47,7 @@ def gtkOOFMenu(menu, accelgroup=None, parentwindow=None):
 def gtkOOFMenuBar(menu, bar=None, accelgroup=None, parentwindow=None):
     # Function to turn an OOFMenu into a Gtk3 MenuBar.  Reuse the
     # given GtkMenuBar, if one is provided.
+    # debug.fmsg("gtkOOFMenuBar")
     debug.mainthreadTest()
     menu.parentwindow = parentwindow
     if bar is not None:
@@ -62,15 +63,24 @@ def gtkOOFMenuBar(menu, bar=None, accelgroup=None, parentwindow=None):
     bar.connect("destroy", menu.gtkmenu_destroyed)
     
     # menu.setOption('accelgroup', accelgroup)
-
+    # debug.fmsg(f"items={list(i.name for i in menu)}")
     for item in menu:
-        if not (item.secret or item.getOption('cli_only')):
-            item.construct_gui(menu, bar, accelgroup)
+        item.construct_gui(menu, bar, accelgroup)
+    # debug.fmsg("gtkOOFMenuBar: done")
     return bar
 
 ###########################
 
 # Extend the OOFMenu classes so that they can construct the gtk menu
+
+# An OOFMenuItem may appear in more than one GUI menu.  The gtk
+# objects for the various incarnations are stored in the list
+# OOFMenuItem.gtkitem.
+
+## TODO: OOFMenuItem.gtkitem and OOFMenuItem.gtkmenu should be set to
+## [] in the constructor.  But just wrapping the constructor here to
+## add gtkitem and gtkmenu to it doesn't work, because some
+## OOFMenuItems will be constructed before this file is loaded.
 
 #######################
 
@@ -126,27 +136,55 @@ def _menuItemName(self):
 
 OOFMenuItem.menuItemName = _menuItemName
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Position of this menu item in a gui listing of its parent's items.
+
+def _OOFMenuItem_gui_order(self, gtk_parent):
+    if self.parent is None:
+        return 0
+    order = 0
+    for item in self.parent.items:
+        if item is self:
+            return order
+        if item.visible_gui(gtk_parent):
+            order += 1
+    raise ooferror.PyErrPyProgrammingError(
+        "OOFMenuItem::gui_order: object not found in parent")
+
+OOFMenuItem.gui_order = _OOFMenuItem_gui_order
+
+# Is this menu item visible in a menu?
+
+def _OOFMenuItem_visible_gui(self, gtk_parent):
+    return not (self.getOption('no_gui') or
+                (self.getOption('no_bar') and
+                 isinstance(gtk_parent, Gtk.MenuBar)))
+
+OOFMenuItem.visible_gui = _OOFMenuItem_visible_gui
+
 # Utility function to check if all of this menu item's children
 # are visible.  Returns false if there are no children.  This tells
 # the parent whether or not to construct a submenu, and prevents the
 # construction of empty submenus.  Visibility is a GUI thing.
 def _OOFMenuItem_children_visible(self):
     if not self.items:
-        return None
-    for i in self.items:
-        if not (i.secret or i.getOption('cli_only')):
-            return 1 # Return true on the first visible item.
-    return None # Redundant, None is default return value, but clearer.
+        return False
+    for item in self.items:
+        if item.visible_gui(self):
+            return True
+    return False
 
 OOFMenuItem.children_visible = _OOFMenuItem_children_visible
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
     
-def _OOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
+def _OOFMenuItem_construct_gui(self, base, gtk_parent, accelgroup,
                                popup=False):
-    # "base" is this menu item's OOF menu parent, and "parent_menu" is
+    # "base" is this menu item's OOF menu parent, and "gtk_parent" is
     # the to-be-constructed GtkMenuItem's gtk container.
     debug.mainthreadTest()
-    if not (self.secret or self.getOption('cli_only')):
-
+    if self.visible_gui(gtk_parent):
         new_gtkitem = Gtk.MenuItem(label=self.menuItemName()) 
         gtklogger.setWidgetName(new_gtkitem, self.name)
         try:
@@ -155,19 +193,12 @@ def _OOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
             self.gtkitem = [new_gtkitem]
             
         new_gtkitem.connect("destroy", self.gtkitem_destroyed)
-        
-        parent_menu.insert(new_gtkitem, self.gui_order())
 
-        ## Right justification of help menus is "now considered a bad
-        ## idea" according to the gtk documentation, and
-        ## MenuItem.set_right_justified is deprecated.
-        # if self.help_menu:
-        #     base.gtkhelpmenu = 1
-        #     new_gtkitem.set_right_justified(True)
+        gtk_parent.insert(new_gtkitem, self.gui_order(gtk_parent))
 
         if (self.callback is None and self.gui_callback is None 
             and self.children_visible()):
-
+            # Creating a submenu
             new_gtkmenu = Gtk.Menu()
             try:
                 self.gtkmenu.append(new_gtkmenu)
@@ -177,7 +208,11 @@ def _OOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
             gtklogger.set_submenu(new_gtkitem, new_gtkmenu)
             for item in self.items:
                 # recursively construct submenu
-                item.construct_gui(self, new_gtkmenu, accelgroup, popup=popup)
+                if not (item.getOption('no_gui') or
+                        isinstance(gtk_parent, Gtk.MenuBar) and
+                        item.getOption('no_bar')):
+                    item.construct_gui(self, new_gtkmenu,
+                                       accelgroup, popup=popup)
         else:                   # no submenu, create command
             gtklogger.connect(
                 new_gtkitem, 'activate', MenuCallBackWrapper(self, popup))
@@ -239,13 +274,14 @@ def _newAddItem(self, item):
     return mainthread.runBlock(self.addItem_thread, (item,))
 def _addItem_thread(self, item):
     debug.mainthreadTest()
-    _oldAddItem(self, item)
+    _oldAddItem(self, item) # inserts item in the correct spot in self.items
+
     # Check to see if the gui has been constructed yet. The gui
     # objects for the root of the menu have gtkmenu attributes, but
     # not gtkitem attributes.  Other nodes of the tree have gtkitem,
     # but may not have gtkmenu, so it's necessary to check for both.
-    if (hasattr(self, 'gtkitem') or hasattr(self, 'gtkmenu')) and \
-       self.children_visible():
+    if ((hasattr(self, 'gtkitem') or hasattr(self, 'gtkmenu')) and 
+        self.children_visible()):
         # We've been guied, so gui the new children, if they're visible.
         if not hasattr(self, 'gtkmenu'):
             # Make a gtkmenu for each gtkitem.
@@ -286,7 +322,7 @@ def _newRemoveItem(self, name):
     item.destroy_gui()
     _oldRemoveItem(self, name)
     if not self.items:    # desensitize self if it has no more items
-        self.sensitize_gui(0)
+        self.sensitize_gui(False)
 
 OOFMenuItem.removeItem = _newRemoveItem
         
@@ -300,10 +336,10 @@ class CheckMenuCallBackWrapper(MenuCallBackWrapper):
             gtkmenuitem.get_parent().destroy()
         return self.menuitem(active)
 
-def _CheckOOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
+def _CheckOOFMenuItem_construct_gui(self, base, gtk_parent, accelgroup,
                                     popup=False):
     debug.mainthreadTest()
-    if not (self.secret or self.getOption('cli_only')):
+    if not self.getOption('no_gui'):
         new_gtkitem = Gtk.CheckMenuItem(label=self.menuItemName())
         gtklogger.setWidgetName(new_gtkitem, self.name)
         try:
@@ -334,7 +370,7 @@ def _CheckOOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
         if not self.enabled():
             new_gtkitem.set_sensitive(False)
 
-        parent_menu.insert(new_gtkitem, self.gui_order())
+        gtk_parent.insert(new_gtkitem, self.gui_order(gtk_parent))
 
 CheckOOFMenuItem.construct_gui = _CheckOOFMenuItem_construct_gui
 
@@ -380,7 +416,7 @@ class RadioMenuCallBackWrapper(CheckMenuCallBackWrapper):
             return self.menuitem()
 
 
-def _RadioOOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
+def _RadioOOFMenuItem_construct_gui(self, base, gtk_parent, accelgroup,
                                     popup=False):
     debug.mainthreadTest()
 
@@ -419,7 +455,7 @@ def _RadioOOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
     
     if self.getOption('disabled'):
         new_gtkitem.set_sensitive(0)
-    parent_menu.add(new_gtkitem)
+    gtk_parent.add(new_gtkitem)
 
 RadioOOFMenuItem.construct_gui = _RadioOOFMenuItem_construct_gui
 
@@ -435,64 +471,99 @@ def _RadioOOFMenuItem___call__(self):
 
 RadioOOFMenuItem.__call__ = _RadioOOFMenuItem___call__
 
-###################################################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Redefine 'enable' and 'disable' so that the menus are grayed out.
+# Redefine OOFMenuItem.enable() and OOFMenuItem.disable() so that the
+# menus for disabled items are grayed out in the GUI.
+
+# A menu item that has been explicitly disabled via
+# OOFMenuItem.disable() should always be insensitive, as should its
+# submenu items.
+
+# A menu item that has not been explicitly disabled will still be
+# insensitive if it has no enabled children.
+
+# OOFMenuItem.getOption('disabled') says whether or not an item has
+# been *explicitly* disabled.  OOFMenuItem.enabled() and
+# OOFMenuItem.disabled() say whether or not a menu item is actually
+# enabled.  None of these methods affect the value of
+# OOFMenuItem::setOption('disabled')
+
+#=--=##=--=#
+
+# OOFMenuItem.sensitize_gui() sensitizes or desensitizes the Gtk
+# objects corresponding to the menu item.
 
 def _sensitize_gui(self, sensitive):
     mainthread.runBlock(self.sensitize_gui_thread, (sensitive,))
+OOFMenuItem.sensitize_gui = _sensitize_gui
 
 def _sensitize_gui_thread(self, sensitive):
     debug.mainthreadTest()
-    try:
-        itemlist = self.gtkitem
-    except AttributeError:
-        pass
-    else:
-        for i in itemlist:
+    if hasattr(self, "gtkitem"):
+        for i in self.gtkitem:
             i.set_sensitive(sensitive)
-OOFMenuItem.sensitize_gui = _sensitize_gui
 OOFMenuItem.sensitize_gui_thread = _sensitize_gui_thread
 
-_old_disable = OOFMenuItem.disable
-def _OOFMenuItem_disable(self):
-    mainthread.runBlock(self.disable_thread)
-def disable_thread(self):
-    debug.mainthreadTest()
-    _old_disable(self)
-    self.sensitize_gui(0)
-OOFMenuItem.disable = _OOFMenuItem_disable
-OOFMenuItem.disable_thread = disable_thread
-
-def _enable_children(self):
-    debug.mainthreadTest()
-    if self.enabled():
-        self.sensitize_gui(1)
-        for item in self.items:
-            item.enable_children()
-OOFMenuItem.enable_children = _enable_children
-
-def _enable_parent_gui(self):
-    debug.mainthreadTest()
-    if self.enabled():
-        self.sensitize_gui(1)
-    if self.parent is not None:
-            self.parent.enable_parent_gui()
-OOFMenuItem.enable_parent_gui = _enable_parent_gui
+#=--=##=--=##=--=#
 
 _old_enable = OOFMenuItem.enable
 def _OOFMenuItem_enable(self):
     _old_enable(self)
-    mainthread.runBlock(self.enable_children)
+    mainthread.runBlock(self.enable_thread)
 OOFMenuItem.enable = _OOFMenuItem_enable
+
+def _enable_thread(self):
+    debug.mainthreadTest()
+    # Checking OOFMenuItem.enabled() here is not redundant.  The
+    # "disabled" flag has been unset by _old_enable(), but the item
+    # might be a menu with no active submenus.
+    if self.enabled():
+        self.sensitize_gui(True)
+        for item in self.items:
+            item.enable_thread()
+OOFMenuItem.enable_thread = _enable_thread
+
+# OOFMenuItem.enable_parent_gui() recursively checks the parent menu
+# items and sensitizes them, if the only reason that they were
+# desensitized was that this menu was disabled.  It is called only by
+# OOFMenuItem.addItem().
+def _enable_parent_gui(self):
+    debug.mainthreadTest()
+    if self.parent is not None and self.parent.enabled():
+        self.parent.sensitize_gui(True)
+        self.parent.enable_parent_gui()
+OOFMenuItem.enable_parent_gui = _enable_parent_gui
+
+#=--=##=--=##=--=#
+
+_old_disable = OOFMenuItem.disable
+def _OOFMenuItem_disable(self):
+    _old_disable(self)
+    mainthread.runBlock(self.disable_thread)
+OOFMenuItem.disable = _OOFMenuItem_disable
+
+def _disable_thread(self):
+    debug.mainthreadTest()
+    self.sensitize_gui(False)
+    self.disable_parent_gui()
+OOFMenuItem.disable_thread = _disable_thread
+
+def _disable_parent_gui(self):
+    debug.mainthreadTest()
+    if self.parent is not None and self.parent.disabled():
+        self.parent.sensitize_gui(False)
+        self.parent.disable_parent_gui()
+OOFMenuItem.disable_parent_gui = _disable_parent_gui
+
+#=--=##=--=##=--=#
 
 # When a gui callback is added, an automatically disabled menu item
 # might become enabled.
 _old_add_gui_callback = OOFMenuItem.add_gui_callback
 def _OOFMenuItem_add_gui_callback(self, callback):
     _old_add_gui_callback(self, callback)
-    if self.enabled():
-        self.sensitize_gui(1)
+    self.sensitize_gui(self.enabled())
 OOFMenuItem.add_gui_callback = _OOFMenuItem_add_gui_callback
 
 ####################################################

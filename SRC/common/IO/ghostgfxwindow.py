@@ -206,7 +206,8 @@ class GhostGfxWindow:
 
         self.menu = OOF.addItem(OOFMenuItem(
             self.name,
-            secret=True,
+            # secret=True,
+            no_bar=True,
             help = "Commands dependent on a particular Graphics window.",
             discussion=xmlmenudump.loadFile(
                 'DISCUSSIONS/common/menu/graphics.xml'),
@@ -219,7 +220,7 @@ class GhostGfxWindow:
         OOF.Windows.Graphics.addItem(OOFMenuItem(
             self.name,
             help="Raise the window named %s." % name, 
-            gui_only=1,
+            no_cli=True,
             discussion=xmlmenudump.loadFile(
                 'DISCUSSIONS/common/menu/graphicsraise.xml')
             ))
@@ -397,7 +398,7 @@ class GhostGfxWindow:
         
         self.toolboxmenu = self.menu.addItem(OOFMenuItem(
             'Toolbox',
-            cli_only=1,
+            no_bar=True,
             help='Commands for the graphics toolboxes.',
             discussion=xmlmenudump.loadFile(
                 'DISCUSSIONS/common/menu/toolbox.xml')
@@ -453,7 +454,7 @@ class GhostGfxWindow:
         layermenu.addItem(OOFMenuItem(
             'Select',
             callback=self.selectLayerCB,
-            cli_only=1,
+            no_gui=True,
             # Running this command on the mainthread avoids a race
             # condition arising from double clicks on the layer list.
             # See the comment in GfxWindowBase.layerDoubleClickCB in
@@ -467,7 +468,7 @@ class GhostGfxWindow:
         layermenu.addItem(OOFMenuItem(
             'Deselect',
             callback=self.deselectLayerCB,
-            cli_only=1,
+            no_gui=True,
             params=[parameter.IntParameter('n', 0, tip="Layer index.")],
             help="Deselect the given graphics layer.",
             discussion="""<para>
@@ -538,7 +539,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         raisemenu.addItem(OOFMenuItem(
             'By',
             callback=self.raiseBy,
-            #cli_only = 1,
             params=[
                 parameter.IntParameter('n', 0, tip="Layer index."),
                 parameter.IntParameter('howfar', 1, tip="How far to raise the layer.")

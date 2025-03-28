@@ -10,374 +10,363 @@
 # oof_manager@nist.gov.
 
 
-"""The classes in oofmenu.py describe the menus of commands that
-represent all of the actions that OOF performs.  These menus form the
-API between the guts of the program and the user interfaces, both
-graphical (GUI) and command-line (CLI).  The menus can be used
-directly in CLI mode, and can be automatically converted to GTK+ menus
-in GUI mode.  [The code in this file defines only the menus and their
-CLI interface.  The GUI interface is defined in common.IO.GUI.gfxmenu.
-This file is independent of that one, although some of the comments
-here may refer to it.]
+# The classes in oofmenu.py describe the menus of commands that
+# represent all of the actions that OOF performs.  These menus form
+# the API between the guts of the program and the user interfaces,
+# both graphical (GUI) and command-line (CLI).  The menus can be used
+# directly in CLI mode, and can be automatically converted to GTK+
+# menus in GUI mode.  [The code in this file defines only the menus
+# and their CLI interface.  The GUI interface is defined in
+# common.IO.GUI.gfxmenu.  This file is independent of that one,
+# although some of the comments here may refer to it.]
 
-The menu commands can be logged (scripted), either as they're
-performed or as an afterthought.  The log file (script) can be read
-back in to re-execute the commands.
+# The menu commands can be logged (scripted), either as they're
+# performed or as an afterthought.  The log file (script) can be read
+# back in to re-execute the commands.
 
+# ----------------
 
-----------------
+# To enforce the scriptability of all commands, all GUI and CLI
+# commands have to come from a common set of menus.  But in some
+# circumstances, a menu item may demand different actions in GUI and
+# CLI modes.  For example, the command "File/Open" should open a
+# dialog box in GUI mode, but should open a file in CLI mode.  These
+# menu items must therefore have two callbacks, one for each mode.
+# The GUI callback should not be logged, since presumably it's not
+# going to perform an action that affects the state of the guts of the
+# program; it's just going to open a window in which the action will
+# be performed.
 
-To enforce the scriptability of all commands, all GUI and CLI commands
-have to come from a common set of menus.  But in some circumstances, a
-menu item may demand different actions in GUI and CLI modes.  For
-example, the command "File/Open" should open a dialog box in GUI mode,
-but should open a file in CLI mode.  These menu items must therefore
-have two callbacks, one for each mode.  The GUI callback should not be
-logged, since presumably it's not going to perform an action that
-affects the state of the guts of the program; it's just going to open
-a window in which the action will be performed.
+# ----------------
 
-----------------
+# The fundamental class is the OOFMenuItem.  This is the base class for
+# all OOF menu objects, even the menus.  That's because, as explained
+# above, some menus look like commands in some contexts.  OOFMenuItems
+# have the following constructor arguments:
 
-The fundamental class is the OOFMenuItem.  This is the base class for
-all OOF menu objects, even the menus.  That's because, as explained
-above, some menus look like commands in some contexts.  OOFMenuItems
-have the following constructor arguments:
+# name:         A string.  The string must be a valid Python identifier,
+#               because in CLI mode it will be typed to execute the
+#               command.  That means that it must begin with an
+#               underscore or a letter and can contain only
+#               underscores, letters, and digits.  Because it's nice
+#               to have spaces in GUI mode, before being displayed in
+#               the GUI single underscores are turned into spaces and
+#               double underscores are turned into single underscores.
 
-name:         A string.  The string must be a valid Python identifier, because
-              in CLI mode it will be typed to execute the command.
-              That means that it must begin with an underscore or a
-              letter and can contain only underscores, letters, and
-              digits.  Because it's nice to have spaces in GUI mode,
-              before being displayed in the GUI single underscores are
-              turned into spaces and double underscores are turned
-              into single underscores.
+# callback:     The function to be called when the command is executed
+#               in CLI mode.  The function takes at least one argument,
+#               which is the OOFMenuItem which caused it to be called.
+#               More arguments can be specified with the params
+#               constructor argument.  The callback argument is
+#               optional, but a menu item isn't much use if a callback
+#               isn't provided. [default value = None]
 
-callback:     The function to be called when the command is executed
-              in CLI mode.  The function takes at least one argument,
-              which is the OOFMenuItem which caused it to be called.
-              More arguments can be specified with the params
-              constructor argument.  The callback argument is
-              optional, but a menu item isn't much use if a callback
-              isn't provided. [default value = None]
+# gui_callback: The function to be called when the menu item is chosen
+#               in GUI mode.  GUI callbacks take exactly one argument,
+#               which is the OOFMenuItem that invoked them.  If the
+#               non-GUI callback for the OOFMenuItem has no additional
+#               params, and if gui_callback is None, then the non-GUI
+#               callback will be invoked from the GUI.  If the non-GUI
+#               callback does have params, but no GUI callback is provided,
+#               then a simple dialog box is created allowing the params to
+#               be set. [default value = None]
 
-gui_callback: The function to be called when the menu item is chosen
-              in GUI mode.  GUI callbacks take exactly one argument,
-              which is the OOFMenuItem that invoked them.  If the
-              non-GUI callback for the OOFMenuItem has no additional
-              params, and if gui_callback is None, then the non-GUI
-              callback will be invoked from the GUI.  If the non-GUI
-              callback does have params, but no GUI callback is provided,
-              then a simple dialog box is created allowing the params to
-              be set. [default value = None]
+# gui_title:    The title to be given to the GUI dialog box which will
+#               be constructed if gui_callback is None and the menu item
+#               has params.  If gui_title is None, then the menu item's name
+#               will be used. [default value = None]
 
-gui_title:    The title to be given to the GUI dialog box which will
-              be constructed if gui_callback is None and the menu item
-              has params.  If gui_title is None, then the menu item's name
-              will be used. [default value = None]
+# accel:	A string describing the keyboard accelerator to be used
+#               in GUI mode.  The string must be a key symbol defined in
+#               GDK.py.  For example, accel='d' makes Alt-D the
+#               accelerator.  accel='equal' makes Alt-= the
+#               accelerator.  [default value = None]
 
-accel:	      A string describing the keyboard accelerator to be used
-              in GUI mode.  The string must be a key symbol defined in
-              GDK.py.  For example, accel='d' makes Alt-D the
-              accelerator.  accel='equal' makes Alt-= the
-              accelerator.  [default value = None]
-
-secret:	      If secret=0, then the menu item is visible.  If secret=1, the
-              menu item is not displayed in either GUI or CLI mode.
-              However, explicitly requesting the display of a secret
-              menu will display it.  This allows all of the OOF menus
-              to live in a single menu hierarchy.  For example,
-              OOF.Graphics.gfx_1 is a secret menu in the main Graphics
-              menu, and contains the menu for the first graphics
-              window.  That menu is actually displayed in the graphics
-              window, because it was explicitly created with
-              gfxmenu.gtkOOFMenuBar(OOF.Graphics.gfx1).  [default value
-              = 0]
+# secret:       Shorthand for setting the options no_cli and no_gui to
+#               True. [default value = False].
+#               TODO: Get rid of this option.  Just use no_gui, etc.
               
-ellipsis:     If ellipsis=1, then the item's name has '...' appended to it
-              when displayed. [default value = 0]
+# ellipsis:     If ellipsis=True, then the item's name has '...' appended
+#               to it when displayed. [default value = False]
               
-help:	      A helpful string.  Appears in tooltips.
+# help:	        A helpful string.  Appears in tooltips.
 
-discussion:   A longer helpful string.  It should be a series of xml
-              elements legal for the body of a DocBook refsect1 element.
+# discussion:   A longer helpful string.  It should be a series of xml
+#               elements legal for the body of a DocBook refsect1 element.
 
-xrefs:        A list of strings which are xml ids for other parts
-              of the manual, and which will appear in the "See Also"
-              subsection of the menuitem's manual page.  xrefs from
-              parent menus automatically appear in child pages.  To use
-              non-standard text for the link, insert an (xmlid, text)
-              tuple instead of just the xmlid.
+# xrefs:        A list of strings which are xml ids for other parts
+#               of the manual, and which will appear in the "See Also"
+#               subsection of the menuitem's manual page.  xrefs from
+#               parent menus automatically appear in child pages.  To use
+#               non-standard text for the link, insert an (xmlid, text)
+#               tuple instead of just the xmlid.
 
-params:	      A list of Parameters that are provided as arguments to
-              the non-GUI callback function.  The Parameter class is
-              defined in common.IO.parameter.  The callback will be
-              called with additional keyword arguments, one for each
-              parameter, using Parameter.name and Parameter.value for
-              the key and value.  [default value = []]
+# params:       A list of Parameters that are provided as arguments to
+#               the non-GUI callback function.  The Parameter class is
+#               defined in common.IO.parameter.  The callback will be
+#               called with additional keyword arguments, one for each
+#               parameter, using Parameter.name and Parameter.value for
+#               the key and value.  [default value = []]
 
-ordering:     New items are added to menus just before the first item with
-              a larger ordering number.  Items with the same ordering number
-              appear in the order in which they're added. [default value=0]
+# ordering:     New items are added to menus just before the first item with
+#               a larger ordering number.  Items with the same ordering number
+#               appear in the order in which they're added. [default value=0]
 
-help_menu:    If help_menu=1, then this item is presumed to be a 'Help'
-              menu and will be in the right-most position in a GUI menu bar,
-              independent of its ordering.  Setting help_menu=1 on anything
-              other than a plain old OOFMenuItem with no callback doesn't
-              make any sense, and may cause confusion.
+# help_menu:    If help_menu=1, then this item is presumed to be a 'Help'
+#               menu and will be in the right-most position in a GUI menu bar,
+#               independent of its ordering.  Setting help_menu=1 on anything
+#               other than a plain old OOFMenuItem with no callback doesn't
+#               make any sense, and may cause confusion.
 
-Options:      Any additional keyword arguments to the OOFMenuItem
-              constructor are options that apply to the menu item and
-              to all its children (unless overridden in a child).  The
-              allowed options are listed in _allowed_options, and are:
-	        gui_only:  items appear only in GUI mode
-		cli_only:  items appear only in CLI mode
-		no_log:	   items are not logged
-                no_doc:    items don't appear in documentation
-	      If an option is not provided, its value is taken from
-	      the menu items parent.
+# Options:      Any additional keyword arguments to the OOFMenuItem
+#               constructor are options that apply to the menu item and
+#               to all its children (unless overridden in a child).  The
+#               allowed options are listed in _allowed_options, below.
+# 	        If an option is not provided, its value is taken from
+# 	        the menu item's parent.  The root menu sets all
+# 	        options to False.
 
-Functions:
+# Functions:
 
-root():	  Returns the root of the menu hierarchy.
+# root():	Returns the root of the menu hierarchy.
 
-log(string):  Adds the given string to the log.
+# log(string):  Adds the given string to the log.
 
-add_gui_callback(function):  Assigns a separate callback to be use in gui mode.
-                             The callback function takes a single
-                             argument, which is the menu item.
+# add_gui_callback(function): Assigns a separate callback to be use in
+#                             gui mode.  The callback function takes
+#                             a single argument, which is the menu item.
 
-Data:
+# Data:
 
-data:	  This is just a convenient spot for storing any additional
-          data that might need to be passed through to the callbacks.
-          OOFMenuItem.data is not used by the OOFMenu classes.
+# data:	  This is just a convenient spot for storing any additional
+#         data that might need to be passed through to the callbacks.
+#         OOFMenuItem.data is not used by the OOFMenu classes.
 
 
-Menus:
+# Menus:
 
-There used to be a separate class, named 'OOFMenu', derived from
-OOFMenuItem.  That was deemed to be a mistake, and now there's no
-distinction between menus and menu items, except that menus are menu
-items that have subitems assigned to them.  The following functions
-act on subitems:
+# There used to be a separate class, named 'OOFMenu', derived from
+# OOFMenuItem.  That was deemed to be a mistake, and now there's no
+# distinction between menus and menu items, except that menus are menu
+# items that have subitems assigned to them.  The following functions
+# act on subitems:
 
-addItem(item):  Adds a previously constructed OOFMenuItem to the menu.
+# addItem(item):  Adds a previously constructed OOFMenuItem to the menu.
 
-getItem(name):  Returns the menuitem with the given name.
+# getItem(name):  Returns the menuitem with the given name.
 
-removeItem(name):  Removes the menuitem with the given name from the
-                   menu. 
+# removeItem(name):  Removes the menuitem with the given name from the
+#                    menu. 
 
-makeGroup():  Creates a group for radio menu items.  See
-              RadioOOFMenuItem below.
+# makeGroup():  Creates a group for radio menu items.  See
+#               RadioOOFMenuItem below.
 
-apply(f):    Applies the function f to all OOFMenuItems in the hierarchy.
-             (Remember that OOFMenus are OOFMenuItems, too.)  The first
-             argument to f() is the OOFMenuItem.  Additional arguments to
-             apply() are passed on as additional arguments to f().
-             This function is used by the text menu dumping command.
+# apply(f):    Applies the function f to all OOFMenuItems in the hierarchy.
+#              (Remember that OOFMenus are OOFMenuItems, too.)  The first
+#              argument to f() is the OOFMenuItem.  Additional arguments to
+#              apply() are passed on as additional arguments to f().
+#              This function is used by the text menu dumping command.
              
------------------------------
+# -----------------------------
 
-There are three special derived types of OOFMenuItem: OOFRootMenu,
-CheckOOFMenuItem, RadioOOFMenuItem.
+# There are three special derived types of OOFMenuItem: OOFRootMenu,
+# CheckOOFMenuItem, RadioOOFMenuItem.
 
----------
+# ---------
 
-OOFRootMenu:
+# OOFRootMenu:
 
-The root of the menu hierarchy must be an OOFRootMenu instance.
-OOFRootMenu is derived from OOFMenuItem, and adds the following
-functions:
+# The root of the menu hierarchy must be an OOFRootMenu instance.
+# OOFRootMenu is derived from OOFMenuItem, and adds the following
+# functions:
 
-addLogger(logger):  Adds a new logging method.  'logger' must be a
-              callable object that takes a string as an argument.  See
-              MenuLogger, below.   More than one logging method can be
-              active at once.
+# addLogger(logger):  Adds a new logging method.  'logger' must be a
+#               callable object that takes a string as an argument.  See
+#               MenuLogger, below.   More than one logging method can be
+#               active at once.
 
-removeLogger(logger): Stops logging with the given logging method.
+# removeLogger(logger): Stops logging with the given logging method.
 
-saveLog(file):  Write the internal log to a file.  file must be a
-                Python file object, or something that looks like one.
+# saveLog(file):  Write the internal log to a file.  file must be a
+#                 Python file object, or something that looks like one.
 
-clearLog():  Clears the internally maintained log.
+# clearLog():  Clears the internally maintained log.
 
-haltLog():  Temporarily suspend logging.
+# haltLog():  Temporarily suspend logging.
 
-resumeLog(): Resume logging after haltLog().  Each call to haltLog()
-             must be matched by a call to resumeLog() before logging
-             will actually resume.
+# resumeLog(): Resume logging after haltLog().  Each call to haltLog()
+#              must be matched by a call to resumeLog() before logging
+#              will actually resume.
 
-When commands are logged, they are logged as Python expressions, like
-"rootmenu.menu.submenu.etc.function(arg=...)".  The names of the
-menus, submenus, and functions are the 'name' attributes of the
-corresponding OOFMenuItems.  Therefore, the logged menu commands are
-accessible in a script only if the script is executed in an
-environment in which the root menu's name (as a Python reference) is
-the same as its name attribute.
+# When commands are logged, they are logged as Python expressions, like
+# "rootmenu.menu.submenu.etc.function(arg=...)".  The names of the
+# menus, submenus, and functions are the 'name' attributes of the
+# corresponding OOFMenuItems.  Therefore, the logged menu commands are
+# accessible in a script only if the script is executed in an
+# environment in which the root menu's name (as a Python reference) is
+# the same as its name attribute.
 
 
-----------
+# ----------
 
-Return values:
+# Return values:
 
-Menu commands do not return results -- they only change the state of
-the system by the actions of their callbacks.  This makes it safe to
-launch a menu callback on a subthread, and then proceed to launch
-others on other threads without having to wait.
+# Menu commands do not return results -- they only change the state of
+# the system by the actions of their callbacks.  This makes it safe to
+# launch a menu callback on a subthread, and then proceed to launch
+# others on other threads without having to wait.
 
   
-----------
+# ----------
 
-CheckOOFMenuItem:
+# CheckOOFMenuItem:
 
-A CheckOOFMenuItem is an OOFMenuItem that has a value, which can be 0
-or 1.  In GUI mode, a check box is drawn next to the menu item's name,
-indicating the value.  A CheckOOFMenuItem can have no params.  Its
-constructor has one additional argument, value, which is the item's
-initial value.  The callback for a CheckOOFMenuItem has two arguments,
-the calling CheckOOFMenuItem, and the value.  A CheckOOFMenuItem can
-have no separately specified gui_callback.
+# A CheckOOFMenuItem is an OOFMenuItem that has a value, which can be 0
+# or 1.  In GUI mode, a check box is drawn next to the menu item's name,
+# indicating the value.  A CheckOOFMenuItem can have no params.  Its
+# constructor has one additional argument, value, which is the item's
+# initial value.  The callback for a CheckOOFMenuItem has two arguments,
+# the calling CheckOOFMenuItem, and the value.  A CheckOOFMenuItem can
+# have no separately specified gui_callback.
 
------------
+# -----------
 
-RadioOOFMenuItem:
+# RadioOOFMenuItem:
 
-A RadioOOFMenuItem is a CheckOOFMenuItem that lives in a group.  One
-item in the group has value=1.  All the others have value=0.  The
-constructor takes one additional argument, group, which must be a
-group returned from OOFMenu.makeGroup().  When a RadioOOFMenuItem is
-executed, its callback is called with value=1, but first the callbacks
-for all other items in the group are called with value=0, if they had
-value=1.
+# A RadioOOFMenuItem is a CheckOOFMenuItem that lives in a group.  One
+# item in the group has value=1.  All the others have value=0.  The
+# constructor takes one additional argument, group, which must be a
+# group returned from OOFMenu.makeGroup().  When a RadioOOFMenuItem is
+# executed, its callback is called with value=1, but first the callbacks
+# for all other items in the group are called with value=0, if they had
+# value=1.
 
-----------------------------------
+# ----------------------------------
 
-GUI callbacks:
+# GUI callbacks:
 
-Every object in the GUI that corresponds to a change in the state of
-the OOF guts should have a corresponding menu item, so that it can be
-scripted.  But it is common for the GUI to have many widgets that set
-values that aren't used until some other widget is activated.  Here's
-an example:
+# Every object in the GUI that corresponds to a change in the state of
+# the OOF guts should have a corresponding menu item, so that it can be
+# scripted.  But it is common for the GUI to have many widgets that set
+# values that aren't used until some other widget is activated.  Here's
+# an example:
 
-The filename input widget in a file selector dialog box isn't used
-until the "OK" button is pressed.  So the filename input widget should
-not correspond to a menu item.  Furthermore, the File/Open menu item
-should correspond to a logged command in the CLI:
-root.file.open(filename=name) but should simply open a window in the
-GUI.  Therefore, the OOFMenuItem for file.open must have two
-callbacks.  It might be constructed like this:
+# The filename input widget in a file selector dialog box isn't used
+# until the "OK" button is pressed.  So the filename input widget should
+# not correspond to a menu item.  Furthermore, the File/Open menu item
+# should correspond to a logged command in the CLI:
+# root.file.open(filename=name) but should simply open a window in the
+# GUI.  Therefore, the OOFMenuItem for file.open must have two
+# callbacks.  It might be constructed like this:
 
-fileopen = OOFMenuItem('open',
-                       callback=cli_fileopen_callback,
-		       gui_callback = gui_fileopen_callback,
-		       params=[StringParameter('filename')])
+# fileopen = OOFMenuItem('open',
+#                        callback=cli_fileopen_callback,
+# 		       gui_callback = gui_fileopen_callback,
+# 		       params=[StringParameter('filename')])
                                     
-The CLI callback looks like this:
+# The CLI callback looks like this:
 
-def cli_fileopen_callback(menuitem, filename):
-   file = open(filename, "r")
-   [whatever...]
+# def cli_fileopen_callback(menuitem, filename):
+#    file = open(filename, "r")
+#    [whatever...]
 
-The first argument, menuitem, is a reference to fileopen, the calling
-OOFMenuItem.   The second argument is the first (and only, in this
-case) Parameter from the params list in the OOFMenuItem constructor.
+# The first argument, menuitem, is a reference to fileopen, the calling
+# OOFMenuItem.   The second argument is the first (and only, in this
+# case) Parameter from the params list in the OOFMenuItem constructor.
 
-The GUI callback looks like this:
+# The GUI callback looks like this:
 
-def gui_fileopen_callback(menuitem):
-   fname = graphical_way_of_getting_filename()
-   menuitem(filename=fname)
+# def gui_fileopen_callback(menuitem):
+#    fname = graphical_way_of_getting_filename()
+#    menuitem(filename=fname)
 
-The last line calls the CLI callback, setting the filename argument to
-the fname obtained by the GUI.  It's important to call the CLI
-callback in this way, rather than invoking it directly, so that the
-call can be logged.
+# The last line calls the CLI callback, setting the filename argument to
+# the fname obtained by the GUI.  It's important to call the CLI
+# callback in this way, rather than invoking it directly, so that the
+# call can be logged.
 
 
-Here's another example:
+# Here's another example:
 
-Imagine a menu item 'Dessert' that, in GUI mode opens a window on
-which there are two buttons, 'Pie' and 'Cake'.  In the CLI mode,
-however, 'Dessert' is a menu containing two items, 'Pie' and 'Cake'.
-So the OOFMenuItem 'Dessert' needs to be an OOFMenu, constructed like
-this:
+# Imagine a menu item 'Dessert' that, in GUI mode opens a window on
+# which there are two buttons, 'Pie' and 'Cake'.  In the CLI mode,
+# however, 'Dessert' is a menu containing two items, 'Pie' and 'Cake'.
+# So the OOFMenuItem 'Dessert' needs to be an OOFMenu, constructed like
+# this:
 
-dessert = OOFMenu('Dessert', callback=None, gui_callback=dessert_gui)
-dessert.addItem(OOFMenuItem('Pie', callback=pie, cli_only=1))
-dessert.addItem(OOFMenuItem('Cake', callback=cake, cli_only=1))
+# dessert = OOFMenu('Dessert', callback=None, gui_callback=dessert_gui)
+# dessert.addItem(OOFMenuItem('Pie', callback=pie, cli_only=1))
+# dessert.addItem(OOFMenuItem('Cake', callback=cake, cli_only=1))
 
-Note that the subitems are marked 'cli_only' so that they don't appear
-in the GUI menu.
+# Note that the subitems are marked 'cli_only' so that they don't appear
+# in the GUI menu.
 
-The CLI callbacks are straightforward:
+# The CLI callbacks are straightforward:
 
-def pie(menuitem): print "Yummm, pie!"
+# def pie(menuitem): print "Yummm, pie!"
 
-def cake(menuitem): print "Yummm, cake!"
+# def cake(menuitem): print "Yummm, cake!"
 
-The gui_callback for dessert creates a window and remembers the
-OOFMenuItem that created it:
+# The gui_callback for dessert creates a window and remembers the
+# OOFMenuItem that created it:
 
-def dessert_gui(menuitem):
-    gui = DessertGUI(menuitem)
+# def dessert_gui(menuitem):
+#     gui = DessertGUI(menuitem)
    
-class DessertGUI:
-    def __init__(self, menuitem):
-        self.menuitem = menuitem
-        window = create_dessert_window(self.pie_button_cb, self.cake_button_cb)
-	window.show()
+# class DessertGUI:
+#     def __init__(self, menuitem):
+#         self.menuitem = menuitem
+#         window = create_dessert_window(self.pie_button_cb, self.cake_button_cb)
+# 	window.show()
 
-The callbacks for the buttons in the GUI now can call the non-GUI callbacks:
-    def pie_button_cb(self):
-        self.menuitem.getItem('Pie')()  # Calls and logs pie()
-    def cake_button_cb(self):
-        self.menuitem.getItem('Cake')() # Calls and logs cake()
+# The callbacks for the buttons in the GUI now can call the non-GUI callbacks:
+#     def pie_button_cb(self):
+#         self.menuitem.getItem('Pie')()  # Calls and logs pie()
+#     def cake_button_cb(self):
+#         self.menuitem.getItem('Cake')() # Calls and logs cake()
 
-----------------------------------
-----------------------------------
+# ----------------------------------
+# ----------------------------------
 
-CLI Operation:
+# CLI Operation:
 
-TODO: FIX THIS OR CHANGE THE DOCS.  CLI WORKS ONLY IF ALL ARGS ARE
-PROVIDED.  IT DOESN'T PROMPT FOR MISSING ARGS.
+# TODO: FIX THIS OR CHANGE THE DOCS.  CLI WORKS ONLY IF ALL ARGS ARE
+# PROVIDED.  IT DOESN'T PROMPT FOR MISSING ARGS.
 
-Assume that root is an OOFRootMenu instance.
+# Assume that root is an OOFRootMenu instance.
 
->>> root.function()
-executes the OOFMenuItem named 'function' in the menu.
+# >>> root.function()
+# executes the OOFMenuItem named 'function' in the menu.
 
-If the function takes arguments (params), they can be provided as
-  keywords:
->>> root.function(a='eh', pi=3.14)
+# If the function takes arguments (params), they can be provided as
+#   keywords:
+# >>> root.function(a='eh', pi=3.14)
 
-If not all the arguments are provided in an interactive session, the
-user will be prompted for the remainder:
+# If not all the arguments are provided in an interactive session, the
+# user will be prompted for the remainder:
 
->>> root.function(a='eh')
-Enter pi [3.14]: 22/7
+# >>> root.function(a='eh')
+# Enter pi [3.14]: 22/7
 
-The value in braces is a default value to be used if the user doesn't
-enter anything.  Any valid Python expression can be entered.  The
-default value is the last value used for this parameter.
+# The value in braces is a default value to be used if the user doesn't
+# enter anything.  Any valid Python expression can be entered.  The
+# default value is the last value used for this parameter.
 
-Items in submenus are accessed by typing the full path from the root
-menu:
+# Items in submenus are accessed by typing the full path from the root
+# menu:
 
->>> root.submenu.subsubmenu.function()
+# >>> root.submenu.subsubmenu.function()
 
-To execute a number of commands from a single submenu, just define a
-variable referring to the submenu:
+# To execute a number of commands from a single submenu, just define a
+# variable referring to the submenu:
 
->>> sub = root.submenu.subsubmenu
->>> sub.function()
->>> sub.otherfunction()
+# >>> sub = root.submenu.subsubmenu
+# >>> sub.function()
+# >>> sub.otherfunction()
 
-To get help, simply type an item's name, without the trailing parentheses.
+# To get help, simply type an item's name, without the trailing parentheses.
 
-"""
+# """
 
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import lock
@@ -398,27 +387,39 @@ from ooflib.common.utils import stringjoin, stringsplit
 
 # Options for menu items are given by keyword arguments in the
 # contructor.  The allowed options are listed here.  If an option is
-# not set in an item, the setting of its parent's option is used.  All
-# of these options must be set to reasonable default values in
-# OOFRootMenu.__init__().
+# not set in an item, the setting of its parent's option is used.  If
+# an item is not set, its default value is None.  If a different
+# default is required, it can be set by calling
+# OOFMenuItem.setOption() in OOFRootMenu.__init__().
 
 _allowed_options = [
-    'gui_only',                         # item appears only in GUI menus
-    'cli_only',                         # item appears only in CLI menus
-    'no_log',                           # calls are not logged
-    'disabled',                         # command and/or submenus are turned off
-    'no_doc',                           # API dump ignores this menu item
-    'pre_hook',                         # Function called before menu item
-    'post_hook'                         # Function called after menu item
+    'no_gui',                 # item does not appear in GUI menus
+    'no_cli',                 # item does not appear in CLI menus
+    'no_doc',                 # item does not appear in documentation
+    'no_log',                 # calls are not logged
+    'disabled',               # command and/or submenus are turned off
+    'pre_hook',               # Function called before menu item
+    'post_hook',              # Function called after menu item
+    'accelgroup',             # gtk accelerator group
     ]
 
-# TODO: 'disabled' shouldn't be an option.  All of the other options
-# are static settings for each menu item, but 'disabled' is changed
-# dynamically.  This causes problems in xmlmenudump.dumpMenuItem,
-# which is printing 'disabled' in the documentation for every menu
-# item that happens to be disabled when the documentation is
-# generated.  However, disabling should apply to submenus and
-# submenuitems, like options do.
+# Nonrecursive options that are set for a menu don't automatically
+# apply to its submenus.  If they need a devault value other than
+# None, call OOFMenuItem.setOption() in OOFMenuItem.__init__().
+
+_nonrecursive_options = [
+    'no_bar',                 # item does not appear in menu bars
+]
+
+# The difference between the options no_bar and no_gui is that no_bar
+# prevents a menu item from appearing in a menu bar, but no_gui
+# prevents it from appearing anywhere in the GUI.  Many menu items are
+# implemented by widgets a window's interior, and not by pull down
+# menus from the window's menu bar.  Those items should be in a
+# submenu that has no_bar==True.  There could be another submenu
+# contained in the first submenu, and the inner one might need to be
+# displayed in another menu bar, so the no_bar option is not
+# recursive.
 
 ######################################
 
@@ -465,12 +466,13 @@ class OOFMenuItem:
                  gui_callback=None,     # callback for GUI (defaults to CLI cb)
                  gui_title=None,        # title for GUI dialog (default is name)
                  accel=None,            # GUI accelerator
-                 secret=0,              # not listed in parent
-                 ellipsis=0,            # append '...' to displayed names?
-                 help_menu=0,           # is this a right justified help menu?
+                 secret=False,          # not visible in GUI or CLI
+                 ellipsis=False,        # append '...' to displayed names?
+                 help_menu=False,       # is this a right justified help menu?
                  help=None,             # string describing command
                  discussion=None,       # for manual, in docbook xml
                  xrefs=None,            # cross references for manual
+                 verbose=False,         # for debugging
                  threadable = THREADABLE,     # MenuItem is threaded if it receives a ThreadType object different from UNTHREADABLE
                  params=[],             # list of Parameter args for callback
                  ordering=0,
@@ -483,13 +485,13 @@ class OOFMenuItem:
             for char in name[1:]:
                 if not (char.isalpha() or char.isdigit() or char == '_'):
                     raise NameError("Illegal name for menu item: " + name)
-        
+
         self.name = name
-        self.parent = None              # reset in OOFMenu.add_item()
+        self.parent = None              # reset in OOFMenu.addItem()
         self.accel = accel              # keyboard accelerator
-        self.secret= secret
         self.ellipsis = ellipsis
         self.options = {}
+        self.nonrecursive_options = {}
         self.callback = callback
         self.help_menu = help_menu
         self.gui_callback = gui_callback
@@ -497,6 +499,7 @@ class OOFMenuItem:
         self.helpstr = help
         self.discussion = discussion
         self.alphabetize = alphabetize
+        self.verbose = verbose
         # The default value for xrefs in the __init__ args must be
         # None, and not [].  If it were [], then all menu items that
         # have no xrefs would share an empty list, and if any of the
@@ -521,39 +524,49 @@ class OOFMenuItem:
         # bar_name is the string representing the menu item in
         # progress bars.  It's set when the menu item is called.
         self.bar_name = None
-        
+
+        self.debug = False
         
         # additional options
+        if secret:
+            self.setOption("no_cli", True)
+            self.setOption("no_gui", True)
         for opt,val in kwargs.items():
             if opt in _allowed_options: # check validity
                 self.setOption(opt, val)
+            elif opt in _nonrecursive_options:
+                self.nonrecursive_options[opt] = val
             else:
                 raise AttributeError('Unknown OOFMenu option: ' + opt)
 
-    def clone(self,name=None, help=None, discussion=None, secret=None,
-              xrefs=[]):
+    def clone(self,name=None, help=None, discussion=None,# secret=None,
+              xrefs=[], **kwargs):
         # Clone menu item, but NOT its submenus.  self.params may be a
         # ParameterGroup or a list, so we have to check the type when
         # copying.  Unfortunately, list and ParameterGroup have
         # different constructor arguments.  (Changing ParameterGroup's
         # constructor arguments just to make this code a bit prettier
         # isn't worthwhile.)
+        #
+        # kwargs are assumed to be options (no_gui, etc) and are
+        # passed through to the cloned object's constructor.
+        
         params = [p.clone() for p in self.params]
         if isinstance(self.params, parameter.ParameterGroup):
             params = parameter.ParameterGroup(*params)
         newitem = self.__class__(name=name or self.name,
                                  callback=self.callback,
+                                 verbose=self.verbose,
                                  gui_callback=self.gui_callback,
                                  accel=self.accel,
-                                 secret=(secret if secret is not None
-                                         else self.secret),
                                  ellipsis=self.ellipsis,
                                  help_menu=self.help_menu,
                                  help=help or self.helpstr,
                                  discussion=discussion or self.discussion,
                                  xrefs=xrefs or self.xrefs,
                                  threadable = self.threadable,
-                                 params=params)
+                                 params=params,
+                                 **kwargs)
         newitem.options.update(self.options)
         return newitem
                               
@@ -563,7 +576,6 @@ class OOFMenuItem:
                 self.items[i] = item    # replace an old item
                 break
         else:
-
             # Insert the new item just before an item with a larger
             # ordering number, but not after a help_menu.
             if item.help_menu:
@@ -600,6 +612,9 @@ class OOFMenuItem:
         self.gui_callback = callback
 
     def getOption(self, option):
+        if option in _nonrecursive_options:
+            return self.nonrecursive_options.get(option, None)
+        assert option in _allowed_options
         try:
             return self.options[option]
         except KeyError:
@@ -611,26 +626,13 @@ class OOFMenuItem:
         self.options[option] = value
 
     def removeOption(self, option):
-        del self.options[option]
+        try:
+            del self.options[option]
+        except KeyError:
+            pass
 
     def visible_cli(self):
-        return not (self.secret or self.getOption('gui_only'))
-
-    def visible_gui(self):
-        return not (self.secret or self.getOption('cli_only'))
-
-    def gui_order(self):
-        # Position of this menu item in a gui listing of its parent's items.
-        if self.parent is not None:
-            order = 0
-            for item in self.parent.items:
-                if item is self:
-                    return order
-                if item.visible_gui():
-                    order += 1
-        else:
-            return 0
-                    
+        return not self.getOption('no_cli')
 
     def clearMenu(self):
         self.callback = None
@@ -688,25 +690,25 @@ class OOFMenuItem:
 
 
     # disable() and enable() are called when it's necessary to
-    # explicitly disable or enable a menu item.  Menu items are
-    # *automatically* disabled if they don't have either a callback or
-    # submenus.  The 'disabled' option only reflects the explicit
-    # state, but the 'enabled()' function takes into account the
-    # existance of callbacks and submenus.
+    # explicitly disable or enable a menu item.  They set or clear the
+    # 'disabled' option.  The disabled() and enabled() methods don't
+    # just check the option, but also check that a menu has enabled
+    # submenus, and menu items have an enabled callback.
     
     def disable(self):
-        self.options['disabled'] = 1
+        self.setOption('disabled', True)
 
     def enable(self):
-        try:
-            del self.options['disabled']
-        except KeyError:
-            pass
+        self.setOption('disabled', False)
+
+    def disabled(self):
+        return (self.getOption('disabled') or
+                (self.callback is None and self.gui_callback is None and
+                 (self.items and all(x.disabled() for x in self.items))))
 
     def enabled(self):
-        return (not self.getOption('disabled')) and \
-               (self.items or self.callback or self.gui_callback)
-    
+        return not self.disabled()
+
     ################################
     #
     # Invocation functions.
@@ -1019,22 +1021,26 @@ debugcounter = 0
 class OOFRootMenu(OOFMenuItem):
     def __init__(self, *args, **kwargs):
         OOFMenuItem.__init__(*((self,)+args), **kwargs)
-        if not 'cli_only' in self.options:
-            self.options['cli_only'] = 0
-        if not 'gui_only' in self.options:
-            self.options['gui_only'] = 0
-        if not 'no_log' in self.options:
-            self.options['no_log'] = 0
-##        if not 'disabled' in self.options:
-##            self.options['disabled'] = 0
-        if not 'help_menu' in self.options:
-            self.options['help_menu'] = 0
+        
         self.logbook = []
         self.loggers = []               # additional logging functions
         self._loghalted = 0
         self._logchanged = 0
         self.loglock = lock.SLock()
         self.quiet = 0
+
+    # This root menu version of getOption differs from the non-root
+    # version by returning False for any option that is missing from
+    # self.options, instead of looking for it in the nonexistent
+    # parent.
+    def getOption(self, option):
+        if option in _nonrecursive_options:
+            return self.nonrecursive_options.get(option, None)
+        assert option in _allowed_options
+        ## TODO: it should be possible for the default value to be
+        ## something other than None for certain menu options.
+        return self.options.get(option, None)
+        
     def root(self):
         return self
     def log(self, strng):

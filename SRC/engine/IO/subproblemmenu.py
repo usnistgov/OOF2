@@ -40,14 +40,15 @@ if parallel_enable.enabled():
 
 subproblemMenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'Subproblem',
+    no_bar=True,
     help="Tools for creating and solving sections of meshes",
     discussion="""<para>
     The <command>Subproblem</command> menu contains tools for creating
     and manipulating &subproblems;, including working with &fields;
     and &equations;, and assigning <link
     linkend="Section-Concepts-Mesh-Solvers">solvers</link>.
-    </para>""",
-    cli_only=1))
+    </para>"""
+))
 
 # Look for an enclosing subproblem parameter -- if not found, use the
 # enclosing mesh parameter.  SubProblem copying needs the first case,
@@ -99,7 +100,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     chosen to make the name unique.  </para>
     """,
     xrefs=["Section-Tasks-FEMesh-Subproblems"]
-    ))
+))
 
 #############
 
@@ -257,7 +258,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
 
     </para>""",
     xrefs=["Section-Tasks-FEMesh-Subproblems"]
-    ))
+))
 
 #############
 
@@ -317,8 +318,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     help='Delete a Subproblem.',
     discussion="<para>Delete the given &subproblem; from its &mesh;.</para>",
     xrefs=["Section-Tasks-FEMesh-Subproblems"]
-    ))
-
+))
 
 #############
 
@@ -458,7 +458,7 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
     linkend='MenuItem-OOF.Subproblem.Field.Define'/>.
 
     </para>"""
-    ))
+))
 
 def _activateField(menuitem, subproblem, field):
     activation = False
@@ -526,7 +526,7 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
     help="Activate a Field.  The solver finds the values of active Fields.",
     discussion=xmlmenudump.loadFile(
         'DISCUSSIONS/engine/menu/activatesubproblemfield.xml')
-    ))
+))
 
 fieldmenu.addItem(oofmenu.OOFMenuItem(
     'Deactivate',
@@ -546,7 +546,7 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
     linkend='MenuItem-OOF.Subproblem.Field.Activate'/>.
 
     </para>"""
-    ))
+))
 
 
 ############################
@@ -622,7 +622,7 @@ eqnmenu.addItem(oofmenu.OOFMenuItem(
 
 
     </para>"""
-    ))
+))
 
 eqnmenu.addItem(oofmenu.OOFMenuItem(
     'Deactivate',
@@ -642,7 +642,7 @@ eqnmenu.addItem(oofmenu.OOFMenuItem(
 
     </para>"""
 
-    ))
+))
 
 #################################
 
@@ -731,7 +731,6 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
                                   tip=parameter.emptyTipString)],
     help="Copy the Field state (defined, active, etc) from one Subproblem to another.",
     discussion="""<para>
-
     This command copies the &field; state from one &subproblem; to
     another, meaning that the same &fields; will be defined, active,
     and in-plane in the <varname>target</varname> &subproblem; as in
@@ -742,9 +741,8 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     the command does <emphasis>not</emphasis> copy the &field; values.
     (This is because the source and target meshes might have quite
     different geometries.)
-
     </para>"""
-                        ) )
+))
 
 
 
@@ -805,15 +803,12 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
                                   tip=parameter.emptyTipString)],
     help="Copy the set of active Equations from one Subproblem to another.",
     discussion="""<para>
-
     This command copies the &equation; state from one &subproblem; to
     another, meaning that the same &equations; will be active in the
     <varname>target</varname> &subproblem; as in the
     <varname>source</varname> &subproblem;.
-
     </para>"""
-
-    ) )
+))
 
 ######################################
 
@@ -1004,19 +999,16 @@ _symmetryTestMenu.addItem(oofmenu.OOFMenuItem(
         'K',
         callback=_checkSymmetryK,
         params=_symTestParams,
-        help="Check K matrix symmetry.",
-        secret=True, no_doc=True))
+        help="Check K matrix symmetry."))
 
 _symmetryTestMenu.addItem(oofmenu.OOFMenuItem(
         'C',
         callback=_checkSymmetryC,
         params=_symTestParams,
-        help="Check K matrix symmetry.",
-        secret=True, no_doc=True))
+        help="Check K matrix symmetry."))
 
 _symmetryTestMenu.addItem(oofmenu.OOFMenuItem(
         'M',
         callback=_checkSymmetryM,
         params=_symTestParams,
-        help="Check K matrix symmetry.",
-        secret=True, no_doc=True))
+        help="Check K matrix symmetry."))

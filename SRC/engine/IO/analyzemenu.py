@@ -39,15 +39,12 @@ import sys
 ## consistency with the Boundary_Analysis menu.  There could still be
 ## a secret Analyze menu so that scripts don't break.
 
-ops_menu = oofmenu.OOFMenuItem(
+ops_menu = mainmenu.OOF.Mesh.addItem(oofmenu.OOFMenuItem(
     "Analyze",
-    secret=1,
     help="Compute properties of the solution.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/analyze.xml'),
     xrefs=["Section-Tasks-Analysis"]
-)
-
-mainmenu.OOF.Mesh.addItem(ops_menu)
+))
 
 ## OOF.LoadData.IPC.Analyze
 if parallel_enable.enabled():
@@ -231,7 +228,7 @@ else:
 
 namedanalysismenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'Named_Analysis',
-    cli_only=1,
+    no_bar=True,
     help="Create analysis operations that can be saved and invoked by name",
     discussion="""<para>
     Giving a name to an analysis operation defined on the <link

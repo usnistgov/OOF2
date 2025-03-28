@@ -17,7 +17,7 @@ from ooflib.common.threadmanager import threadManager
 
 activityviewermenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'ActivityViewer',
-    secret=1,
+    no_bar=True,
     help='Control the Activity Viewer Window.',
     discussion="""<para>
 

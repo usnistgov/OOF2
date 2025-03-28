@@ -64,13 +64,14 @@ class MessageWindow(subWindow.SubWindow):
         # raise_window function is provided by the SubWindow class.
         OOF.Windows.Messages.addItem(oofmenu.OOFMenuItem(
             self.windows_menu_name,
-            help="Raise the window named Messages_%d." % MessageWindow.count,
+            help=f"Raise the window named Messages_{MessageWindow.count}",
             discussion="""<para>
             Bring the <link
             linkend="Section-Windows-Messages">Messages Window</link>
             named <quote>Messages_n</quote> to the front.
             </para>""",
-            cli_only=0, no_log=1,
+            no_log=True,
+            no_bar=True,
             gui_callback=self.raise_window) )
             
         MessageWindow.count += 1
