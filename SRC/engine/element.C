@@ -860,6 +860,11 @@ int Element::ndof() const {
 
 // Generic area calculation, done by integrating 1.
 
+// TODO: This can probably be done more efficiently by doing simple
+// geometry, as long as the master element is mapped linearly to
+// physical space.  Using gauss points is cute, though.  It's also not
+// clear that this is ever used.
+
 double Element::area() const {
   double a = 0.0;
   for(GaussPoint gpt : integrator(0)) {
