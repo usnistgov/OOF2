@@ -43,10 +43,14 @@ import os
 ## contiguous similarly oriented pixels.  Other pixel color selection
 ## operations could also be extended to orientations.
 
+## TODO: Why isn't the menu sensitized correctly when it first
+## appears?  Why does it appear to the right of the Help menu?
+
 orientmapmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'OrientationMap',
-    cli_only=False,
+    no_gui=False,  # TODO: Check if this is needed.
     help='Commands for working with Orientation Maps.',
+    ordering=10,
     discussion=xmlmenudump.loadFile(
             'DISCUSSIONS/orientationmap/menu/orientmapmenu.xml')
     ))

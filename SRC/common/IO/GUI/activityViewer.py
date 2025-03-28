@@ -182,11 +182,11 @@ class ActivityViewer(subWindow.SubWindow):
         # added in the SubWindow class. 
         self.menu.File.addItem(oofmenu.OOFMenuItem(
             'Close', help="Close this Activity Viewer window.",
-            callback=self.close, no_log = 1, gui_only = 1, accel='w',
+            callback=self.close, no_log=True, no_cli=True, accel='w',
             threadable = oofmenu.UNTHREADABLE))
         self.menu.File.addItem(oofmenu.OOFMenuItem(
             'Quit', help="TTFN",
-            callback=quit.queryQuit, no_log = 1, gui_only = 1, accel='q',
+            callback=quit.queryQuit, no_log=True, no_cli=True, accel='q',
             threadable = oofmenu.UNTHREADABLE))
     
     def closeCB(self, *args):           # GTK callback.

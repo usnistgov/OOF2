@@ -20,8 +20,8 @@ allTutorials = {}
 tutorialMenu = mainmenu.OOF.Help.addItem(
     oofmenu.OOFMenuItem(
         'Tutorials',
-        gui_only=1,
-        no_log=1,
+        no_cli=True,
+        no_log=True,
         ordering=-10,
         help="Interactive tutorials for learning OOF2.",
         discussion="""<para>

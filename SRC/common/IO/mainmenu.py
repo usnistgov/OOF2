@@ -99,11 +99,12 @@ atexit.register(cleanlog)
 _filemenu = OOF.addItem(OOFMenuItem(
     'File',
     help="Commands for saving and loading data, and quitting.",
+    ordering=1,
     discussion=xmlmenudump.emptyDiscussion))
 
 _loadmenu = _filemenu.addItem(OOFMenuItem(
     'Load',
-    ordering = 0,
+    ordering=0,
     help="Commands for loading datafiles and scripts.",
     discussion="<para>Commands to load datafiles and scripts.</para>"))
 
@@ -111,6 +112,10 @@ _loadmenu = _filemenu.addItem(OOFMenuItem(
 # they have their own copies of the parameters.  This prevents startup
 # file names from setting the default values of parameters in the load
 # menu.
+
+## TODO: This menu needs to be secret, so that it doesn't appear in
+## the GUI, but it *should* appear in the manual.  The 'secret'
+## keyword is overloaded poorly.
 _startupmenu = _filemenu.addItem(OOFMenuItem(
     'LoadStartUp',
     secret=True,
@@ -179,8 +184,8 @@ _loadmenu.addItem(OOFMenuItem(
     params=[filenameparam.ReadFileNameParameter('filename', 'logfile',
                                                 tip="Name of the file.",
                                                 ident="load")],
-    no_log=1,
-    ellipsis=1,
+    no_log=True,
+    ellipsis=True,
     accel='l',
     help="Execute a Python script.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loadscript.xml'),
@@ -193,8 +198,8 @@ _startupmenu.addItem(OOFMenuItem(
     params=[filenameparam.ReadFileNameParameter('filename', 'logfile',
                                                 tip="Name of the file.",
                                                 ident="load")],
-    no_log=1,
-    ellipsis=1,
+    no_log=True,
+    ellipsis=True,
     accel='l',
     disabled=config.nanoHUB(),  # loading arbitrary scripts is a
                                 # security hole on nanoHUB
@@ -211,7 +216,7 @@ _loadmenu.addItem(OOFMenuItem(
     callback=loadmodule,
     params=[parameter.StringParameter("module",
                                       tip="The name of a Python module")],
-    ellipsis=1,
+    ellipsis=True,
     help="Load a Python module.",
     discussion="""<para>
     Load a Python module, such as an OOF extension module.  The module
@@ -243,7 +248,7 @@ _loadmenu.addItem(OOFMenuItem(
     threadable=oofmenu.THREADABLE,
     params=[filenameparam.ReadFileNameParameter('filename', ident="load",
                                                 tip="Name of the file.")],
-    ellipsis=1,
+    ellipsis=True,
     help="Load a data file.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loaddatafile.xml'),
     xrefs=["Section-Running"]
@@ -255,13 +260,14 @@ _startupmenu.addItem(OOFMenuItem(
     threadable=oofmenu.THREADABLE,
     params=[filenameparam.ReadFileNameParameter('filename', ident="load",
                                                 tip="Name of the file.")],
-    ellipsis=1,
+    ellipsis=True,
     help="Load a data file.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loaddatafile.xml'),
     ))
 
 OOF.addItem(oofmenu.OOFMenuItem(
-    "LoadData", secret=1,
+    "LoadData",
+    no_bar=True,
     help="Commands used in data files.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loaddata.xml'),
     post_hook=None, # Don't include checkpoints in gui logs
@@ -290,8 +296,8 @@ _savemenu.addItem(OOFMenuItem(
                 'mode',
                 tip="Whether to overwrite or append to an existing file.")],
     accel='s',
-    ellipsis=1,
-    no_log=1,
+    ellipsis=True,
+    no_log=True,
     help="Save the current session as a Python script.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/savelog.xml'),
     xrefs=["MenuItem-OOF"]
@@ -311,7 +317,7 @@ _filemenu.addItem(OOFMenuItem(
     help="Don't give up so easily!",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/quit.xml'),
     threadable = oofmenu.UNTHREADABLE,
-    no_log=1
+    no_log=True
     ))
 
 ##################################
@@ -319,6 +325,7 @@ _filemenu.addItem(OOFMenuItem(
 settingsmenu = OOF.addItem(OOFMenuItem(
     'Settings',
     help="Global settings",
+    ordering=2,
     discussion="""
     <para>
     Commands for setting parameters that don't belong anywhere else.
@@ -489,6 +496,7 @@ _annotatelogmenu = _filemenu.addItem(OOFMenuItem(
 
 _windowmenu = OOFMenuItem(
     'Windows',
+    ordering=3,
     help="Menus for opening and raising windows.",
     discussion=xmlmenudump.emptyDiscussion)
 OOF.addItem(_windowmenu)
@@ -514,7 +522,11 @@ _windowmenu.addItem(OOFMenuItem(
     'Console',
     callback=consolation,
     help="Open or raise the Python console interface.",
-    no_log=1,
+    no_log=True,
+    no_cli=True,
+    ## TODO: Setting no_bar==True here prevents the menu item from
+    ## appearing in the Windows menu.  Why is that?  It should have no
+    ## effect on the Windows menu.
     disabled=config.nanoHUB(),  # executing arbitrary python is a
                                 # security hole on nanoHUB.
     discussion="""<para>
@@ -565,7 +577,7 @@ Viewer</link> window, if it is open. If not, open it.
 
 helpmenu = OOF.addItem(OOFMenuItem(
     'Help',
-    help_menu=1,
+    help_menu=True,
     help="Tutorials, helpful utilities, and debugging tools.",
     discussion=
     """<para>
@@ -840,7 +852,7 @@ debugmenu.addItem(OOFMenuItem('NoOp', no_doc=True,
                               secret=not debug.debug(),
                               callback=_noop))
 
-errmenu = debugmenu.addItem(OOFMenuItem('Error', no_doc=1, 
+errmenu = debugmenu.addItem(OOFMenuItem('Error', no_doc=True, 
                                         secret=not debug.debug()))
 
 
@@ -948,14 +960,14 @@ def _py_write(menuitem, seconds):
     rw.write_release()
 
 lockmenu.addItem(OOFMenuItem('RWLock_read', callback=_py_read,
-                             no_doc=1,
+                             no_doc=True,
                              threadable=oofmenu.THREADABLE,
                              params=[IntParameter('seconds', 10,
                                                   tip="Sleeping time.")],
                              help='Safe when used as directed.  For entertainment purposes only.'))
 
 lockmenu.addItem(OOFMenuItem('RWLock_write', callback=_py_write,
-                             no_doc=1,
+                             no_doc=True,
                              threadable=oofmenu.THREADABLE,
                              params=[IntParameter('seconds', 10,
                                                   tip="Sleeping time.")],
@@ -966,7 +978,7 @@ def _wait(menuitem, seconds):
     cdebug.wait(seconds)
 
 lockmenu.addItem(OOFMenuItem('Wait', callback=_wait,
-                             no_doc=1,
+                             no_doc=True,
                              threadable=oofmenu.THREADABLE,
                              params=[IntParameter('seconds', 10,
                                                   tip="Waiting time.")],

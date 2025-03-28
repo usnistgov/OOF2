@@ -42,7 +42,8 @@ AutomaticNameParameter = parameter.AutomaticNameParameter
 StringParameter = parameter.StringParameter
 
 pixgrpmenu = OOF.addItem(OOFMenuItem(
-    'PixelGroup', cli_only=1,
+    'PixelGroup',
+    no_bar=True,
     help='Create and manipulate pixel groups.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/pixelgroup.xml'),
     xrefs=["Section-MicrostructurePage-GroupPane"]

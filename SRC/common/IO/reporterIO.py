@@ -30,6 +30,7 @@ mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     "Messages",
     help="Save the message logs from the message windows to a file.",
     callback=saveMessages,
+    no_bar=True,
     ordering=20,
     params=[filenameparam.WriteFileNameParameter('filename',
                                                  tip="Name of the file."),

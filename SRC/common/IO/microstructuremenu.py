@@ -35,7 +35,7 @@ if parallel_enable.enabled():
 
 micromenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'Microstructure',
-    cli_only=True,
+    no_bar=True,
     help="Create and manipulate &micro; objects.",
     discussion="""<para>
     Commands for creating and manipulating Microstructures.
@@ -268,7 +268,10 @@ switchboard.requestCallback(('remove who', 'Microstructure'), _fixmenu)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Set parameters used when computing element homogeneity.
+# Set parameters used when computing element homogeneity, and force
+# homogeneity to be recomputed.  These commands are only used by the
+# regression tests, and therefore the menu items are secret and
+# undocumented.
 
 saveTilingFactor = None
 saveMinTileScale = None
@@ -301,8 +304,8 @@ micromenu.addItem(oofmenu.OOFMenuItem(
     'SetHomogeneityParameters',
     callback=setHomogParams,
     ordering=1000,
-    secret=1,
-    no_doc=1,
+    secret=True,
+    no_doc=True,
     params=[
         parameter.FloatRangeParameter(
             'factor', range=(0.0, 1.0, 0.01), default=0.5,
@@ -315,20 +318,14 @@ micromenu.addItem(oofmenu.OOFMenuItem(
             tip='Fixed number of subdivisions')
 
     ],
-    help="Set parameters for calculating element homogeneity.",
-    discussion="""<para>This command is used in the regression tests
-    to check aspects of the element homogeneity calculuation.</para>"""
 ))
 
 micromenu.addItem(oofmenu.OOFMenuItem(
     'ResetHomogeneityParameters',
     callback=resetHomogParams,
     ordering=1001,
-    secret=1,
-    no_doc=1,
-    help="Reset parameters for calculating element homogeneity.",
-    discussion="""<para>This command is used in the regression tests
-    to check aspects of the element homogeneity calculuation.</para>"""
+    secret=True,
+    no_doc=True,
 ))
     
 
@@ -341,15 +338,12 @@ def recategorize(menuitem, microstructure):
 micromenu.addItem(oofmenu.OOFMenuItem(
     'Recategorize',
     callback=recategorize,
-    secret=1,
-    no_doc=1,
+    secret=True,
+    no_doc=True,
     params=[whoville.WhoParameter('microstructure',
                                   ooflib.common.microstructure.microStructures,
                                   tip=parameter.emptyTipString)],
-    help="Force pixel recategorization.",
-    discussion="""<para>This command is used in the regression tests
-    to check aspects of the element homogeneity calculuation.</para>"""
-    ))
+))
 
 
 ## This is for debugging the tiling computation in pixelsetboundary.C.

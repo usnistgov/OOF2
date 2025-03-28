@@ -83,7 +83,7 @@ def _delete(menuitem, microstructure, name):
 
 aamodmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'ActiveArea',
-    cli_only=1,
+    no_bar=True,
     help='Create and manipulate Active Areas.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/activearea.xml'),
     xrefs=["Section-Tasks-Active_Area"]

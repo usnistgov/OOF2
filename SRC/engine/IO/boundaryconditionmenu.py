@@ -35,7 +35,7 @@ import ooflib.engine.mesh
 
 bcmenu = oofmenu.OOFMenuItem(
     'Boundary_Conditions',
-    cli_only=1,
+    no_gui=True,
     help="Create and manipulate boundary conditions on Meshes.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/bc.xml',),
     xrefs=["Section-Tasks-SkeletonBoundaries",

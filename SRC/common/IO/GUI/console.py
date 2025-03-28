@@ -57,18 +57,25 @@ def _close_console(menuitem):
     current_console.gtk.destroy()
     
 _console_menu = oofmenu.OOFMenuItem("Console",
-                                    secret=1, gui_only=1, no_log=1, no_doc=1)
+                                    no_bar=True,
+                                    no_cli=True,
+                                    no_log=True,
+                                    no_doc=True)
 mainmenu.OOF.addItem(_console_menu)
 
 ## TODO: The File menu has already been created by the SubWindow.
 ## There's no need to recreate it.  Can the SubWindow's close() method
 ## be used?  Extended?
-_console_file_menu = oofmenu.OOFMenuItem('File', gui_only=1, no_log=1)
+_console_file_menu = oofmenu.OOFMenuItem('File', no_cli=True, no_log=True)
 _console_menu.addItem(_console_file_menu)
 
 _console_file_menu.addItem(oofmenu.OOFMenuItem(
-    'Close', help="Close the console window.",
-    callback=_close_console, no_log=1, gui_only=1, accel='w',
+    'Close',
+    help="Close the console window.",
+    callback=_close_console,
+    # no_log=True,
+    # no_cli=True,
+    accel='w',
     threadable=oofmenu.UNTHREADABLE))
 
 # GUIConsole does not have a conventional "interact" function, but

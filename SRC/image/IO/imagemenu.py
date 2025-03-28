@@ -36,7 +36,7 @@ import os.path
 
 imagemenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'Image',
-    cli_only=1,
+    no_bar=True,
     help='Operations involving Images.',
     discussion=xmlmenudump.emptyDiscussion,
     xrefs=["Section-Tasks-Image"]
