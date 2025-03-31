@@ -50,11 +50,7 @@ std::ostream &MasterCoord::print(std::ostream &os) const {
 }
 
 std::ostream &operator<<(std::ostream &os, const MasterCoord &coord) {
-#if DIM == 2
-  os << "(" << coord(0) << ", " << coord(1) << ")";
-#elif DIM == 3
-  os << "(" << coord(0) << ", " << coord(1) << ", " << coord(2) << ")";
-#endif
+  os << "(" << coord[0] << ", " << coord[1] << ")";
   return os;
 }
 
@@ -65,14 +61,14 @@ std::istream &operator>>(std::istream &is, MasterCoord &coord) {
     is.clear(std::ios::badbit | is.rdstate());
     return is;
   }
-  is >> coord(0);		// read x component
+  is >> coord[0];		// read x component
   if(!is) return is;		// check for error
   is >> c;
   if(!is || c != ',') {		// check for ','
     is.clear(std::ios::badbit | is.rdstate());
     return is;
   }
-  is >> coord(1);
+  is >> coord[1];
   if(!is) return is;
   is >> c;
   if(!is || c != ')') {
@@ -82,9 +78,7 @@ std::istream &operator>>(std::istream &is, MasterCoord &coord) {
   return is;
 }
 
-#if DIM == 2
 std::ostream &operator<<(std::ostream &os, const MasterEndPoint &mep) {
   os << "MasterEndPoint" << *mep.mc;
   return os;
 }
-#endif

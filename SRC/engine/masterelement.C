@@ -565,20 +565,20 @@ QuadrilateralMaster::contourcells(int n) const
 // Is a point on the boundary of the MasterElement?
 
 bool TriangularMaster::onBoundary(const MasterCoord &pt) const {
-  return (pt(0) == 0.0 || pt(1) == 0.0 || pt(0) + pt(1) == 1.0);
+  return (pt[0] == 0.0 || pt[1] == 0.0 || pt[0] + pt[1] == 1.0);
 }
 
 bool QuadrilateralMaster::onBoundary(const MasterCoord &pt) const {
-  return (pt(0) == -1.0 || pt(1) == -1.0 || pt(0) == 1.0 || pt(1) == 1.0);
+  return (pt[0] == -1.0 || pt[1] == -1.0 || pt[0] == 1.0 || pt[1] == 1.0);
 }
 
 
 double TriangularMaster::outOfBounds(const MasterCoord &pt) const {
-  return max3(-pt(0), -pt(1), pt(0) + pt(1) - 1.0);
+  return max3(-pt[0], -pt[1], pt[0] + pt[1] - 1.0);
 }
 
 double QuadrilateralMaster::outOfBounds(const MasterCoord &pt) const {
-  return max4(pt(0)-1.0, pt(1)-1.0, -pt(0)-1.0, -pt(1)-1.0);
+  return max4(pt[0]-1.0, pt[1]-1.0, -pt[0]-1.0, -pt[1]-1.0);
 }
 
 // Interface branch
@@ -594,9 +594,9 @@ bool TriangularMaster::onBoundary2(const MasterCoord &pt0,
   const
 {
   return
-    (pt0(0) == 0.0 && pt1(0) == 0.0) ||
-    (pt0(1) == 0.0 && pt1(1) == 0.0) ||
-    (pt0(0) + pt0(1) == 1.0 && pt1(0) + pt1(1) == 1.0);
+    (pt0[0] == 0.0 && pt1[0] == 0.0) ||
+    (pt0[1] == 0.0 && pt1[1] == 0.0) ||
+    (pt0[0] + pt0[1] == 1.0 && pt1[0] + pt1[1] == 1.0);
 }
 
 bool QuadrilateralMaster::onBoundary2(const MasterCoord &pt0,
@@ -604,10 +604,10 @@ bool QuadrilateralMaster::onBoundary2(const MasterCoord &pt0,
   const
 {
   return
-    (pt0(0) == -1.0 && pt1(0) == -1.0) ||
-    (pt0(1) == -1.0 && pt1(1) == -1.0) ||
-    (pt0(0) == 1.0 && pt1(0) == 1.0) ||
-    (pt0(1) == 1.0 && pt1(1) == 1.0);
+    (pt0[0] == -1.0 && pt1[0] == -1.0) ||
+    (pt0[1] == -1.0 && pt1[1] == -1.0) ||
+    (pt0[0] == 1.0 && pt1[0] == 1.0) ||
+    (pt0[1] == 1.0 && pt1[1] == 1.0);
 }
 
 
@@ -629,8 +629,8 @@ bool TriangularMaster::exterior(const MasterCoord &a, const MasterCoord &b,
     for(std::vector<ElementCornerNodeIterator>::size_type i=0; i<ext.size();i++)
       {
 	const MasterCoord &bdystart = ext[i].mastercoord();
-	double x0 = bdystart(0);
-	double y0 = bdystart(1);
+	double x0 = bdystart[0];
+	double y0 = bdystart[1];
 	// We could presumably compute whether or not points a and b
 	// were on an edge in some general way, but it's probably faster
 	// and more accurate to take advantage of what we know of the
@@ -638,12 +638,12 @@ bool TriangularMaster::exterior(const MasterCoord &a, const MasterCoord &b,
 	// comparisons.
 	if(x0 == 0.0) {
 	  if(y0 == 0.0) {		// bottom edge, y=0
-	    if(a(1)==0.0 && b(1)==0.0) {
+	    if(a[1]==0.0 && b[1]==0.0) {
 	      return 1;
 	    }
 	  }
 	  else if(y0 == 1.0) {	// left edge, x=0
-	    if(a(0)==0.0 && b(0)==0.0) {
+	    if(a[0]==0.0 && b[0]==0.0) {
 	      return 1;
 	    }
 	  }
@@ -654,7 +654,7 @@ bool TriangularMaster::exterior(const MasterCoord &a, const MasterCoord &b,
 	  // really the corners of ContourCellSkeletons, so we just
 	  // have to make sure that the comparison here is compatible
 	  // with the computation there.
-	  if(a(0)==1.0-a(1) && b(0)==1.0-b(1)) {
+	  if(a[0]==1.0-a[1] && b[0]==1.0-b[1]) {
 	    return 1;
 	  }
 	}
@@ -671,25 +671,25 @@ bool QuadrilateralMaster::exterior(const MasterCoord &a, const MasterCoord &b,
     for(std::vector<ElementCornerNodeIterator>::size_type i=0; i<ext.size();i++)
       {
 	const MasterCoord &bdystart = ext[i].mastercoord();
-	double x0 = bdystart(0);
-	double y0 = bdystart(1);
+	double x0 = bdystart[0];
+	double y0 = bdystart[1];
 	if(x0 == -1.0 && y0 == -1.0) { // bottom edge, y=-1
-	  if(a(1) == -1.0 && b(1) == -1.0) {
+	  if(a[1] == -1.0 && b[1] == -1.0) {
 	    return 1;
 	  }
 	}
 	else if(x0 == 1.0 && y0 == -1.0) { // right edge, x=1
-	  if(a(0) == 1.0 &&  b(0) == 1.0) {
+	  if(a[0] == 1.0 &&  b[0] == 1.0) {
 	    return 1;
 	  }
 	}
 	else if(x0 == 1.0 && y0 == 1.0) {	// top edge, y=1
-	  if(a(1) == 1.0 && b(1) == 1.0) {
+	  if(a[1] == 1.0 && b[1] == 1.0) {
 	    return 1;
 	  }
 	}
 	else if(x0 == -1.0 && y0 == 1.0) { // left edge, x=-1
-	  if(a(0) == -1.0 && b(0) == -1.0) {
+	  if(a[0] == -1.0 && b[0] == -1.0) {
 	    return 1;
 	  }
 	}
@@ -771,8 +771,8 @@ int TriangularMaster::sidenumber(const MasterCoord &a) {
   //  |  \        *
   //  ----
   //    1
-  if(a(0) == 0.0 && a(1) != 1.0) return 0;
-  if(a(1) == 0.0) return 1;
+  if(a[0] == 0.0 && a[1] != 1.0) return 0;
+  if(a[1] == 0.0) return 1;
   return 2;
 }
 
@@ -804,16 +804,16 @@ bool TriangularMaster::endPointComparator(const MasterEndPoint &a,
   // both points on the same side
   switch(sidea) {
   case 0:
-    if(a(1) > b(1)) return true;
-    if(a(1) < b(1)) return false;
+    if(a[1] > b[1]) return true;
+    if(a[1] < b[1]) return false;
     break;
   case 1:
-    if(a(0) < b(0)) return true;
-    if(a(0) > b(0)) return false;
+    if(a[0] < b[0]) return true;
+    if(a[0] > b[0]) return false;
     break;
   case 2:
-    if(a(0) > b(0)) return true;
-    if(a(0) < b(0)) return false;
+    if(a[0] > b[0]) return true;
+    if(a[0] < b[0]) return false;
   }
   // both points coincide
   if(!a.start && b.start) return true;
@@ -834,9 +834,9 @@ int QuadrilateralMaster::sidenumber(const MasterCoord &a) {
   //   -----
   //     1
 
-  if(a(0) == -1.0 && a(1) != 1.0) return 0;
-  if(a(1) == -1.0) return 1;
-  if(a(0) == 1.0) return 2;
+  if(a[0] == -1.0 && a[1] != 1.0) return 0;
+  if(a[1] == -1.0) return 1;
+  if(a[0] == 1.0) return 2;
   return 3;
 }
 
@@ -870,20 +870,20 @@ bool QuadrilateralMaster::endPointComparator(const MasterEndPoint &a,
     return sidea < sideb;
   switch(sidea) {
   case 0:
-    if(a(1) > b(1)) return true;
-    if(a(1) < b(1)) return false;
+    if(a[1] > b[1]) return true;
+    if(a[1] < b[1]) return false;
     break;
   case 1:
-    if(a(0) < b(0)) return true;
-    if(a(0) > b(0)) return false;
+    if(a[0] < b[0]) return true;
+    if(a[0] > b[0]) return false;
     break;
   case 2:
-    if(a(1) < b(1)) return true;
-    if(a(1) > b(1)) return false;
+    if(a[1] < b[1]) return true;
+    if(a[1] > b[1]) return false;
     break;
   case 3:
-    if(a(0) > b(0)) return true;
-    if(a(0) < b(0)) return false;
+    if(a[0] > b[0]) return true;
+    if(a[0] < b[0]) return false;
   };
   if(!a.start && b.start) return true;
   return false;
@@ -902,9 +902,9 @@ MasterEndPointComparator QuadrilateralMaster::bdysorter() const {
 static bool edgeMasterEndPointComparator(const MasterEndPoint &a,
 					 const MasterEndPoint &b)
 {
-  if(a(0) < b(0)) return true;
-  if(a(0) > b(0)) return false;
-  if(a(1) < b(1)) return true;
+  if(a[0] < b[0]) return true;
+  if(a[0] > b[0]) return false;
+  if(a[1] < b[1]) return true;
   return false;
 }
 

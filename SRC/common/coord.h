@@ -17,6 +17,8 @@ class ICoord;
 class Position;
 
 #include <oofconfig.h>
+#include "engine/indextypes.h"
+
 #include <iostream>
 #include <limits>
 using namespace std;
@@ -43,14 +45,11 @@ private:
 public:
   Coord() : x{0.0, 0.0} {}
   Coord(double x0, double x1) { x[0] = x0; x[1] = x1; }
-  // TODO: Remove operator().  Use operator[] instead.
-  inline double operator()(int i) const { return x[i]; }
-  inline double &operator()(int i) { return x[i]; }
-  inline double operator[](int i) const {
+  inline double operator[](SpaceIndex i) const {
     assert(i==0 || i==1);
     return x[i];
   }
-  inline double &operator[](int i) {
+  inline double &operator[](SpaceIndex i) {
     assert(i==0 || i==1);
     return x[i];
   }

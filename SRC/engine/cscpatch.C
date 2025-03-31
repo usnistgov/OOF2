@@ -96,10 +96,10 @@ std::vector<int> *CSCPatch::get_nodes() const {
 // Basis functions
 double CSCPatch::basis(int i, const Coord &pos)
 {
-  // As cubic element types available in OOF2, these basis functions
+  // If cubic elements are added to OOF2, these basis functions will
   // have to be expanded.
-  double x = pos(0);
-  double y = pos(1);
+  double x = pos[0];
+  double y = pos[1];
   if (i==0)
     return 1.;
   if (i==1)

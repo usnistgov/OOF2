@@ -30,11 +30,11 @@ double Edge3ShapeFunction::value(ShapeFunctionIndex i,
 				 const MasterCoord &mc) const
 {
   if(i == 0)
-    return 0.5*(mc(0)*mc(0) - mc(0));
+    return 0.5*(mc[0]*mc[0] - mc[0]);
   if(i == 1)
-    return 1. - mc(0)*mc(0);
+    return 1. - mc[0]*mc[0];
   if(i == 2)
-    return 0.5*(mc(0)*mc(0) + mc(0));
+    return 0.5*(mc[0]*mc[0] + mc[0]);
   throw ErrBadIndex(i, __FILE__, __LINE__);
 }
 
@@ -44,19 +44,19 @@ double Edge3ShapeFunction::masterderiv(ShapeFunctionIndex i, SpaceIndex j,
   switch(i) {
   case 0:
     if(j == 0)
-      return mc(0) - 0.5;
+      return mc[0] - 0.5;
     if(j == 1)
       return 0.;
     break;
   case 1:
     if(j == 0)
-      return -2.*mc(0);
+      return -2.*mc[0];
     if(j == 1)
       return 0.;
     break;
   case 2:
     if(j == 0)
-      return mc(0) + 0.5;
+      return mc[0] + 0.5;
     if(j == 1)
       return 0.;
     break;

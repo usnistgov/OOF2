@@ -45,13 +45,13 @@
 %typemap(out) ICoord {
   // typemap(out) ICoord
   FETCH_CLASS(ooflib.common.primitives, iPoint);
-  $result = PyObject_CallFunction(iPointClass, "ii", ($1)(0), ($1)(1));
+  $result = PyObject_CallFunction(iPointClass, "ii", ($1)[0], ($1)[1]);
  }
 
 %typemap(out) Coord {
   // typemap(out) Coord
   FETCH_CLASS(ooflib.common.primitives, Point);
-  $result = PyObject_CallFunction(PointClass, "dd", ($1)(0), ($1)(1));
+  $result = PyObject_CallFunction(PointClass, "dd", ($1)[0], ($1)[1]);
  }
 
 // Python iPoint --> C++ ICoord*
@@ -69,8 +69,8 @@
     PyErr_SetString(PyExc_TypeError, "in '$symname', expected an iPoint.");
     SWIG_fail;
   }
-  ic(0) = PyLong_AsLong(x);
-  ic(1) = PyLong_AsLong(y);
+  ic[0] = PyLong_AsLong(x);
+  ic[1] = PyLong_AsLong(y);
   Py_XDECREF(x);
   Py_XDECREF(y);
   $1 = &ic;
@@ -88,8 +88,8 @@
     PyErr_SetString(PyExc_TypeError, "in '$symname', expected a Point.");
     SWIG_fail;
   }
-  c(0) = PyFloat_AsDouble(x);
-  c(1) = PyFloat_AsDouble(y);
+  c[0] = PyFloat_AsDouble(x);
+  c[1] = PyFloat_AsDouble(y);
   Py_XDECREF(x);
   Py_XDECREF(y);
   $1 = &c;
@@ -122,7 +122,7 @@
     PyObject *py = PyObject_GetAttrString(point, "y");
     if(!py)
       return NULL;
-    v[i](1) = PyFloat_AsDouble(py);
+    v[i][1] = PyFloat_AsDouble(py);
     Py_XDECREF(py);
   }
   $1 = &v;
@@ -135,7 +135,7 @@
   $result = PyList_New((Py_ssize_t) sz);
   for(std::vector<Coord>::size_type i=0; i<sz; i++) {
     const Coord &c = (*$1)[i];
-    PyObject *point = PyObject_CallFunction(PointClass, "dd", c(0), c(1));
+    PyObject *point = PyObject_CallFunction(PointClass, "dd", c[0], c[1]);
     PyList_SET_ITEM($result, (Py_ssize_t) i, point); // Steals reference.
   }
 }
@@ -169,7 +169,7 @@
     PyObject *py = PyObject_GetAttrString(point, "y");
     if(!py)
       return NULL;
-    v[i](1) = PyLong_AsLong(py);
+    v[i][1] = PyLong_AsLong(py);
     Py_XDECREF(py);
   }
   $1 = &v;
@@ -182,7 +182,7 @@
   $result = PyList_New((Py_ssize_t) sz);
   for(std::vector<ICoord>::size_type i=0; i<sz; i++) {
     const ICoord &c = (*$1)[i];
-    PyObject *ipoint = PyObject_CallFunction(iPointClass, "ii", c(0), c(1));
+    PyObject *ipoint = PyObject_CallFunction(iPointClass, "ii", c[0], c[1]);
     PyList_SET_ITEM($result, (Py_ssize_t) i, ipoint); // Steals reference.
   }
  }
@@ -208,8 +208,8 @@
   }
   PyObject *x = PySequence_GetItem($input, (Py_ssize_t) 0);
   PyObject *y = PySequence_GetItem($input, (Py_ssize_t) 1);
-  c(0) = PyFloat_AsDouble(x);
-  c(1) = PyFloat_AsDouble(y);
+  c[0] = PyFloat_AsDouble(x);
+  c[1] = PyFloat_AsDouble(y);
   Py_XDECREF(x);
   Py_XDECREF(y);
   $1 = &c;
@@ -224,8 +224,8 @@
   }
   PyObject *x = PySequence_GetItem($input, (Py_ssize_t) 0);
   PyObject *y = PySequence_GetItem($input, (Py_ssize_t) 1);
-  ic(0) = PyLong_AsLong(x);
-  ic(1) = PyLong_AsLong(y);
+  ic[0] = PyLong_AsLong(x);
+  ic[1] = PyLong_AsLong(y);
   Py_XDECREF(x);
   Py_XDECREF(y);
   $1 = &ic;
@@ -250,7 +250,7 @@ public:
   // __getitem__ raises a Python exception if the argument is out of
   // range.
   double getitem(int i) {
-    return (*self)(i);
+    return (*self)[i];
   }
   int __len__() {
     return DIM;

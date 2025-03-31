@@ -48,8 +48,8 @@ void CircleBrush::getPixels(const CMicrostructure *ms,
   }
   // If the circle is bigger than a pixel, select the pixels with
   // centers inside the circle.
-  const double cx = c(0);
-  const double cy = c(1);
+  const double cx = c[0];
+  const double cy = c[1];
   const double rr = r*r;
   Coord ll = ms->physical2Pixel(Coord(cx-r, cy-r));
   Coord ur = ms->physical2Pixel(Coord(cx+r, cy+r));
@@ -93,8 +93,8 @@ void SquareBrush::getPixels(const CMicrostructure *ms,
 
   // If the square is bigger than a pixel, select all pixels with
   // centers inside the square.
-  double cx = c(0);
-  double cy = c(1);
+  double cx = c[0];
+  double cy = c[1];
   // ll and ur are corners of the brush in pixel units
   Coord ll = ms->physical2Pixel(Coord(cx-size, cy-size));
   Coord ur = ms->physical2Pixel(Coord(cx+size, cy+size));

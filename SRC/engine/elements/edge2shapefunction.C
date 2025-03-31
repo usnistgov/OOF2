@@ -30,9 +30,9 @@ double Edge2ShapeFunction::value(ShapeFunctionIndex i,
 				 const MasterCoord &mc) const
 {
   if(i == 0)
-    return 0.5*(1. - mc(0));
+    return 0.5*(1. - mc[0]);
   if(i == 1)
-    return 0.5*(1. + mc(0));
+    return 0.5*(1. + mc[0]);
   throw ErrBadIndex(i, __FILE__, __LINE__);
 }
 

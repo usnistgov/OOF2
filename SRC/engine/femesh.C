@@ -501,8 +501,8 @@ Node *FEMesh::closestNode(const double x, const double y) {
   double min = std::numeric_limits<double>::max();
   Node *thenode = nullptr;
   for(Node *node : nodes()) {
-    double dx = node->position()(0) - x;
-    double dy = node->position()(1) - y;
+    double dx = node->position()[0] - x;
+    double dy = node->position()[1] - y;
     double dist = dx*dx + dy*dy;
     if (dist <= min) {
       min = dist;

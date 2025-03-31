@@ -54,31 +54,29 @@ CMicrostructure::CMicrostructure(const std::string &name,
     ncategories(0),
     name_(name)
 {
-    globalMicrostructureCountLock.acquire();
-    ++globalMicrostructureCount;
-    globalMicrostructureCountLock.release();
-#if DIM == 2
-  delta_ = Coord((*sz)(0)/(*isz)(0), (*sz)(1)/(*isz)(1));
-  categorymap = Array<int>((*isz)(0), (*isz)(1));
-#elif DIM == 3
-  delta_ = Coord((*sz)(0)/(*isz)(0), (*sz)(1)/(*isz)(1), (*sz)(2)/(*isz)(2));
-  categorymap = Array<int>((*isz)(0), (*isz)(1), (*isz)(2));
-#endif
+  globalMicrostructureCountLock.acquire();
+  ++globalMicrostructureCount;
+  globalMicrostructureCountLock.release();
+  
+  delta_ = Coord((*sz)[0]/(*isz)[0], (*sz)[1]/(*isz)[1]);
+  categorymap = Array<int>((*isz)[0], (*isz)[1]);
   // Initialize pixel attribute maps.  Lock probably not actually
   // required -- who would contend for data during construction? --
   // but certainly harmless, and maybe safe.
   // std::cerr << "Acquire." << std::endl;
   // category_lock.acquire();
-  for(std::vector<Array<PixelAttribute*> >::size_type i=0; i<attributeMap.size(); i++) {
-    Array<PixelAttribute*> &map = attributeMap[i];
-    const PxlAttributeRegistration *pareg =
-      PxlAttributeRegistration::getRegistration(i);
-    attributeGlobalData[i] = pareg->createAttributeGlobalData(this);
-    map.resize(pxlsize_);
-    for(Array<PixelAttribute*>::iterator j=map.begin(); j!=map.end(); ++j) {
-      map[j] = pareg->createAttribute(j.coord());
+  for(std::vector<Array<PixelAttribute*> >::size_type i=0;
+      i<attributeMap.size(); i++)
+    {
+      Array<PixelAttribute*> &map = attributeMap[i];
+      const PxlAttributeRegistration *pareg =
+	PxlAttributeRegistration::getRegistration(i);
+      attributeGlobalData[i] = pareg->createAttributeGlobalData(this);
+      map.resize(pxlsize_);
+      for(Array<PixelAttribute*>::iterator j=map.begin(); j!=map.end(); ++j) {
+	map[j] = pareg->createAttribute(j.coord());
+      }
     }
-  }
 }
 
 CMicrostructure::~CMicrostructure() {
@@ -154,35 +152,31 @@ std::size_t CMicrostructure::nGroups() const {
 // Convert a Coord in the physical space to pixel coordinates (without
 // rounding to the nearest integer).
 Coord CMicrostructure::physical2Pixel(const Coord &pt) const {
-  return Coord(pt(0)/delta_(0), pt(1)/delta_(1));
+  return Coord(pt[0]/delta_[0], pt[1]/delta_[1]);
 }
 
 // Return the physical space coordinates of the lower-left corner of a
 // pixel.
 Coord CMicrostructure::pixel2Physical(const ICoord &pxl) const {
-  return Coord(pxl(0)*delta_(0), pxl(1)*delta_(1));
+  return Coord(pxl[0]*delta_[0], pxl[1]*delta_[1]);
 }
 
 // Return the physical space coordinates of a given non-integer
 // coordinate in pixel space.
 Coord CMicrostructure::pixel2Physical(const Coord &pt) const {
-#if DIM == 2
-  return Coord(pt(0)*delta_(0), pt(1)*delta_(1));
-#elif DIM == 3
-  return Coord(pt(0)*delta_(0), pt(1)*delta_(1), pt(2)*delta_(2));
-#endif
+  return Coord(pt[0]*delta_[0], pt[1]*delta_[1]);
 }
 
 // Return the coordinates of the pixel that contains the given point.
 ICoord CMicrostructure::pixelFromPoint(const Coord &pt) const {
   Coord p = physical2Pixel(pt);
-  int xx = (int) floor(p(0));
-  int yy = (int) floor(p(1));
-  if(xx >= pxlsize_(0))
+  int xx = (int) floor(p[0]);
+  int yy = (int) floor(p[1]);
+  if(xx >= pxlsize_[0])
     --xx;
   if(xx < 0.0)			// round-off can make xx==-1.
     xx = 0.0;
-  if(yy >= pxlsize_(1))
+  if(yy >= pxlsize_[1])
     --yy;
   if(yy < 0.0)
     yy = 0.0;
@@ -190,16 +184,16 @@ ICoord CMicrostructure::pixelFromPoint(const Coord &pt) const {
 }
 
 bool CMicrostructure::contains(const ICoord &ip) const {
-  if ((ip(0)>=0 && ip(0)<pxlsize_(0)) && (ip(1)>=0 && ip(1)<pxlsize_(1)))
+  if ((ip[0]>=0 && ip[0]<pxlsize_[0]) && (ip[1]>=0 && ip[1]<pxlsize_[1]))
     return true;
   return false;
 }
 
 std::vector<ICoord> CMicrostructure::shuffledPix() const {
   std::vector<ICoord> pix;
-  pix.reserve(pxlsize_(0)*pxlsize_(1));
-  for(int i=0; i<pxlsize_(0); i++)
-    for(int j=0; j<pxlsize_(1); j++) {
+  pix.reserve(pxlsize_[0]*pxlsize_[1]);
+  for(int i=0; i<pxlsize_[0]; i++)
+    for(int j=0; j<pxlsize_[1]; j++) {
       ICoord p(i, j);
       if(activearea->isActive(p))
 	pix.push_back(p);
@@ -495,11 +489,7 @@ static bool strictLessThan_Attributes(const std::vector<PixelAttribute*> &p0,
 
 const Array<int> *CMicrostructure::getCategoryMapRO() const {
   groups_attributes_lock.read_acquire();
-#if DIM == 2
-  Array<int> *localmap = new Array<int>(pxlsize_(0), pxlsize_(1));
-#elif DIM == 3
-  Array<int> *localmap = new Array<int>(pxlsize_(0), pxlsize_(1), pxlsize_(2));
-#endif
+  Array<int> *localmap = new Array<int>(pxlsize_[0], pxlsize_[1]);
   CatMap catmap(strictLessThan_Attributes);
   int ncats = 0;
   std::size_t nattrs = attributeMap.size();
@@ -564,31 +554,31 @@ std::vector<ICoord> CMicrostructure::segmentPixels(const Coord &c0,
   // Coordinates of pixels containing the endpoints (integer).  Note
   // that we *don't* use CMicrostructure::pixelFromPoint() here,
   // because we have to treat the pixel boundary cases differently.
-  ICoord ip0((int) floor(p0(0)), (int) floor(p0(1)));
-  ICoord ip1((int) floor(p1(0)), (int) floor(p1(1)));
+  ICoord ip0((int) floor(p0[0]), (int) floor(p0[1]));
+  ICoord ip1((int) floor(p1[0]), (int) floor(p1[1]));
 
   // If an endpoint lies exactly on a pixel boundary, then the correct
   // choice for the pixel "containing" the endpoint depends on which
   // direction the segment is going.  The rule is that some part of
   // the segment must lie within the selected pixel. 
-  if(ip0(0) == p0(0) && ip1(0) < ip0(0))
-    ip0(0) -= 1;
-  if(ip1(0) == p1(0) && ip0(0) < ip1(0))
-    ip1(0) -= 1;
-  if(ip0(1) == p0(1) && ip1(1) < ip0(1))
-    ip0(1) -= 1;
-  if(ip1(1) == p1(1) && ip0(1) < ip1(1))
-    ip1(1) -= 1;
+  if(ip0[0] == p0[0] && ip1[0] < ip0[0])
+    ip0[0] -= 1;
+  if(ip1[0] == p1[0] && ip0[0] < ip1[0])
+    ip1[0] -= 1;
+  if(ip0[1] == p0[1] && ip1[1] < ip0[1])
+    ip0[1] -= 1;
+  if(ip1[1] == p1[1] && ip0[1] < ip1[1])
+    ip1[1] -= 1;
 
   // Round off error may have put a point out of bounds.  Fix it.
-  if(ip0(0) == pxlsize_(0)) ip0(0) -= 1;
-  if(ip0(1) == pxlsize_(1)) ip0(1) -= 1;
-  if(ip1(0) == pxlsize_(0)) ip1(0) -= 1;
-  if(ip1(1) == pxlsize_(1)) ip1(1) -= 1;
-  if(ip0(0) < 0) ip0(0) = 0;
-  if(ip0(1) < 0) ip0(1) = 0;
-  if(ip1(0) < 0) ip1(0) = 0;
-  if(ip1(1) < 0) ip1(1) = 0;
+  if(ip0[0] == pxlsize_[0]) ip0[0] -= 1;
+  if(ip0[1] == pxlsize_[1]) ip0[1] -= 1;
+  if(ip1[0] == pxlsize_[0]) ip1[0] -= 1;
+  if(ip1[1] == pxlsize_[1]) ip1[1] -= 1;
+  if(ip0[0] < 0) ip0[0] = 0;
+  if(ip0[1] < 0) ip0[1] = 0;
+  if(ip1[0] < 0) ip1[0] = 0;
+  if(ip1[1] < 0) ip1[1] = 0;
 
   // For vertical and horizontal segments that exactly lie along
   // the pixel boundaries, we need to pick a right row or column of pixels.
@@ -613,15 +603,15 @@ std::vector<ICoord> CMicrostructure::segmentPixels(const Coord &c0,
   // order.
   vertical_horizontal=false;
   // Horizontal
-  if ((p0(1) == p1(1) && p0(1) == ip0(1)) && p0(0) > p1(0)) {
-    if(ip0(1) >= 1) ip0(1) -= 1;
-    if(ip1(1) >= 1) ip1(1) -= 1;
+  if ((p0[1] == p1[1] && p0[1] == ip0[1]) && p0[0] > p1[0]) {
+    if(ip0[1] >= 1) ip0[1] -= 1;
+    if(ip1[1] >= 1) ip1[1] -= 1;
     vertical_horizontal=true;
   }
   // Vertical 
-  if ((p0(0) == p1(0) && p0(0) == ip0(0)) && p0(1) < p1(1)) {
-    if(ip0(0) >= 1) ip0(0) -= 1;
-    if(ip1(0) >= 1) ip1(0) -= 1;
+  if ((p0[0] == p1[0] && p0[0] == ip0[0]) && p0[1] < p1[1]) {
+    if(ip0[0] >= 1) ip0[0] -= 1;
+    if(ip1[0] >= 1) ip1[0] -= 1;
     vertical_horizontal=true;
   }
 
@@ -630,42 +620,42 @@ std::vector<ICoord> CMicrostructure::segmentPixels(const Coord &c0,
   // the microstructure.  After the preceding check, the only way that
   // an end pixel can be outside is if the segment lies along the top
   // or right edges.
-  int maxx = pxlsize_(0);
-  int maxy = pxlsize_(1);
-  if(ip0(0) == maxx && ip1(0) == maxx) {
-    ip0(0) = maxx - 1;
-    ip1(0) = maxx - 1;
+  int maxx = pxlsize_[0];
+  int maxy = pxlsize_[1];
+  if(ip0[0] == maxx && ip1[0] == maxx) {
+    ip0[0] = maxx - 1;
+    ip1[0] = maxx - 1;
   }
-  if(ip0(1) == maxy && ip1(1) == maxy) {
-    ip0(1) = maxy - 1;
-    ip1(1) = maxy - 1;
+  if(ip0[1] == maxy && ip1[1] == maxy) {
+    ip0[1] = maxy - 1;
+    ip1[1] = maxy - 1;
   }
 
   ICoord id = ip1 - ip0;	// distance between pixel endpoints
 
-  if(id(0) == 0 && id(1) == 0) { // segment is entirely within one pixel
+  if(id[0] == 0 && id[1] == 0) { // segment is entirely within one pixel
     return std::vector<ICoord>(1, ip0);
   }
   
-  if(id(0) == 0) {	
+  if(id[0] == 0) {	
     // Segment is contained within a single column of pixels.
-    int npix = abs(id(1)) + 1;
+    int npix = abs(id[1]) + 1;
     std::vector<ICoord> pixels(npix);
-    int x = ip0(0);
-    int y0 = (ip0(1) < ip1(1)) ? ip0(1) : ip1(1);
-    flipped = ip1(1) < ip0(1);
+    int x = ip0[0];
+    int y0 = (ip0[1] < ip1[1]) ? ip0[1] : ip1[1];
+    flipped = ip1[1] < ip0[1];
     for(int i=0; i<npix; i++)
       pixels[i] = ICoord(x, y0+i);
     return pixels;
   }
   
-  if(id(1) == 0) {	
+  if(id[1] == 0) {	
     // Segment is contained within a single row of pixels.
-    int npix = abs(id(0)) + 1;
+    int npix = abs(id[0]) + 1;
     std::vector<ICoord> pixels(npix);
-    int y = ip0(1);
-    int x0 = (ip0(0) < ip1(0)) ? ip0(0) : ip1(0);
-    flipped = ip1(0) < ip0(0);
+    int y = ip0[1];
+    int x0 = (ip0[0] < ip1[0]) ? ip0[0] : ip1[0];
+    flipped = ip1[0] < ip0[0];
     for(int i=0; i<npix; i++)
       pixels[i] = ICoord(x0+i, y);
     return pixels;
@@ -681,10 +671,10 @@ std::vector<ICoord> CMicrostructure::segmentPixels(const Coord &c0,
   // It's important to use pd and not id when deciding which range is
   // bigger!  If the integer ranges are equal but the real y range is
   // bigger, if we use id we can end up missing some pixels.
-  if(fabs(pd(0)) >= fabs(pd(1))) {
+  if(fabs(pd[0]) >= fabs(pd[1])) {
     // x range is bigger than y range, so loop over x.
     // Make sure that p0 is to the left of p1.
-    if(ip0(0) > ip1(0)) {
+    if(ip0[0] > ip1[0]) {
       ICoord itemp(ip1);
       ip1 = ip0;
       ip0 = itemp;
@@ -694,18 +684,18 @@ std::vector<ICoord> CMicrostructure::segmentPixels(const Coord &c0,
       flipped = true;
     }
     
-    pixels.reserve(2*abs(id(0))); // biggest possible size
-    double x0 = p0(0);
-    double y0 = p0(1);
-    double slope = (p1(1) - y0)/(p1(0) - x0);
+    pixels.reserve(2*abs(id[0])); // biggest possible size
+    double x0 = p0[0];
+    double y0 = p0[1];
+    double slope = (p1[1] - y0)/(p1[0] - x0);
     pixels.push_back(ip0);
     // Iterate over columns of pixels.  Compute the y intercepts at
     // the boundaries between the columns (ie, integer values of x).
     // Whenever the integer part of the y intercept changes, we need
     // to include an extra pixel (at the new y value) in the previous
     // column.
-    int lasty = ip0(1);	// previous integer part of y intercept
-    for(int x=ip0(0)+1; x<=ip1(0); ++x) {
+    int lasty = ip0[1];	// previous integer part of y intercept
+    for(int x=ip0[0]+1; x<=ip1[0]; ++x) {
       int y = int(floor(y0 + slope*(x-x0)));
       if(y >=0 && y < maxy) {
 	if(y != lasty)
@@ -718,11 +708,11 @@ std::vector<ICoord> CMicrostructure::segmentPixels(const Coord &c0,
     // more y intercept change to come, so make sure it's included.
     if(pixels.back() != ip1)
       pixels.push_back(ip1);
-  } // fabs(pd(0)) >= fabs(pd(1))
+  } // fabs(pd[0]) >= fabs(pd[1])
   else {
-    // fabs(pd(1)) > fabs(pd(0))
+    // fabs(pd[1]) > fabs(pd[0])
     // y range is bigger than x range, so loop over y.
-    if(ip0(1) > ip1(1)) {
+    if(ip0[1] > ip1[1]) {
       ICoord itemp(ip1);
       ip1 = ip0;
       ip0 = itemp;
@@ -731,14 +721,14 @@ std::vector<ICoord> CMicrostructure::segmentPixels(const Coord &c0,
       p0 = temp;
       flipped = true;
     }
-    pixels.reserve(2*abs(id(1)));
-    double x0 = p0(0);
-    double y0 = p0(1);
-    double slope = (p1(0) - x0)/(p1(1) - y0); // dx/dy
+    pixels.reserve(2*abs(id[1]));
+    double x0 = p0[0];
+    double y0 = p0[1];
+    double slope = (p1[0] - x0)/(p1[1] - y0); // dx/dy
     pixels.push_back(ip0);
-    int lastx = ip0(0);
+    int lastx = ip0[0];
     // iterate over rows of pixels
-    for(int y=ip0(1)+1; y<=ip1(1); ++y) {
+    for(int y=ip0[1]+1; y<=ip1[1]; ++y) {
       int x = int(floor(x0 + slope*(y-y0)));
       if(x >= 0 && x < maxx) {
 	if(x != lastx)
@@ -785,8 +775,8 @@ MarkInfo *CMicrostructure::beginMarking(const CRectangle &bbox) const {
   MarkInfo *mm = new MarkInfo(sizeInPixels());
   ICoord p0 = pixelFromPoint(bbox.lowerleft());
   ICoord p1 = pixelFromPoint(bbox.upperright()) + northeast;
-  if(p1(0) >= pxlsize_(0)) p1(0) = pxlsize_(0);
-  if(p1(1) >= pxlsize_(1)) p1(1) = pxlsize_(1);
+  if(p1[0] >= pxlsize_[0]) p1[0] = pxlsize_[0];
+  if(p1[1] >= pxlsize_[1]) p1[1] = pxlsize_[1];
   mm->markedregion = mm->markedpixels.subarray(p0, p1);
   mm->markedregion.clear(false);
   return mm;

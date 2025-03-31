@@ -111,29 +111,15 @@ SymmMatrix3 SkeletonRelaxationRate::shapetensor(const Element *element) const {
   double xx = 0;
   double yy = 0;
   double xy = 0;
-#if DIM==3
-  double zz = 0;
-  double xz = 0;
-  double yz = 0;
-#endif
   for (int i = 0; i<element->nnodes(); i++)
     {
       Node * ni = nl[i];
       x = ni->position() - r_c;
-      xx += x(0)*x(0);
-      yy += x(1)*x(1);
-      xy += x(0)*x(1);
-#if DIM==3
-      zz += x(2)*x(2);
-      xz += x(0)*x(2);
-      yz += x(1)*x(2);
-#endif
+      xx += x[0]*x[0];
+      yy += x[1]*x[1];
+      xy += x[0]*x[1];
     }
-#if DIM==2
   double traceI = xx + yy;
-#elif DIM==3
-  double traceI = 2 * (xx + yy + zz); 
-#endif
   if (traceI == 0)
     traceI = 1.0;
   etensor(0,1) = xy/traceI;

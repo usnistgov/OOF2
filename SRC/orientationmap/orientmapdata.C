@@ -103,10 +103,10 @@ OOFCanvas::CanvasImage *OrientMap::makeCanvasImage(
 ICoord OrientMap::pixelFromPoint(const Coord *point) const {
   // Copied nearly verbatim from OOFImage.  TODO: Perhaps there should
   // be a common base class?
-  int px = sizeInPixels()(0);
-  int py = sizeInPixels()(1);
-  double xx = (*point)(0)/size_(0)*px;
-  double yy = (*point)(1)/size_(1)*py;
+  int px = sizeInPixels()[0];
+  int py = sizeInPixels()[1];
+  double xx = (*point)[0]/size_[0]*px;
+  double yy = (*point)[1]/size_[1]*py;
   if (xx == px)
     xx = px - 1.0;
   if (yy == py)
@@ -118,9 +118,9 @@ ICoord OrientMap::pixelFromPoint(const Coord *point) const {
 bool OrientMap::pixelInBounds(const ICoord *pxl) const {
   // Also copied nearly verbatim from OOFImage.  TODO: Perhaps there
   // should be a common base class?
-  int xx = (*pxl)(0);
-  int yy = (*pxl)(1);
-  if ( (xx<0) || (xx>=sizeInPixels()(0)) || (yy<0) || (yy>=sizeInPixels()(1)) )
+  int xx = (*pxl)[0];
+  int yy = (*pxl)[1];
+  if ( (xx<0) || (xx>=sizeInPixels()[0]) || (yy<0) || (yy>=sizeInPixels()[1]) )
     return false;
   return true;
 }
@@ -164,8 +164,8 @@ OOFImage *OrientMap::createImage(const std::string &name,
 				 const Angle2Color &colorscheme) const
 {
   OOFImage *immidge = new OOFImage(name);
-  unsigned int width = sizeInPixels()(0);
-  unsigned int height = sizeInPixels()(1);
+  unsigned int width = sizeInPixels()[0];
+  unsigned int height = sizeInPixels()[1];
   double *pixels = new double[height*width*3*sizeof(double)];
   int count=0;
   for(Array<COrientABG>::const_iterator i=angles.begin(); i!=angles.end();

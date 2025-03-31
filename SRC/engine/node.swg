@@ -46,7 +46,7 @@ public:
 
 %extend Node {
   double __getitem__(int i) {
-    return self->position()(i);
+    return self->position()[i];
   }
 };
 

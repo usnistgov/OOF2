@@ -489,13 +489,13 @@ CSkeletonQuad::CSkeletonQuad(CSkeletonNode *n0, CSkeletonNode *n1,
 double CSkeletonQuad::shapefun(int i, const MasterCoord &mc) const {
   switch(i) {
   case 0:
-    return  0.25*(mc(0) - 1.0)*(mc(1) - 1.0);
+    return  0.25*(mc[0] - 1.0)*(mc[1] - 1.0);
   case 1:
-    return -0.25*(mc(0) + 1.0)*(mc(1) - 1.0);
+    return -0.25*(mc[0] + 1.0)*(mc[1] - 1.0);
   case 2:
-    return  0.25*(mc(0) + 1.0)*(mc(1) + 1.0);
+    return  0.25*(mc[0] + 1.0)*(mc[1] + 1.0);
   case 3:
-    return -0.25*(mc(0) - 1.0)*(mc(1) + 1.0);
+    return -0.25*(mc[0] - 1.0)*(mc[1] + 1.0);
   }
   throw ErrBadIndex(i, __FILE__, __LINE__);
 }
@@ -610,11 +610,11 @@ CSkeletonTriangle::CSkeletonTriangle(CSkeletonNode *n0, CSkeletonNode *n1,
 double CSkeletonTriangle::shapefun(int i, const MasterCoord &mc) const {
   switch(i) {
   case 0:
-    return mc(0);
+    return mc[0];
   case 1:
-    return mc(1);
+    return mc[1];
   case 2:
-    return 1. - mc(0) - mc(1);
+    return 1. - mc[0] - mc[1];
   }
   throw ErrBadIndex(i, __FILE__, __LINE__);
 }

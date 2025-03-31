@@ -1,6 +1,5 @@
 // -*- C++ -*-
 
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -64,30 +63,30 @@ public:
   inline const CTYPE &lowerleft() const { return lowleft; }
   inline const CTYPE &upperright() const { return upright; }
   void swallow(const CTYPE &pt) {
-    if(upright(0) < pt(0)) upright(0) = pt(0);
-    if(upright(1) < pt(1)) upright(1) = pt(1);
-    if(lowleft(0) > pt(0)) lowleft(0) = pt(0);
-    if(lowleft(1) > pt(1)) lowleft(1) = pt(1);
+    if(upright[0] < pt[0]) upright[0] = pt[0];
+    if(upright[1] < pt[1]) upright[1] = pt[1];
+    if(lowleft[0] > pt[0]) lowleft[0] = pt[0];
+    if(lowleft[1] > pt[1]) lowleft[1] = pt[1];
   }
-  inline VTYPE xmin() const { return lowleft(0); }
-  inline VTYPE xmax() const { return upright(0); }
-  inline VTYPE ymin() const { return lowleft(1); }
-  inline VTYPE ymax() const { return upright(1); }
-  inline VTYPE height() const { return upright(1) - lowleft(1); }
-  inline VTYPE width() const { return upright(0) - lowleft(0); }
+  inline VTYPE xmin() const { return lowleft[0]; }
+  inline VTYPE xmax() const { return upright[0]; }
+  inline VTYPE ymin() const { return lowleft[1]; }
+  inline VTYPE ymax() const { return upright[1]; }
+  inline VTYPE height() const { return upright[1] - lowleft[1]; }
+  inline VTYPE width() const { return upright[0] - lowleft[0]; }
   inline virtual VTYPE area() const { return width()*height(); }
   inline const CTYPE &size() const { return size_; }
   bool contains(const CTYPE &point) const {
-    if(point(0) < xmin() || point(0) >= xmax()) return false;
-    if(point(1) < ymin() || point(1) >= ymax()) return false;
+    if(point[0] < xmin() || point[0] >= xmax()) return false;
+    if(point[1] < ymin() || point[1] >= ymax()) return false;
     return true;
   }
   template <class VTYPE2, class CTYPE2>
   bool intersects(const CRectangle_<VTYPE2, CTYPE2> &other) const {
-    if(upright(0) < other.lowleft(0)) return false;
-    if(upright(1) < other.lowleft(1)) return false;
-    if(lowleft(0) > other.upright(0)) return false;
-    if(lowleft(1) > other.upright(1)) return false;
+    if(upright[0] < other.lowleft[0]) return false;
+    if(upright[1] < other.lowleft[1]) return false;
+    if(lowleft[0] > other.upright[0]) return false;
+    if(lowleft[1] > other.upright[1]) return false;
     return true;
   }
   virtual int ncorners() const { return 4; }
@@ -96,24 +95,24 @@ public:
     case 0:
       return lowleft;
     case 1:
-      return CTYPE(upright(0), lowleft(1));
+      return CTYPE(upright[0], lowleft[1]);
     case 2:
       return upright;
     case 3:
-      return CTYPE(lowleft(0), upright(1));
+      return CTYPE(lowleft[0], upright[1]);
     };
     throw ErrBadIndex(i, __FILE__, __LINE__);
   }
   // 
   void restrict(const CRectangle_<VTYPE, CTYPE> &limits) {
-    if(limits.xmin() > lowleft(0))
-      lowleft(0) = min(upright(0), limits.xmin());
-    if(limits.xmax() < upright(0))
-      upright(0) = max(lowleft(0), limits.xmax());
-    if(limits.ymin() > lowleft(1))
-      lowleft(1) = min(upright(1), limits.ymin());
-    if(limits.ymax() < upright(1))
-      upright(1) = max(lowleft(1), limits.ymax());
+    if(limits.xmin() > lowleft[0])
+      lowleft[0] = min(upright[0], limits.xmin());
+    if(limits.xmax() < upright[0])
+      upright[0] = max(lowleft[0], limits.xmax());
+    if(limits.ymin() > lowleft[1])
+      lowleft[1] = min(upright[1], limits.ymin());
+    if(limits.ymax() < upright[1])
+      upright[1] = max(lowleft(1), limits.ymax());
     size_ = upright - lowleft;
   }
 
@@ -132,21 +131,21 @@ bool operator==(const CRectangle_<VTYPE, CTYPE> &a,
 
 template <class VTYPE, class CTYPE>
 CRectangle_<VTYPE, CTYPE>::CRectangle_(const CTYPE &a, const CTYPE &b) {
-  if(a(0) < b(0)) {
-    upright(0) = b(0);
-    lowleft(0) = a(0);
+  if(a[0] < b[0]) {
+    upright[0] = b[0];
+    lowleft[0] = a[0];
   }
   else {
-    upright(0) = a(0);
-    lowleft(0) = b(0);
+    upright[0] = a[0];
+    lowleft[0] = b[0];
   }
-  if(a(1) < b(1)) {
-    upright(1) = b(1);
-    lowleft(1) = a(1);
+  if(a[1] < b[1]) {
+    upright[1] = b[1];
+    lowleft[1] = a[1];
   }
   else {
-    upright(1) = a(1);
-    lowleft(1) = b(1);
+    upright[1] = a[1];
+    lowleft[1] = b[1];
   }
   size_ = upright - lowleft;
 }
@@ -167,14 +166,14 @@ public:
     return os << *this;
   }
   void expand(double howmuch) {
-    double mid = 0.5*(lowleft(0) + upright(0));
-    double size = 0.5*(upright(0) - lowleft(0))*(1 + howmuch);
-    lowleft(0) = mid - size;
-    upright(0) = mid + size;
-    mid = 0.5*(lowleft(1) + upright(1));
-    size = 0.5*(upright(1) - lowleft(1))*(1 + howmuch);
-    lowleft(1) = mid - size;
-    upright(1) = mid + size;
+    double mid = 0.5*(lowleft[0] + upright[0]);
+    double size = 0.5*(upright[0] - lowleft[0])*(1 + howmuch);
+    lowleft[0] = mid - size;
+    upright[0] = mid + size;
+    mid = 0.5*(lowleft[1] + upright[1]);
+    size = 0.5*(upright[1] - lowleft[1])*(1 + howmuch);
+    lowleft[1] = mid - size;
+    upright[1] = mid + size;
     size_ = upright - lowleft;
   }
 };

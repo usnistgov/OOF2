@@ -40,13 +40,13 @@ double Quad4ShapeFunction::value(ShapeFunctionIndex i,
 				      const MasterCoord &mc) const
 {
   if(i == 0)
-    return 0.25*(1. - mc(0))*(1. - mc(1));
+    return 0.25*(1. - mc[0])*(1. - mc[1]);
   if(i == 1)
-    return 0.25*(1. + mc(0))*(1. - mc(1));
+    return 0.25*(1. + mc[0])*(1. - mc[1]);
   if(i == 2)
-    return 0.25*(1. + mc(0))*(1. + mc(1));
+    return 0.25*(1. + mc[0])*(1. + mc[1]);
   if(i == 3)
-    return 0.25*(1. - mc(0))*(1. + mc(1));
+    return 0.25*(1. - mc[0])*(1. + mc[1]);
   throw ErrBadIndex(i, __FILE__, __LINE__);
 }
 
@@ -56,27 +56,27 @@ double Quad4ShapeFunction::masterderiv(ShapeFunctionIndex i, SpaceIndex j,
   switch(i) {
   case 0:
     if(j == 0)
-      return -0.25*(1. - mc(1));
+      return -0.25*(1. - mc[1]);
     if(j == 1)
-      return -0.25*(1. - mc(0));
+      return -0.25*(1. - mc[0]);
     break;
   case 1:
     if(j == 0)
-      return  0.25*(1. - mc(1));
+      return  0.25*(1. - mc[1]);
     if(j == 1)
-      return -0.25*(1. + mc(0));
+      return -0.25*(1. + mc[0]);
     break;
   case 2:
     if(j == 0)
-      return  0.25*(1. + mc(1));
+      return  0.25*(1. + mc[1]);
     if(j == 1)
-      return  0.25*(1. + mc(0));
+      return  0.25*(1. + mc[0]);
     break;
   case 3:
     if(j == 0)
-      return -0.25*(1. + mc(1));
+      return -0.25*(1. + mc[1]);
     if(j == 1)
-      return  0.25*(1. - mc(0));
+      return  0.25*(1. - mc[0]);
     break;
   default:
     throw ErrBadIndex(i, __FILE__, __LINE__);

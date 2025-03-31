@@ -70,7 +70,7 @@ OOFImage::OOFImage(const std::string &name, const Coord &size,
 }
 
 const Magick::PixelPacket *OOFImage::pixelPacket() const {
-  return image.getConstPixels(0, 0, sizeInPixels_(0), sizeInPixels_(1));
+  return image.getConstPixels(0, 0, sizeInPixels_[0], sizeInPixels_[1]);
 }
 
 OOFImage *newImageFromData(const std::string &name, const ICoord *isize,
@@ -84,7 +84,7 @@ OOFImage::OOFImage(const std::string &name, const ICoord &isize,
 		   const Magick::StorageType storage,
 		   const void *data) 
   : name_(name),
-    image(isize(0), isize(1), map, storage, data)
+    image(isize[0], isize[1], map, storage, data)
 {
   setup();
 }
@@ -112,8 +112,8 @@ void OOFImage::setup() {
 //     {
 //       std::map<CColor, int> histogram;
 //       const Magick::PixelPacket *pixels = pixelPacket();
-//       for(int i=0; i<sizeInPixels_(0); i++)
-// 	for(int j=0; j<sizeInPixels_(1); j++) {
+//       for(int i=0; i<sizeInPixels_[0]; i++)
+// 	for(int j=0; j<sizeInPixels_[1]; j++) {
 // 	  ICoord pt(i,j);
 // 	  CColor color = getColor(pt, pixels);
 // 	  auto iter = histogram.find(color);
@@ -139,8 +139,8 @@ OOFImage::~OOFImage() {
 bool OOFImage::compare(const OOFImage &other, double tol) const {
   if (sizeInPixels_ != other.sizeInPixels_) return false;
 
-  for(int i=0;i<sizeInPixels_(0);i++) {
-    for(int j=0;j<sizeInPixels_(1);j++) {
+  for(int i=0;i<sizeInPixels_[0];i++) {
+    for(int j=0;j<sizeInPixels_[1];j++) {
       CColor c0 = (*this)[ICoord(i,j)];
       CColor c1 = other[ICoord(i,j)];
       if (!c0.compare(c1, tol))
@@ -166,20 +166,20 @@ void OOFImage::setSize(const Coord *sighs) {
 }
 
 ICoord OOFImage::pixelFromPoint(const Coord *point) const {
-  double xx = (*point)(0)/size_(0)*sizeInPixels_(0);
-  double yy = (*point)(1)/size_(1)*sizeInPixels_(1);
-  if (xx == sizeInPixels_(0))
-    xx = sizeInPixels_(0) - 1.0;
-  if (yy == sizeInPixels_(1))
-    yy = sizeInPixels_(1) - 1.0;
+  double xx = (*point)[0]/size_[0]*sizeInPixels_[0];
+  double yy = (*point)[1]/size_[1]*sizeInPixels_[1];
+  if (xx == sizeInPixels_[0])
+    xx = sizeInPixels_[0] - 1.0;
+  if (yy == sizeInPixels_[1])
+    yy = sizeInPixels_[1] - 1.0;
 
   return ICoord((int) floor(xx), (int) floor(yy));
 }
 
 bool OOFImage::pixelInBounds(const ICoord *pxl) const {
-  int xx = (*pxl)(0);
-  int yy = (*pxl)(1);
-  if ( (xx<0) || (xx>=sizeInPixels_(0)) || (yy<0) || (yy>=sizeInPixels_(1)) )
+  int xx = (*pxl)[0];
+  int yy = (*pxl)[1];
+  if ( (xx<0) || (xx>=sizeInPixels_[0]) || (yy<0) || (yy>=sizeInPixels_[1]) )
     return false;
   return true;
 }
@@ -229,9 +229,9 @@ OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
 
 std::vector<unsigned short> *OOFImage::getPixels() {
   // Magick::Image::write isn't const, so this function isn't const either.
-  int n = 3*sizeInPixels_(0)*sizeInPixels_(1);
+  int n = 3*sizeInPixels_[0]*sizeInPixels_[1];
   std::vector<unsigned short> *pxls = new std::vector<unsigned short>(n);
-  image.write(0, 0, sizeInPixels_(0), sizeInPixels_(1),
+  image.write(0, 0, sizeInPixels_[0], sizeInPixels_[1],
 	      "RGB", Magick::ShortPixel, &(*pxls)[0]);
   return pxls;
 }
@@ -243,7 +243,7 @@ std::vector<unsigned short> *OOFImage::getPixels() {
 const CColor OOFImage::operator[](const ICoord &c) const {
   try {
     Magick::Pixels view(*const_cast<Magick::Image*>(&image));
-    const Magick::PixelPacket *pixels = view.getConst(c(0), c(1), 1, 1);
+    const Magick::PixelPacket *pixels = view.getConst(c[0], c[1], 1, 1);
     CColor color(pixels->red*scale, pixels->green*scale, pixels->blue*scale);
     return color;
 
@@ -251,7 +251,7 @@ const CColor OOFImage::operator[](const ICoord &c) const {
     // that it doesn't work (July 2018).  It works on macOS when using
     // quartz, but not x11.  It doesn't work on Linux.
     
-    // Magick::Color color = image.pixelColor(c(0), c(1));
+    // Magick::Color color = image.pixelColor(c[0], c[1]);
     // return CColor(color.redQuantum()*scale,
     // 		  color.greenQuantum()*scale,
     // 		  color.blueQuantum()*scale);
@@ -267,7 +267,7 @@ const CColor OOFImage::operator[](const ICoord &c) const {
 CColor OOFImage::getColor(const ICoord &pt, const Magick::PixelPacket *pixels)
   const
 {
-  const Magick::PixelPacket &pp = pixels[pt(0) + sizeInPixels_(0)*pt(1)];
+  const Magick::PixelPacket &pp = pixels[pt[0] + sizeInPixels_[0]*pt[1]];
   return CColor(pp.red*scale, pp.green*scale, pp.blue*scale);
 }
 
@@ -280,7 +280,7 @@ void OOFImage::set(const ICoord &c, const CColor &color) {
     Magick::ColorRGB culler(color.getRed(), color.getGreen(), color.getBlue());
     // This seems to work, although pixelColor doesn't always work for
     // retrieving colors.  See comment in operator[], above.
-    image.pixelColor(c(0), c(1), culler);
+    image.pixelColor(c[0], c[1], culler);
     // Do not call imageChanged() here.  Call it once, after all calls to set().
   }
   catch (Magick::Exception &e) {
@@ -302,7 +302,7 @@ void OOFImage::set(const ICoord &c, const CColor &color) {
 // efficient.
 
 Array<double> OOFImage::convert(double (*f)(const CColor&)) const {
-  Array<double> arr(sizeInPixels_(0), sizeInPixels_(1));
+  Array<double> arr(sizeInPixels_[0], sizeInPixels_[1]);
   for(Array<double>::iterator i=arr.begin(); i!=arr.end(); ++i) {
     arr[i] = (*f)((*this)[i.coord()]);
   }
@@ -310,7 +310,7 @@ Array<double> OOFImage::convert(double (*f)(const CColor&)) const {
 }
 
 Array<int> OOFImage::convert(int (*f)(const CColor&)) const {
-  Array<int> arr(sizeInPixels_(0), sizeInPixels_(1));
+  Array<int> arr(sizeInPixels_[0], sizeInPixels_[1]);
   for(Array<int>::iterator i=arr.begin(); i!=arr.end(); ++i) {
     arr[i] = (*f)((*this)[i.coord()]);
   }
@@ -318,7 +318,7 @@ Array<int> OOFImage::convert(int (*f)(const CColor&)) const {
 }
 
 Array<bool> OOFImage::convert(bool (*f)(const CColor&)) const {
-  Array<bool> arr(sizeInPixels_(0), sizeInPixels_(1));
+  Array<bool> arr(sizeInPixels_[0], sizeInPixels_[1]);
   for(Array<bool>::iterator i=arr.begin(); i!=arr.end(); ++i) {
     arr[i] = (*f)((*this)[i.coord()]);
   }
@@ -350,7 +350,7 @@ void OOFImage::set(const Array<bool> &array, CColor (*f)(bool)) {
 // {
 //   std::vector<ICoord>* icoordlist = new std::vector<ICoord>(0);
 //   // Be greedy, reserve enough space for all the pixels.
-//   icoordlist->reserve(sizeInPixels_(0)*sizeInPixels_(1));
+//   icoordlist->reserve(sizeInPixels_[0]*sizeInPixels_[1]);
 //   for(ConstOOFImageIterator i=this->begin(); i!=this->end(); ++i) {
 //     if ( diff.contains(ref, *i) )
 //       icoordlist->push_back(i.coord());
@@ -378,23 +378,23 @@ OOFImage::const_iterator OOFImage::begin() const {
 }
 
 OOFImage::iterator OOFImage::end() {
-  return OOFImageIterator(*this, sizeInPixels_(0)*sizeInPixels_(1));
+  return OOFImageIterator(*this, sizeInPixels_[0]*sizeInPixels_[1]);
 }
 
 OOFImage::const_iterator OOFImage::end() const {
-  return ConstOOFImageIterator(*this, sizeInPixels_(0)*sizeInPixels_(1));
+  return ConstOOFImageIterator(*this, sizeInPixels_[0]*sizeInPixels_[1]);
 }
 
 
 ICoord OOFImageIterator::coord() const {
-  int width = image.sizeInPixels()(0);
+  int width = image.sizeInPixels()[0];
   int y = pos/width;
   int x = pos - width*y;
   return ICoord(x, y);
 }
 
 ICoord ConstOOFImageIterator::coord() const {
-  int width = image.sizeInPixels()(0);
+  int width = image.sizeInPixels()[0];
   int y = pos/width;
   int x = pos - width*y;
   return ICoord(x, y);
@@ -594,10 +594,10 @@ void _Send_Image(OOFImage *image, std::vector<int> *destinations, int tag)
   std::string name = image->name();
   _Isend_Int(name.size(), destinations, tag);  // size of the name
   _Isend_String(name, destinations, tag);  // name itself
-  _Isend_Double(image->size()(0), destinations, tag);  // physical size X
-  _Isend_Double(image->size()(1), destinations, tag);  // physical size Y
-  _Isend_Int(image->sizeInPixels()(0), destinations, tag);  // size in pixels X
-  _Isend_Int(image->sizeInPixels()(1), destinations, tag);  // size in pixels Y
+  _Isend_Double(image->size()[0], destinations, tag);  // physical size X
+  _Isend_Double(image->size()[1], destinations, tag);  // physical size Y
+  _Isend_Int(image->sizeInPixels()[0], destinations, tag);  // size in pixels X
+  _Isend_Int(image->sizeInPixels()[1], destinations, tag);  // size in pixels Y
 
   std::vector<unsigned short> * pixels = image->getPixels();
   _Isend_Int(pixels->size(), destinations, tag);  // size of pixels vector

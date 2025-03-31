@@ -336,8 +336,8 @@ MasterCoord Element::to_master(const Coord &x) const {
     double dj = jac[0][0]*jac[1][1] - jac[0][1]*jac[1][0];
     dj = 1./dj;
     // xi --> xi + J^-1*(x - from_master(xi))
-    xi(0) += ( jac[1][1]*dx(0) - jac[0][1]*dx(1))*dj;
-    xi(1) += (-jac[1][0]*dx(0) + jac[0][0]*dx(1))*dj;
+    xi[0] += ( jac[1][1]*dx[0] - jac[0][1]*dx[1])*dj;
+    xi[1] += (-jac[1][0]*dx[0] + jac[0][0]*dx[1])*dj;
     dx = x - from_master(xi);	// reevaluate rhs
   } while((norm2(dx) > tolerancesq) && (++iter < maxiter));
   return xi;
@@ -365,12 +365,12 @@ double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const GaussPoint &g)
   if(i == j) {
     int ii = 1 - i;
     for(ElementMapNodeIterator ni=mapnode_iterator(); !ni.end(); ++ni) {
-      sum += (ni.node()->position())(ii) * ni.masterderiv(ii, g);
+      sum += (ni.node()->position())[ii] * ni.masterderiv(ii, g);
     }
   }
   else {			// i != j
     for(ElementMapNodeIterator ni=mapnode_iterator(); !ni.end(); ++ni)
-      sum -= (ni.node()->position())(i) * ni.masterderiv(j, g);
+      sum -= (ni.node()->position())[i] * ni.masterderiv(j, g);
   }
   return sum;
 
@@ -383,11 +383,11 @@ double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const MasterCoord &mc)
   if(i == j) {
     int ii = 1 - i;
     for(ElementMapNodeIterator ni=mapnode_iterator(); !ni.end(); ++ni)
-      sum += (ni.node()->position())(ii) * ni.masterderiv(ii, mc);
+      sum += (ni.node()->position())[ii] * ni.masterderiv(ii, mc);
   }
   else {			// i != j
     for(ElementMapNodeIterator ni=mapnode_iterator(); !ni.end(); ++ni)
-      sum -= (ni.node()->position())(i) * ni.masterderiv(j, mc);
+      sum -= (ni.node()->position())[i] * ni.masterderiv(j, mc);
   }
   return sum;
 }
@@ -407,7 +407,7 @@ double Element::jacobian(SpaceIndex i, SpaceIndex j, const GaussPoint &g) const
 {
   double jac = 0.0;
   for(ElementMapNodeIterator ni=mapnode_iterator(); !ni.end(); ++ni)
-    jac += (ni.node()->position())(i) * ni.masterderiv(j, g);
+    jac += (ni.node()->position())[i] * ni.masterderiv(j, g);
 
   return jac;
 }
@@ -417,7 +417,7 @@ double Element::jacobian(SpaceIndex i, SpaceIndex j, const MasterCoord &mc)
 {
   double jac = 0.0;
   for(ElementMapNodeIterator ni=mapnode_iterator(); !ni.end(); ++ni)
-    jac += (ni.node()->position())(i) * ni.masterderiv(j, mc);
+    jac += (ni.node()->position())[i] * ni.masterderiv(j, mc);
   return jac;
 }
 
@@ -441,7 +441,7 @@ double InterfaceElement::jacobian(SpaceIndex i,
   // right.
   if (j==0) {
     for(ElementMapNodeIterator ni=mapnode_iterator(); !ni.end(); ++ni) { 
-      jac += (ni.node()->position())(i)*ni.masterderiv(j,g);
+      jac += (ni.node()->position())[i]*ni.masterderiv(j,g);
     }
     // std::cerr << "InterfaceElement::jacobian returning " << jac << std::endl;
     return jac;
@@ -458,7 +458,7 @@ double InterfaceElement::jacobian(SpaceIndex i,
 
   if (j==0) { 
     for(ElementMapNodeIterator ni=mapnode_iterator(); !ni.end(); ++ni) 
-      jac += (ni.node()->position())(i)*ni.masterderiv(j,mc);
+      jac += (ni.node()->position())[i]*ni.masterderiv(j,mc);
     return jac;
   }
   else

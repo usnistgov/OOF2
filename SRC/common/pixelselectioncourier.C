@@ -108,12 +108,12 @@ ICoord RectangleSelection::currentPoint() const {
 }
 
 void RectangleSelection::next() {
-  currentpt(0)++;
-  if(currentpt(0) > ur(0)) {
-    currentpt(0) = ll(0);
-    currentpt(1)++;
+  currentpt[0]++;
+  if(currentpt[0] > ur[0]) {
+    currentpt[0] = ll[0];
+    currentpt[1]++;
   }
-  if(currentpt(1) > ur(1))
+  if(currentpt[1] > ur[1])
     done_ = true;
 }
 
@@ -131,8 +131,8 @@ CircleSelection::CircleSelection(CMicrostructure *ms,
 }
 
 bool CircleSelection::interior() {
-  double dx = (currentpt(0)+0.5)*ms->sizeOfPixels()(0) - center(0);
-  double dy = (currentpt(1)+0.5)*ms->sizeOfPixels()(1) - center(1);
+  double dx = (currentpt[0]+0.5)*ms->sizeOfPixels()[0] - center[0];
+  double dy = (currentpt[1]+0.5)*ms->sizeOfPixels()[1] - center[1];
   return (dx*dx+dy*dy <= radius2);
 }
 
@@ -146,12 +146,12 @@ ICoord CircleSelection::currentPoint() const {
 }
 
 void CircleSelection::advance() {
-  currentpt(0)++;
-  if(currentpt(0) > ur(0)) {
-    currentpt(0) = ll(0);
-    currentpt(1)++;
+  currentpt[0]++;
+  if(currentpt[0] > ur[0]) {
+    currentpt[0] = ll[0];
+    currentpt[1]++;
   }
-  if(currentpt(1) > ur(1))
+  if(currentpt[1] > ur[1])
     done_ = true;
 }
 
@@ -170,13 +170,13 @@ EllipseSelection::EllipseSelection(CMicrostructure *ms,
   : PixelSelectionCourier(ms),
     ll(pixelFromPoint(*ll)),
     ur(pixelFromPoint(*ur)),
-    center(Coord(0.5*((*ll)(0)+(*ur)(0)), 0.5*((*ll)(1)+(*ur)(1)))),
-    aa( 1.0/(0.5*((*ur)(0)-(*ll)(0))*0.5*((*ur)(0)-(*ll)(0))) ),
-    bb( 1.0/(0.5*((*ur)(1)-(*ll)(1))*0.5*((*ur)(1)-(*ll)(1))) ) {}
+    center(Coord(0.5*((*ll)[0]+(*ur)[0]), 0.5*((*ll)[1]+(*ur)[1]))),
+    aa( 1.0/(0.5*((*ur)[0]-(*ll)[0])*0.5*((*ur)[0]-(*ll)[0])) ),
+    bb( 1.0/(0.5*((*ur)[1]-(*ll)[1])*0.5*((*ur)[1]-(*ll)[1])) ) {}
 
 bool EllipseSelection::interior() {
-  double dx = (currentpt(0)+0.5)*ms->sizeOfPixels()(0) - center(0);
-  double dy = (currentpt(1)+0.5)*ms->sizeOfPixels()(1) - center(1);
+  double dx = (currentpt[0]+0.5)*ms->sizeOfPixels()[0] - center[0];
+  double dy = (currentpt[1]+0.5)*ms->sizeOfPixels()[1] - center[1];
   if (dx*dx*aa + dy*dy*bb <= 1.0) return true;
   return false;
 }
@@ -191,12 +191,12 @@ ICoord EllipseSelection::currentPoint() const {
 }
 
 void EllipseSelection::advance() {
-  currentpt(0)++;
-  if(currentpt(0) > ur(0)) {
-    currentpt(0) = ll(0);
-    currentpt(1)++;
+  currentpt[0]++;
+  if(currentpt[0] > ur[0]) {
+    currentpt[0] = ll[0];
+    currentpt[1]++;
   }
-  if(currentpt(1) > ur(1))
+  if(currentpt[1] > ur[1])
     done_ = true;
 }
 

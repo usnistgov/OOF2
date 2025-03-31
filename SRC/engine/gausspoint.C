@@ -94,8 +94,8 @@ double GaussPoint::dshapefunction(const Element *el, const ShapeFunction &sf,
 #endif // DONT_USE_CACHED_VALUES
 
 std::ostream& operator<<(std::ostream &o, const GaussPoint &gpt) {
-  o << "GaussPoint(" << gpt.position_(0) << ", " <<  
-    gpt.position_(1) <<  
+  o << "GaussPoint(" << gpt.position_[0] << ", " <<  
+    gpt.position_[1] <<  
 #if DIM==3
     ", " << gpt.position_(2) << 
 #endif
@@ -901,19 +901,19 @@ void EdgeGaussPoint::geometry() const {
     // where e is the directed master element edge vector
     // grad is the gradient in master space
     // u is the function that maps master space to physical space
-    tangent = Coord(jac[0][0]*(edge->director(0))    
-		    + jac[0][1]*(edge->director(1)),
-		    jac[1][0]*(edge->director(0))
-		    + jac[1][1]*(edge->director(1)) );
+    tangent = Coord(jac[0][0]*(edge->director[0])    
+		    + jac[0][1]*(edge->director[1]),
+		    jac[1][0]*(edge->director[0])
+		    + jac[1][1]*(edge->director[1]) );
 #elif DIM==3
-    tangent = Coord(jac[0][0]*(edge->director(0))    
-		    + jac[0][1]*(edge->director(1))    
+    tangent = Coord(jac[0][0]*(edge->director[0])    
+		    + jac[0][1]*(edge->director[1])    
 		    + jac[0][2]*(edge->director(2)),
-		    jac[1][0]*(edge->director(0))
-		    + jac[1][1]*(edge->director(1))
+		    jac[1][0]*(edge->director[0])
+		    + jac[1][1]*(edge->director[1])
 		    + jac[1][2]*(edge->director(2)),
-		    jac[2][0]*(edge->director(0))
-		    + jac[2][1]*(edge->director(1))
+		    jac[2][0]*(edge->director[0])
+		    + jac[2][1]*(edge->director[1])
 		    + jac[2][2]*(edge->director(2)) );
 #endif
   
@@ -921,7 +921,7 @@ void EdgeGaussPoint::geometry() const {
     gweight*=tnorm;
     // Normalized tangent is the Jacobian of the 1D map.
 
-    normal_ = Coord(tangent(1)/tnorm, -tangent(0)/tnorm);
+    normal_ = Coord(tangent[1]/tnorm, -tangent[0]/tnorm);
     // Real space normal is normalized cross product of tangent w/ +z.
   }
 }

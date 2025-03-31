@@ -31,8 +31,8 @@
     SWIG_fail;
   }
 
-  mc(0) = PyFloat_AsDouble(xobj);
-  mc(1) = PyFloat_AsDouble(yobj);
+  mc[0] = PyFloat_AsDouble(xobj);
+  mc[1] = PyFloat_AsDouble(yobj);
   Py_XDECREF(xobj);
   Py_XDECREF(yobj);
   $1 = &mc;
@@ -53,7 +53,7 @@ public:
 
 %extend MasterCoord {
   double __getitem__(int i) {
-    return (*self)(i);
+    return (*self)[i];
   }
   MasterCoord __add__(MasterCoord &other) {
     return *self + other;

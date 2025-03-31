@@ -364,8 +364,8 @@ ArithmeticOutputVal *SymmetricTensorFlux::contract(const FEMesh *mesh,
    Coord normal2 = egpt.normal();
    // Pretend the normal is a 3-vector so that we can dot it with the flux.
    DoubleVec normal3(3, 0.0);
-   normal3[0] = normal2(0);
-   normal3[1] = normal2(1);
+   normal3[0] = normal2[0];
+   normal3[1] = normal2[1];
    // Take the dot product.
    DoubleVec resultvec(valueRef*normal3);
    // Convert the result into an OutputVal, dropping the z-component.
@@ -377,8 +377,8 @@ ArithmeticOutputVal *SymmetricTensorFlux::contract(const FEMesh *mesh,
 //   // voigt order, 00, 11, 22, 12, 02, 01
 //   DoubleVec *result = new DoubleVec(divdim, 0.0);
 //   Coord normal = egpt.normal();
-//   (*result)[0] = (*value)[0]*normal(0) + (*value)[5]*normal(1);
-//   (*result)[1] = (*value)[5]*normal(0) + (*value)[1]*normal(1);
+//   (*result)[0] = (*value)[0]*normal[0] + (*value)[5]*normal[1];
+//   (*result)[1] = (*value)[5]*normal[0] + (*value)[1]*normal[1];
 //   delete value;  // deleting new'd DoubleVec from "evaluate".
 //   return result;
 }
@@ -396,13 +396,13 @@ FluxNormal *SymmetricTensorFlux::BCCallback(const Coord &pos,
 
   PYTHON_THREAD_BEGIN_BLOCK;
   PyObject *result = PyObject_CallFunction(wrapper,  "(Oddddddd)",
-					   pyfunction, pos(0), pos(1), time,
-					   nrm(0), nrm(1), distance, fraction);
+					   pyfunction, pos[0], pos[1], time,
+					   nrm[0], nrm[1], distance, fraction);
   if(result) {
     if(PyTuple_Check(result)) {
       if(PyTuple_Size(result) == (Py_ssize_t) 2) {
-	cres(0) = PyFloat_AsDouble(PyTuple_GetItem(result, (Py_ssize_t) 0));
-	cres(1) = PyFloat_AsDouble(PyTuple_GetItem(result, (Py_ssize_t) 1));
+	cres[0] = PyFloat_AsDouble(PyTuple_GetItem(result, (Py_ssize_t) 0));
+	cres[1] = PyFloat_AsDouble(PyTuple_GetItem(result, (Py_ssize_t) 1));
       }
       else {
 	throw
@@ -418,7 +418,7 @@ FluxNormal *SymmetricTensorFlux::BCCallback(const Coord &pos,
     pythonErrorRelay();
   }
   Py_XDECREF(result);
-  return new SymTensorFluxNormal(cres(0),cres(1));
+  return new SymTensorFluxNormal(cres[0],cres[1]);
 }
 
 ArithmeticOutputValue Flux::output(const FEMesh *mesh, const Element *el,
@@ -478,14 +478,14 @@ ArithmeticOutputVal *VectorFlux::contract(const FEMesh *mesh,
     dynamic_cast<const VectorOutputVal&>(value.valueRef());
   Coord normal = egpt.normal();
   std::vector<double> normalvec(3);
-  normalvec[0] = normal(0);
-  normalvec[1] = normal(1);
+  normalvec[0] = normal[0];
+  normalvec[1] = normal[1];
   normalvec[2] = 0.0;
   return new ScalarOutputVal(valueRef.dot(normalvec));
 //   DoubleVec *value = evaluate(mesh, elmt, egpt);
 //   Coord normal = egpt.normal();
 //   DoubleVec *result = new DoubleVec(divdim, 0.0);
-//   (*result)[0] = (*value)[0]*normal(0) + (*value)[1]*normal(1);
+//   (*result)[0] = (*value)[0]*normal[0] + (*value)[1]*normal[1];
 //   return result;
 }
 
@@ -501,8 +501,8 @@ FluxNormal *VectorFlux::BCCallback(const Coord &pos,
 
   PYTHON_THREAD_BEGIN_BLOCK;
   PyObject *result = PyObject_CallFunction(wrapper, "(Oddddddd)",
-					   pyfunction, pos(0), pos(1), time,
-					   nrm(0), nrm(1), distance, fraction);
+					   pyfunction, pos[0], pos[1], time,
+					   nrm[0], nrm[1], distance, fraction);
   if(result) {
     if(PyTuple_Check(result)) {
       if(PyTuple_Size(result)==1) {

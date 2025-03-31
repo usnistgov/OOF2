@@ -48,19 +48,19 @@ double Tri6ShapeFunction::value(ShapeFunctionIndex i, const MasterCoord &mc)
   const
 {
   if(i == 0) 
-    return mc(0)*(2.0*mc(0) - 1.0);
+    return mc[0]*(2.0*mc[0] - 1.0);
   if(i == 2)
-    return mc(1)*(2.0*mc(1) - 1.0);
+    return mc[1]*(2.0*mc[1] - 1.0);
   if(i == 4) {
-    double mc2 = 1.0 - mc(0) - mc(1);
+    double mc2 = 1.0 - mc[0] - mc[1];
     return mc2*(2.0*mc2 - 1);
   }
   if(i == 1)
-    return 4.0*mc(0)*mc(1);
+    return 4.0*mc[0]*mc[1];
   if(i == 3)
-    return 4.0*mc(1)*(1.0 - mc(0) - mc(1));
+    return 4.0*mc[1]*(1.0 - mc[0] - mc[1]);
   if(i == 5)
-    return 4.0*mc(0)*(1.0 - mc(0) - mc(1));
+    return 4.0*mc[0]*(1.0 - mc[0] - mc[1]);
   throw ErrBadIndex(i, __FILE__, __LINE__);
 }
 
@@ -70,7 +70,7 @@ double Tri6ShapeFunction::masterderiv(ShapeFunctionIndex i, SpaceIndex j,
   switch(i) {
   case 0:
     if(j == 0)
-      return 4.*mc(0) - 1.0;
+      return 4.*mc[0] - 1.0;
     else if(j == 1)
       return 0.0;
     break;
@@ -78,31 +78,31 @@ double Tri6ShapeFunction::masterderiv(ShapeFunctionIndex i, SpaceIndex j,
     if(j == 0)
       return 0.0;
     else if(j == 1)
-      return 4.*mc(1) - 1.0;
+      return 4.*mc[1] - 1.0;
     break;
   case 4:
     if(j == 0 || j == 1) {
-      double mc2 = 1.0 - mc(0) - mc(1);
+      double mc2 = 1.0 - mc[0] - mc[1];
       return -4.*mc2 + 1.0;
     }
     break;
   case 1:
     if(j == 0)
-      return 4.0*mc(1);
+      return 4.0*mc[1];
     else if(j == 1)
-      return 4.0*mc(0);
+      return 4.0*mc[0];
     break;
   case 3:
     if(j == 0) 
-      return -4.0*mc(1);
+      return -4.0*mc[1];
     else if(j == 1)
-      return 4.0*(1.0 - mc(0) - 2.0*mc(1));
+      return 4.0*(1.0 - mc[0] - 2.0*mc[1]);
     break;
   case 5:
     if(j == 0)
-      return 4.0*(1.0 - 2.0*mc(0) - mc(1));
+      return 4.0*(1.0 - 2.0*mc[0] - mc[1]);
     else if(j == 1)
-      return -4.0*mc(0);
+      return -4.0*mc[0];
     break;
   default:
     throw ErrBadIndex(i, __FILE__, __LINE__);

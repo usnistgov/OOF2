@@ -49,8 +49,8 @@ double SymTensorFluxNormal::operator[](int n) const {
 void SymTensorFluxNormal::transform(const Coord &n) {
   double normal_frame_x = x;
   double normal_frame_y = y;
-  x=n(0)*normal_frame_x-n(1)*normal_frame_y;
-  y=n(0)*normal_frame_y+n(1)*normal_frame_x;
+  x=n[0]*normal_frame_x - n[1]*normal_frame_y;
+  y=n[0]*normal_frame_y + n[1]*normal_frame_x;
 }
 
 FluxNormal &SymTensorFluxNormal::operator*=(double d) {

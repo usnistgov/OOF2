@@ -41,11 +41,11 @@ double Tri3ShapeFunction::value(ShapeFunctionIndex i,
 				     const MasterCoord &mc) const
 {
   if(i == 0)
-    return mc(0);
+    return mc[0];
   if(i == 1)
-    return mc(1);
+    return mc[1];
   if(i == 2)
-    return 1.0 - mc(0) - mc(1);
+    return 1.0 - mc[0] - mc[1];
   throw ErrBadIndex(i, __FILE__, __LINE__);
 }
 

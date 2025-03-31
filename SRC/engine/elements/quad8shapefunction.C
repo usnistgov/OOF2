@@ -47,21 +47,21 @@ double Quad8ShapeFunction::value(ShapeFunctionIndex i, const MasterCoord &mc)
   const
 {
   if(i == 0)			// (-1, -1)
-    return 0.25*(1. - mc(0))*(1. - mc(1))*(-1. - mc(0) - mc(1));
+    return 0.25*(1. - mc[0])*(1. - mc[1])*(-1. - mc[0] - mc[1]);
   if(i == 1)			// (0, -1)
-    return 0.5*(1. - mc(0)*mc(0))*(1. - mc(1));
+    return 0.5*(1. - mc[0]*mc[0])*(1. - mc[1]);
   if(i == 2)			// (1, -1)
-    return 0.25*(1. + mc(0))*(1. - mc(1))*(-1. + mc(0) - mc(1));
+    return 0.25*(1. + mc[0])*(1. - mc[1])*(-1. + mc[0] - mc[1]);
   if(i == 3)			// (1, 0)
-    return 0.5*(1. - mc(1)*mc(1))*(1. + mc(0));
+    return 0.5*(1. - mc[1]*mc[1])*(1. + mc[0]);
   if(i == 4)			// (1, 1)
-    return 0.25*(1. + mc(0))*(1. + mc(1))*(-1. + mc(0) + mc(1));
+    return 0.25*(1. + mc[0])*(1. + mc[1])*(-1. + mc[0] + mc[1]);
   if(i == 5)			// (0, 1)
-    return 0.5*(1. - mc(0)*mc(0))*(1. + mc(1));
+    return 0.5*(1. - mc[0]*mc[0])*(1. + mc[1]);
   if(i == 6)			// (-1, 1)
-    return 0.25*(1. - mc(0))*(1. + mc(1))*(-1. - mc(0) + mc(1));
+    return 0.25*(1. - mc[0])*(1. + mc[1])*(-1. - mc[0] + mc[1]);
   if(i == 7)			// (-1, 0)
-    return 0.5*(1. - mc(1)*mc(1))*(1. - mc(0));
+    return 0.5*(1. - mc[1]*mc[1])*(1. - mc[0]);
   throw ErrBadIndex(i, __FILE__, __LINE__);
 }
 
@@ -71,51 +71,51 @@ double Quad8ShapeFunction::masterderiv(ShapeFunctionIndex i, SpaceIndex j,
   switch(i) {
   case 0:
     if(j == 0)
-      return 0.25*(1. - mc(1))*(2.*mc(0) + mc(1));
+      return 0.25*(1. - mc[1])*(2.*mc[0] + mc[1]);
     if(j == 1)
-      return 0.25*(1. - mc(0))*(mc(0) + 2.*mc(1));
+      return 0.25*(1. - mc[0])*(mc[0] + 2.*mc[1]);
     break;
   case 1:
     if(j == 0)
-      return mc(0)*(mc(1) - 1.);
+      return mc[0]*(mc[1] - 1.);
     if(j == 1)
-      return 0.5*(mc(0)*mc(0) - 1.);
+      return 0.5*(mc[0]*mc[0] - 1.);
     break;
   case 2:
     if(j == 0)
-      return 0.25*(1. - mc(1))*(2.*mc(0) - mc(1));
+      return 0.25*(1. - mc[1])*(2.*mc[0] - mc[1]);
     if(j == 1)
-      return 0.25*(1. + mc(0))*(-mc(0) + 2.*mc(1));
+      return 0.25*(1. + mc[0])*(-mc[0] + 2.*mc[1]);
     break;
   case 3:
     if(j == 0)
-      return 0.5*(1. - mc(1)*mc(1));
+      return 0.5*(1. - mc[1]*mc[1]);
     if(j == 1)
-      return -mc(1)*(1. + mc(0));
+      return -mc[1]*(1. + mc[0]);
     break;
   case 4:
     if(j == 0)
-      return 0.25*(1. + mc(1))*(2.*mc(0) + mc(1));
+      return 0.25*(1. + mc[1])*(2.*mc[0] + mc[1]);
     if(j == 1)
-      return 0.25*(1. + mc(0))*(mc(0) + 2.*mc(1));
+      return 0.25*(1. + mc[0])*(mc[0] + 2.*mc[1]);
     break;
   case 5:
     if(j == 0)
-      return -mc(0)*(1. + mc(1));
+      return -mc[0]*(1. + mc[1]);
     if(j == 1)
-      return 0.5*(1. - mc(0)*mc(0));
+      return 0.5*(1. - mc[0]*mc[0]);
     break;
   case 6:
     if(j == 0)
-      return 0.25*(1. + mc(1))*(2.*mc(0) - mc(1));
+      return 0.25*(1. + mc[1])*(2.*mc[0] - mc[1]);
     if(j == 1)
-      return 0.25*(1. - mc(0))*(-mc(0) + 2.*mc(1));
+      return 0.25*(1. - mc[0])*(-mc[0] + 2.*mc[1]);
     break;
   case 7:
     if(j == 0)
-      return 0.5*(mc(1)*mc(1) - 1.);
+      return 0.5*(mc[1]*mc[1] - 1.);
     if(j == 1)
-      return mc(1)*(mc(0) - 1.);
+      return mc[1]*(mc[0] - 1.);
     break;
   default:
     throw ErrBadIndex(i, __FILE__, __LINE__);
