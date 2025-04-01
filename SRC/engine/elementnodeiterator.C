@@ -122,13 +122,13 @@ double ElementMapNodeIterator::shapefunction(const MasterPosition &pos) const {
   return element_.master.mapfunction->value(index_, pos);
 }
 
-double ElementMapNodeIterator::dshapefunction(SpaceIndex i,
+double ElementMapNodeIterator::dshapefunction(int i,
 					      const MasterPosition &pos) const
 {
   return element_.master.mapfunction->realderiv(&element_, index_, i, pos);
 }
 
-double ElementMapNodeIterator::masterderiv(SpaceIndex i,
+double ElementMapNodeIterator::masterderiv(int i,
 					   const MasterPosition &pos) const
 {
   return element_.master.mapfunction->masterderiv(index_, i, pos);
@@ -215,13 +215,13 @@ double ElementFuncNodeIterator::shapefunction(const MasterPosition &pos) const {
   return element_.master.shapefunction->value(index_, pos);
 }
 
-double ElementFuncNodeIterator::dshapefunction(SpaceIndex i,
+double ElementFuncNodeIterator::dshapefunction(int i,
 					       const MasterPosition &pos) const
 {
   return element_.master.shapefunction->realderiv(&element_, index_, i, pos);
 }
 
-double ElementFuncNodeIterator::masterderiv(SpaceIndex i,
+double ElementFuncNodeIterator::masterderiv(int i,
 					    const MasterPosition &mc) const
 {
   return element_.master.shapefunction->masterderiv(index_, i, mc);

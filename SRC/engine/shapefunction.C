@@ -92,23 +92,18 @@ ShapeFunction::~ShapeFunction() {
 // Use double dispatch to evaluate shape functions at Positions, since
 // the evaluation is done differently at GaussPoints and MasterCoords
 
-double ShapeFunction::value(ShapeFunctionIndex n, const MasterPosition &p)
-  const
-{
+double ShapeFunction::value(int n, const MasterPosition &p) const {
   //  Trace("ShapeFunction::value p=" + tostring(p.mastercoord()));
   return p.shapefunction(*this, n);
 }
 
-double ShapeFunction::masterderiv(ShapeFunctionIndex n, SpaceIndex j,
-		 		  const MasterPosition &p)
-  const
-{
+double ShapeFunction::masterderiv(int n, int j, const MasterPosition &p) const {
   //  Trace("ShapeFunction::masterderiv sf=" + tostring(n) + " p=" + tostring(p.mastercoord()));
   return p.mdshapefunction(*this, n, j);
 }
 
-double ShapeFunction::realderiv(const Element *el, ShapeFunctionIndex n,
-				SpaceIndex j, const MasterPosition &p)
+double ShapeFunction::realderiv(const Element *el, int n,
+				int j, const MasterPosition &p)
   const
 {
   //  Trace("ShapeFunction::realderiv sf=" + tostring(n) + " p=" + tostring(p.mastercoord()));
@@ -117,16 +112,12 @@ double ShapeFunction::realderiv(const Element *el, ShapeFunctionIndex n,
 
 // Find the value and derivative at Gauss points by using the lookup tables.
 
-double ShapeFunction::value(ShapeFunctionIndex n, const GaussPoint &g)
-  const
-{
+double ShapeFunction::value(int n, const GaussPoint &g) const {
   return sftable[g.order()]->f_table[g.index()][n];
 }
 
 // derivative wrt master coordinates
-double ShapeFunction::masterderiv(ShapeFunctionIndex n, SpaceIndex j,
-			    const GaussPoint &g) const
-{
+double ShapeFunction::masterderiv(int n, int j, const GaussPoint &g) const {
   //  Trace("ShapeFunction::masterderiv sf=" + tostring(n) + " gpt=" + tostring(g.mastercoord()));
   return sftable[g.order()]->df_table[g.index()][n][j];
 }
@@ -152,10 +143,10 @@ void ShapeFunction::precompute(const MasterElement &master) {
     // loop over gausspoints
     for(std::vector<GaussPtData>::size_type g=0; g<gptable.size(); g++) {
       MasterCoord mpos = gptable[g].position;
-      for(ShapeFunctionIndex n=0; n<nfunctions; ++n) { // loop over sf's
+      for(int n=0; n<nfunctions; ++n) { // loop over sf's
 	f_table[g][n] = value(n, mpos);
 	DoubleVec &dftemp = df_table[g][n];
-	for(SpaceIndex j=0; j<DIM; ++j) // loop over spatial dimensions
+	for(int j=0; j<DIM; ++j) // loop over spatial dimensions
 	  dftemp[j] = masterderiv(n, j, mpos);
       }
     }
@@ -164,9 +155,9 @@ void ShapeFunction::precompute(const MasterElement &master) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-double ShapeFunction::realderiv(const Element *el,
-				ShapeFunctionIndex n, SpaceIndex i,
-				const GaussPoint &g) const
+double ShapeFunction::realderiv(const Element *el, int n, int i,
+				const GaussPoint &g)
+  const
 {
   //  Trace("ShapeFunction::realderiv 1");
   double result = 0;
@@ -184,7 +175,7 @@ double ShapeFunction::realderiv(const Element *el,
   // don't be tempted to rewrite this in terms of
   // realderiv(Element*, ..., MasterCoord&) because that one doesn't use
   // the precomputed values of the shape function derivatives!
-  for(SpaceIndex j=0; j<DIM; ++j)
+  for(int j=0; j<DIM; ++j)
     result += el->Jdmasterdx(j, i, g)*masterderiv(n, j, g);
   result /= el->det_jacobian(g);
 
@@ -192,13 +183,13 @@ double ShapeFunction::realderiv(const Element *el,
   return result;
 }
 
-double ShapeFunction::realderiv(const Element *el,
-				ShapeFunctionIndex n, SpaceIndex i,
-				const MasterCoord &mc) const
+double ShapeFunction::realderiv(const Element *el, int n, int i,
+				const MasterCoord &mc)
+  const
 {
   //  Trace("ShapeFunction::realderiv 2");
   double result = 0;
-  for(SpaceIndex j=0; j<DIM; ++j)
+  for(int j=0; j<DIM; ++j)
     result += el->Jdmasterdx(j, i, mc)*masterderiv(n, j, mc);
   result /= el->det_jacobian(mc);
   return result;

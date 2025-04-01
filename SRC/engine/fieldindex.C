@@ -143,7 +143,7 @@ int SymTensorIterator::col() const {
   return colset[v];
 }
 
-SymTensorIterator::SymTensorIterator(SpaceIndex i, SpaceIndex j)
+SymTensorIterator::SymTensorIterator(int i, int j)
   : v(SymTensorIndex::ij2voigt(i, j))
 {}
 

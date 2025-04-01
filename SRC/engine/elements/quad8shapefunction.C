@@ -43,9 +43,7 @@ Quad8ShapeFunction::Quad8ShapeFunction(const MasterElement &mel)
   precompute(mel);
 }
 
-double Quad8ShapeFunction::value(ShapeFunctionIndex i, const MasterCoord &mc)
-  const
-{
+double Quad8ShapeFunction::value(int i, const MasterCoord &mc) const {
   if(i == 0)			// (-1, -1)
     return 0.25*(1. - mc[0])*(1. - mc[1])*(-1. - mc[0] - mc[1]);
   if(i == 1)			// (0, -1)
@@ -65,8 +63,8 @@ double Quad8ShapeFunction::value(ShapeFunctionIndex i, const MasterCoord &mc)
   throw ErrBadIndex(i, __FILE__, __LINE__);
 }
 
-double Quad8ShapeFunction::masterderiv(ShapeFunctionIndex i, SpaceIndex j,
-				       const MasterCoord &mc) const
+double Quad8ShapeFunction::masterderiv(int i, int j, const MasterCoord &mc)
+  const
 {
   switch(i) {
   case 0:

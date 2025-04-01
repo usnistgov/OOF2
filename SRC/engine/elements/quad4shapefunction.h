@@ -17,9 +17,9 @@
 class Quad4ShapeFunction : public ShapeFunction {
 public:
   Quad4ShapeFunction(const MasterElement&);
-  virtual double value(ShapeFunctionIndex, const MasterCoord&) const;
-  virtual double masterderiv(ShapeFunctionIndex, SpaceIndex, const MasterCoord&)
-    const;
+  virtual double value(int, const MasterCoord&) const;
+  virtual double masterderiv(int, int, const MasterCoord&) const;
+
   // For quads, the value returned by degree() is actually one less
   // than the actual polynomial degree of the shape functions.
   // degree() is used to determine the number of gauss points required
@@ -31,6 +31,5 @@ public:
   virtual int degree() const { return 1; }
   virtual int deriv_degree() const { return 1; }
 };
-
 
 #endif

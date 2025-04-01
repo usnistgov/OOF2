@@ -16,7 +16,6 @@ class MasterCoord;
 class MasterPosition;
 
 #include <oofconfig.h>
-#include "engine/indextypes.h"
 #include <iostream>
 #include <deque>
 
@@ -39,12 +38,10 @@ public:
   virtual MasterCoord mastercoord() const = 0;
   // Shape functions and their derivatives wrt master coordinates are
   // evaluated through these double-dispatch functions.
-  virtual double shapefunction(const ShapeFunction&, ShapeFunctionIndex)
+  virtual double shapefunction(const ShapeFunction&, int) const = 0;
+  virtual double mdshapefunction(const ShapeFunction&, int, int) const = 0;
+  virtual double dshapefunction(const Element*, const ShapeFunction&, int, int)
     const = 0;
-  virtual double mdshapefunction(const ShapeFunction&, ShapeFunctionIndex,
-				SpaceIndex) const = 0;
-  virtual double dshapefunction(const Element*, const ShapeFunction&,
-				ShapeFunctionIndex, SpaceIndex) const = 0;
   virtual std::ostream &print(std::ostream&) const = 0;
 };
 
@@ -70,11 +67,10 @@ public:
     x[1] *= y;
     return *this;
   }
-  virtual double shapefunction(const ShapeFunction&, ShapeFunctionIndex) const;
-  virtual double mdshapefunction(const ShapeFunction&, ShapeFunctionIndex,
-				SpaceIndex) const;
-  virtual double dshapefunction(const Element*, const ShapeFunction&,
-				ShapeFunctionIndex, SpaceIndex) const;
+  virtual double shapefunction(const ShapeFunction&, int) const;
+  virtual double mdshapefunction(const ShapeFunction&, int, int) const;
+  virtual double dshapefunction(const Element*, const ShapeFunction&, int, int)
+    const;
   virtual std::ostream &print(std::ostream&) const;
   friend bool operator==(const MasterCoord&, const MasterCoord&);
 };

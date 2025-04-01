@@ -25,7 +25,6 @@
 #include "engine/femesh.h"
 #include "engine/field.h"
 #include "engine/flux.h"
-#include "engine/indextypes.h"
 #include "engine/material.h"
 #include "nonlinear_force_density.h"
 

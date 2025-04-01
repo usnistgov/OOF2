@@ -22,7 +22,6 @@
 #include "engine/femesh.h"
 #include "engine/flux.h"
 #include "engine/fluxnormal.h"
-#include "engine/indextypes.h"
 #include "engine/material.h"
 #include "engine/nodalequation.h"
 #include "engine/ooferror.h"

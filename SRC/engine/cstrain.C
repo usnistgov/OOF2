@@ -47,7 +47,7 @@ SmallMatrix findDisplacementGradient(const FEMesh *mesh, const Element *element,
     dynamic_cast<const ThreeVectorField*>(displacement->out_of_plane());
   SmallMatrix result(3, 3);
   try {
-    for(SpaceIndex j=0; j<2; j++) { // gradient component
+    for(int j=0; j<2; j++) { // gradient component
       DoubleVec du = displacement->gradients(mesh, element, pt, j);
       for(int i=0; i<2; i++)	// field component
 	result(i, j) = du[i];
@@ -79,7 +79,7 @@ SmallMatrix findDisplacementGradientRate(const FEMesh *mesh,
 			     displacement->out_of_plane_time_derivative());
   SmallMatrix result(3, 3);
   try {
-    for(SpaceIndex j=0; j<2; j++) { // gradient component
+    for(int j=0; j<2; j++) { // gradient component
       DoubleVec du = displacement_t->gradients(mesh, element, pt, j);
       for(int i=0; i<2; i++)	// field component
 	result(i, j) = du[i];

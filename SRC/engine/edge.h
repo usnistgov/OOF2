@@ -12,7 +12,6 @@
 #ifndef EDGE_H
 #define EDGE_H
 
-#include "engine/indextypes.h"
 #include "engine/elementnodeiterator.h"
 #include "engine/mastercoord.h"
 #include <vector>
@@ -136,9 +135,9 @@ public:
     // shapefunctions corresponding to this node
   virtual double shapefunction(const MasterPosition&) const;
   // shapefunction derivatives wrt real space coordinates
-  virtual double dshapefunction(SpaceIndex, const MasterPosition&) const;
+  virtual double dshapefunction(int, const MasterPosition&) const;
   // shapefunction derivatives wrt master space coordinates
-  virtual double masterderiv(SpaceIndex, const MasterPosition&) const;
+  virtual double masterderiv(int, const MasterPosition&) const;
   virtual void print(std::ostream&) const;
 };
 #endif

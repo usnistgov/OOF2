@@ -214,7 +214,7 @@ double Field::value(const FEMesh *mesh, const Element *element,
 
 double Field::gradient(const FEMesh *mesh, const Element *element,
 		       const MasterPosition &pos, const FieldIndex &comp,
-		       SpaceIndex gradindex)
+		       int gradindex)
   const
 {
   GenericFieldFunc func(mesh, this, comp);
@@ -325,7 +325,7 @@ double ScalarFieldBase::value(const FEMesh *mesh, const Element *element,
 
 double ScalarFieldBase::gradient(const FEMesh *mesh, const Element *element,
 				 const MasterPosition &pos,
-				 SpaceIndex gradindex)
+				 int gradindex)
   const
 {
   ScalarFieldFunc func(mesh, *this);
@@ -334,7 +334,7 @@ double ScalarFieldBase::gradient(const FEMesh *mesh, const Element *element,
 
 double ScalarFieldBase::gradient(const FEMesh *mesh, const Element *element,
 				 const MasterPosition &pos, const FieldIndex&,
-				 SpaceIndex gradindex)
+				 int gradindex)
   const
 {
   return gradient(mesh, element, pos, gradindex);
@@ -476,7 +476,7 @@ DoubleVec TwoVectorFieldBase::values(const FEMesh *mesh, const Element *element,
 DoubleVec TwoVectorFieldBase::gradients(const FEMesh *mesh,
 					const Element *element,
 					const MasterPosition &mpt,
-					SpaceIndex gradindex)
+					int gradindex)
   const
 {
   DoubleVec v(2);
@@ -591,7 +591,7 @@ DoubleVec VectorFieldBase::values(const FEMesh *mesh, const Element *el,
 
 DoubleVec VectorFieldBase::gradients(const FEMesh *mesh, const Element *el,
 				     const MasterPosition &mpt,
-				     SpaceIndex gradindex)
+				     int gradindex)
   const
 {
   DoubleVec v(dim);
@@ -718,7 +718,7 @@ SymmMatrix3 SymmetricTensorField::values(const FEMesh *mesh, const Element *el,
 SymmMatrix3 SymmetricTensorField::gradients(const FEMesh *mesh,
 					    const Element *el,
 					    const MasterPosition &mpt,
-					    SpaceIndex gradindex)
+					    int gradindex)
   const
 {
   SymmMatrix3 v;

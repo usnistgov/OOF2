@@ -17,9 +17,8 @@
 class Edge2ShapeFunction : public ShapeFunction {
 public:
   Edge2ShapeFunction(const MasterElement&);
-  virtual double value(ShapeFunctionIndex, const MasterCoord&) const;
-  virtual double masterderiv(ShapeFunctionIndex, SpaceIndex, const MasterCoord&)
-    const;
+  virtual double value(int, const MasterCoord&) const;
+  virtual double masterderiv(int, int, const MasterCoord&) const;
   virtual int degree() const { return 1; }
   virtual int deriv_degree() const { return 0; }
 };

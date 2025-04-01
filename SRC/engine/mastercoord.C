@@ -16,24 +16,19 @@
 // double-dispatch functions for shape function evaluation
 
 // value of shapefunction
-double MasterCoord::shapefunction(const ShapeFunction &sf, ShapeFunctionIndex n)
-  const
-{
+double MasterCoord::shapefunction(const ShapeFunction &sf, int n) const {
   return sf.value(n, *this);
 }
 
 // derivative of shapefunction wrt master coordinates
-double MasterCoord::mdshapefunction(const ShapeFunction &sf,
-				   ShapeFunctionIndex n,
-				   SpaceIndex i)
-  const
+double MasterCoord::mdshapefunction(const ShapeFunction &sf, int n, int i) const
 {
   return sf.masterderiv(n, i, *this);
 }
 
 // derivative of shapefunction wrt real coordinates
 double MasterCoord::dshapefunction(const Element *el, const ShapeFunction &sf,
-				   ShapeFunctionIndex n, SpaceIndex i) const
+				   int n, int i) const
 {
   return sf.realderiv(el, n, i, *this);
 }

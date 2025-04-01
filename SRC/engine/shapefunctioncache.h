@@ -24,7 +24,6 @@
 
 class Element;
 class GaussPoint;
-#include "engine/indextypes.h"
 
 #include <vector>
 
@@ -34,13 +33,11 @@ private:
   ~ShapeFunctionCache();
   
   // has a value been stored?    
-  bool query_dsf(const Element*, ShapeFunctionIndex, SpaceIndex,
-		 const GaussPoint&, double&) const;
+  bool query_dsf(const Element*, int, int, const GaussPoint&, double&) const;
   bool query_jac(const Element*, const GaussPoint&, double&) const;
   
   // store a value
-  void store_dsf(const Element*, ShapeFunctionIndex, SpaceIndex,
-		 const GaussPoint&, double);
+  void store_dsf(const Element*, int, int, const GaussPoint&, double);
   void store_jac(const Element*, const GaussPoint&, double);
   
   class SFCValue {

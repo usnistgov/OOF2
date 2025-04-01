@@ -44,9 +44,7 @@ Tri6ShapeFunction::Tri6ShapeFunction(const MasterElement &mel)
   precompute(mel);
 }
 
-double Tri6ShapeFunction::value(ShapeFunctionIndex i, const MasterCoord &mc)
-  const
-{
+double Tri6ShapeFunction::value(int i, const MasterCoord &mc) const {
   if(i == 0) 
     return mc[0]*(2.0*mc[0] - 1.0);
   if(i == 2)
@@ -64,8 +62,7 @@ double Tri6ShapeFunction::value(ShapeFunctionIndex i, const MasterCoord &mc)
   throw ErrBadIndex(i, __FILE__, __LINE__);
 }
 
-double Tri6ShapeFunction::masterderiv(ShapeFunctionIndex i, SpaceIndex j,
-				      const MasterCoord &mc) const
+double Tri6ShapeFunction::masterderiv(int i, int j, const MasterCoord &mc) const
 {
   switch(i) {
   case 0:

@@ -117,7 +117,6 @@
 #include <string>
 #include <vector>
 #include "common/pythonexportable.h"
-#include "engine/indextypes.h"
 #include "engine/planarity.h"
 
 class IndexP;
@@ -141,12 +140,9 @@ public:
   // returns the value of the index, and the SymTensorIndex returns
   // the index's Voigt representation.  
   virtual int integer() const = 0;
-  // Conversion operators allow a FieldIndex to be converted to an int
-  // or a SpaceIndex, which allows it to be used seamlessly as an
-  // argument to many functions.  (One could argue that this defeats
-  // the purpose of having a separate class for SpaceIndexes.)
+  // Convert a FieldIndex to an int, allowing it to be used seamlessly
+  // as an argument to many functions.
   operator int() const { return integer(); }
-  operator SpaceIndex() const { return SpaceIndex(integer()); }
 
   // in_plane() is false if the index represents an out-of-plane
   // component of a field.  This doesn't make sense in some
@@ -190,7 +186,7 @@ protected:
   int index_;
 public:
   VectorFieldIndex() : index_(0) {}
-  VectorFieldIndex(SpaceIndex i) : index_(i) {}
+  VectorFieldIndex(int i) : index_(i) {}
   VectorFieldIndex(const VectorFieldIndex &o) : index_(o.index_) {}
   virtual ~VectorFieldIndex() {}
   virtual FieldIndex *clone() const { return new VectorFieldIndex(index_); }
@@ -210,7 +206,7 @@ public:
 class OutOfPlaneVectorFieldIndex : public VectorFieldIndex {
 public:
   OutOfPlaneVectorFieldIndex() : VectorFieldIndex(2) {}
-  OutOfPlaneVectorFieldIndex(SpaceIndex i) : VectorFieldIndex(i) {}
+  OutOfPlaneVectorFieldIndex(int i) : VectorFieldIndex(i) {}
   virtual FieldIndex *clone() const {
     return new OutOfPlaneVectorFieldIndex(index_);
   }
@@ -240,7 +236,7 @@ protected:
 public:
   SymTensorIndex() : v(0) {}
   SymTensorIndex(int i) : v(i) {}
-  SymTensorIndex(SpaceIndex i, SpaceIndex j) : v(i==j? int(i) : int(6-i-j)) {}
+  SymTensorIndex(int i, int j) : v(i==j? int(i) : int(6-i-j)) {}
   SymTensorIndex(const SymTensorIndex &o) : v(o.v) {}
   virtual ~SymTensorIndex() {}
   virtual const std::string &classname() const;
@@ -265,8 +261,8 @@ public:
 class OutOfPlaneSymTensorIndex : public SymTensorIndex {
 public:
   OutOfPlaneSymTensorIndex() : SymTensorIndex(2) {}
-  OutOfPlaneSymTensorIndex(SpaceIndex i) : SymTensorIndex(i) {}
-  OutOfPlaneSymTensorIndex(SpaceIndex i, SpaceIndex j) : SymTensorIndex(i,j) {}
+  OutOfPlaneSymTensorIndex(int i) : SymTensorIndex(i) {}
+  OutOfPlaneSymTensorIndex(int i, int j) : SymTensorIndex(i,j) {}
   virtual FieldIndex *clone() const { return new OutOfPlaneSymTensorIndex(v); }
   virtual const std::string &classname() const;
   virtual int integer() const { return v - 2; }
@@ -287,7 +283,6 @@ public:
   ~IndexP() { delete fieldindex_; }
   int integer() const { return fieldindex_->integer(); }
   operator int() const { return fieldindex_->integer(); }
-  operator SpaceIndex() const { return fieldindex_->integer(); }
   bool in_plane() const { return fieldindex_->in_plane(); }
 
   // Allow IndexP to be used where a FieldIndex& or FieldIndex* is expected
@@ -422,9 +417,9 @@ public:
 
 class VectorFieldIterator : public ComponentIterator {
 protected:
-  SpaceIndex index, imax;
+  int index, imax;
 public:
-  VectorFieldIterator(SpaceIndex imin, SpaceIndex imax)
+  VectorFieldIterator(int imin, int imax)
     : index(imin), imax(imax)
   {}
   virtual VectorFieldIterator &operator++() {
@@ -440,9 +435,9 @@ public:
 
 class VectorFieldComponents : public Components {
 protected:
-  SpaceIndex imin, imax;
+  int imin, imax;
 public:
-  VectorFieldComponents(SpaceIndex imin, SpaceIndex imax)
+  VectorFieldComponents(int imin, int imax)
     : imin(imin), imax(imax)
   {}
   virtual ComponentIteratorP begin() const {
@@ -462,9 +457,9 @@ public:
 
 class OutOfPlaneVectorFieldIterator : public ComponentIterator {
 protected:
-  SpaceIndex index, imax;
+  int index, imax;
 public:
-  OutOfPlaneVectorFieldIterator(SpaceIndex imin, SpaceIndex imax)
+  OutOfPlaneVectorFieldIterator(int imin, int imax)
     : index(imin), imax(imax)
   {}
   virtual OutOfPlaneVectorFieldIterator &operator++() {
@@ -480,9 +475,9 @@ public:
 
 class OutOfPlaneVectorFieldComponents : public Components {
 protected:
-  SpaceIndex imax;
+  int imax;
 public:
-  OutOfPlaneVectorFieldComponents(SpaceIndex imax): imax(imax) {}
+  OutOfPlaneVectorFieldComponents(int imax): imax(imax) {}
   virtual ComponentIteratorP begin() const {
     return ComponentIteratorP(new OutOfPlaneVectorFieldIterator(2, imax));
   }
@@ -538,7 +533,7 @@ protected:
 public:
   SymTensorIterator() : v(0) {}
   SymTensorIterator(int v) : v(v) {} // arg is the initial voigt index
-  SymTensorIterator(SpaceIndex i, SpaceIndex j);
+  SymTensorIterator(int i, int j);
   SymTensorIterator &operator++() { v++; return *this; }
   virtual bool operator!=(const ComponentIterator &) const;
   virtual FieldIndex *fieldindex() const {

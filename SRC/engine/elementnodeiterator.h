@@ -13,7 +13,6 @@
 #define ELEMENTNODEITERATOR_H
 
 #include "engine/element.h"
-#include "engine/indextypes.h"
 #include "node.h"
 
 #include <utility>
@@ -74,7 +73,7 @@ class ProtoNode;
 class ElementNodeIterator {	// for looping over all nodes
 protected:
   const Element &element_;
-  ShapeFunctionIndex index_;	// where we are now
+  int index_;			// where we are now
   int startpt;			// where we started from
   bool start;			// are we just starting?
 
@@ -123,7 +122,7 @@ public:
     return ((InterfaceElement*)&element_)->get_rightnodelist()[mlistindex()]; }
 
   // miscellany
-  ShapeFunctionIndex index() const { return index_; }
+  int index() const { return index_; }
   virtual void print(std::ostream&) const;
 };
 
@@ -139,9 +138,9 @@ public:
   // shapefunctions corresponding to this node
   virtual double shapefunction(const MasterPosition&) const = 0;
   // shapefunction derivatives wrt real space coordinates
-  virtual double dshapefunction(SpaceIndex, const MasterPosition&) const = 0;
+  virtual double dshapefunction(int, const MasterPosition&) const = 0;
   // shapefunction derivatives wrt master space coordinates
-  virtual double masterderiv(SpaceIndex, const MasterPosition&) const = 0;
+  virtual double masterderiv(int, const MasterPosition&) const = 0;
   virtual void print(std::ostream&) const = 0;
 };
 
@@ -159,9 +158,9 @@ public:
   // shapefunctions corresponding to this node
   virtual double shapefunction(const MasterPosition&) const;
   // shapefunction derivatives wrt real space coordinates
-  virtual double dshapefunction(SpaceIndex, const MasterPosition&) const;
+  virtual double dshapefunction(int, const MasterPosition&) const;
   // shapefunction derivatives wrt master space coordinates
-  virtual double masterderiv(SpaceIndex, const MasterPosition&) const;
+  virtual double masterderiv(int, const MasterPosition&) const;
   virtual void print(std::ostream&) const;
 };
 
@@ -196,9 +195,9 @@ public:
   // shapefunctions corresponding to this node
   virtual double shapefunction(const MasterPosition&) const;
   // shapefunction derivatives wrt real space coordinates
-  virtual double dshapefunction(SpaceIndex, const MasterPosition&) const;
+  virtual double dshapefunction(int, const MasterPosition&) const;
   // shapefunction derivatives wrt master space coordinates
-  virtual double masterderiv(SpaceIndex, const MasterPosition&) const;
+  virtual double masterderiv(int, const MasterPosition&) const;
   virtual void print(std::ostream&) const;
 
 

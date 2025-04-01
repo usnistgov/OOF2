@@ -17,11 +17,9 @@ class ICoord;
 class Position;
 
 #include <oofconfig.h>
-#include "engine/indextypes.h"
 
 #include <iostream>
 #include <limits>
-using namespace std;
 
 // The Coord and MasterCoord classes used to be both derived from the
 // same template, so that they could share the same code but still be
@@ -45,11 +43,11 @@ private:
 public:
   Coord() : x{0.0, 0.0} {}
   Coord(double x0, double x1) { x[0] = x0; x[1] = x1; }
-  inline double operator[](SpaceIndex i) const {
+  inline double operator[](int i) const {
     assert(i==0 || i==1);
     return x[i];
   }
-  inline double &operator[](SpaceIndex i) {
+  inline double &operator[](int i) {
     assert(i==0 || i==1);
     return x[i];
   }

@@ -329,8 +329,8 @@ MasterCoord Element::to_master(const Coord &x) const {
   int iter = 0;
   do {				// Newton iteration
     double jac[DIM][DIM]; // use simple matrix repr. for 2x2
-    for(SpaceIndex i=0; i<DIM; ++i)
-      for(SpaceIndex j=0; j<DIM; ++j)
+    for(int i=0; i<DIM; ++i)
+      for(int j=0; j<DIM; ++j)
 	jac[i][j] = jacobian(i, j, xi);
 
     double dj = jac[0][0]*jac[1][1] - jac[0][1]*jac[1][0];
@@ -354,9 +354,7 @@ const MasterCoord &Element::getMasterSCpoint(int i) const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const GaussPoint &g)
-  const
-{
+double Element::Jdmasterdx(int i, int j, const GaussPoint &g) const {
   //         | J11  -J01 |
   //  J^-1 = |           | / |J|
   //         |-J10   J00 |
@@ -376,9 +374,7 @@ double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const GaussPoint &g)
 
 }
 
-double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const MasterCoord &mc)
-  const
-{
+double Element::Jdmasterdx(int i, int j, const MasterCoord &mc) const {
   double sum = 0;
   if(i == j) {
     int ii = 1 - i;
@@ -393,9 +389,7 @@ double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const MasterCoord &mc)
 }
 
 
-double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const Coord &coord)
-  const
-{
+double Element::Jdmasterdx(int i, int j, const Coord &coord) const {
   return Jdmasterdx(i, j, to_master(coord));
 }
 
@@ -403,8 +397,7 @@ double Element::Jdmasterdx(SpaceIndex i, SpaceIndex j, const Coord &coord)
 
 // J(i,j) = d(real_coord i)/d(master_coord j)
 
-double Element::jacobian(SpaceIndex i, SpaceIndex j, const GaussPoint &g) const
-{
+double Element::jacobian(int i, int j, const GaussPoint &g) const {
   double jac = 0.0;
   for(ElementMapNodeIterator ni=mapnode_iterator(); !ni.end(); ++ni)
     jac += (ni.node()->position())[i] * ni.masterderiv(j, g);
@@ -412,9 +405,7 @@ double Element::jacobian(SpaceIndex i, SpaceIndex j, const GaussPoint &g) const
   return jac;
 }
 
-double Element::jacobian(SpaceIndex i, SpaceIndex j, const MasterCoord &mc)
-  const
-{
+double Element::jacobian(int i, int j, const MasterCoord &mc) const {
   double jac = 0.0;
   for(ElementMapNodeIterator ni=mapnode_iterator(); !ni.end(); ++ni)
     jac += (ni.node()->position())[i] * ni.masterderiv(j, mc);
@@ -429,9 +420,7 @@ double Element::jacobian(SpaceIndex i, SpaceIndex j, const MasterCoord &mc)
 // compute the magnitude, but we don't rename it, which is rather
 // sleazy.  TODO: De-sleaze this.
 
-double InterfaceElement::jacobian(SpaceIndex i, 
-				  SpaceIndex j, const GaussPoint &g) const
-{
+double InterfaceElement::jacobian(int i, int j, const GaussPoint &g) const {
   double jac = 0.0;
 
   // std::cerr << "InterfaceElement::jacobian with gpt." << std::endl;
@@ -450,10 +439,7 @@ double InterfaceElement::jacobian(SpaceIndex i,
     return 0.0;
 }
 
-double InterfaceElement::jacobian(SpaceIndex i, 
-				  SpaceIndex j, const MasterCoord &mc)
-  const
-{
+double InterfaceElement::jacobian(int i, int j, const MasterCoord &mc) const {
   double jac = 0.0;
 
   if (j==0) { 
@@ -518,7 +504,7 @@ double Element::interpolate(const MasterPosition &pos,
   return sum;
 }
 
-double Element::interpolate_deriv(const MasterPosition &pos, SpaceIndex i,
+double Element::interpolate_deriv(const MasterPosition &pos, int i,
 				  FuncNodeFunction &nodefunc)
   const
 {
@@ -593,7 +579,7 @@ Element::outputFields(const FEMesh *mesh, const Field &field,
 
 std::vector<ArithmeticOutputValue> *
 Element::outputFieldDerivs(const FEMesh *mesh, const Field &field,
-			   SpaceIndex *deriv_component,
+			   int deriv_component,
 			   const std::vector<MasterCoord*> *coords) const
 {
   std::vector<ArithmeticOutputValue> *results =
@@ -603,7 +589,7 @@ Element::outputFieldDerivs(const FEMesh *mesh, const Field &field,
     ArithmeticOutputValue val = field.newOutputValue();
     for(CleverPtr<ElementFuncNodeIterator> node(funcnode_iterator());
 	!node->end(); ++*node) {
-      double dsfvalue = node->dshapefunction(*deriv_component, *(*coords)[i]);
+      double dsfvalue = node->dshapefunction(deriv_component, *(*coords)[i]);
       val += dsfvalue*field.output(mesh, *node);
     }
     results->push_back(val);
@@ -614,14 +600,14 @@ Element::outputFieldDerivs(const FEMesh *mesh, const Field &field,
 ArithmeticOutputValue Element::outputFieldDeriv(
 				const FEMesh *mesh,
 				const Field &field,
-				SpaceIndex *deriv_component,
+				int deriv_component,
 				const MasterPosition &pos) const
 {
   ArithmeticOutputValue val = field.newOutputValue();
   for(CleverPtr<ElementFuncNodeIterator> node(funcnode_iterator());
       !node->end(); ++*node)
     {
-      double dsfvalue = node->dshapefunction(*deriv_component, pos);
+      double dsfvalue = node->dshapefunction(deriv_component, pos);
       val += dsfvalue*field.output(mesh, *node);
     }
   return val;

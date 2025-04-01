@@ -27,9 +27,9 @@ void findElectricField(const FEMesh *mesh, const Element *element,
     dynamic_cast<ScalarField*>(Field::getField("Voltage"));
   static const Field *voltage_z = voltage->out_of_plane();
 
-  for(SpaceIndex j=0; j<DIM; ++j) {
+  for(int j=0; j<DIM; ++j) {
     ArithmeticOutputValue vderiv =
-      element->outputFieldDeriv(mesh, *voltage, &j, pos);
+      element->outputFieldDeriv(mesh, *voltage, j, pos);
     efield[j] = -vderiv[ScalarFieldIndex()];
   }
   bool inplane = voltage->in_plane(mesh);
@@ -47,9 +47,9 @@ void findElectricFieldRate(const FEMesh *mesh, const Element *element,
   static const Field *vrate = voltage->time_derivative();
   static const Field *vzrate = voltage->out_of_plane_time_derivative();
 
-  for(SpaceIndex j=0; j<DIM; ++j) {
+  for(int j=0; j<DIM; ++j) {
     ArithmeticOutputValue vderiv =
-      element->outputFieldDeriv(mesh, *vrate, &j, pos);
+      element->outputFieldDeriv(mesh, *vrate, j, pos);
     erate[j] = -vderiv[ScalarFieldIndex()];
   }
   bool inplane = voltage->in_plane(mesh);

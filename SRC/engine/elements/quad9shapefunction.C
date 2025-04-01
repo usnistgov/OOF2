@@ -9,7 +9,7 @@
  * oof_manager@nist.gov. 
  */
 
-// Eight node quadrilateral element
+// Nine node quadrilateral element
 
 #include <oofconfig.h>
 #include "engine/ooferror.h"
@@ -19,7 +19,7 @@
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// Master element for the eight node quadrilateral.
+// Master element for the nine node quadrilateral.
 //
 //                      (0, 1)
 //  (-1, 1)  6------------5-----------4  (1, 1)
@@ -43,9 +43,7 @@ Quad9ShapeFunction::Quad9ShapeFunction(const MasterElement &mel)
   precompute(mel);
 }
 
-double Quad9ShapeFunction::value(ShapeFunctionIndex i, const MasterCoord &mc)
-  const
-{
+double Quad9ShapeFunction::value(int i, const MasterCoord &mc) const {
   if(i == 0)			// (-1, -1)
     return 0.25*mc[0]*(mc[0] - 1.)*mc[1]*(mc[1] - 1.);
   if(i == 1)			// (0, -1)
@@ -67,8 +65,8 @@ double Quad9ShapeFunction::value(ShapeFunctionIndex i, const MasterCoord &mc)
   throw ErrBadIndex(i, __FILE__, __LINE__);
 }
 
-double Quad9ShapeFunction::masterderiv(ShapeFunctionIndex i, SpaceIndex j,
-				       const MasterCoord &mc) const
+double Quad9ShapeFunction::masterderiv(int i, int j, const MasterCoord &mc)
+  const
 {
   switch(i) {
   case 0:

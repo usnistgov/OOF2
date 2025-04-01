@@ -23,7 +23,6 @@
 #include "engine/elementnodeiterator.h"
 #include "engine/equation.h"
 #include "engine/flux.h"
-#include "engine/indextypes.h"
 #include "engine/material.h"
 #include "engine/ooferror.h"
 #include "engine/properties/elasticity/cijkl.h"

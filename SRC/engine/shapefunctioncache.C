@@ -61,9 +61,9 @@ void ShapeFunctionCache::reset(const Element *el) {
   cached_element = el;
 }
 
-bool ShapeFunctionCache::query_dsf(const Element *el, ShapeFunctionIndex i,
-				   SpaceIndex j, const GaussPoint &g,
-				   double &value) const
+bool ShapeFunctionCache::query_dsf(const Element *el, int i, int j,
+				   const GaussPoint &g, double &value)
+  const
 {
   if(!current(el)) return 0; // cached element is different
   SFCValue &v = (*df)[g.index()][i][j];
@@ -87,9 +87,8 @@ bool ShapeFunctionCache::query_jac(const Element *el, const GaussPoint &g,
   return 0;
 }
 
-void ShapeFunctionCache::store_dsf(const Element *el, ShapeFunctionIndex i,
-				   SpaceIndex j, const GaussPoint &g,
-				   double value)
+void ShapeFunctionCache::store_dsf(const Element *el, int i, int j,
+				   const GaussPoint &g, double value)
 {
   reset(el);
   

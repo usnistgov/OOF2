@@ -32,7 +32,6 @@
 %import "engine/femesh.swg"
 %import "engine/field.swg"
 %import "engine/gausspoint.swg"
-%import "engine/indextypes.swg"
 %import "engine/mastercoord.swg"
 %import "engine/material.swg"
 %import "engine/node.swg"
@@ -116,7 +115,7 @@ public:
   %newobject outputFields;
   ArithmeticOutputValueVec *outputFields(FEMesh*, Field&, MasterCoordVec*);
   %newobject outputFieldDerivs;
-  ArithmeticOutputValueVec *outputFieldDerivs(FEMesh*, Field&, SpaceIndex*,
+  ArithmeticOutputValueVec *outputFieldDerivs(FEMesh*, Field&, int,
 					      MasterCoordVec*);
   %newobject outputFluxes;
   ArithmeticOutputValueVec *outputFluxes(FEMesh*, Flux&, MasterCoordVec*);

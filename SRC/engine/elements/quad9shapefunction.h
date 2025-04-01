@@ -17,9 +17,8 @@
 class Quad9ShapeFunction : public ShapeFunction {
 public:
   Quad9ShapeFunction(const MasterElement&);
-  virtual double value(ShapeFunctionIndex, const MasterCoord&) const;
-  virtual double masterderiv(ShapeFunctionIndex, SpaceIndex, const MasterCoord&)
-    const;
+  virtual double value(int, const MasterCoord&) const;
+  virtual double masterderiv(int, int, const MasterCoord&) const;
   // see comment in quad4shapefunction.h
   virtual int degree() const { return 2; }
   virtual int deriv_degree() const { return 2; }

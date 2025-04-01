@@ -26,9 +26,7 @@ Edge3ShapeFunction::Edge3ShapeFunction(const MasterElement &mel)
   precompute(mel);
 }
 
-double Edge3ShapeFunction::value(ShapeFunctionIndex i,
-				 const MasterCoord &mc) const
-{
+double Edge3ShapeFunction::value(int i, const MasterCoord &mc) const {
   if(i == 0)
     return 0.5*(mc[0]*mc[0] - mc[0]);
   if(i == 1)
@@ -38,8 +36,8 @@ double Edge3ShapeFunction::value(ShapeFunctionIndex i,
   throw ErrBadIndex(i, __FILE__, __LINE__);
 }
 
-double Edge3ShapeFunction::masterderiv(ShapeFunctionIndex i, SpaceIndex j,
-				       const MasterCoord &mc) const
+double Edge3ShapeFunction::masterderiv(int i, int j, const MasterCoord &mc)
+  const
 {
   switch(i) {
   case 0:

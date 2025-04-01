@@ -20,7 +20,6 @@ class MasterElement;
 #include "common/coord.h"
 #include "common/pythonexportable.h"
 #include "engine/gausspoint.h"
-#include "engine/indextypes.h"
 #include "engine/shapefunction.h"
 #include <string>
 #include <vector>
@@ -182,13 +181,13 @@ public:
 
   // det_jacobian times d(master coord)/d(real coord)
   // includes the factor of |J| for efficiency... don't compute it too often
-  double Jdmasterdx(SpaceIndex, SpaceIndex, const GaussPoint&) const;
-  double Jdmasterdx(SpaceIndex, SpaceIndex, const MasterCoord&) const;
-  double Jdmasterdx(SpaceIndex, SpaceIndex, const Coord&) const; // slow
+  double Jdmasterdx(int, int, const GaussPoint&) const;
+  double Jdmasterdx(int, int, const MasterCoord&) const;
+  double Jdmasterdx(int, int, const Coord&) const; // slow
 
   // Jacobian of the transformation from master to real coordinates
-  virtual double jacobian(SpaceIndex, SpaceIndex, const GaussPoint&) const;
-  virtual double jacobian(SpaceIndex, SpaceIndex, const MasterCoord&) const;
+  virtual double jacobian(int, int, const GaussPoint&) const;
+  virtual double jacobian(int, int, const MasterCoord&) const;
 
   virtual double det_jacobian(const GaussPoint &g) const;
   virtual double det_jacobian(const MasterCoord &mc) const;
@@ -221,7 +220,7 @@ public:
 
   // Scalar interpolation.
   double interpolate(const MasterPosition&, FuncNodeFunction&) const;
-  double interpolate_deriv(const MasterPosition&, SpaceIndex,
+  double interpolate_deriv(const MasterPosition&, int,
 			   FuncNodeFunction&) const;
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -240,12 +239,12 @@ public:
   std::vector<ArithmeticOutputValue> *outputFieldDerivs(
 					const FEMesh*,
 					const Field&,
-					SpaceIndex*,
+					int, 
 					const std::vector<MasterCoord*>*)
     const;
 
   ArithmeticOutputValue outputFieldDeriv(const FEMesh*, const Field &,
-					 SpaceIndex *,
+					 int,
 					 const MasterPosition &) const;
 
   std::vector<ArithmeticOutputValue> *outputFluxes(
@@ -356,10 +355,8 @@ public:
 
   virtual ElementFuncNodeIterator* funcnode_iterator() const;
 
-  virtual double jacobian(SpaceIndex i, 
-			  SpaceIndex j, const GaussPoint &g) const;
-  virtual double jacobian(SpaceIndex i,
-			  SpaceIndex j, const MasterCoord &mc) const;
+  virtual double jacobian(int i, int j, const GaussPoint &g) const;
+  virtual double jacobian(int i, int j, const MasterCoord &mc) const;
 
   virtual double det_jacobian(const GaussPoint &) const;
   virtual double det_jacobian(const MasterCoord &) const;

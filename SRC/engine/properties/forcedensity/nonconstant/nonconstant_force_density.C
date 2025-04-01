@@ -19,7 +19,6 @@
 #include "engine/field.h"
 #include "engine/flux.h"
 #include "engine/equation.h"
-#include "engine/indextypes.h"
 #include "engine/material.h"
 #include "engine/femesh.h"
 #include "common/trace.h"

@@ -28,7 +28,6 @@ class VectorFieldBase;
 #include "common/pythonexportable.h"
 #include "engine/fieldeqnlist.h"
 #include "engine/fieldindex.h"
-#include "engine/indextypes.h"
 #include <oofconfig.h>
 #include <iostream>
 #include <string>
@@ -122,12 +121,12 @@ public:
   virtual double value(const FEMesh*, const Element*, const MasterPosition&,
 		       const FieldIndex&) const;
   virtual double gradient(const FEMesh*, const Element*, const MasterPosition&,
-			  const FieldIndex&, SpaceIndex) const;
+			  const FieldIndex&, int) const;
   
   // TODO? Find element, then evaluate:
   // double value(const FEMesh*, const Coord&, const FieldIndex&) const;
   // double deriv(const FEMesh*, const Coord&, const FieldIndex&,
-  //              SpaceIndex) const;
+  //              int) const;
 
   // Get the DegreeOfFreedom for a Field at a Node.
   virtual DegreeOfFreedom *operator()(const FuncNode*, int component) const=0;
@@ -257,12 +256,12 @@ public:
   virtual double value(const FEMesh*, const Element*, const MasterPosition&,
    		       const FieldIndex&) const;
   virtual double gradient(const FEMesh*, const Element*, const MasterPosition&,
-			  const FieldIndex&, SpaceIndex) const;
+			  const FieldIndex&, int) const;
   // Non-virtual versions of value and gradient that don't have a
   // FieldIndex argument.
   double value(const FEMesh*, const Element*, const MasterPosition&) const;
   double gradient(const FEMesh*, const Element*, const MasterPosition&,
-		  SpaceIndex) const;
+		  int) const;
   
   DegreeOfFreedom *operator()(const FuncNode*) const;
   DegreeOfFreedom *operator()(const FuncNode &n) const {
@@ -297,7 +296,7 @@ public:
   virtual ~ScalarField() {}
   virtual const std::string &classname() const { return classname_; }
 
-  // Version of gradient() without a SpaceIndex arg returns an xyz
+  // Version of gradient() without an int arg returns an xyz
   // vector.  This needs to check planarity, so it must be in a
   // CompoundField subclass, not in ScalarFieldBase.
   DoubleVec gradient(const FEMesh*, const Element*, const MasterPosition&)
@@ -321,7 +320,7 @@ public:
   // Non-virtual values and gradients return a vector containing all components
   DoubleVec values(const FEMesh*, const Element*, const MasterPosition&) const;
   DoubleVec gradients(const FEMesh*, const Element*, const MasterPosition&,
-		      SpaceIndex) const;
+		      int) const;
   
   virtual ArithmeticOutputValue newOutputValue() const;
   virtual ArithmeticOutputValue output(const FEMesh*,
@@ -365,7 +364,7 @@ public:
   // Non-virtual values and gradients return a vector containing all components
   DoubleVec values(const FEMesh*, const Element*, const MasterPosition&) const;
   DoubleVec gradients(const FEMesh*, const Element*, const MasterPosition&,
-		      SpaceIndex) const;
+		      int) const;
 
   virtual ArithmeticOutputValue newOutputValue() const;
   virtual ArithmeticOutputValue output(const FEMesh*,
@@ -414,7 +413,7 @@ public:
   SymmMatrix3 values(const FEMesh*, const Element*, const MasterPosition&)
     const;
   SymmMatrix3 gradients(const FEMesh*, const Element*,
-			const MasterPosition&, SpaceIndex) const;
+			const MasterPosition&, int) const;
 
 
   virtual ArithmeticOutputValue newOutputValue() const;

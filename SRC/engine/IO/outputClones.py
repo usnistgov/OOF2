@@ -134,8 +134,9 @@ FieldOutput = output.Output(
 ############
 
 def _fieldderiv(mesh, elements, coords, field, derivative):
+    # derivative is an InPlaneSpaceComponent object.
     return utils.flatten1(
-        [element.outputFieldDerivs(mesh, field, derivative, ecoords)
+        [element.outputFieldDerivs(mesh, field, derivative.index(), ecoords)
          for element, ecoords in zip(elements, coords)])
 
 def _fieldderiv_shortrepr(self):

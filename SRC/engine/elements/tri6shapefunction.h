@@ -17,9 +17,8 @@
 class Tri6ShapeFunction : public ShapeFunction {
 public:
   Tri6ShapeFunction(const MasterElement&);
-  virtual double value(ShapeFunctionIndex, const MasterCoord&) const;
-  virtual double masterderiv(ShapeFunctionIndex, SpaceIndex, const MasterCoord&)
-    const;
+  virtual double value(int, const MasterCoord&) const;
+  virtual double masterderiv(int, int, const MasterCoord&) const;
   virtual int degree() const { return 2; }
   virtual int deriv_degree() const { return 1; }
 };

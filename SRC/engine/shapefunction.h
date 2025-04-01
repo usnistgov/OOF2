@@ -29,7 +29,6 @@
 
 #include "common/coord.h"
 #include "gausspoint.h"
-#include "engine/indextypes.h"
 #include <vector>
 
 class Element;
@@ -47,10 +46,9 @@ public:
 
   // The derived classes need to provide the following functions:
   // value at a master coordinate
-  virtual double value(ShapeFunctionIndex, const MasterCoord&) const  = 0;
+  virtual double value(int, const MasterCoord&) const  = 0;
   // derivative wrt master coordinate at a master coordinate
-  virtual double masterderiv(ShapeFunctionIndex, SpaceIndex, const MasterCoord&)
-    const = 0;
+  virtual double masterderiv(int, int, const MasterCoord&) const = 0;
   // highest degree of any polynomial term in the shape functions
   virtual int degree() const = 0;
   // The highest degree of a derivative is not necessarily one less
@@ -65,16 +63,15 @@ public:
   // When handed a generic MasterPosition, these functions use
   // double-dispatch to evaluate the shapefunction at a MasterCoord or
   // a GaussPoint, as appropriate.
-  double value(ShapeFunctionIndex, const MasterPosition&) const;
-  double masterderiv(ShapeFunctionIndex, SpaceIndex,
-		     const MasterPosition&) const;
+  double value(int, const MasterPosition&) const;
+  double masterderiv(int, int, const MasterPosition&) const;
 
   // These NONvirtual functions are computed via lookup tables. The
   // lookup tables are computed by precompute(), which must be called
   // in the derived class's constructor. These functions don't depend
   // on the Element.
-  double value(ShapeFunctionIndex, const GaussPoint&) const;
-  double masterderiv(ShapeFunctionIndex, SpaceIndex, const GaussPoint&) const;
+  double value(int, const GaussPoint&) const;
+  double masterderiv(int, int, const GaussPoint&) const;
 
   // These functions depend on the Element, so they can't be
   // precomputed, but they may be needed repeatedly during one
@@ -82,12 +79,9 @@ public:
   // the GaussPoints).
 
   // derivative wrt real coordinates
-  double realderiv(const Element*, ShapeFunctionIndex, SpaceIndex,
-		   const GaussPoint&) const;
-  double realderiv(const Element*, ShapeFunctionIndex, SpaceIndex,
-		   const MasterCoord&) const;
-  double realderiv(const Element*, ShapeFunctionIndex, SpaceIndex,
-		   const MasterPosition&) const;
+  double realderiv(const Element*, int, int, const GaussPoint&) const;
+  double realderiv(const Element*, int, int, const MasterCoord&) const;
+  double realderiv(const Element*, int, int, const MasterPosition&) const;
   double det_jacobian(const Element*, const GaussPoint&) const;
   double det_jacobian(const Element*, const MasterCoord&) const;
 

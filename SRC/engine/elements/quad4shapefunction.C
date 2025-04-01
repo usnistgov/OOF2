@@ -36,9 +36,7 @@ Quad4ShapeFunction::Quad4ShapeFunction(const MasterElement &mel)
   precompute(mel);
 }
 
-double Quad4ShapeFunction::value(ShapeFunctionIndex i,
-				      const MasterCoord &mc) const
-{
+double Quad4ShapeFunction::value(int i, const MasterCoord &mc) const {
   if(i == 0)
     return 0.25*(1. - mc[0])*(1. - mc[1]);
   if(i == 1)
@@ -50,8 +48,8 @@ double Quad4ShapeFunction::value(ShapeFunctionIndex i,
   throw ErrBadIndex(i, __FILE__, __LINE__);
 }
 
-double Quad4ShapeFunction::masterderiv(ShapeFunctionIndex i, SpaceIndex j,
-				       const MasterCoord &mc) const
+double Quad4ShapeFunction::masterderiv(int i, int j, const MasterCoord &mc)
+  const
 {
   switch(i) {
   case 0:

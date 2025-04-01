@@ -49,21 +49,21 @@ Coord GaussPoint::coord() const {
 
 #ifndef DONT_USE_CACHED_VALUES
 
-double GaussPoint::shapefunction(const ShapeFunction &sf, ShapeFunctionIndex n)
+double GaussPoint::shapefunction(const ShapeFunction &sf, int n)
   const
 {
   return sf.value(n, *this);
 }
 
 double GaussPoint::mdshapefunction(const ShapeFunction &sf,
-				  ShapeFunctionIndex n, SpaceIndex i)
+				  int n, int i)
   const
 {
   return sf.masterderiv(n, i, *this);
 }
 
 double GaussPoint::dshapefunction(const Element *el, const ShapeFunction &sf,
-				  ShapeFunctionIndex n, SpaceIndex i)
+				  int n, int i)
   const
 {
   return sf.realderiv(el, n, i, *this);
@@ -71,21 +71,19 @@ double GaussPoint::dshapefunction(const Element *el, const ShapeFunction &sf,
 
 #else  // DONT_USE_CACHED_VALUES
 
-double GaussPoint::shapefunction(const ShapeFunction &sf, ShapeFunctionIndex n)
+double GaussPoint::shapefunction(const ShapeFunction &sf, int n)
   const
 {
   return sf.value(n, mastercoord());
 }
 
-double GaussPoint::mdshapefunction(const ShapeFunction &sf,
-				  ShapeFunctionIndex n, SpaceIndex i)
-  const
+double GaussPoint::mdshapefunction(const ShapeFunction &sf, int n, int i) const
 {
   return sf.masterderiv(n, i, mastercoord());
 }
 
 double GaussPoint::dshapefunction(const Element *el, const ShapeFunction &sf,
-				  ShapeFunctionIndex n, SpaceIndex i)
+				  int n, int i)
   const
 {
   return sf.realderiv(el, n, i, mastercoord());
@@ -891,12 +889,12 @@ void EdgeGaussPoint::geometry() const {
 
     double jac[DIM][DIM];
 
-    for(SpaceIndex i=0; i<DIM; ++i) {
-      for(SpaceIndex j=0; j<DIM; ++j) { 
+    for(int i=0; i<DIM; ++i) {
+      for(int j=0; j<DIM; ++j) { 
 	jac[i][j] = edge->el->jacobian(i,j,mhere);
       }
     }
-#if DIM==2
+
     // tangent = (e dot grad) u
     // where e is the directed master element edge vector
     // grad is the gradient in master space
@@ -905,17 +903,6 @@ void EdgeGaussPoint::geometry() const {
 		    + jac[0][1]*(edge->director[1]),
 		    jac[1][0]*(edge->director[0])
 		    + jac[1][1]*(edge->director[1]) );
-#elif DIM==3
-    tangent = Coord(jac[0][0]*(edge->director[0])    
-		    + jac[0][1]*(edge->director[1])    
-		    + jac[0][2]*(edge->director(2)),
-		    jac[1][0]*(edge->director[0])
-		    + jac[1][1]*(edge->director[1])
-		    + jac[1][2]*(edge->director(2)),
-		    jac[2][0]*(edge->director[0])
-		    + jac[2][1]*(edge->director[1])
-		    + jac[2][2]*(edge->director(2)) );
-#endif
   
     double tnorm = sqrt(norm2(tangent));
     gweight*=tnorm;
@@ -926,13 +913,11 @@ void EdgeGaussPoint::geometry() const {
   }
 }
 
-double EdgeGaussPoint::shapefunction(const ShapeFunction &sf,
-				     ShapeFunctionIndex n) const {
+double EdgeGaussPoint::shapefunction(const ShapeFunction &sf, int n) const {
   return sf.value(n, mastercoord());
 }
 
-double EdgeGaussPoint::mdshapefunction(const ShapeFunction &sf,
-				      ShapeFunctionIndex n, SpaceIndex i)
+double EdgeGaussPoint::mdshapefunction(const ShapeFunction &sf, int n, int i)
   const
 {
   return sf.masterderiv(n, i, mastercoord());
@@ -940,7 +925,7 @@ double EdgeGaussPoint::mdshapefunction(const ShapeFunction &sf,
 
 double EdgeGaussPoint::dshapefunction(const Element *el,
 				      const ShapeFunction &sf,
-				      ShapeFunctionIndex n, SpaceIndex i)
+				      int n, int i)
 const
 {
   return sf.realderiv(el, n, i, mastercoord());

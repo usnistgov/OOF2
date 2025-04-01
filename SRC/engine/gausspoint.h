@@ -86,12 +86,10 @@ public:
   virtual MasterCoord mastercoord() const;
   virtual Coord position() const { return coord(); }
   int order() const {return order_; }
-  virtual double shapefunction(const ShapeFunction&, ShapeFunctionIndex)
+  virtual double shapefunction(const ShapeFunction&, int) const;
+  virtual double mdshapefunction(const ShapeFunction&, int, int) const;
+  virtual double dshapefunction(const Element*, const ShapeFunction&, int, int)
     const;
-  virtual double mdshapefunction(const ShapeFunction&, ShapeFunctionIndex,
-				SpaceIndex) const;
-  virtual double dshapefunction(const Element*, const ShapeFunction&,
-				ShapeFunctionIndex, SpaceIndex) const;
   virtual std::ostream &print(std::ostream&) const;
 
 private:
@@ -242,11 +240,10 @@ public:
   virtual MasterCoord mastercoord() const;
   double weight() const;
   // Same double-dispatch trick as in GaussPoint class here.
-  virtual double shapefunction(const ShapeFunction&, ShapeFunctionIndex) const;
-  virtual double mdshapefunction(const ShapeFunction&, ShapeFunctionIndex,
-				 SpaceIndex) const;
-  virtual double dshapefunction(const Element*, const ShapeFunction&,
-				ShapeFunctionIndex, SpaceIndex) const;
+  virtual double shapefunction(const ShapeFunction&, int) const;
+  virtual double mdshapefunction(const ShapeFunction&, int, int) const;
+  virtual double dshapefunction(const Element*, const ShapeFunction&, int, int)
+    const;
   virtual std::ostream &print(std::ostream&) const;
 };
 

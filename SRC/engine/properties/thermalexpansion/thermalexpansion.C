@@ -175,9 +175,9 @@ void ThermalExpansion::output(FEMesh *mesh,
       SymmMatrix3 thermalstress(modulus*thermalstrain);
       SymmMatrix3 strain = elasticity->geometricStrain(mesh, element, pos);
       double e = 0;
-      for(SpaceIndex i=0; i<3; i++) {
+      for(int i=0; i<3; i++) {
 	e += thermalstress(i,i)*(-strain(i,i) + 0.5*thermalstrain(i,i));
-	SpaceIndex j = (i+1)%3;
+	int j = (i+1)%3;
 	e += 2*thermalstress(i,j)*(-strain(i,j) + 0.5*thermalstrain(i,j));
       }
       *edata += e;

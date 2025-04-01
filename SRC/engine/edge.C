@@ -191,16 +191,12 @@ double EdgeNodeIterator::shapefunction(const MasterPosition &p) const {
 }
 
 // shapefunction derivatives wrt real space coordinates
-double EdgeNodeIterator::dshapefunction(SpaceIndex i, const MasterPosition &p)
-  const
-{
+double EdgeNodeIterator::dshapefunction(int i, const MasterPosition &p) const {
   return ed->nlist[index_].dshapefunction(i, p);
 }
 
 // shapefunction derivatives wrt master space coordinates
-double EdgeNodeIterator::masterderiv(SpaceIndex i, const MasterPosition &p)
-  const
-{
+double EdgeNodeIterator::masterderiv(int i, const MasterPosition &p) const {
   return ed->nlist[index_].masterderiv(i, p);
 }
 
