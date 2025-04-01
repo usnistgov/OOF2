@@ -684,7 +684,7 @@ void LinearizedSystem::dumpMaps(const std::string &filename) const {
   if(filename.size() > 0) {
     std::cerr << "LinearizedSystem::dumpMaps: writing " << filename
 	      << std::endl;
-    ofstream os(filename.c_str());
+    std::ofstream os(filename.c_str());
     do_dumpMaps(os);
     os.close();
   }
@@ -692,7 +692,7 @@ void LinearizedSystem::dumpMaps(const std::string &filename) const {
     do_dumpMaps(std::cerr);
 }
 
-void LinearizedSystem::do_dumpMaps(ostream &os) const {
+void LinearizedSystem::do_dumpMaps(std::ostream &os) const {
   os << "LinearizedSystem::dumpMaps -----------" << std::endl;
   os << "      mesh2subpDoFMap=" << subproblem->mesh2subpDoFMap << std::endl;
   os << "      mesh2subpEqnMap=" << subproblem->mesh2subpEqnMap << std::endl;
@@ -738,7 +738,7 @@ void LinearizedSystem::dumpFields(const std::string &filename) const {
   if(filename.size() > 0) {
     std::cerr << "LinearizedSystem::dumpFields: writing " << filename
 	      << std::endl;
-    ofstream os(filename.c_str());
+    std::ofstream os(filename.c_str());
     do_dumpFields(os);
     os.close();
   }
@@ -748,7 +748,7 @@ void LinearizedSystem::dumpFields(const std::string &filename) const {
   }
 }
 
-void LinearizedSystem::do_dumpFields(ostream &os) const {
+void LinearizedSystem::do_dumpFields(std::ostream &os) const {
   std::set<int> fieldsets;
   for(FuncNode *node : subproblem->funcnodes()) {
       if(fieldsets.find(node->fieldSetID()) == fieldsets.end()) {
