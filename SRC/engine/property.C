@@ -192,6 +192,9 @@ void FluxProperty::make_flux_contributions(const FEMesh *mesh,
     // TODO TIMEDERIV: Check how nonlinear solvers use the residual.
     // Is it really just the static part of the flux?  What would
     // happen with a nonlinear flux with a linear viscoelastic part?
+    // Currently static_flux_value() isn't used anywhere.  It was
+    // called from this function before numerical differentiation was
+    // removed.  See oof2 version 2.3.3.
     flux_value(mesh, element, flux, pt, time, localdata, fluxdata);
   }
 }
