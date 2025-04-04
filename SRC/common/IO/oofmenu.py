@@ -386,7 +386,7 @@ from ooflib.common.utils import stringjoin, stringsplit
 #####################################
 
 # Options for menu items are given by keyword arguments in the
-# contructor.  The allowed options are listed here.  If an option is
+# constructor.  The allowed options are listed here.  If an option is
 # not set in an item, the setting of its parent's option is used.  If
 # an item is not set, its default value is None.  If a different
 # default is required, it can be set by calling
