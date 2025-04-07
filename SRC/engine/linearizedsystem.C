@@ -806,8 +806,8 @@ DoubleVec *LinearizedSystem::error_estimation_dofs_MCKd(
   unsigned int n0 = nonEmptyKColMap.range();
   unsigned int n = n2+n1+n0;
   DoubleVec *dofs = new DoubleVec(2*n2 + n1 + n0);
-  (*dofs).segment_copy(0, *unknowns, 0, n);
-  (*dofs).segment_copy(n, *unknowns, n, n2);
+  (*dofs).subvec_copy(0, *unknowns, 0, n);
+  (*dofs).subvec_copy(n, *unknowns, n, n2);
   return dofs;
 }
 
@@ -895,18 +895,18 @@ void LinearizedSystem::set_unknowns_part(
 {
   if(which == 'M') {
     unsigned int n2 = n_unknowns_part('M');
-    (*dest).segment_copy(0, *vals, 0, n2);
+    (*dest).subvec_copy(0, *vals, 0, n2);
   }
   else if(which == 'C') {
     unsigned int n2 = n_unknowns_part('M');
     unsigned int n1 = n_unknowns_part('C');
-    (*dest).segment_copy(n2, *vals, 0, n1);
+    (*dest).subvec_copy(n2, *vals, 0, n1);
   }
   else if(which == 'K') {
     unsigned int n2 = n_unknowns_part('M');
     unsigned int n1 = n_unknowns_part('C');
     unsigned int n0 = n_unknowns_part('K');
-    (*dest).segment_copy(n2+n1, *vals, 0, n0);
+    (*dest).subvec_copy(n2+n1, *vals, 0, n0);
   }
   else
     throw ErrProgrammingError("Bad map requested in set_unknowns_part",
@@ -934,14 +934,14 @@ void LinearizedSystem::set_fields_MCKd(const DoubleVec *src, DoubleVec *dest)
   const
 {
   unsigned int n = subp2MCKFieldMap.range();
-  (*dest).segment_copy(0, *src, 0, n);
+  (*dest).subvec_copy(0, *src, 0, n);
 }
 
 void LinearizedSystem::set_derivs_MCKd(const DoubleVec *src, DoubleVec *dest)
   const
 {
   unsigned int n = subp2MCKFieldMap.range();
-  (*dest).segment_copy(n, *src, 0, n);
+  (*dest).subvec_copy(n, *src, 0, n);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -985,7 +985,7 @@ void LinearizedSystem::set_derivs_part_MCKa(char which, const DoubleVec *src,
   unsigned int n2 = n_unknowns_part('M');
   unsigned int n1 = n_unknowns_part('C');
   unsigned int n0 = n_unknowns_part('K');
-  (*dest).segment_copy(n2+n1+n0, *src, 0, n2);
+  (*dest).subvec_copy(n2+n1+n0, *src, 0, n2);
 }
 
 void LinearizedSystem::set_derivs_part_MCKd(char which, const DoubleVec *src,
@@ -996,13 +996,13 @@ void LinearizedSystem::set_derivs_part_MCKd(char which, const DoubleVec *src,
   unsigned int n1 = n_unknowns_part('C');
   unsigned int n0 = n_unknowns_part('K');
   if(which == 'M') {
-    (*dest).segment_copy(n2+n1+n0, *src, 0, n2);
+    (*dest).subvec_copy(n2+n1+n0, *src, 0, n2);
   }
   else if(which == 'C') {
-    (*dest).segment_copy(2*n2+n1+n0, *src, 0, n1);
+    (*dest).subvec_copy(2*n2+n1+n0, *src, 0, n1);
   }
   else if(which == 'K') {
-    (*dest).segment_copy(2*n2+2*n1+n0, *src, 0, n0);
+    (*dest).subvec_copy(2*n2+2*n1+n0, *src, 0, n0);
   }
   else
     throw ErrProgrammingError("Bad map requested in set_derivs_part_MCKd",
@@ -1044,8 +1044,8 @@ DoubleVec *LinearizedSystem::extract_MCa_dofs(const DoubleVec *v) const {
   // TODO(lizhong): long run fails. Possible memory leak here.
   DoubleVec *mca = new DoubleVec(2*n2 + n1);
 
-  (*mca).segment_copy(0, *v, 0, n2+n1);
-  (*mca).segment_copy(n2+n1, *v, n2+n1+n0, n2);
+  (*mca).subvec_copy(0, *v, 0, n2+n1);
+  (*mca).subvec_copy(n2+n1, *v, n2+n1+n0, n2);
   return mca;
 }
 
@@ -1059,8 +1059,8 @@ void LinearizedSystem::inject_MCa_dofs(const DoubleVec *src, DoubleVec *dest)
   unsigned int n2 = nonEmptyMColMap.range();
   unsigned int n1 = nonEmptyCColMap.range();
   unsigned int n0 = nonEmptyKColMap.range();
-  (*dest).segment_copy(0, *src, 0, n2+n1);
-  (*dest).segment_copy(n2+n1+n0, *src, n2+n1, n2);
+  (*dest).subvec_copy(0, *src, 0, n2+n1);
+  (*dest).subvec_copy(n2+n1+n0, *src, n2+n1, n2);
 }
 
 // Convert an MCa vector to an MCKa vector by inserting 0s for the K part.
@@ -1077,8 +1077,8 @@ void LinearizedSystem::expand_MCa_dofs(DoubleVec *dofs) const {
     // Move the aux dof values to the end.
     DoubleVec cp = *dofs;
     dofs->resize(2*n2 + n1 + n0, 0.0);
-    (*dofs).segment_copy(0, cp, 0, n2+n1);
-    (*dofs).segment_copy(n2+n1+n0, cp, n2+n1, n2);
+    (*dofs).subvec_copy(0, cp, 0, n2+n1);
+    (*dofs).subvec_copy(n2+n1+n0, cp, n2+n1, n2);
   }
 }
 

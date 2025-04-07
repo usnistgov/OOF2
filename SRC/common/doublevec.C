@@ -14,14 +14,6 @@
 #include <sstream>
 #include <fstream>
 
-DoubleVec DoubleVec::segment(std::size_t pos, std::size_t n) const {
-  // Extract the n coeffs in the range [pos : pos+n-1]
-  assert((pos+n-1) < data.size()); 
-  DoubleVec part;
-  part.data = data.segment(pos, n);
-  return part;
-} 
-
 DoubleVec DoubleVec::subvec(std::size_t start, std::size_t end) const {
   // Extract the n coeffs in the range [start : end-1]
   assert(start<=end && end<=data.size());
@@ -30,7 +22,8 @@ DoubleVec DoubleVec::subvec(std::size_t start, std::size_t end) const {
   return part;
 }
 
-void DoubleVec::segment_copy(std::size_t toPos, const DoubleVec& other, std::size_t pos, std::size_t size) {
+void DoubleVec::subvec_copy(std::size_t toPos, const DoubleVec& other,
+			    std::size_t pos, std::size_t size) {
   // Copy other's [pos, pos+size) to this [toPos, toPos+size)
   assert(pos >= 0 && pos + size <= other.data.size());
   assert(toPos >= 0 && toPos + size <= data.size());

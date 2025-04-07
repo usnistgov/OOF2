@@ -38,8 +38,6 @@ public:
   DoubleVec& operator=(const DoubleVec&) = default;
   ~DoubleVec() = default;
   
-  //TODO(lizhong): inline possible methods
-  
   /* Vector property methods */
   
   std::size_t size() const { return data.size(); }
@@ -47,11 +45,10 @@ public:
   void zero() { data.setZero(); }
   void clear() { zero(); }
   void unit() { data.setOnes(); }
-  double& operator[](int index) { return data[index]; }
-  const double& operator[](int index) const { return data[index]; }
-  DoubleVec segment(std::size_t pos, std::size_t n) const;
+  double& operator[](std::size_t index) { return data[index]; }
+  double operator[](std::size_t index) const { return data[index]; }
   DoubleVec subvec(std::size_t start, std::size_t end) const;
-  void segment_copy(std::size_t, const DoubleVec&, std::size_t, std::size_t);
+  void subvec_copy(std::size_t, const DoubleVec&, std::size_t, std::size_t);
 
   typedef std::size_t size_type;
 
