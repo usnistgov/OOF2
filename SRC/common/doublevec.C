@@ -96,10 +96,6 @@ double DoubleVec::dot(const DoubleVec& other) const {
   return data.dot(other.data); 
 }
 
-double dot(const DoubleVec& x, const DoubleVec& y) {
-  return x.dot(y);
-}
-
 double DoubleVec::operator*(const DoubleVec& other) const {
   return data.dot(other.data); 
 }

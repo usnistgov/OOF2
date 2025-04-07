@@ -75,10 +75,6 @@ public:
   double dot(const DoubleVec&) const;
   double operator*(const DoubleVec&) const;
 
-  // TODO(lizhong): remove this in the future, currently, it is 
-  // only for compatibility with cg, bicg and etc. solvers.
-  friend double dot(const DoubleVec&, const DoubleVec&);
-
   /* Iterators */
 
   friend class DoubleVecIterator<DoubleVec, double>;
