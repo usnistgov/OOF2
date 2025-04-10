@@ -1154,7 +1154,7 @@ class SubProblemContext(whoville.Who):
             return self.startValues
         f = (time - self.startTime)/(self.endTime - self.startTime)
         vals = self.startValues.clone()
-        vals.scale(1-f)
+        vals *= 1-f
         vals.axpy(f, self.endValues)
         return vals
 

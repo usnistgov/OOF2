@@ -17,6 +17,8 @@
 #include "Eigen/SparseCore"
 #include <initializer_list>
 
+#include "common/tostring.h"
+
 class SparseMat;
 class SmallMatrix;
 template<typename VT, typename ET> class DoubleVecIterator;
@@ -24,19 +26,28 @@ enum class Precond;
 template<typename Derived> class IterativeSolver;
 template<typename Derived> class DirectSolver;
 
+// TODO? Derive DoubleVec from Eigen::VectorXd, instead of wrapping it.
 
 class DoubleVec {
-private:
-  Eigen::VectorXd data; // N x 1 matrix
-
+public:			     // TODO: Make private when done debugging
+  Eigen::VectorXd data;	     // N x 1 matrix
+  bool verbose_;	     // TODO: remove when done debugging
 public:
-  DoubleVec() = default;
-  DoubleVec(int size, double val=0) { data.setConstant(size, val); }
-  DoubleVec(const std::initializer_list<double> &v) : data({v}) {}
+  DoubleVec() : verbose_(false) {} 
+  DoubleVec(int size, double val=0)
+    : verbose_(false)
+  { data.setConstant(size, val); }
+  DoubleVec(const std::initializer_list<double> &v)
+    : data({v}), verbose_(false)
+  {}
   DoubleVec(const DoubleVec&) = default;
   DoubleVec(DoubleVec&&) = default;
   DoubleVec& operator=(const DoubleVec&) = default;
-  ~DoubleVec() = default;
+  ~DoubleVec();
+
+  std::string addr() const { return tostring(this); }
+
+  void verbose(bool flag) { verbose_ = flag; }
   
   /* Vector property methods */
   
@@ -52,9 +63,10 @@ public:
 
   typedef std::size_t size_type;
 
-  /* Arithmetic operations */
+  bool operator==(const DoubleVec&) const;
+  bool operator!=(const DoubleVec&) const;
 
-  double norm() const { return data.norm(); }
+  /* Arithmetic operations */
 
   // In-place operations, using no temporaries
   DoubleVec& operator+=(const DoubleVec&);
@@ -62,29 +74,28 @@ public:
   DoubleVec& operator*=(double);
   DoubleVec& operator/=(double);
   void axpy(double alpha, const DoubleVec& x);
-  void scale(double alpha);
   
-  // Non-in-place, which may return a temporary object.
+  // Non-in-place, which may return a temporary object, although the
+  // move constructor should make that cheap.
   DoubleVec operator+(const DoubleVec&) const;
   DoubleVec operator-(const DoubleVec&) const;
   DoubleVec operator*(double) const;
   DoubleVec operator/(double) const;
   friend DoubleVec operator*(double, const DoubleVec&);
 
-  // dot product
+  // Dot product
   double dot(const DoubleVec&) const;
   double operator*(const DoubleVec&) const;
+  double norm() const { return data.norm(); }
 
-  /* Iterators */
 
-  friend class DoubleVecIterator<DoubleVec, double>;
-  friend class DoubleVecIterator<const DoubleVec, const double>;
-  typedef DoubleVecIterator<DoubleVec, double> iterator;
-  typedef DoubleVecIterator<const DoubleVec, const double> const_iterator;
-  iterator begin();
-  iterator end();
-  const_iterator begin() const;
-  const_iterator end() const;
+  // Iterators
+  typedef Eigen::VectorXd::iterator iterator;
+  typedef Eigen::VectorXd::const_iterator const_iterator;
+  iterator begin() { return data.begin(); }
+  iterator end() { return data.end(); }
+  const_iterator begin() const { return data.begin(); }
+  const_iterator end() const { return data.end(); }
 
   /* Miscellaneous */
 
@@ -99,34 +110,10 @@ public:
   friend bool load_market_vec(DoubleVec&, const std::string&);
   friend bool save_vec(const DoubleVec&, const std::string&);
   friend bool load_vec(DoubleVec&, const std::string&);
-};
 
-template<typename VT, typename ET>
-class DoubleVecIterator {
-private:
-  VT& vec;
-  std::size_t index;
+  friend DoubleVec* __isub__(const DoubleVec&);
 
-public:
-  DoubleVecIterator(VT& vec) : vec(vec), index(0) {}
-  
-  DoubleVecIterator& operator++();
-  ET& operator*();
-
-  bool operator==(const DoubleVecIterator&) const;
-  bool operator!=(const DoubleVecIterator&) const;
-  bool operator<(const DoubleVecIterator&) const;
-
-  bool done() const;
-
-  friend DoubleVec;
-  friend std::ostream& operator<<(std::ostream& os,
-    const DoubleVecIterator<VT, ET>& it) {
-    return os << *it;
-  }
-
-private:
-  void to_end() { index = vec.size(); }
+  static DoubleVec* testIterator(DoubleVec&);
 };
 
 #endif // DOUBLEVEC_H

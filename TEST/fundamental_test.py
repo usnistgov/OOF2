@@ -22,6 +22,95 @@ class OOF_Fundamental(unittest.TestCase):
         global allWorkers, allWorkerCores
         from ooflib.common.worker import allWorkers, allWorkerCores
         from ooflib.common import utils
+
+    def DoubleVec(self):
+        from ooflib.SWIG.common.doublevec import DoubleVec
+        size = 10
+        a = DoubleVec(size)
+        b = DoubleVec(size)
+        
+        # setting and getting
+        for i in range(size):
+            a[i] = i 
+        for i in range(size):
+            self.assertEqual(a[i], i)
+        for i in range(size):
+            b[i] = -i
+            
+        # iteration in C++.
+        # iteration over a DoubleVec in python is not supported.
+        vec = DoubleVec.testIterator(a) # returns 7*a
+        self.assertEqual(len(vec), size)
+        for i in range(size):
+            self.assertEqual(vec[i], 7*i)
+        
+        # cloning
+        c = a.clone()
+        for i in range(size):
+            self.assertEqual(a[i], c[i])
+            
+        # equality
+        self.assertTrue(a == c)
+        self.assertEqual(a, c)
+        self.assertTrue(b != c)
+        self.assertNotEqual(b, c)
+
+        # in-place operations on a single entry
+        c = a.clone()
+        c[1] += 5
+        self.assertEqual(c[1], 6)
+        c[2] -= 4
+        self.assertEqual(c[2], -2)
+        c[3] *= 5
+        self.assertEqual(c[3], 15)
+        c[4] /= -1
+        self.assertEqual(c[4], -4)
+        
+        # addition
+        c = a + b
+        self.assertEqual(len(c), size)
+        for i in range(size):
+            self.assertEqual(c[i], 0)
+
+        # in-place addition
+        d = a.clone()
+        self.assertEqual(len(d), len(a))
+        d += b 
+        self.assertEqual(len(d), len(b))
+        self.assertTrue(a+b == d)
+
+        # subtraction
+        c = a - b
+        self.assertEqual(len(c), size)
+        for i in range(size):
+            self.assertEqual(c[i], 2*i)
+
+        # in-place subtraction
+        d = a.clone()
+        d -= b
+        self.assertTrue(d == c)
+
+        # multiplication
+        d = a*2                 # __mul__
+        for i in range(size):
+            self.assertEqual(d[i], 2*i)
+        e = 2*a                 # __rmul__
+        self.assertEqual(e, d)
+        e *= 0.5                # __imul__
+        self.assertEqual(e, a)
+
+        # division
+        print("divide")
+        d = a/2.
+        for i in range(size):
+            self.assertEqual(d[i], a[i]/2)
+        d /= 2.
+        for i in range(size):
+            self.assertEqual(d[i], a[i]/4)
+        
+        # dot product
+        self.assertEqual(a*b, -285)
+            
     def OrderedDict(self):
         from ooflib.common.utils import OrderedDict
         od = OrderedDict();
@@ -175,6 +264,7 @@ class OOF_Fundamental(unittest.TestCase):
         self.assertRaises(NameError, utils.OOFeval, "borogoves")
 
     def ScriptSyntaxErr1(self):
+        print("Don't panic. This test fails intentionally.")
         self.assertRaises(ooferror.PyErrUserError,
                           OOF.File.Load.Script,
                           filename=reference_file("fundamental_data",
@@ -253,5 +343,11 @@ test_set = [
     OOF_Fundamental("ScriptSyntaxErr0"),
     OOF_Fundamental("ScriptSyntaxErr1"),
     OOF_Fundamental("RandomNumbers"),
-    OOF_Fundamental("Shuffle")
+    OOF_Fundamental("Shuffle"),
+    OOF_Fundamental("DoubleVec")
 ]
+
+# test_set = [
+#     OOF_Fundamental("DoubleVec")
+# ]
+

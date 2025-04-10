@@ -14,6 +14,15 @@
 #include <sstream>
 #include <fstream>
 
+// TODO: Remove this after debugging is complete.
+DoubleVec::~DoubleVec() {
+  if(verbose_)
+    std::cerr << "DoubleVec::dtor: size=" << size()
+	      << " addr=" << addr() << std::endl;
+}
+
+
+
 DoubleVec DoubleVec::subvec(std::size_t start, std::size_t end) const {
   // Extract the n coeffs in the range [start : end-1]
   assert(start<=end && end<=data.size());
@@ -30,6 +39,14 @@ void DoubleVec::subvec_copy(std::size_t toPos, const DoubleVec& other,
   data.segment(toPos, size) = other.data.segment(pos, size);
 }
 
+bool DoubleVec::operator==(const DoubleVec& other) const {
+  return data == other.data;
+}
+
+bool DoubleVec::operator!=(const DoubleVec& other) const {
+  return data != other.data;
+}
+
 DoubleVec& DoubleVec::operator+=(const DoubleVec& other) {
   assert(other.size() == size());
   data += other.data; 
@@ -39,6 +56,7 @@ DoubleVec& DoubleVec::operator+=(const DoubleVec& other) {
 DoubleVec& DoubleVec::operator-=(const DoubleVec& other) {
   assert(other.size() == size());
   data -= other.data;
+  assert(other.size() == size());
   return *this;
 }
 
@@ -50,10 +68,6 @@ DoubleVec& DoubleVec::operator*=(double alpha) {
 DoubleVec& DoubleVec::operator/=(double alpha) {
   data /= alpha;
   return *this;
-}
-
-void DoubleVec::scale(double alpha) {
-  data *= alpha;
 }
 
 void DoubleVec::axpy(double alpha, const DoubleVec& x) {
@@ -98,26 +112,6 @@ double DoubleVec::dot(const DoubleVec& other) const {
 
 double DoubleVec::operator*(const DoubleVec& other) const {
   return data.dot(other.data); 
-}
-
-DoubleVec::iterator DoubleVec::begin() {
-  return iterator(*this);
-}
-
-DoubleVec::iterator DoubleVec::end() {
-  iterator it(*this);
-  it.to_end();
-  return it;
-}
-
-DoubleVec::const_iterator DoubleVec::begin() const {
-  return const_iterator(*this);
-}
-
-DoubleVec::const_iterator DoubleVec::end() const {
-  const_iterator it(*this);
-  it.to_end();
-  return it;
 }
 
 const std::string DoubleVec::str() const {
@@ -193,43 +187,29 @@ bool load_vec(DoubleVec& vec, const std::string& filename) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-template<typename VT, typename ET>
-DoubleVecIterator<VT, ET>& DoubleVecIterator<VT, ET>::operator++() {
-  assert(index + 1 <= vec.data.size());
-  index += 1;
-  return *this;
+// For testing iteration
+
+// static
+DoubleVec* DoubleVec::testIterator(DoubleVec &vec) {
+  DoubleVec *result = new DoubleVec(vec.size(), 0.0);
+
+  // traditional for loop
+  for(int i=0; i<vec.size(); ++i) {
+    (*result)[i] = vec[i];
+  }
+  
+  // range-base for loop
+  int i = 0;
+  for(double x : vec) {
+    (*result)[i++] += 2*x;
+  }
+  
+  // STL-like for loop
+  auto itr = result->data.begin();
+  auto itv = vec.data.begin();
+  for(; itr<result->data.end() && itv < vec.data.end(); ++itr, ++itv) {
+    *itr += 4*(*itv);
+  }
+  return result;
+    
 }
-
-template<typename VT, typename ET>
-ET& DoubleVecIterator<VT, ET>::operator*() {
-  assert(!done());
-  return vec.data[index];
-}
-
-template<typename VT, typename ET>
-bool DoubleVecIterator<VT, ET>::operator==(const DoubleVecIterator& other) const
-{
-  return &vec==&other.vec && index==other.index; 
-}
-
-template<typename VT, typename ET>
-bool DoubleVecIterator<VT, ET>::operator!=(const DoubleVecIterator& other) const
-{
-  return &vec==&other.vec && index!=other.index;
-}
-
-template<typename VT, typename ET>
-bool DoubleVecIterator<VT, ET>::operator<(const DoubleVecIterator& other) const
-{
-  return &vec==&other.vec && index<other.index;
-}
-
-template<typename VT, typename ET>
-bool DoubleVecIterator<VT, ET>::done() const {
-  return index < vec.data.size() ? false : true;
-}
-
-// Instantiate the DoubleVecIterator template.
-template class DoubleVecIterator<DoubleVec, double>;
-template class DoubleVecIterator<const DoubleVec, const double>;
-
