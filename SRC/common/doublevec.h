@@ -28,17 +28,22 @@ template<typename Derived> class DirectSolver;
 
 // TODO? Derive DoubleVec from Eigen::VectorXd, instead of wrapping it.
 
+extern bool verboseVectors;
+
 class DoubleVec {
 public:			     // TODO: Make private when done debugging
   Eigen::VectorXd data;	     // N x 1 matrix
-  bool verbose_;	     // TODO: remove when done debugging
+  mutable bool verbose_;     // TODO: remove when done debugging
+  void verbose(bool flag) const { verbose_ = flag; }
+  bool is_verbose() const { return verbose_; }
+
 public:
-  DoubleVec() : verbose_(false) {} 
+  DoubleVec() : verbose_(verboseVectors) {} 
   DoubleVec(int size, double val=0)
-    : verbose_(false)
+    : verbose_(verboseVectors)
   { data.setConstant(size, val); }
   DoubleVec(const std::initializer_list<double> &v)
-    : data({v}), verbose_(false)
+    : data({v}), verbose_(verboseVectors)
   {}
   DoubleVec(const DoubleVec&) = default;
   DoubleVec(DoubleVec&&) = default;
@@ -46,9 +51,7 @@ public:
   ~DoubleVec();
 
   std::string addr() const { return tostring(this); }
-
-  void verbose(bool flag) { verbose_ = flag; }
-  
+ 
   /* Vector property methods */
   
   std::size_t size() const { return data.size(); }

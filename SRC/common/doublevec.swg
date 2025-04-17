@@ -38,6 +38,7 @@ public:
   const std::string str() const;
   const std::string addr() const;
   void verbose(bool);
+  bool is_verbose() const;
 
   %newobject testIterator;
   static DoubleVec* testIterator(DoubleVec&);
@@ -125,6 +126,13 @@ public:
     return self;
   }
 
+  %newobject __truediv__;
+  DoubleVec* __truediv__(double factor) {
+    DoubleVec* result = new DoubleVec(*self);
+    *result *= 1./factor;
+    return result;
+  }
+  
   // DoubleVec::__mul__, __rmul__, and __imul__ are defined in Python
   // (in doublevec.spy) so that they can check their argument type and
   // distinguish between vector*factor, factor*vector, and
@@ -147,18 +155,6 @@ public:
 
   DoubleVec* c_imul(double factor) {
     *self *= factor;
-    return self;
-  }
-
-  %newobject __truediv__;
-  DoubleVec* __truediv__(double factor) {
-    DoubleVec* result = new DoubleVec(*self);
-    *result *= 1./factor;
-    return result;
-  }
-  
-  DoubleVec* __itruediv__(double factor) {
-    (*self) *= 1./factor;
     return self;
   }
 

@@ -14,6 +14,8 @@
 #include <sstream>
 #include <fstream>
 
+bool verboseVectors = false;
+
 // TODO: Remove this after debugging is complete.
 DoubleVec::~DoubleVec() {
   if(verbose_)
