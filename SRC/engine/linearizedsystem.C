@@ -827,8 +827,15 @@ DoubleVec *LinearizedSystem::set_unknowns_MCKa(const DoubleVec *src,
 					       const DoubleVec *dest)
   const
 {
+  // This is being called with a deleted src.
+  std::cerr << "LinearizedSystem::set_unknowns_MCKa: src " << src << " size="
+	    << src->size() << " dest "<< dest << " size=" << dest->size()
+	    << std::endl;
   int n = subp2MCKFieldMap.range();
   DoubleVec *result = new DoubleVec(*dest);
+  result->verbose(true);
+  src->verbose(true);
+  dest->verbose(true);
   subp2MCKFieldMap.inject(*src, 0, *result);
   subp2nonEmptyMDerivMap.inject(*src, n, *result);
   return result;

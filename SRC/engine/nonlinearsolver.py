@@ -59,6 +59,7 @@ registeredclass.Registration(
 
 class NonlinearSolver(NonlinearSolverBase):
     def step(self, subprob, *args, **kwargs):
+        debug.fmsg(f"NonlinearSolver calling {type(subprob.time_stepper)}.nonlinearstep")
         return subprob.time_stepper.nonlinearstep(
             subprob, nonlinearMethod=self, *args, **kwargs)
     def computeStaticFields(self, subprobctxt, linsys, unknowns):
@@ -86,8 +87,10 @@ class Newton(nonlinearsolvercore.Newton, NonlinearSolver):
     def __init__(self, *args, **kwargs):
         nonlinearsolvercore.Newton.__init__(self, *args, **kwargs)
     def solve(self, *args, **kwargs):
+        debug.fmsg(f"Newton: kwargs={kwargs.keys()}")
         niters, residual = nonlinearsolvercore.Newton.solve(
             self, *args, **kwargs)
+        debug.fmsg(f"Newton: back from nonlinearsolvercore")
         self.subproblem.solverStats.nonlinearSolution(niters, residual)
     def __repr__(self):
         return registeredclass.RegisteredClass.__repr__(self)

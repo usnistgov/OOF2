@@ -1114,8 +1114,12 @@ class SubProblemContext(whoville.Who):
         # startValues are not correct!  set_mesh_dofs corrects for
         # this, though.
 
+        debug.fmsg(f"knowns={knowns.addr()} refcount={sys.getrefcount(knowns)}")
+        debug.fmsg(f"SubProblemContext.installvalues calling {type(self.time_stepper)}.set_unknowns")
         allvals = self.time_stepper.set_unknowns(linsys, knowns,
                                                  self.startValues)
+        debug.fmsg(f"back from set_unknowns, refcount={sys.getrefcount(knowns)}")
+        debug.dumpReferrers(knowns)
         self.set_mesh_dofs(allvals, time)
 
     def set_mesh_dofs(self, vals, time):

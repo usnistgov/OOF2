@@ -73,6 +73,7 @@ class StepDriver(registeredclass.RegisteredClass):
     def get_unknowns(self, linsys, source):
         return self.stepper.get_unknowns(linsys, source)
     def set_unknowns(self, linsys, vals, startvals):
+        debug.fmsg(f"StepDriver.set_unknowns calling {type(self.stepper)}.set_unknowns, vals={vals.addr()}")
         return self.stepper.set_unknowns(linsys, vals, startvals)
     def get_unknowns_part(self, part, linsys, unknowns):
         return self.stepper.get_unknowns_part(part, linsys, unknowns)
@@ -236,6 +237,7 @@ class FirstOrderStepper(NonStaticStepper):
     def get_unknowns(self, linsys, source):
         return linsys.get_unknowns_MCKa(source)
     def set_unknowns(self, linsys, vals, dest):
+        debug.fmsg(f"FirstOrderStepper.set_unknowns calling LinearizedSystem.set_unknowns vals={vals.addr()} refcount={sys.getrefcount(vals)}")
         return linsys.set_unknowns_MCKa(vals, dest)
     def n_unknowns(self, linsys):
         return linsys.n_unknowns_MCKa()
@@ -301,10 +303,15 @@ class StepResult:
         self.endValues = endValues
         self.nextStep = nextStep
         self.errorEstimate = errorEstimate
+        if endValues is not None and endValues.is_verbose():
+            debug.fmsg(f"StepResult storing endValues {endValues.addr()} refcount={sys.getrefcount(endValues)-1}")
         self.linsys = linsys
         self.ok = True          # AdaptiveDriver may set this to False
-        
-
+    def __del__(self):
+        if self.endValues.is_verbose():
+            debug.fmsg(f"refcount={sys.getrefcount(self.endValues)-1}")
+            debug.fmsg(f"Deleting StepResult and endValues refcount={endValues.addr()}")
+            
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 ## Subclasses of StepDriver

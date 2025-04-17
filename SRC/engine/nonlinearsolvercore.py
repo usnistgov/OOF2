@@ -219,6 +219,9 @@ class Newton(NLSolver):
         return "Newton"
     def solve(self, matrix_method, precompute, compute_residual,
               compute_jacobian, compute_linear_coef_mtx, data, values):
+        # Called by nonlinearsolver.Newton.solve(), for example.
+        # data is an NLDataGE object, if using GeneralizedEuler
+        debug.fmsg(f"Newton.solve: values={values.addr()}")
 
         # matrix_method is function that takes a matrix A, a rhs b and
         # a vector of unknows x and sets x so that A*x = b.
@@ -326,6 +329,7 @@ class Newton(NLSolver):
                 'Nonlinear solver - Newton iterations', self.maximum_iterations)
         # debug.fmsg("final values=", values)
         # debug.fmsg("-------------------")
+        
         return i, res_norm
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

@@ -15,6 +15,8 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.engine import symstate
 from ooflib.engine import timestepper
 
+import sys
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Euler stepping and variants of it.  Most variants are simple
@@ -221,18 +223,26 @@ class GeneralizedEuler(timestepper.LinearStepper, timestepper.NonLinearStepper,
         dt = endtime - time
 
         data = NLDataGE(subproblem, linsys, endtime, dt, unknowns, self.theta)
+        # endValues is being deleted too soon
         endValues = unknowns.clone()
+        debug.fmsg(f"GE cloned endValues {endValues.addr()} ***** new here")
+        debug.fmsg(f"endValues refcount={sys.getrefcount(endValues)-1}")
+        debug.fmsg(f"Calling solve {nonlinearMethod.solve}")
         nonlinearMethod.solve(subproblem.matrix_method(_asymmetricGE,
                                                        subproblem),
                               self.precomputeNL,
                               self.compute_residual, self.compute_jacobian,
                               self.compute_linear_coef_mtx,
                               data, endValues)
+        
+        debug.fmsg(f"Back from solve, endValues={endValues.addr()} refcount={sys.getrefcount(endValues)-1}")
         return timestepper.StepResult(endTime=endtime, nextStep=dt,
                                       endValues=endValues, linsys=linsys)
 
     def compute_residual(self, data, soln, nlsolver):
         residual = data.resid0.clone()
+        residual.verbose(True)
+        debug.fmsg("GE cloned residual: ", residual.addr())
         data.C.axpy( 1.0, soln, residual )
         residual.axpy( self.theta*data.dt,
                        data.linsys.static_residual_MCKa(soln) )
@@ -397,6 +407,7 @@ class BackwardEuler(timestepper.LinearStepper, timestepper.NonLinearStepper,
     def compute_residual(self, data, soln, nlsolver):
         # residual = C soln + dt static_residual(soln,t+dt) - C unknowns
         residual = data.nonlin_offset.clone() # copy  (- C unknowns)
+        debug.fmsg("BE cloned residual:", residual.addr())
         residual.axpy( data.dt, data.linsys.static_residual_MCKa(soln) )
         data.C.axpy( 1.0, soln, residual )
         return residual
