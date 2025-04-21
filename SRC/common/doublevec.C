@@ -16,12 +16,71 @@
 
 bool verboseVectors = false;
 
-// TODO: Remove this after debugging is complete.
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// TODO: Remove this section after debugging is complete.  All methods
+// should be defined inline in doublevec.h.
+
+int DoubleVec::idcount_ = 0;
+  
 DoubleVec::~DoubleVec() {
   if(verbose_)
-    std::cerr << "DoubleVec::dtor: size=" << size()
+    std::cerr << "DoubleVec DESTRUCTOR: size=" << size()
 	      << " addr=" << addr() << std::endl;
 }
+
+DoubleVec::DoubleVec()
+  : verbose_(verboseVectors),
+    id_(idcount_++)
+{}
+
+DoubleVec::DoubleVec(int size, double val)
+  : verbose_(verboseVectors),
+    id_(idcount_++)
+{
+  data.setConstant(size, val);
+}
+
+DoubleVec::DoubleVec(const std::initializer_list<double> &vals)
+  : data({vals}),
+    verbose_(verboseVectors),
+    id_(idcount_++)
+{}
+
+DoubleVec::DoubleVec(const DoubleVec &other)
+  : data(other.data),
+    verbose_(other.verbose_)
+{
+  id_ = ++idcount_;
+  if(verbose_)
+    std::cerr << "DoubleVec copy constructor: src=" << other.addr()
+	      << " dst=" << addr() << std::endl;
+}
+
+DoubleVec::DoubleVec(DoubleVec &&other)
+  : data(std::move(other.data)),
+    verbose_(other.verbose_)
+{
+  id_ = other.id_;
+  if(verbose_)
+    std::cerr << "DoubleVec move constructor: src=" << other.addr()
+	      << " dst=" << addr() << std::endl;
+}
+
+DoubleVec& DoubleVec::operator=(const DoubleVec &other) {
+  data = other.data;
+  verbose_ = other.is_verbose();
+  if(verbose_)
+    std::cerr << "DoubleVec::operator=: src=" << other.addr()
+	      << "dst=" << addr() << std::endl;
+  return *this;
+}
+
+std::string DoubleVec::addr() const {
+  return tostring(this) + "(" + tostring(id_) + ")";
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 
 

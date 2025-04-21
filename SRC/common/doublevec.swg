@@ -56,7 +56,13 @@ public:
 
   %newobject clone;
   DoubleVec *clone() {
-    return new DoubleVec(*self);
+    DoubleVec* dv = new DoubleVec(*self);
+    if(self->is_verbose()) {
+      dv->verbose(true);
+      std::cerr << "DoubleVec.clone: src=" << self->addr()
+		<< "  dst=" << dv->addr() << std::endl;
+    }
+    return dv;
   }
 
   void save(const char *filename) {

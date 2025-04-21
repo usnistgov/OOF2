@@ -36,21 +36,18 @@ public:			     // TODO: Make private when done debugging
   mutable bool verbose_;     // TODO: remove when done debugging
   void verbose(bool flag) const { verbose_ = flag; }
   bool is_verbose() const { return verbose_; }
-
+  int id_;
+  static int idcount_;
 public:
-  DoubleVec() : verbose_(verboseVectors) {} 
-  DoubleVec(int size, double val=0)
-    : verbose_(verboseVectors)
-  { data.setConstant(size, val); }
-  DoubleVec(const std::initializer_list<double> &v)
-    : data({v}), verbose_(verboseVectors)
-  {}
-  DoubleVec(const DoubleVec&) = default;
-  DoubleVec(DoubleVec&&) = default;
-  DoubleVec& operator=(const DoubleVec&) = default;
+  DoubleVec();
+  DoubleVec(int size, double val=0);
+  DoubleVec(const std::initializer_list<double> &v);
+  DoubleVec(const DoubleVec&) /* = default */;
+  DoubleVec(DoubleVec&&) /* = default */;
+  DoubleVec& operator=(const DoubleVec&) /* = default */;
   ~DoubleVec();
 
-  std::string addr() const { return tostring(this); }
+  std::string addr() const;	// for debugging
  
   /* Vector property methods */
   
