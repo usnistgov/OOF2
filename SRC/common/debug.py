@@ -46,6 +46,10 @@ def clear_debug_mode():
 def debug():
     return _debug_mode
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Print the python call stack
+
 def dumpTrace(start=0, end=-1):
     ## Use start=-3, end=-2 if you only want to see the calling
     ## function of the function that calls dumpTrace.
@@ -71,11 +75,17 @@ def dumpTrace(start=0, end=-1):
     finally:
         lock.release()
 
-def dumpCaller(offset=0):
-    if _debug_mode:
-        print(callerID(-4-offset), file=sys.stderr)
+# Various ways of printing a single line from the call stack.
 
 def callerID(depth=-3):
+    # callerID returns a string with information about the function
+    # that is calling it.  The default depth is -3 because the end of
+    # the stack (stack[-1]) is traceback.extract_stack(), and the one
+    # preceding that is this function (stack[-2]).
+    #
+    # No, I don't remember why this function's argument is the depth
+    # and not an offset from the default depth.
+    
     if _debug_mode:
         lock.acquire()
         try:
@@ -92,6 +102,29 @@ def callerID(depth=-3):
         finally:
             lock.release()
 
+def callerName(offset=0):
+    # callerName is like callerID but simpler.  The format is
+    #   filename:line callingfunction -- callingline
+    # A positive offset prints the same info about the function
+    # that number of calls earlier in the stack.
+    if _debug_mode:
+        lock.acquire()
+        try:
+            stack = traceback.extract_stack()
+            line = stack[-3-offset]
+            return f"{os.path.split(line[0])[1]}:{line[1]} -- {line[2]} -- {line[3]}"
+        finally:
+            lock.release()
+
+def dumpCaller(offset=0):
+    # Print the caller of the function that calls dumpCaller.
+    if _debug_mode:
+        # dumpCaller calls callerID, so it needs to look one level
+        # farther up in the stack, so there's a -4 here.
+        print(callerID(-4-offset), file=sys.stderr)
+
+            
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def msg(*args):
     if _debug_mode:
@@ -141,6 +174,7 @@ def fmsg(*args):
         finally:
             lock.release()
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def mainthreadTest():
     if _debug_mode:
@@ -156,7 +190,7 @@ def subthreadTest():
             dumpTrace()
             os.abort()
 
-############################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 import inspect
 
@@ -233,4 +267,12 @@ def _dumpReferrers(obj, nlevels=0, exclude=[], level=0):
                                exclude=exclude+[locals(), refs], 
                                level=level+1)
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# getrefcount just removes the necessity of remembering to subtract 1
+# from the value returned by sys.getrefcount().  Of course, since it
+# adds another caller, it has to subtract 2.
+
+def getrefcount(obj):
+    return sys.getrefcount(obj) - 2
 
