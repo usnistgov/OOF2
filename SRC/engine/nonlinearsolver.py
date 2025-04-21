@@ -14,12 +14,12 @@
 
 import sys
 
+from ooflib.SWIG.common import doublevec
 from ooflib.common import debug
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import nonlinearsolvercore
-
 
 class NonlinearSolverBase(registeredclass.RegisteredClass):
     registry = []
@@ -59,9 +59,20 @@ registeredclass.Registration(
 
 class NonlinearSolver(NonlinearSolverBase):
     def step(self, subprob, *args, **kwargs):
-        debug.fmsg(f"NonlinearSolver calling {type(subprob.time_stepper)}.nonlinearstep")
-        return subprob.time_stepper.nonlinearstep(
+        # debug.fmsg(f"NonlinearSolver calling {type(subprob.time_stepper).__name__}.nonlinearstep")
+        # for k,v in kwargs.items():
+        #     if isinstance(v, doublevec.DoubleVec):
+        #         debug.fmsg(f"arg {k} is {v.addr()}")
+        #         break
+        # else:
+        #     debug.fmsg("... no DoubleVec args")    
+        x = subprob.time_stepper.nonlinearstep(
             subprob, nonlinearMethod=self, *args, **kwargs)
+        # nonlinearstep returns a StepResult object that contains a
+        # reference to the DoubleVec that will be deleted too soon.
+        # It's already been deleted at this point.
+        # debug.fmsg("done")
+        return x
     def computeStaticFields(self, subprobctxt, linsys, unknowns):
         # Called by SubProblemContext.initializeStaticFields.
         return subprobctxt.computeStaticFieldsNL(linsys, unknowns)
@@ -87,11 +98,14 @@ class Newton(nonlinearsolvercore.Newton, NonlinearSolver):
     def __init__(self, *args, **kwargs):
         nonlinearsolvercore.Newton.__init__(self, *args, **kwargs)
     def solve(self, *args, **kwargs):
-        debug.fmsg(f"Newton: kwargs={kwargs.keys()}")
+        # debug.fmsg(f"Called from {debug.callerName()}")
+        # debug.fmsg(f"Newton: args={list(type(arg) for arg in args)}")
+        # debug.fmsg(f"Newton: kwargs={kwargs.keys()}")
         niters, residual = nonlinearsolvercore.Newton.solve(
             self, *args, **kwargs)
-        debug.fmsg(f"Newton: back from nonlinearsolvercore")
+        # debug.fmsg(f"Newton: back from nonlinearsolvercore. {args=} {kwargs.keys()=}")
         self.subproblem.solverStats.nonlinearSolution(niters, residual)
+        # debug.fmsg()
     def __repr__(self):
         return registeredclass.RegisteredClass.__repr__(self)
 

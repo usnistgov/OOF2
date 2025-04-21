@@ -47,9 +47,11 @@ class TwoStep(timestepper.QCTimeStepper):
 
     def get_unknowns(self, linsys, source):
         return self.singlestep.get_unknowns(linsys, source)
+
     def set_unknowns(self, linsys, vals, dest):
-        debug.fmsg(f"TwoStep.set_unknowns calling {type(self.singlestep)}.set_unknowns vals={vals.addr()} refcount={sys.getrefcount(vals)-1}")
+        # debug.fmsg(f"TwoStep.set_unknowns calling {type(self.singlestep).__name__}.set_unknowns vals={vals.addr()} refcount={debug.getrefcount(vals)}")
         return self.singlestep.set_unknowns(linsys, vals, dest)
+
     def get_derivs_part(self, part, linsys, unknowns):
         return self.singlestep.get_derivs_part(part, linsys, unknowns)
     def set_derivs_part(self, part, linsys, vals, unknowns):
@@ -81,11 +83,11 @@ class TwoStep(timestepper.QCTimeStepper):
         return self.singlestep.explicit()
 
     def nonlinearstep(self, *args, **kwargs):
-        debug.fmsg("TwoStep.nonlinearstep: calling _step")
-        debug.fmsg(f"kwargs: {kwargs.keys()}")
+        # debug.fmsg("TwoStep.nonlinearstep: calling _step")
+        # debug.fmsg(f"kwargs: {kwargs.keys()}")
         result = self._step(stepper=self.singlestep.nonlinearstep,
                           *args, **kwargs)
-        debug.fmsg("TwoStep.nonlinearstep: back from _step")
+        # debug.fmsg(f"TwoStep.nonlinearstep: back from _step result={result.addr()} refcount={debug.getrefcount(result)}")
         return result
 
     def _step(self, subproblem, linsys, time, unknowns,
@@ -103,44 +105,49 @@ class TwoStep(timestepper.QCTimeStepper):
 
         # Take a single step to endtime.
         # debug.fmsg("taking full step")
+        # debug.fmsg(f"Calling stepper {stepper}")
         result1 = stepper(subproblem, linsys, time, unknowns, endtime,
                           *args, **kwargs)
-        debug.fmsg(f"result1={result1.endValues.addr()}")
+        # debug.fmsg(f"back from stepper, result1={result1.endValues.addr()} refcount={debug.getrefcount(result1.endValues)}")
+        # debug.fmsg(f"result1 is {'' if result1.endValues.is_verbose() else 'not'} verbose")
         # debug.fmsg("full step norm=", result1.endValues.norm(),
         #            "time=", endtime, "n=", len(result1.endValues))
 
         # Take a half step.
         halftime = 0.5*(time + endtime)
-        debug.fmsg(f"TwoStep getting midresult from {stepper}")
+        # debug.fmsg(f"TwoStep getting midresult from {stepper}")
         midresult = stepper(subproblem, lsCopy, time, unknownsCopy, halftime,
                             *args, **kwargs)
         midresult.endValues.verbose(True)
-        debug.fmsg(f"midresult={midresult.endValues.addr()} refcount={sys.getrefcount(midresult.endValues)-1}")        
+        # debug.fmsg(f"back from stepper, midresult={midresult.endValues.addr()} refcount={debug.getrefcount(midresult.endValues)}")        
         # debug.fmsg("first half step norm=", midresult.endValues.norm(),
         #            "time=", halftime)
 
         # Take the second half step to endtime.
-        debug.fmsg("Twostep._step: calling SubProblemContext.installValues")
+        # debug.fmsg("Twostep._step: calling SubProblemContext.installValues before step 2")
         subproblem.installValues(lsCopy, midresult.endValues, halftime)
-        debug.fmsg("TwoStep._step: back from installValues")
+        # debug.fmsg("TwoStep._step: back from installValues")
         linsys = subproblem.make_linear_system( halftime, lsCopy )
-
+        # debug.fmsg(f"Calling stepper for step 2")
         result2 = stepper(subproblem, linsys, halftime, midresult.endValues,
                           endtime, *args, **kwargs)
-        debug.fmsg(f"result2={midresult.endValues.addr()}")        
+        # debug.fmsg(f"result2={midresult.endValues.addr()} refcount={debug.getrefcount(result2)}")
         # debug.fmsg("second half step norm=", result2.endValues.norm(),
         #            "time=", endtime)
 
+        # debug.fmsg(f"calling errorscaling, result1={result1.addr()} refcount={debug.getrefcount(result1)}")
         result2.errorEstimate = errorscaling(
             endtime-time,
             self.singlestep.error_estimation_dofs(linsys, unknowns),
             self.singlestep.error_estimation_dofs(linsys, result1.endValues),
             self.singlestep.error_estimation_dofs(linsys, result2.endValues))
+        # debug.fmsg(f"back from errorscaling, result1={result1.addr()} refcount={debug.getrefcount(result1)}")
+        # debug.fmsg(f"back from errorscaling, result2={result1.addr()} refcount={debug.getrefcount(result2)}")
 
         ## TODO: recombine single and double step results to get one
         ## higher order?  This should be done *after* error
         ## estimation, if at all, according to NR.
-        debug.fmsg("done")
+        # debug.fmsg("done")
         return result2
 
 

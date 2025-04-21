@@ -811,7 +811,9 @@ DoubleVec *LinearizedSystem::error_estimation_dofs_MCKd(
   return dofs;
 }
 
-// These routines set_unknowns_MCK*() copy values from src into a copy
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// The routines set_unknowns_MCK*() copy values from src into a copy
 // of dest, which they return.
 
 DoubleVec *LinearizedSystem::set_unknowns_MCK(const DoubleVec *src,
@@ -828,16 +830,24 @@ DoubleVec *LinearizedSystem::set_unknowns_MCKa(const DoubleVec *src,
   const
 {
   // This is being called with a deleted src.
-  std::cerr << "LinearizedSystem::set_unknowns_MCKa: src " << src << " size="
-	    << src->size() << " dest "<< dest << " size=" << dest->size()
-	    << std::endl;
+  // std::cerr << "LinearizedSystem::set_unknowns_MCKa: src=" << src << " size="
+  // 	    << src->size() << " dest="<< dest << " size=" << dest->size()
+  // 	    << std::endl;
   int n = subp2MCKFieldMap.range();
-  DoubleVec *result = new DoubleVec(*dest);
+  DoubleVec *result = new DoubleVec(*dest); // Copy!
+  // std::cerr << "LinearizedSystem::set_unknowns_MCKa: created result="
+  // 	    << result->addr() << std::endl;
   result->verbose(true);
   src->verbose(true);
   dest->verbose(true);
+  // std::cerr << "LinearizedSystem::set_unknowns_MCKa: calling subp2MCKFieldMap.inject" << std::endl;
+  // std::cerr << "LinearizedSystem::set_unknowns_MCKa: result.size="
+  // 	    << result->size() << std::endl;
   subp2MCKFieldMap.inject(*src, 0, *result);
+  // std::cerr << "LinearizedSystem::set_unknowns_MCKa: calling subp2nonEmptyMDerivMap::inject" << std::endl;
   subp2nonEmptyMDerivMap.inject(*src, n, *result);
+  // std::cerr << "LinearizedSystem::set_unknowns_MCKa: result=" << result->addr()
+  // 	    << std::endl;
   return result;
 }
 
@@ -851,6 +861,8 @@ DoubleVec *LinearizedSystem::set_unknowns_MCKd(const DoubleVec *src,
   subp2MCKDerivMap.inject(*src, n, *result);
   return result;
 }
+
+//=\\=//=\\=//=\\=//
 
 void LinearizedSystem::set_unknowns_Cdot_inplace(const DoubleVec *src,
 						 DoubleVec *dest)

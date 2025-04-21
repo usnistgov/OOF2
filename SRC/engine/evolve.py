@@ -339,9 +339,9 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
                         # timestepper.StepResult object.
                         # debug.fmsg(f"taking step from {time} to"
                         #            f" {targettime} ({targettime-time})")
-                        debug.fmsg(f"evolve calling {type(subproblem.nonlinear_solver)}.step")
+                        # debug.fmsg(f"evolve calling {type(subproblem.nonlinear_solver).__name__}.step")
                         unknowns = subproblem.get_unknowns(lsClone)
-                        debug.fmsg(f"unknowns = {unknowns.addr()}")
+                        # debug.fmsg(f"unknowns = {unknowns.addr()}")
                         stepResult = subproblem.nonlinear_solver.step(
                             subproblem,
                             linsys=lsClone,
