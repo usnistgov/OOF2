@@ -145,7 +145,7 @@ registeredclass.Registration(
 
 class NLDataGE(timestepper.NLData):
     def __init__(self, subproblem, linsys0, endtime, dt, unknowns, theta):
-        debug.fmsg()
+        # debug.fmsg()
         self.dt = dt
         self.C = linsys0.C_MCKa()
         # resid0 is the part of the residual that can be computed at
@@ -156,9 +156,9 @@ class NLDataGE(timestepper.NLData):
         res = linsys0.static_residual_MCKa(unknowns)
         self.resid0.axpy( (1-theta)*dt, res )
         timestepper.NLData.__init__(self, subproblem, linsys0, endtime)
-        debug.fmsg(f"Storing resid0={self.resid0.addr()}")
-    def __del__(self):
-        debug.fmsg(f"Deleting. refs(resid0)={debug.getrefcount(self.resid0)}")
+        # debug.fmsg(f"Storing resid0={self.resid0.addr()}")
+    # def __del__(self):
+    #     debug.fmsg(f"Deleting. refs(resid0)={debug.getrefcount(self.resid0)}")
 
 
 class GeneralizedEuler(timestepper.LinearStepper, timestepper.NonLinearStepper,
@@ -229,9 +229,9 @@ class GeneralizedEuler(timestepper.LinearStepper, timestepper.NonLinearStepper,
         data = NLDataGE(subproblem, linsys, endtime, dt, unknowns, self.theta)
         # endValues is being deleted too soon
         endValues = unknowns.clone()
-        debug.fmsg(f"GE cloned endValues, src={unknowns.addr()} dst={endValues.addr()} <==== new here")
-        debug.fmsg(f"endValues initial refcount={debug.getrefcount(endValues)}")
-        debug.fmsg(f"Calling solve {type(nonlinearMethod).__name__}.solve")
+        # debug.fmsg(f"GE cloned endValues, src={unknowns.addr()} dst={endValues.addr()} <==== new here")
+        # debug.fmsg(f"endValues initial refcount={debug.getrefcount(endValues)}")
+        # debug.fmsg(f"Calling solve {type(nonlinearMethod).__name__}.solve")
         # The tuple of args for solve, here, is one of the referrers
         # of endValues reported by SubProblemContext.installValues
         # after calling timestepper.set_unknowns.  Or at least its
@@ -243,7 +243,7 @@ class GeneralizedEuler(timestepper.LinearStepper, timestepper.NonLinearStepper,
                               self.compute_linear_coef_mtx,
                               data, endValues)
         
-        debug.fmsg(f"Back from solve, endValues={endValues.addr()} refcount={debug.getrefcount(endValues)}")
+        # debug.fmsg(f"Back from solve, endValues={endValues.addr()} refcount={debug.getrefcount(endValues)}")
         return timestepper.StepResult(endTime=endtime, nextStep=dt,
                                       endValues=endValues, linsys=linsys)
 

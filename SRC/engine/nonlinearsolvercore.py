@@ -307,12 +307,16 @@ class Newton(NLSolver):
                 s, residual = self.choose_step_size(
                     data, values, update, res_norm,
                     precompute, compute_residual)
+
                 # correct the soln with the Newton update
                 debug.fmsg(f"Updating values ({values.addr()}) refcount={debug.getrefcount(values)} with update ({update.addr()})")
-                tmp = s*update
-                values = values = tmp
-                #values += s * update
+                ## This is the line that's causing problems:
+                # values = values + s*update
+                #tmp = s*update
+                #values += tmp
+                values += s * update
                 debug.fmsg(f"After update, values={values.addr()} refcount={debug.getrefcount(values)}")
+
                
 
                 res_norm = residual.norm()
