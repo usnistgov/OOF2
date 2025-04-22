@@ -69,10 +69,10 @@ public:
   /* Arithmetic operations */
 
   // In-place operations, using no temporaries
-  DoubleVec& operator+=(const DoubleVec&);
-  DoubleVec& operator-=(const DoubleVec&);
-  DoubleVec& operator*=(double);
-  DoubleVec& operator/=(double);
+  void operator+=(const DoubleVec&);
+  void operator-=(const DoubleVec&);
+  void operator*=(double);
+  void operator/=(double);
   void axpy(double alpha, const DoubleVec& x);
   
   // Non-in-place, which may return a temporary object, although the

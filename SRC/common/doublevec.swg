@@ -114,22 +114,20 @@ public:
   // doesn't work.  The reference count of the result is incorrect and
   // it's deleted too soon.  But swig knows what to do with
   // operator+=, etc.
+  // TODO: Perhaps that was because it was returning *self instead of void?
 
-  DoubleVec* operator+=(const DoubleVec& other) {
+  void operator+=(const DoubleVec& other) {
     assert(self->size() == other.size());
     self->data += other.data;
-    return self;
   }
 
-  DoubleVec* operator-=(const DoubleVec& other) {
+  void operator-=(const DoubleVec& other) {
     assert(self->size() == other.size());
     self->data -= other.data;
-    return self;
   }
 
-  DoubleVec* operator/=(double factor) {
+  void operator/=(double factor) {
     self->data /= factor;
-    return self;
   }
 
   %newobject __truediv__;

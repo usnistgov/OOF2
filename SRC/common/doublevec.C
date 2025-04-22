@@ -108,27 +108,23 @@ bool DoubleVec::operator!=(const DoubleVec& other) const {
   return data != other.data;
 }
 
-DoubleVec& DoubleVec::operator+=(const DoubleVec& other) {
+void DoubleVec::operator+=(const DoubleVec& other) {
   assert(other.size() == size());
   data += other.data; 
-  return *this;
 }
 
-DoubleVec& DoubleVec::operator-=(const DoubleVec& other) {
+void DoubleVec::operator-=(const DoubleVec& other) {
   assert(other.size() == size());
   data -= other.data;
   assert(other.size() == size());
-  return *this;
 }
 
-DoubleVec& DoubleVec::operator*=(double alpha) {
+void DoubleVec::operator*=(double alpha) {
   data *= alpha;
-  return *this;
 }
 
-DoubleVec& DoubleVec::operator/=(double alpha) {
+void DoubleVec::operator/=(double alpha) {
   data /= alpha;
-  return *this;
 }
 
 void DoubleVec::axpy(double alpha, const DoubleVec& x) {
