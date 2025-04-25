@@ -46,30 +46,46 @@ class ScriptLoader:
         fileobj.close()
             
     def run(self):
-        # Loop over top-level nodes of the AST. Run one node at a time
-        # by replacing the list of nodes in the AST with a list
-        # containing just the one node.  (This appears to work, but I
-        # have no idea if it's legal.)
+        ## TODO: Fix this.  Despite the comment, it doesn't actually
+        ## work.  Global variables defined in the file are not
+        ## available inside a function defined in the file.
+        
+        ## Loop over top-level nodes of the AST. Run one node at a time
+        ## by replacing the list of nodes in the AST with a list
+        ## containing just the one node.  (This appears to work, but I
+        ## have no idea if it's legal.)
+        # if self.error is None:
+        #     codebody = self.tree.body
+        #     if len(codebody) > 0:
+        #         try:
+        #             # self.excepthook = excepthook.assign_excepthook(
+        #             #     _ScriptExceptHook(self))
+        #             lastline = codebody[-1].end_lineno
+        #             for snippet in codebody:
+        #                 self.tree.body = [snippet]
+        #                 code = compile(self.tree, self.filename, "exec")
+        #                 exec(code, globals(), self.locals)
+        #                 self.progress(snippet.lineno, lastline) 
+        #                 if self.stop() or self.error:
+        #                     break
+        #         except Exception as exc:
+        #             self.error = sys.exc_info()
+        #             self.errhandler(*self.error)
+        #             # excepthook.remove_excepthook(self.excepthook)
+        #         finally:
+        #             self.done()
+
+        ## This version works, but doesn't support progress bars,
+        ## since it doesn't call self.progress().
         if self.error is None:
-            codebody = self.tree.body
-            if len(codebody) > 0:
-                try:
-                    # self.excepthook = excepthook.assign_excepthook(
-                    #     _ScriptExceptHook(self))
-                    lastline = codebody[-1].end_lineno
-                    for snippet in codebody:
-                        self.tree.body = [snippet]
-                        code = compile(self.tree, self.filename, "exec")
-                        exec(code, globals(), self.locals)
-                        self.progress(snippet.lineno, lastline) 
-                        if self.stop() or self.error:
-                            break
-                except Exception as exc:
-                    self.error = sys.exc_info()
-                    self.errhandler(*self.error)
-                    # excepthook.remove_excepthook(self.excepthook)
-                finally:
-                    self.done()
+            try:
+                fileobj = open(self.filename)
+                exec(fileobj.read(), globals(), self.locals)
+            except Exception as exc:
+                self.error = sys.exc_info()
+                self.errhandler(*self.error)
+            finally:
+                self.done()
 
     def progress(self, current, total): # May be redefined in subclasses
         pass
