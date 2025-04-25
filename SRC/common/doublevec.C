@@ -32,7 +32,11 @@ DoubleVec::~DoubleVec() {
 DoubleVec::DoubleVec()
   : verbose_(verboseVectors),
     id_(idcount_++)
-{}
+{
+  if(verbose_)
+    std::cerr << "DoubleVec null constructor: size=" << size()
+	      << " addr=" << addr() << std::endl;
+}
 
 DoubleVec::DoubleVec(int size, double val)
   : verbose_(verboseVectors),
@@ -67,6 +71,10 @@ DoubleVec::DoubleVec(DoubleVec &&other)
 	      << " dst=" << addr() << std::endl;
 }
 
+// This is not quite the same syntax as Python.  x=y in Python usually
+// does not create a new object, just a new reference to an old
+// object, meaning that x=y;y+=z will leave x set to y+z.  What do we
+// want DoubleVec::operator= to do in Python?
 DoubleVec& DoubleVec::operator=(const DoubleVec &other) {
   data = other.data;
   verbose_ = other.is_verbose();
@@ -108,59 +116,78 @@ bool DoubleVec::operator!=(const DoubleVec& other) const {
   return data != other.data;
 }
 
-void DoubleVec::operator+=(const DoubleVec& other) {
+DoubleVec& DoubleVec::operator+=(const DoubleVec& other) {
+  // std::cerr << "DoubleVec::operator+=: this=" << addr()
+  // 	    << " other=" << other.addr() << std::endl;
   assert(other.size() == size());
-  data += other.data; 
+  data += other.data;
+  return *this;
 }
 
-void DoubleVec::operator-=(const DoubleVec& other) {
+DoubleVec& DoubleVec::operator-=(const DoubleVec& other) {
   assert(other.size() == size());
   data -= other.data;
   assert(other.size() == size());
+  return *this;
 }
 
-void DoubleVec::operator*=(double alpha) {
+DoubleVec& DoubleVec::operator*=(double alpha) {
   data *= alpha;
+  return *this;
 }
 
-void DoubleVec::operator/=(double alpha) {
+DoubleVec& DoubleVec::operator/=(double alpha) {
   data /= alpha;
+  return *this;
 }
 
 void DoubleVec::axpy(double alpha, const DoubleVec& x) {
   assert(x.size() == size());
+  // TODO: Check to see if Eigen does this in one loop or two.
   data += alpha * x.data;
 }
 
 DoubleVec DoubleVec::operator+(const DoubleVec& other) const {
-  DoubleVec rst(*this);
-  rst.data += other.data;
-  return rst;
+  // std::cerr << "DoubleVec::operator+: copying" << std::endl;
+  DoubleVec result(*this);
+  // std::cerr << "DoubleVec::operator+: this=" << addr()
+  // 	    << " other=" << other.addr()
+  // 	    << " result=" << result.addr() << std::endl;
+  result.data += other.data;
+  // std::cerr << "DoubleVec::operator+: done" << std::endl;
+  return result;
 }
 
 DoubleVec DoubleVec::operator-(const DoubleVec& other) const {
-  DoubleVec rst(*this);
-  rst.data -= other.data;
-  return rst;
+  DoubleVec result(*this);
+  result.data -= other.data;
+  return result;
+}
+
+// Unary -
+DoubleVec DoubleVec::operator-() const {
+  DoubleVec result(*this);
+  result *= -1;
+  return result;
 }
 
 DoubleVec DoubleVec::operator*(double alpha) const {
-  DoubleVec rst(*this);
-  rst.data *= alpha;
-  return rst;
+  DoubleVec result(*this);
+  result.data *= alpha;
+  return result;
 }
 
 DoubleVec DoubleVec::operator/(double alpha) const {
-  DoubleVec rst(*this);
-  rst.data /= alpha;
-  return rst;
+  DoubleVec result(*this);
+  result.data /= alpha;
+  return result;
 }
 
 // Friend method of DoubleVec, return the result of (scalar * vec)
 DoubleVec operator*(double alpha, const DoubleVec& mat) {
-  DoubleVec rst;
-  rst.data = alpha * mat.data;
-  return rst;
+  DoubleVec result;
+  result.data = alpha * mat.data;
+  return result;
 }
 
 double DoubleVec::dot(const DoubleVec& other) const {

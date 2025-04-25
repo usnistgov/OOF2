@@ -68,17 +68,19 @@ public:
 
   /* Arithmetic operations */
 
-  // In-place operations, using no temporaries
-  void operator+=(const DoubleVec&);
-  void operator-=(const DoubleVec&);
-  void operator*=(double);
-  void operator/=(double);
+  // In-place operations, using no temporaries.  Swig expects these to
+  // return a self reference. 
+  DoubleVec& operator+=(const DoubleVec&);
+  DoubleVec& operator-=(const DoubleVec&);
+  DoubleVec& operator*=(double);
+  DoubleVec& operator/=(double);
   void axpy(double alpha, const DoubleVec& x);
   
-  // Non-in-place, which may return a temporary object, although the
+  // Not in-place. These may return a temporary object, although the
   // move constructor should make that cheap.
   DoubleVec operator+(const DoubleVec&) const;
   DoubleVec operator-(const DoubleVec&) const;
+  DoubleVec operator-() const;
   DoubleVec operator*(double) const;
   DoubleVec operator/(double) const;
   friend DoubleVec operator*(double, const DoubleVec&);
@@ -87,7 +89,6 @@ public:
   double dot(const DoubleVec&) const;
   double operator*(const DoubleVec&) const;
   double norm() const { return data.norm(); }
-
 
   // Iterators
   typedef Eigen::VectorXd::iterator iterator;
@@ -111,7 +112,7 @@ public:
   friend bool save_vec(const DoubleVec&, const std::string&);
   friend bool load_vec(DoubleVec&, const std::string&);
 
-  friend DoubleVec* __isub__(const DoubleVec&);
+  // friend DoubleVec* __isub__(const DoubleVec&);
 
   static DoubleVec* testIterator(DoubleVec&);
 };
