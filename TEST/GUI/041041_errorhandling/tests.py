@@ -19,24 +19,30 @@ def noExecution():
     except NameError:
         return True
     
-
 def errorMsgTest():
-    return generics.errorMsg(
+    return generics.errorMsgTemplates(
+        "FNAME",
+        ("TEST_DATA/syntaxerror.py", "<string>"),
+        [
         # Python 3.8
-"""TEST_DATA/syntaxerror.py", line 2
+"""FNAME", line 2
     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
                                                                        ^
-SyntaxError: EOL while scanning string literal""",
+SyntaxError: EOL while scanning string literal
+""",
 
         # Python 3.9
-"""  File "TEST_DATA/syntaxerror.py", line 2
+"""  File "FNAME", line 2
     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
                                                                         ^
-SyntaxError: EOL while scanning string literal""",        
+SyntaxError: EOL while scanning string literal
+""",
 
-        # Python 3.10
-"""File "TEST_DATA/syntaxerror.py", line 2
+         # Python 3.10 to 3.13
+"""File "FNAME", line 2
     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
     ^
-SyntaxError: unterminated string literal (detected at line 2)"""
+SyntaxError: unterminated string literal (detected at line 2)
+"""
+        ]
     )

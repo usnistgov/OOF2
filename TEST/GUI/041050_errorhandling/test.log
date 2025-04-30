@@ -9,7 +9,10 @@
 # oof_manager@nist.gov.
 
 # Load a file that loads a file containing a syntax error and check
-# that lines after the error aren't processed.
+# that lines after the error aren't processed.  The initial file is
+# loaded on the command line via
+#   --script TEST_DATA/nestedsyntaxerr.py
+# See the args file.
 
 import tests
 from ooflib.common import utils
