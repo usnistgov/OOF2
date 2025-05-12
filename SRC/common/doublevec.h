@@ -28,16 +28,18 @@ template<typename Derived> class DirectSolver;
 
 // TODO? Derive DoubleVec from Eigen::VectorXd, instead of wrapping it.
 
-extern bool verboseVectors;
+// extern bool verboseVectors;
 
 class DoubleVec {
 public:			     // TODO: Make private when done debugging
   Eigen::VectorXd data;	     // N x 1 matrix
+
+  // Debugging stuff
   mutable bool verbose_;     // TODO: remove when done debugging
-  void verbose(bool flag) const { verbose_ = flag; }
-  bool is_verbose() const { return verbose_; }
-  int id_;
-  static int idcount_;
+  void verbose(bool flag) {} // { verbose_ = flag; }
+  bool is_verbose() const { return false; } //{ return verbose_; }
+  // int id_;
+  // static int idcount_;
 public:
   DoubleVec();
   DoubleVec(int size, double val=0);
@@ -47,7 +49,7 @@ public:
   DoubleVec& operator=(const DoubleVec&) /* = default */;
   ~DoubleVec();
 
-  std::string addr() const;	// for debugging
+  std::string addr() const { return ""; }	// for debugging
  
   /* Vector property methods */
   
@@ -70,10 +72,10 @@ public:
 
   // In-place operations, using no temporaries.  Swig expects these to
   // return a self reference. 
-  DoubleVec& operator+=(const DoubleVec&);
-  DoubleVec& operator-=(const DoubleVec&);
-  DoubleVec& operator*=(double);
-  DoubleVec& operator/=(double);
+  const DoubleVec& operator+=(const DoubleVec&);
+  const DoubleVec& operator-=(const DoubleVec&);
+  const DoubleVec& operator*=(double);
+  const DoubleVec& operator/=(double);
   void axpy(double alpha, const DoubleVec& x);
   
   // Not in-place. These may return a temporary object, although the
@@ -100,7 +102,7 @@ public:
 
   /* Miscellaneous */
 
-  const std::string str() const;
+  const std::string str() const; 
 
   friend SparseMat;
   friend SmallMatrix;

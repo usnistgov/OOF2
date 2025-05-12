@@ -38,13 +38,15 @@ public:
   bool operator!=(const DoubleVec&) const;
 
   // Swig apparently expects the in-place arithmetic operators to
-  // return a self reference.  I don't know why.  x=(y+=z) is not
-  // valid python.  But if they return void the DoubleVec reference
-  // counting is incorrect, and a DoubleVec might be deleted too soon.
-  DoubleVec& operator+=(const DoubleVec&);
-  DoubleVec& operator-=(const DoubleVec&);
-  DoubleVec& operator/=(double);
-  DoubleVec& operator*=(double);
+  // return a self reference.  I don't know why.  x=(y+=z) and
+  // (x+=y)=z are not valid python.  But if they return void the
+  // DoubleVec reference counting is incorrect, and a DoubleVec might
+  // be deleted too soon.
+  const DoubleVec& operator+=(const DoubleVec&);
+  const DoubleVec& operator-=(const DoubleVec&);
+  const DoubleVec& operator/=(double);
+  const DoubleVec& operator*=(double);
+  void axpy(double alpha, const DoubleVec& x); // self += alpha*x 
 
   DoubleVec operator+(const DoubleVec&) const;
   DoubleVec operator-(const DoubleVec&) const;
@@ -52,7 +54,6 @@ public:
   double operator*(const DoubleVec&) const; // dot product
   DoubleVec operator*(double) const;
   
-  void axpy(double alpha, const DoubleVec& x);
   double dot(const DoubleVec&);
 
   // Debugging routines
@@ -67,6 +68,7 @@ public:
 
 %extend DoubleVec {
   //  %newobject __repr__;
+  // TODO: Can __repr__ be done without copying a string?
   const std::string __repr__() {
     std::ostringstream os;
     if(self->size() > 0) {
@@ -91,6 +93,8 @@ public:
     *self = *x;
   }
 
+    // TODO? Call this __copy__ instead of clone.  Then use copy.copy
+    // to copy.
   %newobject clone;
   DoubleVec *clone() {
     DoubleVec* dv = new DoubleVec(*self);
@@ -140,12 +144,12 @@ public:
   //   return result;
   // }
 
-  %newobject __truediv__;
-  DoubleVec *__truediv__(double factor) {
-    DoubleVec* result = new DoubleVec(*self);
-    result->data /= factor;
-    return result;
-  }
+  // %newobject __truediv__;
+  // DoubleVec *__truediv__(double factor) {
+  //   DoubleVec* result = new DoubleVec(*self);
+  //   result->data /= factor;
+  //   return result;
+  // }
 
   %newobject __rmul__;
   DoubleVec* __rmul__(double factor) {
@@ -161,6 +165,8 @@ public:
   // TODO: Perhaps that was because it was returning *self instead of void?
 
   // void operator+=(const DoubleVec& other) {
+  //   assert(0);
+  //   std::cerr << "operator+=" << self->addr() << " " << other.addr() << std::endl;
   //   assert(self->size() == other.size());
   //   self->data += other.data;
   // }
@@ -172,6 +178,10 @@ public:
 
   // void operator/=(double factor) {
   //   self->data /= factor;
+  // }
+
+  // void operator*=(double factor) {
+  //   self->data *= factor;
   // }
 
   // DoubleVec::__mul__, __rmul__, and __imul__ are defined in Python

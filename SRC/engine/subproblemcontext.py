@@ -1010,9 +1010,18 @@ class SubProblemContext(whoville.Who):
             K11 = linsys.K_submatrix('C', 'C')
             K10 = linsys.K_submatrix('C', 'K')
             rhs = self.time_stepper.rhs_ind_part('C', linsys)
+            assert rhs is not None
+            rhs.verbose(True)
             # TODO: is there a simpler way of computing K*u?
+            # ku = (C12*u2dot + K12*u2 + K11*u1 + K10*u0)
+            # debug.fmsg(f"ku={ku.addr()} size={ku.size()}")
+
+            # TODO: Why doesn't rhs -= (C12 ...) work?
+            debug.fmsg("Computing rhs")
             rhs -= (C12*u2dot + K12*u2 + K11*u1 + K10*u0)
-            #debug.fmsg(f"{rhs=}")
+            # rhs = rhs - (C12*u2dot + K12*u2 + K11*u1 + K10*u0)
+            debug.fmsg(f"after, rhs={rhs.addr()}")
+            assert rhs is not None
             #debug.fmsg("Solving for u1dot")
             #debug.fmsg(f"{C11=}")
             #self.matrix_method(self.asymmetricC).solve(C11, rhs, u1dot)
@@ -1331,6 +1340,7 @@ class MatrixSolverWrapper:
         self.subprobctxt = subproblemcontext
         self.solver = solver
     def solve(self, matrix, rhs, solution):
+        assert rhs is not None
         niters, residual = self.solver.solve(matrix, rhs, solution)
         self.subprobctxt.solverStats.matrixSolution(
             matrix.nrows(), niters, residual)

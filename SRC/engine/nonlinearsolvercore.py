@@ -139,7 +139,6 @@ class NLSolver(cnonlinearsolver.CNonlinearSolver):
         maxiter = 20
         alpha = 1.0e-4;  # used in the stopping criterion for line search iters
 
-        tempSoln = soln.clone()  # allocate vectors tempSoln and residual
         # residual = soln.clone()
 
         # set the initial step size to 1 and compute the resulting residual
@@ -147,16 +146,16 @@ class NLSolver(cnonlinearsolver.CNonlinearSolver):
         s_prev = 1.0
         s_current = s
 
-        debug.fmsg("Before soln + s*update")
-        tempSoln = soln + s * update; # TODO: Use axpy ?
-        debug.fmsg("After soln + s*update")
+        tempSoln = soln.clone() + s*update
+        # tempSoln.axpy(s, update)
 
         self.requireResidual(True)
         self.requireJacobian(False)
-        # debug.fmsg(f"calling precompute: {precompute}")
+        debug.fmsg(f"calling precompute: {precompute}")
         precompute(data, tempSoln, self)
-        # debug.fmsg("back from precompute")
+        debug.fmsg("back from precompute")
         residual = compute_residual(data, tempSoln, self)
+        debug.fmsg("back from compute_residual")
         res_norm = residual.norm()
         # debug.fmsg("intial tempsoln=", tempSoln)
         # debug.fmsg("initial residual=", residual.addr())
@@ -181,7 +180,10 @@ class NLSolver(cnonlinearsolver.CNonlinearSolver):
 
             # update the soln with the new step size, update s_prev, s_current
             # debug.fmsg("trying s=", s)
-            tempSoln  = soln + s * update
+            tempSoln = soln.clone()
+            tempSoln.axpy(s, update)
+            # tempSoln  = soln + s * update
+            
             s_prev    = s_current
             s_current = s
 
@@ -198,15 +200,15 @@ class NLSolver(cnonlinearsolver.CNonlinearSolver):
             i += 1
             # debug.fmsg("Line search iteration", i, ",  residual =", res_norm)
 
-        # debug.fmsg(f"Done: {s=} (n={i} {res_norm0=} {res_norm=}")
+        debug.fmsg(f"Done: {s=} (n={i} {res_norm0=} {res_norm=}")
 
         # raise error if line search did not converge in maxiter # of
         # iterations
         if (i == maxiter) and (res_norm > (1-alpha*s)*res_norm0):
             raise ooferror.PyErrConvergenceFailure(
                 'Nonlinear solver - step size search', maxiter)
-        debug.fmsg(f"soln={soln.addr()} refcount={debug.getrefcount(soln)}")
-        debug.fmsg(f"returning to {debug.callerName(1)}")
+        # debug.fmsg(f"soln={soln.addr()} refcount={debug.getrefcount(soln)}")
+        # debug.fmsg(f"returning to {debug.callerName(1)}")
         return s, residual
 
     #### End of function (step_from_parabolic_model_with_Armijo)
@@ -234,7 +236,7 @@ class Newton(NLSolver):
         # data is an NLDataGE object, if using GeneralizedEuler
 
         initialrefcount = debug.getrefcount(values)
-        # debug.fmsg(f"Newton.solve: values={values.addr()} refcount={debug.getrefcount(values)}")
+        debug.fmsg(f"Newton.solve: values={values.addr()} refcount={debug.getrefcount(values)}")
 
         # matrix_method is function that takes a matrix A, a rhs b and
         # a vector of unknows x and sets x so that A*x = b.
@@ -297,8 +299,9 @@ class Newton(NLSolver):
                 update.zero()
                 # solve for the Newton step:  Jacobian * update = -residual
                 J = compute_jacobian(data, self)
-                # debug.fmsg("J=\n", J.norm())
+                debug.fmsg(f"residual={residual.addr()}")
                 residual *= -1.0
+                debug.fmsg(f"after negating, residual={residual.addr()}")
                 matrix_method.solve( J, residual, update )
                 # debug.fmsg("update=", update.norm())
 
@@ -311,10 +314,14 @@ class Newton(NLSolver):
                 # correct the soln with the Newton update
                 debug.fmsg(f"Updating values ({values.addr()}) refcount={debug.getrefcount(values)} with update ({update.addr()})")
                 ## This is the line that's causing problems:
-                # values = values + s*update
-                #tmp = s*update
-                #values += tmp
-                values += s * update
+                values += update*s  # TODO: Why doesn't this work?
+                #values.axpy(s, update) # ie, values += s*update.  This works.
+
+                #tmp = s*update ; values += tmp
+                # Note: "values = values + s*update" is NOT
+                # equivalent. It resets the local reference but
+                # doesn't change the original vectors.
+
                 debug.fmsg(f"After update, values={values.addr()} refcount={debug.getrefcount(values)}")
 
                
@@ -419,7 +426,8 @@ class Picard(NLSolver):
                 # debug.fmsg("line search s=", s)
 
                 # correct the soln with the Picard update
-                values += s * update
+                # values += s * update   ## TODO: Why doesn't this work?
+                values.axpy(s, update)
                 res_norm = residual.norm()
                 if res_norm <= target_res:
                     break

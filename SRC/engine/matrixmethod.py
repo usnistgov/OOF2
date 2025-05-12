@@ -150,6 +150,7 @@ class StabilizedBiConjugateGradient(PreconditionedMatrixMethod):
         self.solver.set_max_iterations(max_iterations)
         self.solver.set_tolerance(tolerance)
     def solveMatrix(self, matrix, rhs, solution):
+        ## TODO: rhs is None
         succ = self.solver.solve(matrix, rhs, solution)
         if succ != cmatrixmethods.SUCCESS: 
             if succ == cmatrixmethods.NOCONVERG:

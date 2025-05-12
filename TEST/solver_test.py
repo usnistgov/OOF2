@@ -3735,6 +3735,5 @@ test_set = (
 #             )
                             
 # test_set = [
-#     OOF_FluxOffset("PlaneStrain"),
-#     OOF_FluxOffset("PlaneStress")
+#     ThermalExpansionTest("Basic"),
 # ]
