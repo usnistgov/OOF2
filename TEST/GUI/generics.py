@@ -85,10 +85,16 @@ def fp_substring_compare(s1, s2, tolerance=None):
 # end of str1.
 
 def fp_string_compare_tail(str1, str2, tolerance=None):
+    debug.fmsg(f"{str1=}")
+    debug.fmsg(f"{str2=}")
+    debug.fmsg(f"{tolerance=}")
     if tolerance is None:
+        debug.fmsg(f"{str1.endswith(str2)=}")
         return str1.endswith(str2)
     s1_items = floatpattern.split(str1)
+    debug.fmsg(f"{s1_items=}")
     s2_items = floatpattern.split(str2)
+    debug.fmsg(f"{s2_items=}")
     if len(s1_items) < len(s2_items):
         return False
     # The first items are treated separately, because the piece from
@@ -322,8 +328,8 @@ def gtkTextviewTail(widgetpath, targettext, tolerance=None, quiet=False):
                               msgbuffer.get_end_iter(), True)
     if not fp_string_compare_tail(text, targettext, tolerance):
         if not quiet:
-            print((f"gtkTextviewTail failed for {widgetpath}\n"
-                   f"expected =>{targettext}<=\ngot =>{text}<="),
+            print((f"gtkTextviewTail: failed for {widgetpath}\n"
+                   f"\texpected =>{targettext}<=\n\tgot =>{text}<="),
                   file=sys.stderr)
         return False
     return True
@@ -574,7 +580,7 @@ def errorMsg(*texts, verbose=False):
     # Failed!
     msgbuffer = gtklogger.findWidget('Error:ErrorText').get_buffer()
     realtext = msgbuffer.get_text(msgbuffer.get_start_iter(),
-                              msgbuffer.get_end_iter(), True)
+                                  msgbuffer.get_end_iter(), True)
     print("errorMsg test failed!", file=sys.stderr)
     print(f"Got =>{realtext}<=", file=sys.stderr)
     if verbose:

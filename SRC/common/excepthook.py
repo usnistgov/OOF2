@@ -24,16 +24,19 @@ from ooflib.common import debug
 import sys, traceback
 
 def printTraceBack(e_type, e_value, tb):
-    from ooflib.common.IO import reporter # avoid import loop
-    for line in traceback.format_exception_only(e_type, e_value):
-        reporter.error(line.rstrip())
-    if isinstance(e_value, ooferror.PyOOFError):
-        moreinfo = e_value.details()
-        if moreinfo:
-            reporter.error(moreinfo)
-    if tb:
-        for line in traceback.extract_tb(tb).format():
-            reporter.error(line.rstrip())
+    debug.fmsg()
+    traceback.print_tb(tb)
+    # from ooflib.common.IO import reporter # avoid import loop
+    # for line in traceback.format_exception_only(e_type, e_value):
+    #     reporter.error(line.rstrip())
+    # if isinstance(e_value, ooferror.PyOOFError):
+    #     moreinfo = e_value.details()
+    #     if moreinfo:
+    #         reporter.error(moreinfo)
+    # if tb:
+    #     for line in traceback.extract_tb(tb).format():
+    #         reporter.error(line.rstrip())
+    debug.fmsg("done")
 
 # displayTraceBack is overridden by reporter_GUI.py, so that in GUI mode
 # it brings up a pop-up window.
@@ -49,6 +52,7 @@ class OOFexceptHook:
     def getTraceBackList(self, tback): # may be redefined in derived classes
         return traceback.extract_tb(tback)
     def __call__(self, e_type, e_value, tback):
+        debug.fmsg(f"Handling an exception: {e_type}")
         displayTraceBack(e_type, e_value, tback)
 
     ## Not sure why __cmp__ was defined.  OOFexceptHook seems to work
@@ -118,6 +122,7 @@ def get_excepthook():
     return None
 
 def _oofExceptHook(e_type, e_value, tback):
+    debug.fmsg()
     _exceptLock.acquire()
     hook = get_excepthook()
     _exceptLock.release()

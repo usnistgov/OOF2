@@ -32,7 +32,7 @@ def noExecution():
 from ooflib.common.IO import scriptloader
 
 def errorMsgTest():
-    if scriptloader.loadScriptsWithProgress:
+    if scriptloader.isLoaderType("ast"):
         return generics.errorMsg(
     # Python 3.8
 """  File "TEST_DATA/syntaxerror.py", line 2
@@ -59,7 +59,13 @@ SyntaxError: unterminated string literal (detected at line 2)
 
 ooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestedsyntaxerr.py raised a SyntaxError exception
 """,
-)
+
+"""  File "TEST_DATA/syntaxerror.py", line 2
+    'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
+    ^
+SyntaxError: unterminated string literal (detected at line 2)
+"""
+        )
 
     ####
     

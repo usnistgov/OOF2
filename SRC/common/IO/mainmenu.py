@@ -154,29 +154,52 @@ subScriptErrorHandler = None       # redefined if GUI is loaded
 
 def loadscript(menuitem, filename):
     if filename is not None:
-        debug.fmsg('reading', filename, 'in thread',
-                   threadstate.findThreadNumber())
-        kwargs = {}
-        if subScriptErrorHandler:
-            kwargs['errhandler'] = subScriptErrorHandler
-        interp = PScriptLoader(filename, **kwargs)
-        interp.run()
-        if interp.error:
-            # If the interpreter raised an exception and we're in
-            # batch mode, the shell error status won't be set unless a
-            # new exception is raised here.  The old exception has
-            # already been handled by the time we get to this point.
-            # interp.error is the result of sys.exc_info() when the
-            # error occurred.
-            errorname = interp.error[0].__name__
-            if errorname.lower()[0] in "aeiou":
-                article = "an"
+        debug.fmsg(
+            f"Reading {filename} in thread {threadstate.findThreadNumber()}")
+        try:
+            interp = PScriptLoader(filename)
+            interp.run()
+        except scriptloader.ScriptInterrupt:
+            # Interrupts are user-generated events and don't require a
+            # traceback to be displayed.
+            debug.fmsg(f"Interrupted while reading {filename}!")
+            return
+        except scriptloader.ScriptException as exc:
+            if exc.depth == 0:
+                debug.fmsg("Caught a ScriptException!")
+                # The PyErrUserError raised here should be caught by
+                # OOFexceptHook.  See SRC/common/excepthook.py.
+                raise ooferror.PyErrUserError(
+                    f"Error running script {filename}!") from exc
             else:
-                article = "a"
-            raise ooferror.PyErrUserError(
-                f"Script {filename} raised {article} "
-                f"{interp.error[0].__name__} exception")
-        debug.fmsg('finished reading', filename)
+                # The exception occurred while running a nested
+                # ScriptLoader.  It will be caught by that
+                # ScriptLoader's exception handler.
+                debug.fmsg("Moving on up")
+                raise         
+            
+        # kwargs = {}
+        # if subScriptErrorHandler:
+        #     kwargs['errhandler'] = subScriptErrorHandler
+        # interp = PScriptLoader(filename, **kwargs)
+        # interp.run()
+        # debug.fmsg(f"{interp.error=}")
+        # if interp.error:
+        #     # If the interpreter raised an exception and we're in
+        #     # batch mode, the shell error status won't be set unless a
+        #     # new exception is raised here.  The old exception has
+        #     # already been handled by the time we get to this point.
+        #     # interp.error is the result of sys.exc_info() when the
+        #     # error occurred.
+        #     errorname = interp.error[0].__name__
+        #     if errorname.lower()[0] in "aeiou":
+        #         article = "an"
+        #     else:
+        #         article = "a"
+        #     debug.fmsg(f"Changing {errorname} to PyErrUserError")
+        #     raise ooferror.PyErrUserError(
+        #         f"Script {filename} raised {article} {errorname} exception")
+        debug.fmsg(f"Finished reading {filename}.")
 
 _loadmenu.addItem(OOFMenuItem(
     'Script',

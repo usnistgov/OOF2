@@ -27,71 +27,128 @@ def noExecution():
 # instead.  That's because the differences between the messages are
 # greater.
 
-# TODO: Settle on one version of ScriptLoader.run() and simplify this.
-
-from ooflib.common.IO import scriptloader
-
 def errorMsgTest():
-    if scriptloader.loadScriptsWithProgress:
-        return generics.errorMsg(
-    # Python 3.8
-"""  File "TEST_DATA/syntaxerror.py", line 2
-    'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
-                                                                       ^
-SyntaxError: EOL while scanning string literal
-
-ooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestedsyntaxerr.py raised a SyntaxError exception
-""",
-      # Python 3.9
-"""  File "TEST_DATA/syntaxerror.py", line 2
-    'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
-                                                                        ^
-SyntaxError: EOL while scanning string literal
-
-ooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestedsyntaxerr.py raised a SyntaxError exception
-""",
-       # Python 3.10 and above
-
+    return generics.errorMsg(
 """  File "TEST_DATA/syntaxerror.py", line 2
     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
     ^
 SyntaxError: unterminated string literal (detected at line 2)
 
 ooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestedsyntaxerr.py raised a SyntaxError exception
-""",
-)
+"""
+    )
 
-    ####
-    
-    else:                       # not loadScriptsWithProgress
-        return generics.errorMsg(
+def OLDerrorMsgTest():
+    return generics.errorMsg(
         # Python 3.8
-
-"""  File "<string>", line 2
+"""  File "TEST_DATA/syntaxerror.py", line 2
     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
                                                                        ^
 SyntaxError: EOL while scanning string literal
-""",
+
+ooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestedsyntaxerr.py raised a SyntaxError exception""",
 
         # Python 3.9
-"""  File "<string>", line 2
+"""  File "TEST_DATA/syntaxerror.py", line 2
     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
                                                                         ^
 SyntaxError: EOL while scanning string literal
-""",
 
+ooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestedsyntaxerr.py raised a SyntaxError exception""",
+        
         # Python 3.10
-"""File "<string>", line 2
+"""File "TEST_DATA/syntaxerror.py", line 2
 'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
 ^
 SyntaxError: unterminated string literal (detected at line 2)
-""",
+
+ooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestedsyntaxerr.py raised a SyntaxError exception""",
 
         # Python 3.10 (Ubuntu 22.04)
-"""  File "<string>", line 2
+"""  File "TEST_DATA/syntaxerror.py", line 2
     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
     ^
 SyntaxError: unterminated string literal (detected at line 2)
-""",
-    )
+
+ooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestedsyntaxerr.py raised a SyntaxError exception"""
+        )
+
+# TODO: Settle on one version of ScriptLoader.run() and simplify this.
+
+# from ooflib.common.IO import scriptloader
+
+# def errorMsgTest():
+#     if scriptloader.isLoaderType("ast"):
+#         return generics.errorMsg(
+#     # Python 3.8
+# """  File "TEST_DATA/syntaxerror.py", line 2
+#     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
+#                                                                        ^
+# SyntaxError: EOL while scanning string literal
+
+# ooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestedsyntaxerr.py raised a SyntaxError exception
+# """,
+#       # Python 3.9
+# """  File "TEST_DATA/syntaxerror.py", line 2
+#     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
+#                                                                         ^
+# SyntaxError: EOL while scanning string literal
+
+# ooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestedsyntaxerr.py raised a SyntaxError exception
+# """,
+#        # Python 3.10 and above
+
+# """  File "TEST_DATA/syntaxerror.py", line 2
+#     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
+#     ^
+# SyntaxError: unterminated string literal (detected at line 2)
+
+# ooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestedsyntaxerr.py raised a SyntaxError exception
+# """,
+# )
+
+#     else:
+#         # Python 3.11
+#         return generics.errorMsg(
+# """  File "TEST_DATA/syntaxerror.py", line 2
+#     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
+#     ^
+# SyntaxError: unterminated string literal (detected at line 2)
+# """            
+#         )
+#     ####
+
+
+    
+#     else:
+#         return generics.errorMsg(
+#         # Python 3.8
+
+# """  File "<string>", line 2
+#     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
+#                                                                        ^
+# SyntaxError: EOL while scanning string literal
+# """,
+
+#         # Python 3.9
+# """  File "<string>", line 2
+#     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
+#                                                                         ^
+# SyntaxError: EOL while scanning string literal
+# """,
+
+#         # Python 3.10
+# """File "<string>", line 2
+# 'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
+# ^
+# SyntaxError: unterminated string literal (detected at line 2)
+# """,
+
+#         # Python 3.10 (Ubuntu 22.04)
+# """  File "<string>", line 2
+#     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
+#     ^
+# SyntaxError: unterminated string literal (detected at line 2)
+# """,
+#     )
 

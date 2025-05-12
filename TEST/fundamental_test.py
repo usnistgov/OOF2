@@ -252,7 +252,7 @@ class OOF_Fundamental(unittest.TestCase):
                         utils.OOFeval('anothertest')=="ok")
 
     def ScriptSyntaxErr0(self):
-        self.assertRaises(SyntaxError,
+        self.assertRaises(ooferror.PyErrUserError,
                           OOF.File.Load.Script,
                           filename=reference_file("fundamental_data",
                                                   "syntaxerror.py"))
@@ -264,6 +264,13 @@ class OOF_Fundamental(unittest.TestCase):
         self.assertRaises(NameError, utils.OOFeval, "borogoves")
 
     def ScriptSyntaxErr1(self):
+        # This test runs a script that attempts to load the faulty
+        # syntexerror.py script used by ScriptSyntaxErr0.  Nothing in
+        # syntaxerror.py should be evaluated, but everything in
+        # nestedsyntaxerr.py that comes *before* it imports
+        # syntaxerror.py should be evaluated.  nestedsyntaxerr.py sets
+        # teststring="ok" before loading syntaxerror.py and "not ok"
+        # afterwards.
         print("Don't panic. This test fails intentionally.")
         self.assertRaises(ooferror.PyErrUserError,
                           OOF.File.Load.Script,
@@ -272,6 +279,13 @@ class OOF_Fundamental(unittest.TestCase):
         self.assertRaises(NameError, utils.OOFeval, "bandersnatch")
         self.assertRaises(NameError, utils.OOFeval, "borogoves")
         self.assertEqual(utils.OOFeval('teststring'), 'ok')
+
+    def ScriptFuncDef(self):
+        OOF.File.Load.Script(filename=reference_file("fundamental_data",
+                                                     "funcdef.py"))
+        self.assertEqual(utils.OOFeval('tart'), 6.28)
+        self.assertEqual(utils.OOFeval('pie'), 3.14)
+                                                     
 
     def RandomNumbers(self):
         # Check to be sure that the random numbers are reproducible
@@ -344,10 +358,10 @@ test_set = [
     OOF_Fundamental("ScriptSyntaxErr1"),
     OOF_Fundamental("RandomNumbers"),
     OOF_Fundamental("Shuffle"),
+    OOF_Fundamental("ScriptFuncDef"),
     OOF_Fundamental("DoubleVec")
 ]
 
-# test_set = [
-#     OOF_Fundamental("DoubleVec")
-# ]
-
+test_set = [
+    OOF_Fundamental("ScriptException0")
+]
