@@ -62,6 +62,9 @@ set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+## TODO: Can we use swig's -fastproxy or -fastproxy -olddefs options?
+## When I tried, 'oof2-test mesh_test' fails the DefineField test.
+
 include(FindSWIG)
 include(UseSWIG)
 find_package(SWIG ${OOF2_SWIG_VERSION} COMPONENTS python)

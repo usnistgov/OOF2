@@ -117,6 +117,7 @@ class Microstructure(cmicrostructure.CMicrostructure):
         return Microstructure(name, self._isize, self._size)
         
     def destroy(self):
+        debug.fmsg("Destroying microstructure")
         for plugin in self.plugins.values():
             plugin.destroy()
         switchboard.removeCallbacks(self.sbcallbacks)
@@ -135,6 +136,7 @@ class Microstructure(cmicrostructure.CMicrostructure):
 
         self.pixelselection = None
         self.activearea = None
+        debug.fmsg("done")
 
     def getPlugIn(self, name):
         return self.plugins[name]

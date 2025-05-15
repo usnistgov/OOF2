@@ -80,6 +80,7 @@ CMicrostructure::CMicrostructure(const std::string &name,
 }
 
 CMicrostructure::~CMicrostructure() {
+  std::cerr << "CMicrostructure::dtor" << std::endl;
   destroy();
   globalMicrostructureCountLock.acquire();
   --globalMicrostructureCount;
@@ -488,6 +489,7 @@ static bool strictLessThan_Attributes(const std::vector<PixelAttribute*> &p0,
 // PixelAttributes.  It's used when writing a Microstructure to a file.
 
 const Array<int> *CMicrostructure::getCategoryMapRO() const {
+  std::cerr << "CMicrostructure::getCategoryMapRO" << std::endl;
   groups_attributes_lock.read_acquire();
   Array<int> *localmap = new Array<int>(pxlsize_[0], pxlsize_[1]);
   CatMap catmap(strictLessThan_Attributes);
@@ -512,6 +514,7 @@ const Array<int> *CMicrostructure::getCategoryMapRO() const {
     }
   }
   groups_attributes_lock.read_release();
+  std::cerr << "CMicrostructure::getCategoryMapRO: done" << std::endl;
   return localmap;
 }
 

@@ -152,7 +152,7 @@ class OOF_Fundamental(unittest.TestCase):
 
     def ScriptException2(self):
         # This script is the same, but it calls the first script using
-        # a nested menu command.  teststring and/or another test will
+        # a nested menu command.  teststring and/or anothertest will
         # not be "ok" if lines following the error are being
         # processed.
         self.assertRaises(ooferror.PyErrUserError,
@@ -254,4 +254,8 @@ test_set = [
     OOF_Fundamental("ScriptSyntaxErr1"),
     OOF_Fundamental("RandomNumbers"),
     OOF_Fundamental("Shuffle")
+]
+
+test_set = [
+    OOF_Fundamental("ScriptException0")
 ]

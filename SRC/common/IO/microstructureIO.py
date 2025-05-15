@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -216,57 +215,59 @@ def writeMicrostructure(datafile, mscontext):
     
     mscontext.begin_reading()
     try:
+        debug.fmsg("Start")
         datafile.startCmd(OOF.LoadData.Microstructure.New)
         datafile.argument('name', ms.name())
         datafile.argument('size', ms.size())
         datafile.argument('isize', ms.sizeInPixels())
         datafile.endCmd()
+        debug.fmsg("OOF.LoadData.Microstructure.New", ms.name(), ms.size(), ms.sizeInPixels())
 
         for ioplugin in _ioplugins:
             ioplugin(datafile, mscontext)
-##        for image in ms.getImageContexts():
-##            image.writeImage(datafile)
+        debug.fmsg("Finished plug ins")
 
         # Store pixel attributes by storing category definitions.
+        debug.fmsg("Starting groups")
+        debug.fmsg("Group names=", [grp for grp in ms.groupNames()])
         for grpname in ms.groupNames():
+            debug.fmsg("Group", grpname)
             grp = ms.findGroup(grpname)
             datafile.startCmd(OOF.LoadData.Microstructure.PixelGroup)
             datafile.argument('microstructure', ms.name())
             datafile.argument('group', grpname)
             datafile.argument('meshable', grp.is_meshable())
             datafile.endCmd()
+            debug.fmsg("OOF.LoadData.Microstructure.PixelGroup:", grpname)
         # Create the actual active areas themselves.
+        debug.fmsg("Starting active areas")
+        debug.fmsg("AA names=", [name for name in ms.activeAreaNames()])
         for aaname in ms.activeAreaNames():
+            debug.fmsg("ActiveArea", aaname)
             datafile.startCmd(OOF.LoadData.Microstructure.NewActiveArea)
             datafile.argument('microstructure', ms.name())
             datafile.argument('name', aaname)
             datafile.endCmd()
+            debug.fmsg("OOF.LoadData.Microstructure.NewActiveArea", aaname)
         categories = ms.getCategoryMapRO()
         # Save categories
+        debug.fmsg("Saving categories")
         datafile.startCmd(OOF.LoadData.Microstructure.Categories)
         datafile.argument('microstructure', ms.name())
         datafile.argument('categories', categories)
         datafile.endCmd()
+        debug.fmsg("OOF.LoadData.Microstructure.Categories")
+        
         # Find representative pixels for each category
         reppxls = {}
         i = 0
-        if config.dimension() == 2:
-            for row in categories:
-                j = 0
-                for ctgry in row:
-                    reppxls[ctgry] = primitives.iPoint(j,i)
-                    j += 1
-                i += 1
-        elif config.dimension() == 3:
-            for slab in categories:
-                j = 0
-                for row in slab:
-                    k = 0
-                    for ctgry in row:
-                        reppxls[ctgry] = primitives.iPoint(k,j,i)
-                        k += 1
-                    j += 1
-                i += 1
+        for row in categories:
+            j = 0
+            for ctgry in row:
+                reppxls[ctgry] = primitives.iPoint(j,i)
+                j += 1
+            i += 1
+        debug.fmsg("Found representative pixels")
         # Save definitions of pixel categories
         for i in range(pixelattribute.nAttributes()):
             reg = pixelattribute.getRegistration(i)
@@ -284,6 +285,7 @@ def writeMicrostructure(datafile, mscontext):
         datafile.startCmd(OOF.LoadData.Microstructure.EndCategories)
         datafile.argument('microstructure', ms.name())
         datafile.endCmd()
+        debug.fmsg("OOF.LoadData.Microstructure.EndCategories")
 
         #Interface branch
         #Note that materials that are not assigned to pixels do not get saved
@@ -294,3 +296,4 @@ def writeMicrostructure(datafile, mscontext):
 
     finally:
         mscontext.end_reading()
+        debug.fmsg("Done")

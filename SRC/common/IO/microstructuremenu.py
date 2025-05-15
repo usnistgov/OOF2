@@ -225,6 +225,7 @@ micromenu.addItem(oofmenu.OOFMenuItem(
 #########################
 
 def saveMicrostructure(menuitem, filename, mode, format, microstructure):
+    debug.fmsg(f"Saving microstructure in {filename}")
     ms = ooflib.common.microstructure.microStructures[microstructure]
     dfile = datafile.writeDataFile(filename, mode.string(), format)
     microstructureIO.writeMicrostructure(dfile, ms)
