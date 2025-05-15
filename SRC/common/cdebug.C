@@ -244,11 +244,9 @@ void nextDumpFile() {
   // does *not* close the current file by calling closeDumpFile(),
   // because that would stop future dumps.
   if(dumpseriesname.size() > 0) {
-    dumpfilename = dumpseriesname +
-      (std::ostringstream()
-       << std::setfill('0')
-       << std::setw(dumpwidth)
-       << dumpcount).str();
+    std::ostringstream output;
+    output << std::setfill('0') << std::setw(dumpwidth) << dumpcount;
+    dumpfilename = dumpseriesname + output.str();
     if(dumpstream) {
       dumpstream->close();
       dumpstream = nullptr;
