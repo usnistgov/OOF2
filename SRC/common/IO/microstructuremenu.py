@@ -225,7 +225,7 @@ micromenu.addItem(oofmenu.OOFMenuItem(
 #########################
 
 def saveMicrostructure(menuitem, filename, mode, format, microstructure):
-    debug.fmsg(f"Saving microstructure in {filename}")
+    # debug.fmsg(f"Saving microstructure in {filename}")
     ms = ooflib.common.microstructure.microStructures[microstructure]
     dfile = datafile.writeDataFile(filename, mode.string(), format)
     microstructureIO.writeMicrostructure(dfile, ms)
@@ -236,13 +236,15 @@ mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     callback=saveMicrostructure,
     ordering=30,
     params=[
-    filenameparam.WriteFileNameParameter('filename', tip="Name of the file."),
-    filenameparam.WriteModeParameter('mode', tip="write or append?"),
-    enum.EnumParameter('format', datafile.DataFileFormat, datafile.ASCII,
-                       tip="File format."),
-    whoville.WhoParameter('microstructure',
-                          ooflib.common.microstructure.microStructures,
-                          tip=parameter.emptyTipString)],
+        filenameparam.WriteFileNameParameter('filename',
+                                             tip="Name of the file."),
+        filenameparam.WriteModeParameter('mode', tip="write or append?"),
+        enum.EnumParameter('format', datafile.DataFileFormat, datafile.ASCII,
+                           tip="File format."),
+        whoville.WhoParameter('microstructure',
+                              ooflib.common.microstructure.microStructures,
+                              tip=parameter.emptyTipString)
+    ],
     help="Save a Microstructure in a file.",
     discussion="""
     <para>Store a &micro; in a file in one of several <link

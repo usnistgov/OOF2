@@ -42,18 +42,27 @@ typedef Array<int> NewArrayInt;
 
 %typemap(out) NewArrayInt* {
    // typemap(out) ArrayInt*
-  int h = $1->height();
-  int w = $1->width();
+  size_t h = $1->height();
+  size_t w = $1->width();
+  // std::cerr << "NewArrayInt typemap: array=" << $1
+  // 	    << " data=" << $1->ptrptr() << std::endl;
   $result = PyList_New((Py_ssize_t) h);
-  for(int j=0; j<h; j++) {
-    PyObject *row = PyList_New((Py_ssize_t) w);
-    PyList_SET_ITEM($result, (Py_ssize_t) j, row);
-    for(int i=0; i<w; i++) {
-      PyList_SET_ITEM(row, (Py_ssize_t) i, PyInt_FromLong((*$1)[ICoord(i,j)]));
+  for(size_t j=0; j<h; j++) {
+    // std::cerr << "NewArrayInt typemap: j=" << j << " w=" << w << std::endl;
+    PyObject *row = PyList_New(w);
+    //std::cerr << "NewArrayInt typemap: empty row=" <<  repr(row) << std::endl;
+    PyList_SET_ITEM($result, j, row);
+    for(size_t i=0; i<w; i++) {
+      PyList_SET_ITEM(row, i, PyInt_FromLong((*$1)[ICoord(i,j)]));
     }
+    //std::cerr << "NewArrayInt typemap: filled row=" <<  repr(row) << std::endl;
   }
+  // std::cerr << "NewArrayInt typemap: finished filling, deleting array=" << $1
+  // 	    << " data=" << $1->ptrptr()
+  // 	    << std::endl;
   delete $1;
-}
+  // std::cerr << "NewArrayInt typemap: done" << std::endl;
+ }
 
 %typemap(in, numinputs=0) bool *bool_argout (bool tmp) {
   // typemap(in, numinputs=0) bool *bool_argout

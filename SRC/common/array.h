@@ -114,29 +114,33 @@ template <class TYPE>
 class ArrayData {
 private:
   friend class Array<TYPE>;	// our only friend in the whole wide world
-#if DIM == 2
   TYPE **data;
-#elif DIM == 3
-	TYPE ***data;
-#endif
   ArrayData(const ICoord &size)
     : refcount(0), size(size)
   {
+    // std::cerr << "ArrayData::ctor: this=" << this
+    // 	      << " size=" << size << std::endl;
     allocate();
   }
   ArrayData(const ArrayData<TYPE> &other)
     : refcount(1), size(other.size)
   {
+    // std::cerr << "ArrayData::copy: this=" << this << " other=" << &other << std::endl;
     allocate();
     copy(other);
   }
+  ArrayData(ArrayData<TYPE> &&other)
+    : refcount(other.refcount),
+      size(other.size()),
+      data(other.data)
+  {
+    other.data = nullptr;
+  }
+    
   ~ArrayData() {
     free();
   }
   void allocate() {
-    int i;
-
-#if DIM == 2
     data = new TYPE*[size(1)];
     if(!data) {
       std::cerr << "ArrayData: Failed to allocate array of " << size(1)
@@ -145,7 +149,7 @@ private:
     }
 		
     // Size can be 0x0, in which case dereferencing "data" is not allowed.
-    if (size(1)>0) {
+    if(size(1) > 0) {
       data[0] = new TYPE[size(0)*size(1)];
       if(!data[0]) {
 	std::cerr << "ArrayData: Failed to allocate array of " << size 
@@ -155,51 +159,10 @@ private:
     }
 		
     // set the pointers to point to the right part of the 1D array.
-    for(i=1; i<size(1); i++) 
+    for(int i=1; i<size(1); i++) 
       data[i] = data[i-1] + size(0);
-		
-#elif DIM == 3
-    int j;
-    data = new TYPE**[size(2)];
-    if(!data) {
-      std::cerr << "ArrayData: Failed to allocate array of " << size(2)
-		<< " double pointers!" << std::endl;
-      exit(1);			// should throw an exception 
-    }
-		
-    for(i=0; i<size(2); i++){
-      data[i] = new TYPE*[size(1)];
-      if(!data) {
-	std::cerr << "ArrayData: Failed to allocate array of " << size(1)
-		  << " pointers!" << std::endl;
-	exit(1);			// should throw an exception 
-      }
-    }
-		
-    // Size can be 0x0x0, in which case dereferencing "data" is not allowed.
-    if (size(2)>0) {
-      data[0][0] = new TYPE[size(0)*size(1)*size(2)];
-      if(!data[0][0]) {
-	std::cerr << "ArrayData: Failed to allocate array of " << size 
-		  << " objects of size " << sizeof(TYPE) << "!" << std::endl;
-	exit(1);			// should throw an exception here.
-      }
-    }
-
-    // set the pointers to point to the right part of the 1D array.
-    //data[0] = &(data[0][0]);
-
-    for(j=1; j<size(1); j++) {
-      data[0][j] = data[0][j-1] + size(0);
-    }
-    for(i=1; i<size(2); i++){
-      data[i][0] = data[i-1][size(1)-1] + size(0);
-      for(j=1; j<size(1); j++) {
-	data[i][j] = data[i][j-1] + size(0);
-      }
-    }
-
-#endif
+    // std::cerr << "ArrayData::allocate: data=" << data << " data[0]="
+    // 	      << data[0] << std::endl;
   }
   void resize(const ICoord &newsize) { // destroys contents
     if(newsize == size) return;
@@ -208,74 +171,46 @@ private:
     allocate();
   }
   void free() {
+    // std::cerr << "ArrayData::free: this=" << this << std::endl;
     if(data) {
-#if DIM==2
-      if (size(1)>0)
+      if(size(1) > 0) {
+	// std::cerr << "ArrayData::free: for real this time" << std::endl;
 	delete [] data[0];
-#elif DIM==3
-      if (size(2)>0)
-	delete [] data[0][0];
-      for(int i=0; i<size(2); i++)
-	delete [] data[i];
-#endif
+      }
       delete [] data;
+      data = nullptr;
     }
   }
 public:		       // these have to be available to Array subclasses
   int refcount;
   ICoord size;
   void copy(const ArrayData<TYPE> &other) {
-#if DIM == 2
-    if (size(1)>0) 
+    // std::cerr << "ArrayData::copy: this=" << this << " other=" << &other
+    // 	      << std::endl;
+    if(size(1) > 0) 
       (void) memcpy(data[0], other.data[0], size(0)*size(1)*sizeof(TYPE));
-#elif DIM == 3
-    if (size(2)>0 && size(1)>0) 
-      (void) memcpy(data[0][0], other.data[0][0], size(0)*size(1)*size(2)*sizeof(TYPE));
-#endif
   }
   void clear(const TYPE &t) {
-#if DIM == 2
     int n = size(0)*size(1);
-    if (n>0) {
+    if(n > 0) {
       TYPE *d = data[0];
       for(int i=0; i<n; i++)
 	d[i] = t;
     }
-#elif DIM == 3
-    int n = size(0)*size(1)*size(2);
-    if (n>0) {
-      TYPE *d = data[0][0];
-      for(int i=0; i<n; i++)
-	d[i] = t;
-    }
-
-#endif
   }
   TYPE &get(const ICoord &z) {
-#if DIM == 2
     return data[z(1)][z(0)];
-#elif DIM == 3
-    return data[z(2)][z(1)][z(0)];
-#endif
   }
   const TYPE &get(const ICoord &z) const {
-#if DIM == 2
     return data[z(1)][z(0)];
-#elif DIM == 3
-    return data[z(2)][z(1)][z(0)];
-#endif
   }
-};
+};				// class ArrayData<TYPE>
 
 template <class TYPE>
 class Array {
 protected:
   ArrayData<TYPE> *dataptr;
-#if DIM == 2
   ICRectangle bounds_;
-#elif DIM == 3
-  ICRectangularPrism bounds_;
-#endif
   void allocate() {
     // Allocate space for the full array, even if this is a subarray.
     // This should probably never be called for subarrays.
@@ -285,40 +220,27 @@ protected:
   }
 
   void free() {
-    if(--dataptr->refcount == 0)
+    if(--dataptr->refcount == 0) {
       delete dataptr;
+      dataptr = nullptr;
+    }
   }
 public:
-#if DIM == 2
-  Array() : dataptr(0), bounds_(ICoord(0,0), ICoord(0,0)) { allocate(); }
+  Array() : dataptr(nullptr), bounds_(ICoord(0,0), ICoord(0,0)) { allocate(); }
   Array(int w, int h)
-    : dataptr(0), bounds_(ICoord(0,0), ICoord(w,h)) { allocate(); }
+    : dataptr(nullptr), bounds_(ICoord(0,0), ICoord(w,h)) { allocate(); }
   Array(const ICoord &size)
-    : dataptr(0), bounds_(ICoord(0,0), size) { allocate(); }
+    : dataptr(nullptr), bounds_(ICoord(0,0), size) { allocate(); }
   Array(const ICoord &size, const TYPE &x0)
-    : dataptr(0), bounds_(ICoord(0,0), size) { allocate(); clear(x0); }
+    : dataptr(nullptr), bounds_(ICoord(0,0), size) { allocate(); clear(x0); }
   Array(const ICoord &size, ArrayData<TYPE> *dataptr)
     : dataptr(dataptr), bounds_(ICoord(0,0), size)
   {
     if(!dataptr)
       allocate();
   }
-  Array(const ICRectangle &bounds) //used in clone
-#elif DIM == 3
-  Array() : dataptr(0), bounds_(ICoord(0,0,0), ICoord(0,0,0)) { allocate(); }
-  Array(int w, int h, int d)
-    : dataptr(0), bounds_(ICoord(0,0,0), ICoord(w,h,d)) { allocate(); }
-  Array(const ICoord &size, const TYPE &x0)
-    : dataptr(0), bounds_(ICoord(0,0,0), size) { allocate(); clear(x0); }
-  Array(const ICoord &size, ArrayData<TYPE> *dataptr)
-    : dataptr(dataptr), bounds_(ICoord(0,0,0), size)
-  {
-    if(!dataptr)
-      allocate();
-  }
-  Array(const ICRectangularPrism &bounds) //used in clone
-#endif
-    : dataptr(0), bounds_(bounds) { allocate();}
+  Array(const ICRectangle &bounds) // used in clone
+    : dataptr(nullptr), bounds_(bounds) { allocate();}
 
   // The copy constructor does not make an independent copy-- it makes
   // a new Array that shares data with the original.  This is the
@@ -334,19 +256,24 @@ public:
     ++dataptr->refcount;
   }
 
+  Array(Array &&other)
+    : dataptr(other.dataptr),
+      bounds_(other.bounds_)
+  {
+    other.dataptr = nullptr;
+    findfin();
+  }
+
   // Make a true (deep) copy.
   Array<TYPE> clone() const {
     Array<TYPE> bozo(bounds_);
     bozo.dataptr->copy(*dataptr);
+    findfin();
     return bozo;
   }
 
   void resize(const ICoord &size) {
-#if DIM == 2
     bounds_ = ICRectangle(ICoord(0,0), size);
-#elif DIM == 3
-    bounds_ = ICRectangularPrism(ICoord(0,0,0), size);
-#endif
     free();
     allocate();
   }
@@ -357,12 +284,7 @@ public:
   inline int width() const { return bounds_.width(); }
   inline int height() const { return bounds_.height(); }
   inline bool contains(const ICoord &point) const { return bounds_.contains(point); }
-#if DIM == 2
   inline const ICRectangle &bounds() const { return bounds_; }
-#elif DIM == 3
-  inline int depth() const { return bounds_.depth(); }
-  inline const ICRectangularPrism &bounds() const { return bounds_; }
-#endif
 
   Array &operator=(const Array &other) {
     // Don't try to use this to overwrite a subarray within another
@@ -389,10 +311,6 @@ public:
     assert(z(1) < bounds_.ymax());
     assert(z(0) >= bounds_.xmin());
     assert(z(1) >= bounds_.ymin());
-#if DIM == 3
-    assert(z(2) < bounds_.zmax());
-    assert(z(2) >= bounds_.zmin());
-#endif
 #endif	
     return dataptr->get(z);
   }
@@ -402,10 +320,6 @@ public:
     assert(z(1) < bounds_.ymax());
     assert(z(0) >= bounds_.xmin());
     assert(z(1) >= bounds_.ymin());
-#if DIM == 3
-    assert(z(2) < bounds_.zmax());
-    assert(z(2) >= bounds_.zmin());
-#endif
 #endif	
     return dataptr->get(z);
   }
@@ -430,11 +344,7 @@ protected:
   const_iterator cfin;
   void findfin() {
     fin = ArrayIterator<TYPE>(*this);
-#if DIM == 2
     fin.location = ICoord(bounds_.xmin(), bounds_.ymax());
-#elif DIM == 3
-    fin.location = ICoord(bounds_.xmin(), bounds_.ymin(), bounds_.zmax());
-#endif
     cfin = ConstArrayIterator<TYPE>(*this);
     cfin.location = fin.location;
   }
@@ -463,11 +373,7 @@ public:
   Array<TYPE> subarray(const ICoord &crnr0, const ICoord &crnr1) {
     Array<TYPE> newarray(dataptr->size, dataptr);
     ++dataptr->refcount;
-#if DIM == 2
     newarray.bounds_ = ICRectangle(crnr0, crnr1);
-#elif DIM == 3
-    newarray.bounds_ = ICRectangularPrism(crnr0, crnr1);
-#endif
     newarray.bounds_.restrict(bounds());
     newarray.findfin();
     return newarray;
@@ -476,11 +382,7 @@ public:
   const Array<TYPE> subarray(const ICoord &crnr0, const ICoord &crnr1) const {
     Array<TYPE> newarray(dataptr->size, dataptr);
     ++dataptr->refcount;
-#if DIM == 2
     newarray.bounds_ = ICRectangle(crnr0, crnr1);
-#elif DIM == 3
-    newarray.bounds_ = ICRectangularPrism(crnr0, crnr1);
-#endif
     newarray.bounds_.restrict(bounds());
     newarray.findfin();
     return newarray;
@@ -493,7 +395,7 @@ public:
       os << i.coord() << " " << *i << std::endl;
     return os;
   }
-};
+};				// class Array<TYPE>
 
 
 template <class TYPE>
@@ -513,34 +415,18 @@ public:
     if(location(0) == array->bounds_.xmax()) {
       location(0) = array->bounds_.xmin();
       location(1)++;
-#if DIM == 3
-      if(location(1) == array->bounds_.ymax()) {
-	location(1) = array->bounds_.ymin();
-	location(2)++;
-      }
-#endif
     }
   }
 
   void reset() {
     location(0) = array->bounds_.xmin();
     location(1) = array->bounds_.ymin();
-#if DIM == 3
-    location(2) = array->bounds_.zmin();
-#endif
   }
 
   bool done() const {
-#if DIM == 2
     if (location(0) == array->bounds_.xmax()-1 && 
 	location(1) == array->bounds_.ymax()-1)
       return true;
-#elif DIM == 3
-    if (location(0) == array->bounds_.xmax()-1 && 
-	location(1) == array->bounds_.ymax()-1 && 
-	location(2) == array->bounds_.zmax()-1)
-      return true;
-#endif
     return false;
   }
 
@@ -564,7 +450,7 @@ public:
   {
     return os << iter.location;
   }
-};
+};				// class ArrayIterator<TYPE>
 
 template <class TYPE>
 class ConstArrayIterator {
@@ -582,12 +468,6 @@ public:
     if(location(0) == array->bounds_.xmax()) {
       location(0) = array->bounds_.xmin();
       location(1)++;
-#if DIM == 3
-      if(location(1) == array->bounds_.ymax()) {
-	location(1) = array->bounds_.ymin();
-	location(2)++;
-      }
-#endif
     }
   }
   inline const TYPE &operator*() {
@@ -596,16 +476,9 @@ public:
   inline const ICoord &coord() const { return location; }
 
   bool done() const {
-#if DIM == 2
     if (location(0) == array->bounds_.xmax()-1 && 
 	location(1) == array->bounds_.ymax()-1)
       return true;
-#elif DIM == 3
-    if (location(0) == array->bounds_.xmax()-1 && 
-	location(1) == array->bounds_.ymax()-1 && 
-	location(2) == array->bounds_.zmax()-1)
-      return true;
-#endif
     return false;
   }
 
@@ -627,12 +500,11 @@ public:
   {
     return os << iter.location;
   }
-};
+};				// class ConstArrayIterator<TYPE>
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// SimpleArray2D doesn't have the baggage of Array.  Also, it's always
-// two dimensional, even when DIM==3.
+// SimpleArray2D doesn't have the baggage of Array.
 
 template <class TYPE>
 class SimpleArray2D {
@@ -694,6 +566,6 @@ public:
     return (pt[0] >= 0 && pt[0] < ncols &&
 	    pt[1] >= 0 && pt[1] < nrows);
   }
-};
+};				// class SimpleArray<TYPE>
 
 #endif	// ARRAY_H

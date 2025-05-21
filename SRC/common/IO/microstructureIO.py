@@ -215,48 +215,54 @@ def writeMicrostructure(datafile, mscontext):
     
     mscontext.begin_reading()
     try:
-        debug.fmsg("Start")
+        # debug.fmsg("Start")
         datafile.startCmd(OOF.LoadData.Microstructure.New)
         datafile.argument('name', ms.name())
         datafile.argument('size', ms.size())
         datafile.argument('isize', ms.sizeInPixels())
         datafile.endCmd()
-        debug.fmsg("OOF.LoadData.Microstructure.New", ms.name(), ms.size(), ms.sizeInPixels())
+        # debug.fmsg("OOF.LoadData.Microstructure.New", ms.name(), ms.size(), ms.sizeInPixels())
 
         for ioplugin in _ioplugins:
             ioplugin(datafile, mscontext)
-        debug.fmsg("Finished plug ins")
+        # debug.fmsg("Finished plug ins")
 
         # Store pixel attributes by storing category definitions.
-        debug.fmsg("Starting groups")
-        debug.fmsg("Group names=", [grp for grp in ms.groupNames()])
+        # debug.fmsg("Starting groups")
+        # debug.fmsg("Group names=", [grp for grp in ms.groupNames()])
         for grpname in ms.groupNames():
-            debug.fmsg("Group", grpname)
+            # debug.fmsg("Group", grpname)
             grp = ms.findGroup(grpname)
             datafile.startCmd(OOF.LoadData.Microstructure.PixelGroup)
             datafile.argument('microstructure', ms.name())
             datafile.argument('group', grpname)
             datafile.argument('meshable', grp.is_meshable())
             datafile.endCmd()
-            debug.fmsg("OOF.LoadData.Microstructure.PixelGroup:", grpname)
+            # debug.fmsg("OOF.LoadData.Microstructure.PixelGroup:", grpname)
         # Create the actual active areas themselves.
-        debug.fmsg("Starting active areas")
-        debug.fmsg("AA names=", [name for name in ms.activeAreaNames()])
+        # debug.fmsg("Starting active areas")
+        # debug.fmsg("AA names=", [name for name in ms.activeAreaNames()])
         for aaname in ms.activeAreaNames():
-            debug.fmsg("ActiveArea", aaname)
+            # debug.fmsg("ActiveArea", aaname)
             datafile.startCmd(OOF.LoadData.Microstructure.NewActiveArea)
             datafile.argument('microstructure', ms.name())
             datafile.argument('name', aaname)
             datafile.endCmd()
-            debug.fmsg("OOF.LoadData.Microstructure.NewActiveArea", aaname)
+            # debug.fmsg("OOF.LoadData.Microstructure.NewActiveArea", aaname)
+
+        # Crashing in the typemap returning from this function:
+        # debug.fmsg("Calling getCategoryMapRO")
         categories = ms.getCategoryMapRO()
+        # debug.fmsg(f"Back from getCategoryMapRO")# {len(categories)=}")
+        for row in categories:
+            assert len(row) == len(categories[0])
         # Save categories
-        debug.fmsg("Saving categories")
+        # debug.fmsg("Saving categories")
         datafile.startCmd(OOF.LoadData.Microstructure.Categories)
         datafile.argument('microstructure', ms.name())
         datafile.argument('categories', categories)
         datafile.endCmd()
-        debug.fmsg("OOF.LoadData.Microstructure.Categories")
+        # debug.fmsg("OOF.LoadData.Microstructure.Categories")
         
         # Find representative pixels for each category
         reppxls = {}
@@ -267,7 +273,7 @@ def writeMicrostructure(datafile, mscontext):
                 reppxls[ctgry] = primitives.iPoint(j,i)
                 j += 1
             i += 1
-        debug.fmsg("Found representative pixels")
+        # debug.fmsg("Found representative pixels")
         # Save definitions of pixel categories
         for i in range(pixelattribute.nAttributes()):
             reg = pixelattribute.getRegistration(i)
@@ -285,7 +291,7 @@ def writeMicrostructure(datafile, mscontext):
         datafile.startCmd(OOF.LoadData.Microstructure.EndCategories)
         datafile.argument('microstructure', ms.name())
         datafile.endCmd()
-        debug.fmsg("OOF.LoadData.Microstructure.EndCategories")
+        # debug.fmsg("OOF.LoadData.Microstructure.EndCategories")
 
         #Interface branch
         #Note that materials that are not assigned to pixels do not get saved
@@ -296,4 +302,4 @@ def writeMicrostructure(datafile, mscontext):
 
     finally:
         mscontext.end_reading()
-        debug.fmsg("Done")
+        # debug.fmsg("Done")

@@ -127,7 +127,14 @@ class AsciiDataFile:
 def writeDataFile(filename, mode, format):
     if format == BINARY:
         mode += 'b'
-    file = open(filename, mode)
+
+    ## TODO: the modern style is apparently to open files with a
+    ## "with" statement (eg, "with open(filename, mode) as file").
+    ## That doesn't work here because the file will be closed when
+    ## this function returns, but the file is still needed by
+    ## AsciiDataFile or BinaryDataFile.  Something needs to be
+    ## reorganized.
+    phyle = open(filename, mode)
     if format == SCRIPT:
         versioncmd = "OOF.LoadData.FileVersion"
     else:
@@ -136,12 +143,12 @@ def writeDataFile(filename, mode, format):
                % (version.version, versioncmd, datafileversion, repr(format))
 
     if format != BINARY:
-        file.write(header)
-        return AsciiDataFile(file, format)
+        phyle.write(header)
+        return AsciiDataFile(phyle, format)
 
     from ooflib.common.IO import binarydata    # avoid import loop
-    file.write(bytes(header, "UTF-8"))
-    return binarydata.BinaryDataFile(file)
+    phyle.write(bytes(header, "UTF-8"))
+    return binarydata.BinaryDataFile(phyle)
 
 def readDataFile(filename, menu):
     prog = progress.getProgress(os.path.basename(filename), progress.DEFINITE)

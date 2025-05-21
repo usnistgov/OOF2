@@ -29,6 +29,7 @@
 #include "common/pixelattribute.h"
 #include "common/pixelsetboundary.h"
 #include "common/random.h"
+#include "common/threadstate.h"
 
 using namespace std;		// TODO: Don't do this.
 
@@ -80,7 +81,7 @@ CMicrostructure::CMicrostructure(const std::string &name,
 }
 
 CMicrostructure::~CMicrostructure() {
-  std::cerr << "CMicrostructure::dtor" << std::endl;
+  // std::cerr << "CMicrostructure::dtor" << std::endl;
   destroy();
   globalMicrostructureCountLock.acquire();
   --globalMicrostructureCount;
@@ -489,9 +490,15 @@ static bool strictLessThan_Attributes(const std::vector<PixelAttribute*> &p0,
 // PixelAttributes.  It's used when writing a Microstructure to a file.
 
 const Array<int> *CMicrostructure::getCategoryMapRO() const {
-  std::cerr << "CMicrostructure::getCategoryMapRO" << std::endl;
+  // std::cerr << "CMicrostructure::getCategoryMapRO: thread="
+  // 	    << findThreadNumber() << std::endl;
   groups_attributes_lock.read_acquire();
+  // std::cerr << "CMicrostructure::getCategoryMapRO: allocating localmap" << std::endl;
   Array<int> *localmap = new Array<int>(pxlsize_[0], pxlsize_[1]);
+  // std::cerr << "CMicrostructure::getCategoryMapRO: localmap="
+  // 	    << localmap
+  // 	    << " mapdata=" << localmap->ptrptr()
+  // 	    << std::endl;
   CatMap catmap(strictLessThan_Attributes);
   int ncats = 0;
   std::size_t nattrs = attributeMap.size();
@@ -514,7 +521,7 @@ const Array<int> *CMicrostructure::getCategoryMapRO() const {
     }
   }
   groups_attributes_lock.read_release();
-  std::cerr << "CMicrostructure::getCategoryMapRO: done" << std::endl;
+  // std::cerr << "CMicrostructure::getCategoryMapRO: done" << std::endl;
   return localmap;
 }
 
