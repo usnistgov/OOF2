@@ -291,6 +291,10 @@ switchboard.requestCallbackMain("messagemanager warning", _warning_pop_up)
 # through a series of exceptions.
 
 class ErrorPopUp:
+    # errorSeparator is printed between error messages, if there is
+    # more than one message.
+    errorSeparator = "--\n"
+
     def __init__(self, e_type, value, tbacklist):
         # debug.fmsg(f"{e_type=} {value=}")
         # tbacklist is a traceback class object
@@ -299,29 +303,15 @@ class ErrorPopUp:
         errorstrings = []     # list of strings
         self.tracebacks = []  # list of lists of \n-terminated strings
 
-        # If there are previous unprocessed exceptions, print them
-        # too.  The oldest exception is the first in the
-        # _savedExceptions list. 
-        global _savedExceptions
-        _savedExceptions.append((e_type, value, tbacklist))
-        for e_type, value, tbacklist in _savedExceptions:
-            # format_exception_only returns a list of string, each
-            # terminated with a newline.  The list has length 1,
-            # except for syntax errors.
-            errorstrings.extend(
-                [line.rstrip() for line in
-                 traceback.format_exception_only(e_type, value)])
-            if isinstance(value, ooferror.PyOOFError):
-                moreinfo = value.cexcept.details()
-                if moreinfo:
-                    errorstrings.append(moreinfo)
-            errorstrings.append("") # blank line
-            if tbacklist:
-                self.tracebacks.append(
-                    traceback.format_list(traceback.extract_tb(tbacklist)))
-
-        _savedExceptions = []
-
+        # Get all exceptions, included the ones that triggered the one
+        # that was caught.
+        excepts = [value]
+        cause = value.__cause__
+        while cause:
+            excepts.append(cause)
+            cause = cause.__cause__
+        errorstrings = ["\n".join(traceback.format_exception_only(exc))
+                        for exc in excepts]
         self.answer = None
         
         self.datestampstring = time.strftime("%Y %b %d %H:%M:%S %Z")
@@ -352,8 +342,8 @@ class ErrorPopUp:
                                    top_margin=5, bottom_margin=5)
         gtklogger.setWidgetName(self.errbox, "ErrorText")
         self.errframe.add(self.errbox)
-        # debug.fmsg(rf"Setting text: {os.linesep.join(errorstrings)}")
-        self.errbox.get_buffer().set_text("\n".join(errorstrings))
+        self.errbox.get_buffer().set_text(
+            self.errorSeparator.join(errorstrings))
 
         # Buttons for viewing and saving the traceback.  These can't
         # go in the action area with the OK and Abort buttons because
@@ -485,7 +475,6 @@ def _switchpacking(parent, child):
 
 def errorpopup_(e_type, e_value, tbacklist):
     e = ErrorPopUp(e_type, e_value, tbacklist)
-    print(f"errorpopup_: {e_type=}", file=sys.stderr)
     result = e.run()
     e.close()
     return result
@@ -501,7 +490,6 @@ def gui_printTraceBack(e_type, e_value, tbacklist):
     if debug.debug() or not guitop.getMainLoop():
         excepthook.printTraceBack(e_type, e_value, tbacklist)
     if guitop.getMainLoop():
-        # debug.fmsg(f"{e_type=} {e_value=}")
         # Transfer control to the main thread to report errors in the GUI.
         res = mainthread.runBlock(errorpopup_, (e_type, e_value, tbacklist))
         if res == Gtk.ResponseType.CLOSE:
@@ -512,30 +500,6 @@ def gui_printTraceBack(e_type, e_value, tbacklist):
                                 (guitop.top().gtk,), kwargs=dict(exitstatus=1))
 
 excepthook.displayTraceBack = gui_printTraceBack
-
-#########
-
-# subScriptErrorHandler is used as ScriptLoader's exception handler
-# when loading a script in GUI mode.  The exception in the "subscript"
-# will cause an exception in the calling script, but we only want one
-# error dialog to appear.  That dialog must display the traceback from
-# both scripts.  _savedExceptions stores the exceptions created by the
-# subscripts so that they can be printed when the top level exception
-# is handled.
-
-_savedExceptions = []      
-
-## subScriptErrorHandler is called only when an error occurs in a
-## script.  The error should be propagated, causing the calling script
-## to abort as well.  Both the original error and the secondary error
-## should be displayed in the Error window.
-
-def subScriptErrorHandler(e_type, e_value, tbacklist):
-    _savedExceptions.append((e_type, e_value, tbacklist))
-    if debug.debug() or not guitop.getMainLoop():
-        excepthook.printTraceBack(e_type, e_value, tbacklist)
-
-mainmenu.subScriptErrorHandler = subScriptErrorHandler
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

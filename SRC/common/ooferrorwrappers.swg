@@ -31,8 +31,8 @@
 
 // When Python calls a swigged C++ function that raises an exception,
 // the exception is caught by the %exception code in typemaps.swg.
-// All OOF C++ xceptions are derived from ErrError, a PythonExportable
-// class defined in ooferror.h The %exception code catches the
+// All OOF C++ exceptions are derived from ErrError, a PythonExportable
+// class defined in ooferror.h.  The %exception code catches the
 // exception and passes it to the static ErrError::pyconverter
 // function, which is a *Python* function that raises the Python
 // version of the C++ exception.  (pyconverter is initialized by

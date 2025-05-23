@@ -43,21 +43,17 @@ import sys
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-## TODO: Use chained exceptions?  raise exc from otherexc? 
-
 class _ScriptException(Exception):
-    def __init__(self, depth=0):
-        self.depth = depth
-    # def reraise(self, exc_info):
-    #     self.exc_info.append(exc_info)
-    #     self.depth -= 1
-    #     return self
-
+    def __init__(self, filename):
+        self.filename = filename
+        
 class ScriptInterrupt(_ScriptException):
-    pass
+    def __str__(self):
+        return f"Interrupted while running file {self.filename}"
 
 class ScriptException(_ScriptException):
-    pass
+    def __str__(self):
+        return f"Error running file {self.filename}"
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -108,8 +104,6 @@ class ScriptLoader:
     #self.error = sys.exc_info()
 
     def run(self):
-        debug.fmsg()
-        
         # Loop over top-level nodes of the python Abstract Symbol
         # Tree. Run one node at a time by replacing the list of nodes
         # in the AST with a list containing just the one node.  (This
@@ -118,30 +112,12 @@ class ScriptLoader:
         try:
             self.tree = ast.parse(lines, filename=self.filename)
         except SyntaxError as exc:
-            raise ScriptException(exc) from exc
+            raise ScriptException(self.filename) from exc
             # self.error = sys.exc_info()
             # print(f"Caught SyntaxError: {self.error}")
             # self.errhandler(*self.error)
             # self.show_error(self.filename) # sets self.error
         codebody = self.tree.body
-
-        # Create a globals dict for the script environment. Adding
-        # locals to it ensures that if a script defines variables
-        # outside a function, that they're available inside the
-        # function.
-        #
-        # TODO: Does this mean that the script can't actually change
-        # variables in the main oof namespace?  It's not actually
-        # using the main namespace's dictionary.  That does not seem
-        # to be the case.
-
-        # Script depth for the script being loaded here is one more
-        # than the depth for the script that's loading it, if any. If
-        # there is an outer script, then it has defined _scriptdepth_
-        # in globals.  If there isn't an outer script, set
-        # _scriptdepth_ to 0.
-        globs = globals()
-        globs['_scriptdepth_'] = globs.get('_scriptdepth_', -1) + 1
         
         if len(codebody) > 0:
             try:
@@ -149,39 +125,23 @@ class ScriptLoader:
                 #     _ScriptExceptHook(self))
                 lastline = codebody[-1].end_lineno
                 for snippet in codebody:
-                    # debug.fmsg(f"Running snippet {snippet.lineno}")
                     self.tree.body = [snippet]
                     code = compile(self.tree, self.filename, "exec")
-                    globs = globs | self.locals
-                    exec(code, globs, self.locals)
+                    exec(code, globals()|self.locals, self.locals)
                     self.progress(snippet.lineno, lastline) 
                     if self.stop():
-                        raise ScriptInterrupt()
+                        raise ScriptInterrupt(self.filename)
             except ScriptInterrupt as exc:
                 # This script was interrupted.
                 debug.fmsg("Interrupted!")
-                raise ScriptInterrupt(exc.depth-1) from exc
+                raise ScriptInterrupt(self.filename) from exc
             except ScriptException as exc:
-                # An exception was raised by a sub-script.
-                debug.fmsg("ScriptException!")
-                raise ScriptException(exc.depth-1) from exc
+                raise ScriptException(self.filename) from exc
             except Exception as exc:
-                #debug.fmsg("Exception occured!", exc)
-                raise ScriptException() from exc
-
-                # debug.fmsg(f"Caught Exception {exc}")
-                # self.error = sys.exc_info()
-                # debug.fmsg(f"Calling {self.errhandler}")
-                # debug.fmsg(f"   with {self.error=}")
-                # # The exception is *not* re-raised explicitly
-                # # here.  self.errhandler() can raise it if
-                # # necessary.
-                # self.errhandler(*self.error)
-                # excepthook.remove_excepthook(self.excepthook)
+                debug.fmsg(f"Caught an exception: {exc}")
+                raise ScriptException(self.filename) from exc
             finally:
                 self.done()
-        debug.fmsg("done")
-
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

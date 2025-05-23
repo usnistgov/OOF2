@@ -823,7 +823,7 @@ class OOFMenuItem:
             else:
                 # worker.getThreadedWorker returns a
                 # TextThreadedWorker in text mode, and either a
-                # ThreadedWorker of GUIThreadedWorkerBlock in GUI
+                # ThreadedWorker or GUIThreadedWorkerBlock in GUI
                 # mode.
                 workerclass = worker.getThreadedWorker
         the_worker = workerclass(self, argtuple, argdict)

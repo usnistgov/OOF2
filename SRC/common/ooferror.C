@@ -108,7 +108,7 @@ const std::string &ErrWarning::classname() const {
 
 void pythonErrorRelay() {
   // pythonErrorRelay should be called inside a
-  // PYTHON_THREAD_BEGIN_BLOCK/PYTHON_THREAD_END_BLOCK block. 
+  // PYTHON_THREAD_BEGIN_BLOCK/PYTHON_THREAD_END_BLOCK block.
 
   PyObject *ptype;
   PyObject *pvalue;

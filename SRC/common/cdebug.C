@@ -124,7 +124,8 @@ void throwException() {
 
 void throwPythonException() {
   PYTHON_THREAD_BEGIN_BLOCK;
-  PyObject *result = PyObject_GetAttrString(Py_None, (char*) "say what?");
+  PyObject *result = PyObject_GetAttrString(Py_None,
+					    (char*) "missing attribute");
   if(!result)
     pythonErrorRelay();
   Py_XDECREF(result);

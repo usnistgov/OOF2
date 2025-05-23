@@ -85,16 +85,10 @@ def fp_substring_compare(s1, s2, tolerance=None):
 # end of str1.
 
 def fp_string_compare_tail(str1, str2, tolerance=None):
-    debug.fmsg(f"{str1=}")
-    debug.fmsg(f"{str2=}")
-    debug.fmsg(f"{tolerance=}")
     if tolerance is None:
-        debug.fmsg(f"{str1.endswith(str2)=}")
         return str1.endswith(str2)
     s1_items = floatpattern.split(str1)
-    debug.fmsg(f"{s1_items=}")
     s2_items = floatpattern.split(str2)
-    debug.fmsg(f"{s2_items=}")
     if len(s1_items) < len(s2_items):
         return False
     # The first items are treated separately, because the piece from
@@ -574,19 +568,19 @@ def pixelGroupSizeCheck(msname, grpname, n):
 def errorMsg(*texts, verbose=False):
     for text in texts:
         if gtkTextviewTail('Error:ErrorText', text, quiet=(len(texts)>1)):
-            if verbose:
-                print(f"errorMsg: matched =>{text}<=")
+            # if verbose:
+            #     print(f"errorMsg: matched =>{text}<=")
             return True
     # Failed!
     msgbuffer = gtklogger.findWidget('Error:ErrorText').get_buffer()
     realtext = msgbuffer.get_text(msgbuffer.get_start_iter(),
                                   msgbuffer.get_end_iter(), True)
     print("errorMsg test failed!", file=sys.stderr)
-    print(f"Got =>{realtext}<=", file=sys.stderr)
-    if verbose:
-        print(f"Expected one of", file=sys.stderr)
-        for i,t in enumerate(texts):
-            print(f"{i} =>{t}<=", file=sys.stderr)
+    # print(f"Got =>{realtext}<=", file=sys.stderr)
+    # if verbose:
+    #     print(f"Expected one of", file=sys.stderr)
+    #     for i,t in enumerate(texts):
+    #         print(f"{i} =>{t}<=", file=sys.stderr)
     return False
 
 # errorMsgTemplates is the same as errorMsg, except that it tries all
