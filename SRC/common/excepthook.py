@@ -23,35 +23,22 @@ from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 import sys, traceback
 
-def printTraceBack(e_type, e_value, tb):
-    traceback.print_tb(tb) ## TODO: Is this still what we want here?
-    ## OLD version:
-    # from ooflib.common.IO import reporter # avoid import loop
-    # for line in traceback.format_exception_only(e_type, e_value):
-    #     reporter.error(line.rstrip())
-    # if isinstance(e_value, ooferror.PyOOFError):
-    #     moreinfo = e_value.details()
-    #     if moreinfo:
-    #         reporter.error(moreinfo)
-    # if tb:
-    #     for line in traceback.extract_tb(tb).format():
-    #         reporter.error(line.rstrip())
-
+def printTraceBack(e_value):
+    traceback.print_exception(e_value)
+    
 # displayTraceBack is overridden by reporter_GUI.py, so that in GUI mode
 # it brings up a pop-up window.
 displayTraceBack = printTraceBack
 
 # OOFexceptHook is a class with a __call__ method instead of a simple
-# function so that the getTraceBackList method can be overridden in
-# derived classes.  See scriptloader.py.
+# function so that the getTraceBackList method (which is no longer
+# used) can be overridden in derived classes.  See scriptloader.py.
 ## TODO: that's no longer necessary.  Turn OOFexceptHook back
 ## into a function?
 
 class OOFexceptHook:
-    def getTraceBackList(self, tback): # may be redefined in derived classes
-        return traceback.extract_tb(tback)
-    def __call__(self, e_type, e_value, tback):
-        displayTraceBack(e_type, e_value, tback)
+    def __call__(self, e_value):
+        displayTraceBack(e_value)
 
     ## Not sure why __cmp__ was defined.  OOFexceptHook seems to work
     ## properly without it in python2, and it's not used in python3.
@@ -125,7 +112,7 @@ def _oofExceptHook(e_type, e_value, tback):
     hook = get_excepthook()
     _exceptLock.release()
     if hook is not None:
-        hook(e_type, e_value, tback)
+        hook(e_value)
         # If this function has been called, it means that an exception
         # has not been caught, and therefore that a Worker or
         # MiniThread has finished without removing its excepthook from
@@ -135,9 +122,3 @@ def _oofExceptHook(e_type, e_value, tback):
         sys.__excepthook__(e_value, e_value, tback)
 
 sys.excepthook = _oofExceptHook
-
-def exceptHookDepth():
-    threadno = threadstate.findThreadNumber()
-    if threadno not in _exceptStacks:
-        return 0
-    return len(_exceptStacks[threadno])

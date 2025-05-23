@@ -284,25 +284,19 @@ switchboard.requestCallbackMain("messagemanager warning", _warning_pop_up)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# The error pop up optionally allows you to view the traceback,
-# and save it to a file.  The file is automatically named.
-
-# TODO: Don't use tbacklist.  Use Exception.__cause__ to look back
-# through a series of exceptions.
+# The error pop up optionally allows you to view the traceback, and
+# save it to a file.  The file is automatically named, in order to
+# minimize user interaction while processing an exception.
 
 class ErrorPopUp:
     # errorSeparator is printed between error messages, if there is
     # more than one message.
     errorSeparator = "--\n"
 
-    def __init__(self, e_type, value, tbacklist):
-        # debug.fmsg(f"{e_type=} {value=}")
-        # tbacklist is a traceback class object
+    def __init__(self, value):
         debug.mainthreadTest()
+        self.exception = value
         
-        errorstrings = []     # list of strings
-        self.tracebacks = []  # list of lists of \n-terminated strings
-
         # Get all exceptions, included the ones that triggered the one
         # that was caught.
         excepts = [value]
@@ -310,9 +304,12 @@ class ErrorPopUp:
         while cause:
             excepts.append(cause)
             cause = cause.__cause__
+
+        # Get error messages and tracebacks from the exceptions.
         errorstrings = ["\n".join(traceback.format_exception_only(exc))
                         for exc in excepts]
-        self.answer = None
+        self.tracebacks = ["\n".join(traceback.format_exception(exc))
+                           for exc in excepts]
         
         self.datestampstring = time.strftime("%Y %b %d %H:%M:%S %Z")
         self.gtk = gtklogger.Dialog(
@@ -326,7 +323,6 @@ class ErrorPopUp:
         vbox = self.gtk.get_content_area()
         vbox.set_spacing(3)
 
-        classname = utils.stringsplit(str(e_type),'.')[-1]
         vbox.pack_start(Gtk.Label(label="ERROR"),
                                  expand=False, fill=False, padding=0)
 
@@ -393,14 +389,9 @@ class ErrorPopUp:
         self.scroll.add(self.tracepane)
 
         if self.tracebacks:
-            tbtext = ""
-            for err, tb in zip(errorstrings, self.tracebacks):
-                if tbtext:
-                    tbtext += '\n----------\n\n'
-                tbtext += err + '\n'
-                tbtext += "".join(tb)
-            self.tracepane.get_buffer().set_text(tbtext)
-            
+            self.tracepane.get_buffer().set_text("".join(self.tracebacks))
+            self.savebutton.set_sensitive(True)
+            self.tracebutton.set_sensitive(True)
         else:
             self.savebutton.set_sensitive(False)
             self.tracebutton.set_sensitive(False)
@@ -441,22 +432,18 @@ class ErrorPopUp:
         fname = "traceback_oof."+str(os.getpid())
         errbuf = self.errbox.get_buffer()
         try:
-            fobj = open(fname, "a+")
-            fobj.write("%s\n\n" % self.datestampstring)
+            with open(fname, "a+") as phile:
+                traceback.print_exception(self.exception, file=phile)
             
-            tbuf = self.tracepane.get_buffer()
-            fobj.write(tbuf.get_text(tbuf.get_start_iter(), tbuf.get_end_iter(),
-                                     False))
             errbuf.insert(errbuf.get_end_iter(), "\nTraceback written to %s.\n"
                           % fname)
         except IOError:
             errbuf.insert(erfbuf.get_end_iter(),
                           "\nUnable to write traceback.\n")
-        self.errbox.scroll_to_iter(errbuf.get_end_iter(),
-                                   within_margin=0.0,
-                                   use_align=True,
-                                   xalign=0.0,
-                                   yalign=1.0)
+        finally:
+            self.errbox.scroll_to_iter(errbuf.get_end_iter(),
+                                       within_margin=0.0,
+                                       use_align=True, xalign=0.0, yalign=1.0)
 
 def _switchpacking(parent, child):
     # Toggle the 'expand' and 'fill' gtk packing properties of the
@@ -473,8 +460,8 @@ def _switchpacking(parent, child):
 # ErrorPopUp.OK if the "OK" button was pressed, and ErrorPopUp.ABORT
 # otherwise.
 
-def errorpopup_(e_type, e_value, tbacklist):
-    e = ErrorPopUp(e_type, e_value, tbacklist)
+def errorpopup_(e_value):
+    e = ErrorPopUp(e_value)
     result = e.run()
     e.close()
     return result
@@ -484,14 +471,14 @@ def errorpopup_(e_type, e_value, tbacklist):
 ## gui_printTraceBack overrides excepthook.displayTraceBack, and is
 ## called when an exception occurs.
 
-def gui_printTraceBack(e_type, e_value, tbacklist):
+def gui_printTraceBack(e_value):
     # If the mainloop isn't running yet, just display to the terminal.
     # In debugging mode, always display to the terminal.
     if debug.debug() or not guitop.getMainLoop():
-        excepthook.printTraceBack(e_type, e_value, tbacklist)
+        excepthook.printTraceBack(e_value)
     if guitop.getMainLoop():
         # Transfer control to the main thread to report errors in the GUI.
-        res = mainthread.runBlock(errorpopup_, (e_type, e_value, tbacklist))
+        res = mainthread.runBlock(errorpopup_, (e_value,))
         if res == Gtk.ResponseType.CLOSE:
             from ooflib.common.IO.GUI import quit
             # The first argument to doQueryQuit is the window that the
