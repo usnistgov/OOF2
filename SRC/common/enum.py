@@ -35,6 +35,10 @@
 ## built-in class doesn't support help strings or subclassing, so it
 ## wouldn't be a trivial conversion.
 
+## TODO: Change the name of this file to oofenum.py (and adjust all
+## imports accordingly).  If oof2 is run in this directory, all sorts
+## of things will fail when an "import enum" picks up the wrong file.
+
 
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
