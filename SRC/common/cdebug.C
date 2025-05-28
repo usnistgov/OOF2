@@ -115,9 +115,10 @@ void throwException() {
   // routine is only used to test error handling, we use a fixed
   // integer value instead of __LINE__.  The value is the one that was
   // in the test files at the time that this glitch was
-  // discovered. (See TEST/GUI/04100/log.py, for example.)
+  // discovered. (See TEST/GUI/041000/log.py, for example.)
   throw ErrProgrammingError("Somebody made a mistake!", __FILE__, 124);
 }
+
 
 // A C++ function that can be called from Python, and which calls a
 // Python "function" that raises a Python exception.

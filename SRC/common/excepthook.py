@@ -37,7 +37,9 @@ displayTraceBack = printTraceBack
 ## into a function?
 
 class OOFexceptHook:
-    def __call__(self, e_value):
+    # __call__() needs to have the same arguments as the
+    # sys.__excepthook__(), although we only use one.
+    def __call__(self, e_type, e_value, tback):
         displayTraceBack(e_value)
 
     ## Not sure why __cmp__ was defined.  OOFexceptHook seems to work
@@ -112,7 +114,7 @@ def _oofExceptHook(e_type, e_value, tback):
     hook = get_excepthook()
     _exceptLock.release()
     if hook is not None:
-        hook(e_value)
+        hook(e_type, e_value, tback)
         # If this function has been called, it means that an exception
         # has not been caught, and therefore that a Worker or
         # MiniThread has finished without removing its excepthook from

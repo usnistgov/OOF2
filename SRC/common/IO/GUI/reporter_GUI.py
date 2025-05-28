@@ -306,8 +306,19 @@ class ErrorPopUp:
             cause = cause.__cause__
 
         # Get error messages and tracebacks from the exceptions.
-        errorstrings = ["\n".join(traceback.format_exception_only(exc))
-                        for exc in excepts]
+        errorstrings = [
+            # exc here could be either an oof2 exception (ie,
+            # ErrError) or a standard Python Exception.
+            ## TODO: When exc is a standard exception,
+            ## format_exception_only prints its classname (eg,
+            ## SyntaxError).  But when it's an oof2 exception,
+            ## format_exception_only prints the whole path to the
+            ## class (eg,
+            ## ooflib.SWIG.common.ooferror.PyErrProgrammingError).
+            ## That makes sense, since SyntaxError is global and has
+            ## no path, but it's ugly.
+            "\n".join(traceback.format_exception_only(exc))
+            for exc in excepts]
         self.tracebacks = ["\n".join(traceback.format_exception(exc))
                            for exc in excepts]
         
@@ -368,6 +379,9 @@ class ErrorPopUp:
         self.gtk.set_default_response(Gtk.ResponseType.OK)
 
 
+        # Create a scrolled window, frame, and text view to display
+        # the traceback, but don't add them to the dialog until the
+        # traceback button is pressed.
         self.scroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(self.scroll, "TraceScroll")
         self.scroll.set_policy(Gtk.PolicyType.AUTOMATIC,
@@ -379,13 +393,9 @@ class ErrorPopUp:
                                       wrap_mode=Gtk.WrapMode.WORD,
                                       left_margin=5, right_margin=5,
                                       top_margin=5, bottom_margin=5)
-
         self.traceframe = Gtk.Frame()
         self.traceframe.set_shadow_type(Gtk.ShadowType.NONE)
         vbox.pack_start(self.traceframe, expand=False, fill=False, padding=0)
-
-        # Scroll is not added to the frame until the traceback button
-        # is pressed.
         self.scroll.add(self.tracepane)
 
         if self.tracebacks:
@@ -456,20 +466,12 @@ def _switchpacking(parent, child):
                              padding=packinfo.padding,
                              pack_type=packinfo.pack_type)
 
-# Blocking function, which raises an error pop up, blocks, and returns
-# ErrorPopUp.OK if the "OK" button was pressed, and ErrorPopUp.ABORT
-# otherwise.
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def errorpopup_(e_value):
-    e = ErrorPopUp(e_value)
-    result = e.run()
-    e.close()
-    return result
-
-#########
-
-## gui_printTraceBack overrides excepthook.displayTraceBack, and is
-## called when an exception occurs.
+# gui_printTraceBack overrides excepthook.displayTraceBack.  It is
+# called when an exception occurs and propagates all the way to the
+# outermost function call in the Python interpreter, without being
+# caught and handled by an OOF2 exception handler.
 
 def gui_printTraceBack(e_value):
     # If the mainloop isn't running yet, just display to the terminal.
@@ -478,7 +480,7 @@ def gui_printTraceBack(e_value):
         excepthook.printTraceBack(e_value)
     if guitop.getMainLoop():
         # Transfer control to the main thread to report errors in the GUI.
-        res = mainthread.runBlock(errorpopup_, (e_value,))
+        res = mainthread.runBlock(gui_printTraceBack_main, (e_value,))
         if res == Gtk.ResponseType.CLOSE:
             from ooflib.common.IO.GUI import quit
             # The first argument to doQueryQuit is the window that the
@@ -487,6 +489,15 @@ def gui_printTraceBack(e_value):
                                 (guitop.top().gtk,), kwargs=dict(exitstatus=1))
 
 excepthook.displayTraceBack = gui_printTraceBack
+
+# Raise an error pop up, block, and return ErrorPopUp.OK if the "OK"
+# button is pressed, and ErrorPopUp.ABORT otherwise.
+
+def gui_printTraceBack_main(e_value):
+    e = ErrorPopUp(e_value)
+    result = e.run()
+    e.close()
+    return result
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

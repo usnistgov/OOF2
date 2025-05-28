@@ -50,6 +50,12 @@
 // Python without changing the exception state, effectively passing
 // the Python exception from Python through C++ and back to Python.
 
+// The swigged ErrError subclasses require individual __repr__s, which
+// WRAP_OOFERROR_CLASS creates.  If you provide one only in the base
+// class SWIG will construct default uninformative __repr__s for the
+// subclasses.
+
+
 %pythoncode %{
    from ooflib.common import ooferrorwrappers
 %}
@@ -57,18 +63,23 @@
 %define WRAP_OOFERROR_CLASS(ERR)
 
 %pythoncode %{
-    
+
   class Py##ERR(ooferrorwrappers.PyOOFError):
+
     def __init__(self, *args, **kwargs):
       self.cexcept = kwargs.get("cexcept", None)
       if self.cexcept is None:
         self.cexcept = ERR(*args, **kwargs)
+
     def __getattr__(self, attr):
       return getattr(self.cexcept, attr)
+
     def __repr__(self):
       return self.cexcept.summary()
+
     def __str__(self):
-      return self.cexcept.summary()
+      return "\n".join([self.cexcept.summary(), self.cexcept.details()])
+ 
   ooferrorwrappers.pyErrorWrappers[ERR] = Py##ERR
 %}
 

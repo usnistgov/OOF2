@@ -31,12 +31,16 @@ public:
   // These functions all return pointers to new string objects.  They
   // do this so that the strings may be handed off to Python via swig
   // without additional copying or memory leaks.
+  // TODO: Can swig be made to use move constructors?
+
+  // The python wrappers use summary() for __repr__(), and summary() +
+  // details() for __str__().  __str__() is what is displayed in the
+  // error window.  See ooferrorwrappers.swg.
   virtual const std::string *summary() const = 0;
   virtual const std::string *details() const { return new std::string(""); }
   virtual void throw_self() const = 0;
   virtual ErrError *clone() const = 0;
 };
-
 
 // ErrErrorBase exists just so that a base class pointer can re-throw
 // itself.  It's used in pythonErrorRelay, when throwing a C++
@@ -80,12 +84,16 @@ public:
   {}
   virtual ~ErrProgrammingErrorBase() {}
   virtual const std::string *summary() const {
-    return new std::string(file + ":" + tostring(line) + " " + msg);
+    return new std::string(msg);
+  }
+  virtual const std::string *details() const {
+    return new std::string(file + ":" + tostring(line));
   }
   // filename and lineno are for reading from Python
   const std::string &filename() const { return file; }
-  int lineno() const { return line; }  
+  int lineno() const { return line; }
 };
+
 
 class ErrProgrammingError
   : public ErrProgrammingErrorBase<ErrProgrammingError>
