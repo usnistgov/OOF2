@@ -291,35 +291,26 @@ switchboard.requestCallbackMain("messagemanager warning", _warning_pop_up)
 class ErrorPopUp:
     # errorSeparator is printed between error messages, if there is
     # more than one message.
-    errorSeparator = "--\n"
+    errorSeparator = "-----\n"
 
-    def __init__(self, value):
+    def __init__(self, exception):
         debug.mainthreadTest()
-        self.exception = value
+        self.exception = exception
         
-        # Get all exceptions, included the ones that triggered the one
+        # Get all exceptions, including the ones that triggered the one
         # that was caught.
-        excepts = [value]
-        cause = value.__cause__
+        excepts = [exception]
+        cause = exception.__cause__
         while cause:
             excepts.append(cause)
             cause = cause.__cause__
 
-        # Get error messages and tracebacks from the exceptions.
-        errorstrings = [
-            # exc here could be either an oof2 exception (ie,
-            # ErrError) or a standard Python Exception.
-            ## TODO: When exc is a standard exception,
-            ## format_exception_only prints its classname (eg,
-            ## SyntaxError).  But when it's an oof2 exception,
-            ## format_exception_only prints the whole path to the
-            ## class (eg,
-            ## ooflib.SWIG.common.ooferror.PyErrProgrammingError).
-            ## That makes sense, since SyntaxError is global and has
-            ## no path, but it's ugly.
-            "\n".join(traceback.format_exception_only(exc))
-            for exc in excepts]
-        self.tracebacks = ["\n".join(traceback.format_exception(exc))
+        # Get error messages and tracebacks from the exceptions.  exc
+        # can be either an oof2 exception (ie, ErrError) or a standard
+        # Python Exception.
+        errorstrings = ["".join(traceback.format_exception_only(exc))
+                        for exc in excepts]
+        self.tracebacks = ["".join(traceback.format_exception(exc))
                            for exc in excepts]
         
         self.datestampstring = time.strftime("%Y %b %d %H:%M:%S %Z")
@@ -473,14 +464,14 @@ def _switchpacking(parent, child):
 # outermost function call in the Python interpreter, without being
 # caught and handled by an OOF2 exception handler.
 
-def gui_printTraceBack(e_value):
+def gui_printTraceBack(exception):
     # If the mainloop isn't running yet, just display to the terminal.
     # In debugging mode, always display to the terminal.
     if debug.debug() or not guitop.getMainLoop():
-        excepthook.printTraceBack(e_value)
+        excepthook.printTraceBack(exception)
     if guitop.getMainLoop():
         # Transfer control to the main thread to report errors in the GUI.
-        res = mainthread.runBlock(gui_printTraceBack_main, (e_value,))
+        res = mainthread.runBlock(gui_printTraceBack_main, (exception,))
         if res == Gtk.ResponseType.CLOSE:
             from ooflib.common.IO.GUI import quit
             # The first argument to doQueryQuit is the window that the
@@ -493,8 +484,8 @@ excepthook.displayTraceBack = gui_printTraceBack
 # Raise an error pop up, block, and return ErrorPopUp.OK if the "OK"
 # button is pressed, and ErrorPopUp.ABORT otherwise.
 
-def gui_printTraceBack_main(e_value):
-    e = ErrorPopUp(e_value)
+def gui_printTraceBack_main(exception):
+    e = ErrorPopUp(exception)
     result = e.run()
     e.close()
     return result

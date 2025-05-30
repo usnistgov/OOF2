@@ -13,7 +13,7 @@
 #define OOFERRORWRAPPERS_SWG
 
 // This file doesn't define a module.  It's just a place to put the
-// WRAP_OOFERROR_CLASS macro so that it can import pyErrorWrappers
+// WRAP_OOFERROR_CLASS swig macro so that it can import pyErrorWrappers
 // without causing an import loop.  It should *not* be included in
 // oof_swig_sources in CMakeLists.txt.
 
@@ -58,6 +58,7 @@
 
 %pythoncode %{
    from ooflib.common import ooferrorwrappers
+   from ooflib.common import utils
 %}
 
 %define WRAP_OOFERROR_CLASS(ERR)
@@ -79,9 +80,13 @@
 
     def __str__(self):
       return "\n".join([self.cexcept.summary(), self.cexcept.details()])
- 
+
+    def __eq__(self, other):
+      return self.cexcept == other.cexcept
+	       
   ooferrorwrappers.pyErrorWrappers[ERR] = Py##ERR
-%}
+  utils.OOFdefine(Py##ERR.__name__, Py##ERR)
+ %}
 
 %typemap(in) Py##ERR* {
   // typemap(in) Py##ERR * via WRAP_OOFERROR_CLASS for ERR

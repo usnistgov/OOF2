@@ -17,10 +17,6 @@
 #include "common/pythonlock.h"
 #include "common/tostring.h"
 
-
-// Some trivial constructors are here instead of in ooferror.h so that
-// debugging lines can be added without recompiling everything else.
-
 ErrProgrammingError::ErrProgrammingError(const std::string &f, int l)
   : ErrProgrammingErrorBase<ErrProgrammingError>(f, l)
 {}
@@ -95,6 +91,28 @@ const std::string &ErrWarning::classname() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+#include <typeinfo>
+
+// ErrError::operator== is virtual, in case this definition isn't
+// sufficient for some clases.
+
+bool ErrError::operator==(const ErrError& other) const {
+  // std::cerr << "ErrError::operator==: type " << typeid(*this).name()
+  // 	    << " " << typeid(other).name()
+  // 	    << " " << (typeid(*this) == typeid(other)) << std::endl;
+  // std::cerr << "ErrError::operator==: summary " << *summary()
+  // 	    << " " << *other.summary()
+  // 	    << " " << (*summary() == *other.summary()) << std::endl;
+  // std::cerr << "ErrError::operator==: details " << *details()
+  // 	    << " " << *other.details()
+  // 	    << " " << (*details() == *other.details()) << std::endl;
+  return (typeid(*this) == typeid(other) &&
+	  *summary() == *other.summary() &&
+	  *details() == *other.details());
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 // Function to convert a Python exception into a C++ exception.  This
 // in effect is the inverse of the swig exception typemap.  The two of
 // them together allow an exception to be batted back and forth
@@ -161,6 +179,27 @@ void pythonErrorRelay() {
       throw PythonError();
     }
   } // end if ptype
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// When testing error handling, it's sometimes necessary to compare
+// error messages that contain file names that depend on the location
+// of the source files at compilation time.  This is a cheap way to
+// find the location.
+
+// TODO: sourcePathPrefix doesn't belong here.  Maybe in cdebug.C?
+
+std::string sourcePathPrefix() {
+  static bool once = false;
+  static std::string prefix;
+  if(!once) {
+    once = true;
+    std::string thisfile = __FILE__;
+    std::string suffix = "OOF2/SRC/common/ooferror.C";
+    prefix = thisfile.substr(0, thisfile.size()-suffix.size());
+  }
+  return prefix;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

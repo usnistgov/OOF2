@@ -31,12 +31,15 @@ public:
   std::string *summary();
   %newobject details;
   std::string *details();
+  bool operator==(const ErrError&);
 };
 
 %pythoncode %{
-  # Does this work?
+  # TODO Does this work?  Is it needed?
   ErrError.__str__ = ErrError.__repr__
 %}
+
+std::string sourcePathPrefix();
 
 // Subclasses require individual __repr__s.  If you provide one in the
 // base class but don't provide them in the subclasses, SWIG will

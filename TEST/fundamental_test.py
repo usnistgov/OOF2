@@ -9,6 +9,7 @@
 # oof_manager@nist.gov. 
 
 import unittest, os, sys
+from ooflib.common import debug, utils
 
 # For reasons that I don't completely understand, file_utils needs to
 # be imported with an absolute path name, or else the modules imported
@@ -17,7 +18,43 @@ import unittest, os, sys
 # the file, and reset file_utils.referencedir.
 from oof2.TEST.UTILS.file_utils import reference_file
 
-class OOF_Fundamental(unittest.TestCase):
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Class for tests that generate Exceptions.
+
+class ExcTestCase(unittest.TestCase):
+    def assertOOFRaises(self, expection, cmd, *args, **kwargs):
+        # expection is the expected exception.
+        try:
+            cmd(*args, **kwargs)
+        except Exception as exc:
+            # Find the root cause of the PyOOFError
+            if isinstance(exc, ooferror.PyOOFError):
+                while exc.__cause__:
+                    exc = exc.__cause__
+            if isinstance(exc, ooferror.PyOOFError):
+                if not isinstance(expection, ooferror.PyOOFError):
+                    self.fail()
+                # PyOOFErrors can be compared with __eq__.
+                self.assertEqual(exc, expection)
+            else:
+                # exc is not a PyOOFError.
+                if isinstance(expection, ooferror.PyOOFError):
+                    self.fail()
+                # Neither the received and expected exceptions are
+                # oof-specific exceptions.  Standard Python exceptions
+                # can't be compared simply with __eq__ (WTF?).  For
+                # example, this is False:
+                #    NameError("abc") == NameError("abc")
+                self.assertEqual(type(exc), type(expection))
+                self.assertEqual(exc.args, expection.args)
+        else:
+            # No exception was raised, although we were expecting one.
+            self.fail()
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+class OOF_Fundamental(ExcTestCase):
     def setUp(self):
         global allWorkers, allWorkerCores
         from ooflib.common.worker import allWorkers, allWorkerCores
@@ -220,23 +257,29 @@ class OOF_Fundamental(unittest.TestCase):
         # and then sets teststring to "not ok".  If the exception is
         # not handled properly, lines following the error will be
         # read, and teststring will be set to "not ok".
-        #
-        # The script contains a NameError, but loadscript() in
-        # mainmenu.py converts it into a PyErrUserError.
-        self.assertRaises(ooferror.PyErrUserError,
-                          OOF.File.Load.Script,
-                          filename = reference_file("fundamental_data",
-                                                    "pyerror.py"))
+        self.assertOOFRaises(
+            NameError("name 'y' is not defined"),
+            OOF.File.Load.Script,
+            filename = reference_file("fundamental_data", "pyerror.py"))
         self.assertEqual(utils.OOFeval('teststring'), "ok")
 
     def ScriptException1(self):
         # This script is similar, but it raises the exception by
-        # running a menu command.  The exception is an
-        # ErrProgrammingError.
-        self.assertRaises(ooferror.PyErrUserError,
-                          OOF.File.Load.Script,
-                          filename=reference_file("fundamental_data",
-                                                  "errorcmd.py"))
+        # running a menu command, OOF.Help.Debug.Error.CError.  The
+        # command throws an ErrProgrammingError from C++.
+        self.assertOOFRaises(
+            PyErrProgrammingError(
+                "Somebody made a mistake!",
+                # The file name given here needs to be the same as
+                # the file name referred to by __FILE__ when oof2 was
+                # compiled.
+                ooferror.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C",
+                # The line number here is fake, so that the test won't
+                # break if cdebug.C is altered.  See throwException()
+                # in cdebug.C.
+                124),
+            OOF.File.Load.Script,
+            filename=reference_file("fundamental_data", "errorcmd.py"))
         self.assertEqual(utils.OOFeval('teststring'), "ok")
 
     def ScriptException2(self):
@@ -244,10 +287,13 @@ class OOF_Fundamental(unittest.TestCase):
         # a nested menu command.  teststring and/or another test will
         # not be "ok" if lines following the error are being
         # processed.
-        self.assertRaises(ooferror.PyErrUserError,
-                          OOF.File.Load.Script,
-                          filename=reference_file("fundamental_data",
-                                                  "nestederror.py"))
+        self.assertOOFRaises(
+            PyErrProgrammingError(
+                "Somebody made a mistake!",
+                ooferror.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C",
+                124),
+            OOF.File.Load.Script,
+            filename=reference_file("fundamental_data", "nestederror.py"))
         self.assertTrue(utils.OOFeval('teststring')=="ok" and
                         utils.OOFeval('anothertest')=="ok")
 
@@ -342,7 +388,7 @@ class OOF_Fundamental(unittest.TestCase):
         self.assertEqual(len(set(r)), 50)
         self.assertEqual(r, expected2)
 
-test_set = [
+test_set = [ 
     OOF_Fundamental("OrderedDict"),
     OOF_Fundamental("Ordered_Set"),
     OOF_Fundamental("WorkerCleanup"),
@@ -362,6 +408,6 @@ test_set = [
     OOF_Fundamental("DoubleVec")
 ]
 
-test_set = [
-    OOF_Fundamental("ScriptException0")
-]
+# test_set = [
+#     OOF_Fundamental("ScriptException1")
+# ]

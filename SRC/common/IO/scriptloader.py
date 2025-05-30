@@ -43,9 +43,17 @@ import sys
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class _ScriptException(Exception):
+class _ScriptException(ooferror.PyOOFError):
     def __init__(self, filename):
         self.filename = filename
+
+## TODO? __str__ should return a string that is independent of how the
+## program was built, so that it's reproducible in testing. That means
+## that it can't include the file name.  But these exceptions aren't
+## ever exposed to the user directly, and might not ever appear in the
+## test suites either.  Maybe something like
+## ooferror.sourcePathPrefix() can be used when these exceptions are
+## needed in the tests.
         
 class ScriptInterrupt(_ScriptException):
     def __str__(self):

@@ -40,6 +40,8 @@ public:
   virtual const std::string *details() const { return new std::string(""); }
   virtual void throw_self() const = 0;
   virtual ErrError *clone() const = 0;
+
+  virtual bool operator==(const ErrError&) const;
 };
 
 // ErrErrorBase exists just so that a base class pointer can re-throw
@@ -63,6 +65,7 @@ public:
 
 void pyErrorInit(PyObject*);
 
+std::string sourcePathPrefix();
 
 // Programming errors are fatal (to the program...)
 
@@ -74,10 +77,14 @@ protected:
   const std::string msg;
 public:
   ErrProgrammingErrorBase(const std::string &f, int l)
-    : file(f), line(l), msg("")
+    : file(f),
+      line(l),
+      msg("")
   {}
   ErrProgrammingErrorBase(const std::string &m, const std::string &f, int l)
-    : file(f), line(l), msg(m)
+    : file(f),
+      line(l),
+      msg(m)
   {}
   ErrProgrammingErrorBase(const ErrProgrammingErrorBase &other)
     : file(other.file), line(other.line), msg(other.msg)
