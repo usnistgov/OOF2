@@ -34,9 +34,7 @@ class ExcTestCase(unittest.TestCase):
             # Find the root cause of the caught exception, if it's a
             # PyOOFError.  The root cause might not also be a
             # PyOOFError.
-            if isinstance(exc, ooferror.PyOOFError):
-                while exc.__cause__:
-                    exc = exc.__cause__
+            exc = exc.rootCause()
             # exc is an instance of PyOOFError or Exception.  Since
             # PyOOFError is a subclass of Exception, the order of the
             # comparisons below is important.

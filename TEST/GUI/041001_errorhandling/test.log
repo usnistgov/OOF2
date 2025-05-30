@@ -11,6 +11,7 @@
 ## This is the same as 041000_errorhandling, but is run in unthreaded
 ## mode (see the args file).
 
+from ooflib.SWIG.common import ooferror
 from ooflib.common import utils
 import generics
 
@@ -30,7 +31,7 @@ checkpoint OOF.File.LoadStartUp.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(266, 210)
 findWidget('OOF2').resize(782, 545)
-assert generics.errorMsg("Somebody made a mistake!\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/errorcmd.py raised a PyErrProgrammingError exception\n")
+assert generics.errorMsg("ooflib.common.IO.scriptloader.ScriptException: Error running file TEST_DATA/errorcmd.py\n-----\nooflib.SWIG.common.ooferror.PyErrProgrammingError: Somebody made a mistake!\n" + ooferror.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C:124\n")
 
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
 
@@ -65,7 +66,7 @@ checkpoint OOF.Help.Debug.Error.CError
 checkpoint OOF.File.Load.Script
 checkpoint toplevel widget mapped Error
 
-assert generics.errorMsg("Somebody made a mistake!\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/errorcmd.py raised a PyErrProgrammingError exception\n")
+assert generics.errorMsg("ooflib.common.IO.scriptloader.ScriptException: Error running file TEST_DATA/errorcmd.py\n-----\nooflib.SWIG.common.ooferror.PyErrProgrammingError: Somebody made a mistake!\n" + ooferror.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C:124\n")
 
 findWidget('Error').resize(266, 210)
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
