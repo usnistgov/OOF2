@@ -22,32 +22,52 @@ from oof2.TEST.UTILS.file_utils import reference_file
 
 # Class for tests that generate Exceptions.
 
+
 class ExcTestCase(unittest.TestCase):
-    def assertOOFRaises(self, expection, cmd, *args, **kwargs):
-        # expection is the expected exception.
+
+    def assertOOFRaises(self, expectation, cmd, *args, **kwargs):
+        # expectation is the expected exception.  It can be an
+        # Exception subclass or an instance of one.
         try:
             cmd(*args, **kwargs)
         except Exception as exc:
-            # Find the root cause of the PyOOFError
+            # Find the root cause of the caught exception, if it's a
+            # PyOOFError.  The root cause might not also be a
+            # PyOOFError.
             if isinstance(exc, ooferror.PyOOFError):
                 while exc.__cause__:
                     exc = exc.__cause__
+            # exc is an instance of PyOOFError or Exception.  Since
+            # PyOOFError is a subclass of Exception, the order of the
+            # comparisons below is important.
             if isinstance(exc, ooferror.PyOOFError):
-                if not isinstance(expection, ooferror.PyOOFError):
-                    self.fail()
-                # PyOOFErrors can be compared with __eq__.
-                self.assertEqual(exc, expection)
+                # exc is a PyOOFError object. expectation must be a
+                # PyOOFError object or class.
+                if isinstance(expectation, type):
+                    # expectation is a class. exc must be an instance
+                    # of it.
+                    if not isinstance(exc, expectation):
+                        self.fail()
+                else:
+                    # excpectation is a PyOOFError instance. exc must
+                    # equal it.  PyOOFError instances can be compared
+                    # directly.
+                    self.assertEqual(exc, expectation)
             else:
-                # exc is not a PyOOFError.
-                if isinstance(expection, ooferror.PyOOFError):
-                    self.fail()
-                # Neither the received and expected exceptions are
-                # oof-specific exceptions.  Standard Python exceptions
-                # can't be compared simply with __eq__ (WTF?).  For
-                # example, this is False:
-                #    NameError("abc") == NameError("abc")
-                self.assertEqual(type(exc), type(expection))
-                self.assertEqual(exc.args, expection.args)
+                # exc is a generic non-OOF Exception.
+                if isinstance(expectation, type):
+                    # expectation is a class.  exc should be an
+                    # instance of it.
+                    if not isinstance(exc, expectation):
+                        self.fail()
+                else:
+                    # expectation is an instance. exc must equal it.
+                    # Standard Python exceptions can't be compared
+                    # directly with __eq__ (WTF?).  For example, this is
+                    # False:
+                    #   NameError("abc") == NameError("abc")
+                    self.assertEqual(type(exc), type(expectation))
+                    self.assertEqual(exc.args, expectation.args)
         else:
             # No exception was raised, although we were expecting one.
             self.fail()
@@ -298,10 +318,10 @@ class OOF_Fundamental(ExcTestCase):
                         utils.OOFeval('anothertest')=="ok")
 
     def ScriptSyntaxErr0(self):
-        self.assertRaises(ooferror.PyErrUserError,
-                          OOF.File.Load.Script,
-                          filename=reference_file("fundamental_data",
-                                                  "syntaxerror.py"))
+        self.assertOOFRaises(SyntaxError,
+                             OOF.File.Load.Script,
+                             filename=reference_file("fundamental_data",
+                                                     "syntaxerror.py"))
         # syntaxerror.py tries to define 'bandersnatch' before the
         # line containing the syntax error, and 'borogoves' after it.
         # Neither should be defined, because none of the file should
@@ -317,11 +337,10 @@ class OOF_Fundamental(ExcTestCase):
         # syntaxerror.py should be evaluated.  nestedsyntaxerr.py sets
         # teststring="ok" before loading syntaxerror.py and "not ok"
         # afterwards.
-        print("Don't panic. This test fails intentionally.")
-        self.assertRaises(ooferror.PyErrUserError,
-                          OOF.File.Load.Script,
-                          filename=reference_file("fundamental_data",
-                                                  "nestedsyntaxerr.py"))
+        self.assertOOFRaises(SyntaxError,
+                             OOF.File.Load.Script,
+                             filename=reference_file("fundamental_data",
+                                                     "nestedsyntaxerr.py"))
         self.assertRaises(NameError, utils.OOFeval, "bandersnatch")
         self.assertRaises(NameError, utils.OOFeval, "borogoves")
         self.assertEqual(utils.OOFeval('teststring'), 'ok')
@@ -409,5 +428,5 @@ test_set = [
 ]
 
 # test_set = [
-#     OOF_Fundamental("ScriptException1")
+#     OOF_Fundamental("ScriptSyntaxErr0")
 # ]
