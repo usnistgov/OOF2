@@ -14,6 +14,7 @@
 from ooflib.common import debug
 from ooflib.common import excepthook
 from ooflib.SWIG.common import ooferror
+from ooflib.common import utils
 import ast
 import sys
 
@@ -44,8 +45,11 @@ import sys
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class _ScriptException(ooferror.PyOOFError):
-    def __init__(self, filename):
+    def __init__(self, filename, line=None):
         self.filename = filename
+        self.line = line
+    def __repr__(self):
+        return self.__class__.__name__
 
 ## TODO? __str__ should return a string that is independent of how the
 ## program was built, so that it's reproducible in testing. That means
@@ -54,15 +58,34 @@ class _ScriptException(ooferror.PyOOFError):
 ## test suites either.  Maybe something like
 ## ooferror.sourcePathPrefix() can be used when these exceptions are
 ## needed in the tests.
+
+## TODO: Having ScriptParseError and ScriptException is weird.  They
+## should both be ...Exception or both be ...Error.
         
 class ScriptInterrupt(_ScriptException):
     def __str__(self):
+        if self.line is not None:
+            return f"Interrupted while running file \"{self.filename}\", line {self.line}"
         return f"Interrupted while running file {self.filename}"
 
+class ScriptParseError(_ScriptException):
+    def __str__(self):
+        return f"Error parsing file \"{self.filename}\""
+    def __repr__(self):
+        return self.__class__.__name__
+    
 class ScriptException(_ScriptException):
     def __str__(self):
+        if self.line is not None:
+            return f"Error running file \"{self.filename}\", line {self.line}"
         return f"Error running file {self.filename}"
+    def __repr__(self):
+        return self.__class__.__name__
 
+utils.OOFdefine("ScriptException", ScriptException)
+utils.OOFdefine("ScriptParseError", ScriptParseError)
+utils.OOFdefine("ScriptInterrupt", ScriptInterrupt)
+        
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class ScriptLoader:
@@ -120,7 +143,7 @@ class ScriptLoader:
         try:
             self.tree = ast.parse(lines, filename=self.filename)
         except SyntaxError as exc:
-            raise ScriptException(self.filename) from exc
+            raise ScriptParseError(self.filename) from exc
             # self.error = sys.exc_info()
             # print(f"Caught SyntaxError: {self.error}")
             # self.errhandler(*self.error)
@@ -132,22 +155,25 @@ class ScriptLoader:
                 # self.excepthook = excepthook.assign_excepthook(
                 #     _ScriptExceptHook(self))
                 lastline = codebody[-1].end_lineno
+                curline = 0
                 for snippet in codebody:
+                    curline = snippet.lineno
                     self.tree.body = [snippet]
                     code = compile(self.tree, self.filename, "exec")
                     exec(code, globals()|self.locals, self.locals)
                     self.progress(snippet.lineno, lastline) 
                     if self.stop():
-                        raise ScriptInterrupt(self.filename)
+                        raise ScriptInterrupt(self.filename, snippet.lineno)
             except ScriptInterrupt as exc:
                 # This script was interrupted.
                 debug.fmsg("Interrupted!")
-                raise ScriptInterrupt(self.filename) from exc
+                raise ScriptInterrupt(self.filename, curline.lineno) from exc
             except ScriptException as exc:
-                raise ScriptException(self.filename) from exc
+                # A subscript raised an exception
+                raise ScriptException(self.filename, curline) from exc
             except Exception as exc:
-                debug.fmsg(f"Caught an exception: {exc}")
-                raise ScriptException(self.filename) from exc
+                # Something else bad happened
+                raise ScriptException(self.filename, curline) from exc
             finally:
                 self.done()
 

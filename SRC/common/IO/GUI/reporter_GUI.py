@@ -293,26 +293,34 @@ class ErrorPopUp:
     # more than one message.
     errorSeparator = "-----\n"
 
-    def __init__(self, exception):
+    def __init__(self, e_type, e_value, e_traceback):
         debug.mainthreadTest()
-        self.exception = exception
-        
-        # Get all exceptions, including the ones that triggered the one
-        # that was caught.
-        excepts = [exception]
-        cause = exception.__cause__
-        while cause:
-            excepts.append(cause)
-            cause = cause.__cause__
+        self.exc_info = (e_type, e_value, e_traceback)
 
-        # Get error messages and tracebacks from the exceptions.  exc
-        # can be either an oof2 exception (ie, ErrError) or a standard
-        # Python Exception.
-        errorstrings = ["".join(traceback.format_exception_only(exc))
-                        for exc in excepts]
-        self.tracebacks = ["".join(traceback.format_exception(exc))
-                           for exc in excepts]
-        
+        # TODO: In Python 3.10 and later, format_exception_only() and
+        # format_exception() only require an e_value argument.  We're
+        # using the old three-argument form for compatibility with
+        # Python 3.9.  If we stop supporting 3.9, this __init__ and
+        # its direct and indirect callers (here and in
+        # SRC/common/excepthook.py) only need a single argument.
+
+        # We want the displayed errors to include the causes of the
+        # current error.  Calling format_exception_only() on e_value
+        # retrieves only the most recent error, which might be an
+        # uninformative ScriptException.
+        errorstrings = []
+        err = e_value
+        while err is not None:
+            errorstrings.append(
+                "".join(traceback.format_exception_only(type(err), value=err)))
+            err = err.__cause__
+        errorstring = self.errorSeparator.join(errorstrings)
+
+        # format_exception() automatically includes the tracebacks for
+        # the preceding exceptions.
+        self.tracebacks = "".join(traceback.format_exception(
+            e_type, value=e_value, tb=e_traceback))
+            
         self.datestampstring = time.strftime("%Y %b %d %H:%M:%S %Z")
         self.gtk = gtklogger.Dialog(
             title="%s Error" % subWindow.oofname(),
@@ -340,8 +348,7 @@ class ErrorPopUp:
                                    top_margin=5, bottom_margin=5)
         gtklogger.setWidgetName(self.errbox, "ErrorText")
         self.errframe.add(self.errbox)
-        self.errbox.get_buffer().set_text(
-            self.errorSeparator.join(errorstrings))
+        self.errbox.get_buffer().set_text(errorstring)
 
         # Buttons for viewing and saving the traceback.  These can't
         # go in the action area with the OK and Abort buttons because
@@ -390,7 +397,7 @@ class ErrorPopUp:
         self.scroll.add(self.tracepane)
 
         if self.tracebacks:
-            self.tracepane.get_buffer().set_text("".join(self.tracebacks))
+            self.tracepane.get_buffer().set_text(self.tracebacks)
             self.savebutton.set_sensitive(True)
             self.tracebutton.set_sensitive(True)
         else:
@@ -434,7 +441,7 @@ class ErrorPopUp:
         errbuf = self.errbox.get_buffer()
         try:
             with open(fname, "a+") as phile:
-                traceback.print_exception(self.exception, file=phile)
+                traceback.print_exception(*self.exc_info, file=phile)
             
             errbuf.insert(errbuf.get_end_iter(), "\nTraceback written to %s.\n"
                           % fname)
@@ -464,14 +471,15 @@ def _switchpacking(parent, child):
 # outermost function call in the Python interpreter, without being
 # caught and handled by an OOF2 exception handler.
 
-def gui_printTraceBack(exception):
+def gui_printTraceBack(e_type, e_value, e_traceback):
     # If the mainloop isn't running yet, just display to the terminal.
     # In debugging mode, always display to the terminal.
     if debug.debug() or not guitop.getMainLoop():
-        excepthook.printTraceBack(exception)
+        excepthook.printTraceBack(e_type, e_value, e_traceback)
     if guitop.getMainLoop():
         # Transfer control to the main thread to report errors in the GUI.
-        res = mainthread.runBlock(gui_printTraceBack_main, (exception,))
+        res = mainthread.runBlock(gui_printTraceBack_main,
+                                  (e_type, e_value, e_traceback))
         if res == Gtk.ResponseType.CLOSE:
             from ooflib.common.IO.GUI import quit
             # The first argument to doQueryQuit is the window that the
@@ -484,8 +492,8 @@ excepthook.displayTraceBack = gui_printTraceBack
 # Raise an error pop up, block, and return ErrorPopUp.OK if the "OK"
 # button is pressed, and ErrorPopUp.ABORT otherwise.
 
-def gui_printTraceBack_main(exception):
-    e = ErrorPopUp(exception)
+def gui_printTraceBack_main(e_type, e_value, e_traceback):
+    e = ErrorPopUp(e_type, e_value, e_traceback)
     result = e.run()
     e.close()
     return result
