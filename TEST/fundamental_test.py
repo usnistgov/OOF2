@@ -268,6 +268,15 @@ class OOF_Fundamental(ExcTestCase):
         self.assertEqual(len(allWorkers), 0)
         self.assertEqual(len(allWorkerCores), 0)
 
+    def WorkerExceptionZero(self):
+        # Check for a properly handled divide by zero error
+        ## TODO: Fix this!  Is the worker not being removed?
+        self.assertEqual(len(allWorkers), 0)
+        self.assertEqual(len(allWorkerCores), 0)
+        self.assertRaises(ZeroDivisionError, OOF.Help.Debug.Error.DivideByZero)
+        self.assertEqual(len(allWorkers), 0)
+        self.assertEqual(len(allWorkerCores), 0)
+
     def ScriptException0(self):
         # Check that an exception thrown by a script halts the
         # execution of the script.  The script sets teststring to
@@ -414,6 +423,7 @@ test_set = [
     OOF_Fundamental("WorkerException1"),
     OOF_Fundamental("WorkerException2"),
     OOF_Fundamental("WorkerException3"),
+    # OOF_Fundamental("WorkerExceptionZero"),
     OOF_Fundamental("ScriptException0"),
     OOF_Fundamental("ScriptException1"),
     OOF_Fundamental("ScriptException2"),

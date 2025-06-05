@@ -42,6 +42,10 @@
 # that status should be put in a file called 'exitstatus' in the
 # test subdirectory.
 
+## TODO: Allow tests to be selected by regexp and/or wildcards, eg
+##       oof2-guitest --regexp "041*"
+## The "*" is expanded as if the cwd is TEST/GUI even when elsewhere.
+
 TESTFILE = "test.log"
 
 import getopt

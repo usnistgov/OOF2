@@ -323,7 +323,7 @@ def gtkTextviewTail(widgetpath, targettext, tolerance=None, quiet=False):
     if not fp_string_compare_tail(text, targettext, tolerance):
         if not quiet:
             print((f"gtkTextviewTail: failed for {widgetpath}\n"
-                   f"\texpected =>{targettext}<=\n\tgot =>{text}<="),
+                   f"\texpected =>{targettext}<=\n\t     got =>{text}<="),
                   file=sys.stderr)
         return False
     return True
@@ -576,11 +576,14 @@ def errorMsg(*texts, verbose=False):
     realtext = msgbuffer.get_text(msgbuffer.get_start_iter(),
                                   msgbuffer.get_end_iter(), True)
     print("errorMsg test failed!", file=sys.stderr)
-    # print(f"Got =>{realtext}<=", file=sys.stderr)
-    # if verbose:
-    #     print(f"Expected one of", file=sys.stderr)
-    #     for i,t in enumerate(texts):
-    #         print(f"{i} =>{t}<=", file=sys.stderr)
+    print(f"Got =>{realtext}<=", file=sys.stderr)
+    if verbose:
+        if len(texts) == 1:
+            print(f"Expected =>{texts[0]}<=", file=sys.stderr)
+        else:
+            print(f"Expected one of:", file=sys.stderr)
+            for i,t in enumerate(texts):
+                print(f"{i} =>{t}<=", file=sys.stderr)
     return False
 
 # errorMsgTemplates is the same as errorMsg, except that it tries all
