@@ -18,31 +18,33 @@ def noExecution():
         utils.OOFeval('borogoves')
     except NameError:
         return True
-    
+
 def errorMsgTest():
-    return generics.errorMsgTemplates(
-        "FNAME",
-        ("TEST_DATA/syntaxerror.py", "<string>"),
-        [
+    return generics.errorMsg(
         # Python 3.8
-"""FNAME", line 2
+"""ooflib.common.IO.scriptloader.ScriptParseError: Error parsing file "TEST_DATA/syntaxerror.py"
+-----
+  File "TEST_DATA/syntaxerror.py", line 2
     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
                                                                        ^
 SyntaxError: EOL while scanning string literal
 """,
 
         # Python 3.9
-"""  File "FNAME", line 2
+"""ooflib.common.IO.scriptloader.ScriptParseError: Error parsing file "TEST_DATA/syntaxerror.py"
+-----
+  File "TEST_DATA/syntaxerror.py", line 2
     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
                                                                         ^
 SyntaxError: EOL while scanning string literal
 """,
 
          # Python 3.10 to 3.13
-"""File "FNAME", line 2
+"""ooflib.common.IO.scriptloader.ScriptParseError: Error parsing file "TEST_DATA/syntaxerror.py"
+-----
+  File "TEST_DATA/syntaxerror.py", line 2
     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
     ^
 SyntaxError: unterminated string literal (detected at line 2)
-"""
-        ]
+""",
     )

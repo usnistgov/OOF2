@@ -9,6 +9,7 @@
 # oof_manager@nist.gov. 
 
 import generics
+#from ooflib.SWIG.common import ooferror
 from ooflib.common import utils
 
 def noExecution():
@@ -27,41 +28,32 @@ def noExecution():
 # generics.errorMsg() takes a bunch of strings and returns True if any
 # one of them matches.  See comments in generics.py.
 
-# Also, different versions of ScriptLoader.run() produce different
-# error messages.  So here we use the templated wrapper,
-# generics.errorMsgTemplates(), for generics.errorMsg().  The wrapper
-# allows different values of a substring in the messages.  Once we've
-# settled on a single version of ScriptLoader.run(), just replace
-# FNAME in the templates with the appropriate value, and call errorMsg
-# instead of errorMsgTemplates.
-
-errmsg_templates = [
+def errorMsgTest():
+    return generics.errorMsg(
 # Python 3.8
-"""  File "FNAME", line 2
+"""ooflib.common.IO.scriptloader.ScriptParseError: Error parsing file "TEST_DATA/syntaxerror.py"
+-----
+  File "TEST_DATA/syntaxerror.py", line 2
     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
                                                                        ^
 SyntaxError: EOL while scanning string literal
 """,
 
 # Python 3.9
-"""  File "FNAME", line 2
+"""ooflib.common.IO.scriptloader.ScriptParseError: Error parsing file "TEST_DATA/syntaxerror.py"
+-----
+  File "TEST_DATA/syntaxerror.py", line 2
     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
                                                                         ^
 SyntaxError: EOL while scanning string literal
 """,
 
-# Python 3.10, 3.11, 3.12 and 3.13
-"""  File "FNAME", line 2
+# Python 3.10 through 3.13
+"""ooflib.common.IO.scriptloader.ScriptParseError: Error parsing file "TEST_DATA/syntaxerror.py"
+-----
+  File "TEST_DATA/syntaxerror.py", line 2
     'Twas brillig, and the slithy toves did gyre and gimble in the wabe.
     ^
 SyntaxError: unterminated string literal (detected at line 2)
 """,
-    ]
-
-
-def errorMsgTest():
-    return generics.errorMsgTemplates(
-        "FNAME",
-        ("TEST_DATA/syntaxerror.py", "<string>"),
-        errmsg_templates)
-    #return generics.errorMsg(*msgs, verbose=True)
+  )
