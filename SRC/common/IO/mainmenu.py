@@ -891,6 +891,7 @@ def _cpycerror(menuitem):
 errmenu.addItem(OOFMenuItem("CPyCError", callback=_cpycerror,
                             threadable=oofmenu.THREADABLE))
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def loop(menuitem):
     while True:
@@ -901,18 +902,22 @@ errmenu.addItem(OOFMenuItem('Infinite_Loop', callback=loop,
                              threadable=oofmenu.THREADABLE,
                              help="I hope you have lots of time."))
 
-# This was used to introduce a delay in a script at some point.  I
-# don't remember why.  It shouldn't be cluttering up the menus or the
-# manual.
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# def spinCycle(menuitem, nCycles):
-#     cdebug.spinCycle(nCycles)
+# SpinCycle can be used to test progress bars and the Stop button.
+# It's difficult to put it into a test script, so it's commented out
+# here in order not to clutter up the menus.
+
+def spinCycle(menuitem, nCycles):
+    cdebug.spinCycle(nCycles)
 
 # debugmenu.addItem(OOFMenuItem(
 #     'SpinCycle', callback=spinCycle,
-#     params=[IntParameter('nCycles', 100000, tip="How many cycles to run.")],
+#     params=[IntParameter('nCycles', 10000000, tip="How many cycles to run.")],
 #     help="Eat up some cpu cycles.",
 #     discussion="<para>I don't remember why this was needed.</para>"))
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 import os
 from ooflib.SWIG.common import lock
