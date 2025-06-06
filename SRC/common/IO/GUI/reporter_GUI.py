@@ -307,7 +307,7 @@ class ErrorPopUp:
         # We want the displayed errors to include the causes of the
         # current error.  Calling format_exception_only() on e_value
         # retrieves only the most recent error, which might be an
-        # uninformative ScriptException.
+        # uninformative ScriptError.
         errorstrings = []
         err = e_value
         while err is not None:

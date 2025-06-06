@@ -30,7 +30,7 @@ def noExecution():
 def errorMsgTest():
     return generics.errorMsg(
         # Python 3.8
-"""ooflib.common.IO.scriptloader.ScriptException: Error running file "TEST_DATA/nestedsyntaxerr.py", line 2
+"""ooflib.common.IO.scriptloader.ScriptError: Error running file "TEST_DATA/nestedsyntaxerr.py", line 2
 -----
 ooflib.common.IO.scriptloader.ScriptParseError: Error parsing file "TEST_DATA/syntaxerror.py"
 -----
@@ -41,7 +41,7 @@ SyntaxError: EOL while scanning string literal
 """,
 
         # Python 3.9 (differs from 3.8 only in the position of the caret)
-"""ooflib.common.IO.scriptloader.ScriptException: Error running file "TEST_DATA/nestedsyntaxerr.py", line 2
+"""ooflib.common.IO.scriptloader.ScriptError: Error running file "TEST_DATA/nestedsyntaxerr.py", line 2
 -----
 ooflib.common.IO.scriptloader.ScriptParseError: Error parsing file "TEST_DATA/syntaxerror.py"
 -----
@@ -52,7 +52,7 @@ SyntaxError: EOL while scanning string literal
 """,
 
         # Python 3.10 through 3.13
-"""ooflib.common.IO.scriptloader.ScriptException: Error running file "TEST_DATA/nestedsyntaxerr.py", line 2
+"""ooflib.common.IO.scriptloader.ScriptError: Error running file "TEST_DATA/nestedsyntaxerr.py", line 2
 -----
 ooflib.common.IO.scriptloader.ScriptParseError: Error parsing file "TEST_DATA/syntaxerror.py"
 -----

@@ -17,28 +17,29 @@ from ooflib.common import excepthook
 from ooflib.SWIG.common import ooferror
 from ooflib.common import utils
 import ast
-import sys
 
-class _ScriptException(ooferror.PyOOFError):
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+class ScriptExceptionBase(ooferror.PyOOFError):
     def __init__(self, filename, line=None):
         self.filename = filename
         self.line = line
     def __repr__(self):
         return self.__class__.__name__
 
-class ScriptInterrupt(_ScriptException):
+class ScriptInterrupt(ScriptExceptionBase):
     def __str__(self):
         if self.line is not None:
             return f"Interrupted while running file \"{self.filename}\", line {self.line}"
         return f"Interrupted while running file {self.filename}"
 
-class ScriptParseError(_ScriptException):
+class ScriptParseError(ScriptExceptionBase):
     def __str__(self):
         return f"Error parsing file \"{self.filename}\""
     def __repr__(self):
         return self.__class__.__name__
     
-class ScriptException(_ScriptException):
+class ScriptError(ScriptExceptionBase):
     def __str__(self):
         if self.line is not None:
             return f"Error running file \"{self.filename}\", line {self.line}"
@@ -46,7 +47,7 @@ class ScriptException(_ScriptException):
     def __repr__(self):
         return self.__class__.__name__
 
-utils.OOFdefine("ScriptException", ScriptException)
+utils.OOFdefine("ScriptError", ScriptError)
 utils.OOFdefine("ScriptParseError", ScriptParseError)
 utils.OOFdefine("ScriptInterrupt", ScriptInterrupt)
         
@@ -94,10 +95,6 @@ class ScriptLoader:
     def done(self):             # Called when execution is complete
         pass
 
-    # def show_error(self, filename): # Called when an error is found
-    #     pass
-    #self.error = sys.exc_info()
-
     def run(self):
         # Loop over top-level nodes of the python Abstract Symbol
         # Tree. Run one node at a time by replacing the list of nodes
@@ -108,22 +105,17 @@ class ScriptLoader:
             self.tree = ast.parse(lines, filename=self.filename)
         except SyntaxError as exc:
             raise ScriptParseError(self.filename) from exc
-            # self.error = sys.exc_info()
-            # print(f"Caught SyntaxError: {self.error}")
-            # self.errhandler(*self.error)
-            # self.show_error(self.filename) # sets self.error
         codebody = self.tree.body
         
         if len(codebody) > 0:
             try:
-                # self.excepthook = excepthook.assign_excepthook(
-                #     _ScriptExceptHook(self))
                 lastline = codebody[-1].end_lineno
                 curline = 0
                 for snippet in codebody:
                     curline = snippet.lineno
                     self.tree.body = [snippet]
                     code = compile(self.tree, self.filename, "exec")
+                    # The following line requires Python 3.9 or later
                     exec(code, globals()|self.locals, self.locals)
                     self.progress(snippet.lineno, lastline) 
                     if self.stop():
@@ -132,12 +124,12 @@ class ScriptLoader:
                 # This script was interrupted.
                 debug.fmsg("Interrupted!")
                 raise ScriptInterrupt(self.filename, curline.lineno) from exc
-            except ScriptException as exc:
+            except ScriptError as exc:
                 # A subscript raised an exception
-                raise ScriptException(self.filename, curline) from exc
+                raise ScriptError(self.filename, curline) from exc
             except Exception as exc:
                 # Something else bad happened
-                raise ScriptException(self.filename, curline) from exc
+                raise ScriptError(self.filename, curline) from exc
             finally:
                 self.done()
 

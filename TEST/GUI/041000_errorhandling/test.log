@@ -32,7 +32,7 @@ checkpoint OOF.File.LoadStartUp.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(266, 210)
 findWidget('OOF2').resize(782, 545)
-assert generics.errorMsg('ooflib.common.IO.scriptloader.ScriptException: Error running file "TEST_DATA/errorcmd.py", line 3\n-----\nooflib.SWIG.common.ooferror.PyErrProgrammingError: Somebody made a mistake!\n' + cdebug.sourcePathPrefix() + 'OOF2/SRC/common/cdebug.C:124\n')
+assert generics.errorMsg('ooflib.common.IO.scriptloader.ScriptError: Error running file "TEST_DATA/errorcmd.py", line 3\n-----\nooflib.SWIG.common.ooferror.PyErrProgrammingError: Somebody made a mistake!\n' + cdebug.sourcePathPrefix() + 'OOF2/SRC/common/cdebug.C:124\n')
 
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
 
@@ -67,8 +67,7 @@ checkpoint OOF.Help.Debug.Error.CError
 checkpoint OOF.File.Load.Script
 checkpoint toplevel widget mapped Error
 
-assert generics.errorMsg('ooflib.common.IO.scriptloader.ScriptException: Error running file "TEST_DATA/errorcmd.py", line 3\n-----\nooflib.SWIG.common.ooferror.PyErrProgrammingError: Somebody made a mistake!\n' + cdebug.sourcePathPrefix() + 'OOF2/SRC/common/cdebug.C:124\n')
-
+assert generics.errorMsg('ooflib.common.IO.scriptloader.ScriptError: Error running file "TEST_DATA/errorcmd.py", line 3\n-----\nooflib.SWIG.common.ooferror.PyErrProgrammingError: Somebody made a mistake!\n' + cdebug.sourcePathPrefix() + 'OOF2/SRC/common/cdebug.C:124\n')
 
 findWidget('Error').resize(266, 210)
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
