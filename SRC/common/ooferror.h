@@ -65,8 +65,6 @@ public:
 
 void pyErrorInit(PyObject*);
 
-std::string sourcePathPrefix();
-
 // Programming errors are fatal (to the program...)
 
 template <class E>

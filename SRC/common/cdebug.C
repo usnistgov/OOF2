@@ -150,9 +150,11 @@ void throwPythonCException() {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// For testing progress bars
+// For testing progress bars and the Stop button.
 
-// TODO: Copy this to OOF2 and see if it has the same problem.
+// TODO: This can be used to see if commands can be interrupted.  It's
+// not used in the test suites because they'd have to hard-code the
+// delay between starting the command and clicking the "Stop" button.
 
 #include <math.h>
 #include "common/tostring.h"
@@ -258,5 +260,24 @@ void nextDumpFile() {
     }
     dumpcount++;
   }
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// When testing error handling, it's sometimes necessary to compare
+// error messages that contain file names that depend on the location
+// of the source files at compilation time.  This is a cheap way to
+// find the location.
+
+std::string sourcePathPrefix() {
+  static bool once = false;
+  static std::string prefix;
+  if(!once) {
+    once = true;
+    std::string thisfile = __FILE__;
+    std::string suffix = "OOF2/SRC/common/cdebug.C";
+    prefix = thisfile.substr(0, thisfile.size()-suffix.size());
+  }
+  return prefix;
 }
 

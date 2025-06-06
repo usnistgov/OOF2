@@ -39,8 +39,6 @@ public:
   ErrError.__str__ = ErrError.__repr__
 %}
 
-std::string sourcePathPrefix();
-
 // Subclasses require individual __repr__s.  If you provide one in the
 // base class but don't provide them in the subclasses, SWIG will
 // construct default uninformative __repr__s for the subclasses.
