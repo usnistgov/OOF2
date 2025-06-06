@@ -10,6 +10,7 @@
 
 import unittest, os, sys
 from ooflib.common import debug, utils
+from ooflib.SWIG.common import cdebug
 
 # For reasons that I don't completely understand, file_utils needs to
 # be imported with an absolute path name, or else the modules imported
@@ -300,7 +301,7 @@ class OOF_Fundamental(ExcTestCase):
                 # The file name given here needs to be the same as
                 # the file name referred to by __FILE__ when oof2 was
                 # compiled.
-                ooferror.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C",
+                cdebug.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C",
                 # The line number here is fake, so that the test won't
                 # break if cdebug.C is altered.  See throwException()
                 # in cdebug.C.
@@ -317,7 +318,7 @@ class OOF_Fundamental(ExcTestCase):
         self.assertOOFRaises(
             PyErrProgrammingError(
                 "Somebody made a mistake!",
-                ooferror.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C",
+                cdebug.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C",
                 124),
             OOF.File.Load.Script,
             filename=reference_file("fundamental_data", "nestederror.py"))
