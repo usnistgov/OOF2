@@ -45,7 +45,7 @@ OOF2 was produced by NIST, an agency of the U.S. government, and by statute is n
 
 Programs and libraries written elsewhere and incorporated in OOF2 have their own copyright and licensing terms, which are summarized below.  For details, see the listed URLs, or (where applicable) the full copyright statements in the OOF source code distribution.
 
-Python:  The Python programming language (http://www.python.org) copyright is held by the Python Software Foundation.  Python is freely redistributable.  Its license may be found at http://www.python.org/license.html.  OOF2 requires Python version 3.8 or later.
+Python:  The Python programming language (http://www.python.org) copyright is held by the Python Software Foundation.  Python is freely redistributable.  Its license may be found at http://www.python.org/license.html.  OOF2 requires Python version 3.9 or later.
 
 GTK3: The GTK3 graphics toolkit (http://www.gtk.org) is licensed under the GNU LGPL (http://www.gnu.org/copyleft/lesser.html).  OOF2 currently requires GTK3 version 3.24 or later.  It may work with earlier versions of GTK3 but hasn't been tested with them.
 
