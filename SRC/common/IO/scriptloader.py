@@ -11,70 +11,38 @@
 # ScriptLoader loads and executes a python file.  It provides hooks
 # that can be redefined in a derived class to update a progress bar
 # and to halt processing.
+
 from ooflib.common import debug
 from ooflib.common import excepthook
 from ooflib.SWIG.common import ooferror
 from ooflib.common import utils
 import ast
-import sys
-
-# class _ScriptExceptHook(excepthook.OOFexceptHook):
-#     def __init__(self, scriptloader):
-#         self.scriptloader = scriptloader
-#     def __call__(self, e_type, e_value, tback):
-#         self.scriptloader.error = (e_type, e_value, tback)
-#         self.scriptloader.progress.stop()
-#         self.scriptloader.errhandler(*self.scriptloader.error)
-#         oldhook = excepthook.remove_excepthook(self)
-
-# # This flag is used to switch between different versions of
-# # ScriptLoader.run().  The flag is available as a global variable so
-# # that test programs know which version is being used, if the format
-# # of the output (error messages, in particular) depends on the version
-# # of run().
-# #  Loader types are
-# #    basic: Uses exec(lines), does not do progress bars, can't be interrupted
-# #    ast:   Uses Abstract Syntax Tree to evaluate blocks of code
-# #    trace: Uses sys.settrace to keep track line execution. May be slow?
-# _loaderType = "ast"
-
-# def isLoaderType(lt):
-#     assert lt in ("basic", "ast", "trace")
-#     return _loaderType == lt
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class _ScriptException(ooferror.PyOOFError):
+class ScriptExceptionBase(ooferror.PyOOFError):
     def __init__(self, filename, line=None):
         self.filename = filename
         self.line = line
     def __repr__(self):
         return self.__class__.__name__
 
-## TODO? __str__ should return a string that is independent of how the
-## program was built, so that it's reproducible in testing. That means
-## that it can't include the file name.  But these exceptions aren't
-## ever exposed to the user directly, and might not ever appear in the
-## test suites either.  Maybe something like
-## ooferror.sourcePathPrefix() can be used when these exceptions are
-## needed in the tests.
-
 ## TODO: Having ScriptParseError and ScriptException is weird.  They
-## should both be ...Exception or both be ...Error.
+## should both be *Exception or both be *Error.
         
-class ScriptInterrupt(_ScriptException):
+class ScriptInterrupt(ScriptExceptionBase):
     def __str__(self):
         if self.line is not None:
             return f"Interrupted while running file \"{self.filename}\", line {self.line}"
         return f"Interrupted while running file {self.filename}"
 
-class ScriptParseError(_ScriptException):
+class ScriptParseError(ScriptExceptionBase):
     def __str__(self):
         return f"Error parsing file \"{self.filename}\""
     def __repr__(self):
         return self.__class__.__name__
     
-class ScriptException(_ScriptException):
+class ScriptError(ScriptExceptionBase):
     def __str__(self):
         if self.line is not None:
             return f"Error running file \"{self.filename}\", line {self.line}"
@@ -82,7 +50,7 @@ class ScriptException(_ScriptException):
     def __repr__(self):
         return self.__class__.__name__
 
-utils.OOFdefine("ScriptException", ScriptException)
+utils.OOFdefine("ScriptError", ScriptError)
 utils.OOFdefine("ScriptParseError", ScriptParseError)
 utils.OOFdefine("ScriptInterrupt", ScriptInterrupt)
         
@@ -130,10 +98,6 @@ class ScriptLoader:
     def done(self):             # Called when execution is complete
         pass
 
-    # def show_error(self, filename): # Called when an error is found
-    #     pass
-    #self.error = sys.exc_info()
-
     def run(self):
         # Loop over top-level nodes of the python Abstract Symbol
         # Tree. Run one node at a time by replacing the list of nodes
@@ -144,16 +108,10 @@ class ScriptLoader:
             self.tree = ast.parse(lines, filename=self.filename)
         except SyntaxError as exc:
             raise ScriptParseError(self.filename) from exc
-            # self.error = sys.exc_info()
-            # print(f"Caught SyntaxError: {self.error}")
-            # self.errhandler(*self.error)
-            # self.show_error(self.filename) # sets self.error
         codebody = self.tree.body
         
         if len(codebody) > 0:
             try:
-                # self.excepthook = excepthook.assign_excepthook(
-                #     _ScriptExceptHook(self))
                 lastline = codebody[-1].end_lineno
                 curline = 0
                 for snippet in codebody:
@@ -169,92 +127,12 @@ class ScriptLoader:
                 # This script was interrupted.
                 debug.fmsg("Interrupted!")
                 raise ScriptInterrupt(self.filename, curline.lineno) from exc
-            except ScriptException as exc:
+            except ScriptError as exc:
                 # A subscript raised an exception
-                raise ScriptException(self.filename, curline) from exc
+                raise ScriptError(self.filename, curline) from exc
             except Exception as exc:
                 # Something else bad happened
-                raise ScriptException(self.filename, curline) from exc
+                raise ScriptError(self.filename, curline) from exc
             finally:
                 self.done()
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-# Attempt to use sys.settrace to write a version of ScriptLoader that
-# might be less hacky that the AST version above.  However, by adding
-# a callback to every Python line, it might be slow.  This may be
-# using obsolete error handling.
-
-# import os
-
-# class ScriptLoader:
-#     ...
-#     def __run__(self):
-#         debug.fmsg()
-#         lines = self.get_lines(self.filename)
-#         sys.settrace(Tracer(self))
-#         try:
-#             # This sets frame.f_code.co_filename to '<string>'.  Can
-#             # we distinguish that from any other exec lines that might
-#             # be run by the script?
-#             exec(lines, globals()|self.locals, self.locals())
-#             # exec(lines, globals(), self.locals)            
-#         except _StopLoading:
-#             return
-#         except SyntaxError as exc:
-#             sys.settrace(None)
-#             self.show_error(self.filename)
-#             raise
-#         except Exception as exc:
-#             sys.settrace(None)
-#             self.error = sys.exc_info()
-#             self.errhandler(*self.error)
-#         finally:
-#             sys.settrace(None)
-#             self.done()
-
-# class _StopLoading(Exception):
-#     pass
-
-# class Tracer:
-#     def __init__(self, loader):
-#         self.loader = loader
-#         self.fname = os.path.abspath(loader.filename)
-#         self.lineno = 0
-#     def __call__(self, frame, event, arg):
-#         if event == 'line':
-#             # print("Tracer:", self.fname, frame.f_lineno)
-#             if frame.f_code.co_filename == self.fname:
-#                 if self.lineno < frame.f_lineno:
-#                     self.lineno = frame.f_lineno
-#                     self.loader.progress.progress(self.lineno,
-#                                                   self.loader.lastline)
-#                     if self.loader.stop():
-#                         sys.settrace(None)
-#                         raise _StopLoading
-#         return self
-        
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-# Simple version of ScriptLoader, that doesn't support progress bars.
-# This may be using obsolete error handling.
-
-# class ScriptLoader:
-#     ...
-#     def run_basic(self):
-#         debug.fmsg()
-#         lines = self.get_lines(self.filename)
-#         try:
-#             exec(lines, globals()|locals(), None)
-#         except SyntaxError as exc:
-#             self.show_error(self.filename)
-#             debug.fmsg("run_no_progress: caught", exc)
-#             raise
-#         except Exception as exc:
-#             self.error = sys.exc_info()
-#             self.errhandler(*self.error)
-#         finally:
-#             self.done()
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

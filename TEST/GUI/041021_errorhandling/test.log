@@ -12,7 +12,7 @@ from ooflib.SWIG.common import ooferror
 from ooflib.common import utils
 import generics
 
-errmsg = "ooflib.common.IO.scriptloader.ScriptException: Error running file \"TEST_DATA/nestederror.py\", line 3\n-----\nooflib.common.IO.scriptloader.ScriptException: Error running file \"TEST_DATA/errorcmd.py\", line 3\n-----\nooflib.SWIG.common.ooferror.PyErrProgrammingError: Somebody made a mistake!\n" + ooferror.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C:124\n"
+errmsg = "ooflib.common.IO.scriptloader.ScriptError: Error running file \"TEST_DATA/nestederror.py\", line 3\n-----\nooflib.common.IO.scriptloader.ScriptError: Error running file \"TEST_DATA/errorcmd.py\", line 3\n-----\nooflib.SWIG.common.ooferror.PyErrProgrammingError: Somebody made a mistake!\n" + ooferror.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C:124\n"
 
 checkpoint OOF.File.Load.Script
 checkpoint OOF.File.LoadStartUp.Script
