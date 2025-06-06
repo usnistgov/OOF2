@@ -160,6 +160,7 @@ class ScriptLoader:
                     curline = snippet.lineno
                     self.tree.body = [snippet]
                     code = compile(self.tree, self.filename, "exec")
+                    # The following line requires Python 3.9 or later
                     exec(code, globals()|self.locals, self.locals)
                     self.progress(snippet.lineno, lastline) 
                     if self.stop():
