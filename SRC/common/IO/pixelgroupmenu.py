@@ -543,7 +543,11 @@ def queryGroup(menuitem, microstructure, group):
     finally:
         mscontext.end_reading()
     reporter.report(">>> ", nop, " pixels, ", "area = ", areaOfGroup)
-
+    # TODO: Print average pixel color and deviation, as used by
+    # OOF.PixelGroup.AutoGroup.  Print center point, x-width, y-width,
+    # aspect ratio, principle axes, both for all pixels in a group and
+    # for each separate disconnected region in a group.
+    
 pixgrpmenu.addItem(OOFMenuItem(
     'Query',
     callback=queryGroup,
