@@ -14,14 +14,13 @@
 #include <sstream>
 #include <fstream>
 
-// bool verboseVectors = false;
-
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // TODO: Remove this section after debugging is complete.  All methods
 // should be defined inline in doublevec.h.
 
-// int DoubleVec::idcount_ = 0;
+bool verboseVectors = true;
+int DoubleVec::idcount_ = 0;
   
 DoubleVec::~DoubleVec() {
   // if(verbose_)
@@ -30,42 +29,45 @@ DoubleVec::~DoubleVec() {
 }
 
 DoubleVec::DoubleVec()
-  // : verbose_(verboseVectors),
-  //   id_(idcount_++)
+  : verbose_(verboseVectors),
+    id_(idcount_++)
 {
   // if(verbose_)
   //   std::cerr << "DoubleVec null constructor: size=" << size()
   // 	      << " addr=" << addr() << std::endl;
 }
 
-DoubleVec::DoubleVec(int size, double val)
-  // : verbose_(verboseVectors),
-  //   id_(idcount_++)
+DoubleVec::DoubleVec(int sz, double val)
+  : verbose_(verboseVectors),
+    id_(idcount_++)
 {
-  data.setConstant(size, val);
+  // if(verbose_)
+  //   std::cerr << "DoubleVec CONSTRUCTOR: size=" << size()
+  // 	      << " addr=" << addr() << std::endl;
+  data.setConstant(sz, val);
 }
 
 DoubleVec::DoubleVec(const std::initializer_list<double> &vals)
-  : data({vals}) //,
-    // verbose_(verboseVectors),
-    // id_(idcount_++)
+  : data({vals}),
+    verbose_(verboseVectors),
+    id_(idcount_++)
 {}
 
 DoubleVec::DoubleVec(const DoubleVec &other)
-  : data(other.data) //,
-    // verbose_(other.verbose_)
+  : data(other.data),
+    verbose_(other.verbose_)
 {
-  // id_ = ++idcount_;
+  id_ = ++idcount_;
   // if(verbose_)
   //   std::cerr << "DoubleVec copy constructor: src=" << other.addr()
   // 	      << " dst=" << addr() << std::endl;
 }
 
 DoubleVec::DoubleVec(DoubleVec &&other)
-  : data(std::move(other.data)) //,
-    // verbose_(other.verbose_)
+  : data(std::move(other.data)),
+    verbose_(other.verbose_)
 {
-  // id_ = other.id_;
+  id_ = other.id_;
   other.data.resize(0);
   // if(verbose_)
   //   std::cerr << "DoubleVec move constructor: src=" << other.addr()
@@ -75,23 +77,21 @@ DoubleVec::DoubleVec(DoubleVec &&other)
 // This is not quite the same syntax as Python.  x=y in Python usually
 // does not create a new object, just a new reference to an old
 // object, meaning that x=y;y+=z will leave x set to y+z.  What do we
-// want DoubleVec::operator= to do in Python?
+// want DoubleVec::operator= to do in C++?
 DoubleVec& DoubleVec::operator=(const DoubleVec &other) {
-  data = other.data;
-  // verbose_ = other.is_verbose();
+  data = other.data; 		// Eigen operator= copies data.
+  verbose_ = other.is_verbose();
   // if(verbose_)
   //   std::cerr << "DoubleVec::operator=: src=" << other.addr()
   // 	      << "dst=" << addr() << std::endl;
   return *this;
 }
 
-// std::string DoubleVec::addr() const {
-//   return tostring(this) + "(" + tostring(id_) + ")";
-// }
+std::string DoubleVec::addr() const {
+  return tostring(this) + "(" + tostring(id_) + ")";
+}
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-
 
 DoubleVec DoubleVec::subvec(std::size_t start, std::size_t end) const {
   // Extract the n coeffs in the range [start : end-1]
@@ -109,6 +109,8 @@ void DoubleVec::subvec_copy(std::size_t toPos, const DoubleVec& other,
   data.segment(toPos, size) = other.data.segment(pos, size);
 }
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 bool DoubleVec::operator==(const DoubleVec& other) const {
   return data == other.data;
 }
@@ -117,7 +119,9 @@ bool DoubleVec::operator!=(const DoubleVec& other) const {
   return data != other.data;
 }
 
-const DoubleVec& DoubleVec::operator+=(const DoubleVec& other) {
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+DoubleVec& DoubleVec::operator+=(const DoubleVec& other) {
   // std::cerr << "DoubleVec::operator+=: this=" << addr()
   // 	    << " other=" << other.addr() << std::endl;
   assert(other.size() == size());
@@ -125,19 +129,19 @@ const DoubleVec& DoubleVec::operator+=(const DoubleVec& other) {
   return *this;
 }
 
-const DoubleVec& DoubleVec::operator-=(const DoubleVec& other) {
+DoubleVec& DoubleVec::operator-=(const DoubleVec& other) {
   assert(other.size() == size());
   data -= other.data;
   assert(other.size() == size());
   return *this;
 }
 
-const DoubleVec& DoubleVec::operator*=(double alpha) {
+DoubleVec& DoubleVec::operator*=(double alpha) {
   data *= alpha;
   return *this;
 }
 
-const DoubleVec&  DoubleVec::operator/=(double alpha) {
+DoubleVec&  DoubleVec::operator/=(double alpha) {
   data /= alpha;
   return *this;
 }

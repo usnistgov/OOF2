@@ -1125,8 +1125,7 @@ class SubProblemContext(whoville.Who):
 
         initialrefcount = debug.getrefcount(knowns)
         # debug.fmsg(f"knowns={knowns.addr()} refcount={debug.getrefcount(knowns)}")
-        # debug.fmsg(f"Calling {type(self.time_stepper).__name__}.set_unknowns:")
-        # debug.dumpReferrers(knowns)
+        debug.fmsg(f"Calling {self.time_stepper.set_unknowns}")
         allvals = self.time_stepper.set_unknowns(linsys, knowns,
                                                  self.startValues)
         # debug.fmsg(f"Back from set_unknowns: knowns={knowns.addr()} refcount={debug.getrefcount(knowns)}")

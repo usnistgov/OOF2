@@ -20,7 +20,7 @@
 #include "common/doublevec.h"
 %}
 
-%feature("valuewrapper") DoubleVec;
+bool verboseVectors;
 
 class DoubleVec {
 public:
@@ -37,16 +37,11 @@ public:
   bool operator==(const DoubleVec&) const;
   bool operator!=(const DoubleVec&) const;
 
-  // Swig apparently expects the in-place arithmetic operators to
-  // return a self reference.  I don't know why.  x=(y+=z) and
-  // (x+=y)=z are not valid python.  But if they return void the
-  // DoubleVec reference counting is incorrect, and a DoubleVec might
-  // be deleted too soon.
-  const DoubleVec& operator+=(const DoubleVec&);
-  const DoubleVec& operator-=(const DoubleVec&);
-  const DoubleVec& operator/=(double);
-  const DoubleVec& operator*=(double);
-  void axpy(double alpha, const DoubleVec& x); // self += alpha*x 
+  // DoubleVec& operator+=(const DoubleVec&);
+  // DoubleVec& operator-=(const DoubleVec&);
+  // DoubleVec& operator/=(double);
+  // DoubleVec& operator*=(double);
+  void axpy(double alpha, const DoubleVec& x); // self += alpha*x
 
   DoubleVec operator+(const DoubleVec&) const;
   DoubleVec operator-(const DoubleVec&) const;
@@ -158,17 +153,35 @@ public:
     return result;
   }
 
+  void c_iadd(DoubleVec &other) {
+    *self += other;
+  }
+
+  void c_isub(DoubleVec &other) {
+    *self -= other;
+  }
+
+  void c_imul(double x) {
+    *self *= x;
+  }
+
+  void c_idiv(double x) {
+    *self /= x;
+  }
+    
+
   // For some reason, swigging __iadd__, __isub__, and __itruediv__
   // doesn't work.  The reference count of the result is incorrect and
   // it's deleted too soon.  But swig knows what to do with
   // operator+=, etc.
   // TODO: Perhaps that was because it was returning *self instead of void?
+  // TODO: No, both operator+= and __iadd__ have the same problem.
 
-  // void operator+=(const DoubleVec& other) {
-  //   assert(0);
+  // DoubleVec* operator+=(const DoubleVec& other) {
   //   std::cerr << "operator+=" << self->addr() << " " << other.addr() << std::endl;
   //   assert(self->size() == other.size());
   //   self->data += other.data;
+  //   return self;
   // }
 
   // void operator-=(const DoubleVec& other) {
@@ -231,6 +244,6 @@ public:
 
 };				// %extend DoubleVec
 
-// %pythoncode "common/doublevec.spy"
+%pythoncode "common/doublevec.spy"
 
 #endif // DOUBLEVEC_SWG

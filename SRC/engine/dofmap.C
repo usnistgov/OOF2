@@ -134,9 +134,11 @@ void DoFMap::extract(const DoubleVec &source, DoubleVec &dest,
 
 void DoFMap::inject(const DoubleVec &source, DoubleVec &destination) const {
 #ifdef DEBUG
+  std::cerr << "DoFMap::inject: range=" << range() << " source.size="
+	    << source.size() << std::endl;
   if(range() != source.size()) {
-    std::cerr << "DoFMap::inject: range=" << range() << " source.size="
-	      << source.size() << std::endl;
+    std::cerr << "DoFMap::inject: source=" << source.addr() << " destination="
+	      << destination.addr() << std::endl;
     throw ErrProgrammingError("Bad sizes in DoFMap::inject",
 			      __FILE__, __LINE__);
   }

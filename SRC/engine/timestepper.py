@@ -244,7 +244,7 @@ class FirstOrderStepper(NonStaticStepper):
         # set_unknowns() injects the first vector of dof values (vals)
         # into the second vector (dest), and returns the result.
         # debug.fmsg("start")
-        # debug.fmsg(f"FirstOrderStepper.set_unknowns: calling LinearizedSystem.set_unknowns_MCKa vals={vals.addr()} refcount={debug.getrefcount(vals)}")
+        debug.fmsg(f"FirstOrderStepper.set_unknowns: calling LinearizedSystem.set_unknowns_MCKa vals={vals.addr()} refcount={debug.getrefcount(vals)}")
         unks = linsys.set_unknowns_MCKa(vals, dest) # returns a *copy* of dest
         debug.fmsg(f"FirstOrderStepper.set_unknowns: back from set_unknowns_MCKa, vals={vals.addr()} refcount={debug.getrefcount(vals)}")
         debug.fmsg(f"FirstOrderStepper.set_unknowns: back from set_unknowns_MCKa, unks={unks.addr()} refcount={debug.getrefcount(unks)}")

@@ -151,7 +151,7 @@ class NLSolver(cnonlinearsolver.CNonlinearSolver):
 
         self.requireResidual(True)
         self.requireJacobian(False)
-        debug.fmsg(f"calling precompute: {precompute}")
+        debug.fmsg(f"calling precompute: {precompute=}")
         precompute(data, tempSoln, self)
         debug.fmsg("back from precompute")
         residual = compute_residual(data, tempSoln, self)
@@ -275,7 +275,9 @@ class Newton(NLSolver):
         # compute the residual = -K*startValues + rhs
         self.requireResidual(True)
         self.requireJacobian(True)
+        debug.fmsg(f"Calling {precompute=}")
         precompute(data, values, self)
+        debug.fmsg(f"Calling {compute_residual=}")
         residual = compute_residual(data, values, self)
 
         res_norm0 = residual.norm() # norm of the initial residual

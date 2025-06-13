@@ -107,13 +107,14 @@ class TwoStep(timestepper.QCTimeStepper):
 
         # Take a single step to endtime.
         # debug.fmsg("taking full step")
-        # debug.fmsg(f"Calling stepper {stepper}")
+        debug.fmsg(f"Calling stepper {stepper}")
         result1 = stepper(subproblem, linsys, time, unknowns, endtime,
                           *args, **kwargs)
         debug.fmsg(f"back from stepper, result1={result1.endValues.addr()} refcount={debug.getrefcount(result1.endValues)}")
-        # debug.fmsg(f"result1 is {'' if result1.endValues.is_verbose() else 'not'} verbose")
-        debug.fmsg("full step norm=", result1.endValues.norm(),
-                   "time=", endtime, "n=", len(result1.endValues))
+        #debug.fmsg("no, really")
+        #debug.fmsg(f"result1 is {'' if result1.endValues.is_verbose() else 'not'} verbose")
+        # debug.fmsg("full step norm=", result1.endValues.norm(),
+        #            "time=", endtime, "n=", len(result1.endValues))
 
         # Take a half step.
         halftime = 0.5*(time + endtime)
