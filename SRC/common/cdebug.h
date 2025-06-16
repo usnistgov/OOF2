@@ -49,4 +49,6 @@ void dump(const std::string&);
 void openDumpFileSeries(const std::string&, int);
 void nextDumpFile();
 
+std::string sourcePathPrefix();
+
 #endif // CDEBUG_H

@@ -31,10 +31,11 @@ public:
   std::string *summary();
   %newobject details;
   std::string *details();
+  bool operator==(const ErrError&);
 };
 
 %pythoncode %{
-  # Does this work?
+  # TODO Does this work?  Is it needed?
   ErrError.__str__ = ErrError.__repr__
 %}
 

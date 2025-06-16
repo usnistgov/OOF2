@@ -8,15 +8,17 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+from ooflib.SWIG.common import cdebug
 from ooflib.common import utils
 import generics
+
+errmsg = "ooflib.common.IO.scriptloader.ScriptError: Error running file \"TEST_DATA/nestederror.py\", line 3\n-----\nooflib.common.IO.scriptloader.ScriptError: Error running file \"TEST_DATA/errorcmd.py\", line 3\n-----\nooflib.SWIG.common.ooferror.PyErrProgrammingError: Somebody made a mistake!\n" + cdebug.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C:124\n"
 
 checkpoint OOF.File.Load.Script
 checkpoint OOF.File.LoadStartUp.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(592, 160)
-assert generics.errorMsg("Somebody made a mistake!\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/errorcmd.py raised a PyErrProgrammingError exception\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestederror.py raised a PyErrUserError exception")
-
+assert generics.errorMsg(errmsg)
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
 assert utils.OOFeval('teststring') == 'ok' and utils.OOFeval('anothertest') == 'ok'
 
@@ -31,7 +33,8 @@ checkpoint OOF.File.Load.Script
 checkpoint OOF.File.Load.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(592, 160)
-assert generics.errorMsg("Somebody made a mistake!\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/errorcmd.py raised a PyErrProgrammingError exception\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestederror.py raised a PyErrUserError exception")
+assert generics.errorMsg(errmsg)
+
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
 assert utils.OOFeval('teststring') == 'ok' and utils.OOFeval('anothertest') == 'ok'
 findMenu(findWidget('OOF2:MenuBar'), ['File','Quit']).activate()

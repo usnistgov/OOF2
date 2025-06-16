@@ -558,6 +558,8 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	std::string::size_type pos = groupname.find("%n", 0);
 	if(pos != std::string::npos) {
 	  std::string g = tostring(groupNo++);
+
+	  // TODO: This isn't padding with  0's correctly.
 	  int nzeros = maxDigits - g.size();
 	  groupname = groupname.replace(pos, 2, std::string(nzeros, '0') + g);
 	}
@@ -581,6 +583,6 @@ const std::string *statgroups(CMicrostructure *microstructure,
   cleanUp_(pixelDists);
   
   return new std::string(groupname);
-}
+} // statgroups
 
 

@@ -150,33 +150,13 @@ class PScriptLoader(scriptloader.ScriptLoader):
         self.prog.finish()
         scriptloader.ScriptLoader.done(self)
 
-subScriptErrorHandler = None       # redefined if GUI is loaded
-
 def loadscript(menuitem, filename):
     if filename is not None:
-        debug.fmsg('reading', filename, 'in thread',
-                   threadstate.findThreadNumber())
-        kwargs = {}
-        if subScriptErrorHandler:
-            kwargs['errhandler'] = subScriptErrorHandler
-        interp = PScriptLoader(filename, **kwargs)
+        debug.fmsg(
+            f"Reading {filename} in thread {threadstate.findThreadNumber()}")
+        interp = PScriptLoader(filename)
         interp.run()
-        if interp.error:
-            # If the interpreter raised an exception and we're in
-            # batch mode, the shell error status won't be set unless a
-            # new exception is raised here.  The old exception has
-            # already been handled by the time we get to this point.
-            # interp.error is the result of sys.exc_info() when the
-            # error occurred.
-            errorname = interp.error[0].__name__
-            if errorname.lower()[0] in "aeiou":
-                article = "an"
-            else:
-                article = "a"
-            raise ooferror.PyErrUserError(
-                f"Script {filename} raised {article} "
-                f"{interp.error[0].__name__} exception")
-        debug.fmsg('finished reading', filename)
+        debug.fmsg(f"Finished reading {filename}.")
 
 _loadmenu.addItem(OOFMenuItem(
     'Script',
@@ -887,7 +867,7 @@ errmenu.addItem(OOFMenuItem('PyError', callback=_pyerror,
                              help='Do not taunt PyError.'))
 
 def _pyerror2(menuitem):
-    raise ooferror.PyErrPyProgrammingError("Do not!")
+    raise ooferror.PyErrPyProgrammingError("My bad.")
 
 errmenu.addItem(OOFMenuItem('PyError2', callback=_pyerror2,
                             threadable=oofmenu.THREADABLE,
@@ -911,6 +891,7 @@ def _cpycerror(menuitem):
 errmenu.addItem(OOFMenuItem("CPyCError", callback=_cpycerror,
                             threadable=oofmenu.THREADABLE))
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def loop(menuitem):
     while True:
@@ -921,18 +902,22 @@ errmenu.addItem(OOFMenuItem('Infinite_Loop', callback=loop,
                              threadable=oofmenu.THREADABLE,
                              help="I hope you have lots of time."))
 
-# This was used to introduce a delay in a script at some point.  I
-# don't remember why.  It shouldn't be cluttering up the menus or the
-# manual.
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# def spinCycle(menuitem, nCycles):
-#     cdebug.spinCycle(nCycles)
+# SpinCycle can be used to test progress bars and the Stop button.
+# It's difficult to put it into a test script, so it's commented out
+# here in order not to clutter up the menus.
+
+def spinCycle(menuitem, nCycles):
+    cdebug.spinCycle(nCycles)
 
 # debugmenu.addItem(OOFMenuItem(
 #     'SpinCycle', callback=spinCycle,
-#     params=[IntParameter('nCycles', 100000, tip="How many cycles to run.")],
+#     params=[IntParameter('nCycles', 10000000, tip="How many cycles to run.")],
 #     help="Eat up some cpu cycles.",
 #     discussion="<para>I don't remember why this was needed.</para>"))
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 import os
 from ooflib.SWIG.common import lock

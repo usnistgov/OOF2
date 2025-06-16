@@ -21,7 +21,7 @@ set_property(CACHE OOF2_SWIG_VERSION PROPERTY STRINGS 4.0 4.1 4.2 4.3)
 ## TODO: Can we list only the available versions of swig and python?
 set(OOF2_PYTHON3_VERSION "Latest" CACHE STRING "Use this version of Python")
 set_property(CACHE OOF2_PYTHON3_VERSION PROPERTY STRINGS
-  3.8 3.9 3.10 3.11 3.12 3.13 Latest)
+  3.9 3.10 3.11 3.12 3.13 Latest)
 
 
 include(GNUInstallDirs)

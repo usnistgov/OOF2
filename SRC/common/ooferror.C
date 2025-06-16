@@ -17,10 +17,6 @@
 #include "common/pythonlock.h"
 #include "common/tostring.h"
 
-
-// Some trivial constructors are here instead of in ooferror.h so that
-// debugging lines can be added without recompiling everything else.
-
 ErrProgrammingError::ErrProgrammingError(const std::string &f, int l)
   : ErrProgrammingErrorBase<ErrProgrammingError>(f, l)
 {}
@@ -95,6 +91,19 @@ const std::string &ErrWarning::classname() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+#include <typeinfo>
+
+// ErrError::operator== is virtual, in case this definition isn't
+// sufficient for some clases.
+
+bool ErrError::operator==(const ErrError& other) const {
+  return (typeid(*this) == typeid(other) &&
+	  *summary() == *other.summary() &&
+	  *details() == *other.details());
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 // Function to convert a Python exception into a C++ exception.  This
 // in effect is the inverse of the swig exception typemap.  The two of
 // them together allow an exception to be batted back and forth
@@ -108,7 +117,7 @@ const std::string &ErrWarning::classname() const {
 
 void pythonErrorRelay() {
   // pythonErrorRelay should be called inside a
-  // PYTHON_THREAD_BEGIN_BLOCK/PYTHON_THREAD_END_BLOCK block. 
+  // PYTHON_THREAD_BEGIN_BLOCK/PYTHON_THREAD_END_BLOCK block.
 
   PyObject *ptype;
   PyObject *pvalue;

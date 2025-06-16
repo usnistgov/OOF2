@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -23,31 +22,22 @@ from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 import sys, traceback
 
-def printTraceBack(e_type, e_value, tb):
-    from ooflib.common.IO import reporter # avoid import loop
-    for line in traceback.format_exception_only(e_type, e_value):
-        reporter.error(line.rstrip())
-    if isinstance(e_value, ooferror.PyOOFError):
-        moreinfo = e_value.details()
-        if moreinfo:
-            reporter.error(moreinfo)
-    if tb:
-        for line in traceback.extract_tb(tb).format():
-            reporter.error(line.rstrip())
-
+def printTraceBack(e_type, e_value, e_traceback):
+    traceback.print_exception(e_type, e_value, e_traceback)
+    
 # displayTraceBack is overridden by reporter_GUI.py, so that in GUI mode
 # it brings up a pop-up window.
 displayTraceBack = printTraceBack
 
 # OOFexceptHook is a class with a __call__ method instead of a simple
-# function so that the getTraceBackList method can be overridden in
-# derived classes.  See scriptloader.py.
+# function so that the getTraceBackList method (which is no longer
+# used) can be overridden in derived classes.  See scriptloader.py.
 ## TODO: that's no longer necessary.  Turn OOFexceptHook back
 ## into a function?
 
 class OOFexceptHook:
-    def getTraceBackList(self, tback): # may be redefined in derived classes
-        return traceback.extract_tb(tback)
+    # __call__() needs to have the same arguments as the
+    # sys.__excepthook__(), although we only use one.
     def __call__(self, e_type, e_value, tback):
         displayTraceBack(e_type, e_value, tback)
 
@@ -66,7 +56,6 @@ _exceptStacks = {}
 _exceptLock = lock.SLock()
 
 def assign_excepthook(newhook=sys.__excepthook__):
-#     debug.fmsg("adding hook", id(newhook))
     _exceptLock.acquire()
     threadno = threadstate.findThreadNumber()
     try:
@@ -132,9 +121,3 @@ def _oofExceptHook(e_type, e_value, tback):
         sys.__excepthook__(e_value, e_value, tback)
 
 sys.excepthook = _oofExceptHook
-
-def exceptHookDepth():
-    threadno = threadstate.findThreadNumber()
-    if threadno not in _exceptStacks:
-        return 0
-    return len(_exceptStacks[threadno])

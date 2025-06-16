@@ -236,6 +236,8 @@ class FirstOrderStepper(NonStaticStepper):
     def get_unknowns(self, linsys, source):
         return linsys.get_unknowns_MCKa(source)
     def set_unknowns(self, linsys, vals, dest):
+        # set_unknowns() injects the first vector of dof values (vals)
+        # into a copy of the second vector (dest), and returns the result.
         return linsys.set_unknowns_MCKa(vals, dest)
     def n_unknowns(self, linsys):
         return linsys.n_unknowns_MCKa()
@@ -303,8 +305,7 @@ class StepResult:
         self.errorEstimate = errorEstimate
         self.linsys = linsys
         self.ok = True          # AdaptiveDriver may set this to False
-        
-
+            
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 ## Subclasses of StepDriver

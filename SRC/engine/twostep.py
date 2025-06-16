@@ -90,7 +90,6 @@ class TwoStep(timestepper.QCTimeStepper):
         #
         # errorscaling is a steperrorscaling.StepErrorScaling
         # instance.
-
         unknownsCopy = unknowns.clone()
         lsCopy = linsys.clone()
 
@@ -111,12 +110,10 @@ class TwoStep(timestepper.QCTimeStepper):
         # Take the second half step to endtime.
         subproblem.installValues(lsCopy, midresult.endValues, halftime)
         linsys = subproblem.make_linear_system( halftime, lsCopy )
-
         result2 = stepper(subproblem, linsys, halftime, midresult.endValues,
                           endtime, *args, **kwargs)
         # debug.fmsg("second half step norm=", result2.endValues.norm(),
         #            "time=", endtime)
-
         result2.errorEstimate = errorscaling(
             endtime-time,
             self.singlestep.error_estimation_dofs(linsys, unknowns),
@@ -126,7 +123,6 @@ class TwoStep(timestepper.QCTimeStepper):
         ## TODO: recombine single and double step results to get one
         ## higher order?  This should be done *after* error
         ## estimation, if at all, according to NR.
-
         return result2
 
 

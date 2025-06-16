@@ -47,23 +47,17 @@ class MiniThread(threading.Thread):
         from ooflib.common.IO import reporter
         miniThreadManager.add(self)
         try:
-            try:
-                self.threadstate = threadstate.ThreadState()
-                hook = excepthook.assign_excepthook(excepthook.OOFexceptHook())
-                self.function(*self.args, **self.kwargs)
-                excepthook.remove_excepthook(hook)
-            except StopThread:
-                excepthook.remove_excepthook(hook)
-                return
-            except ooferrorwrappers.PyOOFError as exception:
-                debug.fmsg("Caught a PyOOFError!", exception, type(exception))
-                reporter.error(exception.cexcept)
-                sys.excepthook(*sys.exc_info())
-            except Exception as exception:
-                debug.fmsg("Caught something else!")
-                reporter.error(exception)
-                sys.excepthook(*sys.exc_info())
+            self.threadstate = threadstate.ThreadState()
+            hook = excepthook.assign_excepthook(excepthook.OOFexceptHook())
+            self.function(*self.args, **self.kwargs)
+        except StopThread:
+            return
+        except Exception as exception:
+            # Make sure to handle the exception with the current
+            # excepthook, before removing the hook.
+            sys.excepthook(*sys.exc_info())
         finally:
+            excepthook.remove_excepthook(hook)
             miniThreadManager.remove(self)
             self.threadstate = None
 

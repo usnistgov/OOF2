@@ -39,3 +39,12 @@ def pyErrorCallback(cexcept):
     
 pyErrorInit(pyErrorCallback)
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+def _rootCause(self):
+    exc = self
+    while exc.__cause__:
+        exc = exc.__cause__
+    return exc
+
+PyOOFError.rootCause = _rootCause

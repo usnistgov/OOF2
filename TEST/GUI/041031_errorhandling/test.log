@@ -31,7 +31,7 @@ findWidget('Dialog-Script:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Load.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(266, 198)
-assert generics.errorMsg("NameError: name 'y' is not defined\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/pyerror.py raised a NameError exception")
+assert generics.errorMsg("ooflib.common.IO.scriptloader.ScriptError: Error running file \"TEST_DATA/pyerror.py\", line 4\n-----\nNameError: name 'y' is not defined\n")
 
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
 assert utils.OOFeval('teststring') == 'ok'
@@ -47,7 +47,7 @@ checkpoint OOF.Help.Debug.Error.CError
 checkpoint OOF.File.Load.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(266, 210)
-assert generics.errorMsg("Somebody made a mistake!\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/errorcmd.py raised a PyErrProgrammingError exception")
+assert generics.errorMsg("ooflib.common.IO.scriptloader.ScriptError: Error running file \"TEST_DATA/errorcmd.py\", line 3\n-----\nooflib.SWIG.common.ooferror.PyErrProgrammingError: Somebody made a mistake!\n/Users/langer/FE/OOF2/SRC/common/cdebug.C:124\n")
 
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
 assert utils.OOFeval('teststring') == 'ok'
@@ -70,7 +70,7 @@ checkpoint OOF.File.Load.Script
 checkpoint OOF.File.Load.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(266, 258)
-assert generics.errorMsg("Somebody made a mistake!\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/errorcmd.py raised a PyErrProgrammingError exception\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestederror.py raised a PyErrUserError exception")
+assert generics.errorMsg("ooflib.common.IO.scriptloader.ScriptError: Error running file \"TEST_DATA/nestederror.py\", line 3\n-----\nooflib.common.IO.scriptloader.ScriptError: Error running file \"TEST_DATA/errorcmd.py\", line 3\n-----\nooflib.SWIG.common.ooferror.PyErrProgrammingError: Somebody made a mistake!\n/Users/langer/FE/OOF2/SRC/common/cdebug.C:124\n")
 
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
 assert utils.OOFeval('teststring') == 'ok' and utils.OOFeval('anothertest') == 'ok'

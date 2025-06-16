@@ -13,7 +13,7 @@
 #define OOFERRORWRAPPERS_SWG
 
 // This file doesn't define a module.  It's just a place to put the
-// WRAP_OOFERROR_CLASS macro so that it can import pyErrorWrappers
+// WRAP_OOFERROR_CLASS swig macro so that it can import pyErrorWrappers
 // without causing an import loop.  It should *not* be included in
 // oof_swig_sources in CMakeLists.txt.
 
@@ -31,8 +31,8 @@
 
 // When Python calls a swigged C++ function that raises an exception,
 // the exception is caught by the %exception code in typemaps.swg.
-// All OOF C++ xceptions are derived from ErrError, a PythonExportable
-// class defined in ooferror.h The %exception code catches the
+// All OOF C++ exceptions are derived from ErrError, a PythonExportable
+// class defined in ooferror.h.  The %exception code catches the
 // exception and passes it to the static ErrError::pyconverter
 // function, which is a *Python* function that raises the Python
 // version of the C++ exception.  (pyconverter is initialized by
@@ -50,27 +50,43 @@
 // Python without changing the exception state, effectively passing
 // the Python exception from Python through C++ and back to Python.
 
+// The swigged ErrError subclasses require individual __repr__s, which
+// WRAP_OOFERROR_CLASS creates.  If you provide one only in the base
+// class SWIG will construct default uninformative __repr__s for the
+// subclasses.
+
+
 %pythoncode %{
    from ooflib.common import ooferrorwrappers
+   from ooflib.common import utils
 %}
 
 %define WRAP_OOFERROR_CLASS(ERR)
 
 %pythoncode %{
-    
+
   class Py##ERR(ooferrorwrappers.PyOOFError):
+
     def __init__(self, *args, **kwargs):
       self.cexcept = kwargs.get("cexcept", None)
       if self.cexcept is None:
         self.cexcept = ERR(*args, **kwargs)
+
     def __getattr__(self, attr):
       return getattr(self.cexcept, attr)
+
     def __repr__(self):
       return self.cexcept.summary()
+
     def __str__(self):
-      return self.cexcept.summary()
+      return "\n".join([self.cexcept.summary(), self.cexcept.details()])
+
+    def __eq__(self, other):
+      return self.cexcept == other.cexcept
+	       
   ooferrorwrappers.pyErrorWrappers[ERR] = Py##ERR
-%}
+  utils.OOFdefine(Py##ERR.__name__, Py##ERR)
+ %}
 
 %typemap(in) Py##ERR* {
   // typemap(in) Py##ERR * via WRAP_OOFERROR_CLASS for ERR

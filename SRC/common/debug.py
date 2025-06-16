@@ -46,6 +46,10 @@ def clear_debug_mode():
 def debug():
     return _debug_mode
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Print the python call stack
+
 def dumpTrace(start=0, end=-1):
     ## Use start=-3, end=-2 if you only want to see the calling
     ## function of the function that calls dumpTrace.
@@ -71,11 +75,17 @@ def dumpTrace(start=0, end=-1):
     finally:
         lock.release()
 
-def dumpCaller(offset=0):
-    if _debug_mode:
-        print(callerID(-4-offset), file=sys.stderr)
+# Various ways of printing a single line from the call stack.
 
 def callerID(depth=-3):
+    # callerID returns a string with information about the function
+    # that is calling it.  The default depth is -3 because the end of
+    # the stack (stack[-1]) is traceback.extract_stack(), and the one
+    # preceding that is this function (stack[-2]).
+    #
+    # No, I don't remember why this function's argument is the depth
+    # and not an offset from the default depth.
+    
     if _debug_mode:
         lock.acquire()
         try:
@@ -92,6 +102,29 @@ def callerID(depth=-3):
         finally:
             lock.release()
 
+def callerName(offset=0):
+    # callerName is like callerID but simpler.  The format is
+    #   filename:line callingfunction -- callingline
+    # A positive offset prints the same info about the function
+    # that number of calls earlier in the stack.
+    if _debug_mode:
+        lock.acquire()
+        try:
+            stack = traceback.extract_stack()
+            line = stack[-3-offset]
+            return f"{os.path.split(line[0])[1]}:{line[1]} -- {line[2]} -- {line[3]}"
+        finally:
+            lock.release()
+
+def dumpCaller(offset=0):
+    # Print the caller of the function that calls dumpCaller.
+    if _debug_mode:
+        # dumpCaller calls callerID, so it needs to look one level
+        # farther up in the stack, so there's a -4 here.
+        print(callerID(-4-offset), file=sys.stderr)
+
+            
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def msg(*args):
     if _debug_mode:
@@ -141,6 +174,7 @@ def fmsg(*args):
         finally:
             lock.release()
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def mainthreadTest():
     if _debug_mode:
@@ -156,46 +190,89 @@ def subthreadTest():
             dumpTrace()
             os.abort()
 
-############################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def dumpReferrers(obj, levels=0, exclude=[], _level=0):
-    if _debug_mode:
-        refs = gc.get_referrers(obj)
-        if _level==0:
-            print(len(refs), "references", \
-                [type(ref) for ref in refs], file=sys.stderr)
-        for ref in refs:
-            reftype = type(ref)
-            if reftype is types.FrameType: # only in Python2 ?
-                print("-> %2d"%_level, "  "*_level, end=' ', file=sys.stderr)
-                print("frame", ref.f_code.co_filename, \
-                    ref.f_code.co_name, ref.f_lineno, file=sys.stderr)
-            elif ref is not obj and ref not in exclude:
-                print("-> %2d"%_level, "  "*_level, end=' ', file=sys.stderr)
-                if not inspect.isclass(reftype):
-                    print("instance", ref.__class__.__name__, ref,
-                          file=sys.stderr)
-                elif reftype is dict:
-                    for key,val in list(ref.items()):
-                        if key is obj:
-                            print("dict key", file=sys.stderr)
-                            break
-                        if val is obj:
-                            print("dict val, key =", key, file=sys.stderr)
-                            break
-                    else:
-                        print("obj not found in dict?", file=sys.stderr)
-#                     if ref is globals():
-#                         print >> sys.stderr, "globals"
-#                     elif ref is locals():
-#                         print >> sys.stderr, "locals"
-#                 elif reftype is types.FrameType:
-#                     print >> sys.stderr, "frame", dir(ref)
+import inspect
+
+# TODO: Instead of topobj, keep a set containing all items that have
+# been processed so far, to prevent loops.
+topobj = None
+
+def dumpReferrers(obj, *args, **kwargs):
+    print("dumpReferrers: begin -------------", file=sys.stderr)
+    global topobj
+    topobj = args
+    _dumpReferrers(obj, *args, **kwargs)
+    print("dumpReferrers: end  --------------", file=sys.stderr)
+    topobj = None
+
+def _dumpReferrers(obj, nlevels=0, exclude=[], level=0):
+    if not _debug_mode:
+        return
+    gc.collect()
+    refs = gc.get_referrers(obj)
+    if level==0:
+        print(f"OBJ={type(obj).__name__}", file=sys.stderr)
+        print(f"dumpReferrers: {len(refs)} references:", 
+            [type(ref).__name__ for ref in refs],
+            file=sys.stderr)
+        print(f"caller: {callerID(-4)}", file=sys.stderr)
+    for ref in refs:
+        if ref is obj or ref in exclude:
+            continue
+        reftype = type(ref)
+        # if reftype is types.FrameType: # only in Python2 ?
+        #     print("-> %2d"%level, "  "*level, end=' ', file=sys.stderr)
+        #     print("frame", ref.f_code.co_filename, \
+        #         ref.f_code.co_name, ref.f_lineno, file=sys.stderr)
+        if reftype is types.CellType:
+            print(f"{level:2}  {' '*level} cell:", file=sys.stderr)
+            for x in ref.cell_contents:
+                print(f"cell_contents: {type(x).__name__}", file=sys.stderr)
+                # if x is not obj:
+                #     _dumpReferrers(x, nlevels=nlevels,
+                #                    exclude = exclude+[obj],
+                #                    level=level+1)
+            continue
+        else:
+            print(f"{level:2} {' '*level} {type(ref).__name__}:",
+                  file=sys.stderr)
+            if reftype in (tuple, list):
+                print(f"  {' '*level} {reftype(type(x).__name__ for x in ref)}",
+                      file=sys.stderr)
+            elif reftype is dict:
+                for key,val in list(ref.items()):
+                    if key is obj:
+                        print(f"  {' '*level} dict key", file=sys.stderr)
+                        break
+                    if val is obj:
+                        print(f"  {' '*level} dict val, key =", key,
+                              file=sys.stderr)
+                        break
                 else:
-                    print("other", type(ref), ref, file=sys.stderr)
-                if _level < levels:
-                    dumpReferrers(ref, levels,
-                                  exclude=exclude+[locals(), refs], 
-                                  _level=_level+1)
+                    print(f"  {' '*level} obj not found in dict?",
+                          file=sys.stderr)
 
+            elif not inspect.isclass(reftype):
+                print(f"  {' '*level} instance {ref.__class__.__name__}:",
+                      "OBJ" if ref in (obj, topobj) else ref,
+                      file=sys.stderr)
+
+            else:
+                print(f"  {' '*level} {type(ref).__name__}: ",
+                      "OBJ" if ref in (obj, topobj) else ref,
+                      file=sys.stderr)
+            if level < nlevels:
+                _dumpReferrers(ref, nlevels,
+                               exclude=exclude+[locals(), refs], 
+                               level=level+1)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# getrefcount just removes the necessity of remembering to subtract 1
+# from the value returned by sys.getrefcount().  Of course, since it
+# adds another caller, it has to subtract 2.
+
+def getrefcount(obj):
+    return sys.getrefcount(obj) - 2
 

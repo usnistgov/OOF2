@@ -706,12 +706,16 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
     allow_threads.end();
   }
   catch (PythonError &p) {
-    // In this case, the Python error indicator is already set.  See
-    // pythonErrorRelay in ooferror.C.
+    // The C++ function wrapped here called Python, and a Python
+    // exception occurred.  The Python error indicator is already set,
+    // so just return control to Python.  See pythonErrorRelay in
+    // ooferror.C, and PythonError in ooferror.h.
     restoreSignals;
     SWIG_fail;
   }
   catch (ErrError &e) {
+    // An exception occured in OOF2 C++ code.  Convert it to a Python
+    // exception and return control to Python.
     restoreSignals;
     // pyconverter is common.ooferror.pyErrorCallback.  It raises an
     // Python exception that wraps the C++ exception.  Use
@@ -723,9 +727,10 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
     SWIG_fail;
   }
   catch (...) {
-    // Caught a C++ exception that wasn't already handled and
-    // converted into an ErrError. This means that something is really
-    // wrong.
+    // An exception occured in C++ code that wasn't anticipated, so it
+    // wasn't caught and converted to an ErrError by an OOF2 exception
+    // handler.  This means that something is really wrong.  Convert
+    // it to an ErrError so that it can be handled.
     restoreSignals;
     PyObject_CallFunction(
 	  ErrError::pyconverter, "s",

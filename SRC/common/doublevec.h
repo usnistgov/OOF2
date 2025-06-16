@@ -14,20 +14,20 @@
 
 #include <iostream>
 #include <string>
-#include "Eigen/SparseCore"
+#include "Eigen/Dense"
 #include <initializer_list>
 
 class SparseMat;
 class SmallMatrix;
-template<typename VT, typename ET> class DoubleVecIterator;
 enum class Precond;
 template<typename Derived> class IterativeSolver;
 template<typename Derived> class DirectSolver;
 
+// TODO? Derive DoubleVec from Eigen::VectorXd, instead of wrapping it.
 
 class DoubleVec {
 private:
-  Eigen::VectorXd data; // N x 1 matrix
+  Eigen::VectorXd data;		// N x 1 matrix
 
 public:
   DoubleVec() = default;
@@ -37,7 +37,7 @@ public:
   DoubleVec(DoubleVec&&) = default;
   DoubleVec& operator=(const DoubleVec&) = default;
   ~DoubleVec() = default;
-  
+
   /* Vector property methods */
   
   std::size_t size() const { return data.size(); }
@@ -52,39 +52,40 @@ public:
 
   typedef std::size_t size_type;
 
+  bool operator==(const DoubleVec&) const;
+  bool operator!=(const DoubleVec&) const;
+
   /* Arithmetic operations */
 
-  double norm() const { return data.norm(); }
-
-  // In-place operations, using no temporaries
+  // In-place operations, using no temporaries. Python and swig expect
+  // these to return a self reference.
   DoubleVec& operator+=(const DoubleVec&);
   DoubleVec& operator-=(const DoubleVec&);
   DoubleVec& operator*=(double);
   DoubleVec& operator/=(double);
   void axpy(double alpha, const DoubleVec& x);
-  void scale(double alpha);
   
-  // Non-in-place, which may return a temporary object.
+  // Not in-place. These may return a temporary object, although the
+  // move constructor should make that cheap.
   DoubleVec operator+(const DoubleVec&) const;
   DoubleVec operator-(const DoubleVec&) const;
+  DoubleVec operator-() const;
   DoubleVec operator*(double) const;
   DoubleVec operator/(double) const;
   friend DoubleVec operator*(double, const DoubleVec&);
 
-  // dot product
+  // Dot product
   double dot(const DoubleVec&) const;
   double operator*(const DoubleVec&) const;
+  double norm() const { return data.norm(); }
 
-  /* Iterators */
-
-  friend class DoubleVecIterator<DoubleVec, double>;
-  friend class DoubleVecIterator<const DoubleVec, const double>;
-  typedef DoubleVecIterator<DoubleVec, double> iterator;
-  typedef DoubleVecIterator<const DoubleVec, const double> const_iterator;
-  iterator begin();
-  iterator end();
-  const_iterator begin() const;
-  const_iterator end() const;
+  // Iterators
+  typedef Eigen::VectorXd::iterator iterator;
+  typedef Eigen::VectorXd::const_iterator const_iterator;
+  iterator begin() { return data.begin(); }
+  iterator end() { return data.end(); }
+  const_iterator begin() const { return data.begin(); }
+  const_iterator end() const { return data.end(); }
 
   /* Miscellaneous */
 
@@ -99,34 +100,8 @@ public:
   friend bool load_market_vec(DoubleVec&, const std::string&);
   friend bool save_vec(const DoubleVec&, const std::string&);
   friend bool load_vec(DoubleVec&, const std::string&);
-};
 
-template<typename VT, typename ET>
-class DoubleVecIterator {
-private:
-  VT& vec;
-  std::size_t index;
-
-public:
-  DoubleVecIterator(VT& vec) : vec(vec), index(0) {}
-  
-  DoubleVecIterator& operator++();
-  ET& operator*();
-
-  bool operator==(const DoubleVecIterator&) const;
-  bool operator!=(const DoubleVecIterator&) const;
-  bool operator<(const DoubleVecIterator&) const;
-
-  bool done() const;
-
-  friend DoubleVec;
-  friend std::ostream& operator<<(std::ostream& os,
-    const DoubleVecIterator<VT, ET>& it) {
-    return os << *it;
-  }
-
-private:
-  void to_end() { index = vec.size(); }
+  static DoubleVec* testIterator(DoubleVec&);
 };
 
 #endif // DOUBLEVEC_H

@@ -202,6 +202,8 @@ configure_file(
 # be wrapped so that the files are installed in the right spots and
 # the SRC directory is searched for header files.
 
+## TODO: Can we use swig's -fastproxy or -fastproxy -olddefs options?
+
 function(oof_swig_sources)
     # Get the path from the top of the source directory hierarchy to
     # the current directory.  This is the path from the top of the

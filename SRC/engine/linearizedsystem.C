@@ -811,7 +811,9 @@ DoubleVec *LinearizedSystem::error_estimation_dofs_MCKd(
   return dofs;
 }
 
-// These routines set_unknowns_MCK*() copy values from src into a copy
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// The routines set_unknowns_MCK*() copy values from src into a copy
 // of dest, which they return.
 
 DoubleVec *LinearizedSystem::set_unknowns_MCK(const DoubleVec *src,
@@ -828,8 +830,8 @@ DoubleVec *LinearizedSystem::set_unknowns_MCKa(const DoubleVec *src,
   const
 {
   int n = subp2MCKFieldMap.range();
-  DoubleVec *result = new DoubleVec(*dest);
-  subp2MCKFieldMap.inject(*src, 0, *result);
+  DoubleVec *result = new DoubleVec(*dest); // Copy!
+  subp2MCKFieldMap.inject(*src, *result);
   subp2nonEmptyMDerivMap.inject(*src, n, *result);
   return result;
 }
@@ -844,6 +846,8 @@ DoubleVec *LinearizedSystem::set_unknowns_MCKd(const DoubleVec *src,
   subp2MCKDerivMap.inject(*src, n, *result);
   return result;
 }
+
+//=\\=//=\\=//=\\=//
 
 void LinearizedSystem::set_unknowns_Cdot_inplace(const DoubleVec *src,
 						 DoubleVec *dest)

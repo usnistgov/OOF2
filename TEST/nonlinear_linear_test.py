@@ -810,3 +810,7 @@ test_set = [
     OOF_NLPlaneStress2("NonlinearCN"),
     OOF_NLPlaneStress2("NonlinearSS22")
 ]
+
+# test_set = [
+#     OOF_LinearDiffusion("CN"),
+# ]

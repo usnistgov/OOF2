@@ -12,6 +12,10 @@
 # all the test suites in this directory, and what order to run them in
 # in order to get a proper regression test.
 
+## TODO: Allow tests to be selected by regexp and/or wildcards, eg
+##       oof2-test "skeleton*"
+## The "*" is expanded as if the cwd is TEST even when elsewhere.
+
 import sys, os, getopt, copy, unittest
 
 test_module_names = [

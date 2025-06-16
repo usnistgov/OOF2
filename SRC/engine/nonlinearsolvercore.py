@@ -20,6 +20,7 @@ from ooflib.common import debug
 from ooflib.engine import matrixmethod
 
 import math
+import sys
 
 # TODO OPT MAYBE: compute_residual() returns a new vector every time
 # it's called.  It might be better for it to fill in an existing
@@ -114,7 +115,9 @@ class NLSolver(cnonlinearsolver.CNonlinearSolver):
     def step_from_parabolic_model_with_Armijo(self, data, soln, update,
                                               res_norm0,
                                               precompute, compute_residual):
-        #
+        
+        # data is a timestepper.NLData object.
+        
         # This function chooses the step size s in the nonlinear updates
         #
         #    soln(k+1) = soln(k) + s * update
@@ -132,28 +135,22 @@ class NLSolver(cnonlinearsolver.CNonlinearSolver):
         maxiter = 20
         alpha = 1.0e-4;  # used in the stopping criterion for line search iters
 
-        tempSoln = soln.clone()  # allocate vectors tempSoln and residual
-        # residual = soln.clone()
-
         # set the initial step size to 1 and compute the resulting residual
         s = 1.0
         s_prev = 1.0
         s_current = s
 
-        tempSoln = soln + s * update;
+        tempSoln = soln.clone() + update  # soln + s*update, but s==1 for now
 
         self.requireResidual(True)
         self.requireJacobian(False)
         precompute(data, tempSoln, self)
         residual = compute_residual(data, tempSoln, self)
         res_norm = residual.norm()
-        # debug.fmsg("intial tempsoln=", tempSoln)
-        # debug.fmsg("initial residual=", residual)
-        # debug.fmsg("initial res_norm=", res_norm)
 
-        # the residuals corresponding to three step sizes s=0,s1,s2
-        # to be used in estimating a good step size with the parabolic model
-
+        # The residuals corresponding to three step sizes s=0,s1,s2 to
+        # be used in estimating a good step size with the parabolic
+        # model
         f0_sqr        = res_norm0 * res_norm0
         f_sqr_current = res_norm * res_norm
         f_sqr_prev    = res_norm * res_norm
@@ -170,7 +167,8 @@ class NLSolver(cnonlinearsolver.CNonlinearSolver):
 
             # update the soln with the new step size, update s_prev, s_current
             # debug.fmsg("trying s=", s)
-            tempSoln  = soln + s * update
+            tempSoln = soln.clone()
+            tempSoln.axpy(s, update)
             s_prev    = s_current
             s_current = s
 
@@ -187,15 +185,13 @@ class NLSolver(cnonlinearsolver.CNonlinearSolver):
             i += 1
             # debug.fmsg("Line search iteration", i, ",  residual =", res_norm)
 
-        # debug.fmsg("Done.  s=%s (n=%d, res_norm0=%g, res_norm=%g)"
-        #            % (s, i, res_norm0, res_norm))
+        # debug.fmsg(f"Done: {s=} (n={i} {res_norm0=} {res_norm=}")
 
         # raise error if line search did not converge in maxiter # of
         # iterations
         if (i == maxiter) and (res_norm > (1-alpha*s)*res_norm0):
-           raise ooferror.PyErrConvergenceFailure(
-               'Nonlinear solver - step size search', maxiter)
-
+            raise ooferror.PyErrConvergenceFailure(
+                'Nonlinear solver - step size search', maxiter)
         return s, residual
 
     #### End of function (step_from_parabolic_model_with_Armijo)
@@ -219,6 +215,10 @@ class Newton(NLSolver):
         return "Newton"
     def solve(self, matrix_method, precompute, compute_residual,
               compute_jacobian, compute_linear_coef_mtx, data, values):
+        # Called by nonlinearsolver.Newton.solve(), for example.
+        # data is an NLDataGE object, if using GeneralizedEuler
+
+        initialrefcount = debug.getrefcount(values)
 
         # matrix_method is function that takes a matrix A, a rhs b and
         # a vector of unknows x and sets x so that A*x = b.
@@ -276,11 +276,9 @@ class Newton(NLSolver):
             i = 0
             while (res_norm > target_res and i < self.maximum_iterations
                    and not prog.stopped()):
-                # debug.fmsg("iter =", i, ",  res =", res_norm, " s =", s)
                 update.zero()
                 # solve for the Newton step:  Jacobian * update = -residual
                 J = compute_jacobian(data, self)
-                # debug.fmsg("J=\n", J.norm())
                 residual *= -1.0
                 matrix_method.solve( J, residual, update )
                 # debug.fmsg("update=", update.norm())
@@ -290,9 +288,9 @@ class Newton(NLSolver):
                 s, residual = self.choose_step_size(
                     data, values, update, res_norm,
                     precompute, compute_residual)
-                # debug.fmsg("s=", s)
+
                 # correct the soln with the Newton update
-                values += s * update
+                values.axpy(s, update)
 
                 res_norm = residual.norm()
                 if res_norm <= target_res:
@@ -306,8 +304,6 @@ class Newton(NLSolver):
                 # compute the residual
                 residual = compute_residual(data, values, self)
                 res_norm = residual.norm()
-                #debug.fmsg("Current residual: [%s] (%g)" %(residual, res_norm))
-                # debug.fmsg("new residual =", res_norm)
                 prog.setMessage("%g/%g" % (res_norm, target_res))
                 prog.setFraction(res_norm)
 
@@ -316,7 +312,6 @@ class Newton(NLSolver):
 
             if prog.stopped():
                 prog.setMessage("Newton solver interrupted")
-                #progress.finish()
                 raise ooferror.PyErrInterrupted();
         finally:
             prog.finish()
@@ -387,7 +382,7 @@ class Picard(NLSolver):
                 # debug.fmsg("line search s=", s)
 
                 # correct the soln with the Picard update
-                values += s * update
+                values.axpy(s, update)
                 res_norm = residual.norm()
                 if res_norm <= target_res:
                     break

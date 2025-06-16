@@ -15,6 +15,8 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.engine import symstate
 from ooflib.engine import timestepper
 
+import sys
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Euler stepping and variants of it.  Most variants are simple
@@ -322,7 +324,7 @@ class NLDataBE(timestepper.NLData):
         self.C = linsys.C_MCKa()
         # self.CK = None     # CK = C + dt K0, used by Picard iterations
         self.nonlin_offset = self.C * unknowns
-        self.nonlin_offset.scale( -1.0 )
+        self.nonlin_offset *= -1.0
         timestepper.NLData.__init__(self, subproblem, linsys0, endtime)
 
 

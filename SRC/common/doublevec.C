@@ -9,10 +9,13 @@
  * oof_manager@nist.gov. 
  */
 
-#include <unsupported/Eigen/SparseExtra>
 #include "common/doublevec.h"
 #include <sstream>
 #include <fstream>
+
+// for saveMarketVector and loadMarketVector
+#include <unsupported/Eigen/SparseExtra> 
+
 
 DoubleVec DoubleVec::subvec(std::size_t start, std::size_t end) const {
   // Extract the n coeffs in the range [start : end-1]
@@ -30,15 +33,28 @@ void DoubleVec::subvec_copy(std::size_t toPos, const DoubleVec& other,
   data.segment(toPos, size) = other.data.segment(pos, size);
 }
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+bool DoubleVec::operator==(const DoubleVec& other) const {
+  return data == other.data;
+}
+
+bool DoubleVec::operator!=(const DoubleVec& other) const {
+  return data != other.data;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 DoubleVec& DoubleVec::operator+=(const DoubleVec& other) {
   assert(other.size() == size());
-  data += other.data; 
+  data += other.data;
   return *this;
 }
 
 DoubleVec& DoubleVec::operator-=(const DoubleVec& other) {
   assert(other.size() == size());
   data -= other.data;
+  assert(other.size() == size());
   return *this;
 }
 
@@ -52,44 +68,48 @@ DoubleVec& DoubleVec::operator/=(double alpha) {
   return *this;
 }
 
-void DoubleVec::scale(double alpha) {
-  data *= alpha;
-}
-
 void DoubleVec::axpy(double alpha, const DoubleVec& x) {
   assert(x.size() == size());
+  // TODO: Check to see if Eigen does this in one loop or two.
   data += alpha * x.data;
 }
 
 DoubleVec DoubleVec::operator+(const DoubleVec& other) const {
-  DoubleVec rst(*this);
-  rst.data += other.data;
-  return rst;
+  DoubleVec result(*this);
+  result.data += other.data;
+  return result;
 }
 
 DoubleVec DoubleVec::operator-(const DoubleVec& other) const {
-  DoubleVec rst(*this);
-  rst.data -= other.data;
-  return rst;
+  DoubleVec result(*this);
+  result.data -= other.data;
+  return result;
+}
+
+// Unary -
+DoubleVec DoubleVec::operator-() const {
+  DoubleVec result(*this);
+  result *= -1;
+  return result;
 }
 
 DoubleVec DoubleVec::operator*(double alpha) const {
-  DoubleVec rst(*this);
-  rst.data *= alpha;
-  return rst;
+  DoubleVec result(*this);
+  result.data *= alpha;
+  return result;
 }
 
 DoubleVec DoubleVec::operator/(double alpha) const {
-  DoubleVec rst(*this);
-  rst.data /= alpha;
-  return rst;
+  DoubleVec result(*this);
+  result.data /= alpha;
+  return result;
 }
 
 // Friend method of DoubleVec, return the result of (scalar * vec)
 DoubleVec operator*(double alpha, const DoubleVec& mat) {
-  DoubleVec rst;
-  rst.data = alpha * mat.data;
-  return rst;
+  DoubleVec result;
+  result.data = alpha * mat.data;
+  return result;
 }
 
 double DoubleVec::dot(const DoubleVec& other) const {
@@ -98,26 +118,6 @@ double DoubleVec::dot(const DoubleVec& other) const {
 
 double DoubleVec::operator*(const DoubleVec& other) const {
   return data.dot(other.data); 
-}
-
-DoubleVec::iterator DoubleVec::begin() {
-  return iterator(*this);
-}
-
-DoubleVec::iterator DoubleVec::end() {
-  iterator it(*this);
-  it.to_end();
-  return it;
-}
-
-DoubleVec::const_iterator DoubleVec::begin() const {
-  return const_iterator(*this);
-}
-
-DoubleVec::const_iterator DoubleVec::end() const {
-  const_iterator it(*this);
-  it.to_end();
-  return it;
 }
 
 const std::string DoubleVec::str() const {
@@ -137,6 +137,11 @@ std::ostream& operator<<(std::ostream& os, const DoubleVec& vec) {
   }
   return os;
 }
+
+// TODO: Eigen 3.4.90 documentation says to use saveMarketDense and
+// loadMarketDense instead of saveMarketVector and loadMarketVector,
+// but it doesn't compile that way.  Perhaps because we're using
+// version 3.4.0?
 
 bool save_market_vec(const DoubleVec& vec, const std::string& filename) {
   return Eigen::saveMarketVector(vec.data, filename);
@@ -193,43 +198,29 @@ bool load_vec(DoubleVec& vec, const std::string& filename) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-template<typename VT, typename ET>
-DoubleVecIterator<VT, ET>& DoubleVecIterator<VT, ET>::operator++() {
-  assert(index + 1 <= vec.data.size());
-  index += 1;
-  return *this;
+// For testing iteration
+
+// static
+DoubleVec* DoubleVec::testIterator(DoubleVec &vec) {
+  DoubleVec *result = new DoubleVec(vec.size(), 0.0);
+
+  // traditional for loop
+  for(int i=0; i<vec.size(); ++i) {
+    (*result)[i] = vec[i];
+  }
+  
+  // range-base for loop
+  int i = 0;
+  for(double x : vec) {
+    (*result)[i++] += 2*x;
+  }
+  
+  // STL-like for loop
+  auto itr = result->data.begin();
+  auto itv = vec.data.begin();
+  for(; itr<result->data.end() && itv < vec.data.end(); ++itr, ++itv) {
+    *itr += 4*(*itv);
+  }
+  return result;
+    
 }
-
-template<typename VT, typename ET>
-ET& DoubleVecIterator<VT, ET>::operator*() {
-  assert(!done());
-  return vec.data[index];
-}
-
-template<typename VT, typename ET>
-bool DoubleVecIterator<VT, ET>::operator==(const DoubleVecIterator& other) const
-{
-  return &vec==&other.vec && index==other.index; 
-}
-
-template<typename VT, typename ET>
-bool DoubleVecIterator<VT, ET>::operator!=(const DoubleVecIterator& other) const
-{
-  return &vec==&other.vec && index!=other.index;
-}
-
-template<typename VT, typename ET>
-bool DoubleVecIterator<VT, ET>::operator<(const DoubleVecIterator& other) const
-{
-  return &vec==&other.vec && index<other.index;
-}
-
-template<typename VT, typename ET>
-bool DoubleVecIterator<VT, ET>::done() const {
-  return index < vec.data.size() ? false : true;
-}
-
-// Instantiate the DoubleVecIterator template.
-template class DoubleVecIterator<DoubleVec, double>;
-template class DoubleVecIterator<const DoubleVec, const double>;
-

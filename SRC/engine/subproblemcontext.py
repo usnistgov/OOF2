@@ -680,7 +680,6 @@ class SubProblemContext(whoville.Who):
         newDefinition = self.defnChanged > linsysComputed or always
         newFieldValues = (max(self.fieldsInstalled, mesh.fieldsInitialized)
                           > linsysComputed) or always
-        # debug.fmsg(f"{linsysComputed=} {self.fieldsInstalled=} {mesh.fieldsInitialized=} {always=} {newFieldValues=}")
         newTime = linsys is None or linsys.time() != time or always
         newBdys = (mesh.boundariesChanged > linsysComputed
                    or (newTime and self.timeDependentBCs())
@@ -704,7 +703,6 @@ class SubProblemContext(whoville.Who):
                   linsysComputed)))
             or (newTime and self.timeDependentProperties(flds))
             or always)
-        # debug.fmsg(f"{rebuildMatrices=}")
 
         if newDefinition:
             self.getObject().mapFields()
@@ -752,7 +750,6 @@ class SubProblemContext(whoville.Who):
         # the Fields, the old Dirichlet BCs may have been overwritten,
         # so they have to be reapplied.
         if bcsReset or newFieldValues:
-            # debug.fmsg(f"Calling resetFieldFlags: {bcsReset=} {newFieldValues=}")
             linsys.resetFieldFlags()
             femesh.invoke_fixed_bcs(subpobj, linsys, time)
         # utils.memusage("End if bcsReset or newFieldValues %s" %datetime.datetime.now())
@@ -844,7 +841,6 @@ class SubProblemContext(whoville.Who):
         derivOrder = self.time_stepper.derivOrder()
         if derivOrder == 0 or self.lowestTimeDerivative() < derivOrder:
             unknowns = self.get_unknowns(linsys)
-            # debug.fmsg(f"Initializing {len(unknowns)} unknowns")
             self.computeStaticFields(linsys, unknowns)
             self.installValues(linsys, unknowns, linsys.time())
 
@@ -977,7 +973,6 @@ class SubProblemContext(whoville.Who):
             self.time_stepper.set_derivs_part('C', linsys, u1dot, unknowns)
 
     def computeAuxFirstDerivs(self, linsys, unknowns, endValues):
-        #debug.fmsg()
         # Assuming that the independent fields have been solved for,
         # compute the dependent first derivative fields.  
 
@@ -993,7 +988,6 @@ class SubProblemContext(whoville.Who):
 
         u1 = self.time_stepper.get_unknowns_part('C', linsys, unknowns)
         u1dot = doublevec.DoubleVec(len(u1), 0.0)
-        #debug.fmsg(f"{len(u1)=}")
         if len(u1) > 0:
             # These independent dofs (and u1) have been found by the
             # solver (See comment in computeStaticFieldsL for
@@ -1012,7 +1006,6 @@ class SubProblemContext(whoville.Who):
             rhs = self.time_stepper.rhs_ind_part('C', linsys)
             # TODO: is there a simpler way of computing K*u?
             rhs -= (C12*u2dot + K12*u2 + K11*u1 + K10*u0)
-            #debug.fmsg(f"{rhs=}")
             #debug.fmsg("Solving for u1dot")
             #debug.fmsg(f"{C11=}")
             #self.matrix_method(self.asymmetricC).solve(C11, rhs, u1dot)
@@ -1154,7 +1147,7 @@ class SubProblemContext(whoville.Who):
             return self.startValues
         f = (time - self.startTime)/(self.endTime - self.startTime)
         vals = self.startValues.clone()
-        vals.scale(1-f)
+        vals *= 1-f
         vals.axpy(f, self.endValues)
         return vals
 

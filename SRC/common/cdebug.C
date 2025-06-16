@@ -115,16 +115,19 @@ void throwException() {
   // routine is only used to test error handling, we use a fixed
   // integer value instead of __LINE__.  The value is the one that was
   // in the test files at the time that this glitch was
-  // discovered. (See TEST/GUI/04100/log.py, for example.)
+  // discovered. (See TEST/GUI/041000/log.py and
+  // TEST/fundamental_test.py, for example.)
   throw ErrProgrammingError("Somebody made a mistake!", __FILE__, 124);
 }
+
 
 // A C++ function that can be called from Python, and which calls a
 // Python "function" that raises a Python exception.
 
 void throwPythonException() {
   PYTHON_THREAD_BEGIN_BLOCK;
-  PyObject *result = PyObject_GetAttrString(Py_None, (char*) "say what?");
+  PyObject *result = PyObject_GetAttrString(Py_None,
+					    (char*) "missing attribute");
   if(!result)
     pythonErrorRelay();
   Py_XDECREF(result);
@@ -147,9 +150,11 @@ void throwPythonCException() {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// For testing progress bars
+// For testing progress bars and the Stop button.
 
-// TODO: Copy this to OOF2 and see if it has the same problem.
+// This can be used to see if commands can be interrupted.  It's not
+// used in the test suites because they'd have to hard-code the delay
+// between starting the command and clicking the "Stop" button.
 
 #include <math.h>
 #include "common/tostring.h"
@@ -255,5 +260,24 @@ void nextDumpFile() {
     }
     dumpcount++;
   }
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// When testing error handling, it's sometimes necessary to compare
+// error messages that contain file names that depend on the location
+// of the source files at compilation time.  This is a cheap way to
+// find the location.
+
+std::string sourcePathPrefix() {
+  static bool once = false;
+  static std::string prefix;
+  if(!once) {
+    once = true;
+    std::string thisfile = __FILE__;
+    std::string suffix = "OOF2/SRC/common/cdebug.C";
+    prefix = thisfile.substr(0, thisfile.size()-suffix.size());
+  }
+  return prefix;
 }
 

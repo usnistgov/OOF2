@@ -90,4 +90,8 @@ Also, the example may be too fast to bring up the activity viewer.
 
 Basics/Error Handling -- continued:  Should tell the user to click "OK".
 
+NEW TODOS
 
+Zero padding in group names in statgroups.C.
+Change module name in enum.py.
+More pixel info in pixelgroupmenu.py.

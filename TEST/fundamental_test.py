@@ -9,6 +9,8 @@
 # oof_manager@nist.gov. 
 
 import unittest, os, sys
+from ooflib.common import debug, utils
+from ooflib.SWIG.common import cdebug
 
 # For reasons that I don't completely understand, file_utils needs to
 # be imported with an absolute path name, or else the modules imported
@@ -17,11 +19,154 @@ import unittest, os, sys
 # the file, and reset file_utils.referencedir.
 from oof2.TEST.UTILS.file_utils import reference_file
 
-class OOF_Fundamental(unittest.TestCase):
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Class for tests that generate Exceptions.
+
+
+class ExcTestCase(unittest.TestCase):
+
+    def assertOOFRaises(self, expectation, cmd, *args, **kwargs):
+        # expectation is the expected exception.  It can be an
+        # Exception subclass or an instance of one.
+        try:
+            cmd(*args, **kwargs)
+        except Exception as exc:
+            # Find the root cause of the caught exception, if it's a
+            # PyOOFError.  The root cause might not also be a
+            # PyOOFError.
+            exc = exc.rootCause()
+            # exc is an instance of PyOOFError or Exception.  Since
+            # PyOOFError is a subclass of Exception, the order of the
+            # comparisons below is important.
+            if isinstance(exc, ooferror.PyOOFError):
+                # exc is a PyOOFError object. expectation must be a
+                # PyOOFError object or class.
+                if isinstance(expectation, type):
+                    # expectation is a class. exc must be an instance
+                    # of it.
+                    if not isinstance(exc, expectation):
+                        self.fail()
+                else:
+                    # excpectation is a PyOOFError instance. exc must
+                    # equal it.  PyOOFError instances can be compared
+                    # directly.
+                    self.assertEqual(exc, expectation)
+            else:
+                # exc is a generic non-OOF Exception.
+                if isinstance(expectation, type):
+                    # expectation is a class.  exc should be an
+                    # instance of it.
+                    if not isinstance(exc, expectation):
+                        self.fail()
+                else:
+                    # expectation is an instance. exc must equal it.
+                    # Standard Python exceptions can't be compared
+                    # directly with __eq__ (WTF?).  For example, this is
+                    # False:
+                    #   NameError("abc") == NameError("abc")
+                    self.assertEqual(type(exc), type(expectation))
+                    self.assertEqual(exc.args, expectation.args)
+        else:
+            # No exception was raised, although we were expecting one.
+            self.fail()
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+class OOF_Fundamental(ExcTestCase):
     def setUp(self):
         global allWorkers, allWorkerCores
         from ooflib.common.worker import allWorkers, allWorkerCores
         from ooflib.common import utils
+
+    def DoubleVec(self):
+        from ooflib.SWIG.common.doublevec import DoubleVec
+        size = 10
+        a = DoubleVec(size)
+        b = DoubleVec(size)
+        
+        # setting and getting
+        for i in range(size):
+            a[i] = i 
+        for i in range(size):
+            self.assertEqual(a[i], i)
+        for i in range(size):
+            b[i] = -i
+            
+        # iteration in C++.
+        # iteration over a DoubleVec in python is not supported.
+        vec = DoubleVec.testIterator(a) # returns 7*a
+        self.assertEqual(len(vec), size)
+        for i in range(size):
+            self.assertEqual(vec[i], 7*i)
+        
+        # cloning
+        c = a.clone()
+        for i in range(size):
+            self.assertEqual(a[i], c[i])
+            
+        # equality
+        self.assertTrue(a == c)
+        self.assertEqual(a, c)
+        self.assertTrue(b != c)
+        self.assertNotEqual(b, c)
+
+        # in-place operations on a single entry
+        c = a.clone()
+        c[1] += 5
+        self.assertEqual(c[1], 6)
+        c[2] -= 4
+        self.assertEqual(c[2], -2)
+        c[3] *= 5
+        self.assertEqual(c[3], 15)
+        c[4] /= -1
+        self.assertEqual(c[4], -4)
+        
+        # addition
+        c = a + b
+        self.assertEqual(len(c), size)
+        for i in range(size):
+            self.assertEqual(c[i], 0)
+
+        # in-place addition
+        d = a.clone()
+        self.assertEqual(len(d), len(a))
+        d += b 
+        self.assertEqual(len(d), len(b))
+        self.assertTrue(a+b == d)
+
+        # subtraction
+        c = a - b
+        self.assertEqual(len(c), size)
+        for i in range(size):
+            self.assertEqual(c[i], 2*i)
+
+        # in-place subtraction
+        d = a.clone()
+        d -= b
+        self.assertTrue(d == c)
+
+        # multiplication
+        d = a*2                 # __mul__
+        for i in range(size):
+            self.assertEqual(d[i], 2*i)
+        e = 2*a                 # __rmul__
+        self.assertEqual(e, d)
+        e *= 0.5                # __imul__
+        self.assertEqual(e, a)
+
+        # division
+        print("divide")
+        d = a/2.
+        for i in range(size):
+            self.assertEqual(d[i], a[i]/2)
+        d /= 2.
+        for i in range(size):
+            self.assertEqual(d[i], a[i]/4)
+        
+        # dot product
+        self.assertEqual(a*b, -285)
+            
     def OrderedDict(self):
         from ooflib.common.utils import OrderedDict
         od = OrderedDict();
@@ -124,6 +269,15 @@ class OOF_Fundamental(unittest.TestCase):
         self.assertEqual(len(allWorkers), 0)
         self.assertEqual(len(allWorkerCores), 0)
 
+    def WorkerExceptionZero(self):
+        # Check for a properly handled divide by zero error
+        ## TODO: Fix this!  Is the worker not being removed?
+        self.assertEqual(len(allWorkers), 0)
+        self.assertEqual(len(allWorkerCores), 0)
+        self.assertRaises(ZeroDivisionError, OOF.Help.Debug.Error.DivideByZero)
+        self.assertEqual(len(allWorkers), 0)
+        self.assertEqual(len(allWorkerCores), 0)
+
     def ScriptException0(self):
         # Check that an exception thrown by a script halts the
         # execution of the script.  The script sets teststring to
@@ -131,23 +285,29 @@ class OOF_Fundamental(unittest.TestCase):
         # and then sets teststring to "not ok".  If the exception is
         # not handled properly, lines following the error will be
         # read, and teststring will be set to "not ok".
-        #
-        # The script contains a NameError, but loadscript() in
-        # mainmenu.py converts it into a PyErrUserError.
-        self.assertRaises(ooferror.PyErrUserError,
-                          OOF.File.Load.Script,
-                          filename = reference_file("fundamental_data",
-                                                    "pyerror.py"))
+        self.assertOOFRaises(
+            NameError("name 'y' is not defined"),
+            OOF.File.Load.Script,
+            filename = reference_file("fundamental_data", "pyerror.py"))
         self.assertEqual(utils.OOFeval('teststring'), "ok")
 
     def ScriptException1(self):
         # This script is similar, but it raises the exception by
-        # running a menu command.  The exception is an
-        # ErrProgrammingError.
-        self.assertRaises(ooferror.PyErrUserError,
-                          OOF.File.Load.Script,
-                          filename=reference_file("fundamental_data",
-                                                  "errorcmd.py"))
+        # running a menu command, OOF.Help.Debug.Error.CError.  The
+        # command throws an ErrProgrammingError from C++.
+        self.assertOOFRaises(
+            PyErrProgrammingError(
+                "Somebody made a mistake!",
+                # The file name given here needs to be the same as
+                # the file name referred to by __FILE__ when oof2 was
+                # compiled.
+                cdebug.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C",
+                # The line number here is fake, so that the test won't
+                # break if cdebug.C is altered.  See throwException()
+                # in cdebug.C.
+                124),
+            OOF.File.Load.Script,
+            filename=reference_file("fundamental_data", "errorcmd.py"))
         self.assertEqual(utils.OOFeval('teststring'), "ok")
 
     def ScriptException2(self):
@@ -155,18 +315,21 @@ class OOF_Fundamental(unittest.TestCase):
         # a nested menu command.  teststring and/or another test will
         # not be "ok" if lines following the error are being
         # processed.
-        self.assertRaises(ooferror.PyErrUserError,
-                          OOF.File.Load.Script,
-                          filename=reference_file("fundamental_data",
-                                                  "nestederror.py"))
+        self.assertOOFRaises(
+            PyErrProgrammingError(
+                "Somebody made a mistake!",
+                cdebug.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C",
+                124),
+            OOF.File.Load.Script,
+            filename=reference_file("fundamental_data", "nestederror.py"))
         self.assertTrue(utils.OOFeval('teststring')=="ok" and
                         utils.OOFeval('anothertest')=="ok")
 
     def ScriptSyntaxErr0(self):
-        self.assertRaises(SyntaxError,
-                          OOF.File.Load.Script,
-                          filename=reference_file("fundamental_data",
-                                                  "syntaxerror.py"))
+        self.assertOOFRaises(SyntaxError,
+                             OOF.File.Load.Script,
+                             filename=reference_file("fundamental_data",
+                                                     "syntaxerror.py"))
         # syntaxerror.py tries to define 'bandersnatch' before the
         # line containing the syntax error, and 'borogoves' after it.
         # Neither should be defined, because none of the file should
@@ -175,13 +338,27 @@ class OOF_Fundamental(unittest.TestCase):
         self.assertRaises(NameError, utils.OOFeval, "borogoves")
 
     def ScriptSyntaxErr1(self):
-        self.assertRaises(ooferror.PyErrUserError,
-                          OOF.File.Load.Script,
-                          filename=reference_file("fundamental_data",
-                                                  "nestedsyntaxerr.py"))
+        # This test runs a script that attempts to load the faulty
+        # syntexerror.py script used by ScriptSyntaxErr0.  Nothing in
+        # syntaxerror.py should be evaluated, but everything in
+        # nestedsyntaxerr.py that comes *before* it imports
+        # syntaxerror.py should be evaluated.  nestedsyntaxerr.py sets
+        # teststring="ok" before loading syntaxerror.py and "not ok"
+        # afterwards.
+        self.assertOOFRaises(SyntaxError,
+                             OOF.File.Load.Script,
+                             filename=reference_file("fundamental_data",
+                                                     "nestedsyntaxerr.py"))
         self.assertRaises(NameError, utils.OOFeval, "bandersnatch")
         self.assertRaises(NameError, utils.OOFeval, "borogoves")
         self.assertEqual(utils.OOFeval('teststring'), 'ok')
+
+    def ScriptFuncDef(self):
+        OOF.File.Load.Script(filename=reference_file("fundamental_data",
+                                                     "funcdef.py"))
+        self.assertEqual(utils.OOFeval('tart'), 6.28)
+        self.assertEqual(utils.OOFeval('pie'), 3.14)
+                                                     
 
     def RandomNumbers(self):
         # Check to be sure that the random numbers are reproducible
@@ -238,7 +415,7 @@ class OOF_Fundamental(unittest.TestCase):
         self.assertEqual(len(set(r)), 50)
         self.assertEqual(r, expected2)
 
-test_set = [
+test_set = [ 
     OOF_Fundamental("OrderedDict"),
     OOF_Fundamental("Ordered_Set"),
     OOF_Fundamental("WorkerCleanup"),
@@ -247,11 +424,18 @@ test_set = [
     OOF_Fundamental("WorkerException1"),
     OOF_Fundamental("WorkerException2"),
     OOF_Fundamental("WorkerException3"),
+    # OOF_Fundamental("WorkerExceptionZero"),
     OOF_Fundamental("ScriptException0"),
     OOF_Fundamental("ScriptException1"),
     OOF_Fundamental("ScriptException2"),
     OOF_Fundamental("ScriptSyntaxErr0"),
     OOF_Fundamental("ScriptSyntaxErr1"),
     OOF_Fundamental("RandomNumbers"),
-    OOF_Fundamental("Shuffle")
+    OOF_Fundamental("Shuffle"),
+    OOF_Fundamental("ScriptFuncDef"),
+    OOF_Fundamental("DoubleVec")
 ]
+
+# test_set = [
+#     OOF_Fundamental("ScriptSyntaxErr0")
+# ]

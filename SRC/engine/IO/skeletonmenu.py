@@ -199,26 +199,6 @@ def _skeleton_delete(menuitem, skeleton):
         skelctxt = skeletoncontext.skeletonContexts[skeleton]
         skelobj = skelctxt.getObject()
         skeletoncontext.skeletonContexts[skeleton].lockAndDelete()
-#         # Debugging
-#         debug.fmsg("Skeleton context refcount =", sys.getrefcount(skelctxt)-2)
-#         debug.fmsg("Skeleton refcount =", sys.getrefcount(skelobj)-2)
-#         import gc
-#         gc.collect()
-#         debug.fmsg("garbage=", gc.garbage)
-#         debug.fmsg("context referrers=")
-#         debug.dumpReferrers(obj=skelctxt, levels=2)
-#         debug.fmsg("skeleton referrers=")
-#         debug.dumpReferrers(obj=skelobj, levels=2)
-#         del skelctxt
-#         del skelobj
-#         from ooflib.SWIG.engine import cskeleton
-#         debug.fmsg("There are", cskeleton.get_globalNodeCount(),
-#                    "leftover nodes")
-#         debug.fmsg("There are", cskeleton.get_globalElementCount(),
-#                    "leftover elements")
-#         from ooflib.SWIG.engine import femesh
-#         debug.fmsg("There are", femesh.get_globalFEMeshCount(), 
-#                    "leftover meshes")
 
 skeletonmenu.addItem(oofmenu.OOFMenuItem(
     'Delete',

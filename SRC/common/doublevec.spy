@@ -6,85 +6,64 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
-def _doublevec___len__(self):
-    return self.size()
-DoubleVec.__len__ = _doublevec___len__
+# def _doublevec___mul__(self, factor):
+#     if isinstance(factor, DoubleVec):
+#         return self.dot(factor)
+#     # The test for float and int has to be done here, or else
+#     # vector*matrix leads to an infinite loop, trying to find a
+#     # suitable __mul__ variant.  Without the test, the __imul__ (*=)
+#     # invocation below will fail when the rhs is a matrix.  When that
+#     # happens, python falls back to __mul__, which is this function,
+#     # which will call __imul__ and so on ad infinitum (assuming that
+#     # __mull__ is written in terms of __imul__).
+#     if isinstance(factor, (float, int)):
+#         return self.c_mul(factor)
+#     return NotImplemented
+# DoubleVec.__mul__ = _doublevec___mul__
 
-def _doublevec___add__(self, other):
-    result = self.clone()
-    result += other
-    return result
-DoubleVec.__add__ = _doublevec___add__
+# def _doublevec___rmul__(self, factor):
+#     if isinstance(factor, (float, int)):
+#         return self.c_rmul(factor)
+#     return NotImplemented
+# DoubleVec.__rmul__ = _doublevec___rmul__
 
-def _doublevec___sub__(self, other):
-    result = self.clone()
-    result -= other
-    return result
-DoubleVec.__sub__ = _doublevec___sub__
+# def _doublevec___imul__(self, factor):
+#     # vec1 *= vec2 doesn't exist, since vec1*vec2 is a scalar
+#     if isinstance(factor, (float, int)):
+#         return self.c_imul(factor)
+#     return NotImplemented
 
-def _doublevec___iadd__(self, other):
+
+def _doublevec__iadd__(self, other):
     if isinstance(other, DoubleVec):
-        self.axpy(1.0, other)
+        self.c_iadd(other)
         return self
     return NotImplemented
-DoubleVec.__iadd__ = _doublevec___iadd__
 
-def _doublevec___isub__(self, other):
+DoubleVec.__iadd__ = _doublevec__iadd__
+
+def _doublevec__isub__(self, other):
     if isinstance(other, DoubleVec):
-        self.axpy(-1.0, other)
+        self.c_isub(other)
         return self
     return NotImplemented
-DoubleVec.__isub__ = _doublevec___isub__
 
-def _doublevec___mul__(self, factor):
-    if isinstance(factor, DoubleVec):
-        return self.dot(factor)
-    # The test for float and int has to be done here, or else
-    # vector*matrix leads to an infinite loop, trying to find a
-    # suitable __mul__ variant.  Without the test, the __imul__ (*=)
-    # invocation below will fail when the rhs is a matrix.  When that
-    # happens, python falls back to __mul__, which is this function,
-    # which will call __imul__ and so on ad infinitum.
-    if isinstance(factor, float) or isinstance(factor, int):
-        result = self.clone()
-        result *= factor
-        return result
-    return NotImplemented
-DoubleVec.__mul__ = _doublevec___mul__
+DoubleVec.__isub__ = _doublevec__isub__
 
-def _doublevec___rmul__(self, factor):
-    if isinstance(factor, float) or isinstance(factor, int):
-        result = self.clone()
-        result *= factor
-        return result
-    return NotImplemented
-DoubleVec.__rmul__ = _doublevec___rmul__
-
-def _doublevec___truediv__(self, factor):
-    result = self.clone()
-    result /= factor
-    return result
-DoubleVec.__truediv__ = _doublevec___truediv__
-
-def _doublevec___imul__(self, factor):
-    if isinstance(factor, float) or isinstance(factor, int):
-        self.scale(factor)
+def _doublevec__imul__(self, x):
+    if isinstance(x, (float, int)):
+        self.c_imul(x)
         return self
     return NotImplemented
-DoubleVec.__imul__ = _doublevec___imul__
 
-def _doublevec___itruediv__(self, factor):
-    if isinstance(factor, float) or isinstance(factor, int):
-        self.scale(1./factor)
+DoubleVec.__imul__ = _doublevec__imul__
+
+def _doublevec__idiv__(self, x):
+    if isinstance(x, (float, int)):
+        self.c_idiv(x)
         return self
     return NotImplemented
-DoubleVec.__itruediv__ = _doublevec___itruediv__
 
-def _doublevec___neg__(self):
-    result = self.clone()
-    result *= -1.0
-    return result
-DoubleVec.__neg__ = _doublevec___neg__
-
+DoubleVec.__idiv__ = _doublevec__idiv__

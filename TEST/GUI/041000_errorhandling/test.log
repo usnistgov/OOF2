@@ -8,9 +8,17 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
+# The startup script loaded by the args file sets teststring to "ok",
+# and then causes an error (by calling OOF.Help.Debug.Error.CError,
+# which calls throwException() in cdebug.C, which throws
+# ErrProgrammingError), and then sets teststring to "not ok".  If the
+# error is handled correctly, the last line isn't executed and
+# teststring is still "ok".  throwException() throws an
+# ErrProgrammingError.
+
+from ooflib.SWIG.common import cdebug
 from ooflib.common import utils
 import generics
-
 
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
@@ -18,17 +26,13 @@ checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
 findWidget('OOF2').resize(782, 511)
 checkpoint OOF.Help.Debug.Error.CError
-# The startup script loaded by the args file sets teststring to "ok",
-# then causes an error, and then sets teststring to "not ok".  If the
-# error is handled correctly, the last line isn't executed and
-# teststring is still "ok".
 assert utils.OOFeval("teststring") == "ok"
 
 checkpoint OOF.File.LoadStartUp.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(266, 210)
 findWidget('OOF2').resize(782, 545)
-assert generics.errorMsg("Somebody made a mistake!\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/errorcmd.py raised a PyErrProgrammingError exception")
+assert generics.errorMsg('ooflib.common.IO.scriptloader.ScriptError: Error running file "TEST_DATA/errorcmd.py", line 3\n-----\nooflib.SWIG.common.ooferror.PyErrProgrammingError: Somebody made a mistake!\n' + cdebug.sourcePathPrefix() + 'OOF2/SRC/common/cdebug.C:124\n')
 
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
 
@@ -63,7 +67,7 @@ checkpoint OOF.Help.Debug.Error.CError
 checkpoint OOF.File.Load.Script
 checkpoint toplevel widget mapped Error
 
-assert generics.errorMsg("Somebody made a mistake!\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/errorcmd.py raised a PyErrProgrammingError exception")
+assert generics.errorMsg('ooflib.common.IO.scriptloader.ScriptError: Error running file "TEST_DATA/errorcmd.py", line 3\n-----\nooflib.SWIG.common.ooferror.PyErrProgrammingError: Somebody made a mistake!\n' + cdebug.sourcePathPrefix() + 'OOF2/SRC/common/cdebug.C:124\n')
 
 findWidget('Error').resize(266, 210)
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()

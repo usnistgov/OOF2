@@ -322,8 +322,8 @@ def gtkTextviewTail(widgetpath, targettext, tolerance=None, quiet=False):
                               msgbuffer.get_end_iter(), True)
     if not fp_string_compare_tail(text, targettext, tolerance):
         if not quiet:
-            print((f"gtkTextviewTail failed for {widgetpath}\n"
-                   f"expected =>{targettext}<=\ngot =>{text}<="),
+            print((f"gtkTextviewTail: failed for {widgetpath}\n"
+                   f"\texpected =>{targettext}<=\n\t     got =>{text}<="),
                   file=sys.stderr)
         return False
     return True
@@ -562,20 +562,45 @@ def pixelGroupSizeCheck(msname, grpname, n):
 # the error message dialog.
 ## TODO: It would be better if this explicitly specified which message
 ## to expect for each python version, but that would break each time a
-## new version came out.  This version breaks only when a new message
-## format appears.
+## new python version came out.  This version breaks only when a new
+## message format appears.
 
-def errorMsg(*texts):
+def errorMsg(*texts, verbose=False):
     for text in texts:
-        if gtkTextviewTail('Error:ErrorText', text+'\n', quiet=(len(texts)>1)):
+        if gtkTextviewTail('Error:ErrorText', text, quiet=(len(texts)>1)):
+            # if verbose:
+            #     print(f"errorMsg: matched =>{text}<=")
             return True
     # Failed!
     msgbuffer = gtklogger.findWidget('Error:ErrorText').get_buffer()
     realtext = msgbuffer.get_text(msgbuffer.get_start_iter(),
-                              msgbuffer.get_end_iter(), True)
+                                  msgbuffer.get_end_iter(), True)
     print("errorMsg test failed!", file=sys.stderr)
     print(f"Got =>{realtext}<=", file=sys.stderr)
+    if verbose:
+        if len(texts) == 1:
+            print(f"Expected =>{texts[0]}<=", file=sys.stderr)
+        else:
+            print(f"Expected one of:", file=sys.stderr)
+            for i,t in enumerate(texts):
+                print(f"{i} =>{t}<=", file=sys.stderr)
     return False
+
+# errorMsgTemplates is the same as errorMsg, except that it tries all
+# substitutions of the given templateparam with the given templatevals.
+
+def errorMsgTemplates(templateparam, templatevals, texts, verbose=False):
+    # print(f"{templateparam=}, {templatevals=}", file=sys.stderr)
+    msgs = []
+    for msg in texts:
+        for tval in templatevals:
+            msgs.append(msg.replace(templateparam, tval))
+    ok = errorMsg(*msgs, verbose=verbose)
+    if verbose and not ok:
+        print(f"Expected one of {len(msgs)}:", file=sys.stderr)
+        for i,m in enumerate(msgs):
+            print(f"{i+1}   =>{m}<=", file=sys.stderr)
+    return ok
 
 # Check the contents of the message window.
 
