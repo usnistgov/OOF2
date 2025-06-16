@@ -73,7 +73,6 @@ class StepDriver(registeredclass.RegisteredClass):
     def get_unknowns(self, linsys, source):
         return self.stepper.get_unknowns(linsys, source)
     def set_unknowns(self, linsys, vals, startvals):
-        debug.fmsg(f"StepDriver.set_unknowns calling {type(self.stepper).__name__}.set_unknowns, vals={vals.addr()}, refcount={debug.getrefcount(vals)}")
         return self.stepper.set_unknowns(linsys, vals, startvals)
     def get_unknowns_part(self, part, linsys, unknowns):
         return self.stepper.get_unknowns_part(part, linsys, unknowns)
@@ -173,13 +172,9 @@ class NonLinearStepper(TimeStepper):
         # NLData object. 'solver' is a NonlinearSolverBase object.
         # Derived classes may have to redefine this function.
         # debug.fmsg("time=", data.time)
-        debug.fmsg(f"Calling installValues, values={values.addr()} refcount={debug.getrefcount(values)}")
         data.subproblem.installValues(data.linsys, values, data.time)
-                   
-        debug.fmsg(f"Back from installValues, values={values.addr()} refcount={debug.getrefcount(values)}")
         data.linsys = data.subproblem.make_linear_system(data.time,
                                                          data.linsys)
-        debug.fmsg(f"Returning to {debug.callerName()}")
 
 # NLData is used to pass data through to the nonlinearsolvers.
 # NonLinearStepper subclasses can use this class, derive from it, or
@@ -242,14 +237,8 @@ class FirstOrderStepper(NonStaticStepper):
         return linsys.get_unknowns_MCKa(source)
     def set_unknowns(self, linsys, vals, dest):
         # set_unknowns() injects the first vector of dof values (vals)
-        # into the second vector (dest), and returns the result.
-        # debug.fmsg("start")
-        debug.fmsg(f"FirstOrderStepper.set_unknowns: calling LinearizedSystem.set_unknowns_MCKa vals={vals.addr()} refcount={debug.getrefcount(vals)}")
-        unks = linsys.set_unknowns_MCKa(vals, dest) # returns a *copy* of dest
-        debug.fmsg(f"FirstOrderStepper.set_unknowns: back from set_unknowns_MCKa, vals={vals.addr()} refcount={debug.getrefcount(vals)}")
-        debug.fmsg(f"FirstOrderStepper.set_unknowns: back from set_unknowns_MCKa, unks={unks.addr()} refcount={debug.getrefcount(unks)}")
-        # debug.fmsg(f"returning to {debug.callerName()}")
-        return unks
+        # into a copy of the second vector (dest), and returns the result.
+        return linsys.set_unknowns_MCKa(vals, dest)
     def n_unknowns(self, linsys):
         return linsys.n_unknowns_MCKa()
     def n_unknowns_part(self, part, linsys):
@@ -314,14 +303,8 @@ class StepResult:
         self.endValues = endValues
         self.nextStep = nextStep
         self.errorEstimate = errorEstimate
-        # if endValues is not None and endValues.is_verbose():
-        #     debug.fmsg(f"StepResult storing endValues {endValues.addr()} refcount={debug.getrefcount(endValues)}")
         self.linsys = linsys
         self.ok = True          # AdaptiveDriver may set this to False
-    # def __del__(self):
-    #     if self.endValues.is_verbose():
-    #         debug.fmsg(f"refcount={debug.getrefcount(self.endValues)}")
-    #         debug.fmsg(f"Deleting StepResult and endValues refcount={endValues.addr()}")
             
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

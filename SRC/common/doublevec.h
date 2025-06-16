@@ -14,43 +14,30 @@
 
 #include <iostream>
 #include <string>
-#include "Eigen/SparseCore"
+#include "Eigen/Dense"
 #include <initializer_list>
-
-#include "common/tostring.h"
 
 class SparseMat;
 class SmallMatrix;
-template<typename VT, typename ET> class DoubleVecIterator;
 enum class Precond;
 template<typename Derived> class IterativeSolver;
 template<typename Derived> class DirectSolver;
 
 // TODO? Derive DoubleVec from Eigen::VectorXd, instead of wrapping it.
 
-extern bool verboseVectors;	// initialized to false in doublevec.C
-
 class DoubleVec {
-public:			     // TODO: Make private when done debugging
-  Eigen::VectorXd data;	     // N x 1 matrix
+private:
+  Eigen::VectorXd data;		// N x 1 matrix
 
-  // Debugging stuff
-  mutable bool verbose_;     // TODO: remove when done debugging
-  void verbose(bool flag) const { verbose_ = flag; }
-  bool is_verbose() const { return verbose_; }
-  int id_;
-  static int idcount_;
 public:
-  DoubleVec();
-  DoubleVec(int size, double val=0);
-  DoubleVec(const std::initializer_list<double> &v);
-  DoubleVec(const DoubleVec&) /* = default */;
-  DoubleVec(DoubleVec&&) /* = default */;
-  DoubleVec& operator=(const DoubleVec&) /* = default */;
-  ~DoubleVec();
+  DoubleVec() = default;
+  DoubleVec(int size, double val=0) { data.setConstant(size, val); }
+  DoubleVec(const std::initializer_list<double> &v) : data({v}) {}
+  DoubleVec(const DoubleVec&) = default;
+  DoubleVec(DoubleVec&&) = default;
+  DoubleVec& operator=(const DoubleVec&) = default;
+  ~DoubleVec() = default;
 
-  std::string addr() const;	// for debugging
- 
   /* Vector property methods */
   
   std::size_t size() const { return data.size(); }
@@ -70,8 +57,8 @@ public:
 
   /* Arithmetic operations */
 
-  // In-place operations, using no temporaries.  Swig expects these to
-  // return a self reference. 
+  // In-place operations, using no temporaries. Python and swig expect
+  // these to return a self reference.
   DoubleVec& operator+=(const DoubleVec&);
   DoubleVec& operator-=(const DoubleVec&);
   DoubleVec& operator*=(double);
@@ -102,7 +89,7 @@ public:
 
   /* Miscellaneous */
 
-  const std::string str() const; 
+  const std::string str() const;
 
   friend SparseMat;
   friend SmallMatrix;
@@ -113,8 +100,6 @@ public:
   friend bool load_market_vec(DoubleVec&, const std::string&);
   friend bool save_vec(const DoubleVec&, const std::string&);
   friend bool load_vec(DoubleVec&, const std::string&);
-
-  // friend DoubleVec* __isub__(const DoubleVec&);
 
   static DoubleVec* testIterator(DoubleVec&);
 };

@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -57,7 +56,6 @@ _exceptStacks = {}
 _exceptLock = lock.SLock()
 
 def assign_excepthook(newhook=sys.__excepthook__):
-#     debug.fmsg("adding hook", id(newhook))
     _exceptLock.acquire()
     threadno = threadstate.findThreadNumber()
     try:
@@ -109,7 +107,6 @@ def get_excepthook():
     return None
 
 def _oofExceptHook(e_type, e_value, tback):
-    # debug.fmsg()
     _exceptLock.acquire()
     hook = get_excepthook()
     _exceptLock.release()

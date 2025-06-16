@@ -47,11 +47,8 @@ class TwoStep(timestepper.QCTimeStepper):
 
     def get_unknowns(self, linsys, source):
         return self.singlestep.get_unknowns(linsys, source)
-
     def set_unknowns(self, linsys, vals, dest):
-        debug.fmsg(f"TwoStep.set_unknowns calling {type(self.singlestep).__name__}.set_unknowns vals={vals.addr()} refcount={debug.getrefcount(vals)}")
         return self.singlestep.set_unknowns(linsys, vals, dest)
-
     def get_derivs_part(self, part, linsys, unknowns):
         return self.singlestep.get_derivs_part(part, linsys, unknowns)
     def set_derivs_part(self, part, linsys, vals, unknowns):
@@ -83,11 +80,8 @@ class TwoStep(timestepper.QCTimeStepper):
         return self.singlestep.explicit()
 
     def nonlinearstep(self, *args, **kwargs):
-        debug.fmsg("TwoStep.nonlinearstep: calling _step")
-        # debug.fmsg(f"kwargs: {kwargs.keys()}")
-        result = self._step(stepper=self.singlestep.nonlinearstep,
+        return self._step(stepper=self.singlestep.nonlinearstep,
                           *args, **kwargs)
-        return result
 
     def _step(self, subproblem, linsys, time, unknowns,
              endtime, errorscaling, stepper, *args, **kwargs):
@@ -96,45 +90,28 @@ class TwoStep(timestepper.QCTimeStepper):
         #
         # errorscaling is a steperrorscaling.StepErrorScaling
         # instance.
-        debug.fmsg(f"unknowns={unknowns.addr()}")
-       
-            
-            
         unknownsCopy = unknowns.clone()
-        unknownsCopy.verbose(True)
-        debug.fmsg(f"unknownsCopy={unknownsCopy.addr()}")
         lsCopy = linsys.clone()
 
         # Take a single step to endtime.
         # debug.fmsg("taking full step")
-        debug.fmsg(f"Calling stepper {stepper}")
         result1 = stepper(subproblem, linsys, time, unknowns, endtime,
                           *args, **kwargs)
-        debug.fmsg(f"back from stepper, result1={result1.endValues.addr()} refcount={debug.getrefcount(result1.endValues)}")
-        #debug.fmsg("no, really")
-        #debug.fmsg(f"result1 is {'' if result1.endValues.is_verbose() else 'not'} verbose")
         # debug.fmsg("full step norm=", result1.endValues.norm(),
         #            "time=", endtime, "n=", len(result1.endValues))
 
         # Take a half step.
         halftime = 0.5*(time + endtime)
-        debug.fmsg(f"TwoStep getting midresult from {stepper}")
         midresult = stepper(subproblem, lsCopy, time, unknownsCopy, halftime,
                             *args, **kwargs)
-        midresult.endValues.verbose(True)
-        debug.fmsg(f"back from stepper, midresult={midresult.endValues.addr()} refcount={debug.getrefcount(midresult.endValues)}")        
         # debug.fmsg("first half step norm=", midresult.endValues.norm(),
         #            "time=", halftime)
 
         # Take the second half step to endtime.
-        # debug.fmsg("Twostep._step: calling SubProblemContext.installValues before step 2")
         subproblem.installValues(lsCopy, midresult.endValues, halftime)
-        # debug.fmsg("TwoStep._step: back from installValues")
         linsys = subproblem.make_linear_system( halftime, lsCopy )
-        # debug.fmsg(f"Calling stepper for step 2")
         result2 = stepper(subproblem, linsys, halftime, midresult.endValues,
                           endtime, *args, **kwargs)
-        debug.fmsg(f"result2={midresult.endValues.addr()} refcount={debug.getrefcount(result2)}")
         # debug.fmsg("second half step norm=", result2.endValues.norm(),
         #            "time=", endtime)
         result2.errorEstimate = errorscaling(
@@ -146,7 +123,6 @@ class TwoStep(timestepper.QCTimeStepper):
         ## TODO: recombine single and double step results to get one
         ## higher order?  This should be done *after* error
         ## estimation, if at all, according to NR.
-        debug.fmsg("done")
         return result2
 
 

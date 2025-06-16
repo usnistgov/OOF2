@@ -45,17 +45,13 @@ class IterationStats:
     def __init__(self):
         self.reset()
     def reset(self):
-        # debug.fmsg()
         self.ncalls = 0
         self.iters = StatKeeper()
         self.residuals = StatKeeper()
-        # debug.fmsg("done")
     def add(self, niters, residual):
-        # debug.fmsg()
         self.ncalls += 1
         self.iters.add(niters)
         self.residuals.add(residual)
-        # debug.fmsg("done")
     def report(self, out):
         if self.ncalls > 0:
             print(self.name(), "statistics", file=out)

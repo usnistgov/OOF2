@@ -116,12 +116,8 @@ class NLSolver(cnonlinearsolver.CNonlinearSolver):
                                               res_norm0,
                                               precompute, compute_residual):
         
-        # debug.fmsg(f"data={data.resid0.addr()} update={update.addr()}")
-        # debug.fmsg(f"soln={soln.addr()} refcount={debug.getrefcount(soln)}")
-
         # data is a timestepper.NLData object.
         
-        #
         # This function chooses the step size s in the nonlinear updates
         #
         #    soln(k+1) = soln(k) + s * update
@@ -139,31 +135,22 @@ class NLSolver(cnonlinearsolver.CNonlinearSolver):
         maxiter = 20
         alpha = 1.0e-4;  # used in the stopping criterion for line search iters
 
-        # residual = soln.clone()
-
         # set the initial step size to 1 and compute the resulting residual
         s = 1.0
         s_prev = 1.0
         s_current = s
 
-        tempSoln = soln.clone() + s*update
-        # tempSoln.axpy(s, update)
+        tempSoln = soln.clone() + update  # soln + s*update, but s==1 for now
 
         self.requireResidual(True)
         self.requireJacobian(False)
-        debug.fmsg(f"calling precompute: {precompute=}")
         precompute(data, tempSoln, self)
-        debug.fmsg("back from precompute")
         residual = compute_residual(data, tempSoln, self)
-        debug.fmsg("back from compute_residual")
         res_norm = residual.norm()
-        # debug.fmsg("intial tempsoln=", tempSoln)
-        # debug.fmsg("initial residual=", residual.addr())
-        # debug.fmsg("initial res_norm=", res_norm)
 
-        # the residuals corresponding to three step sizes s=0,s1,s2
-        # to be used in estimating a good step size with the parabolic model
-
+        # The residuals corresponding to three step sizes s=0,s1,s2 to
+        # be used in estimating a good step size with the parabolic
+        # model
         f0_sqr        = res_norm0 * res_norm0
         f_sqr_current = res_norm * res_norm
         f_sqr_prev    = res_norm * res_norm
@@ -182,8 +169,6 @@ class NLSolver(cnonlinearsolver.CNonlinearSolver):
             # debug.fmsg("trying s=", s)
             tempSoln = soln.clone()
             tempSoln.axpy(s, update)
-            # tempSoln  = soln + s * update
-            
             s_prev    = s_current
             s_current = s
 
@@ -200,15 +185,13 @@ class NLSolver(cnonlinearsolver.CNonlinearSolver):
             i += 1
             # debug.fmsg("Line search iteration", i, ",  residual =", res_norm)
 
-        debug.fmsg(f"Done: {s=} (n={i} {res_norm0=} {res_norm=}")
+        # debug.fmsg(f"Done: {s=} (n={i} {res_norm0=} {res_norm=}")
 
         # raise error if line search did not converge in maxiter # of
         # iterations
         if (i == maxiter) and (res_norm > (1-alpha*s)*res_norm0):
             raise ooferror.PyErrConvergenceFailure(
                 'Nonlinear solver - step size search', maxiter)
-        # debug.fmsg(f"soln={soln.addr()} refcount={debug.getrefcount(soln)}")
-        # debug.fmsg(f"returning to {debug.callerName(1)}")
         return s, residual
 
     #### End of function (step_from_parabolic_model_with_Armijo)
@@ -236,7 +219,6 @@ class Newton(NLSolver):
         # data is an NLDataGE object, if using GeneralizedEuler
 
         initialrefcount = debug.getrefcount(values)
-        debug.fmsg(f"Newton.solve: values={values.addr()} refcount={debug.getrefcount(values)}")
 
         # matrix_method is function that takes a matrix A, a rhs b and
         # a vector of unknows x and sets x so that A*x = b.
@@ -275,9 +257,7 @@ class Newton(NLSolver):
         # compute the residual = -K*startValues + rhs
         self.requireResidual(True)
         self.requireJacobian(True)
-        debug.fmsg(f"Calling {precompute=}")
         precompute(data, values, self)
-        debug.fmsg(f"Calling {compute_residual=}")
         residual = compute_residual(data, values, self)
 
         res_norm0 = residual.norm() # norm of the initial residual
@@ -294,16 +274,12 @@ class Newton(NLSolver):
             # self.maximum_iterations is not exceeded
             s = 1.
             i = 0
-            # debug.fmsg(f"Before loop, {res_norm=} {target_res=}")
             while (res_norm > target_res and i < self.maximum_iterations
                    and not prog.stopped()):
-                # debug.fmsg("iter =", i, ",  res =", res_norm, " s =", s)
                 update.zero()
                 # solve for the Newton step:  Jacobian * update = -residual
                 J = compute_jacobian(data, self)
-                debug.fmsg(f"residual={residual.addr()}")
                 residual *= -1.0
-                debug.fmsg(f"after negating, residual={residual.addr()}")
                 matrix_method.solve( J, residual, update )
                 # debug.fmsg("update=", update.norm())
 
@@ -314,19 +290,7 @@ class Newton(NLSolver):
                     precompute, compute_residual)
 
                 # correct the soln with the Newton update
-                debug.fmsg(f"Updating values ({values.addr()}) refcount={debug.getrefcount(values)} with update ({update.addr()})")
-                ## This is the line that's causing problems:
-                values += update*s  # TODO: Why doesn't this work?
-                #values.axpy(s, update) # ie, values += s*update.  This works.
-
-                #tmp = s*update ; values += tmp
-                # Note: "values = values + s*update" is NOT
-                # equivalent. It resets the local reference but
-                # doesn't change the original vectors.
-
-                debug.fmsg(f"After update, values={values.addr()} refcount={debug.getrefcount(values)}")
-
-               
+                values.axpy(s, update)
 
                 res_norm = residual.norm()
                 if res_norm <= target_res:
@@ -336,16 +300,10 @@ class Newton(NLSolver):
                 self.requireJacobian(True)
                 self.requireResidual(True)
                 # debug.fmsg("norm updated values=", values.norm())
-                # debug.fmsg(f"Before precompute, values={values.addr()} refcount={debug.getrefcount(values)}")
                 precompute(data, values, self)
-                # debug.fmsg(f"After precompute, values={values.addr()} refcount={debug.getrefcount(values)}")
                 # compute the residual
                 residual = compute_residual(data, values, self)
-                # debug.fmsg(f"After compute_residual, values={values.addr()} refcount={debug.getrefcount(values)}")
-                
                 res_norm = residual.norm()
-                #debug.fmsg("Current residual: [%s] (%g)" %(residual, res_norm))
-                # debug.fmsg("new residual =", res_norm)
                 prog.setMessage("%g/%g" % (res_norm, target_res))
                 prog.setFraction(res_norm)
 
@@ -354,7 +312,6 @@ class Newton(NLSolver):
 
             if prog.stopped():
                 prog.setMessage("Newton solver interrupted")
-                #progress.finish()
                 raise ooferror.PyErrInterrupted();
         finally:
             prog.finish()
@@ -364,9 +321,6 @@ class Newton(NLSolver):
                 'Nonlinear solver - Newton iterations', self.maximum_iterations)
         # debug.fmsg("final values=", values)
         # debug.fmsg("-------------------")
-        # debug.fmsg(f"done, values={values.addr()} refcount={debug.getrefcount(values)} {initialrefcount=}")
-        # debug.fmsg(f"Returning to {debug.callerName()}")
-        # VALUES IS BEING DELETED WHEN THIS RETURNS.  IS THAT CORRECT?
         return i, res_norm
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -428,7 +382,6 @@ class Picard(NLSolver):
                 # debug.fmsg("line search s=", s)
 
                 # correct the soln with the Picard update
-                # values += s * update   ## TODO: Why doesn't this work?
                 values.axpy(s, update)
                 res_norm = residual.norm()
                 if res_norm <= target_res:

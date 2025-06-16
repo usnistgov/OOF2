@@ -20,8 +20,6 @@
 #include "common/doublevec.h"
 %}
 
-bool verboseVectors;
-
 class DoubleVec {
 public:
   DoubleVec(int size, double val=0);
@@ -50,12 +48,6 @@ public:
   DoubleVec operator*(double) const;
   
   double dot(const DoubleVec&);
-
-  // Debugging routines
-  const std::string str() const;
-  const std::string addr() const;
-  void verbose(bool);
-  bool is_verbose() const;
 
   %newobject testIterator;
   static DoubleVec* testIterator(DoubleVec&);

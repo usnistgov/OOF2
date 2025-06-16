@@ -152,9 +152,9 @@ void throwPythonCException() {
 
 // For testing progress bars and the Stop button.
 
-// TODO: This can be used to see if commands can be interrupted.  It's
-// not used in the test suites because they'd have to hard-code the
-// delay between starting the command and clicking the "Stop" button.
+// This can be used to see if commands can be interrupted.  It's not
+// used in the test suites because they'd have to hard-code the delay
+// between starting the command and clicking the "Stop" button.
 
 #include <math.h>
 #include "common/tostring.h"

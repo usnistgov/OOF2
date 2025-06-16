@@ -9,89 +9,13 @@
  * oof_manager@nist.gov. 
  */
 
-#include <unsupported/Eigen/SparseExtra>
 #include "common/doublevec.h"
 #include <sstream>
 #include <fstream>
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+// for saveMarketVector and loadMarketVector
+#include <unsupported/Eigen/SparseExtra> 
 
-// TODO: Remove this section after debugging is complete.  All methods
-// should be defined inline in doublevec.h.
-
-bool verboseVectors = true;
-int DoubleVec::idcount_ = 0;
-  
-DoubleVec::~DoubleVec() {
-  // if(verbose_)
-  //   std::cerr << "DoubleVec DESTRUCTOR: size=" << size()
-  // 	      << " addr=" << addr() << std::endl;
-}
-
-DoubleVec::DoubleVec()
-  : verbose_(verboseVectors),
-    id_(idcount_++)
-{
-  // if(verbose_)
-  //   std::cerr << "DoubleVec null constructor: size=" << size()
-  // 	      << " addr=" << addr() << std::endl;
-}
-
-DoubleVec::DoubleVec(int sz, double val)
-  : verbose_(verboseVectors),
-    id_(idcount_++)
-{
-  // if(verbose_)
-  //   std::cerr << "DoubleVec CONSTRUCTOR: size=" << size()
-  // 	      << " addr=" << addr() << std::endl;
-  data.setConstant(sz, val);
-}
-
-DoubleVec::DoubleVec(const std::initializer_list<double> &vals)
-  : data({vals}),
-    verbose_(verboseVectors),
-    id_(idcount_++)
-{}
-
-DoubleVec::DoubleVec(const DoubleVec &other)
-  : data(other.data),
-    verbose_(other.verbose_)
-{
-  id_ = ++idcount_;
-  // if(verbose_)
-  //   std::cerr << "DoubleVec copy constructor: src=" << other.addr()
-  // 	      << " dst=" << addr() << std::endl;
-}
-
-DoubleVec::DoubleVec(DoubleVec &&other)
-  : data(std::move(other.data)),
-    verbose_(other.verbose_)
-{
-  id_ = other.id_;
-  other.data.resize(0);
-  // if(verbose_)
-  //   std::cerr << "DoubleVec move constructor: src=" << other.addr()
-  // 	      << " dst=" << addr() << std::endl;
-}
-
-// This is not quite the same syntax as Python.  x=y in Python usually
-// does not create a new object, just a new reference to an old
-// object, meaning that x=y;y+=z will leave x set to y+z.  What do we
-// want DoubleVec::operator= to do in C++?
-DoubleVec& DoubleVec::operator=(const DoubleVec &other) {
-  data = other.data; 		// Eigen operator= copies data.
-  verbose_ = other.is_verbose();
-  // if(verbose_)
-  //   std::cerr << "DoubleVec::operator=: src=" << other.addr()
-  // 	      << "dst=" << addr() << std::endl;
-  return *this;
-}
-
-std::string DoubleVec::addr() const {
-  return tostring(this) + "(" + tostring(id_) + ")";
-}
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 DoubleVec DoubleVec::subvec(std::size_t start, std::size_t end) const {
   // Extract the n coeffs in the range [start : end-1]
@@ -122,8 +46,6 @@ bool DoubleVec::operator!=(const DoubleVec& other) const {
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 DoubleVec& DoubleVec::operator+=(const DoubleVec& other) {
-  // std::cerr << "DoubleVec::operator+=: this=" << addr()
-  // 	    << " other=" << other.addr() << std::endl;
   assert(other.size() == size());
   data += other.data;
   return *this;
@@ -141,7 +63,7 @@ DoubleVec& DoubleVec::operator*=(double alpha) {
   return *this;
 }
 
-DoubleVec&  DoubleVec::operator/=(double alpha) {
+DoubleVec& DoubleVec::operator/=(double alpha) {
   data /= alpha;
   return *this;
 }
@@ -153,13 +75,8 @@ void DoubleVec::axpy(double alpha, const DoubleVec& x) {
 }
 
 DoubleVec DoubleVec::operator+(const DoubleVec& other) const {
-  // std::cerr << "DoubleVec::operator+: copying" << std::endl;
   DoubleVec result(*this);
-  // std::cerr << "DoubleVec::operator+: this=" << addr()
-  // 	    << " other=" << other.addr()
-  // 	    << " result=" << result.addr() << std::endl;
   result.data += other.data;
-  // std::cerr << "DoubleVec::operator+: done" << std::endl;
   return result;
 }
 
@@ -220,6 +137,11 @@ std::ostream& operator<<(std::ostream& os, const DoubleVec& vec) {
   }
   return os;
 }
+
+// TODO: Eigen 3.4.90 documentation says to use saveMarketDense and
+// loadMarketDense instead of saveMarketVector and loadMarketVector,
+// but it doesn't compile that way.  Perhaps because we're using
+// version 3.4.0?
 
 bool save_market_vec(const DoubleVec& vec, const std::string& filename) {
   return Eigen::saveMarketVector(vec.data, filename);
