@@ -12,7 +12,7 @@ from ooflib.SWIG.common import config
 from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
 from ooflib.common import utils
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common.IO import xmlmenudump
 
 from ooflib.engine.skeletonelement import getProvisionalElement
@@ -94,7 +94,7 @@ largeRules = RefinementRuleSet(
 # RefinementRuleSet objects are created.  If any RefinementRuleSets
 # are created later, update the Enum with Enum.addEnumName.
 
-class RuleSet(enum.EnumClass(*[(r.name(), r.help())
+class RuleSet(oofenum.EnumClass(*[(r.name(), r.help())
                                for r in RefinementRuleSet.allRuleSets])):
     xrefs=["Section-Tasks-Skeleton", "RegisteredClass-Refine"]
 utils.OOFdefine('RuleSet', RuleSet)
@@ -156,7 +156,7 @@ def baseNodes(element, rotation):
     return map(lambda x: x.children[-1],
                element.nodes[rotation:] + element.nodes[0:rotation])
 
-class _QuadHandler(enum.EnumClass("NONE", "LEFT", "RIGHT")):
+class _QuadHandler(oofenum.EnumClass("NONE", "LEFT", "RIGHT")):
     pass
 
 class ProvisionalRefinement:

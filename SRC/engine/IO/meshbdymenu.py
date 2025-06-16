@@ -11,7 +11,7 @@
 # Menu items for post-solution actions on boundaries.
 
 from ooflib.SWIG.common import switchboard
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common.IO import automatic
 from ooflib.common.IO import datafile
 from ooflib.common.IO import filenameparam
@@ -163,8 +163,8 @@ bdyanalysismenu.addItem(oofmenu.OOFMenuItem(
                                              tip='Name of the file.'),
         filenameparam.WriteModeParameter(
             'mode', tip="'w' to (over)write, 'a' to append."),
-        enum.EnumParameter('format', datafile.DataFileFormat, datafile.ASCII,
-                           tip="Format of the file."),
+        oofenum.EnummParameter('format', datafile.DataFileFormat,
+                               datafile.ASCII, tip="Format of the file."),
         namedanalysis.BdyAnalysisNamesParameter(
             'names', tip="Names of the analyses to be saved.")],
     help="Save the definitions of named boundary analysis operations in a file.",

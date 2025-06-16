@@ -22,7 +22,6 @@
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import progress
 from ooflib.common import debug
-from ooflib.common import enum
 from ooflib.common import utils
 from ooflib.common.IO import automatic
 from ooflib.common.IO import oofmenu

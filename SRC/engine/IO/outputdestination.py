@@ -11,7 +11,7 @@
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import registeredclass
 from ooflib.common import utils
 from ooflib.common.IO import datafile
@@ -361,8 +361,8 @@ registeredclass.Registration(
             "filename", tip=parameter.emptyTipString),
         filenameparam.WriteModeParameter(
             "mode", tip="Whether to write or append to the file."),
-        enum.EnumParameter('format', datafile.DataFileFormat, datafile.ASCII,
-                           tip="Format of the file.")
+        oofenum.EnumParameter('format', datafile.DataFileFormat, datafile.ASCII,
+                              tip="Format of the file.")
         ],
     ordering=3,
     tip="Send Mesh data to a file.",

@@ -16,7 +16,7 @@ from ooflib.SWIG.common import config
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import labeltree
 from ooflib.common import microstructure
 from ooflib.common import parallel_enable
@@ -511,8 +511,8 @@ skeletonmenu.addItem(oofmenu.OOFMenuItem(
                              tip="Rough size of the largest elements."),
     parameter.FloatParameter("minscale", value=1.0,
                              tip="Rough size of the smallest elements."),
-    enum.EnumParameter('units', ooflib.common.units.Units, value='Physical',
-                       tip="Units for minscale and maxscale."),
+    oofenum.EnumParameter('units', ooflib.common.units.Units, value='Physical',
+                          tip="Units for minscale and maxscale."),
     parameter.FloatRangeParameter('threshold', (0.0, 1.0, 0.01),
                                   value=0.90,
                                   tip="Minimum acceptable homogeneity")
@@ -579,8 +579,8 @@ OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     filenameparam.WriteFileNameParameter('filename', tip="Name of the file."),
     filenameparam.WriteModeParameter(
                 'mode', tip="'w' for (over)write and 'a' to append."),
-    enum.EnumParameter('format', datafile.DataFileFormatExt, datafile.ASCII,
-                       tip="Format of the file."),
+    oofenum.EnumParameter('format', datafile.DataFileFormatExt, datafile.ASCII,
+                          tip="Format of the file."),
     whoville.WhoParameter('skeleton', skeletoncontext.skeletonContexts,
                           tip=parameter.emptyTipString)],
     help="Save a Skeleton to a file.",

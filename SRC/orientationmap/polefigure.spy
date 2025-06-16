@@ -13,7 +13,7 @@ from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.engine import crystalsymmetry
 from ooflib.common import color
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import primitives
 from ooflib.common.IO import automatic
 from ooflib.common.IO import colormap
@@ -118,7 +118,7 @@ orientmapmenu.orientmapmenu.addItem(
             pixelgroupparam.PixelAggregateParameter(
                 'pixels', value=placeholder.every.IDstring,
                 tip="Pixels to include in the pole figure."),
-            enum.EnumParameter(
+            oofenum.EnumParameter(
                 "symmetry", crystalsymmetry.AnisoCrystalSymmetry,
                 tip="The crystal symmetry to assume for each pixel."
                 " All equivalent orientations will be included."),

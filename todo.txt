@@ -92,5 +92,4 @@ Basics/Error Handling -- continued:  Should tell the user to click "OK".
 
 NEW TODOS
 
-Change module name in enum.py.
 More pixel info in pixelgroupmenu.py.

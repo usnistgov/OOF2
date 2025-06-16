@@ -16,14 +16,14 @@ from ooflib.engine import propertyregistration
 
 # Only one kind of pyroelectricity.
 
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common.IO import xmlmenudump
 
 # If you change the string literals for these enums, you must also
 # change the conditional in pyroelectricity.C, in the
 # effective-modulus computation.
 
-class Constancy (enum.EnumClass('Constant stress','Constant strain')):
+class Constancy (oofenum.EnumClass('Constant stress','Constant strain')):
     tip="Choose between constant stress or constant strain pyroelectricity."
     discussion = """<para>
 
@@ -54,7 +54,7 @@ reg = propertyregistration.PropertyRegistration(
             'pz', 0.0,
             tip="Crystal Z component of polarization contribution due to temperature change."),
      parameter.FloatParameter('T0', 0.0, tip="Reference temperature."),
-     enum.EnumParameter(
+     oofenum.EnumParameter(
             'coefficient_type', Constancy,
             value='Constant stress',
             tip="Interpretation of the p coefficients, constant strain or constant stress.")],

@@ -36,7 +36,7 @@ from ooflib.SWIG.common import coord
 from ooflib.SWIG.common import progress
 from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import registeredclass
 from ooflib.common import units
 from ooflib.common.IO import parameter
@@ -678,7 +678,7 @@ registeredclass.Registration(
             'divider',
             SegmentDivider,
             tip="How to divide the edges of the refined elements."),
-        enum.EnumParameter(
+        oofenum.EnumParameter(
             'rules', refinemethod.RuleSet,
             refinemethod.defaultRuleSetEnum(),
             tip="The set of rules used to divide elements after their segments are divided."),

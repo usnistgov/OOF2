@@ -12,7 +12,7 @@
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import parallel_enable
 from ooflib.common import utils
 from ooflib.common.IO import automatic
@@ -319,8 +319,8 @@ namedanalysismenu.addItem(oofmenu.OOFMenuItem(
                                              tip='Name of the file.'),
         filenameparam.WriteModeParameter(
                 'mode', tip="'w' to (over)write, 'a' to append."),
-        enum.EnumParameter('format', datafile.DataFileFormat, datafile.ASCII,
-                           tip="Format of the file."),
+        oofenum.EnumParameter('format', datafile.DataFileFormat, datafile.ASCII,
+                              tip="Format of the file."),
         namedanalysis.BulkAnalysisNamesParameter('names',
                                tip="Names of the analyses to be saved.")],
     help="Save the definitions of named analysis operations to a file.",

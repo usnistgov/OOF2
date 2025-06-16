@@ -14,7 +14,7 @@ from ooflib.SWIG.engine import cskeleton
 from ooflib.SWIG.engine import material
 from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import object_id
 from ooflib.common import parallel_enable
 from ooflib.common import primitives
@@ -25,8 +25,8 @@ import math
 
 #########################################
 
-class ElementShapeType(enum.EnumClass(('triangle', 'triangular elements'),
-                                      ('quad', 'quadrilateral elements'))):
+class ElementShapeType(enum.OofenumClass(('triangle', 'triangular elements'),
+                                         ('quad', 'quadrilateral elements'))):
     tip = "Shapes of Skeleton Elements."
     discussion = """<para>
     <classname>ElementShapeType</classname> objects are used in a few

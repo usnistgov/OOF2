@@ -12,7 +12,7 @@ from ooflib.SWIG.common import coord
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.engine import outputval
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import primitives
 from ooflib.common import utils
 from ooflib.common.IO import parameter
@@ -24,7 +24,7 @@ from ooflib.common.utils import stringjoin
 structIntFmt = '>i'
 structIntSize = struct.calcsize(structIntFmt)
 
-class OutputType(enum.EnumClass('Scalar', 'Aggregate')):
+class OutputType(oofenum.EnumClass('Scalar', 'Aggregate')):
     tip = "Different varieties of Output classes."
     discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/enum/outputtype.xml')
 

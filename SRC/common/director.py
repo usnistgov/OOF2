@@ -8,12 +8,12 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-# The "director" enum class.  Used by the boundary constructor,
+# The "director" oofenum class.  Used by the boundary constructor,
 # but in common because it just might be useful elsewhere also.
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import utils
 
-class Director(enum.EnumClass('Clockwise','Counterclockwise',
+class Director(oofenum.EnumClass('Clockwise','Counterclockwise',
                               'Left to right', 'Right to left',
                               'Top to bottom', 'Bottom to top',
                               'Non-sequenceable')): #Interface branch
@@ -35,12 +35,14 @@ unloopables = ['Left to right', 'Right to left',
                'Top to bottom', 'Bottom to top']
 
 # Trivial subclass allows directors to have a custom widget.
-class DirectorParameter(enum.EnumParameter):
+class DirectorParameter(oofenum.EnumParameter):
     def __init__(self, name, value=None, default=None, tip=None):
-        enum.EnumParameter.__init__(self, name, Director, value, default, tip)
+        oofenum.EnumParameter.__init__(self, name, Director, value, default,
+                                       tip)
 
 #Interface branch
 #Widget is in boundarybuilderGUI.py.
-class DirectorInterfacesParameter(enum.EnumParameter):
+class DirectorInterfacesParameter(oofenum.EnumParameter):
     def __init__(self, name, value=None, default=None, tip=None):
-        enum.EnumParameter.__init__(self, name, Director, value, default, tip)
+        oofenum.EnumParameter.__init__(self, name, Director, value, default,
+                                       tip)

@@ -9,13 +9,13 @@
 # oof_manager@nist.gov. 
 
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import registeredclass
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 
-class LatticeSystemName(enum.EnumClass(
+class LatticeSystemName(oofenum.EnumClass(
         'Cubic',
         'Hexagonal',
         'Rhombohedral',
@@ -26,10 +26,10 @@ class LatticeSystemName(enum.EnumClass(
         'Triclinic')):
     pass
         
-class LatticeSystemParam(enum.EnumParameter):
+class LatticeSystemParam(oofenum.EnumParameter):
     def __init__(self, name, value=None, default=None, tip=None):
-        enum.EnumParameter.__init__(self, name, LatticeSystemName, value,
-                                    default, tip)
+        oofenum.EnumParameter.__init__(self, name, LatticeSystemName, value,
+                                       default, tip)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
         
@@ -840,7 +840,7 @@ class LatticeSymmetryRegistration(registeredclass.ConvertibleRegistration):
 # International (aka Hermann-Mauguin) notation for point groups (mmm,
 # et al).
 
-class InternationalName(enum.EnumClass(*internationalGroupNames)):
+class InternationalName(oofenum.EnumClass(*internationalGroupNames)):
     tip="The short International (Hermann-Mauguin) name for a point group."
     discussion="""<para>
     Names of point groups in the <xref
@@ -876,8 +876,8 @@ LatticeSymmetryRegistration(
     ordering = 2,
     from_base = _international_from_base,
     to_base = _international_to_base,
-    params = [enum.EnumParameter('name', InternationalName,
-                                 tip="Name of the point group.")],
+    params = [oofenum.EnumParameter('name', InternationalName,
+                                    tip="Name of the point group.")],
     tip="Use international notation to specify lattice symmetry.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/international.xml')
 )
@@ -920,7 +920,7 @@ LatticeSymmetryRegistration(
 
 # Representation by the Schoenflies symbol
 
-class SchoenfliesName(enum.EnumClass(*schoenfliesSymbols)):
+class SchoenfliesName(oofenum.EnumClass(*schoenfliesSymbols)):
     tip="The Schoenflies name for a point group."
     discussion="""<para>
     Names of point groups in the <xref
@@ -959,8 +959,8 @@ LatticeSymmetryRegistration(
     ordering = 1,
     from_base = _schoenflies_from_base,
     to_base = _schoenflies_to_base,
-    params = [enum.EnumParameter('symbol', SchoenfliesName,
-                                 tip="Name of the point group.")],
+    params = [oofenum.EnumParameter('symbol', SchoenfliesName,
+                                    tip="Name of the point group.")],
     tip="Use Schoenflies notation to specify the lattice symmetry.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/schoenflies.xml')
 )

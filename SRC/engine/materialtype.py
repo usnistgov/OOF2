@@ -14,10 +14,10 @@
 
 from ooflib.SWIG.common import config
 from ooflib.common import runtimeflags
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import utils
 
-class MaterialType(enum.EnumClass(
+class MaterialType(oofenum.EnumClass(
     ('bulk',
      'A bulk material. Normal bulk properties can be added only to this type of material.'))):
     tip = "Types of &oof2; materials."
@@ -34,7 +34,7 @@ class MaterialType(enum.EnumClass(
     xrefs=["Section-Tasks-Materials"]
 
 if runtimeflags.surface_mode:
-    enum.addEnumName(
+    oofenum.addEnumName(
         MaterialType,
         "interface",
         "An interface material. Interface properties can be added only to this type of material.")

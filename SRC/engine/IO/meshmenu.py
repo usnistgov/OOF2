@@ -13,7 +13,7 @@ from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import masterelement
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import labeltree
 from ooflib.common import microstructure
 from ooflib.common import parallel_enable
@@ -145,9 +145,9 @@ def newMesh(menuitem, name, skeleton, element_types):
             meshctxt.setStatus(meshstatus.Unsolved("New mesh."))
         switchboard.notify("redraw")
 
-class MasterElementTypesParameter(enum.ListOfEnumsParameter):
+class MasterElementTypesParameter(oofenum.ListOfEnumsParameter):
     def __init__(self, name, value=None, default=None, tip=None):
-        enum.ListOfEnumsParameter.__init__(
+        oofenum.ListOfEnumsParameter.__init__(
             self, name, masterelement.getMasterElementEnumClasses(),
             value, default, tip)
     def clone(self):
@@ -1420,8 +1420,8 @@ mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     filenameparam.WriteFileNameParameter('filename', tip="Name of the file."),
     filenameparam.WriteModeParameter(
                 'mode', tip="'w' to (over)write and 'a' to append."),
-    enum.EnumParameter('format', datafile.DataFileFormatExt, datafile.ASCII,
-                       tip="Format of the file."),
+    oofenum.EnumParameter('format', datafile.DataFileFormatExt, datafile.ASCII,
+                          tip="Format of the file."),
     SyncMeshParameter('mesh', tip='Name of the Mesh.')],
     help="Save a Mesh to a file.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/savemesh.xml'),

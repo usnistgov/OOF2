@@ -8,7 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 
@@ -23,13 +23,14 @@ class WriteFileNameParameter(FileNameParameter):
 class ReadFileNameParameter(FileNameParameter):
     action='r'
 
-class WriteMode(enum.EnumClass("w", "a")):
+class WriteMode(oofenum.EnumClass("w", "a")):
     tip="Write or append?"
     discussion=xmlmenudump.loadFile("DISCUSSIONS/common/enum/writemode.xml")
 
-class WriteModeParameter(enum.EnumParameter):
+class WriteModeParameter(oofenum.EnumParameter):
     def __init__(self, name, value=None, default=None, tip=None):
-        enum.EnumParameter.__init__(self, name, WriteMode, value, default, tip)
+        oofenum.EnumParameter.__init__(self, name, WriteMode, value, default,
+                                       tip)
 
 class OverwriteParameter(parameter.BooleanParameter):
     pass

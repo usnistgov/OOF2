@@ -10,7 +10,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
-from ooflib.common import enum
+from ooflib.common import oofenum
 
 if config.dimension() == 2:
     pixel = "pixel"
@@ -20,7 +20,7 @@ if config.dimension() == 3:
     Pixel = "Voxel"
 
 
-class Units(enum.EnumClass(
+class Units(oofenum.EnumClass(
     (Pixel, 'Lengths are relative to the '+pixel+' size'),
     ('Physical', 'Lengths are given in physical units'),
     ('Fractional', 'Lengths are fractions of the dimensions of the microstructure')

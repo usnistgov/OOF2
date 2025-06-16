@@ -13,7 +13,7 @@ from ooflib.SWIG.engine import fieldindex
 from ooflib.SWIG.engine import outputval
 from ooflib.SWIG.engine import symmmatrix
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.engine.IO import orientationmatrix
 from ooflib.engine.IO import output
 from ooflib.engine.IO import outputClones
@@ -193,7 +193,7 @@ class OrientationPropertyOutputRegistration(
     def __init__(self, name, parameters=[], ordering=0,
                  initializer=None,
                  tip=None, discussion=None):
-        param = enum.EnumParameter(
+        param = oofenum.EnumParameter(
             "format",
             orientationmatrix.OrientationEnum,
             tip="How to print the orientation.")

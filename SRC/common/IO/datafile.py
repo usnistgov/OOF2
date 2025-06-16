@@ -11,7 +11,7 @@
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import progress
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import utils
 from ooflib.common import version
 from ooflib.common.IO import mainmenu
@@ -29,7 +29,7 @@ datafileversion = 1.0
 # Data file formats
 
 if not config.nanoHUB():
-    class DataFileFormat(enum.EnumClass(
+    class DataFileFormat(oofenum.EnumClass(
         ('script',
  'A fully functioning Python script.  Flexible and editable, but insecure.'),
         ('ascii', 'An ASCII file with Python-like syntax that will NOT be parsed by the Python interpreter.  Editable and secure, but inflexible.'),
@@ -40,7 +40,7 @@ if not config.nanoHUB():
         xrefs=["Section-Concepts-FileFormats"]
 
 else:                           # in nanoHUB mode scripts aren't allowed
-    class DataFileFormat(enum.EnumClass(
+    class DataFileFormat(oofenum.EnumClass(
         ('ascii', 'An ASCII file with Python-like syntax that will NOT be parsed by the Python interpreter.  Editable and secure, but inflexible.'),
         ('binary', 'A binary file. Inflexible and uneditable, but secure, compact and not subject to round-off error.')
         )):
@@ -51,7 +51,8 @@ utils.OOFdefine('DataFileFormat', DataFileFormat)
 
 
 class DataFileFormatExt(
-    enum.subClassEnum(DataFileFormat, ('abaqus', 'An ABAQUS-style text file'))):
+    oofenum.subClassEnum(DataFileFormat,
+                         ('abaqus', 'An ABAQUS-style text file'))):
     tip = "Types of oof2 data files."
     discussion = """<para> Types of oof2 data files, extended for
     &skels; and &meshes;.  </para>"""
@@ -78,8 +79,8 @@ versionCmd = oofmenu.OOFMenuItem(
     callback=versionCB,
     params=[parameter.FloatParameter('number',
                                      tip='file format version number'),
-            enum.EnumParameter('format', DataFileFormat,
-                               tip='format for the data file.')],
+            oofenum.EnumParameter('format', DataFileFormat,
+                                  tip='format for the data file.')],
     help="Identify data file format.  Used internally in data files.",
     discussion="""
     <para>&oof2; data files must begin with a FileVersion command.

@@ -8,7 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 
@@ -18,7 +18,7 @@ from ooflib.common.IO import parameter
 
 #These are used in PropertyRegistration.
 
-class MatPropCompatibilityType(enum.EnumClass(
+class MatPropCompatibilityType(oofenum.EnumClass(
     ('bulk_only', 'The property can only be assigned to bulk materials.'),
     ('interface_only', 'The property can only be assigned to interface materials.'),
     ('bulk_interface', 'The property can be assigned to either bulk or interface materials.')

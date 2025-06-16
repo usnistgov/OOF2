@@ -8,7 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import debug
 from ooflib.common.IO import xmlmenudump
 
@@ -71,8 +71,8 @@ def getMasterElementEnums():
             enumclass = _masterElementEnumDict[el.ncorners()]
         except KeyError:
             n = el.ncorners()
-            utils.OOFexec('from ooflib.common import enum')
-            utils.OOFexec(f'class Element{n}(enum.EnumClass()):pass')
+            utils.OOFexec('from ooflib.common import oofenum')
+            utils.OOFexec(f'class Element{n}(oofenum.EnumClass()):pass')
             enumclass = utils.OOFeval(f'Element{n}')
             enumclass.tip = f"{n} cornered finite elements."
             enumclass.discussion = xmlmenudump.loadFile(
@@ -81,7 +81,7 @@ def getMasterElementEnums():
             _masterElementEnumDict[n] = enumclass
             enumclass._sorted = 1
         if name not in enumclass.names:
-            enum.addEnumName(enumclass, name, el.description())
+            oofenum.addEnumName(enumclass, name, el.description())
             enumclass._sorted = 0
     for enumclass in _masterElementEnumDict.values():
         if not enumclass._sorted:

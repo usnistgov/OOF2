@@ -18,7 +18,6 @@ from ooflib.SWIG.common import progress
 from ooflib.SWIG.common import statgroups
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
-from ooflib.common import enum
 from ooflib.common import parallel_enable
 from ooflib.common import primitives
 from ooflib.common import runtimeflags

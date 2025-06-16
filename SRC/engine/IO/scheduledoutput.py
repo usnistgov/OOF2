@@ -11,7 +11,7 @@
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import registeredclass
 from ooflib.common.IO import automatic
 from ooflib.common.IO import parameter
@@ -205,8 +205,8 @@ registeredclass.Registration(
     ordering=0.5,
     destinationClass=outputdestination.TextOutputDestination,
     params=[
-        enum.EnumParameter('output_type', output.OutputType,
-                           tip='The kind of output to produce.'),
+        oofenum.EnumParameter('output_type', output.OutputType,
+                              tip='The kind of output to produce.'),
         output.ValueOutputParameter(
             'data', tip="The output data source."),
         parameter.RegisteredParameter(

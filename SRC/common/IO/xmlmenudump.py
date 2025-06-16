@@ -9,7 +9,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import labeltree
 from ooflib.common import utils
 from ooflib.common.IO import parameter
@@ -34,9 +34,9 @@ def process_param(param):
     if isinstance(param, parameter.RegisteredParameter):
         processRegClass(param.reg)  # recursively includes reg. class params
     # Check for EnumParameters
-    if isinstance(param, enum.EnumParameter):
+    if isinstance(param, oofenum.EnumParameter):
         enumdict[param.enumclass.__name__] = param.enumclass
-    elif isinstance(param, enum.ListOfEnumsParameter):
+    elif isinstance(param, oofenum.ListOfEnumsParameter):
         for enumclass in param.enumclasses:
             enumdict[enumclass.__name__] = enumclass
 

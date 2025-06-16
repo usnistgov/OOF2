@@ -11,7 +11,7 @@
 
 from ooflib.SWIG.engine import fieldindex
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import registeredclass
 from ooflib.common import utils
 from ooflib.common.IO import parameter
@@ -131,7 +131,7 @@ SymmMatrix3.label_list = _SymmMatrix3_label_list
 ################################################
 
 
-class VoigtComponent(enum.EnumClass(*voigtNames)): pass
+class VoigtComponent(oofenum.EnumClass(*voigtNames)): pass
 
 def _SymmMatrix3_voigtValues(self):
     return [self.get(*voigtIndices[i]) for i in range(6)]

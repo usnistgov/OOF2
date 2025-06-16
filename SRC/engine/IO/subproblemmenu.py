@@ -14,7 +14,6 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import csubproblem
 from ooflib.SWIG.engine import field
 from ooflib.common import debug
-from ooflib.common import enum
 from ooflib.common import labeltree
 from ooflib.common import parallel_enable
 from ooflib.common.IO import automatic

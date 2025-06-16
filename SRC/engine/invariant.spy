@@ -14,7 +14,7 @@ from ooflib.SWIG.engine import outputval
 from ooflib.SWIG.engine import symmmatrix
 from ooflib.common import cregisteredclass
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import problem
@@ -110,7 +110,7 @@ cregisteredclass.Registration(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/vonmises.xml')
     )
 
-class EigenValueRank(enum.EnumClass('Largest', 'Middle', 'Smallest')):
+class EigenValueRank(oofenum.EnumClass('Largest', 'Middle', 'Smallest')):
     # If the order of the enum names is changed, then the
     # EigenValueRank* typemap in invariant.swg needs to be changed
     # too.
@@ -122,8 +122,8 @@ cregisteredclass.Registration(
     "Eigenvalue",
     Invariant,
     Eigenvalue,
-    params=[enum.EnumParameter('which', EigenValueRank,
-                               tip="Largest, middle, or smallest?")],
+    params=[oofenum.EnumParameter('which', EigenValueRank,
+                                  tip="Largest, middle, or smallest?")],
     ordering=4,
     sources=[symmmatrix.SymmMatrix3],
     tip="Eigenvalue of a symmetric tensor.",

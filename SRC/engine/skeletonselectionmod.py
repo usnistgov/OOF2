@@ -14,7 +14,7 @@ from ooflib.SWIG.common import pixelgroup
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import primitives
 from ooflib.common import registeredclass
 from ooflib.common import runtimeflags
@@ -817,9 +817,9 @@ registeredclass.Registration(
     ByElementType,
     ordering=1,
     params = [
-    enum.EnumParameter('shape', skeletonelement.ElementShapeType,
-                       skeletonelement.ElementShapeType('triangle'),
-                       tip="Element shape.")],
+    oofenum.EnumParameter('shape', skeletonelement.ElementShapeType,
+                          skeletonelement.ElementShapeType('triangle'),
+                          tip="Element shape.")],
     tip='Select elements by shape.',
     discussion="""<para>
     <command>Select_By_Element_Type</command> selects all &elems; of a

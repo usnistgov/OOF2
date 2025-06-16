@@ -19,7 +19,7 @@ from ooflib.SWIG.engine import flux
 from ooflib.SWIG.engine import outputval
 from ooflib.SWIG.engine import planarity
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import primitives
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
@@ -152,7 +152,7 @@ eFieldCompOutput.connect('field', electricFieldOutput)
 # PropertyOutput<TYPE> classes and the various Property::output virtual
 # functions.
 
-class EnergyType(enum.EnumClass(
+class EnergyType(oofenum.EnumClass(
     ("Total", "All contributions to the energy"),
     ("Elastic", "Elastic energy-- one half stress times elastic strain"),
     ("Electric", "Electric energy-- one half total polarization times electric field")
@@ -172,8 +172,8 @@ def _Energy_shortrepr(self):
 
 propertyoutputreg.ScalarPropertyOutputRegistration(
     "Energy",
-    parameters=[enum.EnumParameter("etype", EnergyType, default="Total",
-                                  tip='The type of energy to compute.')],
+    parameters=[oofenum.EnumParameter("etype", EnergyType, default="Total",
+                                      tip='The type of energy to compute.')],
     ordering=3,
     srepr = _Energy_shortrepr,
     tip='Compute an energy density.',
@@ -188,7 +188,7 @@ propertyoutputreg.ScalarPropertyOutputRegistration(
 
 # Parameters used for PropertyParameterOutputs
 
-class ReferenceFrame(enum.EnumClass(
+class ReferenceFrame(oofenum.EnumClass(
         ("Lab", "The laboratory reference frame"),
         ("Crystal", "The crystal reference frame")
         )):
@@ -261,7 +261,7 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
         VoigtPairListParameter(
             "components",
             tip="Evaluate the selected components of the modulus."),
-        enum.EnumParameter(
+        oofenum.EnumParameter(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the modulus in this reference frame.")
     ],
@@ -277,7 +277,7 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
         SymmIndexPairListParameter(
             "components",
             tip="Evaluate the selected components of the stress-free strain."),
-        enum.EnumParameter(
+        oofenum.EnumParameter(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the stress-free strain in this reference frame.")
         ],
@@ -318,7 +318,7 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
         VoigtPairListParameter(
             "components",
             tip="Evaluate the selected components of the modulus"),
-        enum.EnumParameter(
+        oofenum.EnumParameter(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the viscosity in this reference frame.")
         ],
@@ -337,7 +337,7 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
         SymmIndexPairListParameter(
             "components",
             tip="Evaluate the selected components of the conductivity."),
-        enum.EnumParameter(
+        oofenum.EnumParameter(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the conductivity in this reference frame.")
         ],
@@ -370,7 +370,7 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
         SymmIndexPairListParameter(
             "components",
             tip="Evaluate the selected components of the permittivity."),
-        enum.EnumParameter(
+        oofenum.EnumParameter(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the permittivity in this reference frame.")
         ],
@@ -398,7 +398,7 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
         SymmIndexPairListParameter(
             "components",
             tip="Evaluate the selected components of the thermal expansion coefficient"),
-        enum.EnumParameter(
+        oofenum.EnumParameter(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the thermal expansion coefficient in this reference frame.")],
     tip="Print the thermal expansion coefficient",
@@ -423,7 +423,7 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
         Rank3TensorIndexParameter(
             "components",
             tip="Evaluate the selected components of the piezoelectric coefficient."),
-        enum.EnumParameter(
+        oofenum.EnumParameter(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the stress-free strain in this reference frame.")
         ],

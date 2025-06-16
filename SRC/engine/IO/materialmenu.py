@@ -22,7 +22,7 @@
 from ooflib.SWIG.common import pixelgroup
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import parallel_enable
 from ooflib.common import pixelselection
 from ooflib.common import primitives
@@ -128,10 +128,10 @@ _materialmenu.addItem(OOFMenuItem(
                                      resolver=materialNameResolver,
                                      value=automatic.automatic,
                                      tip="Name of the material."),
-    enum.EnumParameter('material_type',
-                       MaterialType,
-                       value=MATERIALTYPE_BULK,
-                       tip="Type of the material.")
+    oofenum.EnumParameter('material_type',
+                          MaterialType,
+                          value=MATERIALTYPE_BULK,
+                          tip="Type of the material.")
     ),
     help="Create a new Material.",
     discussion="""<para>
@@ -508,8 +508,8 @@ mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     filenameparam.WriteFileNameParameter('filename', tip="Name of the file."),
     filenameparam.WriteModeParameter(
                 'mode', tip="'w' to (over)write, 'a' to append."),
-    enum.EnumParameter('format', datafile.DataFileFormat, datafile.ASCII,
-                       tip="Format of the file."),
+    oofenum.EnumParameter('format', datafile.DataFileFormat, datafile.ASCII,
+                          tip="Format of the file."),
     materialparameter.ListOfMaterialsParameter('materials', tip="Material(s) to be saved.")
     ],
     help="Save Materials to a file.",
@@ -570,9 +570,9 @@ mainmenu.OOF.LoadData.addItem(oofmenu.OOFMenuItem(
     parameter.StringParameter('name', tip="Name of the material."),
     parameter.ListOfStringsParameter('properties',
                                      tip="Properties for the material."),
-    enum.EnumParameter('materialtype', MaterialType,
-                       value=MATERIALTYPE_BULK,
-                       tip="Type of the material.")
+    oofenum.EnumParameter('materialtype', MaterialType,
+                          value=MATERIALTYPE_BULK,
+                          tip="Type of the material.")
     ],
     help="Load Materials from a data file.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/loadmaterial.xml')

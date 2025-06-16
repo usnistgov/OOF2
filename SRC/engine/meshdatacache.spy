@@ -8,13 +8,13 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import registeredclass
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import meshmod
 
-class CacheType(enum.EnumClass(
+class CacheType(oofenum.EnumClass(
         ('Memory', 'Store time steps in memory'),
         ('Disk', 'Store time steps in files'))):
     tip = "How to store data for previous time steps."
@@ -36,8 +36,9 @@ class SetMeshDataCacheType(meshmod.MeshModification):
             meshcontext.datacache = DiskDataCache(meshcontext.getObject())
             meshcontext.datacache.transfer(oldcache)
        
-cacheTypeParam = enum.EnumParameter('cachetype', CacheType, value='Memory',
-                           tip='Type of cache to use for time step data.')     
+cacheTypeParam = oofenum.EnumParameter(
+    'cachetype', CacheType, value='Memory',
+    tip='Type of cache to use for time step data.')     
                                                      
 dataCacheReg = registeredclass.Registration(
     'Set Data Cache Type',

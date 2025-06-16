@@ -15,7 +15,7 @@ if config.dimension() == 2:
 elif config.dimension() == 3:
     from ooflib.SWIG.image import oofimage3d as oofimage
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import parallel_enable
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
@@ -60,7 +60,7 @@ def doImageMod(menuitem, image, **params):
 ###################################
 
 if config.dimension() == 2:
-    class FlipDirection(enum.EnumClass(
+    class FlipDirection(oofenum.EnumClass(
         ('x', 'Flip the image about the x axis'),
         ('y', 'Flip the image about the y axis'),
         ('xy', 'Flip the image about both the x and y axes (ie, rotate by 180 degrees)'))):
@@ -71,7 +71,7 @@ if config.dimension() == 2:
         an &image;.
         </para>"""
 elif config.dimension() == 3:
-    class FlipDirection(enum.EnumClass(
+    class FlipDirection(oofenum.EnumClass(
         # TODO 3D: are these all the flip possibilities?
         ('x', 'Flip the image in the x direction.'),
         ('y', 'Flip the image in the y direction.'),
@@ -107,10 +107,10 @@ registeredclass.Registration(
     FlipImage, # derived class
     ordering=1.0, # position in menus
     params=[   # list of constructor arguments
-    enum.EnumParameter('axis',         # argument name
-                       FlipDirection,     # argument type
-                       FlipDirection('x'), # initial value
-                       tip="Flip the image about this axis") # helpful hint
+    oofenum.EnumParameter('axis',         # argument name
+                          FlipDirection,     # argument type
+                          FlipDirection('x'), # initial value
+                          tip="Flip the image about this axis") # helpful hint
     ],
     tip="Flip the image about the x or y axis.",
     discussion="""<para>

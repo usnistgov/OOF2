@@ -11,14 +11,14 @@
 from ooflib.SWIG.common import burn
 from ooflib.SWIG.common import statgroups
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import registeredclass
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
 
-class ColorNorm(enum.EnumClass(
+class ColorNorm(oofenum.EnumClass(
     ('L1', 'The sum of the absolute values of the RGB differences.'),
     ('L2',
      'The square root of the sum of the squares of the RGB differences.'))):
@@ -64,7 +64,7 @@ registeredclass.Registration(
             'global_color_delta',
             range=(0, 1, 0.001), value=0.2,
             tip="Difference from initial pixel color beyond which a burn will not spread."),
-        enum.EnumParameter(
+        oofenum.EnumParameter(
             'color_space_norm', ColorNorm, value=L1,
             tip="How to compute the difference between two colors in RGB space.")
         ],
@@ -101,7 +101,7 @@ registeredclass.Registration(
             range=(0, 1, 0.001), value=0.1,
             tip="Maximum difference in color between the initial,"
             " randomly chosen pixel and other pixels in the group."),
-        enum.EnumParameter(
+        oofenum.EnumParameter(
             'color_space_norm', ColorNorm, value=L1,
             tip="How to compute the difference between two colors in RGB space."
             )

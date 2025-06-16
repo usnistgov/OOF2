@@ -28,7 +28,7 @@
 
 from ooflib.SWIG.common import ooferror 
 from ooflib.SWIG.common import switchboard
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import parallel_enable
 from ooflib.common.IO import automatic
 from ooflib.common.IO import datafile
@@ -132,7 +132,7 @@ OOF.File.Save.addItem(oofmenu.OOFMenuItem(
             filenameparam.WriteFileNameParameter('filename', tip="File name."),
             filenameparam.WriteModeParameter(
                 'mode', tip="'w' to (over)write and 'a' to append."),
-            enum.EnumParameter(
+            oofenum.EnumParameter(
                 'format', datafile.DataFileFormat, datafile.ASCII,
                 tip="File format."),
             parameter.StringParameter(

@@ -29,7 +29,7 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import timestamp
 from ooflib.common import color
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import labeltree
 from ooflib.common import mainthread
 from ooflib.common import primitives
@@ -66,7 +66,7 @@ _debuglocks = False
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class NewLayerPolicy(
-        enum.EnumClass(
+        oofenum.EnumClass(
             ("Never",
              "Don't automatically create any display layers."),
             ("Single",
@@ -84,7 +84,7 @@ class NewLayerPolicy(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class OutputImageFormat(enum.EnumClass(
+class OutputImageFormat(oofenum.EnumClass(
         ("pdf", "Save image as a pdf file."),
         ("png", "Save image as a png file."))):
     tip="File format for the image."
@@ -94,8 +94,8 @@ class OutputImageFormat(enum.EnumClass(
     xrefs=["Chapter-Graphics"]
 
 if debug.debug():
-    enum.addEnumName(OutputImageFormat, "datadump",
-                     help="For debugging only.")
+    oofenum.addEnumName(OutputImageFormat, "datadump",
+                        help="For debugging only.")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -249,7 +249,7 @@ class GhostGfxWindow:
                 filenameparam.WriteFileNameParameter(
                     'filename', ident='gfxwindow',
                     tip="Name for the image file."),
-                enum.EnumParameter(
+                oofenum.EnumParameter(
                     "format", OutputImageFormat,
                     value="pdf", tip="Format for the image file"),
                 filenameparam.OverwriteParameter(
@@ -274,7 +274,7 @@ class GhostGfxWindow:
                 filenameparam.WriteFileNameParameter(
                     'filename', ident='gfxwindow',
                     tip='Name for the pdf image file.'),
-                enum.EnumParameter(
+                oofenum.EnumParameter(
                     "format", OutputImageFormat,
                     value="pdf", tip="Format for the image file"),
                 filenameparam.OverwriteParameter(
@@ -307,7 +307,7 @@ class GhostGfxWindow:
                 filenameparam.WriteFileNameParameter(
                     'filename', ident='gfxwindow',
                     tip="Name for the image file."),
-                enum.EnumParameter(
+                oofenum.EnumParameter(
                     "format", OutputImageFormat,
                     value="pdf", tip="Format for the image file"),
                 filenameparam.OverwriteParameter(
@@ -613,9 +613,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         settingmenu.addItem(OOFMenuItem(
             'New_Layer_Policy',
             callback=self.setNewLayerPolicy,
-            params=[enum.EnumParameter('policy', NewLayerPolicy,
-                                       value=self.settings.newlayerpolicy,
-                                       tip=parameter.emptyTipString)],
+            params=[oofenum.EnumParameter('policy', NewLayerPolicy,
+                                          value=self.settings.newlayerpolicy,
+                                          tip=parameter.emptyTipString)],
             help="When to create new graphics layers.",
             discussion=xmlmenudump.loadFile(
                 "DISCUSSIONS/common/menu/newlayerpolicy.xml"),
@@ -1704,7 +1704,7 @@ def _setDefaultNewLayerPolicy(menuitem, policy):
 mainmenu.gfxdefaultsmenu.addItem(oofmenu.OOFMenuItem(
     'New_Layer_Policy',
     callback=_setDefaultNewLayerPolicy,
-    params=[enum.EnumParameter(
+    params=[oofenum.EnumParameter(
         'policy', NewLayerPolicy,
         value=default_settings["newlayerpolicy"],
         tip='New layer policy for newly created windows.')],

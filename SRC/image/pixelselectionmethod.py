@@ -11,7 +11,7 @@
 
 from ooflib.SWIG.image import pixeldifferentiator
 from ooflib.SWIG.image import pixelselectioncourieri
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import pixelselectionmethod
 from ooflib.common import primitives
 from ooflib.common.IO import colordiffparameter
@@ -86,7 +86,7 @@ pixelselectionmethod.PixelSelectionRegistration(
         'global_flammability',
         range=(0, 1, 0.001), value=0.2,
         tip='Difference from initial pixel value beyond which a burn will not spread.'),
-    enum.EnumParameter(
+    oofenum.EnumParameter(
         'color_space_norm', pixeldifferentiator.ColorNorm,
         value=pixeldifferentiator.L1,
         tip="How to compute the difference between two colors in RGB space."),

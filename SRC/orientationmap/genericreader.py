@@ -13,7 +13,7 @@ from ooflib.SWIG.common import progress
 from ooflib.SWIG.engine import corientation
 from ooflib.SWIG.orientationmap import orientmapdata
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import primitives
 from ooflib.common import utils
 from ooflib.common.IO import formatchars
@@ -53,7 +53,7 @@ def getrows(datapts):
             row = [pt]
     yield row
 
-class AngleUnits(enum.EnumClass('Radians', 'Degrees')):
+class AngleUnits(oofenum.EnumClass('Radians', 'Degrees')):
     tip = "Units for angles."
     discussion="""<para>Whether angles read from orientation map files
     are in radians or degrees.</para>"""
@@ -281,7 +281,7 @@ orientmapdata.OrientMapRegistration(
             orientationmatrix.Bunge,
             tip="The way in which orientations are specified in the input file."
             ),
-        enum.EnumParameter(
+        oofenum.EnumParameter(
             'angle_units', AngleUnits, 'Radians',
             tip="The units used for angles in the input file."),
         parameter.FloatParameter(

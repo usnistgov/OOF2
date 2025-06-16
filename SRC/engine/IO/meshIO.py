@@ -18,7 +18,6 @@ from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import masterelement
 from ooflib.common import debug
-from ooflib.common import enum
 from ooflib.common import labeltree
 from ooflib.common import registeredclass
 from ooflib.common import utils

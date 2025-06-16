@@ -15,7 +15,7 @@
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common.IO import gfxmanager
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
@@ -129,9 +129,9 @@ if themes:
     # we create an Enum and an EnumParameter just for the GUI, then pass
     # the string to the menuitem.
 
-    class ThemeEnum(enum.EnumClass(*themes)): pass
+    class ThemeEnum(oofenum.EnumClass(*themes)): pass
 
-    themeParam = enum.EnumParameter('theme', ThemeEnum)
+    themeParam = oofenum.EnumParameter('theme', ThemeEnum)
     themeParam.value = currentTheme()
 
     def setTheme_gui(menuitem):

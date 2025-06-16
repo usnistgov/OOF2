@@ -22,7 +22,7 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import timestamp
 from ooflib.SWIG.engine import femesh
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import microstructure
 from ooflib.common import parallel_enable
 from ooflib.common import primitives
@@ -65,7 +65,7 @@ SkeletonSegment = skeletonsegment.SkeletonSegment
 # Triangular skeleton arrangements
 
 class Arrangement(
-    enum.EnumClass(('conservative', 'leaning to the right'),
+    oofenum.EnumClass(('conservative', 'leaning to the right'),
                    ('liberal', 'leaning to the left'),
                    ('moderate', 'going both ways'),
                    ('middling', 'going both ways, the other way'),
@@ -398,8 +398,9 @@ Registration(
     SkeletonGeometry,
     TriSkeleton,
     1,
-    params=[enum.EnumParameter('arrangement', Arrangement, moderate,
-                       tip="How to arrange triangular elements in a Skeleton"),
+    params=[oofenum.EnumParameter(
+        'arrangement', Arrangement, moderate,
+                                  tip="How to arrange triangular elements in a Skeleton"),
             parameter.BooleanParameter('left_right_periodicity',value=False, default=False,
                   tip="Whether or not the skeleton has periodicity in the horizontal direction"),
             parameter.BooleanParameter('top_bottom_periodicity',value=False, default=False,

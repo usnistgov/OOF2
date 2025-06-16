@@ -13,7 +13,7 @@ from ooflib.SWIG.common import activearea
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import pixelsetboundary
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import debug
 from ooflib.common import pixelselection
 from ooflib.common import parallel_enable
@@ -237,8 +237,8 @@ mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     params=[
     filenameparam.WriteFileNameParameter('filename', tip="Name of the file."),
     filenameparam.WriteModeParameter('mode', tip="write or append?"),
-    enum.EnumParameter('format', datafile.DataFileFormat, datafile.ASCII,
-                       tip="File format."),
+    oofenum.EnumParameter('format', datafile.DataFileFormat, datafile.ASCII,
+                          tip="File format."),
     whoville.WhoParameter('microstructure',
                           ooflib.common.microstructure.microStructures,
                           tip=parameter.emptyTipString)],

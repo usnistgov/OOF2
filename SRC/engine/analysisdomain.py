@@ -21,7 +21,7 @@
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import pixelgroup
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import microstructure
 from ooflib.common import primitives
 from ooflib.common import registeredclass
@@ -442,7 +442,7 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class SegmentSide(enum.EnumClass('LEFT', 'RIGHT')):
+class SegmentSide(oofenum.EnumClass('LEFT', 'RIGHT')):
     tip="The side of an element edge on which output data should be computed."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/enum/segmentside.xml')
 
@@ -476,7 +476,7 @@ registeredclass.Registration(
         skeletongroupparams.SkeletonEdgeBoundaryParameter(
             'boundary',
             tip="The name of the boundary on which to evaluate the output."),
-        enum.EnumParameter(
+        oofenum.EnumParameter(
             'side', SegmentSide,
             tip="Use the element on this side, if both exist.")],
     sample_types = [analysissample.BENTLINE],

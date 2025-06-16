@@ -25,7 +25,7 @@
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.engine import corientation
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import registeredclass
 from ooflib.common import utils
 from ooflib.common.IO import parameter
@@ -98,7 +98,7 @@ class Orientation(registeredclass.ConvertibleRegisteredClass, metaclass=utils.Pr
 # automatically by the registrations for the Orientation subclasses.
 # This allows a subclass to be passeed in to C++.
 
-class OrientationEnum(enum.EnumClass()):
+class OrientationEnum(oofenum.EnumClass()):
     tip="Various ways to specify an Orientation."
     discussion = """<para>
     <classname>OrientationEnum</classname> is used to select a
@@ -123,7 +123,7 @@ class OrientationRegistration(registeredclass.ConvertibleRegistration):
             tip=tip, discussion=discussion,
             xrefs = ["Property-Orientation",
                      "Section-Concepts-Material-Orientation"])
-        enum.addEnumName(OrientationEnum, name, help=tip)
+        oofenum.addEnumName(OrientationEnum, name, help=tip)
     def zero(self):
         # Computes the null rotation in the subclass's format.
         abg = Abg(0., 0., 0.)

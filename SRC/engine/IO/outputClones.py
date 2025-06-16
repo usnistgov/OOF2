@@ -19,7 +19,7 @@ from ooflib.SWIG.engine import invariant
 from ooflib.SWIG.engine import outputval
 from ooflib.SWIG.engine import planarity
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import primitives
 from ooflib.common import utils
 from ooflib.common.IO import parameter
@@ -59,7 +59,7 @@ posOutput = output.Output(
 
 #=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#
 
-class SpaceComponent(enum.EnumClass('x', 'y', 'z')):
+class SpaceComponent(oofenum.EnumClass('x', 'y', 'z')):
     tip='Components of vectors.'
     discussion="""<para>
     <classname>SpaceComponent</classname> is used by various
@@ -68,7 +68,7 @@ class SpaceComponent(enum.EnumClass('x', 'y', 'z')):
     choose one of the components of a vector quantity.
     </para>"""
 
-class InPlaneSpaceComponent(enum.EnumClass('x', 'y')):
+class InPlaneSpaceComponent(oofenum.EnumClass('x', 'y')):
     tip="The in-plane components of vectors."
     discussion="""<para>
     <classname>InPlaneSpaceComponent</classname> is used by various
@@ -164,8 +164,8 @@ FieldDerivOutput = output.Output(
                                             outofplane=True,
                                             timederivative=True,
                                             tip=parameter.emptyTipString),
-                  enum.EnumParameter("derivative", InPlaneSpaceComponent,
-                                     tip='Which derivative to take.')],
+                  oofenum.EnumParameter("derivative", InPlaneSpaceComponent,
+                                        tip='Which derivative to take.')],
     srepr=_fieldderiv_shortrepr,
     column_names=_fieldderiv_column_names,
     tip='Compute derivatives of Fields.',

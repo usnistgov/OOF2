@@ -10,7 +10,7 @@
 
 # Settable parameters controlling the output format
 
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import registeredclass
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
@@ -30,7 +30,7 @@ settingsmenu = mainmenu.OOF.Settings.addItem(oofmenu.OOFMenuItem(
 def _dummy(*args, **kwargs):
     pass
 
-class Separator(enum.EnumClass("space", "comma", "tab")):
+class Separator(oofenum.EnumClass("space", "comma", "tab")):
     tip="Characters used between columns in output files."
     discussion="""<para>
     The commands in the <xref linkend='MenuItem-OOF.Mesh.Analyze'/>
@@ -46,7 +46,7 @@ _separator_strings = {
     Separator("comma") : ", ",
     Separator("tab") : "\t"}
 
-separator_param = enum.EnumParameter(
+separator_param = oofenum.EnumParameter(
     'separator', Separator,
     'comma', default='comma',
     tip="The character to appear between columns in output.")

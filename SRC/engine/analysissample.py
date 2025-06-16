@@ -38,7 +38,7 @@
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common import primitives
 from ooflib.common import registeredclass
 from ooflib.common.IO import automatic
@@ -83,7 +83,7 @@ from functools import reduce
 ### DiscretePoints -- output can only be evaluated at given points.
 
 class SamplingType(
-    enum.EnumClass(
+    oofenum.EnumClass(
         'GRID',   # Promises existence of get_bounds() and contains().
         'PIXEL',  # Promises existence of get_pixels().
         'ELEMENT',   # Promises existence of get_elements().

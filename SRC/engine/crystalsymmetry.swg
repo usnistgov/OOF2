@@ -53,11 +53,11 @@
 
 %pythoncode %{
 
-from ooflib.common import enum
+from ooflib.common import oofenum
 from ooflib.common.IO import xmlmenudump
 
 # Don't change this Enum without also changing crystalsymmetry.h.
-class AnisoCrystalSymmetry(enum.EnumClass(
+class AnisoCrystalSymmetry(oofenum.EnumClass(
         "Tetragonal",
         "Hexagonal",
         "Cubic",

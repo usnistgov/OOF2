@@ -10,7 +10,6 @@
 
 from ooflib.SWIG.engine import ooferror
 from ooflib.common import debug
-from ooflib.common import enum
 from ooflib.common import utils
 from ooflib.common import registeredclass
 from ooflib.common.IO import automatic

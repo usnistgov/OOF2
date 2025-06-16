@@ -14,7 +14,6 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import angle2color
 from ooflib.SWIG.orientationmap import orientmapdata
 from ooflib.common import debug
-from ooflib.common import enum
 from ooflib.common import labeltree
 from ooflib.common.IO import automatic
 from ooflib.common.IO import filenameparam
