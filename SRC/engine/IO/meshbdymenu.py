@@ -163,8 +163,8 @@ bdyanalysismenu.addItem(oofmenu.OOFMenuItem(
                                              tip='Name of the file.'),
         filenameparam.WriteModeParameter(
             'mode', tip="'w' to (over)write, 'a' to append."),
-        oofenum.EnummParameter('format', datafile.DataFileFormat,
-                               datafile.ASCII, tip="Format of the file."),
+        oofenum.EnumParameter('format', datafile.DataFileFormat,
+                              datafile.ASCII, tip="Format of the file."),
         namedanalysis.BdyAnalysisNamesParameter(
             'names', tip="Names of the analyses to be saved.")],
     help="Save the definitions of named boundary analysis operations in a file.",

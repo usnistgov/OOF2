@@ -13,11 +13,13 @@
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
+from ooflib.common import oofenum
 from ooflib.common import primitives
 from ooflib.common import strfunction
 from ooflib.common import utils
 from ooflib.common.IO import automatic
 from ooflib.common.IO import parameter
+from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import widgetscope
@@ -1200,8 +1202,6 @@ def transientMenuItemDialog(menuitem, defaults, parentwindow,
 
 #####################################################################
 
-from ooflib.common.IO.GUI import chooser
-
 # Widget base class for subclasses of the oofenum.Enum class.
 class EnumWidget(ParameterWidget):
     def __init__(self, enumclass, param, scope=None, name=None, **kwargs):
@@ -1237,7 +1237,7 @@ def _EnumParameter_makeWidget(self, scope=None, **kwargs):
     return EnumWidget(self.enumclass, self, scope=scope, name=self.name,
                       **kwargs)
 
-enum.EnumParameter.makeWidget = _EnumParameter_makeWidget
+oofenum.EnumParameter.makeWidget = _EnumParameter_makeWidget
 
 
 #######################################################################

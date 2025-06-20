@@ -25,7 +25,7 @@ import math
 
 #########################################
 
-class ElementShapeType(enum.OofenumClass(('triangle', 'triangular elements'),
+class ElementShapeType(oofenum.EnumClass(('triangle', 'triangular elements'),
                                          ('quad', 'quadrilateral elements'))):
     tip = "Shapes of Skeleton Elements."
     discussion = """<para>
