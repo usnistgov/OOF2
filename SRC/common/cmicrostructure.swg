@@ -55,45 +55,6 @@ typedef Array<int> NewArrayInt;
   delete $1;
 }
 
-%typemap(in, numinputs=0) bool *bool_argout (bool tmp) {
-  // typemap(in, numinputs=0) bool *bool_argout
-  $1 = &tmp;
-}
-
-%typemap(argout) bool *bool_argout {
-  // typemap(argout) bool *bool_argout
-  PyObject *newval = (*$1? Py_True : Py_False);
-
-  if (!PyList_Check($result)) {
-    // There's already an object in $result, but it's not a list.
-    // Change $result to a list containing the pre-existing object.
-    PyObject *oldval = $result;
-    $result = PyList_New((Py_ssize_t) 0);
-    PyList_Append($result, oldval);
-    Py_XDECREF(oldval);
-  }
-  PyList_Append($result, newval);
-}
-
-//For SnapRefine.
-%typemap(in, numinputs=0) int *int_argout (int tmp) {
-  // typemap(in, numinputs=0) int *int_argout
-  $1 = &tmp;
-}
-
-%typemap(argout) int *int_argout {
-  // typemap(argout) int *int_argout
-  PyObject *newval = PyLong_FromLong(*$1);
-  if (!PyList_Check($result)) {
-    PyObject *oldval = $result;
-    $result = PyList_New((Py_ssize_t) 0);
-    PyList_Append($result ,oldval);
-    Py_XDECREF(oldval);
-  }
-  PyList_Append($result, newval);
-  Py_XDECREF(newval);
-}
-
 %nodefaultctor SegmentSection;
 
 class SegmentSection {

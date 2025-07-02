@@ -70,12 +70,15 @@ public:
   const ICoord &operator[](int i) const { return members_[i]; }
   const std::vector<ICoord> *members() const;
 
+  void stats(double* avg_x, double* avg_y, 
+	     double* avg_xx, double* avg_xy, double* avg_yy,
+	     Coord* eigenvec0, Coord* eigenvec1,
+	     double* eigenval0, double* eigenval1) const;
+
   void despeckle(int threshold, BoolArray &selected) const;
-#ifndef DIM_3
   void elkcepsed(int threshold, BoolArray &selected) const;
   void expand(double range, BoolArray &selected) const;
   void shrink(double range, BoolArray &selected) const;
-#endif // DIM_3
 };
 
 class PixelGroup : public PixelSet {

@@ -99,6 +99,27 @@
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
+%typemap(in, numinputs=0) Coord* Coord_argout (Coord *coordptr) {
+  // typemap(int, numinputs=0) Coord* Coord_argout
+  coordptr = new Coord();
+  $1 = coordptr;
+}
+
+%typemap(argout) Coord* Coord_argout {
+  // typemap(argout) Coord* Coord_argout
+  $result = SWIG_Python_AppendOutput(
+	     $result,
+	     SWIG_NewPointerObj(SWIG_as_voidptr($1),
+				$descriptor(Coord*),
+				SWIG_POINTER_OWN),
+	     1); // TODO Check that this is ok with earlier swig versions
+}
+
+%typemap(in, numinputs=0) Coord& Coord_argout = Coord* Coord_argout;
+%typemap(argout) Coord& Coord_argout = Coord* Coord_argout;
+
+//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
 // std::vector<Coord>*  <-->  [Point]
 
 %typemap(in) std::vector<Coord> *PointList (std::vector<Coord> v) {
@@ -285,6 +306,8 @@ public:
   }
 }
 
+ADD_REPR_GENERIC(Coord);
+ADD_REPR_GENERIC(ICoord);
 MAKE_LISTVEC_TYPEMAPS(Coord);
 MAKE_LISTVEC_TYPEMAPS(ICoord);
 

@@ -291,6 +291,32 @@ std::string {
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
+// A bool returned as an argument in C++ becomes a return value in
+// Python.  TODO: Use "%apply bool *OUTPUT ... " instead.  See
+// pixelgroup.swg.
+
+%typemap(in, numinputs=0) bool *bool_argout (bool tmp) {
+  // typemap(in, numinputs=0) bool *bool_argout
+  $1 = &tmp;
+}
+
+%typemap(argout) bool *bool_argout {
+  // typemap(argout) bool *bool_argout
+  PyObject *newval = (*$1? Py_True : Py_False);
+
+  if (!PyList_Check($result)) {
+    // There's already an object in $result, but it's not a list.
+    // Change $result to a list containing the pre-existing object.
+    PyObject *oldval = $result;
+    $result = PyList_New((Py_ssize_t) 0);
+    PyList_Append($result, oldval);
+    Py_XDECREF(oldval);
+  }
+  PyList_Append($result, newval);
+}
+
+//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
 // std::vector<double> <--> [double]
 
 // The "in" typemaps use a const vector. C++ will only see a copy of

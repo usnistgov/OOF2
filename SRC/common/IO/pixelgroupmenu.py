@@ -12,12 +12,14 @@
 
 from ooflib.SWIG.common import burn
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import coord # debugging
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import pixelgroup
 from ooflib.SWIG.common import progress
 from ooflib.SWIG.common import statgroups
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
+from ooflib.common import oofenum
 from ooflib.common import parallel_enable
 from ooflib.common import primitives
 from ooflib.common import runtimeflags
@@ -32,9 +34,12 @@ from ooflib.common.IO.mainmenu import OOF
 from ooflib.common.IO.oofmenu import OOFMenuItem
 from ooflib.common.IO.pixelgroupparam import PixelGroupParameter
 import ooflib.common.microstructure      # a local variable is named 'microstructure'
+import ooflib.common.units               # and one is named 'units'
 
 if parallel_enable.enabled():
     from ooflib.common.IO import pixelgroupIPC
+
+import math
 
 BooleanParameter = parameter.BooleanParameter
 AutomaticNameParameter = parameter.AutomaticNameParameter
@@ -518,7 +523,7 @@ def clearGroup(menuitem, microstructure, group):
     if grp is not None:
         switchboard.notify("changed pixel group", grp, microstructure)
     switchboard.notify('redraw')
-        
+
 pixgrpmenu.addItem(OOFMenuItem(
     'Clear',
     callback=clearGroup,
@@ -531,30 +536,69 @@ pixgrpmenu.addItem(OOFMenuItem(
     help="Remove all pixels from the given PixelGroup.",
     discussion="<para>Empty the selected &pixelgroup;.</para>"))
 
-def queryGroup(menuitem, microstructure, group):
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+def _queryGroup(menuitem, microstructure, group, units):
     mscontext = ooflib.common.microstructure.microStructures[microstructure]
     ms = mscontext.getObject()
+
+    # Factors for converting units
+    if units == 'Pixel':
+        xfactor = yfactor = 1
+    elif units == 'Physical' or units == None:
+        pixwidth, pixheight = ms.sizeOfPixels()
+        xfactor = pixwidth
+        yfactor = pixheight
+    else:               # units == 'Fractional'
+        nx, ny = ms.sizeInPixels()
+        xfactor = 1./nx
+        yfactor = 1./ny
+
     mscontext.begin_reading()
     try:
         grp = ms.findGroup(group)
-        nop = len(grp)
-        areaOfGroup = nop*ms.areaOfPixels()
+        npix = len(grp)
+        (avg_x, avg_y, avg_xx, avg_xy, avg_yy,
+         eigenvec0, eigenvec1,
+         eigenval0, eigenval1) = grp.stats()
     finally:
         mscontext.end_reading()
-    reporter.report(">>> ", nop, " pixels, ", "area = ", areaOfGroup)
+
+    # Convert into desired units
+    area = npix * xfactor * yfactor
+    avg_x = avg_x * xfactor
+    avg_y = avg_y * yfactor
+    avg_xx = avg_xx * xfactor**2
+    avg_yy = avg_yy * yfactor**2
+    avg_xy = avg_xy * xfactor * yfactor
+    
+    reporter.report(f">>> pixels: {npix}")
+    reporter.report(f">>> center: ({avg_x}, {avg_y})")
+    reporter.report(f">>> area: {area}")
+    # reporter.report(f">>> eigenvector={eigenvec0}, eigenvalue={eigenval0}")
+    # reporter.report(f">>> eigenvector={eigenvec1}, eigenvalue={eigenval1}")
+    reporter.report(f">>> aspect ratio: {math.sqrt(eigenval0/eigenval1)}")
+    angle = math.atan2(eigenvec0[1], eigenvec0[0])*180/math.pi
+    reporter.report(f">>> principle direction: {angle} degrees")
+
+    
+    # TODO: info for each contiguous set within the group.  It might
+    # be easist to create a temporary PixelGroup for each subgroup.
+    
     # TODO: Print average pixel color and deviation, as used by
-    # OOF.PixelGroup.AutoGroup.  Print center point, x-width, y-width,
-    # aspect ratio, principle axes, both for all pixels in a group and
-    # for each separate disconnected region in a group.
+    # OOF.PixelGroup.AutoGroup.
     
 pixgrpmenu.addItem(OOFMenuItem(
     'Query',
-    callback=queryGroup,
+    callback=_queryGroup,
     params=[
-    whoville.WhoParameter('microstructure',
-                          ooflib.common.microstructure.microStructures,
-                          tip=parameter.emptyTipString),
-    PixelGroupParameter('group', tip='Get information on this group.')
+        whoville.WhoParameter('microstructure',
+                              ooflib.common.microstructure.microStructures,
+                              tip=parameter.emptyTipString),
+        PixelGroupParameter('group', tip='Get information on this group.'),
+        oofenum.EnumParameter('units', ooflib.common.units.Units,
+                              value='Physical',
+                              tip='Units for pixel measurements')
     ],
     help="Query the given PixelGroup.",
     discussion="<para>Print some information about the given &pixelgroup;.</para>"))

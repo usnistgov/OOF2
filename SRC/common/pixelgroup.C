@@ -294,12 +294,7 @@ void PixelSet::setFromBitmap(const BitmapOverlay &bitmap) {
   const ICoord &bitmapsize = bitmap.sizeInPixels();
   int xmin = bitmapsize(0) < geometry(0) ? bitmapsize(0) : geometry(0);
   int ymin = bitmapsize(1) < geometry(1) ? bitmapsize(1) : geometry(1);
-#if DIM == 2
   const Array<bool> sub(bitmap.data.subarray(ICoord(0,0), ICoord(xmin, ymin)));
-#elif DIM == 3
-  int zmin = bitmapsize(2) < geometry(2) ? bitmapsize(2) : geometry(2);
-  const Array<bool> sub(bitmap.data.subarray(ICoord(0,0,0), ICoord(xmin, ymin, zmin)));
-#endif
   member_lock.acquire();
   for(Array<bool>::const_iterator i=sub.begin(); i!=sub.end(); ++i)
     if(*i)
@@ -350,6 +345,54 @@ const std::vector<ICoord> *PixelSet::members() const {
 
 void PixelGroup::set_meshable(bool deshabille) {
   meshable_ = deshabille;
+}
+
+void PixelSet::stats(double* avg_x, double* avg_y,
+		     double* avg_xx, double* avg_xy, double* avg_yy,
+		     Coord* eigenvec0, Coord* eigenvec1,
+		     double* eigenval0, double* eigenval1)
+    const
+{
+  double sum_x = 0;
+  double sum_y = 0;
+  double sum_xx = 0;
+  double sum_xy = 0;
+  double sum_yy = 0;
+
+  for(const ICoord &pt : members_) {
+    double x = pt[0];
+    double y = pt[1];
+    sum_x += x;
+    sum_y += y;
+    sum_xx += x*x;
+    sum_xy += x*y;
+    sum_yy += y*y;
+  }
+
+  *avg_x = sum_x/len();
+  *avg_y = sum_y/len();
+
+  double mat00 = sum_xx/len() - (*avg_x) * (*avg_x);
+  double mat01 = sum_xy/len() - (*avg_x) * (*avg_y);
+  double mat11 = sum_yy/len() - (*avg_y) * (*avg_y);
+
+  *avg_xx = mat00;
+  *avg_xy = mat01;
+  *avg_yy = mat11;
+
+  double tau = 0.5*(mat00 + mat11);
+  double det = mat00*mat11 - mat01*mat01;
+  double d2 = tau*tau - det;
+  double disc = (d2 > 0 ? sqrt(d2) : 0.0);
+  // The eigenvalues of a 2x2 matrix are tau +/- sqrt(tau**2 - det),
+  // where tau is the mean of the diagonal elements and det is the
+  // determinant.
+  *eigenval0 = tau + disc;
+  *eigenvec0 = Coord(mat01, *eigenval0-mat00);
+  *eigenvec0 /= sqrt(norm2(*eigenvec0));
+  *eigenval1 = tau - disc;
+  *eigenvec1 = Coord(mat01, *eigenval1-mat00);
+  *eigenvec1 /= sqrt(norm2(*eigenvec1));
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
