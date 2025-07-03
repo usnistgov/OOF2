@@ -27,6 +27,7 @@
 #include "engine/field.h"
 #include "engine/flux.h"
 #include "engine/outputval.h"
+  #include "common/pixelgroup.h" // SWIGBUG
 %}
 
 ArithmeticOutputValue integrateFlux(FEMesh*, Flux*, EdgeSet*);

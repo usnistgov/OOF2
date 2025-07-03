@@ -27,6 +27,7 @@
   #include "engine/outputval.h"	// SWIGBUG
   #include "engine/flux.h"	// SWIGBUG
   #include "engine/node.h"	// SWIGBUG
+  #include "common/pixelgroup.h" // SWIGBUG
 %}
 
 MAKE_LISTVEC_TYPEMAPS(CConjugatePair);

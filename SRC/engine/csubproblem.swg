@@ -37,6 +37,7 @@
 #include "engine/material.h"
 #include "engine/meshiterator.h"
 #include "engine/sparsemat.h"
+  #include "common/pixelgroup.h" // SWIGBUG
 #include <vector>
 
 typedef VContainer<Node> VContainerNode;

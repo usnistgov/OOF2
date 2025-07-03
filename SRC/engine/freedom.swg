@@ -22,6 +22,7 @@
   #include "engine/edge.h"	// SWIGBUG
   #include "engine/equation.h"	// SWIGBUG
   #include "engine/flux.h"	// SWIGBUG
+  #include "common/pixelgroup.h" // SWIGBUG
 %}
 
 %nodefaultctor DegreeOfFreedom;

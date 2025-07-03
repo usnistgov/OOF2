@@ -23,6 +23,7 @@
 %{
 #include "engine/cskeleton.h"
 #include "engine/mastercoord.h"
+  #include "common/pixelgroup.h" // SWIGBUG
 %}
 
 class CSkeletonNode {

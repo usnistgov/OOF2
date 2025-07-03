@@ -33,6 +33,7 @@
 #include "engine/nodalequation.h"
 #include "engine/node.h"
 #include "engine/flux.h"	// SWIGBUG
+  #include "common/pixelgroup.h" // SWIGBUG
 typedef VContainer<Node> VContainerNode;
 typedef VContainer<FuncNode> VContainerFuncNode;
 typedef VContainer<Element> VContainerElement;

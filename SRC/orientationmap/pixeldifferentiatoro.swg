@@ -22,6 +22,7 @@
 #include "common/burn.h"
 #include "orientationmap/orientmapdata.h"
 #include "orientationmap/pixeldifferentiatoro.h"
+  #include "common/pixelgroup.h" // SWIGBUG
 %}
 
 class COrientationDifferentiator3 : public CPixelDifferentiator3 {

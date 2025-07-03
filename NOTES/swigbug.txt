@@ -1,0 +1,18 @@
+Many *.swg files contain lines like
+%{
+#include "someheaderfile.h"  // SWIGBUG
+%}
+where someheaderfile.h is apparently completely irrelevant to the code
+being swigged.
+
+From git commit 816d42d18fb99006d0d832d7909e22f49fe2bda7:
+
+The problem is that SWIG is generating code that uses pointers to
+classes defined in headers that aren't necessarily included in the
+file.  The extra code is harmleess because it's not called, but it
+prevents the swig-generated C++ file from compiling.  The workaround
+is to add extra #include statements in the swig files.  They are all
+marked "SWIGBUG" so that they can be removed easily when the bug is
+fixed.
+
+See https://github.com/swig/swig/issues/2500

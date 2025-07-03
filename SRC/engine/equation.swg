@@ -26,6 +26,7 @@
 #include "engine/fieldindex.h"
 #include "engine/flux.h"
 #include "engine/node.h"
+  #include "common/pixelgroup.h" // SWIGBUG
 #include <vector>
 typedef std::vector<Equation*> EquationVec;
 typedef FieldIndex NewFieldIndex;

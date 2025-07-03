@@ -22,7 +22,8 @@
 #include "engine/element.h"
 #include "engine/meshiterator.h"
 #include "engine/node.h"
-#include "engine/flux.h"	// SWIGBUG
+  #include "engine/flux.h"	// SWIGBUG
+  #include "common/pixelgroup.h" // SWIGBUG
 
 typedef VContainer<Node> VContainerNode;
 typedef VContainer<FuncNode> VContainerFuncNode;

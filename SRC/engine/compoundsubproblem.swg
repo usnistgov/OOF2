@@ -20,6 +20,7 @@
 %{
 #include "engine/compoundsubproblem.h"
   #include "engine/flux.h"	// SWIGBUG
+  #include "common/pixelgroup.h" // SWIGBUG
 %}
 
 class CIntersectionSubProblem: public CSubProblem {

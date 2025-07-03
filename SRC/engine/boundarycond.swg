@@ -31,6 +31,7 @@
 #include "engine/field.h"
 #include "engine/flux.h"
 #include "engine/node.h"
+  #include "common/pixelgroup.h" // SWIGBUG
 %}
 
 class FloatBCApp {
