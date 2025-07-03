@@ -29,6 +29,8 @@
 
 %nodefaultctor PixelSet;
 
+MAKE_LISTVEC_TYPEMAPS(PixelSet);
+
 class PixelSet {
 public:
   ~PixelSet();
@@ -50,6 +52,8 @@ public:
 	     double *double_argout,
 	     Coord *Coord_argout, Coord *Coord_argout,
 	     double *double_argout, double *double_argout);
+
+  PixelSetVec *contiguousSubSets() const;
 };
 
 %extend PixelSet {

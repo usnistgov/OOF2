@@ -60,6 +60,7 @@ public:
   virtual void add(const std::vector<ICoord>*);
   virtual void addWithoutCheck(const std::vector<ICoord>*); // ignore actv area
   virtual void add(const ICoord&);
+  void addWithoutLock(const ICoord&);
   virtual void remove(const std::vector<ICoord>*);
   virtual void removeWithoutCheck(const std::vector<ICoord>*);
   virtual ICoord pop();
@@ -79,6 +80,8 @@ public:
   void elkcepsed(int threshold, BoolArray &selected) const;
   void expand(double range, BoolArray &selected) const;
   void shrink(double range, BoolArray &selected) const;
+
+  std::vector<PixelSet*> *contiguousSubSets() const;
 };
 
 class PixelGroup : public PixelSet {

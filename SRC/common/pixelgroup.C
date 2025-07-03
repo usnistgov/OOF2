@@ -149,10 +149,14 @@ void PixelGroup::addWithoutCheck(const std::vector<ICoord> *pixels) {
 void PixelSet::add(const ICoord &pixel) {
   if(microstructure->getActiveArea()->isActive(&pixel)) {
     member_lock.acquire();
-    members_.push_back(pixel);
-    weeded = false;
+    addWithoutLock(pixel);
     member_lock.release();
   }
+}
+
+void PixelSet::addWithoutLock(const ICoord &pixel) {
+  members_.push_back(pixel);
+  weeded = false;
 }
 
 void PixelGroup::add(const ICoord &pixel) {
@@ -347,6 +351,8 @@ void PixelGroup::set_meshable(bool deshabille) {
   meshable_ = deshabille;
 }
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 void PixelSet::stats(double* avg_x, double* avg_y,
 		     double* avg_xx, double* avg_xy, double* avg_yy,
 		     Coord* eigenvec0, Coord* eigenvec1,
@@ -393,6 +399,54 @@ void PixelSet::stats(double* avg_x, double* avg_y,
   *eigenval1 = tau - disc;
   *eigenvec1 = Coord(mat01, *eigenval1-mat00);
   *eigenvec1 /= sqrt(norm2(*eigenvec1));
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Split a PixelSet into subsets, each of which is connected.  This is
+// very similar to burn() in common/burn.C.
+
+std::vector<PixelSet*> *PixelSet::contiguousSubSets() const {
+  // candidates[pt] is true if the pt is in the original PixelSet and
+  // not yet in any subset.
+  SimpleArray2D<bool> candidates(microstructure->sizeInPixels());
+  for(auto &pt : members_)
+    candidates[pt] = true;
+
+  static std::vector<ICoord> directions(
+		{ICoord(1, 0), ICoord(0,1), ICoord(-1, 0), ICoord(0, -1)});
+  
+  std::vector<PixelSet*> *subsets = new std::vector<PixelSet*>();
+  for(auto &pt : members_) {	// Look for a pixel not in a subset.
+    if(candidates[pt]) {
+      // This pixel is not already in a subset.  Start a new subset.
+      PixelSet *subset = new PixelSet(&geometry, microstructure);
+      subsets->push_back(subset);
+      // Put initial pixel in subset
+      candidates[pt] = false;
+      subset->addWithoutLock(pt);
+
+      // pixels in activeSites have been added to the subset but their
+      // neighbors may not have been checked yet.
+      std::vector<ICoord> activeSites;
+      activeSites.push_back(pt);
+      while(activeSites.size() > 0) {
+	// Remove the last site in the active list, and examine its
+	// neighbors.
+	const ICoord here = activeSites.back();
+	activeSites.pop_back();
+	for(const ICoord &direction : directions) {
+	  ICoord target = here + direction;
+	  if(candidates.contains(target) && candidates[target]) {
+	    subset->addWithoutLock(target); // add it to the subset
+	    candidates[target] = false;	    // don't examine it again
+	    activeSites.push_back(target);  // examine its neighbors later
+	  }
+	}
+      }
+    }
+  } // end loop over starting points
+  return subsets;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

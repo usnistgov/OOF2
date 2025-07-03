@@ -538,7 +538,7 @@ pixgrpmenu.addItem(OOFMenuItem(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def _queryGroup(menuitem, microstructure, group, units):
+def _queryGroup(menuitem, microstructure, group, units, contiguous):
     mscontext = ooflib.common.microstructure.microStructures[microstructure]
     ms = mscontext.getObject()
 
@@ -557,36 +557,41 @@ def _queryGroup(menuitem, microstructure, group, units):
     mscontext.begin_reading()
     try:
         grp = ms.findGroup(group)
-        npix = len(grp)
-        (avg_x, avg_y, avg_xx, avg_xy, avg_yy,
-         eigenvec0, eigenvec1,
-         eigenval0, eigenval1) = grp.stats()
+        if contiguous:
+            grps = grp.contiguousSubSets()
+        else:
+            grps = [grp]
+
+        for i, subgrp in enumerate(grps):
+            (avg_x, avg_y, avg_xx, avg_xy, avg_yy,
+             eigenvec0, eigenvec1,
+             eigenval0, eigenval1) = subgrp.stats()
+            npix = len(subgrp)
+            # Convert into desired units
+            area = npix * xfactor * yfactor
+            avg_x = avg_x * xfactor
+            avg_y = avg_y * yfactor
+            avg_xx = avg_xx * xfactor**2
+            avg_yy = avg_yy * yfactor**2
+            avg_xy = avg_xy * xfactor * yfactor
+            if contiguous:
+                reporter.report(f">>> Subgroup {i}")
+            reporter.report(f">>> pixels: {npix}")
+            reporter.report(f">>> center: ({avg_x}, {avg_y})")
+            reporter.report(f">>> area: {area}")
+            reporter.report(
+                f">>> aspect ratio: {math.sqrt(eigenval0/eigenval1)}")
+            angle = math.atan2(eigenvec0[1], eigenvec0[0])*180/math.pi
+            reporter.report(f">>> principle direction: {angle} degrees")
+
+
     finally:
         mscontext.end_reading()
 
-    # Convert into desired units
-    area = npix * xfactor * yfactor
-    avg_x = avg_x * xfactor
-    avg_y = avg_y * yfactor
-    avg_xx = avg_xx * xfactor**2
-    avg_yy = avg_yy * yfactor**2
-    avg_xy = avg_xy * xfactor * yfactor
-    
-    reporter.report(f">>> pixels: {npix}")
-    reporter.report(f">>> center: ({avg_x}, {avg_y})")
-    reporter.report(f">>> area: {area}")
-    # reporter.report(f">>> eigenvector={eigenvec0}, eigenvalue={eigenval0}")
-    # reporter.report(f">>> eigenvector={eigenvec1}, eigenvalue={eigenval1}")
-    reporter.report(f">>> aspect ratio: {math.sqrt(eigenval0/eigenval1)}")
-    angle = math.atan2(eigenvec0[1], eigenvec0[0])*180/math.pi
-    reporter.report(f">>> principle direction: {angle} degrees")
-
-    
-    # TODO: info for each contiguous set within the group.  It might
-    # be easist to create a temporary PixelGroup for each subgroup.
-    
     # TODO: Print average pixel color and deviation, as used by
     # OOF.PixelGroup.AutoGroup.
+    # TODO: Plug-in architecture so other parts of OOF2 can add new
+    # kinds of info?  Maybe this is needed for color info.
     
 pixgrpmenu.addItem(OOFMenuItem(
     'Query',
@@ -598,7 +603,10 @@ pixgrpmenu.addItem(OOFMenuItem(
         PixelGroupParameter('group', tip='Get information on this group.'),
         oofenum.EnumParameter('units', ooflib.common.units.Units,
                               value='Physical',
-                              tip='Units for pixel measurements')
+                              tip='Units for pixel measurements'),
+        parameter.BooleanParameter(
+            'contiguous', value=False,
+            tip="Report info for each contiguous region separately?")
     ],
     help="Query the given PixelGroup.",
     discussion="<para>Print some information about the given &pixelgroup;.</para>"))

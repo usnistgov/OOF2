@@ -725,12 +725,19 @@ class MicrostructurePage(oofGUI.MainPage):
 
     def clearPixelsCB(self, button):
         mainmenu.OOF.PixelGroup.Clear(microstructure=self.currentMSName(),
-                             group=self.currentGroupName())
+                                      group=self.currentGroupName())
 
     def queryPixelsCB(self, button):
-        mainmenu.OOF.PixelGroup.Query(microstructure=self.currentMSName(),
-                             group=self.currentGroupName())
-
+        menuitem = mainmenu.OOF.PixelGroup.Query
+        msname = self.currentMSName()
+        group = self.currentGroupName()
+        if parameterwidgets.getParameters(
+                menuitem.get_arg('units'),
+                menuitem.get_arg('contiguous'),
+                parentwindow=self.gtk.get_toplevel(),
+                title=f"Query Group {group}"):
+            menuitem.callWithDefaults(microstructure=msname, group=group)
+        
     def saveMSCB(self, button):
         menuitem = mainmenu.OOF.File.Save.Microstructure
         msname = self.currentMSName()
