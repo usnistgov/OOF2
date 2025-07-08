@@ -731,9 +731,13 @@ class MicrostructurePage(oofGUI.MainPage):
         menuitem = mainmenu.OOF.PixelGroup.Query
         msname = self.currentMSName()
         group = self.currentGroupName()
+        # Get values for all parameters other than microstructure and
+        # group, which are fixed by this Page.  Plug-ins might have
+        # added other parameters to menuitem.params.
+        args = [arg for arg in menuitem.params
+                if arg.name not in ("microstructure", "group")]
         if parameterwidgets.getParameters(
-                menuitem.get_arg('units'),
-                menuitem.get_arg('contiguous'),
+                *args,
                 parentwindow=self.gtk.get_toplevel(),
                 title=f"Query Group {group}"):
             menuitem.callWithDefaults(microstructure=msname, group=group)

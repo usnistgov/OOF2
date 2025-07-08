@@ -538,7 +538,12 @@ pixgrpmenu.addItem(OOFMenuItem(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def _queryGroup(menuitem, microstructure, group, units, contiguous):
+# OOF.PixelGroup.Query prints geometrical information about a pixel
+# group.  Other information, such as color and orientation can be
+# added by plug-ins.  Plug-ins are derived from PixelGroupInfoPlugIn,
+# defined in ooflib.SWIG.common.pixelgroup.
+
+def _queryGroup(menuitem, microstructure, group, units, contiguous, **kwargs):
     mscontext = ooflib.common.microstructure.microStructures[microstructure]
     ms = mscontext.getObject()
 
@@ -574,25 +579,29 @@ def _queryGroup(menuitem, microstructure, group, units, contiguous):
             avg_xx = avg_xx * xfactor**2
             avg_yy = avg_yy * yfactor**2
             avg_xy = avg_xy * xfactor * yfactor
+            prefix = "   "
             if contiguous:
-                reporter.report(f">>> Subgroup {i}")
-            reporter.report(f">>> pixels: {npix}")
-            reporter.report(f">>> center: ({avg_x}, {avg_y})")
-            reporter.report(f">>> area: {area}")
+                reporter.report(f"{prefix} --- Subgroup {i} ---")
+            reporter.report(f"{prefix} pixels: {npix}")
+            reporter.report(f"{prefix} center: ({avg_x}, {avg_y})")
+            reporter.report(f"{prefix} area: {area}")
             reporter.report(
-                f">>> aspect ratio: {math.sqrt(eigenval0/eigenval1)}")
+                f"{prefix} aspect ratio: {math.sqrt(eigenval0/eigenval1)}")
             angle = math.atan2(eigenvec0[1], eigenvec0[0])*180/math.pi
-            reporter.report(f">>> principle direction: {angle} degrees")
-
+            reporter.report(f"{prefix} principle direction: {angle} degrees")
+            for plugin in pixelgroup.infoPlugInInstances:
+                # **kwargs can contain parameter values used by
+                # plug-ins.  They should add their parameters to the
+                # menuitem in their constructors.
+                text = plugin(menuitem=menuitem,
+                              microstructure=ms, pixelset=subgrp,
+                              xscale=xfactor, yscale=yfactor, **kwargs)
+                for line in text.split("\n"):
+                    reporter.report(f"{prefix} {line}")
 
     finally:
         mscontext.end_reading()
 
-    # TODO: Print average pixel color and deviation, as used by
-    # OOF.PixelGroup.AutoGroup.
-    # TODO: Plug-in architecture so other parts of OOF2 can add new
-    # kinds of info?  Maybe this is needed for color info.
-    
 pixgrpmenu.addItem(OOFMenuItem(
     'Query',
     callback=_queryGroup,
@@ -611,7 +620,6 @@ pixgrpmenu.addItem(OOFMenuItem(
     help="Query the given PixelGroup.",
     discussion="<para>Print some information about the given &pixelgroup;.</para>"))
     
-        
 ############################
 
 # Functions for reading and writing pixelgroups in a data file. 

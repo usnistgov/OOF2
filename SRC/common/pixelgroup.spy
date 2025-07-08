@@ -8,6 +8,10 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
+from ooflib.common import debug
+from ooflib.SWIG.common import ooferror
+import sys
+
 def _PixelGroup___eq__(self, other):
     try:
         return self.id() == other.id()
@@ -19,7 +23,33 @@ def _PixelGroup___hash__(self):
     return hash(self.id())
 PixelGroup.__hash__ = _PixelGroup___hash__
 
-#######################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 attributeReg = PixelGroupAttributeRegistration()
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Plug-in classes for displaying info about PixelSets or PixelGroups
+# by OOF.PixelGroup.Query.  These are callable objects that are passed
+# a PixelSet, a Microstructure, and x and y scale factors, and return
+# a string, which is printed.  Additional keyword arguments can be
+# added by calling OOF.PixelGroup.Query.append_args().
+
+# See common/pixelgroupmenu.py:_queryGroup for the Query callback and
+# SRC/image/pixelgroupinfo.py for an example plug-in.
+
+infoPlugInInstances = []
+
+class PixelGroupInfoPlugInMetaClass(type):
+    def __init__(cls, name, bases, dct):
+        super(PixelGroupInfoPlugInMetaClass, cls).__init__(name, bases, dct)
+        # Create a singleton instance of each subclass, but not *this*
+        # class.
+        if name != "PixelGroupInfoPlugIn":
+            singleton = cls()
+            infoPlugInInstances.append(singleton)
+
+class PixelGroupInfoPlugIn(metaclass=PixelGroupInfoPlugInMetaClass):
+    def __call__(self, menuitem, *args, **kwargs):
+        assert ooferror.PyErrPyProgrammingError(
+            self.__class__.__name__ + ".__call__ is not defined")

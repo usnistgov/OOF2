@@ -688,6 +688,9 @@ class OOFMenuItem:
     def replace_args(self, params):
         self.params = params
 
+    def append_args(self, args):
+        self.params.extend(args)
+
 
     # disable() and enable() are called when it's necessary to
     # explicitly disable or enable a menu item.  They set or clear the
