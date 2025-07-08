@@ -22,6 +22,44 @@
 
 // TODO LATER:  Investigate whether all colors should be SWIG'd CColors.
 
+
+class CColor {
+public:
+  double getRed();
+  double getGreen();
+  double getBlue();
+  double getAlpha();
+  double getGray();
+  double getHue();
+  double getSaturation();
+  double getValue();
+
+  void setRed(double);
+  void setGreen(double);
+  void setBlue(double);
+  void setAlpha(double);
+};
+
+ADD_REPR_GENERIC(CColor);
+
+class CGrayColor: public CColor {
+public:
+  void setGray(double);
+};
+
+ADD_REPR_GENERIC(CGrayColor);
+
+class CHSVColor: public CColor {
+public:
+  void setHue(double);
+  void setSaturation(double);
+  void setValue(double);
+};
+
+ADD_REPR_GENERIC(CHSVColor);
+
+//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
 %typemap(in) CColor* (CColor clr) {
   // typemap(in) CColor*  -- converts Python color to C++ CColor
   PyObject *red = PyObject_CallMethod($input, "getRed", NULL);
@@ -48,35 +86,20 @@
   
 }
 
-//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+%typemap(in, numinputs=0) CColor* CColor_argout (CColor* ccolorptr) {
+  // typemap(int, numinputs=0) CColor* CColor_argout
+  ccolorptr = new CColor();
+  $1 = ccolorptr;
+}
 
-class CColor {
-public:
-  double getRed();
-  double getGreen();
-  double getBlue();
-  double getAlpha();
-  double getGray();
-  double getHue();
-  double getSaturation();
-  double getValue();
-
-  void setRed(double);
-  void setGreen(double);
-  void setBlue(double);
-  void setAlpha(double);
-};
-
-class CGrayColor: public CColor {
-public:
-  void setGray(double);
-};
-
-class CHSVColor: public CColor {
-public:
-  void setHue(double);
-  void setSaturation(double);
-  void setValue(double);
-};
+%typemap(argout) CColor* CColor_argout {
+  // typemap(argout) CColor* CColor_argout
+  $result = SWIG_Python_AppendOutput(
+	     $result,
+	     SWIG_NewPointerObj(SWIG_as_voidptr($1),
+				$descriptor(CColor*),
+				SWIG_POINTER_OWN),
+	     1);
+ }
 
 #endif // CCOLOR_SWG

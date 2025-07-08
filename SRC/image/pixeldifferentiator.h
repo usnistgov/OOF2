@@ -18,8 +18,10 @@
 
 #include "common/array.h"
 #include "common/burn.h"
+#include "common/pixelgroup.h"
 #include "common/statgroups.h"
 
+class CColor;
 class OOFImage;
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -62,6 +64,9 @@ protected:
   void findVariance();
 public:
   ColorPixelDistribution(const ICoord&, const OOFImage*, double);
+
+  // TODO: make this a template so it can use std::vector as well as
+  // std::set.
   ColorPixelDistribution(const std::set<ICoord>&, const OOFImage*, double);
   virtual PixelDistribution *clone(const std::set<ICoord>&) const;
   virtual void add(const ICoord&);
@@ -84,5 +89,12 @@ public:
   {}
   virtual PixelDistribution *newDistribution(const ICoord&) const;
 };
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Get color statistics on a PixelGroup.
+
+void groupColorStats(const OOFImage&, const PixelSet&, int*, CColor*, CColor*);
+		     
 
 #endif // PIXELDIFFERENTIATORI_H

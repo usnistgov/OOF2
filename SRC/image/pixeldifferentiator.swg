@@ -16,6 +16,7 @@
 
 %include "common/typemaps.swg"
 %import "common/burn.swg"
+%import "common/ccolor.swg"
 %import "common/statgroups.swg"
 %import "image/oofimage.swg"
 
@@ -39,6 +40,12 @@ class ColorPixelDistFactory : public PixelDistributionFactory {
 public:
   ColorPixelDistFactory(OOFImage*, double);
 };
+
+%apply int *OUTPUT { int *int_argout};
+
+void groupColorStats(OOFImage&, PixelSet&,
+		     int *int_argout,
+		     CColor *CColor_argout, CColor *CColor_argout);
 
 %pythoncode "image/pixeldifferentiator.spy"
 

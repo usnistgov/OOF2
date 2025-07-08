@@ -15,6 +15,7 @@ import ooflib.SWIG.image.oofimage
 import ooflib.image.IO.defaultLayer
 import ooflib.image.IO.imageIO
 import ooflib.image.IO.imagemenu
+import ooflib.image.pixelgroupinfo
 import ooflib.image.pixelselectionmethod
 import ooflib.image.pixelselectionmod
 

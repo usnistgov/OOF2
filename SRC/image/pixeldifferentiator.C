@@ -279,3 +279,57 @@ PixelDistribution *ColorPixelDistFactory::newDistribution(const ICoord &pixel)
 {
   return new ColorPixelDistribution(pixel, image, sigma0);
 }
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Compute statistics on a pixel set, for use in PixelGroup.Query.
+// This would use ColorPixelDistribution, except that the PixelSet
+// stores its pixels in a std::vector and ColorPixelDistribution
+// expects a std::set.  TODO: try making the ColorPixelDistribution
+// constructor a template, since it only needs an iterable object.
+
+void groupColorStats(const OOFImage& image, const PixelSet& pixels,
+		     int* ncolors, CColor* mean, CColor* deviation)
+{
+  if(pixels.len() == 0)
+    return;
+
+  double rsum = 0.0;
+  double gsum = 0.0;
+  double bsum = 0.0;
+  double rrsum = 0.0;
+  double ggsum = 0.0;
+  double bbsum = 0.0;
+
+  std::set<CColor> colors;
+
+  const Magick::PixelPacket *pxlpack = image.pixelPacket();
+
+  for(const ICoord pxl : *pixels.members()) {
+    CColor color = image.getColor(pxl, pxlpack);
+    colors.insert(color);
+    double r = color.getRed();
+    double g = color.getGreen();
+    double b = color.getBlue();
+    rsum += r;
+    gsum += g;
+    bsum += b;
+    rrsum += r*r;
+    ggsum += g*g;
+    bbsum += b*b;
+  }
+  double ninv = 1./pixels.len();
+  rsum *= ninv;
+  gsum *= ninv;
+  bsum *= ninv;
+  double rvar = rrsum*ninv - rsum*rsum;
+  double gvar = ggsum*ninv - gsum*gsum;
+  double bvar = bbsum*ninv - bsum*bsum;
+  if(rvar < 0.0) rvar = 0.0;
+  if(gvar < 0.0) gvar = 0.0;
+  if(bvar < 0.0) bvar = 0.0;
+
+  *ncolors = colors.size();
+  *mean = CColor(rsum, gsum, bsum);
+  *deviation = CColor(sqrt(rvar), sqrt(gvar), sqrt(bvar));
+}
