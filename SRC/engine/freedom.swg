@@ -19,10 +19,11 @@
 
 %{
 #include "engine/freedom.h"
-  #include "engine/edge.h"	// SWIGBUG
-  #include "engine/equation.h"	// SWIGBUG
-  #include "engine/flux.h"	// SWIGBUG
-  #include "common/pixelgroup.h" // SWIGBUG
+#include "engine/edge.h"	// SWIGBUG
+#include "engine/equation.h"	// SWIGBUG
+#include "engine/flux.h"	// SWIGBUG
+#include "common/pixelgroup.h"	// SWIGBUG
+#include "common/ccolor.h"	// SWIGBUG
 %}
 
 %nodefaultctor DegreeOfFreedom;

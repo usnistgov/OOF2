@@ -26,10 +26,11 @@
 #include "common/coord.h"
 #include "engine/field.h"
 #include "engine/outputval.h"
-  #include "engine/flux.h"	// SWIGBUG
-  #include "engine/node.h"	// SWIGBUG
-  #include "engine/property.h"	// SWIGBUG?
-  #include "common/pixelgroup.h" // SWIGBUG
+#include "engine/flux.h"	// SWIGBUG
+#include "engine/node.h"	// SWIGBUG
+#include "engine/property.h"	// SWIGBUG
+#include "common/pixelgroup.h"	// SWIGBUG
+#include "common/ccolor.h"	// SWIGBUG
 int countFields();
 typedef std::vector<CompoundField*> CompoundFieldVec;
 typedef FieldIndex NewFieldIndex;

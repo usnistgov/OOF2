@@ -19,8 +19,9 @@
 
 %{
 #include "engine/pixelgroupsubproblem.h"
-  #include "engine/flux.h"	// SWIGBUG
-  #include "common/pixelgroup.h" // SWIGBUG
+#include "engine/flux.h"	// SWIGBUG
+#include "common/pixelgroup.h"	// SWIGBUG
+#include "common/ccolor.h"	// SWIGBUG
 %}
 
 class CPixelGroupSubProblem: public CSubProblem {

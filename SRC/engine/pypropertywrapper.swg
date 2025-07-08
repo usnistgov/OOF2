@@ -20,9 +20,10 @@
 
 %{
 #include "engine/pypropertywrapper.h"
-  #include "engine/equation.h"	// SWIGBUG
-  #include "engine/flux.h"	// SWIGBUG
-  #include "common/pixelgroup.h" // SWIGBUG
+#include "engine/equation.h"	// SWIGBUG
+#include "engine/flux.h"	// SWIGBUG
+#include "common/pixelgroup.h"	// SWIGBUG
+#include "common/ccolor.h"	// SWIGBUG
 %}
 
 // Not much has to be done here.  When the C++ code uses a Property

@@ -25,9 +25,10 @@
 %{
 #include "engine/edge.h"
 #include "engine/outputval.h"
-  #include "engine/flux.h"	// SWIGBUG
-  #include "common/pixelgroup.h" // SWIGBUG
-%}
+#include "engine/flux.h"	// SWIGBUG
+#include "common/pixelgroup.h"	// SWIGBUG
+#include "common/ccolor.h"	// SWIGBUG
+  %}
 
 MAKE_LISTVEC_TYPEMAPS(Coord);
 

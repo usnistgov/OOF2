@@ -21,8 +21,9 @@
 
 %{
 #include "engine/edgeset.h"
-  #include "engine/flux.h"	// SWIGBUG
-  #include "common/pixelgroup.h" // SWIGBUG
+#include "engine/flux.h"	// SWIGBUG
+#include "common/pixelgroup.h"	// SWIGBUG
+#include "common/ccolor.h"	// SWIGBUG
 typedef std::vector<const EdgeNodeDistance*> vecdist;
 %}
 
