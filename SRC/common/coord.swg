@@ -99,6 +99,11 @@
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
+// Return a Coord*, in a list if there are other things already being
+// returned.  If the other return values are already in a list, and
+// the Coord is *not* supposed to be appended to that list, do not use
+// this typemap!
+
 %typemap(in, numinputs=0) Coord* Coord_argout (Coord *coordptr) {
   // typemap(int, numinputs=0) Coord* Coord_argout
   coordptr = new Coord();
@@ -107,7 +112,7 @@
 
 %typemap(argout) Coord* Coord_argout {
   // typemap(argout) Coord* Coord_argout
-  $result = SWIG_Python_AppendOutput(
+  $result = SWIG_Python_AppendOutput( 
 	     $result,
 	     SWIG_NewPointerObj(SWIG_as_voidptr($1),
 				$descriptor(Coord*),
