@@ -247,7 +247,7 @@ _materialmenu.addItem(OOFMenuItem(
 
 # "property" is actually the name of the property.  It's done
 # this way so it looks sensible to the user.
-def _addprop(menuitem,name,property):
+def _addprop(menuitem, name, property):
     matmanager.add_prop(name, property)
     switchboard.notify("material changed", name)
     switchboard.notify("prop_added_to_material", name, property)
@@ -282,11 +282,13 @@ _materialmenu.addItem(OOFMenuItem(
     </para>"""
     ))
 
+# For backward compatibility, Add_property is equivalent to
+# Add_Property.
+
 _materialmenu.addItem(
     _materialmenu.Add_Property.clone(
         name='Add_property',
-        no_doc=True,
-        # secret=True, ## TODO: Check that this is correct
+        no_doc=True, secret=True, 
         discussion=xmlmenudump.emptyDiscussion
     )) 
 
