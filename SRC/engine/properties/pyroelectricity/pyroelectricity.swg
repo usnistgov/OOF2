@@ -27,15 +27,7 @@
  // were other C registered objects that needed enum parameters.
 
 %typemap(in) std::string *coefficient_type (std::string s) {
-  // static PyObject *EnumBaseClass = 0;
-  // if(!EnumBaseClass) {
-  //   PyObject *module = PyImport_ImportModule("ooflib.common.enum");
-  //   EnumBaseClass = PyObject_GetAttrString(module, "EnumBase");
-  //   Py_XDECREF(module);
-  //   if(!EnumBaseClass)
-  //     SWIG_fail;
-  // }
-  FETCH_CLASS(ooflib.common.enum, EnumBase);
+  FETCH_CLASS(ooflib.common.oofenum, EnumBase);
   if(PyObject_IsInstance($input, EnumBaseClass)) {
     PyObject *enum_name = PyObject_GetAttrString($input, "name");
     PyObject *ustr = PyUnicode_AsEncodedString(enum_name, "UTF-8", "replace");
