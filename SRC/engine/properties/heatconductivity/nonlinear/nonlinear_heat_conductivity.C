@@ -145,6 +145,7 @@ DoubleVec nonlin_heat_flux_1(const Coord &pt,
   return {
     -gradtemp[0] - CUBE(gradtemp[0]) / 3.0,
     -gradtemp[1] - pow(gradtemp[1], 5.0)/50.0,
+    0.0
   };
 }
 
@@ -154,7 +155,7 @@ DoubleVec nonlin_heat_flux_deriv_wrt_temperature_1(
 			      double time, double temperature,
 			      const DoubleVec &gradtemp)
 {
-  return DoubleVec(2);
+  return DoubleVec(3);
 }
 
 
