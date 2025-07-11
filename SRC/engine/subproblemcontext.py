@@ -1071,13 +1071,12 @@ class SubProblemContext(whoville.Who):
         # get_unknowns_part() doesn't either, because it operates on
         # the result of get_unknowns_MCKa().
         #
-        # computeAuxFirstDerivs() can not be called in
-        # set_mesh_dofs().  set_mesh_dofs() is called by
-        # installValues(), moveOn(), and make_linear_system(), where
-        # it interpolates other problems.  But computeAuxFirstDerivs()
-        # needs to know the matrices, and therefore can only be called
-        # after make_linear_system() is done.  So calling it here in
-        # endStep() is correct.
+        # computeAuxFirstDerivs() cannot be called in set_mesh_dofs().
+        # set_mesh_dofs() is called by installValues(), moveOn(), and
+        # make_linear_system(), where it interpolates other problems.
+        # But computeAuxFirstDerivs() needs to know the matrices, and
+        # therefore can only be called after make_linear_system() is
+        # done.  So calling it here in endStep() is correct.
 
         self.computeAuxFirstDerivs(linsys, stepResult.endValues, self.endValues)
         
