@@ -90,6 +90,3 @@ Also, the example may be too fast to bring up the activity viewer.
 
 Basics/Error Handling -- continued:  Should tell the user to click "OK".
 
-NEW TODOS
-
-More pixel info in pixelgroupmenu.py.
