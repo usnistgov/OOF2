@@ -35,10 +35,6 @@ public:
   bool operator==(const DoubleVec&) const;
   bool operator!=(const DoubleVec&) const;
 
-  // DoubleVec& operator+=(const DoubleVec&);
-  // DoubleVec& operator-=(const DoubleVec&);
-  // DoubleVec& operator/=(double);
-  // DoubleVec& operator*=(double);
   void axpy(double alpha, const DoubleVec& x); // self += alpha*x
 
   DoubleVec operator+(const DoubleVec&) const;
@@ -80,16 +76,11 @@ public:
     *self = *x;
   }
 
-    // TODO? Call this __copy__ instead of clone.  Then use copy.copy
-    // to copy.
+  // TODO? Call this __copy__ instead of clone.  Then use copy.copy
+  // to copy.
   %newobject clone;
   DoubleVec *clone() {
     DoubleVec* dv = new DoubleVec(*self);
-    // if(self->is_verbose()) {
-    //   dv->verbose(true);
-    //   std::cerr << "DoubleVec.clone: src=" << self->addr()
-    // 		<< "  dst=" << dv->addr() << std::endl;
-    // }
     return dv;
   }
 
@@ -112,32 +103,6 @@ public:
     return a;
   }
   
-  // void increment(int i, double v) { // TODO: Do we use this?  
-  //   (*self)[i] += v;
-  // }
-
-  // %newobject __add__;
-  // DoubleVec* __add__(const DoubleVec& other) {
-  //   assert(self->size() == other.size());
-  //   DoubleVec *result = new DoubleVec(*self);
-  //   result->data += other.data;
-  //   return result;
-  // }
-
-  // %newobject __sub__;
-  // DoubleVec* __sub__(const DoubleVec& other) {
-  //   DoubleVec *result = new DoubleVec(*self);
-  //   result->data -= other.data;
-  //   return result;
-  // }
-
-  // %newobject __truediv__;
-  // DoubleVec *__truediv__(double factor) {
-  //   DoubleVec* result = new DoubleVec(*self);
-  //   result->data /= factor;
-  //   return result;
-  // }
-
   %newobject __rmul__;
   DoubleVec* __rmul__(double factor) {
     DoubleVec *result = new DoubleVec(*self);
@@ -160,69 +125,6 @@ public:
   void c_idiv(double x) {
     *self /= x;
   }
-    
-
-  // For some reason, swigging __iadd__, __isub__, and __itruediv__
-  // doesn't work.  The reference count of the result is incorrect and
-  // it's deleted too soon.  But swig knows what to do with
-  // operator+=, etc.
-  // TODO: Perhaps that was because it was returning *self instead of void?
-  // TODO: No, both operator+= and __iadd__ have the same problem.
-
-  // DoubleVec* operator+=(const DoubleVec& other) {
-  //   std::cerr << "operator+=" << self->addr() << " " << other.addr() << std::endl;
-  //   assert(self->size() == other.size());
-  //   self->data += other.data;
-  //   return self;
-  // }
-
-  // void operator-=(const DoubleVec& other) {
-  //   assert(self->size() == other.size());
-  //   self->data -= other.data;
-  // }
-
-  // void operator/=(double factor) {
-  //   self->data /= factor;
-  // }
-
-  // void operator*=(double factor) {
-  //   self->data *= factor;
-  // }
-
-  // DoubleVec::__mul__, __rmul__, and __imul__ are defined in Python
-  // (in doublevec.spy) so that they can check their argument type and
-  // distinguish between vector*factor, factor*vector, and
-  // vector*vector.  They call the methods c_mul, c_rmul, and c_imul
-  // that are defined here.
-
-  // %newobject c_mul;
-  // DoubleVec* c_mul(double factor) {
-  //   DoubleVec* result = new DoubleVec(*self);
-  //   *result *= factor;
-  //   return result;
-  // }
-
-  // %newobject c_rmul;
-  // DoubleVec* c_rmul(double factor) {
-  //   DoubleVec* result = new DoubleVec(*self);
-  //   *result *= factor;
-  //   return result;
-  // }
-
-  // DoubleVec* c_imul(double factor) {
-  //   *self *= factor;
-  //   return self;
-  // }
-
-  // bool __eq__(const DoubleVec &other) {
-  //   assert(self->size() == other.size());
-  //   return *self == other;
-  // }
-
-  // bool __ne__(const DoubleVec &other) {
-  //   assert(self->size() == other.size());
-  //   return *self != other;
-  // }
 
   // Accessing individual items from python is highly discouraged but
   // is useful for testing and debugging.  Iteration in Python is not

@@ -8,34 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-# def _doublevec___mul__(self, factor):
-#     if isinstance(factor, DoubleVec):
-#         return self.dot(factor)
-#     # The test for float and int has to be done here, or else
-#     # vector*matrix leads to an infinite loop, trying to find a
-#     # suitable __mul__ variant.  Without the test, the __imul__ (*=)
-#     # invocation below will fail when the rhs is a matrix.  When that
-#     # happens, python falls back to __mul__, which is this function,
-#     # which will call __imul__ and so on ad infinitum (assuming that
-#     # __mull__ is written in terms of __imul__).
-#     if isinstance(factor, (float, int)):
-#         return self.c_mul(factor)
-#     return NotImplemented
-# DoubleVec.__mul__ = _doublevec___mul__
-
-# def _doublevec___rmul__(self, factor):
-#     if isinstance(factor, (float, int)):
-#         return self.c_rmul(factor)
-#     return NotImplemented
-# DoubleVec.__rmul__ = _doublevec___rmul__
-
-# def _doublevec___imul__(self, factor):
-#     # vec1 *= vec2 doesn't exist, since vec1*vec2 is a scalar
-#     if isinstance(factor, (float, int)):
-#         return self.c_imul(factor)
-#     return NotImplemented
-
-
 def _doublevec__iadd__(self, other):
     if isinstance(other, DoubleVec):
         self.c_iadd(other)
