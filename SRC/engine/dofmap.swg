@@ -29,7 +29,6 @@ public:
   ~DoFMap();
   %newobject extract;
   DoubleVec* extract(DoubleVec&);
-  void inject(DoubleVec&, DoubleVec&);
   int range();
   int domain();
 };

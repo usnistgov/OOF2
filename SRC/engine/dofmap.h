@@ -65,8 +65,7 @@ public:
   // values from the source and puts them into the destination in the
   // locations from which extract() would have copied them.
   DoubleVec *extract(const DoubleVec&) const;
-  void inject(const DoubleVec &src, DoubleVec &dest) const;
-  void inject(const DoubleVec &src, unsigned int oset, DoubleVec &dest) const;
+  void inject(const DoubleVec &src, unsigned int offset, DoubleVec &dest) const;
   // extract into the given vector, with the given offset
   void extract(const DoubleVec&, DoubleVec&, unsigned int) const;
 

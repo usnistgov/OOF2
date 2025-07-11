@@ -821,7 +821,7 @@ DoubleVec *LinearizedSystem::set_unknowns_MCK(const DoubleVec *src,
   const
 {
   DoubleVec *result = new DoubleVec(*dest);
-  subp2MCKFieldMap.inject(*src, *result);
+  subp2MCKFieldMap.inject(*src, 0, *result);
   return result;
 }
 
@@ -831,7 +831,7 @@ DoubleVec *LinearizedSystem::set_unknowns_MCKa(const DoubleVec *src,
 {
   int n = subp2MCKFieldMap.range();
   DoubleVec *result = new DoubleVec(*dest); // Copy!
-  subp2MCKFieldMap.inject(*src, *result);
+  subp2MCKFieldMap.inject(*src, 0, *result);
   subp2nonEmptyMDerivMap.inject(*src, n, *result);
   return result;
 }
@@ -853,7 +853,7 @@ void LinearizedSystem::set_unknowns_Cdot_inplace(const DoubleVec *src,
 						 DoubleVec *dest)
   const
 {
-  subp2nonEmptyCDerivMap.inject(*src, *dest);
+  subp2nonEmptyCDerivMap.inject(*src, 0, *dest);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

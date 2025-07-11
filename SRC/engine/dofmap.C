@@ -130,33 +130,20 @@ void DoFMap::extract(const DoubleVec &source, DoubleVec &dest,
 
 // inject() copies values from the source and puts them into the
 // destination in the locations from which extract() would have copied
-// them.
+// them.  The given offset is used when the destination contains more
+// than one oet of values (fields and their time derivatives, for
+// example).
 
-void DoFMap::inject(const DoubleVec &source, DoubleVec &destination) const {
-#ifdef DEBUG
-  if(range() != source.size()) {
-    std::cerr << "DoFMap::inject: range=" << range() << " source.size="
-	      << source.size() << std::endl;
-    throw ErrProgrammingError("Bad sizes in DoFMap::inject",
-			      __FILE__, __LINE__);
-  }
-#endif // DEBUG
-  assert(domain() == destination.size());
-  assert(range() == source.size());
-  inject(source, 0, destination);
-}
-
-// New bounds-checked three-argument form of the "inject" function. 
-void DoFMap::inject(const DoubleVec &source, unsigned int oset,
+void DoFMap::inject(const DoubleVec &source, unsigned int offset,
 		    DoubleVec &dest) 
   const
 {
   for(unsigned int i=0; i<map_.size(); ++i) {
     int j = map_[i];
-    if (j != -1) {
+    if(j != -1) {
       assert(i < dest.size());
-      assert(j+oset < source.size());
-      dest[i] = source[j+oset];
+      assert(j+offset < source.size());
+      dest[i] = source[j+offset];
     }
   }
 }
