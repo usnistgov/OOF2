@@ -184,7 +184,12 @@ LogDefiniteProgress::LogDefiniteProgress(const std::string &name,
 {}
 
 void LogDefiniteProgress::setRange(double initialVal, double targetVal) {
-  assert(initialVal >= targetVal);
+  // To be meaningful, initialVal should be larger than targetVal
+  // (because LogDefiniteProgress is used when an error is being
+  // reduced to a tolerance).  But if it's not larger, then no
+  // iterations will be taken, and it doesn't matter much what we do
+  // here.  By *not* checking, we simplify the progress bar calls that
+  // are inserted into Eigen.  assert(initialVal >= targetVal);
   initialValue = initialVal;
   targetValue = targetVal;
   log_init_over_targ = log(initialValue/targetValue);
