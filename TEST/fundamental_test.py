@@ -271,7 +271,6 @@ class OOF_Fundamental(ExcTestCase):
 
     def WorkerExceptionZero(self):
         # Check for a properly handled divide by zero error
-        ## TODO: Fix this!  Is the worker not being removed?
         self.assertEqual(len(allWorkers), 0)
         self.assertEqual(len(allWorkerCores), 0)
         self.assertRaises(ZeroDivisionError, OOF.Help.Debug.Error.DivideByZero)
@@ -424,7 +423,7 @@ test_set = [
     OOF_Fundamental("WorkerException1"),
     OOF_Fundamental("WorkerException2"),
     OOF_Fundamental("WorkerException3"),
-    # OOF_Fundamental("WorkerExceptionZero"),
+    OOF_Fundamental("WorkerExceptionZero"),
     OOF_Fundamental("ScriptException0"),
     OOF_Fundamental("ScriptException1"),
     OOF_Fundamental("ScriptException2"),
@@ -437,5 +436,5 @@ test_set = [
 ]
 
 # test_set = [
-#     OOF_Fundamental("ScriptSyntaxErr0")
+#     OOF_Fundamental("WorkerExceptionZero")
 # ]
