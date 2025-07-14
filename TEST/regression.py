@@ -12,11 +12,10 @@
 # all the test suites in this directory, and what order to run them in
 # in order to get a proper regression test.
 
-## TODO: Allow tests to be selected by regexp and/or wildcards, eg
-##       oof2-test "skeleton*"
-## The "*" is expanded as if the cwd is TEST even when elsewhere.
+## TODO: Is it possible to allow wildcards as well as regexp syntax?
+## Or is that just dumb?
 
-import sys, os, getopt, copy, unittest
+import sys, os, getopt, copy, unittest, re
 
 test_module_names = [
     "fundamental_test",
@@ -61,58 +60,18 @@ test_module_names = [
     # "interface_test"
     ]
 
+dryrun = False
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# The startup sequence for regression.py has to imitate the executable
-# oof2 script. That one imports the contents of the math module into
-# the main oof namespace, so we have to do it here too.  Not importing
-# math here will make some tests fail.
-from math import *
-
-def stripdotpy(name):
-    if name.endswith(".py"):
-        return name[:-3]
-    return name
-
-testcount = 1
-
-def run_modules(test_module_names, oofglobals, backwards):
-    logan = unittest.TextTestRunner()
-    if backwards:
-        test_module_names.reverse()
-    for m in test_module_names:
-        try:
-            ldict = {}
-            exec(f"from oof2.TEST import {m} as test_module", globals(), ldict)
-            test_module = ldict["test_module"]
-        except ImportError:
-            print(f"Import error: {m}", file=sys.stderr)
-            print(f"path is {sys.path}")
-        else:
-            print("Running test module %s." % m)
-            # Make sure all the goodies in the OOF namespace are available.
-            test_module.__dict__.update(oofglobals)
-            if hasattr(test_module, "initialize"):
-                test_module.initialize()
-            for t in test_module.test_set:
-                global testcount
-                print("\n *** Running test %d: %s ***\n" % \
-                    (testcount, t.id()), file=sys.stderr)
-                testcount += 1
-                res = logan.run(t)
-                if not res.wasSuccessful():
-                    return False
-            # res = test_module.run_tests()
-            # if res==0: # failure.
-            #     return False
-    return True
-
-def printhelp():
+def errormsg(msg=None):
+    if msg:
+        print(msg)
     print(f"""
-    Usage : {os.path.split(sys.argv[0])[1]} [options] [test names]
-
+Usage : {os.path.split(sys.argv[0])[1]} [options] [test names]
 Options are:
    --list             List test names in order, but don't run any of them.
+   --dryrun           List the tests that will be run, but don't run them.
    --from   testname  Start with the given test.
    --after  testname  Start after the given test.
    --to     testname  Stop at the given test.
@@ -121,9 +80,90 @@ Options are:
    --oofargs args     Pass arguments to oof2.
    --debug            Run oof2 in debug mode.
    --help             Print this message.
-The options --from, --after, and --to cannot be used if test names are 
-explicitly listed after the options.
-""", file=sys.stderr)
+Test names can be given in Python's regular expression syntax. See
+https://docs.python.org/3/library/re.html#regular-expression-syntax    
+""",
+   file=sys.stderr)
+
+    sys.exit(1 if msg else 0)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# The startup sequence for regression.py has to imitate the executable
+# oof2 script. That one imports the contents of the math module into
+# the main oof namespace, so we have to do it here too.  Not importing
+# math here will make some tests fail.
+from math import *
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Test module name manipulations
+
+def stripdotpy(name):
+    if name.endswith(".py"):
+        return name[:-3]
+    return name
+
+# Command line arguments might be regular expressions.  Return the
+# first test module name that matches the given name.
+
+def findmodulename(name):
+    regexp = re.compile(name)
+    for testname in test_module_names:
+        if regexp.fullmatch(testname):
+            return testname
+    errormsg(f"Test module '{name}' not found.")
+
+# Return all test module names that match the given name.
+
+def findmodulenames(name):
+    regexp = re.compile(name)
+    matches = []
+    for testname in test_module_names:
+        if regexp.fullmatch(testname):
+            matches.append(testname)
+    if matches:
+        return matches
+    errormsg(f"Test module '{name}' not found.")
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+testcount = 1
+
+def run_modules(test_module_names, oofglobals, backwards):
+    logan = unittest.TextTestRunner()
+    if backwards:
+        test_module_names.reverse()
+    for m in test_module_names:
+        if dryrun:
+            print(m)
+        else:
+            try:
+                ldict = {}
+                exec(f"from oof2.TEST import {m} as test_module",
+                     globals(), ldict)
+                test_module = ldict["test_module"]
+            except ImportError:
+                print(f"Import error: {m}", file=sys.stderr)
+                print(f"path is {sys.path}")
+            else:
+                print("Running test module %s." % m)
+                # Make sure all the goodies in the OOF namespace are available.
+                test_module.__dict__.update(oofglobals)
+                if hasattr(test_module, "initialize"):
+                    test_module.initialize()
+                for t in test_module.test_set:
+                    global testcount
+                    print("\n *** Running test %d: %s ***\n" % \
+                        (testcount, t.id()), file=sys.stderr)
+                    testcount += 1
+                    res = logan.run(t)
+                    if not res.wasSuccessful():
+                        return False
+                # res = test_module.run_tests()
+                # if res==0: # failure.
+                #     return False
+    return True
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -133,43 +173,46 @@ def run(homedir):
         opts,args = getopt.getopt(sys.argv[1:],"f:a:t:o:",
                                   ["from=", "after=", "to=", "oofargs=",
                                    "forever", "debug", "backwards",
-                                   "help", "list"])
+                                   "dryrun", "help", "list"])
     except getopt.GetoptError as err:
-        print(str(err))
-        printhelp()
-        sys.exit(2)
+        errormsg(str(err))
 
     oofargs = []
     
-    fromtogiven = False
-    startaftergiven = False
+    fromgiven = False           # actually from_or_after_given
+    togiven = False
     forever = False
     debug = False
     backwards = False
+    global dryrun
 
     for o,v in opts:
         if o in ("-f", "--from"):
-            if startaftergiven:
-                print("You can't use both --from and --after.", file=sys.stderr)
-                sys.exit(1)
-            v = stripdotpy(v)
-            test_module_names = test_module_names[test_module_names.index(v):]
-            fromtogiven = True
-            startaftergiven = True
+            if fromgiven:
+                errormsg("You can only use --from or --after once.")
+            fromgiven = True
+            v = findmodulename(stripdotpy(v))
+            if v:
+                test_module_names = \
+                    test_module_names[test_module_names.index(v):]
         if o in ("-a", "--after"):
-            if startaftergiven:
-                print("You can't use both --from and --after.", file=sys.stderr)
-                sys.exit(1)
-            v = stripdotpy(v)
-            test_module_names = \
-                test_module_names[test_module_names.index(v)+1:]
-            fromtogiven = True
-            startaftergiven = True
+            if fromgiven:
+                errormsg("You can only use --after or --from once.")
+            fromgiven = True
+            v = findmodulename(stripdotpy(v))
+            if v:
+                test_module_names = \
+                    test_module_names[test_module_names.index(v)+1:]
+            limitsgiven = true
         elif o in ("-t", "--to"):
-            v = stripdotpy(v)
-            test_module_names = \
-                test_module_names[:test_module_names.index(v)+1]
-            fromtogiven = True
+            if togiven:
+                errormsg("You can only use --to once.")
+            togiven = True
+            v = findmodulename(stripdotpy(v))
+            if v:
+                test_module_names = \
+                    test_module_names[:test_module_names.index(v)+1]
+            limitsgiven = True
         elif o in ("-o","--oofargs"):
             oofargs = v.split()
         elif o == "--forever":
@@ -181,17 +224,27 @@ def run(homedir):
         elif o == "--list":
             print("\n".join(test_module_names))
             sys.exit(0)
+        elif o == "--dryrun":
+            dryrun = True
         elif o == "--help":
-            printhelp()
-            sys.exit(0)
+            errormsg()
 
-    if fromtogiven:
+    if args:
+        # Test names were listed explicitly on the command line.
+        if fromgiven or togiven:
+            errormsg("You can't explicitly list tests *and* use --from, --after, or --to.")
+
+        # Expand regular expressions and add all tests that match, in
+        # the order given on the command line.  If an argument matches
+        # more than one test, add it more than once.  That may not be
+        # what the user meant to do, but it's what they asked for.
         if args:
-            print("You can't explicitly list the tests *and* use --from, --after, or --to.")
-            sys.exit(1)
-    elif args:
-        test_module_names = [stripdotpy(a) for a in args]
-        
+            tnames = []
+            for t in args:
+                v = findmodulenames(stripdotpy(t))
+                if v:
+                    tnames.extend(v)
+            test_module_names = tnames
 
     # Effectively pass these through.
     sys.argv = [sys.argv[0]] + oofargs
@@ -216,7 +269,9 @@ def run(homedir):
     # changes if the time format changes.  Setting TZ here means that
     # the creation time will always include time zone information, and
     # will always use the same number of characters.
-    os.environ["TZ"] = "Etc/UTC"
+    ## Commented out, because pdf testing isn't reproducible anyway,
+    ## so we're not doing it.
+    # os.environ["TZ"] = "Etc/UTC"
 
     oof.run(no_interp=1)
 
