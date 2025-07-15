@@ -36,6 +36,15 @@ OOF2 2.3.4
 * Fixed the isotropic damping property.  It had been including
   off-diagonal terms.  It's not physical but ought to be correct.
 
+* Regular expressions can be used as arguments to oof2-test and
+  oof2-guitest. Eg, oof2-test "skel.*"  runs all tests with names
+  beginning with "skel".
+
+* More output from OOF.PixelGroup.Query().  In addition to area and
+  number of pixels, it prints shape aspect ratio and principle axes,
+  and color distribution.  It can print data for each contiguous
+  subgroup separately.
+
 OOF2 2.3.3
 
 * Disabled selection of interface segments since interface properties
