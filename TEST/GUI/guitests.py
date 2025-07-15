@@ -11,10 +11,12 @@
 # This file looks for all subdirectories of the current directory and
 # runs the gui test contained in each one.  The tests are run in
 # alphabetical order of the subdirectory name.  It is assumed that
-# each subdirectory contains a file named TESTFILE (defined below to
-# "test.log", nee "log.py").  The test is run by
-# executing
-#         oof2 --pathdir <subdirectory> --replay <subdirectory>/TESTFILE
+# each subdirectory contains a file named TESTFILE:
+
+TESTFILE = "test.log"
+
+# The test is run by executing
+#    oof2 --pathdir <subdirectory> --replay <subdirectory>/TESTFILE
 # and testing its return value. The subdirectory is added to the
 # python path so that the log file can contain import statements that
 # load tests from other files in the subdirectory.
@@ -28,8 +30,10 @@
 # in the path.
 
 # To temporarily skip a subdirectory, add a file called SKIP to it.
-# To permanently skip a subdirectory, add it to the skipdirs list,
-# below.
+# To permanently skip a subdirectory, add it to the "excluded" list
+# here:
+
+excluded = ['CVS','TEST_DATA', 'examples', '__pycache__']
 
 # The subdirectory can contain a file called "args" which contains a
 # single line of arguments to be added to the oof2 command.  It can
@@ -42,14 +46,10 @@
 # that status should be put in a file called 'exitstatus' in the
 # test subdirectory.
 
-## TODO: Allow tests to be selected by regexp and/or wildcards, eg
-##       oof2-guitest --regexp "041*"
-## The "*" is expanded as if the cwd is TEST/GUI even when elsewhere.
-
-TESTFILE = "test.log"
 
 import getopt
 import os
+import re
 import string
 import subprocess
 import sys
@@ -61,6 +61,7 @@ no_checkpoints = False
 sync = False
 unthreaded = False
 retries = 0
+dryrun = False
 
 global tmpdir
 tmpdir = None
@@ -113,8 +114,6 @@ def really_run_tests(homedir, dirs, rerecord):
         # Check that the directory and log file exist, and that
         # there's no SKIP file, before bothering to make the symlink
         # to the directory.
-        if directory in skipdirs:
-            continue
         if not os.path.isdir(originaldir):
             print("Can't find directory", directory, file=sys.stderr)
             return
@@ -134,7 +133,8 @@ def really_run_tests(homedir, dirs, rerecord):
         ## full path to TESTFILE.  The test directory is already in
         ## PYTHONPATH.
         testdir = os.path.join(tmpdir, directory)
-        os.symlink(os.path.join(homedir, directory), testdir)
+        if not dryrun:
+            os.symlink(os.path.join(homedir, directory), testdir)
 
         # Read extra oof2 args from the args file, if it exists.
         if os.path.exists(os.path.join(directory, 'args')):
@@ -145,7 +145,7 @@ def really_run_tests(homedir, dirs, rerecord):
             extraargs = []
         # Read the expected exit status from the exitstatus file, if
         # it exists.
-        if os.path.exists(os.path.join(originaldir, 'exitstatus')):
+        if os.path.exists(os.path.join(directory, 'exitstatus')):
             exitstatfile = open(os.path.join(directory, 'exitstatus'))
             exitstatus = int(exitstatfile.readline())
             exitstatfile.close()
@@ -176,10 +176,12 @@ def really_run_tests(homedir, dirs, rerecord):
                "--pathdir", "UTILS",
                "--%s" % replayarg,
                os.path.join(directory, TESTFILE)] + extraargs
-
-        print("-------------------------", file=sys.stderr)
+        if not dryrun:          # dryrun output is briefer
+            print("-------------------------", file=sys.stderr)
         for iteration in range(retries+1):
             print("--- Running %s" % ' '.join(cmd), file=sys.stderr)
+            if dryrun:
+                continue
             os.environ["OOFTESTDIR"] = directory
             result = subprocess.call(cmd)
             print("--- Return value =", result, file=sys.stderr)
@@ -198,47 +200,47 @@ def really_run_tests(homedir, dirs, rerecord):
                 break           # success.  Don't retry.
         if iteration != 0:
             retried.append((directory, iteration))
-        print("--- Finished %s" % directory, file=sys.stderr)
-
-        cleanupscript = os.path.join(directory, 'cleanup.py')
-        if os.path.exists(cleanupscript):
-            sys.path.append(directory)
-            sys.path.append(homedir)
-            sys.path.append("UTILS")
-            exec(
-                compile(
-                    open(cleanupscript, "rb").read(), cleanupscript, 'exec'),
-                globals(), locals())
-
-        os.remove(testdir)
+        if not dryrun:
+            print("--- Finished %s" % directory, file=sys.stderr)
+            cleanupscript = os.path.join(directory, 'cleanup.py')
+            if os.path.exists(cleanupscript):
+                sys.path.append(directory)
+                sys.path.append(homedir)
+                sys.path.append("UTILS")
+                exec(
+                    compile(open(cleanupscript, "rb").read(),
+                            cleanupscript, 'exec'),
+                    globals(), locals())
+            os.remove(testdir)
         nrun += 1
-          
-    print("%d test%s ran successfully!" % (nrun, "s"*(nrun!=1)),
-          file=sys.stderr)
-    if retried:
-        print(f"Repeated {len(retried)} test{'s'*(len(retried)!=1)}:",
+
+    if not dryrun:
+        print("%d test%s ran successfully!" % (nrun, "s"*(nrun!=1)),
               file=sys.stderr)
-        for directory, count in retried:
-            print(f"    {directory}: repeats = {count}", file=sys.stderr)
+        if retried:
+            print(f"Repeated {len(retried)} test{'s'*(len(retried)!=1)}:",
+                  file=sys.stderr)
+            for directory, count in retried:
+                print(f"    {directory}: repeats = {count}", file=sys.stderr)
     if skipped:
         print("Skipped %d test%s:" % (len(skipped), "s"*(len(skipped)!=1)),
               file=sys.stderr)
         for skipdir in skipped:
             print(f"    {skipdir}", file=sys.stderr)
 
-excluded = ['CVS','TEST_DATA', 'examples']
-
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def get_dirs():
+    # Return the full set of test directory names.
     files = sorted([f for f in os.listdir('.')
-             if os.path.isdir(f) and f not in excluded])
+                    if os.path.isdir(f) and f not in excluded])
     return files
 
-def checkdir(directory, dirs):
-    if directory not in dirs:
-        print("There is no directory named", directory, file=sys.stderr)
-        sys.exit(1)
+def expanddirs(name, alldirs):
+    # Return the subset of alldirs that matches the given name, which
+    # might be a regular expression.
+    regexp = re.compile(name)
+    return [testname for testname in alldirs if regexp.fullmatch(testname)]
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -254,12 +256,14 @@ def linkfile(homedir, filename):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def printhelp():
+def errormsg(msg=None):
+    if msg:
+        print(msg, file=sys.stderr)
     print(f"""
 Usage:  {os.path.split(sys.argv[0])[1]} [options] [test names]
 
 Options are:
-   --list             List test names in order, but don't run any of them.
+   --list             List all available tests in order, but don't run any.
    --from   testname  Start with the given test.
    --after  testname  Start after the given test.
    --to     testname  Stop at the given test.
@@ -272,8 +276,11 @@ Options are:
    --rerecord         Re-record log files, without actually testing.
                       This is useful if new checkpoints have been added.
    --no-checkpoints   Ignore checkpoints in log files (not very useful).
+   --dryrun           Don't actually run anything, but print what would be run.
    --help             Print this message.
 """, file=sys.stderr)
+
+    sys.exit(1 if msg else 0)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -285,14 +292,13 @@ def run(homedir):
                                        'list',
                                        'from=', 'after=', 'to=',
                                        'rerecord', 'no-checkpoints',
-                                       'sync', 'unthreaded',
+                                       'sync', 'unthreaded', 'dryrun',
                                        'forever', 'retries=',
                                        'help'])
-    except getopt.error as message:
-        print(message)
-        printhelp()
-        sys.exit(1)
-    global debug, unthreaded, sync, no_checkpoints, delaystr, retries
+    except getopt.GetoptError as message:
+        errormsg(message)
+
+    global debug, unthreaded, sync, no_checkpoints, delaystr, retries, dryrun
     fromdir = None
     afterdir = None
     todir = None
@@ -328,42 +334,62 @@ def run(homedir):
             retries = int(opt[1])
         elif opt[0] == '--list':
             listtests = True
+        elif opt[0] == '--dryrun':
+            dryrun = True
         elif opt[0] == '--help':
-            printhelp()
-            sys.exit(0)
+            errormsg()
+
+    dirs = get_dirs()        # list of subdirectories in OOF/TEST/GUI.
 
     if listtests:
-        dirs = get_dirs()
         print("\n".join(dirs))
         sys.exit(0)
 
-    if args:         # test directories were explicitly listed on command line
-        run_tests([os.path.normpath(a) for a in args], rerecord, forever)
-    else:
-        dirs = get_dirs()
-        if afterdir:
-            if fromdir:
-                print("You cannot use both --from and --after!", file=sys.stderr)
-                sys.exit(0)
-            # Start at the directory following afterdir
-            fromdir = dirs[dirs.index(afterdir)+1]
 
-        if fromdir and not todir:
-            checkdir(fromdir, dirs)
-            start = dirs.index(fromdir)
-            run_tests(dirs[start:], rerecord, forever)
-        elif todir and not fromdir:
-            checkdir(todir, dirs)
-            end = dirs.index(todir)
-            run_tests(dirs[:end+1], rerecord, forever)
-        elif todir and fromdir:
-            checkdir(fromdir, dirs)
-            checkdir(todir, dirs)
-            start = dirs.index(fromdir)
-            end = dirs.index(todir)
-            run_tests(dirs[start:end+1], rerecord, forever)
-        else:                           # use all test directories
-            run_tests(dirs, rerecord, forever)
+    expdirs = []  # list of subdirectories to be actually used
+    
+    if args:
+        # Test directories or regexps for them were explicitly listed
+        # on the command line.  Expand each regexp, checking for
+        # errors.
+        for regexp in args:
+            edirs = expanddirs(regexp, dirs)
+            if not edirs:
+                errormsg(f"Directory {regexp} not found.")
+            expdirs.extend(edirs)
+    else:
+        # Resolve --from, --after, and --to arguments
+        fromindex = 0
+        toindex = -1
+        if fromdir and afterdir:
+            errormsg("You cannot use both --from and --after!")
+
+        if fromdir:
+            try:
+                fromds = expanddirs(fromdir, dirs)
+                fromindex = dirs.index(fromds[0])
+            except:
+                errormsg(f"Directory {fromddir} not found!")
+
+        if afterdir:
+            try:
+                afterds = expanddirs(afterdir, dirs)
+                fromindex = dirs.index(fromds[0]) + 1
+                if fromindex >= dirs.size():
+                    fromindex = -1
+            except:
+                errormsg(f"Directory {afterdir} not found!")
+
+        if todir:
+            try:
+                tods = expanddirs(todir, dirs)
+                toindex = dirs.index(tods[0])
+            except:
+                errormsg(f"Directory {todir} not found!")
+
+        expdirs = dirs[fromindex:toindex]
+            
+    run_tests(expdirs, rerecord, forever)
                          
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

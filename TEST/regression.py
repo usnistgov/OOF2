@@ -70,8 +70,7 @@ def errormsg(msg=None):
     print(f"""
 Usage : {os.path.split(sys.argv[0])[1]} [options] [test names]
 Options are:
-   --list             List test names in order, but don't run any of them.
-   --dryrun           List the tests that will be run, but don't run them.
+   --list             List all available tests in order, but don't run any.
    --from   testname  Start with the given test.
    --after  testname  Start after the given test.
    --to     testname  Stop at the given test.
@@ -79,6 +78,7 @@ Options are:
    --backwards        Run tests in reverse order.
    --oofargs args     Pass arguments to oof2.
    --debug            Run oof2 in debug mode.
+   --dryrun           List the tests that will be run, but don't run them.
    --help             Print this message.
 Test names can be given in Python's regular expression syntax. See
 https://docs.python.org/3/library/re.html#regular-expression-syntax    
@@ -118,10 +118,8 @@ def findmodulename(name):
 
 def findmodulenames(name):
     regexp = re.compile(name)
-    matches = []
-    for testname in test_module_names:
-        if regexp.fullmatch(testname):
-            matches.append(testname)
+    matches = [testname for testname in test_module_names
+               if regexp.fullmatch(testname)]
     if matches:
         return matches
     errormsg(f"Test module '{name}' not found.")
@@ -135,34 +133,30 @@ def run_modules(test_module_names, oofglobals, backwards):
     if backwards:
         test_module_names.reverse()
     for m in test_module_names:
-        if dryrun:
-            print(m)
+        try:
+            ldict = {}
+            exec(f"from oof2.TEST import {m} as test_module",
+                 globals(), ldict)
+            test_module = ldict["test_module"]
+        except ImportError:
+            print(f"Import error: {m}", file=sys.stderr)
+            print(f"path is {sys.path}")
         else:
-            try:
-                ldict = {}
-                exec(f"from oof2.TEST import {m} as test_module",
-                     globals(), ldict)
-                test_module = ldict["test_module"]
-            except ImportError:
-                print(f"Import error: {m}", file=sys.stderr)
-                print(f"path is {sys.path}")
-            else:
-                print("Running test module %s." % m)
-                # Make sure all the goodies in the OOF namespace are available.
-                test_module.__dict__.update(oofglobals)
-                if hasattr(test_module, "initialize"):
-                    test_module.initialize()
-                for t in test_module.test_set:
-                    global testcount
-                    print("\n *** Running test %d: %s ***\n" % \
-                        (testcount, t.id()), file=sys.stderr)
-                    testcount += 1
-                    res = logan.run(t)
-                    if not res.wasSuccessful():
-                        return False
-                # res = test_module.run_tests()
-                # if res==0: # failure.
-                #     return False
+            print(f"--- Running test module {m}. ---")
+            # Make sure all the goodies in the OOF namespace are available.
+            test_module.__dict__.update(oofglobals)
+            if not dryrun and hasattr(test_module, "initialize"):
+                test_module.initialize()
+            for t in test_module.test_set:
+                global testcount
+                print(f"*** Running test {testcount}: {t.id()} ***",
+                      file=sys.stderr)
+                testcount += 1
+                if dryrun:
+                    continue
+                res = logan.run(t)
+                if not res.wasSuccessful():
+                    return False
     return True
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -203,7 +197,7 @@ def run(homedir):
             if v:
                 test_module_names = \
                     test_module_names[test_module_names.index(v)+1:]
-            limitsgiven = true
+            limitsgiven = True
         elif o in ("-t", "--to"):
             if togiven:
                 errormsg("You can only use --to once.")
