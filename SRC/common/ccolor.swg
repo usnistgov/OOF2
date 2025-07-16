@@ -86,11 +86,16 @@ ADD_REPR_GENERIC(CHSVColor);
   
 }
 
+// TODO: Can we use "%apply OUTPUT..." here instead of these typemaps?
+
 %typemap(in, numinputs=0) CColor* CColor_argout (CColor* ccolorptr) {
   // typemap(int, numinputs=0) CColor* CColor_argout
   ccolorptr = new CColor();
   $1 = ccolorptr;
 }
+
+// The final argument to SWIG_Python_AppendOutput(), "is_void", was
+// introduced in swig 4.3.  Earlier versions operate as if is_void=1.
 
 %typemap(argout) CColor* CColor_argout {
   // typemap(argout) CColor* CColor_argout
@@ -98,8 +103,11 @@ ADD_REPR_GENERIC(CHSVColor);
 	     $result,
 	     SWIG_NewPointerObj(SWIG_as_voidptr($1),
 				$descriptor(CColor*),
-				SWIG_POINTER_OWN),
-	     1);
+				SWIG_POINTER_OWN)
+#if SWIG_VERSION >= 0x040300
+	     , 1
+#endif	// SWIG_VERSION
+				     );
  }
 
 #endif // CCOLOR_SWG
