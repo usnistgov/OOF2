@@ -25,8 +25,6 @@
 #include "common/ooferror.h"
 %}
 
-%include "typemaps.i"
-
 %nodefaultctor PixelSet;
 
 MAKE_LISTVEC_TYPEMAPS(PixelSet);
@@ -44,8 +42,6 @@ public:
   PixelSet *clone();
   void clear();
   std::vector<ICoord> *members();
-
-  %apply double *OUTPUT { double *double_argout };
 
   void stats(double *double_argout, double *double_argout,
 	     double *double_argout, double *double_argout,
