@@ -43,11 +43,11 @@ public:
   void clear();
   std::vector<ICoord> *members();
 
-  void stats(double *double_argout, double *double_argout,
-	     double *double_argout, double *double_argout,
-	     double *double_argout,
+  void stats(double *OUTPUT, double *OUTPUT,
+	     double *OUTPUT, double *OUTPUT,
+	     double *OUTPUT,
 	     Coord *Coord_argout, Coord *Coord_argout,
-	     double *double_argout, double *double_argout);
+	     double *OUTPUT, double *OUTPUT);
 
   PixelSetVec *contiguousSubSets() const;
 };

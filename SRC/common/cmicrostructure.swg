@@ -83,9 +83,9 @@ public:
   TimeStamp &getTimeStamp();
   void setCurrentActiveArea(ActiveArea*);
   int nGroups();
-  PixelGroup *getGroup(const std::string &name, 
-		       bool *bool_argout); // creates new group if necessary
-  PixelGroup *findGroup(const std::string &name); // never creates a new group
+  // getGroup creates a new group if necessary.  findGroup never does.
+  PixelGroup *getGroup(const std::string &name, bool *OUTPUT); 
+  PixelGroup *findGroup(const std::string &name); 
   void removeGroup(char *name);
   void removeAllGroups();
   void renameGroupC(char *oldname, char *newname);

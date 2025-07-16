@@ -291,18 +291,6 @@ std::string {
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
-// A bool returned as an argument via C++ pointer becomes a return
-// value in Python: void f(bool *b) --> b = f()
-
-// At one point it looked like typemaps.i needed to be included to
-// pick up OUTPUT, but that seems not to be the case.
-%include "typemaps.i"
-
-%apply bool *OUTPUT { bool *bool_argout };
-%apply double *OUTPUT { double *double_argout }; // same for double
-
-//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-
 // std::vector<double> <--> [double]
 
 // The "in" typemaps use a const vector. C++ will only see a copy of
