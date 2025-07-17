@@ -10,10 +10,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
-if config.dimension() == 2:
-    from ooflib.SWIG.image import oofimage
-elif config.dimension() == 3:
-    from ooflib.SWIG.image import oofimage3d as oofimage
+from ooflib.SWIG.image import oofimage
 from ooflib.common import debug
 from ooflib.common import registeredclass
 from ooflib.common.IO import mainmenu
@@ -25,6 +22,10 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.image.IO import imagemenu
 import ooflib.common.microstructure
 
+import sys
+if config.use_skimage():
+    import numpy
+    import skimage
 
 imgmenu = mainmenu.OOF.LoadData.addItem(
     oofmenu.OOFMenuItem(
@@ -32,6 +33,15 @@ imgmenu = mainmenu.OOF.LoadData.addItem(
         help="Read Image data from a data file.",
         discussion=xmlmenudump.loadFile("DISCUSSIONS/common/menu/loaddata.xml")
     ))
+
+# ImageData classes contain image data to be stored in OOF2 data
+# files.
+
+# TODO: If the internal representation of images is changed from
+# 64-bit float to something else, then the toArray() methods in the
+# ImageData subclasses will have to change.  Those classes should all
+# call a single function that converts the numpy array to the correct
+# format.  Should the user be able to choose the image representation?
 
 
 class ImageData(registeredclass.RegisteredClass):
@@ -44,44 +54,111 @@ class ImageData(registeredclass.RegisteredClass):
     command.
     </para>"""
 
+    
+# RGBData8 is an old format, predating our use of numpy.  It should
+# only be used to load old data files.  Also, it should have been
+# called RGBData16.
+
 class RGBData8(ImageData):
     def __init__(self, rgbvalues):
         self.rgbvalues = rgbvalues
-    def values(self):
-        return self.rgbvalues
+    # RGBData8 has no toBytes method because it is only used to read
+    # old data files, and cannot write new ones.
+    def toArray(self, sizeInPixels):
+        data = numpy.array(self.rgbvalues, dtype=numpy.dtype('H'))
+        data = skimage.util.img_as_float64(data)
+        data = data.reshape(sizeInPixels[1], sizeInPixels[0], 3)
+        return data
 
 registeredclass.Registration(
     'RGBData8',
     ImageData,
     RGBData8,
-    ordering=0,
+    ordering=100,
     params=[
     parameter.ListOfUnsignedShortsParameter('rgbvalues', tip="RGB values.")],
     tip="RGB image data.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/rgbdata8.xml'))
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/rgbdata8.xml')
+)
 
+#-----------
 
-
-class GrayData8(ImageData):
-    def __init__(self, grayvalues):
-        self.grayvalues = grayvalues
-    def values(self):
-        return self.grayvalues
+class NumpyRGB64(ImageData):
+    def __init__(self, rgbdata):
+        if type(rgbdata) == str:
+            rgbdata = bytes.fromhex(rgbdata)
+        self.rgbdata = rgbdata
+    def toBytes(self, image):
+        # Convert image to 64-bit float. This is a no-op if nothing
+        # has to be done.
+        img64 = skimage.img_as_float64(image)
+        # Ensure that the output is little-endian
+        if img64.dtype != numpy.dtype("<d"):
+            img64 = img64.byteswap(inplace=(img64 is not image))
+        self.rgbdata = img64.tobytes()
+    def toArray(self, sizeInPixels):
+        array = numpy.frombuffer(self.npdata, dtype=numpy.dtype('d'))
+        array = array.reshape(sizeInPixels[1], sizeInPixels[0], 3)
+        return array
+    def __repr__(self):
+        return f"NumpyRGB64(rgbdata='{self.rgbdata.hex()}')"
 
 registeredclass.Registration(
-    'GrayData8',
+    'NumpyRGB64',
     ImageData,
-    GrayData8,
+    NumpyRGB64,
+    ordering=2,
+    params=[
+        parameter.BytesParameter('npdata',
+                                 tip='64 bit floats encoded as bytes')],
+    tip="Numpy RGB image data stored as 8 byte floats.")
+
+#-----------
+
+class NumpyRGB16(ImageData):
+    def __init__(self, rgbdata):
+        if type(rgbdata) == str:
+            debug.fmsg(f"NumpyRGB16: read {len(rgbdata)} hex characters")
+            rgbdata = bytes.fromhex(rgbdata)
+        else:
+            debug.fmsg(f"NumpyRGB16: read {len(rgbdata)} bytes")
+        self.rgbdata = rgbdata
+    def toBytes(self, image):
+        # Convert data to 16 bit unsigned int. This is a no-op if
+        # nothing has to be done.
+        img16 = skimage.img_as_uint(image)
+        # Ensure that the output is little-endian
+        if img16.dtype != numpy.dtype("<H"):
+            # Don't swap bytes in-place if img16 is image!
+            img16 = img16.byteswap(inplace=(img16 is not image))
+        self.rgbdata = img16.tobytes()
+    def toArray(self, sizeInPixels):
+        array = numpy.frombuffer(self.rgbdata, dtype=numpy.dtype("H"))
+        array = array.reshape(sizeInPixels[1], sizeInPixels[0], 3)
+        return skimage.util.img_as_float64(array)
+    def __repr__(self):
+        return f"NumpyRGB16(rgbdata='{self.rgbdata.hex()}')"
+
+registeredclass.Registration(
+    'NumpyRGB16',
+    ImageData,
+    NumpyRGB16,
     ordering=1,
     params=[
-    parameter.ListOfUnsignedShortsParameter('grayvalues', tip="Gray values.")],
-    tip="Gray image data.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/graydata8.xml'))
+        parameter.BytesParameter("rgbdata",
+                                 tip='Image data stored as 16 bit ints')],
+    tip="Numpy RGB image data stored as two byte ints.")
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def _newImage(menuitem, name, microstructure, pixels):
     ms = ooflib.common.microstructure.microStructures[microstructure].getObject()
-    image = oofimage.newImageFromData(name, ms.sizeInPixels(), list(pixels.values()))
+    if config.use_skimage():
+        # Get bytes from the ImageData (pixels) arg. 
+        image = oofimage.OOFImage(name, pixels.toArray(ms.sizeInPixels()))
+    else:
+        image = oofimage.OOFImage(name, ms.sizeInPixels(),
+                                  list(pixels.values()))
     image.setSize(ms.size())
     imagemenu.loadImageIntoMS(image, microstructure)
     
@@ -101,19 +178,27 @@ imgmenu.addItem(oofmenu.OOFMenuItem(
     </para>"""
     ))
 
-
-
 def writeImage(datafile, imagecontext):
     datafile.startCmd(mainmenu.OOF.LoadData.Image.New)
     datafile.argument('name', imagecontext.name())
     datafile.argument('microstructure', imagecontext.getMicrostructure().name())
-    datafile.argument('pixels', RGBData8(imagecontext.getObject().getPixels()))
+    npimage = imagecontext.npImage()
+    # Convert image to 16-bit ints.  This is a no-op if nothing has to
+    # be done.
+    img = skimage.util.img_as_uint(npimage)
+    # Make sure image is little-endian
+    if img.dtype != numpy.dtype("<H"):
+        # Swap bytes to ensure little-endianness.  Do it in place only
+        # if the previous conversion created a new object.
+        img = img.byteswap(inplace=(img is not npimage))
+    datafile.argument('pixels', NumpyRGB16(img.tobytes()))
     datafile.endCmd()
 
-# TODO LATER: Allow different image depths, and find a way to store
-# only gray values if the image is gray.
+# TODO?  Allow the user to select the format for saved images?  This
+# will probably have to be set as a global parameter, since images are
+# saved as part of Microstructures, Skeletons, and Meshes.
 
-###################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 ## Define a Microstructure IO PlugIn so that Images will be written to
 ## Microstructure data files.

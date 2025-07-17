@@ -16,7 +16,13 @@ target_sources(oof2image
   autogroup.C
   autogroup.h
   pixeldifferentiator.C
-  pixeldifferentiator.h)
+  pixeldifferentiator.h
+)
+
+target_include_directories(oof2image
+  PUBLIC
+  ${NUMPY_INCLUDE}
+)
 
 oof_swig_sources(
   SWIGFILES
@@ -26,6 +32,9 @@ oof_swig_sources(
   pixelselectioncourieri
   LIBRARIES
   oof2common
-  oof2image)
+  oof2image
+  INCLUDE_DIRECTORIES
+  ${NUMPY_INCLUDE}
+)
 
 add_subdirectory(IO)

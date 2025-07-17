@@ -1,5 +1,5 @@
 // This file was created automatically by the oof2 setup script.
-// Do not edit it.  Re-run cmake or ccmake to change the options
+// Do not edit it.  Re-run cmake or ccmake to change the options.
 
 #ifndef OOFCONFIG_H
 #define OOFCONFIG_H

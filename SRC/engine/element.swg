@@ -44,8 +44,8 @@
 #include "engine/material.h"
 #include "engine/outputval.h"
 #include "engine/mastercoord.h"
-  #include "engine/flux.h"	// SWIGBUG
-  #include "common/pixelgroup.h" // SWIGBUG
+#include "engine/flux.h"	// SWIGBUG
+#include "common/pixelgroup.h"	// SWIGBUG
 %}
 
 PYTHONEXPORTABLE(ElementData);

@@ -21,8 +21,8 @@
 %{
 #include "engine/material.h"
 #include "engine/materialsubproblem.h"
-  #include "engine/flux.h"	// SWIGBUG
-  #include "common/pixelgroup.h" // SWIGBUG
+#include "engine/flux.h"	// SWIGBUG
+#include "common/pixelgroup.h"	// SWIGBUG
 %}
 
 class CMaterialSubProblem : public CSubProblem {

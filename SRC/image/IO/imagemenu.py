@@ -33,6 +33,7 @@ from ooflib.image import imagemodifier
 import ooflib.common.microstructure
 
 import os.path
+import skimage.io
 
 imagemenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'Image',
@@ -97,8 +98,10 @@ def autoReadImage(filename, height, width):
         kwargs['height'] = height
     if width is not automatic.automatic:
         kwargs['width'] = width
-    return oofimage.readImage(filename, **kwargs) # OOFImage object
-    
+    if config.use_skimage():
+        return oofimage.readNumpyImage(filename, **kwargs) # OOFImage object
+    else:
+        return oofimage.readImage(filename, **kwargs)
         
 def loadImageIntoMS(image, microstructure):
     # 'image' is an OOFImage object.
@@ -159,15 +162,21 @@ switchboard.requestCallback(('remove who', 'Microstructure'), _sensitize)
 
 ##################################
 
-# Use ImageMagick to save an image file.
+# Use scikit-image to save an image file.
 
 def saveImage(menuitem, image, filename, overwrite):
-    immidge = oofimage.getImage(image)
-    if immidge and (overwrite or not os.path.exists(filename)):
-        immidge.save(filename)
+    if config.use_skimage():
+        immidge = oofimage.getImage(image).npImage()
+        if immidge is not None and (overwrite or not os.path.exists(filename)):
+            skimage.io.imsave(filename, immidge, check_contrast=False)
+        else:
+            reporter.warn("Image was not saved!")
     else:
-        reporter.warn("Image was not saved!")
-    
+        immidge = oofimage.getImage(image)
+        if immidge and (overwrite or not os.path.exists(filename)):
+            immidge.save(filename)
+        else:
+            reporter.warn("Image was not saved!")
 
 mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     'Image',
@@ -207,7 +216,10 @@ def imageNameResolver(param, startname):
 
 def copyImage(menuitem, image, microstructure, name):
     sourceimage = oofimage.getImage(image)
-    immidge = sourceimage.clone(name)
+    if config.use_skimage():
+        immidge = sourceimage.clone(name, sourceimage.npImage().copy())
+    else:
+        immidge = sourceimage.clone(name)
     loadImageIntoMS(immidge, microstructure)
 
 imagemenu.addItem(oofmenu.OOFMenuItem(
@@ -394,7 +406,8 @@ def createMSFromImage(menuitem, name, width, height, image):
         
     imagepath = labeltree.makePath(image)
     immidgecontext = imagecontext.imageContexts[image]
-    immidge = immidgecontext.getObject().clone(imagepath[-1])
+    immidge = immidgecontext.getObject().clone(imagepath[-1],
+                                               immidgecontext.npImage().copy())
 
     # Set the physical size to the physical size of the source image.
     size = immidge.size()

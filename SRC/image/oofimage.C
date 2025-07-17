@@ -14,6 +14,8 @@
 #ifdef HAVE_MPI
 #include "common/mpitools.h"
 #endif ////HAVE_MPI
+#include "common/pythonlock.h"
+#include "common/pyutils.h"
 #include "common/IO/bitoverlay.h"
 #include "common/ooferror.h"
 #include "common/boolarray.h"
@@ -26,112 +28,37 @@
 #include <set>
 #include <iostream>
 
-OOFImage::OOFImage(const std::string &name, const std::string &filename)
-  : name_(name)
+OOFImage::OOFImage(const std::string &name, PyObject *pyobj)
+  : name_(name), npobject(nullptr)
 {
-  // Older versions of ImageMagick required the creation of an empty
-  // Image [image = Magick::Image()] followed by an explicit
-  // image.read(filename), because passing the filename to the Image
-  // constructor did not raise an exception if the file didn't exist.
-  // This problem seems to be fixed, so we use simpler one-step
-  // process here.
-  try {
-    image.read(filename);
-  }
-  catch (Magick::Exception &error) {
-    // Magick::Exceptions have to be converted into OOF2
-    // ImageMagickErrors so that they'll be handled properly by the
-    // SWIG exception typemap.
-    throw ImageMagickError(error.what());
-  }
-  catch (std::exception &error) {
-    std::cerr << "Caught exception: " << std::endl;
-    throw;
-  }
-  image.flip();		// real coordinates don't start at the top
+  setNpImage(pyobj);
   setup();
   imageChanged();
 }
 
+void OOFImage::setNpImage(PyObject *new_npimage) {
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(new_npimage != (PyObject*) npobject) {
+    Py_XINCREF(new_npimage);
+    Py_XDECREF((PyObject*) npobject);
+    npobject = (PyArrayObject*) new_npimage;
+  }
+}
+
 OOFImage::OOFImage(const std::string &name)
-  : name_(name)
-{
-}
-
-// Constructor for making a new blank image the same size 
-// and size-in-pixels as an old one.  You can't just pass in 
-// the old image, because that fuction signature is already 
-// taken by the real copy constructor.
-OOFImage::OOFImage(const std::string &name, const Coord &size, 
-		   const Magick::Geometry &g) 
-  : name_(name), image(g, Magick::Color(0,0,0)), size_(size)
-{
-  setup();
-}
-
-const Magick::PixelPacket *OOFImage::pixelPacket() const {
-  return image.getConstPixels(0, 0, sizeInPixels_[0], sizeInPixels_[1]);
-}
-
-OOFImage *newImageFromData(const std::string &name, const ICoord *isize,
-			   const std::vector<unsigned short> *data)
-{
-  return new OOFImage(name, *isize, "RGB", Magick::ShortPixel, &((*data)[0]));
-}
-
-OOFImage::OOFImage(const std::string &name, const ICoord &isize,
-		   const std::string &map,
-		   const Magick::StorageType storage,
-		   const void *data) 
-  : name_(name),
-    image(isize[0], isize[1], map, storage, data)
-{
-  setup();
-}
+  : name_(name), npobject(nullptr)
+{}
 
 
 void OOFImage::setup() {
-  try {
-    Magick::Geometry sighs = image.size();
-    sizeInPixels_ = ICoord(sighs.width(), sighs.height());
-  }
-  catch (Magick::Exception &e) {
-    throw ImageMagickError(e.what());
-  }
-  
-  // Scale factor for converting ImageMagick rgb values to floats in
-  // [0,1].  Using "Magick::QuantumRange" doesn't work (TODO: wtf?),
-  // so we have to use "using namespace Magick" to get access to
-  // QuantumRange.
-  // TODO: Report ImageMagick bug.  QuantumRange is a macro defined as
-  // ((Quantum) 65535) in ImageMagick-6/magick/magick-type.h, but
-  // Quantum isn't defined outside of the Magick namespace.
-  using namespace Magick;
-  scale = 1./QuantumRange;
-//   #ifdef DEBUG
-//     {
-//       std::map<CColor, int> histogram;
-//       const Magick::PixelPacket *pixels = pixelPacket();
-//       for(int i=0; i<sizeInPixels_[0]; i++)
-// 	for(int j=0; j<sizeInPixels_[1]; j++) {
-// 	  ICoord pt(i,j);
-// 	  CColor color = getColor(pt, pixels);
-// 	  auto iter = histogram.find(color);
-// 	  if(iter == histogram.end())
-// 	    histogram[color] = 1;
-// 	  else
-// 	    iter->second += 1;
-// 	}
-//       for(auto iter=histogram.begin(); iter!=histogram.end(); ++iter) {
-// 	std::cerr << "OOFImage::ctor: " << iter->first << " " << iter->second
-// 		  << std::endl;
-//       }
-//     }
-// #endif // DEBUG
+  npy_intp *dims = PyArray_DIMS(npobject);
+  sizeInPixels_ = ICoord(dims[1], dims[0]);
 }
 
 
 OOFImage::~OOFImage() {
+  PYTHON_THREAD_BEGIN_BLOCK;
+  Py_XDECREF(npobject);
 }
 
 // Tolerant comparison -- returns a boolean true if the other image
@@ -150,16 +77,16 @@ bool OOFImage::compare(const OOFImage &other, double tol) const {
   return true;
 }
 
-void OOFImage::save(const std::string &filename) {
-  Magick::Image copy = image;
-  try {
-    copy.flip();			// undo flip in constructor
-    copy.write(filename);
-  }
-  catch (Magick::Exception &e) {
-    throw ImageMagickError(e.what());
-   }
-}
+// void OOFImage::save(const std::string &filename) {
+//   Magick::Image copy = image;
+//   try {
+//     copy.flip();			// undo flip in constructor
+//     copy.write(filename);
+//   }
+//   catch (Magick::Exception &e) {
+//     throw ImageMagickError(e.what());
+//    }
+// }
 
 void OOFImage::setSize(const Coord *sighs) {
   size_ = *sighs;
@@ -184,14 +111,10 @@ bool OOFImage::pixelInBounds(const ICoord *pxl) const {
   return true;
 }
 
-OOFImage *OOFImage::clone(const std::string &nm) const {
-  OOFImage *copy = new OOFImage(nm);
-  try {
-    copy->image = Magick::Image(image); // Magick::Image copy constructor
-  }
-  catch (Magick::Exception &e) {
-    throw ImageMagickError(e.what());
-  }
+OOFImage *OOFImage::clone(const std::string &nm , PyObject *npobject) const {
+  // Clone is always called after copying the numpy image data in
+  // python, where it's easier to do.
+  OOFImage *copy = new OOFImage(nm, npobject);
   copy->setup();
   copy->size_ = size_;
   copy->setMicrostructure(microstructure);
@@ -202,13 +125,19 @@ const std::string *OOFImage::comment() const {
   // This returns a pointer to a new string to keep swig happy.  If we
   // return a string instead of a string*, swig makes a copy and
   // doesn't delete it.  If we return a string&, C++ complains about
-  // returning a reference to a temporary variable.
-  return new std::string(image.comment());
+  // returning a reference to a temporary variable.  (Comment may be
+  // out of date now that we're using a new swig but I'm not going to
+  // worry about it.)
+  return new std::string("Fix this or delete it");
+  // return new std::string(image.comment());
 }
 
 void OOFImage::imageChanged() {
   ++timestamp;			// marks image as changed
-  image.modifyImage();
+  // TODO NUMPY: Is there an equivalent to this?  Copy the image to
+  // ensure changes are applied?
+  
+  //image.modifyImage(); 
 }
 
 OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
@@ -217,75 +146,35 @@ OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
 {
   // The OOFImage constructor flips the image so that OOF can access
   // pixels easily in a right handed coordinate system with the origin
-  // in the lower left corner of the image.
-  Magick::Image copy = image;
-  copy.flip();
+  // in the lower left corner of the image.  This has to flip it back.
   OOFCanvas::CanvasImage *img =
-    OOFCanvas::CanvasImage::newFromImageMagick(OOFCANVAS_COORD(*pos), copy);
+    OOFCanvas::CanvasImage::newFromNumpy(OOFCANVAS_COORD(*pos),
+					 (PyObject*) npobject, true/* flipy*/);
   img->setDrawIndividualPixels(true);
   img->setSize(OOFCANVAS_COORD(*size));
   return img;
 }
 
-std::vector<unsigned short> *OOFImage::getPixels() {
-  // Magick::Image::write isn't const, so this function isn't const either.
-  int n = 3*sizeInPixels_[0]*sizeInPixels_[1];
-  std::vector<unsigned short> *pxls = new std::vector<unsigned short>(n);
-  image.write(0, 0, sizeInPixels_[0], sizeInPixels_[1],
-	      "RGB", Magick::ShortPixel, &(*pxls)[0]);
-  return pxls;
-}
-
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// Access to individual pixels.
-
-const CColor OOFImage::operator[](const ICoord &c) const {
-  try {
-    Magick::Pixels view(*const_cast<Magick::Image*>(&image));
-    const Magick::PixelPacket *pixels = view.getConst(c[0], c[1], 1, 1);
-    CColor color(pixels->red*scale, pixels->green*scale, pixels->blue*scale);
-    return color;
-
-    // It would be simpler to use Magick::Image::pixelColor, except
-    // that it doesn't work (July 2018).  It works on macOS when using
-    // quartz, but not x11.  It doesn't work on Linux.
-    
-    // Magick::Color color = image.pixelColor(c[0], c[1]);
-    // return CColor(color.redQuantum()*scale,
-    // 		  color.greenQuantum()*scale,
-    // 		  color.blueQuantum()*scale);
-  }
-  catch (Magick::Exception &e) {
-    throw ImageMagickError(e.what());
-  }
+const CColor OOFImage::operator[](const ICoord &coord) const {
+  int r = coord(1);		// row
+  int c = coord(0);		// column
+  double *red = (double*) PyArray_GETPTR3(npobject, r, c, 0);
+  double *grn = red + 1;
+  double *blu = red + 2; 
+  return CColor(*red, *grn, *blu);
 }
 
-// To get multiple pixel values, call this many times, passing in the
-// PixelPacket from a single call to OOFImage::pixelPacket().
-
-CColor OOFImage::getColor(const ICoord &pt, const Magick::PixelPacket *pixels)
-  const
-{
-  const Magick::PixelPacket &pp = pixels[pt[0] + sizeInPixels_[0]*pt[1]];
-  return CColor(pp.red*scale, pp.green*scale, pp.blue*scale);
-}
-
-// TODO OPT?: It may be useful to have "block-set" routines which use the
-// ImageMagick PixelPacket routine to set many pixels together.  This
-// is alleged to be much faster.  See the OOFImage copy constructor
-// definition for an example.
-void OOFImage::set(const ICoord &c, const CColor &color) {
-  try {
-    Magick::ColorRGB culler(color.getRed(), color.getGreen(), color.getBlue());
-    // This seems to work, although pixelColor doesn't always work for
-    // retrieving colors.  See comment in operator[], above.
-    image.pixelColor(c[0], c[1], culler);
-    // Do not call imageChanged() here.  Call it once, after all calls to set().
-  }
-  catch (Magick::Exception &e) {
-    throw ImageMagickError(e.what());
-  }
+void OOFImage::set(const ICoord &coord, const CColor &color) {
+  int r = coord(1);
+  int c = coord(0);
+  double *red = (double*) PyArray_GETPTR3(npobject, r, c, 0);
+  double *grn = red + 1;
+  double *blu = red + 2;
+  *red = color.getRed();
+  *grn = color.getGreen();
+  *blu = color.getBlue();
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -300,6 +189,9 @@ void OOFImage::set(const ICoord &c, const CColor &color) {
 // OOFImage::image::write, like OOFImage::getPixels does?  Doing so
 // would require allocating another array, so it's not obviously more
 // efficient.
+
+// TODO NUMPY: The convert methods are only used to convert to gray
+// scale.  We probably can do that better in numpy.
 
 Array<double> OOFImage::convert(double (*f)(const CColor&)) const {
   Array<double> arr(sizeInPixels_[0], sizeInPixels_[1]);
@@ -343,20 +235,6 @@ void OOFImage::set(const Array<bool> &array, CColor (*f)(bool)) {
   imageChanged();
 }
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// std::vector<ICoord>* OOFImage::getColorPoints(const CColor &ref, 
-// 					      const ColorDifference &diff)
-// const
-// {
-//   std::vector<ICoord>* icoordlist = new std::vector<ICoord>(0);
-//   // Be greedy, reserve enough space for all the pixels.
-//   icoordlist->reserve(sizeInPixels_[0]*sizeInPixels_[1]);
-//   for(ConstOOFImageIterator i=this->begin(); i!=this->end(); ++i) {
-//     if ( diff.contains(ref, *i) )
-//       icoordlist->push_back(i.coord());
-//   }
-//   return icoordlist;  // memory leak
-// }
 
 void OOFImage::getColorPoints(const CColor &ref, 
 			      const ColorDifference &diff,
@@ -421,26 +299,26 @@ bool operator!=(const ConstOOFImageIterator &a, const ConstOOFImageIterator &b){
 
 // Examples of image modification routines.
 
-void OOFImage::flip(const std::string &axis) {
-  if(axis == "x")
-    image.flop();		// ImageMagick function call
-  else if(axis == "y")
-    image.flip();
-  else if(axis == "xy") {
-    image.flip();
-    image.flop();
-  }
-  imageChanged(); // call this after using ImageMagick modification routines
-}
+// void OOFImage::flip(const std::string &axis) {
+//   if(axis == "x")
+//     image.flop();		// ImageMagick function call
+//   else if(axis == "y")
+//     image.flip();
+//   else if(axis == "xy") {
+//     image.flip();
+//     image.flop();
+//   }
+//   imageChanged(); // call this after using ImageMagick modification routines
+// }
 
-void OOFImage::dim(double factor) {
-  for(OOFImage::iterator i=begin(); i!=end(); ++i) {
-    CColor c = *i;
-    c.dim(factor);
-    set(i.coord(), c);
-  }
-  imageChanged();		// call this after setting pixels directly
-}
+// void OOFImage::dim(double factor) {
+//   for(OOFImage::iterator i=begin(); i!=end(); ++i) {
+//     CColor c = *i;
+//     c.dim(factor);
+//     set(i.coord(), c);
+//   }
+//   imageChanged();		// call this after setting pixels directly
+// }
 
 double color2gray(const CColor &color) {
   return color.getGray();
@@ -461,73 +339,73 @@ CColor int2color(int x) {
   return CColor(x, x, x);
 }
 
-void OOFImage::gray() {
-  // simple example using OOFImage::convert()
-  Array<double> arr = convert(color2gray);
-  set(arr, gray2color);		// calls imageChanged() itself
-}
+// void OOFImage::gray() {
+//   // simple example using OOFImage::convert()
+//   Array<double> arr = convert(color2gray);
+//   set(arr, gray2color);		// calls imageChanged() itself
+// }
 
-void OOFImage::fade(double factor) {
-  for(OOFImage::iterator i=begin(); i!=end(); ++i) {
-    CColor c = *i;
-    c.fade(factor);
-    set(i.coord(), c);
-  }
-  imageChanged();
-}
+// void OOFImage::fade(double factor) {
+//   for(OOFImage::iterator i=begin(); i!=end(); ++i) {
+//     CColor c = *i;
+//     c.fade(factor);
+//     set(i.coord(), c);
+//   }
+//   imageChanged();
+// }
 
-void OOFImage::blur(double radius, double sigma) {
-  image.blur(radius, sigma);
-  imageChanged();
-}
+// void OOFImage::blur(double radius, double sigma) {
+//   image.blur(radius, sigma);
+//   imageChanged();
+// }
 
-void OOFImage::contrast(bool sharpen) {
-  image.contrast(sharpen);
-  imageChanged();
-}
+// void OOFImage::contrast(bool sharpen) {
+//   // image.contrast(sharpen);
+//   imageChanged();
+// }
 
 void OOFImage::despeckle() {
-  image.despeckle();
+  // image.despeckle();
   imageChanged();
 }
 
 void OOFImage::edge(double radius) {
-  image.edge(radius);
+  // image.edge(radius);
   imageChanged();
 }
 
 void OOFImage::enhance() {
-  image.enhance();
+  // image.enhance();
   imageChanged();
 }
 
 void OOFImage::equalize() {
-  image.equalize();
+  // image.equalize();
   imageChanged();
 }
 
 void OOFImage::medianFilter(double radius) {
-  image.medianFilter(radius);
+  // image.medianFilter(radius);
   imageChanged();
 }
 
-void OOFImage::negate(bool grayscale) {
-  image.negate(grayscale);
-  imageChanged();
-}
+// void OOFImage::negate(bool grayscale) {
+//   // image.negate(grayscale);
+//   imageChanged();
+// }
 
 void OOFImage::normalize() {
-  image.normalize();
+  // image.normalize();
   imageChanged();
 }
 
 void OOFImage::reduceNoise(double radius) {
-  image.reduceNoise(radius);
+  // image.reduceNoise(radius);
   imageChanged();
 }
 
 void OOFImage::sharpen(double radius, double sigma) {
-  image.sharpen(radius, sigma);
+  // image.sharpen(radius, sigma);
   imageChanged();
 }
 
@@ -554,22 +432,22 @@ BoolArray threshold(const DoubleArray& image1, double tolerance)
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// TODO: On Linux, ImageMagickErrors all have trailing backslashes.
-// They've got to be coming from here. 
-ImageMagickError::ImageMagickError(const std::string &messg) {
-  // Make sure that all quotation marks in messg are escaped.
-  for(std::string::size_type i=0; i<messg.size(); ++i) {
-    char c = messg[i];
-    if(c == '"' || c == '\'')
-      msg += '\\';
-    msg += c;
-  }
-}
+// // TODO: On Linux, ImageMagickErrors all have trailing backslashes.
+// // They've got to be coming from here. 
+// ImageMagickError::ImageMagickError(const std::string &messg) {
+//   // Make sure that all quotation marks in messg are escaped.
+//   for(std::string::size_type i=0; i<messg.size(); ++i) {
+//     char c = messg[i];
+//     if(c == '"' || c == '\'')
+//       msg += '\\';
+//     msg += c;
+//   }
+// }
 
-const std::string &ImageMagickError::classname() const {
-  static std::string s("ImageMagickError");
-  return s;
-}
+// const std::string &ImageMagickError::classname() const {
+//   static std::string s("ImageMagickError");
+//   return s;
+// }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -589,6 +467,16 @@ void setFromBool(OOFImage& colorImage, const BoolArray& image) {
 
 // Parallel image send/recv
 #ifdef HAVE_MPI
+
+std::vector<unsigned short> *OOFImage::getPixels() {
+  // Magick::Image::write isn't const, so this function isn't const either.
+  int n = 3*sizeInPixels_(0)*sizeInPixels_(1);
+  std::vector<unsigned short> *pxls = new std::vector<unsigned short>(n);
+  image.write(0, 0, sizeInPixels_(0), sizeInPixels_(1),
+	      "RGB", Magick::ShortPixel, &(*pxls)[0]);
+  return pxls;
+}
+
 void _Send_Image(OOFImage *image, std::vector<int> *destinations, int tag)
 {
   std::string name = image->name();

@@ -17,7 +17,14 @@ target_sources(oof2orientationmap
   pixelselectioncouriero.C
   pixelselectioncouriero.h
   pixeldifferentiatoro.C
-  pixeldifferentiatoro.h)
+  pixeldifferentiatoro.h
+)
+
+target_include_directories(oof2orientationmap
+  PUBLIC
+  ${NUMPY_INCLUDE}
+)
+
 
 oof_swig_sources(
   SWIGFILES
@@ -29,6 +36,10 @@ oof_swig_sources(
   LIBRARIES
   oof2common
   oof2orientationmap
-  oof2engine)
+  oof2engine
+  INCLUDE_DIRECTORIES
+  ${NUMPY_INCLUDE}
+)
+
 
 add_subdirectory(GUI)

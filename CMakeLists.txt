@@ -31,6 +31,10 @@ option(OOF2_DEV_INSTALL OFF "Install development files?")
 
 ## TODO PYTHON3: Get openMP working. See the openmp-branch branch.
 
+## TODO NUMPY: If we're going to require numpy/skimage, don't make
+## this an option.
+option(USE_SKIMAGE "Use scikit-image instead of ImageMagick" OFF)
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # OOF2/SRC subdirectories containing python files to install.  The
@@ -72,6 +76,8 @@ set(OOFCANVAS_MIN_VERSION 1.1.2)
 set(MAGICK_MIN_VERSION 6.0.0)
 set(MAGICK_MAX_VERSION 7.0.0)
 set(GTK3_MIN_VERSION 3.22)
+set(NUMPY_MIN_VERSION 1.21) # TODO: probably can be less than this
+## TODO NUMPY: Check skimage min version number.  Probably should be 0.19
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -94,6 +100,10 @@ set(PYDEST ${SITE_PACKAGES}/${CMAKE_PROJECT_NAME})
 # message("SITE_PACKAGES is ${SITE_PACKAGES}")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+if(${USE_SKIMAGE})
+  list(APPEND CMAKE_SWIG_FLAGS "-DUSE_SKIMAGE")
+endif()
 
 # Use pkg-config to get info about dependencies
 include(FindPkgConfig)
@@ -123,9 +133,29 @@ endif()
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+
+# Check the numpy version and get its include path, if using scikit-image
+if(${USE_SKIMAGE}) 
+  execute_process(
+    COMMAND ${PYEXEC} -c "import numpy; print(numpy.version.version, end='')"
+    OUTPUT_VARIABLE NUMPY_VERSION
+  )
+  if(${NUMPY_VERSION} VERSION_LESS ${NUMPY_MIN_VERSION})
+    message(FATAL_ERROR
+      "Numpy version is ${NUMPY_VERSION}. Version ${NUMPY_MIN_VERSION} is required.")
+  endif()
+  # Find the numpy include directory
+  execute_process(
+    COMMAND ${PYEXEC} -c "import numpy; print(numpy.get_include(), end='')"
+    OUTPUT_VARIABLE NUMPY_INCLUDE
+  )
+endif()
+
 pkg_check_modules(
   OOFCANVAS REQUIRED
   oofcanvas>=${OOFCANVAS_MIN_VERSION})
+# TODO PYTHON3: Check that oofcanvas was built with the same version
+# of Python as oof2.
 list(APPEND CMAKE_INSTALL_RPATH ${OOFCANVAS_LIBDIR})
 
 ## Dump all variables

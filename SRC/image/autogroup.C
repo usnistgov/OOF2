@@ -32,11 +32,11 @@
 // not.  Also, there are some bugs in autogroup that are making it
 // crash when running with OpenMP.
 
-CColor packet2color(const Magick::PixelPacket &packet) {
-  using namespace Magick;
-  double scale = 1./MaxRGB;
-  return CColor(packet.red*scale, packet.green*scale, packet.blue*scale);
-}
+// CColor packet2color(const Magick::PixelPacket &packet) {
+//   using namespace Magick;
+//   double scale = 1./MaxRGB;
+//   return CColor(packet.red*scale, packet.green*scale, packet.blue*scale);
+// }
 
 // Replace all instances of a by b within source and return the
 // result.  Used when constructing group names.
@@ -87,15 +87,14 @@ std::vector<std::string> *autogroup(CMicrostructure *ms, OOFImage *image,
 
   Progress *progress=dynamic_cast<DefiniteProgress*>(findProgress("AutoGroup"));
 
-  // OOFImage::operator[] doesn't appear to be threadsafe, due to some
-  // ImageMagick problem.  But getting data from the PixelPacket is
-  // faster anyway.
-  const Magick::PixelPacket *packet = image->pixelPacket();
+  // // OOFImage::operator[] doesn't appear to be threadsafe, due to some
+  // // ImageMagick problem.  But getting data from the PixelPacket is
+  // // faster anyway.
+  // const Magick::PixelPacket *packet = image->pixelPacket();
 
   size_t i, j;
 #ifdef HAVE_OPENMP
-  #pragma omp parallel shared(colorlists, packet, \
-                       progress, ndone) private(i, j)
+#pragma omp parallel shared(colorlists, /*packet,*/ progress, ndone) private(i, j)
 #endif // HAVE_OPENMP
   {
     // Each thread has its own ColorListMap called 'colorlist', but
@@ -118,11 +117,10 @@ std::vector<std::string> *autogroup(CMicrostructure *ms, OOFImage *image,
       for(i=0; i<width && !progress->stopped(); ++i) {
         ICoord pxl(i, j);
         // Direct lookup in the ImageMagick image is not thread safe somehow.
-        // const CColor color((*image)[pxl]);
+	const CColor color((*image)[pxl]);
         // This is uglier but faster and also apparently thread safe.
-        const CColor color(packet2color(packet[i + j*width]));
-        // add this pixel to corresponding list
-        colorlist[color].push_back(pxl);
+        //const CColor color(packet2color(packet[i + j*width]));
+        colorlist[color].push_back(pxl); // add this pixel to corresponding list
       }
 #ifdef HAVE_OPENMP
       #pragma omp atomic

@@ -34,11 +34,25 @@
 #include "image/oofimage.h"
 %}
 
+%typemap(in) PyObject *VERBATIM {
+  // typemap(in) PyObject *VERBATIM
+  $1 = $input;
+ }
+
+%typemap(out) PyObject* {
+  // typemap(out) PyObject*
+  if($1 == nullptr)
+    $result = Py_None;
+  else
+    $result = $1;
+  Py_XINCREF($result);
+}
+
 class OOFImage : public AbstractImage {
 public:
-  OOFImage(char *name, char *filename);
+  OOFImage(char *name, PyObject *VERBATIM);
   ~OOFImage();
-  void save(char *filename);
+  // void save(char *filename);
   const std::string &name();
   void rename(char *);
   %newobject comment;
@@ -50,29 +64,29 @@ public:
   ICoord pixelFromPoint(Coord *Point);
   bool pixelInBounds(ICoord *iPoint);
   %newobject clone;
-  OOFImage *clone(char *name);
+  OOFImage *clone(char *name, PyObject *VERBATIM);
+  PyObject *npImage();
+  void setNpImage(PyObject *VERBATIM);
 
   void setMicrostructure(CMicrostructure*);
   CMicrostructure *getCMicrostructure();
   void removeMicrostructure();
 
-  %newobject getPixels;
-  std::vector<unsigned short> *getPixels();
-  void flip(char *axis);
-  void fade(double);
-  void dim(double);
-  void blur(double, double);
-  void contrast(bool);
+  // void flip(char *axis);
+  // void fade(double);
+  // void dim(double);
+  // void blur(double, double);
+  // void contrast(bool);
   void despeckle();
   void edge(double);
   void enhance();
   void equalize();
   void medianFilter(double);
-  void negate(bool);
+  // void negate(bool);
   void normalize();
   void reduceNoise(double);
   void sharpen(double, double);
-  void gray();
+  // void gray();
   void evenly_illuminate(int);
   
   bool compare(OOFImage&, double);
@@ -89,10 +103,6 @@ public:
   }
 };
 
-%newobject newImageFromData;
-OOFImage *newImageFromData(char *name, ICoord *iPoint,
-			   const std::vector<unsigned short>*);
-
 // Parallel image send/recv
 #ifdef HAVE_MPI
 void _Send_Image(OOFImage*, const std::vector<int>*, int);
@@ -102,12 +112,12 @@ OOFImage *_Recv_Image(int, int);
 
 BoolArray threshold(DoubleArray,double);
 
-class ImageMagickError : public ErrError {
-public:
-  ImageMagickError(char *m);
-  ~ImageMagickError();
-};
-WRAP_OOFERROR_CLASS(ImageMagickError);
+// class ImageMagickError : public ErrError {
+// public:
+//   ImageMagickError(char *m);
+//   ~ImageMagickError();
+// };
+// WRAP_OOFERROR_CLASS(ImageMagickError);
 
 DoubleArray grayify(const OOFImage& image);
 void setFromBool(OOFImage&, const BoolArray&);

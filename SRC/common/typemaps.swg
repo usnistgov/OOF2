@@ -14,6 +14,11 @@
 
 // This file must be %included in every other swig file.
 
+// It should contain only generic typemaps and typemap-generating
+// macros.  It should *not* contain anything that generates code
+// directly (such as %{ ... %} blocks), except for what is needed by
+// the %exception typemap.
+
 // TODO PYTHON3: Swig's -builtin doesn't work because it's not
 // compatible with the %exception typemap.  If there's ever a fix for
 // that, go through all the swigged classes and use python slots
@@ -585,7 +590,7 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 
 // It is possible to add a typemap that doesn't actually create a
 // Python list, but instead swigs the C++ vector's iterators.  This
-// was tried, but it was much slower than copying vector to a list,
+// was tried, but it was much slower than copying a vector to a list,
 // since it requires swig calls for every list item.  But if memory is
 // an issue, that would be good approach.  To do that, swig the
 // vector, exposing only its begin and end methods, which return

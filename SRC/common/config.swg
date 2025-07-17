@@ -83,6 +83,14 @@ bool nanoHUB() {
 #endif
 }
 
+bool use_skimage() {
+#ifdef USE_SKIMAGE
+   return true;
+#else
+   return false;
+#endif
+ }
+
 %}
 
 bool no_gui();
@@ -93,5 +101,6 @@ bool enable_openmp();
 bool enable_segmentation();
 int dimension();
 bool nanoHUB();
+bool use_skimage();
 
 #endif // CONFIG_SWG

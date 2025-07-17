@@ -84,7 +84,7 @@ class OOF_Microstructure(unittest.TestCase):
         from ooflib.common import primitives
         # from ooflib.SWIG.common.IO import stringimage
         self.assertRaises(
-            oofimage.PyImageMagickError, 
+            (oofimage.PyImageMagickError, FileNotFoundError),
             OOF.Microstructure.Create_From_ImageFile,
             filename="nosuchfile", microstructure_name="nosuchfile",
             height=automatic, width=automatic)
