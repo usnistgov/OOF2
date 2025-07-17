@@ -1,0 +1,20 @@
+    --- Subgroup 0 ---
+    pixels: 370
+    center: (49.63243243243243, 144.59459459459458)
+    area: 370
+    aspect ratio: 3.3449467202971817
+    principle direction: 5.9292132650028435 degrees
+    Image: small.ppm
+       Number of colors: 1
+       Average color: r=0.9725490196078482 g=0.0 b=0.0
+       Deviation: r=0.0 g=0.0 b=0.0
+    --- Subgroup 1 ---
+    pixels: 3617
+    center: (107.05197677633397, 125.87503455902682)
+    area: 3617
+    aspect ratio: 2.271380543841373
+    principle direction: 4.109560931094586 degrees
+    Image: small.ppm
+       Number of colors: 1
+       Average color: r=0.972549019607866 g=0.9882352941176573 b=0.0
+       Deviation: r=1.1306248263192193e-07 g=0.0 b=0.0

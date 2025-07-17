@@ -19,7 +19,8 @@
 
 import unittest, os
 from . import memorycheck
-from .UTILS.file_utils import reference_file
+from .UTILS import file_utils
+reference_file = file_utils.reference_file
 
 # Prerequisite for making toolbox selections is the existence of a
 # graphics window.  These tests just open and close a graphics window.
@@ -277,7 +278,7 @@ class Pixel_Groups(unittest.TestCase):
         OOF.Microstructure.Create_From_ImageFile(
             filename=reference_file("ms_data","small.ppm"),
             microstructure_name=automatic,
-            height=automatic, width=automatic)
+            height=10., width=automatic) # pixels are not 1x1 in physical units
         OOF.Windows.Graphics.New()
 
     @memorycheck.check("small.ppm")
@@ -398,7 +399,7 @@ class Pixel_Groups(unittest.TestCase):
                           color.yellow : 3617,
                           color.red : 370 }
 
-        OOF.Image.AutoGroup(image="small.ppm:small.ppm")
+        OOF.Image.AutoGroup(image="small.ppm:small.ppm", name_template='%c')
         ms = microstructure.getMicrostructure("small.ppm")
         groups = ms.groupNames()
         self.assertEqual(len(groups), 8)
@@ -413,11 +414,114 @@ class Pixel_Groups(unittest.TestCase):
                     key = c
                     diff = cdiff
             self.assertEqual(len(ms.findGroup(name)), expected_sizes[key])
+
+    # TODO: tests for the statistical auto group
+
+    @memorycheck.check("small.ppm")
+    def Query(self):
+        OOF.Image.AutoGroup(image='small.ppm:small.ppm', name_template='%c')
+        # Query the small red group at the top of small.ppm
+        OOF.PixelGroup.Query(
+            microstructure='small.ppm',
+            group='#f80000',
+            units='Physical',
+            contiguous=False)
+        from ooflib.common.IO.reporter import messagemanager
+        lines = messagemanager.latest(9)
+        # Dump lines to a file so as to use fp_file_compare.
+        phile = open("test.dat", "w")
+        for line in lines:
+            print(line, file=phile)
+        phile.close()
+        self.assertTrue(file_utils.fp_file_compare(
+            'test.dat',
+            os.path.join('ms_data', 'pixelinfo1.dat'),
+            1.e-6))
+        file_utils.remove('test.dat')
+        # Query the red group again, using fractional units.
+        OOF.PixelGroup.Query(
+            microstructure='small.ppm',
+            group='#f80000',
+            units='Fractional',
+            contiguous=False)
+        lines = messagemanager.latest(9)
+        phile = open("test.dat", "w")
+        for line in lines:
+            print(line, file=phile)
+        phile.close()
+        self.assertTrue(file_utils.fp_file_compare(
+            'test.dat',
+            os.path.join('ms_data', 'pixelinfo2.dat'),
+            1.e-6))
+        file_utils.remove('test.dat')
+        # Query the red group again, using pixel units.
+        OOF.PixelGroup.Query(
+            microstructure='small.ppm',
+            group='#f80000',
+            units='Pixel',
+            contiguous=False)
+        lines = messagemanager.latest(9)
+        phile = open("test.dat", "w")
+        for line in lines:
+            print(line, file=phile)
+        phile.close()
+        self.assertTrue(file_utils.fp_file_compare(
+            'test.dat',
+            os.path.join('ms_data', 'pixelinfo3.dat'),
+            1.e-6))
+        file_utils.remove('test.dat')
+        # Make a new group by combining two others
+        OOF.PixelGroup.New(
+            name='doublegroup',
+            microstructure='small.ppm')
+        # Select the yellow group
+        OOF.PixelSelection.Select_Group(
+            microstructure='small.ppm',
+            group='#f8fc00')
+        # Also select the red group
+        OOF.PixelSelection.Add_Group(
+            microstructure='small.ppm',
+            group='#f80000')
+        # Put the selection in a new group
+        OOF.PixelGroup.AddSelection(
+            microstructure='small.ppm',
+            group='doublegroup')
+        # Query it in physical units
+        OOF.PixelGroup.Query(
+            microstructure='small.ppm',
+            group='doublegroup',
+            units='Pixel',
+            contiguous=False)
+        lines = messagemanager.latest(9)
+        phile = open("test.dat", "w")
+        for line in lines:
+            print(line, file=phile)
+        phile.close()
+        self.assertTrue(file_utils.fp_file_compare(
+            'test.dat',
+            os.path.join('ms_data', 'pixelinfo4.dat'),
+            1.e-6))
+        file_utils.remove('test.dat')
+        # Query it again, but use contiguous=True.
+        OOF.PixelGroup.Query(
+            microstructure='small.ppm',
+            group='doublegroup',
+            units='Pixel',
+            contiguous=True)
+        lines = messagemanager.latest(20)
+        phile = open("test.dat", "w")
+        for line in lines:
+            print(line, file=phile)
+        phile.close()
+        self.assertTrue(file_utils.fp_file_compare(
+            'test.dat',
+            os.path.join('ms_data', 'pixelinfo5.dat'),
+            1.e-6))
+        file_utils.remove('test.dat')
         
-                            
 
     # Meshable may be better tested at skel-mod time.
-    # Query is just weird -- writes to stdout!
+    
     
     def tearDown(self):
         OOF.Graphics_1.File.Close()
@@ -762,5 +866,8 @@ test_set = [
     Selection_Modify("Expand"),
     Selection_Modify("Shrink"),
     Selection_Modify("Color_Range"),
-    Selection_Modify("Rich_MS_Copy")
+    Selection_Modify("Rich_MS_Copy"),
+    # Do this last because it does some group modification that hasn't
+    # been tested yet when the other Pixel_Groups tests are run.
+    Pixel_Groups("Query"),
 ]
