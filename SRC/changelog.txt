@@ -41,9 +41,11 @@ OOF2 2.3.4
   beginning with "skel".
 
 * More output from OOF.PixelGroup.Query().  In addition to area and
-  number of pixels, it prints shape aspect ratio and principle axes,
-  and color distribution.  It can print data for each contiguous
-  subgroup separately.
+  number of pixels, it prints the aspect ratio, principle axis
+  direction, and color distribution.  It can print data for each
+  contiguous subgroup separately.  New arguments are 'units' (Pixel,
+  Physical, or Fractional) and 'contiguous', which controls whether
+  each contiguous subset of the group is reported separately.
 
 OOF2 2.3.3
 
