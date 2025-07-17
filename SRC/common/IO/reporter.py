@@ -144,18 +144,18 @@ class MessageManager:
     # eventually call "_append", which adds the message to the
     # database.  This function also returns the message, although
     # most of the calls discard it, except "warning".
-    def _append(self, type, *args):
+    def _append(self, mtype, *args):
         message = stringjoin([str(x) for x in args], ' ')
         MessageManager.lock.acquire()
         try:
-            if debug.debug() and type!="Log" and guitop.top():
+            if debug.debug() and mtype!="Log" and guitop.top():
                 print(message)
-            self.message_list.append( (message, type) )
-            if self.flag_dict[type]:
+            self.message_list.append((message, mtype))
+            if self.flag_dict[mtype]:
                 self._write(message)
         finally:
             MessageManager.lock.release()
-        switchboard.notify( "write message", (message, type) )
+        switchboard.notify("write message", (message, mtype))
         return message
     
     def all_messages(self):
@@ -182,6 +182,17 @@ class MessageManager:
     def error(self, *args):
         self._append("Error", *args)
 
+    def latest(self, n=1, category=None):
+        # Return the latest n messages in the given category.  Mostly
+        # useful for testing.
+        msgs = []
+        i = len(self.message_list) - 1 # count backwards
+        while len(msgs) < n and i >= 0:
+            if category is None or self.message_list[i][1] == category:
+                msgs.append(self.message_list[i][0])
+            i -= 1
+        msgs.reverse()
+        return msgs
 
 # The one and only.
 messagemanager = MessageManager()
