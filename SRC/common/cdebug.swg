@@ -39,8 +39,6 @@ void dump(const std::string&);
 void openDumpFileSeries(const std::string&, int);
 void nextDumpFile();
 
-std::string sourcePathPrefix();
-
 %pythoncode "common/cdebug.spy"
 
 #endif // CDEBUG_SWG

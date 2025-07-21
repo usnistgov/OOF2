@@ -262,22 +262,3 @@ void nextDumpFile() {
   }
 }
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// When testing error handling, it's sometimes necessary to compare
-// error messages that contain file names that depend on the location
-// of the source files at compilation time.  This is a cheap way to
-// find the location.
-
-std::string sourcePathPrefix() {
-  static bool once = false;
-  static std::string prefix;
-  if(!once) {
-    once = true;
-    std::string thisfile = __FILE__;
-    std::string suffix = "OOF2/SRC/common/cdebug.C";
-    prefix = thisfile.substr(0, thisfile.size()-suffix.size());
-  }
-  return prefix;
-}
-

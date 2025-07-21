@@ -48,7 +48,7 @@ class ExcTestCase(unittest.TestCase):
                     if not isinstance(exc, expectation):
                         self.fail()
                 else:
-                    # excpectation is a PyOOFError instance. exc must
+                    # expectation is a PyOOFError instance. exc must
                     # equal it.  PyOOFError instances can be compared
                     # directly.
                     self.assertEqual(exc, expectation)
@@ -300,7 +300,7 @@ class OOF_Fundamental(ExcTestCase):
                 # The file name given here needs to be the same as
                 # the file name referred to by __FILE__ when oof2 was
                 # compiled.
-                cdebug.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C",
+                os.path.join(oofSourceDir, "SRC/common/cdebug.C"),
                 # The line number here is fake, so that the test won't
                 # break if cdebug.C is altered.  See throwException()
                 # in cdebug.C.
@@ -317,7 +317,8 @@ class OOF_Fundamental(ExcTestCase):
         self.assertOOFRaises(
             PyErrProgrammingError(
                 "Somebody made a mistake!",
-                cdebug.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C",
+                # See comment in ScriptException1 about file and line number.
+                os.path.join(oofSourceDir, "SRC/common/cdebug.C"),
                 124),
             OOF.File.Load.Script,
             filename=reference_file("fundamental_data", "nestederror.py"))

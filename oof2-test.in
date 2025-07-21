@@ -22,6 +22,10 @@ from math import *
 # This should make it unnecessary for users to set PYTHONPATH themselves.
 sys.path.append("@CMAKE_INSTALL_PREFIX@/@SITE_PACKAGES@")
 
+# Test scripts sometimes need to know the location of the source
+# (because file paths are part of some error messages).
+oofSourceDir = "@CMAKE_SOURCE_DIR@"
+
 import oof2
 sys.path.append(os.path.dirname(oof2.__file__))
 import TEST
