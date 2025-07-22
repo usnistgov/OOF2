@@ -23,9 +23,8 @@ from ooflib.image.IO import imagemenu
 import ooflib.common.microstructure
 
 import sys
-if config.use_skimage():
-    import numpy
-    import skimage
+import numpy
+import skimage
 
 imgmenu = mainmenu.OOF.LoadData.addItem(
     oofmenu.OOFMenuItem(
@@ -153,12 +152,8 @@ registeredclass.Registration(
 
 def _newImage(menuitem, name, microstructure, pixels):
     ms = ooflib.common.microstructure.microStructures[microstructure].getObject()
-    if config.use_skimage():
-        # Get bytes from the ImageData (pixels) arg. 
-        image = oofimage.OOFImage(name, pixels.toArray(ms.sizeInPixels()))
-    else:
-        image = oofimage.OOFImage(name, ms.sizeInPixels(),
-                                  list(pixels.values()))
+    # Get bytes from the ImageData (pixels) arg. 
+    image = oofimage.OOFImage(name, pixels.toArray(ms.sizeInPixels()))
     image.setSize(ms.size())
     imagemenu.loadImageIntoMS(image, microstructure)
     

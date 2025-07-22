@@ -298,10 +298,8 @@ void groupColorStats(const OOFImage& image, const PixelSet& pixels,
 
   std::set<CColor> colors;
 
-  const Magick::PixelPacket *pxlpack = image.pixelPacket();
-
   for(const ICoord pxl : *pixels.members()) {
-    CColor color = image.getColor(pxl, pxlpack);
+    CColor color = image[pxl];
     colors.insert(color);
     double r = color.getRed();
     double g = color.getGreen();

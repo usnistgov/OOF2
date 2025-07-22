@@ -15,7 +15,6 @@ from ooflib.common import debug
 from ooflib.common import oofenum
 from ooflib.common import parallel_enable
 from ooflib.common import registeredclass
-from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.image import imagecontext
@@ -55,12 +54,9 @@ def doImageMod(menuitem, image, **params):
         ## TODO NUMPY: Create the new image with a read-only view of
         ## the original numpy data.  The modifier can act on the
         ## orginal data as long as it doesn't change it in place.
-        if config.use_skimage():
-            nporiginal = immidge.npImage()
-            npcopy = nporiginal.copy()
-            newimmidge = immidge.clone(immidge.name(), npcopy)
-        else:
-            newimmidge = immidge.clone(immidge.name())
+        nporiginal = immidge.npImage()
+        npcopy = nporiginal.copy()
+        newimmidge = immidge.clone(immidge.name(), npcopy)
 
         registration = menuitem.data
         imageModifier = registration(**params) # create ImageModifier obj
@@ -331,7 +327,7 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class WaveletDenoisingMode(enum.EnumClass(
+class WaveletDenoisingMode(oofenum.EnumClass(
     ('soft', 'Wavelet denoising with soft thresholding'),
     ('hard', 'Wavelet denoising with hard thresholding'))):
     tip = 'The type of wavelet denoising to be performed: "soft" or "hard". Choosing soft thresholding given additive noise finds the best approximation of the original image.'
@@ -341,7 +337,7 @@ class WaveletDenoisingMode(enum.EnumClass(
     denoising to use to denoise an &image;.
     </para>"""
 
-class WaveletThresholdingMethod(enum.EnumClass(
+class WaveletThresholdingMethod(oofenum.EnumClass(
     ('BayesShrink', 'BayesShrink method for wavelet thresholding'),
     ('VisuShrink',  'VisuShrink method for wavelet thresholding'))):
     tip = 'The wavelet thresholding method to be used. The currently supported methods are “BayesShrink” and “VisuShrink".'
@@ -376,11 +372,11 @@ registeredclass.Registration(
             tip='The noise standard deviation used when computing the wavelet detail coefficient threshold(s). When set to 0.0 (default), the noise standard deviation is estimated.'),
         parameter.StringParameter('wavelet', 'db1',
             tip='The type of wavelet to perform. The default is "db1". Other wavelet options can be "db2", "haar", "sym9" and many others listed in the Python wavelet package: pywt.wavelist.'),
-        enum.EnumParameter('mode', WaveletDenoisingMode, WaveletDenoisingMode('soft'),
+        oofenum.EnumParameter('mode', WaveletDenoisingMode, WaveletDenoisingMode('soft'),
             tip='The type of wavelet denoising to be performed: "soft" or "hard". Choosing soft thresholding given additive noise finds the best approximation of the original image.'),
         parameter.IntParameter('wavelet_levels', 0,
             tip='The number of wavelet decomposition levels to use. The default, specified by setting the value of 0, is three less than the maximum number of possible decomposition levels.'),
-        enum.EnumParameter('method', WaveletThresholdingMethod, WaveletThresholdingMethod('BayesShrink'),
+        oofenum.EnumParameter('method', WaveletThresholdingMethod, WaveletThresholdingMethod('BayesShrink'),
             tip='Thresholding method to be used. The currently supported methods are “BayesShrink” and “VisuShrink".')
         ],
     tip = "Denoise using wavelet thresholding.",

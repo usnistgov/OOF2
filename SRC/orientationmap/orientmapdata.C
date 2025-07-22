@@ -161,32 +161,41 @@ OOFCanvas::CanvasImage *OrientMapImage::makeCanvasImage(const Coord *position,
 // Microstructure's list of Images.
 
 
-// TODO NUMPY: rewrite this to use numpy arrays
-// OOFImage *OrientMap::createImage(const std::string &name,
-// 				 const Angle2Color &colorscheme) const
-// {
-//   OOFImage *immidge = new OOFImage(name);
-//   unsigned int width = sizeInPixels()(0);
-//   unsigned int height = sizeInPixels()(1);
-//   double *pixels = new double[height*width*3*sizeof(double)];
-//   int count=0;
-//   for(Array<COrientABG>::const_iterator i=angles.begin(); i!=angles.end();
-//       ++i,++count)
-//     {
-//       const CColor color = colorscheme(angles[i]);
-//       pixels[3*count] = color.getRed();
-//       pixels[3*count+1] = color.getGreen();
-//       pixels[3*count+2] = color.getBlue();
-//     }
-//   try {
-//     immidge = new OOFImage(name, sizeInPixels(), "RGB", Magick::DoublePixel,
-// 			   pixels);
-//   }
-//   catch (Magick::Exception &e) {
-//     delete [] pixels;
-//     throw ImageMagickError(e.what());
-//   }
-//   delete [] pixels;
-//   return immidge;
-// }
+OOFImage *OrientMap::createImage(const std::string &name,
+				 const Angle2Color &colorscheme) const
+{
+  OOFImage *immidge = new OOFImage(name);
+  unsigned int width = sizeInPixels()(0);
+
+  // TODO NUMPY: rewrite this to use numpy arrays
+
+  PyArray_Descr *descr = PyArray_DescrFromType(NPY_DOUBLE);
+
+
+
+#ifdef OLDMAGICK
+  unsigned int height = sizeInPixels()(1);
+  double *pixels = new double[height*width*3*sizeof(double)];
+  int count=0;
+  for(Array<COrientABG>::const_iterator i=angles.begin(); i!=angles.end();
+      ++i,++count)
+    {
+      const CColor color = colorscheme(angles[i]);
+      pixels[3*count] = color.getRed();
+      pixels[3*count+1] = color.getGreen();
+      pixels[3*count+2] = color.getBlue();
+    }
+  try {
+    immidge = new OOFImage(name, sizeInPixels(), "RGB", Magick::DoublePixel,
+			   pixels);
+  }
+  catch (Magick::Exception &e) {
+    delete [] pixels;
+    throw ImageMagickError(e.what());
+  }
+  delete [] pixels;
+#endif // OLDMAGICK
+  
+  return immidge;
+}
 

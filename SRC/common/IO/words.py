@@ -49,13 +49,11 @@ Python:  The Python programming language (http://www.python.org) copyright is he
 
 GTK3: The GTK3 graphics toolkit (http://www.gtk.org) is licensed under the GNU LGPL (http://www.gnu.org/copyleft/lesser.html).  OOF2 currently requires GTK3 version 3.24 or later.  It may work with earlier versions of GTK3 but hasn't been tested with them.
 
-ImageMagick/ImageMagick++:  The ImageMagick image processing library is available at http://www.imagemagick.org/. The copyright holder is ImageMagick Studio LLC.  The ImageMagick license may be found at http://www.imagemagick.org/www/Copyright.html.
-
-IML++ and SparseLib++:  The IML++ library of iterative matrix methods in C++ and the SparseLib++ library for sparse matrix computations are available from NIST at http://math.nist.gov/iml++/ and http://math.nist.gov/sparselib++/.  They are freely redistributable.
-
 LAPACK: The LAPACK linear algebra library is freely available at http://www.netlib.org/lapack/.  Its copyright terms are at http://www.netlib.org/lapack/faq.html#1.2.
 
 Eigen: The Eigen linear algebra package is available at http://eigen.tuxfamily.org and is distributed under the Mozilla Public License Version 2.0.
+
+SCIKIT-IMAGE and NUMPY: TODO: Add this info!
 
 """
 

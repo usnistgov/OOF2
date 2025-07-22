@@ -14,7 +14,6 @@
 
 #include <oofconfig.h>
 #include <vector>
-#include <Magick++.h>
 
 #include "common/array.h"
 #include "common/burn.h"
@@ -32,9 +31,6 @@ private:
   double local_flammability;
   double global_flammability;
   bool useL2norm;
-#ifndef USE_SKIMAGE
-  const Magick::PixelPacket *rawpixels;
-#endif // USE_SKIMAGE
 public:
   CColorDifferentiator3(const OOFImage *image, double lf, double gf, bool l2);
   virtual bool operator()(const ICoord&, const ICoord&, const ICoord&) const;
@@ -45,9 +41,6 @@ private:
   const OOFImage *image;
   double color_delta;
   bool useL2norm;
-#ifndef USE_SKIMAGE
-  const Magick::PixelPacket *rawpixels;
-#endif // USE_SKIMAGE
 public:
   CColorDifferentiator2(const OOFImage *image, double cd, bool l2);
   virtual bool operator()(const ICoord&, const ICoord&) const;
@@ -64,9 +57,6 @@ protected:
   double variance[3]; 		// independent rbg variances,
   double var0;			// variance used when there's only one value
   const OOFImage *image;
-#ifndef USE_SKIMAGE
-  const Magick::PixelPacket *rawpixels;
-#endif // USE_SKIMAGE
   void findVariance();
 public:
   ColorPixelDistribution(const ICoord&, const OOFImage*, double);
