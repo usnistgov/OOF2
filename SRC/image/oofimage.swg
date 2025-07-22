@@ -55,8 +55,6 @@ public:
   // void save(char *filename);
   const std::string &name();
   void rename(char *);
-  %newobject comment;
-  std::string *comment();
   void setSize(Coord *Point);
   
   Coord size();
@@ -111,13 +109,6 @@ OOFImage *_Recv_Image(int, int);
 #endif //HAVE_MPI
 
 BoolArray threshold(DoubleArray,double);
-
-// class ImageMagickError : public ErrError {
-// public:
-//   ImageMagickError(char *m);
-//   ~ImageMagickError();
-// };
-// WRAP_OOFERROR_CLASS(ImageMagickError);
 
 DoubleArray grayify(const OOFImage& image);
 void setFromBool(OOFImage&, const BoolArray&);

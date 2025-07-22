@@ -74,7 +74,6 @@ public:
   virtual const ICoord &sizeInPixels() const { return sizeInPixels_; }
   ICoord pixelFromPoint(const Coord*) const;
   bool pixelInBounds(const ICoord*) const;
-  const std::string *comment() const;
 
   OOFCanvas::CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
 

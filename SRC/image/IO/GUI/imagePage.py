@@ -263,8 +263,6 @@ class ImagePage(oofGUI.MainPage):
                 text += f'Pixel size: {size.x} x {size.y}\n'
                 size = image.size()
                 text += f'Physical size: {size.x:.{digits()}g} x {size.y:.{digits()}g}\n'
-                if image.comment():
-                    text += '\nComments:\n%s\n' % image.comment()
             finally:
                 imagecontext.end_reading()
         mainthread.runBlock(self.displayImageInfo_thread, (text,))

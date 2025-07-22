@@ -121,17 +121,6 @@ OOFImage *OOFImage::clone(const std::string &nm , PyObject *npobject) const {
   return copy;
 }
 
-const std::string *OOFImage::comment() const {
-  // This returns a pointer to a new string to keep swig happy.  If we
-  // return a string instead of a string*, swig makes a copy and
-  // doesn't delete it.  If we return a string&, C++ complains about
-  // returning a reference to a temporary variable.  (Comment may be
-  // out of date now that we're using a new swig but I'm not going to
-  // worry about it.)
-  return new std::string("Fix this or delete it");
-  // return new std::string(image.comment());
-}
-
 void OOFImage::imageChanged() {
   ++timestamp;			// marks image as changed
   // TODO NUMPY: Is there an equivalent to this?  Copy the image to
@@ -465,56 +454,59 @@ void setFromBool(OOFImage& colorImage, const BoolArray& image) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// Parallel image send/recv
-#ifdef HAVE_MPI
+// // Parallel image send/recv
+// #ifdef HAVE_MPI
 
-std::vector<unsigned short> *OOFImage::getPixels() {
-  // Magick::Image::write isn't const, so this function isn't const either.
-  int n = 3*sizeInPixels_(0)*sizeInPixels_(1);
-  std::vector<unsigned short> *pxls = new std::vector<unsigned short>(n);
-  image.write(0, 0, sizeInPixels_(0), sizeInPixels_(1),
-	      "RGB", Magick::ShortPixel, &(*pxls)[0]);
-  return pxls;
-}
+// // This section has not been updated to use scikit-image!  The MPI
+// // code hasn't been checked in years.
 
-void _Send_Image(OOFImage *image, std::vector<int> *destinations, int tag)
-{
-  std::string name = image->name();
-  _Isend_Int(name.size(), destinations, tag);  // size of the name
-  _Isend_String(name, destinations, tag);  // name itself
-  _Isend_Double(image->size()[0], destinations, tag);  // physical size X
-  _Isend_Double(image->size()[1], destinations, tag);  // physical size Y
-  _Isend_Int(image->sizeInPixels()[0], destinations, tag);  // size in pixels X
-  _Isend_Int(image->sizeInPixels()[1], destinations, tag);  // size in pixels Y
+// std::vector<unsigned short> *OOFImage::getPixels() {
+//   // Magick::Image::write isn't const, so this function isn't const either.
+//   int n = 3*sizeInPixels_(0)*sizeInPixels_(1);
+//   std::vector<unsigned short> *pxls = new std::vector<unsigned short>(n);
+//   image.write(0, 0, sizeInPixels_(0), sizeInPixels_(1),
+// 	      "RGB", Magick::ShortPixel, &(*pxls)[0]);
+//   return pxls;
+// }
 
-  std::vector<unsigned short> * pixels = image->getPixels();
-  _Isend_Int(pixels->size(), destinations, tag);  // size of pixels vector
-  _Isend_UnsignedShortVec(pixels, destinations, tag);
-  delete pixels;
-}
+// void _Send_Image(OOFImage *image, std::vector<int> *destinations, int tag)
+// {
+//   std::string name = image->name();
+//   _Isend_Int(name.size(), destinations, tag);  // size of the name
+//   _Isend_String(name, destinations, tag);  // name itself
+//   _Isend_Double(image->size()[0], destinations, tag);  // physical size X
+//   _Isend_Double(image->size()[1], destinations, tag);  // physical size Y
+//   _Isend_Int(image->sizeInPixels()[0], destinations, tag);  // size in pixels X
+//   _Isend_Int(image->sizeInPixels()[1], destinations, tag);  // size in pixels Y
 
-OOFImage *_Recv_Image(int origin, int tag)
-{
-  int name_size = _Recv_Int(origin, tag);  // size of the name
-  std::string name = _Recv_String(origin, name_size, tag);  // name itself
-  double px = _Recv_Double(origin, tag);  // physical size X
-  double py = _Recv_Double(origin, tag);  // physical size Y
-  int ix = _Recv_Int(origin, tag);  // size in pixels X
-  int iy = _Recv_Int(origin, tag);  // size in pixels Y
-  int size_pixels = _Recv_Int(origin, tag);  // size of pixels vector
-  std::vector<unsigned short> *pixels = _Recv_UnsignedShortVec(origin,
-							       size_pixels,
-							       tag);
-  Coord *psize = new Coord(px, py);
-  ICoord *isize = new ICoord(ix, iy);
+//   std::vector<unsigned short> * pixels = image->getPixels();
+//   _Isend_Int(pixels->size(), destinations, tag);  // size of pixels vector
+//   _Isend_UnsignedShortVec(pixels, destinations, tag);
+//   delete pixels;
+// }
+
+// OOFImage *_Recv_Image(int origin, int tag)
+// {
+//   int name_size = _Recv_Int(origin, tag);  // size of the name
+//   std::string name = _Recv_String(origin, name_size, tag);  // name itself
+//   double px = _Recv_Double(origin, tag);  // physical size X
+//   double py = _Recv_Double(origin, tag);  // physical size Y
+//   int ix = _Recv_Int(origin, tag);  // size in pixels X
+//   int iy = _Recv_Int(origin, tag);  // size in pixels Y
+//   int size_pixels = _Recv_Int(origin, tag);  // size of pixels vector
+//   std::vector<unsigned short> *pixels = _Recv_UnsignedShortVec(origin,
+// 							       size_pixels,
+// 							       tag);
+//   Coord *psize = new Coord(px, py);
+//   ICoord *isize = new ICoord(ix, iy);
   
-  OOFImage *image = newImageFromData(name, isize, pixels);
-  image->setSize(psize);
+//   OOFImage *image = newImageFromData(name, isize, pixels);
+//   image->setSize(psize);
 
-  delete psize;
-  delete isize;
-  delete pixels;
+//   delete psize;
+//   delete isize;
+//   delete pixels;
 
-  return image;
-}
-#endif //HAVE_MPI
+//   return image;
+// }
+// #endif //HAVE_MPI
