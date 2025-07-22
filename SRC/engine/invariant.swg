@@ -63,10 +63,10 @@ public:
 
 %typemap(in) EigenValueRank* (EigenValueRank rank) {
   // $input is a Python EigenValueRank, which is a subclass of
-  // enum.Enum and defined in invariant.spy.  We're converting it to a
-  // C++ EigenValueRank, which is just an enum defined in invariant.h.
-  // This routine relies on the order in which the Python
-  // EigenValueRank values were listed in the class definition.
+  // oofenum.Enum and defined in invariant.spy.  We're converting it
+  // to a C++ EigenValueRank, which is just an enum defined in
+  // invariant.h.  This routine relies on the order in which the
+  // Python EigenValueRank values were listed in the class definition.
 
   int indx = PyLong_AsLong(PyObject_CallMethod($input, (char*) "index", NULL));
   switch(indx) {
