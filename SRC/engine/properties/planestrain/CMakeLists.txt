@@ -11,7 +11,7 @@ target_sources(oof2engine
   planestrain.C
   planestrain.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   planestrain
   LIBRARIES

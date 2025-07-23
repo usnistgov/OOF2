@@ -24,7 +24,8 @@ public:
   Rank3Tensor();
   ~Rank3Tensor();
   int size();
-  %addmethods {
+};
+  %extend Rank3Tensor {
     double get(int i, int j, int k) {
       double v =  (*self)(i, j, k);
       return v;
@@ -40,7 +41,6 @@ public:
       return (*self).operator==(r);
     }
   } 
-};
 
 %pythoncode "engine/rank3tensor.spy"
 

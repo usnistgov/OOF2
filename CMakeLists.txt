@@ -6,16 +6,30 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-cmake_minimum_required(VERSION 3.16)
-project(oof2 VERSION 2.2.3)
+cmake_minimum_required(VERSION 3.18)
+project(oof2 VERSION 2.3.4)
 
-# Options to be set by the user
-set(DESIRED_SWIGVERSION 4.1 CACHE STRING "Choose 4.0 or 4.1")
-set(DESIRED_PYVERSION 3.10 CACHE STRING "Python3 version number")
+# cmake functions and settings that are used both by oof2 and oof2
+# extensions are in oofbuildtools.cmake so that the extensions can
+# include them easily.
+include("oofbuildtools.cmake")
 
-## TODO NUMPY: If we're going to require numpy/skimage, don't make
-## this an option.
-option(USE_SKIMAGE "Use scikit-image instead of ImageMagick" OFF)
+
+# If OOF2 is being installed by a regular user, the python files
+# should be installed into lib/pythonX.Y/site-packages/oofcanvas,
+# which is probably in /usr/local or the user's home directory.  But
+# if it's being installed by MacPorts or another package manager they
+# should be installed in
+# ${Python3_LIBRARY_DIRS}/pythonX.Y/site-packages.  The package
+# manager should set OOF2_SYSTEM_INSTALL to ON, which will cause
+# the files to be installed under Python3_LIBRARY_DIRS.
+option(OOF2_SYSTEM_INSTALL OFF "Install in system directory?")
+mark_as_advanced(OOF2_SYSTEM_INSTALL)
+
+option(OOF2_DEV_INSTALL OFF "Install development files?")
+
+
+## TODO PYTHON3: Get openMP working. See the openmp-branch branch.
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -42,10 +56,7 @@ set(ooflibs
   oof2orientationmap
   )
 
-# executable python scripts to install, after changing @PYEXEC@ to the
-# full path name of the desired python version.
-## TODO PYTHON3: Just use Python3_EXECUTABLE instead of PYEXEC.  We
-## don't need PYEXEC.
+# executable python scripts to install
 
 set(oofscripts
   oof2
@@ -57,88 +68,154 @@ set(oofscripts
 
 # Required version numbers for dependencies
 
-set(OOFCANVAS_MIN_VERSION 1.1.0)
-set(MAGICK_MIN_VERSION 6.0.0)
-set(MAGICK_MAX_VERSION 7.0.0)
+set(OOFCANVAS_MIN_VERSION 1.1.2)
 set(GTK3_MIN_VERSION 3.22)
 set(NUMPY_MIN_VERSION 1.21) # TODO: probably can be less than this
 ## TODO NUMPY: Check skimage min version number.  Probably should be 0.19
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+include(FindBLAS)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# SITE_PACKAGES is used to set the path in oof2.in, oof2-test.in and
+# oof2-guitest.in so that users can run the top level scripts without
+# setting PYTHONPATH.
+if(OOF2_SYSTEM_INSTALL)
+  set(SITE_PACKAGES ${Python3_LIBRARY_DIRS}/${PYLIBPATH})
+else()
+  set(SITE_PACKAGES lib/${PYLIBPATH})
+endif()
+# PYDEST is the destination for installing OOF2 python files.
+set(PYDEST ${SITE_PACKAGES}/${CMAKE_PROJECT_NAME})
+
+# message("PYDEST is ${PYDEST}")
+# message("SITE_PACKAGES is ${SITE_PACKAGES}")
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Use pkg-config to get info about dependencies
+include(FindPkgConfig)
+# Update the pkgconfig search path
+# MacPorts puts some pkg-config files in the python library
+if(APPLE)
+  set(ENV{PKG_CONFIG_PATH}
+    "$ENV{PKG_CONFIG_PATH}:${Python3_LIBRARY_DIRS}/pkgconfig")
+endif()
+# Look in the anaconda directory if necessary
+if($ENV{CONDA_PREFIX})
+  set(ENV{PKG_CONFIG_PATH}
+    "$ENV{PKG_CONFIG_PATH}:$ENV{CONDA_PREFIX}/lib/pkgconfig")
+endif()
+
+# TODO: OOFCanvas was probably installed with the same prefix, so it
+# would be nice to add CMAKE_INSTALL_PREFIX/lib/pkgconfig to
+# PKG_CONFIG_PATH here, and not require users to set PKG_CONFIG_PATH
+# themselves.  But when ccmake opens this file for the first time,
+# CMAKE_INSTALL_PREFIX is not set, and so oofcanvas is not found.  I
+# don't know how to delay the pkg_check_modules call until after
+# CMAKE_INSTALL_PREFIX is set.
+#   if(EXISTS ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig/oofcanvas.pc})
+#     set(ENV{PKG_CONFIG_PATH}
+#       "$ENV{PKG_CONFIG_PATH}:${CMAKE_INSTALL_PREFIX}/lib/pkgconfig")
+#   endif()
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Check the numpy version and get its include path.
+# message(STATUS "Python3_EXECUTABLE=${Python3_EXECUTABLE} testresult=${testresult} testoutput=${testoutput}")
+execute_process(
+  COMMAND ${Python3_EXECUTABLE} -c "import numpy; print(numpy.version.version, end='')"
+  RESULT_VARIABLE numpy_version_found
+  OUTPUT_VARIABLE NUMPY_VERSION
+)
+if(${numpy_version_found})
+  message(WARNING "Could not find numpy!")
+endif()
+    
+if(${NUMPY_VERSION} VERSION_LESS ${NUMPY_MIN_VERSION})
+  message(FATAL_ERROR
+    "Numpy version is ${NUMPY_VERSION}. Version ${NUMPY_MIN_VERSION} is required.")
+endif()
+
+# Find the numpy include directory
+execute_process(
+  COMMAND ${Python3_EXECUTABLE} -c "import numpy; print(numpy.get_include(), end='')"
+  OUTPUT_VARIABLE NUMPY_INCLUDE
+)
+
+pkg_check_modules(
+  OOFCANVAS REQUIRED
+  oofcanvas>=${OOFCANVAS_MIN_VERSION})
+# TODO PYTHON3: Check that oofcanvas was built with the same version
+# of Python as oof2.
+list(APPEND CMAKE_INSTALL_RPATH ${OOFCANVAS_LIBDIR})
+
+## Dump all variables
+# get_cmake_property(_variableNames VARIABLES)
+# list (SORT _variableNames)
+# foreach (_variableName ${_variableNames})
+#     message(STATUS "${_variableName}=${${_variableName}}")
+# endforeach()
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+pkg_check_modules(
+  GTK3 REQUIRED
+  gtk+-3.0>=${GTK3_MIN_VERSION})
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+include(TestForSSTREAM)		# sets CMAKE_NO_ANSI_STRING_STREAM
+## TODO: Is there a non-stupid way of setting HAVE_SSTREAM?
+if(NOT ${CMAKE_NO_ANSI_STRING_STREAM})
+  set(HAVE_SSTREAM True)
+endif()
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Call swig_sources in the CMakeLists.txt files in all subdirectories
-# that contain swig files.
-#  swig_sources(
-#        SWIGFILES  a b      # .swg suffix is assumed
-#     optional arguments
-#        LIBRARIES  <names of libraries to link to, must be cmake targets>
-#        CFLAGS <additional compiler options>)
-#        INCLUDE_DIRECTORIES <additional directories to search for C++ headers>
-#        TARGET_SFX <suffix to use for the cmake target.  See below>
-#  )
+# Create the shared library targets, which are listed in the ooflibs
+# macro defined above.
 
+foreach(olib ${ooflibs})
+  add_library(${olib} SHARED)
+  target_include_directories(${olib}
+    PRIVATE
+    ${PROJECT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${PROJECT_SOURCE_DIR}/SRC
+    ## TODO: Don't add all include dirs here. Use only as required by
+    ## setting property INCLUDE_DIRECTORIES on source files
+    ${Python3_INCLUDE_DIRS} 
+    ${OOFCANVAS_INCLUDE_DIRS}
+    ${GTK3_INCLUDE_DIRS}
+    )
+  ## TODO: We needed to include OOFCANVAS_CFLAGS in all header files
+  ## that used oofcanvas.h when we were using ImageMagick.  It may not
+  ## be needed any more.
+  target_compile_options(${olib}
+    PRIVATE
+    -Wno-deprecated-register
+    ${OOFCANVAS_CFLAGS})
+endforeach()
 
-function(swig_sources)
-  set(multiValueArgs SWIGFILES LIBRARIES CFLAGS INCLUDE_DIRECTORIES TARGET_SFX)
-  cmake_parse_arguments(PARSE_ARGV 0 SS "" "" "${multiValueArgs}")
-  #                                  ^ "SS" for Swig_Sources
+# oofconfig.h is used when building oof2.
+configure_file(
+  ${PROJECT_SOURCE_DIR}/oofconfig.h.in
+  ${PROJECT_BINARY_DIR}/oofconfig.h
+  @ONLY
+)
 
-  foreach(swigfile ${SS_SWIGFILES})
-    set_property(
-      SOURCE ${swigfile}.swg
-      PROPERTY CPLUSPLUS ON)
-    # Set include directories for the swig command.
-    set_property(
-      SOURCE ${swigfile}.swg
-      PROPERTY INCLUDE_DIRECTORIES
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      ${PROJECT_SOURCE_DIR}/SRC
-      ${SS_INCLUDE_DIRECTORIES})
-    # Set include directories for the compiler
-    set_property(
-      SOURCE ${swigfile}.swg
-      PROPERTY GENERATED_INCLUDE_DIRECTORIES
-      ${SS_INCLUDE_DIRECTORIES}
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      ${PROJECT_SOURCE_DIR}/SRC
-      ${PROJECT_BINARY_DIR}	# for headers generated by configure_file
-      ${PYINCL}
-      ${Python3_INCLUDE_DIRS})
-    set_property(
-      SOURCE ${swigfile}.swg
-      PROPERTY GENERATED_COMPILE_OPTIONS
-      "${SS_CFLAGS}"
-      "${OOFCANVAS_CFLAGS}")
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-    if(${SS_TARGET_SFX})
-      # If the TARGET_SFX argument is supplied, append it to
-      # ${swigfile} to create the target name, although the installed
-      # name will still be ${swigfile}.  This allows us to build two
-      # modules with the same names but different locations, despite
-      # the fact that cmake requires all target names to be unique.
-      set(TARGET ${swigfile}${SS_TARGET_SFX}) # create a unique target name
-      # set_property(			      # but don't use it for the files
-      # 	SOURCE ${swigfile}.swg
-      # 	PROPERTY OUTPUT_NAME
-      # 	${swigfile})	 # *not* ${TARGET}, which has the suffix added
-    else()
-      set(TARGET ${swigfile})
-    endif()
+# The swig_sources() function defined in oofbuildtools.cmake needs to
+# be wrapped so that the files are installed in the right spots and
+# the SRC directory is searched for header files.
 
-    swig_add_library(
-      ${TARGET}
-      TYPE MODULE
-      LANGUAGE PYTHON
-      SOURCES ${swigfile}.swg)
+## TODO: Can we use swig's -fastproxy or -fastproxy -olddefs options?
 
-    target_link_libraries(
-      ${TARGET}
-      PRIVATE
-      ${Python3_LIBRARIES}
-      ${SS_LIBRARIES}
-      ${OOFCANVAS_LINK_LIBRARIES}
-      )
-
+function(oof_swig_sources)
     # Get the path from the top of the source directory hierarchy to
     # the current directory.  This is the path from the top of the
     # installation directory hierarchy to the installation directory
@@ -158,183 +235,26 @@ function(swig_sources)
 	relpath			# Change this path ...
 	BASE_DIRECTORY ${PROJECT_SOURCE_DIR}/SRC) # ... to be relative to this
     endif()
-    # Install the swig-generated and compiled library
-    install(
-      TARGETS ${TARGET}
-      DESTINATION ${PYDEST}/ooflib/SWIG/${relpath})
-    # Install the swig-generated python file
-    install(
-      FILES ${CMAKE_CURRENT_BINARY_DIR}/${swigfile}.py
-      DESTINATION ${PYDEST}/ooflib/SWIG/${relpath})
-  endforeach()
+    set(OOF2PYDEST ${PYDEST}/ooflib/SWIG/${relpath})
 
+    swig_sources(${ARGV}
+      SWIGDEST ${OOF2PYDEST}
+      INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/SRC
+    )
 endfunction()
 
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-set(oof_build_types Debug Release)
-set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${oof_build_types})
-set(CMAKE_BUILD_TYPE Release CACHE STRING "Debug or Release")
+# Create swigruntime.h by running "swig -external-runtime". The
+# dependence of oofswigruntime.h on swigruntime.h is set explicitly in
+# SRC/common/CMakeLists.txt.
 
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-  set(DEBUG True)
-endif()
+add_custom_command(
+  OUTPUT swigruntime.h
+  COMMAND ${SWIG_EXECUTABLE} -python -external-runtime swigruntime.h
+)
 
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-# Set C++ version
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_EXTENSIONS False)	# use -std=c++11 instead of -std=gnu++11
-set(CMAKE_CXX_STANDARD_REQUIRED True) # don't fall back to an earlier standard
-
-set(BUILD_SHARED_LIBS ON)
-
-# On macOS 12, we need to set RPATH or libraries installed outside the
-# default locations won't be found.
-set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-# Find dependencies
-
-# Find Python3.
-set(Python3_ROOT /opt/local) # Use MacPorts if available
-## TODO: Allow user to choose python sub version
-include(FindPython)
-find_package(
-  Python3 ${DESIRED_PYVERSION} EXACT
-  COMPONENTS Interpreter Development)
-set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
-set(PYEXEC ${Python3_EXECUTABLE})
-
-# message("Python3 is ${Python3_EXECUTABLE}")
-# message("Python3_INCLUDE_DIRS is ${Python3_INCLUDE_DIRS}")
-# message("Python3_LIBRARIES is ${Python3_LIBRARIES}")
-
-set(PYDEST lib/python${PYVERSION}/site-packages/${CMAKE_PROJECT_NAME})
-# message("PYDEST is ${PYDEST}")
-
-include(FindBLAS)
- 
-include(FindSWIG)
-include(UseSWIG)
-find_package(SWIG ${DESIRED_SWIGVERSION} COMPONENTS python)
-## UseSWIG can generate dependencies only for cmake >= 3.20.  Setting
-## the flag for it is harmless even if it doesn't always work.
-set(SWIG_USE_SWIG_DEPENDENCIES True)
-set(UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
-set(SWIG_SOURCE_FILE_EXTENSIONS ".swg" ".i")
-if(${SWIG_VERSION} VERSION_LESS "4.1")
-  set(CMAKE_SWIG_FLAGS -py3)
-endif()
-# add_compile_definitions(SWIG_TYPE_TABLE=oof2)
-if(${SWIG_USE_BUILTIN})		# wishful thinking
-  list(APPEND CMAKE_SWIG_FLAGS -builtin)
-endif()
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-  list(APPEND CMAKE_SWIG_FLAGS "-DDEBUG")
-endif()
-if(${USE_SKIMAGE})
-  list(APPEND CMAKE_SWIG_FLAGS "-DUSE_SKIMAGE")
-endif()
-
-# Use pkg-config to get info about dependencies
-include(FindPkgConfig)
-# MacPorts puts some pkg-config files in the python library
-if(APPLE)
-set(ENV{PKG_CONFIG_PATH}
-  "$ENV{PKG_CONFIG_PATH}:${Python3_LIBRARY_DIRS}/pkgconfig")
-endif()
-if($ENV{CONDA_PREFIX})
-  set(ENV{PKG_CONFIG_PATH}
-    "$ENV{PKG_CONFIG_PATH}:$ENV{CONDA_PREFIX}/lib/pkgconfig")
-endif()
-#message("PKG_CONFIG_PATH is $ENV{PKG_CONFIG_PATH}")
-
-
-# Check the numpy version and get its include path, if using scikit-image
-if(${USE_SKIMAGE}) 
-  execute_process(
-    COMMAND ${PYEXEC} -c "import numpy; print(numpy.version.version, end='')"
-    OUTPUT_VARIABLE NUMPY_VERSION
-  )
-  if(${NUMPY_VERSION} VERSION_LESS ${NUMPY_MIN_VERSION})
-    message(FATAL_ERROR
-      "Numpy version is ${NUMPY_VERSION}. Version ${NUMPY_MIN_VERSION} is required.")
-  endif()
-  # Find the numpy include directory
-  execute_process(
-    COMMAND ${PYEXEC} -c "import numpy; print(numpy.get_include(), end='')"
-    OUTPUT_VARIABLE NUMPY_INCLUDE
-  )
-endif()
-
-pkg_check_modules(
-  OOFCANVAS REQUIRED
-  oofcanvas>=${OOFCANVAS_MIN_VERSION})
-# TODO PYTHON3: Check that oofcanvas was built with the same version
-# of Python as oof2.
-list(APPEND CMAKE_INSTALL_RPATH ${OOFCANVAS_LIBDIR})
-
-## Dump all variables
-# get_cmake_property(_variableNames VARIABLES)
-# list (SORT _variableNames)
-# foreach (_variableName ${_variableNames})
-#     message(STATUS "${_variableName}=${${_variableName}}")
-# endforeach()
-
-pkg_check_modules(
-  MAGICK REQUIRED
-  Magick\+\+>=${MAGICK_MIN_VERSION}
-  Magick\+\+<${MAGICK_MAX_VERSION})
-pkg_check_modules(
-  GTK3 REQUIRED
-  gtk+-3.0>=${GTK3_MIN_VERSION})
-
-include(TestForSSTREAM)		# sets CMAKE_NO_ANSI_STRING_STREAM
-## TODO: Is there a non-stupid way of setting HAVE_SSTREAM?
-if(NOT ${CMAKE_NO_ANSI_STRING_STREAM})
-  set(HAVE_SSTREAM True)
-endif()
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-# Create the shared library targets, which are listed in the ooflibs
-# macro defined above.
-
-foreach(olib ${ooflibs})
-  add_library(${olib} SHARED)
-  target_include_directories(${olib}
-    PUBLIC
-    ${PROJECT_BINARY_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${PROJECT_SOURCE_DIR}/SRC
-    ## TODO: Don't add all include dirs here. Use only as required by
-    ## setting property INCLUDE_DIRECTORIES on source files
-    ${Python3_INCLUDE_DIRS} 
-    ${OOFCANVAS_INCLUDE_DIRS}
-    ${MAGICK_INCLUDE_DIRS}
-    ${GTK3_INCLUDE_DIRS}
-    )
-  # It's necessary to include OOFCANVAS_CFLAGS for all files that
-  # include oofcanvas.h, because oofcanvas.h indirectly includes
-  # ImageMagick headers, and ImageMagick complains bitterly if
-  # MAGICKCORE_QUANTUM_DEPTH isn't defined.  OOFCANVAS_CFLAGS includes
-  # the ImageMagick preprocessor definitions that it used.  This
-  # results in the ImageMagick definitions being used in far more
-  # places than actually necessary, which is messy but probably
-  # harmless.
-  target_compile_options(${olib}
-    PRIVATE
-    -Wno-deprecated-register
-    ${OOFCANVAS_CFLAGS})
-endforeach()
-
-configure_file(
-  ${PROJECT_SOURCE_DIR}/oofconfig.h.in
-  ${PROJECT_BINARY_DIR}/oofconfig.h
-  @ONLY
-  )
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 foreach(script ${oofscripts})
   configure_file(
@@ -371,7 +291,6 @@ target_link_libraries(oof2image
   ${Python3_LIBRARIES}
   ${OOFCANVAS_LINK_LIBRARIES}
   oof2common
-  ${MAGICK_LINK_LIBRARIES}
   )
 
 target_link_libraries(oof2orientationmap
@@ -381,7 +300,6 @@ target_link_libraries(oof2orientationmap
   oof2common
   oof2engine
   oof2image
-  ${MAGICK_LINK_LIBRARIES}
   )
   
 add_subdirectory(SRC)
@@ -395,7 +313,7 @@ install(
   oof2engine
   oof2image
   oof2orientationmap
-  DESTINATION lib)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Install python files from SRC subdirectories, excluding SWIG output
 
@@ -405,7 +323,6 @@ foreach(pydir ${oofdirs})
     FILES_MATCHING
     PATTERN "*.py"
     PATTERN EXTRA EXCLUDE
-    PATTERN DIR.py EXCLUDE # TODO: delete this line after DIR.py files go away
     )
 endforeach()
 
@@ -416,15 +333,13 @@ file(TOUCH ${PROJECT_BINARY_DIR}/__init__.py)
 install(
   FILES
   ${PROJECT_BINARY_DIR}/__init__.py
-  DESTINATION
-  ${PYDEST}
+  DESTINATION ${PYDEST}
   )
 
 install(
   FILES
   ${PROJECT_BINARY_DIR}/__init__.py
-  DESTINATION
-  ${PYDEST}/ooflib
+  DESTINATION ${PYDEST}/ooflib
   )
   
 # Install the start up and test wrapper scripts
@@ -434,20 +349,125 @@ install(
   ${CMAKE_BINARY_DIR}/oof2
   ${CMAKE_BINARY_DIR}/oof2-test
   ${CMAKE_BINARY_DIR}/oof2-guitest
-  DESTINATION bin)
+  DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # Install the TEST and GUITEST directories and their data
 
 install(
   DIRECTORY TEST
   DESTINATION ${PYDEST}
-  ## TODO: This will possibly install too much.  Use patterns or exclusions.
-  # FILES_MATCHING 
-  # PATTERN "*.py"
-  # PATTERN "*.dat"
+  PATTERN "*~" EXCLUDE
+  PATTERN "NOTES" EXCLUDE
+  )
+
+# Install examples into <prefix>/share/oof2/examples
+install(
+  DIRECTORY examples
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/oof2
   )
 
 
-## TODO: When creating a distribution, check that the various
-## typemaps.swg files are included.  They're not explicitly listed as
-## source file elsewhere.
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Machinery for building extensions.  Everything that an extension
+# might require from the oof2 source directory has to be installed
+# somewhere under CMAKE_INSTALL_PREFIX because the source directory
+# might not be available when a user is building an extension.  If
+# oof2 was installed via a package manager, the source directory might
+# not have ever been installed.
+
+# Create the script for creating the structure of an extension and
+# install it into bin.
+
+if(OOF2_DEV_INSTALL)
+
+  # Configure  oof2-extension-setup and install it into bin
+  configure_file(
+    ${PROJECT_SOURCE_DIR}/EXTENSION_TEMPLATES/oof2-extension-setup.in
+    ${PROJECT_BINARY_DIR}/oof2-extension-setup
+    @ONLY
+  )
+  install(
+    PROGRAMS
+    ${CMAKE_BINARY_DIR}/oof2-extension-setup
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
+
+  # Install the extension templates into share/oof2/templates.
+  install(
+    DIRECTORY EXTENSION_TEMPLATES/ # trailing slash means copy subdirectories
+    DESTINATION share/oof2/templates
+    PATTERN "oof2-extension-setup.in" EXCLUDE
+    PATTERN "TODO" EXCLUDE
+  )
+
+  # Install the oof2 header and swig files into include/oof2.
+  set(headerdirs common engine image orientationmap) # dirs with headers
+  foreach(headerdir ${headerdirs})
+    install(
+      DIRECTORY ${PROJECT_SOURCE_DIR}/SRC/${headerdir}/
+      DESTINATION include/oof2/${headerdir}
+      FILES_MATCHING REGEX ".*\\.(h|swg|spy)$"
+    )
+  endforeach()
+
+  # Some of the Eigen files don't have .h suffixes, so copy that whole
+  # directory.
+  install(
+    DIRECTORY ${PROJECT_SOURCE_DIR}/SRC/Eigen
+    DESTINATION include/oof2
+    )
+  install(
+    DIRECTORY ${PROJECT_SOURCE_DIR}/SRC/unsupported
+    DESTINATION include/oof2
+    )
+  
+  # Copy oofconfig.h and swigruntime.h from the build directory.
+  install(
+    FILES ${PROJECT_BINARY_DIR}/oofconfig.h
+    ${PROJECT_BINARY_DIR}/swigruntime.h
+    DESTINATION include/oof2
+    )
+
+  # Install the cmake functions (also used in this file) into
+  # share/oof2/tools
+  install(
+    FILES ${PROJECT_SOURCE_DIR}/oofbuildtools.cmake
+    DESTINATION share/oof2/tools
+    )
+
+endif()  # OOF2_DEV_INSTALL
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Packaging
+
+# Don't use cmake's packaging tools because I couldn't get them to
+# work and we have a perfectly good make_dist script from the old
+# days.  But in order to ensure that the version number used by the
+# script is the same as the version number defined here, the script is
+# created from make_dist.in.  Check that the file exists because
+# make_dist.in isn't itself included in the distribution.
+
+if(EXISTS "${PROJECT_SOURCE_DIR}/make_dist.in")
+  configure_file(
+    ${PROJECT_SOURCE_DIR}/make_dist.in
+    ${PROJECT_BINARY_DIR}/make_dist
+    @ONLY
+  )
+endif()
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Add an "uninstall" target.  Copied from
+# https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
+
+if(NOT TARGET uninstall)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+  add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()

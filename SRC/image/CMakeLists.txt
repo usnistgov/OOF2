@@ -24,7 +24,7 @@ target_include_directories(oof2image
   ${NUMPY_INCLUDE}
 )
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   autogroup
   oofimage

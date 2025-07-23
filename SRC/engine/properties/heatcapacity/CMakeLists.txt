@@ -11,7 +11,7 @@ target_sources(oof2engine
   heatcapacity.C
   heatcapacity.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   heatcapacity
   LIBRARIES

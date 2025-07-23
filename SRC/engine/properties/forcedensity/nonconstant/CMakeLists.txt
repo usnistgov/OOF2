@@ -11,7 +11,7 @@ target_sources(oof2engine
   nonconstant_force_density.C
   nonconstant_force_density.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   nonconstant_force_density
   LIBRARIES

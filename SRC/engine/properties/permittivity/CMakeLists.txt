@@ -11,7 +11,7 @@ target_sources(oof2engine
   permittivity.C
   permittivity.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   permittivity
   LIBRARIES

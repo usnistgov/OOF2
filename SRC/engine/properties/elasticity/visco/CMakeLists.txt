@@ -11,7 +11,7 @@ target_sources(oof2engine
   visco.C
   visco.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   visco
   LIBRARIES

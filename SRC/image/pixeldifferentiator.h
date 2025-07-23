@@ -14,7 +14,7 @@
 
 #include <oofconfig.h>
 #include <vector>
-#include <Magick++.h>
+//#include <Magick++.h>
 
 #include "common/array.h"
 #include "common/burn.h"

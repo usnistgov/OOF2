@@ -11,7 +11,7 @@ target_sources(oof2engine
   thermo.C
   thermo.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   thermo
   LIBRARIES

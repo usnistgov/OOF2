@@ -130,7 +130,7 @@ target_sources(oof2engine
   symmmatrix.h
   )
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   angle2color
   bdyanalysis
@@ -186,7 +186,7 @@ swig_sources(
   oof2engine
   )
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   ooferror
   LIBRARIES

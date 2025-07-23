@@ -11,7 +11,7 @@ target_sources(oof2common
   bitoverlay.C
   bitoverlay.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   bitoverlay
   LIBRARIES

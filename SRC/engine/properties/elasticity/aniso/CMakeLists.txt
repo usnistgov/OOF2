@@ -11,7 +11,7 @@ target_sources(oof2engine
   aniso.C
   aniso.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   aniso
   LIBRARIES

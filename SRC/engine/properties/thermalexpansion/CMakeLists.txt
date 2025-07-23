@@ -11,7 +11,7 @@ target_sources(oof2engine
   thermalexpansion.C
   thermalexpansion.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   thermalexpansion
   LIBRARIES

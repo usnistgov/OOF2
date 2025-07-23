@@ -20,7 +20,7 @@ target_sources(
   ion.h
   )
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   # The swig source files in this directory must be listed here.
   # Don't include the filename suffix.  The suffix must be either ".i"

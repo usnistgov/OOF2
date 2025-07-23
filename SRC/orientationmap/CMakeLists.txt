@@ -26,7 +26,7 @@ target_include_directories(oof2orientationmap
 )
 
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   orientmapdata
   orientmapproperty

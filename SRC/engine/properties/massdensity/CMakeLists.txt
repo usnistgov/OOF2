@@ -11,7 +11,7 @@ target_sources(oof2engine
   massdensity.C
   massdensity.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   massdensity
   LIBRARIES

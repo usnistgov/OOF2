@@ -11,7 +11,7 @@ target_sources(oof2engine
   skeletonrelaxationrate.C
   skeletonrelaxationrate.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   skeletonrelaxationrate
   LIBRARIES

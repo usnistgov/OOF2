@@ -94,7 +94,7 @@ target_sources(oof2common
   trace.h
   )
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   abstractimage
   activearea

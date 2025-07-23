@@ -25,12 +25,12 @@
 
 class Invariant {
 public:
-  %addmethods{
+};
+  %extend Invariant{
     double __call__(ArithmeticOutputVal &ov) {
       return (*self)(ov);
     }
   }
-};
 
 class Magnitude : public Invariant {
 public:

@@ -15,7 +15,7 @@ target_sources(oof2commonGUI
   gfxbrushstyle.C
   gfxbrushstyle.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   gfxbrushstyle
   progressGUI

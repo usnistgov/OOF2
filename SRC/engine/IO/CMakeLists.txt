@@ -14,7 +14,7 @@ target_sources(oof2engine
   propertyoutput.h
   )
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   contour
   propertyoutput

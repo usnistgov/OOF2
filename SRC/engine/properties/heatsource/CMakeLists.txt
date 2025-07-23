@@ -11,7 +11,7 @@ target_sources(oof2engine
   heatsource.C
   heatsource.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   heatsource
   LIBRARIES

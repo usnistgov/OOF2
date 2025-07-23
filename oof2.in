@@ -18,6 +18,9 @@
 import sys
 import os
 
+# This should make it unnecessary for users to set PYTHONPATH themselves.
+sys.path.append("@CMAKE_INSTALL_PREFIX@/@SITE_PACKAGES@")
+
 # The base "oof" module must be in your path. You may need to
 # set the PYTHONPATH environment variable on Linux or Mac OSX systems.
 # If you are seeing failures on this line, your shell environment

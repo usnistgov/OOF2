@@ -11,7 +11,7 @@ target_sources(oof2engine
   nonconstant_heat_source.C
   nonconstant_heat_source.h)
 
-swig_sources(
+oof_swig_sources(
   SWIGFILES
   nonconstant_heat_source
   LIBRARIES
