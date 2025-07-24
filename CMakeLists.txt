@@ -28,6 +28,7 @@ mark_as_advanced(OOF2_SYSTEM_INSTALL)
 
 option(OOF2_DEV_INSTALL OFF "Install development files?")
 
+option(USE_SKIMAGE "Use scikit-image instead of ImageMagick" ON)
 
 ## TODO PYTHON3: Get openMP working. See the openmp-branch branch.
 
