@@ -77,17 +77,6 @@ bool OOFImage::compare(const OOFImage &other, double tol) const {
   return true;
 }
 
-// void OOFImage::save(const std::string &filename) {
-//   Magick::Image copy = image;
-//   try {
-//     copy.flip();			// undo flip in constructor
-//     copy.write(filename);
-//   }
-//   catch (Magick::Exception &e) {
-//     throw ImageMagickError(e.what());
-//    }
-// }
-
 void OOFImage::setSize(const Coord *sighs) {
   size_ = *sighs;
 }

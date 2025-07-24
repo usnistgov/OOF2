@@ -57,11 +57,9 @@ protected:
   CMicrostructure *microstructure;
 public:
   OOFImage(const std::string &nm);
-  OOFImage(const OOFImage&) = delete;
-  OOFImage(const std::string &nm, const std::string &filename);
   OOFImage(const std::string &nm, PyObject *ndarray);
+  OOFImage(const OOFImage&) = delete;
   virtual ~OOFImage();
-  // void save(const std::string &filename);
   const std::string &name() const { return name_; }
   void rename(const std::string &nm) { name_ = nm; }
   void setSize(const Coord*);	// Physical size, not pixel size!

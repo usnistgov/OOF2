@@ -12,7 +12,10 @@ from ooflib.common import debug
 #from ooflib.common import parallel_enable
 from ooflib.common import primitives
 from ooflib.image import imagecontext
+
+import numpy
 import os
+import skimage.io
 
 def readImage(filename, **kwargs):
     # 'height' and 'width' keywords are optional.  If neither is
@@ -52,15 +55,13 @@ def readImage(filename, **kwargs):
 ## the depth of the scikit-image image: gray, RGB, RGBA, all with a
 ## template parameter for byte, int, and float data.
 
-import skimage.io
-import numpy
-
 def printnpcolor(npimage, i, j):
     vals = npimage[i,j]
     debug.fmsg(f"npimage[{i}, {j}] = {vals} {list(x/255 for x in vals)}")
 
 def readNumpyImage(filename, **kwargs):
     npimage = skimage.io.imread(filename) # numpy.ndarray object
+    # debug.fmsg(f"Image data type is {npimage.dtype}")
     # Convert to rgb if necessary
     if len(npimage.shape) == 2:
         # gray scale with no alpha channel
@@ -70,6 +71,12 @@ def readNumpyImage(filename, **kwargs):
         ## TODO NUMPY: What if it's HSV or some other color space?
         npimage = npimage[:,:,0:3] # just remove the alpha channel
 
+    # The image read from the file probably has 8 bit channels.  For
+    # internal calculations, we want more than that.  We probably
+    # don't need 64 bits, but since all other calculations use doubles
+    # it's convenient to use them here too.  If this is a problem for
+    # storage or speed, change from float64 to float32 here, and
+    # change the data type used by CColor too.
     npimage = skimage.util.img_as_float64(npimage)
     
     # Flip along the y axis (so that y coord increases upwards)

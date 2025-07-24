@@ -32,6 +32,7 @@ from ooflib.image import imagecontext
 from ooflib.image import imagemodifier
 import ooflib.common.microstructure
 
+import numpy
 import os.path
 import skimage.io
 
@@ -164,7 +165,12 @@ switchboard.requestCallback(('remove who', 'Microstructure'), _sensitize)
 def saveImage(menuitem, image, filename, overwrite):
     immidge = oofimage.getImage(image).npImage()
     if immidge is not None and (overwrite or not os.path.exists(filename)):
-        skimage.io.imsave(filename, immidge, check_contrast=False)
+        # Undo the flip done by readNumpyImage()
+        imgflip = numpy.flip(immidge, 0)
+        # Convert to a savable format.  readNumpyImage() converted
+        # from something to float64.  imsave() can't handle that.
+        saveimg = skimage.util.img_as_ubyte(imgflip)
+        skimage.io.imsave(filename, saveimg, check_contrast=False)
     else:
         reporter.warn("Image was not saved!")
 
