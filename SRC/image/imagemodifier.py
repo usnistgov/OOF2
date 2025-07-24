@@ -23,6 +23,9 @@ import numpy
 import skimage
 import sys
 
+## TODO NUMPY: Review the tips and discussions for all classes.  Some
+## still refer to the ImageMagick versions.
+
 # Base class for image modification methods.  Subclasses of
 # ImageModifier need to have a __call__ method that takes an OOFImage
 # argument and returns the modified numpy array.
@@ -175,8 +178,11 @@ registeredclass.Registration(
     ImageModifier,
     FadeImage,
     ordering = 1.1,
-    params = [ parameter.FloatRangeParameter('factor', (0, 1, 0.01), 0.1,
-                                  tip="0 does nothing, 1 fades to white.") ],
+    params = [
+        parameter.FloatRangeParameter(
+            'factor', (0, 1, 0.01), 0.1,
+            tip="0 does nothing, 1 fades to white.")
+    ],
     tip = "Fade the image by the given factor.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/fadeimage.xml'))
 
@@ -193,11 +199,13 @@ registeredclass.Registration(
     ImageModifier,
     DimImage,
     ordering = 1.2,
-    params = [ parameter.FloatRangeParameter('factor', (0, 1, 0.01), value=0.9,
-                                       tip="0 fades to black, 1 does nothing.") ],
+    params = [
+        parameter.FloatRangeParameter('factor', (0, 1, 0.01), value=0.9,
+                                      tip="0 fades to black, 1 does nothing.")
+    ],
     tip = "Dim the image by the given factor.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/dimimage.xml')
-    )
+)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -219,10 +227,13 @@ registeredclass.Registration(
     ImageModifier,
     BlurImage,
     ordering = 2.00,
-    params = [ parameter.FloatParameter('radius', 0.0,
-                   tip="Radius of the Gaussian, in pixels, not counting the center pixel."),
-               parameter.FloatParameter('sigma', 1.0,
-                   tip="Standard deviation of the Gaussian, in pixels")
+    params = [
+        parameter.FloatParameter(
+            'radius', 0.0,
+            tip="Radius of the Gaussian, in pixels, not counting the center pixel."),
+        parameter.FloatParameter(
+            'sigma', 1.0,
+            tip="Standard deviation of the Gaussian, in pixels")
     ],
     tip = "Blur an image by convolving it with a Gaussian operator of the given radius and standard deviation (sigma).",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/blurimage.xml')
@@ -237,16 +248,19 @@ class ContrastImage(ImageModifier):
         np_image = image.npImage()
         new_image = numpy.empty_like( np_image )
         image_as_bytes = skimage.util.img_as_ubyte( np_image )
-        # Another possibility for the previous line is conversion to uint:
+        # Another possibility for the previous line is conversion to
+        # uint:
         #   image_as_uint = skimage.util.img_as_uint( no_image )
-        # which has a range of 0-65535, better than 0-255 to quantize 0.0-1.0.
-        # But scikit-image gives a UserWarning in that situation:
-        # "UserWarning: Bad rank filter performance is expected due to a large
-        # number of bins (65536), equivalent to an approximate bitdepth of 16.0."
-        disk = skimage.morphology.disk( self.radius, dtype=image_as_bytes.dtype )
+        # which has a range of 0-65535, better than 0-255 to quantize
+        # 0.0-1.0.  But scikit-image gives a UserWarning in that
+        # situation: "UserWarning: Bad rank filter performance is
+        # expected due to a large number of bins (65536), equivalent
+        # to an approximate bitdepth of 16.0."
+        disk = skimage.morphology.disk(self.radius,
+                                       dtype=image_as_bytes.dtype)
         for k in range(np_image.ndim):
             new_image[...,k] = skimage.filters.rank.enhance_contrast(
-                                         image_as_bytes[...,k], disk ) / 255.0
+                                         image_as_bytes[...,k], disk)/255.0
         return new_image
 
 registeredclass.Registration(
@@ -254,8 +268,11 @@ registeredclass.Registration(
     ImageModifier,
     ContrastImage,
     ordering = 2.02,
-    params = [ parameter.IntParameter('radius', 5,
-                   tip='radius of the pixel neighborhood used for contrast check') ],
+    params = [
+        parameter.IntParameter(
+            'radius', 5,
+            tip='radius of the pixel neighborhood used for contrast check')
+    ],
     tip = "Enhance intensity differences.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/contrast.xml')
     )
@@ -269,10 +286,11 @@ class DenoiseBilateral(ImageModifier):
         self.sigma_spatial = sigma_spatial
         self.bins = bins
     def __call__(self, image):
-        denoised_image = skimage.restoration.denoise_bilateral( image.npImage(),
-                             win_size=self.window_size, sigma_color=self.sigma_color,
-                             sigma_spatial=self.sigma_spatial, bins=self.bins,
-                             mode='reflect', channel_axis=-1)
+        denoised_image = skimage.restoration.denoise_bilateral(
+            image.npImage(),
+            win_size=self.window_size, sigma_color=self.sigma_color,
+            sigma_spatial=self.sigma_spatial, bins=self.bins,
+            mode='reflect', channel_axis=-1)
         return denoised_image
 
 registeredclass.Registration(
@@ -280,7 +298,7 @@ registeredclass.Registration(
     ImageModifier,
     DenoiseBilateral,
     ordering = 2.081,
-    secret = True,
+    secret = True,              # TODO NUMPY: Why is this secret?
     params = [
         parameter.IntParameter('window_size', 0,
             tip='Window size for filtering. If win_size is not specified (i.e. set to 0), it is calculated as max(5, 2 * ceil(3 * sigma_spatial) + 1)'),
@@ -292,7 +310,7 @@ registeredclass.Registration(
             tip='Number of discrete values for Gaussian weights of color filtering. A larger value results in improved accuracy.')
         ],
     tip = "Denoise using bilateral filter to preserve edges.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoisebilateral.xml')
+    # discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoisebilateral.xml')
     )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -322,10 +340,13 @@ registeredclass.Registration(
             tip='Maximal number of iterations used for the optimization to compute the denoised image.')
         ],
     tip = "Denoise using total variation regularization (suitable for piecewise constant images).",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoisetv.xml')
+    #discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoisetv.xml')
     )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+## TODO NUMPY: If DenoiseWavelet is secret, then these Enums should be
+## commented out, so that they don't appear in the documentation.
 
 class WaveletDenoisingMode(oofenum.EnumClass(
     ('soft', 'Wavelet denoising with soft thresholding'),
@@ -366,7 +387,7 @@ registeredclass.Registration(
     ImageModifier,
     DenoiseWavelet,
     ordering = 2.083,
-    secret = True,
+    secret = True, # TODO NUMPY: Why is this secret?  Does it not work?
     params = [
         parameter.FloatParameter('sigma', 0.0,
             tip='The noise standard deviation used when computing the wavelet detail coefficient threshold(s). When set to 0.0 (default), the noise standard deviation is estimated.'),
@@ -380,7 +401,7 @@ registeredclass.Registration(
             tip='Thresholding method to be used. The currently supported methods are “BayesShrink” and “VisuShrink".')
         ],
     tip = "Denoise using wavelet thresholding.",
-    discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoisewavelet.xml')
+    # discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoisewavelet.xml')
     )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -415,7 +436,7 @@ registeredclass.Registration(
             tip='The standard deviation of the (Gaussian) noise. If provided, a more robust computation of patch weights is computed that takes the expected noise variance into account.')
         ],
     tip = "Denoise using nonlocal means filtering (suitable for images with regions of repetitive texture).",
-    discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoisenonlocalmeans.xml')
+    # discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoisenonlocalmeans.xml')
     )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -433,7 +454,7 @@ registeredclass.Registration(
     ImageModifier,
     DespeckleImage,
     ordering = 2.03,
-    secret = False, # we can remove this class b/c it is the same as medianFilter, thus redundant.
+    secret = True, # we can remove this class b/c it is the same as medianFilter, thus redundant.
     #params = [parameter.FloatParameter('radius', 2.0, tip="Radius of the median filter.")],
     tip = "Reduce the speckle noise using a median filter.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/despeckle.xml')
@@ -442,18 +463,16 @@ registeredclass.Registration(
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class EdgeImage(ImageModifier):
-    def __init__(self, radius=None):
-    #    self.radius = radius
+    def __init__(self, radius=None): # for backwards compatibility.
         pass
     def __call__(self, image):
-        return skimage.filters.sobel( image.npImage() )
+        return skimage.filters.sobel(image.npImage())
 
 registeredclass.Registration(
     'Edge',
     ImageModifier,
     EdgeImage,
     ordering = 2.031,
-    # params=[parameter.FloatParameter('radius', 0.0, tip="Radius for the operation.")],
     tip = "Find edges in an image using Sobel edge filter.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/edge.xml')
     )
@@ -462,9 +481,10 @@ registeredclass.Registration(
 
 class EnhanceImage(ImageModifier):
     def __call__(self, image):
-        enhanced_image = skimage.restoration.denoise_nl_means( image.npImage(),
-                                 patch_size=7, patch_distance=11, fast_mode=True,
-                                 h=0.1, sigma=0.0, channel_axis=-1 )
+        enhanced_image = skimage.restoration.denoise_nl_means(
+            image.npImage(),
+            patch_size=7, patch_distance=11, fast_mode=True,
+            h=0.1, sigma=0.0, channel_axis=-1)
         return enhanced_image
 
 registeredclass.Registration(
@@ -480,7 +500,6 @@ registeredclass.Registration(
 class EqualizeImage(ImageModifier):
     def __call__(self, image):
         return skimage.exposure.equalize_adapthist( image.npImage() )
-        # image.equalize()
 
 registeredclass.Registration(
     'Equalize',
@@ -497,7 +516,6 @@ class MedianFilterImage(ImageModifier):
     def __init__(self, radius):
         self.radius = radius
     def __call__(self, image):
-        # image.medianFilter(self.radius)
         disk = skimage.morphology.disk(self.radius)
         disk2 = skimage.color.gray2rgb(disk)
         return skimage.filters.median(image.npImage(), disk2)
@@ -531,8 +549,10 @@ registeredclass.Registration(
 
 class NormalizeImage(ImageModifier):
     def __call__(self, image):
-        return skimage.exposure.rescale_intensity( image.npImage(),
-                                    in_range='image', out_range='image')
+        return skimage.exposure.rescale_intensity(
+            image.npImage(),
+            in_range='image',
+            out_range='image')
 
 registeredclass.Registration(
     'Normalize',
@@ -549,9 +569,10 @@ class ReduceNoise(ImageModifier):
     def __init__(self, radius=1.0):
         self.radius = radius
     def __call__(self, image):
-        denoised_image = skimage.restoration.denoise_nl_means( image.npImage(),
-                                 patch_size=7, patch_distance=11, fast_mode=True,
-                                 h=0.1, sigma=0.0, channel_axis=-1 )
+        denoised_image = skimage.restoration.denoise_nl_means(
+            image.npImage(),
+            patch_size=7, patch_distance=11, fast_mode=True,
+            h=0.1, sigma=0.0, channel_axis=-1)
         return denoised_image
 
 registeredclass.Registration(
@@ -573,8 +594,8 @@ class SharpenImage(ImageModifier):
         self.radius = radius
         self.amount = amount
     def __call__(self, image):
-        newImage = skimage.filters.unsharp_mask( image.npImage(),
-                                         self.radius, self.amount )
+        newImage = skimage.filters.unsharp_mask(
+            image.npImage(), self.radius, self.amount)
         return newImage
 
 registeredclass.Registration(
@@ -582,14 +603,15 @@ registeredclass.Registration(
     ImageModifier,
     SharpenImage,
     ordering = 2.09,
-    params = [ parameter.FloatParameter('radius', 1.0,
-                             tip='Radius of the Gaussian blur.'),
-               parameter.FloatParameter('amount', 1.0,
-                             tip='Amplification factor for image details.')
+    params = [
+        parameter.FloatParameter('radius', 1.0,
+                                 tip='Radius of the Gaussian blur.'),
+        parameter.FloatParameter('amount', 1.0,
+                                 tip='Amplification factor for image details.')
     ],
     tip = "Sharpen the image by convolving with a Gaussian: The sharp details are identified as the difference between the original image and its blurred version. These details are then scaled, and added back to the original image.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/sharpen.xml')
-    )
+)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -605,10 +627,13 @@ registeredclass.Registration(
     ImageModifier,
     ReIlluminateImage,
     ordering = 3.0,
-    params = [ parameter.IntParameter('radius', 10, tip='Size of the averaging region.') ],
+    params = [
+        parameter.IntParameter('radius', 10,
+                               tip='Size of the averaging region.')
+    ],
     tip = 'Adjust brightness so that the whole image is evenly illuminated.',
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/reilluminate.xml')
-    )
+)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -625,8 +650,10 @@ registeredclass.Registration(
     ImageModifier,
     ThresholdImage,
     ordering = 100,
-    params = [ parameter.FloatRangeParameter('T', (0,1,.01), value=0.5, tip="Threshold value.") ],
-    tip = "Threshold an the pixel values of an image with a threshold value, to obtain a black and white image, indicating background and foreground regions.",
+    params = [
+        parameter.FloatRangeParameter('T', (0,1,.01),
+                                      value=0.5, tip="Threshold value.") ],
+    tip = "Threshold the pixel values to obtain a black and white image.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/threshold.xml')
     )
 

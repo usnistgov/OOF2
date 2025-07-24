@@ -113,25 +113,8 @@ public:
 
   bool compare(const OOFImage&, double) const;
 
-  // void flip(const std::string &axis);
-  // void fade(double);
-  // void dim(double);
-
   TimeStamp *getTimeStamp() { return &timestamp; }
 
-  // void blur(double radius, double sigma);
-  // void contrast(bool sharpen);
-  void despeckle();
-  void edge(double);
-  void enhance();
-  void equalize();
-  void medianFilter(double);
-  // void negate(bool);
-  void normalize();
-  void reduceNoise(double);
-  void sharpen(double, double);
-
-  // void gray();
   void evenly_illuminate(int windowsize);
 };				// class OOFImage
 
@@ -178,16 +161,5 @@ public:
   friend bool operator!=(const ConstOOFImageIterator&,
 			 const ConstOOFImageIterator&);
 };
-
-double color2gray(const CColor&);
-CColor gray2color(double);
-CColor bool2color(bool);
-CColor int2color(int);
-
-DoubleArray grayify(const OOFImage& image);
-void setFromBool(OOFImage&, const BoolArray&);
-
-
-BoolArray threshold(const DoubleArray&, double);
 
 #endif // OOFIMAGE_H

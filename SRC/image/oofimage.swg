@@ -52,7 +52,6 @@ class OOFImage : public AbstractImage {
 public:
   OOFImage(char *name, PyObject *VERBATIM);
   ~OOFImage();
-  // void save(char *filename);
   const std::string &name();
   void rename(char *);
   void setSize(Coord *Point);
@@ -70,21 +69,6 @@ public:
   CMicrostructure *getCMicrostructure();
   void removeMicrostructure();
 
-  // void flip(char *axis);
-  // void fade(double);
-  // void dim(double);
-  // void blur(double, double);
-  // void contrast(bool);
-  void despeckle();
-  void edge(double);
-  void enhance();
-  void equalize();
-  void medianFilter(double);
-  // void negate(bool);
-  void normalize();
-  void reduceNoise(double);
-  void sharpen(double, double);
-  // void gray();
   void evenly_illuminate(int);
   
   bool compare(OOFImage&, double);
@@ -107,11 +91,6 @@ void _Send_Image(OOFImage*, const std::vector<int>*, int);
 %newobject _Recv_Image;
 OOFImage *_Recv_Image(int, int);
 #endif //HAVE_MPI
-
-BoolArray threshold(DoubleArray,double);
-
-DoubleArray grayify(const OOFImage& image);
-void setFromBool(OOFImage&, const BoolArray&);
 
 %pythoncode "image/oofimage.spy"
 
