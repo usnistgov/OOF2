@@ -492,7 +492,7 @@ registeredclass.Registration(
     ImageModifier,
     EnhanceImage,
     ordering = 2.04,
-    secret = True,
+    secret = True,              # TODO NUMPY: Why is this secret?
     tip = 'Enhance the image by minimizing noise.',
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/enhance.xml')
     )
@@ -580,7 +580,7 @@ registeredclass.Registration(
     ImageModifier,
     ReduceNoise,
     ordering = 2.08,
-    secret = True,
+    secret = True,              # TODO NUMPY: Why is this secret?
     params = [parameter.FloatParameter('radius', 0.0,
                                        tip='Size of the pixel neighborhood.')],
     tip = "Reduce noise while preserving edges.",
