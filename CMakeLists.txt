@@ -14,7 +14,6 @@ project(oof2 VERSION 2.3.4)
 # include them easily.
 include("oofbuildtools.cmake")
 
-
 # If OOF2 is being installed by a regular user, the python files
 # should be installed into lib/pythonX.Y/site-packages/oofcanvas,
 # which is probably in /usr/local or the user's home directory.  But
@@ -124,14 +123,14 @@ endif()
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Check the numpy version and get its include path.
-message(STATUS "Python3_EXECUTABLE=${Python3_EXECUTABLE} testresult=${testresult} testoutput=${testoutput}")
 execute_process(
   COMMAND ${Python3_EXECUTABLE} -c "import numpy; print(numpy.version.version, end='')"
   RESULT_VARIABLE numpy_version_found
   OUTPUT_VARIABLE NUMPY_VERSION
 )
+
 if(${numpy_version_found})
-  message(WARNING "Could not find numpy!")
+  message(WARNING "${Python3_EXECUTABLE} could not find numpy!")
 endif()
     
 if(${NUMPY_VERSION} VERSION_LESS ${NUMPY_MIN_VERSION})
@@ -149,7 +148,18 @@ pkg_check_modules(
   OOFCANVAS REQUIRED
   oofcanvas>=${OOFCANVAS_MIN_VERSION})
 # TODO PYTHON3: Check that oofcanvas was built with the same version
-# of Python as oof2.
+# of Python as oof2.  include/oofcanvas/oofcanvas.h sets
+# OOFCANVAS_PYTHON_VERSION.
+
+# Check that OOFCanvas was built to support numpy.  oofcanvas.h should
+# define OOFCANVAS_USE_NUMPY.
+include(CheckCXXSymbolExists)
+set(CMAKE_REQUIRED_INCLUDES ${OOFCANVAS_INCLUDE_DIRS})
+check_cxx_symbol_exists(OOFCANVAS_USE_NUMPY "oofcanvas.h" OOFCANVAS_HAS_NUMPY)
+if(NOT "${OOFCANVAS_HAS_NUMPY}")
+  message(FATAL_ERROR "OOFCanvas was not configured to use numpy.")
+endif()
+
 list(APPEND CMAKE_INSTALL_RPATH ${OOFCANVAS_LIBDIR})
 
 ## Dump all variables
