@@ -69,8 +69,9 @@ set(oofscripts
 
 set(OOFCANVAS_MIN_VERSION 1.1.2)
 set(GTK3_MIN_VERSION 3.22)
-set(NUMPY_MIN_VERSION 1.21) # TODO: probably can be less than this
-## TODO NUMPY: Check skimage min version number.  Probably should be 0.19
+
+# Minimum version numbers for numpy and scikit-image are enforced by
+# OOFCanvas.
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -122,28 +123,7 @@ endif()
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Check the numpy version and get its include path.
-execute_process(
-  COMMAND ${Python3_EXECUTABLE} -c "import numpy; print(numpy.version.version, end='')"
-  RESULT_VARIABLE numpy_version_found
-  OUTPUT_VARIABLE NUMPY_VERSION
-)
-
-if(${numpy_version_found})
-  message(WARNING "${Python3_EXECUTABLE} could not find numpy!")
-endif()
-    
-if(${NUMPY_VERSION} VERSION_LESS ${NUMPY_MIN_VERSION})
-  message(FATAL_ERROR
-    "Numpy version is ${NUMPY_VERSION}. Version ${NUMPY_MIN_VERSION} is required.")
-endif()
-
-# Find the numpy include directory
-execute_process(
-  COMMAND ${Python3_EXECUTABLE} -c "import numpy; print(numpy.get_include(), end='')"
-  OUTPUT_VARIABLE NUMPY_INCLUDE
-)
-
+# Check for a suitable version of OOFCanvas.
 pkg_check_modules(
   OOFCANVAS REQUIRED
   oofcanvas>=${OOFCANVAS_MIN_VERSION})
@@ -159,6 +139,12 @@ check_cxx_symbol_exists(OOFCANVAS_USE_NUMPY "oofcanvas.h" OOFCANVAS_HAS_NUMPY)
 if(NOT "${OOFCANVAS_HAS_NUMPY}")
   message(FATAL_ERROR "OOFCanvas was not configured to use numpy.")
 endif()
+
+# Find the numpy include directory
+execute_process(
+  COMMAND ${Python3_EXECUTABLE} -c "import numpy; print(numpy.get_include(), end='')"
+  OUTPUT_VARIABLE NUMPY_INCLUDE
+)
 
 list(APPEND CMAKE_INSTALL_RPATH ${OOFCANVAS_LIBDIR})
 
@@ -201,9 +187,9 @@ foreach(olib ${ooflibs})
     ${OOFCANVAS_INCLUDE_DIRS}
     ${GTK3_INCLUDE_DIRS}
     )
-  ## TODO: We needed to include OOFCANVAS_CFLAGS in all header files
-  ## that used oofcanvas.h when we were using ImageMagick.  It may not
-  ## be needed any more.
+  ## TODO NUMPY: We needed to include OOFCANVAS_CFLAGS in all header
+  ## files that used oofcanvas.h when we were using ImageMagick.  It
+  ## may not be needed any more.
   target_compile_options(${olib}
     PRIVATE
     -Wno-deprecated-register
