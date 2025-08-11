@@ -67,7 +67,7 @@ set(oofscripts
 
 # Required version numbers for dependencies
 
-set(OOFCANVAS_MIN_VERSION 1.1.2)
+set(OOFCANVAS_MIN_VERSION 1.2.0)
 set(GTK3_MIN_VERSION 3.22)
 
 # Minimum version numbers for numpy and scikit-image are enforced by
