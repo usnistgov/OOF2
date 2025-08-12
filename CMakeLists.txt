@@ -187,13 +187,10 @@ foreach(olib ${ooflibs})
     ${OOFCANVAS_INCLUDE_DIRS}
     ${GTK3_INCLUDE_DIRS}
     )
-  ## TODO NUMPY: We needed to include OOFCANVAS_CFLAGS in all header
-  ## files that used oofcanvas.h when we were using ImageMagick.  It
-  ## may not be needed any more.
   target_compile_options(${olib}
     PRIVATE
     -Wno-deprecated-register
-    ${OOFCANVAS_CFLAGS})
+  )
 endforeach()
 
 # oofconfig.h is used when building oof2.
