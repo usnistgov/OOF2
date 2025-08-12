@@ -156,7 +156,19 @@ class OOF_Image(unittest.TestCase):
                         "comparison:"+datafilename].getObject()
                     # Tolerance is 1./65535., which is the level of
                     # "quantization noise" for 16-bit color channels.
-                    self.assertTrue(im1.compare(im2, 1./65535.))
+                    try:
+                        self.assertTrue(im1.compare(im2, 1./65535.))
+                    except:
+                        # Save result for comparison.
+                        ofilename = "modified_image.ppm"
+                        OOF.File.Save.Image(
+                            filename=ofilename,
+                            image="imagemod_test:image_test.ppm")
+                        print(
+f"""** Image comparison failed.
+** Modified image saved in {os.path.join(os.getcwd(), ofilename)}
+**      Reference image is {reference_file("image_data", datafilename)}""")
+                        raise
                     
                     OOF.Microstructure.Delete(
                         microstructure="comparison")
@@ -213,12 +225,12 @@ class OOF_Image(unittest.TestCase):
 # between different versions of the ImageMagick library, and so cannot
 # be reliably tested here.  They're kept in and commented out so we'll
 # know we didn't just forget.
-image_modify_args = {"Gray" : [ ("gray", {}) ],
-                     "Flip" : [ ("flip_x", {"axis" : "x"}),
-                                ("flip_y", {"axis" : "y"}),
-                                ("flip_xy", {"axis" : "xy"})],
-                     "Fade" : [ ("fade", {"factor" : 0.3}) ],
-                     "Dim"  : [ ("dim", {"factor" : 0.7}) ],
+image_modify_args = {"Gray" : [ ("gray.ppm", {}) ],
+                     "Flip" : [ ("flip_x.ppm", {"axis" : "x"}),
+                                ("flip_y.ppm", {"axis" : "y"}),
+                                ("flip_xy.ppm", {"axis" : "xy"})],
+                     "Fade" : [ ("fade.ppm", {"factor" : 0.3}) ],
+                     "Dim"  : [ ("dim.ppm", {"factor" : 0.7}) ],
                      # "Blur" : [ ("blur", {"radius" : 1.0,
                      #                                 "sigma" : 3.0} ) ],
                      # "Despeckle" : [ ("despeckle", {})],
@@ -233,54 +245,63 @@ image_modify_args = {"Gray" : [ ("gray", {}) ],
                      #                   {"radius" : 1.0})],
                      # "Sharpen" : [("sharpen", {"radius" : 1.0,
                      #                           "sigma" : 3.0})],
-                     "Reilluminate" : [("reilluminate", {"radius" : 10})],
-                     "CloseImage" : [("closeimage", {"n" : 7})],
-                     "Connect_Edges" : [("connect_edges",
-                                         {"Threshold" : 0.5, "d" : 7,
-                                          "n" : 9, "B" : 5,
-                                          "trimYN" : 0, "t" : 0.5})],
-                     "SkeletonizeImage" : [("skeletonize", {})],
-                     "FullEdgeDetection" : [("fulledgedetection",
-                                             {"a": 3, "b": 3, "numAngles" : 6,
+                     "Reilluminate" : [("reilluminate.ppm", {"radius" : 10})],
+                     "CloseImage" : [("closeimage.ppm", {"n" : 7})],
+                     "Connect_Edges" : [("connect_edges.ppm",
+                                         {"Threshold" : 0.5,
+                                          "d" : 7,
+                                          "n" : 9,
+                                          "B" : 5,
+                                          "trimYN" : 0,
+                                          "t" : 0.5})],
+                     "SkeletonizeImage" : [("skeletonize.ppm", {})],
+                     "FullEdgeDetection" : [("fulledgedetection.ppm",
+                                             {"a": 3,
+                                              "b": 3,
+                                              "numAngles" : 6,
                                               "Threshold" : 0.5,
                                               "Line_color" : 2,
-                                              "d" : 7, "n" : 9, "B" : 5,
-                                              "trimYN" : 0, "t" : 0.5})],
-                     "HysteresisThreshold" : [("hysteresisthreshold",
+                                              "d" : 7,
+                                              "n" : 9,
+                                              "B" : 5,
+                                              "trimYN" : 0,
+                                              "t" : 0.5})],
+                     "HysteresisThreshold" : [("hysteresisthreshold.ppm",
                                                {"T1" : 0.5, "T2" : 0.5})],
-                     "ImaginaryGabor" : [("imaginarygabor",
+                     "ImaginaryGabor" : [("imaginarygabor.ppm",
                                           {"a" : 3, "b" : 3,
                                            "numAngles" : 6,
                                            "Threshold" : 0.5} )],
-                     "ModifiedGabor" : [("modifiedgabor",
+                     "ModifiedGabor" : [("modifiedgabor.ppm",
                                          {"a" : 3, "b" : 3,
                                           "numAngles" : 6,
                                           "Threshold" : 0.5} )],
-                     "NewGabor" : [("newgabor",
+                     "NewGabor" : [("newgabor.ppm",
                                     {"a" : 3, "b" : 3,
                                      "numAngles" : 4,
                                      "Threshold" : 0.5,
                                      "Line_color" : 2 } )],
-                     "NormalGabor" : [("normalgabor",
+                     "NormalGabor" : [("normalgabor.ppm",
                                        {"a" : 3, "b" : 3,
                                         "numAngles" : 6,
                                         "Threshold" : 0.5} )],
-                     "RealGabor" : [("realgabor",
+                     "RealGabor" : [("realgabor.ppm",
                                      {"a" : 3, "b" : 3,
                                       "numAngles" : 6,
                                       "Threshold" : 0.5} )],
-                     "ThresholdImage" : [("threshold", {"T" : 0.5})],
-                     "Add_Gaussian_Noise" : [("add_gaussian_noise",
+                     "ThresholdImage" : [("threshold.ppm", {"T" : 0.5})],
+                     "Add_Gaussian_Noise" : [("add_gaussian_noise.ppm",
                                               {"Standard_deviation" : 0.2})],
-                     "Canny" : [("canny", {"stdDev" : 1.0})],
-                     "GaussianSmoothing" : [("gaussiansmoothing",
+                     "Canny" : [("canny.ppm", {"stdDev" : 1.0})],
+                     "GaussianSmoothing" : [("gaussiansmoothing.ppm",
                                              {"stdDev" : 1.0})],
-                     "LaplacianFilter" : [("laplacianfilter", {})],
-                     "LaplacianGaussFilter" : [("laplaciangaussfilter",
+                     "LaplacianFilter" : [("laplacianfilter.ppm", {})],
+                     "LaplacianGaussFilter" : [("laplaciangaussfilter.ppm",
                                                 {"stdDev" : 1.0})],
-                     "Sobel" : [("sobel", {})],
-                     "SpreadDataValues" : [("spreaddatavalues", {"T" : 0.3})],
-                     "SpreadDataValues2" : [("spreaddatavalues2",
+                     "Sobel" : [("sobel.ppm", {})],
+                     "SpreadDataValues" : [("spreaddatavalues.ppm",
+                                            {"T" : 0.3})],
+                     "SpreadDataValues2" : [("spreaddatavalues2.ppm",
                                              {"T" : 0.3})]
                      }
 
