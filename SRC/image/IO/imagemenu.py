@@ -168,7 +168,17 @@ def saveImage(menuitem, image, filename, overwrite):
         # Undo the flip done by readNumpyImage()
         imgflip = numpy.flip(immidge, 0)
         # Convert to a savable format.  readNumpyImage() converted
-        # from something to float64.  imsave() can't handle that.
+        # from something to float64.  imsave() can't handle that.  It
+        # can't handle int, either.
+        # skimage.util provides:
+        #  img_as_float()
+        #  img_as_float32()
+        #  img_as_float64()
+        #  img_as int()
+        #  img_as_ubyte()
+        #  img_as_unit()
+        ## TODO: Is the problem somehow related to scikit-image's
+        ## failure to handle ppm images correctly? 
         saveimg = skimage.util.img_as_ubyte(imgflip)
         skimage.io.imsave(filename, saveimg, check_contrast=False)
     else:

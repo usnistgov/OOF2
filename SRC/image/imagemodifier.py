@@ -512,6 +512,9 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+## TODO NUMPY: Does this work?  On small.ppm it's turning some regions
+## black.
+
 class MedianFilterImage(ImageModifier):
     def __init__(self, radius):
         self.radius = radius
