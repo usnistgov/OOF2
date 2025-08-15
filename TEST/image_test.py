@@ -28,46 +28,46 @@ class OOF_Image(unittest.TestCase):
     # the usual way to get them is to create a microstructure from an
     # image file.  There's also an OOF.File.Save.Image that needs testing.
     
-    @memorycheck.check("rectangle.ppm")
+    @memorycheck.check("rectangle.png")
     def Delete(self):
         OOF.Microstructure.Create_From_ImageFile(
-            filename=reference_file("ms_data","rectangle.ppm"),
-            microstructure_name="rectangle.ppm",
+            filename=reference_file("ms_data","rectangle.png"),
+            microstructure_name="rectangle.png",
             height=automatic, width=automatic)
-        OOF.Image.Delete(image="rectangle.ppm:rectangle.ppm")
-        ms = getMicrostructure("rectangle.ppm")
+        OOF.Image.Delete(image="rectangle.png:rectangle.png")
+        ms = getMicrostructure("rectangle.png")
         self.assertEqual(len(ms.imageNames()),0)
         self.assertEqual(len(ms.getImageContexts()), 0)
 
-    @memorycheck.check("rectangle.ppm", "other")
+    @memorycheck.check("rectangle.png", "other")
     def Copy(self):
         OOF.Microstructure.Create_From_ImageFile(
-            filename=reference_file("ms_data","rectangle.ppm"),
-            microstructure_name="rectangle.ppm",
+            filename=reference_file("ms_data","rectangle.png"),
+            microstructure_name="rectangle.png",
             height=automatic, width=automatic)
         OOF.Microstructure.New(name="other", width=150.0, height=121.0,
                                width_in_pixels=150, height_in_pixels=121)
-        OOF.Image.Copy(image="rectangle.ppm:rectangle.ppm",
+        OOF.Image.Copy(image="rectangle.png:rectangle.png",
                        microstructure="other", name=automatic)
-        ms_0 = getMicrostructure("rectangle.ppm")
+        ms_0 = getMicrostructure("rectangle.png")
         ms_1 = getMicrostructure("other")
         self.assertEqual(len(ms_1.imageNames()),1)
-        self.assertTrue("rectangle.ppm" in ms_1.imageNames())
+        self.assertTrue("rectangle.png" in ms_1.imageNames())
         # Ensure they're separate objects.
         self.assertNotEqual(id(ms_0.getImageContexts()[0]),
                             id(ms_1.getImageContexts()[0]))
 
-    @memorycheck.check("rectangle.ppm")
+    @memorycheck.check("rectangle.png")
     def Rename(self):
         OOF.Microstructure.Create_From_ImageFile(
-            filename=reference_file("ms_data","rectangle.ppm"),
-            microstructure_name="rectangle.ppm",
+            filename=reference_file("ms_data","rectangle.png"),
+            microstructure_name="rectangle.png",
             height=automatic, width=automatic)
-        ms_0 = getMicrostructure("rectangle.ppm")
+        ms_0 = getMicrostructure("rectangle.png")
         image_id = id(ms_0.getImageContexts()[0])
-        OOF.Image.Rename(image="rectangle.ppm:rectangle.ppm",
+        OOF.Image.Rename(image="rectangle.png:rectangle.png",
                          name="newname")
-        ms_0 = getMicrostructure("rectangle.ppm")
+        ms_0 = getMicrostructure("rectangle.png")
         image_id = id(ms_0.getImageContexts()[0])
         self.assertEqual(len(ms_0.imageNames()),1)
         self.assertTrue("newname" in ms_0.imageNames())
@@ -76,14 +76,14 @@ class OOF_Image(unittest.TestCase):
     # This test just checks that the groups are created and add up to
     # the right size.  Group operations are tested in more detail
     # elsewhere.
-    @memorycheck.check("rectangle.ppm")
+    @memorycheck.check("rectangle.png")
     def AutoGroup(self):
         OOF.Microstructure.Create_From_ImageFile(
-            filename=reference_file("ms_data","rectangle.ppm"),
-            microstructure_name="rectangle.ppm",
+            filename=reference_file("ms_data","rectangle.png"),
+            microstructure_name="rectangle.png",
             height=automatic, width=automatic)
-        OOF.Image.AutoGroup(image="rectangle.ppm:rectangle.ppm")
-        ms = getMicrostructure("rectangle.ppm")
+        OOF.Image.AutoGroup(image="rectangle.png:rectangle.png")
+        ms = getMicrostructure("rectangle.png")
         self.assertEqual(ms.nGroups(), 7)
         self.assertEqual(ms.nCategories(), 7)
         # Check that the groups add up to the total size.
@@ -98,11 +98,11 @@ class OOF_Image(unittest.TestCase):
     def Save(self):
         import filecmp, os
         OOF.Microstructure.Create_From_ImageFile(
-            filename=reference_file("ms_data","rectangle.ppm"),
+            filename=reference_file("ms_data","rectangle.png"),
             microstructure_name="save_test",
             height=automatic, width=automatic)
         OOF.File.Save.Image(filename="image_save_test",
-                            image="save_test:rectangle.ppm")
+                            image="save_test:rectangle.png")
         self.assertTrue(filecmp.cmp("image_save_test",
                                  reference_file("image_data",
                                               "saved_rectangle")))
@@ -115,13 +115,13 @@ class OOF_Image(unittest.TestCase):
         OOF.Microstructure.New(name="load_test",
                                width=150, height=121,
                                width_in_pixels=150, height_in_pixels=121)
-        OOF.File.Load.Image(filename=reference_file("ms_data","rectangle.ppm"),
+        OOF.File.Load.Image(filename=reference_file("ms_data","rectangle.png"),
                             microstructure="load_test",
                             height=automatic, width=automatic)
         ms = getMicrostructure("load_test")
         ms_images = ms.imageNames()
         self.assertEqual(len(ms_images),1)
-        self.assertTrue("rectangle.ppm" in ms_images)
+        self.assertTrue("rectangle.png" in ms_images)
         
     @memorycheck.check()
     def Modify(self):
@@ -137,9 +137,9 @@ class OOF_Image(unittest.TestCase):
                 print("No test data for image modifier ", m.name, file=sys.stderr)
             else:
                 for (datafilename, argdict) in test_list:
-                    argdict['image']="imagemod_test:image_test.ppm"
+                    argdict['image']="imagemod_test:image_test.png"
                     OOF.Microstructure.Create_From_ImageFile(
-                        filename=reference_file("image_data","image_test.ppm"),
+                        filename=reference_file("image_data","image_test.png"),
                         microstructure_name="imagemod_test",
                         height=automatic, width=automatic)
                     random.seed(17)
@@ -151,19 +151,20 @@ class OOF_Image(unittest.TestCase):
                         microstructure_name="comparison",
                         height=automatic, width=automatic)
                     im1 = imagecontext.imageContexts[
-                        "imagemod_test:image_test.ppm"].getObject()
+                        "imagemod_test:image_test.png"].getObject()
                     im2 = imagecontext.imageContexts[
                         "comparison:"+datafilename].getObject()
                     # Tolerance is 1./65535., which is the level of
                     # "quantization noise" for 16-bit color channels.
+                    # TODO NUMPY: Are 16 bit channels still relevant?
                     try:
-                        self.assertTrue(im1.compare(im2, 1./65535.))
+                        self.assertTrue(im1.compare(im2, 1./255.)) #65535.))
                     except:
                         # Save result for comparison.
-                        ofilename = "modified_image.ppm"
+                        ofilename = "modified_image.png"
                         OOF.File.Save.Image(
                             filename=ofilename,
-                            image="imagemod_test:image_test.ppm")
+                            image="imagemod_test:image_test.png")
                         print(
 f"""** Image comparison failed.
 ** Modified image saved in {os.path.join(os.getcwd(), ofilename)}
@@ -175,23 +176,22 @@ f"""** Image comparison failed.
                     OOF.Microstructure.Delete(
                         microstructure="imagemod_test")
                 
-    # Undo and Redo have the "Gray" test hard-coded.  They'd be a tad
-    # more flexible if they just used the first test in the list.
+    # Undo and Redo have the "Gray" test hard-coded.  
     @memorycheck.check("undo_test")
     def Undo(self):
         from ooflib.SWIG.image import oofimage
         OOF.Microstructure.Create_From_ImageFile(
-            filename=reference_file("image_data","image_test.ppm"),
+            filename=reference_file("image_data","image_test.png"),
             microstructure_name="undo_test",
             height=automatic, width=automatic)
-        image_context = imagecontext.imageContexts["undo_test:image_test.ppm"]
+        image_context = imagecontext.imageContexts["undo_test:image_test.png"]
         im_0 = image_context.getObject()
-        self.assertTrue(not oofimage.undoable("undo_test:image_test.ppm"))
-        OOF.Image.Modify.Gray(image="undo_test:image_test.ppm")
+        self.assertTrue(not oofimage.undoable("undo_test:image_test.png"))
+        OOF.Image.Modify.Gray(image="undo_test:image_test.png")
         im_1 = image_context.getObject()
         self.assertNotEqual(id(im_0), id(im_1))
-        self.assertTrue(oofimage.undoable("undo_test:image_test.ppm"))
-        OOF.Image.Undo(image="undo_test:image_test.ppm")
+        self.assertTrue(oofimage.undoable("undo_test:image_test.png"))
+        OOF.Image.Undo(image="undo_test:image_test.png")
         im_2 = image_context.getObject()
         self.assertNotEqual(id(im_2), id(im_1))
         self.assertEqual(id(im_0), id(im_2))
@@ -200,14 +200,14 @@ f"""** Image comparison failed.
     def Redo(self):
         from ooflib.SWIG.image import oofimage
         OOF.Microstructure.Create_From_ImageFile(
-            filename=reference_file("image_data","image_test.ppm"),
+            filename=reference_file("image_data","image_test.png"),
             microstructure_name="redo_test",
             height=automatic, width=automatic)
-        image_context = imagecontext.imageContexts["redo_test:image_test.ppm"]
-        OOF.Image.Modify.Gray(image="redo_test:image_test.ppm")
+        image_context = imagecontext.imageContexts["redo_test:image_test.png"]
+        OOF.Image.Modify.Gray(image="redo_test:image_test.png")
         im_0 = image_context.getObject()
-        OOF.Image.Undo(image="redo_test:image_test.ppm")
-        OOF.Image.Redo(image="redo_test:image_test.ppm")
+        OOF.Image.Undo(image="redo_test:image_test.png")
+        OOF.Image.Redo(image="redo_test:image_test.png")
         im_1 = image_context.getObject()
         self.assertEqual(id(im_0), id(im_1))
         
@@ -225,12 +225,16 @@ f"""** Image comparison failed.
 # between different versions of the ImageMagick library, and so cannot
 # be reliably tested here.  They're kept in and commented out so we'll
 # know we didn't just forget.
-image_modify_args = {"Gray" : [ ("gray.ppm", {}) ],
-                     "Flip" : [ ("flip_x.ppm", {"axis" : "x"}),
-                                ("flip_y.ppm", {"axis" : "y"}),
-                                ("flip_xy.ppm", {"axis" : "xy"})],
-                     "Fade" : [ ("fade.ppm", {"factor" : 0.3}) ],
-                     "Dim"  : [ ("dim.ppm", {"factor" : 0.7}) ],
+
+## TODO: Remove reference files for archived code, such as the Gabor
+## modifier tests.
+
+image_modify_args = {"Gray" : [ ("gray.png", {}) ],
+                     "Flip" : [ ("flip_x.png", {"axis" : "x"}),
+                                ("flip_y.png", {"axis" : "y"}),
+                                ("flip_xy.png", {"axis" : "xy"})],
+                     "Fade" : [ ("fade.png", {"factor" : 0.3}) ],
+                     "Dim"  : [ ("dim.png", {"factor" : 0.7}) ],
                      # "Blur" : [ ("blur", {"radius" : 1.0,
                      #                                 "sigma" : 3.0} ) ],
                      # "Despeckle" : [ ("despeckle", {})],
@@ -245,17 +249,17 @@ image_modify_args = {"Gray" : [ ("gray.ppm", {}) ],
                      #                   {"radius" : 1.0})],
                      # "Sharpen" : [("sharpen", {"radius" : 1.0,
                      #                           "sigma" : 3.0})],
-                     "Reilluminate" : [("reilluminate.ppm", {"radius" : 10})],
-                     "CloseImage" : [("closeimage.ppm", {"n" : 7})],
-                     "Connect_Edges" : [("connect_edges.ppm",
+                     "Reilluminate" : [("reilluminate.png", {"radius" : 10})],
+                     "CloseImage" : [("closeimage.png", {"n" : 7})],
+                     "Connect_Edges" : [("connect_edges.png",
                                          {"Threshold" : 0.5,
                                           "d" : 7,
                                           "n" : 9,
                                           "B" : 5,
                                           "trimYN" : 0,
                                           "t" : 0.5})],
-                     "SkeletonizeImage" : [("skeletonize.ppm", {})],
-                     "FullEdgeDetection" : [("fulledgedetection.ppm",
+                     "SkeletonizeImage" : [("skeletonize.png", {})],
+                     "FullEdgeDetection" : [("fulledgedetection.png",
                                              {"a": 3,
                                               "b": 3,
                                               "numAngles" : 6,
@@ -266,42 +270,42 @@ image_modify_args = {"Gray" : [ ("gray.ppm", {}) ],
                                               "B" : 5,
                                               "trimYN" : 0,
                                               "t" : 0.5})],
-                     "HysteresisThreshold" : [("hysteresisthreshold.ppm",
+                     "HysteresisThreshold" : [("hysteresisthreshold.png",
                                                {"T1" : 0.5, "T2" : 0.5})],
-                     "ImaginaryGabor" : [("imaginarygabor.ppm",
+                     "ImaginaryGabor" : [("imaginarygabor.png",
                                           {"a" : 3, "b" : 3,
                                            "numAngles" : 6,
                                            "Threshold" : 0.5} )],
-                     "ModifiedGabor" : [("modifiedgabor.ppm",
+                     "ModifiedGabor" : [("modifiedgabor.png",
                                          {"a" : 3, "b" : 3,
                                           "numAngles" : 6,
                                           "Threshold" : 0.5} )],
-                     "NewGabor" : [("newgabor.ppm",
+                     "NewGabor" : [("newgabor.png",
                                     {"a" : 3, "b" : 3,
                                      "numAngles" : 4,
                                      "Threshold" : 0.5,
                                      "Line_color" : 2 } )],
-                     "NormalGabor" : [("normalgabor.ppm",
+                     "NormalGabor" : [("normalgabor.png",
                                        {"a" : 3, "b" : 3,
                                         "numAngles" : 6,
                                         "Threshold" : 0.5} )],
-                     "RealGabor" : [("realgabor.ppm",
+                     "RealGabor" : [("realgabor.png",
                                      {"a" : 3, "b" : 3,
                                       "numAngles" : 6,
                                       "Threshold" : 0.5} )],
-                     "ThresholdImage" : [("threshold.ppm", {"T" : 0.5})],
-                     "Add_Gaussian_Noise" : [("add_gaussian_noise.ppm",
+                     "ThresholdImage" : [("threshold.png", {"T" : 0.5})],
+                     "Add_Gaussian_Noise" : [("add_gaussian_noise.png",
                                               {"Standard_deviation" : 0.2})],
-                     "Canny" : [("canny.ppm", {"stdDev" : 1.0})],
-                     "GaussianSmoothing" : [("gaussiansmoothing.ppm",
+                     "Canny" : [("canny.png", {"stdDev" : 1.0})],
+                     "GaussianSmoothing" : [("gaussiansmoothing.png",
                                              {"stdDev" : 1.0})],
-                     "LaplacianFilter" : [("laplacianfilter.ppm", {})],
-                     "LaplacianGaussFilter" : [("laplaciangaussfilter.ppm",
+                     "LaplacianFilter" : [("laplacianfilter.png", {})],
+                     "LaplacianGaussFilter" : [("laplaciangaussfilter.png",
                                                 {"stdDev" : 1.0})],
-                     "Sobel" : [("sobel.ppm", {})],
-                     "SpreadDataValues" : [("spreaddatavalues.ppm",
+                     "Sobel" : [("sobel.png", {})],
+                     "SpreadDataValues" : [("spreaddatavalues.png",
                                             {"T" : 0.3})],
-                     "SpreadDataValues2" : [("spreaddatavalues2.ppm",
+                     "SpreadDataValues2" : [("spreaddatavalues2.png",
                                              {"T" : 0.3})]
                      }
 
