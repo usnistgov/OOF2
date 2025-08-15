@@ -474,6 +474,42 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# ReduceNoise is kept for backward compatibility.  It's redundant with
+# DenoiseNonlocalMeans.
+
+## TODO: The old documentation for the ImageMagick routine says
+## "Smooth the contours of an image while still preserving edge
+## information. The algorithm works by replacing each pixel with its
+## neighbor closest in value. The neighbors of a pixel are defined as
+## those pixels within the given radius, specified in units of the
+## pixel size. A suitable radius will be chosen automatically if
+## radius is zero."
+## Is DenoiseNonlocalMeans really the correct substitute? 
+
+class ReduceNoise(ImageModifier):
+    def __init__(self, radius=1.0):
+        self.radius = radius
+    def __call__(self, image):
+        denoised_image = skimage.restoration.denoise_nl_means(
+            image.npImage(),
+            patch_size=7, patch_distance=11, fast_mode=True,
+            h=0.1, sigma=0.0, channel_axis=-1)
+        return denoised_image
+
+registeredclass.Registration(
+    'ReduceNoise',
+    ImageModifier,
+    ReduceNoise,
+    ordering = 2.08,
+    secret = True, 
+    params = [parameter.FloatParameter('radius', 0.0,
+                                       tip='Size of the pixel neighborhood.')],
+    tip = "Reduce noise while preserving edges.",
+    #discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/reducenoise.xml')
+    )
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class DespeckleImage(ImageModifier):
     def __init__(self, radius=2.0):
         self.radius = radius
