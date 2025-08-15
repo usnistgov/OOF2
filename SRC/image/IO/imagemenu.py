@@ -162,25 +162,29 @@ switchboard.requestCallback(('remove who', 'Microstructure'), _sensitize)
 
 # Use scikit-image to save an image file.
 
+# Matplotlib is not thread safe, and importing it inside saveImage(),
+# which is run on a subthread, will fail.  So import it here, whether
+# or not it's needed.
+from matplotlib import pyplot
+
 def saveImage(menuitem, image, filename, overwrite):
     immidge = oofimage.getImage(image).npImage()
     if immidge is not None and (overwrite or not os.path.exists(filename)):
         # Undo the flip done by readNumpyImage()
-        imgflip = numpy.flip(immidge, 0)
-        # Convert to a savable format.  readNumpyImage() converted
-        # from something to float64.  imsave() can't handle that.  It
-        # can't handle int, either.
-        # skimage.util provides:
-        #  img_as_float()
-        #  img_as_float32()
-        #  img_as_float64()
-        #  img_as int()
-        #  img_as_ubyte()
-        #  img_as_unit()
-        ## TODO: Is the problem somehow related to scikit-image's
-        ## failure to handle ppm images correctly? 
-        saveimg = skimage.util.img_as_ubyte(imgflip)
-        skimage.io.imsave(filename, saveimg, check_contrast=False)
+        saveimg = numpy.flip(immidge, 0)
+
+        # Not all image formats can be saved without conversion.  All
+        # OOF2 images are probably always stored as floats, so
+        # checking here is probably not necessary, but doesn't hurt
+        # much.
+        if saveimg.dtype not in ("uint8", "float32", "float64"):
+            # img_as_float converts an int or byte image to float64, but
+            # doesn't change float32 to float64.
+            saveimg = skimage.util.img_as_float(saveimg)
+        # Save with matplotlib.pyplot instead of skimage.io because
+        # skimage.io is causing problems with some formats.
+        pyplot.imsave(filename, saveimg)
+        # skimage.io.imsave(filename, saveimg, check_contrast=False)
     else:
         reporter.warn("Image was not saved!")
 

@@ -10,21 +10,23 @@
 
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
-#from ooflib.common import parallel_enable
 from ooflib.common import primitives
 from ooflib.image import imagecontext
+from matplotlib import pyplot
 
 import numpy
 import os
-import skimage.io
+import skimage
 
-## TODO NUMPY: We could have separate classes of OOFImage depending on
-## the depth of the scikit-image image: gray, RGB, RGBA, all with a
-## template parameter for byte, int, and float data.
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# For debugging.
 
 def printnpcolor(npimage, i, j):
     vals = npimage[i,j]
     debug.fmsg(f"npimage[{i}, {j}] = {vals} {list(x/255 for x in vals)}")
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def readNumpyImage(filename, **kwargs):
     # 'height' and 'width' keywords are optional.  If neither is
@@ -39,8 +41,8 @@ def readNumpyImage(filename, **kwargs):
         raise ooferror.PyErrUserError(
             f"Cannot load {filename}. OOF2 does not handle .{ext} images")
     
-    npimage = skimage.io.imread(filename) # numpy.ndarray object
-    #debug.fmsg(f"Image data type is {npimage.dtype}")
+    npimage = pyplot.imread(filename) # numpy.ndarray object
+    debug.fmsg(f"{npimage.dtype=} {npimage.shape=}")
     
     # Convert to rgb if necessary
     if len(npimage.shape) == 2:
@@ -57,6 +59,10 @@ def readNumpyImage(filename, **kwargs):
     # it's convenient to use them here too.  If this is a problem for
     # storage or speed, change from float64 to float32 here, and
     # change the data type used by CColor too.
+    #
+    # It might also be possible to have separate subclasses of
+    # OOFImage for different numpy data types, but that might really
+    # complicate things elsewhere.
     npimage = skimage.util.img_as_float64(npimage)
     
     # Flip along the y axis (so that y coord increases upwards)
@@ -93,15 +99,21 @@ def readNumpyImage(filename, **kwargs):
 
     return image
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 def _getTimeStamp_optional_args(self, *args):
     return self._getTimeStamp()
 OOFImage.getTimeStamp = _getTimeStamp_optional_args
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def getImage(imagename):
     ## returns the actual image
     ## imagename = microstructurename:image_name OR
     ## imagename = [microstructurename, image_name]
     return imagecontext.imageContexts[imagename].getObject()
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def pushModification(imagename, image):
     imagecontext.imageContexts[imagename].pushModification(image)
@@ -112,12 +124,15 @@ def undoModification(imagename):
 def redoModification(imagename):
     imagecontext.imageContexts[imagename].redoModification()
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 def undoable(imagename):
     return imagecontext.imageContexts[imagename].undoable()
 
 def redoable(imagename):
     return imagecontext.imageContexts[imagename].redoable()
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # # Parallel image send/recv
 # if parallel_enable.enabled():

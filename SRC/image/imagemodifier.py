@@ -241,6 +241,36 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# AddNoise can be used to generate images for the test suite.  It's
+# probably not useful otherwise.  It only appears in the GUI when
+# running OOF2 in debug mode.
+
+class AddNoise(ImageModifier):
+    def __init__(self, sigma):
+        self.sigma = sigma
+    def __call__(self, image):
+        np_image = image.npImage()
+        noisy = skimage.util.random_noise(np_image, var=self.sigma**2)
+        return noisy
+
+registeredclass.Registration(
+    'AddNoise',
+    ImageModifier,
+    AddNoise,
+    ordering=10000,
+    secret = not debug.debug(),
+    params = [
+        parameter.FloatParameter('sigma', 0.1,
+                                 "Width of the noise distribution")
+        ],
+    tip = "Add random noise to the image",
+    discussion=
+    """<para>This is used to generate images for the test suite. OOF2 must
+    be started in debug mode to use it.</para>"""
+)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class ContrastImage(ImageModifier):
     def __init__(self, radius):
         self.radius = radius
@@ -278,6 +308,9 @@ registeredclass.Registration(
     )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+## TODO: Combine the various DenoiseXXXX methods into one, using 
+## RegisteredClasses for the different techniques.
 
 class DenoiseBilateral(ImageModifier):
     def __init__(self, window_size, sigma_color, sigma_spatial, bins):
@@ -387,7 +420,7 @@ registeredclass.Registration(
     ImageModifier,
     DenoiseWavelet,
     ordering = 2.083,
-    secret = True, # TODO NUMPY: Why is this secret?  Does it not work?
+    #secret = True, # TODO NUMPY: Why is this secret?  Does it not work?
     params = [
         parameter.FloatParameter('sigma', 0.0,
             tip='The noise standard deviation used when computing the wavelet detail coefficient threshold(s). When set to 0.0 (default), the noise standard deviation is estimated.'),
@@ -512,16 +545,16 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-## TODO NUMPY: Does this work?  On small.ppm it's turning some regions
-## black.
-
 class MedianFilterImage(ImageModifier):
     def __init__(self, radius):
         self.radius = radius
     def __call__(self, image):
         disk = skimage.morphology.disk(self.radius)
-        disk2 = skimage.color.gray2rgb(disk)
-        return skimage.filters.median(image.npImage(), disk2)
+        npimage = image.npImage()
+        newimage = numpy.empty_like(npimage)
+        for k in range(npimage.shape[2]):
+            newimage[:,:,k] = skimage.filters.median(npimage[:,:,k], disk)
+        return newimage
 
 registeredclass.Registration(
     'MedianFilter',
@@ -564,30 +597,6 @@ registeredclass.Registration(
     ordering = 2.07,
     tip = "Normalize the image by rescaling pixel intensity values.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/normalize.xml')
-    )
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-class ReduceNoise(ImageModifier):
-    def __init__(self, radius=1.0):
-        self.radius = radius
-    def __call__(self, image):
-        denoised_image = skimage.restoration.denoise_nl_means(
-            image.npImage(),
-            patch_size=7, patch_distance=11, fast_mode=True,
-            h=0.1, sigma=0.0, channel_axis=-1)
-        return denoised_image
-
-registeredclass.Registration(
-    'ReduceNoise',
-    ImageModifier,
-    ReduceNoise,
-    ordering = 2.08,
-    secret = True,              # TODO NUMPY: Why is this secret?
-    params = [parameter.FloatParameter('radius', 0.0,
-                                       tip='Size of the pixel neighborhood.')],
-    tip = "Reduce noise while preserving edges.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/reducenoise.xml')
     )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
