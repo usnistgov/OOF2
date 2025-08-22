@@ -35,6 +35,27 @@ import sys
 
 from ooflib.common.utils import stringlstrip
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+## TODO: There is confusion in the type checking mechanisms in the
+## Parameter and ParameterWidget subclasses that needs to be fixed.
+## The Parameter mechanisms that do and don't use TypeChecker and
+## Parameter.checker() need to be rationalized.  ParameterWidget
+## should call Parameter.checker.  ParameterWidget.get_value should be
+## consistent about whether or not it raises exceptions.  Is
+## ParameterWidget.validValue called on the result of
+## ParameterWidget.get_value?  What happens when get_value raises an
+## exception?  Should get_value always call validValue, or vice versa?
+##
+## An example problem: typing a negative value in a numeric widget--
+## when the text consists of just a minus sign, OOFeval raises a
+## syntax error.  So get_value can't be called without try/except.
+## But checking validity is the role of checker or validValue, not
+## get_value.  Maybe we need two kinds of get_value -- get raw value
+## and get checked value?
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 # The python2 version of this file used FloatType, IntType, etc, via
 # "from types import *".  Rather than change all of them by hand, we
 # just define the old names here:
@@ -385,7 +406,7 @@ class AutoWidget(ParameterWidget):
     def get_value(self):
         if self.automatic:
             return automatic.automatic
-        return self.gtk.get_text()
+        return self.gtk.get_text() ## TODO: Should this call OOFeval?
 
     def validValue(self, value):
         # See comment in GenericWidget.validValue.
@@ -449,18 +470,39 @@ parameter.RestrictedAutomaticNameParameter.makeWidget = \
 # Allows a value of "automatic", or an integer.
 class AutoNumberWidget(AutoWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
+        self.param = param      # TODO: Put this in the baseclass __init__?
         AutoWidget.__init__(self, param, scope=scope, name=name, **kwargs)
         self.set_value(param.value)
         self.widgetChanged(1, interactive=0)
 
-    # The AutoWidget get_value returns automatic or a string, or none.
+    # The AutoWidget get_value returns automatic or a string, or None.
     # If we get a string, evaluate it and return the result.
     def get_value(self):
         v = AutoWidget.get_value(self)
         if v==automatic.automatic:
             return v
-        return utils.OOFeval(v)
-        
+        try:
+            return utils.OOFeval(v)
+        except:
+            return None
+
+    # TODO: Put validValue in the base class and use the Parameter type
+    # checking mechanism.  There's no need to duplicate type checking.
+    def validValue(self, value): 
+        debug.fmsg(f"{value=} {type(value)=}")
+        if value == automatic.automatic:
+            return True
+        if isinstance(value, StringType):
+            try:
+                value = utils.OOFeval(value)
+            except:
+                debug.fmsg("OOFeval(value) failed")
+                return False
+        try:
+            self.param.checker(value)
+        except TypeError:
+            return False
+        return True
 
 def _AutoNumberWidget_makeWidget(self, scope, **kwargs):
     return AutoNumberWidget(self, scope=scope, name=self.name, **kwargs)
@@ -468,7 +510,9 @@ def _AutoNumberWidget_makeWidget(self, scope, **kwargs):
 parameter.AutoIntParameter.makeWidget = _AutoNumberWidget_makeWidget
 
 parameter.AutoNumericParameter.makeWidget = _AutoNumberWidget_makeWidget
-    
+
+parameter.PositiveAutoFloatParameter.makeWidget = _AutoNumberWidget_makeWidget
+parameter.PositiveAutoIntParameter.makeWidget = _AutoNumberWidget_makeWidget
 
 #########################
 

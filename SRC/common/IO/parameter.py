@@ -288,6 +288,7 @@ class Parameter:
         # Returns a string representing the legal values for the
         # parameter.  If the classRepr is sufficient, this doesn't
         # need to return anything.
+        ## TODO: valueRepr is never called. Delete it?
         pass
     def valueDesc(self):
         # valueDesc returns a string that describes the allowable
@@ -609,6 +610,32 @@ class NonNegativeFloatParameter(FloatParameter):
     def valueDesc(self):
         return "A non-negative real number."
 
+class AutoFloatParameter(Parameter):
+    structfmt = ">id"
+    structsize = struct.calcsize(structfmt)
+    def valueDesc(self):
+        return "A real number, or the value <constant>automatic</constant>."
+    def binaryRepr(self, datafile, value):
+        auto = (value == automatic.automatic)
+        if auto:
+            return struct.pack(AutoFloatParameter.structfmt, 1, 0)
+        else:
+            return struct.pack(AutoFloatParameter.structfmt, 0, value)
+    def binaryRead(self, parser):
+        b = parser.getBytes(AutoFloatParameter.structsize)
+        (auto, val) = struct.unpack(AutoFloatParameter.structfmt, b)
+        if auto:
+            return automatic.automatic
+        return val
+
+class PositiveAutoFloatParameter(AutoFloatParameter):
+    def checker(self, x):
+        if not ((isinstance(x, (IntType, FloatType)) and x > 0) or
+                isinstance(x, automatic.Automatic)):
+            raiseTypeError(x, "A positive real number or 'autmatic'")
+        def valueDesc(self):
+            return "A positive real number, or the value <constant>autmatic</constant>."
+
 class IntParameter(Parameter):
     types=(IntType,)
     def __init__(self, name, value=None, default=0, tip=None):
@@ -631,24 +658,39 @@ class NonNegativeIntParameter(IntParameter):
     def valueDesc(self):
         return "A non-negative integer."
 
-## TODO: Why isn't PositiveIntParameter derived from IntParameter?
-## See PositiveFloatParameter, above.
-class PositiveIntParameter(Parameter):
-    def __init__(self, name, value=None, default=1, tip=None):
-        Parameter.__init__(self, name, value=value, default=default, tip=tip)
+# ## TODO: Why isn't PositiveIntParameter derived from IntParameter?
+# ## See PositiveFloatParameter, above.
+# class PositiveIntParameter(Parameter):
+#     def __init__(self, name, value=None, default=1, tip=None):
+#         Parameter.__init__(self, name, value=value, default=default, tip=tip)
+#     def checker(self, x):
+#         if not isinstance(x, IntType) or x <= 0:
+#             raiseTypeError(x, "a positive integer")
+#     def binaryRepr(self, datafile, value):
+#         return struct.pack(structIntFmt, value)
+#     def binaryRead(self, parser):
+#         b = parser.getBytes(structIntSize)
+#         (val,) = struct.unpack(structIntFmt, b)
+#         return val
+#     def __repr__(self):
+#         return "PositiveIntParameter(%s,%s)" % (repr(self.name), repr(self.value))
+#     def valueDesc(self):
+#         return "A positive integer."
+
+class PositiveIntParameter(IntParameter):
     def checker(self, x):
-        if not isinstance(x, IntType) or x <= 0:
-            raiseTypeError(x, "a positive integer")
-    def binaryRepr(self, datafile, value):
-        return struct.pack(structIntFmt, value)
-    def binaryRead(self, parser):
-        b = parser.getBytes(structIntSize)
-        (val,) = struct.unpack(structIntFmt, b)
-        return val
-    def __repr__(self):
-        return "PositiveIntParameter(%s,%s)" % (repr(self.name), repr(self.value))
+        if not isinstance(x, int) or x < 0:
+            raise TypeError(x, "a positive integer")
+        def valueDesc(self):
+            return "A positive integer."
+
+class PositiveAutoIntParameter(AutoIntParameter):
+    def checker(self, x):
+        if not ((isinstance(x, IntType) and x > 0) or
+                isinstance(x, automatic.Automatic)):
+            raiseTypeError(x, "A positive integer or 'automatic'")
     def valueDesc(self):
-        return "A positive integer."
+        return "A positive integer, or the value <constant>automatic</constant>."
 
 class ListOfIntsParameter(Parameter):
     def __init__(self, name, value=None, default=[], tip=None):
