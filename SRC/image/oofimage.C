@@ -14,12 +14,12 @@
 #ifdef HAVE_MPI
 #include "common/mpitools.h"
 #endif ////HAVE_MPI
-#include "common/pythonlock.h"
-#include "common/pyutils.h"
 #include "common/IO/bitoverlay.h"
-#include "common/ooferror.h"
 #include "common/boolarray.h"
 #include "common/doublearray.h"
+#include "common/ooferror.h"
+#include "common/pythonlock.h"
+#include "common/pyutils.h"
 #include "image/oofimage.h"
 
 #include <oofcanvas.h>
@@ -125,6 +125,40 @@ OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
   // The OOFImage constructor flips the image so that OOF can access
   // pixels easily in a right handed coordinate system with the origin
   // in the lower left corner of the image.  This has to flip it back.
+  
+  // { // Debugging block
+  //   PYTHON_THREAD_BEGIN_BLOCK;
+
+  //   std::cerr << "OOFImage::makeCanvasImage: npobject=" << npobject
+  //     //<< " " << repr((PyObject*)npobject)
+  // 	      << " size=" << *size
+  // 	      << std::endl;
+  //   std::cerr << "OOFImage::makeCanvasImage: shape="
+  // 	      << repr(PyObject_GetAttrString((PyObject*) npobject, "shape"))
+  // 	      << " dtype="
+  // 	      << repr(PyObject_GetAttrString((PyObject*) npobject, "dtype"))
+  // 	      << " array(0,0,0)="
+  // 	      << *((double*)PyArray_GETPTR3(npobject, 0, 0, 0))
+  //     // << " size=" << PyArray_Size(npobject)
+  // 	      << std::endl;
+  //   // PyArray_Size, PyArray_Min, and PyArray_Max don't seem to work!
+  //   // Get min and max the hard way.
+  //   double amin = std::numeric_limits<double>::max();
+  //   double amax = -amin;
+  //   npy_intp *dims = PyArray_DIMS(npobject);
+  //   for(int x=0; x<dims[0]; x++) {
+  //     for(int y=0; y<dims[1]; y++) {
+  // 	for(int c=0; c<dims[2]; c++) {
+  // 	  double v = *(double*)PyArray_GETPTR3(npobject, x, y, c);
+  // 	  if(v < amin) amin = v;
+  // 	  if(v > amax) amax = v;
+  // 	}
+  //     }
+  //   }
+  //   std::cerr << "OOFImage::makeCanvasImage: min=" << amin << " max=" << amax
+  // 	      << std::endl;
+  // } // end debugging
+
   OOFCanvas::CanvasImage *img =
     OOFCanvas::CanvasImage::newFromNumpy(OOFCANVAS_COORD(*pos),
 					 (PyObject*) npobject, true/* flipy*/);

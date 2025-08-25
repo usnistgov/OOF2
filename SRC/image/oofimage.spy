@@ -32,17 +32,11 @@ def readNumpyImage(filename, **kwargs):
     # 'height' and 'width' keywords are optional.  If neither is
     # given, the height and width are the image size in pixels.  If
     # just one is given, the other is determined from the aspect
-    # ratio.  If both are given, the image may be distorted.
+    # ratio.  If both are given, the pixels may not be square.
 
-    ## scikit-image does not read 16 bit ppm images correctly, so just
-    ## disallow them all.
-    ext = os.path.splitext(filename)
-    if ext in ("ppm", "pgm", "pnm"):
-        raise ooferror.PyErrUserError(
-            f"Cannot load {filename}. OOF2 does not handle .{ext} images")
-    
+    # Use matplotlib.pyplot to read images.  Scikit-image loads many
+    # types incorrectly, including gif and 16-bit ppm, pbm, and pnm.
     npimage = pyplot.imread(filename) # numpy.ndarray object
-    debug.fmsg(f"{npimage.dtype=} {npimage.shape=}")
     
     # Convert to rgb if necessary
     if len(npimage.shape) == 2:
@@ -50,7 +44,6 @@ def readNumpyImage(filename, **kwargs):
         npimage = skimage.color.gray2rgb(npimage)
     elif npimage.shape[2] == 4:
         # rgb with an alpha channel
-        ## TODO NUMPY: What if it's HSV or some other color space?
         npimage = npimage[:,:,0:3] # just remove the alpha channel
 
     # The image read from the file probably has 8 bit channels.  For
