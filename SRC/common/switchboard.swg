@@ -37,6 +37,10 @@ public:
   }
   PyObject *__getitem__(int which) const {
     if(which >= self->nargs() || which < 0) {
+      std::cerr << "OOFMessage.__getitem__: which=" << which
+		<< " nargs=" << self->nargs()
+		<< " self=" << *self
+		<< std::endl;
       PYTHON_THREAD_BEGIN_BLOCK;
       PyErr_SetString(PyExc_IndexError,
 		      "Not that many arguments in OOFMessage");
