@@ -41,10 +41,8 @@ public:
   ColorPixelDistFactory(OOFImage*, double);
 };
 
-%apply int *OUTPUT { int *int_argout};
-
 void groupColorStats(OOFImage&, PixelSet&,
-		     int *int_argout,
+		     int *OUTPUT,
 		     CColor *CColor_argout, CColor *CColor_argout);
 
 %pythoncode "image/pixeldifferentiator.spy"
