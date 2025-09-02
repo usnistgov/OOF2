@@ -28,7 +28,7 @@
 #include <set>
 #include <iostream>
 
-OOFImage::OOFImage(const std::string &name, PyObject *pyobj)
+OOFImage::OOFImage(const std::string &name, PyArrayObject *pyobj)
   : name_(name), npobject(nullptr)
 {
   setNpImage(pyobj);
@@ -36,12 +36,12 @@ OOFImage::OOFImage(const std::string &name, PyObject *pyobj)
   imageChanged();
 }
 
-void OOFImage::setNpImage(PyObject *new_npimage) {
+void OOFImage::setNpImage(PyArrayObject *new_npimage) {
   PYTHON_THREAD_BEGIN_BLOCK;
-  if(new_npimage != (PyObject*) npobject) {
+  if(new_npimage != npobject) {
     Py_XINCREF(new_npimage);
-    Py_XDECREF((PyObject*) npobject);
-    npobject = (PyArrayObject*) new_npimage;
+    Py_XDECREF(npobject);
+    npobject = new_npimage;
   }
 }
 
@@ -100,7 +100,9 @@ bool OOFImage::pixelInBounds(const ICoord *pxl) const {
   return true;
 }
 
-OOFImage *OOFImage::clone(const std::string &nm , PyObject *npobject) const {
+OOFImage *OOFImage::clone(const std::string &nm , PyArrayObject *npobject)
+  const
+{
   // Clone is always called after copying the numpy image data in
   // python, where it's easier to do.
   OOFImage *copy = new OOFImage(nm, npobject);
@@ -160,8 +162,10 @@ OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
   // } // end debugging
 
   OOFCanvas::CanvasImage *img =
-    OOFCanvas::CanvasImage::newFromNumpy(OOFCANVAS_COORD(*pos),
-					 (PyObject*) npobject, true/* flipy*/);
+    OOFCanvas::CanvasImage::newFromNumpy(
+		 OOFCANVAS_COORD(*pos),
+		 // TODO: Change to PyArrayObject in newFromNumpy
+		 (PyObject*) npobject, true/* flipy*/);
   img->setDrawIndividualPixels(true);
   img->setSize(OOFCANVAS_COORD(*size));
   return img;

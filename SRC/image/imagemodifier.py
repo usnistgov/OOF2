@@ -29,7 +29,14 @@ import sys
 
 # Base class for image modification methods.  Subclasses of
 # ImageModifier need to have a __call__ method that takes an OOFImage
-# argument and returns the modified numpy array.
+# argument and returns the modified numpy array.  The modified array
+# can be the same object as the original array.
+## TODO: Have the image modifiers always operate in-place, and don't
+## have anything returned from imageModifier.__call__.  The input data
+## to the modifiers is already a copy of the original image.
+## Modifiers that need to make a temporary copy can do so if they
+## want.  OTOH: It's easier to create a new numpy array in Python and
+## pass it inas an argument.
 
 class ImageModifier(registeredclass.RegisteredClass):
     registry = []
@@ -219,9 +226,11 @@ class BlurImage(ImageModifier):
         # in units of the standard deviation.  The old ImageMagick
         # 'radius' parameter was the radius in pixels, not counting
         # the central pixel.
-        return skimage.filters.gaussian( image.npImage(), self.sigma,
-                                         truncate=(self.radius+1)/self.sigma,
-                                         channel_axis=-1 )
+        return skimage.filters.gaussian(
+            image.npImage(),
+            self.sigma,
+            truncate=(self.radius+1)/self.sigma,
+            channel_axis=-1)
 
 registeredclass.Registration(
     'Blur',
@@ -270,46 +279,83 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# Enhance contrast, using the algorithm described in the scikit-image
+# documentation.  Scikit-image replaces each pixel by the local
+# maximum if the pixel gray value is closer to the local maximum than
+# the local minimum. Otherwise it replaces it by the local minimum.
+# OOFImage::enhance_contrast() applies the method to channel
+# separately.  Also, it doesn't require converting the image data to 8
+# bits.
+#
+# https://scikit-image.org/docs/stable/api/skimage.filters.rank.html#skimage.filters.rank.enhance_contrast
+
+
 class ContrastImage(ImageModifier):
     def __init__(self, radius):
         self.radius = radius
-    def __call__(self, image):
-        np_image = image.npImage()
-        new_image = numpy.empty_like( np_image )
-        image_as_bytes = skimage.util.img_as_ubyte( np_image )
-        # Another possibility for the previous line is conversion to
-        # uint:
-        #   image_as_uint = skimage.util.img_as_uint( no_image )
-        # which has a range of 0-65535, better than 0-255 to quantize
-        # 0.0-1.0.  But scikit-image gives a UserWarning in that
-        # situation: "UserWarning: Bad rank filter performance is
-        # expected due to a large number of bins (65536), equivalent
-        # to an approximate bitdepth of 16.0."
-        disk = skimage.morphology.disk(self.radius,
-                                       dtype=image_as_bytes.dtype)
-        for k in range(np_image.ndim):
-            new_image[...,k] = skimage.filters.rank.enhance_contrast(
-                                         image_as_bytes[...,k], disk)/255.0
-        return new_image
 
+    def __call__(self, image):
+        newimage = numpy.empty_like(image.npImage())
+        image.enhance_contrast(skimage.morphology.disk(self.radius), newimage)
+        return newimage
+                
 registeredclass.Registration(
     'Contrast',
     ImageModifier,
     ContrastImage,
-    ordering = 2.02,
+    ordering = 2.0,
+    secret = False,
     params = [
-        parameter.IntParameter(
+        parameter.PositiveFloatParameter(
             'radius', 5,
-            tip='radius of the pixel neighborhood used for contrast check')
+            tip='radius of the pixel neighborhood')
     ],
-    tip = "Enhance intensity differences.",
-    discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/contrast.xml')
-    )
+    tip = "Enhance intensity differences using scikit-image.",
+    #discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/contrast.xml')
+)
+
+
+# This version of ContrastImage only uses Python calls to numpy and
+# scikit-image routines.  It is faster than the other version but
+# only works with 8 bit images, so there is a loss of precision.  It's
+# here for future reference, but marked "secret".
+
+class ContrastImageSK(ImageModifier):
+    def __init__(self, radius):
+        self.radius = radius
+    def __call__(self, image):
+        np_image = image.npImage()
+        new_image = numpy.empty_like(np_image)
+        # Not converting the image, or converting it to 16-bit ints
+        # produces warning messages from scikit-image.
+        image_as_bytes = skimage.util.img_as_ubyte(np_image)
+        disk = skimage.morphology.disk(self.radius,
+                                       dtype=image_as_bytes.dtype)
+        # Each image channel needs to be handled separately.
+        for k in range(np_image.shape[2]):
+            new_image[...,k] = skimage.filters.rank.enhance_contrast(
+                                         image_as_bytes[...,k], disk)/255.0
+        return skimage.util.img_as_float64(new_image)
+    
+registeredclass.Registration(
+    'ContrastSK',
+    ImageModifier,
+    ContrastImageSK,
+    ordering = 2.021,
+    secret = True,              
+    params = [
+        parameter.PositiveFloatParameter(
+            'radius', 5,
+            tip='radius of the pixel neighborhood')
+    ],
+    tip = "Enhance intensity differences using scikit-image.",
+)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-## TODO: Combine the various DenoiseXXXX methods into one, using 
-## RegisteredClasses for the different techniques.
+# The various scikit-image denoising methods are wrapped registered
+# classes which are used as arguments to a single DenoiseImage
+# ImageModifier.
 
 class DenoiseMethod(registeredclass.RegisteredClass):
     registry = []
@@ -318,10 +364,7 @@ class DenoiseImage(ImageModifier):
     def __init__(self, method):
         self.method = method
     def __call__(self, image):
-        try:
-            return self.method.denoise(image)
-        finally:
-            debug.fmsg("done")
+        return self.method.denoise(image)
 
 registeredclass.Registration(
     'Denoise',

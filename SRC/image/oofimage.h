@@ -27,9 +27,10 @@
 
 // This value of NPY_NO_DEPRECATED_API suppresses *all* numpy
 // deprecation warnings, which is probably not a good idea.  Not
-// defining NPY_NO_DEPRECATED_API produces deprecation warnings, and
-// the suggestion to set NPY_NO_DEPRECATED_API to NPY_1_7_API_VERSION.
-// But with that setting PyArray_NDIM and PyArray_DIMS aren't defined.
+// defining NPY_NO_DEPRECATED_API produces deprecation warnings,
+// including the suggestion to set NPY_NO_DEPRECATED_API to
+// NPY_1_7_API_VERSION.  But with that setting PyArray_NDIM and
+// PyArray_DIMS aren't defined.
 #define NPY_NO_DEPRECATED_API NPY_1_1_API_VERSION
 #include <numpy/arrayobject.h>
 
@@ -57,16 +58,16 @@ protected:
   CMicrostructure *microstructure;
 public:
   OOFImage(const std::string &nm);
-  OOFImage(const std::string &nm, PyObject *ndarray);
+  OOFImage(const std::string &nm, PyArrayObject *ndarray);
   OOFImage(const OOFImage&) = delete;
   virtual ~OOFImage();
   const std::string &name() const { return name_; }
   void rename(const std::string &nm) { name_ = nm; }
   void setSize(const Coord*);	// Physical size, not pixel size!
 
-  // Get and set the PyObject storing the numpy image data.
-  PyObject *npImage() { return (PyObject*) npobject; }
-  void setNpImage(PyObject*);
+  // Get and set the PyArrayObject storing the numpy image data.
+  PyArrayObject *npImage() { return npobject; }
+  void setNpImage(PyArrayObject*);
 
   virtual const Coord &size() const { return size_; }
   virtual const ICoord &sizeInPixels() const { return sizeInPixels_; }
@@ -105,7 +106,7 @@ public:
   void set(const Array<int> &array, CColor (*f)(int));
   void set(const Array<bool> &array, CColor (*f)(bool));
 
-  OOFImage *clone(const std::string &name, PyObject *npimage) const;
+  OOFImage *clone(const std::string &name, PyArrayObject *npimage) const;
 
   void getColorPoints(const CColor &reference,
 		      const ColorDifference &diff,
@@ -116,6 +117,7 @@ public:
   TimeStamp *getTimeStamp() { return &timestamp; }
 
   void evenly_illuminate(int windowsize);
+  PyArrayObject* enhance_contrast(PyArrayObject *mask, PyArrayObject* newimage);
 };				// class OOFImage
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

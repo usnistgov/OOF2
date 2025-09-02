@@ -11,6 +11,7 @@ target_sources(oof2image
   oofimage.C
   oofimage.h
   evenlyilluminate.C
+  contrast.C
   pixelselectioncourieri.C
   pixelselectioncourieri.h
   autogroup.C
