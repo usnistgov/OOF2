@@ -86,8 +86,6 @@ ADD_REPR_GENERIC(CHSVColor);
   
 }
 
-// TODO: Can we use "%apply OUTPUT..." here instead of these typemaps?
-
 %typemap(in, numinputs=0) CColor* CColor_argout (CColor* ccolorptr) {
   // typemap(int, numinputs=0) CColor* CColor_argout
   ccolorptr = new CColor();

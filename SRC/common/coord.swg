@@ -104,8 +104,6 @@
 // the Coord is *not* supposed to be appended to that list, do not use
 // this typemap!
 
-// TODO: Can we use %apply OUTPUT here instead?
-
 %typemap(in, numinputs=0) Coord* Coord_argout (Coord *coordptr) {
   // typemap(int, numinputs=0) Coord* Coord_argout
   coordptr = new Coord();
