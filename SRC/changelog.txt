@@ -1,4 +1,4 @@
-OOF2 2.3.4
+OOF2 2.4.0
 
 * ScalarField::components(Planarity) and
   TwoVectorField::components(Planarity) no longer ignore their
@@ -46,6 +46,9 @@ OOF2 2.3.4
   contiguous subgroup separately.  New arguments are 'units' (Pixel,
   Physical, or Fractional) and 'contiguous', which controls whether
   each contiguous subset of the group is reported separately.
+
+* Image files can loaded and saved in any format supported by
+  matplotlib, as well as numpy .npy and .npz format.
 
 OOF2 2.3.3
 

@@ -7,7 +7,7 @@
 # oof_manager@nist.gov.
 
 cmake_minimum_required(VERSION 3.18)
-project(oof2 VERSION 2.3.4)
+project(oof2 VERSION 2.4.0)
 
 # cmake functions and settings that are used both by oof2 and oof2
 # extensions are in oofbuildtools.cmake so that the extensions can
