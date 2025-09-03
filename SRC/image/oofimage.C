@@ -64,14 +64,21 @@ OOFImage::~OOFImage() {
 // Tolerant comparison -- returns a boolean true if the other image
 // is within tolerance of this image, otherwise returns false.
 bool OOFImage::compare(const OOFImage &other, double tol) const {
-  if (sizeInPixels_ != other.sizeInPixels_) return false;
+  if (sizeInPixels_ != other.sizeInPixels_) {
+    std::cerr << "OOFImage::compare: size mismatch! "
+	      << sizeInPixels_ << " " << other.sizeInPixels_ << std::endl;
+    return false;
+  }
 
   for(int i=0;i<sizeInPixels_[0];i++) {
     for(int j=0;j<sizeInPixels_[1];j++) {
       CColor c0 = (*this)[ICoord(i,j)];
       CColor c1 = other[ICoord(i,j)];
-      if (!c0.compare(c1, tol))
+      if (!c0.compare(c1, tol)) {
+	std::cerr << "OOFImage::compare: color mismatch at ("
+		  << i << ", " << j << "): " << c0 << " " << c1 << std::endl;
 	return false;
+      }
     }
   }
   return true;
