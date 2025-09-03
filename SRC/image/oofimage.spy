@@ -12,8 +12,8 @@ from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.image import imagecontext
-from matplotlib import pyplot
 
+import matplotlib
 import numpy
 import os
 import skimage
@@ -34,9 +34,21 @@ def readNumpyImage(filename, **kwargs):
     # just one is given, the other is determined from the aspect
     # ratio.  If both are given, the pixels may not be square.
 
-    # Use matplotlib.pyplot to read images.  Scikit-image loads many
-    # types incorrectly, including gif and 16-bit ppm, pbm, and pnm.
-    npimage = pyplot.imread(filename) # numpy.ndarray object
+    extension = os.path.splitext(filename)[1]
+    if extension ==".npy":
+        npimage = numpy.load(filename)
+    elif extension == ".npz":
+        imagedict = numpy.load(filename)
+        if len(imagedict) != 1:
+            raise ooferror.PyErrUserError(
+                f"Image file {filename} must contain exactly one image.")
+        (imgname,) = imagedict    # unpack key(s) into tuple of length 1
+        npimage = imagedict[imgname]
+    else:
+        # Use matplotlib to read images.  Scikit-image loads many
+        # types incorrectly, including gif and 16-bit ppm, pbm, and
+        # pnm.
+        npimage = matplotlib.pyplot.imread(filename) # numpy.ndarray object
     
     # Convert to rgb if necessary
     if len(npimage.shape) == 2:

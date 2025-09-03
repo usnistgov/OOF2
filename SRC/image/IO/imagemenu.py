@@ -170,21 +170,27 @@ from matplotlib import pyplot
 def saveImage(menuitem, image, filename, overwrite):
     immidge = oofimage.getImage(image).npImage()
     if immidge is not None and (overwrite or not os.path.exists(filename)):
-        # Undo the flip done by readNumpyImage()
-        saveimg = numpy.flip(immidge, 0)
+        ext = os.path.splitext(filename)[1]
+        if ext == ".npy":
+            numpy.save(filename, immidge, allow_pickle=False)
+        elif ext == ".npz":
+            numpy.savez_compressed(filename, image=immidge)
+        else:
+            # Undo the flip done by readNumpyImage()
+            saveimg = numpy.flip(immidge, 0)
 
-        # Not all image formats can be saved without conversion.  All
-        # OOF2 images are probably always stored as floats, so
-        # checking here is probably not necessary, but doesn't hurt
-        # much.
-        if saveimg.dtype not in ("uint8", "float32", "float64"):
-            # img_as_float converts an int or byte image to float64, but
-            # doesn't change float32 to float64.
-            saveimg = skimage.util.img_as_float(saveimg)
-        # Save with matplotlib.pyplot instead of skimage.io because
-        # skimage.io is causing problems with some formats.
-        pyplot.imsave(filename, saveimg)
-        # skimage.io.imsave(filename, saveimg, check_contrast=False)
+            # Not all image formats can be saved without conversion.  All
+            # OOF2 images are probably always stored as floats, so
+            # checking here is probably not necessary, but doesn't hurt
+            # much.
+            if saveimg.dtype not in ("uint8", "float32", "float64"):
+                # img_as_float converts an int or byte image to float64, but
+                # doesn't change float32 to float64.
+                saveimg = skimage.util.img_as_float(saveimg)
+            # Save with matplotlib.pyplot instead of skimage.io because
+            # skimage.io is causing problems with some formats.
+            pyplot.imsave(filename, saveimg)
+            # skimage.io.imsave(filename, saveimg, check_contrast=False)
     else:
         reporter.warn("Image was not saved!")
 
