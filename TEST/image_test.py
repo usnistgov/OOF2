@@ -17,7 +17,36 @@
 import unittest, os
 from . import memorycheck
 
+from ooflib.SWIG.image import oofimage
+
 from .UTILS.file_utils import reference_file
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Compare two image files. It's not possible to use filecmp.cmp
+# because if the image format includes metadata, the files might
+# differ even if the pixel data is identical.  Use skimage utilities
+# instead.
+
+import numpy
+import skimage
+from matplotlib import pyplot
+
+def compare_image_files(imagefile0, imagefile1):
+    image0 = pyplot.imread(imagefile0)
+    image1 = pyplot.imread(imagefile1)
+    if image0.shape != image1.shape:
+        print(f"Image shapes don't agree: {image0.shape} {image1.shape}")
+        return False
+    compimg = skimage.util.compare_images(image0, image1, method="diff")
+    diffnorm = numpy.linalg.norm(compimg)
+    diffmax = compimg.max()
+    if diffnorm > 0 or diffmax > 0:
+        print(f"Image difference is nonzero: norm={norm} max={max}")
+        return False
+    return True
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class OOF_Image(unittest.TestCase):
     def setUp(self):
@@ -101,12 +130,37 @@ class OOF_Image(unittest.TestCase):
             filename=reference_file("ms_data","rectangle.png"),
             microstructure_name="save_test",
             height=automatic, width=automatic)
-        OOF.File.Save.Image(filename="image_save_test",
-                            image="save_test:rectangle.png")
-        self.assertTrue(filecmp.cmp("image_save_test",
-                                 reference_file("image_data",
-                                              "saved_rectangle")))
-        os.remove("image_save_test")
+        # Save as png
+        OOF.File.Save.Image(filename="image_save_test.png",
+                            image="save_test:rectangle.png",
+                            overwrite=False)
+        self.assertTrue(
+            compare_image_files(
+                "image_save_test.png",
+                reference_file("image_data", "saved_rectangle.png")))
+        # Save as npy.  For testing, we need to ensure that the image
+        # is little-endian, because the reference files are
+        # little-endian.
+        img = oofimage.getImage("save_test:rectangle.png")
+        swapbytes = img.makeLittleEndian()
+        OOF.File.Save.Image(filename="image_save_test.npy",
+                            image="save_test:rectangle.png",
+                            overwrite=False)
+        self.assertTrue(
+            filecmp.cmp("image_save_test.npy",
+                        reference_file("image_data", "saved_rectangle.npy")))
+        # And npz
+        OOF.File.Save.Image(filename="image_save_test.npz",
+                            image="save_test:rectangle.png",
+                            overwrite=False)
+        self.assertTrue(
+            filecmp.cmp("image_save_test.npz",
+                        reference_file("image_data", "saved_rectangle.npz")))
+        if swapbytes:
+            img.makeBigEndian()
+        os.remove("image_save_test.png")
+        os.remove("image_save_test.npy")
+        os.remove("image_save_test.npz")
 
     # Test for OOF.File.Image.Load, which is technically not in the
     # OOF.Image menu hierarchy.
@@ -136,10 +190,10 @@ class OOF_Image(unittest.TestCase):
             except KeyError:
                 print("No test data for image modifier ", m.name, file=sys.stderr)
             else:
-                for (datafilename, argdict) in test_list:
-                    argdict['image']="imagemod_test:image_test.png"
+                for (srcname, datafilename, argdict) in test_list:
+                    imagename = argdict['image'] = f"imagemod_test:{srcname}"
                     OOF.Microstructure.Create_From_ImageFile(
-                        filename=reference_file("image_data","image_test.png"),
+                        filename=reference_file("image_data", srcname),
                         microstructure_name="imagemod_test",
                         height=automatic, width=automatic)
                     random.seed(17)
@@ -150,15 +204,19 @@ class OOF_Image(unittest.TestCase):
                         filename=reference_file("image_data", datafilename),
                         microstructure_name="comparison",
                         height=automatic, width=automatic)
-                    im1 = imagecontext.imageContexts[
-                        "imagemod_test:image_test.png"].getObject()
+                    im1 = imagecontext.imageContexts[imagename].getObject()
                     im2 = imagecontext.imageContexts[
                         "comparison:"+datafilename].getObject()
-                    # Tolerance is 1./65535., which is the level of
-                    # "quantization noise" for 16-bit color channels.
-                    # TODO NUMPY: Are 16 bit channels still relevant?
                     try:
-                        self.assertTrue(im1.compare(im2, 1./255.)) #65535.))
+                        # Tolerance is 1./256., which is the level of
+                        # "quantization noise" for 8-bit color
+                        # channels.  It seems that images are being
+                        # converted to 8-bit when saved, and so tests
+                        # can fail if the tolerance is lower than
+                        # that.
+                        ## TODO: Change format of reference files to
+                        ## .npz, which doesn't have this problem.
+                        self.assertTrue(im1.compare(im2, 1./256.))
                     except:
                         # Save result for comparison.
                         ofilename = "modified_image.png"
@@ -216,27 +274,32 @@ f"""** Image comparison failed.
 
 
 # Data for the image modifier tests.  This is a dictionary indexed by
-# image modifier name, and for each modifier, there is a set of
-# arguments to supply to the modifier menu item for the test, and the
-# name of a file containing correct results for that test.
+# image modifier name. The values are lists of test specifications,
+# which are tuples containing the name of the source image file
+# (assumed to be in the image_data directory), the name of a reference
+# file containing the expected test result (also in image_data), and a
+# dictionary of arguments to supply to the modifier menu item for the
+# test.
 
 # Commented-out entries in this list are modifications provided
 # directly by ImageMagick.  These have proven to have some variability
 # between different versions of the ImageMagick library, and so cannot
 # be reliably tested here.  They're kept in and commented out so we'll
-# know we didn't just forget.
+# know we didn't just forget. 
 
 ## TODO: Remove reference files for archived code, such as the Gabor
 ## modifier tests.
 
-image_modify_args = {"Gray" : [ ("gray.png", {}) ],
-                     "Flip" : [ ("flip_x.png", {"axis" : "x"}),
-                                ("flip_y.png", {"axis" : "y"}),
-                                ("flip_xy.png", {"axis" : "xy"})],
-                     "Fade" : [ ("fade.png", {"factor" : 0.3}) ],
-                     "Dim"  : [ ("dim.png", {"factor" : 0.7}) ],
-                     # "Blur" : [ ("blur", {"radius" : 1.0,
-                     #                                 "sigma" : 3.0} ) ],
+image_modify_args = {
+    "Gray" : [ ("image_test.png", "gray.png", {}) ],
+    "Flip" : [ ("image_test.png", "flip_x.png", {"axis" : "x"}),
+               ("image_test.png", "flip_y.png", {"axis" : "y"}),
+               ("image_test.png", "flip_xy.png", {"axis" : "xy"})],
+    "Fade" : [ ("image_test.png", "fade.png", {"factor" : 0.3}) ],
+    "Dim"  : [ ("image_test.png", "dim.png", {"factor" : 0.7}) ],
+    "Blur" : [ ("image_test.png", "blur.png", {"radius" : 3.0, "sigma" : 3.0})],
+    "Contrast" : [ ("escher.ppm", "contrast.png", {"radius" : 5.0 }) ],
+
                      # "Despeckle" : [ ("despeckle", {})],
                      # "Edge" : [ ("edge", {"radius" : 0.0})],
                      # "Enhance" : [ ("enhance", {})],
@@ -309,7 +372,15 @@ image_modify_args = {"Gray" : [ ("gray.png", {}) ],
                                              {"T" : 0.3})]
                      }
 
+# image_modify_args = {
+#     "Fade" : [ ("image_test.png", "fade.png", {"factor" : 0.3}) ],
+#     }
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 test_set = [
+    OOF_Image("Save"),
+    OOF_Image("Load"),
     OOF_Image("Undo"),
     OOF_Image("Redo"),
     OOF_Image("Delete"),

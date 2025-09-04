@@ -13,7 +13,7 @@ from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.image import imagecontext
 
-import matplotlib
+from  matplotlib import pyplot
 import numpy
 import os
 import skimage
@@ -48,7 +48,7 @@ def readNumpyImage(filename, **kwargs):
         # Use matplotlib to read images.  Scikit-image loads many
         # types incorrectly, including gif and 16-bit ppm, pbm, and
         # pnm.
-        npimage = matplotlib.pyplot.imread(filename) # numpy.ndarray object
+        npimage = pyplot.imread(filename) # numpy.ndarray object
     
     # Convert to rgb if necessary
     if len(npimage.shape) == 2:
@@ -103,6 +103,27 @@ def readNumpyImage(filename, **kwargs):
     image.setSize(primitives.Point(width, height))
 
     return image
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# For testing, it's important that the images are saved the same way
+# on all platforms.  OOFImage.makeLittleEndian converts a big-endian
+# image to little-endian if necessary, and returns a bool indicating
+# if it did.  OOFImage.makeBigEndian can be called to convert it back.
+
+def _makeLittleEndian(self):
+    npimage = self.npImage()
+    if npimage.dtype != numpy.dtype("<d"):
+        npimage.byteswap(inplace=True)
+        return True
+    return False
+
+def _makeBigEndian(self):
+    self.npImage().byteswap(inplace=True)
+
+OOFImage.makeLittleEndian = _makeLittleEndian
+OOFImage.makeBigEndian = _makeBigEndian
+
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

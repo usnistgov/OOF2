@@ -170,19 +170,20 @@ from matplotlib import pyplot
 def saveImage(menuitem, image, filename, overwrite):
     immidge = oofimage.getImage(image).npImage()
     if immidge is not None and (overwrite or not os.path.exists(filename)):
+        # Undo the flip done by readNumpyImage()
+        saveimg = numpy.flip(immidge, 0)
+        # Use the filename extension to determine what kind of file to
+        # write.
         ext = os.path.splitext(filename)[1]
         if ext == ".npy":
-            numpy.save(filename, immidge, allow_pickle=False)
+            numpy.save(filename, saveimg, allow_pickle=False)
         elif ext == ".npz":
-            numpy.savez_compressed(filename, image=immidge)
+            numpy.savez_compressed(filename, image=saveimg)
         else:
-            # Undo the flip done by readNumpyImage()
-            saveimg = numpy.flip(immidge, 0)
-
-            # Not all image formats can be saved without conversion.  All
-            # OOF2 images are probably always stored as floats, so
-            # checking here is probably not necessary, but doesn't hurt
-            # much.
+            # Not all image formats can be saved without conversion.
+            # OOF2 images are (probably) always stored as floats, so
+            # checking here is probably not necessary, but doesn't
+            # hurt much.
             if saveimg.dtype not in ("uint8", "float32", "float64"):
                 # img_as_float converts an int or byte image to float64, but
                 # doesn't change float32 to float64.
