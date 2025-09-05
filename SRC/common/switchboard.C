@@ -93,6 +93,6 @@ PyObject *OOFMessage::getarg(int i) const {
 }
 
 std::ostream &operator<<(std::ostream &os, const OOFMessage &msg) {
-  os << "OOFMessage(" << msg.name() << ")";
+  os << "OOFMessage(\"" << msg.name() << "\")";
   return os;
 }

@@ -299,12 +299,10 @@ class _Switchboard(object):
         # Messages passed from C++ may be either simple strings or
         # OOFMessage instances. The OOFMessage class has swigged
         # methods that make it act like a list of PyObjects.
-        if isinstance(oofmessage, str):
-            self.notify(oofmessage)
-        else:
-            # Convert OOFMessage object into arglist
+        if isinstance(oofmessage, OOFMessage):
             self.notify(oofmessage.name(), *tuple(oofmessage))
-
+        else:
+            self.notify(oofmessage)
             
     # Message names passed in from Python need not be strings,
     # the only requirement is that they be hashable.  LabelTree,
@@ -399,3 +397,26 @@ def verbose(menuitem=None, flag=True):
     switchboard.verbose = flag
     return old
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# OOFMessage can be iterated over to return its arguments.  This is
+# used in _Switchboard.cnotify(), where an OOFMessage is turned into a
+# tuple of arguments.
+
+def _OOFMessage__iter__(self):
+    return OOFMsgIterator(self)
+
+OOFMessage.__iter__ = _OOFMessage__iter__
+
+class OOFMsgIterator:
+    def __init__(self, oofmsg):
+        self.msg = oofmsg
+        self.which = 0
+    def __iter__(self):
+        return self
+    def __next__(self):
+        if self.which >= self.msg.nargs():
+            raise StopIteration
+        val = self.msg.getarg(self.which)
+        self.which += 1
+        return val
