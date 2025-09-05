@@ -241,6 +241,13 @@ double L2dist2(const CColor &c1, const CColor &c2) {
   return dr*dr + dg*dg + db*db;
 }
 
+CColor operator-(const CColor &c1, const CColor &c2) {
+  return CColor(c1.getRed() - c2.getRed(),
+		c1.getGreen() - c2.getGreen(),
+		c1.getBlue() - c2.getBlue(),
+		c1.getAlpha() - c2.getAlpha()) ;
+}
+
 std::ostream &operator<<(std::ostream &os, const CColor &c) {
   c.print(os);
   return os;

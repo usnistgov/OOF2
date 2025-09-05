@@ -42,6 +42,8 @@ public:
 
 ADD_REPR_GENERIC(CColor);
 
+CColor operator-(CColor&, CColor&);
+
 class CGrayColor: public CColor {
 public:
   void setGray(double);

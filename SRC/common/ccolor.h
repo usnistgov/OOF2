@@ -126,6 +126,7 @@ public:
 
 double L1dist(const CColor&, const CColor&);
 double L2dist2(const CColor&, const CColor&);
+CColor operator-(const CColor&, const CColor&);
 
 std::ostream &operator<<(std::ostream&, const CColor&);
 

@@ -10,9 +10,9 @@
 
 # Test suite for the menu commands under OOF.Image.*
 
-# These functions make use of OOF.Microstructure commands as if they
-# work -- for proper regression testing, run microstructure_test first,
-# then this one.
+# These functions assume that OOF.Microstructure commands work
+# properly.  For proper regression testing, run microstructure_test
+# first, then this one.
 
 import unittest, os
 from . import memorycheck
@@ -216,13 +216,13 @@ class OOF_Image(unittest.TestCase):
                         # that.
                         ## TODO: Change format of reference files to
                         ## .npz, which doesn't have this problem.
-                        self.assertTrue(im1.compare(im2, 1./256.))
+                        self.assertTrue(im1.compare(im2, 1./65536.))
                     except:
                         # Save result for comparison.
-                        ofilename = "modified_image.png"
+                        ofilename = "modified_image.npz"
                         OOF.File.Save.Image(
                             filename=ofilename,
-                            image="imagemod_test:image_test.png")
+                            image=f"imagemod_test:{srcname}")
                         print(
 f"""** Image comparison failed.
 ** Modified image saved in {os.path.join(os.getcwd(), ofilename)}
@@ -291,14 +291,14 @@ f"""** Image comparison failed.
 ## modifier tests.
 
 image_modify_args = {
-    "Gray" : [ ("image_test.png", "gray.png", {}) ],
-    "Flip" : [ ("image_test.png", "flip_x.png", {"axis" : "x"}),
-               ("image_test.png", "flip_y.png", {"axis" : "y"}),
-               ("image_test.png", "flip_xy.png", {"axis" : "xy"})],
-    "Fade" : [ ("image_test.png", "fade.png", {"factor" : 0.3}) ],
-    "Dim"  : [ ("image_test.png", "dim.png", {"factor" : 0.7}) ],
-    "Blur" : [ ("image_test.png", "blur.png", {"radius" : 3.0, "sigma" : 3.0})],
-    "Contrast" : [ ("escher.ppm", "contrast.png", {"radius" : 5.0 }) ],
+    "Gray" : [ ("image_test.png", "gray.npz", {}) ],
+    "Flip" : [ ("image_test.png", "flip_x.npz", {"axis" : "x"}),
+               ("image_test.png", "flip_y.npz", {"axis" : "y"}),
+               ("image_test.png", "flip_xy.npz", {"axis" : "xy"})],
+    "Fade" : [ ("image_test.png", "fade.npz", {"factor" : 0.3}) ],
+    "Dim"  : [ ("image_test.png", "dim.npz", {"factor" : 0.7}) ],
+    "Blur" : [ ("image_test.png", "blur.npz", {"radius" : 3.0, "sigma" : 3.0})],
+    "Contrast" : [ ("escher.ppm", "contrast.npz", {"radius" : 5.0 }) ],
 
                      # "Despeckle" : [ ("despeckle", {})],
                      # "Edge" : [ ("edge", {"radius" : 0.0})],

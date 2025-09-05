@@ -76,7 +76,8 @@ bool OOFImage::compare(const OOFImage &other, double tol) const {
       CColor c1 = other[ICoord(i,j)];
       if (!c0.compare(c1, tol)) {
 	std::cerr << "OOFImage::compare: color mismatch at ("
-		  << i << ", " << j << "): " << c0 << " " << c1 << std::endl;
+		  << i << ", " << j << "): " << c0 << " " << c1
+		  << " diff=" << c1-c0 << std::endl;
 	return false;
       }
     }

@@ -693,6 +693,8 @@ registeredclass.Registration(
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/enhance.xml')
     )
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class EqualizeImage(ImageModifier):
     def __call__(self, image):
         return skimage.exposure.equalize_adapthist( image.npImage() )

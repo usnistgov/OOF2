@@ -16,6 +16,7 @@ from ooflib.image import imagecontext
 from  matplotlib import pyplot
 import numpy
 import os
+import pickle
 import skimage
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -36,7 +37,10 @@ def readNumpyImage(filename, **kwargs):
 
     extension = os.path.splitext(filename)[1]
     if extension ==".npy":
-        npimage = numpy.load(filename)
+        try:
+            npimage = numpy.load(filename)
+        except pickle.UnpicklingError:
+            npimage = numpy.load(filename)
     elif extension == ".npz":
         imagedict = numpy.load(filename)
         if len(imagedict) != 1:

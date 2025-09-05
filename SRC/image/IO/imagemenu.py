@@ -53,6 +53,8 @@ imagemodmenu = mainmenu.OOF.Image.addItem(oofmenu.OOFMenuItem(
 def buildImageModMenu():
     imagemodmenu.clearMenu()
     for registration in imagemodifier.ImageModifier.registry:
+        if registration.secret:
+            continue
         try:
             help = registration.tip
         except AttributeError:
@@ -176,7 +178,7 @@ def saveImage(menuitem, image, filename, overwrite):
         # write.
         ext = os.path.splitext(filename)[1]
         if ext == ".npy":
-            numpy.save(filename, saveimg, allow_pickle=False)
+            numpy.save(filename, saveimg)
         elif ext == ".npz":
             numpy.savez_compressed(filename, image=saveimg)
         else:
