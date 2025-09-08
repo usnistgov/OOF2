@@ -489,7 +489,6 @@ class AutoNumberWidget(AutoWidget):
     # TODO: Put validValue in the base class and use the Parameter type
     # checking mechanism.  There's no need to duplicate type checking.
     def validValue(self, value): 
-        debug.fmsg(f"{value=} {type(value)=}")
         if value == automatic.automatic:
             return True
         if isinstance(value, StringType):
