@@ -18,6 +18,7 @@ import unittest, os
 from . import memorycheck
 
 from ooflib.SWIG.image import oofimage
+from ooflib.image.threshold import ManualThreshold
 
 from .UTILS.file_utils import reference_file
 
@@ -190,6 +191,7 @@ class OOF_Image(unittest.TestCase):
             except KeyError:
                 print("No test data for image modifier ", m.name, file=sys.stderr)
             else:
+                print(f"Testing {m.name}")
                 for (srcname, datafilename, argdict) in test_list:
                     imagename = argdict['image'] = f"imagemod_test:{srcname}"
                     OOF.Microstructure.Create_From_ImageFile(
@@ -312,7 +314,22 @@ image_modify_args = {
                      #                   {"radius" : 1.0})],
                      # "Sharpen" : [("sharpen", {"radius" : 1.0,
                      #                           "sigma" : 3.0})],
-                     "Reilluminate" : [("reilluminate.png", {"radius" : 10})],
+    "Reilluminate" : [("cbgrad.png",
+                       "reilluminate.npz", {"radius" : 5})],
+
+    "Threshold" : [
+        ("cb_grad.png", "thresh_manual0.npz",
+         {"method" : ManualThreshold(value=0.0)}),
+        ("cb_grad.png", "thresh_manual3.npz",
+         {"method" : ManualThreshold(value=0.3)}),
+        ("cb_grad.png", "thresh_manual5.npz",
+         {"method" : ManualThreshold(value=0.5)}),
+        ("cb_grad.png", "thresh_manual7.npz",
+         {"method" : ManualThreshold(value=0.7)}),
+        ("cb_grad.png", "thresh_manual1.npz",
+         {"method" :  ManualThreshold(value=1.0)}),
+    ],
+
                      "CloseImage" : [("closeimage.png", {"n" : 7})],
                      "Connect_Edges" : [("connect_edges.png",
                                          {"Threshold" : 0.5,
@@ -356,7 +373,6 @@ image_modify_args = {
                                      {"a" : 3, "b" : 3,
                                       "numAngles" : 6,
                                       "Threshold" : 0.5} )],
-                     "ThresholdImage" : [("threshold.png", {"T" : 0.5})],
                      "Add_Gaussian_Noise" : [("add_gaussian_noise.png",
                                               {"Standard_deviation" : 0.2})],
                      "Canny" : [("canny.png", {"stdDev" : 1.0})],
