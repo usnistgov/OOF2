@@ -266,8 +266,12 @@ class Threshold(imagemodifier.ImageModifier):
     def __call__(self, image):  # arg is an OOFImage
         grayscale = imagemodifier.rgb2gray(image.npImage())
         t = self.method.threshold(grayscale)
-        return skimage.color.gray2rgb((grayscale > t).astype(float)) 
-
+        # gray2rgb preserves the dtype of the image, so convert to
+        # float first.  Don't use astype() on an image, because it can
+        # produce values that are out of range.
+        grays = skimage.util.img_as_float(grayscale > t)
+        return skimage.color.gray2rgb(grays)
+                                    
 registeredclass.Registration(
     'Threshold',
     imagemodifier.ImageModifier,
