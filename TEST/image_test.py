@@ -18,7 +18,9 @@ import unittest, os
 from . import memorycheck
 
 from ooflib.SWIG.image import oofimage
-from ooflib.image.threshold import ManualThreshold
+from ooflib.common.IO.automatic import automatic
+
+from ooflib.image import threshold
 
 from .UTILS.file_utils import reference_file
 
@@ -191,7 +193,7 @@ class OOF_Image(unittest.TestCase):
             except KeyError:
                 print("No test data for image modifier ", m.name, file=sys.stderr)
             else:
-                print(f"Testing {m.name}")
+                print(f"Testing {m.name}", file=sys.stderr)
                 for (srcname, datafilename, argdict) in test_list:
                     imagename = argdict['image'] = f"imagemod_test:{srcname}"
                     OOF.Microstructure.Create_From_ImageFile(
@@ -314,20 +316,54 @@ image_modify_args = {
                      #                   {"radius" : 1.0})],
                      # "Sharpen" : [("sharpen", {"radius" : 1.0,
                      #                           "sigma" : 3.0})],
-    "Reilluminate" : [("cbgrad.png",
+    "Reilluminate" : [("cb_grad.png",
                        "reilluminate.npz", {"radius" : 5})],
 
     "Threshold" : [
         ("cb_grad.png", "thresh_manual0.npz",
-         {"method" : ManualThreshold(value=0.0)}),
+         {"method" : threshold.ManualThreshold(value=0.0)}),
         ("cb_grad.png", "thresh_manual3.npz",
-         {"method" : ManualThreshold(value=0.3)}),
+         {"method" : threshold.ManualThreshold(value=0.3)}),
         ("cb_grad.png", "thresh_manual5.npz",
-         {"method" : ManualThreshold(value=0.5)}),
+         {"method" : threshold.ManualThreshold(value=0.5)}),
         ("cb_grad.png", "thresh_manual7.npz",
-         {"method" : ManualThreshold(value=0.7)}),
+         {"method" : threshold.ManualThreshold(value=0.7)}),
         ("cb_grad.png", "thresh_manual1.npz",
-         {"method" :  ManualThreshold(value=1.0)}),
+         {"method" :  threshold.ManualThreshold(value=1.0)}),
+        ("cb_grad.png", "thresh_mean.npz",
+         {"method" : threshold.MeanThreshold()}),
+        ("cb_grad.png", "thresh_minimum.npz",
+         {"method" : threshold.MinimumThreshold()}),
+        ("cb_grad.png", "thresh_entropy.npz",
+         {"method" : threshold.MinimumEntropyThreshold(tolerance=automatic)}),
+        ("cb_grad.png", "thresh_local10_mean.npz",
+         {"method" : threshold.LocalThreshold(
+             radius=10,
+             average=threshold.LocalMean())}),
+        ("cb_grad.png", "thresh_local20_mean.npz",
+         {"method" : threshold.LocalThreshold(
+             radius=20,
+             average=threshold.LocalMean())}),
+        ("cb_grad.png", "thresh_local20_median.npz",
+         {"method" :
+          threshold.LocalThreshold(
+             radius=20,
+             average=threshold.LocalMedian())}),
+        ("cb_grad.png", "thresh_local20_gaussian.npz",
+         {"method" :
+          threshold.LocalThreshold(
+              radius=20,
+              average=threshold.LocalGaussian(sigma=automatic))}),
+        ("cb_grad.png", "thresh_isodata.npz",
+         {"method" : threshold.IsoDataThreshold()}),
+        ("cb_grad.png", "thresh_otsu.npz",
+         {"method" : threshold.OtsuThreshold()}),
+        ("cb_grad.png", "thresh_triangle.npz",
+         {"method" : threshold.TriangleThreshold(nbins=256)}),
+        ("cb_grad.png", "thresh_yen.npz",
+         {"method" : threshold.YenThreshold(nbins=256)}),
+        
+        
     ],
 
                      "CloseImage" : [("closeimage.png", {"n" : 7})],
