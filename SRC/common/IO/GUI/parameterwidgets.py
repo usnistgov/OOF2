@@ -510,6 +510,7 @@ parameter.AutoIntParameter.makeWidget = _AutoNumberWidget_makeWidget
 
 parameter.AutoNumericParameter.makeWidget = _AutoNumberWidget_makeWidget
 
+parameter.AutoFloatParameter.makeWidget = _AutoNumberWidget_makeWidget
 parameter.PositiveAutoFloatParameter.makeWidget = _AutoNumberWidget_makeWidget
 parameter.PositiveAutoIntParameter.makeWidget = _AutoNumberWidget_makeWidget
 

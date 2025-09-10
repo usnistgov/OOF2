@@ -613,6 +613,7 @@ class NonNegativeFloatParameter(FloatParameter):
 class AutoFloatParameter(Parameter):
     structfmt = ">id"
     structsize = struct.calcsize(structfmt)
+    types=(automatic.Automatic, FloatType, IntType)
     def valueDesc(self):
         return "A real number, or the value <constant>automatic</constant>."
     def binaryRepr(self, datafile, value):
