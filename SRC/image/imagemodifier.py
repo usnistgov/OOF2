@@ -73,7 +73,9 @@ def doImageMod(menuitem, image, **params):
         imageModifier = registration(**params) # create ImageModifier obj
         imagectxt.begin_writing()
         try:
-            modified = imageModifier(newimmidge) # perform the modification
+            # imageModifier.__call__ performs the modification on
+            # newimmidge's numpy data, and returns the modified data.
+            modified = imageModifier(newimmidge)
             assert modified is not None
             # Make a copy of numpy array if needed to be sure that the
             # modified numpy image is not a view of another array and
@@ -144,20 +146,20 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+def rgb2gray(image):
+    # The skimage rgb2gray routine computes the luminance for
+    # "contemporary CRT phosphors", defined by Y = 0.2125 R + 0.7154 G
+    # + 0.0721 B.  The old, pre-numpy, version used CColor::getGray(),
+    # which just averages R, G, and B.  TODO NUMPY: Is it important to
+    # preserve the old behavior?
+
+    # return skimage.color.rgb2gray(image)
+    return (image[:,:,0] + image[:,:,1] + image[:,:,2])/3.
+
 class GrayImage(ImageModifier):
     def __call__(self, image):
-        # The skimage rgb2gray routine computes the luminance for
-        # "contemporary CRT phosphors", defined by Y = 0.2125 R +
-        # 0.7154 G + 0.0721 B.  The old, pre-numpy, version used
-        # CColor::getGray(), which just averages R, G, and B.
-        # TODO NUMPY: Is it important to preserve the old behavior?
-        # gray = skimage.color.rgb2gray(image.npImage())
-        # return skimage.color.gray2rgb(gray)
-
-        # This reproduces the old behavior:
-        npImage = image.npImage()
-        gray = (npImage[:,:,0] + npImage[:,:,1] + npImage[:,:,2])/3.
-        # gray = skimage.color.rgb2gray(npdata)
+        gray = rgb2gray(image.npImage())
+        # OOF2 uses RGB images, even if R=G=B.
         return skimage.color.gray2rgb(gray)
 
 registeredclass.Registration(
@@ -171,7 +173,7 @@ registeredclass.Registration(
     a gray value equal to the average of the color's red, green, and
     blue components.
     </para>"""
-    )
+)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -226,11 +228,14 @@ class BlurImage(ImageModifier):
         # in units of the standard deviation.  The old ImageMagick
         # 'radius' parameter was the radius in pixels, not counting
         # the central pixel.
-        return skimage.filters.gaussian(
+        img = skimage.filters.gaussian(
             image.npImage(),
             self.sigma,
             truncate=(self.radius+1)/self.sigma,
             channel_axis=-1)
+        img = numpy.minimum(img, 1.0)
+        img = numpy.maximum(img, 0.0)
+        return img
 
 registeredclass.Registration(
     'Blur',
@@ -254,11 +259,16 @@ registeredclass.Registration(
 # AddNoise can be used to generate images for the test suite.  It's
 # probably not useful otherwise.
 
+## TODO NUMPY:  Don't add rgb noise to a gray image!
+
 class AddNoise(ImageModifier):
     def __init__(self, sigma):
         self.sigma = sigma
     def __call__(self, image):
-        return skimage.util.random_noise(image.npImage(), var=self.sigma**2)
+        img = skimage.util.random_noise(image.npImage(), var=self.sigma**2)
+        img = numpy.minimum(img, 1.0)
+        img = numpy.maximum(img, 0.0)
+        return img
 
 registeredclass.Registration(
     'AddNoise',
@@ -813,25 +823,4 @@ registeredclass.Registration(
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-class ThresholdImage(ImageModifier):
-    def __init__(self, T):
-        self.T=T
-    def __call__(self, image):
-        grayscale = skimage.color.rgb2gray( image.npImage() )
-        thresholded_grayscale = numpy.double( grayscale > self.T )
-        return skimage.color.gray2rgb( thresholded_grayscale )
-
-registeredclass.Registration(
-    'ThresholdImage',
-    ImageModifier,
-    ThresholdImage,
-    ordering = 100,
-    params = [
-        parameter.FloatRangeParameter('T', (0,1,.01),
-                                      value=0.5, tip="Threshold value.") ],
-    tip = "Threshold the pixel values to obtain a black and white image.",
-    discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/threshold.xml')
-    )
-
 
