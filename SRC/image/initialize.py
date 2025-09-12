@@ -19,6 +19,7 @@ import ooflib.image.pixelgroupinfo
 import ooflib.image.pixelselectionmethod
 import ooflib.image.pixelselectionmod
 import ooflib.image.threshold
+import ooflib.image.denoise
 
 if parallel_enable.enabled():
     import ooflib.image.IO.oofimageIPC

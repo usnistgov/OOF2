@@ -12,12 +12,24 @@
 #include <oofconfig.h>
 
 #include "image/oofimage.h"
-#include "common/doublearray.h"
-#include "common/pyutils.h"
+// #include "common/doublearray.h"
+// #include "common/pyutils.h"
 
+// OOFImage::enhance_contrast() performs the same operation as
+// skimage.filters.rank.enhance_contrast().  
+
+// The skimage documentation says "This replaces each pixel by the
+// local maximum if the pixel gray value is closer to the local
+// maximum than the local minimum. Otherwise it is replaced by the
+// local minimum."
+
+// The difference is that our version operates on each RGB channel
+// separately and doesn't require that the image bit depth be reduced
+// to 8.
 
 PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
 					  PyArrayObject *newimage)
+  const
 {
 
   // Check that image and newimage have the same shape.
@@ -32,7 +44,8 @@ PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
 
   // For some reason, creating the new image here, instead of creating
   // it in Python and passing it in, is failing. I'm not going to mess
-  // around with it now.  TODO: Fix this.  
+  // around with it now.  TODO: Fix this.  Use PyArray_NewLikeArray,
+  // probably.
   // PyArrayObject *newimage = (PyArrayObject*) PyArray_EMPTY(imagedim, imageshape,
   // 							   NPY_DOUBLE, 0);
   // Py_XINCREF((PyObject*)newimage);
@@ -107,98 +120,3 @@ PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
   return newimage;
 }
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// The old version here uses more OOF2 classes and has the circular
-// mask hard coded.  It was just slightly faster than the more general
-// OOF-independent version above.
-
-#ifdef OLDVERSION
-
-static double closest(double x, double mn, double mx) {
-  if(x-mn < mx-x)
-    return mn;
-  return mx;
-}
-
-void OOFImage::enhance_contrast(int radius) {
-  DoubleArray rmax(sizeInPixels_), rmin(sizeInPixels_);
-  DoubleArray gmax(sizeInPixels_), gmin(sizeInPixels_);
-  DoubleArray bmax(sizeInPixels_), bmin(sizeInPixels_);
-
-  double r2 = radius*radius;
-  ICoord diagonalUR(radius+1, radius+1);
-  ICoord diagonalLL(-radius, -radius);
-
-  // Loop over pixels in the image, finding the min and max rgb
-  // values in a neighborhood around each pixel.
-  for(DoubleArray::iterator i=rmax.begin(); i!=rmax.end(); ++i) {
-    ICoord pixel = i.coord();
-    // window is a square subarray centered on the pixel.  It's used
-    // only to get pixel coordinates, not pixel values, so it doesn't
-    // matter which of the full sized arrays is used.  Here we use rmax.
-    DoubleArray window(rmax.subarray(pixel+diagonalLL, pixel+diagonalUR));
-    double wrmin = std::numeric_limits<double>::max();
-    double wgmin = wrmin;
-    double wbmin = wrmin;
-    double wrmax = std::numeric_limits<double>::min();
-    double wgmax = wrmax;
-    double wbmax = wrmax;
-    for(DoubleArray::iterator j=window.begin(); j!=window.end(); ++j) {
-      ICoord nbr = j.coord();
-      if(norm2(nbr-pixel) <= r2) {	// Use a circular window
-	// Using CColor here to retrieve the rgb values is very
-	// slightly slower than retrieving them directly using
-	// PyArray_GETPTR3(npobject, ...), but is less likely to break
-	// if we ever change the data type for the nparray.
-	// TODO NUMPY: Is it possible in C++ to get the numpy data
-	// type, and call an appropriate templated version of this
-	// function?)
-
-	CColor nbrcolor = operator[](nbr);
-	double r = nbrcolor.getRed();
-	double g = nbrcolor.getGreen();
-	double b = nbrcolor.getBlue();
-	
-	// // This version of the above doesn't use CColor.
-	// double* rptr = (double*) PyArray_GETPTR3(npobject,nbr[1],nbr[0],0);
-	// double r = *rptr;
-	// double g = *(rptr + 1);
-	// double b = *(rptr + 2);
-	
-	if(r < wrmin) wrmin = r;
-	if(r > wrmax) wrmax = r;
-	if(g < wgmin) wgmin = g;
-	if(g > wgmax) wgmax = g;
-	if(b < wbmin) wbmin = b;
-	if(b > wbmax) wbmax = b;
-      }
-    }
-    rmax[i] = wrmax;
-    rmin[i] = wrmin;
-    gmax[i] = wgmax;
-    gmin[i] = wgmin;
-    bmax[i] = wbmax;
-    bmin[i] = wbmin;
-  }
-
-  // Replace pixels in the original image with either the min or max
-  // value from its window, depending on which is closer.
-  for(DoubleArray::iterator i=rmax.begin(); i!=rmax.end(); ++i) {
-    ICoord pixel = i.coord();
-    CColor clr = operator[](pixel);
-    double r = closest(clr.getRed(), rmin[i], rmax[i]);
-    double g = closest(clr.getGreen(), gmin[i], gmax[i]);
-    double b = closest(clr.getBlue(), bmin[i], bmax[i]);    
-    set(pixel, CColor(r,g,b));
-
-    // // See comment above re not using CColor.
-    // double* rptr = (double*) PyArray_GETPTR3(npobject, pixel[1], pixel[0], 0);
-    // *rptr = closest(*rptr, rmin[i], rmax[i]);
-    // *(rptr+1) = closest(*(rptr + 1), gmin[i], gmax[i]);
-    // *(rptr+2) = closest(*(rptr + 2), bmin[i], bmax[i]);
-    
-  }
-}
-
-#endif // OLDVERSION

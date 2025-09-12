@@ -28,6 +28,11 @@
 #include <set>
 #include <iostream>
 
+// TODO NUMPY: Add bool OOFImage::isgray, which will be set or reset
+// when an iamge is modified, according to whether the modifier can
+// change the image type.  Then we can save some work, and AddNoise
+// can know if it should add rgb or gray noise.
+
 OOFImage::OOFImage(const std::string &name, PyArrayObject *pyobj)
   : name_(name), npobject(nullptr)
 {

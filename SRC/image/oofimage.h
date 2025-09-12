@@ -117,7 +117,10 @@ public:
   TimeStamp *getTimeStamp() { return &timestamp; }
 
   void evenly_illuminate(int windowsize);
-  PyArrayObject* enhance_contrast(PyArrayObject *mask, PyArrayObject* newimage);
+  PyArrayObject* enhance_contrast(PyArrayObject *mask, PyArrayObject* newimage)
+    const;
+  PyArrayObject* reduce_noise(PyArrayObject *mask, PyArrayObject* newimage)
+    const;
 };				// class OOFImage
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

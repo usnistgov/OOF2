@@ -77,6 +77,7 @@ public:
 
   void evenly_illuminate(int);
   void enhance_contrast(PyArrayObject*, PyArrayObject*);
+  void reduce_noise(PyArrayObject*, PyArrayObject*);
   
   bool compare(OOFImage&, double);
   CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);

@@ -1,0 +1,304 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.
+
+from ooflib.SWIG.common import config
+from ooflib.common import debug
+from ooflib.common import oofenum
+from ooflib.common import registeredclass
+from ooflib.common.IO import automatic
+from ooflib.common.IO import parameter
+from ooflib.common.IO import xmlmenudump
+from ooflib.image import imagemodifier
+
+import numpy
+import skimage
+
+# The various scikit-image denoising methods are wrapped registered
+# classes which are used as arguments to a single DenoiseImage
+# ImageModifier.
+
+class DenoiseMethod(registeredclass.RegisteredClass):
+    registry = []
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+class DenoiseBilateral(DenoiseMethod):
+    def __init__(self, window_size, sigma_color, sigma_spatial, bins):
+        self.window_size = window_size
+        self.sigma_color = sigma_color
+        self.sigma_spatial = sigma_spatial
+        self.bins = bins
+    def denoise(self, image):
+        return skimage.restoration.denoise_bilateral(
+            image.npImage(),
+            win_size = (None if self.window_size==automatic.automatic
+                        else self.window_size),
+            sigma_color = (None if self.sigma_color==automatic.automatic
+                           else self.sigma_color),
+            sigma_spatial = self.sigma_spatial,
+            bins = self.bins,
+            mode='edge',
+            channel_axis=-1)
+
+
+registeredclass.Registration(
+    'Bilateral',
+    DenoiseMethod,
+    DenoiseBilateral,
+    ordering = 1,
+    secret = False,              # TODO NUMPY: Why was this secret?
+    params = [
+        parameter.PositiveAutoIntParameter(
+            'window_size', automatic.automatic,
+            tip="Window size for filtering."
+#            tip='Window size for filtering. If win_size is not specified (i.e. set to 0), it is calculated as max(5, 2 * ceil(3 * sigma_spatial) + 1)'
+        ),
+        parameter.PositiveAutoFloatParameter(
+            'sigma_color', automatic.automatic,
+            tip="Standard deviation for color distance. A larger value causes averaging of pixels with larger radiometric differences. If 'automatic', the standard deviation of the image will be used."
+            # tip='Standard deviation for grayvalue/color distance (radiometric similarity). A larger value results in averaging of pixels with larger radiometric differences. If None, the standard deviation of image will be used.'
+        ),
+        parameter.PositiveFloatParameter(
+            'sigma_spatial', 1.0,
+            tip='Standard deviation for range distance. A larger value results in averaging of pixels with larger spatial differences.'),
+        parameter.PositiveIntParameter(
+            'bins', 10000,
+            tip='Number of discrete values for Gaussian weights of color filtering. A larger value results in improved accuracy.')
+        ],
+    tip = "Denoise using bilateral filter to preserve edges.",
+    # discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoisebilateral.xml')
+)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+class TotalVariation(DenoiseMethod):
+    def __init__(self, weight, eps, max_iterations):
+        self.weight = weight
+        self.eps = eps
+        self.max_iterations = max_iterations
+    def denoise(self, image):
+        return skimage.restoration.denoise_tv_chambolle(
+            image.npImage(),
+            weight=self.weight,
+            eps=self.eps,
+            max_num_iter=self.max_iterations,
+            channel_axis=-1)
+
+registeredclass.Registration(
+    'TotalVariation',
+    DenoiseMethod,
+    TotalVariation,
+    ordering = 2.082,
+    params = [
+        parameter.FloatParameter(
+            'weight', 0.1,
+            tip='Larger values remove more noise, at the expense of image fidelity.'                     
+#            tip='Denoising weight. It is equal to 1/lambda in the total variation model. Therefore, the greater the weight, the more denoising (at the expense of fidelity to image).'
+        ),
+        parameter.PositiveFloatParameter(
+            'eps', 0.0002,
+            tip='Stop iterating when the estimated error is below this value.',
+#            tip='Tolerance eps>0 for the stop criterion (compares to absolute value of relative difference of the cost function for TV-denoising).'
+        ),
+        parameter.IntParameter(
+            'max_iterations', 200,
+            tip='Maximum number of iterations.')
+        ],
+    tip = "Denoise using total variation regularization, suitable for piecewise constant images.",
+    #discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoisetv.xml')
+)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+## TODO NUMPY: Wavelet denoising appears not to work. It returns RGB
+## values that are outside the range [0,1].  Is it assuming that the
+## data is [-1,1] instead of [0,1]?
+
+if False:
+    class WaveletDenoisingMode(oofenum.EnumClass(
+            ('soft',
+             'Coefficients below the threshold set to zero. Others are reduced.'),
+            ('hard',
+             'Coefficients below the threshold are zeroed. Others are unchanged.'))
+                               ):
+        tip = 'The type of wavelet denoising to be performed.'
+        discussion = """<para> <classname>WaveletDenoisingMode</classname>
+        specifies the type of denoising performed by <xref
+        linkend='RegisteredClass-Wavelet'/>.  </para>"""
+
+    class WaveletThresholdingMethod(oofenum.EnumClass(
+        ('BayesShrink', 'Adaptively apply thresholds to wavelet subbands'),
+        ('VisuShrink',  'Apply a single threshold to all wavelet coefficients.'))):
+        tip = 'The wavelet thresholding method to use.'
+        discussion = """<para>
+        <classname>WaveletThresholdingMethod</classname> specifies the
+        thresholding method used by <xref
+        linkend='RegisteredClass-Wavelet'/> denoising.  </para>"""
+
+    class Wavelet(DenoiseMethod):
+        def __init__(self, sigma, wavelet, mode, wavelet_levels, method):
+            self.sigma = sigma #None if sigma==0 else sigma
+            self.wavelet = wavelet
+            self.mode = mode
+            self.wavelet_levels = wavelet_levels #None if wavelet_levels==0 else wavelet_levels
+            self.method = method
+        def denoise(self, image):
+            debug.fmsg(f"Calling denoise_wavelet, range=({image.npImage().min()}, {image.npImage().max()})")
+            result= skimage.restoration.denoise_wavelet(
+                image.npImage(),
+                sigma= None if self.sigma == automatic.automatic else self.sigma,
+                wavelet=self.wavelet,
+                mode=self.mode.string(),
+                wavelet_levels= (None if self.wavelet_levels == automatic.automatic
+                                 else self.wavelet_levels),
+                convert2ycbcr = True,
+                method=self.method.string(),
+                channel_axis=2)
+            debug.fmsg(f"Back from denoise_wavelet, range=({result.min()}, {result.max()})")
+            assert result.min() >= 0.0 and result.max() <= 1.0
+            return result
+
+    registeredclass.Registration(
+        'Wavelet',
+        DenoiseMethod,
+        Wavelet,
+        ordering = 2.083,
+        params = [
+            parameter.PositiveAutoFloatParameter(
+                'sigma',
+                automatic.automatic,
+                tip='The standard deviation of the noise used when computing the wavelet detail coefficient threshold(s).'),
+            ## TODO NUMPY: Change this to an EnumParameter and generate
+            ## the values directly from pywt.wavelist?
+            ##    import pywt; print(pywt.wavelist())
+            ## There are very many possible values.  Better just to check
+            ## the given value against the list, and/or print the list in
+            ## an error message if the given value is illegal.
+            parameter.StringParameter('wavelet', 'db1',
+                tip='The type of wavelet to perform.  Type "import pywt; print(pywt.wavelist()" in the OOF2 console to see all the choices.'),
+            oofenum.EnumParameter(
+                'mode',
+                WaveletDenoisingMode,
+                WaveletDenoisingMode('soft'),
+                tip='The type of wavelet denoising to be performed.'),
+            parameter.PositiveAutoIntParameter(
+                'wavelet_levels',
+                automatic.automatic,
+                tip='The number of wavelet decomposition levels to use.', # The default, specified by setting the value of 0, is three less than the maximum number of possible decomposition levels.'
+            ),
+            oofenum.EnumParameter(
+                'method',
+                WaveletThresholdingMethod,
+                WaveletThresholdingMethod('BayesShrink'),
+                tip='Thresholding method to be used.')
+            ],
+        tip = "Denoise using wavelet thresholding.",
+        # discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoisewavelet.xml')
+        )
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+class NonlocalMeans(DenoiseMethod):
+    def __init__(self, patch_size, patch_distance, h, sigma):
+        self.patch_size = patch_size
+        self.patch_distance = patch_distance
+        self.h = h
+        self.sigma = sigma
+    def denoise(self, image):
+        return skimage.restoration.denoise_nl_means(
+            image.npImage(),
+            patch_size=self.patch_size,
+            patch_distance=self.patch_distance,
+            fast_mode=True,
+            h=self.h,
+            sigma= (0 if self.sigma == automatic.automatic else self.sigma),
+            channel_axis=-1)
+
+registeredclass.Registration(
+    'NonlocalMeans',
+    DenoiseMethod,
+    NonlocalMeans,
+    ordering = 2.083,
+    params = [
+        parameter.PositiveIntParameter(
+            'patch_size', 7,
+            tip='Size of patches used for denoising.'),
+        parameter.PositiveIntParameter(
+            'patch_distance', 11,
+            tip='Maximal distance in pixels where to search patches used for denoising.'),
+        parameter.FloatParameter(
+            'h', 0.1,
+            tip="Cut-off distance (in gray levels). A higher h results in a smoother image."
+#'Cut-off distance (in gray levels). The higher h, the more permissive one is in accepting patches. A higher h results in a smoother image, at the expense of blurring features. For a Gaussian noise of standard deviation sigma, a rule of thumb is to choose the value of h to be sigma or slightly less.'
+        ),
+        parameter.PositiveAutoFloatParameter(
+            'sigma', automatic.automatic,
+            tip='The standard deviation of the (Gaussian) noise.' # If provided, a more robust computation of patch weights is computed that takes the expected noise variance into account.'
+        )
+        ],
+    tip = "Denoise using nonlocal means filtering (suitable for images with regions of repetitive texture).",
+    # discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoisenonlocalmeans.xml')
+    )
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+class DenoiseImage(imagemodifier.ImageModifier):
+    def __init__(self, method):
+        self.method = method
+    def __call__(self, image):
+        return self.method.denoise(image)
+
+registeredclass.Registration(
+    'Denoise',
+    imagemodifier.ImageModifier,
+    DenoiseImage,
+    ordering = 2.08,
+    params=[
+        parameter.RegisteredParameter("method", DenoiseMethod,
+                                      tip="How to denoise the image.")
+        ],
+    tip="Apply various methods to remove noise from an image.")
+
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# ReduceNoise is kept for backward compatibility.
+
+## TODO NUMPY: The documentation for the ImageMagick routine says
+## "Smooth the contours of an image while still preserving edge
+## information. The algorithm works by replacing each pixel with its
+## neighbor closest in value. The neighbors of a pixel are defined as
+## those pixels within the given radius, specified in units of the
+## pixel size. A suitable radius will be chosen automatically if
+## radius is zero."
+
+## This is commented out because it does not work. TODO NUMPY: fix it?
+
+# class ReduceNoise(imagemodifier.ImageModifier):
+#     def __init__(self, radius=1.0):
+#         self.radius = radius
+#     def __call__(self, image):
+#         newimage = numpy.empty_like(image.npImage())
+#         image.reduce_noise(skimage.morphology.disk(self.radius), newimage)
+#         return newimage
+
+# registeredclass.Registration(
+#     'ReduceNoise',
+#     imagemodifier.ImageModifier,
+#     ReduceNoise,
+#     ordering = 2.08,
+#     params = [parameter.PositiveFloatParameter(
+#         'radius', 5.0,
+#         tip='Radius of the pixel neighborhood in pixel units.')],
+#     tip = "Reduce noise while preserving edges.",
+#     #discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/reducenoise.xml')
+#     )
+
