@@ -50,6 +50,21 @@ OOF2 2.4.0
 * Image files can loaded and saved in any format supported by
   matplotlib, as well as numpy .npy and .npz format.
 
+* Image modification tools were changed to use scikit-image routines,
+  instead of ImageMagick routines.  Where possible, the behavior of
+  the tools has been preserved, but there have been changes.
+  
+    * OOF.Image.Modify.Enhance has been removed.
+
+    * OOF.Image.Modify.ThresholdImage is deprecated and has been
+      removed from the GUI, but can still be run in scripts. The new
+      OOF.Image.Modify.Threshold command can apply many different
+      thresholding techniques.
+
+    * OOF.Image.Modify.ReduceNoise has been removed, and replaced with
+      two new methods in OOF.Image.Modify.Denoise.  Old scripts that
+      use ReduceNoise will have to be recreated.
+
 OOF2 2.3.3
 
 * Disabled selection of interface segments since interface properties
