@@ -29,6 +29,10 @@ class DenoiseMethod(registeredclass.RegisteredClass):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+## TODO NUMPY: DenoiseBilateral shifts the image down and to the
+## right, which seems to be a bug in the skimage routine.  Until it's
+## fixed, the Registration is marked "secret".
+
 class DenoiseBilateral(DenoiseMethod):
     def __init__(self, window_size, sigma_color, sigma_spatial, bins):
         self.window_size = window_size
@@ -47,13 +51,12 @@ class DenoiseBilateral(DenoiseMethod):
             mode='edge',
             channel_axis=-1)
 
-
 registeredclass.Registration(
     'Bilateral',
     DenoiseMethod,
     DenoiseBilateral,
     ordering = 1,
-    secret = False,              # TODO NUMPY: Why was this secret?
+    secret = True,   
     params = [
         parameter.PositiveAutoIntParameter(
             'window_size', automatic.automatic,
