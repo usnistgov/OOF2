@@ -280,38 +280,37 @@ f"""** Image comparison failed.
 # Data for the image modifier tests.  This is a dictionary indexed by
 # image modifier name. The values are lists of test specifications,
 # which are tuples containing the name of the source image file
-# (assumed to be in the image_data directory), the name of a reference
-# file containing the expected test result (also in image_data), and a
-# dictionary of arguments to supply to the modifier menu item for the
-# test.
+# (assumed to be in the TEST/image_data directory), the name of a
+# reference file containing the expected test result (also in
+# image_data), and a dictionary of arguments to supply to the modifier
+# menu item for the test.
 
-# Commented-out entries in this list are modifications provided
-# directly by ImageMagick.  These have proven to have some variability
-# between different versions of the ImageMagick library, and so cannot
-# be reliably tested here.  They're kept in and commented out so we'll
-# know we didn't just forget. 
-
-## TODO: Remove reference files for archived code, such as the Gabor
-## modifier tests.
+# No test data for image modifier  Edge
+# No test data for image modifier  Equalize
+# No test data for image modifier  MedianFilter
+# No test data for image modifier  Negate
+# No test data for image modifier  Normalize
+# No test data for image modifier  Denoise
+# No test data for image modifier  Sharpen
 
 image_modify_args = {
-    "Gray" : [ ("image_test.png", "gray.npz", {}) ],
-    "Flip" : [ ("image_test.png", "flip_x.npz", {"axis" : "x"}),
-               ("image_test.png", "flip_y.npz", {"axis" : "y"}),
-               ("image_test.png", "flip_xy.npz", {"axis" : "xy"})],
-    "Fade" : [ ("image_test.png", "fade.npz", {"factor" : 0.3}) ],
-    "Dim"  : [ ("image_test.png", "dim.npz", {"factor" : 0.7}) ],
-    "Blur" : [ ("image_test.png", "blur.npz", {"radius" : 3.0, "sigma" : 3.0})],
-    "Contrast" : [ ("escher.ppm", "contrast.npz", {"radius" : 5.0 }) ],
+    "Gray" : [("image_test.png", "gray.npz", {})],
+    "Flip" : [("image_test.png", "flip_x.npz", {"axis" : "x"}),
+              ("image_test.png", "flip_y.npz", {"axis" : "y"}),
+              ("image_test.png", "flip_xy.npz", {"axis" : "xy"})],
 
-                     # "Despeckle" : [ ("despeckle", {})],
-                     # "Edge" : [ ("edge", {"radius" : 0.0})],
-                     # "Enhance" : [ ("enhance", {})],
-                     # "Equalize" : [ ("equalize", {})],
-                     # "MedianFilter" : [ ("median",
-                     #                     {"radius" : 1.0}) ],
-                     # "Negate" : [("negate", {})],
-                     # "Normalize" : [("normalize", {})],
+    # The tests for Normalize use the reference files for the Fade and
+    # Dim tests as a starting point. 
+    "Fade" : [("image_test.png", "fade.npz", {"factor" : 0.3})],
+    "Dim"  : [("image_test.png", "dim.npz", {"factor" : 0.7})],
+    "Normalize" : [("fade.npz", "normalize.npz", {}),
+                   ("dim.npz", "normalize.npz", {})],
+    
+    "Blur" : [("image_test.png", "blur.npz", {"radius" : 3.0, "sigma" : 3.0})],
+    "Contrast" : [("escher.ppm", "contrast.npz", {"radius" : 5.0})],
+    "Equalize" : [("si3n4-small.png", "equalize.npz", {})],
+    "Negate" : [("image_test.png", "negate.npz", {})],
+
                      # "ReduceNoise" : [("reduce_noise",
                      #                   {"radius" : 1.0})],
                      # "Sharpen" : [("sharpen", {"radius" : 1.0,
@@ -363,6 +362,18 @@ image_modify_args = {
         ("cb_grad.png", "thresh_yen.npz",
          {"method" : threshold.YenThreshold(nbins=256)}),
     ],
+    
+    "MedianFilter" : [
+        ("image_test.png", "medianfilter.npz", {"radius" : 5}),
+    ],
+    "Despeckle" : [
+        ("image_test.png", "medianfilter.npz", {"radius" : 5})
+    ],
+    "Edge" : [
+        ("image_test.png", "edge.npz", {})
+    ],
+    
+    
 }
 
 # image_modify_args = {
