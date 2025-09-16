@@ -19,7 +19,7 @@ from . import memorycheck
 
 from ooflib.SWIG.image import oofimage
 from ooflib.common.IO.automatic import automatic
-
+from ooflib.image import denoise
 from ooflib.image import threshold
 
 from .UTILS.file_utils import reference_file
@@ -191,7 +191,7 @@ class OOF_Image(unittest.TestCase):
             try:
                 test_list = image_modify_args[m.name]
             except KeyError:
-                print("No test data for image modifier ", m.name, file=sys.stderr)
+                print("No test data for image modifier", m.name, file=sys.stderr)
             else:
                 print(f"Testing {m.name}", file=sys.stderr)
                 for (srcname, datafilename, argdict) in test_list:
@@ -285,13 +285,7 @@ f"""** Image comparison failed.
 # image_data), and a dictionary of arguments to supply to the modifier
 # menu item for the test.
 
-# No test data for image modifier  Edge
-# No test data for image modifier  Equalize
-# No test data for image modifier  MedianFilter
-# No test data for image modifier  Negate
-# No test data for image modifier  Normalize
-# No test data for image modifier  Denoise
-# No test data for image modifier  Sharpen
+# No test data for image modifier  AddNoise
 
 image_modify_args = {
     "Gray" : [("image_test.png", "gray.npz", {})],
@@ -306,15 +300,20 @@ image_modify_args = {
     "Normalize" : [("fade.npz", "normalize.npz", {}),
                    ("dim.npz", "normalize.npz", {})],
     
+    # The tests for Sharpen use the reference files for Blur as a
+    # starting point.
     "Blur" : [("image_test.png", "blur.npz", {"radius" : 3.0, "sigma" : 3.0})],
+    "Sharpen" : [
+        ("blur.npz", "sharpen_rgb.npz",
+         {"radius":3, "amount":3, "mode":'RGB'}),
+        ("blur.npz", "sharpen_hsv.npz",
+         {"radius":3, "amount":3, "mode":'HSV'}),
+    ],
+    
     "Contrast" : [("escher.ppm", "contrast.npz", {"radius" : 5.0})],
     "Equalize" : [("si3n4-small.png", "equalize.npz", {})],
     "Negate" : [("image_test.png", "negate.npz", {})],
 
-                     # "ReduceNoise" : [("reduce_noise",
-                     #                   {"radius" : 1.0})],
-                     # "Sharpen" : [("sharpen", {"radius" : 1.0,
-                     #                           "sigma" : 3.0})],
     "Reilluminate" : [("cb_grad.png",
                        "reilluminate.npz", {"radius" : 5})],
 
@@ -371,6 +370,21 @@ image_modify_args = {
     ],
     "Edge" : [
         ("image_test.png", "edge.npz", {})
+    ],
+    
+    "Denoise" : [
+        ("image_test_noisy.png", "denoise_tv.npz",
+         {"method" : denoise.TotalVariation(
+             weight=0.1,eps=0.0002,max_iterations=200)}),
+        ("si3n4-small.png", "denoise_tv2.npz",
+         {"method" : denoise.TotalVariation(
+             weight=0.5,eps=0.002,max_iterations=200)}),
+        ("image_test_noisy.png", "denoise_nlm.npz",
+         {"method" : denoise.NonlocalMeans(
+             patch_size=7,patch_distance=11,h=0.1,sigma=automatic)}),
+        ("si3n4-small.png", "denoise_nlm2.npz",
+         {"method" : denoise.NonlocalMeans(
+             patch_size=7,patch_distance=5,h=0.1,sigma=automatic)})
     ],
     
     

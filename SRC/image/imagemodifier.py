@@ -479,13 +479,42 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+class SharpenMode(oofenum.EnumClass(
+        ('RGB', 'Sharpen the RGB channels separately.'),
+        ('HSV', 'Sharpen the Value channel only.'))):
+    tip="How to apply the unsharp_mask algorithm"
+                  
 class SharpenImage(ImageModifier):
-    def __init__(self, radius, amount):
+    def __init__(self, radius, amount, mode):
         self.radius = radius
         self.amount = amount
+        self.mode = mode
     def __call__(self, image):
+        # Scikit-image documentation says: When applying this filter
+        # to several color layers independently, color bleeding may
+        # occur. More visually pleasing result can be achieved by
+        # processing only the brightness/lightness/intensity channel
+        # in a suitable color space such as HSV, HSL, YUV, or YCbCr.
+        
+        if self.mode == 'HSV':
+            hsv = skimage.color.rgb2hsv(image.npImage())
+            # Documentation for the radius arg says: If sequence is
+            # given, then there must be exactly one radius for each
+            # dimension except the last dimension for multichannel
+            # images. Note that 0 radius means no blurring, and
+            # negative values are not allowed.  This does not seem to
+            # work, so extract just the V data and pass it to the
+            # filter by itself.
+            sharp = hsv.copy()
+            sharp[...,-1] = skimage.filters.unsharp_mask(
+                hsv[...,-1],
+                self.radius,
+                self.amount)
+            return skimage.color.hsv2rgb(sharp)
+        # mode == RGB 
         newImage = skimage.filters.unsharp_mask(
-            image.npImage(), self.radius, self.amount)
+            image.npImage(), self.radius, self.amount,
+            channel_axis=2)
         return newImage
 
 registeredclass.Registration(
@@ -497,7 +526,10 @@ registeredclass.Registration(
         parameter.FloatParameter('radius', 1.0,
                                  tip='Radius of the Gaussian blur.'),
         parameter.FloatParameter('amount', 1.0,
-                                 tip='Amplification factor for image details.')
+                                 tip='Amplification factor for image details.'),
+        oofenum.EnumParameter('mode',
+                              SharpenMode,
+                              SharpenMode('HSV'))
     ],
     tip = "Sharpen the image by convolving with a Gaussian: The sharp details are identified as the difference between the original image and its blurred version. These details are then scaled, and added back to the original image.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/sharpen.xml')
