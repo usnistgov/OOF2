@@ -239,7 +239,8 @@ def imageNameResolver(param, startname):
 
 def copyImage(menuitem, image, microstructure, name):
     sourceimage = oofimage.getImage(image)
-    immidge = sourceimage.clone(name, sourceimage.npImage().copy())
+    immidge = sourceimage.clone(name, sourceimage.npImage().copy(),
+                                sourceimage.isGray())
     loadImageIntoMS(immidge, microstructure)
 
 imagemenu.addItem(oofmenu.OOFMenuItem(

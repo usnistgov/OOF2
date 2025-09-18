@@ -68,6 +68,8 @@ class RGBData8(ImageData):
         data = skimage.util.img_as_float64(data)
         data = data.reshape(sizeInPixels[1], sizeInPixels[0], 3)
         return data
+    def gray(self):
+        return False
 
 registeredclass.Registration(
     'RGBData8',
@@ -101,6 +103,8 @@ class NumpyRGB64(ImageData):
         return array
     def __repr__(self):
         return f"NumpyRGB64(rgbdata='{self.rgbdata.hex()}')"
+    def gray(self):
+        return False
 
 registeredclass.Registration(
     'NumpyRGB64',
@@ -137,6 +141,8 @@ class NumpyRGB16(ImageData):
         return skimage.util.img_as_float64(array)
     def __repr__(self):
         return f"NumpyRGB16(rgbdata='{self.rgbdata.hex()}')"
+    def gray(self):
+        return False
 
 registeredclass.Registration(
     'NumpyRGB16',
@@ -148,12 +154,48 @@ registeredclass.Registration(
                                  tip='Image data stored as 16 bit ints')],
     tip="Numpy RGB image data stored as two byte ints.")
 
+#-----------
+
+class NumpyGray16(ImageData):
+    def __init__(self, graydata):
+        if type(graydata) == str:
+            debug.fmsg(f"NumpyGray16 : read {len(graydata)} hex characters")
+            graydata = bytes.fromhex(graydata)
+        else:
+            debug.fmsg(f"NumpyGray16: read {len(graydata)} bytes")
+        self.graydata = graydata
+    def toBytes(self, image):
+        # Convert data to 16 bit unsigned ints.
+        img16 = skimage.img_as_uint(image)
+        if img16.dtype != numpy.dtype("<H"):
+            img16 = img16.byteswap(inplace=(img16 is not image))
+        self.graydata = img16.tobytes()
+    def toArray(self, sizeInPixels):
+        array = numpy.frombuffer(self.graydata, dtype=numpy.dtype("H"))
+        array = array.reshape(sizeInPixels[1], sizeInPixels[0])
+        return skimage.util.img_as_float64(array)
+    def __repr__(self):
+        return f"NumpyGray16(graydata='{self.graydata.hex()}')"
+    def gray(self):
+        return True
+
+registeredclass.Registration(
+    'NumpyGray16',
+    ImageData,
+    NumpyGray16,
+    ordering=2,
+    params=[
+        parameter.BytesParameter("graydata",
+                                 tip='Image stored as 16 bit ints')],
+    tip="Numpy gray image data stored as two byte ints.")
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def _newImage(menuitem, name, microstructure, pixels):
     ms = ooflib.common.microstructure.microStructures[microstructure].getObject()
     # Get bytes from the ImageData (pixels) arg. 
-    image = oofimage.OOFImage(name, pixels.toArray(ms.sizeInPixels()))
+    image = oofimage.OOFImage(name, pixels.toArray(ms.sizeInPixels()),
+                              pixels.gray())
     image.setSize(ms.size())
     imagemenu.loadImageIntoMS(image, microstructure)
     
@@ -186,7 +228,10 @@ def writeImage(datafile, imagecontext):
         # Swap bytes to ensure little-endianness.  Do it in place only
         # if the previous conversion created a new object.
         img = img.byteswap(inplace=(img is not npimage))
-    datafile.argument('pixels', NumpyRGB16(img.tobytes()))
+    if imagecontext.getObject().isGray():
+        datafile.argument('pixels', NumpyGray16(img.tobytes()))
+    else:
+        datafile.argument('pixels', NumpyRGB16(img.tobytes()))
     datafile.endCmd()
 
 # TODO?  Allow the user to select the format for saved images?  This

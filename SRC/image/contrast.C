@@ -63,6 +63,8 @@ PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
   int mc0 = maskshape[0]/2;	// integer division
   int mc1 = maskshape[1]/2;	// integer division
 
+  int kmax = imagedim == 3 ? imageshape[2] : 1;
+
   // Loop over pixels in the image
   for(int p0=0; p0<imageshape[0]; p0++) {
     for(int p1=0; p1<imageshape[1]; p1++) {
@@ -89,7 +91,7 @@ PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
 	m1max = imageshape[1] - d1;
 
       // Loop over channels
-      for(int k=0; k<imageshape[2]; k++) {
+      for(int k=0; k<kmax; k++) {
 	double minimum = std::numeric_limits<double>::max();
 	double maximum = -minimum;
 	// Loop over the mask, finding the min and max values of the
@@ -98,9 +100,12 @@ PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
 	  assert(m0 + d0 >= 0 && m0 + d0 < imageshape[0]);
 	  for(int m1=m1min; m1<m1max; m1++) {
 	    assert(m1 + d1 >= 0 && m1 + d1 < imageshape[1]);
-	    if(*(int*) PyArray_GETPTR2(mask, m0, m1)) { // apply the mask
-	      double val = *(double*) PyArray_GETPTR3(npobject,
-						      m0+d0, m1+d1, k);
+	    if(*(int*) PyArray_GETPTR2(mask, m0, m1)) { // inside the mask
+	      // TODO NUMPY: Can this be done without checking imagedim?
+	      double val =
+		(imagedim == 3 ?
+		 *(double*) PyArray_GETPTR3(npobject, m0+d0, m1+d1, k) :
+		 *(double*) PyArray_GETPTR2(npobject, m0+d0, m1+d1));
 	      if(val < minimum)
 		minimum = val;
 	      if(val > maximum)
@@ -110,13 +115,21 @@ PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
 	} // end loop over mask
 
 	// This is where the contrast is done.
-	double pval = *(double*) PyArray_GETPTR3(npobject, p0, p1, k);
-	double newval = pval - minimum < maximum - pval ? minimum : maximum;
-	*(double*) PyArray_GETPTR3(newimage, p0, p1, k) = newval;
+	// TODO NUMPY: Can this be done without checking imagedim?
+	if(imagedim == 3) {
+	  double pval = *(double*) PyArray_GETPTR3(npobject, p0, p1, k);
+	  double newval = (pval - minimum < maximum - pval) ? minimum : maximum;
+	  *(double*) PyArray_GETPTR3(newimage, p0, p1, k) = newval;
+	}
+	else {
+	  double pval = *(double*) PyArray_GETPTR2(npobject, p0, p1);
+	  double newval = (pval - minimum < maximum - pval) ? minimum : maximum;
+	  *(double*) PyArray_GETPTR2(newimage, p0, p1) = newval;
+	}
+	
       } // end loop over channels
     }
   } // end loop over pixels in the image
-  std::cerr << "OOFImage::enhance_contrast: done" << std::endl;
   return newimage;
 }
 

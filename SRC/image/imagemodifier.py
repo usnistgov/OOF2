@@ -27,6 +27,8 @@ import sys
 ## TODO NUMPY: Review the tips and discussions for all classes.  Some
 ## still refer to the ImageMagick versions.
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 # Base class for image modification methods.  Subclasses of
 # ImageModifier need to have a __call__ method that takes an OOFImage
 # argument and returns the modified numpy array.  The modified array
@@ -40,8 +42,46 @@ import sys
 
 class ImageModifier(registeredclass.RegisteredClass):
     registry = []
+    ## TODO NUMPY:  Change this method's name.  Using __call__ is dumb.
     def __call__(self, image):
         pass
+
+# ImageModifiers come in three flavors.  They may always produce a
+# gray scale image, or always create an RGB image, or preserve the
+# type of data in the original image.  The argument to resultIsGray is
+# True if the original image is gray.
+#
+# newData() creates a new numpy array for the new image to use.  It is
+# *not* necessary for ImageModifiers to call newData() if they have a
+# better way to create the array.
+
+class ImageModifierToGray(ImageModifier):
+    def resultIsGray(self, original):
+        return True
+    def newData(self, oldImage):
+        olddata = oldImage.npImage()
+        if oldImage.isGray():
+            return olddata.copy()
+        # Converting RGB to gray.
+        shape = olddata.shape[0:2]
+        return numpy.empty(shape, olddata.dtype)
+
+class ImageModifierToRGB(ImageModifier):
+    def resultIsGray(self, original):
+        return False
+    def newData(self, oldImage):
+        olddata = oldImage.npImage()
+        if not oldImage.isGray():
+            return olddata.copy()
+        # Converting gray to RGB.
+        shape = olddata.shape + (3,)
+        return numpy.empty(shape, olddata.dtype)
+
+class ImageModifierToEither(ImageModifier):
+    def resultIsGray(self, original):
+        return original
+    def newData(self, oldImage):
+        return oldImage.npImage().copy()
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -58,33 +98,37 @@ def doImageMod(menuitem, image, **params):
     # image is the image name, actually
     imagectxt = imagecontext.imageContexts[image]
     imagectxt.reserve()
+
+    # Create the ImageModifier object. menuitem.data is the
+    # ImageModifier Registration, set in
+    # imagemenu.buildImageModMenu().
+    imageModifier = menuitem.data(**params)
+
     try:
         immidge = imagectxt.getObject()  # OOFImage object
-        # Create a new OOFImage object to hold the modified image.
-        # Originally it's just a copy of the unmodified image.
-        ## TODO NUMPY: Create the new image with a read-only view of
-        ## the original numpy data.  The modifier can act on the
-        ## orginal data as long as it doesn't change it in place.
         nporiginal = immidge.npImage()
-        npcopy = nporiginal.copy()
-        newimmidge = immidge.clone(immidge.name(), npcopy)
 
-        registration = menuitem.data
-        imageModifier = registration(**params) # create ImageModifier obj
+        # Is the original gray or RGB?
+        grayOriginal = immidge.isGray()
+        # Is the result going to be gray or RGB?
+        grayResult = imageModifier.resultIsGray(grayOriginal)
+
         imagectxt.begin_writing()
         try:
-            # imageModifier.__call__ performs the modification on
-            # newimmidge's numpy data, and returns the modified data.
-            modified = imageModifier(newimmidge)
+            # imageModifier.__call__() takes the old OOFImage object
+            # and returns the numpy array for the new OOFImage object.
+            # It can use newData() to create the array if necessary.
+            modified = imageModifier(immidge)
             assert modified is not None
-            # Make a copy of numpy array if needed to be sure that the
-            # modified numpy image is not a view of another array and
-            # is contiguous.
+
+            # Make a copy of the numpy array if necessary, to ensure
+            # that the modified array is not a view of another array
+            # and is contiguous.
             if modified.base is not None or not modified.flags.c_contiguous:
-                consolidated = modified.copy()
-                newimmidge.setNpImage(consolidated)
-            else:
-                newimmidge.setNpImage(modified)
+                modified = modified.copy()
+
+            newimmidge = immidge.clone(immidge.name(), modified, grayResult)
+            
             oofimage.pushModification(image, newimmidge)
         finally:
             imagectxt.end_writing()
@@ -111,7 +155,7 @@ class FlipDirection(oofenum.EnumClass(
     an &image;.
     </para>"""
 
-class FlipImage(ImageModifier):
+class FlipImage(ImageModifierToEither):
     def __init__(self, axis):           # constructor
         self.axis = axis                # 'x', 'y', or 'xy'
     def __call__(self, image):          # called by doImageMod
@@ -153,14 +197,13 @@ def rgb2gray(image):
     # which just averages R, G, and B.  TODO NUMPY: Is it important to
     # preserve the old behavior?
 
-    # return skimage.color.rgb2gray(image)
+    if len(image.shape) == 2:
+        return image
     return (image[:,:,0] + image[:,:,1] + image[:,:,2])/3.
 
-class GrayImage(ImageModifier):
+class GrayImage(ImageModifierToGray):
     def __call__(self, image):
-        gray = rgb2gray(image.npImage())
-        # OOF2 uses RGB images, even if R=G=B.
-        return skimage.color.gray2rgb(gray)
+        return rgb2gray(image.npImage())
 
 registeredclass.Registration(
     'Gray',
@@ -177,7 +220,7 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class FadeImage(ImageModifier):
+class FadeImage(ImageModifierToEither):
     def __init__(self, factor):
         self.factor = factor
     def __call__(self, image):
@@ -198,7 +241,7 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class DimImage(ImageModifier):
+class DimImage(ImageModifierToEither):
     def __init__(self, factor):
         self.factor = factor
     def __call__(self, image):
@@ -219,7 +262,7 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class BlurImage(ImageModifier):
+class BlurImage(ImageModifierToEither):
     def __init__(self, radius, sigma):
         self.radius = radius
         self.sigma = sigma
@@ -259,9 +302,7 @@ registeredclass.Registration(
 # AddNoise can be used to generate images for the test suite.  It's
 # probably not useful otherwise.
 
-## TODO NUMPY:  Don't add rgb noise to a gray image!
-
-class AddNoise(ImageModifier):
+class AddNoise(ImageModifierToEither):
     def __init__(self, sigma):
         self.sigma = sigma
     def __call__(self, image):
@@ -301,7 +342,7 @@ registeredclass.Registration(
 # https://scikit-image.org/docs/stable/api/skimage.filters.rank.html#skimage.filters.rank.enhance_contrast
 
 
-class ContrastImage(ImageModifier):
+class ContrastImage(ImageModifierToEither):
     def __init__(self, radius):
         self.radius = radius
 
@@ -331,7 +372,7 @@ registeredclass.Registration(
 # only works with 8 bit images, so there is a loss of precision.  It's
 # here for future reference, but marked "secret".
 
-class ContrastImageSK(ImageModifier):
+class ContrastImageSK(ImageModifierToEither):
     def __init__(self, radius):
         self.radius = radius
     def __call__(self, image):
@@ -367,13 +408,13 @@ registeredclass.Registration(
 # Despeckle is redundant with MedianFilterImage, but is kept for
 # backwards compatibility.
 
-class DespeckleImage(ImageModifier):
+class DespeckleImage(ImageModifierToEither):
     def __init__(self, radius=2.0):
         self.radius = radius
     def __call__(self, image):
-        disk = skimage.morphology.disk( self.radius )
-        disk2 = skimage.color.gray2rgb( disk )
-        return skimage.filters.median( image.npImage(), disk2 )
+        disk = skimage.morphology.disk(self.radius)
+        disk2 = skimage.color.gray2rgb(disk)
+        return skimage.filters.median(image.npImage(), disk2)
 
 registeredclass.Registration(
     'Despeckle',
@@ -392,7 +433,7 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class Edge(ImageModifier):
+class Edge(ImageModifierToEither):
     def __call__(self, image):
         return skimage.filters.sobel(image.npImage())
 
@@ -405,7 +446,7 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class EqualizeImage(ImageModifier):
+class EqualizeImage(ImageModifierToEither):
     def __call__(self, image):
         return skimage.exposure.equalize_adapthist(image.npImage())
 
@@ -420,7 +461,7 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class MedianFilterImage(ImageModifier):
+class MedianFilterImage(ImageModifierToEither):
     def __init__(self, radius):
         self.radius = radius
     def __call__(self, image):
@@ -446,7 +487,7 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class NegateImage(ImageModifier):
+class NegateImage(ImageModifierToEither):
     def __call__(self, image):
         return 1.0 - image.npImage()
 
@@ -461,7 +502,7 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class NormalizeImage(ImageModifier):
+class NormalizeImage(ImageModifierToEither):
     def __call__(self, image):
         return skimage.exposure.rescale_intensity(
             image.npImage(),
@@ -484,7 +525,7 @@ class SharpenMode(oofenum.EnumClass(
         ('HSV', 'Sharpen the Value channel only.'))):
     tip="How to apply the unsharp_mask algorithm"
                   
-class SharpenImage(ImageModifier):
+class SharpenImage(ImageModifierToEither):
     def __init__(self, radius, amount, mode):
         self.radius = radius
         self.amount = amount
@@ -537,7 +578,7 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class ReIlluminateImage(ImageModifier):
+class ReIlluminateImage(ImageModifierToEither):
     def __init__(self, radius):
         self.radius = radius
     def __call__(self, image):

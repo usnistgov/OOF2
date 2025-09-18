@@ -263,6 +263,7 @@ class ImagePage(oofGUI.MainPage):
                 text += f'Pixel size: {size.x} x {size.y}\n'
                 size = image.size()
                 text += f'Physical size: {size.x:.{digits()}g} x {size.y:.{digits()}g}\n'
+                text += f'Image type: {"Grayscale" if image.isGray() else "RGB"}\n'
             finally:
                 imagecontext.end_reading()
         mainthread.runBlock(self.displayImageInfo_thread, (text,))
@@ -368,6 +369,7 @@ class ImagePage(oofGUI.MainPage):
         # the imageModifier arg is None.
         if imageModifier is not None:
             self.historian.record(imageModifier)
+        subthread.execute(self.displayImageInfo)
         self.sensitize()
         
     def undoCB(self, button):

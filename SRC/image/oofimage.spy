@@ -54,13 +54,25 @@ def readNumpyImage(filename, **kwargs):
         # pnm.
         npimage = pyplot.imread(filename) # numpy.ndarray object
     
-    # Convert to rgb if necessary
+    # Find out if the image is gray or not, and delete alpha channels.
     if len(npimage.shape) == 2:
-        # gray scale with no alpha channel
-        npimage = skimage.color.gray2rgb(npimage)
+        # Gray scale with no alpha channel
+        isgray = True
+    elif npimage.shape[2] == 2:
+        # Gray scale with an alpha channel (is that a thing?)
+        # Remove the alpha channel and change shape (n, m, 1) to (n, m)
+        npimage = npimage[:,:,0:1].reshape(npimage.shape[0:2])
+        isgray = True
+    elif npimage.shape[2] == 3:
+        # Image is RGB already.
+        isgray = False
     elif npimage.shape[2] == 4:
-        # rgb with an alpha channel
+        # RGB with an alpha channel
         npimage = npimage[:,:,0:3] # just remove the alpha channel
+        isgray = False
+    else:
+        raise ooferror.PyErrUserError(
+            f"Image file {filename} is not in a recognized format.")
 
     # The image read from the file probably has 8 bit channels.  For
     # internal calculations, we want more than that.  We probably
@@ -84,7 +96,7 @@ def readNumpyImage(filename, **kwargs):
     # separators in the labeltree.
     basename = os.path.basename(filename).replace(':','.')
     
-    image = OOFImage(basename, npimage)
+    image = OOFImage(basename, npimage, isgray)
     
     # Set physical size of image
     pixelsize = image.sizeInPixels()    # iPoint

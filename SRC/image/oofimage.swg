@@ -56,20 +56,21 @@
 
 class OOFImage : public AbstractImage {
 public:
-  OOFImage(char *name, PyArrayObject*);
+  OOFImage(char *name, PyArrayObject*, bool);
   ~OOFImage();
   const std::string &name();
   void rename(char *);
   void setSize(Coord *Point);
+  bool isGray();
   
   Coord size();
   ICoord sizeInPixels();
   ICoord pixelFromPoint(Coord *Point);
   bool pixelInBounds(ICoord *iPoint);
   %newobject clone;
-  OOFImage *clone(char *name, PyArrayObject*);
+  OOFImage *clone(char *name, PyArrayObject*, bool);
   PyArrayObject *npImage();
-  void setNpImage(PyArrayObject*);
+  void setNpImage(PyArrayObject*, bool);
 
   void setMicrostructure(CMicrostructure*);
   CMicrostructure *getCMicrostructure();

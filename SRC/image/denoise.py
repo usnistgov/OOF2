@@ -49,7 +49,7 @@ class DenoiseBilateral(DenoiseMethod):
             sigma_spatial = self.sigma_spatial,
             bins = self.bins,
             mode='edge',
-            channel_axis=-1)
+            channel_axis=(None if image.isGray() else 2))
 
 registeredclass.Registration(
     'Bilateral',
@@ -92,7 +92,7 @@ class TotalVariation(DenoiseMethod):
             weight=self.weight,
             eps=self.eps,
             max_num_iter=self.max_iterations,
-            channel_axis=-1)
+            channel_axis=(None if image.isGray() else 2))
 
 registeredclass.Registration(
     'TotalVariation',
@@ -163,7 +163,7 @@ if False:
                                  else self.wavelet_levels),
                 convert2ycbcr = True,
                 method=self.method.string(),
-                channel_axis=2)
+                channel_axis=(None if image.isGray() else 2))
             debug.fmsg(f"Back from denoise_wavelet, range=({result.min()}, {result.max()})")
             assert result.min() >= 0.0 and result.max() <= 1.0
             return result
@@ -221,8 +221,8 @@ class NonlocalMeans(DenoiseMethod):
             patch_distance=self.patch_distance,
             fast_mode=True,
             h=self.h,
-            sigma= (0 if self.sigma == automatic.automatic else self.sigma),
-            channel_axis=-1)
+            sigma=(0 if self.sigma == automatic.automatic else self.sigma),
+            channel_axis=(None if image.isGray() else 2))
 
 registeredclass.Registration(
     'NonlocalMeans',
@@ -252,7 +252,7 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class DenoiseImage(imagemodifier.ImageModifier):
+class DenoiseImage(imagemodifier.ImageModifierToEither):
     def __init__(self, method):
         self.method = method
     def __call__(self, image):

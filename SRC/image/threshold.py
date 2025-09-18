@@ -260,7 +260,7 @@ registeredclass.Registration(
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class Threshold(imagemodifier.ImageModifier):
+class Threshold(imagemodifier.ImageModifierToGray):
     def __init__(self, method):
         self.method = method
     def __call__(self, image):  # arg is an OOFImage
@@ -292,7 +292,7 @@ registeredclass.Registration(
 # method=ManualThreshold.  The menuitem is preserved for backwards
 # compatibility.
 
-class ThresholdImage(imagemodifier.ImageModifier):
+class ThresholdImage(imagemodifier.ImageModifierToGray):
     def __init__(self, T):
         self.T=T
     def __call__(self, image):

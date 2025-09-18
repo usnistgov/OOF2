@@ -33,16 +33,17 @@
 // change the image type.  Then we can save some work, and AddNoise
 // can know if it should add rgb or gray noise.
 
-OOFImage::OOFImage(const std::string &name, PyArrayObject *pyobj)
+OOFImage::OOFImage(const std::string &name, PyArrayObject *pyobj, bool isgray)
   : name_(name), npobject(nullptr)
 {
-  setNpImage(pyobj);
+  setNpImage(pyobj, isgray);
   setup();
   imageChanged();
 }
 
-void OOFImage::setNpImage(PyArrayObject *new_npimage) {
+void OOFImage::setNpImage(PyArrayObject *new_npimage, bool isgray) {
   PYTHON_THREAD_BEGIN_BLOCK;
+  isgray_ = isgray;
   if(new_npimage != npobject) {
     Py_XINCREF(new_npimage);
     Py_XDECREF(npobject);
@@ -50,8 +51,9 @@ void OOFImage::setNpImage(PyArrayObject *new_npimage) {
   }
 }
 
+// TODO: Is this constructor necessary?
 OOFImage::OOFImage(const std::string &name)
-  : name_(name), npobject(nullptr)
+  : name_(name), npobject(nullptr), isgray_(false)
 {}
 
 
@@ -113,12 +115,13 @@ bool OOFImage::pixelInBounds(const ICoord *pxl) const {
   return true;
 }
 
-OOFImage *OOFImage::clone(const std::string &nm , PyArrayObject *npobject)
+OOFImage *OOFImage::clone(const std::string &nm , PyArrayObject *npobject,
+			  bool isgray)
   const
 {
   // Clone is always called after copying the numpy image data in
   // python, where it's easier to do.
-  OOFImage *copy = new OOFImage(nm, npobject);
+  OOFImage *copy = new OOFImage(nm, npobject, isgray);
   copy->setup();
   copy->size_ = size_;
   copy->setMicrostructure(microstructure);
@@ -177,7 +180,7 @@ OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
   OOFCanvas::CanvasImage *img =
     OOFCanvas::CanvasImage::newFromNumpy(
 		 OOFCANVAS_COORD(*pos),
-		 // TODO: Change to PyArrayObject in newFromNumpy
+		 // TODO NUMPY: Change to PyArrayObject in newFromNumpy
 		 (PyObject*) npobject, true/* flipy*/);
   img->setDrawIndividualPixels(true);
   img->setSize(OOFCANVAS_COORD(*size));
@@ -189,21 +192,37 @@ OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
 const CColor OOFImage::operator[](const ICoord &coord) const {
   int r = coord(1);		// row
   int c = coord(0);		// column
-  double *red = (double*) PyArray_GETPTR3(npobject, r, c, 0);
-  double *grn = red + 1;
-  double *blu = red + 2; 
-  return CColor(*red, *grn, *blu);
+  if(!isgray_) {
+    double *red = (double*) PyArray_GETPTR3(npobject, r, c, 0);
+    double *grn = red + 1;
+    double *blu = red + 2; 
+    return CColor(*red, *grn, *blu);
+  }
+  double *g = (double*) PyArray_GETPTR2(npobject, r, c);
+  return CColor(*g, *g, *g);
 }
 
 void OOFImage::set(const ICoord &coord, const CColor &color) {
   int r = coord(1);
   int c = coord(0);
-  double *red = (double*) PyArray_GETPTR3(npobject, r, c, 0);
-  double *grn = red + 1;
-  double *blu = red + 2;
-  *red = color.getRed();
-  *grn = color.getGreen();
-  *blu = color.getBlue();
+  if(isgray_ and !color.isGray()) {
+    throw ErrProgrammingError(
+	      "Cannot insert an non-gray color into a gray image.",
+	      __FILE__, __LINE__);
+  }
+  if(isgray_) {
+    double *val = (double*) PyArray_GETPTR2(npobject, r, c);
+    *val = color.getRed();	// any channel will do.
+  }
+  else {
+    double *red = (double*) PyArray_GETPTR3(npobject, r, c, 0);
+    double *grn = red + 1;
+    double *blu = red + 2;
+    *red = color.getRed();
+    *grn = color.getGreen();
+    *blu = color.getBlue();
+    isgray_ = false;
+  }
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

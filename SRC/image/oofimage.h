@@ -56,9 +56,10 @@ protected:
   void setup();
   TimeStamp timestamp;
   CMicrostructure *microstructure;
+  bool isgray_;
 public:
   OOFImage(const std::string &nm);
-  OOFImage(const std::string &nm, PyArrayObject *ndarray);
+  OOFImage(const std::string &nm, PyArrayObject *ndarray, bool isgray);
   OOFImage(const OOFImage&) = delete;
   virtual ~OOFImage();
   const std::string &name() const { return name_; }
@@ -67,12 +68,14 @@ public:
 
   // Get and set the PyArrayObject storing the numpy image data.
   PyArrayObject *npImage() { return npobject; }
-  void setNpImage(PyArrayObject*);
+  void setNpImage(PyArrayObject*, bool);
 
   virtual const Coord &size() const { return size_; }
   virtual const ICoord &sizeInPixels() const { return sizeInPixels_; }
   ICoord pixelFromPoint(const Coord*) const;
   bool pixelInBounds(const ICoord*) const;
+
+  bool isGray() const { return isgray_; }
 
   OOFCanvas::CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
 
@@ -106,7 +109,7 @@ public:
   void set(const Array<int> &array, CColor (*f)(int));
   void set(const Array<bool> &array, CColor (*f)(bool));
 
-  OOFImage *clone(const std::string &name, PyArrayObject *npimage) const;
+  OOFImage *clone(const std::string&, PyArrayObject*, bool) const;
 
   void getColorPoints(const CColor &reference,
 		      const ColorDifference &diff,

@@ -60,6 +60,7 @@ public:
   void setAlpha(double a);
 
   virtual double getGray() const { return (red_ + green_ + blue_)/3.0; }
+  bool isGray() const { return red_ == green_ && green_ == blue_; }
 
   virtual double getHue() const; 
   virtual double getSaturation() const;
