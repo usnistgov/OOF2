@@ -72,7 +72,7 @@ class Direct_Pixel_Selection(unittest.TestCase):
         from ooflib.common.IO import gfxmanager
         from ooflib.common import pixelselection
         OOF.Microstructure.Create_From_ImageFile(
-            filename=reference_file("image_data","image_test.ppm"),
+            filename=reference_file("image_data","image_test.png"),
             microstructure_name=automatic,
             height=automatic, width=automatic)
         OOF.Windows.Graphics.New()
@@ -80,49 +80,49 @@ class Direct_Pixel_Selection(unittest.TestCase):
     # Direct selection operations -- these are toolbox ops in the
     # graphics window.
     # Select circle, rectangle, ellipse, point.
-    @memorycheck.check("image_test.ppm")
+    @memorycheck.check("image_test.png")
     def Circle(self):
         OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
-            source="image_test.ppm:image_test.ppm",
+            source="image_test.png:image_test.png",
             points=[Point(66.0,55.0), Point(87.6,41.8)],
             shift=0, ctrl=0)
-        ps = pixelselection.pixelselectionWhoClass['image_test.ppm']
+        ps = pixelselection.pixelselectionWhoClass['image_test.png']
         # Size should be 2000 pixels.
         self.assertEqual(ps.getObject().len(), 2000)
 
     # Makes and clears a selection.  Uses the circle selector, so
     # that one should be tested first.
-    @memorycheck.check("image_test.ppm")
+    @memorycheck.check("image_test.png")
     def Clear(self):
         OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
-            source="image_test.ppm:image_test.ppm",
+            source="image_test.png:image_test.png",
             points=[Point(66.0,55.0), Point(87.6,41.8)],
             shift=0, ctrl=0)
-        ps = pixelselection.pixelselectionWhoClass['image_test.ppm']
+        ps = pixelselection.pixelselectionWhoClass['image_test.png']
         self.assertNotEqual(ps.getObject().len(), 0)
         OOF.Graphics_1.Toolbox.Pixel_Select.Clear(
-            source="image_test.ppm:image_test.ppm")
+            source="image_test.png:image_test.png")
         self.assertEqual(ps.getObject().len(), 0)
 
     # Remining direct selection methods --
     # Point, Brush, Rectangle, Ellipse, Color, Burn.
 
-    @memorycheck.check("image_test.ppm")
+    @memorycheck.check("image_test.png")
     def Point(self):
         OOF.Graphics_1.Toolbox.Pixel_Select.Point(
-            source="image_test.ppm:image_test.ppm",
+            source="image_test.png:image_test.png",
             points=[Point(52.0, 70.0)], shift=0, ctrl=0)
-        ps = pixelselection.pixelselectionWhoClass['image_test.ppm']
+        ps = pixelselection.pixelselectionWhoClass['image_test.png']
         # Size should be 1 pixel, of course.
         self.assertEqual(ps.getObject().len(), 1)
         psi = ps.getObject()
         self.assertEqual(psi.members(), [iPoint(52,70)])
 
     # Brush points were recorded from an actual user session.
-    @memorycheck.check("image_test.ppm")
+    @memorycheck.check("image_test.png")
     def Brush(self):
         OOF.Graphics_1.Toolbox.Pixel_Select.Brush(
-            source='image_test.ppm:image_test.ppm',
+            source='image_test.png:image_test.png',
             style=CircleBrush(radius=2.0),
             points=[Point(19.12,61.2829), Point(19.642,61.2829),
                     Point(20.1639,61.2829), Point(21.2078,61.2829),
@@ -145,109 +145,109 @@ class Direct_Pixel_Selection(unittest.TestCase):
                     Point(37.9106,60.239), Point(38.4325,60.239), 
                     Point(38.9545,60.239), Point(39.4765,60.239), 
                     Point(39.9984,60.239)], shift=0, ctrl=0)
-        ps =  pixelselection.pixelselectionWhoClass['image_test.ppm']
+        ps =  pixelselection.pixelselectionWhoClass['image_test.png']
         self.assertEqual(ps.getObject().len(), 99)
 
 
-    @memorycheck.check("image_test.ppm")
+    @memorycheck.check("image_test.png")
     def Rectangle(self):
         OOF.Graphics_1.Toolbox.Pixel_Select.Rectangle(
-            source='image_test.ppm:image_test.ppm',
+            source='image_test.png:image_test.png',
             points=[Point(23.3,57.0), Point(123.0,24.75)],
             shift=0, ctrl=0)
-        ps = pixelselection.pixelselectionWhoClass['image_test.ppm']
+        ps = pixelselection.pixelselectionWhoClass['image_test.png']
         self.assertEqual(ps.getObject().len(), 3434)
         
-    @memorycheck.check("image_test.ppm")
+    @memorycheck.check("image_test.png")
     def Ellipse(self):
         OOF.Graphics_1.Toolbox.Pixel_Select.Ellipse(
-            source='image_test.ppm:image_test.ppm',
+            source='image_test.png:image_test.png',
             points=[Point(23.3,57.0), Point(123.0,24.75)],
             shift=0, ctrl=0)
-        ps = pixelselection.pixelselectionWhoClass['image_test.ppm']
+        ps = pixelselection.pixelselectionWhoClass['image_test.png']
         self.assertEqual(ps.getObject().len(), 2526)
 
-    @memorycheck.check("image_test.ppm")
+    @memorycheck.check("image_test.png")
     def Color(self):
         OOF.Graphics_1.Toolbox.Pixel_Select.Color(
-            source='image_test.ppm:image_test.ppm',
+            source='image_test.png:image_test.png',
             range=DeltaRGB(delta_red=0.3, delta_green=0.3, delta_blue=0.3),
             points=[Point(14.7,62.1)], shift=0, ctrl=0)
-        ps = pixelselection.pixelselectionWhoClass['image_test.ppm']
+        ps = pixelselection.pixelselectionWhoClass['image_test.png']
         self.assertEqual(ps.getObject().len(), 4204)
 
-    @memorycheck.check("image_test.ppm")
+    @memorycheck.check("image_test.png")
     def Burn(self):
         OOF.Graphics_1.Toolbox.Pixel_Select.Burn(
-            source='image_test.ppm:image_test.ppm',
+            source='image_test.png:image_test.png',
             local_flammability=0.1,global_flammability=0.2,
             color_space_norm="L1", next_nearest=False,
             points=[Point(14.7,62.1)], shift=0, ctrl=0)
-        ps = pixelselection.pixelselectionWhoClass['image_test.ppm']
+        ps = pixelselection.pixelselectionWhoClass['image_test.png']
         self.assertEqual(ps.getObject().len(), 4195)
 
 
     # Then, mechanical ones -- Undo, Redo, Invert.
 
-    @memorycheck.check("image_test.ppm")
+    @memorycheck.check("image_test.png")
     def Undo(self):
-        ps = pixelselection.pixelselectionWhoClass['image_test.ppm']
+        ps = pixelselection.pixelselectionWhoClass['image_test.png']
         self.assertEqual(ps.getObject().len(), 0)
         self.assertTrue(not ps.undoable())
         ps_0_id = id(ps.getObject())
         OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
-            source="image_test.ppm:image_test.ppm",
+            source="image_test.png:image_test.png",
             points=[Point(66.0,55.0), Point(87.6,41.8)],
             shift=0, ctrl=0)
         self.assertTrue(ps.undoable())
         ps_1_id = id(ps.getObject())
         self.assertNotEqual(ps_0_id, ps_1_id)
         OOF.Graphics_1.Toolbox.Pixel_Select.Undo(
-            source="image_test.ppm:image_test.ppm")
+            source="image_test.png:image_test.png")
         ps_2_id = id(ps.getObject())
         self.assertEqual(ps_0_id, ps_2_id)
         self.assertEqual(ps.getObject().len(), 0)
 
-    @memorycheck.check("image_test.ppm")
+    @memorycheck.check("image_test.png")
     def Redo(self):
-         ps = pixelselection.pixelselectionWhoClass['image_test.ppm']
+         ps = pixelselection.pixelselectionWhoClass['image_test.png']
          ps_0_id = id(ps.getObject())
          OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
-             source="image_test.ppm:image_test.ppm",
+             source="image_test.png:image_test.png",
              points=[Point(66.2,55.0), Point(87.6,41.8)],
              shift=0, ctrl=0)
          ps_1_id = id(ps.getObject())
          OOF.Graphics_1.Toolbox.Pixel_Select.Undo(
-             source="image_test.ppm:image_test.ppm")
+             source="image_test.png:image_test.png")
          self.assertTrue(ps.redoable())
          OOF.Graphics_1.Toolbox.Pixel_Select.Redo(
-             source="image_test.ppm:image_test.ppm")
+             source="image_test.png:image_test.png")
          self.assertEqual(id(ps.getObject()), ps_1_id)
          self.assertTrue(not ps.redoable())
 
-    @memorycheck.check("image_test.ppm")
+    @memorycheck.check("image_test.png")
     def Clear(self):
-        ps = pixelselection.pixelselectionWhoClass["image_test.ppm"]
+        ps = pixelselection.pixelselectionWhoClass["image_test.png"]
         ps_0_id = id(ps.getObject())
         OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
-             source="image_test.ppm:image_test.ppm",
+             source="image_test.png:image_test.png",
              points=[Point(66.2,55.0), Point(87.6,41.8)],
              shift=0, ctrl=0)
         OOF.Graphics_1.Toolbox.Pixel_Select.Clear(
-            source="image_test.ppm:image_test.ppm")
+            source="image_test.png:image_test.png")
         ps_1_id = id(ps.getObject())
         self.assertEqual(ps.getObject().len(), 0)
         self.assertNotEqual(ps_0_id, ps_1_id)
 
-    @memorycheck.check("image_test.ppm")
+    @memorycheck.check("image_test.png")
     def Invert(self):
          OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
-             source="image_test.ppm:image_test.ppm",
+             source="image_test.png:image_test.png",
              points=[Point(66.2,55.0), Point(87.6,41.8)],
              shift=0, ctrl=0)
-         ps = pixelselection.pixelselectionWhoClass['image_test.ppm']
+         ps = pixelselection.pixelselectionWhoClass['image_test.png']
          OOF.Graphics_1.Toolbox.Pixel_Select.Invert(
-             source="image_test.ppm:image_test.ppm")
+             source="image_test.png:image_test.png")
          # Magic number is total minus circle-selected number.
          self.assertEqual(ps.getObject().len(), 16166)
          
@@ -265,7 +265,7 @@ class Direct_Pixel_Selection(unittest.TestCase):
 
 # Pixel group creation/manipulation -- assume that selections are
 # possible.  These tests use the "small.ppm" image, which autogroups
-# reasonably cleanly, rather than the more difficult image_test.ppm.
+# reasonably cleanly, rather than the more difficult image_test.png.
 
 class Pixel_Groups(unittest.TestCase):
     def setUp(self):

@@ -65,10 +65,10 @@ class OOF_Skeleton(unittest.TestCase):
         global filecmp
         import filecmp
         OOF.Microstructure.Create_From_ImageFile(
-            filename=reference_file("ms_data","small.ppm"),
+            filename=reference_file("ms_data","small.png"),
             microstructure_name="skeltest",
             height=20.0, width=20.0)
-        OOF.Image.AutoGroup(image="skeltest:small.ppm")
+        OOF.Image.AutoGroup(image="skeltest:small.png")
 
     @memorycheck.check("skeltest")
     def New(self):
@@ -423,10 +423,10 @@ class OOF_Skeleton_Special(unittest.TestCase):
 
     def MS_Delete(self):
         OOF.Microstructure.Create_From_ImageFile(
-            filename=reference_file("ms_data","small.ppm"),
+            filename=reference_file("ms_data","small.png"),
             microstructure_name="deltest",
             height=20.0, width=20.0)
-        OOF.Image.AutoGroup(image="deltest:small.ppm")
+        OOF.Image.AutoGroup(image="deltest:small.png")
         OOF.Skeleton.New(
             name="skeleton", microstructure="deltest",
             x_elements=8, y_elements=8,
@@ -468,23 +468,23 @@ class OOF_Skeleton_Special(unittest.TestCase):
         node = skel.getNode(367)
         self.assertTrue(node.movable_y() and not node.movable_x())
 
-    @memorycheck.check("checkerboard.pgm")
+    @memorycheck.check("checkerboard.png")
     def CheckerBoard(self):
         OOF.Microstructure.Create_From_ImageFile(
-            filename=reference_file('ms_data','checkerboard.pgm'),
-            microstructure_name='checkerboard.pgm',
+            filename=reference_file('ms_data','checkerboard.png'),
+            microstructure_name='checkerboard.png',
             height=20, width=10)
         OOF.Image.AutoGroup(
-            image='checkerboard.pgm:checkerboard.pgm',
+            image='checkerboard.png:checkerboard.png',
             name_template='%c')
         OOF.Skeleton.New(
             name='skeleton',
-            microstructure='checkerboard.pgm',
+            microstructure='checkerboard.png',
             x_elements=3, y_elements=3,
             skeleton_geometry=TriSkeleton(
                 arrangement='moderate',
                 left_right_periodicity=False,top_bottom_periodicity=False))
-        skelctxt = skeletoncontext.skeletonContexts['checkerboard.pgm:skeleton']
+        skelctxt = skeletoncontext.skeletonContexts['checkerboard.png:skeleton']
         skel = skelctxt.getObject()
         ms = skelctxt.getMicrostructure()
         for eidx in range(18):

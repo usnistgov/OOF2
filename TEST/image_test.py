@@ -14,6 +14,9 @@
 # properly.  For proper regression testing, run microstructure_test
 # first, then this one.
 
+# TODO NUMPY: Check that rgb and grayscale images saved in
+# microstructures are recovered correctly.
+
 import unittest, os
 from . import memorycheck
 
@@ -286,6 +289,9 @@ f"""** Image comparison failed.
 # menu item for the test.
 
 # No test data for image modifier  AddNoise
+
+## TODO NUMPY: Make sure that both color and gray images are used as
+## sources for all modifier tests.
 
 image_modify_args = {
     "Gray" : [("image_test.png", "gray.npz", {})],
