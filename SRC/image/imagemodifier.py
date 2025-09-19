@@ -10,6 +10,7 @@
 
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.image import oofimage
 from ooflib.common import debug
 from ooflib.common import oofenum
@@ -30,21 +31,15 @@ import sys
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Base class for image modification methods.  Subclasses of
-# ImageModifier need to have a __call__ method that takes an OOFImage
+# ImageModifier need to have a "modify" method that takes an OOFImage
 # argument and returns the modified numpy array.  The modified array
 # can be the same object as the original array.
-## TODO: Have the image modifiers always operate in-place, and don't
-## have anything returned from imageModifier.__call__.  The input data
-## to the modifiers is already a copy of the original image.
-## Modifiers that need to make a temporary copy can do so if they
-## want.  OTOH: It's easier to create a new numpy array in Python and
-## pass it inas an argument.
 
 class ImageModifier(registeredclass.RegisteredClass):
     registry = []
-    ## TODO NUMPY:  Change this method's name.  Using __call__ is dumb.
-    def __call__(self, image):
-        pass
+    def modify(self, image):
+        raise ooferror.PyErrPyProgrammingError(
+            f"Modify method not defined for {self.__class__.__name__}.")
 
 # ImageModifiers come in three flavors.  They may always produce a
 # gray scale image, or always create an RGB image, or preserve the
@@ -118,7 +113,7 @@ def doImageMod(menuitem, image, **params):
             # imageModifier.__call__() takes the old OOFImage object
             # and returns the numpy array for the new OOFImage object.
             # It can use newData() to create the array if necessary.
-            modified = imageModifier(immidge)
+            modified = imageModifier.modify(immidge)
             assert modified is not None
 
             # Make a copy of the numpy array if necessary, to ensure
@@ -158,7 +153,7 @@ class FlipDirection(oofenum.EnumClass(
 class FlipImage(ImageModifierToEither):
     def __init__(self, axis):           # constructor
         self.axis = axis                # 'x', 'y', or 'xy'
-    def __call__(self, image):          # called by doImageMod
+    def modify(self, image):          # called by doImageMod
         if self.axis == 'x':
             return numpy.flip(image.npImage(), 1)
         if self.axis == 'y':
@@ -202,7 +197,7 @@ def rgb2gray(image):
     return (image[:,:,0] + image[:,:,1] + image[:,:,2])/3.
 
 class GrayImage(ImageModifierToGray):
-    def __call__(self, image):
+    def modify(self, image):
         return rgb2gray(image.npImage())
 
 registeredclass.Registration(
@@ -223,7 +218,7 @@ registeredclass.Registration(
 class FadeImage(ImageModifierToEither):
     def __init__(self, factor):
         self.factor = factor
-    def __call__(self, image):
+    def modify(self, image):
         return 1.0 - (1-image.npImage())*(1-self.factor)
 
 registeredclass.Registration(
@@ -244,7 +239,7 @@ registeredclass.Registration(
 class DimImage(ImageModifierToEither):
     def __init__(self, factor):
         self.factor = factor
-    def __call__(self, image):
+    def modify(self, image):
         return image.npImage() * self.factor
 
 registeredclass.Registration(
@@ -266,7 +261,7 @@ class BlurImage(ImageModifierToEither):
     def __init__(self, radius, sigma):
         self.radius = radius
         self.sigma = sigma
-    def __call__(self, image):
+    def modify(self, image):
         # The skimage 'truncate' parameter is the radius of the filter
         # in units of the standard deviation.  The old ImageMagick
         # 'radius' parameter was the radius in pixels, not counting
@@ -305,7 +300,7 @@ registeredclass.Registration(
 class AddNoise(ImageModifierToEither):
     def __init__(self, sigma):
         self.sigma = sigma
-    def __call__(self, image):
+    def modify(self, image):
         img = skimage.util.random_noise(image.npImage(), var=self.sigma**2)
         img = numpy.minimum(img, 1.0)
         img = numpy.maximum(img, 0.0)
@@ -346,7 +341,7 @@ class ContrastImage(ImageModifierToEither):
     def __init__(self, radius):
         self.radius = radius
 
-    def __call__(self, image):
+    def modify(self, image):
         newimage = numpy.empty_like(image.npImage())
         image.enhance_contrast(skimage.morphology.disk(self.radius), newimage)
         return newimage
@@ -375,7 +370,7 @@ registeredclass.Registration(
 class ContrastImageSK(ImageModifierToEither):
     def __init__(self, radius):
         self.radius = radius
-    def __call__(self, image):
+    def modify(self, image):
         np_image = image.npImage()
         new_image = numpy.empty_like(np_image)
         # Not converting the image, or converting it to 16-bit ints
@@ -411,7 +406,7 @@ registeredclass.Registration(
 class DespeckleImage(ImageModifierToEither):
     def __init__(self, radius=2.0):
         self.radius = radius
-    def __call__(self, image):
+    def modify(self, image):
         disk = skimage.morphology.disk(self.radius)
         disk2 = skimage.color.gray2rgb(disk)
         return skimage.filters.median(image.npImage(), disk2)
@@ -434,7 +429,7 @@ registeredclass.Registration(
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class Edge(ImageModifierToEither):
-    def __call__(self, image):
+    def modify(self, image):
         return skimage.filters.sobel(image.npImage())
 
 registeredclass.Registration(
@@ -447,7 +442,7 @@ registeredclass.Registration(
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class EqualizeImage(ImageModifierToEither):
-    def __call__(self, image):
+    def modify(self, image):
         return skimage.exposure.equalize_adapthist(image.npImage())
 
 registeredclass.Registration(
@@ -464,7 +459,7 @@ registeredclass.Registration(
 class MedianFilterImage(ImageModifierToEither):
     def __init__(self, radius):
         self.radius = radius
-    def __call__(self, image):
+    def modify(self, image):
         disk = skimage.morphology.disk(self.radius)
         npimage = image.npImage()
         newimage = numpy.empty_like(npimage)
@@ -488,7 +483,7 @@ registeredclass.Registration(
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class NegateImage(ImageModifierToEither):
-    def __call__(self, image):
+    def modify(self, image):
         return 1.0 - image.npImage()
 
 registeredclass.Registration(
@@ -503,7 +498,7 @@ registeredclass.Registration(
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class NormalizeImage(ImageModifierToEither):
-    def __call__(self, image):
+    def modify(self, image):
         return skimage.exposure.rescale_intensity(
             image.npImage(),
             in_range='image',
@@ -530,7 +525,7 @@ class SharpenImage(ImageModifierToEither):
         self.radius = radius
         self.amount = amount
         self.mode = mode
-    def __call__(self, image):
+    def modify(self, image):
         # Scikit-image documentation says: When applying this filter
         # to several color layers independently, color bleeding may
         # occur. More visually pleasing result can be achieved by
@@ -581,7 +576,7 @@ registeredclass.Registration(
 class ReIlluminateImage(ImageModifierToEither):
     def __init__(self, radius):
         self.radius = radius
-    def __call__(self, image):
+    def modify(self, image):
         image.evenly_illuminate(self.radius)
         return image.npImage()
 

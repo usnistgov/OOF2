@@ -255,7 +255,7 @@ registeredclass.Registration(
 class DenoiseImage(imagemodifier.ImageModifierToEither):
     def __init__(self, method):
         self.method = method
-    def __call__(self, image):
+    def modify(self, image):
         return self.method.denoise(image)
 
 registeredclass.Registration(
@@ -288,7 +288,7 @@ registeredclass.Registration(
 # class ReduceNoise(imagemodifier.ImageModifier):
 #     def __init__(self, radius=1.0):
 #         self.radius = radius
-#     def __call__(self, image):
+#     def modify(self, image):
 #         newimage = numpy.empty_like(image.npImage())
 #         image.reduce_noise(skimage.morphology.disk(self.radius), newimage)
 #         return newimage

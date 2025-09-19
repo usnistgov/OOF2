@@ -263,7 +263,7 @@ registeredclass.Registration(
 class Threshold(imagemodifier.ImageModifierToGray):
     def __init__(self, method):
         self.method = method
-    def __call__(self, image):  # arg is an OOFImage
+    def modify(self, image):  # arg is an OOFImage
         grayscale = imagemodifier.rgb2gray(image.npImage())
         t = self.method.threshold(grayscale)
         # gray2rgb preserves the dtype of the image, so convert to
@@ -295,7 +295,7 @@ registeredclass.Registration(
 class ThresholdImage(imagemodifier.ImageModifierToGray):
     def __init__(self, T):
         self.T=T
-    def __call__(self, image):
+    def modify(self, image):
         mod = Threshold(method=ManualThreshold(value=self.T))
         return mod(image)
 
