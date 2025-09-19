@@ -115,8 +115,8 @@ bool OOFImage::pixelInBounds(const ICoord *pxl) const {
   return true;
 }
 
-OOFImage *OOFImage::clone(const std::string &nm , PyArrayObject *npobject,
-			  bool isgray)
+OOFImage *OOFImage::cclone(const std::string &nm , PyArrayObject *npobject,
+			   bool isgray)
   const
 {
   // Clone is always called after copying the numpy image data in

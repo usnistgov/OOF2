@@ -67,8 +67,8 @@ public:
   ICoord sizeInPixels();
   ICoord pixelFromPoint(Coord *Point);
   bool pixelInBounds(ICoord *iPoint);
-  %newobject clone;
-  OOFImage *clone(char *name, PyArrayObject*, bool);
+  %newobject cclone;
+  OOFImage *cclone(char *name, PyArrayObject*, bool);
   PyArrayObject *npImage();
   void setNpImage(PyArrayObject*, bool);
 

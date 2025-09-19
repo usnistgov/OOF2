@@ -127,7 +127,7 @@ def doImageMod(menuitem, image, **params):
             if modified.base is not None or not modified.flags.c_contiguous:
                 modified = modified.copy()
 
-            newimmidge = immidge.clone(immidge.name(), modified, grayResult)
+            newimmidge = oofimage.OOFImage(immidge.name(), modified, grayResult)
             
             oofimage.pushModification(image, newimmidge)
         finally:

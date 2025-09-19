@@ -151,6 +151,7 @@ def copyMicrostructure(menuitem, microstructure, name):
         newMS = sourceMS.nominalCopy(name)
         newMScontext = ooflib.common.microstructure.microStructures[name]
         # First, copy images and load them to copied MS.
+        # TODO: This breaks the common/image modularity. Do we care?
         for imagectxt in sourceMS.getImageContexts():
             sourceimage = imagectxt.getObject()
             immidge = sourceimage.clone(sourceimage.name())

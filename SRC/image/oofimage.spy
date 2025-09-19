@@ -122,6 +122,13 @@ def readNumpyImage(filename, **kwargs):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+def OOFImage_clone(self, name):
+    return self.cclone(name, self.npImage().copy(), self.isGray())
+
+OOFImage.clone = OOFImage_clone
+    
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 # For testing, it's important that the images are saved the same way
 # on all platforms.  OOFImage.makeLittleEndian converts a big-endian
 # image to little-endian if necessary, and returns a bool indicating

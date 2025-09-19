@@ -109,7 +109,7 @@ public:
   void set(const Array<int> &array, CColor (*f)(int));
   void set(const Array<bool> &array, CColor (*f)(bool));
 
-  OOFImage *clone(const std::string&, PyArrayObject*, bool) const;
+  OOFImage *cclone(const std::string&, PyArrayObject*, bool) const;
 
   void getColorPoints(const CColor &reference,
 		      const ColorDifference &diff,
