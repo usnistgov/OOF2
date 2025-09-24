@@ -47,6 +47,9 @@ OOF2 2.4.0
   Physical, or Fractional) and 'contiguous', which controls whether
   each contiguous subset of the group is reported separately.
 
+* The ImageMagick library no longer needs to be installed.  Numpy,
+  scikit-image, and matplotlib are required instead.
+
 * Image files can loaded and saved in any format supported by
   matplotlib, as well as numpy .npy and .npz format.
 
@@ -65,6 +68,13 @@ OOF2 2.4.0
       two new methods in OOF.Image.Modify.Denoise.  Old scripts that
       use ReduceNoise will have to be recreated.
 
+    * OOF.Image.Modify.Reilluminate now works with color images.  It
+      no longer converts color images to gray scale.  It does not give
+      exactly the same results as it used to.
+
+* Gray scale images are stored internally as gray scale images. In the
+  past they were converted to RGB.
+  
 OOF2 2.3.3
 
 * Disabled selection of interface segments since interface properties

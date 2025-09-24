@@ -123,6 +123,7 @@ def doImageMod(menuitem, image, **params):
                 modified = modified.copy()
 
             newimmidge = oofimage.OOFImage(immidge.name(), modified, grayResult)
+            newimmidge.setSize(immidge.size())
             
             oofimage.pushModification(image, newimmidge)
         finally:
@@ -298,10 +299,13 @@ registeredclass.Registration(
 # probably not useful otherwise.
 
 class AddNoise(ImageModifierToEither):
-    def __init__(self, sigma):
+    def __init__(self, sigma, seed):
         self.sigma = sigma
+        self.seed = seed
     def modify(self, image):
-        img = skimage.util.random_noise(image.npImage(), var=self.sigma**2)
+        seed = None if self.seed == automatic.automatic else self.seed
+        img = skimage.util.random_noise(image.npImage(), var=self.sigma**2,
+                                        rng=seed)
         img = numpy.minimum(img, 1.0)
         img = numpy.maximum(img, 0.0)
         return img
@@ -313,7 +317,9 @@ registeredclass.Registration(
     ordering=10000,
     params = [
         parameter.FloatParameter('sigma', 0.1,
-                                 "Width of the noise distribution")
+                                 "Width of the noise distribution"),
+        parameter.AutoIntParameter('seed', automatic.automatic,
+                                   "Seed for the random number generator")
         ],
     tip = "Add random noise to the image",
     discussion=
@@ -526,19 +532,24 @@ class SharpenImage(ImageModifierToEither):
         self.amount = amount
         self.mode = mode
     def modify(self, image):
+        # Mode is irrelevant for gray images.
+        if image.isGray():
+            return skimage.filters.unsharp_mask(
+                image.npImage(), self.radius, self.amount)
+        
         # Scikit-image documentation says: When applying this filter
         # to several color layers independently, color bleeding may
         # occur. More visually pleasing result can be achieved by
         # processing only the brightness/lightness/intensity channel
         # in a suitable color space such as HSV, HSL, YUV, or YCbCr.
-        
+
         if self.mode == 'HSV':
             hsv = skimage.color.rgb2hsv(image.npImage())
-            # Documentation for the radius arg says: If sequence is
+            # Documentation for the radius arg says: "If sequence is
             # given, then there must be exactly one radius for each
             # dimension except the last dimension for multichannel
             # images. Note that 0 radius means no blurring, and
-            # negative values are not allowed.  This does not seem to
+            # negative values are not allowed."  This does not seem to
             # work, so extract just the V data and pass it to the
             # filter by itself.
             sharp = hsv.copy()
@@ -573,12 +584,41 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# ReIlluminateImage scales the brightness of each pixel by the ratio
+# of the global average brightness to the local average brightness,
+# which is computed in a region around the pixel.  This has the effect
+# of correcting a micrograph that was made with non-uniform
+# illumination.  It can create artifacts, though.
+
 class ReIlluminateImage(ImageModifierToEither):
     def __init__(self, radius):
         self.radius = radius
+
+    def getFactors(self, imgbytes, dtype):
+        mask = skimage.morphology.disk(self.radius)
+        globalavg = numpy.mean(imgbytes)
+        localavg = skimage.filters.rank.mean(imgbytes, mask)
+        nonzeromask = localavg!=0 # where the local average isn't 0
+        factors = numpy.ones(imgbytes.shape, dtype)
+        factors[nonzeromask] = globalavg/localavg[nonzeromask]
+        return factors
+        
     def modify(self, image):
-        image.evenly_illuminate(self.radius)
-        return image.npImage()
+        npimage = image.npImage()
+        if image.isGray():
+            factors = self.getFactors(skimage.util.img_as_ubyte(npimage),
+                                      npimage.dtype)
+            newimage = factors*npimage
+        else:
+            hsv = skimage.color.rgb2hsv(npimage)
+            imgbytes = skimage.util.img_as_ubyte(hsv[...,2])
+            factors = self.getFactors(imgbytes, npimage.dtype)
+            hsv[...,2] = factors*hsv[...,2]
+            newimage = skimage.color.hsv2rgb(hsv)
+
+        return skimage.exposure.rescale_intensity(
+            newimage, in_range='image', out_range=(0.0, 1.0))
+
 
 registeredclass.Registration(
     'Reilluminate',

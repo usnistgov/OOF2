@@ -215,14 +215,6 @@ class OOF_Image(unittest.TestCase):
                     im2 = imagecontext.imageContexts[
                         "comparison:"+datafilename].getObject()
                     try:
-                        # Tolerance is 1./256., which is the level of
-                        # "quantization noise" for 8-bit color
-                        # channels.  It seems that images are being
-                        # converted to 8-bit when saved, and so tests
-                        # can fail if the tolerance is lower than
-                        # that.
-                        ## TODO: Change format of reference files to
-                        ## .npz, which doesn't have this problem.
                         self.assertTrue(im1.compare(im2, 1./65536.))
                     except:
                         # Save result for comparison.
@@ -288,41 +280,61 @@ f"""** Image comparison failed.
 # image_data), and a dictionary of arguments to supply to the modifier
 # menu item for the test.
 
-# No test data for image modifier  AddNoise
-
 ## TODO NUMPY: Make sure that both color and gray images are used as
 ## sources for all modifier tests.
 
 image_modify_args = {
-    "Gray" : [("image_test.png", "gray.npz", {})],
+    "Gray" : [
+        ("image_test.png", "gray.npz", {}),
+        ("gray.npz", "gray.npz", {}),
+        ("grayarrow.png", "grayarrow.npz", {})],
+    
     "Flip" : [("image_test.png", "flip_x.npz", {"axis" : "x"}),
               ("image_test.png", "flip_y.npz", {"axis" : "y"}),
-              ("image_test.png", "flip_xy.npz", {"axis" : "xy"})],
+              ("image_test.png", "flip_xy.npz", {"axis" : "xy"}),
+              ("grayarrow.png", "flip_gray.npz", {"axis": "x"})],
 
     # The tests for Normalize use the reference files for the Fade and
     # Dim tests as a starting point. 
-    "Fade" : [("image_test.png", "fade.npz", {"factor" : 0.3})],
-    "Dim"  : [("image_test.png", "dim.npz", {"factor" : 0.7})],
+    "Fade" : [("image_test.png", "fade.npz", {"factor" : 0.3}),
+              ("grayarrow.png", "fade_gray.npz", {"factor" : 0.5})],
+    "Dim"  : [("image_test.png", "dim.npz", {"factor" : 0.7}),
+              ("grayarrow.png", "dim_gray.npz", {"factor" : 0.7})],
     "Normalize" : [("fade.npz", "normalize.npz", {}),
-                   ("dim.npz", "normalize.npz", {})],
+                   ("fade_gray.npz", "normalize_gray.npz", {}),
+                   ("dim.npz", "normalize.npz", {}),
+                   ("dim_gray.npz", "normalize_gray.npz", {}),],
     
     # The tests for Sharpen use the reference files for Blur as a
     # starting point.
-    "Blur" : [("image_test.png", "blur.npz", {"radius" : 3.0, "sigma" : 3.0})],
+    "Blur" : [("image_test.png", "blur.npz", {"radius" : 3.0, "sigma" : 3.0}),
+              ("grayarrow.png", "blur_gray.npz", {"radius" : 3, "sigma":1.5})],
     "Sharpen" : [
         ("blur.npz", "sharpen_rgb.npz",
          {"radius":3, "amount":3, "mode":'RGB'}),
         ("blur.npz", "sharpen_hsv.npz",
          {"radius":3, "amount":3, "mode":'HSV'}),
-    ],
+        ("blur_gray.npz", "sharpen_gray.npz",
+         {"radius":3, "amount":4, "mode":'RGB'}),
+        ("blur_gray.npz", "sharpen_gray.npz",
+         {"radius":3, "amount":4, "mode":'HSV'}),],
     
-    "Contrast" : [("escher.ppm", "contrast.npz", {"radius" : 5.0})],
-    "Equalize" : [("si3n4-small.png", "equalize.npz", {})],
-    "Negate" : [("image_test.png", "negate.npz", {})],
+    "Contrast" : [
+        ("escher.ppm", "contrast.npz", {"radius" : 5.0}),
+        ("si3n4-small.png", "contrast_gray.npz", {"radius" : 5.0})],
+    
+    "Equalize" : [("escher.ppm", "equalize.npz", {}),
+                  ("si3n4-small.png", "equalize_gray.npz", {})],
+    
+    "Negate" : [("image_test.png", "negate.npz", {}),
+                ("grayarrow.png", "negate_gray.npz", {})],
 
-    "Reilluminate" : [("cb_grad.png",
-                       "reilluminate.npz", {"radius" : 5})],
+    "Reilluminate" : [
+        ("cb_grad.png", "reilluminate.npz", {"radius" : 5}),
+        ("color_gradient_checker.png", "reilluminate_color.npz", {"radius":15})
+    ],
 
+## CONTINUE CHECKING FOR RGB & GRAY TESTS HERE
     "Threshold" : [
         ("cb_grad.png", "thresh_manual0.npz",
          {"method" : threshold.ManualThreshold(value=0.0)}),
@@ -391,6 +403,11 @@ image_modify_args = {
         ("si3n4-small.png", "denoise_nlm2.npz",
          {"method" : denoise.NonlocalMeans(
              patch_size=7,patch_distance=5,h=0.1,sigma=automatic)})
+    ],
+    
+    "AddNoise":  [
+        ("image_test.png", "noisy.npz", {"sigma" : 0.1, "seed" : 17}),
+        ("si3n4-small.png", "noisy_gray.npz", {"sigma" : 0.1, "seed" : 137})
     ],
     
     

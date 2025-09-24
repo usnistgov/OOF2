@@ -37,18 +37,12 @@ PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
   const npy_intp* imageshape = PyArray_SHAPE(npobject);
   int newdim = PyArray_NDIM(newimage);
   const npy_intp* newshape = PyArray_SHAPE(newimage);
+#ifdef DEBUG
   assert(PyArray_TYPE(newimage) == NPY_DOUBLE);
   assert(newdim == imagedim);
   for(int i=i; i<newdim; i++)
     assert(newshape[i] == imageshape[i]);
-
-  // For some reason, creating the new image here, instead of creating
-  // it in Python and passing it in, is failing. I'm not going to mess
-  // around with it now.  TODO: Fix this.  Use PyArray_NewLikeArray,
-  // probably.
-  // PyArrayObject *newimage = (PyArrayObject*) PyArray_EMPTY(imagedim, imageshape,
-  // 							   NPY_DOUBLE, 0);
-  // Py_XINCREF((PyObject*)newimage);
+#endif // DEBUG
 
   int maskdim = PyArray_NDIM(mask);
   assert(maskdim == 2);
@@ -63,7 +57,7 @@ PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
   int mc0 = maskshape[0]/2;	// integer division
   int mc1 = maskshape[1]/2;	// integer division
 
-  int kmax = imagedim == 3 ? imageshape[2] : 1;
+  int kmax = isgray_ ? 1 : imageshape[2];
 
   // Loop over pixels in the image
   for(int p0=0; p0<imageshape[0]; p0++) {
@@ -82,11 +76,11 @@ PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
       // of the image.  Make sure the edges of the mask are within the
       // image.  If not, trim the mask by adjusting the loop range.
       if(m0min + d0 < 0)
-	m0min = mc0 - p0;
+	m0min = -d0;
       if(m0max + d0 > imageshape[0])
 	m0max = imageshape[0] - d0;
-      if(m1min + d1 < 1)
-	m1min = mc1 - p1;
+      if(m1min + d1 < 0)
+	m1min = -d1;
       if(m1max + d1 > imageshape[1])
 	m1max = imageshape[1] - d1;
 
@@ -101,11 +95,10 @@ PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
 	  for(int m1=m1min; m1<m1max; m1++) {
 	    assert(m1 + d1 >= 0 && m1 + d1 < imageshape[1]);
 	    if(*(int*) PyArray_GETPTR2(mask, m0, m1)) { // inside the mask
-	      // TODO NUMPY: Can this be done without checking imagedim?
-	      double val =
-		(imagedim == 3 ?
-		 *(double*) PyArray_GETPTR3(npobject, m0+d0, m1+d1, k) :
-		 *(double*) PyArray_GETPTR2(npobject, m0+d0, m1+d1));
+	      // TODO NUMPY: Can this be done without checking isgray_?
+	      double val = isgray_ ?
+		*(double*) PyArray_GETPTR2(npobject, m0+d0, m1+d1) :
+		*(double*) PyArray_GETPTR3(npobject, m0+d0, m1+d1, k);
 	      if(val < minimum)
 		minimum = val;
 	      if(val > maximum)
@@ -115,18 +108,17 @@ PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
 	} // end loop over mask
 
 	// This is where the contrast is done.
-	// TODO NUMPY: Can this be done without checking imagedim?
-	if(imagedim == 3) {
-	  double pval = *(double*) PyArray_GETPTR3(npobject, p0, p1, k);
-	  double newval = (pval - minimum < maximum - pval) ? minimum : maximum;
-	  *(double*) PyArray_GETPTR3(newimage, p0, p1, k) = newval;
-	}
-	else {
+	// TODO NUMPY: Can this be done without checking isgray_?
+	if(isgray_) {
 	  double pval = *(double*) PyArray_GETPTR2(npobject, p0, p1);
 	  double newval = (pval - minimum < maximum - pval) ? minimum : maximum;
 	  *(double*) PyArray_GETPTR2(newimage, p0, p1) = newval;
 	}
-	
+	else {
+	  double pval = *(double*) PyArray_GETPTR3(npobject, p0, p1, k);
+	  double newval = (pval - minimum < maximum - pval) ? minimum : maximum;
+	  *(double*) PyArray_GETPTR3(newimage, p0, p1, k) = newval;
+	}
       } // end loop over channels
     }
   } // end loop over pixels in the image

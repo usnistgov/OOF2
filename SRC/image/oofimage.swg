@@ -76,7 +76,6 @@ public:
   CMicrostructure *getCMicrostructure();
   void removeMicrostructure();
 
-  void evenly_illuminate(int);
   void enhance_contrast(PyArrayObject*, PyArrayObject*);
   void reduce_noise(PyArrayObject*, PyArrayObject*);
   
