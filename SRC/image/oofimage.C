@@ -233,13 +233,8 @@ void OOFImage::set(const ICoord &coord, const CColor &color) {
 // CColor to the appropriate type (double, int, or bool) or vice
 // versa.
 
-// TODO OPT?: Is it better to make these functions use
-// OOFImage::image::write, like OOFImage::getPixels does?  Doing so
-// would require allocating another array, so it's not obviously more
-// efficient.
-
 // TODO NUMPY: The convert methods are only used to convert to gray
-// scale.  We probably can do that better in numpy.
+// scale.  Delete them.  We can do that better in numpy. 
 
 Array<double> OOFImage::convert(double (*f)(const CColor&)) const {
   Array<double> arr(sizeInPixels_[0], sizeInPixels_[1]);
@@ -264,6 +259,8 @@ Array<bool> OOFImage::convert(bool (*f)(const CColor&)) const {
   }
   return arr;
 }
+
+// TODO NUMPY: Are the OOFImage::set methods used and/or necessary?
 
 void OOFImage::set(const Array<double> &array, CColor (*f)(double)) {
   for(Array<double>::const_iterator i=array.begin(); i!=array.end(); ++i) 

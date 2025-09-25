@@ -462,6 +462,10 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+## TODO NUMPY: This crashing on gray images, or maybe the test image I
+## used didn't work because AddNoise isn't working properly on gray
+## images.
+
 class MedianFilterImage(ImageModifierToEither):
     def __init__(self, radius):
         self.radius = radius
@@ -469,8 +473,11 @@ class MedianFilterImage(ImageModifierToEither):
         disk = skimage.morphology.disk(self.radius)
         npimage = image.npImage()
         newimage = numpy.empty_like(npimage)
-        for k in range(npimage.shape[2]):
-            newimage[:,:,k] = skimage.filters.median(npimage[:,:,k], disk)
+        if image.isGray():
+            newimage = skimage.filters.median(npimage, disk)
+        else:
+            for k in range(npimage.shape[2]):
+                newimage[:,:,k] = skimage.filters.median(npimage[:,:,k], disk)
         return newimage
 
 registeredclass.Registration(

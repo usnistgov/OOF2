@@ -333,8 +333,9 @@ image_modify_args = {
         ("cb_grad.png", "reilluminate.npz", {"radius" : 5}),
         ("color_gradient_checker.png", "reilluminate_color.npz", {"radius":15})
     ],
-
-## CONTINUE CHECKING FOR RGB & GRAY TESTS HERE
+    
+    # Threshold converts images to grayscale so these tests don't use
+    # any rgb images.
     "Threshold" : [
         ("cb_grad.png", "thresh_manual0.npz",
          {"method" : threshold.ManualThreshold(value=0.0)}),
@@ -379,9 +380,13 @@ image_modify_args = {
         ("cb_grad.png", "thresh_yen.npz",
          {"method" : threshold.YenThreshold(nbins=256)}),
     ],
+
+## CONTINUE CHECKING FOR RGB & GRAY TESTS HERE
     
     "MedianFilter" : [
         ("image_test.png", "medianfilter.npz", {"radius" : 5}),
+        ("image_test_noisy.png", "medianfilter2.npz", {"radius" : 5}),
+        ("si3n4-small-noisy.png","medianfilter3.npz", {"radius" : 4})
     ],
     "Despeckle" : [
         ("image_test.png", "medianfilter.npz", {"radius" : 5})
