@@ -51,9 +51,9 @@ imagemodmenu = mainmenu.OOF.Image.addItem(oofmenu.OOFMenuItem(
     ))
 
 def buildImageModMenu():
-    ## TODO NUMPY: If the registration is secret, make the menu item
-    ## secret too.  Should the registrations have distinct no_gui and
-    ## no_doc flags?
+    ## TODO: If the registration is secret, make the menu item secret
+    ## too.  Should the registrations have distinct no_gui and no_doc
+    ## flags?
     
     imagemodmenu.clearMenu()
     for registration in imagemodifier.ImageModifier.registry:

@@ -58,7 +58,6 @@ protected:
   CMicrostructure *microstructure;
   bool isgray_;
 public:
-  OOFImage(const std::string &nm);
   OOFImage(const std::string &nm, PyArrayObject *ndarray, bool isgray);
   OOFImage(const OOFImage&) = delete;
   virtual ~OOFImage();
