@@ -17,14 +17,17 @@
 # TODO NUMPY: Check that rgb and grayscale images saved in
 # microstructures are recovered correctly.
 
-import unittest, os
-from . import memorycheck
+import filecmp
+import os
+import random
+import unittest
 
 from ooflib.SWIG.image import oofimage
 from ooflib.common.IO.automatic import automatic
 from ooflib.image import denoise
 from ooflib.image import threshold
 
+from . import memorycheck
 from .UTILS.file_utils import reference_file
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -127,11 +130,58 @@ class OOF_Image(unittest.TestCase):
             size += len(ms.findGroup(gname))
         self.assertEqual(size, 121*150) # 121x150 is the size of the image.
 
-    # Test for OOF.File.Image.Save, which is technically not in the
-    # OOF.Image menu hierarchy.
+    # Test for OOF.File.Load.Image, loading an RGB image into an
+    # existing microstructure.
+    @memorycheck.check("load_test")
+    def Load(self):
+        OOF.Microstructure.New(name="load_test",
+                               width=150, height=121,
+                               width_in_pixels=150, height_in_pixels=121)
+        OOF.File.Load.Image(filename=reference_file("ms_data","rectangle.png"),
+                            microstructure="load_test",
+                            height=automatic, width=automatic)
+        ms = getMicrostructure("load_test")
+        ms_images = ms.imageNames()
+        self.assertEqual(len(ms_images),1)
+        self.assertTrue("rectangle.png" in ms_images)
+        img = oofimage.getImage("load_test:rectangle.png")
+        self.assertFalse(img.isGray())
+
+    # Test for OOF.File.Load.Image, loading a grayscale image into an
+    # existing microstructure.
+    @memorycheck.check("gray")
+    def LoadGray(self):
+        OOF.Microstructure.New(name="gray",
+                               width=100, height=100,
+                               width_in_pixels=200, height_in_pixels=200)
+        OOF.File.Load.Image(filename=reference_file("image_data",
+                                                    "si3n4-small.png"),
+                            microstructure="gray",
+                            height=automatic, width=automatic)
+        ms = getMicrostructure("gray")
+        ms_images = ms.imageNames()
+        self.assertEqual(len(ms_images), 1)
+        self.assertTrue("si3n4-small.png" in ms_images)
+        img = oofimage.getImage("gray:si3n4-small.png")
+        self.assertTrue(img.isGray())
+
+    # Check that images can be loaded from a microstructure file.
+    @memorycheck.check("two_images")
+    def LoadFromMS(self):
+        OOF.File.Load.Data(
+            filename=reference_file("image_data", "two_images.ms"))
+        ms = getMicrostructure("two_images")
+        ms_images = ms.imageNames()
+        self.assertEqual(len(ms_images), 2)
+        self.assertTrue("gray" in ms_images)
+        self.assertTrue("small.png" in ms_images)
+        img0 = oofimage.getImage("two_images:gray")
+        img1 = oofimage.getImage("two_images:small.png")
+        self.assertTrue(img0.isGray() and not img1.isGray())
+        
+    # Test for OOF.File.Save.Image
     @memorycheck.check("save_test")
     def Save(self):
-        import filecmp, os
         OOF.Microstructure.Create_From_ImageFile(
             filename=reference_file("ms_data","rectangle.png"),
             microstructure_name="save_test",
@@ -164,28 +214,43 @@ class OOF_Image(unittest.TestCase):
                         reference_file("image_data", "saved_rectangle.npz")))
         if swapbytes:
             img.makeBigEndian()
+
         os.remove("image_save_test.png")
         os.remove("image_save_test.npy")
         os.remove("image_save_test.npz")
 
-    # Test for OOF.File.Image.Load, which is technically not in the
-    # OOF.Image menu hierarchy.
-    @memorycheck.check("load_test")
-    def Load(self):
-        OOF.Microstructure.New(name="load_test",
-                               width=150, height=121,
-                               width_in_pixels=150, height_in_pixels=121)
-        OOF.File.Load.Image(filename=reference_file("ms_data","rectangle.png"),
-                            microstructure="load_test",
-                            height=automatic, width=automatic)
-        ms = getMicrostructure("load_test")
-        ms_images = ms.imageNames()
-        self.assertEqual(len(ms_images),1)
-        self.assertTrue("rectangle.png" in ms_images)
-        
+    # Test for OOF.File.Save.Image, with a grayscale image.
+    @memorycheck.check("gray")
+    def SaveGray(self):
+        OOF.Microstructure.Create_From_ImageFile(
+            filename=reference_file("image_data", "si3n4-small.png"),
+            microstructure_name="gray",
+            height=automatic, width=automatic)
+
+        # Save as png
+        OOF.File.Save.Image(filename="image_save_test.png",
+                            image="gray:si3n4-small.png",
+                            overwrite=False)
+        self.assertTrue(
+            compare_image_files(
+                "image_save_test.png",
+                reference_file("image_data", "saved_gray.png")))
+        # Save as .npy
+        img = oofimage.getImage("gray:si3n4-small.png")
+        swapbytes = img.makeLittleEndian()
+        OOF.File.Save.Image(filename="image_save_test.npy",
+                            image="gray:si3n4-small.png",
+                            overwrite=False)
+        self.assertTrue(
+            filecmp.cmp("image_save_test.npy",
+                        reference_file("image_data", "saved_gray.npy")))
+        if swapbytes:
+            img.makeBigEndian()
+        os.remove("image_save_test.png")
+        os.remove("image_save_test.npy")
+
     @memorycheck.check()
     def Modify(self):
-        import filecmp, os, random
         from ooflib.SWIG.common import crandom
         from ooflib.SWIG.image import oofimage
         global image_modify_args
@@ -417,8 +482,11 @@ image_modify_args = {
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 test_set = [
-    OOF_Image("Save"),
     OOF_Image("Load"),
+    OOF_Image("LoadGray"),
+    OOF_Image("LoadFromMS"),
+    OOF_Image("Save"),
+    OOF_Image("SaveGray"),
     OOF_Image("Undo"),
     OOF_Image("Redo"),
     OOF_Image("Delete"),
