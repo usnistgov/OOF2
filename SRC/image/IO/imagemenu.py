@@ -196,8 +196,10 @@ def saveImage(menuitem, image, filename, overwrite):
                 saveimg = skimage.util.img_as_float(saveimg)
             # Save with matplotlib.pyplot instead of skimage.io because
             # skimage.io is causing problems with some formats.
-            pyplot.imsave(filename, saveimg)
-            # skimage.io.imsave(filename, saveimg, check_contrast=False)
+            if oofimage.getImage(image).isGray():
+                pyplot.imsave(filename, saveimg, cmap="gray")
+            else: 
+                pyplot.imsave(filename, saveimg)               
     else:
         reporter.warn("Image was not saved!")
 
