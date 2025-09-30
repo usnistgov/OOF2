@@ -14,9 +14,6 @@
 # properly.  For proper regression testing, run microstructure_test
 # first, then this one.
 
-# TODO NUMPY: Check that rgb and grayscale images saved in
-# microstructures are recovered correctly.
-
 import filecmp
 import os
 import random

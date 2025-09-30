@@ -130,10 +130,6 @@ OOFImage *OOFImage::cclone(const std::string &nm , PyArrayObject *npobject,
 
 void OOFImage::imageChanged() {
   ++timestamp;			// marks image as changed
-  // TODO NUMPY: Is there an equivalent to this?  Copy the image to
-  // ensure changes are applied?
-  
-  //image.modifyImage(); 
 }
 
 OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
@@ -178,10 +174,9 @@ OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
   // } // end debugging
 
   OOFCanvas::CanvasImage *img =
-    OOFCanvas::CanvasImage::newFromNumpy(
-		 OOFCANVAS_COORD(*pos),
-		 // TODO NUMPY: Change to PyArrayObject in newFromNumpy
-		 (PyObject*) npobject, true/* flipy*/);
+    OOFCanvas::CanvasImage::newFromNumpy(OOFCANVAS_COORD(*pos), npobject,
+					 true /* true means flipy*/
+					 );
   img->setDrawIndividualPixels(true);
   img->setSize(OOFCANVAS_COORD(*size));
   return img;
@@ -225,60 +220,6 @@ void OOFImage::set(const ICoord &coord, const CColor &color) {
   }
 }
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// Conversion to and from arrays of double, int, or bool.  This is not
-// an efficient way of getting or setting just a few pixels.  These
-// routines all take as an argument a function f which converts from
-// CColor to the appropriate type (double, int, or bool) or vice
-// versa.
-
-// TODO NUMPY: The convert methods are only used to convert to gray
-// scale.  Delete them.  We can do that better in numpy. 
-
-Array<double> OOFImage::convert(double (*f)(const CColor&)) const {
-  Array<double> arr(sizeInPixels_[0], sizeInPixels_[1]);
-  for(Array<double>::iterator i=arr.begin(); i!=arr.end(); ++i) {
-    arr[i] = (*f)((*this)[i.coord()]);
-  }
-  return arr;
-}
-
-Array<int> OOFImage::convert(int (*f)(const CColor&)) const {
-  Array<int> arr(sizeInPixels_[0], sizeInPixels_[1]);
-  for(Array<int>::iterator i=arr.begin(); i!=arr.end(); ++i) {
-    arr[i] = (*f)((*this)[i.coord()]);
-  }
-  return arr;
-}
-
-Array<bool> OOFImage::convert(bool (*f)(const CColor&)) const {
-  Array<bool> arr(sizeInPixels_[0], sizeInPixels_[1]);
-  for(Array<bool>::iterator i=arr.begin(); i!=arr.end(); ++i) {
-    arr[i] = (*f)((*this)[i.coord()]);
-  }
-  return arr;
-}
-
-// TODO NUMPY: Are the OOFImage::set methods used and/or necessary?
-
-void OOFImage::set(const Array<double> &array, CColor (*f)(double)) {
-  for(Array<double>::const_iterator i=array.begin(); i!=array.end(); ++i) 
-    set(i.coord(), (*f)(array[i]));
-  imageChanged();
-}
-
-void OOFImage::set(const Array<int> &array, CColor (*f)(int)) {
-  for(Array<int>::const_iterator i=array.begin(); i!=array.end(); ++i)
-    set(i.coord(), (*f)(array[i]));
-  imageChanged();
-}
-
-void OOFImage::set(const Array<bool> &array, CColor (*f)(bool)) {
-  for(Array<bool>::const_iterator i=array.begin(); i!=array.end(); ++i)
-    set(i.coord(), (*f)(array[i]));
-  imageChanged();
-}
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 void OOFImage::getColorPoints(const CColor &ref, 

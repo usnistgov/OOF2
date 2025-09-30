@@ -193,8 +193,7 @@ def rgb2gray(image):
     # The skimage rgb2gray routine computes the luminance for
     # "contemporary CRT phosphors", defined by Y = 0.2125 R + 0.7154 G
     # + 0.0721 B.  The old, pre-numpy, version used CColor::getGray(),
-    # which just averages R, G, and B.  TODO NUMPY: Is it important to
-    # preserve the old behavior?
+    # which just averages R, G, and B. 
 
     if len(image.shape) == 2:
         return image
@@ -209,11 +208,10 @@ registeredclass.Registration(
     ImageModifier,
     GrayImage,
     ordering = 0.5,
-    tip = 'Convert image to gray scale.',
+    tip = 'Convert image to grayscale.',
     discussion = """ <para>
-    Convert a color &image; to gray.  Each pixel color is replaced by
-    a gray value equal to the average of the color's red, green, and
-    blue components.
+    Convert a color &image; to grayscale by average each pixel's red,
+    green, and blue components.
     </para>"""
 )
 

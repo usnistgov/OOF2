@@ -98,18 +98,7 @@ public:
   void set(const ICoord&, const CColor&);
   void imageChanged();		// call this when done setting pixels.
 
-  // Convert to an Array of doubles.  f is a function that takes a
-  // CColor and returns a double.
-  Array<double> convert(double (*f)(const CColor&)) const;
-  // Same for ints and bools.
-  Array<int> convert(int (*f)(const CColor&)) const;
-  Array<bool> convert(bool (*f)(const CColor&)) const;
-  // Set pixels in the image to values from an array.  These call imageChanged()
-  void set(const Array<double> &array, CColor (*f)(double));
-  void set(const Array<int> &array, CColor (*f)(int));
-  void set(const Array<bool> &array, CColor (*f)(bool));
-
-  OOFImage *cclone(const std::string&, PyArrayObject*, bool) const;
+   OOFImage *cclone(const std::string&, PyArrayObject*, bool) const;
 
   void getColorPoints(const CColor &reference,
 		      const ColorDifference &diff,
