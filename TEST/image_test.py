@@ -280,9 +280,6 @@ f"""** Image comparison failed.
 # image_data), and a dictionary of arguments to supply to the modifier
 # menu item for the test.
 
-## TODO NUMPY: Make sure that both color and gray images are used as
-## sources for all modifier tests.
-
 image_modify_args = {
     "Gray" : [
         ("image_test.png", "gray.npz", {}),
@@ -307,7 +304,7 @@ image_modify_args = {
     
     # The tests for Sharpen use the reference files for Blur as a
     # starting point.
-    "Blur" : [("image_test.png", "blur.npz", {"radius" : 3.0, "sigma" : 3.0}),
+    "Blur" : [("image_test.png", "blur.npz", {"radius" : 3, "sigma" : 3}),
               ("grayarrow.png", "blur_gray.npz", {"radius" : 3, "sigma":1.5})],
     "Sharpen" : [
         ("blur.npz", "sharpen_rgb.npz",
@@ -320,8 +317,8 @@ image_modify_args = {
          {"radius":3, "amount":4, "mode":'HSV'}),],
     
     "Contrast" : [
-        ("escher.ppm", "contrast.npz", {"radius" : 5.0}),
-        ("si3n4-small.png", "contrast_gray.npz", {"radius" : 5.0})],
+        ("escher.ppm", "contrast.npz", {"radius" : 5}),
+        ("si3n4-small.png", "contrast_gray.npz", {"radius" : 5})],
     
     "Equalize" : [("escher.ppm", "equalize.npz", {}),
                   ("si3n4-small.png", "equalize_gray.npz", {})],
@@ -381,18 +378,15 @@ image_modify_args = {
          {"method" : threshold.YenThreshold(nbins=256)}),
     ],
 
-## CONTINUE CHECKING FOR RGB & GRAY TESTS HERE
-    
     "MedianFilter" : [
         ("image_test.png", "medianfilter.npz", {"radius" : 5}),
         ("image_test_noisy.png", "medianfilter2.npz", {"radius" : 5}),
         ("si3n4-small-noisy.png","medianfilter3.npz", {"radius" : 4})
     ],
-    "Despeckle" : [
-        ("image_test.png", "medianfilter.npz", {"radius" : 5})
-    ],
+
     "Edge" : [
-        ("image_test.png", "edge.npz", {})
+        ("image_test.png", "edge.npz", {}),
+        ("si3n4-small.png", "edge2.npz", {})
     ],
     
     "Denoise" : [
@@ -414,9 +408,7 @@ image_modify_args = {
         ("image_test.png", "noisy.npz", {"sigma" : 0.1, "seed" : 17}),
         ("si3n4-small.png", "noisy_gray.npz", {"sigma" : 0.1, "seed" : 137})
     ],
-    
-    
-}
+}   # image_modify_args
 
 # image_modify_args = {
 #     "Fade" : [ ("image_test.png", "fade.png", {"factor" : 0.3}) ],

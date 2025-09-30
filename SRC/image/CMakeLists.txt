@@ -10,7 +10,6 @@ target_sources(oof2image
   PRIVATE
   oofimage.C
   oofimage.h
-  evenlyilluminate.C
   contrast.C
   reducenoise.C
   pixelselectioncourieri.C

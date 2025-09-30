@@ -28,6 +28,9 @@ import sys
 ## TODO NUMPY: Review the tips and discussions for all classes.  Some
 ## still refer to the ImageMagick versions.
 
+## TODO NUMPY: Can we use @skimage.adapt_rgb?
+## https://scikit-image.org/docs/0.25.x/auto_examples/color_exposure/plot_adapt_rgb.html
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Base class for image modification methods.  Subclasses of
@@ -282,10 +285,10 @@ registeredclass.Registration(
     BlurImage,
     ordering = 2.00,
     params = [
-        parameter.FloatParameter(
-            'radius', 0.0,
+        parameter.PositiveFloatParameter(
+            'radius', 1.0,
             tip="Radius of the Gaussian, in pixels, not counting the center pixel."),
-        parameter.FloatParameter(
+        parameter.PositiveFloatParameter(
             'sigma', 1.0,
             tip="Standard deviation of the Gaussian, in pixels")
     ],
@@ -316,7 +319,7 @@ registeredclass.Registration(
     AddNoise,
     ordering=10000,
     params = [
-        parameter.FloatParameter('sigma', 0.1,
+        parameter.PositiveFloatParameter('sigma', 0.1,
                                  "Width of the noise distribution"),
         parameter.AutoIntParameter('seed', automatic.automatic,
                                    "Seed for the random number generator")
@@ -359,7 +362,7 @@ registeredclass.Registration(
     ordering = 2.0,
     secret = False,
     params = [
-        parameter.PositiveFloatParameter(
+        parameter.PositiveIntParameter(
             'radius', 5,
             tip='radius of the pixel neighborhood')
     ],
@@ -397,39 +400,11 @@ registeredclass.Registration(
     ordering = 2.021,
     secret = True,              
     params = [
-        parameter.PositiveFloatParameter(
+        parameter.PositiveIntParameter(
             'radius', 5,
             tip='radius of the pixel neighborhood')
     ],
     tip = "Enhance intensity differences using scikit-image.",
-)
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-# Despeckle is redundant with MedianFilterImage, but is kept for
-# backwards compatibility.
-
-class DespeckleImage(ImageModifierToEither):
-    def __init__(self, radius=2.0):
-        self.radius = radius
-    def modify(self, image):
-        disk = skimage.morphology.disk(self.radius)
-        disk2 = skimage.color.gray2rgb(disk)
-        return skimage.filters.median(image.npImage(), disk2)
-
-registeredclass.Registration(
-    'Despeckle',
-    ImageModifier,
-    DespeckleImage,
-    ordering = 2.03,
-    secret = True, 
-    params = [
-        parameter.FloatParameter(
-            'radius', 2.0,
-            tip="Radius of the median filter.")
-    ],
-    tip = "Reduce the speckle noise using a median filter.",
-    discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/despeckle.xml')
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -462,10 +437,6 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-## TODO NUMPY: This crashing on gray images, or maybe the test image I
-## used didn't work because AddNoise isn't working properly on gray
-## images.
-
 class MedianFilterImage(ImageModifierToEither):
     def __init__(self, radius):
         self.radius = radius
@@ -486,8 +457,8 @@ registeredclass.Registration(
     MedianFilterImage,
     ordering = 2.06,
     params = [
-        parameter.FloatParameter(
-            'radius', 2.0,
+        parameter.PositiveIntParameter(
+            'radius', 2,
             tip="Radius of the median filter in units of the pixel size.") ],
     tip = "Reduce noise by replacing each pixel color with the median over a local region.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/median.xml')
@@ -577,13 +548,16 @@ registeredclass.Registration(
     SharpenImage,
     ordering = 2.09,
     params = [
-        parameter.FloatParameter('radius', 1.0,
-                                 tip='Radius of the Gaussian blur.'),
-        parameter.FloatParameter('amount', 1.0,
-                                 tip='Amplification factor for image details.'),
-        oofenum.EnumParameter('mode',
-                              SharpenMode,
-                              SharpenMode('HSV'))
+        parameter.PositiveFloatParameter(
+            'radius', 1.0,
+            tip='Radius of the Gaussian blur.'),
+        parameter.PositiveFloatParameter(
+            'amount', 1.0,
+            tip='Amplification factor for image details.'),
+        oofenum.EnumParameter(
+            'mode',
+            SharpenMode,
+            SharpenMode('HSV'))
     ],
     tip = "Sharpen the image by convolving with a Gaussian: The sharp details are identified as the difference between the original image and its blurred version. These details are then scaled, and added back to the original image.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/sharpen.xml')
@@ -633,12 +607,28 @@ registeredclass.Registration(
     ReIlluminateImage,
     ordering = 3.0,
     params = [
-        parameter.IntParameter('radius', 10,
-                               tip='Size of the averaging region.')
+        parameter.PositiveIntParameter('radius', 10,
+                                       tip='Size of the averaging region.')
     ],
     tip = 'Adjust brightness so that the whole image is evenly illuminated.',
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/reilluminate.xml')
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# When we used ImageMagick we had a Despeckle command for which
+# there's no scikit-image equivalent.  The ImageMagick routine is
+# described at https://imagemagick.org/api/effect.php, which says:
+#   DespeckleImage() reduces the speckle noise in an image while
+#   preserving the edges of the original image. A speckle removing
+#   filter uses a complementary hulling technique (raising pixels that
+#   are darker than their surrounding neighbors, then complementarily
+#   lowering pixels that are brighter than their surrounding
+#   neighbors) to reduce the speckle index of that image (reference
+#   Crimmins speckle removal).
+
+# https://homepages.inf.ed.ac.uk/rbf/HIPR2/crimmins.htm has a detailed
+# discussion of Crimmins.  It seems to require a small bit depth and
+# is otherwise pretty ugly, so it won't be implemented here unless
+# requested.
 
