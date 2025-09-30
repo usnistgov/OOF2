@@ -55,8 +55,6 @@ def readNumpyImage(filename, **kwargs):
         # pnm.
         npimage = pyplot.imread(filename) # numpy.ndarray object
 
-    debug.fmsg(f"Initial image shape is {npimage.shape}")
-    
     # Find out if the image is gray or not, and delete alpha channels.
     if len(npimage.shape) == 2:
         # Gray scale with no alpha channel
@@ -80,13 +78,9 @@ def readNumpyImage(filename, **kwargs):
     if len(npimage.shape)==3 and npimage.shape[2] == 3:
         if ((npimage[:,:,0]==npimage[:,:,1]).all() and
             (npimage[:,:,1]==npimage[:,:,2]).all()):
-            debug.fmsg("Converting to gray")
             npimage = npimage[:,:,0]
             isgray = True
             
-    debug.fmsg(f"After adjustments, image shape is {npimage.shape}")
-
-
     # The image read from the file probably has 8 bit channels.  For
     # internal calculations, we want more than that.  We probably
     # don't need 64 bits, but since all other calculations use doubles
