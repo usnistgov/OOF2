@@ -262,6 +262,29 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
         f1.close()
         f2.close()
 
+def binary_file_compare(file1, file2):
+    file2 = reference_file(file2)
+    try:
+        f2 = open(file2, 'rb')
+    except:
+        if generate:
+            print(f"\nMoving file {file1} to {file2}", file=sys.stderr)
+            os.rename(file1, file2)
+            return True
+        else:
+            raise
+    f1 = open(file1, 'rb')
+    try:
+        data1 = f1.read()
+        data2 = f2.read()
+        if f1 != f1:
+            print(f"Files {file1} and {file2} differ")
+            return False
+        return True
+    finally:
+        f1.close()
+        f2.close()
+        
 pdfTimeStamp = rb"/CreationDate \(D:[0-9]*Z\)"
 pdfProducer = rb"/Producer \(cairo [0-9\.]* \(https?://cairographics\.org\)\)"
 

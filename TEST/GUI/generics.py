@@ -125,6 +125,13 @@ def filediff(filename, reference=None, tolerance=1.e-8):
         reffile = os.path.join(testdir(), reference)
     return file_utils.fp_file_compare(filename, reffile, tolerance)
 
+def binary_filediff(filename, reference=None):
+    if reference is None:
+        reffile = os.path.join(testdir(), filename)
+    else:
+        reffile = os.path.join(testdir(), reference)
+    return file_utils.binary_file_compare(filename, reffile)
+
 checkpoint_count = gtklogger.checkpoint_count
 
 def testdir():
