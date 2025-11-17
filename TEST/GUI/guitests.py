@@ -368,17 +368,21 @@ def run(homedir):
             try:
                 fromds = expanddirs(fromdir, dirs)
                 fromindex = dirs.index(fromds[0])
-            except:
-                errormsg(f"Directory {fromddir} not found!")
+            except IndexError:
+                errormsg(f"Test directory {fromddir} not found!")
+            except Exception as exc:
+                errormsg(exc)
 
         if afterdir:
             try:
                 afterds = expanddirs(afterdir, dirs)
-                fromindex = dirs.index(fromds[0]) + 1
-                if fromindex >= dirs.size():
+                fromindex = dirs.index(afterds[0]) + 1
+                if fromindex >= len(dirs):
                     fromindex = -1
-            except:
-                errormsg(f"Directory {afterdir} not found!")
+            except IndexError:
+                errormsg(f"Test directory {afterdir} not found!")
+            except Exception as exc:
+                errormsg(exc)
 
         if todir:
             try:
