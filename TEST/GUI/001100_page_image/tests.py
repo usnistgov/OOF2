@@ -10,6 +10,9 @@
 
 from generics import *
 
+import file_utils
+file_utils.generate = True
+
 def sensitization0():
     return (sensitizationCheck(
         {'Microstructure' : 1,
