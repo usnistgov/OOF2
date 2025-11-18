@@ -37,11 +37,11 @@ An OOF2 Microstructure is the data structure that stores this information. """
     subject="Creating a Microstructure",
     comments=
 
-"""Locate the file <b>K1_small.pgm</b> within the share/oof2/examples directory in your OOF2 installation.
+"""Locate the file <b>K1_small.png</b> within the share/oof2/examples directory in your OOF2 installation.
 
 Open the <b>Microstructure</b> page in the main OOF2 window.  Click on <b>New from Image File</b>.
 
-In the file selection dialog box, navigate to <b>K1_small.pgm</b>.
+In the file selection dialog box, navigate to <b>K1_small.png</b>.
 
 Look for a parameter named <b>microstructure_name</b> in the middle of the window.
 
@@ -60,7 +60,7 @@ Click <b>OK</b> to create the Microstructure.""",
 
 Because we didn't set <b>Settings/New Layer Policy</b> before loading the Image, nothing is shown in the window.
 
-Create a new Image layer with the <b>New</b> menu item in the <b>Layer</b> menu.  In the dialog box, set <b>category</b> to <b>Image</b>.  Leave <b>what</b> set to <b>K1_small.pgm/K1_small.pgm</b> (the Image called "K1_small.pgm" in the Microstructure also called "K1_small.pgm").  Leave <b>how</b> set to <b>Bitmap</b>.
+Create a new Image layer with the <b>New</b> menu item in the <b>Layer</b> menu.  In the dialog box, set <b>category</b> to <b>Image</b>.  Leave <b>what</b> set to <b>K1_small.png/K1_small.png</b> (the Image called "K1_small.png" in the Microstructure also called "K1_small.png").  Leave <b>how</b> set to <b>Bitmap</b>.
 
 Click <b>OK</b>. """
     ),
@@ -298,7 +298,7 @@ First, clear the pixel selection so that you can see the whole image.
 
 In the <b>Image</b> page, click <b>Copy</b>, and click <b>OK</b> in the dialog box.
 
-The <b>Image Selector</b> now shows that the current <b>Image</b> is "K1_small.pgm&lt;2&gt;" in the <b>Microstructure</b> named "K1_small.pgm" (unless you gave it a different name when loading the image).  The "&lt;2&gt;" is part of the automatically generated name for the copied Image."""
+The <b>Image Selector</b> now shows that the current <b>Image</b> is "K1_small.png&lt;2&gt;" in the <b>Microstructure</b> named "K1_small.png" (unless you gave it a different name when loading the image).  The "&lt;2&gt;" is part of the automatically generated name for the copied Image."""
     ),
 
 
@@ -311,11 +311,11 @@ In the graphics window's <b>Layer</b> menu, select <b>New</b>.
 
 In the dialog box, set <b>category</b> to <b>Image</b>.
 
-The first pull-down menu in the box marked <b>what</b> sets the <b>Microstructure</b> containing the <b>Image</b> that is to be displayed.  Leave it set to its current value.  The second pull-down menu sets the <b>Image</b> from the images available in the Microstructure.  Set it to <b>(K1_small.pgm&lt;2&gt;</b> (or whatever name you gave to the copied image).
+The first pull-down menu in the box marked <b>what</b> sets the <b>Microstructure</b> containing the <b>Image</b> that is to be displayed.  Leave it set to its current value.  The second pull-down menu sets the <b>Image</b> from the images available in the Microstructure.  Set it to <b>(K1_small.png&lt;2&gt;</b> (or whatever name you gave to the copied image).
 
 Leave the <b>how</b> menu set to <b>Bitmap</b> and click <b>OK</b>.
 
-Note that there are now two Image layers in the Layer List (you may have to scroll or enlarge it to see both) and that the copied Image (K1_small.pgm&gt;2&lt;) is drawn and listed on top."""
+Note that there are now two Image layers in the Layer List (you may have to scroll or enlarge it to see both) and that the copied Image (K1_small.png&gt;2&lt;) is drawn and listed on top."""
     ),
 
     TutoringItem(
@@ -323,7 +323,7 @@ Note that there are now two Image layers in the Layer List (you may have to scro
     comments=
 """Copying an Image isn't very useful if you don't do anything different with the copy.  Since we copied the modified Image, we can <b>undo</b> the modifications on the original Image.
 
-Switch the <b>Image Selector</b> in the <b>Image</b> page in the main window to the original Image, "K1_small.pgm", and click <b>Undo</b> four times (corresponding to the one Normalize and three Contrast operations that you did earlier).  """
+Switch the <b>Image Selector</b> in the <b>Image</b> page in the main window to the original Image, "K1_small.png", and click <b>Undo</b> four times (corresponding to the one Normalize and three Contrast operations that you did earlier).  """
     ),
 
     TutoringItem(
