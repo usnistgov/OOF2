@@ -45,8 +45,8 @@ findWidget('Dialog-Load Image and create Microstructure:filename').set_text('exa
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.p')
-findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.pg')
-findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.pgm')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.pn')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.png')
 findWidget('Dialog-Load Image and create Microstructure:widget_GTK_RESPONSE_OK').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized

@@ -31,7 +31,7 @@ deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Microstructure Page:Pane').set_position(235)
 findWidget('OOF2:Microstructure Page:Pane').set_position(184)
 findWidget('OOF2').resize(782, 545)
-# load K1_small.pgm
+# load K1_small.png
 findWidget('OOF2:Microstructure Page:NewFromFile').clicked()
 checkpoint toplevel widget mapped Dialog-Load Image and create Microstructure
 findWidget('Dialog-Load Image and create Microstructure').resize(237, 200)
@@ -54,8 +54,8 @@ findWidget('Dialog-Load Image and create Microstructure:filename').set_text('exa
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.p')
-findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.pg')
-findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.pgm')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.pn')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.png')
 findWidget('Dialog-Load Image and create Microstructure:widget_GTK_RESPONSE_OK').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
@@ -81,7 +81,7 @@ findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 findWidget('OOF2:Microstructure Page:NewFromFile').clicked()
 checkpoint toplevel widget mapped Dialog-Load Image and create Microstructure
 findWidget('Dialog-Load Image and create Microstructure').resize(237, 200)
-findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.pg')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.pn')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.p')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small.')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/K1_small')
@@ -127,7 +127,7 @@ deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Image Page:Pane').set_position(546)
 event(Gdk.EventType.BUTTON_PRESS,x= 7.5000000000000e+01,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Image Page:Microstructure').get_window())
 checkpoint toplevel widget mapped chooserPopup-Microstructure
-findMenu(findWidget('chooserPopup-Microstructure'), ['K1_small.pgm']).activate() # MenuItemLogger
+findMenu(findWidget('chooserPopup-Microstructure'), ['K1_small.png']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Microstructure') # MenuItemLogger
 findWidget('OOF2:Image Page:Load').clicked()
 checkpoint toplevel widget mapped Dialog-Load Image
@@ -146,22 +146,6 @@ findWidget('Dialog-Load Image:filename').set_text('exampl')
 findWidget('Dialog-Load Image:filename').set_text('example')
 findWidget('Dialog-Load Image:filename').set_text('examples')
 findWidget('Dialog-Load Image:filename').set_text('examples/')
-findWidget('Dialog-Load Image:filename').set_text('examples/c')
-findWidget('Dialog-Load Image:filename').set_text('examples/cy')
-findWidget('Dialog-Load Image:filename').set_text('examples/cya')
-findWidget('Dialog-Load Image:filename').set_text('examples/cyal')
-findWidget('Dialog-Load Image:filename').set_text('examples/cyall')
-findWidget('Dialog-Load Image:filename').set_text('examples/cyallo')
-findWidget('Dialog-Load Image:filename').set_text('examples/cyallon')
-findWidget('Dialog-Load Image:filename').set_text('examples/cyallong')
-findWidget('Dialog-Load Image:filename').set_text('examples/cyallon')
-findWidget('Dialog-Load Image:filename').set_text('examples/cyallo')
-findWidget('Dialog-Load Image:filename').set_text('examples/cyallow')
-findWidget('Dialog-Load Image:filename').set_text('examples/cyallow.')
-findWidget('Dialog-Load Image:filename').set_text('examples/cyallow.p')
-findWidget('Dialog-Load Image:filename').set_text('examples/cyallow.pn')
-findWidget('Dialog-Load Image:filename').set_text('examples/cyallow.png')
-findWidget('Dialog-Load Image:filename').set_text('examples/')
 findWidget('Dialog-Load Image:filename').set_text('examples/K')
 findWidget('Dialog-Load Image:filename').set_text('examples/K1')
 findWidget('Dialog-Load Image:filename').set_text('examples/K1_')
@@ -172,15 +156,11 @@ findWidget('Dialog-Load Image:filename').set_text('examples/K1_smal')
 findWidget('Dialog-Load Image:filename').set_text('examples/K1_small')
 findWidget('Dialog-Load Image:filename').set_text('examples/K1_small.')
 findWidget('Dialog-Load Image:filename').set_text('examples/K1_small.p')
-findWidget('Dialog-Load Image:filename').set_text('examples/K1_small.pn')
-findWidget('Dialog-Load Image:filename').set_text('examples/K1_small.png')
-findWidget('Dialog-Load Image:filename').set_text('examples/K1_small.pn')
-findWidget('Dialog-Load Image:filename').set_text('examples/K1_small.p')
 findWidget('Dialog-Load Image:filename').set_text('examples/K1_small.pg')
-findWidget('Dialog-Load Image:filename').set_text('examples/K1_small.pgm')
+findWidget('Dialog-Load Image:filename').set_text('examples/K1_small.png')
 event(Gdk.EventType.BUTTON_PRESS,x= 5.1000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('Dialog-Load Image:microstructure:Microstructure').get_window())
 checkpoint toplevel widget mapped chooserPopup-Microstructure
-findMenu(findWidget('chooserPopup-Microstructure'), ['K1_small.pgm']).activate() # MenuItemLogger
+findMenu(findWidget('chooserPopup-Microstructure'), ['K1_small.png']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Microstructure') # MenuItemLogger
 findWidget('Dialog-Load Image:widget_GTK_RESPONSE_OK').clicked()
 checkpoint microstructure page sensitized
@@ -208,7 +188,7 @@ checkpoint OOF.PixelGroup.AutoGroup
 # group_0 (2160) group_1 (1440)
 event(Gdk.EventType.BUTTON_PRESS,x= 3.5000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('OOF2:Microstructure Page:Microstructure').get_window())
 checkpoint toplevel widget mapped chooserPopup-Microstructure
-findMenu(findWidget('chooserPopup-Microstructure'), ['K1_small.pgm']).activate() # MenuItemLogger
+findMenu(findWidget('chooserPopup-Microstructure'), ['K1_small.png']).activate() # MenuItemLogger
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 deactivatePopup('chooserPopup-Microstructure') # MenuItemLogger
@@ -217,7 +197,7 @@ checkpoint toplevel widget mapped Dialog-AutoGroup
 findWidget('Dialog-AutoGroup').resize(333, 392)
 event(Gdk.EventType.BUTTON_PRESS,x= 7.4000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('Dialog-AutoGroup:grouper:Color:image:Image').get_window())
 checkpoint toplevel widget mapped chooserPopup-Image
-findMenu(findWidget('chooserPopup-Image'), ['K1_small.pgm<2>']).activate() # MenuItemLogger
+findMenu(findWidget('chooserPopup-Image'), ['K1_small.png<2>']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Image') # MenuItemLogger
 findWidget('Dialog-AutoGroup:minsize').set_text('0')
 findWidget('Dialog-AutoGroup:minsize').set_text('40')
