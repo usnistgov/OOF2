@@ -8,11 +8,11 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.SWIG.common import cdebug
 from ooflib.common import utils
 import generics
+import os
 
-errmsg = "ooflib.common.IO.scriptloader.ScriptError: Error running file \"TEST_DATA/nestederror.py\", line 3\n-----\nooflib.common.IO.scriptloader.ScriptError: Error running file \"TEST_DATA/errorcmd.py\", line 3\n-----\nooflib.SWIG.common.ooferror.PyErrProgrammingError: Somebody made a mistake!\n" + cdebug.sourcePathPrefix() + "OOF2/SRC/common/cdebug.C:124\n"
+errmsg = "ooflib.common.IO.scriptloader.ScriptError: Error running file \"TEST_DATA/nestederror.py\", line 3\n-----\nooflib.common.IO.scriptloader.ScriptError: Error running file \"TEST_DATA/errorcmd.py\", line 3\n-----\nooflib.SWIG.common.ooferror.PyErrProgrammingError: Somebody made a mistake!\n" + os.path.join(utils.OOFsourceDir(), "SRC/common/cdebug.C:124\n")
 
 checkpoint OOF.File.Load.Script
 checkpoint OOF.File.LoadStartUp.Script
