@@ -17,6 +17,7 @@ from ooflib.common.IO.GUI import gtklogger
 import file_utils
 import filecmp
 import os
+import os.path
 import re
 import string
 import sys
@@ -138,7 +139,7 @@ def testdir():
     # guitests.py sets OOFTESTDIR before running each test.  It's the
     # directory containing the log file and reference data files for
     # the test.
-    return os.getenv('OOFTESTDIR')
+    return os.environ['OOFTESTDIR']
 
 def removefile(filename):
     if os.path.exists(filename):
@@ -572,6 +573,15 @@ def pixelGroupSizeCheck(msname, grpname, n):
 ## new python version came out.  This version breaks only when a new
 ## message format appears.
 
+def firstdiff(txt1, txt2):
+    count = 0
+    for a,b in zip(txt1, txt2):
+        if a!=b:
+            print(f"Mismatch at position {count}: {a=} {b=}", file=sys.stderr)
+            return
+        count += 1
+            
+
 def errorMsg(*texts, verbose=False):
     for text in texts:
         if gtkTextviewTail('Error:ErrorText', text, quiet=(len(texts)>1)):
@@ -587,10 +597,12 @@ def errorMsg(*texts, verbose=False):
     if verbose:
         if len(texts) == 1:
             print(f"Expected =>{texts[0]}<=", file=sys.stderr)
+            firstdiff(realtext, texts[0])
         else:
             print(f"Expected one of:", file=sys.stderr)
             for i,t in enumerate(texts):
                 print(f"{i} =>{t}<=", file=sys.stderr)
+                
     return False
 
 # errorMsgTemplates is the same as errorMsg, except that it tries all

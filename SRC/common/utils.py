@@ -199,6 +199,14 @@ def OOFeval_r(expr):
         return None
     return mainmodule.__dict__[expr]
 
+def OOFsourceDir():
+    # OOFSOURCEDIR is set as an environment variable by the startup
+    # scripts, which are created when cmake processes oof2.in and
+    # oof2-test.in.  It's used in the test suites when checking error
+    # messages, which sometimes contain the full name of a source
+    # file.
+    return os.environ["OOFSOURCEDIR"]
+
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
 # Construct a name, based on the given name arg, that does not occur

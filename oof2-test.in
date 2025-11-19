@@ -23,8 +23,10 @@ from math import *
 sys.path.append("@CMAKE_INSTALL_PREFIX@/@SITE_PACKAGES@")
 
 # Test scripts sometimes need to know the location of the source
-# (because file paths are part of some error messages).
-oofSourceDir = "@CMAKE_SOURCE_DIR@"
+# (because file paths are part of some error messages).  Setting an
+# environment variable at run time is a simple way to make the value
+# known even when oof is started in different ways.
+os.environ["OOFSOURCEDIR"] = "@CMAKE_SOURCE_DIR@"
 
 import oof2
 sys.path.append(os.path.dirname(oof2.__file__))

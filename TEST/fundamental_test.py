@@ -300,7 +300,7 @@ class OOF_Fundamental(ExcTestCase):
                 # The file name given here needs to be the same as
                 # the file name referred to by __FILE__ when oof2 was
                 # compiled.
-                os.path.join(oofSourceDir, "SRC/common/cdebug.C"),
+                os.path.join(utils.OOFsourceDir(), "SRC/common/cdebug.C"),
                 # The line number here is fake, so that the test won't
                 # break if cdebug.C is altered.  See throwException()
                 # in cdebug.C.
@@ -318,7 +318,7 @@ class OOF_Fundamental(ExcTestCase):
             PyErrProgrammingError(
                 "Somebody made a mistake!",
                 # See comment in ScriptException1 about file and line number.
-                os.path.join(oofSourceDir, "SRC/common/cdebug.C"),
+                os.path.join(utils.OOFsourceDir(), "SRC/common/cdebug.C"),
                 124),
             OOF.File.Load.Script,
             filename=reference_file("fundamental_data", "nestederror.py"))
