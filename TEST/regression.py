@@ -27,6 +27,7 @@ test_module_names = [
     "matrix_test",
     "matrix_method_test",
     "misorientation_test",
+    "orientmap_test",
     "skeleton_basic_test",
     "skeleton_select_test",
     "skeleton_bdy_test",
