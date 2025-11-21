@@ -27,23 +27,15 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.engine.IO import orientationmatrix
 from ooflib.image.IO import imagemenu
 import ooflib.common.microstructure
+
 import os
+import numpy
 
 ## TODO: Add a way of rotating all orientations by a given amount,
 ## since the zero orientation may be defined differently than we
 ## expect it to be.  It should be possible to do this on a pixelgroup
 ## by pixelgroup basis, since the offsets may be different for
 ## different crystal symmetries.
-
-## TODO: Add an AutoGroup command that creates pixel groups of
-## contiguous pixels with similar orientations.
-
-## TODO: Add an OrientationBurn pixel selection method that selects
-## contiguous similarly oriented pixels.  Other pixel color selection
-## operations could also be extended to orientations.
-
-## TODO: Why isn't the menu sensitized correctly when it first
-## appears?  Why does it appear to the right of the Help menu?
 
 orientmapmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'OrientationMap',
@@ -54,9 +46,9 @@ orientmapmenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
             'DISCUSSIONS/orientationmap/menu/orientmapmenu.xml')
     ))
 
-## Parameters for listing only those Microstructures that have or
-## don't have Orientation Map data.  The two classes are identical
-## here, but have different widgets.
+# Parameters for listing only those Microstructures that have or don't
+# have Orientation Map data.  The two classes are identical here, but
+# have different widgets.
 
 class MicrostructureWithOrientMapParameter(whoville.WhoParameter):
     def __init__(self, name, value=None, default=None, tip=None):
@@ -244,7 +236,15 @@ def _imageNameResolver(param, startname):
 def _imageFromOrientationMap(menuitem, microstructure, imagename, colorscheme):
     ms = ooflib.common.microstructure.microStructures[microstructure]
     orientdata = orientmapdata.getOrientationMap(ms.getObject())
-    immidge = orientdata.createImage(imagename, colorscheme) # OOFImage object
+    # The numpy array for the image is created here and passed in to
+    # OrientMap::createImage because the C++ API for creating the
+    # array isn't working.
+    mssize = ms.getObject().sizeInPixels()
+    shape = (mssize[1], mssize[0], 3) ## TODO NUMPY: Check using a non-square map!
+    npdata = numpy.zeros(shape) # default dtype is float64
+    
+    immidge = orientdata.createImage(imagename, colorscheme, npdata)
+    
     immidge.setSize(ms.getObject().size())
     immidge.setMicrostructure(ms.getObject())
     imagemenu.loadImageIntoMS(immidge, microstructure)

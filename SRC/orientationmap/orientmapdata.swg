@@ -36,8 +36,8 @@ public:
   const Coord size();
   ICoord pixelFromPoint(Coord *Point);
   bool pixelInBounds(ICoord *iPoint);
-  // %newobject createImage;
-  // OOFImage *createImage(char *, Angle2Color&);
+  %newobject createImage;
+  OOFImage *createImage(std::string&, Angle2Color&, PyArrayObject*);
   void setMicrostructure(CMicrostructure*);
   CMicrostructure *getCMicrostructure();
 };

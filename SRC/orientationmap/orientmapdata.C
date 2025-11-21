@@ -160,51 +160,18 @@ OOFCanvas::CanvasImage *OrientMapImage::makeCanvasImage(const Coord *position,
 // createImage makes an OOFImage Who object and adds it to the
 // Microstructure's list of Images.
 
-OOFImage *OrientMap::createImage(const std::string &name,
-				 const Angle2Color &colorscheme) const
+OOFImage *OrientMap::createImage(const std::string& name,
+				 const Angle2Color& colorscheme,
+				 PyArrayObject *arr) const
 {
-  
-  // TODO NUMPY: Check this! 
-
-  int width = sizeInPixels()(0);
-  int height = sizeInPixels()(1);
-  npy_intp dims[] = {npy_intp(width), npy_intp(height), 3};
-  
-  PyArray_Descr *dscr = PyArray_DescrFromType(NPY_DOUBLE);
-  PyArrayObject* arr = (PyArrayObject*) PyArray_SimpleNewFromDescr(3, dims, dscr);
-
-  for(Array<COrientABG>::const_iterator i=angles.begin(); i!=angles.end(); ++i) {
+  for(auto i=angles.begin(); i!=angles.end(); ++i) {
     CColor color = colorscheme(angles[i]);
-    const ICoord &where = i.coord();
-    *(double*) PyArray_GETPTR3(arr, where[0], where[1], 0) = color.getRed();
-    *(double*) PyArray_GETPTR3(arr, where[0], where[1], 1) = color.getGreen();
-    *(double*) PyArray_GETPTR3(arr, where[0], where[1], 2) = color.getBlue();
+    const ICoord& where = i.coord();
+    *(double*) PyArray_GETPTR3(arr, where[1], where[0], 0) = color.getRed();
+    *(double*) PyArray_GETPTR3(arr, where[1], where[0], 1) = color.getGreen();
+    *(double*) PyArray_GETPTR3(arr, where[1], where[0], 2) = color.getBlue();
   }
-  return new OOFImage(name, arr, false);
-
-
-// #ifdef OLDMAGICK
-//   double *pixels = new double[height*width*3*sizeof(double)];
-//   int count=0;
-//   for(Array<COrientABG>::const_iterator i=angles.begin(); i!=angles.end();
-//       ++i,++count)
-//     {
-//       const CColor color = colorscheme(angles[i]);
-//       pixels[3*count] = color.getRed();
-//       pixels[3*count+1] = color.getGreen();
-//       pixels[3*count+2] = color.getBlue();
-//     }
-//   try {
-//     immidge = new OOFImage(name, sizeInPixels(), "RGB", Magick::DoublePixel,
-// 			   pixels);
-//   }
-//   catch (Magick::Exception &e) {
-//     delete [] pixels;
-//     throw ImageMagickError(e.what());
-//   }
-//   delete [] pixels;
-//   return immidge;
-// #endif // OLDMAGICK
-  
+  OOFImage* img = new OOFImage(name, arr, false);
+  return img;
 }
 
