@@ -8,9 +8,12 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import unittest, os
 from . import memorycheck
 from .UTILS import file_utils
+
+import math
+import os
+import unittest
 
 # Tests for reading orientation maps and creating Microstructures from
 # them.
@@ -48,25 +51,55 @@ class OOF_OrientationMapTest(unittest.TestCase):
                 groups=[]),
             microstructure='orientmapMS')
 
+    def checkPixel(self, ms, x, y, alpha, beta, gamma):
+        orient, source = orientmapdata.getOrientationAtPoint(ms, iPoint(x, y))
+        abg = orient.abg()
+        self.assertAlmostEqual(math.degrees(abg.alpha()), alpha, 7)
+        self.assertAlmostEqual(math.degrees(abg.beta()), beta, 7)
+        self.assertAlmostEqual(math.degrees(abg.gamma()), gamma, 7)
+        
+
     @memorycheck.check("orientmapMS")
     def OneOrientation(self):
-        # orientmap0.tsl is 10x10 with only one orientation, which is 0,0,0.
+        # orientmap0.tsl is 10x10 pixels with only one orientation,
+        # which is 0,0,0.  
         self.readMap("orientmap0.tsl")
         ms = getMicrostructure("orientmapMS")
         self.assertEqual(ms.name(), "orientmapMS")
         self.assertEqual(microstructure.microStructures.nActual(), 1)
+        # tslsimulator.py generated the data file, and it does strange
+        # things with the pixel size, so that total physical
+        # dimensions of the microstructure have weird off by one
+        # divisior.
         self.assertAlmostEqual(
             (ms.size()-primitives.Point(10/9, 10/9)).norm2(), 0.0, 7)
         self.assertEqual(ms.sizeInPixels(), primitives.iPoint(10, 10))
+        self.checkPixel(ms, 5, 5, 0.0, 0.0, 0.0)
 
-        orient, source = orientmapdata.getOrientationAtPoint(ms, iPoint(5, 5))
-        abg = orient.abg()
-        self.assertEqual(abg.alpha(), 0.0)
-        self.assertEqual(abg.beta(), 0.0)
-        self.assertEqual(abg.gamma(), 0.0)
-        
+    @memorycheck.check("orientmapMS")
+    def TwoOrientations(self):
+        # orientmap1.tsl is 100x100 pixels with two colors
+        self.readMap("orientmap1.tsl")
+        ms = getMicrostructure("orientmapMS")
+        self.assertAlmostEqual(
+            (ms.size()-primitives.Point(100/99, 100/99)).norm2(), 0.0, 7)
+        self.checkPixel(ms, 25, 25, 10.0, 80.0, -100.0)
+        self.checkPixel(ms, 65, 65, 0.0, 0.0, 0.0)
+
+    @memorycheck.check("orientmapMS")
+    def TwoOrientationsNotSquare(self):
+        # orientmap3.tsl is 2x3 (almost) and 100x150 pixels with two colors
+        self.readMap("orientmap3.tsl")
+        ms = getMicrostructure("orientmapMS")
+        self.assertAlmostEqual(
+            (ms.size()-primitives.Point(2*100/99, 3*150/149)).norm2(), 0.0, 7)
+        self.checkPixel(ms, 74, 101, 0.0, 0.0, 0.0)
+        self.checkPixel(ms, 63, 24, 10., 80., -100.)
+        self.checkPixel(ms, 37, 88, 10., 80., -100.)
 
 test_set = [
-    OOF_OrientationMapTest("OneOrientation")
+    OOF_OrientationMapTest("OneOrientation"),
+    OOF_OrientationMapTest("TwoOrientations"),
+    OOF_OrientationMapTest("TwoOrientationsNotSquare")
 ]
     
