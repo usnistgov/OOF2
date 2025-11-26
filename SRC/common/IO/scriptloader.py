@@ -89,7 +89,10 @@ class ScriptLoader:
     def progress(self, current, total): # Called to update progress bar
         pass
 
-    def stop(self):     # Called to see if execution should be stopped
+    def stop(self):
+        # Called to see if execution should be stopped.  Redefined in
+        # PScriptLoader, which returns True if a progress bar has been
+        # stopped.
         return False
 
     def done(self):             # Called when execution is complete
@@ -119,11 +122,12 @@ class ScriptLoader:
                     exec(code, globals()|self.locals, self.locals)
                     self.progress(snippet.lineno, lastline) 
                     if self.stop():
+                        debug.fmsg("Stopped!")
                         raise ScriptInterrupt(self.filename, snippet.lineno)
             except ScriptInterrupt as exc:
                 # This script was interrupted.
                 debug.fmsg("Interrupted!")
-                raise ScriptInterrupt(self.filename, curline.lineno) from exc
+                raise ScriptInterrupt(self.filename, curline) from exc
             except ScriptError as exc:
                 # A subscript raised an exception
                 raise ScriptError(self.filename, curline) from exc
