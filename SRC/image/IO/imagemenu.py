@@ -172,36 +172,64 @@ switchboard.requestCallback(('remove who', 'Microstructure'), _sensitize)
 # which is run on a subthread, will fail.  So import it here, whether
 # or not it's needed.
 from matplotlib import pyplot
+import tifffile
+
+## TODO NUMPY: Saved grayscale images have expanded range of gray
+## values.  See si3n4-small.png.
 
 def saveImage(menuitem, image, filename, overwrite):
+    # Use the filename extension to determine what kind of file to
+    # write.
+    ext = os.path.splitext(filename)[1]
+    if ext not in saveableExtensions():
+        raise ooferror.PyErrUserError(
+            f"File format {ext} cannot be saved!")
+
     immidge = oofimage.getImage(image).npImage()
-    if immidge is not None and (overwrite or not os.path.exists(filename)):
-        # Undo the flip done by readNumpyImage()
-        saveimg = numpy.flip(immidge, 0)
-        # Use the filename extension to determine what kind of file to
-        # write.
-        ext = os.path.splitext(filename)[1]
-        if ext == ".npy":
-            numpy.save(filename, saveimg)
-        elif ext == ".npz":
-            numpy.savez_compressed(filename, image=saveimg)
-        else:
-            # Not all image formats can be saved without conversion.
-            # OOF2 images are (probably) always stored as floats, so
-            # checking here is probably not necessary, but doesn't
-            # hurt much.
-            if saveimg.dtype not in ("uint8", "float32", "float64"):
-                # img_as_float converts an int or byte image to float64, but
-                # doesn't change float32 to float64.
-                saveimg = skimage.util.img_as_float(saveimg)
-            # Save with matplotlib.pyplot instead of skimage.io because
-            # skimage.io is causing problems with some formats.
-            if oofimage.getImage(image).isGray():
-                pyplot.imsave(filename, saveimg, cmap="gray")
-            else: 
-                pyplot.imsave(filename, saveimg)               
+    
+    if immidge is None or (os.path.exists(filename) and not overwrite):
+        reporter.warn("Image was not saved")
+        return
+    
+    # Undo the flip done by readNumpyImage()
+    saveimg = numpy.flip(immidge, 0)
+    
+    if ext == ".npy":
+        numpy.save(filename, saveimg)
+    elif ext == ".npz":
+        numpy.savez_compressed(filename, image=saveimg)
     else:
-        reporter.warn("Image was not saved!")
+        # Not all image formats can be saved without conversion.  OOF2
+        # images are (probably) always stored as floats, so checking
+        # here is probably not necessary, but doesn't hurt much.
+        if saveimg.dtype not in ("uint8", "float32", "float64"):
+            # img_as_float converts an int or byte image to float64,
+            # but doesn't change float32 to float64.
+            saveimg = skimage.util.img_as_float(saveimg)
+        # Save with matplotlib.pyplot instead of skimage.io because
+        # skimage.io is causing problems with some formats.
+        if oofimage.getImage(image).isGray():
+            # The documentation for matplotlib.pyplot.imsave.html says
+            # "If you want to save a single channel image as gray
+            # scale please use an image I/O library (such as pillow,
+            # tifffile, or imageio) directly."  However, pyplot's
+            # imsave is working while imageio's is crashing, so we're
+            # sticking with pyplot for now.  And pyplot seems to call
+            # pillow anyway.
+
+            ## TODO: Does tiff need cmap="gray" or similar?  If not,
+            ## put the tiff check outside the isGray check.
+            
+            if ext in (".tif", ".tiff"):
+                tifffile.imwrite(filename, saveimg)
+            else:
+                pyplot.imsave(filename, saveimg, cmap="gray")
+        else:
+            # Not a grayscale image
+            if ext in (".tif", ".tiff"):
+                tifffile.imwrite(filename, saveimg)
+            else:
+                pyplot.imsave(filename, saveimg)
 
 mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     'Image',
@@ -548,3 +576,86 @@ microstructuremenu.micromenu.addItem(oofmenu.OOFMenuItem(
     discussion=xmlmenudump.loadFile(
         'DISCUSSIONS/image/menu/microfromimagefile.xml')
 ))
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Find which image file types are supported for reading (opening) and
+# writing (saving).  matplotlib.pyplot uses PIL under the hood.
+#
+# PIL.features.pilinfo() dumps info about its capabilities to a file
+# or file-like object.  _getImageExtensions() writes the info to a
+# buffer.  The buffer will contain (among other data) a bunch of
+# blocks that look like this (except for the comment characters):
+
+#--------------------------------------------------------------------
+#PNG image/png
+#Extensions: .apng, .png
+#Features: open, save, save_all
+#--------------------------------------------------------------------
+
+# _getImageExtensions() looks for lines in the buffer that start with
+# "Extensions:" and extracts the extensions.  When it finds the
+# "Features" line, it adds the extensions to the lists of openable
+# and/or saveable extensions.
+
+# This code is ugly, but I can't find a better way to get a list of
+# filetypes that PIL supports.
+
+_openable = []
+_saveable = []
+# If a format supports "save_all", it can store multiple frames of an
+# animation.
+_saveable_all = []
+
+def _getImageExtensions():
+    global _openable, _saveable
+    if not _openable:
+        import io, re
+        import PIL.features
+
+        buff = io.StringIO()
+        PIL.features.pilinfo(out=buff) # load pilinfo output into buffer
+        buff.seek(0)                   # rewind buffer before reading
+
+        # Separator in pilinfo output is one or more commas and
+        # whitespaces.
+        sep = "[\\s,]+" 
+
+        exts = []           # extensions found on an "Extensions" line
+
+        for line in buff:
+            if line.startswith("Extensions:"):
+                assert(not exts)
+                words = re.split(sep, line)
+                # The first word is "Extensions:" and the last is a
+                # newline, so skip them.
+                exts = words[1:-1]
+            elif line.startswith("Features:"):
+                features = re.split(sep, line)[1:-1]
+                if "open" in features:
+                    _openable.extend(exts)
+                if "save" in features:
+                    _saveable.extend(exts)
+                if "save_all" in features:
+                    _saveable_all.extend(exts)
+                exts = []
+
+            _openable.sort()
+            _saveable.sort()
+            _saveable_all.sort()
+            
+
+def openableExtensions():
+    global _openable
+    _getImageExtensions()
+    return _openable
+
+def saveableExtensions():
+    global _saveable
+    _getImageExtensions()
+    return _saveable
+
+def saveableAllExtensions():
+    global _saveable_all
+    _getImageExtensions()
+    return _saveable_all

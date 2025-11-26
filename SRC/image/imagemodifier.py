@@ -210,7 +210,7 @@ registeredclass.Registration(
     ordering = 0.5,
     tip = 'Convert image to grayscale.',
     discussion = """ <para>
-    Convert a color &image; to grayscale by average each pixel's red,
+    Convert a color &image; to grayscale by averaging each pixel's red,
     green, and blue components.
     </para>"""
 )
@@ -268,11 +268,16 @@ class BlurImage(ImageModifierToEither):
         # in units of the standard deviation.  The old ImageMagick
         # 'radius' parameter was the radius in pixels, not counting
         # the central pixel.
+
+        # scikit-image docs for channel_axis: If None, the image is
+        # assumed to be a grayscale (single channel) image. Otherwise,
+        # this parameter indicates which axis of the array corresponds
+        # to channels.
         img = skimage.filters.gaussian(
             image.npImage(),
             self.sigma,
             truncate=(self.radius+1)/self.sigma,
-            channel_axis=-1)
+            channel_axis = None if image.isGray() else -1)
         img = numpy.minimum(img, 1.0)
         img = numpy.maximum(img, 0.0)
         return img
@@ -362,7 +367,7 @@ registeredclass.Registration(
     params = [
         parameter.PositiveIntParameter(
             'radius', 5,
-            tip='radius of the pixel neighborhood')
+            tip='Radius of the pixel neighborhood')
     ],
     tip = "Enhance intensity differences using scikit-image.",
     #discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/contrast.xml')
@@ -400,7 +405,7 @@ registeredclass.Registration(
     params = [
         parameter.PositiveIntParameter(
             'radius', 5,
-            tip='radius of the pixel neighborhood')
+            tip='Radius of the pixel neighborhood')
     ],
     tip = "Enhance intensity differences using scikit-image.",
 )
