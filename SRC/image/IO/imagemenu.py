@@ -32,9 +32,11 @@ from ooflib.image import imagecontext
 from ooflib.image import imagemodifier
 import ooflib.common.microstructure
 
+import imageio
 import numpy
 import os.path
 import skimage.io
+from matplotlib import pyplot
 
 imagemenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     'Image',
@@ -168,15 +170,6 @@ switchboard.requestCallback(('remove who', 'Microstructure'), _sensitize)
 
 # Use scikit-image to save an image file.
 
-# Matplotlib is not thread safe, and importing it inside saveImage(),
-# which is run on a subthread, will fail.  So import it here, whether
-# or not it's needed.
-from matplotlib import pyplot
-import tifffile
-
-## TODO NUMPY: Saved grayscale images have expanded range of gray
-## values.  See si3n4-small.png.
-
 def saveImage(menuitem, image, filename, overwrite):
     # Use the filename extension to determine what kind of file to
     # write.
@@ -198,6 +191,12 @@ def saveImage(menuitem, image, filename, overwrite):
         numpy.save(filename, saveimg)
     elif ext == ".npz":
         numpy.savez_compressed(filename, image=saveimg)
+    elif ext in (".tif", ".tiff"):
+        import tifffile
+        if oofimage.getImage(image).isGray():
+            tifffile.imwrite(filename, saveimg)#, photometric="gray")
+        else:
+            tifffile.imwrite(filename, saveimg)#, photometric="rgb")
     else:
         # Not all image formats can be saved without conversion.  OOF2
         # images are (probably) always stored as floats, so checking
@@ -217,19 +216,23 @@ def saveImage(menuitem, image, filename, overwrite):
             # sticking with pyplot for now.  And pyplot seems to call
             # pillow anyway.
 
-            ## TODO: Does tiff need cmap="gray" or similar?  If not,
-            ## put the tiff check outside the isGray check.
-            
-            if ext in (".tif", ".tiff"):
-                tifffile.imwrite(filename, saveimg)
-            else:
-                pyplot.imsave(filename, saveimg, cmap="gray")
+            # If we don't set vmin and vmax here, pyplot
+            # normalizes the image before saving it. WTF?
+            debug.fmsg(f"Saving gray image, shape={saveimg.shape}")
+            ## TODO NUMPY: What is this creating a 4 channel image
+            ## file?  loading and saving si3n4-small.png, which is
+            ## (200,200), produces a png that is (200,200,4).  Same
+            ## for .gif.  Colors are wrong in display_image, too.  So
+            ## don'tuse pyplot after all?
+            # pyplot.imsave(filename, saveimg, cmap="gray",
+            #               vmin=0.0, vmax=1.0)
+
+            ## This just prints black..  Need to set vmin, vmax?
+            imageio.imwrite(filename, saveimg.astype(numpy.uint8))
         else:
             # Not a grayscale image
-            if ext in (".tif", ".tiff"):
-                tifffile.imwrite(filename, saveimg)
-            else:
-                pyplot.imsave(filename, saveimg)
+            debug.fmsg("Saving color image")
+            pyplot.imsave(filename, saveimg)
 
 mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     'Image',
@@ -243,6 +246,7 @@ mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(
             whoville.WhoParameter('image', whoville.getClass('Image'),
                                    tip=parameter.emptyTipString)],
     help="Save an Image in a file.",
+    threadable=oofmenu.UNTHREADABLE, # matplotlib is not thread safe?!
     discussion=xmlmenudump.loadFile('DISCUSSIONS/image/menu/saveimage.xml')))
 
 def _fix_image_save(*args):
@@ -601,49 +605,54 @@ microstructuremenu.micromenu.addItem(oofmenu.OOFMenuItem(
 # This code is ugly, but I can't find a better way to get a list of
 # filetypes that PIL supports.
 
-_openable = []
-_saveable = []
+_openable = [".npy", ".npz"]
+_saveable = [".npy", ".npz"]
 # If a format supports "save_all", it can store multiple frames of an
 # animation.
 _saveable_all = []
 
+_foundexts = False
+
 def _getImageExtensions():
-    global _openable, _saveable
-    if not _openable:
-        import io, re
-        import PIL.features
+    global _foundexts
+    if _foundexts:
+        return
 
-        buff = io.StringIO()
-        PIL.features.pilinfo(out=buff) # load pilinfo output into buffer
-        buff.seek(0)                   # rewind buffer before reading
+    import io, re
+    import PIL.features
 
-        # Separator in pilinfo output is one or more commas and
-        # whitespaces.
-        sep = "[\\s,]+" 
+    buff = io.StringIO()
+    PIL.features.pilinfo(out=buff) # load pilinfo output into buffer
+    buff.seek(0)                   # rewind buffer before reading
 
-        exts = []           # extensions found on an "Extensions" line
+    # Separator in pilinfo output is one or more commas and
+    # whitespaces.
+    sep = "[\\s,]+" 
 
-        for line in buff:
-            if line.startswith("Extensions:"):
-                assert(not exts)
-                words = re.split(sep, line)
-                # The first word is "Extensions:" and the last is a
-                # newline, so skip them.
-                exts = words[1:-1]
-            elif line.startswith("Features:"):
-                features = re.split(sep, line)[1:-1]
-                if "open" in features:
-                    _openable.extend(exts)
-                if "save" in features:
-                    _saveable.extend(exts)
-                if "save_all" in features:
-                    _saveable_all.extend(exts)
-                exts = []
+    exts = []           # extensions found on an "Extensions" line
 
-            _openable.sort()
-            _saveable.sort()
-            _saveable_all.sort()
-            
+    for line in buff:
+        if line.startswith("Extensions:"):
+            assert(not exts)
+            words = re.split(sep, line)
+            # The first word is "Extensions:" and the last is a
+            # newline, so skip them.
+            exts = words[1:-1]
+        elif line.startswith("Features:"):
+            features = re.split(sep, line)[1:-1]
+            if "open" in features:
+                _openable.extend(exts)
+            if "save" in features:
+                _saveable.extend(exts)
+            if "save_all" in features:
+                _saveable_all.extend(exts)
+            exts = []
+
+    _openable.sort()
+    _saveable.sort()
+    _saveable_all.sort()
+    _foundexts = True
+        
 
 def openableExtensions():
     global _openable
