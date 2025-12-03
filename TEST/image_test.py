@@ -17,6 +17,7 @@
 import filecmp
 import os
 import random
+import sys
 import unittest
 
 from ooflib.SWIG.image import oofimage
@@ -31,7 +32,7 @@ from .UTILS.file_utils import reference_file
 
 # Compare two image files. It's not possible to use filecmp.cmp
 # because if the image format includes metadata, the files might
-# differ even if the pixel data is identical.  Use skimage utilities
+# differ even when the pixel data is identical.  Use skimage utilities
 # instead.
 
 import numpy
@@ -39,8 +40,9 @@ import skimage
 from matplotlib import pyplot
 
 def compare_image_files(imagefile0, imagefile1):
-    image0 = pyplot.imread(imagefile0)
-    image1 = pyplot.imread(imagefile1)
+    image0 = oofimage.getNumpyData(imagefile0)
+    image1 = oofimage.getNumpyData(imagefile1)
+
     if image0.shape != image1.shape:
         print(f"Image shapes don't agree: {image0.shape} {image1.shape}")
         return False
@@ -48,7 +50,7 @@ def compare_image_files(imagefile0, imagefile1):
     diffnorm = numpy.linalg.norm(compimg)
     diffmax = compimg.max()
     if diffnorm > 0 or diffmax > 0:
-        print(f"Image difference is nonzero: norm={norm} max={max}")
+        print(f"Image difference is nonzero: norm={diffnorm} max={diffmax}")
         return False
     return True
 
@@ -216,35 +218,55 @@ class OOF_Image(unittest.TestCase):
         os.remove("image_save_test.npy")
         os.remove("image_save_test.npz")
 
-    # Test for OOF.File.Save.Image, with a grayscale image.
+    # Test for OOF.File.Save.Image, with a grayscale image.  This
+    # examines more cases than the same test for RGB images, because
+    # the code for saving gray images is more complicated.  See
+    # saveImage() in imagemenu.py.
     @memorycheck.check("gray")
     def SaveGray(self):
+        # Load a gray scale image that is NOT restricted to 255
+        # intensities.  This checks that formats that don't require 8
+        # bit data aren't creating 8 bit data files.
         OOF.Microstructure.Create_From_ImageFile(
-            filename=reference_file("image_data", "si3n4-small.png"),
+            filename=reference_file("image_data", "si3n4-blur.npy"),
             microstructure_name="gray",
             height=automatic, width=automatic)
 
-        # Save as png
-        OOF.File.Save.Image(filename="image_save_test.png",
-                            image="gray:si3n4-small.png",
-                            overwrite=False)
-        self.assertTrue(
-            compare_image_files(
-                "image_save_test.png",
-                reference_file("image_data", "saved_gray.png")))
-        # Save as .npy
-        img = oofimage.getImage("gray:si3n4-small.png")
+        # Save in a bunch of standard image formats.  pdf, eps, and ps
+        # are omitted because they might contain system dependent
+        # metadata.
+        for ext in ("png", "gif", "jpg", "ppm", "pgm", "tif", "tiff"):
+            OOF.File.Save.Image(filename="image_save_test."+ext,
+                                image="gray:si3n4-blur.npy",
+                                overwrite=False)
+            self.assertTrue(
+                compare_image_files(
+                    "image_save_test."+ext,
+                    reference_file("image_data", "saved_gray."+ext)))
+
+        # npy and npz are treated separately because they might depend
+        # on endianness.
+        img = oofimage.getImage("gray:si3n4-blur.npy")
         swapbytes = img.makeLittleEndian()
-        OOF.File.Save.Image(filename="image_save_test.npy",
-                            image="gray:si3n4-small.png",
-                            overwrite=False)
-        self.assertTrue(
-            filecmp.cmp("image_save_test.npy",
-                        reference_file("image_data", "saved_gray.npy")))
+        for ext in ("npy", "npz"):
+            OOF.File.Save.Image(filename="image_save_test."  +ext,
+                                image="gray:si3n4-blur.npy",
+                                overwrite=False)
+            self.assertTrue(
+                filecmp.cmp("image_save_test."+ext,
+                            reference_file("image_data", "saved_gray."+ext)))
         if swapbytes:
             img.makeBigEndian()
-        os.remove("image_save_test.png")
+            
+        os.remove("image_save_test.gif")
+        os.remove("image_save_test.jpg")
         os.remove("image_save_test.npy")
+        os.remove("image_save_test.npz")
+        os.remove("image_save_test.pgm")
+        os.remove("image_save_test.png")
+        os.remove("image_save_test.ppm")
+        os.remove("image_save_test.tif")
+        os.remove("image_save_test.tiff")        
 
     @memorycheck.check()
     def Modify(self):
@@ -493,3 +515,8 @@ test_set = [
     OOF_Image("Modify")
 ]
 
+# test_set = [
+#     OOF_Image("SaveGray")
+#     ]
+
+    

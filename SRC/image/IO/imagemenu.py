@@ -35,7 +35,8 @@ import ooflib.common.microstructure
 import imageio
 import numpy
 import os.path
-import skimage.io
+import skimage
+import tifffile
 from matplotlib import pyplot
 
 imagemenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
@@ -168,7 +169,7 @@ switchboard.requestCallback(('remove who', 'Microstructure'), _sensitize)
 
 ##################################
 
-# Use scikit-image to save an image file.
+# Save an image file in various formats.
 
 def saveImage(menuitem, image, filename, overwrite):
     # Use the filename extension to determine what kind of file to
@@ -191,48 +192,31 @@ def saveImage(menuitem, image, filename, overwrite):
         numpy.save(filename, saveimg)
     elif ext == ".npz":
         numpy.savez_compressed(filename, image=saveimg)
-    elif ext in (".tif", ".tiff"):
-        import tifffile
-        if oofimage.getImage(image).isGray():
-            tifffile.imwrite(filename, saveimg)#, photometric="gray")
+    elif ext in (".tiff", ".tif"):
+        tifffile.imwrite(filename, saveimg)
+    elif oofimage.getImage(image).isGray():
+        # The documentation for matplotlib.pyplot.imsave says "If you
+        # want to save a single channel image as gray scale please use
+        # an image I/O library (such as pillow, tifffile, or imageio)
+        # directly."  Unfortunately there seems to be no single
+        # function call that handles all the formats.
+        #
+        # If possible, avoid saving a grayscale image in RGB or RGBA
+        # format, and save it in the highest resolution possible.  The
+        # available libraries have serious limitations in this regard.
+        if ext == ".png":
+            # one 16 bit unsigned int channel
+            imageio.imwrite(filename, skimage.util.img_as_uint(saveimg))
         else:
-            tifffile.imwrite(filename, saveimg)#, photometric="rgb")
+            # This does different things depending on the output image
+            # type.
+            # gif, jpg  --> four 8 bit unsigned byte channels, RGBA
+            # ppm, pgm  --> one 8 bit unsigned byte channel
+            # pdf, ps, and eps work as expected.  I don't know the bit depths.
+            imageio.imwrite(filename, skimage.util.img_as_ubyte(saveimg))
     else:
-        # Not all image formats can be saved without conversion.  OOF2
-        # images are (probably) always stored as floats, so checking
-        # here is probably not necessary, but doesn't hurt much.
-        if saveimg.dtype not in ("uint8", "float32", "float64"):
-            # img_as_float converts an int or byte image to float64,
-            # but doesn't change float32 to float64.
-            saveimg = skimage.util.img_as_float(saveimg)
-        # Save with matplotlib.pyplot instead of skimage.io because
-        # skimage.io is causing problems with some formats.
-        if oofimage.getImage(image).isGray():
-            # The documentation for matplotlib.pyplot.imsave.html says
-            # "If you want to save a single channel image as gray
-            # scale please use an image I/O library (such as pillow,
-            # tifffile, or imageio) directly."  However, pyplot's
-            # imsave is working while imageio's is crashing, so we're
-            # sticking with pyplot for now.  And pyplot seems to call
-            # pillow anyway.
-
-            # If we don't set vmin and vmax here, pyplot
-            # normalizes the image before saving it. WTF?
-            debug.fmsg(f"Saving gray image, shape={saveimg.shape}")
-            ## TODO NUMPY: What is this creating a 4 channel image
-            ## file?  loading and saving si3n4-small.png, which is
-            ## (200,200), produces a png that is (200,200,4).  Same
-            ## for .gif.  Colors are wrong in display_image, too.  So
-            ## don'tuse pyplot after all?
-            # pyplot.imsave(filename, saveimg, cmap="gray",
-            #               vmin=0.0, vmax=1.0)
-
-            ## This just prints black..  Need to set vmin, vmax?
-            imageio.imwrite(filename, saveimg.astype(numpy.uint8))
-        else:
-            # Not a grayscale image
-            debug.fmsg("Saving color image")
-            pyplot.imsave(filename, saveimg)
+        # Image is not gray
+        pyplot.imsave(filename, saveimg)
 
 mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     'Image',
