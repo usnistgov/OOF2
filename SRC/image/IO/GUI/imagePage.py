@@ -35,6 +35,9 @@ from ooflib.image import imagemodifier
 
 from ooflib.common.runtimeflags import digits
 
+## TODO NUMPY: Are buttons in Image Modification Pane desensitized
+## when a modification is underway?
+
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
