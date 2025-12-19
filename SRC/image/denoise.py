@@ -26,6 +26,10 @@ import skimage
 
 class DenoiseMethod(registeredclass.RegisteredClass):
     registry = []
+    tip="A technique for removing noise from an image."
+    discussion=\
+"""Subclasses of <classname>DenoiseMethod</classname> are used by
+<xref linkend="MenuItem-OOF.Image.Modify.Denoise"/> to remove noise from an &image;."""
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -115,7 +119,8 @@ registeredclass.Registration(
             tip='Maximum number of iterations.')
         ],
     tip = "Denoise using total variation regularization, suitable for piecewise constant images.",
-    #discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoisetv.xml')
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoise_tv.xml'),
+    xrefs=["MenuItem-OOF.Image.Modify.Denoise"]
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -232,22 +237,20 @@ registeredclass.Registration(
     params = [
         parameter.PositiveIntParameter(
             'patch_size', 7,
-            tip='Size of patches used for denoising.'),
+            tip='Size of patches used for denoising, in pixel units.'),
         parameter.PositiveIntParameter(
             'patch_distance', 11,
-            tip='Maximal distance in pixels where to search patches used for denoising.'),
+            tip='Maximum distance over which to search for similar patches, in pixel units.'),
         parameter.FloatParameter(
             'h', 0.1,
-            tip="Cut-off distance (in gray levels). A higher h results in a smoother image."
-#'Cut-off distance (in gray levels). The higher h, the more permissive one is in accepting patches. A higher h results in a smoother image, at the expense of blurring features. For a Gaussian noise of standard deviation sigma, a rule of thumb is to choose the value of h to be sigma or slightly less.'
-        ),
+            tip="Cut-off, in gray levels. A higher h results in a smoother image."),
         parameter.PositiveAutoFloatParameter(
             'sigma', automatic.automatic,
-            tip='The standard deviation of the (Gaussian) noise.' # If provided, a more robust computation of patch weights is computed that takes the expected noise variance into account.'
-        )
-        ],
+            tip='The standard deviation of the noise.')
+    ],
     tip = "Denoise using nonlocal means filtering (suitable for images with regions of repetitive texture).",
-    # discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoisenonlocalmeans.xml')
+    discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/denoise_nlmeans.xml'),
+    xrefs=["MenuItem-OOF.Image.Modify.Denoise"]
     )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -267,7 +270,9 @@ registeredclass.Registration(
         parameter.RegisteredParameter("method", DenoiseMethod,
                                       tip="How to denoise the image.")
         ],
-    tip="Apply various methods to remove noise from an image.")
+    tip="Apply various methods to remove noise from an image.",
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/image/reg/denoise.xml"),
+    xrefs=["MenuItem-OOF.Image.Modify.MedianFilter"])
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

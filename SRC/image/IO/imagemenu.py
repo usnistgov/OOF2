@@ -33,6 +33,7 @@ from ooflib.image import imagemodifier
 import ooflib.common.microstructure
 
 import imageio
+import itertools
 import numpy
 import os.path
 import skimage
@@ -175,9 +176,12 @@ def saveImage(menuitem, image, filename, overwrite):
     # Use the filename extension to determine what kind of file to
     # write.
     ext = os.path.splitext(filename)[1]
-    if ext not in saveableExtensions():
-        raise ooferror.PyErrUserError(
-            f"File format {ext} cannot be saved!")
+
+    ## DON'T check that the extension is recognized by PIL. The
+    ## list returned by saveableExtensions() is incomplete.
+    # if ext not in saveableExtensions():
+    #     raise ooferror.PyErrUserError(
+    #         f"Unknown image file format {ext}!")
 
     immidge = oofimage.getImage(image).npImage()
     
@@ -187,51 +191,59 @@ def saveImage(menuitem, image, filename, overwrite):
     
     # Undo the flip done by readNumpyImage()
     saveimg = numpy.flip(immidge, 0)
-    
-    if ext == ".npy":
-        numpy.save(filename, saveimg)
-    elif ext == ".npz":
-        numpy.savez_compressed(filename, image=saveimg)
-    elif ext in (".tiff", ".tif"):
-        tifffile.imwrite(filename, saveimg)
-    elif oofimage.getImage(image).isGray():
-        # The documentation for matplotlib.pyplot.imsave says "If you
-        # want to save a single channel image as gray scale please use
-        # an image I/O library (such as pillow, tifffile, or imageio)
-        # directly."  Unfortunately there seems to be no single
-        # function call that handles all the formats.
-        #
-        # If possible, avoid saving a grayscale image in RGB or RGBA
-        # format, and save it in the highest resolution possible.  The
-        # available libraries have serious limitations in this regard.
-        if ext == ".png":
-            # one 16 bit unsigned int channel
-            imageio.imwrite(filename, skimage.util.img_as_uint(saveimg))
-        else:
-            # This does different things depending on the output image
-            # type.
-            # gif, jpg  --> four 8 bit unsigned byte channels, RGBA
-            # ppm, pgm  --> one 8 bit unsigned byte channel
-            # pdf, ps, and eps work as expected.  I don't know the bit depths.
-            imageio.imwrite(filename, skimage.util.img_as_ubyte(saveimg))
-    else:
-        # Image is not gray
-        pyplot.imsave(filename, saveimg)
 
+    try:
+        if ext == ".npy":
+            numpy.save(filename, saveimg)
+        elif ext == ".npz":
+            numpy.savez_compressed(filename, image=saveimg)
+        elif ext in (".tiff", ".tif"):
+            tifffile.imwrite(filename, saveimg)
+        elif oofimage.getImage(image).isGray():
+            # The documentation for matplotlib.pyplot.imsave says "If you
+            # want to save a single channel image as gray scale please use
+            # an image I/O library (such as pillow, tifffile, or imageio)
+            # directly."  Unfortunately there seems to be no single
+            # function call that handles all the formats.
+            #
+            # If possible, avoid saving a grayscale image in RGB or RGBA
+            # format, and save it in the highest resolution possible.  The
+            # available libraries have serious limitations in this regard.
+            if ext == ".png":
+                # one 16 bit unsigned int channel
+                imageio.imwrite(filename, skimage.util.img_as_uint(saveimg))
+            else:
+                # This does different things depending on the output image
+                # type.
+                # gif, jpg  --> four 8 bit unsigned byte channels, RGBA
+                # ppm, pgm  --> one 8 bit unsigned byte channel
+                # pdf, ps, and eps work as expected.  Don't know the bit depths.
+                imageio.imwrite(filename, skimage.util.img_as_ubyte(saveimg))
+        else:
+            # Image is not gray
+            pyplot.imsave(filename, saveimg)
+    except Exception as exc:
+        raise ooferror.PyErrUserError(f"Cannot save file {filename}") from exc
+    
 mainmenu.OOF.File.Save.addItem(oofmenu.OOFMenuItem(
     'Image',
     callback=saveImage,
     ordering=40,
-    params=[filenameparam.WriteFileNameParameter('filename', 'filename',
-                                                 tip="Name of the file."),
-            filenameparam.OverwriteParameter(
-                'overwrite',
-                tip="Whether or not to overwrite an existing file."),
-            whoville.WhoParameter('image', whoville.getClass('Image'),
-                                   tip=parameter.emptyTipString)],
+    params=[
+        filenameparam.WriteFileNameParameter(
+            'filename', 'filename',
+            tip="Name of the file.  The suffix (eg. '.png') determines the file type"),
+        filenameparam.OverwriteParameter(
+            'overwrite',
+            tip="Whether or not to overwrite an existing file."),
+        whoville.WhoParameter('image', whoville.getClass('Image'),
+                              tip=parameter.emptyTipString)],
     help="Save an Image in a file.",
     threadable=oofmenu.UNTHREADABLE, # matplotlib is not thread safe?!
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/menu/saveimage.xml')))
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/menu/saveimage.xml'),
+    xrefs = ["MenuItem-OOF.Help.Image_File_Types",
+             "MenuItem-OOF.File.Load.Image"]
+))
 
 def _fix_image_save(*args):
     if imagecontext.imageContexts.nActual()==0:
@@ -586,13 +598,15 @@ microstructuremenu.micromenu.addItem(oofmenu.OOFMenuItem(
 # "Features" line, it adds the extensions to the lists of openable
 # and/or saveable extensions.
 
-# This code is ugly, but I can't find a better way to get a list of
-# filetypes that PIL supports.
+# TODO: This code is ugly, but I can't find a better way to get a list
+# of filetypes that PIL supports.  It also doesn't work: pdf can be
+# written but has to be added manually to the list.  So we don't use
+# the list to restrict what suffixes the user can try to use.
 
 _openable = [".npy", ".npz"]
-_saveable = [".npy", ".npz"]
+_saveable = [".npy", ".npz", ".pdf"]
 # If a format supports "save_all", it can store multiple frames of an
-# animation.
+# animation.  This might be useful if we save animated solutions.
 _saveable_all = []
 
 _foundexts = False
@@ -652,3 +666,79 @@ def saveableAllExtensions():
     global _saveable_all
     _getImageExtensions()
     return _saveable_all
+
+#######
+
+# Print lists of acceptable image filename extensions.
+
+def chunk(it, size):
+    # Split an iterable into chunks of a given size.  Stolen from
+    # https://stackoverflow.com/questions/312443/how-do-i-split-a-list-into-equally-sized-chunks
+    it = iter(it)
+    return iter(lambda: tuple(itertools.islice(it, size)), ())
+
+def _printFileTypes(menuitem):
+    exts = openableExtensions()
+    debug.fmsg(list(chunk(exts, 10)))
+
+    reporter.report("Readable image file types are:\n"
+                    + "\n".join(
+                        "\t".join(sublist) for sublist in
+                        chunk(openableExtensions(), 10)))
+    reporter.report("Writable image file types are:\n"
+                    + "\n".join(
+                        "\t".join(sublist) for sublist in
+                        chunk(saveableExtensions(), 10)))
+
+# Output from the above on a Mac with Pillow 9.5.0:
+# Readable image file types are:
+# .apng	.blp	.bmp	.bufr	.bw	.cur	.dcx	.dds	.dib	.emf
+# .eps	.fit	.fits	.flc	.fli	.fpx	.ftc	.ftu	.gbr	.gif
+# .grib	.h5	.hdf	.icb	.icns	.ico	.iim	.im	.j2c	.j2k
+# .jfif	.jp2	.jpc	.jpe	.jpeg	.jpf	.jpg	.jpx	.mic	.mpeg
+# .mpg	.msp	.npy	.npz	.pbm	.pcd	.pcx	.pgm	.png	.pnm
+# .ppm	.ps	.psd	.pxr	.qoi	.ras	.rgb	.rgba	.sgi	.tga
+# .tif	.tiff	.vda	.vst	.webp	.wmf	.xbm	.xpm
+
+# Writable image file types are:
+# .apng	.blp	.bmp	.bufr	.bw	.dds	.dib	.emf	.eps	.fit
+# .fits	.gif	.grib	.h5	.hdf	.icb	.icns	.ico	.im	.j2c
+# .j2k	.jfif	.jp2	.jpc	.jpe	.jpeg	.jpf	.jpg	.jpx	.msp
+# .npy	.npz	.pbm	.pcx	.pgm	.png	.pnm	.ppm	.ps	.rgb
+# .rgba	.sgi	.tga	.tif	.tiff	.vda	.vst	.webp	.wmf	.xbm
+
+## Formats that actually worked for writing a color image on a Mac
+## w/Pillow 9.5.0
+# .bmp .dds .dib .eps .gif .icns .ico .im .jpeg .jpg .png .ppm .ps
+# .sgi .tga .tif .tiff .webp
+
+## Same, for writing a grayscale image
+# .apng .bmp .bw .dds .dib .eps .gif .icb .icns .ico .im .j2c .j2k
+# .jfif .jp2 .jpc .jpe .jpeg .jpf .jpg .jpx .npy .npz .pbm .pcx .pdf
+# .pgm .png .pnm .ppm .ps .rgb .rgba .sgi .tga .tif .tiff .vda .vst
+# .webp
+
+
+mainmenu.OOF.Help.addItem(
+    oofmenu.OOFMenuItem(
+        'Image_File_Types',
+        callback=_printFileTypes,
+        help="List the recognized image file suffixes.",
+        discussion=
+        
+      """<para>List the filename suffixes corresponding to recognized
+image file formats.  These are the types that the <ulink
+url="https://pillow.readthedocs.io/en/stable/index.html"
+role="external">Pillow</ulink> library on your computer claims to
+understand. The list can depend on how the library was built locally.</para>
+
+<para>Not all of the file types listed might be useful or usable in
+&oof2;.  Also, the list may not be complete.  The only way to know for
+sure if a file type can be used is to try it. </para>""",
+
+        xrefs=["MenuItem-OOF.File.Save.Image",
+                "MenuItem-OOF.File.Load.Image",
+                "MenuItem-OOF.Microstructure.Create_From_ImageFile"]
+        ))
+
+    

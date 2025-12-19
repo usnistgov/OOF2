@@ -182,9 +182,8 @@ registeredclass.Registration(
                           tip="Flip the image about this axis") # helpful hint
     ],
     tip = "Flip the image about the x or y axis.",
-    discussion = """<para>
-    Flip an &image; about its center line, in either the x or y direction.
-    </para>"""
+    discussion = """<para> Flip an &image; about its center line, in
+    either the x or y direction, or both. </para>"""
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -295,7 +294,7 @@ registeredclass.Registration(
             'sigma', 1.0,
             tip="Standard deviation of the Gaussian, in pixels")
     ],
-    tip = "Blur an image by convolving it with a Gaussian operator of the given radius and standard deviation (sigma).",
+    tip = "Blur an image by convolving it with a Gaussian.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/blurimage.xml')
     )
 
@@ -370,7 +369,7 @@ registeredclass.Registration(
             tip='Radius of the pixel neighborhood')
     ],
     tip = "Enhance intensity differences using scikit-image.",
-    #discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/contrast.xml')
+    discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/contrast.xml')
 )
 
 
@@ -421,7 +420,8 @@ registeredclass.Registration(
     ImageModifier,
     Edge,
     ordering=2.031,
-    tip="Use a Sobel filter to find edges in an image.")
+    tip="Use a Sobel filter to find edges in an image.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/edge.xml'))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -464,7 +464,8 @@ registeredclass.Registration(
             'radius', 2,
             tip="Radius of the median filter in units of the pixel size.") ],
     tip = "Reduce noise by replacing each pixel color with the median over a local region.",
-    discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/median.xml')
+    discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/median.xml'),
+    xrefs=["MenuItem-OOF.Image.Modify.Denoise"]
     )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
