@@ -507,6 +507,10 @@ class SharpenMode(oofenum.EnumClass(
         ('RGB', 'Sharpen the RGB channels separately.'),
         ('HSV', 'Sharpen the Value channel only.'))):
     tip="How to apply the unsharp_mask algorithm"
+    discussion="""
+    Possible values of the <varname>mode</varname> parameter for <xref
+    linkend="MenuItem-OOF.Image.Modify.Sharpen"/>.
+    """
                   
 class SharpenImage(ImageModifierToEither):
     def __init__(self, radius, amount, mode):
@@ -553,15 +557,16 @@ registeredclass.Registration(
     ordering = 2.09,
     params = [
         parameter.PositiveFloatParameter(
-            'radius', 1.0,
-            tip='Radius of the Gaussian blur.'),
+            'radius', 5.0,
+            tip='Radius of the Gaussian blur, in pixels.'),
         parameter.PositiveFloatParameter(
             'amount', 1.0,
             tip='Amplification factor for image details.'),
         oofenum.EnumParameter(
             'mode',
             SharpenMode,
-            SharpenMode('HSV'))
+            SharpenMode('HSV'),
+            tip='Sharpen RGB channels or just the V from HSV.')
     ],
     tip = "Sharpen the image by convolving with a Gaussian: The sharp details are identified as the difference between the original image and its blurred version. These details are then scaled, and added back to the original image.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/sharpen.xml')
