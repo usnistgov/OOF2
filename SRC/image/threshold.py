@@ -30,6 +30,9 @@ import skimage
 
 class ThresholdMethod(registeredclass.RegisteredClass):
     registry = []
+    tip = "Various ways of thresholding an image."
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/thresholdmethod.xml')
+    xrefs=["MenuItem-OOF.Image.Modify.Threshold"]
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
     
@@ -49,7 +52,8 @@ registeredclass.Registration(
         parameter.FloatRangeParameter(
             'value', (0,1,.01), value=0.5, tip="Threshold value.")
     ],
-    tip = "Make all pixels brighter than the given value white, and the rest black."
+    tip = "Make all pixels brighter than the given value white, and the rest black.",
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/image/reg/thresholdmanual.xml")
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -63,7 +67,8 @@ registeredclass.Registration(
     ThresholdMethod,
     MeanThreshold,
     ordering=1,
-    tip="All pixels brighter than the mean brightness of the image will be white, and the rest black."
+    tip="All pixels brighter than the mean brightness of the image will be white, and the rest black.",
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/image/reg/thresholdmean.xml")
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -77,7 +82,10 @@ registeredclass.Registration(
     ThresholdMethod,
     MinimumThreshold,
     ordering=2,
-    tip="Choose a threshold at the minimum in the smoothed histogram of gray values")
+    tip="Choose a threshold at the minimum in the smoothed histogram of gray values",
+    discussion=xmlmenudump.loadFile(
+        "DISCUSSIONS/image/reg/thresholdminimum.xml")
+)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -98,9 +106,12 @@ registeredclass.Registration(
     ordering=3,
     params=[
         parameter.AutoFloatParameter(
-            "tolerance", automatic.automatic)
+            "tolerance", automatic.automatic,
+            tip="Stop iterating when the threshold change is less than this.")
         ],
-    tip="Compute the threshold value by Li’s iterative Minimum Cross Entropy method."
+    tip="Compute the threshold value by Li’s iterative Minimum Cross Entropy method.",
+    discussion=xmlmenudump.loadFile(
+        "DISCUSSIONS/image/reg/thresholdminimumentropy.xml")
 )
     
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -119,6 +130,14 @@ class LocalAverageMethod(registeredclass.RegisteredClass):
     registry = []
     def paramparam(self):
         return None
+    tip="How to compute the local average intensity."
+    discussion="""
+    <para><classname>LocalAverageMethod</classname> subclasses are used as
+    the <varname>average</varname> parameter to the <xref
+    linkend="RegisteredClass-LocalThreshold"/> image thresholding
+    method.</para>  """
+    xrefs=["MenuItem-OOF.Image.Modify.Threshold",
+           "RegisteredClass-LocalThreshold"]
     
 class LocalMean(LocalAverageMethod):
     def methodparam(self):
@@ -129,7 +148,11 @@ registeredclass.Registration(
     LocalAverageMethod,
     LocalMean,
     ordering=0,
-    tip="The threshold is the mean of the gray values in the local area.")
+    tip="The threshold is the mean of the gray values in the local area.",
+    discussion="""<para>
+    Compute a local threshold from the mean of the intensity values in
+    the local area.  </para>"""
+)
 
 class LocalMedian(LocalAverageMethod):
     def methodparam(self):
@@ -140,7 +163,11 @@ registeredclass.Registration(
     LocalAverageMethod,
     LocalMedian,
     ordering=1,
-    tip="The threshold is the median of the gray values in the local area.")
+    tip="The threshold is the median of the gray values in the local area.",
+    discussion="""<para>
+    Compute a local threshold from the median of the intensity values in
+    the local area.  </para>"""
+)
 
 class LocalGaussian(LocalAverageMethod):
     def __init__(self, sigma):
@@ -160,18 +187,24 @@ registeredclass.Registration(
     params=[
         parameter.PositiveAutoFloatParameter(
             'sigma', automatic.automatic, tip='Width of the gaussian')],
-    tip="The threshold is the gaussian weighted mean of the gray values in the local area.")
+    tip="The threshold is the gaussian weighted mean of the gray values in the local area.",
+    discussion="""<para>
+        Compute a local threshold from the gaussian weighted mean of the
+    intensity values in the local area.  </para>"""
+)
 
 
 class LocalThreshold(ThresholdMethod):
-    def __init__(self, radius, average):
+    def __init__(self, radius, average, offset):
         self.radius = radius
         self.average = average
+        self.offset = offset
     def threshold(self, image):
         block_size = 2*self.radius + 1
         return skimage.filters.threshold_local(
             image, block_size,
             method=self.average.methodparam(),
+            offset=self.offset,
             param=self.average.paramparam())
 
 registeredclass.Registration(
@@ -183,9 +216,15 @@ registeredclass.Registration(
         parameter.PositiveIntParameter(
             'radius', 10,
             tip='Half width of the local neighborhood.'),
-        parameter.RegisteredParameter('average', LocalAverageMethod)
+        parameter.RegisteredParameter(
+            'average', LocalAverageMethod,
+            tip="How to compute local average brightness."),
+        parameter.FloatRangeParameter(
+            'offset', (-1,1,.01), value=0,
+            tip='Offset from the mean')
     ],
-    tip="Use a different threshold at each point, computed from the local neighborhood."
+    tip="Use a different threshold at each point, computed from the local neighborhood.",
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/image/reg/thresholdlocal.xml")
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -199,7 +238,9 @@ registeredclass.Registration(
     ThresholdMethod,
     IsoDataThreshold,
     ordering=5,
-    tip="Automatically select a threshold via the Ridler-Calvert method."
+    tip="Automatically select a threshold via the Ridler-Calvert method.",
+    discussion=xmlmenudump.loadFile(
+        "DISCUSSIONS/image/reg/thresholdisodata.xml")
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -213,7 +254,8 @@ registeredclass.Registration(
     ThresholdMethod,
     OtsuThreshold,
     ordering=6,
-    tip="Choose a threshold T such that the average of the means of the pixel gray values below and above T equals T."
+    tip="Choose a threshold T such that the average of the means of the intensities below and above T equals T.",
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/image/reg/thresholdotsu.xml")
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -233,7 +275,9 @@ registeredclass.Registration(
         parameter.PositiveIntParameter(
             'nbins', 256, tip="Number of histogram bins")
         ],
-    tip="Use the triangle method to compute the threshold value."
+    tip="Use the triangle method to compute the threshold value.",
+    discussion=xmlmenudump.loadFile(
+        "DISCUSSIONS/image/reg/thresholdtriangle.xml")
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -255,7 +299,9 @@ registeredclass.Registration(
         parameter.PositiveIntParameter(
             'nbins', 256, tip="Number of histogram bins")
         ],
-    tip="Use Yen's method to compute the threshold value.")
+    tip="Use Yen's method to compute the threshold value.",
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/image/reg/thresholdyen.xml")
+)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -266,11 +312,7 @@ class Threshold(imagemodifier.ImageModifierToGray):
     def modify(self, image):  # arg is an OOFImage
         grayscale = imagemodifier.rgb2gray(image.npImage())
         t = self.method.threshold(grayscale)
-        # gray2rgb preserves the dtype of the image, so convert to
-        # float first.  Don't use astype() on an image, because it can
-        # produce values that are out of range.
-        grays = skimage.util.img_as_float(grayscale > t)
-        return skimage.color.gray2rgb(grays)
+        return skimage.util.img_as_float(grayscale > t)
                                     
 registeredclass.Registration(
     'Threshold',
@@ -281,7 +323,8 @@ registeredclass.Registration(
         parameter.RegisteredParameter("method", ThresholdMethod,
                                       tip="How to compute the threshold")
         ],
-    tip="Make all pixels brighter than a given threshold white, and all others black."
+    tip="Make all pixels brighter than a given threshold white, and all others black.",
+    discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/threshold.xml')
     )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -309,6 +352,6 @@ registeredclass.Registration(
         parameter.FloatRangeParameter('T', (0,1,.01),
                                       value=0.5, tip="Threshold value.") ],
     tip = "Threshold the pixel values to obtain a black and white image.",
-    discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/threshold.xml')
+    #discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/threshold.xml')
     )
 

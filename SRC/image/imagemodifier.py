@@ -322,15 +322,17 @@ registeredclass.Registration(
     ordering=10000,
     params = [
         parameter.PositiveFloatParameter('sigma', 0.1,
-                                 "Width of the noise distribution"),
+                                 tip="Width of the noise distribution"),
         parameter.AutoIntParameter('seed', automatic.automatic,
-                                   "Seed for the random number generator")
+                                   tip="Seed for the random number generator")
         ],
     tip = "Add random noise to the image",
     discussion=
     """<para>
-    This is used to generate images for the test suite.
-    It might be amusing elsewhere.
+    This is used to generate images for the test suite.  Gaussian
+    noise with deviation <varname>sigma</varname> is added to each
+    pixel.  If <varname>seed</varname> is &automatic; the random number
+    generator is not reinitialized before use.
     </para>"""
 )
 
@@ -568,7 +570,7 @@ registeredclass.Registration(
             SharpenMode('HSV'),
             tip='Sharpen RGB channels or just the V from HSV.')
     ],
-    tip = "Sharpen the image by convolving with a Gaussian: The sharp details are identified as the difference between the original image and its blurred version. These details are then scaled, and added back to the original image.",
+    tip = "Sharpen the image by comparing it to a blurred version of itself.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/sharpen.xml')
 )
 
@@ -616,8 +618,9 @@ registeredclass.Registration(
     ReIlluminateImage,
     ordering = 3.0,
     params = [
-        parameter.PositiveIntParameter('radius', 10,
-                                       tip='Size of the averaging region.')
+        parameter.PositiveIntParameter(
+            'radius', 10,
+            tip='Radius of the averaging region in pixels.')
     ],
     tip = 'Adjust brightness so that the whole image is evenly illuminated.',
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/reilluminate.xml')
