@@ -922,7 +922,9 @@ class OOFMenuItem:
                       % param.name, file=file)
                 print("      <listitem>", file=file)
                 if param.tip is not parameter.emptyTipString:
-                    tip = param.tip or "MISSING TIP STRING"
+                    tip = param.tip or "MISSING TIP STRING."
+                    if not tip.endswith('.'):
+                        tip = tip + "."
                 else:
                     tip =""
                 print("       <simpara>%s <emphasis>Type</emphasis>: %s</simpara>" \

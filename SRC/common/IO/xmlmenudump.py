@@ -208,6 +208,8 @@ def getHelp(obj):                       # get help, helpstr, or tip
             pass
         else:
             if isinstance(whelp, (str, bytes)):
+                if not whelp.endswith('.'):
+                    whelp = whelp + '.'
                 return whelp
             return whelp.read(obj)
     raise AttributeError(obj, "helpstr, help, or tip")
