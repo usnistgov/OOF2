@@ -82,7 +82,7 @@ registeredclass.Registration(
     ThresholdMethod,
     MinimumThreshold,
     ordering=2,
-    tip="Choose a threshold at the minimum in the smoothed histogram of gray values",
+    tip="Choose a threshold at the minimum in the smoothed histogram of gray values.",
     discussion=xmlmenudump.loadFile(
         "DISCUSSIONS/image/reg/thresholdminimum.xml")
 )
@@ -186,7 +186,7 @@ registeredclass.Registration(
     ordering=2,
     params=[
         parameter.PositiveAutoFloatParameter(
-            'sigma', automatic.automatic, tip='Width of the gaussian')],
+            'sigma', automatic.automatic, tip='Width of the gaussian in pixels.')],
     tip="The threshold is the gaussian weighted mean of the gray values in the local area.",
     discussion="""<para>
         Compute a local threshold from the gaussian weighted mean of the
@@ -221,7 +221,7 @@ registeredclass.Registration(
             tip="How to compute local average brightness."),
         parameter.FloatRangeParameter(
             'offset', (-1,1,.01), value=0,
-            tip='Offset from the mean')
+            tip='Offset from the mean.')
     ],
     tip="Use a different threshold at each point, computed from the local neighborhood.",
     discussion=xmlmenudump.loadFile("DISCUSSIONS/image/reg/thresholdlocal.xml")
@@ -273,7 +273,7 @@ registeredclass.Registration(
     ordering=7,
     params=[
         parameter.PositiveIntParameter(
-            'nbins', 256, tip="Number of histogram bins")
+            'nbins', 256, tip="Number of histogram bins.")
         ],
     tip="Use the triangle method to compute the threshold value.",
     discussion=xmlmenudump.loadFile(
@@ -297,7 +297,7 @@ registeredclass.Registration(
     ordering=8,
     params=[
         parameter.PositiveIntParameter(
-            'nbins', 256, tip="Number of histogram bins")
+            'nbins', 256, tip="Number of histogram bins.")
         ],
     tip="Use Yen's method to compute the threshold value.",
     discussion=xmlmenudump.loadFile("DISCUSSIONS/image/reg/thresholdyen.xml")
@@ -321,7 +321,7 @@ registeredclass.Registration(
     ordering=100,
     params=[
         parameter.RegisteredParameter("method", ThresholdMethod,
-                                      tip="How to compute the threshold")
+                                      tip="How to compute the threshold.")
         ],
     tip="Make all pixels brighter than a given threshold white, and all others black.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/threshold.xml')

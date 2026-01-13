@@ -326,13 +326,14 @@ registeredclass.Registration(
         parameter.AutoIntParameter('seed', automatic.automatic,
                                    tip="Seed for the random number generator")
         ],
-    tip = "Add random noise to the image",
+    tip = "Add random noise to an image",
     discussion=
     """<para>
-    This is used to generate images for the test suite.  Gaussian
-    noise with deviation <varname>sigma</varname> is added to each
-    pixel.  If <varname>seed</varname> is &automatic; the random number
-    generator is not reinitialized before use.
+    <command>AddNoise</command> is used to generate images for the
+    test suite.  Gaussian noise with deviation
+    <varname>sigma</varname> is added to each pixel.  If
+    <varname>seed</varname> is &automatic; the random number generator
+    is not reinitialized before use.
     </para>"""
 )
 
