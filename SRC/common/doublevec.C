@@ -198,14 +198,14 @@ bool load_vec(DoubleVec& vec, const std::string& filename) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// For testing iteration
+// For testing iterators.  Called from TEST/fundamental_test.py.
 
 // static
 DoubleVec* DoubleVec::testIterator(DoubleVec &vec) {
   DoubleVec *result = new DoubleVec(vec.size(), 0.0);
 
   // traditional for loop
-  for(int i=0; i<vec.size(); ++i) {
+  for(std::size_t i=0; i<vec.size(); ++i) {
     (*result)[i] = vec[i];
   }
   
@@ -214,6 +214,22 @@ DoubleVec* DoubleVec::testIterator(DoubleVec &vec) {
   for(double x : vec) {
     (*result)[i++] += 2*x;
   }
+
+  // TODO: The test suite should check that these all work.  Putting
+  // them here just checks that they compile.
+  DoubleVec A(10);
+  // Access data via integer index
+  for(int i=0; i<A.size(); i++)
+    A[i] = 0;
+  // Access directly via iterator
+  for(DoubleVec::iterator i=A.begin(); i<A.end(); ++i)
+    *i = 1;
+  // Access via iterator as index
+  for(DoubleVec::iterator i=A.begin(); i<A.end(); ++i)
+    A[i] = 2;
+  // Range-based loop
+  for(double& x : A)
+    x = 3;
   
   // STL-like for loop
   auto itr = result->data.begin();

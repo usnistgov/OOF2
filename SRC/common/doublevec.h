@@ -86,6 +86,8 @@ public:
   iterator end() { return data.end(); }
   const_iterator begin() const { return data.begin(); }
   const_iterator end() const { return data.end(); }
+  double& operator[](const iterator& it) { return *it; }
+  double operator[](const const_iterator& it) const { return *it; }
 
   /* Miscellaneous */
 
