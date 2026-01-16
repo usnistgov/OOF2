@@ -469,10 +469,10 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.rb = self.selmeth.getRubberBand(self.selmeth)
         ## TODO: Make the rubberband width, etc, settable by the user
         if self.rb is not None:
-            self.rb.setLineWidth(1)
+            self.rb.setLineWidth(1.0)
             self.rb.setColor(oofcanvas.black)
             self.rb.setDashColor(oofcanvas.white)
-            self.rb.setDashLength(7)
+            self.rb.setDashLength(7.0)
         self.gfxwindow().setRubberBand(self.rb)
         # Start collecting points
         self.points = [primitives.Point(x,y)]
