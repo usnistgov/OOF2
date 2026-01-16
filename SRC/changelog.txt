@@ -77,6 +77,15 @@ OOF2 2.4.0
     * OOF.Image.Modify.Despeckle has been removed. It can be replaced
       by MedianFilter or Denoise, which do similar things.
 
+    * OOF.Image.Modify.Sharpen works differently than it used to,
+      probably. It was never clear exactly what the ImageMagick
+      routine was doing.  The new version takes a 'mode' argument
+      which controls whether it operates on RGB channels separately,
+      or on just the V channel of HSV.
+
+    * OOF.Image.Modify.Edge also works differently. It also now takes
+      a 'mode' argument, as in Sharpen. 
+
 * Grayscale images are stored internally as grayscale images. In the
   past they were converted to RGB.
   

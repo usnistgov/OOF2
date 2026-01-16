@@ -26,17 +26,9 @@
 
 
 // TODO: OpenMP pragmas have been enclosed in #ifdef HAVE_OPENMP
-// blocks so that we control when they're used.  On Ubuntu,
-// ImageMagick is built with -fopenmp, and OOF2 gets it c++ flags from
-// ImageMagick, so it's being built with OpenMP whether we want it or
-// not.  Also, there are some bugs in autogroup that are making it
-// crash when running with OpenMP.
-
-// CColor packet2color(const Magick::PixelPacket &packet) {
-//   using namespace Magick;
-//   double scale = 1./MaxRGB;
-//   return CColor(packet.red*scale, packet.green*scale, packet.blue*scale);
-// }
+// blocks so that we control when they're used.  This was to avoid
+// conflicts with the way ImageMagick was built on Ubuntu.  Since
+// we're not using ImageMagick anymore, we shouldn't need the #ifdefs.
 
 // Replace all instances of a by b within source and return the
 // result.  Used when constructing group names.
@@ -116,10 +108,7 @@ std::vector<std::string> *autogroup(CMicrostructure *ms, OOFImage *image,
     for(j=0; j<height; ++j) {
       for(i=0; i<width && !progress->stopped(); ++i) {
         ICoord pxl(i, j);
-        // Direct lookup in the ImageMagick image is not thread safe somehow.
 	const CColor color((*image)[pxl]);
-        // This is uglier but faster and also apparently thread safe.
-        //const CColor color(packet2color(packet[i + j*width]));
         colorlist[color].push_back(pxl); // add this pixel to corresponding list
       }
 #ifdef HAVE_OPENMP
