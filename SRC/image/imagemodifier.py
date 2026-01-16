@@ -88,7 +88,7 @@ from skimage.color.adapt_rgb import adapt_rgb, hsv_value, each_channel
 
 class ModifierMode(oofenum.EnumClass(
         ('RGB', 'Operate on the RGB channels separately.'),
-        ('hsV', 'Operate on the Value channel only.'))):
+        ('HSV', 'Operate on the Value channel only.'))):
     tip="How to apply the unsharp_mask algorithm"
     discussion="""
     Possible values of the <varname>mode</varname> parameter for image
@@ -588,7 +588,7 @@ registeredclass.Registration(
         oofenum.EnumParameter(
             'mode',
             ModifierMode,
-            ModifierMode('hsV'),
+            ModifierMode('HSV'),
             tip='Sharpen RGB channels or just the V from HSV.')
     ],
     tip = "Sharpen the image by comparing it to a blurred version of itself.",
