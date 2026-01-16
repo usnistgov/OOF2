@@ -25,12 +25,6 @@ import numpy
 import skimage
 import sys
 
-## TODO NUMPY: Review the tips and discussions for all classes.  Some
-## still refer to the ImageMagick versions.
-
-## TODO NUMPY: Can we use @skimage.adapt_rgb?
-## https://scikit-image.org/docs/0.25.x/auto_examples/color_exposure/plot_adapt_rgb.html
-
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Base class for image modification methods.  Subclasses of
@@ -80,6 +74,25 @@ class ImageModifierToEither(ImageModifier):
         return original
     def newData(self, oldImage):
         return oldImage.npImage().copy()
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# This page explains how to use adapt_rgb to apply gray-scale only
+# image operations to color images:
+# https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_adapt_rgb.html
+
+from skimage.color.adapt_rgb import adapt_rgb, hsv_value, each_channel
+    
+# Modifiers that can operate either on RGB channels individually or on
+# the V of HSV use a ModifierMode parameter.
+
+class ModifierMode(oofenum.EnumClass(
+        ('RGB', 'Operate on the RGB channels separately.'),
+        ('hsV', 'Operate on the Value channel only.'))):
+    tip="How to apply the unsharp_mask algorithm"
+    discussion="""
+    Possible values of the <varname>mode</varname> parameter for image
+    modification methods."""
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -414,9 +427,23 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+@adapt_rgb(hsv_value)
+def sobel_hsv(image):
+    return skimage.filters.sobel(image)
+
+@adapt_rgb(each_channel)
+def sobel_rgb(image):
+    return skimage.filters.sobel(image)
+
 class Edge(ImageModifierToEither):
+    def __init__(self, mode):
+        self.mode = mode
     def modify(self, image):
-        return skimage.filters.sobel(image.npImage())
+        if image.isGray():
+            return skimage.filters.sobel(image.npImage())
+        if self.mode == 'RGB':
+            return sobel_rgb(image.npImage())
+        return sobel_hsv(image.npImage())
 
 registeredclass.Registration(
     'Edge',
@@ -424,6 +451,13 @@ registeredclass.Registration(
     Edge,
     ordering=2.031,
     tip="Use a Sobel filter to find edges in an image.",
+    params=[
+        oofenum.EnumParameter(
+            'mode',
+            ModifierMode,
+            ModifierMode('RGB'),
+            tip="Operate on RGB channels or just the V from HSV.")
+    ],
     discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/edge.xml'))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -453,6 +487,9 @@ class MedianFilterImage(ImageModifierToEither):
         if image.isGray():
             newimage = skimage.filters.median(npimage, disk)
         else:
+            # TODO NUMPY: Is there any point to using adapt_rgb here?
+            # Does applying the filter to just the V channel make
+            # sense?
             for k in range(npimage.shape[2]):
                 newimage[:,:,k] = skimage.filters.median(npimage[:,:,k], disk)
         return newimage
@@ -506,15 +543,21 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class SharpenMode(oofenum.EnumClass(
-        ('RGB', 'Sharpen the RGB channels separately.'),
-        ('HSV', 'Sharpen the Value channel only.'))):
-    tip="How to apply the unsharp_mask algorithm"
-    discussion="""
-    Possible values of the <varname>mode</varname> parameter for <xref
-    linkend="MenuItem-OOF.Image.Modify.Sharpen"/>.
-    """
-                  
+# Scikit-image documentation for unsharp_mask says: When applying this
+# filter to several color layers independently, color bleeding may
+# occur. More visually pleasing result can be achieved by processing
+# only the brightness/lightness/intensity channel in a suitable color
+# space such as HSV, HSL, YUV, or YCbCr.  In other words, use
+# @adapt_rgb(hsv_value).
+
+@adapt_rgb(hsv_value)
+def sharpen_hsv(image, radius, amount):
+    return skimage.filters.unsharp_mask(image, radius, amount)
+
+@adapt_rgb(each_channel)
+def sharpen_rgb(image, radius, amount):
+    return skimage.filters.unsharp_mask(image, radius, amount)
+
 class SharpenImage(ImageModifierToEither):
     def __init__(self, radius, amount, mode):
         self.radius = radius
@@ -525,34 +568,11 @@ class SharpenImage(ImageModifierToEither):
         if image.isGray():
             return skimage.filters.unsharp_mask(
                 image.npImage(), self.radius, self.amount)
+
+        if self.mode == 'RGB':
+            return sharpen_rgb(image.npImage(), self.radius, self.amount)
+        return sharpen_hsv(image.npImage(), self.radius, self.amount)
         
-        # Scikit-image documentation says: When applying this filter
-        # to several color layers independently, color bleeding may
-        # occur. More visually pleasing result can be achieved by
-        # processing only the brightness/lightness/intensity channel
-        # in a suitable color space such as HSV, HSL, YUV, or YCbCr.
-
-        if self.mode == 'HSV':
-            hsv = skimage.color.rgb2hsv(image.npImage())
-            # Documentation for the radius arg says: "If sequence is
-            # given, then there must be exactly one radius for each
-            # dimension except the last dimension for multichannel
-            # images. Note that 0 radius means no blurring, and
-            # negative values are not allowed."  This does not seem to
-            # work, so extract just the V data and pass it to the
-            # filter by itself.
-            sharp = hsv.copy()
-            sharp[...,-1] = skimage.filters.unsharp_mask(
-                hsv[...,-1],
-                self.radius,
-                self.amount)
-            return skimage.color.hsv2rgb(sharp)
-        # mode == RGB 
-        newImage = skimage.filters.unsharp_mask(
-            image.npImage(), self.radius, self.amount,
-            channel_axis=2)
-        return newImage
-
 registeredclass.Registration(
     'Sharpen',
     ImageModifier,
@@ -567,8 +587,8 @@ registeredclass.Registration(
             tip='Amplification factor for image details.'),
         oofenum.EnumParameter(
             'mode',
-            SharpenMode,
-            SharpenMode('HSV'),
+            ModifierMode,
+            ModifierMode('hsV'),
             tip='Sharpen RGB channels or just the V from HSV.')
     ],
     tip = "Sharpen the image by comparing it to a blurred version of itself.",

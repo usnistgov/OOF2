@@ -11,10 +11,6 @@
 
 #include <oofconfig.h>
 
-#include "image/oofimage.h"
-// #include "common/doublearray.h"
-// #include "common/pyutils.h"
-
 // OOFImage::enhance_contrast() performs the same operation as
 // skimage.filters.rank.enhance_contrast().  
 
@@ -26,6 +22,12 @@
 // The difference is that our version operates on each RGB channel
 // separately and doesn't require that the image bit depth be reduced
 // to 8.
+
+// TODO OPT MAYBE: If we had separate OOFImage classes for gray and color
+// images, we could have one less if statement in the deepest loop
+// here.  It's probably not worth the effort.
+
+#include "image/oofimage.h"
 
 PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
 					  PyArrayObject *newimage)
@@ -95,7 +97,6 @@ PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
 	  for(int m1=m1min; m1<m1max; m1++) {
 	    assert(m1 + d1 >= 0 && m1 + d1 < imageshape[1]);
 	    if(*(int*) PyArray_GETPTR2(mask, m0, m1)) { // inside the mask
-	      // TODO NUMPY: Can this be done without checking isgray_?
 	      double val = isgray_ ?
 		*(double*) PyArray_GETPTR2(npobject, m0+d0, m1+d1) :
 		*(double*) PyArray_GETPTR3(npobject, m0+d0, m1+d1, k);
@@ -108,7 +109,6 @@ PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
 	} // end loop over mask
 
 	// This is where the contrast is done.
-	// TODO NUMPY: Can this be done without checking isgray_?
 	if(isgray_) {
 	  double pval = *(double*) PyArray_GETPTR2(npobject, p0, p1);
 	  double newval = (pval - minimum < maximum - pval) ? minimum : maximum;

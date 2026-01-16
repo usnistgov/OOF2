@@ -33,7 +33,7 @@ class DenoiseMethod(registeredclass.RegisteredClass):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-## TODO NUMPY: DenoiseBilateral shifts the image down and to the
+## TODO NUMPY LATER: DenoiseBilateral shifts the image down and to the
 ## right, which seems to be a bug in the skimage routine.  Until it's
 ## fixed, the Registration is marked "secret".
 
@@ -125,9 +125,9 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-## TODO NUMPY: Wavelet denoising appears not to work. It returns RGB
-## values that are outside the range [0,1].  Is it assuming that the
-## data is [-1,1] instead of [0,1]?
+## TODO NUMPY LATER: Wavelet denoising appears not to work. It returns
+## RGB values that are outside the range [0,1].  Is it assuming that
+## the data is [-1,1] instead of [0,1]?
 
 if False:
     class WaveletDenoisingMode(oofenum.EnumClass(
@@ -183,12 +183,10 @@ if False:
                 'sigma',
                 automatic.automatic,
                 tip='The standard deviation of the noise used when computing the wavelet detail coefficient threshold(s).'),
-            ## TODO NUMPY: Change this to an EnumParameter and generate
-            ## the values directly from pywt.wavelist?
-            ##    import pywt; print(pywt.wavelist())
-            ## There are very many possible values.  Better just to check
-            ## the given value against the list, and/or print the list in
-            ## an error message if the given value is illegal.
+            # There are many possible values for 'wavelet', so it's
+            # not feasible to use an EnumParameter for them.  The
+            # values can be printed with:
+            #    import pywt; print(pywt.wavelist())
             parameter.StringParameter('wavelet', 'db1',
                 tip='The type of wavelet to perform.  Type "import pywt; print(pywt.wavelist()" in the OOF2 console to see all the choices.'),
             oofenum.EnumParameter(
@@ -278,35 +276,35 @@ registeredclass.Registration(
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# ReduceNoise is kept for backward compatibility.
+# ReduceNoise is kept for backward compatibility with an ImageMagick
+# routine.  The registration is marked "secret" because it doesn't
+# work.  Perhaps the description in the ImageMagick docs is wrong.
+# The documentation says "Smooth the contours of an image while still
+# preserving edge information. The algorithm works by replacing each
+# pixel with its neighbor closest in value. The neighbors of a pixel
+# are defined as those pixels within the given radius, specified in
+# units of the pixel size. A suitable radius will be chosen
+# automatically if radius is zero."
+# TODO NUMPY MAYBE: Fix this.  See comment in reducenoise.C.
 
-## TODO NUMPY: The documentation for the ImageMagick routine says
-## "Smooth the contours of an image while still preserving edge
-## information. The algorithm works by replacing each pixel with its
-## neighbor closest in value. The neighbors of a pixel are defined as
-## those pixels within the given radius, specified in units of the
-## pixel size. A suitable radius will be chosen automatically if
-## radius is zero."
+class ReduceNoise(imagemodifier.ImageModifier):
+    def __init__(self, radius=1.0):
+        self.radius = radius
+    def modify(self, image):
+        newimage = numpy.empty_like(image.npImage())
+        image.reduce_noise(skimage.morphology.disk(self.radius), newimage)
+        return newimage
 
-## This is commented out because it does not work. TODO NUMPY: fix it?
-
-# class ReduceNoise(imagemodifier.ImageModifier):
-#     def __init__(self, radius=1.0):
-#         self.radius = radius
-#     def modify(self, image):
-#         newimage = numpy.empty_like(image.npImage())
-#         image.reduce_noise(skimage.morphology.disk(self.radius), newimage)
-#         return newimage
-
-# registeredclass.Registration(
-#     'ReduceNoise',
-#     imagemodifier.ImageModifier,
-#     ReduceNoise,
-#     ordering = 2.08,
-#     params = [parameter.PositiveFloatParameter(
-#         'radius', 5.0,
-#         tip='Radius of the pixel neighborhood in pixel units.')],
-#     tip = "Reduce noise while preserving edges.",
-#     #discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/reducenoise.xml')
-#     )
+registeredclass.Registration(
+    'ReduceNoise',
+    imagemodifier.ImageModifier,
+    ReduceNoise,
+    secret=True,                # See above
+    ordering = 2.08,
+    params = [parameter.PositiveFloatParameter(
+        'radius', 5.0,
+        tip='Radius of the pixel neighborhood in pixel units.')],
+    tip = "Reduce noise while preserving edges.",
+    #discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/reducenoise.xml')
+    )
 
