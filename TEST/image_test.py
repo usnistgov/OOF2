@@ -437,21 +437,25 @@ image_modify_args = {
         ("cb_grad.png", "thresh_local10_mean.npz",
          {"method" : threshold.LocalThreshold(
              radius=10,
-             average=threshold.LocalMean())}),
+             average=threshold.LocalMean(),
+             offset=0)}),
         ("cb_grad.png", "thresh_local20_mean.npz",
          {"method" : threshold.LocalThreshold(
              radius=20,
-             average=threshold.LocalMean())}),
+             average=threshold.LocalMean(),
+             offset=0)}),
         ("cb_grad.png", "thresh_local20_median.npz",
          {"method" :
           threshold.LocalThreshold(
              radius=20,
-             average=threshold.LocalMedian())}),
+             average=threshold.LocalMedian(),
+             offset=0)}),
         ("cb_grad.png", "thresh_local20_gaussian.npz",
          {"method" :
           threshold.LocalThreshold(
               radius=20,
-              average=threshold.LocalGaussian(sigma=automatic))}),
+              average=threshold.LocalGaussian(sigma=automatic),
+              offset=0)}),
         ("cb_grad.png", "thresh_isodata.npz",
          {"method" : threshold.IsoDataThreshold()}),
         ("cb_grad.png", "thresh_otsu.npz",
@@ -469,8 +473,9 @@ image_modify_args = {
     ],
 
     "Edge" : [
-        ("image_test.png", "edge.npz", {}),
-        ("si3n4-small.png", "edge2.npz", {})
+        ("image_test.png", "edge_rgb.npz", {"mode":"RGB"}),
+        ("image_test.png", "edge_hsv.npz", {"mode":"HSV"}),
+        ("si3n4-small.png", "edge2.npz", {"mode":"HSV"})
     ],
     
     "Denoise" : [
