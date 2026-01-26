@@ -125,3 +125,83 @@ PyArrayObject* OOFImage::enhance_contrast(PyArrayObject *mask,
   return newimage;
 }
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Version that acts on a single channel image and is suitable for use
+// with skimage.color.adapt_rgb.
+
+void enhance_contrast1(PyArrayObject* image,
+		       PyArrayObject* mask,
+		       PyArrayObject *newimage)
+{
+  int imagedims = PyArray_NDIM(image);
+  int maskdims = PyArray_NDIM(mask);
+  int newdims = PyArray_NDIM(newimage);
+  assert(imagedims==2 && maskdims==2 && newdims==2);
+  const npy_intp* imageshape = PyArray_SHAPE(image);
+  const npy_intp* maskshape = PyArray_SHAPE(mask);
+  const npy_intp* newshape = PyArray_SHAPE(newimage);
+  assert(newshape[0]==imageshape[0] && newshape[1]==imageshape[1]);
+
+  // Get the center of the mask in mask coordinates.  The shape of the
+  // mask is (2*mc0+1, 2*mc1+1).  The lengths of the edges of masks
+  // created by skimage.morphology.disk are always odd.  TODO: Check
+  // that this works with other mask shapes that might have even
+  // lengths.
+  int mc0 = maskshape[0]/2;	// integer division
+  int mc1 = maskshape[1]/2;	// integer division
+
+  // Loop over pixels in the image
+  for(int p0=0; p0<imageshape[0]; p0++) {
+    for(int p1=0; p1<imageshape[1]; p1++) {
+      // Difference between image and mask coordinates.  Both start at
+      // edges.  The mask is centered at (p0,p1).
+      int d0 = p0 - mc0;	// maskcoord + d = imagecoord
+      int d1 = p1 - mc1;
+      // Start and end positions for looping over the mask in mask
+      // coordinates.
+      int m0min = 0;
+      int m0max = maskshape[0];
+      int m1min = 0;
+      int m1max = maskshape[1];
+      // The mask is centered on a pixel that may be close to the edge
+      // of the image.  Make sure the edges of the mask are within the
+      // image.  If not, trim the mask by adjusting the loop range.
+      if(m0min + d0 < 0)
+	m0min = -d0;
+      if(m0max + d0 > imageshape[0])
+	m0max = imageshape[0] - d0;
+      if(m1min + d1 < 0)
+	m1min = -d1;
+      if(m1max + d1 > imageshape[1])
+	m1max = imageshape[1] - d1;
+
+      // Find the min and max values of the masked pixels
+      double minimum = std::numeric_limits<double>::max();
+      double maximum = -minimum;
+
+      for(int m0=m0min; m0<m0max; m0++) {
+	assert(m0 + d0 >= 0 && m0 + d0 < imageshape[0]);
+	for(int m1=m1min; m1<m1max; m1++) {
+	  assert(m1 + d1 >= 0 && m1 + d1 < imageshape[1]);
+	  if(*(int*) PyArray_GETPTR2(mask, m0, m1)) { // inside the mask
+	    double val = *(double*) PyArray_GETPTR2(image, m0+d0, m1+d1);
+	    if(val < minimum)
+	      minimum = val;
+	    if(val > maximum)
+	      maximum = val;
+	  }
+	} // end loop over mask m1
+      } // end loop over mask m0
+
+      assert(minimum != std::numeric_limits<double>::max());
+      assert(maximum != -std::numeric_limits<double>::max());
+
+      // Choose a new value for the central pixel
+      double pval = *(double*) PyArray_GETPTR2(image, p0, p1);
+      double newval = (pval - minimum < maximum - pval) ? minimum : maximum;
+      *(double*) PyArray_GETPTR2(newimage, p0, p1) = newval;
+      
+    } // end loop over p1
+  } // end loop over p0
+}

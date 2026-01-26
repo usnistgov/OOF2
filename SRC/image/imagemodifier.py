@@ -384,10 +384,56 @@ registeredclass.Registration(
             'radius', 5,
             tip='Radius of the pixel neighborhood')
     ],
-    tip = "Enhance intensity differences using scikit-image.",
+    tip = "Enhance intensity differences.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/contrast.xml')
 )
 
+#=--=#
+
+def contrast_gray(image, mask):
+    newimage = numpy.empty_like(image)
+    oofimage.enhance_contrast1(image, mask, newimage)
+    return newimage
+
+@adapt_rgb(hsv_value)
+def contrast_rgb(image, mask):
+    return contrast_gray(image, mask)
+
+@adapt_rgb(each_channel)
+def contrast_hsv(image, mask):
+    return contrast_gray(image, mask)
+
+class ContrastImage1(ImageModifierToEither):
+    def __init__(self, radius, mode):
+        self.radius = radius
+        self.mode = mode
+    def modify(self, image):
+        mask = skimage.morphology.disk(self.radius)
+        if image.isGray():
+            return contrast_gray(image.npImage(), mask)
+        if self.mode == 'RGB':
+            return contrast_rgb(image.npImage(), mask)
+        return contrast_hsv(image.npImage(), mask)
+
+registeredclass.Registration(
+    'Contrast1',
+    ImageModifier,
+    ContrastImage1,
+    ordering=2.001,
+    params=[
+        parameter.PositiveIntParameter(
+            'radius', 5,
+            tip='Radius of the pixel neighborhood'),
+        oofenum.EnumParameter(
+            'mode',
+            ModifierMode,
+            ModifierMode('RGB'),
+            tip="Operate on RGB channels or just the V from HSV.")
+        ],
+    tip="Enhance intensity differences"
+    )
+
+#=--=#
 
 # This version of ContrastImage only uses Python calls to numpy and
 # scikit-image routines.  It is faster than the other version but

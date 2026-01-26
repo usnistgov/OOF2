@@ -93,6 +93,8 @@ public:
   }
 };
 
+void enhance_contrast1(PyArrayObject*, PyArrayObject*, PyArrayObject*);
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Parallel image send/recv
