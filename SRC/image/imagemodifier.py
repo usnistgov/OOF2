@@ -78,8 +78,10 @@ class ImageModifierToEither(ImageModifier):
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # This page explains how to use adapt_rgb to apply gray-scale only
-# image operations to color images:
+# image filters to color images:
 # https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_adapt_rgb.html
+# adapt_rgb passes gray scale images straight through to the filter,
+# so there's no need for special handling for them.
 
 from skimage.color.adapt_rgb import adapt_rgb, hsv_value, each_channel
     
@@ -93,6 +95,12 @@ class ModifierMode(oofenum.EnumClass(
     discussion="""
     Possible values of the <varname>mode</varname> parameter for image
     modification methods."""
+
+modifierModeParam = oofenum.EnumParameter(
+    'mode',
+    ModifierMode,
+    ModifierMode('RGB'),
+    tip="Operate on RGB channels separately, or only the V from HSV.")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -396,11 +404,11 @@ def contrast_gray(image, mask):
     return newimage
 
 @adapt_rgb(hsv_value)
-def contrast_rgb(image, mask):
+def contrast_hsv(image, mask):
     return contrast_gray(image, mask)
 
 @adapt_rgb(each_channel)
-def contrast_hsv(image, mask):
+def contrast_rgb(image, mask):
     return contrast_gray(image, mask)
 
 class ContrastImage1(ImageModifierToEither):
@@ -409,11 +417,10 @@ class ContrastImage1(ImageModifierToEither):
         self.mode = mode
     def modify(self, image):
         mask = skimage.morphology.disk(self.radius)
-        if image.isGray():
-            return contrast_gray(image.npImage(), mask)
         if self.mode == 'RGB':
             return contrast_rgb(image.npImage(), mask)
-        return contrast_hsv(image.npImage(), mask)
+        else:
+            return contrast_hsv(image.npImage(), mask)
 
 registeredclass.Registration(
     'Contrast1',
@@ -424,11 +431,7 @@ registeredclass.Registration(
         parameter.PositiveIntParameter(
             'radius', 5,
             tip='Radius of the pixel neighborhood'),
-        oofenum.EnumParameter(
-            'mode',
-            ModifierMode,
-            ModifierMode('RGB'),
-            tip="Operate on RGB channels or just the V from HSV.")
+        modifierModeParam,
         ],
     tip="Enhance intensity differences"
     )
@@ -436,37 +439,44 @@ registeredclass.Registration(
 #=--=#
 
 # This version of ContrastImage only uses Python calls to numpy and
-# scikit-image routines.  It is faster than the other version but
+# scikit-image routines.  It is faster than the other versions but
 # only works with 8 bit images, so there is a loss of precision.  It's
 # here for future reference, but marked "secret".
 
+@adapt_rgb(hsv_value)
+def contrastSK_hsv(image, mask):
+    return skimage.filters.rank.enhance_contrast(image, mask)
+
+@adapt_rgb(each_channel)
+def contrastSK_rgb(image, mask):
+    return skimage.filters.rank.enhance_contrast(image, mask)
+
 class ContrastImageSK(ImageModifierToEither):
-    def __init__(self, radius):
+    def __init__(self, radius, mode):
         self.radius = radius
+        self.mode = mode
     def modify(self, image):
-        np_image = image.npImage()
-        new_image = numpy.empty_like(np_image)
         # Not converting the image, or converting it to 16-bit ints
         # produces warning messages from scikit-image.
-        image_as_bytes = skimage.util.img_as_ubyte(np_image)
-        disk = skimage.morphology.disk(self.radius,
-                                       dtype=image_as_bytes.dtype)
-        # Each image channel needs to be handled separately.
-        for k in range(np_image.shape[2]):
-            new_image[...,k] = skimage.filters.rank.enhance_contrast(
-                                         image_as_bytes[...,k], disk)/255.0
-        return skimage.util.img_as_float64(new_image)
+        image_as_bytes = skimage.util.img_as_ubyte(image.npImage())
+        mask = skimage.morphology.disk(self.radius)
+        if self.mode == "RGB":
+            newimg = contrastSK_rgb(image_as_bytes, mask)
+        else:
+            newimg = contrastSK_hsv(image_as_bytes, mask)
+        return skimage.util.img_as_float64(newimg)
     
 registeredclass.Registration(
     'ContrastSK',
     ImageModifier,
     ContrastImageSK,
     ordering = 2.021,
-    secret = True,              
+    secret = False,              
     params = [
         parameter.PositiveIntParameter(
             'radius', 5,
-            tip='Radius of the pixel neighborhood')
+            tip='Radius of the pixel neighborhood'),
+        modifierModeParam
     ],
     tip = "Enhance intensity differences using scikit-image.",
 )
@@ -485,11 +495,10 @@ class Edge(ImageModifierToEither):
     def __init__(self, mode):
         self.mode = mode
     def modify(self, image):
-        if image.isGray():
-            return skimage.filters.sobel(image.npImage())
         if self.mode == 'RGB':
             return sobel_rgb(image.npImage())
-        return sobel_hsv(image.npImage())
+        else:
+            return sobel_hsv(image.npImage())
 
 registeredclass.Registration(
     'Edge',
@@ -498,11 +507,7 @@ registeredclass.Registration(
     ordering=2.031,
     tip="Use a Sobel filter to find edges in an image.",
     params=[
-        oofenum.EnumParameter(
-            'mode',
-            ModifierMode,
-            ModifierMode('RGB'),
-            tip="Operate on RGB channels or just the V from HSV.")
+        modifierModeParam
     ],
     discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/edge.xml'))
 
@@ -610,14 +615,10 @@ class SharpenImage(ImageModifierToEither):
         self.amount = amount
         self.mode = mode
     def modify(self, image):
-        # Mode is irrelevant for gray images.
-        if image.isGray():
-            return skimage.filters.unsharp_mask(
-                image.npImage(), self.radius, self.amount)
-
         if self.mode == 'RGB':
             return sharpen_rgb(image.npImage(), self.radius, self.amount)
-        return sharpen_hsv(image.npImage(), self.radius, self.amount)
+        else:
+            return sharpen_hsv(image.npImage(), self.radius, self.amount)
         
 registeredclass.Registration(
     'Sharpen',
@@ -631,11 +632,7 @@ registeredclass.Registration(
         parameter.PositiveFloatParameter(
             'amount', 1.0,
             tip='Amplification factor for image details.'),
-        oofenum.EnumParameter(
-            'mode',
-            ModifierMode,
-            ModifierMode('HSV'),
-            tip='Sharpen RGB channels or just the V from HSV.')
+        modifierModeParam
     ],
     tip = "Sharpen the image by comparing it to a blurred version of itself.",
     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/sharpen.xml')
