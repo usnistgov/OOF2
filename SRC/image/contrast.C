@@ -19,13 +19,9 @@
 // maximum than the local minimum. Otherwise it is replaced by the
 // local minimum."
 
-// The difference is that our version operates on each RGB channel
-// separately and doesn't require that the image bit depth be reduced
-// to 8.
-
-// TODO OPT MAYBE: If we had separate OOFImage classes for gray and color
-// images, we could have one less if statement in the deepest loop
-// here.  It's probably not worth the effort.
+// The differences are that our version doesn't require that the image
+// bit depth be reduced to 8, and can be applied to either all
+// channels or just the hsv value via @adapt_rgb.
 
 #include "image/oofimage.h"
 
@@ -155,44 +151,70 @@ void enhance_contrast1(PyArrayObject* image,
   for(int p0=0; p0<imageshape[0]; p0++) {
     for(int p1=0; p1<imageshape[1]; p1++) {
       // Difference between image and mask coordinates.  Both start at
-      // edges.  The mask is centered at (p0,p1).
+      // edges.  The mask is centered at (p0,p1) in image coordinates.
       int d0 = p0 - mc0;	// maskcoord + d = imagecoord
       int d1 = p1 - mc1;
-      // Start and end positions for looping over the mask in mask
-      // coordinates.
-      int m0min = 0;
-      int m0max = maskshape[0];
-      int m1min = 0;
-      int m1max = maskshape[1];
-      // The mask is centered on a pixel that may be close to the edge
-      // of the image.  Make sure the edges of the mask are within the
-      // image.  If not, trim the mask by adjusting the loop range.
-      if(m0min + d0 < 0)
-	m0min = -d0;
-      if(m0max + d0 > imageshape[0])
-	m0max = imageshape[0] - d0;
-      if(m1min + d1 < 0)
-	m1min = -d1;
-      if(m1max + d1 > imageshape[1])
-	m1max = imageshape[1] - d1;
 
-      // Find the min and max values of the masked pixels
       double minimum = std::numeric_limits<double>::max();
       double maximum = -minimum;
 
-      for(int m0=m0min; m0<m0max; m0++) {
-	assert(m0 + d0 >= 0 && m0 + d0 < imageshape[0]);
-	for(int m1=m1min; m1<m1max; m1++) {
-	  assert(m1 + d1 >= 0 && m1 + d1 < imageshape[1]);
-	  if(*(int*) PyArray_GETPTR2(mask, m0, m1)) { // inside the mask
-	    double val = *(double*) PyArray_GETPTR2(image, m0+d0, m1+d1);
-	    if(val < minimum)
-	      minimum = val;
-	    if(val > maximum)
-	      maximum = val;
-	  }
-	} // end loop over mask m1
-      } // end loop over mask m0
+      for(int m0=0; m0<maskshape[0]; m0++) {
+	for(int m1=0; m1<maskshape[1]; m1++) {
+	  if(*(int*) PyArray_GETPTR2(mask, m0, m1)) {
+	    // Get mask position in image coordinates
+	    int pp0 = m0 + d0;
+	    int pp1 = m1 + d1;
+	    if(pp0 >= 0 && pp0 < imageshape[0] &&
+	       pp1 >= 0 && pp1 < imageshape[1])
+	      {
+		// mask point is in image
+		double val = *(double*) PyArray_GETPTR2(image, pp0, pp1);
+		if(val < minimum)
+		  minimum = val;
+		if(val > maximum)
+		  maximum = val;
+	      }
+	  } // check mask value
+	} // loop over m1
+      }	// loop over m0
+
+
+      
+      // // Start and end positions for looping over the mask in mask
+      // // coordinates.
+      // int m0min = 0;
+      // int m0max = maskshape[0];
+      // int m1min = 0;
+      // int m1max = maskshape[1];
+      // // The mask is centered on a pixel that may be close to the edge
+      // // of the image.  Make sure the edges of the mask are within the
+      // // image.  If not, trim the mask by adjusting the loop range.
+      // if(m0min + d0 < 0)
+      // 	m0min = -d0;
+      // if(m0max + d0 > imageshape[0])
+      // 	m0max = imageshape[0] - d0;
+      // if(m1min + d1 < 0)
+      // 	m1min = -d1;
+      // if(m1max + d1 > imageshape[1])
+      // 	m1max = imageshape[1] - d1;
+
+      // // Find the min and max values of the masked pixels
+      // double minimum = std::numeric_limits<double>::max();
+      // double maximum = -minimum;
+
+      // for(int m0=m0min; m0<m0max; m0++) {
+      // 	assert(m0 + d0 >= 0 && m0 + d0 < imageshape[0]);
+      // 	for(int m1=m1min; m1<m1max; m1++) {
+      // 	  assert(m1 + d1 >= 0 && m1 + d1 < imageshape[1]);
+      // 	  if(*(int*) PyArray_GETPTR2(mask, m0, m1)) { // inside the mask
+      // 	    double val = *(double*) PyArray_GETPTR2(image, m0+d0, m1+d1);
+      // 	    if(val < minimum)
+      // 	      minimum = val;
+      // 	    if(val > maximum)
+      // 	      maximum = val;
+      // 	  }
+      // 	} // end loop over mask m1
+      // } // end loop over mask m0
 
       assert(minimum != std::numeric_limits<double>::max());
       assert(maximum != -std::numeric_limits<double>::max());
