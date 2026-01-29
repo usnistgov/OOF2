@@ -76,7 +76,6 @@ public:
   CMicrostructure *getCMicrostructure();
   void removeMicrostructure();
 
-  void enhance_contrast(PyArrayObject*, PyArrayObject*);
   void reduce_noise(PyArrayObject*, PyArrayObject*);
   
   bool compare(OOFImage&, double);
@@ -93,7 +92,7 @@ public:
   }
 };
 
-void enhance_contrast1(PyArrayObject*, PyArrayObject*, PyArrayObject*);
+void enhance_contrast(PyArrayObject*, PyArrayObject*, PyArrayObject*);
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

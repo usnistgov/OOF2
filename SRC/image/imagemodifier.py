@@ -78,8 +78,8 @@ class ImageModifierToEither(ImageModifier):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# This page explains how to use adapt_rgb to apply gray-scale only
-# image filters to color images:
+# This page explains how to use the adapt_rgb decorator to apply
+# gray-scale only filters to color images:
 # https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_adapt_rgb.html
 # adapt_rgb passes gray scale images straight through to the filter,
 # so there's no need for special handling for them.
@@ -367,42 +367,15 @@ registeredclass.Registration(
 # routines. Scikit-image replaces each pixel by the local maximum if
 # the pixel *gray value* is closer to the local maximum than the local
 # minimum. Otherwise it replaces it by the local minimum.
-# OOFImage::enhance_contrast() applies the method to each channel
-# separately.  Also, it doesn't require converting the image data to 8
-# bits.
+# OOFImage::enhance_contrast() applies the method either to each
+# channel separately or to the gray value.  Also, it doesn't require
+# converting the image data to 8 bits.
 #
 # https://scikit-image.org/docs/stable/api/skimage.filters.rank.html#skimage.filters.rank.enhance_contrast
 
-
-# class ContrastImage(ImageModifierToEither):
-#     def __init__(self, radius):
-#         self.radius = radius
-
-#     def modify(self, image):
-#         newimage = numpy.empty_like(image.npImage())
-#         image.enhance_contrast(skimage.morphology.disk(self.radius), newimage)
-#         return newimage
-                
-# registeredclass.Registration(
-#     'Contrast',
-#     ImageModifier,
-#     ContrastImage,
-#     ordering = 2.0,
-#     secret = False,
-#     params = [
-#         parameter.PositiveIntParameter(
-#             'radius', 5,
-#             tip='Radius of the pixel neighborhood')
-#     ],
-#     tip = "Enhance intensity differences.",
-#     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/contrast.xml')
-# )
-
-#=--=#
-
 def contrast_gray(image, mask):
     newimage = numpy.empty_like(image)
-    oofimage.enhance_contrast1(image, mask, newimage)
+    oofimage.enhance_contrast(image, mask, newimage)
     return newimage
 
 @adapt_rgb(hsv_value)
@@ -418,15 +391,11 @@ class ContrastImage(ImageModifierToEither):
         self.radius = radius
         self.mode = mode
     def modify(self, image):
-        # cdebug.openDumpFile("contrast.dump")
-        # try:
-            mask = skimage.morphology.disk(self.radius)
-            if self.mode == 'RGB':
-                return contrast_rgb(image.npImage(), mask)
-            else:
-                return contrast_hsv(image.npImage(), mask)
-        # finally:
-        #     cdebug.closeDumpFile()
+        mask = skimage.morphology.disk(self.radius)
+        if self.mode == 'RGB':
+            return contrast_rgb(image.npImage(), mask)
+        else:
+            return contrast_hsv(image.npImage(), mask)
 
 registeredclass.Registration(
     'Contrast',
@@ -477,7 +446,7 @@ registeredclass.Registration(
     ImageModifier,
     ContrastImageSK,
     ordering = 2.021,
-    secret = False,              
+    secret = True,              
     params = [
         parameter.PositiveIntParameter(
             'radius', 5,

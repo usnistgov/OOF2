@@ -107,11 +107,14 @@ public:
 
   TimeStamp *getTimeStamp() { return &timestamp; }
 
-  PyArrayObject* enhance_contrast(PyArrayObject *mask, PyArrayObject* newimage)
-    const;
   PyArrayObject* reduce_noise(PyArrayObject *mask, PyArrayObject* newimage)
     const;
 };				// class OOFImage
+
+// enhance_contrast is not a member function because it's easier to
+// use @adapt_rgb if the first argument is a PyArrayObject*.
+void enhance_contrast(PyArrayObject*, PyArrayObject*, PyArrayObject*);
+
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -156,7 +159,5 @@ public:
   friend bool operator!=(const ConstOOFImageIterator&,
 			 const ConstOOFImageIterator&);
 };
-
-void enhance_contrast1(PyArrayObject*, PyArrayObject*, PyArrayObject*);
 
 #endif // OOFIMAGE_H
