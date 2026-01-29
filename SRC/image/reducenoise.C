@@ -54,7 +54,7 @@ PyArrayObject* OOFImage::reduce_noise(PyArrayObject *mask,
 
   // For some reason, creating the new image here, instead of creating
   // it in Python and passing it in, is failing. I'm not going to mess
-  // around with it now.  TODO: Fix this.  
+  // around with it now.  TODO MAYBE: Fix this.  
   // PyArrayObject *newimage = (PyArrayObject*) PyArray_EMPTY(imagedim, imageshape,
   // 							   NPY_DOUBLE, 0);
   // Py_XINCREF((PyObject*)newimage);
@@ -116,7 +116,7 @@ PyArrayObject* OOFImage::reduce_noise(PyArrayObject *mask,
 	assert(m0 + d0 >= 0 && m0 + d0 < imageshape[0]);
 	for(int m1=m1min; m1<m1max; m1++) {
 	  assert(m1 + d1 >= 0 && m1 + d1 < imageshape[1]);
-	  if(*(int*) PyArray_GETPTR2(mask, m0, m1)) { // apply the mask
+	  if(*(char*) PyArray_GETPTR2(mask, m0, m1)) { // apply the mask
 	    // The mask pixel is at (m0+d0, m1+d1) in image coordinates.
 	    if(!(m0+d0 == p0 && m1+d1 == p1)) {	      // skip the target pixel
 	      double dist2 = 0;	// squared color distance to target pixel

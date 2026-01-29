@@ -9,6 +9,7 @@
 # oof_manager@nist.gov.
 
 from ooflib.SWIG.common import switchboard
+# from ooflib.SWIG.common import cdebug
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.image import oofimage
@@ -139,6 +140,7 @@ def doImageMod(menuitem, image, **params):
             # It can use newData() to create the array if necessary.
             modified = imageModifier.modify(immidge)
             assert modified is not None
+#            debug.fmsg(f"modified image shape={modified.shape} type={modified.dtype}")
 
             # Make a copy of the numpy array if necessary, to ensure
             # that the modified array is not a view of another array
@@ -372,29 +374,29 @@ registeredclass.Registration(
 # https://scikit-image.org/docs/stable/api/skimage.filters.rank.html#skimage.filters.rank.enhance_contrast
 
 
-class ContrastImage(ImageModifierToEither):
-    def __init__(self, radius):
-        self.radius = radius
+# class ContrastImage(ImageModifierToEither):
+#     def __init__(self, radius):
+#         self.radius = radius
 
-    def modify(self, image):
-        newimage = numpy.empty_like(image.npImage())
-        image.enhance_contrast(skimage.morphology.disk(self.radius), newimage)
-        return newimage
+#     def modify(self, image):
+#         newimage = numpy.empty_like(image.npImage())
+#         image.enhance_contrast(skimage.morphology.disk(self.radius), newimage)
+#         return newimage
                 
-registeredclass.Registration(
-    'Contrast',
-    ImageModifier,
-    ContrastImage,
-    ordering = 2.0,
-    secret = False,
-    params = [
-        parameter.PositiveIntParameter(
-            'radius', 5,
-            tip='Radius of the pixel neighborhood')
-    ],
-    tip = "Enhance intensity differences.",
-    discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/contrast.xml')
-)
+# registeredclass.Registration(
+#     'Contrast',
+#     ImageModifier,
+#     ContrastImage,
+#     ordering = 2.0,
+#     secret = False,
+#     params = [
+#         parameter.PositiveIntParameter(
+#             'radius', 5,
+#             tip='Radius of the pixel neighborhood')
+#     ],
+#     tip = "Enhance intensity differences.",
+#     discussion = xmlmenudump.loadFile('DISCUSSIONS/image/reg/contrast.xml')
+# )
 
 #=--=#
 
@@ -411,21 +413,25 @@ def contrast_hsv(image, mask):
 def contrast_rgb(image, mask):
     return contrast_gray(image, mask)
 
-class ContrastImage1(ImageModifierToEither):
+class ContrastImage(ImageModifierToEither):
     def __init__(self, radius, mode):
         self.radius = radius
         self.mode = mode
     def modify(self, image):
-        mask = skimage.morphology.disk(self.radius)
-        if self.mode == 'RGB':
-            return contrast_rgb(image.npImage(), mask)
-        else:
-            return contrast_hsv(image.npImage(), mask)
+        # cdebug.openDumpFile("contrast.dump")
+        # try:
+            mask = skimage.morphology.disk(self.radius)
+            if self.mode == 'RGB':
+                return contrast_rgb(image.npImage(), mask)
+            else:
+                return contrast_hsv(image.npImage(), mask)
+        # finally:
+        #     cdebug.closeDumpFile()
 
 registeredclass.Registration(
-    'Contrast1',
+    'Contrast',
     ImageModifier,
-    ContrastImage1,
+    ContrastImage,
     ordering=2.001,
     params=[
         parameter.PositiveIntParameter(

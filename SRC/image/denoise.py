@@ -287,7 +287,7 @@ registeredclass.Registration(
 # automatically if radius is zero."
 # TODO NUMPY MAYBE: Fix this.  See comment in reducenoise.C.
 
-class ReduceNoise(imagemodifier.ImageModifier):
+class ReduceNoise(imagemodifier.ImageModifierToRGB):
     def __init__(self, radius=1.0):
         self.radius = radius
     def modify(self, image):

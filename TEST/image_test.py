@@ -401,11 +401,7 @@ image_modify_args = {
          {"radius":3, "amount":4, "mode":'HSV'}),],
     
     "Contrast" : [
-        ("escher.ppm", "contrast.npz", {"radius" : 5}),
-        ("si3n4-small.png", "contrast_gray.npz", {"radius" : 5})],
-    ## TODO: Get rid of "Contrast" and rename "Constrast1" to "Contrast".
-    "Contrast1" : [
-        ("escher.ppm", "contrast.npz", {"radius" : 5, "mode" : "RGB"}),
+        ("escher.ppm", "contrast_rgb.npz", {"radius" : 5, "mode" : "RGB"}),
         ("escher.ppm", "contrast_hsv.npz", {"radius" : 5, "mode" : "HSV"}),
         ("si3n4-small.png", "contrast_gray.npz", {"radius":5, "mode":"RGB"}),
         ("si3n4-small.png", "contrast_gray.npz", {"radius":5, "mode":"HSV"})],
