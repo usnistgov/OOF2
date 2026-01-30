@@ -44,6 +44,8 @@ void GfxSquareBrush::start(OOFCanvas::CanvasLayer *layer,
   double dashLength = 7;
   double lineWidth = 2;
 
+  std::cerr << "GfxSquareBrush::start" << std::endl;
+
   OOFCanvas::Coord diag(size, size);
   rectangle = new OOFCanvas::CanvasRectangle(pt-diag, pt+diag);
   rectangle->setLineWidthInPixels(lineWidth);
@@ -51,6 +53,7 @@ void GfxSquareBrush::start(OOFCanvas::CanvasLayer *layer,
   rectangle->setDashColor(OOFCanvas::black);
   rectangle->setDashInPixels(dashLength);
   layer->addItem(rectangle);
+  std::cerr << "GfxSquareBrush::start: done" << std::endl;
 }
 
 void GfxSquareBrush::update(const OOFCanvas::Coord &pt) {

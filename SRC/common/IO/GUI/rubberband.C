@@ -28,15 +28,22 @@ BrushRubberBand::BrushRubberBand(GfxBrushStyle *brush)
 void BrushRubberBand::start(OOFCanvas::CanvasLayer *lyr,
 			    const OOFCanvas::Coord &pt)
 {
+  std::cerr << "BrushRubberBand::start" << std::endl;
   KeyHolder kh(lock);
   RubberBand::start(lyr, pt);
   trail = new OOFCanvas::CanvasCurve();
+  std::cerr << "BrushRubberBand::start: got trail " << trail << std::endl;
   trail->addPoint(pt);
+  std::cerr << "BrushRubberBand::start: added point" << std::endl;
   trail->setLineColor(color);
+  std::cerr << "BrushRubberBand::start: set line color" << std::endl;
   trail->setLineWidthInPixels(lineWidth);
+  std::cerr << "BrushRubberBand::start: calling doDashes" << std::endl;
   doDashes(trail);
   layer->addItem(trail);
+  std::cerr << "BrushRubberBand::start: calling style-start" << std::endl;
   style->start(lyr, startPt);	// adds style's CanvasItem to the layer.
+  std::cerr << "BrushRubberBand::start: done" << std::endl;
 }
 
 void BrushRubberBand::stop() {
