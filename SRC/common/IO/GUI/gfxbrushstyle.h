@@ -24,12 +24,15 @@
 // the given CanvasLayer, but it should not delete the items.  That is
 // done by the CanvasLayer.
 
-// The classes defined here must be swigged in gfxbrushstyle.swg, and
-// the brushstyle registration must be modified in gfxbrushstyle.spy.
+// The classes defined here are swigged in gfxbrushstyle.swg.
+// gfxbrushstyle.swg also modifies the brushstyle registrations to use
+// the GUI objects.
 
 class GfxBrushStyle {
 public:
-  virtual ~GfxBrushStyle() {}
+  virtual ~GfxBrushStyle() {
+    std::cerr << "GfxBrushStyle::dtor: " << this << std::endl;
+  }
   virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&) = 0;
   virtual void update(const OOFCanvas::Coord&) = 0;
   virtual void stop() = 0;
@@ -39,7 +42,12 @@ class GfxCircleBrush : public GfxBrushStyle, public CircleBrush {
 protected:
   OOFCanvas::CanvasCircle *circle;
 public:
-  GfxCircleBrush(double r) : CircleBrush(r), circle(nullptr) {}
+  GfxCircleBrush(double r) : CircleBrush(r), circle(nullptr) {
+    std::cerr << "GfxCircleBrush::ctor: " << this << std::endl;
+  }
+  ~GfxCircleBrush() {
+    std::cerr << "GfxCircleBrush::dtor: " << this << std::endl;
+  }
   virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&);
   virtual void update(const OOFCanvas::Coord&);
   virtual void stop();

@@ -39,12 +39,12 @@ void GfxCircleBrush::stop() {
 void GfxSquareBrush::start(OOFCanvas::CanvasLayer *layer,
 			   const OOFCanvas::Coord &pt)
 {
+  std::cerr << "GfxSquareBrush::start: " << this << std::endl;
+
   // TODO GTK3: Get dashlength, linewidth, and colors from parameters
   // in genericSelectGUI.py
   double dashLength = 7;
   double lineWidth = 2;
-
-  std::cerr << "GfxSquareBrush::start" << std::endl;
 
   OOFCanvas::Coord diag(size, size);
   rectangle = new OOFCanvas::CanvasRectangle(pt-diag, pt+diag);

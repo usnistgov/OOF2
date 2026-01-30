@@ -27,6 +27,7 @@ private:
   SLock lock;
 public:
   BrushRubberBand(GfxBrushStyle*);
+  virtual ~BrushRubberBand();
   virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&);
   virtual void stop();
   virtual void update(const OOFCanvas::Coord&);

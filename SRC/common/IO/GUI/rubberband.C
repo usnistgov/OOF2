@@ -23,7 +23,13 @@
 BrushRubberBand::BrushRubberBand(GfxBrushStyle *brush)
   : style(brush),
     trail(nullptr)
-{}
+{
+  std::cerr << "BrushRubberBand::ctor: " << this << std::endl;
+}
+
+BrushRubberBand::~BrushRubberBand() {
+  std::cerr << "BrushRubberBand::dtor: " << this << std::endl;
+}
 
 void BrushRubberBand::start(OOFCanvas::CanvasLayer *lyr,
 			    const OOFCanvas::Coord &pt)
@@ -32,16 +38,19 @@ void BrushRubberBand::start(OOFCanvas::CanvasLayer *lyr,
   KeyHolder kh(lock);
   RubberBand::start(lyr, pt);
   trail = new OOFCanvas::CanvasCurve();
-  std::cerr << "BrushRubberBand::start: got trail " << trail << std::endl;
+  std::cerr << "BrushRubberBand::start: calling addPoint, trail= " << trail << std::endl;
   trail->addPoint(pt);
-  std::cerr << "BrushRubberBand::start: added point" << std::endl;
+  // lineWidth and color are defined in the OOFCanvas::RubberBand base class.
+  std::cerr << "BrushRubberBand::start: calling setLineColor" << std::endl;
   trail->setLineColor(color);
-  std::cerr << "BrushRubberBand::start: set line color" << std::endl;
-  trail->setLineWidthInPixels(lineWidth);
+  std::cerr << "BrushRubberBand::start: calling setLineWidthInPixels, trail=" << trail << " lineWidth=" << lineWidth << std::endl;
+  // Calling setLineWidth doesn't crash, calling setLineWidthInPixels does. ??!!
+  trail->setLineWidth/*InPixels*/(lineWidth);
   std::cerr << "BrushRubberBand::start: calling doDashes" << std::endl;
   doDashes(trail);
+  std::cerr << "BrushRubberBand::start: calling addItem" << std::endl;
   layer->addItem(trail);
-  std::cerr << "BrushRubberBand::start: calling style-start" << std::endl;
+  std::cerr << "BrushRubberBand::start: calling style-start. style=" << style << std::endl;
   style->start(lyr, startPt);	// adds style's CanvasItem to the layer.
   std::cerr << "BrushRubberBand::start: done" << std::endl;
 }
