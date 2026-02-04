@@ -44,8 +44,7 @@ void BrushRubberBand::start(OOFCanvas::CanvasLayer *lyr,
   std::cerr << "BrushRubberBand::start: calling setLineColor" << std::endl;
   trail->setLineColor(color);
   std::cerr << "BrushRubberBand::start: calling setLineWidthInPixels, trail=" << trail << " lineWidth=" << lineWidth << std::endl;
-  // Calling setLineWidth doesn't crash, calling setLineWidthInPixels does. ??!!
-  trail->setLineWidth/*InPixels*/(lineWidth);
+  trail->setLineWidthInPixels(lineWidth);
   std::cerr << "BrushRubberBand::start: calling doDashes" << std::endl;
   doDashes(trail);
   std::cerr << "BrushRubberBand::start: calling addItem" << std::endl;
