@@ -18,14 +18,18 @@ void GfxCircleBrush::start(OOFCanvas::CanvasLayer *layer,
 {
   // TODO GTK3: Get dashlength, linewidth, and colors from parameters
   // in genericSelectGUI.py
+  std::cerr << "GfxCircleBrush::start" << std::endl;
   double dashLength = 7;
   double lineWidth = 2;
   circle = new OOFCanvas::CanvasCircle(pt, r);
+  std::cerr << "GfxCircleBrush::start: calling setLineWidthInPixels, circle=" << circle << std::endl;
   circle->setLineWidthInPixels(lineWidth);
+  std::cerr << "GfxCircleBrush::start: calling setLineColor" << std::endl;
   circle->setLineColor(OOFCanvas::white);
   circle->setDashColor(OOFCanvas::black);
   circle->setDashInPixels(dashLength);
   layer->addItem(circle);
+  std::cerr << "GfxCircleBrush::start: done" << std::endl;
 }
 
 void GfxCircleBrush::update(const OOFCanvas::Coord &pt) {

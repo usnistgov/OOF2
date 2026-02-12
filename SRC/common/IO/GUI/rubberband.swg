@@ -30,4 +30,6 @@ public:
   BrushRubberBand(GfxBrushStyle *brush);
 };
 
+void testRubberBand();		// debugging
+
 #endif // RUBBERBAND_SWG
