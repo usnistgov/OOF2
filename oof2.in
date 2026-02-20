@@ -26,9 +26,9 @@ sys.path.append("@CMAKE_INSTALL_PREFIX@/@SITE_PACKAGES@")
 import oof2
 sys.path.append(os.path.dirname(oof2.__file__))
 
-from ooflib.SWIG.common.IO.GUI.rubberband import testRubberBand
-print("oof2.in: Calling testRubberBand()")
-testRubberBand()
+# from ooflib.SWIG.common.IO.GUI.rubberband import testRubberBand
+# print("oof2.in: Calling testRubberBand()")
+# testRubberBand()
 
 # Test scripts sometimes need to know the location of the source
 # (because file paths are part of some error messages).  Setting an
