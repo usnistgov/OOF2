@@ -53,6 +53,7 @@ set(ooflibs
   oof2engine
   oof2image
   oof2orientationmap
+#  oof2debug
   )
 
 # executable python scripts to install
@@ -269,7 +270,14 @@ target_link_libraries(oof2commonGUI
   ${Python3_LIBRARIES}
   ${OOFCANVAS_LINK_LIBRARIES}
   oof2common
-  )
+)
+
+# target_link_libraries(oof2debug
+#   PRIVATE
+# #  ${Python3_LIBRARIES}
+#   ${OOFCANVAS_LINK_LIBRARIES}
+# #  oof2common
+# )
 
 target_link_libraries(oof2engine
   PRIVATE
@@ -306,6 +314,7 @@ install(
   oof2engine
   oof2image
   oof2orientationmap
+  # oof2debug
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Install python files from SRC subdirectories, excluding SWIG output

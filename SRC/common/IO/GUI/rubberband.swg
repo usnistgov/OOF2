@@ -15,8 +15,8 @@
 %module(package="ooflib.SWIG.common.IO.GUI") rubberband
 
 %include "common/typemaps.swg"
-%import "common/IO/oofcanvas.swg"
-%import "common/IO/GUI/oofcanvasgui.swg"
+ //%import "common/IO/oofcanvas.swg"
+ //%import "common/IO/GUI/oofcanvasgui.swg"
 
 %{
 #include "common/IO/GUI/rubberband.h"

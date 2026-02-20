@@ -15,6 +15,10 @@ target_sources(oof2commonGUI
   gfxbrushstyle.C
   gfxbrushstyle.h)
 
+# target_sources(oof2debug
+#   PRIVATE
+#   debugrubberband.C)
+
 oof_swig_sources(
   SWIGFILES
   gfxbrushstyle
