@@ -136,6 +136,7 @@ pkg_check_modules(
 # define OOFCANVAS_USE_NUMPY.
 include(CheckCXXSymbolExists)
 set(CMAKE_REQUIRED_INCLUDES ${OOFCANVAS_INCLUDE_DIRS})
+set(CMAKE_REQUIRED_LIBRARIES ${Python3_LIBRARIES})
 check_cxx_symbol_exists(OOFCANVAS_USE_NUMPY "oofcanvas.h" OOFCANVAS_HAS_NUMPY)
 if(NOT "${OOFCANVAS_HAS_NUMPY}")
   message(FATAL_ERROR "OOFCanvas was not configured to use numpy.")
