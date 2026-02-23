@@ -2,7 +2,7 @@
 #include <oofcanvasgui.h>
 
 // This was compiled into its own library for debugging.  To resurrect
-// it, search for and uncomment code containing oof2debug in the top
+// it, search for and uncomment code containing testrubberband in the top
 // CMakeLists.txt and the one in SRC/common/IO/GUI.
 
 void testRubberBand() {

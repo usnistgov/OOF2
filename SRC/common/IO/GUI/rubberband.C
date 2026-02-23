@@ -112,30 +112,6 @@ void BrushRubberBand::update(const OOFCanvas::Coord &pt) {
   style->update(currentPt);
 }
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// testRubberBand makes the same OOFCanvas calls as
-// BrushRubberBand::start, in an effort to find out why it'is
-// crashing.
-
-void testRubberBand() {
-  std::cerr << "testRubberBand" << std::endl;
-  OOFCanvas::CanvasCurve *trail = new OOFCanvas::CanvasCurve();
-  std::cerr << "testRubberBand: trail=" << trail << std::endl;
-  std::cerr << "testRubberBand: calling setLineColor" << std::endl;
-  trail->setLineColor(OOFCanvas::red);
-  std::cerr << "testRubberBand: calling setLineWidthInPixels" << std::endl;
-  trail->setLineWidthInPixels(17);
-  std::cerr << "testRubberBand: done" << std::endl;
+std::string* BrushRubberBand::print() const {
+  return new std::string("BrushRubberBand()");
 }
-
-
-// dummyRubberBand can be used to force testRubberBand to be run when
-// liboofcommonGUI is loaded, if the line forceload line is uncommented.
-
-int dummyRubberBand() {
-  std::cerr << "dummyRubberBand: calling testRubberBand()" << std::endl;
-  testRubberBand();
-  return 0;
-}
-//static int forceload = dummyRubberBand();

@@ -15,15 +15,19 @@ target_sources(oof2commonGUI
   gfxbrushstyle.C
   gfxbrushstyle.h)
 
-# target_sources(oof2debug
-#   PRIVATE
-#   debugrubberband.C)
+target_sources(oof2testrubberband
+  PRIVATE
+  testrubberband.C
+  testrubberband.h)
 
 oof_swig_sources(
   SWIGFILES
   gfxbrushstyle
   progressGUI
   rubberband
+  testrubberband
   LIBRARIES
   oof2common
-  oof2commonGUI)
+  oof2commonGUI
+  oof2testrubberband
+)

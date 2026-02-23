@@ -31,10 +31,8 @@ public:
   virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&);
   virtual void stop();
   virtual void update(const OOFCanvas::Coord&);
-
   virtual void setColor(const OOFCanvas::Color &);
+  virtual std::string* print() const;
 };
-
-void testRubberBand(); 		// debugging
 
 #endif // RUBBERBAND_H

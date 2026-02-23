@@ -16,13 +16,14 @@
 
 %include "common/typemaps.swg"
  //%import "common/IO/oofcanvas.swg"
- //%import "common/IO/GUI/oofcanvasgui.swg"
+%import "common/IO/GUI/oofcanvasgui.swg"
 
 %{
 #include "common/IO/GUI/rubberband.h"
-  #include <oofcanvas.h>
-  typedef OOFCanvas::Color CanvasColor;
-  using namespace OOFCanvas;
+#include <oofcanvas.h>
+typedef OOFCanvas::Color CanvasColor;
+typedef OOFCanvas::RubberBand RubberBand;
+using namespace OOFCanvas;
 %}
 
 class BrushRubberBand : public RubberBand {
@@ -30,6 +31,6 @@ public:
   BrushRubberBand(GfxBrushStyle *brush);
 };
 
-void testRubberBand();		// debugging
+// void testRubberBand();		// debugging
 
 #endif // RUBBERBAND_SWG
