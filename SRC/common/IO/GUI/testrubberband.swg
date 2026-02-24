@@ -12,7 +12,7 @@
 #ifndef TESTRUBBERBAND_SWG
 #define TESTRUBBERBAND_SWG
 
-%module(package="ooflib.SWIG.common.IO.GUI") testRubberBand
+%module(package="ooflib.SWIG.common.IO.GUI") testrubberband
 
 %include "common/typemaps.swg"
 
