@@ -16,8 +16,6 @@
 #ifndef OOFCANVASGUI_SWG
 #define OOFCANVASGUI_SWG
 
-%module(package="oofcanvas") oofcanvasgui
-
 %import "common/IO/oofcanvas.swg"
 
 %{
