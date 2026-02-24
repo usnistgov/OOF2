@@ -25,13 +25,9 @@
 #include <string>
 #include <vector>
 
-// This value of NPY_NO_DEPRECATED_API suppresses *all* numpy
-// deprecation warnings, which is probably not a good idea.  Not
-// defining NPY_NO_DEPRECATED_API produces deprecation warnings,
-// including the suggestion to set NPY_NO_DEPRECATED_API to
-// NPY_1_7_API_VERSION.  But with that setting PyArray_NDIM and
-// PyArray_DIMS aren't defined.
-//#define NPY_NO_DEPRECATED_API NPY_1_1_API_VERSION
+// This suppresses deprecations warnings when using old versions
+// of numpy (<2.0).  Eventally we'll stop supporting them.
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <numpy/arrayobject.h>
 
 class BitmapOverlay;
