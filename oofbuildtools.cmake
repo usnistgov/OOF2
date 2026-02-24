@@ -11,10 +11,6 @@
 # extensions.  They're in a separate file so that they can be shared
 # easily.
 
-
-set(OOF2_SWIG_VERSION 4.1 CACHE STRING "Use this version of swig")
-set_property(CACHE OOF2_SWIG_VERSION PROPERTY STRINGS 4.0 4.1 4.2 4.3)
-
 # The initial value of OOF2_PYTHON3_VERSION is "Latest" so that the
 # initial configuration pass doesn't raise an error if the requested
 # version isn't found.
@@ -62,21 +58,31 @@ set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+set(SWIG_MIN_VERSION 4.0)
+
 include(FindSWIG)
 include(UseSWIG)
-find_package(SWIG ${OOF2_SWIG_VERSION} COMPONENTS python)
+find_package(SWIG REQUIRED COMPONENTS python)
 ## UseSWIG can generate dependencies only for cmake >= 3.20.  Setting
 ## the flag for it is harmless even if it doesn't always work.
 set(SWIG_USE_SWIG_DEPENDENCIES True)
 set(UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
 set(SWIG_SOURCE_FILE_EXTENSIONS ".swg" ".i")
+
+if(${SWIG_VERSION} VERSION_LESS ${SWIG_MIN_VERSION})
+  message(FATAL_ERROR
+    "SWIG version is ${SWIG_VERSION}.  Version ${SWIG_MIN_VERSION} or later is required.")
+endif()
+
 if(${SWIG_VERSION} VERSION_LESS "4.1")
   set(CMAKE_SWIG_FLAGS -py3)
 endif()
+
 # add_compile_definitions(SWIG_TYPE_TABLE=oof2)
 if(${SWIG_USE_BUILTIN})		# wishful thinking
   list(APPEND CMAKE_SWIG_FLAGS -builtin)
 endif()
+
 # UseSWIG doesn't seem to use -DNDEBUG or -DDEBUG when calling
 # swig.  This has to be set with a generator expression because
 # CMAKE_BUILD_TYPE can't be evaluated reliably at this time.

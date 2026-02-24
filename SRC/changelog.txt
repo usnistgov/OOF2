@@ -88,6 +88,10 @@ OOF2 2.4.0
 
 * Grayscale images are stored internally as grayscale images. In the
   past they were converted to RGB.
+
+* Removed the OOF2_SWIG_VERSION cmake option.  It wasn't really being
+  used.  CMake will use whatever version of swig it finds, which must
+  be 4.something.
   
 OOF2 2.3.3
 

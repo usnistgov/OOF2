@@ -14,12 +14,11 @@ cmake_minimum_required(VERSION 3.18)
 # You may want to change the version number in the following line.
 project(%MODULENAME% VERSION 0.0.0)
 
-# Set the default values of OOF2_PYTHON_VERSION and OOF2_SWIG_VERSION.
-# Setting them here, *before* loading oofbuildtools.cmake, sets the
-# default values to the ones from the oof2 build, transferred here
-# when oof2-extension-setup replaced the template strings.
+# Set the default values of OOF2_PYTHON_VERSION.  Setting it here,
+# *before* loading oofbuildtools.cmake, sets the default value to the
+# one from the oof2 build, transferred here when oof2-extension-setup
+# replaced the template strings.
 set(OOF2_PYTHON3_VERSION %PYTHON% CACHE STRING "Use this version of Python")
-set(OOF2_SWIG_VERSION %SWIG% CACHE STRING "Use this version of swig")
 
 include("%OOF2PREFIX%/share/oof2/tools/oofbuildtools.cmake")
 

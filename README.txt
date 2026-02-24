@@ -146,9 +146,8 @@ instructions on how to use ccmake. At a minimum
     directory. If you're installing into an Anaconda environment named
     `OOF2`, set `CMAKE_INSTALL_PREFIX` to `~/Anaconda3/envs/OOF2`.
 -   Similarly, change `OOF2_PYTHON_VERSION` to the version of python3
-    that you have installed, and `OOF2_SWIG_VERSION` to the version of
-    swig4. Use the same values you used when installing OOFCanvas. Use
-    `<return>` to cycle through the allowed values.
+    that you have installed.  Use the same value you used when
+    installing OOFCanvas. Use `<return>` to cycle through the allowed values.
 -   If you are going to build OOF2 extension modules, set
     `OOF2_DEV_INSTALL` to `ON`. This will install the C++ headers and
     other useful files.
