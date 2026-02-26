@@ -42,7 +42,11 @@ public:
 
 ADD_REPR_GENERIC(CColor);
 
-CColor operator-(CColor&, CColor&);
+%extend CColor {
+  CColor operator-(CColor& other) {
+    return *self - other;
+  }
+}
 
 class CGrayColor: public CColor {
 public:
