@@ -14,7 +14,7 @@
 
 %module(package="ooflib.SWIG.common.IO.GUI") testrubberband
 
-%include "common/typemaps.swg"
+ //%include "common/typemaps.swg"
 
 %{
   #include "common/IO/GUI/testrubberband.h"
