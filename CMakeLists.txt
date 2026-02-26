@@ -193,6 +193,10 @@ foreach(olib ${ooflibs})
     PRIVATE
     -Wno-deprecated-register
   )
+  target_compile_definitions(${olib}
+    PRIVATE
+    ${OOFCANVAS_CFLAGS_OTHER}
+  )
 endforeach()
 
 # oofconfig.h is used when building oof2.
