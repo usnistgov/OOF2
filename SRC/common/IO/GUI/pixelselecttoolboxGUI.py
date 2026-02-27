@@ -13,7 +13,7 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.IO.GUI import rubberband
+from ooflib.SWIG.common.IO.GUI import brushrubberband
 from ooflib.common import debug
 from ooflib.common import pixelselectionmethod
 from ooflib.common import primitives
@@ -162,7 +162,7 @@ pixelselectionmethod.PixelSelectionRegistration.getRubberBand = _NoRubberBand
 
 def _BrushSelectorRB(reg):
     style = reg.getParameter('style').value
-    return rubberband.BrushRubberBand(style) 
+    return brushrubberband.BrushRubberBand(style) 
 
 pixelselectionmethod.brushSelectorRegistration.getRubberBand = _BrushSelectorRB
 
