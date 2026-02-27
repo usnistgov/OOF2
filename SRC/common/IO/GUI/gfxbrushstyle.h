@@ -30,9 +30,7 @@
 
 class GfxBrushStyle {
 public:
-  virtual ~GfxBrushStyle() {
-    std::cerr << "GfxBrushStyle::dtor: " << this << std::endl;
-  }
+  virtual ~GfxBrushStyle() {}
   virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&) = 0;
   virtual void update(const OOFCanvas::Coord&) = 0;
   virtual void stop() = 0;
@@ -42,12 +40,7 @@ class GfxCircleBrush : public GfxBrushStyle, public CircleBrush {
 protected:
   OOFCanvas::CanvasCircle *circle;
 public:
-  GfxCircleBrush(double r) : CircleBrush(r), circle(nullptr) {
-    std::cerr << "GfxCircleBrush::ctor: " << this << std::endl;
-  }
-  ~GfxCircleBrush() {
-    std::cerr << "GfxCircleBrush::dtor: " << this << std::endl;
-  }
+  GfxCircleBrush(double r) : CircleBrush(r), circle(nullptr) {}
   virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&);
   virtual void update(const OOFCanvas::Coord&);
   virtual void stop();
