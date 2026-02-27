@@ -9,8 +9,8 @@
  * oof_manager@nist.gov. 
  */
 
-#ifndef RUBBERBAND_H
-#define RUBBERBAND_H
+#ifndef BRUSHRUBBERBAND_H
+#define BRUSHRUBBERBAND_H
 
 #include <oofconfig.h>
 
@@ -27,12 +27,11 @@ private:
   SLock lock;
 public:
   BrushRubberBand(GfxBrushStyle*);
-  virtual ~BrushRubberBand();
   virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&);
   virtual void stop();
   virtual void update(const OOFCanvas::Coord&);
-  virtual void setColor(const OOFCanvas::Color &);
+  void update(const OOFCanvas::Coord *c) { update(*c); }
   virtual std::string* print() const;
 };
 
-#endif // RUBBERBAND_H
+#endif // BRUSHRUBBERBAND_H

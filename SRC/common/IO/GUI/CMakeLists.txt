@@ -10,8 +10,8 @@ target_sources(oof2commonGUI
   PRIVATE
   progressGUI.C
   progressGUI.h
-  rubberband.C
-  rubberband.h
+  brushrubberband.C
+  brushrubberband.h
   gfxbrushstyle.C
   gfxbrushstyle.h)
 
@@ -19,8 +19,7 @@ oof_swig_sources(
   SWIGFILES
   gfxbrushstyle
   progressGUI
-  rubberband
+  brushrubberband
   LIBRARIES
   oof2common
-  oof2commonGUI
-)
+  oof2commonGUI)
