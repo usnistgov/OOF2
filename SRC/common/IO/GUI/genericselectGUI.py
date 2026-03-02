@@ -469,10 +469,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.rb = self.selmeth.getRubberBand(self.selmeth)
         ## TODO: Make the rubberband width, etc, settable by the user
         if self.rb is not None:
-            debug.fmsg("Calling setLineWidth")
             self.rb.setLineWidth(1.0) # is in pixel units
-            debug.fmsg(f"Calling setColor "
-                       f"{oofcanvas.black.__class__=} {self.rb=}")
             self.rb.setColor(oofcanvas.black)
             self.rb.setDashColor(oofcanvas.white)
             self.rb.setDashLength(7.0)

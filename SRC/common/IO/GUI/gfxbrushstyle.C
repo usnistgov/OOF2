@@ -14,7 +14,7 @@
 #include "gfxbrushstyle.h"
 
 void GfxCircleBrush::start(OOFCanvas::CanvasLayer *layer,
-			   const OOFCanvas::Coord &pt)
+			   const OOFCanvas::CanvasCoord &pt)
 {
   // TODO GTK3: Get dashlength, linewidth, and colors from parameters
   // in genericSelectGUI.py
@@ -28,7 +28,7 @@ void GfxCircleBrush::start(OOFCanvas::CanvasLayer *layer,
   layer->addItem(circle);
 }
 
-void GfxCircleBrush::update(const OOFCanvas::Coord &pt) {
+void GfxCircleBrush::update(const OOFCanvas::CanvasCoord &pt) {
   circle->setCenter(pt);
 }
 
@@ -37,14 +37,14 @@ void GfxCircleBrush::stop() {
 }
 
 void GfxSquareBrush::start(OOFCanvas::CanvasLayer *layer,
-			   const OOFCanvas::Coord &pt)
+			   const OOFCanvas::CanvasCoord &pt)
 {
   // TODO GTK3: Get dashlength, linewidth, and colors from parameters
   // in genericSelectGUI.py
   double dashLength = 7;
   double lineWidth = 2;
 
-  OOFCanvas::Coord diag(size, size);
+  OOFCanvas::CanvasCoord diag(size, size);
   rectangle = new OOFCanvas::CanvasRectangle(pt-diag, pt+diag);
   rectangle->setLineWidthInPixels(lineWidth);
   rectangle->setLineColor(OOFCanvas::white);
@@ -53,8 +53,8 @@ void GfxSquareBrush::start(OOFCanvas::CanvasLayer *layer,
   layer->addItem(rectangle);
 }
 
-void GfxSquareBrush::update(const OOFCanvas::Coord &pt) {
-  OOFCanvas::Coord diag(size, size);
+void GfxSquareBrush::update(const OOFCanvas::CanvasCoord &pt) {
+  OOFCanvas::CanvasCoord diag(size, size);
   rectangle->update(pt-diag, pt+diag);
 }
 

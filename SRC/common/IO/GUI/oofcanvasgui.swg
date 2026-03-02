@@ -12,26 +12,35 @@
 // This file duplicates some type information from OOFCanvas.  It is
 // here to be %imported into other swig files, but should not be
 // directly swigged itself.
-
-#ifndef OOFCANVASGUI_SWG
-#define OOFCANVASGUI_SWG
+// TODO: OOFCanvas should install swig files into
+// <prefix>/share/oof2/swig where OOF2 could find them.
 
 %import "common/IO/oofcanvas.swg"
 
+// This block needs to be explicitly inserted into the swig file that
+// imports this one. TODO: That's ugly.  Perhaps this file should be
+// %included, and not %imported, but itself should contain only the
+// C++ block, and then %import the rest.
+
 %{
-#include <oofcanvas.h>
-using namespace OOFCanvas;
+  #include <oofcanvas.h>
+  typedef OOFCanvas::CanvasColor CanvasColor;
+  typedef OOFCanvas::CanvasCoord CanvasCoord;
+  typedef OOFCanvas::RubberBand RubberBand;
 %}
+
+%rename(CanvasColor) OOFCanvas::CanvasColor;
+
+%nodefaultctor RubberBand;
 
 class RubberBand {
 public:
   ~RubberBand();
   void setLineWidth(double);
-  void setColor(CanvasColor);
+  void setColor(const CanvasColor*);
   void setDashed(bool);
   void setDashLength(double);
-  void setDashColor(CanvasColor);
-  void update(CanvasCoord*);
+  void setDashColor(const CanvasColor*);
+  void update(const CanvasCoord*);
 };
 
-#endif // OOFCANVASGUI_SWG

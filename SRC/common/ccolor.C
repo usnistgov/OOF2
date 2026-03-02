@@ -295,9 +295,9 @@ CColor CColor::weightedAverage(double w0, double w1, const CColor &color1) const
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-OOFCanvas::Color canvasColor(const CColor &clr) {
-  return OOFCanvas::Color(clr.getRed(), clr.getGreen(), clr.getBlue(),
-			  clr.getAlpha());
+OOFCanvas::CanvasColor canvasColor(const CColor &clr) {
+  return OOFCanvas::CanvasColor(clr.getRed(), clr.getGreen(), clr.getBlue(),
+				clr.getAlpha());
 }
 
 

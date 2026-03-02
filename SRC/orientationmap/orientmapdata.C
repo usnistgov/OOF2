@@ -87,7 +87,7 @@ OOFCanvas::CanvasImage *OrientMap::makeCanvasImage(
   OOFCanvas::CanvasImage *img = OOFCanvas::CanvasImage::newBlankImage(
 					      OOFCANVAS_COORD(*position),
 					      OOFCANVAS_ICOORD(sizeInPixels()),
-					      OOFCanvas::Color());
+					      OOFCanvas::CanvasColor());
   img->setDrawIndividualPixels(true);
   img->setSize(OOFCANVAS_COORD(*dispsize));
   int ymax = sizeInPixels()[1] - 1;
@@ -95,7 +95,7 @@ OOFCanvas::CanvasImage *OrientMap::makeCanvasImage(
     {
       const CColor color = (*colorscheme)(angles[i]);
       ICoord pt(i.coord());
-      img->set(OOFCanvas::ICoord(pt[0], ymax-pt[1]), canvasColor(color));
+      img->set(OOFCanvas::ICanvasCoord(pt[0], ymax-pt[1]), canvasColor(color));
     }
   return img;
 }

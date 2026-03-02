@@ -31,8 +31,8 @@
 class GfxBrushStyle {
 public:
   virtual ~GfxBrushStyle() {}
-  virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&) = 0;
-  virtual void update(const OOFCanvas::Coord&) = 0;
+  virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::CanvasCoord&)=0;
+  virtual void update(const OOFCanvas::CanvasCoord&) = 0;
   virtual void stop() = 0;
 };
 
@@ -41,8 +41,8 @@ protected:
   OOFCanvas::CanvasCircle *circle;
 public:
   GfxCircleBrush(double r) : CircleBrush(r), circle(nullptr) {}
-  virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&);
-  virtual void update(const OOFCanvas::Coord&);
+  virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::CanvasCoord&);
+  virtual void update(const OOFCanvas::CanvasCoord&);
   virtual void stop();
 };
 
@@ -51,8 +51,8 @@ protected:
   OOFCanvas::CanvasRectangle *rectangle;
 public:
   GfxSquareBrush(double hs) : SquareBrush(hs), rectangle(nullptr) {}
-  virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&);
-  virtual void update(const OOFCanvas::Coord&);
+  virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::CanvasCoord&);
+  virtual void update(const OOFCanvas::CanvasCoord&);
   virtual void stop();
 };
 

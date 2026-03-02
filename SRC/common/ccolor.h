@@ -131,6 +131,6 @@ CColor operator-(const CColor&, const CColor&);
 
 std::ostream &operator<<(std::ostream&, const CColor&);
 
-OOFCanvas::Color canvasColor(const CColor&); 
+OOFCanvas::CanvasColor canvasColor(const CColor&); 
 
 #endif

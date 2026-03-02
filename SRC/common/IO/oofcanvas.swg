@@ -13,20 +13,21 @@
 // here to be %imported into other swig files, but should not be
 // directly swigged itself.
 
-#ifndef OOFCANVAS_SWG
-#define OOFCANVAS_SWG
+// Because this is %imported and not %included, it won't generate any
+// code, so the importing files should contain something like this:
+// %{
+//   #include <oofcanvas.h>
+//   typedef OOFCanvas::CanvasColor CanvasColor;
+//   typedef OOFCanvas::CanvasCoord CanvasCoord;
+// %}
 
-%module(package="oofcanvas") oofcanvas
+namespace OOFCanvas {
+  class CanvasColor {
+  public:
+    CanvasColor(double, double, double);
+    CanvasColor opacity(double);
+  };
 
-%{
-  #include <oofcanvas.h>
-  typedef OOFCanvas::Color CanvasColor;
-%}
-
-class Color {
-public:
-  Color(double, double, double);
-  Color opacity(double);
+  class CanvasCoord {};
 };
 
-#endif // OOFCANVAS_SWG

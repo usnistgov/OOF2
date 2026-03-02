@@ -27,7 +27,7 @@ BrushRubberBand::BrushRubberBand(GfxBrushStyle *brush)
 {}
 
 void BrushRubberBand::start(OOFCanvas::CanvasLayer *lyr,
-			    const OOFCanvas::Coord &pt)
+			    const OOFCanvas::CanvasCoord &pt)
 {
   KeyHolder kh(lock);
   OOFCanvas::RubberBand::start(lyr, pt);
@@ -46,7 +46,7 @@ void BrushRubberBand::stop() {
   trail = nullptr;
 }
 
-void BrushRubberBand::update(const OOFCanvas::Coord &pt) {
+void BrushRubberBand::update(const OOFCanvas::CanvasCoord &pt) {
   KeyHolder kh(lock);
   RubberBand::update(pt);
   trail->addPoint(currentPt);

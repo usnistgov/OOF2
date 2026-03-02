@@ -50,7 +50,7 @@ OOFCanvas::CanvasImage *OrientationImage::makeCanvasImage(const Coord *position,
   OOFCanvas::CanvasImage *img = OOFCanvas::CanvasImage::newBlankImage(
 					      OOFCANVAS_COORD(*position),
 					      OOFCANVAS_ICOORD(sizeInPixels()),
-					      OOFCanvas::Color());
+					      OOFCanvas::CanvasColor());
   img->setDrawIndividualPixels(true);
   img->setSize(OOFCANVAS_COORD(*dispsize));
   const Array<int> &pxls = *microstructure->getCategoryMapRO();
@@ -72,7 +72,8 @@ OOFCanvas::CanvasImage *OrientationImage::makeCanvasImage(const Coord *position,
     else {			// no material
       color = noOrientation;
     }
-    img->set(OOFCanvas::ICoord(where[0], ymax-where[1]), canvasColor(color));
+    img->set(OOFCanvas::ICanvasCoord(where[0], ymax-where[1]),
+	     canvasColor(color));
   }
   return img;
 }
