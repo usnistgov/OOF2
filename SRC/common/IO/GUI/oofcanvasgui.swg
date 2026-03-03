@@ -24,8 +24,8 @@
 
 %{
   #include <oofcanvas.h>
-  typedef OOFCanvas::CanvasColor CanvasColor;
-  typedef OOFCanvas::CanvasCoord CanvasCoord;
+  typedef OOFCanvas::Color CanvasColor;
+  typedef OOFCanvas::Coord CanvasCoord;
   typedef OOFCanvas::RubberBand RubberBand;
 %}
 

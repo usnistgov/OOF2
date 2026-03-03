@@ -27,10 +27,10 @@ private:
   SLock lock;
 public:
   BrushRubberBand(GfxBrushStyle*);
-  virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::CanvasCoord&);
+  virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&);
   virtual void stop();
-  virtual void update(const OOFCanvas::CanvasCoord&);
-  void update(const OOFCanvas::CanvasCoord *c) { update(*c); }
+  virtual void update(const OOFCanvas::Coord&);
+  void update(const OOFCanvas::Coord *c) { update(*c); }
   virtual std::string* print() const;
 };
 

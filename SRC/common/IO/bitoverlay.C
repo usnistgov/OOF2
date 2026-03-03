@@ -116,7 +116,7 @@ OOFCanvas::CanvasImage *BitmapOverlay::makeCanvasImage(const Coord *position,
   for(Array<bool>::const_iterator i=data.begin(); i!=data.end(); ++i) {
     if(data[i]) {
       ICoord p(i.coord());
-      img->set(OOFCanvas::ICanvasCoord(p[0], ymax-p[1]), canvasColor(fg));
+      img->set(OOFCanvas::ICoord(p[0], ymax-p[1]), canvasColor(fg));
     }
   }
   return img;

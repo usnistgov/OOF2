@@ -484,6 +484,5 @@ utils.OOFdefine('gray50', gray50)
 # Convert to an OOFCanvas color
 
 def canvasColor(color):
-    clr = oofcanvas.CanvasColor(
-        color.getRed(), color.getGreen(), color.getBlue())
+    clr = oofcanvas.Color(color.getRed(), color.getGreen(), color.getBlue())
     return clr.opacity(color.getAlpha())
