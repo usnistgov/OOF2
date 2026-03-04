@@ -11,16 +11,32 @@
 import os
 from generics import *
 
-# # This tutorial (as recorded) overwrites a data file, so we have to
-# # make sure that there's a file to overwrite.
-# datafilename = 'tutorial3.mic'          # name of the file as written in the log
-# if not os.path.exists(datafilename):
-#     dfile = open(datafilename, 'w')
-#     print >> dfile, "dummy"
-#     dfile.close()
-
 def imagePageSensitizationCheck0():
-    # before undoing image modifications
+    # before any image modifications
+    return sensitizationCheck(
+        {
+        'Prev' : 0,
+        'OK' : 1,
+        'Next' : 0,
+        'Undo' : 0,
+        'Redo' : 0
+        },
+        base='OOF2:Image Page:Pane')
+
+def imagePageSensitizationCheck1():
+    # after one image modification
+    return sensitizationCheck(
+        {
+        'Prev' : 0,
+        'OK' : 1,
+        'Next' : 0,
+        'Undo' : 1,
+        'Redo' : 0
+        },
+        base='OOF2:Image Page:Pane')
+
+def imagePageSensitizationCheck2():
+    # after two image modifications
     return sensitizationCheck(
         {
         'Prev' : 1,
@@ -31,8 +47,20 @@ def imagePageSensitizationCheck0():
         },
         base='OOF2:Image Page:Pane')
 
-def imagePageSensitizationCheck1():
-    # after undoing one image modification
+def imagePageSensitizationCheck3():
+    # new image, but old methods available
+    return sensitizationCheck(
+        {
+        'Prev' : 1,
+        'OK' : 1,
+        'Next' : 0,
+        'Undo' : 0,
+        'Redo' : 0
+        },
+        base='OOF2:Image Page:Pane')
+
+def imagePageSensitizationCheck4():
+    # Undo once
     return sensitizationCheck(
         {
         'Prev' : 1,
@@ -43,8 +71,8 @@ def imagePageSensitizationCheck1():
         },
         base='OOF2:Image Page:Pane')
 
-def imagePageSensitizationCheck2():
-    # after undoing all image modifications
+def imagePageSensitizationCheck5():
+    # Undo all
     return sensitizationCheck(
         {
         'Prev' : 1,
@@ -54,6 +82,13 @@ def imagePageSensitizationCheck2():
         'Redo' : 1
         },
         base='OOF2:Image Page:Pane')
+
+_grouplist = "OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList"
+def groupListCheck(*groups):
+    return chooserListCheck(_grouplist, groups)
+
+def groupListStateCheck(group):
+    return chooserListStateCheck(_grouplist, [group])
 
 def autoModeCheck():
     return gtklogger.findWidget('Dialog-Create new pixel group:name').autowidget.automatic
