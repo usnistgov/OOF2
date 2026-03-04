@@ -238,6 +238,7 @@ class ImagePage(oofGUI.MainPage):
         else:
             self.undobutton.set_sensitive(0)
             self.redobutton.set_sensitive(0)
+        gtklogger.checkpoint("image page sensitized")
 
     def sensitizeHistory(self):
         debug.mainthreadTest()
