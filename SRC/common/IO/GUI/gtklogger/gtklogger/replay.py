@@ -498,6 +498,8 @@ class CheckPointLine(GUILogLineRunner):
 # used elsewhere, too. 
 findWidget = logutils.findWidget
 findAllWidgets = logutils.findAllWidgets
+dumpAllWidgets = logutils.dumpAllWidgets
+dumpTopWidgets = logutils.dumpTopWidgets
 findMenu = logutils.findMenu
 findCellRenderer = logutils.findCellRenderer
 setComboBox = logutils.setComboBox

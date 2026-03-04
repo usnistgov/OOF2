@@ -11,6 +11,8 @@
 
 INSTALLATION
 
+### TODO: Update this for cmake and Python 3.
+
 In this directory, type
 
 python setup.py install [--prefix=directory]

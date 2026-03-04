@@ -222,8 +222,12 @@ def dumpAllWidgets(topname):
     aw = sorted(findAllWidgets(topname))
     basepath = ':'.join(topname.split(':')[:-1])
     for name in aw:
-        print("dumpAllWidgets:", name, findWidget(basepath
-                                                                 + ':' + name), file=sys.stderr)
+        print("dumpAllWidgets:", name, findWidget(basepath + ':' + name),
+              file=sys.stderr)
+
+# dumpTopWidgets prints the names of all the top level widgets.
+def dumpTopWidgets():
+    print("dumpTopWidgets:", list(topwidgets.keys()))
 
 ##############################
 

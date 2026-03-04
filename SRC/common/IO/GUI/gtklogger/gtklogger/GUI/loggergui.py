@@ -114,6 +114,7 @@ listofstrings = r"\[\s*['\"][^'\"]+?['\"](?:\s*,\s*['\"][^'\"]+?['\"])*\s*\]"
 
 actions.append(
     ReplaceLine(
+        ## TODO: Fix SyntaxWarning: invalid escape sequence '\)'
         r"^findMenu\(findWidget\('(.+)'\), " + listofstrings + "\).activate\(\)" + endcomment ,
         r"^findWidget\('(.+)'\).deactivate\(\)" + endcomment,
         groups=[(1,1)]))
@@ -125,6 +126,7 @@ actions.append(
 # CheckMenuItems and RadioMenuItems.
 actions.append(
     ReplaceLine(
+        ## TODO: Fix SyntaxWarning: invalid escape sequence '\)'
         r"^findMenu\(findWidget\('(.+)'\), "+listofstrings+"\).set_active\(0|1|True|False\)" + endcomment,
         r"^findWidget\('(.+)'\).deactivate\(\)" + endcomment,
         groups=[(1,1)]))
