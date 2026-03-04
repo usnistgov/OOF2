@@ -133,6 +133,10 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
     # constructs, as a way of grouping sub-expressions without
     # creating explicit groups in the regexp itself. The explicit
     # groups cause split and match to be annoying.
+
+    ## TODO: The regexp needs to *not* match inside quoted strings
+    ## where it might accidentally find something that looks like a
+    ## float, but has way too many digits.
     floatpattern = re.compile(
         r"[-+]?(?:\d+(?:\.\d*)?|\d*\.\d+)(?:[eE][-+]?\d+)?")
 
