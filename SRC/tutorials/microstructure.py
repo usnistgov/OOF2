@@ -47,7 +47,7 @@ Look for a parameter named <b>microstructure_name</b> in the middle of the windo
 
 If you want to set the name of the microstructure yourself, type in a name in place of <i>&lt;automatic&gt;</i>.  To use an automatically generated name (which will be the same as the image name), leave the box alone.  To return to automatic mode after typing something, delete the contents of the box.
 
-The parameters <b>width</b> and <b>height</b> are the physical size of the microstructure.  Leave these set to <i>&lt;automatic&gt;</i>.  The size will be determined by assuming that each pixel is 1 unit square.
+The parameters <b>width</b> and <b>height</b> are the physical size of the microstructure.  Leave these set to <i>&lt;automatic&gt;</i>.  The size will be determined by assuming that each pixel is a unit square.
 
 Click <b>OK</b> to create the Microstructure.""",
     ),
@@ -106,9 +106,11 @@ The gray values in the image now span the full range from black to white. """,
     subject="Increasing Contrast",
     comments=
 
-"""In the <b>Method</b> menu, select <b>Contrast</b> and apply it <b>three</b> times.
+"""In the <b>Method</b> menu, select <b>Contrast</b>.  Leave <b>radius</b> set to 5 and <b>mode</b> to RGB.
 
-The darker regions get darker and the brighter regions get brighter, making the two materials more distinguishable than before.
+Click <b>OK</b>.
+
+The darker regions get darker and the brighter regions get brighter, making the two materials more distinguishable than before.  Some interior boundaries inside the dark grains have been enhanced as well.
 
 There is, however, questionable spot in the lower-middle part of the image, where a region that ought to be white material is dark.
 
@@ -122,7 +124,11 @@ We'll deal with it later.
         
 """The image is ready for categorization.
 
-Unfortunately, the one-click do-it-all feature (the <b>Group</b> button in the Image page) is not going to work for this micrograph, because it contains too many shades of gray. Thus, we will categorize the pixels manually using a few <b>pixel selection</b> algorithms.
+Unfortunately, the one-click do-it-all feature (the <b>Group</b> button in the Image page) is not going to work for this micrograph, because it contains too many shades of gray. (Try it if you like. Then go to the <b>Microstructure</b> page and observe that there are over 100 groups, corresponding to the different grays in the image.  Delete the groups withe the <b>Delete All</b> button.)
+
+Therefore, we will categorize the pixels manually using a few <b>pixel selection</b> algorithms.
+
+(The <b>Group</b> button on the Microstructure page could potentially handle this image.)
 
 Go to the graphics window and open the <b>Pixel Selection</b> toolbox, using the <b>Toolbox</b> menu at the top of the left hand pane. """
         ),
@@ -202,7 +208,7 @@ Basically, they can select pixels of similar color ranges automatically.
 
 <b>Burn</b> only selects contiguous pixels, whereas <b>Color</b> works on the entire microstructure.
 
-<b>Clear</b> the current pixel selection, if any, and move on to the next slide for for information. """
+<b>Clear</b> the current pixel selection, if any, and move on to the next slide for for more instructions. """
     ),
 
     TutoringItem(
@@ -216,7 +222,7 @@ The <b>Color</b> selector selects all pixels whose color is within a specified r
 
 <b>RGB</b>: three floating point values between 0 and 1, representing red, green, and blue intensities, respectively.
 
-<b>HSV</b>: three floating point values representing hue, saturation and value, respectively.  Hue is between 0 and 360. Saturation and value are between 0 and 1.
+<b>HSV</b>: three floating point values representing hue, saturation and value, respectively.  Hue is in degrees between 0 and 360. Saturation and value are between 0 and 1.
 
 Since we have a gray-scale image, set the <b>range</b> of the selector to <b>DeltaGray</b> with the parameter <b>delta_gray</b> set to 0.4.  
 
@@ -270,7 +276,7 @@ The <b>Pixel Groups</b> pane should show the pixel group you just created. """,
 
 The information for the group will be updated immediately.
 
-About 2600 pixels should be present in the group, if you did it correctly.  The exact number will depend on exactly where you clicked on the image.  """,
+About 2500 pixels should be present in the group, if you did it correctly.  The exact number will depend on exactly where you clicked on the image.  """,
     ),
 
     TutoringItem(
@@ -286,7 +292,9 @@ You'll immediately notice that each selection forms an island and does not exten
 
 Thus, if you need to store islands of black pixels to different pixel groups, <b>Burn</b> is the way to go.
 
-Hold the shift key as you click on a black region to select multiple islands. """,
+Hold the shift key as you click on a black region to select multiple islands.  If a click doesn't select a whole island, shift-click on the parts that weren't selected, or try increasing the <b>flammability</b> parameters and clicking again.  (See the manual for a complete explanation.)
+
+""",
     ),
 
     TutoringItem(
@@ -315,7 +323,7 @@ The first pull-down menu in the box marked <b>what</b> sets the <b>Microstructur
 
 Leave the <b>how</b> menu set to <b>Bitmap</b> and click <b>OK</b>.
 
-Note that there are now two Image layers in the Layer List (you may have to scroll or enlarge it to see both) and that the copied Image (K1_small.png&gt;2&lt;) is drawn and listed on top."""
+Note that there are now two Image layers in the Layer List (you may have to scroll or enlarge it to see both) and that the copied Image (K1_small.png&lt;2&gt;) is drawn and listed on top."""
     ),
 
     TutoringItem(
@@ -323,7 +331,7 @@ Note that there are now two Image layers in the Layer List (you may have to scro
     comments=
 """Copying an Image isn't very useful if you don't do anything different with the copy.  Since we copied the modified Image, we can <b>undo</b> the modifications on the original Image.
 
-Switch the <b>Image Selector</b> in the <b>Image</b> page in the main window to the original Image, "K1_small.png", and click <b>Undo</b> four times (corresponding to the one Normalize and three Contrast operations that you did earlier).  """
+Switch the <b>Image Selector</b> in the <b>Image</b> page in the main window to the original Image, "K1_small.png", and click <b>Undo</b> twice, corresponding to the <b>Normalize</b> and <b>Contrast</b> operations you did earlier.  (If you did more operations, click <b>Undo</b> until the button is grayed out and no longer sensitive.)  """
     ),
 
     TutoringItem(
@@ -343,7 +351,7 @@ In the graphics window, switch the <b>Pixel Selection Method</b> to <b>Color</b>
 
 Click the mouse in the middle of one of the dark regions in the Image.  Note how many pixels have been selected, in the box at the bottom of the <b>Pixel Selection</b> toolbox.
 
-Using the Layer list and the <b>Raise</b> or <b>Lower</b> commands in the <b>Layer</b> menu, switch to the other version of the Image. Notice that the selection hasn't changed, since you haven't changed Microstructures.
+Using the Layer list and the <b>Raise</b> or <b>Lower</b> commands in the <b>Layer</b> menu, switch to the other version of the Image (that is, raise its layer so that it's on top). Notice that the selection hasn't changed, since you haven't changed Microstructures.
 
 Click on the <b>Repeat</b> button in the toolbox.  This repeats the previous mouse click, but this time the selection method will act on the other Image.  Notice that a different set of pixels have been selected."""
     ),
@@ -372,7 +380,7 @@ Click <b>Invert</b> in the <b>Pixel Selection</b> toolbox in the graphics window
     TutoringItem(
     subject="Creating Another Pixel Group",
     comments=
-"""Open the <b>Microstructure</b> page and create a new pixel group named <b>black</b>. """,
+"""Open the <b>Microstructure</b> page and create a <b>New</b> pixel group named <b>black</b>. """,
     ),
 
     TutoringItem(
@@ -392,13 +400,15 @@ The file selector has a pull-down menu labelled <b>microstructure</b> which lets
 
 The <b>format</b> menu has three choices:
 
-<b>script</b>: This saves the Microstructure as a Python script. It's a text file, so it can be edited in any text editor.  Because it's a Python script, it can contain any valid Python commands, so you could augment it in interesting and creative ways.  A data file saved as a script can be loaded by the <b>Load/Script</b> command in the <b>File</b> menu, or by the <tt>--script</tt> command line option at startup time.  If you're paranoid, you don't want to load scripts from untrustworthy sources, since they could conceivably contain malicious code.
+<b>script</b>: This saves the Microstructure as a Python script. It's a text file, so it can be edited in any text editor.  Because it's a Python script, it can contain any valid Python commands, so you could augment it in interesting and creative ways.  A data file saved as a script can be loaded by the <b>Load/Script</b> command in the <b>File</b> menu, or by the <tt>--script</tt> command line option at startup time.  <b>Warning!</b>Don't load scripts from untrustworthy sources, since they could conceivably contain malicious Python code.
 
-<b>ascii</b>: This saves the Microstructure as a text file that is <b>not</b> a valid Python script.  It can be reloaded with the <b>Load/Data</b> command in the <b>File</b> menu, or by the <tt>--data</tt> command line option.  Because this file format cannot contain arbitrary Python commands, it is more trustworthy than the <b>script</b> format (for the paranoid).
+<b>ascii</b>: This saves the Microstructure as a text file that is <b>not</b> a valid Python script.  It can be reloaded with the <b>Load/Data</b> command in the <b>File</b> menu, or by the <tt>--data</tt> command line option.  Because this file format cannot contain arbitrary Python commands, it is more trustworthy than the <b>script</b> format.
 
 <b>binary</b>: This saves the Microstructure as a binary file. Binary files are usually smaller and load faster than text files. Furthermore, they are not subject to round-off errors from converting numbers to text, and cannot contain arbitrary Python code.  Their one disadvantage is that they are not easily editable.  Binary data files can be loaded into OOF2 with the <b>Load/Data</b> command in the <b>File</b> menu.
 
-Enter a file name, select a data format and click <b>OK</b>. """
+Enter a file name, select a data format and click <b>OK</b>.
+
+If an old file exists with the same name, you'll have to set <b>mode</b> to <b>OVERWRITE</b> before saving it."""
     ),
 
     TutoringItem(
