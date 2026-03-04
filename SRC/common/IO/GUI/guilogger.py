@@ -286,3 +286,4 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
 
 utils.OOFdefine('findAllWidgets', gtklogger.findAllWidgets)
 utils.OOFdefine('findWidget', gtklogger.findWidget)
+utils.OOFdefine('dumpAllWidgets', gtklogger.dumpAllWidgets)
