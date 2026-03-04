@@ -83,13 +83,13 @@ The main window contains most of the OOF2 controls. The message window displays 
 
 The main window features two major parts, the menu bar and the task page.
 
-The menu bar contains four menus, <b>File</b>, <b>Settings</b>, <b>Windows</b>, <b>OrientationMap</b>, and <b>Help</b>.
+The menu bar contains five menus, <b>File</b>, <b>Settings</b>, <b>Windows</b>, <b>OrientationMap</b>, and <b>Help</b>.
 
 The <b>File</b> menu deals with loading and saving files and quitting OOF2.
 
 The <b>Settings</b> menu lets you select fonts, window themes, and buffer sizes.
 
-From the <b>Windows</b> menu, one can open additional OOF2 windows and raise existing windows.
+From the <b>Windows</b> menu, you can open additional OOF2 windows and raise existing windows.
 
 The <b>OrientationMap</b> menu contains commands for manipulating EBSD data files.
 
@@ -128,13 +128,13 @@ The <b>Back</b> and <b>Next</b> buttons take you other directories that you've r
 
 Navigate to the directory containing <tt>small.ppm</tt> and click its name in the list.
 
-The three fields labelled <b>microstructure_name</b>, <b>height</b>, and <b>width</b> are <b>automatic</b> widgets, currently displaying "<i>&lt;automatic&gt;</i>".  If you don't type anything in the widgets, OOF2 will automatically create an appropriate value for them.  In this case, the microstructure name will be set to the name of the image, "small.ppm", and the height and width will be set to the size of the image, in pixels.  If you type anything in an automatic widget, the its value will be the value that you typed.  If you delete all of the text in an automatic widget, the value will revert to "<i>&lt;automatic&gt;</i>".
+The three fields labelled <b>microstructure_name</b>, <b>height</b>, and <b>width</b> are <b>automatic</b> widgets, currently displaying "<i>&lt;automatic&gt;</i>".  If you don't type anything in the widgets, OOF2 will automatically create an appropriate value for them.  In this case, the microstructure name will be set to the name of the selected image, and the height and width will be set to the size of the image, in pixels.  If you type anything in an automatic widget, the its value will be the value that you typed.  If you delete all of the text in an automatic widget, the value will revert to "<i>&lt;automatic&gt;</i>".
 
 Leave the automatic widgets set to "<i>&lt;automatic&gt;</i>" and click the <b>OK</b> button.
 
 You should see that all of the buttons in the upper part of the Microstructure page have been turned on, and that a Microstructure called "small.ppm" has been created.
 
-Also, if you bring up the messages window (select Messages/Message 1 in the Windows menu, if necessary), you'll notice that it has logged the menu command for Microstructure creation. """
+Also, if you bring up the <b>Messages</b> window (select Messages/Message 1 in the <b>Windows</b> menu, if necessary), you'll notice that it has logged the menu command for Microstructure creation. """
 
     ),
 
