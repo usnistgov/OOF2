@@ -8,7 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-# Generic tests that can be inluded in GUI test scripts.  Most import
+# Generic tests that can be included in GUI test scripts.  Most import
 # statements are included in function bodies so that the first import
 # is unlikely to come from this file, which might affect program
 # behavior if the import has side effects.
@@ -384,7 +384,7 @@ def chooserListStateCheck(widgetpath, choices, tolerance=None):
     selection = treeview.get_selection()
     model, paths = selection.get_selected_rows()
     if len(paths) != len(choices):
-        print("Wrong number of selections:",
+        print("Wrong number of choices:",
               len(paths), "!=", len(choices), file=sys.stderr)
         return False
     for path in paths:          # loop over actually selected objects
@@ -404,7 +404,7 @@ def chooserListStateCheckN(widgetpath, choices):
     selection = treeview.get_selection()
     model, paths = selection.get_selected_rows()
     if len(paths) != len(choices):
-        print("Wrong number of selections:",
+        print("Wrong number of choices:",
               len(paths), "!=", len(choices), file=sys.stderr)
         return False
     selected = [p[0] for p in paths]
@@ -535,10 +535,9 @@ def skeletonSelectionTBSizeCheck(windowname, category, n):
 
 def pixelSelectionTBSizeCheck(windowname, minpxls, maxpxls=None):
     # Check that the pixel selection size is displayed correctly in
-    # the graphics window.  Since different versions of ImageMagick
-    # can cause pixel selection operations to work differently after
-    # image modifications, it's possible to specify a range of pixel
-    # counts for this test.
+    # the graphics window.  It's possible to specify a range of pixel
+    # counts in case different versions of the image library are
+    # expected to produce different results.
     text = gtklogger.findWidget(
         '%s:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size' % windowname)
     # The line is either "0" or "n (p%)" for some n and p.
@@ -675,3 +674,34 @@ def objectInventory(microstructures=0, nodes=0, elements=0, meshes=0):
             "objectInventory failed. Expected (micro, nodes, elems, meshes) =",
             expected, "Got", counts, file=sys.stderr)
     return counts == expected
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Gfx window layer list checks
+
+def _gfxWindow(name):
+    from ooflib.common.IO import gfxmanager
+    return gfxmanager.gfxManager.getWindow(name)
+
+def _listedLayers(windowname):
+    return [l.name() for l in _gfxWindow(windowname).listedLayers()]
+
+def layerCheck(*layers):
+    names = _listedLayers("Graphics_1")
+    ok = names == list(layers)
+    if not ok:
+        print(names, file=sys.stderr)
+    return ok
+
+def selectedLayerCheck(layer):
+    sl = _gfxWindow("Graphics_1").selectedLayer
+    if sl is not None:
+        return layer == sl.name()
+    return layer is None
+
+def allLayerNames(*layers):
+    names = [l.name() for l in treeViewColValues(layerlist, 0)]
+    ok = names == list(layers)
+    if not ok:
+        print(names)
+    return ok

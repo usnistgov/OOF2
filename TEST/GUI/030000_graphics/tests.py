@@ -113,35 +113,6 @@ def sensitizationCheck6():
             layerMenuSensitization("Reorder_All", 0)
             )
 
-def _gfxWindow(name):
-    from ooflib.common.IO import gfxmanager
-    return gfxmanager.gfxManager.getWindow(name)
-
-# Layer tests also appear in 03200.  If they're copied again, put them
-# in a common file.
-def _listedLayers(windowname):
-    return [l.name() for l in _gfxWindow(windowname).listedLayers()]
-
-def layerCheck(*layers):
-    names = _listedLayers("Graphics_1")
-    ok = names == list(layers)
-    if not ok:
-        print(names, file=sys.stderr)
-    return ok
-
-def selectedLayerCheck(layer):
-    sl = _gfxWindow("Graphics_1").selectedLayer
-    if sl is not None:
-        return layer == sl.name()
-    return layer is None
-
-def allLayerNames(*layers):
-    names = [l.name() for l in treeViewColValues(layerlist, 0)]
-    ok = names == list(layers)
-    if not ok:
-        print(names)
-    return ok
-
 def contourLabels():
     return (gtklogger.findWidget(
         "OOF2 Graphics 1:Pane0:Pane1:ContourMap:MapMin"),
