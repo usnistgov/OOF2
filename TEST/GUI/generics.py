@@ -677,7 +677,10 @@ def objectInventory(microstructures=0, nodes=0, elements=0, meshes=0):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Gfx window layer list checks
+# Gfx window layer list checks.
+# NOTE: Hard coded for gfx window 1.
+
+layerlist = "OOF2 Graphics 1:Pane0:LayerScroll:LayerList"
 
 def _gfxWindow(name):
     from ooflib.common.IO import gfxmanager

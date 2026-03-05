@@ -10,8 +10,6 @@
 
 from generics import *
 
-layerlist = "OOF2 Graphics 1:Pane0:LayerScroll:LayerList"
-    
 def layerMenuSensitization(menuitem, sensitivity):
     actual = menuSensitive("OOF2 Graphics 1:MenuBar", ["Layer", menuitem])
     if actual != sensitivity:
