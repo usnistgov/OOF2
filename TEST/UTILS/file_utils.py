@@ -118,6 +118,25 @@ def reference_file(*args):
     # This does the right thing if referencedir is an empty string.
     return os.path.join(referencedir, *args)
 
+# Regexp for matching floating-point numbers, copied from section
+# 4.2.6 of the Python 2.3 documentation.  The "(...)" group
+# constructs in the original have been replaced by "(?:...)"
+# constructs, as a way of grouping sub-expressions without
+# creating explicit groups in the regexp itself. The explicit
+# groups cause split and match to be annoying.
+floatpattern = re.compile(
+    r"[-+]?(?:\d+(?:\.\d*)?|\d*\.\d+)(?:[eE][-+]?\d+)?")
+
+# Regexp for quoted substrings with either single or double
+# quotes.  It's constructed in two pieces to avoid escape
+# character hell.  Outer parentheses put the substring in a group,
+# so that re.split will include it in its output.
+quotepattern = re.compile(r'("[^"]*"|'   # double quoted substring
+                          + r"'[^']*')") # single quoted substring
+
+# Pattern for detecting the time as printed by datetime.today().
+timepattern = re.compile(r"\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\.\d*")
+
 def fp_file_compare(file1, file2, tolerance, comment="#",
                     ignoretime=False, quiet=False, nlines=None):
     # file1 is assumed to be in the current directory. file2 is
@@ -127,21 +146,6 @@ def fp_file_compare(file1, file2, tolerance, comment="#",
     # exactly nlines lines in file1 and at least nlines lines in
     # file2.
 
-    # Regexp for matching floating-point numbers, copied from section
-    # 4.2.6 of the Python 2.3 documentation.  The "(...)" group
-    # constructs in the original have been replaced by "(?:...)"
-    # constructs, as a way of grouping sub-expressions without
-    # creating explicit groups in the regexp itself. The explicit
-    # groups cause split and match to be annoying.
-    floatpattern = re.compile(
-        r"[-+]?(?:\d+(?:\.\d*)?|\d*\.\d+)(?:[eE][-+]?\d+)?")
-
-    # Regexp for quoted substrings with either single or double
-    # quotes.  It's constructed in two pieces to avoid escape
-    # character hell.  Outer parentheses put the substring in a group,
-    # so that re.split will include it in its output.
-    quotepattern = re.compile(r'("[^"]*"|'   # double quoted substring
-                              + r"'[^']*')") # single quoted substring
 
     try:
         file2 = reference_file(file2)
@@ -197,7 +201,15 @@ def fp_file_compare(file1, file2, tolerance, comment="#",
                     if f1_sub != f2_sub:
                         print_mismatch(f1_lineno, f1_sub, f2_sub)
                 else:
-                    # Not a quoted substring.  Split it by the numbers.
+                    # Not a quoted substring.
+                    # Check for time stamps, and ignore them.
+                    if (ignoretime and timepattern.search(f1_sub) and
+                        timepattern.search(f2_sub)):
+                        continue
+                    
+                    # Split substrings by numbers, which will be
+                    # compared numerically, with a tolerance for
+                    # floating point.
                     f1_text_items = floatpattern.split(f1_sub)
                     f2_text_items = floatpattern.split(f2_sub)
                     f1_numbers = floatpattern.findall(f1_sub)
@@ -432,7 +444,12 @@ def remove(filename):
             pass
         else:
             raise
-    
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# This file can be run on its own to compare two data files with
+# fp_file_compare().
+
 if __name__ == "__main__":
     import sys
     import getopt
