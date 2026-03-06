@@ -297,7 +297,7 @@ void DiskDataCache::clear_(bool force) {
       // Error removing file.  Ignore it if force==true.
       if(!force) {
 	char buf[1000];
-	strerror_r(errno, buf, sizeof(buf));
+	(void) strerror_r(errno, buf, sizeof(buf));
 	throw ErrProgrammingError(buf, __FILE__, __LINE__);
       }
     }
@@ -330,7 +330,7 @@ std::vector<double>& DiskDataCache::fetchOne(double time) {
   FILE *file = fopen((*i).second.c_str(), "r");
   if(!file) {
     char buf[1000];
-    strerror_r(errno, buf, sizeof(buf));
+    (void) strerror_r(errno, buf, sizeof(buf));
     throw ErrProgrammingError(buf, __FILE__, __LINE__);
   }
   // Read the number of dof values from the file
@@ -406,7 +406,7 @@ void DiskDataCache::record() {
     // might never happen, but it probably doesn't hurt to check.
     if(unlink((*i).second.c_str())) {
       char buf[1000];
-      strerror_r(errno, buf, sizeof(buf));
+      (void) strerror_r(errno, buf, sizeof(buf));
       throw ErrProgrammingError(buf, __FILE__, __LINE__);
       fileDict.erase(i);
     }
