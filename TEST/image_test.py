@@ -14,7 +14,6 @@
 # properly.  For proper regression testing, run microstructure_test
 # first, then this one.
 
-import filecmp
 import os
 import random
 import sys
@@ -202,15 +201,17 @@ class OOF_Image(unittest.TestCase):
                             image="save_test:rectangle.png",
                             overwrite=False)
         self.assertTrue(
-            filecmp.cmp("image_save_test.npy",
-                        reference_file("image_data", "saved_rectangle.npy")))
+            compare_image_files(
+                "image_save_test.npy",
+                reference_file("image_data", "saved_rectangle.npy")))
         # And npz
         OOF.File.Save.Image(filename="image_save_test.npz",
                             image="save_test:rectangle.png",
                             overwrite=False)
         self.assertTrue(
-            filecmp.cmp("image_save_test.npz",
-                        reference_file("image_data", "saved_rectangle.npz")))
+            compare_image_files(
+                "image_save_test.npz",
+                reference_file("image_data", "saved_rectangle.npz")))
         if swapbytes:
             img.makeBigEndian()
 
@@ -253,8 +254,9 @@ class OOF_Image(unittest.TestCase):
                                 image="gray:si3n4-blur.npy",
                                 overwrite=False)
             self.assertTrue(
-                filecmp.cmp("image_save_test."+ext,
-                            reference_file("image_data", "saved_gray."+ext)))
+                compare_image_files(
+                    "image_save_test."+ext,
+                    reference_file("image_data", "saved_gray."+ext)))
         if swapbytes:
             img.makeBigEndian()
             
