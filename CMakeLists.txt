@@ -188,11 +188,11 @@ foreach(olib ${ooflibs})
     ${OOFCANVAS_INCLUDE_DIRS}
     ${GTK3_INCLUDE_DIRS}
     )
+  # target_compile_options(${olib}
+  #   PRIVATE
+  #   -Wno-deprecated-register
+  # )
   target_compile_options(${olib}
-    PRIVATE
-    -Wno-deprecated-register
-  )
-  target_compile_definitions(${olib}
     PRIVATE
     ${OOFCANVAS_CFLAGS_OTHER}
   )
