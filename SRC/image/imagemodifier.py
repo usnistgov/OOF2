@@ -513,9 +513,6 @@ class MedianFilterImage(ImageModifierToEither):
         if image.isGray():
             newimage = skimage.filters.median(npimage, disk)
         else:
-            # TODO NUMPY: Is there any point to using adapt_rgb here?
-            # Does applying the filter to just the V channel make
-            # sense?
             for k in range(npimage.shape[2]):
                 newimage[:,:,k] = skimage.filters.median(npimage[:,:,k], disk)
         return newimage

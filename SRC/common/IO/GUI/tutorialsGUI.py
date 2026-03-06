@@ -171,6 +171,8 @@ class TutorialClassGUI(subWindow.SubWindow):
 
     def updateGUI(self):
         debug.mainthreadTest()
+        # TODO: One of the gui tests was getting an IndexError here,
+        # but I am unable to reproduce it.
         self.lesson = self.tutor.lessons[self.index]  # current lesson
         if self.lesson.subject is not None:
             self.subject.set_text(self.lesson.subject)
