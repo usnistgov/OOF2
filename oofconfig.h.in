@@ -12,7 +12,6 @@
 #cmakedefine DEBUG
 #cmakedefine HAVE_SSTREAM
 #cmakedefine STRERROR_R_RETURNS_INT
-#cmakedefine STRERROR_R_RETURNS_CHARPTR
 
 #define OOFVERSION "@oof2_VERSION@"
 #define OOFVERSION_MAJOR @oof2_VERSION_MAJOR@

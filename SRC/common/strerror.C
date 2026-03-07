@@ -15,24 +15,17 @@
 #include <errno.h>
 #include "common/strerror.h"
 
-// Wrapper for strerror_r, which has a different return value on posix
-// and non-posix systesms.  CMake sets HAVE_POSIX_STRERROR_R in
+// Wrapper for strerror_r, which has a different return value on
+// different systems.  CMake sets STRERROR_R_RETURNS_INT in
 // oofconfig.h.
-
-// oof_strerror() returns the string representation of the current
-// error, which set in errno.  
 
 std::string oof_strerror() {
   char buf[1000];
 #if defined(STRERROR_R_RETURNS_INT)
   int status = strerror_r(errno, buf, sizeof(buf));
-#elif defined(STRERROR_R_RETURNS_CHARPTR)  
-  char *s = strerror_r(errno, buf, sizeof(buf));
 #else
-#error "No working version of strerror_r found."
+  char *s = strerror_r(errno, buf, sizeof(buf));
 #endif 
   return std::string(buf);
 }
-
-
 
