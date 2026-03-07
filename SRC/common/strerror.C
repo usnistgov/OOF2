@@ -24,11 +24,13 @@
 
 std::string oof_strerror() {
   char buf[1000];
-#ifdef HAVE_POSIX_STRERROR_R
+#if defined(STRERROR_R_RETURNS_INT)
   int status = strerror_r(errno, buf, sizeof(buf));
-#else  // not HAVE_POSIX_STRERROR_R
+#elif defined(STRERROR_R_RETURNS_CHARPTR)  
   char *s = strerror_r(errno, buf, sizeof(buf));
-#endif // not HAVE_POSIX_STRERROR_R
+#else
+#error "No working version of strerror_r found."
+#endif 
   return std::string(buf);
 }
 

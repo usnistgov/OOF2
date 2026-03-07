@@ -172,15 +172,28 @@ if(NOT ${CMAKE_NO_ANSI_STRING_STREAM})
   set(HAVE_SSTREAM True)
 endif()
 
-# Which flavor of strerror_r is present?
+# Which flavor of strerror_r is present?  HAVE_POSIX_STRERROR_R is set
+# in oofconfig.h.  Code suggested by googling "cmake strerror_r".
 include(CheckCSourceCompiles)
 check_c_source_compiles("
 #include <string.h>
 #include <errno.h>
 int main(int, char**) {
   char buf[128];
-  return strerror_r(11, buf, sizeof(buf));
-}" HAVE_POSIX_STRERROR_R)
+  int i = strerror_r(EINVAL, buf, sizeof(buf));
+  return i;
+}"
+  STRERROR_R_RETURNS_INT)
+
+check_c_source_compiles("
+#include <string.h>
+#include <errno.h>
+int main(int, char**) {
+  char buf[128];
+  char *b = strerror_r(EINVAL, buf, sizeof(buf));
+  return b == buf;
+}"
+  STRERROR_R_RETURNS_CHARPTR)
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
