@@ -7,10 +7,11 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-#cmakedefine DEBUG
 #define DIM 2
 
+#cmakedefine DEBUG
 #cmakedefine HAVE_SSTREAM
+#cmakedefine HAVE_POSIX_STRERROR_R
 
 #define OOFVERSION "@oof2_VERSION@"
 #define OOFVERSION_MAJOR @oof2_VERSION_MAJOR@
