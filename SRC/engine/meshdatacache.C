@@ -11,14 +11,14 @@
 
 #include <oofconfig.h>
 
+#include "common/strerror.h"
 #include "common/tostring.h"
 #include "engine/femesh.h"
 #include "engine/meshdatacache.h"
 #include "engine/ooferror.h"
 #include <limits>               // for std::numeric_limits.
-#include <stdio.h>
 #include <stdlib.h>		// for atexit
-#include <string.h> 		// for memcpy, strerror_r
+#include <string.h> 		// for memcpy
 #include <sys/stat.h>
 #include <unistd.h>		// for mkstemp, unlink, access
 extern int errno;
@@ -296,13 +296,7 @@ void DiskDataCache::clear_(bool force) {
     if(unlink((*i).second.c_str())) {	// removes file
       // Error removing file.  Ignore it if force==true.
       if(!force) {
-	char buf[1000];
-	// strerror_r returns a pointer to the buffer argument on some
-	// systems and an integer status on others, so we just ignore the 
-	// return value.  But some compilers complain if the return value
-	// is ignored, so we pretend to use it.
-	char* ignored = strerror_r(errno, buf, sizeof(buf));
-	throw ErrProgrammingError(buf, __FILE__, __LINE__);
+	throw ErrProgrammingError(oof_strerror(), __FILE__, __LINE__);
       }
     }
   }
@@ -333,9 +327,7 @@ std::vector<double>& DiskDataCache::fetchOne(double time) {
   // Open the file for reading
   FILE *file = fopen((*i).second.c_str(), "r");
   if(!file) {
-    char buf[1000];  // see comment about strerror_r, above.
-    char* ignored = strerror_r(errno, buf, sizeof(buf));
-    throw ErrProgrammingError(buf, __FILE__, __LINE__);
+    throw ErrProgrammingError(oof_strerror(), __FILE__, __LINE__);
   }
   // Read the number of dof values from the file
   unsigned int nfile;
@@ -409,11 +401,10 @@ void DiskDataCache::record() {
     // This time has been saved before.  Delete the old file.  This
     // might never happen, but it probably doesn't hurt to check.
     if(unlink((*i).second.c_str())) {
-      char buf[1000]; // see comment about strerror_r, above.
-      char* ignored = strerror_r(errno, buf, sizeof(buf));
-      throw ErrProgrammingError(buf, __FILE__, __LINE__);
-      fileDict.erase(i);
+      // unlink failed.
+      throw ErrProgrammingError(oof_strerror(), __FILE__, __LINE__);
     }
+    fileDict.erase(i);
   }
   else {
     add_time(time);

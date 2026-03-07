@@ -164,13 +164,26 @@ pkg_check_modules(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# Dig up some system dependent information.
+
 include(TestForSSTREAM)		# sets CMAKE_NO_ANSI_STRING_STREAM
 ## TODO: Is there a non-stupid way of setting HAVE_SSTREAM?
 if(NOT ${CMAKE_NO_ANSI_STRING_STREAM})
   set(HAVE_SSTREAM True)
 endif()
 
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+# Which flavor of strerror_r is present?
+include(CheckCSourceCompiles)
+check_c_source_compiles("
+#include <string.h>
+#include <errno.h>
+int main(int, char**) {
+  char buf[128];
+  return strerror_r(11, buf, sizeof(buf));
+}" HAVE_POSIX_STRERROR_R)
+
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Create the shared library targets, which are listed in the ooflibs
 # macro defined above.
