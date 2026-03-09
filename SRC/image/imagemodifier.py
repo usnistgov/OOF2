@@ -22,10 +22,28 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.image import imagecontext
 
+from packaging import version
 import numpy
 import skimage
 import skimage.filters
 import sys
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Compare the current scikit-image version less to vstr, which is a
+# string like "0.18" or "1.2.34".
+
+def skimage_version_lt(vstr):
+    return version.Version(skimage.__version__) < version.Version(vstr)
+
+def skimage_version_le(vstr):
+    return version.Version(skimage.__version__) <= version.Version(vstr)
+
+def skimage_version_ge(vstr):
+    return version.Version(skimage.__version__) >= version.Version(vstr)
+
+def skimage_version_gt(vstr):
+    return version.Version(skimage.__version__) > version.Version(vstr)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -296,11 +314,20 @@ class BlurImage(ImageModifierToEither):
         # assumed to be a grayscale (single channel) image. Otherwise,
         # this parameter indicates which axis of the array corresponds
         # to channels.
-        img = skimage.filters.gaussian(
-            image.npImage(),
-            self.sigma,
-            truncate=(self.radius+1)/self.sigma,
-            channel_axis = None if image.isGray() else -1)
+        if skimage_version_ge('0.19'):
+            img = skimage.filters.gaussian(
+                image.npImage(),
+                self.sigma,
+                truncate=(self.radius+1)/self.sigma,
+                channel_axis = None if image.isGray() else -1)
+        else:
+            # channel_axis was added to the args in skimage 0.19.
+            img = skimage.filters.gaussian(
+                image.npImage(),
+                self.sigma,
+                truncate=(self.radius+1)/self.sigma,
+                multichannel=not image.isGray())
+            
         img = numpy.minimum(img, 1.0)
         img = numpy.maximum(img, 0.0)
         return img

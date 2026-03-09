@@ -17,6 +17,7 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.image import imagemodifier
 
+from packaging import version
 import numpy
 import skimage
 
@@ -44,16 +45,29 @@ class DenoiseBilateral(DenoiseMethod):
         self.sigma_spatial = sigma_spatial
         self.bins = bins
     def denoise(self, image):
-        return skimage.restoration.denoise_bilateral(
-            image.npImage(),
-            win_size = (None if self.window_size==automatic.automatic
-                        else self.window_size),
-            sigma_color = (None if self.sigma_color==automatic.automatic
-                           else self.sigma_color),
-            sigma_spatial = self.sigma_spatial,
-            bins = self.bins,
-            mode='edge',
-            channel_axis=(None if image.isGray() else 2))
+        win_size = (None if self.window_size==automatic.automatic
+                    else self.window_size)
+        sigma_color = (None if self.sigma_color==automatic.automatic
+                       else self.sigma_color)
+        if imagemodifier.skimage_version_ge('0.19'):
+            return skimage.restoration.denoise_bilateral(
+                image.npImage(),
+                win_size=win_size ,
+                sigma_color=sigma_color,
+                sigma_spatial=self.sigma_spatial,
+                bins = self.bins,
+                mode='edge',
+                channel_axis=(None if image.isGray() else 2))
+        else:
+            return skimage.restoration.denoise_bilateral(
+                image.npImage(),
+                win_size=win_size ,
+                sigma_color=sigma_color,
+                sigma_spatial=self.sigma_spatial,
+                bins = self.bins,
+                mode='edge',
+                multichannel=not image.isGray())
+
 
 registeredclass.Registration(
     'Bilateral',
@@ -91,12 +105,20 @@ class TotalVariation(DenoiseMethod):
         self.eps = eps
         self.max_iterations = max_iterations
     def denoise(self, image):
-        return skimage.restoration.denoise_tv_chambolle(
-            image.npImage(),
-            weight=self.weight,
-            eps=self.eps,
-            max_num_iter=self.max_iterations,
-            channel_axis=(None if image.isGray() else 2))
+        if imagemodifier.skimage_version_ge('0.19'):
+            return skimage.restoration.denoise_tv_chambolle(
+                image.npImage(),
+                weight=self.weight,
+                eps=self.eps,
+                max_num_iter=self.max_iterations,
+                channel_axis=(None if image.isGray() else 2))
+        else:
+            return skimage.restoration.denoise_tv_chambolle(
+                image.npImage(),
+                weight=self.weight,
+                eps=self.eps,
+                n_iter_max=self.max_iterations,
+                multichannel=not image.isGray())
 
 registeredclass.Registration(
     'TotalVariation',
@@ -159,17 +181,30 @@ if False:
             self.method = method
         def denoise(self, image):
             debug.fmsg(f"Calling denoise_wavelet, range=({image.npImage().min()}, {image.npImage().max()})")
-            result= skimage.restoration.denoise_wavelet(
-                image.npImage(),
-                sigma= None if self.sigma == automatic.automatic else self.sigma,
-                wavelet=self.wavelet,
-                mode=self.mode.string(),
-                wavelet_levels= (None if self.wavelet_levels == automatic.automatic
-                                 else self.wavelet_levels),
-                convert2ycbcr = True,
-                method=self.method.string(),
-                channel_axis=(None if image.isGray() else 2))
-            debug.fmsg(f"Back from denoise_wavelet, range=({result.min()}, {result.max()})")
+            sigma = None if self.sigma == automatic.automatic else self.sigma
+            wavelet_levels = (None if self.wavelet_levels == automatic.automatic
+                              else self.wavelet_levels)
+            if imagemodifier.skimage_version_ge('0.19'):
+                result= skimage.restoration.denoise_wavelet(
+                    image.npImage(),
+                    sigma=sigma ,
+                    wavelet=self.wavelet,
+                    mode=self.mode.string(),
+                    wavelet_levels=wavelet_levels,
+                    convert2ycbcr=True,
+                    method=self.method.string(),
+                    channel_axis=(None if image.isGray() else 2))
+                debug.fmsg(f"Back from denoise_wavelet, range=({result.min()}, {result.max()})")
+            else:
+                result= skimage.restoration.denoise_wavelet(
+                    image.npImage(),
+                    sigma=sigma ,
+                    wavelet=self.wavelet,
+                    mode=self.mode.string(),
+                    wavelet_levels=wavelet_levels,
+                    convert2ycbcr=True,
+                    method=self.method.string(),
+                    multichannel=not image.isGray())
             assert result.min() >= 0.0 and result.max() <= 1.0
             return result
 
@@ -218,14 +253,25 @@ class NonlocalMeans(DenoiseMethod):
         self.h = h
         self.sigma = sigma
     def denoise(self, image):
-        return skimage.restoration.denoise_nl_means(
-            image.npImage(),
-            patch_size=self.patch_size,
-            patch_distance=self.patch_distance,
-            fast_mode=True,
-            h=self.h,
-            sigma=(0 if self.sigma == automatic.automatic else self.sigma),
-            channel_axis=(None if image.isGray() else 2))
+        sigma= 0 if self.sigma == automatic.automatic else self.sigma
+        if imagemodifier.skimage_version_ge('0.19'):
+            return skimage.restoration.denoise_nl_means(
+                image.npImage(),
+                patch_size=self.patch_size,
+                patch_distance=self.patch_distance,
+                fast_mode=True,
+                h=self.h,
+                sigma=sigma,
+                channel_axis=(None if image.isGray() else 2))
+        else:
+            return skimage.restoration.denoise_nl_means(
+                image.npImage(),
+                patch_size = self.patch_size,
+                patch_distance = self.patch_distance,
+                fast_mode=True,
+                h=self.h,
+                sigma=sigma,
+                multichannel=not image.isGray())
 
 registeredclass.Registration(
     'NonlocalMeans',
