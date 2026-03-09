@@ -24,6 +24,7 @@ from ooflib.image import imagecontext
 
 import numpy
 import skimage
+import skimage.filters
 import sys
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
