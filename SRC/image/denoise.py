@@ -253,7 +253,7 @@ class NonlocalMeans(DenoiseMethod):
         self.h = h
         self.sigma = sigma
     def denoise(self, image):
-        sigma= 0 if self.sigma == automatic.automatic else self.sigma
+        sigma = 0 if self.sigma == automatic.automatic else self.sigma
         if imagemodifier.skimage_version_ge('0.19'):
             return skimage.restoration.denoise_nl_means(
                 image.npImage(),
@@ -262,6 +262,7 @@ class NonlocalMeans(DenoiseMethod):
                 fast_mode=True,
                 h=self.h,
                 sigma=sigma,
+                preserve_range=True,
                 channel_axis=(None if image.isGray() else 2))
         else:
             return skimage.restoration.denoise_nl_means(
@@ -271,6 +272,7 @@ class NonlocalMeans(DenoiseMethod):
                 fast_mode=True,
                 h=self.h,
                 sigma=sigma,
+                preserve_range=True,
                 multichannel=not image.isGray())
 
 registeredclass.Registration(
