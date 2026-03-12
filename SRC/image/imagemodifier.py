@@ -360,8 +360,12 @@ class AddNoise(ImageModifierToEither):
         self.seed = seed
     def modify(self, image):
         seed = None if self.seed == automatic.automatic else self.seed
-        img = skimage.util.random_noise(image.npImage(), var=self.sigma**2,
-                                        rng=seed)
+        if skimage_version_ge('0.21'):
+            img = skimage.util.random_noise(image.npImage(), var=self.sigma**2,
+                                            rng=seed)
+        else:
+            img = skimage.util.random_noise(image.npImage(), var=self.sigma**2,
+                                            seed=seed)
         img = numpy.minimum(img, 1.0)
         img = numpy.maximum(img, 0.0)
         return img
