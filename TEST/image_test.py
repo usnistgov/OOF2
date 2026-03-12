@@ -23,6 +23,7 @@ from ooflib.SWIG.image import oofimage
 from ooflib.common.IO.automatic import automatic
 from ooflib.image import denoise
 from ooflib.image import threshold
+from ooflib.image import imagemodifier
 
 from . import memorycheck
 from .UTILS.file_utils import reference_file
@@ -275,6 +276,11 @@ class OOF_Image(unittest.TestCase):
         from ooflib.SWIG.common import crandom
         from ooflib.SWIG.image import oofimage
         global image_modify_args
+
+        # If the test fails, the modified image is stored in this
+        # file:
+        ofilename = "modified_image.npz" 
+
         menuitem = OOF.Image.Modify
         for m in menuitem.items:
             try:
@@ -291,20 +297,27 @@ class OOF_Image(unittest.TestCase):
                         height=automatic, width=automatic)
                     random.seed(17)
                     crandom.rndmseed(17)
-                    m.callWithArgdict(argdict)
-
-                    OOF.Microstructure.Create_From_ImageFile(
-                        filename=reference_file("image_data", datafilename),
-                        microstructure_name="comparison",
-                        height=automatic, width=automatic)
+                    m.callWithArgdict(argdict) # modify the image
+                    try:
+                        OOF.Microstructure.Create_From_ImageFile(
+                            filename=reference_file("image_data", datafilename),
+                            microstructure_name="comparison",
+                            height=automatic, width=automatic)
+                    except:
+                        print(
+f"""Failed to read reference image.
+    Modified image saved in {os.path.join(os.getcwd(), ofilename)}
+Reference image expected in {reference_file("image_data", datafilename)}""")
+                        raise
+                    
                     im1 = imagecontext.imageContexts[imagename].getObject()
                     im2 = imagecontext.imageContexts[
                         "comparison:"+datafilename].getObject()
+
                     try:
                         self.assertTrue(im1.compare(im2, 1./65536.))
                     except:
                         # Save result for comparison.
-                        ofilename = "modified_image.npz"
                         OOF.File.Save.Image(
                             filename=ofilename,
                             image=f"imagemod_test:{srcname}")
@@ -489,10 +502,14 @@ image_modify_args = {
         ("si3n4-small.png", "denoise_tv2.npz",
          {"method" : denoise.TotalVariation(
              weight=0.5,eps=0.002,max_iterations=200)}),
-        ("image_test_noisy.png", "denoise_nlm.npz",
+        ("image_test_noisy.png",
+         ("denoise_nlm.npz" if imagemodifier.skimage_version_ge('0.19')
+          else "denoise_nlm_old.npz"),
          {"method" : denoise.NonlocalMeans(
              patch_size=7,patch_distance=11,h=0.1,sigma=automatic)}),
-        ("si3n4-small.png", "denoise_nlm2.npz",
+        ("si3n4-small.png",
+         ("denoise_nlm2.npz" if imagemodifier.skimage_version_ge('0.19')
+          else "denoise_nlm2_old.npz"),
          {"method" : denoise.NonlocalMeans(
              patch_size=7,patch_distance=5,h=0.1,sigma=automatic)})
     ],
