@@ -517,8 +517,14 @@ image_modify_args = {
     ],
     
     "AddNoise":  [
-        ("image_test.png", "noisy.npz", {"sigma" : 0.1, "seed" : 17}),
-        ("si3n4-small.png", "noisy_gray.npz", {"sigma" : 0.1, "seed" : 137})
+        ("image_test.png",
+         ("noisy.npz" if imagemodifier.skimage_version_ge('0.21')
+          else "noisy_old.npz"),
+         {"sigma" : 0.1, "seed" : 17}),
+        ("si3n4-small.png",
+         ("noisy_gray.npz" if imagemodifier.skimage_version_ge('0.21')
+          else "noisy_gray_old.npz"),
+         {"sigma" : 0.1, "seed" : 137})
     ],
 }   # image_modify_args
 
