@@ -426,7 +426,7 @@ image_modify_args = {
     
     "Negate" : [("image_test.png", "negate.npz", {}),
                 ("grayarrow.png", "negate_gray.npz", {})],
-
+    
     "Reilluminate" : [
         ("cb_grad.png", "reilluminate.npz", {"radius" : 5}),
         ("color_gradient_checker.png", "reilluminate_color.npz", {"radius":15})
@@ -451,16 +451,18 @@ image_modify_args = {
          {"method" : threshold.MinimumThreshold()}),
         ("cb_grad.png", "thresh_entropy.npz",
          {"method" : threshold.MinimumEntropyThreshold(tolerance=automatic)}),
-        ("cb_grad.png", "thresh_local10_mean.npz",
+        
+        # LocalThreshold/LocalMean is very sensitive to roundoff error
+        # when the image has large black areas (like cb_grad.png has)
+        # and the averaging region is smaller than the black areas.
+        # So don't do any tests with a small radius.  The resulting
+        # images will be unpredictably noisy.
+        ("cb_grad.png", "thresh_local25_mean.npz",
          {"method" : threshold.LocalThreshold(
-             radius=10,
+             radius=25,
              average=threshold.LocalMean(),
              offset=0)}),
-        ("cb_grad.png", "thresh_local20_mean.npz",
-         {"method" : threshold.LocalThreshold(
-             radius=20,
-             average=threshold.LocalMean(),
-             offset=0)}),
+        
         ("cb_grad.png", "thresh_local20_median.npz",
          {"method" :
           threshold.LocalThreshold(
@@ -515,14 +517,8 @@ image_modify_args = {
     ],
     
     "AddNoise":  [
-        ("image_test.png",
-         ("noisy.npz" if imagemodifier.skimage_version_ge('0.20')
-          else "noisy_old.npz"),
-         {"sigma" : 0.1, "seed" : 17}),
-        ("si3n4-small.png",
-         ("noisy_gray.npz" if imagemodifier.skimage_version_ge('0.20')
-          else "noisy_gray_old.npz"),
-         {"sigma" : 0.1, "seed" : 137})
+        ("image_test.png", "noisy.npz", {"sigma" : 0.1, "seed" : 17}),
+        ("si3n4-small.png", "noisy_gray.npz", {"sigma" : 0.1, "seed" : 137})
     ],
 }   # image_modify_args
 
