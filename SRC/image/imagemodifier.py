@@ -440,8 +440,9 @@ registeredclass.Registration(
             tip='Radius of the pixel neighborhood'),
         modifierModeParam,
         ],
-    tip="Enhance intensity differences"
-    )
+    tip="Enhance intensity differences",
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/image/reg/contrast.xml")
+)
 
 #=--=#
 
@@ -485,7 +486,8 @@ registeredclass.Registration(
             tip='Radius of the pixel neighborhood'),
         modifierModeParam
     ],
-    tip = "Enhance intensity differences using scikit-image.",
+    tip = "Enhance intensity differences.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/reg/contrast.xml')
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
