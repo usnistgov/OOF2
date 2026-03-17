@@ -53,9 +53,9 @@ LAPACK: The LAPACK linear algebra library is freely available at http://www.netl
 
 Eigen: The Eigen linear algebra package is available at http://eigen.tuxfamily.org and is distributed under the Mozilla Public License Version 2.0.
 
-scikit-image: OOF2 requires version 0.24 or later.  It is available at https://scikit-image.org under the license at https://scikit-image.org/docs/stable/license.html.
+scikit-image: OOF2 requires version 0.18 or later.  It is available at https://scikit-image.org under the license at https://scikit-image.org/docs/stable/license.html.
 
-NumPy: TODO: OOF2 requires version 2.0 or later. It is available at https://numpy.org. NumPy is distributed under the license at https://numpy.org/doc/stable/license.html.
+NumPy: OOF2 requires version 1.21 or later. It is available at https://numpy.org. NumPy is distributed under the license at https://numpy.org/doc/stable/license.html.
 
 """
 
