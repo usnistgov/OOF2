@@ -44,28 +44,21 @@ refoof2source = '%OOF2SOURCE%'  # replaced by oof2 source directory path
 
 import getopt, sys, subprocess, os
 
-def usage(err):
-    print(err)
+def usage(err=None):
+    if err:
+        print(err)
     me = os.path.split(sys.argv[0])[-1]
     print(f"""
 Usage:
-  {me} --template=<template-dir-name> --module=<new-module-name> \
---class=<new-class-name> [--sequenceno=<number>] [--force]
-  {me} --list
+  {me} --template <template-dir-name> --module <new-module-name> \
+--class <new-class-name> [--sequenceno <number>] [--force]
+  {me} --list     (List available templates)
+  {me} --help     (Print this message)
 
-Short options are -t, -m, -c, -s, and -f, in the same order as above.
-
+Short options are -t, -m, -c, -s, -f, -l, and -h.
 """)
 
 ###############
-
-# def is_source_file(filename, exclude=[]):
-#     if os.path.isdir(filename) or (os.path.basename(filename) in exclude):
-#         return False
-#     for ext in [".py", ".spy", ".swg", ".h", ".c", ".C", ".cpp"]:
-#         if filename.endswith(ext):
-#             return True
-#     return False
 
 def install_file(src, dest, sedcmd, force=False):
     # sedcmd is a list of strings, including "sed" and all its
@@ -80,9 +73,12 @@ def install_file(src, dest, sedcmd, force=False):
         print(f"Unable to open target file {dest}!")
         print("Exiting.")
         raise
-    #print(f"   {' '.join(sedcmd + [src])}")
+
     p1 = subprocess.Popen(sedcmd + [src], stdout=subprocess.PIPE, text=True)
     for ell in p1.communicate():
+        if p1.returncode != 0:
+            print("oof2-extension-setup failed.", file=sys.stderr)
+            sys.exit(1)
         if ell is not None:
             fout.write(ell)
     fout.close()
@@ -111,8 +107,9 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(
             sys.argv[1:],
-            't:m:c:s:fl',
-            ["template=","module=","class=","sequenceno=","force","list"])
+            't:m:c:s:flh',
+            ["template=", "module=", "class=", "sequenceno=",
+             "force", "list", "help"])
 
     except getopt.GetoptError as err:
         usage(err)
@@ -138,12 +135,13 @@ if __name__ == '__main__':
         elif o in ["-l", "--list"]:
             listdirs()
             sys.exit(0)
-        else:
-            usage("Unrecognized option '%s'." % o)
-            sys.exit(2)
+        elif o in ["-h", "--help"]:
+            print(f"{a=}")
+            usage()
+            sys.exit(0)
 
-    if templatedir is None:
-        usage("template must be provided.")
+    if templatedir is None or modulename is None or classname is None:
+        usage("template, module, and class must be provided.")
         sys.exit(2)
 
     # templatedir is the name of a directory that was installed (by
@@ -152,14 +150,6 @@ if __name__ == '__main__':
     refbase = os.path.join('@CMAKE_INSTALL_PREFIX@',
                            "share", "oof2", "templates")
     refdir = os.path.join(refbase, templatedir)
-
-    if modulename==None:
-        usage("Module name argument is mandatory.")
-        sys.exit(2)
-
-    if classname==None:
-        usage("Class name argument is mandatory.")
-        sys.exit(2)
 
     # sedcmd is the sed command that makes all of the substitutions
     # that we need to make in the template files.  These are the
