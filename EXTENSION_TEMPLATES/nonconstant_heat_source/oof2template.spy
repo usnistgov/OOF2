@@ -22,7 +22,7 @@ reg = propertyregistration.PropertyRegistration(
     params=[
         parameter.FloatParameter('parameter1', 2.0, tip="First parameter."),
         parameter.FloatParameter('parameter2', 3.0, tip="Second parameter.")
-            ],
+    ],
     propertyType="HeatSource",
     tip="User-defined nonconstant heat source.")
 

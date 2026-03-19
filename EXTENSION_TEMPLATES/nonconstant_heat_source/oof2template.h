@@ -31,8 +31,7 @@ public:
 
 protected:
 
-  virtual double nonconst_heat_source(
-		      double x, double y, double z, double time) const;
+  virtual double nonconst_heat_source(const Coord &pt, double time) const;
 };
 
 #endif	// %HEADER%

@@ -52,11 +52,10 @@
 ///////////////////////////////////////////////////////////////////////
 
 
-// The following function takes the spatial coordinate x,y,z and
-// the time, and returns the corresponding heat source value.
+// The following function takes the spatial coordinate and the time,
+// and returns the corresponding heat source value.
 
-double %CLASS%::nonconst_heat_source(
-                               double x, double y, double z, double time) const
+double %CLASS%::nonconst_heat_source(const Coord &pt, double time) const
 {
   double source_value;
 
@@ -65,13 +64,15 @@ double %CLASS%::nonconst_heat_source(
   double m = parameter1;
   double n = parameter2;
 
-  double Ux, Uy, Uxx, Uyy, pi=M_PI;
+  double pi=M_PI;
+  double x = pt[0];
+  double y = pt[1];
 
-  Ux  = m*pi * cos(m*pi*x) * sin(n*pi*y);
-  Uy  = n*pi * sin(m*pi*x) * cos(n*pi*y);
+  double Ux  = m*pi * cos(m*pi*x) * sin(n*pi*y);
+  double Uy  = n*pi * sin(m*pi*x) * cos(n*pi*y);
 
-  Uxx = -m*m*pi*pi * sin(m*pi*x) * sin(n*pi*y);
-  Uyy = -n*n*pi*pi * sin(m*pi*x) * sin(n*pi*y);
+  double Uxx = -m*m*pi*pi * sin(m*pi*x) * sin(n*pi*y);
+  double Uyy = -n*n*pi*pi * sin(m*pi*x) * sin(n*pi*y);
 
   source_value = Uxx / (1.0 + Ux*Ux) + Uyy / (1.0 + Uy*Uy);
 
