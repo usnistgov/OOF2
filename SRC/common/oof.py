@@ -396,7 +396,6 @@ def front_end(no_interp=None):
         crandom.rndmseed(randomseed)
 
     for module in startupimports:
-        debug.fmsg(f"{sys.path}")
         exec('import ' + module)
 
     if not (runtimeflags.text_mode or config.no_gui()):
