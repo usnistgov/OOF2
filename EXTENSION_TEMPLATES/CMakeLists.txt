@@ -6,6 +6,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
+
 # This file was created by oof2-setup-extension from the
 # CMakeLists.txt template in OOF2/EXTENSION_TEMPLATES.
 
@@ -26,9 +27,20 @@ find_library(OOF2COMMON oof2common %OOF2PREFIX%/lib)
 find_library(OOF2ENGINE oof2engine %OOF2PREFIX%/lib)
 mark_as_advanced(OOF2COMMON OOF2ENGINE)
 
+# Install the __init__.py file in the top directory of the extension
 install(
   FILES
   ${PROJECT_SOURCE_DIR}/__init__.py
   DESTINATION ${CMAKE_INSTALL_PREFIX}/%MODULENAME%)
+
+# Install all python files from the source directory in the top
+# directory of the extension.  Subdirectories of source will be
+# installed as subdirectories.
+install(
+  DIRECTORY source/
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/%MODULENAME%
+  FILES_MATCHING
+  PATTERN "*.py")
+
 
 add_subdirectory("source") # This does all the real work

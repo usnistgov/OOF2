@@ -22,4 +22,3 @@ swig_sources(
   %MODULENAME%.C
   SWIGDEST ${CMAKE_INSTALL_PREFIX}/%MODULENAME%
   )
-

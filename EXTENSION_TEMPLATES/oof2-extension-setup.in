@@ -19,20 +19,14 @@
 # new property will have an incremented sequence number (this means
 # multiple copies might have the same sequence number).
 
-# TODO: The README file shouldn't contain info about running
-# oof2-extension-setup.  If the user is reading it, they've already
-# run it.  Info on running it should be in the man page, and the
-# --help option should point there.
-
-# TODO: Add a --help option.
-
-# TODO: The README file is specific to property extensions.  We should
-# have other kinds of extensions too.  We could have a bunch of README
-# files, and copy the appropriate one to each installation.
+# TODO: The README file is partly specific to property extensions.  We
+# should have other kinds of extensions too.  We could have a bunch of
+# README files, and copy the appropriate one to each installation.
 
 
 # These are the strings in the template files that will be
 # replaced when the files are copied.
+reftemplate = '%TEMPLATE%'      # replaced by the --template argument
 refmodule = '%MODULENAME%'      # replaced by the --module argument
 refheader = '%HEADER%'          # replaced by module_H (for #ifndef guards)
 refclass = '%CLASS%'            # replaced by the --class argument
@@ -50,12 +44,13 @@ def usage(err=None):
     me = os.path.split(sys.argv[0])[-1]
     print(f"""
 Usage:
-  {me} --template <template-dir-name> --module <new-module-name> \
+  {me} --template <template-name> --module <new-module-name> \
 --class <new-class-name> [--sequenceno <number>] [--force]
   {me} --list     (List available templates)
   {me} --help     (Print this message)
 
 Short options are -t, -m, -c, -s, -f, -l, and -h.
+More information is in the OOF2 Manual.
 """)
 
 ###############
@@ -77,7 +72,8 @@ def install_file(src, dest, sedcmd, force=False):
     p1 = subprocess.Popen(sedcmd + [src], stdout=subprocess.PIPE, text=True)
     for ell in p1.communicate():
         if p1.returncode != 0:
-            print("oof2-extension-setup failed.", file=sys.stderr)
+            print("oof2-extension-setup failed when processing {src}.",
+                  file=sys.stderr)
             sys.exit(1)
         if ell is not None:
             fout.write(ell)
@@ -156,11 +152,14 @@ if __name__ == '__main__':
     # replacements for the "%xxxxx%" strings defined earlier.
     sedcmd = ["sed",
               "-e", f"s/{refmodule}/{modulename}/g",
+              "-e", f"s/{reftemplate}/{templatedir}/g",
               "-e", f"s/{refclass}/{classname}/g",
               "-e", f"s/{refheader}/{modulename}_H/g",
               "-e", f"s/{refseqno}/{str(sequenceno)}/",
-              "-e", f"s/{refpython}/@OOF2_PYTHON3_VERSION@/g",
-              "-e", f"s/{refswig}/@OOF2_SWIG_VERSION@/g",
+              # Use PYVERSION instead of OOF2_PYTHON3_VERSION because
+              # the latter could be "Latest", and we want the actual
+              # version number here.
+              "-e", f"s/{refpython}/@PYVERSION@/g",
               # Use ? instead of / as a delimiter because the prefix
               # may contain /.
               "-e", f"s?{refoof2prefix}?@CMAKE_INSTALL_PREFIX@?g"
