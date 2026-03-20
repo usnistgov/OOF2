@@ -12,9 +12,8 @@
 // This file contains the functions that are called by the nonlinear
 // force density property.
 //
-// The user can change the functions given in the code below and
-// specify other functional forms to define other nonlinear force
-// densities.
+// The user can change the functions given in the code below to define
+// other nonlinear force densities.
 //
 // Given certain elasticity and force density (and possibly mass
 // density) properties, the equation that is solved by OOF is
@@ -25,91 +24,40 @@
 //   (**)  -M --- U_i + div(S_i) + f_i = 0  (the time-dependent case)
 //            dt^2
 //
-// for i=0,1 or i=0,1,2 (corresponding to x,y,z coordinates respectively).
-// Other equations are possible by combining various material properties.
-// In (*) and (**), f denotes the force density function (defined by
-// specifying f_i for i=0,1 or i=0,1,2), S denotes the stress tensor
-// (defined by specifying S_ij for i,j=0,1 or i,j=0,1,2), M is mass density
-// and div(.) denotes the divergence operator. We solve the equations (*)
-// and (**) for the displacement field U_n, n=0,1 or n=0,1,2.
+// for i=0,1 (corresponding to x,y).  Other equations are possible by
+// combining various material properties.  In (*) and (**), f is the
+// force density function, S is the stress tensor, M is mass density
+// and div(.) is the divergence operator. We solve the equations (*)
+// and (**) for the displacement field U_n, n=0,1.
 //
-// Now we describe the details of the nonlinear force density property.
+// The nonlinear force density function is a vector-valued function of
+// the spatial coordinates x and y, time t, and the displacement field
+// U.  It is computed by
 //
-// The nonlinear force density function has the following form
+//   DoubleVec nonlin_force_density(const Coord& pt, double time,
+//                                  const DoubleVec& displacement)
 //
-//     f_i = f_i( x, y, z, t, U_n )
-//
-// f_i is a vector-valued function of the spatial coordinates x, y, z,
-// time t, and the components of the displacement field U.
-// To be more explicit,
-//
-//              | f_0(.,U) |
-//     f(.,U) = | f_1(.,U) |
-//              | f_2(.,U) |
-//
-// where we suppress the arguments x,y,z,time with "." for brevity and
-//
-//       U = ( U_0, U_1, U_2 )
-//
-// is a vector/array.
-//
-// The nonlinear force density is defined in the following function
-//
-//   void nonlin_force_density(double x, double y, double z, double time,
-//                             DoubleVec &displacement, DoubleVec &result)
-//
-// The arguments x, y, z, time and displacement are input to
-// the nonlin_force_density function and the computed force density
-// vector is output in the argument result.
-// The argument displacement is of type DoubleVec and it stores
-// the components of the displacement field
-//
-//    displacement[0] = U_0 = x-component of displacement
-//    displacement[1] = U_1 = y-component of displacement
-//  ( displacement[2] = U_2 = z-component of displacement   in 3D )
-//
-// The output argument result contains the components of the force
-// density vector
-//
-//    result[0] = f_0(.,U)
-//    result[1] = f_1(.,U)
-//  ( result[2] = f_2(.,U)   in 3D )
+// The displacement parameter and the return values are DoubleVecs of
+// size 2, containing the x and y components of the displacement field
+// and the force density respectively.
 //
 // The nonlinear solver may require the definition of the derivative
 // of force density vector as well. The derivative is with respect
 // to components of the displacement vector and results in a Hessian
 // matrix:
 //
-//    df/dU = { df_i/dU_j,  i,j=0,1,(2) }
+//    df/dU = { df_i/dU_j,  i,j=0,1 }
 //
 // The partial derivative of force density with respect to displacement
-// is defined in the following function. It is necessary to define this
+// is computed by nonlin_force_density_deriv. It is necessary to define this
 // function if Newton's method will be used as a nonlinear solver.
-// Otherwise it is optional.
+// Otherwise it is optional.  Its form is
 //
-//   void nonlin_force_density_deriv(double x, double y, double z,
-//                                   double time, DoubleVec &displacement,
-//                                   SmallMatrix &result)
+//   SmallMatrix nonlin_force_density_deriv(const Coord& pt, double time,
+//                                          const DoubleVec &displacement)
 //
-// The arguments x, y, z, time, and displacement are input to
-// the function and the corresponding derivative of force density
-// is returned in the output argument result.
-// The components of the partial derivative are stored in the array
-// result as follows:
-//
-//    result(0,0) = df_0 / dU_0
-//    result(0,1) = df_0 / dU_1
-//    result(0,2) = df_0 / dU_2
-//
-//    result(1,0) = df_1 / dU_0
-//    result(1,1) = df_1 / dU_1
-//    result(1,2) = df_1 / dU_2
-//
-//    result(2,0) = df_2 / dU_0
-//    result(2,1) = df_2 / dU_1
-//    result(2,2) = df_2 / dU_2
-
-
+// The return value is a 2x2 matrix containing the partial derivatives with
+//   result(i,j) = df_i/dU_j
 
 #include <oofconfig.h>
 #include <math.h>
@@ -121,17 +69,18 @@
 //        FUNCTIONS CALLED BY NONLINEAR FORCE DENSITY PROPERTY       //
 ///////////////////////////////////////////////////////////////////////
 
+// Given the spatial coordinate pt, the time, and displacement,
+// compute and return the force density.
 
-// The following function takes the spatial coordinate x,y,z, the time and
-// displacement, and returns the corresponding force density value in 'result'.
-
-void %CLASS%::nonlin_force_density(
-                          double x, double y, double z, double time,
-			  DoubleVec &displacement,
-			  DoubleVec &result) const
+DoubleVec %CLASS%::nonlin_force_density(const Coord& pt, double time,
+					const DoubleVec& displacement)
+const
 {
-  // ========  CHANGE THESE LINES FOR OTHER NONLINEAR FORCE DENSITY FUNCTIONS
+  DoubleVec result(2);
 
+  // ========  CHANGE THESE LINES FOR OTHER NONLINEAR FORCE DENSITY FUNCTIONS
+  double x = pt[0];
+  double y = pt[1];
   double exponent = parameter1; // user input parameters
   double coefficient = parameter2;
 
@@ -146,10 +95,9 @@ void %CLASS%::nonlin_force_density(
 
   result[0] = displacement[0] - coefficient*pow(displacement[0], exponent) + f0;
   result[1] = displacement[1] - coefficient*pow(displacement[1], exponent) + f1;
-  result[2] = 0.0;
-
   // ========  END OF CHANGES ==============================================
 
+  return result;
 } // end of '%CLASS%::nonlin_force_density'
 
 
@@ -162,25 +110,23 @@ void %CLASS%::nonlin_force_density(
 // Since force density function has DIM = 2,3 components and the displacement
 // field has DIM = 2,3 components, the returned result is a 2x2 or 3x3 matrix.
 
-void %CLASS%::nonlin_force_density_deriv(
-                                double x, double y, double z, double time,
-				DoubleVec &displacement,
-				SmallMatrix &result) const
+SmallMatrix %CLASS%::nonlin_force_density_deriv(const Coord& pt, double time,
+						const DoubleVec& displacement)
+const
 {
+  SmallMatrix result(2);
+  
   // ========  CHANGE THESE LINES FOR OTHER NONLINEAR FORCE DENSITY DERIVATIVES
   double exponent = parameter1;
   double coefficient = parameter2;
 
   result(0,0) = 1.0 - coefficient*exponent * pow(displacement[0], exponent-1.0);
   result(0,1) = 0.0;
-  result(0,2) = 0.0;
 
   result(1,0) = 0.0;
   result(1,1) = 1.0 - coefficient*exponent*pow(displacement[1], exponent-1.0);
-  result(1,2) = 0.0;
-
-  result(2,0) = result(2,1) = result(2,2) = 0.0;
 
   // ========  END OF CHANGES ==============================================
 
+  return result;
 } // end of '%CLASS%::nonlin_force_density_deriv'

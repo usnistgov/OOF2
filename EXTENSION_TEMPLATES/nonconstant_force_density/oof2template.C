@@ -25,30 +25,25 @@
 //   (**)  -M --- U_i + div(S_i) + f_i = 0  (the time-dependent case)
 //            dt^2
 //
-// for i=0,1 or i=0,1,2 (corresponding to x,y,z coordinates respectively).
+// for i=0 and 1 (corresponding to x and y coordinates).
+//
 // Other equations are possible by combining various material properties.
-// In (*) and (**), f denotes the force density function (defined by
-// specifying f_i for i=0,1 or i=0,1,2), S denotes the stress tensor
-// (defined by specifying S_ij for i,j=0,1 or i,j=0,1,2), M is mass density
+// In (*) and (**), f is the force density function (defined by
+// specifying f_i for i=0,1), S is the stress tensor
+// (defined by specifying S_ij for i,j=0,1), M is mass density
 // and div(.) denotes the divergence operator. We solve the equations (*)
-// and (**) for the displacement field U_n, n=0,1 or n=0,1,2.
+// and (**) for the displacement field U_n, n=0,1.
 //
 // The nonconstant force density function has the following form
 //
-//     f_i = f_i( x, y, z, t )
+//     f_i = f_i( x, y, t )
 //
-// f_i is a vector-valued function of the spatial coordinates x, y, z,
+// f_i is a vector-valued function of the spatial coordinates x and y, and
 // time t. To be more explicit,
 //
-//              | f_0(x,y,z,t) |
-//     f(.,U) = | f_1(x,y,z,t) |
-//              | f_2(x,y,z,t) |
-//
-// The nonconstant force density is defined in the following function
-//
-//   void nonconst_force_density(double x, double y, double z,
-//                               double time, DoubleVec &result)
-
+// The nonconstant force density is defined in 
+//   DoubleVec nonconst_force_density(const Coord &pt, double time) const
+// It returns a 2-vector.
 
 
 #include <oofconfig.h>
@@ -64,12 +59,13 @@
 // The following function takes the spatial coordinate x,y,z and
 // the time, and returns the corresponding force density value in 'result'.
 
-void %CLASS%::nonconst_force_density(
-                               double x, double y, double z,
-			       double time, DoubleVec &result) const
+DoubleVec %CLASS%::nonconst_force_density(const Coord& pt, double time) const
 {
+  DoubleVec result(2);
+  
   // ========  CHANGE THESE LINES FOR OTHER VARIABLE FORCE DENSITY FUNCTIONS
-
+  double x = pt[0];
+  double y = pt[1];
   double m = parameter1;
   double n = parameter2;
 
@@ -91,8 +87,8 @@ void %CLASS%::nonconst_force_density(
   result[0] = - ( (1.0 + 3.0*Ux*Ux)*Uxx + Uyy + Vxy );
   result[1] = - ( Vxx + (1.0 + 3.0*Vy*Vy)*Vyy + Uyx );
   result[2] = 0.0;
-
   // ========  END OF CHANGES ==============================================
 
+  return result;
 } // end of '%CLASS%::nonconstant_force_density'
 

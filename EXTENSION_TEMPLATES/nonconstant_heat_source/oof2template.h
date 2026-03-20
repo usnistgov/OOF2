@@ -18,6 +18,13 @@
 class %CLASS% : public NonconstantHeatSource {
 
 private:
+  // If there are parameters to be set by the user, they must be
+  // stored here, passed in as arguments to the constructor below, and
+  // initialized by the constructor.  They must also be listed in the
+  // PropertyRegistration in %MODULENAME%.spy, and in the swig
+  // declaration of the constructor in %MODULENAME%.swg.  There can be
+  // any non-negative number of parameters.  Give them better names
+  // than "parameter1" and "parameter2".
   double parameter1, parameter2;
 
 public:

@@ -18,9 +18,10 @@ reg = propertyregistration.PropertyRegistration(
     name='Thermal:Conductivity:%CLASS%',
     subclass=%CLASS%,
     ordering=%SEQNO%,
-    params=[parameter.FloatParameter('parameter1', 0.0, tip="First parameter."),
-            parameter.FloatParameter('parameter2', 0.0, tip="Second parameter.")
-            ],
+    params=[
+        parameter.FloatParameter('parameter1', 0.0, tip="First parameter."),
+        parameter.FloatParameter('parameter2', 0.0, tip="Second parameter.")
+    ],
     propertyType="ThermalConductivity",
     tip="Uesr-defined nonlinear thermal conductivity."
     )

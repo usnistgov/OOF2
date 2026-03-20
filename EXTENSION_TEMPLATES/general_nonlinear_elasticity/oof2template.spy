@@ -15,12 +15,13 @@ from ooflib.engine import propertyregistration
 ## General Nonlinear Elasticity Example
 
 reg = propertyregistration.PropertyRegistration(
-    name='Mechanical:Elasticity:%CLASS%',
+    name='Mechanical:Elasticity:%CLASS%', # Position in the property hierarchy
     subclass=%CLASS%,
-    ordering=%SEQNO%,
-    params=[parameter.FloatParameter('parameter1', 3.0, tip="First parameter."),
-            parameter.FloatParameter('parameter2', 1.0, tip="Second parameter.")
-            ],
+    ordering=%SEQNO%,           # Ordering within a level of the hierarchy
+    params=[
+        parameter.FloatParameter('parameter1', 3.0, tip="First parameter."),
+        parameter.FloatParameter('parameter2', 1.0, tip="Second parameter.")
+    ],
     propertyType="Elasticity",
     tip="User-defined nonlinear elasticity.")
 

@@ -19,38 +19,37 @@
 // or
 //   (**)   C dT/dt + div(J) + f = 0  (the time-dependent case)
 //
-// where J is the heat flux (= -K gradient(T) in the linear case),
-// C is heat capacity coefficient and div(.) denotes the divergence
+// where J is the heat flux (= -K gradient(T) in the linear case), C
+// is the heat capacity coefficient and div(.) denotes the divergence
 // operator. We solve the equations (*) and (**) for the temperature
 // field T.
 //
 // The heat source function f is specified as a function of
-// the spatial coordinates x, y, z, time t, and temperature T,
+// the position (x,y), time t, and temperature T,
 //
-//      f = f(x,y,z,t,T)
+//      f = f(x,y,t,T)
 //
-// The third variable z is not relevant for 2D experiments.
-// The definition of f is done in the following function
+// by defining the function
 //
-//   double nonlin_heat_source(double x, double y, double z,
+//      double nonlin_heat_source(const Coord& pt,
 // 			       double time, double temperature)
 //
-// This returns the computed value of the heat source function.
+// This returns the value of the heat source function.
 //
-// In order to use Newton's method to solve the resulting equation,
-// we also need to specify the first partial derivative df/dT of
-// the source function f with respect to the temperature variable T.
-// This is done in the following function
+// In order to use Newton's method to solve the resulting equation, we
+// also need to specify the first partial derivative df/dT of the
+// source function f with respect to the temperature variable T.  This
+// is done in the following function:
 //
-//   double nonlin_heat_source_deriv_wrt_temperature(double x, double y, double z,
-// 	 					  double time, double temperature)
+//   double nonlin_heat_source_deriv_wrt_temperature(
+//                  const Coord& pt, double time, double temperature)
 //
-// This returns the value of the partial derivative with respect
-// to temperature.
+// This returns the value of the partial derivative with respect to
+// temperature at the given point, time, and temperature.
 //
-// The definition of the derivative function is optional if
-// Newton's method is not used to solve the equation
-// (for example, if Picard iterations are used).
+// The derivative function can be omitted if Newton's method is not
+// used to solve the equation (for example, if Picard iterations are
+// used).
 
 
 
@@ -68,8 +67,8 @@
 // and temperature, and returns the corresponding heat source value.
 
 double %CLASS%::nonlin_heat_source(
-                                double x, double y, double z,
-				double time, double temperature) const
+		   const Coord& pt, double time, double temperature)
+  const
 {
   double source_value;
 
@@ -94,8 +93,8 @@ double %CLASS%::nonlin_heat_source(
 // derivative with respect to the temperature field.
 
 double %CLASS%::nonlin_heat_source_deriv_wrt_temperature(
-                                double x, double y, double z,
-				double time, double temperature) const
+		 const Coord& pt, double time, double temperature)
+  const
 {
   double source_deriv_value;
 

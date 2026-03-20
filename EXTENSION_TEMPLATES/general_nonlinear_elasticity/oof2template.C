@@ -234,16 +234,18 @@
 // the displacement, and the displacement gradient and returns the
 // corresponding stress tensor.
 
-void %CLASS%::nonlin_stress(
-			   double x, double y, double z,
-			   double time, DoubleVec &displacement,
-			   SmallMatrix &displacement_gradient,
-			   SmallMatrix &stress) const
+SmallMatrix %CLASS%::nonlin_stress(
+				   const Coord& pt, double time,
+				   const DoubleVec &displacement,
+				   const SmallMatrix &displacement_gradient)
+const
 {
+  SmallMatrix stress;
+  
   // ========  CHANGE THESE LINES FOR OTHER NONLINEAR STRESS FUNCTIONS
-
-  double exponent = parameter1; // exponent is a parameter input by the user
-  double coefficient = parameter2; // nonlinear coefficient is by the user
+  // parameters set by the user
+  double exponent = parameter1; 
+  double coefficient = parameter2;
 
   stress(0,0) = displacement_gradient(0,0)
                  + coefficient * pow( displacement_gradient(0,0), exponent );
@@ -258,8 +260,9 @@ void %CLASS%::nonlin_stress(
   stress(2,0) = 0.0;
   stress(2,1) = 0.0;
   stress(2,2) = 0.0;
-
   // ========  END OF CHANGES =============================================
+
+  return stress;
 
 } // end of '%CLASS%::nonlinear_stress'
 
@@ -270,22 +273,23 @@ void %CLASS%::nonlin_stress(
 // the displacement, and the displacement gradient and returns the
 // corresponding stress tensor derivative with respect to the displacement.
 
-void %CLASS%::nonlin_stress_deriv_wrt_displacement(
-                                         double x, double y, double z,
-					 double time, DoubleVec &displacement,
-					 SmallMatrix &displacement_gradient,
-					 SmallTensor3 &stress_deriv) const
+SmallTensor3 %CLASS%::nonlin_stress_deriv_wrt_displacement(
+				   const Coord& pt, double time,
+				   const DoubleVec &displacement,
+				   const SmallMatrix &displacement_gradient)
+const
 {
-  // ========  CHANGE THESE LINES FOR OTHER NONLINEAR STRESS DERIVATIVES
+  SmallTensor3 stress_deriv;
 
+  // ========  CHANGE THESE LINES FOR OTHER NONLINEAR STRESS DERIVATIVES
   for (int i = 0; i < 3; i++) {
     stress_deriv(i,0,0) = stress_deriv(i,0,1) = stress_deriv(i,0,2) = 0.0;
     stress_deriv(i,1,0) = stress_deriv(i,1,1) = stress_deriv(i,1,2) = 0.0;
     stress_deriv(i,2,0) = stress_deriv(i,2,1) = stress_deriv(i,2,2) = 0.0;
   }
-
   // ========  END OF CHANGES =============================================
 
+  return stress_deriv;
 } // end of '%CLASS%::nonlinear_stress_deriv_wrt_displacement'
 
 
@@ -295,33 +299,40 @@ void %CLASS%::nonlin_stress_deriv_wrt_displacement(
 // the displacement, and the displacement gradient and returns the
 // corresponding stress tensor derivative with respect to the displacement.
 
-void %CLASS%::nonlin_stress_deriv_wrt_displacement_gradient(
-                                         double x, double y, double z,
-					 double time, DoubleVec &displacement,
-					 SmallMatrix &displacement_gradient,
-					 SmallTensor4 &stress_deriv) const
+SmallTensor4 %CLASS%::nonlin_stress_deriv_wrt_displacement_gradient(
+			    const Coord& pt, double time,
+			    const DoubleVec &displacement,
+			    const SmallMatrix &displacement_gradient)
+const
 {
+  SmallTensor4 stress_deriv;
+  
   // ========  CHANGE THESE LINES FOR OTHER NONLINEAR STRESS DERIVATIVES
-
   double exponent = parameter1;
   double coefficient = parameter2;
 
   for (int i = 0; i < 3; i++)
     for (int j = 0; j < 3; j++) {
-      stress_deriv(i,j,0,0) = stress_deriv(i,j,0,1) = stress_deriv(i,j,0,2) = 0.0;
-      stress_deriv(i,j,1,0) = stress_deriv(i,j,1,1) = stress_deriv(i,j,1,2) = 0.0;
-      stress_deriv(i,j,2,0) = stress_deriv(i,j,2,1) = stress_deriv(i,j,2,2) = 0.0;
+      stress_deriv(i,j,0,0)
+	= stress_deriv(i,j,0,1)
+	= stress_deriv(i,j,0,2)
+	= stress_deriv(i,j,1,0)
+	= stress_deriv(i,j,1,1)
+	= stress_deriv(i,j,1,2)
+	= stress_deriv(i,j,2,0)
+	= stress_deriv(i,j,2,1)
+	= stress_deriv(i,j,2,2) = 0.0;
     }
 
-  stress_deriv(0,0,0,0) = 1.0 + coefficient * exponent
-                                   * pow( displacement_gradient(0,0), exponent-1.0 );
+  stress_deriv(0,0,0,0) = 1.0 +
+    coefficient * exponent * pow(displacement_gradient(0,0), exponent-1.0);
   stress_deriv(0,1,0,1) = 1.0;
   stress_deriv(0,1,1,0) = 1.0;
-  stress_deriv(1,1,1,1) = 1.0 + coefficient * exponent
-                                   * pow( displacement_gradient(1,1), exponent-1.0 );
+  stress_deriv(1,1,1,1) = 1.0 +
+    coefficient * exponent * pow(displacement_gradient(1,1), exponent-1.0);
   stress_deriv(1,0,0,1) = 1.0;
   stress_deriv(1,0,1,0) = 1.0;
-
   // ========  END OF CHANGES ==============================================
 
+  return stress_deriv;
 } // end of '%CLASS%::nonlinear_stress_deriv_wrt_displacement_gradient'

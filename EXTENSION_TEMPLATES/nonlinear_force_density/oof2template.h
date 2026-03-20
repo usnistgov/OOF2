@@ -21,10 +21,17 @@ class DoubleVec;
 class %CLASS% : public NonlinearForceDensity {
 
 private:
+  // If there are parameters to be set by the user, they must be
+  // stored here, passed in as arguments to the constructor below, and
+  // initialized by the constructor.  They must also be listed in the
+  // PropertyRegistration in %MODULENAME%.spy, and in the swig
+  // declaration of the constructor in %MODULENAME%.swg.  There can be
+  // any non-negative number of parameters.  Give them better names
+  // than "parameter1" and "parameter2".
   double parameter1, parameter2;
 
 public:
-  %CLASS%(const std::string &name, PyObject *registration,
+  %CLASS%(const std::string& name, PyObject* registration,
 	  double param1, double param2)
     : NonlinearForceDensity(name, registration),
       parameter1(param1),
@@ -33,16 +40,13 @@ public:
   virtual ~%CLASS%() {}
 
 protected:
+  virtual DoubleVec nonlin_force_density(
+				 const Coord& pt, double time,
+				 const DoubleVec& displacement) const;
 
-  virtual void nonlin_force_density(double x, double y, double z,
-				    double time,
-				    DoubleVec &displacement,
-				    DoubleVec &result) const;
-
-  virtual void nonlin_force_density_deriv(double x, double y, double z,
-					  double time,
-					  DoubleVec &displacement,
-					  SmallMatrix &result) const;
+  virtual SmallMatrix nonlin_force_density_deriv(
+				 const Coord& pt, double time,
+				 const DoubleVec& displacement) const;
 };
 
 #endif	// %HEADER%

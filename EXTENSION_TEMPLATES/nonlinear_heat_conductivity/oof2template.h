@@ -24,10 +24,18 @@ class DoubleVec;
 class %CLASS% : public NonlinearHeatConductivity {
 
 private:
+  // If there are parameters to be set by the user, they must be
+  // stored here, passed in as arguments to the constructor below, and
+  // initialized by the constructor.  They must also be listed in the
+  // PropertyRegistration in %MODULENAME%.spy, and in the swig
+  // declaration of the constructor in %MODULENAME%.swg.  There can be
+  // any non-negative number of parameters.  Give them better names
+  // than "parameter1" and "parameter2".
   double parameter1, parameter2;
 
 public:
-  %CLASS%(const std::string &name, PyObject *registration,
+  %CLASS%(const std::string &name, PyObject *registration
+	  // If there are parameters to be set by the user, list them here:
 	  double param1, double param2)
     : NonlinearHeatConductivity(name, registration),
       parameter1(param1),
@@ -38,22 +46,17 @@ public:
 
 protected:
 
-  virtual void nonlin_heat_flux(double x, double y, double z,
-				double time, double temperature,
-				const DoubleVec &temperature_gradient,
-				DoubleVec &heat_flux) const;
+  virtual DoubleVec nonlin_heat_flux(
+	     const Coord& pt, double time, double temperature,
+	     const DoubleVec &temperature_gradient) const;
 
-  virtual void nonlin_heat_flux_deriv_wrt_temperature(
-                                double x, double y, double z,
-				double time, double temperature,
-				const DoubleVec &temperature_gradient,
-				DoubleVec &heat_flux_deriv) const;
+  virtual DoubleVec nonlin_heat_flux_deriv_wrt_temperature(
+	     const Coord& pt, double time, double temperature,
+	     const DoubleVec &temperature_gradient) const;
 
-  virtual void nonlin_heat_flux_deriv_wrt_temperature_gradient(
-                                double x, double y, double z,
-				double time, double temperature,
-				const DoubleVec &temperature_gradient,
-				SmallMatrix &heat_flux_deriv) const;
+  virtual SmallMatrix nonlin_heat_flux_deriv_wrt_temperature_gradient(
+	      const Coord& pt, double time, double temperature,
+	      const DoubleVec &temperature_gradient) const;
 };
 
 #endif	// %HEADER%

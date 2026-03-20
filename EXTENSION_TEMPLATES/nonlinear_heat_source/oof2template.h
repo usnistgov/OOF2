@@ -18,10 +18,17 @@
 class %CLASS% : public NonlinearHeatSource {
 
 private:
+  // If there are parameters to be set by the user, they must be
+  // stored here, passed in as arguments to the constructor below, and
+  // initialized by the constructor.  They must also be listed in the
+  // PropertyRegistration in %MODULENAME%.spy, and in the swig
+  // declaration of the constructor in %MODULENAME%.swg.  There can be
+  // any non-negative number of parameters.  Give them better names
+  // than "parameter1" and "parameter2".
   double parameter1, parameter2;
 
 public:
-  %CLASS%(const std::string &name, PyObject *registration,
+  %CLASS%(const std::string& name, PyObject* registration,
 	  double param1, double param2)
     : NonlinearHeatSource(name, registration),
       parameter1(param1),
@@ -32,12 +39,11 @@ public:
 
 protected:
 
-  virtual double nonlin_heat_source(double x, double y, double z,
-				    double time, double temperature) const;
+  virtual double nonlin_heat_source(
+		    const Coord& pt, double time, double temperature) const;
 
   virtual double nonlin_heat_source_deriv_wrt_temperature(
-                                    double x, double y, double z,
-				    double time, double temperature) const;
+		  const Coord& pt, double time, double temperature) const;
 
 };
 

@@ -23,6 +23,13 @@ class SmallTensor4;
 class %CLASS% : public GeneralNonlinearElasticity {
 
 private:
+  // If there are parameters to be set by the user, they must be
+  // stored here, passed in as arguments to the constructor below, and
+  // initialized by the constructor.  They must also be listed in the
+  // PropertyRegistration in %MODULENAME%.spy, and in the swig
+  // declaration of the constructor in %MODULENAME%.swg.  There can be
+  // any non-negative number of parameters.  Give them better names
+  // than "parameter1" and "parameter2".
   double parameter1, parameter2;
 
 public:
@@ -37,22 +44,20 @@ public:
 
 protected:
 
-  virtual void nonlin_stress(double x, double y, double z,
-			     double time, DoubleVec &displacement,
-			     SmallMatrix &displacement_gradient,
-			     SmallMatrix &stress) const;
+  virtual SmallMatrix nonlin_stress(
+		    const Coord& pt, double time,
+		    const DoubleVec &displacement,
+		    const SmallMatrix &displacement_gradient) const;
 
-  virtual void nonlin_stress_deriv_wrt_displacement(
-                             double x, double y, double z,
-			     double time, DoubleVec &displacement,
-			     SmallMatrix &displacement_gradient,
-			     SmallTensor3 &stress_deriv) const;
+  virtual SmallTensor3 nonlin_stress_deriv_wrt_displacement(
+		    const Coord& pt, double time,
+		    const DoubleVec &displacement,
+		    const SmallMatrix &displacement_gradient) const;
 
-  virtual void nonlin_stress_deriv_wrt_displacement_gradient(
-                             double x, double y, double z,
-			     double time, DoubleVec &displacement,
-			     SmallMatrix &displacement_gradient,
-			     SmallTensor4 &stress_deriv) const;
+  virtual SmallTensor4 nonlin_stress_deriv_wrt_displacement_gradient(
+		     const Coord& pt, double time,
+		     const DoubleVec &displacement,
+		     const SmallMatrix &displacement_gradient) const;
 };
 
 #endif // %HEADER%

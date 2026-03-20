@@ -12,7 +12,7 @@ from ooflib.common.IO import parameter
 from ooflib.engine import problem
 from ooflib.engine import propertyregistration
 
-## Nonconstant heat source example (with respect to space and time)
+## Nonconstant heat source example
 
 reg = propertyregistration.PropertyRegistration(
     name='Thermal:HeatSource:%CLASS%',  # Position in the property hierarchy
