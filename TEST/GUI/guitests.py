@@ -387,7 +387,7 @@ def run(homedir):
         if todir:
             try:
                 tods = expanddirs(todir, dirs)
-                toindex = dirs.index(tods[0])
+                toindex = dirs.index(tods[0]) + 1
             except:
                 errormsg(f"Directory {todir} not found!")
 

@@ -82,6 +82,9 @@ instead of int.  Or maybe to std::size_t.
 Update or delete everything in the examples/extension directory.  It's
 probably been superseded by EXTENSION_TEMPLATES or SRC/EXTENSIONS.
 
+Upgrade to Eigen 5.0.0 (or at least 3.4.1).
+
+
 THINGS TO FIX IN TUTORIALS
 
 The Basics tutorial leaves out a step in the creation of pixel

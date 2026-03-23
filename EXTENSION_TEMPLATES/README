@@ -58,23 +58,33 @@ Follow the steps below to write and build an OOF2 extension.
          to change the parameter list in the PropertyRegistration in
          the .spy file.
 
-     (3b) If you want to change where the Property appears in the
-          hierarchy in the Material page, edit the "name" argument of
-          the PropertyRegistration in the .spy file.  "name" is a
-          string in which colons mark the levels of the Property
-          hierarchy, as displayed on the OOF2 Materials page.  To
-          change where the Property is listed among other Properties
-          at the same level of the hierarchy, change the "ordering"
-          argument.
+    (3b) If you want to change where the Property appears in the
+         hierarchy in the Material page, edit the "name" argument of
+         the PropertyRegistration in the .spy file.  "name" is a
+         string in which colons mark the levels of the Property
+         hierarchy, as displayed on the OOF2 Materials page.  To
+         change where the Property is listed among other Properties at
+         the same level of the hierarchy, change the "ordering"
+         argument.
 
-     (3c) If you need to add additional C++ source files, put them in
-          the source directory and add them to the SOURCES list in
-          source/CMakeLists.txt.
+    (3c) If you need to add additional C++ source files, put them in
+         the source directory and add them to the SOURCES list in
+         source/CMakeLists.txt.
 
-      (3d) If you need to add any Python files, simply put them in the
-           source directory or a subdirectory of it.  Subdirectories
-           can be nested.  In OOF2 these files can be imported as
-           submodules of %MODULENAME%.
+    (3d) If you need to add any Python files, simply put them in the
+         source directory or a subdirectory of it.  Subdirectories can
+         be nested.  In OOF2 these files can be imported as submodules
+         of %MODULENAME%.
+
+    (3e) The extensions provided by the templates in this directory
+         build new Property classes on top of base classes defined in
+         OOF2/SRC/engine/properties that were specifically designed to
+         be extended in this way.  The functions that you need to
+         define in order to use the extensions are virtual methods
+         called by the functions discussed in the "Adding New Material
+         Properties" section of the manual.  See that section for a
+         fuller discussion of Property classes, if the templates
+         provided here are insufficient.
 
 (4) Move to the build directory.  Type
         ccmake ..

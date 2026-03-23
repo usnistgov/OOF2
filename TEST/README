@@ -1,9 +1,3 @@
--*- text -*-
-$RCSfile: README,v $
-$Revision: 1.2 $
-$Author: langer $
-$Date: 2010/12/03 22:10:59 $
-
 This software was produced by NIST, an agency of the U.S. government,
 and by statute is not subject to copyright in the United States.
 Recipients of this software assume all responsibilities associated
@@ -19,16 +13,41 @@ is running correctly.  The tests in this directory only test aspects
 of the program that are not related to graphical user interface.  The
 GUI subdirectory contains tests for the user interface.
 
-To run the tests, cd to this directory, and type 
-    python regression.py
-This will run the full suite of tests and create a lot of output.  The
-tests were successful if the last output line is "OK".
+To run the tests, type
 
-It's possible to run a subset of the tests by running any of the other
-.py files in the directory like this:
-    python regression.py fundamental_test.py
-or like this:
-    python regression.py fundamental_test.py skeleton_basic_test.py
+    oof2-test
+
+This will run the full suite of tests and create a lot of output.  The
+tests were successful if the last output line is "All tests completed
+successfully!"  It is not necessary to be in this directory to run the
+tests.
+
+It's not necessary to run the whole test suite every time. To get
+a list of the individual parts of the suite, type
+
+    oof2-test --list
+
+You can run any one of the tests by typing
+
+    oof2-test <name>
+
+where <name> is the name of the test as reported by --list.  You can
+run more than one test
+
+    oof2-test <name1> <name2>
+
+You don't need to type the full name of a test.  Test names can be
+abbreviated using Python regular expressions.  For example,
+ 
+    oof2-test "micro.*"
+
+is equivalent to
+
+    oof2-test microstructure_test
+    
+For other options, type
+
+    oof2-test --help
 
 If any of the tests fail, please send a note to oof_bugs@nist.gov.
 Include the output from the test, and let us know the OOF2 version
@@ -36,5 +55,4 @@ number, what kind of computer you're using (including the operating
 system, compiler, and python version numbers), and how you built and
 installed OOF2.
 
-To run the graphical tests, cd to the GUI subdirectory and read the
-README file there.
+To run the graphical tests, read the TODO file in the GUI subdirectory.

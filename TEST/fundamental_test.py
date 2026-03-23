@@ -156,7 +156,6 @@ class OOF_Fundamental(ExcTestCase):
         self.assertEqual(e, a)
 
         # division
-        print("divide")
         d = a/2.
         for i in range(size):
             self.assertEqual(d[i], a[i]/2)

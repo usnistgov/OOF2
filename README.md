@@ -122,12 +122,12 @@ If `pkg-config` reports the correct OOFCanvas version number, nothing
 needs to be done.  If it says it can't find oofcanvas, set the
 environment variable `PKG_CONFIG_PATH` to the location of
 `oofcanvas.pc`.  For example, if OOFCanvas was installed into your
-home directory, the file will be in `~/lib/pgkconfig`, and after you
+home directory, the file will be in `~/lib/pkgconfig`, and after you
 run
 
     % export PKG_CONFIG_PATH=~/lib/pkgconfig
     
-`pgk-config` will be able to find it.  (The syntax for setting
+`pkg-config` will be able to find it.  (The syntax for setting
 environment variables depends on what shell you're using.)
     
 ### 5. Configure
@@ -160,9 +160,9 @@ full instructions on how to use ccmake.  At a minimum
   directory.  If you're installing into an Anaconda environment named `OOF2`,
   set `CMAKE_INSTALL_PREFIX` to `~/Anaconda3/envs/OOF2`.
 - Similarly, change `OOF2_PYTHON_VERSION` to the version of python3
-  that you have installed, and `OOF2_SWIG_VERSION` to the version
-  of swig4.  Use the same values you used when installing OOFCanvas.
-  Use `<return>` to cycle through the allowed values.
+  that you have installed.  Use the same value you used when
+  installing OOFCanvas.  Use `<return>` to cycle through the allowed
+  values.
 - If you are going to build OOF2 extension modules, set
   `OOF2_DEV_INSTALL` to `ON`.  This will install the C++ headers and
   other useful files.
@@ -219,11 +219,6 @@ typing `<prefix>/bin/oof2`). `<prefix>` is the value you gave to
 current value of your path.  The method for setting environment
 variables depends on which Unix shell you're using.)
 
-On Linux, if `<prefix>/lib` is not in the list of directories that the
-dynamic linker searches for libraries, you'll have to add it by
-setting the `LD_LIBRARY_PATH` environment variable.  This should *not*
-be necessary on macOS.
-    
 ### 7. Test 
 
 If you want to test the installation, run `oof2-test` and
@@ -240,7 +235,7 @@ The test files are installed into
 `<prefix>/lib/python3.x/site-packages/oof2/TEST/GUI`.  Each of those
 directories has a `README` file that may be helpful.
 
-In version 2.3.x there is something wrong with the GUI testing
+In version 2.4.x there is something wrong with the GUI testing
 apparatus that makes a few of the tests fail erratically.  If
 `oof2-guitest` fails, you can tell it to keep trying the tests (within
 reason) until they work, with
