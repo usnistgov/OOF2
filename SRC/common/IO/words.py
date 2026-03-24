@@ -51,7 +51,7 @@ GTK3: The GTK3 graphics toolkit (http://www.gtk.org) is licensed under the GNU L
 
 LAPACK: The LAPACK linear algebra library is freely available at http://www.netlib.org/lapack/.  Its copyright terms are at http://www.netlib.org/lapack/faq.html#1.2.
 
-Eigen: The Eigen linear algebra package is available at http://eigen.tuxfamily.org and is distributed under the Mozilla Public License Version 2.0.
+Eigen: The Eigen linear algebra package is available at http://eigen.tuxfamily.org and is distributed under the Mozilla Public License Version 2.0, https://www.mozilla.org/en-US/MPL/2.0.
 
 scikit-image: OOF2 requires version 0.18 or later.  It is available at https://scikit-image.org under the license at https://scikit-image.org/docs/stable/license.html.
 

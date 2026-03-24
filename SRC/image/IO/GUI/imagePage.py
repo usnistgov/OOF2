@@ -35,9 +35,6 @@ from ooflib.image import imagemodifier
 
 from ooflib.common.runtimeflags import digits
 
-## TODO NUMPY: Are buttons in Image Modification Pane desensitized
-## when a modification is underway?
-
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -213,7 +210,11 @@ class ImagePage(oofGUI.MainPage):
                                             self.validityChangeCB),
             switchboard.requestCallbackMain(('WhoDoUndo buffer change',
                                              'Image'),
-                                            self.whoBufChangeCB)
+                                            self.whoBufChangeCB),
+            switchboard.requestCallbackMain("made reservation",
+                                            self.reservationChanged),
+            switchboard.requestCallbackMain("cancelled reservation",
+                                            self.reservationChanged)
             ]
 
     def installed(self):
@@ -232,10 +233,12 @@ class ImagePage(oofGUI.MainPage):
         self.okbutton.set_sensitive(selected and self.imageModFactory.isValid())
         self.autogroupbutton.set_sensitive(selected)
         self.loadbutton.set_sensitive(self.getCurrentMS() is not None)
-        if selected:
+        if selected and self.getImageAvailability():
+            self.okbutton.set_sensitive(1)
             self.undobutton.set_sensitive(image.undoable())
             self.redobutton.set_sensitive(image.redoable())
         else:
+            self.okbutton.set_sensitive(0)
             self.undobutton.set_sensitive(0)
             self.redobutton.set_sensitive(0)
         gtklogger.checkpoint("image page sensitized")
@@ -245,6 +248,15 @@ class ImagePage(oofGUI.MainPage):
         self.nextmethodbutton.set_sensitive(self.historian.nextSensitive())
         self.prevmethodbutton.set_sensitive(self.historian.prevSensitive())
 
+    def getImageAvailability(self):
+        currentImage = self.getCurrentImage()
+        if currentImage:
+            return not currentImage.query_reservation()
+
+    def reservationChanged(self, who):
+        if self.getCurrentImage() is who:
+            self.sensitize()
+            
     def validityChangeCB(self, validity):
         self.sensitize()
 
