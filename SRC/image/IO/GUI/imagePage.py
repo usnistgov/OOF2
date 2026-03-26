@@ -226,21 +226,19 @@ class ImagePage(oofGUI.MainPage):
         debug.mainthreadTest()
         image = self.getCurrentImage()
         selected = image is not None
-        self.copybutton.set_sensitive(selected)
+        available = self.getImageAvailability()
+        self.copybutton.set_sensitive(selected and available)
         self.renamebutton.set_sensitive(selected)
-        self.deletebutton.set_sensitive(selected)
-        self.savebutton.set_sensitive(selected)
-        self.okbutton.set_sensitive(selected and self.imageModFactory.isValid())
-        self.autogroupbutton.set_sensitive(selected)
+        self.deletebutton.set_sensitive(selected and available)
+        self.savebutton.set_sensitive(selected and available)
+        self.autogroupbutton.set_sensitive(selected and available)
         self.loadbutton.set_sensitive(self.getCurrentMS() is not None)
-        if selected and self.getImageAvailability():
-            self.okbutton.set_sensitive(1)
-            self.undobutton.set_sensitive(image.undoable())
-            self.redobutton.set_sensitive(image.redoable())
-        else:
-            self.okbutton.set_sensitive(0)
-            self.undobutton.set_sensitive(0)
-            self.redobutton.set_sensitive(0)
+        self.okbutton.set_sensitive(
+            selected and available and self.imageModFactory.isValid())
+        self.undobutton.set_sensitive(
+            selected and available and image.undoable())
+        self.redobutton.set_sensitive(
+            selected and available and image.redoable())
         gtklogger.checkpoint("image page sensitized")
 
     def sensitizeHistory(self):
