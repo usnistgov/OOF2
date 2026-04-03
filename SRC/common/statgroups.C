@@ -12,6 +12,7 @@
 #include <oofconfig.h>
 
 #include "common/activearea.h"
+#include "common/cdebug.h"
 #include "common/cmicrostructure.h"
 #include "common/coord.h"
 #include "common/progress.h"
@@ -313,12 +314,13 @@ const std::string *statgroups(CMicrostructure *microstructure,
     // have to split the PixelDistributions into contiguous pieces.
     
 // #ifdef DEBUG
-//     std::cerr << "statgroups: before splitting, PixelDistributions are:" 
-// 	      << std::endl;
+//     openDumpFile("pixelDists_before_splitting");
+//     dump("statgroups: before splitting, PixelDistributions are:");
 //     for(const PixelDistribution *pd : pixelDists) {
-//       std::cerr << "    " << pd << " n=" << pd->npts() << " mean="
-// 		<< pd->stats() << std::endl;
+//       dump("    " + tostring(pd) + " n=" + tostring(pd->npts()) + " mean="
+// 	   + tostring(pd->stats()));
 //     }
+//     closeDumpFile();
 // #endif // DEBUG
 
     if(contiguous || minsize > 0) {
@@ -359,31 +361,52 @@ const std::string *statgroups(CMicrostructure *microstructure,
     } // end if contiguous or minsize > 0
 
 // #ifdef DEBUG
-//     std::cerr << "statgroups: after splitting, PixelDistributions are:" 
-// 	      << std::endl;
+//     openDumpFile("pixelDists_after_splitting");
+//     dump("statgroups: after splitting, PixelDistributions are:");
 //     for(const PixelDistribution *pd : pixelDists) {
-//       std::cerr << "    " << pd << " n=" << pd->npts() << " mean="
-// 		<< pd->stats() << std::endl;
+//       dump("    " + tostring(pd) + " n=" + tostring(pd->npts()) + " mean="
+// 	   + tostring(pd->stats()));
 //     }
+//     closeDumpFile();
 // #endif // DEBUG
 
     // -----------
-  
+    
+    // int nbig = 0;		// debugging
     if(minsize > 0) {
       // Get rid of distributions containing fewer than minsize pixels
       // by attaching them to neighboring distributions.
     
       // First check to see if there are any distributions bigger than
       // minsize.  If there aren't, do what?
+
+      // TODO: This algorithm needs work.  It shouldn't have to start
+      // with a big distribution.  Construct an adjacency graph for
+      // the distributions. Find the difference between the means of
+      // adjacent groups.  Merge the two with the smallest difference
+      // and recompute the graph and means.  Should the difference be
+      // scaled by the std deviations?  Probably not.  Don't want a
+      // wide distribution to swallow up all neighbors.
+      
       int largest = 0;
       for(PixelDistribution *pd : pixelDists) {
+	// if(pd->npts() >= minsize) // debugging
+	//   nbig++;		  // debugging
 	if(pd->npts() > largest)
 	  largest = pd->npts();
       }
       if(largest < minsize) {
-	throw ErrUserError("minsize is too small: largest group size is " 
+	throw ErrUserError("minsize is too large: largest group size is " 
 			   + tostring(largest));
       }
+
+// #if DEBUG
+//       std::cerr << "statgroups: before combining groups, n="
+// 		<< pixelDists.size()
+// 		<< " nbig=" << nbig
+// 		<< " largest=" << largest
+// 		<< std::endl;
+// #endif // DEBUG
 
       Progress *prog2 =
 	dynamic_cast<DefiniteProgress*>(getProgress("Merging small groups",
