@@ -206,7 +206,6 @@ void openDumpFile(const std::string &filename) {
   closeDumpFile();
   dumping = true;
   dumpfilename = filename;
-  dumpstream = new std::ofstream(filename.c_str());
 }
 
 void closeDumpFile() {
