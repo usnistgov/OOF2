@@ -20,6 +20,7 @@ from ooflib.SWIG.engine import flux
 from ooflib.SWIG.engine import planarity
 from ooflib.common import debug
 from ooflib.common.IO import placeholder
+from ooflib.common.IO import whoville
 from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import whowidget
@@ -44,6 +45,7 @@ class MeshParamWidgetBase(parameterwidgets.ParameterWidget):
     # the mesh as its first argument, so it can be a Mesh member
     # function.  self.chooser is the ChooserWidget that displays the
     # items returned by meshfunc.
+    ## TODO: meshfunc has to be able to handle a WhoProxy.
 
     def __init__(self, param, whoclass, meshfunc, scope, name=None,
                  separator_func=None, **kwargs):
@@ -156,11 +158,29 @@ class IndexableWidget: pass
 # the widget.
 
 class MeshFieldLister:
-    def __init__(self, compound=True, outofplane=False, timederivative=False):
+    def __init__(self, scope,
+                 compound=True, outofplane=False, timederivative=False):
+        self.scope = scope
         self.compound = compound
         self.outofplane = outofplane
         self.timederivative = timederivative
     def __call__(self, meshctxt):
+        ## TODO: If there's no Mesh and you bring up a New Graphics
+        ## Layer window and try to define a new Filled Contour layer,
+        ## you get AttributeError: 'WhoProxy' object has no attribute
+        ## 'all_timederivative_subproblem_fields'.
+        ##
+        ## Necessary to call meshctxt.resolve(gfxwindow) in case
+        ## meshctxt is a proxy, and to check the return value to
+        ## ensure it's not None.  Does this always know its gfxwindow?
+        ## Or can the caller call resolve()?
+        debug.fmsg(f"{meshctxt=}")
+        if issubclass(meshctxt.__class__, whoville.WhoProxy):
+            gfxwindow = self.scope.findData("gfxwindow")
+            meshctxt = meshctxt.resolve(gfxwindow)
+            if meshctxt is None:
+                return
+        
         tdfields = meshctxt.all_timederivative_subproblem_fields()
         oopfields = meshctxt.all_outofplane_subproblem_fields()
         for fld in meshctxt.all_compound_subproblem_fields():
@@ -177,7 +197,7 @@ class MeshFieldLister:
 
 class FieldParameterWidget(MeshParamWidget, InvariandWidget, IndexableWidget):
     def __init__(self, param, scope, name=None, **kwargs):
-        flist = MeshFieldLister(compound=True,
+        flist = MeshFieldLister(scope, compound=True,
                                 outofplane=param.outofplane,
                                 timederivative=param.timederivative)
         MeshParamWidget.__init__(self, param, flist, scope, name, **kwargs)
