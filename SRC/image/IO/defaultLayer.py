@@ -9,11 +9,6 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
-if config.dimension() == 2:
-    from ooflib.SWIG.image import oofimage
-## elif config.dimension() == 3:
-##     #from ooflib.SWIG.image import oofimage3d
-##     from ooflib.image import oofimage3d
 from ooflib.common.IO import bitmapdisplay
 from ooflib.common.IO import ghostgfxwindow
 from ooflib.image import imagecontext

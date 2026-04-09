@@ -671,6 +671,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     # Called on a subthread, not on the main thread.
     # Argument is actually used at gfxwindow-open-time by the menu command.
     def draw(self, zoom=False): # switchboard "redraw" callback
+        debug.fmsg()
         debug.subthreadTest()
         if self.closed:
             return
@@ -686,11 +687,14 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # Copy the OOFCanvas::CanvasLayers to the OOFCanvas::Canvas
         # (actually just tells gtk to queue up a draw event).
         #mainthread.runBlock(self.oofcanvas.draw)
+        debug.fmsg("Calling oofcanvas.draw")
         self.oofcanvas.draw()
+        debug.fmsg("Back from oofcanvas.draw")
         
         # Update the contourmap info, now that the appropriate layer
         # has completed its draw.
         self.show_contourmap_info()
+        debug.fmsg("done")
             
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

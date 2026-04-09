@@ -175,6 +175,7 @@ class GhostGfxWindow:
     initial_height = 400
     initial_width = 800
     def __init__(self, name, gfxmanager, settings=None, clone=False):
+        debug.fmsg()
         if not hasattr(self, 'settings'):
             self.settings = settings or GfxSettings()
         self.name = name
@@ -203,6 +204,8 @@ class GhostGfxWindow:
         # to a file can be invoked in text mode, so the data has to
         # exist here in GhostGfxWindow.
         self.contourmapdata = ContourMapData()
+
+        debug.fmsg("Creating menu items")
 
         self.menu = OOF.addItem(OOFMenuItem(
             self.name,
@@ -793,7 +796,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             discussion=xmlmenudump.loadFile(
                 'DISCUSSIONS/common/menu/margin.xml')
         ))
-        
+
+        debug.fmsg("Creating toolboxes")
         # Create toolboxes.
         self.toolboxes = []
         for tbc in toolbox.toolboxClasses:
@@ -805,10 +809,13 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         # predefined layers from the original, and we don't have to
         # create them here.
         if not clone:
+            debug.fmsg("Creating predefined layers")
             self.createPredefinedLayers()
+        debug.fmsg("Back from createPredefinedLayers")
 
         # Switchboard callbacks.  Keep a list of them so that they can
         # all be removed when the window is closed.
+        debug.fmsg("Requesting switchboard callbacks")
         self.switchboardCallbacks = [
             switchboard.requestCallback('new who', self.newWho), # generic who
             switchboard.requestCallback('preremove who', self.removeWho),
@@ -819,6 +826,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             switchboard.requestCallback('redraw', self.draw),
             switchboard.requestCallback('draw at time', self.drawAtTime)
             ]
+        debug.fmsg("done")
 
     def newCanvas(self):
         # Create the actual OOFCanvas object.  This method is
@@ -893,6 +901,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.createDefaultLayers()
 
     def createDefaultLayers(self, whoclassname=None, newwhopath=None):
+        debug.fmsg(f"{whoclassname=} {newwhopath=}")
         # If whoclassname and newwhopath are given, a new Who object
         # has just been created.  If they're not given, then this
         # window has just been created.
@@ -925,6 +934,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         # Unselect all layers first, so that new layers don't
         # overwrite existing ones.
         selectedLayer = self.selectedLayer
+        debug.fmsg("deselecting")
         self.deselectAll()
 
         # Are we adding layers for a new Who object, or is this a new
@@ -961,15 +971,24 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             if self.settings.newlayerpolicy == "Single":
                 for defaultlayer in DefaultLayer.allDefaultLayers:
                     if defaultlayer.whoclass.nActual() == 1:
+                        debug.fmsg(f"Creating {defaultlayer=}")
                         layer, who = defaultlayer.createLayer(
                             defaultlayer.whoclass.actualMembers()[0])
+                        debug.fmsg(f"{layer=}")
                         if layer is not None:
+                            debug.fmsg("Incorporating layer")
                             self.incorporateLayer(layer, who, autoselect=False,
                                                   lock=False)
+                            debug.fmsg("Back from incorporateLayer")
+                    else:
+                        debug.fmsg(f"Not creating {defaultlayer=}")
+        debug.fmsg("done creating layers")
 
         # Restore the previous selection state.
         if selectedLayer:
             self.selectLayer(self.layerID(selectedLayer))
+            
+        debug.fmsg("done")
                 
     def sensitize_menus(self):
         ## TODO?: There appears to be a problem with the timing of
@@ -1235,9 +1254,11 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         switchboard.notify("zoom factor changed")
 
     def drawLayers(self):
+        debug.fmsg()
         self.acquireGfxLock()
         try:
             for layer in self.layers:
+                debug.fmsg(f"Drawing {layer=}")
                 reason = layer.incomputable(self)
                 if reason:
                     layer.clear()
@@ -1245,8 +1266,10 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                     try:
                         # Tell the DisplayLayer to (re)create its
                         # OOFCanvas::CanvasLayer.
+                        debug.fmsg("Calling drawIfNecessary")
                         layer.drawIfNecessary(self)
                     except subthread.StopThread:
+                        debug.fmsg("Stopped")
                         return
                     except Exception as exc:
                         debug.fmsg('Exception while drawing!', exc)
@@ -1255,6 +1278,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                         raise
         finally:
             self.releaseGfxLock()
+            debug.fmsg("done")
 
     def saveCanvas(self, menuitem, filename, format, overwrite,
                    pixels, background):
@@ -1358,6 +1382,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     # changed.  Overridden in gfxwindow to update the layer list and
     # the time controls as well.
     def layersHaveChanged(self):
+        debug.fmsg()
         self.layerChangeTime.increment()
         switchboard.notify((self, 'layers changed'))
         new_contourmap_method = self.topcontourable()
@@ -1368,11 +1393,15 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         # Sync layer order in the canvas the the order in self.layers
         self.oofcanvas.reorderLayers(
             [l.canvaslayer for l in self.layers])
-        
+
+        debug.fmsg("Calling draw")
         self.draw()
+        debug.fmsg("Sensitizing menus")
         self.sensitize_menus()  # must be called last
+        debug.fmsg("done")
 
     def incorporateLayer(self, layer, who, autoselect=True, lock=True):
+        debug.fmsg(f"{layer=} {who=}")
         if lock:
             self.acquireGfxLock()
         try:
@@ -1413,7 +1442,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                             break
                     else:
                         self.layers[0:0] = [layer]
-                            
+
                 layer.build(self)
                 layer.setWho(who)
                 if autoselect:
@@ -1421,7 +1450,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         finally:
             if lock:
                 self.releaseGfxLock()
+        debug.fmsg("Calling layersHaveChanged")
         self.layersHaveChanged()
+        debug.fmsg("done")
 
     def sortedLayers(self):
         # Are the layers in a canonical order?
@@ -1645,6 +1676,9 @@ class DefaultLayer:
         DefaultLayer.allDefaultLayers.append(self)
         self.whoclass = whoclass
         self.displaymethodfn = displaymethodfn
+
+    def __repr__(self):
+        return f"DefaultLayer({self.whoclass}, {self.displaymethodfn})"
 
     def createLayer(self, who):
         assert who is not None # used to be allowed

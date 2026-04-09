@@ -28,6 +28,7 @@ from ooflib.common.IO.GUI import subWindow
 
 class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     def __init__(self, name, gfxmgr, settings=None, clone=False):
+        debug.fmsg()
         debug.subthreadTest()
         self.gfxlock = lock.Lock()
         mainthread.runBlock(self.preinitialize, (name, gfxmgr, settings, clone))
@@ -45,6 +46,8 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         # Furthermore, the ghostgfxwindow has to create the menu
         # before the SubWindow init gets called.  It could probably be
         # rationalized, but it's not urgent.
+
+        debug.fmsg("done")
 
 
     # Functions which, as of now, are specific for 2D vs. 3D

@@ -81,9 +81,6 @@ instead of int.  Or maybe to std::size_t.
 
 Upgrade to Eigen 5.0.0 (or at least 3.4.1).
 
-Fix statgroups.C.  See TODO there.
-
-Fix meshparamwidgets.C.  See TODOs there about proxies.
 
 THINGS TO FIX IN TUTORIALS
 
@@ -92,4 +89,55 @@ groups.  It was written before the name_template parameter was added.
 Also, the example may be too fast to bring up the activity viewer.
 
 Basics/Error Handling -- continued:  Should tell the user to click "OK".
+
+
+=====================================
+
+BUGS FOUND WHILE PREPARING FOR ACERS
+
+Fix statgroups.C.  See TODO there.
+
+Fix meshparamwidgets.C.  See TODOs there about proxies.
+
+Crashes after auto skel, save canvas, delete skel, new auto skel.
+Also similar crashes in other places.
+Threading issue?  gtk/gdk in wrong thread?
+gtk_main is in in Thread 0.
+Thread 13 Crashed:: Thread-119
+0   AppKit                        	    0x7ff813315d50 -[NSWMWindowCoordinator performTransactionUsingBlock:] + 763
+1   AppKit                        	    0x7ff8131873b0 _NSWMTransactionAddOrderingActionWithInfoForOptions + 189
+2   AppKit                        	    0x7ff8131864bd _NSWMOrderWindow + 712
+3   AppKit                        	    0x7ff81272bd2a _NSOrderWindow + 475
+4   AppKit                        	    0x7ff8130ed330 -[NSWindow _orderOut:calculatingKeyWithOptions:documentWindow:] + 1988
+5   AppKit                        	    0x7ff8124c192e NSPerformVisuallyAtomicChange + 145
+6   AppKit                        	    0x7ff8130ef048 -[NSWindow _reallyDoOrderWindowOutRelativeTo:] + 566
+7   AppKit                        	    0x7ff8130ef4d6 -[NSWindow _reallyDoOrderWindow:] + 106
+8   AppKit                        	    0x7ff8130ef75e -[NSWindow _doOrderWindow:] + 298
+9   AppKit                        	    0x7ff8130e8cb7 -[NSWindow _finishClosingWindow] + 479
+10  AppKit                        	    0x7ff8127652c9 -[NSWindow _close] + 432
+11  libgdk-3.0.dylib              	       0x1051b2d72 gdk_quartz_window_destroy + 448
+12  libgdk-3.0.dylib              	       0x105196888 _gdk_window_destroy_hierarchy + 704
+13  libgdk-3.0.dylib              	       0x105196910 gdk_window_destroy + 20
+14  libgtk-3.0.dylib              	       0x105c16e2d
+gtk_widget_real_unrealize + 122
+
+Also crashes:
+Load craig-posterized-solved.dat
+Create a filled contour plot
+Edit the plot
+[Can't reproduce?  Maybe data file changed.]
+
+Run oof2 --de --da craig-posterized-skel.dat
+Save materials (or skeleton, or ???)
+Open gfx window
+Crash
+Similar thread data as above
+Happens both in debug and release builds
+Only happens in threaded mode
+
+
+
+Why does progress bar not appear when solving?  Maybe Eigen loop isn't
+accessible. 
+
 

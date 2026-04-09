@@ -17,14 +17,20 @@ from ooflib.common.IO import xmlmenudump
 
 class BitmapDisplayMethod(display.DisplayMethod):
     def __init__(self):
+        debug.fmsg()
         self.bitmapobject = None
         display.DisplayMethod.__init__(self)
+        debug.fmsg("done")
     def draw(self, gfxwindow):
         bitmapobj = self.who.getObject(gfxwindow)
+        debug.fmsg(f"Calling makeCanvasImage {bitmapobj=}")
         image = bitmapobj.makeCanvasImage(primitives.Point(0,0),
                                           bitmapobj.size())
+        debug.fmsg("Calling setOpacity")
         image.setOpacity(1.0)
+        debug.fmsg(f"Calling canvaslayer.addItem {self.canvaslayer.addItem}")
         self.canvaslayer.addItem(image)
+        debug.fmsg("done")
 
 bitmapDisplay = registeredclass.Registration(
     'Bitmap',

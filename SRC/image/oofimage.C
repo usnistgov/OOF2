@@ -162,12 +162,16 @@ OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
   // 	      << std::endl;
   // } // end debugging
 
+  std::cerr << "OOFImage::makeCanvasImage: " << *pos << " " << *size << std::endl;
+
   OOFCanvas::CanvasImage *img =
     OOFCanvas::CanvasImage::newFromNumpy(OOFCANVAS_COORD(*pos), npobject,
 					 true /* true means flipy*/
 					 );
+  std::cerr << "OOFImage::makeCanvasImage: img=" << img << std::endl;
   img->setDrawIndividualPixels(true);
   img->setSize(OOFCANVAS_COORD(*size));
+  std::cerr << "OOFImage::makeCanvasImage: done" << std::endl;
   return img;
 }
 

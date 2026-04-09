@@ -221,7 +221,9 @@ class DisplayMethod(registeredclass.RegisteredClass):
                 self.canvaslayer.removeAllItems()
                 if self.hidden:
                     self.canvaslayer.hide()
+                debug.fmsg(f"Calling draw {self.draw}")
                 self.draw(gfxwindow)
+                debug.fmsg("Back from draw")
                 self.lastDrawn.increment()
             finally:
                 whoobj.end_reading()    # release lock

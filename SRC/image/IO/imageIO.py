@@ -121,10 +121,7 @@ registeredclass.Registration(
 class NumpyRGB16(ImageData):
     def __init__(self, rgbdata):
         if type(rgbdata) == str:
-            debug.fmsg(f"NumpyRGB16: read {len(rgbdata)} hex characters")
             rgbdata = bytes.fromhex(rgbdata)
-        else:
-            debug.fmsg(f"NumpyRGB16: read {len(rgbdata)} bytes")
         self.rgbdata = rgbdata
     def toBytes(self, image):
         # Convert data to 16 bit unsigned int. This is a no-op if
@@ -159,10 +156,7 @@ registeredclass.Registration(
 class NumpyGray16(ImageData):
     def __init__(self, graydata):
         if type(graydata) == str:
-            debug.fmsg(f"NumpyGray16 : read {len(graydata)} hex characters")
             graydata = bytes.fromhex(graydata)
-        else:
-            debug.fmsg(f"NumpyGray16: read {len(graydata)} bytes")
         self.graydata = graydata
     def toBytes(self, image):
         # Convert data to 16 bit unsigned ints.

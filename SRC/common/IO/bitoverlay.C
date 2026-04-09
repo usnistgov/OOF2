@@ -113,6 +113,8 @@ OOFCanvas::CanvasImage *BitmapOverlay::makeCanvasImage(const Coord *position,
   img->setDrawIndividualPixels(true);
   img->setSize(OOFCANVAS_COORD(*size));
   int ymax = sizeInPixels_[1] - 1;
+  // TODO: don't recompute canvasColor
+  //OOFCanvas::Color fgcolor = canvasColor(fg);
   for(Array<bool>::const_iterator i=data.begin(); i!=data.end(); ++i) {
     if(data[i]) {
       ICoord p(i.coord());
