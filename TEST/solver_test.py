@@ -3647,69 +3647,72 @@ static_set = [
     OOF_FluxOffset("PlaneStress")
 ]
 
-def make_dynamic_set(suffix, shortening, tests=None):
-    tests = tests or [
-        OOF_1x1ElasticDynamic("Dynamic"),
-        OOF_NonstaticThenStatic("Solve"),
+# Default set of dynamic tests. make_dynamic_set() uses this if no
+# other set is given to it.
+dynamic_tests = [
+    OOF_1x1ElasticDynamic("Dynamic"),
+    OOF_NonstaticThenStatic("Solve"),
 
-        # In "generate" mode,
-        # OOF_ThermalDiffusionTimeSteppers("RK4direct") provides the
-        # reference data for the rest of
-        # OOF_ThermalDiffusionTimeSteppers, so it must precede the
-        # rest of OOF_ThermalDiffusionTimeSteppers in this list.
-        OOF_ThermalDiffusionTimeSteppers("RK4direct"),
-        OOF_ThermalDiffusionTimeSteppers("CNdirect"),
-        OOF_ThermalDiffusionTimeSteppers("SS22directSaveRestore"),
-        OOF_ThermalDiffusionTimeSteppers("BEdirect"),
-        OOF_ThermalDiffusionTimeSteppers("RK2direct"),
-        OOF_ThermalDiffusionTimeSteppers("SS22"),
-        OOF_ThermalDiffusionTimeSteppers("CN"),
-        OOF_ThermalDiffusionTimeSteppers("RK4"),
-        OOF_ThermalDiffusionTimeSteppers("RK2"),
-        OOF_ThermalDiffusionTimeSteppers("BE"),
-        OOF_ThermalDiffusionTimeSteppers("CNdouble"),
+    # In "generate" mode,
+    # OOF_ThermalDiffusionTimeSteppers("RK4direct") provides the
+    # reference data for the rest of OOF_ThermalDiffusionTimeSteppers,
+    # so it must precede the rest of OOF_ThermalDiffusionTimeSteppers
+    # in this list.
+    OOF_ThermalDiffusionTimeSteppers("RK4direct"),
+    OOF_ThermalDiffusionTimeSteppers("CNdirect"),
+    OOF_ThermalDiffusionTimeSteppers("SS22directSaveRestore"),
+    OOF_ThermalDiffusionTimeSteppers("BEdirect"),
+    OOF_ThermalDiffusionTimeSteppers("RK2direct"),
+    OOF_ThermalDiffusionTimeSteppers("SS22"),
+    OOF_ThermalDiffusionTimeSteppers("CN"),
+    OOF_ThermalDiffusionTimeSteppers("RK4"),
+    OOF_ThermalDiffusionTimeSteppers("RK2"),
+    OOF_ThermalDiffusionTimeSteppers("BE"),
+    OOF_ThermalDiffusionTimeSteppers("CNdouble"),
 
-        ## In generate mode, RK4direct must come first.
-        OOF_ThermalDiffusionTSPlaneFlux("RK4direct"),
-        OOF_ThermalDiffusionTSPlaneFlux("CNdirect"),
-        OOF_ThermalDiffusionTSPlaneFlux("BEdirect"),
-        OOF_ThermalDiffusionTSPlaneFlux("RK2direct"),
-        OOF_ThermalDiffusionTSPlaneFlux("CNSaveRestore"),
-        OOF_ThermalDiffusionTSPlaneFlux("RK4"),
-        OOF_ThermalDiffusionTSPlaneFlux("RK2"),
-        OOF_ThermalDiffusionTSPlaneFlux("BE"),
-        OOF_ThermalDiffusionTSPlaneFlux("CNdouble"),
-        OOF_ThermalDiffusionTSPlaneFlux("SS22direct"),
-        OOF_ThermalDiffusionTSPlaneFlux("SS22"),
+    ## In generate mode, RK4direct must come first.
+    OOF_ThermalDiffusionTSPlaneFlux("RK4direct"),
+    OOF_ThermalDiffusionTSPlaneFlux("CNdirect"),
+    OOF_ThermalDiffusionTSPlaneFlux("BEdirect"),
+    OOF_ThermalDiffusionTSPlaneFlux("RK2direct"),
+    OOF_ThermalDiffusionTSPlaneFlux("CNSaveRestore"),
+    OOF_ThermalDiffusionTSPlaneFlux("RK4"),
+    OOF_ThermalDiffusionTSPlaneFlux("RK2"),
+    OOF_ThermalDiffusionTSPlaneFlux("BE"),
+    OOF_ThermalDiffusionTSPlaneFlux("CNdouble"),
+    OOF_ThermalDiffusionTSPlaneFlux("SS22direct"),
+    OOF_ThermalDiffusionTSPlaneFlux("SS22"),
 
-        # In "generate" mode, SS22PlaneStrain and SS22PlaneStress
-        # provide the reference data for the rest of
-        # OOF_ElasticTimeSteppers, so they must precede the rest of
-        # OOF_ElasticTimeSteppers in this list.
-        OOF_ElasticTimeSteppers("SS22PlaneStrain"),
-        OOF_ElasticTimeSteppers("SS22PlaneStress"),
-        OOF_ElasticTimeSteppers("SS22PlaneStressPlaneStrain"),
-        OOF_ElasticTimeSteppers("CNPlaneStrainSaveRestore"),
-        OOF_ElasticTimeSteppers("CNPlaneStressSaveRestore"),
-        OOF_ElasticTimeSteppers("RK4PlaneStrain"),
-        OOF_ElasticTimeSteppers("RK4PlaneStress"),
-        OOF_ElasticTimeSteppers("RK2PlaneStrain"),
-        OOF_ElasticTimeSteppers("RK2PlaneStress"),
-        OOF_ElasticTimeSteppers("BEPlaneStrain"),
-        OOF_ElasticTimeSteppers("BEPlaneStress"),
-        OOF_ElasticTimeSteppers("ForwardEulerPlaneStrain"),
-        OOF_ElasticTimeSteppers("ForwardEulerPlaneStress"),
+    # In "generate" mode, SS22PlaneStrain and SS22PlaneStress
+    # provide the reference data for the rest of
+    # OOF_ElasticTimeSteppers, so they must precede the rest of
+    # OOF_ElasticTimeSteppers in this list.
+    OOF_ElasticTimeSteppers("SS22PlaneStrain"),
+    OOF_ElasticTimeSteppers("SS22PlaneStress"),
+    OOF_ElasticTimeSteppers("SS22PlaneStressPlaneStrain"),
+    OOF_ElasticTimeSteppers("CNPlaneStrainSaveRestore"),
+    OOF_ElasticTimeSteppers("CNPlaneStressSaveRestore"),
+    OOF_ElasticTimeSteppers("RK4PlaneStrain"),
+    OOF_ElasticTimeSteppers("RK4PlaneStress"),
+    OOF_ElasticTimeSteppers("RK2PlaneStrain"),
+    OOF_ElasticTimeSteppers("RK2PlaneStress"),
+    OOF_ElasticTimeSteppers("BEPlaneStrain"),
+    OOF_ElasticTimeSteppers("BEPlaneStress"),
+    OOF_ElasticTimeSteppers("ForwardEulerPlaneStrain"),
+    OOF_ElasticTimeSteppers("ForwardEulerPlaneStress"),
 
-        OOF_AnisoElasticDynamic("AnisoPlaneStrain"),
-        OOF_AnisoElasticDynamic("AnisoPlaneStress"),
+    OOF_AnisoElasticDynamic("AnisoPlaneStrain"),
+    OOF_AnisoElasticDynamic("AnisoPlaneStress"),
 
-        OOF_ThermalElasticTimeSteppers("SS22ThermalOnly"),
-        OOF_ThermalElasticTimeSteppers("SS22"),
-        OOF_ThermalElasticTimeSteppers("CN"),
-        OOF_StaticAndDynamic("SS22PlaneStrain"),
+    OOF_ThermalElasticTimeSteppers("SS22ThermalOnly"),
+    OOF_ThermalElasticTimeSteppers("SS22"),
+    OOF_ThermalElasticTimeSteppers("CN"),
+    OOF_StaticAndDynamic("SS22PlaneStrain"),
 
-        OOF_ViscoElasticity("SS22")
-    ]
+    OOF_ViscoElasticity("SS22")
+]
+
+def make_dynamic_set(suffix, shortening, tests=dynamic_tests):
     for t in tests:
         t.shortening = shortening
         t.suffix = suffix
@@ -3727,13 +3730,19 @@ test_set = (
     oop_periodic_set)
 
 
-## Uncomment this, or parts of it, to run just a few tests when
-## debugging.
-# subset = [OOF_1x1ElasticDynamic("Dynamic"),]
-# test_set = (make_dynamic_set(suffix="", shortening=1.0, tests=subset)
-#             + make_dynamic_set(suffix="-short", shortening=0.1, tests=subset)
-#             )
-                            
+## Uncomment these to run just a few tests when debugging.
+
+## Run the the long and short versions of given dynamic tests
+# subset = [OOF_ElasticTimeSteppers("BEPlaneStrain"),]
+# test_set = (
+#     make_dynamic_set(suffix="", shortening=1.0, tests=subset)
+#     + make_dynamic_set(suffix="-short", shortening=0.1, tests=subset)
+# )
+
+## Run just the long versions of all dynamic tests
+test_set = make_dynamic_set(suffix="", shortening=1.0, tests=dynamic_tests)
+
+## Run a single test.
 # test_set = [
 #     ThermalExpansionTest("Basic"),
 # ]
