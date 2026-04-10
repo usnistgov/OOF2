@@ -164,6 +164,10 @@ bool save_market_mat(const SparseMat& mat, const std::string& filename,
 		     int sym = 0);
 
 // TODO(lizhong): guess value type from matrix type
+
+// TODO: Can we get rid of SparseMatIterator and use Eigen's STL style
+// iterators?
+
 template<typename MT, typename VT>
 class SparseMatIterator {
 private:
