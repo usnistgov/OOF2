@@ -41,10 +41,11 @@ endif()
 # Apparently using -DDEBUG for debugging is not the modern
 # convention. CMake instead assumes that we're using -DNDEBUG when not
 # debugging, so add -DDEBUG here.
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+
 ## TODO: Don't just add -fsanitize... here.  Make it settable by the
 ## user.  Maybe see https://github.com/arsenm/sanitizers-cmake.
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -fsanitize=address,undefined -fno-omit-frame-pointer")
-# set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address,undefined -fno-omit-frame-pointer")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
