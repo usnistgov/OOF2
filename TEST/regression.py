@@ -246,6 +246,11 @@ def run(homedir):
 
     try:
         import oof2
+        ## TODO: Shouldn't the next line be
+        ##  "if os.path.dirname(oof2.__file__) not in sys.path"  ?
+        ## But if it's not in sys.path, how was it loaded?  What is
+        ## the purpose of this? Maybe it's leftover from before there
+        ## were path modifications in oof2-test?
         if oof2.__file__ not in sys.path:
             sys.path.append(os.path.dirname(oof2.__file__))
         from ooflib.common import oof
