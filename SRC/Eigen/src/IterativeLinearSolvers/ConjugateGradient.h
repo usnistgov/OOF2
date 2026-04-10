@@ -7,11 +7,17 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+// Lines modified for OOF are marked "OOF".  They are there to support
+// iteration progress bars.
+
 #ifndef EIGEN_CONJUGATE_GRADIENT_H
 #define EIGEN_CONJUGATE_GRADIENT_H
 
 // IWYU pragma: private
 #include "./InternalHeaderCheck.h"
+
+#include "common/progress.h"	// OOF
+#include "common/tostring.h"	// OOF
 
 namespace Eigen {
 
@@ -47,6 +53,7 @@ EIGEN_DONT_INLINE void conjugate_gradient(const MatrixType& mat, const Rhs& rhs,
     tol_error = 0;
     return;
   }
+  double tol0 = tol_error;	// OOF
   const RealScalar considerAsZero = (std::numeric_limits<RealScalar>::min)();
   RealScalar threshold = numext::maxi(RealScalar(tol * tol * rhsNorm2), considerAsZero);
   RealScalar residualNorm2 = residual.squaredNorm();
@@ -62,7 +69,19 @@ EIGEN_DONT_INLINE void conjugate_gradient(const MatrixType& mat, const Rhs& rhs,
   VectorType z(n), tmp(n);
   RealScalar absNew = numext::real(residual.dot(p));  // the square of the absolute value of r scaled by invM
   Index i = 0;
-  while (i < maxIters) {
+
+  LogDefiniteProgress *progress =	// OOF
+    dynamic_cast<LogDefiniteProgress*>( // OOF
+		       getProgress("matrix solver", LOGDEFINITE)); // OOF
+  // OOF: The ending condition compares the initial residualNorm2 to
+  // threshold, and threshold is tol0*rhsNorm.  We want the lower
+  // limit of the progress bar to be tol0, not threshold, so divide by
+  // rhsNorm.
+  progress->setRange(numext::sqrt(residualNorm2/rhsNorm2), tol0); // OOF
+  
+  while (i < maxIters
+	 && !progress->stopped() // OOF
+	 ) {
     tmp.noalias() = mat * p;  // the bottleneck of the algorithm
 
     Scalar alpha = absNew / p.dot(tmp);  // the amount we travel on dir
@@ -79,6 +98,9 @@ EIGEN_DONT_INLINE void conjugate_gradient(const MatrixType& mat, const Rhs& rhs,
     RealScalar beta = absNew / absOld;       // calculate the Gram-Schmidt value used to create the new search direction
     p = z + beta * p;                        // update search direction
     i++;
+    double prgrss = numext::sqrt(residualNorm2 / rhsNorm2); // OOF
+    progress->setFraction(prgrss);			    // OOF
+    progress->setMessage(tostring(prgrss) + "/" + tostring(tol0)); // OOF
   }
   tol_error = numext::sqrt(residualNorm2 / rhsNorm2);
   iters = i;

@@ -8,11 +8,17 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+// Lines modified for OOF are marked "OOF".  They are there to support
+// iteration progress bars.
+
 #ifndef EIGEN_BICGSTAB_H
 #define EIGEN_BICGSTAB_H
 
 // IWYU pragma: private
 #include "./InternalHeaderCheck.h"
+
+#include "common/progress.h"	// OOF
+#include "common/tostring.h"	// OOF
 
 namespace Eigen {
 
@@ -62,7 +68,15 @@ bool bicgstab(const MatrixType& mat, const Rhs& rhs, Dest& x, const Precondition
   Index i = 0;
   Index restarts = 0;
 
-  while (r_norm > tol && i < maxIters) {
+  LogDefiniteProgress *progress =	// OOF
+    dynamic_cast<LogDefiniteProgress*>( // OOF
+		       getProgress("matrix solver", LOGDEFINITE)); // OOF
+  progress->setRange(r0_norm, tol); // OOF
+  
+  while (r_norm > tol && i < maxIters
+	 && !progress->stopped() // OOF
+	 )
+    {
     Scalar rho_old = rho;
     rho = r0.dot(r);
     if (Eigen::numext::abs(rho) / Eigen::numext::maxi(r0_norm, r_norm) < eps * Eigen::numext::mini(r0_norm, r_norm)) {
@@ -111,9 +125,15 @@ bool bicgstab(const MatrixType& mat, const Rhs& rhs, Dest& x, const Precondition
     r = s - w * t;
     r_norm = r.stableNorm();
     ++i;
+
+    // OOF: remove normalization so that the limit of the progress bar is tol
+    double res = r.stableNorm()/r0_norm;		       // OOF
+    progress->setFraction(res);				       // OOF
+    progress->setMessage(tostring(res) + "/" + tostring(tol)); // OOF
   }
 
   tol_error = r_norm / rhs_norm;
+  progress->finish();		// OOF
   iters = i;
   return true;
 }
