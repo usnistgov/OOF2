@@ -9,6 +9,7 @@
 # oof_manager@nist.gov. 
 
 
+
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
@@ -171,8 +172,22 @@ class TutorialClassGUI(subWindow.SubWindow):
 
     def updateGUI(self):
         debug.mainthreadTest()
-        # TODO: One of the gui tests was getting an IndexError here,
-        # but I am unable to reproduce it.
+        ## TODO: Getting this error in GUI test 000150_tutorial_skeleton:
+        # Traceback (most recent call last):
+        #   File "/Users/langer/lib/python3.14/site-packages/oof2/ooflib/common/IO/GUI/gtklogger/gtklogger/core.py", line 223, in __call__
+        #     return self.callback(obj, *args)
+        #            ~~~~~~~~~~~~~^^^^^^^^^^^^
+        #   File "/Users/langer/lib/python3.14/site-packages/oof2/ooflib/common/IO/GUI/tutorialsGUI.py", line 210, in nextCB
+        #     self.newLesson()
+        #     ~~~~~~~~~~~~~~^^
+        #   File "/Users/langer/lib/python3.14/site-packages/oof2/ooflib/common/IO/GUI/tutorialsGUI.py", line 191, in newLesson
+        #     self.updateGUI()
+        #     ~~~~~~~~~~~~~~^^
+        #   File "/Users/langer/lib/python3.14/site-packages/oof2/ooflib/common/IO/GUI/tutorialsGUI.py", line 176, in updateGUI
+        #     self.lesson = self.tutor.lessons[self.index]  # current lesson
+        #                   ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+        # IndexError: list index out of range
+        
         self.lesson = self.tutor.lessons[self.index]  # current lesson
         if self.lesson.subject is not None:
             self.subject.set_text(self.lesson.subject)
