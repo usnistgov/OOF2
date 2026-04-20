@@ -23,9 +23,6 @@
 #include "engine/sparsemat.h"
 #include "unsupported/Eigen/IterativeSolvers"
 
-// TODO: Progress bars are hacked into Eigen solvers.  Do they work?
-// Search for "OOF" in the Eigen source code to find the hacks.
-
 enum class Precond {Uncond=1, Diag=2, ILUT=3, IC=4};
 
 enum Info {

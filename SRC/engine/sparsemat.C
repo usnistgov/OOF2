@@ -485,6 +485,7 @@ bool load_mat(SparseMat& mat, const std::string& filename) {
   double val;
   for (int i = 0; i < nnz; i++) {
     fs >> r >> c >> val;
+    assert(0 <= r && r < nr && 0 <= c && c < nc);
     trips.emplace_back(r, c, val);
   }
 

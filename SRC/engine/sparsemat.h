@@ -165,9 +165,6 @@ bool save_market_mat(const SparseMat& mat, const std::string& filename,
 
 // TODO(lizhong): guess value type from matrix type
 
-// TODO: Can we get rid of SparseMatIterator and use Eigen's STL style
-// iterators?
-
 template<typename MT, typename VT>
 class SparseMatIterator {
 private:
@@ -181,15 +178,20 @@ private:
   // - OuterStarts: stores for each column (resp. row) the index of the
   //                first non-zero in the previous two arrays.
 
-  // Note: Currently, in order to use this iterator, the reference sparese
+  // Note: Currently, in order to use this iterator, the reference sparse
   // has to be compressed first.
   // TODO(lizhong): make it work with uncompressed sparse matrix.
+  // TODO(steve): Just verify that the matrix is compressed.
+
+  // TODO: Why do we need so many pointers?  Just use
+  // SparseMatrix::InnerIterator and outerIndex.  row, col, and value
+  // can be obtained from InnerIterator.
 
   VT* val_ptr;     // pointer of the Values array
   int* in_ptr;     // pointer of the InnerIndices array 
   int* out_ptr;    // pointer of the OuterStarts array
   int  in_idx;     // current index in the InnerIndices
-  int  out_idx;    // current index in the OuterIndeces
+  int  out_idx;    // current index in the OuterIndices
 
 public:
   SparseMatIterator(MT&);
