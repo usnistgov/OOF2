@@ -16,8 +16,8 @@
 // IWYU pragma: private
 #include "./InternalHeaderCheck.h"
 
-#include "common/progress.h"	// OOF
-#include "common/tostring.h"	// OOF
+// #include "common/progress.h"	// OOF
+// #include "common/tostring.h"	// OOF
 
 namespace Eigen {
 
@@ -70,19 +70,20 @@ EIGEN_DONT_INLINE void conjugate_gradient(const MatrixType& mat, const Rhs& rhs,
   RealScalar absNew = numext::real(residual.dot(p));  // the square of the absolute value of r scaled by invM
   Index i = 0;
 
-  LogDefiniteProgress *progress =	// OOF
-    dynamic_cast<LogDefiniteProgress*>( // OOF
-		       getProgress("matrix solver", LOGDEFINITE)); // OOF
+  // LogDefiniteProgress *progress =	// OOF
+  //   dynamic_cast<LogDefiniteProgress*>( // OOF
+  // 		       getProgress("matrix solver", LOGDEFINITE)); // OOF
+
   // OOF: The ending condition compares the initial residualNorm2 to
   // threshold, and threshold is tol0*rhsNorm.  We want the lower
   // limit of the progress bar to be tol0, not threshold, so divide by
   // rhsNorm.
-  progress->setRange(numext::sqrt(residualNorm2/rhsNorm2), tol0); // OOF
+  //  progress->setRange(numext::sqrt(residualNorm2/rhsNorm2), tol0); // OOF
   
   while (i < maxIters
-	 && !progress->stopped() // OOF
+	 // && !progress->stopped() // OOF
 	 ) {
-    tmp.noalias() = mat * p;  // the bottleneck of the algorithm
+    // std::cerr << "conjugate_gradient: i=" << i << std::endl;
 
     Scalar alpha = absNew / p.dot(tmp);  // the amount we travel on dir
     x += alpha * p;                      // update solution
@@ -98,10 +99,13 @@ EIGEN_DONT_INLINE void conjugate_gradient(const MatrixType& mat, const Rhs& rhs,
     RealScalar beta = absNew / absOld;       // calculate the Gram-Schmidt value used to create the new search direction
     p = z + beta * p;                        // update search direction
     i++;
-    double prgrss = numext::sqrt(residualNorm2 / rhsNorm2); // OOF
-    progress->setFraction(prgrss);			    // OOF
-    progress->setMessage(tostring(prgrss) + "/" + tostring(tol0)); // OOF
+    // double prgrss = numext::sqrt(residualNorm2 / rhsNorm2); // OOF
+    // progress->setFraction(prgrss);			    // OOF
+    // progress->setMessage(tostring(prgrss) + "/" + tostring(tol0)); // OOF
   }
+  // std::cerr << "conjugate_gradient: done, stopped=" << progress->stopped()
+  // 	    << std::endl;
+  // progress->finish();		// OOF
   tol_error = numext::sqrt(residualNorm2 / rhsNorm2);
   iters = i;
 }
