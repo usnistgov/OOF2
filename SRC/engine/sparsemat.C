@@ -23,27 +23,25 @@
 SparseMat::SparseMat(const SparseMat& source,
                      const DoFMap& rowmap,
                      const DoFMap& colmap) 
-  : data(rowmap.range(), colmap.range()) {
-
+  : data(rowmap.range(), colmap.range())
+{
   // rowmap[i] is the row of the submatrix corresponding to row i of
   // mat. If rowmap[i] == -1, then row i should not be included in the
   // submatrix. If rowmap[i] == rowmap[j], then rows i and j of mat are
   // added together in the submatrix. Likewise for columns.
-
-  auto from = source.data; 
-  for (int k = 0; k < from.outerSize(); ++k) {
-    for (InnerIter it(from, k); it; ++it) {
-      assert(it.row() < rowmap.domain());
-      assert(it.col() < colmap.domain());
-      int i = rowmap[it.row()];
-      assert(i < (int) rowmap.range());
-      if (i >= 0) {
-        int j = colmap[it.col()];
-        assert(j < (int) colmap.range() && j >= -1);
-        if (j >= 0) {
-	  // This calls SparseMatrix::coeffRef, which is inefficient.
-          insert(i, j, it.value());
-	}
+  for(SparseMatConstIterator it=source.begin(); it<source.end(); ++it) {
+    assert(it.row() < rowmap.domain());
+    assert(it.col() < colmap.domain());
+    int i = rowmap[it.row()];
+    assert(i < rowmap.range());
+    if(i >= 0) {
+      int j = colmap[it.col()];
+      assert(j < colmap.range());
+      if(j >= 0) {
+	// TODO: This calls SparseMatrix::coeffRef, which is
+	// inefficient.  Use insertFromTriplets or
+	// insertFromSortedTriplets instead.
+	insert(i, j, it.value());
       }
     }
   }
@@ -208,7 +206,6 @@ DoubleVec SparseMat::operator*(const DoubleVec& vec) const {
 }
 
 SparseMat& SparseMat::add(double scalar, const SparseMat& other) {
-  // TODO(lizhong): inplace operation
   data += other.data * scalar;
   return *this;
 }
@@ -220,13 +217,11 @@ DoubleVec SparseMat::trans_mult(const DoubleVec& x) const {
 }
 
 void SparseMat::axpy(double alpha, const DoubleVec &x, DoubleVec &y) const {
-  // TODO(lizhong): inplace operation
   // adds alpha*M*x to y.
   y.data = data * x.data * alpha + y.data;
 }
 
 void SparseMat::axpy_trans(double alpha, const DoubleVec &x, DoubleVec &y) const {
-  // TODO(lizhong): inplace operation
   // adds alpha*transpose(M)*x to y.
   y.data = data.transpose() * x.data * alpha + y.data;
 }
@@ -238,21 +233,28 @@ void SparseMat::solve_lower_triangle(const DoubleVec& rhs, DoubleVec& x) const {
   x.data = data.triangularView<Eigen::Lower>().solve(rhs.data);
 }
 
-void SparseMat::solve_lower_triangle_unitd(const DoubleVec& rhs, DoubleVec& x) const {
+void SparseMat::solve_lower_triangle_unitd(const DoubleVec& rhs, DoubleVec& x)
+  const
+{
   // Solve a lower triangular matrix assuming that the diagonal
   // elements are 1.0.  rhs and x can be the same vector.
   assert(is_lower_triangular(false)); // false ==> no diagonal elements allowed
   x.data = data.triangularView<Eigen::UnitLower>().solve(rhs.data);
 }
 
-void SparseMat::solve_lower_triangle_trans(const DoubleVec& rhs, DoubleVec& x) const {
+void SparseMat::solve_lower_triangle_trans(const DoubleVec& rhs, DoubleVec& x)
+  const
+{
   // Solve the transpose of a lower triangular matrix with explicitly
   // stored diagonal elements.  rhs and x can be the same vector.
   assert(is_lower_triangular(true));
   x.data = data.triangularView<Eigen::Lower>().transpose().solve(rhs.data);
 }
 
-void SparseMat::solve_lower_triangle_trans_unitd(const DoubleVec& rhs, DoubleVec& x) const {
+void SparseMat::solve_lower_triangle_trans_unitd(const DoubleVec& rhs,
+						 DoubleVec& x)
+  const
+{
   // Solve a lower triangular matrix assuming that the diagonal
   // elements are 1.0.  rhs and x can be the same vector.
   assert(is_lower_triangular(false)); // false ==> no diagonal elements allowed
@@ -266,7 +268,9 @@ void SparseMat::solve_upper_triangle(const DoubleVec& rhs, DoubleVec& x) const {
   x.data = data.triangularView<Eigen::Upper>().solve(rhs.data);
 }
 
-void SparseMat::solve_upper_triangle_trans(const DoubleVec& rhs, DoubleVec& x) const {
+void SparseMat::solve_upper_triangle_trans(const DoubleVec& rhs, DoubleVec& x)
+  const
+{
   // Solve the transpose of an upper triangular matrix with explicit
   // diagonal elements.  rhs and x can be the same vector.
   assert(is_upper_triangular(true));
@@ -274,95 +278,92 @@ void SparseMat::solve_upper_triangle_trans(const DoubleVec& rhs, DoubleVec& x) c
 }
 
 void SparseMat::tile(int i, int j, const SparseMat &other) {
-  // TODO(lizhong): improve the performance
-  // Add other to this, offset by i rows and j columns.
+  // TODO OPT: Don't use coeffRef for each entry.  Add other to this,
+  // offset by i rows and j columns.  Or insertFromTriplets,
+  // insertFromSortedTriplets, or set_from_doublets.  This could
+  // significant.
   assert(i + other.nrows() <= nrows());
   assert(j + other.ncols() <= ncols());
-  
-  auto from = other.data;
-  for (int k = 0; k < from.outerSize(); ++k) {
-    for (InnerIter it(from, k); it; ++it) {
-      int ii = it.row() + i;
-      int jj = it.col() + j;
-      data.coeffRef(ii, jj) +=  it.value();
-    }
+
+  for(SparseMatConstIterator it=other.begin(); it<other.end(); ++it) {
+    int ii = it.row() + i;
+    int jj = it.col() + j;
+    data.coeffRef(ii,jj) += it.value();
   }
 }
 
-SparseMat::iterator SparseMat::begin() {
-  return iterator(*this);
+// The Eigen sparse matrix does not need to be compressed for
+// the iterators to work, but looping over its elements is more
+// efficient if it's compressed.
+
+SparseMatIterator SparseMat::begin() {
+  assert(data.isCompressed());
+  return SparseMatIterator(data);
 }
 
-SparseMat::iterator SparseMat::end() {
-  iterator it(*this);
+SparseMatIterator SparseMat::end() {
+  assert(data.isCompressed());
+  SparseMatIterator it(data);
   it.to_end();
   return it;
 }
 
-SparseMat::const_iterator SparseMat::begin() const {
-  return const_iterator(*this);
+SparseMatConstIterator SparseMat::begin() const {
+  assert(data.isCompressed());
+  return SparseMatConstIterator(data);
 }
 
 SparseMat::const_iterator SparseMat::end() const {
-  const_iterator it(*this);
+  assert(data.isCompressed());
+  SparseMatConstIterator it(data);
   it.to_end();
   return it;
 }
 
 bool SparseMat::is_lower_triangular(bool diag) const {
+  assert(data.isCompressed());  
   if (diag) { // diagonal elements allowed
-    for (int k = 0; k < data.outerSize(); ++k) {
-      for (InnerIter it(data, k); it; ++it) 
-        if (it.row() < it.col())
-          return false;
+    for(auto it=begin(); it<end(); ++it) {
+      if(it.row() < it.col())
+	return false;
     }
   }
-  else { // no diagonal elements allowed
-    for (int k = 0; k < data.outerSize(); ++k) {
-      for (InnerIter it(data, k); it; ++it) 
-        if (it.row() <= it.col()) {
-          return false;
-	}
+  else {
+    for(auto it=begin(); it<end(); ++it) {
+      if(it.row() <= it.col())
+	return false;
     }
   }
   return true;
 }
 
 bool SparseMat::is_upper_triangular(bool diag) const {
+  assert(data.isCompressed());
   if (diag) { // diagonal elements allowed
-    for (int k = 0; k < data.outerSize(); ++k) {
-      for (InnerIter it(data, k); it; ++it)
-        if (it.row() > it.col())
-          return false;
+    for(auto it=begin(); it<end(); ++it) {
+      if(it.row() > it.col())
+	return false;
     }
   }
-  else { // no diagonal elements allowed
-    for (int k = 0; k < data.outerSize(); ++k) {
-      for (InnerIter it(data, k); it; ++it)
-        if (it.row() >= it.col())
-          return false;
+  else {
+    for(auto it=begin(); it<end(); ++it) {
+      if(it.row() >= it.col())
+	return false;
     }
   }
   return true;
 }
 
 bool SparseMat::is_symmetric(double tolerance) const {
+  assert(data.isCompressed());  
   if (data.rows() != data.cols())
     return false;
-
-  for (int k = 0; k < data.outerSize(); ++k) {
-    for (InnerIter it(data, k); it; ++it) {
-      double e1 = it.value();    
+  for(auto it=begin(); it<end(); ++it) {
+    double e1 = it.value();
+    if(it.row() != it.col()) {
       double e2 = data.coeff(it.col(), it.row());
-      if (fabs(e1-e2) > 0.5*tolerance*(fabs(e1)+fabs(e2)) 
-        && fabs(e1-e2) > tolerance) {
-        // not symetric
-        //std::cerr << "Matrix is not symmetric:"
-      	//    << " (" << it.row() << "," << it.col() << ")=" << e1 
-      	//    << " (" << it.col() << "," << it.row() << ")=" << e2
-      	//    << " difference=" << e1 - e2
-      	//    << std::endl;
-        return false;
+      if(fabs(e1-e2) > 0.5*tolerance*(fabs(e1) + fabs(e2))) {
+	return false;
       }
     }
   }
@@ -384,14 +385,11 @@ SparseMat identityMatrix(int size) {
   return mat;
 }
 
-std::ostream& operator<<(std::ostream& os, const SparseMat& smat) {
-  auto mat = smat.data;
-  os << mat.rows() << " " << mat.cols() << " " << mat.nonZeros() << std::endl;
-  for (int k = 0; k < mat.outerSize(); ++k) {
-    for (SparseMat::InnerIter it(mat, k); it; ++it)
-      os << it.row() << " " << it.col() << " "
-        << it.value() << std::endl;
-  } 
+std::ostream& operator<<(std::ostream& os, const SparseMat& mat) {
+  os << mat.nrows() << " " << mat.ncols() << " " << mat.nnonzeros()
+     << std::endl;
+  for(SparseMatConstIterator it=mat.begin(); it<mat.end(); ++it)
+    os << it.row() << " " << it.col() << " " << it.value() << std::endl;
   return os;
 }
 
@@ -414,6 +412,7 @@ bool save_mat(const SparseMat& mat, const std::string& filename,
   //TODO(lizhong): support symmetric matrix
 
   // Note: matrix needs to be compressed
+  assert(mat.is_compressed());
 
   std::ofstream fs(filename);
 
@@ -425,41 +424,28 @@ bool save_mat(const SparseMat& mat, const std::string& filename,
 
   fs << mat.nrows() << " " << mat.ncols() << " "
      << mat.nnonzeros() << std::endl;
-     
-  auto& m = const_cast<SparseMat&>(mat);
-  if (ESMat::IsRowMajor) {
-    // TODO(lizhong): use a const iterator here
-    for (auto it = m.begin(); it != m.end(); ++it) {
-      fs << it.row() << " " << it.col() << " "
-         << it.value() << std::endl;
-    }
-  } else {
-    typedef std::tuple<int, int, double> Tri;
-    std::vector<Tri> coeffs;
-    coeffs.reserve(m.nnonzeros());
-    for (auto it = m.begin(); it != m.end(); ++it)
-      coeffs.emplace_back(it.row(), it.col(), it.value());
 
-    std::sort(coeffs.begin(), coeffs.end(),
-      [](const Tri& a, const Tri& b) -> bool {
-        if (std::get<0>(a) < std::get<0>(b))
-          return true;
-        else if (std::get<0>(a) == std::get<0>(b) &&
-          std::get<1>(a) < std::get<1>(b))
-          return true;
-        return false;
-      });
-
-    for (auto& tri : coeffs) {
-      fs << std::get<0>(tri) << " " << std::get<1>(tri) << " "
-         << std::get<2>(tri) << std::endl;
-    }
+  typedef std::tuple<int, int, double> Tri;
+  std::vector<Tri> coeffs;
+  coeffs.reserve(mat.nnonzeros());
+  for(auto it=mat.begin(); it<mat.end(); ++it) {
+    coeffs.emplace_back(it.row(), it.col(), it.value());
   }
+  std::sort(coeffs.begin(), coeffs.end(),
+	    [](const Tri& a, const Tri&b) -> bool {
+	      return ((std::get<0>(a) < std::get<0>(b)) ||
+		      (std::get<0>(a) == std::get<0>(b) &&
+		       std::get<1>(a) < std::get<1>(b)));
+		}
+	    );
+  for(auto& tri: coeffs)
+    fs << std::get<0>(tri) << " " << std::get<1>(tri) << " " << std::get<2>(tri)
+       << std::endl;
+
   return true;
 }
 
 bool load_mat(SparseMat& mat, const std::string& filename) {
-  
   std::ifstream fs(filename);
   std::string line;
   
@@ -483,117 +469,72 @@ bool load_mat(SparseMat& mat, const std::string& filename) {
   trips.reserve(nnz);
   int r, c;
   double val;
+  int idebug = 0;
   for (int i = 0; i < nnz; i++) {
     fs >> r >> c >> val;
     assert(0 <= r && r < nr && 0 <= c && c < nc);
     trips.emplace_back(r, c, val);
   }
-
   mat.set_from_triplets(trips);
   return true;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-template<typename MT, typename VT>
-SparseMatIterator<MT, VT>::SparseMatIterator(MT& spmat)
-  : mat(spmat), in_idx(0), out_idx(0) {
-  val_ptr = mat.data.valuePtr();
-  in_ptr  = (int*)mat.data.innerIndexPtr();
-  out_ptr = (int*)mat.data.outerIndexPtr();
-
-  if (mat.data.nonZeros() > 0) {
-    // move oud_idx to the first non-epmty row/column
-    while (out_ptr[out_idx] == out_ptr[out_idx+1])
-        out_idx += 1;
-  }
-}
-
-template<typename MT, typename VT>
-int SparseMatIterator<MT, VT>::row() const {
-  assert(!done());
-  return ESMat::IsRowMajor ? out_idx : in_ptr[in_idx];  
-}
-
-template<typename MT, typename VT>
-int SparseMatIterator<MT, VT>::col() const {
-  assert(!done());
-  return ESMat::IsRowMajor ? in_ptr[in_idx] : out_idx;  
-}
-
-template<typename MT, typename VT>
-VT& SparseMatIterator<MT, VT>::value() const {
-  assert(!done());
-  return val_ptr[in_idx];
-}
-
-template<typename MT, typename VT>
-bool SparseMatIterator<MT, VT>::done() const {
-  if (in_idx < mat.data.nonZeros()) {
-    return false;   
-  }
-  return true;
-}
-
-template<typename MT, typename VT>
-SparseMatIterator<MT, VT>& SparseMatIterator<MT, VT>::operator++() {
-  int last = mat.data.nonZeros()-1;
-  if (in_idx <= last) {
-    in_idx += 1;
-    if (in_idx == out_ptr[out_idx + 1]) {
-      // reached the end of a row or a column,
-      // move to next non-empty row/column.
-      do {
-        out_idx += 1;
-      } while (out_ptr[out_idx] == out_ptr[out_idx+1]);
+SMIteratorBase::SMIteratorBase(ESMat &m)
+  : mat(m),
+    iter(m, 0),
+    outer(0),
+    done(m.nonZeros() == 0)
+{
+  if(!done) {
+    // Find the first non-empty row
+    iter = ESMat::InnerIterator(mat, outer);
+    while(!iter) {
+      iter = ESMat::InnerIterator(mat, ++outer);
     }
   }
+}
+
+void SMIteratorBase::operator++() {
+  ++iter;			// increment the Eigen InnerIterator
+  // If we're done with this inner row/col, find the next non-empty one. 
+  while(outer < mat.rows()-1 && !iter) {
+    iter = ESMat::InnerIterator(mat, ++outer);
+  }
+  done = not bool(iter);
+}
+
+SparseMatIterator& SparseMatIterator::operator++() {
+  this->SMIteratorBase::operator++();
   return *this;
 }
 
-template<typename MT, typename VT>
-VT& SparseMatIterator<MT, VT>::operator*() const {
-  return value();
+SparseMatConstIterator& SparseMatConstIterator::operator++() {
+  this->SMIteratorBase::operator++();
+  return *this;
 }
 
-template<typename MT, typename VT>
-bool SparseMatIterator<MT, VT>::operator==(const SparseMatIterator& other) const {
-  return (&mat==&other.mat && in_idx==other.in_idx) ? true : false;
+void SMIteratorBase::to_end() {
+  outer = mat.rows();
+  done = true;
 }
 
-template<typename MT, typename VT> 
-bool SparseMatIterator<MT, VT>::operator!=(const SparseMatIterator& other) const {
-  return (&mat==&other.mat && in_idx!=other.in_idx) ? true : false;
+bool SMIteratorBase::operator==(const SMIteratorBase& other) const {
+  // Iterators are equal if they're both done, or both point to the
+  // same entry.
+  return ((done && other.done) ||
+	  (outer == other.outer and iter == other.iter));
 }
 
-template<typename MT, typename VT> 
-bool SparseMatIterator<MT, VT>::operator<(const SparseMatIterator& other) const {
-  return (&mat==&other.mat && in_idx<other.in_idx) ? true : false;
+bool SMIteratorBase::operator!=(const SMIteratorBase& other) const {
+  return !this->operator==(other);
 }
 
-template<typename MT, typename VT>
-void SparseMatIterator<MT, VT>::to_end() {
-  // move this iterator to the end.
-  in_idx = mat.data.nonZeros();
+bool SMIteratorBase::operator<(const SMIteratorBase& other) const {
+  if(other.done)
+    return !done;
+  return (outer < other.outer ||
+	  (outer == other.outer && iter < other.iter));
 }
 
-template<typename MT, typename VT>
-void SparseMatIterator<MT, VT>::print_indices() const {
-  // print compressed matrix' internal arrays for debug purpose
-  for (int i = 0; i <= mat.data.nonZeros(); i++) {
-      std::cout << val_ptr[i] << ", ";
-  }
-  std::cout << std::endl;
-  for (int i = 0; i <= mat.data.nonZeros(); i++) {
-      std::cout << in_ptr[i] << ", ";
-  }
-  std::cout << std::endl;
-  for (int i = 0; i <= mat.data.outerSize(); i++) {
-      std::cout << out_ptr[i] << ", ";
-  }
-  std::cout << std::endl;
-}
-
-// Instantiate the SparseMatIterator template
-template class SparseMatIterator<SparseMat, double>;
-template class SparseMatIterator<const SparseMat, const double>;
