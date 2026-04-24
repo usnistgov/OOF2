@@ -126,8 +126,8 @@ public:
   int size();
   %newobject c_begin;
   %newobject c_end;
-  MeshElementIter* c_begin();
-  MeshElementIter* c_end();
+  MeshInterfaceElementIter* c_begin();
+  MeshInterfaceElementIter* c_end();
 };
 
 %pythoncode "engine/meshiterator.spy"
