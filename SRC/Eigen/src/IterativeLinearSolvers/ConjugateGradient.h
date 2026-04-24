@@ -84,6 +84,7 @@ EIGEN_DONT_INLINE void conjugate_gradient(const MatrixType& mat, const Rhs& rhs,
 	 // && !progress->stopped() // OOF
 	 ) {
     // std::cerr << "conjugate_gradient: i=" << i << std::endl;
+    tmp.noalias() = mat * p; // the bottleneck of the algorithm
 
     Scalar alpha = absNew / p.dot(tmp);  // the amount we travel on dir
     x += alpha * p;                      // update solution
