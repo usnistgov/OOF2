@@ -29,6 +29,7 @@ option(OOF2_DEV_INSTALL OFF "Install development files?")
 
 
 ## TODO PYTHON3: Get openMP working. See the openmp-branch branch.
+## Use FindOpenMP.
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

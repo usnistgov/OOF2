@@ -87,8 +87,7 @@ class ConjugateGradient(PreconditionedMatrixMethod):
             if (matrix.nrows()!=matrix.ncols() or
                 not matrix.is_symmetric(1.e-12)): # can be very slow
                 raise ooferror.PyErrPyProgrammingError(
-                    "%dx%d CG matrix is not symmetric!" %
-                    (matrix.nrows(), matrix.ncols()))
+              f"{matrix.nrows()}x{matrix.ncols()} CG matrix is not symmetric!")
         # added to try to debug memory usage
         #subprocess.check_output(["oof2",'os.getpid()'])
         succ = self.solver.solve(matrix, rhs, solution)

@@ -121,7 +121,7 @@ void SparseMat::set_from_triplets(std::vector<Eigen::Triplet<double>>& tris) {
 
   // This method is simple but involves some internal array
   // reallocation in Eigen and is expected to use more memory than
-  // set_from_doublets.
+  // set_from_doublets.  The result of setFromTriplets is compressed.
   data.setFromTriplets(tris.begin(), tris.end());
 }
 

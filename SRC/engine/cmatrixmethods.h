@@ -9,7 +9,7 @@
  * oof_manager@nist.gov. 
  */
 
-// Swiggable C++ Wrappers for the low level Eigen's matrix solvers.
+// Swiggable C++ Wrappers for Eigen's low level matrix solvers.
 
 #ifndef CMATRIXMETHODS_H
 #define CMATRIXMETHODS_H
@@ -167,6 +167,10 @@ public:
   }
 
   int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x) {
+    // std::cerr << "IterativeSolver::solve: saving matdump.dat and rhsdump.dat"
+    // 	      << std::endl;
+    // save_mat(m, "matdump.dat");
+    // save_vec(rhs, "rhsdump.dat");
     if(m.ncols() != m.nrows()) {
       std::cerr << "IterativeSolver::solve: rows=" << m.nrows() << " cols="
 		<< m.ncols() << " r=" << rhs.size() << std::endl;
