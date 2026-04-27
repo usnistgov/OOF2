@@ -33,10 +33,12 @@ SparseMat::SparseMat(const SparseMat& source,
     assert(it.row() < rowmap.domain());
     assert(it.col() < colmap.domain());
     int i = rowmap[it.row()];
-    assert(i < rowmap.range());
+    // DoFMap::range returns an unsigned int, so it's necessary to
+    // cast it to int before comparing to i, which could be -1.
+    assert(i < (int) rowmap.range());
     if(i >= 0) {
       int j = colmap[it.col()];
-      assert(j < colmap.range());
+      assert(j < (int) colmap.range() && j >= -1);
       if(j >= 0) {
 	// TODO: This calls SparseMatrix::coeffRef, which is
 	// inefficient.  Use insertFromTriplets or
