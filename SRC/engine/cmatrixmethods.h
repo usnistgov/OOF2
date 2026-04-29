@@ -170,14 +170,17 @@ public:
   }
 
   int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x) {
-    if(m.ncols() != m.nrows()) {
-      std::cerr << "IterativeSolver::solve: rows=" << m.nrows() << " cols="
-		<< m.ncols() << " r=" << rhs.size() << std::endl;
-      throw ErrSetupError("Matrix is not square!");
-    }
-    solver_.compute(m.data);
-    x.data = solver_.solve(rhs.data);
-    return solver_.info();
+    std::cerr << "IterativeSolver::solve: rows=" << m.nrows() << " cols="
+	      << m.ncols() << " r=" << rhs.size() << std::endl;
+    exit(1);
+    // if(m.ncols() != m.nrows()) {
+    //   std::cerr << "IterativeSolver::solve: rows=" << m.nrows() << " cols="
+    // 		<< m.ncols() << " r=" << rhs.size() << std::endl;
+    //   throw ErrSetupError("Matrix is not square!");
+    // }
+    // solver_.compute(m.data);
+    // x.data = solver_.solve(rhs.data);
+    // return solver_.info();
   }
 
   void set_max_iterations(int iters) { solver_.setMaxIterations(iters); }

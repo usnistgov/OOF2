@@ -11,6 +11,7 @@
 
 #include <oofconfig.h>
 
+#include "common/cdebug.h"
 #include "common/cleverptr.h"
 #include "common/doublevec.h"
 #include "common/smallmatrix.h"
@@ -231,8 +232,9 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 		sum += value;
 	      }
 	    }
-	    if(nonzero)
+	    if(nonzero) {
 	      linsys.insertC(global_row, global_col, negfactor*sum*weight);
+	    }
 	  }
 	} // c-matrix 
 	

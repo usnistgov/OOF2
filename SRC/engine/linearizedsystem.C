@@ -15,6 +15,7 @@
 #include <fstream>
 #include <vector>
 
+#include "common/cdebug.h"
 #include "common/lock.h"
 #include "common/ooferror.h"
 #include "common/printvec.h"
@@ -64,6 +65,8 @@ LinearizedSystem::LinearizedSystem(CSubProblem *subp, double time)
   C_.resize(numEqn, numDof);
   M_.resize(numEqn, numDof);
   J_.resize(numEqn, numDof);
+  std::cerr << "LinearizedSystem::ctor: numEqn=" << numEqn
+	    << " numDof=" << numDof << std::endl;
 }
 
 LinearizedSystem::~LinearizedSystem() {
@@ -300,6 +303,7 @@ void LinearizedSystem::insertK(int row, int col, double x) {
 }
 
 void LinearizedSystem::insertC(int row, int col, double x) {
+  dump({tostring(row), tostring(col), tostring(x)});
   insertDoublet(CDoub_, row, col, x);
 }
 
@@ -314,6 +318,12 @@ void LinearizedSystem::insertJ(int row, int col, double x) {
 void LinearizedSystem::consolidate(bool keepTempSpace) {
   // Called by CSubproblem::make_linear_system after matrices are
   // built.
+  M_.set_from_doublets(MDoub_);
+  dump("LinearizedSystem::consolidate: Cdoub_");  
+  for(int i=0; i<CDoub_.size(); i++) {
+    dump({tostring(i), tostring(CDoub_[i])});
+  }
+  
   M_.set_from_doublets(MDoub_);
   C_.set_from_doublets(CDoub_);
   J_.set_from_doublets(JDoub_);
@@ -575,6 +585,7 @@ void LinearizedSystem::build_MCK_maps() {
   // build_MCK_maps() is called after FEMesh::invoke_float_bcs() and
   // before FEmesh::invoke_fixed_bcs() by
   // SubProblemContext::make_linear_system().
+  dump({"build_MCK_maps: C_", tostring(C_)});
   
   mesh2fixedFieldMap = compose(subproblem->mesh2subpDoFMap, subp2fixedFieldMap);
 
@@ -586,20 +597,32 @@ void LinearizedSystem::build_MCK_maps() {
   // TODO OPT: We wouldn't need these matrices to be constructed
   // explicitly if we had a way of computing the empty[MCK]Maps
   // directly from the other maps and K_, C_, and M_.
+  std::cerr << "LinearizedSystem::build_MCK_maps: getting K_indfree_"
+	    << std::endl;
   SparseMat K_indfree_ = SparseMat(K_, subp2indepEqnMap, subp2freeFieldMap);
   SparseMat C_indfree_ = SparseMat(C_, subp2indepEqnMap, subp2freeFieldMap);
   SparseMat M_indfree_ = SparseMat(M_, subp2indepEqnMap, subp2freeFieldMap);
 
   // std::cerr << "LinearizedSystem::build_MCK_maps: C_indfree_=" << C_indfree_
-  // 	    << std::endl;
+  //  	    << std::endl;
   // std::cerr << "LinearizedSystem::build_MCK_maps: C_=" << C_ << std::endl;
 
+  std::cerr << "LinearizedSystem::build_MCK_maps: geting X_indfixed_"
+	    << std::endl;
   K_indfixed_ = SparseMat(K_, subp2indepEqnMap, subp2fixedFieldMap);
   C_indfixed_ = SparseMat(C_, subp2indepEqnMap, subp2fixedFieldMap);
   M_indfixed_ = SparseMat(M_, subp2indepEqnMap, subp2fixedFieldMap);
 
+  // dump("subp2indepEqnMap" + tostring(subp2indepEqnMap));
+  // dump("subp2freeFieldMap" + tostring(subp2freeFieldMap));
+  // dump("subp2fixedFieldMap" + tostring(subp2fixedFieldMap));
+  std::cerr << "subp2indepEqnMap: " << subp2indepEqnMap.domain() << " " << subp2indepEqnMap.range() << std::endl;
+  std::cerr << "subp2freeFieldMap: " << subp2freeFieldMap.domain() << " " << subp2freeFieldMap.range() << std::endl;
+  std::cerr << "subp2fixedFieldMap: " << subp2fixedFieldMap.domain() << " " << subp2fixedFieldMap.range() << std::endl;
+
   // These maps extract subsets of the independent eqns and free DoFs,
   // corresponding to the empty and nonempty rows of M, C, and K.
+  std::cerr << "LinearizedSystem::build_MCK_maps: resetting" << std::endl;
   nonEmptyMRowMap.reset(subp2indepEqnMap.range());
   nonEmptyCRowMap.reset(subp2indepEqnMap.range());
   nonEmptyKRowMap.reset(subp2indepEqnMap.range());
@@ -607,7 +630,15 @@ void LinearizedSystem::build_MCK_maps() {
   nonEmptyCColMap.reset(subp2freeFieldMap.range());
   nonEmptyKColMap.reset(subp2freeFieldMap.range());
 
+  std::cerr << "LinearizedSystem::build_MCK_maps: adding to nonEmptyXColMaps"
+	    << std::endl;
+  std::cerr << "LinearizedSystem::build_MCK_maps: range=" << subp2freeFieldMap.range() << std::endl;
   for(unsigned int i=0; i<subp2freeFieldMap.range(); i++) {
+    // dump("build_MCK_maps: " + tostring(i) + " "
+    // 	 + tostring(M_indfree_.is_nonempty_col(i)) + " "
+    // 	 + tostring(C_indfree_.is_nonempty_col(i)) + " "
+    // 	 + tostring(K_indfree_.is_nonempty_col(i)));	 
+
     if(M_indfree_.is_nonempty_col(i)) {
       nonEmptyMColMap.add(i);	// M col is nonempty
     }
@@ -621,6 +652,16 @@ void LinearizedSystem::build_MCK_maps() {
     }
   }
 
+  // TODO NOW: Why is nonEmptyCColMap different?
+  // dump({"build_MCK_maps: nonEmptyCColMap", tostring(nonEmptyCColMap)});
+  // dump({"build_MCK_maps: nonEmptyCRowMap", tostring(nonEmptyCRowMap)});
+  // dump({"build_MCK_maps: subp2indepEqnMap", tostring(subp2indepEqnMap)});
+  // dump({"build_MCK_maps: subp2freeFieldMap", tostring(subp2freeFieldMap)});
+  // dump({"C_indfree", tostring(C_indfree_)});
+  // dump(tostring(C_));
+
+  std::cerr << "LinearizedSystem::build_MCK_maps: adding to nonEmptyXRowMaps"
+	    << std::endl;
   for(unsigned int i=0; i<subp2indepEqnMap.range(); i++) {
     if(M_indfree_.is_nonempty_row(i)) {
       nonEmptyMRowMap.add(i);
@@ -635,6 +676,7 @@ void LinearizedSystem::build_MCK_maps() {
     }	// end M row is empty
   }	// end loop over independent equations
 
+  std::cerr << "LinearizedSystem::composing maps" << std::endl;
   subp2nonEmptyMColMap = compose(subp2freeFieldMap, nonEmptyMColMap);
   // std::cerr << "LinearizedSystem::build_MCK_maps: subp2freeFieldMap="
   // 	    << subp2freeFieldMap << std::endl;
@@ -658,6 +700,8 @@ void LinearizedSystem::build_MCK_maps() {
   subp2MCKFieldMasterMap = concat(tempM, concat(tempC, tempK));
 
   if(subproblem->dof2Deriv.size() > 0) {
+    std::cerr << "LinearizedSystem::build_MCK_maps: creating deriv maps"
+	      << std::endl;
     subp2nonEmptyMDerivMap = subp2nonEmptyMColMap.translateDomain(
 			subp2freeFieldMap.domain(), subproblem->dof2Deriv);
     subp2nonEmptyMDerivMasterMap = tempM.translateDomain(
@@ -670,6 +714,7 @@ void LinearizedSystem::build_MCK_maps() {
 			subp2freeFieldMap.domain(), subproblem->dof2Deriv);
   }
 
+  std::cerr << "LinearizedSystem::build_MCK_maps: done" << std::endl;
   // static bool once = false;
   // if(!once) {
   //   once = true;
@@ -1101,7 +1146,23 @@ SparseMat LinearizedSystem::K_submatrix(char whicheqn, char whichdof)
 SparseMat LinearizedSystem::C_submatrix(char whicheqn, char whichdof)
   const
 {
-  return SparseMat(C_,
+  {
+    const DoFMap& rowmap = subp2nonEmptyRowMap(whicheqn);
+    const DoFMap& colmap = subp2nonEmptyColMap(whichdof);
+    // dumpAll("developbranch", 0, "");
+    std::cerr << "LinearizedSystem::C_submatrix: EXITING" << std::endl;
+    exit(1);
+    // std::cerr << "LinearizedSystem::C_submatrix: " << whicheqn
+    // 	      << " " << whichdof << std::endl;
+    // std::cerr << "LinearizedSystem::C_submatrix: rowmap: "
+    // 	      << "range=" << rowmap.range() << " domain=" << rowmap.domain()
+    // 	      << std::endl;
+    // std::cerr << "LinearizedSystem::C_submatrix: colmap: "
+    // 	      << "range=" << colmap.range() << " domain=" << colmap.domain()
+    // 	      << std::endl;
+    // std::cerr << "LinearizedSystem::C_submatrix: colmap=" << colmap << std::endl;
+  }
+    return SparseMat(C_,
 		   subp2nonEmptyRowMap(whicheqn),
 		   subp2nonEmptyColMap(whichdof));
 }

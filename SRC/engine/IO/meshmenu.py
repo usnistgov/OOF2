@@ -8,6 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
+from ooflib.SWIG.common import cdebug
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
@@ -1647,6 +1648,7 @@ def _solve(menuitem, mesh, endtime):
         # install latest data and prevent data cache from restoring
         # old data.
         meshctxt.restoreLatestData() # a no-op, if nothing has been cached yet
+        cdebug.openDumpFile("cmatdump-develop")
         evolve.evolve(meshctxt, endtime)
     except Exception as exc:
         debug.fmsg(f"Exception {exc=}")
@@ -1655,6 +1657,7 @@ def _solve(menuitem, mesh, endtime):
         meshctxt.releaseLatestData() # allow data cache to restore old data
         meshctxt.end_writing()
         meshctxt.cancel_reservation()
+        cdebug.closeDumpFile()
 
     switchboard.notify("mesh solved", meshctxt)
     switchboard.notify("draw at time", meshctxt.getCurrentTime())

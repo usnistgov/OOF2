@@ -25,6 +25,12 @@ SparseMat::SparseMat(const SparseMat& source,
                      const DoFMap& colmap) 
   : data(rowmap.range(), colmap.range()) {
 
+  // std::cerr << "SparseMat::ctor" << std::endl;
+  // std::cerr << "SparseMat::ctor: rowmap=" << rowmap << std::endl;
+  // std::cerr << "SparseMat::ctor: colmap=" << colmap << std::endl;
+  // std::cerr << "SparseMat::ctor: nrows=" << source.nrows()
+  // 	    << " ncols=" << source.ncols() << std::endl;
+
   // rowmap[i] is the row of the submatrix corresponding to row i of
   // mat. If rowmap[i] == -1, then row i should not be included in the
   // submatrix. If rowmap[i] == rowmap[j], then rows i and j of mat are

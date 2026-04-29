@@ -46,6 +46,7 @@ void memusage(const std::string&);
 void openDumpFile(const std::string &filename);
 void closeDumpFile();
 void dump(const std::string&);
+void dump(const std::initializer_list<const std::string>&);
 void openDumpFileSeries(const std::string&, int);
 void nextDumpFile();
 

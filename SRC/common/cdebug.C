@@ -228,6 +228,17 @@ void dump(const std::string &line) {
   }
 }
 
+void dump(const std::initializer_list<const std::string>& strs) {
+  if(dumping) {
+    if(!dumpstream) {
+      dumpstream = new std::ofstream(dumpfilename.c_str());
+    }
+    for(const std::string &x : strs)
+      *dumpstream << x << " ";
+    *dumpstream << std::endl;
+  }
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // To create a series of dump files, call openDumpFileSeries() instead
