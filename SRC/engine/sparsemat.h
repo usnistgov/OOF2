@@ -158,15 +158,15 @@ bool save_market_mat(const SparseMat& mat, const std::string& filename,
 class SMIteratorBase {
 protected:
   ESMat& mat;
-  ESMat::InnerIterator iter;	// iterator for the inner loop
-  int outer;			// index for the outer loop
+  ESMat::InnerIterator inneriter; // iterator for the inner loop
+  int outer;			  // index for the outer loop
   bool done;
 public:
   SMIteratorBase(ESMat&);
   SMIteratorBase(const SMIteratorBase&) = default;
   void operator++();
-  int row() const { return iter.row(); }
-  int col() const { return iter.col(); }
+  int row() const { return inneriter.row(); }
+  int col() const { return inneriter.col(); }
   bool operator==(const SMIteratorBase&) const;
   bool operator!=(const SMIteratorBase&) const;
   bool operator<(const SMIteratorBase&) const;
@@ -177,10 +177,10 @@ class SparseMatIterator : public SMIteratorBase {
 public:
   SparseMatIterator(ESMat& m) : SMIteratorBase(m) {}
   SparseMatIterator& operator++();
-  double value() const { return iter.value(); }
-  double& value() { return iter.valueRef(); }
-  double& operator*() { return iter.valueRef(); }
-  double operator*() const { return iter.value(); }
+  double value() const { return inneriter.value(); }
+  double& value() { return inneriter.valueRef(); }
+  double& operator*() { return inneriter.valueRef(); }
+  double operator*() const { return inneriter.value(); }
 };
 
 class SparseMatConstIterator : public SMIteratorBase {
@@ -189,8 +189,8 @@ public:
     : SMIteratorBase(const_cast<ESMat&>(m)) // ugly
   {}
   SparseMatConstIterator& operator++();
-  double value() const { return iter.value(); }
-  double operator*() const { return iter.value(); }
+  double value() const { return inneriter.value(); }
+  double operator*() const { return inneriter.value(); }
 };
 
 #endif // SPARSEMAT_H_

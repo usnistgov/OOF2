@@ -10,6 +10,7 @@
  */
 
 #include <oofconfig.h>
+#include "common/cdebug.h"
 #include "common/chunkyvector.h"
 #include "common/printvec.h"
 #include "engine/dofmap.h"
@@ -55,7 +56,7 @@ void SparseMat::set_from_doublets(std::vector<std::vector<Doublet>> &doubs) {
   // extra space or doing too much extra work (hopefully).  Each entry
   // in doubs is a vector of Doublets for a single column of the
   // matrix.  It may have multiple entries for a row, which need to be
-  // summed. 
+  // summed.
 
   // nnzcol is a vector of ints saying how many non-zero elements
   // are in each column of the matrix.
@@ -97,15 +98,17 @@ void SparseMat::set_from_doublets(std::vector<std::vector<Doublet>> &doubs) {
 
     else if(dvec->size() == 1)
       nnzcol[c] = 1;
-
+    
   } // end loop over columns c
 
-  // Reserve space in the matrix.
+  // Reserve space in the matrix for each column
   data.reserve(nnzcol);
 
   // Insert values
   for(int c=0; c<ncols(); c++) {
     for(const Doublet &doub : doubs[c]) {
+      // Because the matrix ordering is Eigen::ColMajor and the space
+      // for each column is reserved, calling insert() is efficient.
       data.insert(doub.row(), c) = doub.value();
     }
   }
@@ -130,13 +133,13 @@ void SparseMat::set_from_triplets(std::vector<Eigen::Triplet<double>>& tris) {
 bool SparseMat::is_nonempty_row(int i) const {
   assert(i >=0 && i <= nrows());
   Eigen::SparseVector<double> row = data.row(i);
-  return row.nonZeros() != 0 ? true : false;
+  return row.nonZeros() != 0;
 }
 
 bool SparseMat::is_nonempty_col(int i) const {
   assert(i >= 0 && i <= ncols());
   Eigen::SparseVector<double> col = data.col(i);
-  return col.nonZeros() != 0 ? true : false;
+  return col.nonZeros() != 0;
 }
 
 SparseMat SparseMat::lower() const {
@@ -299,32 +302,27 @@ void SparseMat::tile(int i, int j, const SparseMat &other) {
 // efficient if it's compressed.
 
 SparseMatIterator SparseMat::begin() {
-  assert(data.isCompressed());
   return SparseMatIterator(data);
 }
 
 SparseMatIterator SparseMat::end() {
-  assert(data.isCompressed());
   SparseMatIterator it(data);
   it.to_end();
   return it;
 }
 
 SparseMatConstIterator SparseMat::begin() const {
-  assert(data.isCompressed());
   return SparseMatConstIterator(data);
 }
 
 SparseMat::const_iterator SparseMat::end() const {
-  assert(data.isCompressed());
   SparseMatConstIterator it(data);
   it.to_end();
   return it;
 }
 
 bool SparseMat::is_lower_triangular(bool diag) const {
-  assert(data.isCompressed());  
-  if (diag) { // diagonal elements allowed
+  if (diag) {			// diagonal elements allowed
     for(auto it=begin(); it<end(); ++it) {
       if(it.row() < it.col())
 	return false;
@@ -340,8 +338,7 @@ bool SparseMat::is_lower_triangular(bool diag) const {
 }
 
 bool SparseMat::is_upper_triangular(bool diag) const {
-  assert(data.isCompressed());
-  if (diag) { // diagonal elements allowed
+  if (diag) {			// diagonal elements allowed
     for(auto it=begin(); it<end(); ++it) {
       if(it.row() > it.col())
 	return false;
@@ -357,7 +354,6 @@ bool SparseMat::is_upper_triangular(bool diag) const {
 }
 
 bool SparseMat::is_symmetric(double tolerance) const {
-  assert(data.isCompressed());  
   if (data.rows() != data.cols())
     return false;
   for(auto it=begin(); it<end(); ++it) {
@@ -395,8 +391,8 @@ std::ostream& operator<<(std::ostream& os, const SparseMat& mat) {
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const Doublet& trip) {
-  os << "(" << trip.row() << ", " << trip.value() << ")";
+std::ostream& operator<<(std::ostream& os, const Doublet& doub) {
+  os << "(" << doub.row() << ", " << doub.value() << ")";
   return os;
 }
 
@@ -485,26 +481,26 @@ bool load_mat(SparseMat& mat, const std::string& filename) {
 
 SMIteratorBase::SMIteratorBase(ESMat &m)
   : mat(m),
-    iter(m, 0),
+    inneriter(m, 0),
     outer(0),
     done(m.nonZeros() == 0)
 {
   if(!done) {
     // Find the first non-empty row
-    iter = ESMat::InnerIterator(mat, outer);
-    while(!iter) {
-      iter = ESMat::InnerIterator(mat, ++outer);
+    inneriter = ESMat::InnerIterator(mat, outer);
+    while(!inneriter) {
+      inneriter = ESMat::InnerIterator(mat, ++outer);
     }
   }
 }
 
 void SMIteratorBase::operator++() {
-  ++iter;			// increment the Eigen InnerIterator
-  // If we're done with this inner row/col, find the next non-empty one. 
-  while(outer < mat.rows()-1 && !iter) {
-    iter = ESMat::InnerIterator(mat, ++outer);
+  ++inneriter;			// increment the Eigen InnerIterator
+  // If we're done with this inner row/col, find the next non-empty one.
+  while(outer < mat.outerSize()-1 && !inneriter) {
+    inneriter = ESMat::InnerIterator(mat, ++outer);
   }
-  done = not bool(iter);
+  done = not bool(inneriter);
 }
 
 SparseMatIterator& SparseMatIterator::operator++() {
@@ -518,15 +514,16 @@ SparseMatConstIterator& SparseMatConstIterator::operator++() {
 }
 
 void SMIteratorBase::to_end() {
-  outer = mat.rows();
+  outer = mat.outerSize();
   done = true;
 }
 
 bool SMIteratorBase::operator==(const SMIteratorBase& other) const {
   // Iterators are equal if they're both done, or both point to the
-  // same entry.
+  // same entry.  Comparing iterators from different matrices is
+  // undefined.
   return ((done && other.done) ||
-	  (outer == other.outer and iter == other.iter));
+	  (outer == other.outer and inneriter == other.inneriter));
 }
 
 bool SMIteratorBase::operator!=(const SMIteratorBase& other) const {
@@ -537,6 +534,5 @@ bool SMIteratorBase::operator<(const SMIteratorBase& other) const {
   if(other.done)
     return !done;
   return (outer < other.outer ||
-	  (outer == other.outer && iter < other.iter));
+	  (outer == other.outer && inneriter < other.inneriter));
 }
-
