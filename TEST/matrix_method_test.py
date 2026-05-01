@@ -39,15 +39,16 @@ class IterativeMethods(unittest.TestCase):
         from ooflib.engine import matrixmethod
 
         self.matrix = loadMatrix("spd.mtx")
+        self.rhs = loadVector("spdrhs.vec")
         self.ref = loadVector("spd.vec")
-        self.rhs = self.matrix * self.ref
         self.tolerance = 1.e-13
         self.max_iterations = 10000
     
     def CG(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.UnPreconditioner()
-        solver = matrixmethod.ConjugateGradient(pc, self.tolerance, self.max_iterations)
+        solver = matrixmethod.ConjugateGradient(pc, self.tolerance,
+                                                self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
         self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
@@ -68,14 +69,16 @@ class IterativeMethods(unittest.TestCase):
     def CG_Jacobi(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.JacobiPreconditioner()
-        solver = matrixmethod.ConjugateGradient(pc, self.tolerance, self.max_iterations)
+        solver = matrixmethod.ConjugateGradient(pc, self.tolerance,
+                                                self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
         self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
 
     def CG_IC(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.ICPreconditioner()
-        solver = matrixmethod.ConjugateGradient(pc, self.tolerance, self.max_iterations)
+        solver = matrixmethod.ConjugateGradient(pc, self.tolerance,
+                                                self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
         self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
         
@@ -124,35 +127,40 @@ class IterativeMethods(unittest.TestCase):
     def BiCGStab(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.UnPreconditioner()
-        solver = matrixmethod.StabilizedBiConjugateGradient(pc, self.tolerance, self.max_iterations)
+        solver = matrixmethod.StabilizedBiConjugateGradient(
+            pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
         self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
     def BiCGStab_ILU(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.ILUPreconditioner()
-        solver = matrixmethod.StabilizedBiConjugateGradient(pc, self.tolerance, self.max_iterations)
+        solver = matrixmethod.StabilizedBiConjugateGradient(
+            pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
         self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
     def BiCGStab_ILUT(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.ILUTPreconditioner()
-        solver = matrixmethod.StabilizedBiConjugateGradient(pc, self.tolerance, self.max_iterations)
+        solver = matrixmethod.StabilizedBiConjugateGradient(
+            pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
         self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
 
     def BiCGStab_Jacobi(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.JacobiPreconditioner()
-        solver = matrixmethod.StabilizedBiConjugateGradient(pc, self.tolerance, self.max_iterations)
+        solver = matrixmethod.StabilizedBiConjugateGradient(
+            pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
         self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
 
     def BiCGStab_IC(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.ICPreconditioner()
-        solver = matrixmethod.StabilizedBiConjugateGradient(pc, self.tolerance, self.max_iterations)
+        solver = matrixmethod.StabilizedBiConjugateGradient(
+            pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
         self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
 
@@ -162,28 +170,32 @@ class IterativeMethods(unittest.TestCase):
     def BiCG(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.UnPreconditioner()
-        solver = matrixmethod.BiConjugateGradient(pc, self.tolerance, self.max_iterations)
+        solver = matrixmethod.BiConjugateGradient(
+            pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
         self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
     def BiCG_ILU(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.ILUPreconditioner()
-        solver = matrixmethod.BiConjugateGradient(pc, self.tolerance, self.max_iterations)
+        solver = matrixmethod.BiConjugateGradient(
+            pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
         self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
     def BiCG_ILUT(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.ILUTPreconditioner()
-        solver = matrixmethod.BiConjugateGradient(pc, self.tolerance, self.max_iterations)
+        solver = matrixmethod.BiConjugateGradient(
+            pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
         self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
 
     def BiCG_Jacobi(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.JacobiPreconditioner()
-        solver = matrixmethod.BiConjugateGradient(pc, self.tolerance, self.max_iterations)
+        solver = matrixmethod.BiConjugateGradient(
+            pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
         self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
@@ -400,4 +412,3 @@ bc_set = [
 ]
 
 test_set = iter_set + direct_set + bc_set
-

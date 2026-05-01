@@ -75,12 +75,14 @@ class Matrix_Ops(unittest.TestCase):
         mat.insert(5, 10, 0.5)
         mat.insert(600, 20, 0.6)
         mat.insert(800, 800, 0.8)
+        mat.make_compressed()
         self.assertTrue(not mat.empty())
         self.assertTrue(mat.nnonzeros() == 3)
         self.assertTrue(not mat.is_symmetric(1e-10))
         
         mat.insert(10, 5, 0.5)
         mat.insert(20, 600, 0.6)
+        mat.make_compressed()
         self.assertTrue(mat.is_symmetric(1e-10))
 
         mat.resize(900, 900)
