@@ -616,6 +616,9 @@ class SubProblemContext(whoville.Who):
 
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+    ## TODO: Why is this called so often by
+    ## oof2.TEST.solver_test.OOF_ThermalElasticTimeSteppers.SS22ThermalOnly?
+
     def make_linear_system(self, time, linsys):
         # Construct a LinearizedSystem object containing the
         # globally-indexed K, C, and M matrices, and the rhs vectors,
@@ -640,7 +643,7 @@ class SubProblemContext(whoville.Who):
                 # However, it's never needed on the first call to
                 # make_linear_system, so that's ok.
                 subproblem.set_mesh_dofs(vals, time)
-        
+
         ## TODO OPT: Be more sophisticated here. Instead of
         ## recomputing everything, only recompute the matrices and
         ## vectors that may have changed.
@@ -648,7 +651,6 @@ class SubProblemContext(whoville.Who):
         ## TODO OPT: Recompute if nonlinear *and* relevant fields
         ## have changed, not just if nonlinear.  Need field-specific
         ## timestamps in the Mesh? 
-
         femesh.setCurrentSubProblem(self.getObject())
         # utils.memusage("Completed Set FE Mesh %s" %datetime.datetime.now())
 
@@ -742,7 +744,6 @@ class SubProblemContext(whoville.Who):
             # invoke_flux_bcs and invoke_force_bcs, and must be
             # cleared before either of them is called.
             linsys.clearForceBndyRhs()
-
             femesh.invoke_flux_bcs(subpobj, linsys, time)
 
         # utils.memusage("Start Apply Dirichlet Boundary Conditions %s" %datetime.datetime.now())
@@ -783,6 +784,7 @@ class SubProblemContext(whoville.Who):
             # Apply floating boundary conditions by modifying maps in
             # the LinearizedSystem.  This must follow
             # build_submatrix_maps() and precede build_MCK_maps().
+            
             # utils.memusage("Begin invoke float bcs %s" %datetime.datetime.now())
             femesh.invoke_float_bcs(subpobj, linsys, time)
             # utils.memusage("Begin Build MCK maps %s" %datetime.datetime.now())
@@ -794,6 +796,7 @@ class SubProblemContext(whoville.Who):
             # utils.memusage("Begin set Dirichlet Derivatives %s" %datetime.datetime.now())
             femesh.setDirichletDerivatives(subpobj, linsys, time)
         # utils.memusage("End if bcsReset or rebuildMatricies or newFieldValues %s" %datetime.datetime.now())
+
 
         if bcsReset:
             # Compute the part of the rhs due to fixed fields or fixed
@@ -808,7 +811,7 @@ class SubProblemContext(whoville.Who):
             ## to know the rhs explicitly.
             femesh.float_contrib_rhs(self.getObject(), linsys)
         # utils.memusage("End Setting Boundary Conditions %s" %datetime.datetime.now())
-
+    
         femesh.clearCurrentSubProblem()
         linsys.computed.increment()
 
@@ -823,6 +826,7 @@ class SubProblemContext(whoville.Who):
         #         dumpfile = "dump"
         #     linsys.dumpAll(dumpfile, time, "")
         #     sys.exit()
+
         return linsys
 
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -860,7 +864,7 @@ class SubProblemContext(whoville.Who):
             # using a nonlinear solver and whether or not the
             # FluxProperties provide the K matrix.
             self.nonlinear_solver.computeStaticFields(self, linsys, unknowns)
-                
+
     def computeStaticFieldsL(self, linsys, unknowns):
         # utils.memusage("start of computeStaticFieldsL")
         # Initialize "static" fields for linear problems. 
@@ -1006,17 +1010,12 @@ class SubProblemContext(whoville.Who):
             rhs = self.time_stepper.rhs_ind_part('C', linsys)
             # TODO: is there a simpler way of computing K*u?
             rhs -= (C12*u2dot + K12*u2 + K11*u1 + K10*u0)
-            #debug.fmsg("Solving for u1dot")
-            #debug.fmsg(f"{C11=}")
-            #self.matrix_method(self.asymmetricC).solve(C11, rhs, u1dot)
             self.matrix_method(self.asymmetricAlways).solve(C11, rhs, u1dot)
-            # debug.fmsg(f"{u1dot=}")
 
             # Store result in endValues, which is a vector of all
             # Field values in the subproblem (not just the unknowns),
             # such as returned by CSubProblem::get_meshdofs().
             linsys.set_unknowns_Cdot_inplace(u1dot, endValues)
-        # debug.fmsg("done")
             
     ## Time stepping utilities
 
@@ -1244,23 +1243,18 @@ class StaticNLFuncs:
         self.unknowns = unknowns
 
     def precompute(self, data, values, solver):
-        # debug.fmsg("requireJacobian=", solver.needsJacobian(),
-        #            "requireResidual=", solver.needsResidual())
         data.subproblem.time_stepper.set_unknowns_part('K', data.linsys, values,
                                                        self.unknowns)
         data.subproblem.installValues(data.linsys, self.unknowns, data.time)
         data.linsys = data.subproblem.make_linear_system(data.time, data.linsys)
 
     def compute_residual(self, data, soln, nlsolver):
-        # debug.fmsg()
         return data.linsys.static_residual_ind_part('K')
 
     def compute_jacobian(self, data, nlsolver):
-        # debug.fmsg()
         return data.linsys.J_submatrix('K', 'K')
 
     def compute_linear_coef_mtx(self, data, nlsolver):
-        # debug.fmsg()
         return data.linsys.K_submatrix('K', 'K')
 
 

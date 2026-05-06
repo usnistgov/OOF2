@@ -15,6 +15,7 @@
 #include <fstream>
 #include <vector>
 
+#include "common/cdebug.h"
 #include "common/lock.h"
 #include "common/ooferror.h"
 #include "common/printvec.h"
@@ -590,10 +591,6 @@ void LinearizedSystem::build_MCK_maps() {
   SparseMat C_indfree_ = SparseMat(C_, subp2indepEqnMap, subp2freeFieldMap);
   SparseMat M_indfree_ = SparseMat(M_, subp2indepEqnMap, subp2freeFieldMap);
 
-  // std::cerr << "LinearizedSystem::build_MCK_maps: C_indfree_=" << C_indfree_
-  // 	    << std::endl;
-  // std::cerr << "LinearizedSystem::build_MCK_maps: C_=" << C_ << std::endl;
-
   K_indfixed_ = SparseMat(K_, subp2indepEqnMap, subp2fixedFieldMap);
   C_indfixed_ = SparseMat(C_, subp2indepEqnMap, subp2fixedFieldMap);
   M_indfixed_ = SparseMat(M_, subp2indepEqnMap, subp2fixedFieldMap);
@@ -636,10 +633,6 @@ void LinearizedSystem::build_MCK_maps() {
   }	// end loop over independent equations
 
   subp2nonEmptyMColMap = compose(subp2freeFieldMap, nonEmptyMColMap);
-  // std::cerr << "LinearizedSystem::build_MCK_maps: subp2freeFieldMap="
-  // 	    << subp2freeFieldMap << std::endl;
-  // std::cerr << "LinearizedSystem::build_MCK_maps: nonEmptyCColMap="
-  // 	    << nonEmptyCColMap << std::endl;
   subp2nonEmptyCColMap = compose(subp2freeFieldMap, nonEmptyCColMap);
   subp2nonEmptyKColMap = compose(subp2freeFieldMap, nonEmptyKColMap);
 
@@ -879,8 +872,6 @@ DoubleVec *LinearizedSystem::get_unknowns_part(
   else if(which == 'C') {
     unsigned int n2 = n_unknowns_part('M');
     unsigned int n1 = n_unknowns_part('C');
-    // std::cerr << "LinearizedSystem::get_unknowns_part C: n1=" << n1
-    // 	      << " n2=" << n2 << std::endl;
     return new DoubleVec(src->subvec(n2, n2+n1));
   }
   else if(which == 'K') {
@@ -1772,6 +1763,8 @@ void LinearizedSystem::dumpAll(const std::string &filename, double time,
 			       const std::string &comment)
   const
 {
+  std::cerr << "LinearizedSystem::dumpAll: dumping matrices and maps to "
+	    << filename << std::endl;
   std::ofstream os((filename+"_matrices").c_str()); 
   os << "---------------------" << std::endl;
   os << "---------------------" << std::endl;

@@ -3729,18 +3729,19 @@ test_set = (
     make_dynamic_set(suffix="-short", shortening=0.1) +
     oop_periodic_set)
 
-
 ## Uncomment these to run just a few tests when debugging.
 
 ## Run the the long and short versions of given dynamic tests
-# subset = [OOF_ElasticTimeSteppers("BEPlaneStrain"),]
+# subset = [OOF_ThermalElasticTimeSteppers("SS22ThermalOnly")]
 # test_set = (
-#     make_dynamic_set(suffix="", shortening=1.0, tests=subset)
-#     + make_dynamic_set(suffix="-short", shortening=0.1, tests=subset)
+#    make_dynamic_set(suffix="-short", shortening=0.1, tests=subset)
+#    # +
+#    # make_dynamic_set(suffix="", shortening=1.0, tests=subset)
 # )
 
-## Run just the long versions of all dynamic tests
-test_set = make_dynamic_set(suffix="", shortening=1.0, tests=dynamic_tests)
+## Run just the short versions of all dynamic tests
+# test_set = make_dynamic_set(suffix="-short", shortening=0.1,
+#                             tests=dynamic_tests)
 
 ## Run a single test.
 # test_set = [

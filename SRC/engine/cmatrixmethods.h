@@ -157,7 +157,7 @@ public:
   DoubleVec solve(const SparseMat& m, const DoubleVec& rhs) {
     if(m.ncols() != m.nrows()) {
       std::cerr << "IterativeSolver::solve: rows=" << m.nrows() << " cols="
-		<< m.ncols() << " r=" << rhs.size() << std::endl;
+		<< m.ncols() << " rhs.size=" << rhs.size() << std::endl;
       throw ErrSetupError("Matrix is not square!");
     }
     DoubleVec x;
@@ -167,10 +167,6 @@ public:
   }
 
   int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x) {
-    // std::cerr << "IterativeSolver::solve: saving matdump.dat and rhsdump.dat"
-    // 	      << std::endl;
-    // save_mat(m, "matdump.dat");
-    // save_vec(rhs, "rhsdump.dat");
     if(m.ncols() != m.nrows()) {
       std::cerr << "IterativeSolver::solve: rows=" << m.nrows() << " cols="
 		<< m.ncols() << " r=" << rhs.size() << std::endl;

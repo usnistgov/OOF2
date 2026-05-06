@@ -24,6 +24,10 @@ enum class Precond;
 template<typename Derived> class IterativeSolver;
 template<typename Derived> class DirectSolver;
 
+// TODO: Documentation for Eigen::BiCGSTAB says its more efficient for
+// row-major sparse matrix format, and can be multithreaded with
+// openMP.  Is there a reason for using ColMajor here?
+
 typedef Eigen::SparseMatrix<double, Eigen::ColMajor> ESMat;
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

@@ -354,6 +354,7 @@ bool SparseMat::is_upper_triangular(bool diag) const {
 }
 
 bool SparseMat::is_symmetric(double tolerance) const {
+  assert(data.isCompressed());  
   if (data.rows() != data.cols())
     return false;
   for(auto it=begin(); it<end(); ++it) {

@@ -33,6 +33,18 @@ typedef GMRES<Precond::IC> GMRES_IC;
 %}
 
 enum Info {
+  // From Eigen/src/Core/util/Constants.h:
+  // enum ComputationInfo {
+  //   /** Computation was successful. */
+  //   Success = 0,
+  //   /** The provided data did not satisfy the prerequisites. */
+  //   NumericalIssue = 1,
+  //   /** Iterative procedure did not converge. */
+  //   NoConvergence = 2,
+  //   /** The inputs are invalid, or the algorithm has been improperly called.
+  //    * When assertions are enabled, such errors trigger an assert. */
+  //   InvalidInput = 3
+  // };
   SUCCESS = Eigen::Success,
   NUMERICAL = Eigen::NumericalIssue,
   NOCONVERG = Eigen::NoConvergence,
