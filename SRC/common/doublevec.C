@@ -10,6 +10,7 @@
  */
 
 #include "common/doublevec.h"
+#include <cassert>
 #include <sstream>
 #include <fstream>
 
