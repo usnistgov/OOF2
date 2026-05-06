@@ -18,11 +18,10 @@
 #include "common/doublevec.h"
 
 class DoFMap;
-class SparseMatIterator;
-class SparseMatConstIterator;
 enum class Precond;
-template<typename Derived> class IterativeSolver;
-template<typename Derived> class DirectSolver;
+template <typename Derived> class IterativeSolver;
+template <typename Derived> class DirectSolver;
+template <typename MATRIX> class SparseMatIterator;
 
 // TODO: Documentation for Eigen::BiCGSTAB says its more efficient for
 // row-major sparse matrix format, and can be multithreaded with
@@ -128,12 +127,12 @@ public:
   void tile(int, int, const SparseMat&);
 
   /* Iterators */
-  typedef SparseMatIterator iterator;
-  typedef SparseMatConstIterator const_iterator;
-  SparseMatIterator begin();
-  SparseMatIterator end();
-  SparseMatConstIterator begin() const;
-  SparseMatConstIterator end() const;
+  typedef SparseMatIterator<ESMat> iterator;
+  typedef SparseMatIterator<const ESMat> const_iterator;
+  SparseMatIterator<ESMat> begin();
+  SparseMatIterator<ESMat> end();
+  SparseMatIterator<const ESMat> begin() const;
+  SparseMatIterator<const ESMat> end() const;
 
   /* Debugging routines. */
 
@@ -159,42 +158,81 @@ bool save_market_mat(const SparseMat& mat, const std::string& filename,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-class SMIteratorBase {
+// MATRIX is an Eigen sparse matrix class. It should be either ESMat
+// or const ESMat.
+
+template <typename MATRIX>
+class SparseMatIterator {
 protected:
-  ESMat& mat;
-  ESMat::InnerIterator inneriter; // iterator for the inner loop
-  int outer;			  // index for the outer loop
+  MATRIX& mat;
+  typename MATRIX::InnerIterator inneriter; // iterator for the inner loop
+  int outer;			// index for the outer loop
   bool done;
 public:
-  SMIteratorBase(ESMat&);
-  SMIteratorBase(const SMIteratorBase&) = default;
-  void operator++();
+  SparseMatIterator(MATRIX& m)
+    : mat(m),
+      inneriter(m, 0),
+      outer(0),
+      done(m.nonZeros() == 0)
+  {
+    if(!done) {
+      // Find the first non-empty row
+      inneriter = typename MATRIX::InnerIterator(mat, outer);
+      while(!inneriter) {
+	inneriter = typename MATRIX::InnerIterator(mat, ++outer);
+      }
+    }
+  }
+  
+  SparseMatIterator(const SparseMatIterator<MATRIX>&) = default;
+  
+  bool operator==(const SparseMatIterator<MATRIX>& other) const {
+    // Iterators are equal if they're both done, or both point to the
+    // same entry.  Comparing iterators from different matrices is
+    // undefined.
+    return ((done && other.done) ||
+	    (outer == other.outer and inneriter == other.inneriter));
+  }
+
+  bool operator!=(const SparseMatIterator<MATRIX>& other) const {
+    return !this->operator==(other);
+  }
+
+  bool operator<(const SparseMatIterator<MATRIX>& other) const {
+    if(other.done)
+      return !done;
+    return (outer < other.outer ||
+	    (outer == other.outer && inneriter < other.inneriter));
+  }
+  
+  SparseMatIterator<MATRIX>& operator++() {
+    ++inneriter;		// increment the Eigen InnerIterator
+    // If we're done with this inner row/col, find the next non-empty one.
+    while(outer < mat.outerSize()-1 && !inneriter) {
+      inneriter = typename MATRIX::InnerIterator(mat, ++outer);
+    }
+    done = not bool(inneriter);
+    return *this;
+  }
+  
+  void to_end() {
+    outer = mat.outerSize();
+    done = true;
+  }
+
   int row() const { return inneriter.row(); }
   int col() const { return inneriter.col(); }
-  bool operator==(const SMIteratorBase&) const;
-  bool operator!=(const SMIteratorBase&) const;
-  bool operator<(const SMIteratorBase&) const;
-  void to_end();
-};
-
-class SparseMatIterator : public SMIteratorBase {
-public:
-  SparseMatIterator(ESMat& m) : SMIteratorBase(m) {}
-  SparseMatIterator& operator++();
   double value() const { return inneriter.value(); }
-  double& value() { return inneriter.valueRef(); }
+  double operator*() const { return inneriter.value(); }
+
+  // If MATRIX is a const type, these methods will never be used, so
+  // it doesn't matter that MATRIX::InnerIterator::valueRef is a
+  // non-const method.
   double& operator*() { return inneriter.valueRef(); }
-  double operator*() const { return inneriter.value(); }
+  double& value() { return inneriter.valueRef(); }
 };
 
-class SparseMatConstIterator : public SMIteratorBase {
-public:
-  SparseMatConstIterator(const ESMat& m)
-    : SMIteratorBase(const_cast<ESMat&>(m)) // ugly
-  {}
-  SparseMatConstIterator& operator++();
-  double value() const { return inneriter.value(); }
-  double operator*() const { return inneriter.value(); }
-};
+template class SparseMatIterator<ESMat>;
+template class SparseMatIterator<const ESMat>;
 
 #endif // SPARSEMAT_H_

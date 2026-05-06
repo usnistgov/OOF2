@@ -30,7 +30,7 @@ SparseMat::SparseMat(const SparseMat& source,
   // mat. If rowmap[i] == -1, then row i should not be included in the
   // submatrix. If rowmap[i] == rowmap[j], then rows i and j of mat are
   // added together in the submatrix. Likewise for columns.
-  for(SparseMatConstIterator it=source.begin(); it<source.end(); ++it) {
+  for(auto it=source.begin(); it<source.end(); ++it) {
     assert(it.row() < rowmap.domain());
     assert(it.col() < colmap.domain());
     int i = rowmap[it.row()];
@@ -290,7 +290,7 @@ void SparseMat::tile(int i, int j, const SparseMat &other) {
   assert(i + other.nrows() <= nrows());
   assert(j + other.ncols() <= ncols());
 
-  for(SparseMatConstIterator it=other.begin(); it<other.end(); ++it) {
+  for(auto it=other.begin(); it<other.end(); ++it) {
     int ii = it.row() + i;
     int jj = it.col() + j;
     data.coeffRef(ii,jj) += it.value();
@@ -301,22 +301,22 @@ void SparseMat::tile(int i, int j, const SparseMat &other) {
 // the iterators to work, but looping over its elements is more
 // efficient if it's compressed.
 
-SparseMatIterator SparseMat::begin() {
-  return SparseMatIterator(data);
+SparseMatIterator<ESMat> SparseMat::begin() {
+  return iterator(data);
 }
 
-SparseMatIterator SparseMat::end() {
-  SparseMatIterator it(data);
+SparseMatIterator<const ESMat> SparseMat::begin() const {
+  return const_iterator(data);
+}
+
+SparseMatIterator<ESMat> SparseMat::end() {
+  iterator it(data);
   it.to_end();
   return it;
 }
 
-SparseMatConstIterator SparseMat::begin() const {
-  return SparseMatConstIterator(data);
-}
-
-SparseMat::const_iterator SparseMat::end() const {
-  SparseMatConstIterator it(data);
+SparseMatIterator<const ESMat> SparseMat::end() const {
+  const_iterator it(data);
   it.to_end();
   return it;
 }
@@ -387,7 +387,7 @@ SparseMat identityMatrix(int size) {
 std::ostream& operator<<(std::ostream& os, const SparseMat& mat) {
   os << mat.nrows() << " " << mat.ncols() << " " << mat.nnonzeros()
      << std::endl;
-  for(SparseMatConstIterator it=mat.begin(); it<mat.end(); ++it)
+  for(auto it=mat.begin(); it<mat.end(); ++it)
     os << it.row() << " " << it.col() << " " << it.value() << std::endl;
   return os;
 }
@@ -476,64 +476,4 @@ bool load_mat(SparseMat& mat, const std::string& filename) {
   }
   mat.set_from_triplets(trips);
   return true;
-}
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-SMIteratorBase::SMIteratorBase(ESMat &m)
-  : mat(m),
-    inneriter(m, 0),
-    outer(0),
-    done(m.nonZeros() == 0)
-{
-  if(!done) {
-    // Find the first non-empty row
-    inneriter = ESMat::InnerIterator(mat, outer);
-    while(!inneriter) {
-      inneriter = ESMat::InnerIterator(mat, ++outer);
-    }
-  }
-}
-
-void SMIteratorBase::operator++() {
-  ++inneriter;			// increment the Eigen InnerIterator
-  // If we're done with this inner row/col, find the next non-empty one.
-  while(outer < mat.outerSize()-1 && !inneriter) {
-    inneriter = ESMat::InnerIterator(mat, ++outer);
-  }
-  done = not bool(inneriter);
-}
-
-SparseMatIterator& SparseMatIterator::operator++() {
-  this->SMIteratorBase::operator++();
-  return *this;
-}
-
-SparseMatConstIterator& SparseMatConstIterator::operator++() {
-  this->SMIteratorBase::operator++();
-  return *this;
-}
-
-void SMIteratorBase::to_end() {
-  outer = mat.outerSize();
-  done = true;
-}
-
-bool SMIteratorBase::operator==(const SMIteratorBase& other) const {
-  // Iterators are equal if they're both done, or both point to the
-  // same entry.  Comparing iterators from different matrices is
-  // undefined.
-  return ((done && other.done) ||
-	  (outer == other.outer and inneriter == other.inneriter));
-}
-
-bool SMIteratorBase::operator!=(const SMIteratorBase& other) const {
-  return !this->operator==(other);
-}
-
-bool SMIteratorBase::operator<(const SMIteratorBase& other) const {
-  if(other.done)
-    return !done;
-  return (outer < other.outer ||
-	  (outer == other.outer && inneriter < other.inneriter));
 }
