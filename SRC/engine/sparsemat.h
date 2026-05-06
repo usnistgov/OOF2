@@ -171,10 +171,10 @@ protected:
 public:
   SparseMatIterator(MATRIX& m)
     : mat(m),
-      inneriter(m, 0),
       outer(0),
       done(m.nonZeros() == 0)
   {
+    // Don't initialize inneriter unless m is known not to be empty.
     if(!done) {
       // Find the first non-empty row
       inneriter = typename MATRIX::InnerIterator(mat, outer);
