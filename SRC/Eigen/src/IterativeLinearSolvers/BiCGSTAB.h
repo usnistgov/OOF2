@@ -17,8 +17,8 @@
 // IWYU pragma: private
 #include "./InternalHeaderCheck.h"
 
-#include "common/progress.h"	// OOF
-#include "common/tostring.h"	// OOF
+// #include "common/progress.h"	// OOF
+// #include "common/tostring.h"	// OOF
 
 namespace Eigen {
 
@@ -40,7 +40,6 @@ bool bicgstab(const MatrixType& mat, const Rhs& rhs, Dest& x, const Precondition
   typedef typename Dest::RealScalar RealScalar;
   typedef typename Dest::Scalar Scalar;
   typedef Matrix<Scalar, Dynamic, 1> VectorType;
-  RealScalar tol = tol_error;
   Index maxIters = iters;
 
   Index n = mat.cols();
@@ -54,6 +53,9 @@ bool bicgstab(const MatrixType& mat, const Rhs& rhs, Dest& x, const Precondition
     x.setZero();
     return true;
   }
+
+  RealScalar tol = tol_error * rhs_norm;
+
   Scalar rho(1);
   Scalar alpha(0);
   Scalar w(1);
@@ -187,6 +189,7 @@ struct traits<BiCGSTAB<MatrixType_, Preconditioner_> > {
  */
 template <typename MatrixType_, typename Preconditioner_>
 class BiCGSTAB : public IterativeSolverBase<BiCGSTAB<MatrixType_, Preconditioner_> > {
+ protected:
   typedef IterativeSolverBase<BiCGSTAB> Base;
   using Base::m_error;
   using Base::m_info;
