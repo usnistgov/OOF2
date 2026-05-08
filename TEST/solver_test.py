@@ -3729,6 +3729,15 @@ test_set = (
 
 ## Uncomment this, or parts of it, to run just a few tests when
 ## debugging.
+
+## Run the the long and short versions of given dynamic tests
+subset = [OOF_ThermalElasticTimeSteppers("SS22ThermalOnly")]
+test_set = (
+   make_dynamic_set(suffix="-short", shortening=0.1, tests=subset)
+   # +
+   # make_dynamic_set(suffix="", shortening=1.0, tests=subset)
+)
+
 # subset = [OOF_1x1ElasticDynamic("Dynamic"),]
 # test_set = (make_dynamic_set(suffix="", shortening=1.0, tests=subset)
 #             + make_dynamic_set(suffix="-short", shortening=0.1, tests=subset)
@@ -3737,3 +3746,5 @@ test_set = (
 # test_set = [
 #     ThermalExpansionTest("Basic"),
 # ]
+
+

@@ -10,6 +10,7 @@
  */
 
 #include <oofconfig.h>
+#include "common/cdebug.h"
 #include "common/chunkyvector.h"
 #include "common/printvec.h"
 #include "engine/dofmap.h"
@@ -56,20 +57,28 @@ SparseMat::SparseMat(const SparseMat& source,
   make_compressed();
 }
 
-void SparseMat::set_from_doublets(std::vector<std::vector<Doublet>> &doubs) {
+void SparseMat::set_from_doublets(std::vector<std::vector<Doublet>> &doubs,
+				  bool verbose) {
   // Fill the Eigen::SparseMatrix efficiently, without allocating
   // extra space or doing too much extra work (hopefully).  Each entry
   // in doubs is a vector of Doublets for a single column of the
   // matrix.  It may have multiple entries for a row, which need to be
-  // summed. 
+  // summed.
+
+  if(verbose)
+    dump({"set_from_doublets: doubs=", tostring(doubs)});
 
   // nnzcol is a vector of ints saying how many non-zero elements
   // are in each column of the matrix.
   Eigen::VectorXi nnzcol = Eigen::VectorXi::Zero(ncols());
 
+  int nnz = 0;			// for debugging
+  
   // For each column, find and sum the redundant entries and reserve
   // space in the Eigen::SparseMatrix for the resulting number of
   // rows.
+  // if(verbose)
+  //   dump({"SparseMat::set_from_doublets:", tostring(nrows()), tostring(ncols())});
   for(int c=0; c<ncols(); c++) { // Loop over columns
     std::vector<Doublet> *dvec = &doubs[c]; // Doublets in this column
     if(dvec->size() > 1) {
@@ -104,14 +113,26 @@ void SparseMat::set_from_doublets(std::vector<std::vector<Doublet>> &doubs) {
     else if(dvec->size() == 1)
       nnzcol[c] = 1;
 
+    nnz += nnzcol[c]; // just for verification. 
+    
+    // if(verbose)
+    //   dump({"Sorted and consolidated column", tostring(c), tostring(nnzcol[c]),
+    // 	  tostring(*dvec)});
+
   } // end loop over columns c
 
   // Reserve space in the matrix.
   data.reserve(nnzcol);
+  // if(verbose) {
+  //   std::cerr << "SparseMat::set_from_doublets: nnz=" << nnz << std::endl;
+  //   dump({"nnzcol", tostring(nnzcol)});
+  // }
 
   // Insert values
   for(int c=0; c<ncols(); c++) {
     for(const Doublet &doub : doubs[c]) {
+      // if(verbose)
+      // 	dump({"insert", tostring(doub.row()), tostring(c), tostring(doub.value())});
       data.insert(doub.row(), c) = doub.value();
     }
   }
@@ -119,7 +140,24 @@ void SparseMat::set_from_doublets(std::vector<std::vector<Doublet>> &doubs) {
   // only reason to call it here is to free some unnecessary vectors
   // and let the rest of Eigen know that the matrix is already
   // compressed.
+  
+  // if(verbose) {
+  //   dump({"Before compression", print_uncompressed()});
+  //   std::ofstream f("uncompressed.dat");
+  //   f << print_uncompressed() << std::endl;
+  //   f.close();
+  // }
+  if(verbose)
+    dump({"set_from_doublets before compression:", print_uncompressed()});
   data.makeCompressed();
+  if(verbose) {
+    dump({"set_from_doublets after compression:", tostring(*this)});
+    // std::cerr << "SparseMat::set_from_doublets: nonZeros=" << nnonzeros() << std::endl;
+    // std::ofstream f("compressed.dat");
+    // // print_uncompressed is ok when compressed too.
+    // f << print_uncompressed() << std::endl;
+    // f.close();
+  }
 }
 
 void SparseMat::set_from_triplets(std::vector<Eigen::Triplet<double>>& tris) {
@@ -399,6 +437,29 @@ std::ostream& operator<<(std::ostream& os, const SparseMat& smat) {
         << it.value() << std::endl;
   } 
   return os;
+}
+
+std::string SparseMat::print_uncompressed() const {
+  // It's not possible to use operator<< for an uncompressed SparseMat
+  // because the iterator requires a compressed matrix.
+  std::vector<std::string> vals;
+  int nchars = 0;
+  for(int k=0; k<data.outerSize(); ++k) {
+    for(Eigen::SparseMatrix<double>::InnerIterator it(data, k); it; ++it) {
+      std::string val = tostring(it.row()) + " " + tostring(it.col()) + " " +
+	tostring(it.value());
+      vals.push_back(val);
+      nchars += val.size() + 1;
+    }
+  }
+  std::string header = (tostring(data.rows()) + " " + tostring(data.cols())
+			+ " " + tostring(data.nonZeros()) + "\n");
+  std::string out;
+  out.reserve(nchars + header.size());
+  out += header;
+  for(std::string &val : vals)
+    out += val + "\n";
+  return out;
 }
 
 std::ostream& operator<<(std::ostream& os, const Doublet& trip) {

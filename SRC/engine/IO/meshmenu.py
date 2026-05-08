@@ -1648,7 +1648,7 @@ def _solve(menuitem, mesh, endtime):
         # install latest data and prevent data cache from restoring
         # old data.
         meshctxt.restoreLatestData() # a no-op, if nothing has been cached yet
-        cdebug.openDumpFile("cmatdump-develop")
+        # cdebug.openDumpFile("cmatdump-develop")
         evolve.evolve(meshctxt, endtime)
     except Exception as exc:
         debug.fmsg(f"Exception {exc=}")

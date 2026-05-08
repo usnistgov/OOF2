@@ -65,7 +65,8 @@ public:
   SparseMat& operator=(SparseMat&&) = default; // move assignment
   ~SparseMat() = default;
   SparseMat clone() const { return *this; }
-  void set_from_doublets(std::vector<std::vector<Doublet>>&); // efficient way
+  void set_from_doublets(std::vector<std::vector<Doublet>>&,
+			 bool verbose=false); // efficient way
   void set_from_triplets(std::vector<Eigen::Triplet<double>>&); // old way
 
   // TODO(lizhong): inline possible methods
@@ -154,6 +155,8 @@ public:
   friend std::ostream& operator<<(std::ostream&, const SparseMat&);
   friend bool load_market_mat(SparseMat& mat, const std::string& filename);
   friend bool save_market_mat(const SparseMat&, const std::string&, int);
+
+  std::string print_uncompressed() const; // for debugging
 };
 
 SparseMat identityMatrix(int);

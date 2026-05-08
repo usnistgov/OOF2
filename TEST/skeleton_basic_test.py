@@ -901,18 +901,18 @@ def build_mod_args():
          ]
     }
 
-    # print("NOT RUNNING THE FULL SET OF SKELETON MODIFICATION TESTS")
-    # skel_modify_args = {
-    #     "Relax" :
-    #     [SkelModTest("modbase", "relax",
-    #                  { "alpha" : 0.5,
-    #                    "gamma" : 0.5,
-    #                    "iterations" : 1
-    #                   },
-    #                  tolerance=1.e-13
-    #                  )
-    #      ],
-    # }
+    print("NOT RUNNING THE FULL SET OF SKELETON MODIFICATION TESTS")
+    skel_modify_args = {
+        "Relax" :
+        [SkelModTest("modbase", "relax",
+                     { "alpha" : 0.5,
+                       "gamma" : 0.5,
+                       "iterations" : 1
+                      },
+                     tolerance=1.e-13
+                     )
+         ],
+    }
 
     
 
@@ -946,6 +946,6 @@ special_set = [
 
 test_set = skel_set + special_set
 
-# test_set = [
-#     OOF_Skeleton_Modify("Modify"),
-# ]
+test_set = [
+    OOF_Skeleton_Modify("Modify"),
+]

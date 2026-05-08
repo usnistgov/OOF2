@@ -43,9 +43,16 @@ endif()
 # debugging, so add -DDEBUG here.
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
-## TODO: Don't just add -fsanitize... here.  Make it settable by the
-## user.  Maybe see https://github.com/arsenm/sanitizers-cmake.
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address,undefined -fno-omit-frame-pointer")
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Add -fsanitize options to the compiler and linker
+## TODO: Maybe see https://github.com/arsenm/sanitizers-cmake.
+
+option(SANITIZE "Enable sanitization" OFF)
+
+if(SANITIZE)
+   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address,undefined -fno-omit-frame-pointer")
+endif()
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

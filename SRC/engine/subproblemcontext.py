@@ -823,6 +823,7 @@ class SubProblemContext(whoville.Who):
         #         dumpfile = "dump"
         #     linsys.dumpAll(dumpfile, time, "")
         #     sys.exit()
+
         return linsys
 
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -1006,17 +1007,12 @@ class SubProblemContext(whoville.Who):
             rhs = self.time_stepper.rhs_ind_part('C', linsys)
             # TODO: is there a simpler way of computing K*u?
             rhs -= (C12*u2dot + K12*u2 + K11*u1 + K10*u0)
-            #debug.fmsg("Solving for u1dot")
-            #debug.fmsg(f"{C11=}")
-            #self.matrix_method(self.asymmetricC).solve(C11, rhs, u1dot)
             self.matrix_method(self.asymmetricAlways).solve(C11, rhs, u1dot)
-            # debug.fmsg(f"{u1dot=}")
 
             # Store result in endValues, which is a vector of all
             # Field values in the subproblem (not just the unknowns),
             # such as returned by CSubProblem::get_meshdofs().
             linsys.set_unknowns_Cdot_inplace(u1dot, endValues)
-        # debug.fmsg("done")
             
     ## Time stepping utilities
 
@@ -1244,23 +1240,18 @@ class StaticNLFuncs:
         self.unknowns = unknowns
 
     def precompute(self, data, values, solver):
-        # debug.fmsg("requireJacobian=", solver.needsJacobian(),
-        #            "requireResidual=", solver.needsResidual())
         data.subproblem.time_stepper.set_unknowns_part('K', data.linsys, values,
                                                        self.unknowns)
         data.subproblem.installValues(data.linsys, self.unknowns, data.time)
         data.linsys = data.subproblem.make_linear_system(data.time, data.linsys)
 
     def compute_residual(self, data, soln, nlsolver):
-        # debug.fmsg()
         return data.linsys.static_residual_ind_part('K')
 
     def compute_jacobian(self, data, nlsolver):
-        # debug.fmsg()
         return data.linsys.J_submatrix('K', 'K')
 
     def compute_linear_coef_mtx(self, data, nlsolver):
-        # debug.fmsg()
         return data.linsys.K_submatrix('K', 'K')
 
 
