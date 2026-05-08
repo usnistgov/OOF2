@@ -29,6 +29,8 @@ OOF2 2.4.0
 * The first time derivatives of fields can now be plotted and used in
   other outputs.
 
+* Upgraded Eigen to version 5.0.0.
+  
 * Added the GMRES matrix solver.  It had been removed when we started
   using the Eigen linear algebra package.  This version is provided
   by the "unsupported" code distributed with Eigen.
@@ -92,7 +94,7 @@ OOF2 2.4.0
 * Removed the OOF2_SWIG_VERSION cmake option.  It wasn't really being
   used.  CMake will use whatever version of swig it finds, which must
   be 4.something.
-  
+
 OOF2 2.3.3
 
 * Disabled selection of interface segments since interface properties
