@@ -8,11 +8,17 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+// Lines modified for OOF are marked "OOF".  They are there to support
+// iteration progress bars.
+
 #ifndef EIGEN_GMRES_H
 #define EIGEN_GMRES_H
 
 // IWYU pragma: private
 #include "./InternalHeaderCheck.h"
+
+#include "common/progress.h"	// OOF
+#include "common/tostring.h"	// OOF
 
 namespace Eigen {
 
@@ -109,6 +115,12 @@ bool gmres(const MatrixType& mat, const Rhs& rhs, Dest& x, const Preconditioner&
   r0.makeHouseholder(H0_tail, tau.coeffRef(0), beta);
   w(0) = Scalar(beta);
 
+  LogDefiniteProgress *progress =	// OOF
+    dynamic_cast<LogDefiniteProgress*>( // OOF
+			getProgress("matrix solver", LOGDEFINITE)); // OOF
+  progress->setRange(r0Norm, tol_error); // OOF
+
+
   for (Index k = 1; k <= restart; ++k) {
     ++iters;
 
@@ -161,7 +173,9 @@ bool gmres(const MatrixType& mat, const Rhs& rhs, Dest& x, const Preconditioner&
     H.col(k - 1).head(k) = v.head(k);
 
     tol_error = abs(w(k)) / r0Norm;
-    bool stop = (k == m || tol_error < tol || iters == maxIters);
+    bool stop = (k == m || tol_error < tol || iters == maxIters
+		 || progress->stopped() // OOF
+		 );
 
     if (stop || k == restart) {
       // solve upper triangular system
@@ -179,6 +193,7 @@ bool gmres(const MatrixType& mat, const Rhs& rhs, Dest& x, const Preconditioner&
       x += x_new;
 
       if (stop) {
+	progress->finish(); 	// OOF
         return true;
       } else {
         k = 0;
@@ -197,8 +212,10 @@ bool gmres(const MatrixType& mat, const Rhs& rhs, Dest& x, const Preconditioner&
         w(0) = Scalar(beta);
       }
     }
+    progress->setFraction(tol_error);
+    progress->setMessage(tostring(tol_error) + "/" + tostring(tol));
   }
-
+  progress->finish();		// OOF
   return false;
 }
 
