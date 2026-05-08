@@ -15,7 +15,7 @@
 ## TODO: Is it possible to allow wildcards as well as regexp syntax?
 ## Or is that just dumb?
 
-import sys, os, getopt, copy, unittest, re
+import sys, os, getopt, copy, unittest, re, errno
 
 test_module_names = [
     "fundamental_test",
@@ -314,7 +314,13 @@ def run(homedir):
         if ok:
             print("All tests completed successfully!", file=sys.stderr)
             if not debug:
-                os.rmdir(tmpdir)
+                try:
+                    os.rmdir(tmpdir)
+                except OSError as exc:
+                    if exc.errno == errno.ENOTEMPTY:
+                        print("Temp dir", tmpdir, "is not empty. Not removing it.")
+                    else:
+                        raise
             else:
                 print("Temp dir", tmpdir, "was not removed.", file=sys.stderr)
         else:
