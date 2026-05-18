@@ -1,4 +1,4 @@
-# This software was produced by NIST, an agency of the U.S. government,
+ # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
 # with its operation, modification and maintenance. However, to
@@ -17,7 +17,7 @@
 ## TODO: Can we list only the available versions of swig and python?
 set(OOF2_PYTHON3_VERSION "Latest" CACHE STRING "Use this version of Python")
 set_property(CACHE OOF2_PYTHON3_VERSION PROPERTY STRINGS
-  3.9 3.10 3.11 3.12 3.13 3.14 Latest)
+  Latest 3.14 3.13 3.12 3.11 3.10 3.9)
 
 
 include(GNUInstallDirs)
@@ -45,14 +45,27 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Add -fsanitize options to the compiler and linker
-## TODO: Maybe see https://github.com/arsenm/sanitizers-cmake.
+# Add -fsanitize options to the compiler and linker for advanced
+# debugging.
 
-option(SANITIZE "Enable sanitization" OFF)
+# TODO: switch between methods: address, undefined, memory, thread
 
-if(SANITIZE)
-   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address,undefined -fno-omit-frame-pointer")
-endif()
+set(OOF2_SANITIZE_METHOD "address,undefined")
+# set(OOF2_SANITIZE_METHOD "memory")  ## Not supported on Mac.
+set(OOF2_SANITIZE_METHOD "thread,undefined") 
+
+option(OOF2_SANITIZE "Enable sanitization" OFF)
+mark_as_advanced(OOF2_SANITIZE)
+add_compile_options(
+  "$<$<BOOL:${OOF2_SANITIZE}>:-fsanitize=${OOF2_SANITIZE_METHOD};-fno-omit-frame-pointer>")
+add_link_options(
+  "$<$<BOOL:${OOF2_SANITIZE}>:-fsanitize=${OOF2_SANITIZE_METHOD}>")
+
+# Optimize with -O1 instead of -O3 if sanitizing.  This relies on -O1
+# overriding -O3 since -O1 will appear later in the argument list. -O3
+# might not be removed.
+add_compile_options(
+  "$<$<AND:$<BOOL:${OOF2_SANITIZE}>,$<CONFIG:Release>>:-O1>")
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
