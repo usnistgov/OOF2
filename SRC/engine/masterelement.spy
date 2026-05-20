@@ -8,8 +8,9 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.common import oofenum
+from ooflib.common import atshutdown
 from ooflib.common import debug
+from ooflib.common import oofenum
 from ooflib.common.IO import xmlmenudump
 
 # Global function that gets the master element array from C.  While
@@ -27,9 +28,9 @@ def getMasterElementDict():
     lst = masterElementList()
     for me in lst:
         # This is where the singleton instance of each MasterElement
-        # type is created in Python.  The C++ singletons when the
-        # python wrapper files were loaded, by the *init() calls in
-        # the SRC/engine/elements/*.spy files.
+        # type is created in Python.  The C++ singletons were created
+        # when the python wrapper files were loaded, by the *init()
+        # calls in the SRC/engine/elements/*.swg files.
         if me.name() not in _masterElementDict:
             # Make lists of nodes that have to be created -- these are
             # in a dictionary indexed by the edge number, plus a
@@ -54,6 +55,16 @@ def getMasterElementDict():
 # Export this function to restricted namespace.
 from ooflib.common import utils
 utils.OOFdefine('getMasterElementDict', getMasterElementDict)
+
+#######################
+
+# This is done to keep debugging tools from complaining about spurious
+# memory leaks.
+
+def clearMasterElementDict():
+    _masterElementDict.clear()
+
+atshutdown.atShutDown(clearMasterElementDict)
 
 ########################
 

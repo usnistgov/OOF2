@@ -21,6 +21,7 @@ typedef std::map<AnisoCrystalSymmetry, RotationSet*> SymDict;
 class SymmetryDict {
 public:
   SymmetryDict();
+  ~SymmetryDict();
   SymDict symdict;
 };
 
@@ -141,7 +142,12 @@ SymmetryDict::SymmetryDict() {
 
   // Same for monoclinic?
   rots = new RotationSet(MONOCLINIC);
-
-
 };
+
+SymmetryDict::~SymmetryDict() {
+  // I don't think this isn't really necessary, but I'm getting memory
+  // leak reports from ASan.
+  for(auto it=symmetries.symdict.begin(); it!=symmetries.symdict.end(); ++it)
+    delete it->second;
+}
 

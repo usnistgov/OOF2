@@ -76,7 +76,7 @@ MAKE_LISTVEC_TYPEMAPS(Node);
 MasterElementRefVec* masterElementList();
 // MasterElements are never created or destroyed in Python.
 %nodefaultctor MasterElement;
-%nodefaultdtor MasterElement;
+//%nodefaultdtor MasterElement;
 
 class MasterElement {
 public:
