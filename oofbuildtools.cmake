@@ -21,6 +21,7 @@ set_property(CACHE OOF2_PYTHON3_VERSION PROPERTY STRINGS
 
 
 include(GNUInstallDirs)
+include(CheckCompilerFlag)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -48,10 +49,15 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 # Add -fsanitize options to the compiler and linker for advanced
 # debugging.
 
-# TODO: switch between methods: address, undefined, memory, thread
+# TODO: option to switch between methods: address, undefined, memory,
+# thread
+
+# TODO: Use check_compiler_flag() to ensure that -fsanitize is
+# accepted.  This didn't work when I tried it.  It always returned
+# false on Mac, even though the flag worked.
 
 set(OOF2_SANITIZE_METHOD "address,undefined")
-# set(OOF2_SANITIZE_METHOD "memory")  ## Not supported on Mac.
+# set(OOF2_SANITIZE_METHOD "memory")  # Apparently not supported
 set(OOF2_SANITIZE_METHOD "thread,undefined") 
 
 option(OOF2_SANITIZE "Enable sanitization" OFF)
@@ -69,9 +75,22 @@ add_compile_options(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# Link Time Optimization
+
+# This didn't have much effect on oof-test.  The built libraries were
+# smaller but run time didn't change much.  TODO: Investigate further.
+
+check_compiler_flag(CXX "-flto" HAS_LTO)
+if(HAS_LTO)
+  add_compile_options("$<$<CONFIG:Release>:-flto=thin>")
+  add_link_options("$<$<CONFIG:Release>:-flto=thin>")  
+endif()
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 # Set C++ version
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_EXTENSIONS False)	# use -std=c++11 instead of -std=gnu++11
+set(CMAKE_CXX_EXTENSIONS False)	# use -std=c++17 instead of -std=gnu++17
 set(CMAKE_CXX_STANDARD_REQUIRED True) # don't fall back to an earlier standard
 
 set(BUILD_SHARED_LIBS ON)
