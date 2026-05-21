@@ -58,7 +58,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
 set(OOF2_SANITIZE_METHOD "address,undefined")
 # set(OOF2_SANITIZE_METHOD "memory")  # Apparently not supported
-set(OOF2_SANITIZE_METHOD "thread,undefined") 
+# set(OOF2_SANITIZE_METHOD "thread,undefined") 
 
 option(OOF2_SANITIZE "Enable sanitization" OFF)
 mark_as_advanced(OOF2_SANITIZE)

@@ -394,7 +394,7 @@ class OOF_TimeDependentFloat(unittest.TestCase):
     def tearDown(self):
         OOF.Material.Delete(name='material')
     
-    def compareFiles(self, topfile, leftfile):
+    def compareFiles(self, topfile, leftfile): 
         self.assertTrue(
             file_utils.fp_file_compare(
                 'temptop.dat',
@@ -408,6 +408,21 @@ class OOF_TimeDependentFloat(unittest.TestCase):
         file_utils.remove('temptop.dat')
         file_utils.remove('templeft.dat')
         outputdestination.forgetTextOutputStreams()
+
+    ## TODO WTF: Adaptive test fails intermittently.  Files temptop.dat and
+    ## td_float_top.dat disagree unless tolerance is set to 1.e-5 or
+    ## larger.  But not always!  Sometimes they agree.
+    ##
+    ## Test seems to pass when Adaptive is run on its own w/out
+    ## preceding tests, but sometimes fails when just one preceding
+    ## test is included.
+    ##
+    ## Intermittently fails in unthreaded mode too.
+    ##
+    ## Seems NOT to fail when using -fsanitize=address,undefined, and
+    ## there are no sanitization messages.
+    ##
+    ## Does fail (but less often?) when using debug but not sanitize.
 
     @memorycheck.check("microstructure")
     def Adaptive(self):
@@ -515,3 +530,11 @@ test_set = [
     OOF_TimeDependentFloat("AdaptiveMaxMax_Intersect"),
     OOF_TimeDependentFloat("Conflict")
     ]
+
+# test_set = [
+#     OOF_TimeDependentDirichlet("QuasiStatic"),
+#     # OOF_TimeDependentDirichlet("Adaptive"),
+#     # OOF_TimeDependentDirichlet("QuasiStatic_Pts"),
+#     # OOF_TimeDependentDirichlet("Adaptive_Pts"),
+#     OOF_TimeDependentFloat("Adaptive")
+#     ]
