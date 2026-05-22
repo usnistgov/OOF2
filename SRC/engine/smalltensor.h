@@ -14,28 +14,21 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <vector>
 
 class SmallTensor3 {
 protected:
-  double *data;
+  std::vector<double> data;
   int index(int i, int j, int k) const {
     return 9*i + 3*j + k;
   }
 public:
-  SmallTensor3() {
-    data = (double *) calloc(27, sizeof(double));
-  }
-  SmallTensor3(const SmallTensor3 &other) {
-    memcpy(data, other.data, 27*sizeof(double));
-  }
-  SmallTensor3(SmallTensor3 &&other) {
-    delete data;
-    data = other.data;
-    other.data = nullptr;
-  }
-  virtual ~SmallTensor3() {
-    delete data;
-  }
+  SmallTensor3()
+    : data(27, 0.0)
+  {}
+  SmallTensor3(const SmallTensor3 &other) = default;
+  SmallTensor3(SmallTensor3 &&other) = default;
+  virtual ~SmallTensor3() {}
   double &operator()(int i, int j, int k) {
     return data[index(i, j, k)];
   }
@@ -45,27 +38,19 @@ public:
 };
 
 
-class SmallTensor4{
+class SmallTensor4 {
 protected:
-  double *data;
+  std::vector<double> data;
   int index(int i, int j, int k, int l) const {
     return 27*i + 9*j + 3*k + l;
   }
 public:
-  SmallTensor4() {
-    data = (double *) calloc(81, sizeof(double));
-  }
-  SmallTensor4(const SmallTensor4 &other) {
-    memcpy(data, other.data, 81*sizeof(double));
-  }
-  SmallTensor4(SmallTensor4 &&other) {
-    delete data;
-    data = other.data;
-    other.data = nullptr;
-  }
-  virtual ~SmallTensor4() {
-    delete data;
-  }
+  SmallTensor4()
+    : data(81, 0.0)
+  {}
+  SmallTensor4(const SmallTensor4 &other) = default;
+  SmallTensor4(SmallTensor4 &&other) = default;
+  virtual ~SmallTensor4() {}
   double &operator()(int i, int j, int k, int l) {
     return data[index(i, j, k, l)];
   };
