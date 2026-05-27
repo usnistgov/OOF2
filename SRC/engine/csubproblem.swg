@@ -43,6 +43,7 @@
 typedef VContainer<Node> VContainerNode;
 typedef VContainer<FuncNode> VContainerFuncNode;
 typedef VContainer<Element> VContainerElement;
+typedef std::vector<CompoundField*> CompoundFieldVec;
 %}
 
 MAKE_LISTVEC_TYPEMAPS(Equation);
@@ -83,8 +84,9 @@ public:
   void make_linear_system(LinearizedSystem*, CNonlinearSolver*);
 
   %newobject all_compound_fields;
-  // Don't use MAKE_LISTVEC_TYPEMAPS for CompoundField
-  std::vector<CompoundField*> *all_compound_fields();
+  // Don't use MAKE_LISTVEC_TYPEMAPS for CompoundField. See comments
+  // and typemap in field.swg.
+  CompoundFieldVec* all_compound_fields();
   %newobject all_equations;
   EquationSubClassRefVec *all_equations();
   %newobject all_fluxes;

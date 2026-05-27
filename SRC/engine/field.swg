@@ -40,8 +40,8 @@ typedef FieldIndex NewFieldIndex;
 // list of CompoundFields.  It does *not* use the PythonExportable
 // mechanism because the Field class uses too much virtual inheritance
 // for PythonExportable to work properly.  The typemap instead
-// extracts Field names and call the Python getField function (defined
-// in field.spy).
+// extracts Field names and calls the Python getField function
+// (defined in field.spy).
 
 // ** Do not use MAKE_LISTVEC_TYPEMAPS for CompoundField! **
 
@@ -56,8 +56,8 @@ typedef FieldIndex NewFieldIndex;
 // there some subtle reason that just providing __eq__ (and maybe also
 // __hash__ and __lt__) doesn't work?
 
-%typemap(out) std::vector<CompoundField*> * {
-  // typemap(out) std::vector<CompoundField*>*
+%typemap(out) CompoundFieldVec * {
+  // typemap(out) CompoundFieldVec*
   static PyObject *getField = 0;
   if(!getField) {
     PyObject *module = PyImport_ImportModule("ooflib.SWIG.engine.field");
