@@ -705,6 +705,7 @@ PxlBdyLoopBase<CTYPE, RTYPE> &PxlBdyLoopBase<CTYPE, RTYPE>::operator=(
 				      const PxlBdyLoopBase<CTYPE, RTYPE> &other)
 {
   loop = other.loop;
+  delete bounds;
   if(other.bounds)
     bounds = new RTYPE(*other.bounds);
   else
@@ -728,8 +729,7 @@ double PixelBdyLoop::clippedArea(const LineList &lines, const CRectangle &bbox)
     if(curloop.size() == 0) {
       return 0.0;
     }
-    ClippedPixelBdyLoop newloop = curloop.clip(lines[i]);
-    curloop = newloop;
+    curloop = curloop.clip(lines[i]); 
   }
   return curloop.areaInPixelUnits();
 }
