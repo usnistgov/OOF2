@@ -670,6 +670,16 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
   delete $1;
 }
 
+%typemap(newfree) TYPE##SubClassVec* {
+  // typemap(newfree) TYPE##SubClassVec* via MAKE_LISTVEC_TYPEMAPS for TYPE
+  delete $1;
+}
+
+%typemap(newfree) TYPE##SubClassRefVec* {
+  // typemap(newfree) TYPE##SubClassRefVec* via MAKE_LISTVEC_TYPEMAPS for TYPE
+  delete $1;
+}
+
 %typemap(in) TYPE##Vec* (TYPE##Vec v) {
   // typemap(in) TYPE##Vec* via MAKE_LISTVEC_TYPEMAPS for TYPE
   if(!PyList_Check($input)) {
