@@ -424,10 +424,9 @@ std::vector<Equation*>* CSubProblem::all_equations() const {
 int CSubProblem::neqn() const {
   std::vector<Equation*> *eqns = all_equations();
   int n = 0;
-  for(std::vector<Equation*>::const_iterator e=eqns->begin(); e<eqns->end(); ++e)
-    {
-      n += (*e)->dim();
-    }
+  for(auto e=eqns->begin(); e<eqns->end(); ++e)
+    n += (*e)->dim();
+  delete eqns;
   return n*nNodes_;
 }
 
