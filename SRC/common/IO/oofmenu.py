@@ -460,6 +460,10 @@ class OOFRadioMenuGroup:
 
 #################################
 
+_allMenuItems = weakref.WeakSet()
+
+#################################
+
 class OOFMenuItem:
     def __init__(self, name,
                  callback=None,         # callback for CLI 
@@ -539,6 +543,8 @@ class OOFMenuItem:
             else:
                 raise AttributeError('Unknown OOFMenu option: ' + opt)
 
+        _allMenuItems.add(self)
+
     def clone(self,name=None, help=None, discussion=None,# secret=None,
               xrefs=[], **kwargs):
         # Clone menu item, but NOT its submenus.  self.params may be a
@@ -569,6 +575,10 @@ class OOFMenuItem:
                                  **kwargs)
         newitem.options.update(self.options)
         return newitem
+
+    def cleanUp(self):
+        self.items =  []
+        self.params = []
                               
     def addItem(self, item):            # add a menu item to this menu
         for i in range(len(self.items)): # see if new item replaces an old one
@@ -1110,3 +1120,23 @@ class MenuLogger:
         self.prefix = prefix
     def __call__(self, msg):
         self.outputfn(self.prefix + msg)
+
+#################################
+
+# In order to check for memory leaks elsewhere, this deletes the
+# objects stored in menu parameters, to keep them from cluttering up a
+# leak report.
+
+from ooflib.common import atshutdown
+import sys
+
+def _cleanUpMenus():
+    global _allMenuItems
+    # n = 0
+    # print(f"_cleanUpMenus: there are {len(_allMenuItems)} menu items")
+    for menuitem in _allMenuItems:
+        menuitem.cleanUp()
+    #     n += 1
+    # print(f"_cleanUpMenus: cleaned up {n} menu items, {len(_allMenuItems)} remaining")
+
+atshutdown.atShutDown(_cleanUpMenus)

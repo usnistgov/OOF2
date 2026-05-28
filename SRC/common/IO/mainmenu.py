@@ -1034,3 +1034,23 @@ dumpmenu.addItem(OOFMenuItem(
     callback=closeDumpFile,
     help="Stop dumping data and close the file.",
     discussion=xmlmenudump.emptyDiscussion))
+
+# #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# # Delete all menus at shut down time.  This isn't really necessary,
+# # but I'm looking for leaks, and there are a lot of leftover objects
+# # in the menus at shut down time, which are clogging up the leak
+# # reports.
+
+# from ooflib.common import atshutdown
+
+# def _delMenus():
+#     global OOF, _filemenu, _graphicsmenu, _loadmenu, _savemenu, _startupmenu, \
+#         _windowmenu, bufsizemenu, debugmenu, dumpmenu, errmenu, fontmenu, \
+#         gfxdefaultsmenu, helpmenu, lockmenu, memmenu, profmenu, settingsmenu
+#     del OOF, _filemenu, _graphicsmenu, _loadmenu, _savemenu, _startupmenu, \
+#         _windowmenu, bufsizemenu, debugmenu, dumpmenu, errmenu, fontmenu, \
+#         gfxdefaultsmenu, helpmenu, lockmenu, memmenu, profmenu, settingsmenu
+#     print("Deleted main menus")
+    
+# atshutdown.atShutDown(_delMenus)

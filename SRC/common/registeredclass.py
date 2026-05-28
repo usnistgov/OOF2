@@ -73,8 +73,11 @@ from ooflib.SWIG.common import timestamp
 from ooflib.common import debug
 from ooflib.common import utils
 import struct
+import weakref
 
 from ooflib.common.utils import stringjoin
+
+_allRegistrations = weakref.WeakSet()
 
 class Registration:
     def __init__(self, name, registeredclass, subclass, ordering,
@@ -84,6 +87,7 @@ class Registration:
 
         self._name = name
         self.subclass = subclass
+        
         if isinstance(registeredclass, (list, tuple)):
             self.registeredclasses = tuple(registeredclass[:])
         else:
@@ -113,6 +117,8 @@ class Registration:
             # Sorting each time is inefficient, but doesn't happen often.
             registeredclass.registry.sort()
             switchboard.notify(registeredclass)
+
+        _allRegistrations.add(self)
 
     def name(self):
         return self._name
@@ -197,6 +203,9 @@ class Registration:
                (self.__class__.__name__,
                 self.name(), self.subclass.__name__,
                 repr(self.ordering), repr(self.params))
+
+    def cleanUp(self):
+        self.params = []
 
 class ConvertibleRegistration(Registration):
     def __init__(self, name, registeredclasses, subclass, ordering,
@@ -409,3 +418,15 @@ class ConvertibleRegisteredClass(RegisteredClass):
                 return 1
         # If other is from a different class hierarchy, it's not equal.
         return 0
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+from ooflib.common import atshutdown
+
+def _cleanUpRegistrations():
+    n = 0
+    for reg in _allRegistrations:
+        n += 1
+        reg.cleanUp()
+
+atshutdown.atShutDown(_cleanUpRegistrations)
