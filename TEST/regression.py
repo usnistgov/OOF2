@@ -325,11 +325,17 @@ def run(homedir):
                 print("Temp dir", tmpdir, "was not removed.", file=sys.stderr)
         else:
             print("Test failed. Temp dir", tmpdir, "was not removed.", file=sys.stderr)
-
-
+            
+    # Try to quit cleanly here, so that any debugger that's reporting
+    # memory leaks doesn't include things that are deleted by the
+    # standard cleanup process.
+    from ooflib.common.IO import mainmenu
+    from ooflib.common import quit
+    quit.set_quiet()
+    mainmenu.OOF.File.Quit()
+    
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 if __name__=="__main__":
     homedir = os.path.realpath(sys.path[0])
     run(homedir)
-    OOF.File.Quit()
