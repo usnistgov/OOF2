@@ -50,6 +50,7 @@ MasterElement::~MasterElement() {
   for(std::vector<const MasterEdge*>::size_type i=0; i<edges.size(); i++) {
     delete edges[i];
   }
+  // MasterElement subclasses delete their own shapefunctions.
 }
 
 std::ostream &operator<<(std::ostream &os, const MasterElement &me) {

@@ -58,7 +58,6 @@ utils.OOFdefine('getMasterElementDict', getMasterElementDict)
 ########################
 
 _masterElementEnumDict = {}
-_enumunsorted = {}
 
 def getMasterElementEnums():
     # Create and update Enum classes for MasterElement types.  There
@@ -110,3 +109,15 @@ def melcomparisionkey(elem):
     edict = getMasterElementDict()
     el = edict[elem]
     return (el.nnodes(), el.nmapnodes(), el.nfuncnodes())
+
+########################
+
+from ooflib.common import atshutdown
+
+def _cleanUpMasterElements():
+    global _masterElementEnumDict
+    global _masterElementDict
+    _masterElementDict = {}
+    _masterElementEnumDict = {}
+        
+atshutdown.atShutDown(_cleanUpMasterElements)
