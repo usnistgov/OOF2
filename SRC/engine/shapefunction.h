@@ -42,7 +42,7 @@ class ShapeFunctionCache;	// ditto
 class ShapeFunction {
 public:
   ShapeFunction(int nsf, const MasterElement&);
-  virtual ~ShapeFunction();
+  virtual ~ShapeFunction() {}
 
   // The derived classes need to provide the following functions:
   // value at a master coordinate
@@ -89,9 +89,9 @@ protected:
   void precompute(const MasterElement&);
 private:
   // precomputed values for different integration orders
-  std::vector<ShapeFunctionTable*> sftable;
+  std::vector<ShapeFunctionTable> sftable;
   // cached Element-dependent values
-  std::vector<ShapeFunctionCache*> sfcache;
+  mutable std::vector<ShapeFunctionCache> sfcache;
   int nfunctions;
 
 #ifdef HAVE_OPENMP

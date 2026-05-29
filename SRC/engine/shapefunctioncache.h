@@ -28,10 +28,13 @@ class GaussPoint;
 #include <vector>
 
 class ShapeFunctionCache {
-private:
+public:
+  // Constructor and destructor need to be public for internal methods
+  // of std::vector<ShapeFunctionCache>, in ShapeFunction.
   ShapeFunctionCache(int, int);
   ~ShapeFunctionCache();
   
+private:
   // has a value been stored?    
   bool query_dsf(const Element*, int, int, const GaussPoint&, double&) const;
   bool query_jac(const Element*, const GaussPoint&, double&) const;

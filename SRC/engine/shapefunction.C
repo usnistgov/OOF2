@@ -22,11 +22,15 @@
 #include <omp.h>
 #endif
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// ShapeFunctionTable stores values of shape function and its
+// derivatives at a set of Gauss points.
+
 class ShapeFunctionTable {
-  // Stores values of shape function and its derivatives at a set of
-  // Gauss points.
-private:
+public:
   ShapeFunctionTable(int ngauss, int nnodes);
+private:
   // f[i][j] = f(gausspoint i, node j)
   std::vector<DoubleVec> f_table;
   // df[i][j][k] = df(gausspoint i, node j)/dx_k
@@ -42,14 +46,12 @@ ShapeFunctionTable::ShapeFunctionTable(int ngauss, int nsf)
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
 ShapeFunction::ShapeFunction(int nsf, const MasterElement &master)
-  : sftable(master.ngauss_sets()),
-    nfunctions(nsf)
+  : nfunctions(nsf)
 {
+  sftable.reserve(master.ngauss_sets());
   for(int i=0; i<master.ngauss_sets(); i++) {
-    sftable[i] = new ShapeFunctionTable(master.ngauss(i), nsf);
+    sftable.emplace_back(master.ngauss(i), nsf);
   }
 
 #ifdef HAVE_OPENMP
@@ -61,32 +63,24 @@ ShapeFunction::ShapeFunction(int nsf, const MasterElement &master)
   // Allocate a sfcache for each OpenMP thread
   nthreads = omp_get_max_threads();
   ngauss_sets = master.ngauss_sets();
-  sfcache.resize(nthreads * ngauss_sets);
-  for (int i = 0; i < nthreads; i++) {
-    for (int j = 0; j < ngauss_sets; j++)
-      sfcache[i * ngauss_sets + j] = new ShapeFunctionCache(
-        master.ngauss(j), nsf);
+  sfcache.reserve(nthreads*ngauss_sets);
+  for(int i=0; i<nthreads; i++) {
+    for(int j=0; j<ngauss_sets; j++) {
+      sfcache.emplace_back(master.ngauss(j), nsf);
+    }
   }
 #else
-  sfcache.resize(master.ngauss_sets());
-  for (int i = 0; i < master.ngauss_sets(); i++) {
-    sfcache[i] = new ShapeFunctionCache(master.ngauss(i), nsf);
+  sfcache.reserve(master.ngauss_sets());
+  for(int i=0; i<master.ngauss_sets(); i++) {
+    sfcache.emplace_back(master.ngauss(i), nsf);
   }
 #endif
-}
-
-ShapeFunction::~ShapeFunction() {
-  for(std::vector<ShapeFunctionTable*>::size_type i=0; i<sftable.size(); i++)
-    delete sftable[i]; 
-  for(std::vector<ShapeFunctionCache*>::size_type i=0; i<sfcache.size(); i++)
-    delete sfcache[i];
-
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Use double dispatch to evaluate shape functions at Positions, since
-// the evaluation is done differently at GaussPoints and MasterCoords
+// the evaluation is done differently at GaussPoints and MasterCoords.
 
 double ShapeFunction::value(int n, const MasterPosition &p) const {
   //  Trace("ShapeFunction::value p=" + tostring(p.mastercoord()));
@@ -109,13 +103,13 @@ double ShapeFunction::realderiv(const Element *el, int n,
 // Find the value and derivative at Gauss points by using the lookup tables.
 
 double ShapeFunction::value(int n, const GaussPoint &g) const {
-  return sftable[g.order()]->f_table[g.index()][n];
+  return sftable[g.order()].f_table[g.index()][n];
 }
 
 // derivative wrt master coordinates
 double ShapeFunction::masterderiv(int n, int j, const GaussPoint &g) const {
   //  Trace("ShapeFunction::masterderiv sf=" + tostring(n) + " gpt=" + tostring(g.mastercoord()));
-  return sftable[g.order()]->df_table[g.index()][n][j];
+  return sftable[g.order()].df_table[g.index()][n][j];
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -123,17 +117,19 @@ double ShapeFunction::masterderiv(int n, int j, const GaussPoint &g) const {
 // Fill in the lookup tables
 
 void ShapeFunction::precompute(const MasterElement &master) {
-  // Use the virtual functions that evaluate the shapefunction at
-  // arbitrary points to store its values at the Gauss points.
+  // Use the functions that evaluate the shapefunction at arbitrary
+  // points to store its values at the Gauss points.  This must be
+  // called from the derived class constructor in order to use the
+  // virtual methods value() and masterderiv().
 
   // loop over integration orders (sets of gauss points)
   for(int ord=0; ord<master.ngauss_sets(); ord++) {
 
     const GaussPtTable &gptable = master.gptable(ord);
 
-    std::vector<DoubleVec> &f_table = sftable[ord]->f_table;
+    std::vector<DoubleVec> &f_table = sftable[ord].f_table;
     std::vector<std::vector<DoubleVec> > &df_table =
-      sftable[ord]->df_table;
+      sftable[ord].df_table;
 
     // loop over gausspoints
     for(std::vector<GaussPtData>::size_type g=0; g<gptable.size(); g++) {
@@ -164,7 +160,7 @@ double ShapeFunction::realderiv(const Element *el, int n, int i,
   idx = g.order();
 #endif
 
-  if(sfcache[idx]->query_dsf(el, n, i, g, result))
+  if(sfcache[idx].query_dsf(el, n, i, g, result))
     return result;
 
   // don't be tempted to rewrite this in terms of
@@ -174,7 +170,7 @@ double ShapeFunction::realderiv(const Element *el, int n, int i,
     result += el->Jdmasterdx(j, i, g)*masterderiv(n, j, g);
   result /= el->det_jacobian(g);
 
-  sfcache[idx]->store_dsf(el, n, i, g, result);
+  sfcache[idx].store_dsf(el, n, i, g, result);
   return result;
 }
 
@@ -203,7 +199,7 @@ double ShapeFunction::det_jacobian(const Element *el, const GaussPoint &g) const
   idx = g.order();
 #endif
 
-  if(sfcache[idx]->query_jac(el, g, result))
+  if(sfcache[idx].query_jac(el, g, result))
     return result;
 
   // don't be tempted to rewrite this in terms of
@@ -226,7 +222,7 @@ double ShapeFunction::det_jacobian(const Element *el, const GaussPoint &g) const
 
 #endif
 
-  sfcache[idx]->store_jac(el, g, result);
+  sfcache[idx].store_jac(el, g, result);
   return result;
 }
 
