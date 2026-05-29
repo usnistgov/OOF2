@@ -42,7 +42,7 @@ class ShapeFunctionCache;	// ditto
 class ShapeFunction {
 public:
   ShapeFunction(int nsf, const MasterElement&);
-  virtual ~ShapeFunction() {}
+  virtual ~ShapeFunction();
 
   // The derived classes need to provide the following functions:
   // value at a master coordinate

@@ -77,6 +77,8 @@ ShapeFunction::ShapeFunction(int nsf, const MasterElement &master)
 #endif
 }
 
+ShapeFunction::~ShapeFunction() {}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Use double dispatch to evaluate shape functions at Positions, since
