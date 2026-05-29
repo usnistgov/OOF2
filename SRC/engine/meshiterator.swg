@@ -130,6 +130,26 @@ public:
   MeshInterfaceElementIter* c_end();
 };
 
+%typemap(newfree) VContainerNode {
+  // typemap(newfree) VContainerNode
+  delete $1;
+}
+
+%typemap(newfree) VContainerFuncNode {
+  // typemap(newfree) VContainerFuncNode
+  delete $1;
+}
+
+%typemap(newfree) VContainerElement {
+  // typemap(newfree) VContainerElement
+  delete $1;
+}
+
+%typemap(newfree) VContainerInterfaceElement {
+  // typemap(newfree) VContainerInterfaceElement
+  delete $1;
+}
+
 %pythoncode "engine/meshiterator.spy"
 
 #endif // MESHITERATOR_SWG

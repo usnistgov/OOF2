@@ -99,12 +99,19 @@ public:
   void set_in_plane(Field&, bool);
 
   %rename(nodes) c_nodes;
-  %rename(funcnodes) c_funcnodes;
-  %rename(elements) c_elements;
-  %rename(interface_elements) c_interface_elements;
+  %newobject c_nodes;
   VContainerNode* c_nodes();
+
+  %rename(funcnodes) c_funcnodes;
+  %newobject c_funcnodes;
   VContainerFuncNode* c_funcnodes();
+
+  %rename(elements) c_elements;
+  %newobject c_elements;
   VContainerElement* c_elements();
+
+  %rename(interface_elements) c_interface_elements;
+  %newobject c_interface_elements();
   VContainerInterfaceElement* c_interface_elements();
 
   void set_rwlock(RWLock *rw);

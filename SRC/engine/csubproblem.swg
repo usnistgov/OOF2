@@ -73,10 +73,15 @@ public:
   void redefined();
 
   %rename(nodes) c_nodes;
+  %newobject c_nodes;
+  VContainerNode* c_nodes();
+
   %rename(funcnodes) c_funcnodes;
-  %rename(elements) c_elements;
-  VContainerNode* c_nodes(); 
+  %newobject c_funcnodes;
   VContainerFuncNode* c_funcnodes();
+
+  %rename(elements) c_elements;
+  %newobject c_elements;
   VContainerElement *c_elements();
 
   %newobject new_linear_system;
