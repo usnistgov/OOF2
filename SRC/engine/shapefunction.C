@@ -18,10 +18,6 @@
 #include "engine/shapefunction.h"
 #include "engine/shapefunctioncache.h"
 
-#if DIM==3
-#include "vtk-5.0/vtkMath.h"
-#endif 
-
 #ifdef HAVE_OPENMP
 #include <omp.h>
 #endif
@@ -135,7 +131,6 @@ void ShapeFunction::precompute(const MasterElement &master) {
 
     const GaussPtTable &gptable = master.gptable(ord);
 
-    sftable[ord] = new ShapeFunctionTable(gptable.size(), nfunctions);
     std::vector<DoubleVec> &f_table = sftable[ord]->f_table;
     std::vector<std::vector<DoubleVec> > &df_table =
       sftable[ord]->df_table;
