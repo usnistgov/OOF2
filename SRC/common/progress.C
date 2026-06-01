@@ -102,9 +102,8 @@ void Progress::stop1() {
 
 void Progress::setMessage(const std::string &msg) {
   {
-    // TODO OPT: This may be slow! Can we avoid locking here?
     KeyHolder kh(lock, verboseLocks);
-    message_ = msg;
+    message_ = msg;	      // String copy.  Don't make it too long.
   }
   start();
 }
@@ -113,6 +112,10 @@ const std::string *Progress::message() const {
   KeyHolder kh(lock, verboseLocks);
   return new std::string(message_);
 }
+
+void Progress::printLock() const { // debugging
+  std::cerr << "Progress::printLock: " << &lock << std::endl;
+};
 
 // void Progress::setFraction(double x) {
 //   // This function should be pure virtual, but it's implemented here

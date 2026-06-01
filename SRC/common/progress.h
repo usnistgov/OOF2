@@ -91,6 +91,8 @@ public:
   // disconnectBar is public so that it can be swigged.  It's used by
   // progressbarGUI.py.
   void disconnectBar(PyObject*);
+
+  void printLock() const; 	// for debugging
 private:
   // Progress objects need to have __eq__ and __hash__ methods in
   // Python that will work on ProgressPtrs.  Since swig returns a

@@ -49,6 +49,8 @@ public:
   void acquireThreadLock();
   void releaseThreadLock();
   void disconnectBar(PyObject*);
+
+  void printLock(); 		// for debugging
 };
 
 PYTHONEXPORTABLE(Progress);
