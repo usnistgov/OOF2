@@ -14,6 +14,10 @@
 #ifndef LOCK_H
 #define LOCK_H
 
+// TODO: Use std::mutex instead of pthread_mutex?  Also std::thread
+// instead of pthread_t and std::condition_variable instead of
+// pthread_cond_t.
+
 
 #include <sys/types.h>
 #include <pthread.h>
