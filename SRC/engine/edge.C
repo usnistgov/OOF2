@@ -192,6 +192,7 @@ double EdgeNodeIterator::shapefunction(const MasterPosition &p) const {
 
 // shapefunction derivatives wrt real space coordinates
 double EdgeNodeIterator::dshapefunction(int i, const MasterPosition &p) const {
+  // nlist is a vector of ElementFuncNodeIterators.
   return ed->nlist[index_].dshapefunction(i, p);
 }
 
@@ -199,6 +200,15 @@ double EdgeNodeIterator::dshapefunction(int i, const MasterPosition &p) const {
 double EdgeNodeIterator::masterderiv(int i, const MasterPosition &p) const {
   return ed->nlist[index_].masterderiv(i, p);
 }
+
+double EdgeNodeIterator::masterderiv(int i, const MasterCoord &p) const {
+  return ed->nlist[index_].masterderiv(i, p);
+}
+
+double EdgeNodeIterator::masterderiv(int i, const GaussPoint &g) const {
+  return ed->nlist[index_].masterderiv(i, g);
+}
+ 
 
 void EdgeNodeIterator::print(std::ostream &os) const {
   os << "EdgeNodeIterator(" << index_ << "(" << mlistindex() << "), "

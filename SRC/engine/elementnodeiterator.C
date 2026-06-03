@@ -122,14 +122,26 @@ double ElementMapNodeIterator::shapefunction(const MasterPosition &pos) const {
   return element_.master.mapfunction->value(index_, pos);
 }
 
-double ElementMapNodeIterator::dshapefunction(int i,
-					      const MasterPosition &pos) const
+double ElementMapNodeIterator::dshapefunction(int i, const MasterPosition &pos)
+  const
 {
   return element_.master.mapfunction->realderiv(&element_, index_, i, pos);
 }
 
-double ElementMapNodeIterator::masterderiv(int i,
-					   const MasterPosition &pos) const
+double ElementMapNodeIterator::masterderiv(int i, const MasterPosition &pos)
+  const
+{
+  return element_.master.mapfunction->masterderiv(index_, i, pos);
+}
+
+double ElementMapNodeIterator::masterderiv(int i, const GaussPoint &gpt)
+  const
+{
+  return element_.master.mapfunction->masterderiv(index_, i, gpt);
+}
+
+double ElementMapNodeIterator::masterderiv(int i, const MasterCoord &pos)
+  const
 {
   return element_.master.mapfunction->masterderiv(index_, i, pos);
 }
@@ -215,17 +227,28 @@ double ElementFuncNodeIterator::shapefunction(const MasterPosition &pos) const {
   return element_.master.shapefunction->value(index_, pos);
 }
 
-double ElementFuncNodeIterator::dshapefunction(int i,
-					       const MasterPosition &pos) const
+double ElementFuncNodeIterator::dshapefunction(int i, const MasterPosition &pos)
+  const
 {
   return element_.master.shapefunction->realderiv(&element_, index_, i, pos);
 }
 
-double ElementFuncNodeIterator::masterderiv(int i,
-					    const MasterPosition &mc) const
+double ElementFuncNodeIterator::masterderiv(int i, const MasterPosition &mc)
+  const
 {
   return element_.master.shapefunction->masterderiv(index_, i, mc);
 }
+
+double ElementFuncNodeIterator::masterderiv(int i, const MasterCoord &pt) const
+{
+  return element_.master.shapefunction->masterderiv(index_, i, pt);
+}
+
+double ElementFuncNodeIterator::masterderiv(int i, const GaussPoint &gpt) const
+{
+  return element_.master.shapefunction->masterderiv(index_, i, gpt);
+}
+
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

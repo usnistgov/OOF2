@@ -141,6 +141,8 @@ public:
   virtual double dshapefunction(int, const MasterPosition&) const = 0;
   // shapefunction derivatives wrt master space coordinates
   virtual double masterderiv(int, const MasterPosition&) const = 0;
+  virtual double masterderiv(int, const MasterCoord&) const = 0;
+  virtual double masterderiv(int, const GaussPoint&) const = 0;
   virtual void print(std::ostream&) const = 0;
 };
 
@@ -161,6 +163,8 @@ public:
   virtual double dshapefunction(int, const MasterPosition&) const;
   // shapefunction derivatives wrt master space coordinates
   virtual double masterderiv(int, const MasterPosition&) const;
+  virtual double masterderiv(int, const MasterCoord&) const;
+  virtual double masterderiv(int, const GaussPoint&) const;
   virtual void print(std::ostream&) const;
 };
 
@@ -198,6 +202,8 @@ public:
   virtual double dshapefunction(int, const MasterPosition&) const;
   // shapefunction derivatives wrt master space coordinates
   virtual double masterderiv(int, const MasterPosition&) const;
+  virtual double masterderiv(int, const MasterCoord&) const;
+  virtual double masterderiv(int, const GaussPoint&) const;
   virtual void print(std::ostream&) const;
 
 
