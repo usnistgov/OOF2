@@ -618,15 +618,18 @@ void LinearizedSystem::build_MCK_maps() {
     }
   }
 
+  std::vector<bool> nonEmptyMRows = M_indfree_.non_empty_rows();
+  std::vector<bool> nonEmptyCRows = C_indfree_.non_empty_rows();
+  std::vector<bool> nonEmptyKrows = K_indfree_.non_empty_rows();
+
   for(unsigned int i=0; i<subp2indepEqnMap.range(); i++) {
-    if(M_indfree_.is_nonempty_row(i)) {
+    if(nonEmptyMRows[i])
       nonEmptyMRowMap.add(i);
-    }
     else {			// M row is empty
-      if(C_indfree_.is_nonempty_row(i))
+      if(nonEmptyCRows[i])
 	nonEmptyCRowMap.add(i);
       else {			// C row is empty
-	if(K_indfree_.is_nonempty_row(i))
+	if(nonEmptyKrows[i])
 	  nonEmptyKRowMap.add(i);
       }	// end C row is empty
     }	// end M row is empty

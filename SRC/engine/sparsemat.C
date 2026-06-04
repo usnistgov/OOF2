@@ -30,6 +30,9 @@ SparseMat::SparseMat(const SparseMat& source,
   // mat. If rowmap[i] == -1, then row i should not be included in the
   // submatrix. If rowmap[i] == rowmap[j], then rows i and j of mat are
   // added together in the submatrix. Likewise for columns.
+
+  typedef Eigen::Triplet<double> Triplet;
+  std::vector<Triplet> trips;
   for(auto it=source.begin(); it<source.end(); ++it) {
     assert(it.row() < rowmap.domain());
     assert(it.col() < colmap.domain());
@@ -41,14 +44,11 @@ SparseMat::SparseMat(const SparseMat& source,
       int j = colmap[it.col()];
       assert(j < (int) colmap.range() && j >= -1);
       if(j >= 0) {
-	// TODO: This calls SparseMatrix::coeffRef, which is
-	// inefficient.  Use insertFromTriplets or
-	// insertFromSortedTriplets instead.
-	insert(i, j, it.value());
+	trips.emplace_back(i, j, it.value());
       }
     }
   }
-  make_compressed();
+  data.setFromTriplets(trips.begin(), trips.end()); // result is compressed
 }
 
 void SparseMat::set_from_doublets(std::vector<std::vector<Doublet>> &doubs) {
@@ -131,9 +131,24 @@ void SparseMat::set_from_triplets(std::vector<Eigen::Triplet<double>>& tris) {
 }
 
 bool SparseMat::is_nonempty_row(int i) const {
+  // SparseMat::is_nonempty_row() is very slow for large matrices
+  // because we're using column major storage.  You should probably
+  // use SparseMat::non_empty_rows() instead.  One call to
+  // non_empty_rows() is much faster than nrows calls to
+  // is_nonempty_row().
   assert(i >=0 && i <= nrows());
   Eigen::SparseVector<double> row = data.row(i);
   return row.nonZeros() != 0;
+}
+
+std::vector<bool> SparseMat::non_empty_rows() const {
+  std::vector<bool> nonempty(nrows(), false);
+  for(int col=0; col<ncols(); col++) {
+    for(ESMat::InnerIterator it(data, col); it; ++it) {
+      nonempty[it.row()] = true;
+    }
+  }
+  return nonempty;
 }
 
 bool SparseMat::is_nonempty_col(int i) const {

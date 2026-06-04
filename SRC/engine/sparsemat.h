@@ -87,7 +87,8 @@ public:
   double& coeff_ref(int ir, int ic) { return data.coeffRef(ir, ic); }
   void make_compressed() { data.makeCompressed(); }
   bool is_compressed() const { return data.isCompressed(); }
-  bool is_nonempty_row(int) const;
+  bool is_nonempty_row(int) const; // Very slow.  Not recommended.
+  std::vector<bool> non_empty_rows() const;
   bool is_nonempty_col(int) const;
 
   SparseMat lower() const;

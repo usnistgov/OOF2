@@ -40,7 +40,7 @@ public:
   void insert(int ir, int ic, double val);
   bool empty() const;
   void make_compressed();
-  bool is_nonempty_row(unsigned int) const;
+  bool is_nonempty_row(unsigned int) const; // Very slow.  Not recommended.
   bool is_nonempty_col(unsigned int) const;
   SparseMat lower() const;
   SparseMat unit_lower() const;
