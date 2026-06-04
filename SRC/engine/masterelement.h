@@ -22,9 +22,6 @@ class MasterEdge;
 #include "common/coord.h"
 #include "engine/mastercoord.h"
 
-// #if DIM == 2
-// #include "engine/IO/contour.h"
-// #endif
 #include <list>
 #include <iostream>
 #include <string>
@@ -77,6 +74,8 @@ public:
   friend class MasterElement;
   friend std::ostream &operator<<(std::ostream &os, const ProtoNode &pn);
 };
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 class MasterElement {
 private:
@@ -146,6 +145,9 @@ public:
   Element *build(PyObject *skelel, CSkeletonElement *cskelel,
 		 Material *m, const std::vector<Node*> *v)
     const;
+
+  // Reset the Element-dependent shape function caches.
+  void reset_shapefunction_cache();
 
   //Interface branch
   // Create a real InterfaceElement
@@ -245,6 +247,8 @@ protected:
 
 // list of all master elements
 std::vector<MasterElement*>* masterElementList();
+
+void resetShapeFunctionCaches();
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

@@ -85,6 +85,9 @@ public:
   double det_jacobian(const Element*, const GaussPoint&) const;
   double det_jacobian(const Element*, const MasterCoord&) const;
 
+  // Reset the cache of values at Elements.
+  void reset_cache();
+
 protected:
   void precompute(const MasterElement&);
 private:

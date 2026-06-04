@@ -107,6 +107,8 @@ public:
   int map_order();
   int fun_order();
 
+  void reset_shapefunction_cache();
+
   Element *build(PyObject *skelel, CSkeletonElement *cskelel,
 		 Material*, NodeVec*);
   
@@ -120,6 +122,8 @@ public:
     return self->protonode(n);
   }
 }
+
+void resetShapeFunctionCaches();
 
 ADD_REPR_GENERIC(MasterElement);
 

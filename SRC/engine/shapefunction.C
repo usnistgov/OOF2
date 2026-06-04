@@ -9,6 +9,84 @@
  * oof_manager@nist.gov. 
  */
 
+// Shape function evaluation in the wild is complicated.  Values at
+// Gauss points are precomputed and stored in each ShapeFunction's
+// sftable.  Values that depend explicitly on Elements (ie,
+// derivatives in lab space and jacobians) are stored in
+// ShapeFunction::sfcache and re-used when possible.
+
+// This is summary of what happens starting from calling
+// ElementFuncNodeIterator::shapefunction or
+// ElementFuncNodeIterator::dshapefunction in a Property.
+
+// To evaluate shape functions
+//
+// In Property, given
+//   ElementFuncNodeIterator node
+//   MasterPosition pt     // could be MasterCoord or GaussPoint
+// Call:
+//   ElementFuncNodeIterator::shapefunction(MasterPosition)
+//      iterator knows element knows master knows shapefunction
+//   which calls ShapeFunction::value(n, MasterPosition)
+//      n is iterator index from ElementFuncNodeIterator
+//   which calls MasterPosition::shapefunction(ShapeFunction, n)
+//   which is either
+//   --> GaussPoint::shapefunction(ShapeFunction, n)
+//       which calls ShapeFunction::value(n, GaussPoint)
+//       which returns value from sftable lookup
+//   --> MasterCoord::shapefunction(ShapeFunction, n)
+//       which calls ShapeFunction::value(n, MasterCoord)
+//       which is defined in the derived ShapeFunction class
+//
+//
+// Shape function *derivatives* are more complicated because of the
+// jacobian terms when computing derivative terms in lab coordinates.
+//
+// In Property, given:
+//   ElementFuncNodeIterator node;
+//   MasterPosition &pt;    // could be MasterCoord or GaussPoint
+// Call:
+//   ElementFuncNodeIterator::dshapefunction(i, pt)
+//     iterator knows element knows master knows shapefunction
+//     i is derivative component     
+//   which calls ShapeFunction::realderiv(element, n, i, pt)
+//   which calls MasterPosition::dshapefunction(element, ShapeFunction, n, i)
+//   which is either
+//   --> GaussPoint::dshapefunction(Element, ShapeFunction, n, i)
+//       calls ShapeFunction.realderiv(Element, n, i, GaussPoint)
+//       which tries to retrieve from sfcache or computes and caches the result
+//         * if computing, calls
+//           ShapeFunction::masterderiv(n, j, GaussPoint)
+//              which looks up the result in sftable
+//           and Element::Jdmasterdx(i,j, GaussPoint)
+//               which calls ElementMapNodeIterator::masterderiv(ii, GaussPoint)
+//               which calls ShapeFunction::masterderiv(n, i, GaussPoint)
+//               which looks up the result in sftable
+//           and Element::det_jacobian(GaussPoint)
+//               which calls ShapeFunction::det_jacobian(Element, GaussPoint)
+//               which tries to retrieve from sfcache or computes and caches
+//                  if computing, calls
+//                  Element::jacobian(int, int, GaussPoint)
+//                  which calls ElementMapNodeIterator::masterderiv(int,GPt.)
+//                  which call ShapeFunction::masterderiv(int, int, GaussPoint)
+//                  which looks up the result in sftable
+//   --> MasterCoord::dshapefunction
+//       which calls ShapeFunction::realderiv(element, n, i, MasterCoord)
+//       which calls
+//          Element::Jdmasterdx(int, int, MasterCoord)
+//             which calls ElementMapNodeIterator::masterderiv(int, MasterCoord)
+//             which calls ShapeFunction::masterderiv(int, int, MasterCoord)
+//             which is defined in the derived ShapeFunction class
+//          and ShapeFunction::masterderiv(int, int, MasterCoord)
+//             which is defined in the derived ShapeFunction class 
+//          and ShapeFunction::det_jacobian(Element, MasterCoord)
+//             which calls Element::jacobian(int, int, MasterCoord)
+//             which calls ElementMapNodeIterator::masterderiv(int, MasterCoord)
+//             which calls ShapeFunction::masterderiv(int, int, MasterCoord)
+//             which is defined in the derived ShapeFunction class
+
+
+
 #include <oofconfig.h>
 #include "common/tostring.h"
 #include "common/trace.h"
@@ -17,6 +95,8 @@
 #include "engine/masterelement.h"
 #include "engine/shapefunction.h"
 #include "engine/shapefunctioncache.h"
+
+// TODO: Tests for shapefunction evaluation
 
 #ifdef HAVE_OPENMP
 #include <omp.h>
@@ -79,6 +159,11 @@ ShapeFunction::ShapeFunction(int nsf, const MasterElement &master)
 
 ShapeFunction::~ShapeFunction() {}
 
+void ShapeFunction::reset_cache() {
+  for(ShapeFunctionCache &sfc : sfcache)
+    sfc.reset();
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Use double dispatch to evaluate shape functions at Positions, since
@@ -121,8 +206,9 @@ double ShapeFunction::masterderiv(int n, int j, const GaussPoint &g) const {
 void ShapeFunction::precompute(const MasterElement &master) {
   // Use the functions that evaluate the shapefunction at arbitrary
   // points to store its values at the Gauss points.  This must be
-  // called from the derived class constructor in order to use the
-  // virtual methods value() and masterderiv().
+  // called from the constructor in each ShapeFunction derived
+  // class. It can't be called from the base class, because it uses
+  // the virtual methods value() and masterderiv().
 
   // loop over integration orders (sets of gauss points)
   for(int ord=0; ord<master.ngauss_sets(); ord++) {

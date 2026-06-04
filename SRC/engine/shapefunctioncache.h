@@ -51,7 +51,8 @@ private:
   };
   std::vector<SFCValue> *det_jac; // determinant of jacobian at gauss points
   std::vector<std::vector<std::vector<SFCValue> > > *df; // derivs at gauss pts
-  void reset(const Element*);
+  void reset(const Element*); // don't reset if given element is current.
+  void reset();		      // unconditional reset
   bool current(const Element*) const;
   const Element *cached_element; // element for which this was last computed
 

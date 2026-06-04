@@ -14,6 +14,7 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import timestamp
 from ooflib.SWIG.engine import field
 from ooflib.SWIG.engine import flux
+from ooflib.SWIG.engine import masterelement
 from ooflib.SWIG.engine import ooferror
 from ooflib.SWIG.engine import sparsemat
 from ooflib.common import debug
@@ -654,6 +655,14 @@ class SubProblemContext(whoville.Who):
         femesh.setCurrentSubProblem(self.getObject())
         # utils.memusage("Completed Set FE Mesh %s" %datetime.datetime.now())
 
+        # Make sure that the shape function caches are not left over
+        # from a previous solution.  The caches store
+        # element-dependent computations, and need to be cleared in
+        # case the last element used in previous Mesh had the same
+        # address as the first element used in this one.  (This used
+        # to happen intermittently in time_dependent_bc_test.)
+        masterelement.resetShapeFunctionCaches()
+    
         # Figure out which parts of the calculation have to be redone.
         # If always is set, all steps of the calculation will be
         # peformed, even if they're otherwise unnecessary.  This can

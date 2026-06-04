@@ -31,7 +31,7 @@ ShapeFunctionCache::ShapeFunctionCache(int ngauss, int nsf)
        (ngauss,
 	std::vector<std::vector<SFCValue> >(nsf,
 					     std::vector<SFCValue>(DIM)))),
-    cached_element(0)
+    cached_element(nullptr)
 {}
 
 ShapeFunctionCache::~ShapeFunctionCache() {
@@ -46,45 +46,45 @@ bool ShapeFunctionCache::current(const Element *el) const {
 
 void ShapeFunctionCache::reset(const Element *el) {
   if(!current(el)) {
-    for(std::vector<SFCValue>::size_type i=0; i<det_jac->size(); i++)
-      (*det_jac)[i].computed = 0;
-    // To be completely pedantic, the "unsigned int"s in the following
-    // lines should all be "std::vector<something>::size_type", but
-    // the "something" is a mess.  Since the pedanticism is simply to
-    // suppress compiler warning messages, using "unsigned int" is
-    // almost certainly safe.
-    for(unsigned int i=0; i<df->size(); i++)
-      for(unsigned int j=0; j<(*df)[i].size(); j++)
-	for(unsigned int k=0; k<(*df)[i][j].size(); k++)
-	  (*df)[i][j][k].computed = 0;
+    reset();
   }
   cached_element = el;
+}
+
+void ShapeFunctionCache::reset() {
+  for(std::vector<SFCValue>::size_type i=0; i<det_jac->size(); i++)
+    (*det_jac)[i].computed = false;
+  for(auto i=0; i<df->size(); i++)
+    for(auto j=0; j<(*df)[i].size(); j++)
+      for(auto k=0; k<(*df)[i][j].size(); k++)
+	(*df)[i][j][k].computed = false;
+  cached_element = nullptr;
 }
 
 bool ShapeFunctionCache::query_dsf(const Element *el, int i, int j,
 				   const GaussPoint &g, double &value)
   const
 {
-  if(!current(el)) return 0; // cached element is different
+  if(!current(el)) return false; // cached element is different
   SFCValue &v = (*df)[g.index()][i][j];
   
   if(v.computed) {
     value = v.value;
-    return 1;
+    return true;
   }
-  return 0;
+  return false;
 }
 
 bool ShapeFunctionCache::query_jac(const Element *el, const GaussPoint &g,
 				   double &value) const
 {
-  if(!current(el)) return 0;
+  if(!current(el)) return false;
   SFCValue &v = (*det_jac)[g.index()];
   if(v.computed) {
     value = v.value;
-    return 1;
+    return true;
   }
-  return 0;
+  return false;
 }
 
 void ShapeFunctionCache::store_dsf(const Element *el, int i, int j,
@@ -94,7 +94,7 @@ void ShapeFunctionCache::store_dsf(const Element *el, int i, int j,
   
   SFCValue &v = (*df)[g.index()][i][j];
   v.value = value;
-  v.computed = 1;
+  v.computed = true;
 }
 
 void ShapeFunctionCache::store_jac(const Element *el, const GaussPoint &g,
@@ -103,6 +103,6 @@ void ShapeFunctionCache::store_jac(const Element *el, const GaussPoint &g,
   reset(el);
   SFCValue &v = (*det_jac)[g.index()];
   v.value = value;
-  v.computed = 1;
+  v.computed = true;
 }
 

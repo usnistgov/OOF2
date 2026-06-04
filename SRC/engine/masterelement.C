@@ -418,6 +418,18 @@ const std::vector<GaussPtTable> &EdgeMaster::gptable_vec() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+void MasterElement::reset_shapefunction_cache() {
+  shapefunction->reset_cache();
+  mapfunction->reset_cache();
+}
+
+void resetShapeFunctionCaches() {
+  for(MasterElement *mel : *masterElementList())
+    mel->reset_shapefunction_cache();
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 MasterCoord TriangularMaster::center() const {
   static double third = 1./3.;
   return MasterCoord(third, third);
