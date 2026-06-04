@@ -530,39 +530,3 @@ test_set = [
     OOF_TimeDependentFloat("AdaptiveMaxMax_Intersect"),
     OOF_TimeDependentFloat("Conflict")
     ]
-
-# test_set = [
-#     # With none of these run first, OOF_TimeDependentFloat("Adaptive")
-#     # ran for over 6500 iterations before I got bored and killed it.
-#     # With just one of these run first, it fails.  Iteration counts
-#     # below are anecdotal.  They're from single runs of
-#     #  "oof2-test --forever time_dependent_bc_test"
-
-#     # When Adaptive fails, it's because temptop.dat doesn't match the
-#     # reference file td_float_top.dat.  The incorrect file appears to
-#     # always be the same, with md5 checksum
-#     # 207f132868890127a92e982a99d184e8
-
-#     # It fails whether or not using --unthreaded.
-
-#     # Using AdaptiveMax instead of Adaptive also fails. AdaptiveMax
-#     # also doesn't fail when run on its own, and also produces the
-#     # same incorrect data file when it fails.
-
-#     # Just running Adaptive and AdaptiveMax appears did not fail in
-#     # 1900+ iterations.
-
-#     # numbers are either the test number at failure or number of
-#     # successful iterations before failure, which is half the number
-#     # of tests, when the given test is run before
-#     # OOF_TimeDependentFloat("Adaptive").
-    
-#     # OOF_TimeDependentDirichlet("QuasiStatic"),     # 44, 205, 103, 79
-#                                                    # unthreaded: 316, 57
-#     # OOF_TimeDependentDirichlet("Adaptive"),        # 232
-#     # OOF_TimeDependentDirichlet("QuasiStatic_Pts"), # 84, 55
-#     # OOF_TimeDependentDirichlet("Adaptive_Pts"),    # 20, 143, 307, 264
-#     # OOF_TimeDependentFloat("Conflict"), # Does not fail!
-#     OOF_TimeDependentFloat("Adaptive"),
-#     # OOF_TimeDependentFloat("AdaptiveMax"),
-#     ]
