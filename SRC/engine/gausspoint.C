@@ -47,7 +47,7 @@ Coord GaussPoint::coord() const {
   return element->from_master(mastercoord());
 }
 
-#ifndef DONT_USE_CACHED_VALUES
+#ifdef OOF2_SHAPEFUNCTION_CACHE
 
 double GaussPoint::shapefunction(const ShapeFunction &sf, int n)
   const
@@ -69,7 +69,7 @@ double GaussPoint::dshapefunction(const Element *el, const ShapeFunction &sf,
   return sf.realderiv(el, n, i, *this);
 }
 
-#else  // DONT_USE_CACHED_VALUES
+#else  // not using OOF2_SHAPEFUNCTION_CACHE
 
 double GaussPoint::shapefunction(const ShapeFunction &sf, int n)
   const
@@ -89,7 +89,7 @@ double GaussPoint::dshapefunction(const Element *el, const ShapeFunction &sf,
   return sf.realderiv(el, n, i, mastercoord());
 }
 
-#endif // DONT_USE_CACHED_VALUES
+#endif // OOF2_SHAPEFUNCTION_CACHE
 
 std::ostream& operator<<(std::ostream &o, const GaussPoint &gpt) {
   o << "GaussPoint(" << gpt.position_[0] << ", " <<  

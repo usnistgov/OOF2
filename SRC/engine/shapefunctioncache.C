@@ -65,6 +65,7 @@ bool ShapeFunctionCache::query_dsf(const Element *el, int i, int j,
 				   const GaussPoint &g, double &value)
   const
 {
+#ifdef OOF2_SHAPEFUNCTION_CACHE
   if(!current(el)) return false; // cached element is different
   SFCValue &v = (*df)[g.index()][i][j];
   
@@ -73,11 +74,15 @@ bool ShapeFunctionCache::query_dsf(const Element *el, int i, int j,
     return true;
   }
   return false;
+#else // not using OOF2_SHAPEFUNCTION_CACHE
+  return false;
+#endif // OOF2_SHAPEFUNCTION_CACHE
 }
 
 bool ShapeFunctionCache::query_jac(const Element *el, const GaussPoint &g,
 				   double &value) const
 {
+#ifdef OOF2_SHAPEFUNCTION_CACHE
   if(!current(el)) return false;
   SFCValue &v = (*det_jac)[g.index()];
   if(v.computed) {
@@ -85,24 +90,31 @@ bool ShapeFunctionCache::query_jac(const Element *el, const GaussPoint &g,
     return true;
   }
   return false;
+#else // not using OOF2_SHAPEFUNCTION_CACHE
+  return false;
+#endif // OOF2_SHAPEFUNCTION_CACHE
 }
 
 void ShapeFunctionCache::store_dsf(const Element *el, int i, int j,
 				   const GaussPoint &g, double value)
 {
+#ifdef OOF2_SHAPEFUNCTION_CACHE
   reset(el);
   
   SFCValue &v = (*df)[g.index()][i][j];
   v.value = value;
   v.computed = true;
+#endif // OOF2_SHAPEFUNCTION_CACHE
 }
 
 void ShapeFunctionCache::store_jac(const Element *el, const GaussPoint &g,
 				   double value)
 {
+#ifdef OOF2_SHAPEFUNCTION_CACHE
   reset(el);
   SFCValue &v = (*det_jac)[g.index()];
   v.value = value;
   v.computed = true;
+#endif // OOF2_SHAPEFUNCTION_CACHE
 }
 

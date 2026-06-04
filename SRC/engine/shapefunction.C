@@ -96,7 +96,28 @@
 #include "engine/shapefunction.h"
 #include "engine/shapefunctioncache.h"
 
-// TODO: Tests for shapefunction evaluation
+// TODO: Tests for shapefunction evaluation.  If the shapefunctions
+// break, all the solver tests will fail, so this isn't urgent.
+
+// TODO: Add an OOF2_SHAPEFUNCTION_CACHE compiler option that controls
+// whether values are cached or not, both here and in gausspoint.C.
+// Test to see if the cache makes a difference.
+
+// On Intel iMac, running just the static_test from solver_test.py,
+// with OOF2_SHAPEFUNCTION_CACHE=ON
+//   real 0m9.654s user 0m7.667s sys 0m0.499s
+//   real 0m9.627s user 0m7.745s sys 0m0.489s
+// with OOF2_SHAPEFUNCTION_CACHE=OFF
+//   real 0m9.636s user 0m7.791s sys 0m0.463s
+//   real 0m9.628s user 0m7.680s sys 0m0.518s
+
+// Creating and solving a 100x100 element static elasticity problem
+// with Q4_8 elements:
+// with OOF2_SHAPEFUNCTION_CACHE=ON
+
+// with OOF2_SHAPEFUNCTION_CACHE=OFF
+//  
+
 
 #ifdef HAVE_OPENMP
 #include <omp.h>
@@ -170,21 +191,33 @@ void ShapeFunction::reset_cache() {
 // the evaluation is done differently at GaussPoints and MasterCoords.
 
 double ShapeFunction::value(int n, const MasterPosition &p) const {
-  //  Trace("ShapeFunction::value p=" + tostring(p.mastercoord()));
+#ifdef OOF2_SHAPEFUNCTION_CACHE
+  // Double dispatch: table lookup at GaussPoints, compute at MasterCoords.
   return p.shapefunction(*this, n);
+#else
+  return this->value(n, p.mastercoord());
+#endif	// OOF2_SHAPEFUNCTION_CACHE
 }
 
 double ShapeFunction::masterderiv(int n, int j, const MasterPosition &p) const {
-  //  Trace("ShapeFunction::masterderiv sf=" + tostring(n) + " p=" + tostring(p.mastercoord()));
+#ifdef OOF2_SHAPEFUNCTION_CACHE
+  // Double dispatch: table lookup at GaussPoints, compute at MasterCoords.
   return p.mdshapefunction(*this, n, j);
+#else
+  return this->masterderiv(n, j, p.mastercoord());
+#endif	// OOF2_SHAPEFUNCTION_CACHE
 }
 
 double ShapeFunction::realderiv(const Element *el, int n,
 				int j, const MasterPosition &p)
   const
 {
-  //  Trace("ShapeFunction::realderiv sf=" + tostring(n) + " p=" + tostring(p.mastercoord()));
+#ifdef OOF2_SHAPEFUNCTION_CACHE
+  // Double dispatch: table lookup at GaussPoints, compute at MasterCoords
   return p.dshapefunction(el, *this, n, j);
+#else
+  return this->realderiv(el, n, j, p.mastercoord());
+#endif	// OOF2_SHAPEFUNCTION_CACHE
 }
 
 // Find the value and derivative at Gauss points by using the lookup tables.
@@ -195,7 +228,6 @@ double ShapeFunction::value(int n, const GaussPoint &g) const {
 
 // derivative wrt master coordinates
 double ShapeFunction::masterderiv(int n, int j, const GaussPoint &g) const {
-  //  Trace("ShapeFunction::masterderiv sf=" + tostring(n) + " gpt=" + tostring(g.mastercoord()));
   return sftable[g.order()].df_table[g.index()][n][j];
 }
 
@@ -238,7 +270,6 @@ double ShapeFunction::realderiv(const Element *el, int n, int i,
 				const GaussPoint &g)
   const
 {
-  //  Trace("ShapeFunction::realderiv 1");
   double result = 0;
   int idx;
 #ifdef HAVE_OPENMP
@@ -266,7 +297,6 @@ double ShapeFunction::realderiv(const Element *el, int n, int i,
 				const MasterCoord &mc)
   const
 {
-  //  Trace("ShapeFunction::realderiv 2");
   double result = 0;
   for(int j=0; j<DIM; ++j)
     result += el->Jdmasterdx(j, i, mc)*masterderiv(n, j, mc);

@@ -27,6 +27,8 @@ mark_as_advanced(OOF2_SYSTEM_INSTALL)
 
 option(OOF2_DEV_INSTALL OFF "Install development files?")
 
+option(OOF2_SHAPEFUNCTION_CACHE "Used cached shapefunction values" ON)
+mark_as_advanced(OOF2_SHAPEFUNCTION_CACHE)
 
 ## TODO PYTHON3: Get openMP working. See the openmp-branch branch.
 ## Use FindOpenMP.
