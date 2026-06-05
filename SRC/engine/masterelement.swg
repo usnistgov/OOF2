@@ -131,4 +131,8 @@ int integration_reduction;
 
 %pythoncode "engine/masterelement.spy"
 
+// %inline %{
+//   int sfcache_count() { return sfcache_lookups; } // DEBUGGING
+// %}
+
 #endif // MASTERELEMENT_SWG

@@ -85,7 +85,34 @@
 //             which calls ShapeFunction::masterderiv(int, int, MasterCoord)
 //             which is defined in the derived ShapeFunction class
 
+// The preprocessor flag OOF2_SHAPEFUNCTION_CACHE controls whether
+// shapefunction values are cached at Gauss points or computed each
+// time they're needed, and if real-space derivatives of
+// shapefunctions and jacobians are cached and reused inside of
+// elements.  Defining OOF2_SHAPEFUNCTION_CACHE turns caching on.  
+// 
+// Caching was tested by running OOF.Help.Debug.Build_Matrices on a
+// 100x100 element static elasticity problem with Q4_8 elements, and
+// using timeit to time just the call to Build_Matrices.  A counter
+// was incremented each time sfcache or sftable was used.
+//
+// with OOF2_SHAPEFUNCTION_CACHE=ON, 20970000 cache hits
+//   t=15.776495833997615  (on M1 MacBook)
+//   t=15.178710000007413
+//   t=16.668193624995183
+// with OOF2_SHAPEFUNCTION_CACHE=OFF, 0 cache hits
+//   t=16.085912250040565
+//   t=15.451965375046711
+//
+// So caching is pretty much useless, but not harmful. Maybe there's a
+// better way to do it.
+//
+// TODO: Remove the virtual functions and double dispatch that enables
+// caching, to see if it improves the non-caching times.
 
+// TODO: Add tests for shapefunction evaluation.  If the
+// shapefunctions break, all the solver tests will fail, so this isn't
+// urgent.
 
 #include <oofconfig.h>
 #include "common/tostring.h"
@@ -96,32 +123,12 @@
 #include "engine/shapefunction.h"
 #include "engine/shapefunctioncache.h"
 
-// TODO: Tests for shapefunction evaluation.  If the shapefunctions
-// break, all the solver tests will fail, so this isn't urgent.
-
-// TODO: Add an OOF2_SHAPEFUNCTION_CACHE compiler option that controls
-// whether values are cached or not, both here and in gausspoint.C.
-// Test to see if the cache makes a difference.
-
-// On Intel iMac, running just the static_test from solver_test.py,
-// with OOF2_SHAPEFUNCTION_CACHE=ON
-//   real 0m9.654s user 0m7.667s sys 0m0.499s
-//   real 0m9.627s user 0m7.745s sys 0m0.489s
-// with OOF2_SHAPEFUNCTION_CACHE=OFF
-//   real 0m9.636s user 0m7.791s sys 0m0.463s
-//   real 0m9.628s user 0m7.680s sys 0m0.518s
-
-// Creating and solving a 100x100 element static elasticity problem
-// with Q4_8 elements:
-// with OOF2_SHAPEFUNCTION_CACHE=ON
-
-// with OOF2_SHAPEFUNCTION_CACHE=OFF
-//  
-
 
 #ifdef HAVE_OPENMP
 #include <omp.h>
 #endif
+
+// int sfcache_lookups = 0;
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -223,11 +230,13 @@ double ShapeFunction::realderiv(const Element *el, int n,
 // Find the value and derivative at Gauss points by using the lookup tables.
 
 double ShapeFunction::value(int n, const GaussPoint &g) const {
+  // ++sfcache_lookups;
   return sftable[g.order()].f_table[g.index()][n];
 }
 
 // derivative wrt master coordinates
 double ShapeFunction::masterderiv(int n, int j, const GaussPoint &g) const {
+  // ++sfcache_lookups;
   return sftable[g.order()].df_table[g.index()][n][j];
 }
 

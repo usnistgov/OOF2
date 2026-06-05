@@ -1673,6 +1673,31 @@ mainmenu.OOF.Mesh.addItem(oofmenu.OOFMenuItem(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# For debugging, it can be useful to construct the FE matrices without
+# solving them.
+
+def _build_mats(menuitem, mesh):
+    meshctxt = ooflib.engine.mesh.meshes[mesh]
+    meshctxt.reserve()
+    meshctxt.begin_writing()
+    meshctxt.restoreLatestData()
+    for subp in meshctxt.subproblems():
+        if subp.time_stepper is not None and subp.solveFlag:
+            subp.make_linear_system(time=0.0, linsys=None)
+            
+mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem(
+    'Build_Matrices',
+    callback=_build_mats,
+    no_gui=True,
+    no_doc=True,
+    params=[
+        whoville.WhoParameter('mesh', ooflib.engine.mesh.meshes,
+                              tip=parameter.emptyTipString)],
+    help="Compute the finite element matrices for a Mesh, but don't solve them"
+))
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 def _compare(menuitem, mesh1, mesh2, tolerance):
     meshctxt1 = ooflib.engine.mesh.meshes[mesh1]
     meshctxt2 = ooflib.engine.mesh.meshes[mesh2]

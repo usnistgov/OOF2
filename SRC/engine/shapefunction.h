@@ -112,5 +112,7 @@ private:
 #endif
 };
 
+// extern int sfcache_lookups; 		//  for debugging
+
 #endif
 

@@ -30,7 +30,11 @@ GaussPoint::GaussPoint(const Element *el,
 {}
 
 double GaussPoint::weight() const {
-  return weight_ * (element->det_jacobian(*this)); 
+#ifdef OOF2_SHAPEFUNCTION_CACHE
+  return weight_*(element->det_jacobian(*this));
+#else
+  return weight_*(element->det_jacobian(mastercoord()));
+#endif	// OOF2_SHAPEFUNCTION_CACHE
 }
 
 // Redundant with the iterator's index, but needed so the cache can

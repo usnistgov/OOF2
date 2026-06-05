@@ -22,7 +22,7 @@
 #include <oofconfig.h>
 #include "gausspoint.h"
 #include "shapefunctioncache.h"
-
+// #include "shapefunction.h"	// for sfcache_lookups, debugging
 #include <iostream>
 
 ShapeFunctionCache::ShapeFunctionCache(int ngauss, int nsf)
@@ -70,6 +70,7 @@ bool ShapeFunctionCache::query_dsf(const Element *el, int i, int j,
   SFCValue &v = (*df)[g.index()][i][j];
   
   if(v.computed) {
+    // ++sfcache_lookups;
     value = v.value;
     return true;
   }
@@ -87,6 +88,7 @@ bool ShapeFunctionCache::query_jac(const Element *el, const GaussPoint &g,
   SFCValue &v = (*det_jac)[g.index()];
   if(v.computed) {
     value = v.value;
+    // ++sfcache_lookups;
     return true;
   }
   return false;
