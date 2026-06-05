@@ -208,6 +208,7 @@ public:
   int nnodes() const;
   int nfuncnodes() const;
   int nelements() const;
+  int ndofs() const { return ndof(); } // naming inconsistency
 
   // Is a field in-plane on this mesh?
   bool in_plane(const Field &field) const;

@@ -90,6 +90,7 @@ public:
 
   int nelements();
   int nnodes();
+  int ndofs();
 
   void addInterfaceElement(InterfaceElement*);
   int nedgements();
