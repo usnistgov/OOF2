@@ -31,6 +31,12 @@ SparseMat::SparseMat(const SparseMat& source,
   // submatrix. If rowmap[i] == rowmap[j], then rows i and j of mat are
   // added together in the submatrix. Likewise for columns.
 
+  // TODO: Constructing a list of (i,j,value) triplets and
+  // initializing the matrix with them is much faster than setting
+  // each matrix element with individual calls to coeffRef.  But it
+  // does temporarily use a lot of memory, if the matrix is large.  It
+  // might be better to work column by column, as in
+  // set_from_doublets, below, if that's possible.
   typedef Eigen::Triplet<double> Triplet;
   std::vector<Triplet> trips;
   for(auto it=source.begin(); it<source.end(); ++it) {
