@@ -113,6 +113,9 @@ class SolverPage(oofGUI.MainPage):
         gtklogger.adoptGObject(self.subpListView.get_selection(),
                                self.subpListView,
                                access_method=self.subpListView.get_selection)
+        # The treeview selection is destroyed too early unless we keep
+        # a reference to it.  gtk3 bug?
+        self.subpsel = self.subpListView.get_selection()
         self.subpselsig = gtklogger.connect(self.subpListView.get_selection(),
                                             'changed', self.subpSelectCB)
         # Catch double clicks or returns
@@ -284,10 +287,12 @@ class SolverPage(oofGUI.MainPage):
         fieldinitcol.pack_start(fieldinitcell, expand=True)
         fieldinitcol.set_cell_data_func(fieldinitcell, self.renderFieldInit)
 
-        selection = self.initview.get_selection()
-        gtklogger.adoptGObject(selection, self.initview,
+        # The treeview selection is destroyed too early unless we keep
+        # a reference to it.  gtk3 bug?
+        self.initselection = self.initview.get_selection()
+        gtklogger.adoptGObject(self.initselection, self.initview,
                                access_method=self.initview.get_selection)
-        self.initselsignal = gtklogger.connect(selection, 'changed',
+        self.initselsignal = gtklogger.connect(self.initselection, 'changed',
                                                self.initSelectCB)
         gtklogger.connect(self.initview, 'row-activated',
                           self.initActivateRowCB)

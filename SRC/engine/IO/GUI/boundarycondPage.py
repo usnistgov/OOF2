@@ -448,12 +448,14 @@ class BCList:
         bccol.set_resizable(True)
         self.treeview.append_column(bccol)
 
-        selection = self.treeview.get_selection()
-        gtklogger.adoptGObject(selection, self.treeview,
+        # The treeview selection is destroyed too early if we don't
+        # keep a reference to it.  gtk3 bug?
+        self.selection = self.treeview.get_selection()
+        gtklogger.adoptGObject(self.selection, self.treeview,
                                access_method=self.treeview.get_selection)
 
         self.signals = (
-            gtklogger.connect(selection, 'changed', self.selectCB),
+            gtklogger.connect(self.selection, 'changed', self.selectCB),
             gtklogger.connect(self.treeview, 'row-activated',
                               self.doubleClickCB)
             )

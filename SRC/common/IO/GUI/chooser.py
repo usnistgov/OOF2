@@ -420,10 +420,10 @@ class ChooserListWidgetBase:
 
         if name:
             gtklogger.setWidgetName(self.treeview, name)
-        selection = self.treeview.get_selection()
-        gtklogger.adoptGObject(selection, self.treeview,
+        self.selection = self.treeview.get_selection()
+        gtklogger.adoptGObject(self.selection, self.treeview,
                               access_method=self.treeview.get_selection)
-        self.selectsignal = gtklogger.connect(selection, 'changed',
+        self.selectsignal = gtklogger.connect(self.selection, 'changed',
                                              self.selectionchangedCB)
         self.update(objlist or [], displaylist, helpdict=helpdict)
 

@@ -286,6 +286,9 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         methodcol.set_cell_data_func(methodcell, self.renderMethodCell)
         self.layerListView.append_column(methodcol)
 
+        # The treeview selection is destroyed too soon unless we keep
+        # a reference to it.  gtk3 bug?
+        self.layerlistsel = self.layerListView.get_selection()
         gtklogger.adoptGObject(self.layerListView.get_selection(),
                               self.layerListView,
                               access_method=self.layerListView.get_selection)

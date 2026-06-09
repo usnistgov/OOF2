@@ -268,6 +268,9 @@ class OutputPage(oofGUI.MainPage):
         gtklogger.adoptGObject(self.outputView.get_selection(),
                                self.outputView,
                                access_method=self.outputView.get_selection)
+        # The treeview selection is deleted too early if we don't keep
+        # a reference to it. gtk3 bug?
+        self.selection = self.outputView.get_selection()
         self.selectionsignal = gtklogger.connect(
             self.outputView.get_selection(), 'changed', self.selectionCB)
 
