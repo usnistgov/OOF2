@@ -90,6 +90,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.settings = settings or ghostgfxwindow.GfxSettings()
         self.mouseHandler = mousehandler.nullHandler # doesn't do anything
         self.rubberband = None
+        self.layerPopup = None
 
         # Build all the GTK objects for the interior of the box.  These
         # actually get added to the window itself after the SubWindow
@@ -988,11 +989,18 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     
     def layerlistbuttonCB(self, gtkobj, event):
         if event.button == 3:
-            popupMenu = gtklogger.newPopupMenu()
-            for item in self.menu.Layer:
-                item.construct_gui(self.menu.Layer, popupMenu, None, popup=True)
-            popupMenu.show_all()
-            popupMenu.popup_at_pointer(event)
+            if self.layerPopup is None:
+                # layerPopup is not expensive to compute, but needs to
+                # be stored in the GfxWindow so that it's not deleted
+                # too soon.  If we don't keep a reference to it, it
+                # disappears before gtklogger has a chance to record
+                # events on it.
+                self.layerPopup = gtklogger.newPopupMenu()
+                for item in self.menu.Layer:
+                    item.construct_gui(self.menu.Layer, self.layerPopup,
+                                       None, popup=True)
+            self.layerPopup.show_all()
+            self.layerPopup.popup_at_pointer(event)
 
         # It's important to return False here, since doing so allows
         # other handlers to see the event.  In particular, it allows a
