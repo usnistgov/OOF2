@@ -39,7 +39,7 @@ run more than one test
 You don't need to type the full name of a test.  Test names can be
 abbreviated using Python regular expressions.  For example,
  
-    oof2-test "micro.*"
+    oof2-test micro.*
 
 is equivalent to
 

@@ -1139,4 +1139,8 @@ def _cleanUpMenus():
     #     n += 1
     # print(f"_cleanUpMenus: cleaned up {n} menu items, {len(_allMenuItems)} remaining")
 
-atshutdown.atShutDown(_cleanUpMenus)
+## TODO: if this is to be done, it has to be done *after* the gui is
+## destroyed.  It's commented out for now, because the cleanup isn't
+## essential.
+
+#atshutdown.atShutDown(_cleanUpMenus)

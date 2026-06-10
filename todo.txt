@@ -79,11 +79,17 @@ Change all indices in vectors, matrices, etc from int to unsigned
 int. FieldIndex and IndexP should be convertible to unsigned int
 instead of int.  Or maybe to std::size_t.
 
-Upgrade to Eigen 5.0.0 (or at least 3.4.1).
-
 Fix statgroups.C.  See TODO there.
 
 Fix meshparamwidgets.C.  See TODOs there about proxies.
+
+Remove the shapefunction caching in sftable and sfcache, and eliminate
+the virtual functions in MasterCoord and GaussPoint that enable
+it.  See if matrix construction speed increases.
+
+Use something like SparseMat::set_from_doublets when constructing a
+SparseMat by using maps to extract a submatrix.  That might be as fast
+as using setFromTriplets and use a lot less memory.
 
 THINGS TO FIX IN TUTORIALS
 

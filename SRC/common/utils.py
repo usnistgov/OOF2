@@ -115,15 +115,14 @@ def degenerate(liszt):
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
-# Get a list of the classes to which an object or class belongs.
-## TODO: Don't do this. Use inspect.getmro().
+# Get a list of the classes to which an object or class belongs.  Just
+# for debugging.
 
+import inspect
 def classes(c):
     if isinstance(c, type):
-        if not c.__bases__ or c.__bases__ == (object,):
-            return [c]
-        return [c] +  flatten(map(classes, c.__bases__))
-    return classes(c.__class__)
+        return inspect.getmro(c)
+    return inspect.getmro(c.__class__)
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 

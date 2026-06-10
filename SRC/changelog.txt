@@ -95,6 +95,13 @@ OOF2 2.4.0
   used.  CMake will use whatever version of swig it finds, which must
   be 4.something.
 
+* Fixed a bug that could in some circumstances lead to incorrect
+  results when creating and solving a Mesh after deleting another
+  Mesh.
+
+* Fixed some inefficiencies in matrix construction. This makes
+  solving large meshes significantly faster.
+
 OOF2 2.3.3
 
 * Disabled selection of interface segments since interface properties
