@@ -174,7 +174,6 @@ class MeshFieldLister:
         ## meshctxt is a proxy, and to check the return value to
         ## ensure it's not None.  Does this always know its gfxwindow?
         ## Or can the caller call resolve()?
-        debug.fmsg(f"{meshctxt=}")
         if issubclass(meshctxt.__class__, whoville.WhoProxy):
             gfxwindow = self.scope.findData("gfxwindow")
             meshctxt = meshctxt.resolve(gfxwindow)
