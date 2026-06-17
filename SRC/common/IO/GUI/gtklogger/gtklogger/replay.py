@@ -68,6 +68,15 @@ def replay(filename, beginCB=None, finishCB=None, debugLevel=2,
         function=GUILogPlayer(filename, beginCB, finishCB, debugLevel,
                               threaded, exceptHook, rerecord, checkpoints,
                               comment_gui))
+    ## TODO: This should somehow wait for the log player to finish and
+    ## return True if it finished cleanly, or False if it raised an
+    ## exception. Or just re-raise the exception.  This would be more
+    ## polite than calling sys.exit() in GUILogLineRunner.__call__.
+    ## The problem is that exceptions are not naturally propagated
+    ## from an idle callback.  We can't use a pthread semaphore
+    ## because we might be running unthreaded.  Perhaps use something
+    ## like g_main_context_iteration instead of idle_add.
+    
 
 # A GUILogPlayer reads a log file of saved gui events and simulates them.
 
@@ -326,6 +335,16 @@ class GUILogLineRunner:
                     self.status = "aborted"
                     self.logrunner.abort()
                     if self.logrunner.exceptHook:
+                        # TODO: Raising exceptions here is not
+                        # sufficient, because the exception doesn't
+                        # propagate outside of the gtk event loop.
+                        # Execution of the script will stop, but when
+                        # the user quits oof2, guitests.py will think
+                        # the test succeeded.  OTOH, calling
+                        # sys.exit(1) will correctly report a test
+                        # failure, but since it will close all of the
+                        # windows it doesn't give anyone the chance to
+                        # see why the test failed.
                         if not self.logrunner.exceptHook(exc, self.srcline):
                             raise exc
                     else:
@@ -363,7 +382,7 @@ class PerformLine(GUILogLineRunner):
         GUILogLineRunner.__init__(self, logrunner, srcline, lineno)
         self.line = line
     def report(self):
-        print(f"{logprefix} ////// %d/%d %s" %(self.srcline, self.nlines(),
+        print(f"{logprefix} || %d/%d %s" %(self.srcline, self.nlines(),
                                                  self.line), file=sys.stderr)
     def playback(self):
         if logutils.recording():
@@ -400,7 +419,7 @@ class PostponeLine(GUILogLineRunner):
         self.status = "done"
         return False
     def report(self):
-        print(f"{logprefix} ////// %d/%d postponing %s" % (self.srcline,
+        print(f"{logprefix} || %d/%d postponing %s" % (self.srcline,
                                                              self.nlines(),
                                                              self.line), file=sys.stderr)
 
@@ -431,7 +450,7 @@ class PostponedLine(PerformLine):
         # Postponed lines never wait for other postponed lines.
         return False
     def report(self):
-        print(f"{logprefix} ////// %d/%d (postponed) %s" % (self.srcline,
+        print(f"{logprefix} || %d/%d (postponed) %s" % (self.srcline,
                                                               self.nlines(),
                                                               self.line), file=sys.stderr)
 
@@ -445,7 +464,7 @@ class CommentLine(GUILogLineRunner):
         self.status = "done"
         return False
     def report(self):
-        print(f"{logprefix} ###### %d/%d %s" % (self.srcline, self.nlines(),
+        print(f"{logprefix} ## %d/%d %s" % (self.srcline, self.nlines(),
                                                   self.comment), file=sys.stderr)
 
 class PauseLine(GUILogLineRunner):
@@ -497,7 +516,7 @@ class CheckPointLine(GUILogLineRunner):
                              priority=GLib.PRIORITY_LOW)
         return False
     def report(self):
-        print(f"{logprefix} ////// %d/%d checkpoint %s"
+        print(f"{logprefix} || %d/%d checkpoint %s"
               %(self.srcline, self.nlines(), self.comment),
               file=sys.stderr)
         
