@@ -41,11 +41,10 @@ excluded = ['CVS','TEST_DATA', 'examples', '__pycache__']
 # test, if the test is successful.  cleanup.py is run in the
 # guitests.py environment.
 
-# Any test that calls sys.exit() with an non-zero status is considered
-# a failure.  If a test is *supposed* to return a non-zero status,
-# that status should be put in a file called 'exitstatus' in the
-# test subdirectory.
-
+# Any test that raises an uncaught exception or calls sys.exit() with
+# an non-zero status is considered a failure.  If a test is *supposed*
+# to return a non-zero status, that status should be put in a file
+# called 'exitstatus' in the test subdirectory.
 
 import getopt
 import os
@@ -74,7 +73,7 @@ def run_tests(dirs, rerecord, forever):
     homedir = os.getcwd()
     global tmpdir
     tmpdir = tempfile.mkdtemp(prefix='oof2temp_')
-    print("Using temp dir", tmpdir, file=sys.stderr)
+    print(f"Using temp dir {tmpdir}", file=sys.stderr)
 
     linkfile(homedir, 'examples')
     linkfile(homedir, 'TEST_DATA')
@@ -83,29 +82,33 @@ def run_tests(dirs, rerecord, forever):
     os.chdir(tmpdir)
     try:
         if forever:
-            counter = 0
+            counter = 1
             while True:
-                print("******* %d ********" % counter, file=sys.stderr)
+                print(f"******* {counter} ********", file=sys.stderr)
+                ok = really_run_tests(homedir, dirs, counter, rerecord)
                 counter += 1
-                ok = really_run_tests(homedir, dirs, rerecord)
         else:
-            really_run_tests(homedir, dirs, rerecord)
-    except:
-        print("Not removing temp directory", tmpdir, file=sys.stderr)
+            really_run_tests(homedir, dirs, None, rerecord)
+    except Exception as exc:
+        # Test failed by raising an exception.
+        print(f"Not removing temp directory {tmpdir}", file=sys.stderr)
         raise
-    else:   # Successful execution. 
-        pass
-        # Remove everything from the temp directory.  There may be
-        # *.pyc files left, as well as the subdirectories linked above,
-        # even if everything ran correctly.
+    else:
+        # All tests executed successfully.  Remove everything from the
+        # temp directory.  There may be stray data files, as well as
+        # the subdirectories linked above, even if everything ran
+        # correctly.
         for f in os.listdir(tmpdir):
             os.remove(f)
-        # Remove the temp directory
+        # Remove the now empty temp directory.
         os.rmdir(tmpdir)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def really_run_tests(homedir, dirs, rerecord):
+def really_run_tests(homedir, dirs, counter, rerecord):
+    # 'counter' counts the iterations through the 'forever' loop in
+    # run_tests().  It is None if the tests are being looped over.
+    
     skipped = []    # list of skipped directories, reported at the end
     nrun = 0
     retried = [] # tests which had to be repeated, reported at the end
@@ -115,14 +118,14 @@ def really_run_tests(homedir, dirs, rerecord):
         # there's no SKIP file, before bothering to make the symlink
         # to the directory.
         if not os.path.isdir(originaldir):
-            print("Can't find directory", directory, file=sys.stderr)
+            print(f"Can't find directory {directory}", file=sys.stderr)
             return
         if os.path.exists(os.path.join(originaldir, 'SKIP')) and len(dirs) > 1:
-            print(" **** Skipping", directory, "****", file=sys.stderr)
+            print(f" **** Skipping {directory} ****", file=sys.stderr)
             skipped.append(directory)
             continue
         if not os.path.exists(os.path.join(originaldir, TESTFILE)):
-            print(" **** Skipping", directory, "(No log file!) ****",
+            print(f" **** Skipping {directory} (No log file!) ****",
                   file=sys.stderr)
             skipped.append(directory)
             continue
@@ -168,40 +171,52 @@ def really_run_tests(homedir, dirs, rerecord):
         else:
             replayarg = 'replay'
 
-        cmd = ["oof2",
-               "--no-rc",       # .oof2rc might affect tests.  Don't use it.
-               "--pathdir", ".",
-               "--pathdir", "%s" % directory,
-               "--pathdir", "%s" % homedir,
-               "--pathdir", "UTILS",
-               "--%s" % replayarg,
-               os.path.join(directory, TESTFILE)] + extraargs
-        if not dryrun:          # dryrun output is briefer
-            print("-------------------------", file=sys.stderr)
         for iteration in range(retries+1):
+            cmd = ["oof2",
+                   "--no-rc",       # .oof2rc might affect tests.  Don't use it.
+                   "--pathdir", ".",
+                   "--pathdir", "%s" % directory,
+                   "--pathdir", "%s" % homedir,
+                   "--pathdir", "UTILS",
+                   "--%s" % replayarg, # 'replay' or 'rerecord'
+                   os.path.join(directory, TESTFILE)] + extraargs
+            # The 'replayprefix' argument depends on the iteration
+            # number and has to be constructed inside the loop.
+            iterstring = f"({iteration})" if retries > 0 else ''
+            counterstring = f"{counter}" if counter is not None else ''
+            pstrings = [directory, counterstring, iterstring]
+            cmd.extend(["--replayprefix", ' '.join(s for s in pstrings if s)])
+
+            if not dryrun: 
+                print("-------------------------", file=sys.stderr)
             print("--- Running %s" % ' '.join(cmd), file=sys.stderr)
             if dryrun:
                 continue
+            
             os.environ["OOFTESTDIR"] = directory
             result = subprocess.call(cmd)
             print("--- Return value =", result, file=sys.stderr)
             if result < 0:
-                print("Child was terminated by signal", -result, file=sys.stderr)
-                print("Test", directory, "failed!", file=sys.stderr)
+                print(f"Child was terminated by signal {-result}",
+                      file=sys.stderr)
+                print(f"Test {directory} failed!", file=sys.stderr)
+                print(f"Not removing {tmpdir}", file=sys.stderr)
                 if iteration==retries:
+                    print("Test iteration limit exceeded.", file=sys.stderr)
                     sys.exit(result)
 
             elif result != exitstatus:
-                print("Test %s failed! Status=%d, expected=%d" \
-                    % (directory, result, exitstatus))
+                print(f"Test {directory} failed! Status={result}, expected={exitstatus}",
+                      file=sys.stderr)
                 if iteration==retries:
                     sys.exit(result)
             else:
                 break           # success.  Don't retry.
+            # end retry loop
         if iteration != 0:
             retried.append((directory, iteration))
         if not dryrun:
-            print("--- Finished %s" % directory, file=sys.stderr)
+            print(f"--- Finished {directory}", file=sys.stderr)
             cleanupscript = os.path.join(directory, 'cleanup.py')
             if os.path.exists(cleanupscript):
                 sys.path.append(directory)
@@ -211,23 +226,35 @@ def really_run_tests(homedir, dirs, rerecord):
                     compile(open(cleanupscript, "rb").read(),
                             cleanupscript, 'exec'),
                     globals(), locals())
+            # Remove the symlink to the source test directory
+            # <prefix>/lib/pythonX.Y/site-packages/oof2/TEST/GUI/<testname>
             os.remove(testdir)
         nrun += 1
 
     if not dryrun:
-        print("%d test%s ran successfully!" % (nrun, "s"*(nrun!=1)),
-              file=sys.stderr)
+        print(f"{pluralize(nrun, 'test')} ran successfully!", file=sys.stderr)
+        # print("%d test%s ran successfully!" % (nrun, "s"*(nrun!=1)),
+        #       file=sys.stderr)
         if retried:
-            print(f"Repeated {len(retried)} test{'s'*(len(retried)!=1)}:",
-                  file=sys.stderr)
+            print(f"Repeated {pluralize(len(retried), 'test')}",
+                  file=sys.stderr) 
+            # print(f"Repeated {len(retried)} test{'s'*(len(retried)!=1)}:",
+            #       file=sys.stderr)
             for directory, count in retried:
                 print(f"    {directory}: repeats = {count}", file=sys.stderr)
     if skipped:
-        print("Skipped %d test%s:" % (len(skipped), "s"*(len(skipped)!=1)),
-              file=sys.stderr)
+        print(f"Skipped {pluralize(len(skipped), 'test')}:", file=sys.stderr)
+        # print("Skipped %d test%s:" % (len(skipped), "s"*(len(skipped)!=1)),
+        #       file=sys.stderr)
         for skipdir in skipped:
             print(f"    {skipdir}", file=sys.stderr)
 
+def pluralize(i, s):
+    if i != 1:
+        return f"{i} {s}s"
+    else:
+        return f"1 {s}"
+       
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def get_dirs():

@@ -133,6 +133,7 @@ The following options are for debugging:
 --rerecord= logfile      Read and re-record a gui log file 
 --replay=    file        Load a gui log file (may be present more than once)
 --replaydelay = integer  Time (in ms) between commands when replaying gui logs
+--replayprefix= string   Printed on each output line while replaying
 --no-checkpoints         Ignore checkpoints in gui log files when replaying
 --no-rc                  Don't load .oof2rc
 --unthreaded             Don't use multiple execution threads.
@@ -163,6 +164,7 @@ randomseed = None
 help_mode = False
 version_mode = False
 replaydelay = None
+replayprefix = None
 no_checkpoints = False
 no_rc = False
 recording = replaying = False
@@ -180,6 +182,7 @@ def process_inline_options():
     global help_mode
     global record
     global replaydelay
+    global replayprefix
     global randomseed
     global startupfiles
     global startupimports
@@ -193,6 +196,7 @@ def process_inline_options():
                    'digits=',
                    'data=', 'image=', 'import=', 'debug', 'command=',
                    'record=', 'rerecord=', 'replay=', 'replaydelay=',
+                   'replayprefix=',
                    'pathdir=', 'no-checkpoints', 'autoload', 'geometry=',
                    'no-fakefileselector', 'fakefileselector', 'surface', 
                    'no-bars', 'verbose-switchboard', 'separate-dialogs',
@@ -261,6 +265,9 @@ def process_inline_options():
             replaying = True
         elif opt[0] in ('--replaydelay',):
             replaydelay = opt[1]
+            remove_option(opt[0], opt[1])
+        elif opt[0] in ('--replayprefix',):
+            replayprefix = opt[1]
             remove_option(opt[0], opt[1])
         elif opt[0] in ('--no-checkpoints',):
             no_checkpoints = True
@@ -372,10 +379,15 @@ def front_end(no_interp=None):
         import ooflib.image.IO.GUI.initialize
         import ooflib.orientationmap.GUI.initialize
         import ooflib.tutorials.initialize
+
         if replaydelay is not None:
             from ooflib.common.IO.GUI import gtklogger
             gtklogger.set_delay(int(replaydelay))
-
+        if replayprefix is not None:
+            # replayprefix is constructed by TEST/GUI/guitests.py and
+            # passed in to oof2 via a command line argument.
+            from ooflib.common.IO.GUI import gtklogger
+            gtklogger.set_replay_prefix(replayprefix)
         if quiet_mode:
             from ooflib.common import quit
             quit.set_quiet()
