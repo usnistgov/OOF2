@@ -80,10 +80,16 @@ add_compile_options(
 # This didn't have much effect on oof-test.  The built libraries were
 # smaller but run time didn't change much.  TODO: Investigate further.
 
-check_compiler_flag(CXX "-flto" HAS_LTO)
+check_compiler_flag(CXX "-flto=thin" HAS_LTO)
 if(HAS_LTO)
   add_compile_options("$<$<CONFIG:Release>:-flto=thin>")
   add_link_options("$<$<CONFIG:Release>:-flto=thin>")  
+else()
+  check_compiler_flag(CXX -flto HAS_LTO)
+  if(HAS_LTO) 
+    add_compile_options("$<$<CONFIG:Release>:-flto>")
+    add_link_options("$<$<CONFIG:Release>:-flto>")
+   endif()
 endif()
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
