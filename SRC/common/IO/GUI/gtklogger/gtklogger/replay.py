@@ -40,6 +40,16 @@ def set_delay(delay):
     global replaydelay
     replaydelay = delay
 
+logprefix = ''                  # printed on each output line
+
+def set_replay_prefix(pfx):
+    global logprefix
+    logprefix = pfx
+
+def unset_replay_prefix():
+    global logprefix
+    logprefix = ''
+
 # Time in milliseconds to wait before retrying a checkpoint or looking
 # for a window.
 retrydelay = 100
@@ -353,7 +363,7 @@ class PerformLine(GUILogLineRunner):
         GUILogLineRunner.__init__(self, logrunner, srcline, lineno)
         self.line = line
     def report(self):
-        print("////// %d/%d %s" %(self.srcline, self.nlines(),
+        print(f"{logprefix} ////// %d/%d %s" %(self.srcline, self.nlines(),
                                                  self.line), file=sys.stderr)
     def playback(self):
         if logutils.recording():
@@ -390,7 +400,7 @@ class PostponeLine(GUILogLineRunner):
         self.status = "done"
         return False
     def report(self):
-        print("////// %d/%d postponing %s" % (self.srcline,
+        print(f"{logprefix} ////// %d/%d postponing %s" % (self.srcline,
                                                              self.nlines(),
                                                              self.line), file=sys.stderr)
 
@@ -421,7 +431,7 @@ class PostponedLine(PerformLine):
         # Postponed lines never wait for other postponed lines.
         return False
     def report(self):
-        print("////// %d/%d (postponed) %s" % (self.srcline,
+        print(f"{logprefix} ////// %d/%d (postponed) %s" % (self.srcline,
                                                               self.nlines(),
                                                               self.line), file=sys.stderr)
 
@@ -435,7 +445,7 @@ class CommentLine(GUILogLineRunner):
         self.status = "done"
         return False
     def report(self):
-        print("###### %d/%d %s" % (self.srcline, self.nlines(),
+        print(f"{logprefix} ###### %d/%d %s" % (self.srcline, self.nlines(),
                                                   self.comment), file=sys.stderr)
 
 class PauseLine(GUILogLineRunner):
@@ -487,9 +497,10 @@ class CheckPointLine(GUILogLineRunner):
                              priority=GLib.PRIORITY_LOW)
         return False
     def report(self):
-        print("////// %d/%d checkpoint %s" %(self.srcline,
-                                                            self.nlines(),
-                                                            self.comment), file=sys.stderr)
+        print(f"{logprefix} ////// %d/%d checkpoint %s"
+              %(self.srcline, self.nlines(), self.comment),
+              file=sys.stderr)
+        
 ####################
 
 ## Functions used within log files.

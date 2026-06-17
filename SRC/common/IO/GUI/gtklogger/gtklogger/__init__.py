@@ -19,7 +19,9 @@
 from .core import *
 ## replay contains functions and classes used when replaying a log
 ## file.
-from .replay import replay, set_delay, replayDefine
+from .replay import replay, set_delay, replayDefine, \
+    set_replay_prefix, unset_replay_prefix
+
 from .logutils import *
 ## The checkpoint import must come *after* the previous 'import *'s,
 ## because they will otherwise overwrite 'checkpoint'.  This is not
