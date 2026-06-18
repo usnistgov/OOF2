@@ -11,6 +11,7 @@
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import guitop
 from ooflib.common import debug
+from ooflib.common import quit
 from ooflib.common import thread_enable
 from ooflib.common import utils
 from ooflib.common.IO import filenameparam
@@ -123,17 +124,18 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
 ############################
 
 # loggererror is installed as the gtklogger handler for exceptions
-# that occur during playback.  Currently commented out because it
-# doesn't seem to be necessary.  Pre-gtk3, we had locks that
-# interfered with normal exception handling and required a special
-# handler during gui playback.
+# that occur during playback.  It's called from
+# GUILogLineRunner.__call__ in gtklogger/replay.py.
 
-# def loggererror(exc, line):
-#     from ooflib.common.IO.GUI import reporter_GUI
-#     type, value, tb = sys.exc_info()
-#     tblist = traceback.extract_tb(tb)
-#     reporter_GUI.gui_printTraceBack(type, value, tblist)
-#     return True
+def loggererror(exc, line):
+    # Ensure that the exit status is non-zero, even if the program
+    # doesn't quit immediately.
+    quit.set_status_override(13)
+    # Display the error dialog.
+    from ooflib.common.IO.GUI import reporter_GUI
+    tipe, value, tb = sys.exc_info()
+    reporter_GUI.gui_printTraceBack(tipe, value, tb)
+    return True          # don't re-raise the exception from gtklogger
 
 ####
 
@@ -164,7 +166,7 @@ def loadLog(menuitem, filename, checkpoints):
         finishCB=logFinished,
         debugLevel=dblevel,
         threaded=thread_enable.query(),
-        #exceptHook=loggererror,
+        exceptHook=loggererror,
         checkpoints=checkpoints)
 
 guidebugmenu.addItem(oofmenu.OOFMenuItem(

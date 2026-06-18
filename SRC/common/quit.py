@@ -62,6 +62,25 @@ def waitForThreads(shutdownfn, exitstatus):
     threadmanager.threadManager.quit()
     mainthread.run(shutdownfn, (exitstatus,))
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# If status_override is set, it's used as the exit status instead of
+# the status provided to shutdown().  It allows a test script to
+# indicate that a test failed (with status != 0) even if the program
+# doesn't immediately quit.
+
+status_override = None
+
+def set_status_override(status):
+    global status_override
+    status_override = status
+
+def unset_status_override():
+    global status_override
+    status_override = None
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 def shutdown(exitstatus):
     # Restore the default exception handler, in case something goes
     # wrong during shutdown, and the machinery to display OOF
@@ -84,7 +103,7 @@ def shutdown(exitstatus):
         debug.fmsg("garbage=", gc.garbage)
 
     sys.stdout.flush()
-    sys.exit(exitstatus)
+    sys.exit(status_override if status_override is not None else exitstatus)
 
     # If additional actions are required, call them
     # explicitly. Switchboard calls are unreliable here.
