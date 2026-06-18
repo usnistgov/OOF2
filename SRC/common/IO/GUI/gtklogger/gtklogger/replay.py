@@ -68,15 +68,6 @@ def replay(filename, beginCB=None, finishCB=None, debugLevel=2,
         function=GUILogPlayer(filename, beginCB, finishCB, debugLevel,
                               threaded, exceptHook, rerecord, checkpoints,
                               comment_gui))
-    ## TODO: This should somehow wait for the log player to finish and
-    ## return True if it finished cleanly, or False if it raised an
-    ## exception. Or just re-raise the exception.  This would be more
-    ## polite than calling sys.exit() in GUILogLineRunner.__call__.
-    ## The problem is that exceptions are not naturally propagated
-    ## from an idle callback.  We can't use a pthread semaphore
-    ## because we might be running unthreaded.  Perhaps use something
-    ## like g_main_context_iteration instead of idle_add.
-    
 
 # A GUILogPlayer reads a log file of saved gui events and simulates them.
 
@@ -330,21 +321,20 @@ class GUILogLineRunner:
 
 
                 except Exception as exc:
-                    # Any type of exception other than GtkLoggerTopFailure
-                    # is fatal.
+                    # Any type of exception other than
+                    # GtkLoggerTopFailure should at least stop the
+                    # replay.  It shouldn't abort the program, though.
+                    # The user might need to examine the state of the
+                    # GUI to figure out what went wrong.
                     self.status = "aborted"
                     self.logrunner.abort()
+                    # Exceptions raised here generally do not
+                    # propagate beyond the gtk event loop.  If more
+                    # (or less!)  handling is desired, pass an
+                    # exceptHook argument to gtklogger.replay().  It
+                    # will be called here, and should return True if
+                    # the exception should not be propagated further.
                     if self.logrunner.exceptHook:
-                        # TODO: Raising exceptions here is not
-                        # sufficient, because the exception doesn't
-                        # propagate outside of the gtk event loop.
-                        # Execution of the script will stop, but when
-                        # the user quits oof2, guitests.py will think
-                        # the test succeeded.  OTOH, calling
-                        # sys.exit(1) will correctly report a test
-                        # failure, but since it will close all of the
-                        # windows it doesn't give anyone the chance to
-                        # see why the test failed.
                         if not self.logrunner.exceptHook(exc, self.srcline):
                             raise exc
                     else:
