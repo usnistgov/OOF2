@@ -192,10 +192,13 @@ def really_run_tests(homedir, dirs, counter, rerecord):
             print("--- Running %s" % ' '.join(cmd), file=sys.stderr)
             if dryrun:
                 continue
-            
+
+            # OOFTESTDIR is used by tests to find the location of
+            # reference data files.
             os.environ["OOFTESTDIR"] = directory
-            result = subprocess.call(cmd)
-            print("--- Return value =", result, file=sys.stderr)
+
+            result = subprocess.call(cmd) # Actually run the test.
+
             if result < 0:
                 print(f"Child was terminated by signal {-result}",
                       file=sys.stderr)
