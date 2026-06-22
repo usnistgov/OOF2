@@ -1,3 +1,6 @@
+checkpoint toplevel widget mapped OOF2
+checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
 # -*- python -*-
 
 # This software was produced by NIST, an agency of the U.S. government,
@@ -15,8 +18,6 @@ tbox="OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Info"
 
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
-checkpoint toplevel widget mapped OOF2
-checkpoint page installed Introduction
 findWidget('OOF2').resize(782, 511)
 
 # Open a graphics window
@@ -24,10 +25,11 @@ findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
+checkpoint toplevel widget mapped OOF2 Graphics 1
+checkpoint Graphics_1 Pixel Info ms plugin updated
 findWidget('OOF2 Graphics 1:Pane0').set_position(360)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
-checkpoint toplevel widget mapped OOF2 Graphics 1
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findWidget('OOF2').resize(782, 545)
 checkpoint contourmap info updated for Graphics_1
@@ -47,8 +49,8 @@ findWidget('OOF2 Graphics 1').resize(800, 492)
 wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Microstructure']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Microstructure
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Microstructure Page:Pane').set_position(235)
 checkpoint meshable button set
 checkpoint microstructure page sensitized
@@ -79,7 +81,6 @@ checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
 checkpoint active area status updated
-findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 checkpoint pixel page sensitized
 checkpoint mesh bdy page updated
 checkpoint Field page sensitized
@@ -91,8 +92,10 @@ checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
+findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 checkpoint skeleton selection page groups sensitized Element
 checkpoint Solver page sensitized
+checkpoint image page sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
@@ -101,6 +104,8 @@ checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint microstructure page sensitized
+checkpoint image page sensitized
+checkpoint image page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Microstructure.Create_From_ImageFile
 findWidget('OOF2 Graphics 1').resize(800, 492)
@@ -119,6 +124,7 @@ findGfxWindow('Graphics_1').simulateMouse('up', 41.925, 80.775, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
+checkpoint Graphics_1 Pixel Info ms plugin updated
 assert tests.gtkMultiTextCompare({'X':'41','Y':'80','Image':'small.ppm:small.ppm','MSText':'small.ppm','material':'<No material>'},tbox)
 assert tests.sensitizationCheck({'Update':False,'Clear':True},tbox)
 assert findWidget(tbox+':RGB selector').get_active()
@@ -135,6 +141,7 @@ assert tests.gtkMultiFloatCompare({'Text 1':120.0,'Text 2':1.0,'Text 3':0.988235
 findGfxWindow('Graphics_1').simulateMouse('down', 130.125, 70.8, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 130.125, 70.8, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
+checkpoint Graphics_1 Pixel Info ms plugin updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
 assert tests.gtkMultiTextCompare({'X':'130','Y':'70','Image':'small.ppm:small.ppm','MSText':'small.ppm','material':'<No material>'},tbox)
