@@ -173,6 +173,10 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
             self.xtsignal.unblock()
             self.ytsignal.unblock()
 
+        ## Plugins that use subthreads need to insert their own
+        ## checkpoints.  They're not guaranteed to have finished by
+        ## the time this one is reached.
+
         gtklogger.checkpoint(self.gfxwindow().name + " " +
                              self._name + " updated")
 

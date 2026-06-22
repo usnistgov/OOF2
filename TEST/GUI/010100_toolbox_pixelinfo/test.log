@@ -14,6 +14,7 @@ tbox="OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Info"
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
 checkpoint toplevel widget mapped OOF2 Activity Viewer
+
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 findWidget('OOF2').resize(782, 511)
@@ -24,6 +25,7 @@ checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint toplevel widget mapped OOF2 Graphics 1
+checkpoint Graphics_1 Pixel Info ms plugin updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Windows.Graphics.New
 findWidget('OOF2 Graphics 1:Pane0').set_position(360)
@@ -57,11 +59,10 @@ assert tests.gtkTextviewCompare(tbox+":MSScroll:Group view","")
 wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Microstructure']).activate() # MenuItemLogger
+checkpoint page installed Microstructure
 checkpoint meshable button set
 checkpoint microstructure page sensitized
-checkpoint page installed Microstructure
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-findWidget('OOF2:Microstructure Page:Pane').set_position(235)
 findWidget('OOF2:Microstructure Page:Pane').set_position(184)
 findWidget('OOF2:Microstructure Page:NewFromFile').clicked()
 checkpoint toplevel widget mapped Dialog-Load Image and create Microstructure
@@ -88,9 +89,9 @@ findWidget('Dialog-Load Image and create Microstructure:widget_GTK_RESPONSE_OK')
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
-checkpoint pixel page sensitized
 checkpoint active area status updated
 checkpoint mesh bdy page updated
+checkpoint pixel page sensitized
 checkpoint Field page sensitized
 checkpoint Materials page updated
 checkpoint mesh page subproblems sensitized
@@ -98,10 +99,11 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint Solver page sensitized
+checkpoint skeleton selection page groups sensitized Element
+checkpoint image page sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
@@ -110,6 +112,8 @@ checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint microstructure page sensitized
+checkpoint image page sensitized
+checkpoint image page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Microstructure.Create_From_ImageFile
 findWidget('OOF2:Microstructure Page:Pane').set_position(189)
@@ -122,9 +126,13 @@ assert tests.gtkTextviewCompare(tbox+':MSScroll:Group view','')
 findGfxWindow('Graphics_1').simulateMouse('down', 44.025, 68.7, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 44.025, 68.7, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
+checkpoint Graphics_1 Pixel Info ms plugin updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
+
+# TODO: This test is failing.  Is a checkpoint missing?
 assert tests.gtkMultiTextCompare({'X':'44','Y':'68','Image':'small.ppm:small.ppm','MSText':'small.ppm','material':'<No material>'},tbox)
+
 assert tests.sensitizationCheck({'Update':False,'Clear':True},tbox)
 assert findWidget(tbox+':RGB selector').get_active()
 assert tests.gtkTextviewCompare(tbox+':MSScroll:Group view','')
@@ -135,6 +143,7 @@ findWidget('OOF2 Graphics 1').resize(800, 492)
 findGfxWindow('Graphics_1').simulateMouse('down', 132.225, 87.6, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 132.225, 87.6, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
+checkpoint Graphics_1 Pixel Info ms plugin updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
 assert tests.gtkMultiTextCompare({'X':'132','Y':'87','Image':'small.ppm:small.ppm','MSText':'small.ppm','material':'<No material>'},tbox)
@@ -148,6 +157,7 @@ findWidget('OOF2 Graphics 1').resize(800, 492)
 findGfxWindow('Graphics_1').simulateMouse('down', 114.9, 135.9, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 114.9, 135.9, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
+checkpoint Graphics_1 Pixel Info ms plugin updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
 assert tests.gtkMultiTextCompare({'X':'114','Y':'135','Image':'small.ppm:small.ppm','MSText':'small.ppm','material':'<No material>'},tbox)
@@ -172,11 +182,11 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustme
 findGfxWindow('Graphics_1').simulateMouse('down', 92.5875, 127.5, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 92.5875, 127.5, 1, False, False)
 checkpoint microstructure page sensitized
-checkpoint pixel page sensitized
-checkpoint pixel page updated
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint pixel page updated
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Burn
 
@@ -192,17 +202,18 @@ findWidget('Dialog-Create new pixel group:name').insert_text('l', 3)
 findWidget('Dialog-Create new pixel group:name').insert_text('o', 4)
 findWidget('Dialog-Create new pixel group:name').insert_text('w', 5)
 findWidget('Dialog-Create new pixel group:widget_GTK_RESPONSE_OK').clicked()
-checkpoint microstructure page sensitized
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.New
+checkpoint microstructure page sensitized
+checkpoint meshable button set
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Add').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelGroup.AddSelection
+checkpoint Graphics_1 Pixel Info ms plugin updated
 wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-TBChooser
 findMenu(findWidget('chooserPopup-TBChooser'), ['Pixel Info']).activate() # MenuItemLogger
@@ -230,9 +241,9 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustme
 findGfxWindow('Graphics_1').simulateMouse('down', 23.2875, 84.975, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 23.2875, 84.975, 1, False, False)
 checkpoint microstructure page sensitized
-checkpoint pixel page sensitized
 checkpoint pixel page updated
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint pixel page sensitized
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
@@ -258,14 +269,15 @@ checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelGroup.AddSelection
+checkpoint Graphics_1 Pixel Info ms plugin updated
 
 # Clear the pixel selection
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Clear').clicked()
 checkpoint microstructure page sensitized
-checkpoint pixel page sensitized
-checkpoint pixel page updated
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint pixel page updated
 checkpoint selection info updated Pixel Selection
+checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Clear
 
@@ -297,11 +309,12 @@ findWidget('Dialog-Rename pixelgroup yellow:new_name').set_text('owl l')
 findWidget('Dialog-Rename pixelgroup yellow:new_name').set_text('owl ly')
 findWidget('Dialog-Rename pixelgroup yellow:new_name').set_text('owl lye')
 findWidget('Dialog-Rename pixelgroup yellow:widget_GTK_RESPONSE_OK').clicked()
-checkpoint microstructure page sensitized
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint OOF.PixelGroup.Rename
+checkpoint Graphics_1 Pixel Info ms plugin updated
+checkpoint microstructure page sensitized
+checkpoint meshable button set
 assert tests.gtkMultiTextCompare({'X':'114','Y':'135','Image':'small.ppm:small.ppm','MSText':'small.ppm','material':'<No material>'},tbox)
 assert tests.sensitizationCheck({'Update':False,'Clear':True},tbox)
 assert findWidget(tbox+':RGB selector').get_active()
@@ -367,10 +380,10 @@ findGfxWindow('Graphics_1').simulateMouse('move', 113.5875, 78.675, 1, False, Fa
 findGfxWindow('Graphics_1').simulateMouse('move', 113.0625, 78.675, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 113.0625, 78.675, 1, False, False)
 checkpoint microstructure page sensitized
-checkpoint pixel page sensitized
+checkpoint selection info updated Pixel Selection
 checkpoint pixel page updated
 checkpoint Graphics_1 Pixel Selection sensitized
-checkpoint selection info updated Pixel Selection
+checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Rectangle
@@ -400,6 +413,7 @@ checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelGroup.AddSelection
+checkpoint Graphics_1 Pixel Info ms plugin updated
 assert tests.gtkMultiTextCompare({'X':'114','Y':'135','Image':'small.ppm:small.ppm','MSText':'small.ppm','material':'<No material>'},tbox)
 assert tests.sensitizationCheck({'Update':False,'Clear':True},tbox)
 assert findWidget(tbox+':RGB selector').get_active()
@@ -414,6 +428,7 @@ deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 findGfxWindow('Graphics_1').simulateMouse('down', 9.375, 75, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 9.375, 75, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
+checkpoint Graphics_1 Pixel Info ms plugin updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(224)
@@ -427,6 +442,7 @@ assert tests.gtkTextviewCompare(tbox+':MSScroll:Group view','green')
 findGfxWindow('Graphics_1').simulateMouse('down', 77.625, 92.325, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 77.625, 92.325, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
+checkpoint Graphics_1 Pixel Info ms plugin updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 4.8000000000000e+01)
@@ -456,13 +472,14 @@ findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(184, 86)
 findWidget('Questioner:Yes').clicked()
-checkpoint microstructure page sensitized
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
+checkpoint microstructure page sensitized
+checkpoint meshable button set
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelGroup.Delete
+checkpoint Graphics_1 Pixel Info ms plugin updated
 assert tests.gtkMultiTextCompare({'X':'77','Y':'92','Image':'small.ppm:small.ppm','MSText':'small.ppm','material':'<No material>'},tbox)
 assert tests.sensitizationCheck({'Update':False,'Clear':True},tbox)
 assert findWidget(tbox+':RGB selector').get_active()
@@ -491,6 +508,7 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustme
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('hadjustment').set_value( 0.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Info:Update').clicked()
 checkpoint Graphics_1 Pixel Info updated
+checkpoint Graphics_1 Pixel Info ms plugin updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
 assert tests.gtkMultiTextCompare({'X':'100','Y':'100','Image':'small.ppm:small.ppm','MSText':'small.ppm','material':'<No material>'},tbox)
@@ -517,6 +535,7 @@ findWidget('OOF2 Graphics 1').resize(800, 492)
 findGfxWindow('Graphics_1').simulateMouse('down', 84.975, 112.275, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 84.975, 112.275, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
+checkpoint Graphics_1 Pixel Info ms plugin updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 2.1077844311377e+00)
@@ -601,6 +620,7 @@ findGfxWindow('Graphics_1').simulateMouse('up', 74.475, 104.925, 1, False, False
 checkpoint Graphics_1 Pixel Info updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
+checkpoint Graphics_1 Pixel Info ms plugin updated
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.3600598802395e+02)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 1.2700598802395e+02)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_property('vadjustment').set_value( 8.4005988023952e+01)

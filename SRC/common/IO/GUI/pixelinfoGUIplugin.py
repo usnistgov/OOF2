@@ -144,6 +144,11 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
         self.microtext.set_text(msname)
         self.grouplist.get_buffer().set_text(grpnames)
         self.categorytext.set_text(category)
+        # Plug-ins that update via subthreads need their own
+        # checkpoints.
+        gtklogger.checkpoint(
+            f"{self.toolbox.gfxwindow().name} {self.toolbox.name()}"
+            " ms plugin updated")
 
     def nonsense(self):
         debug.mainthreadTest()
