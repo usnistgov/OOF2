@@ -319,11 +319,13 @@ class RegisteredClassFactory(RCFBase):
         debug.mainthreadTest()
         try:
             # Use the special widget from the widgetdict, if there is one
-            widget = self.widgetdict[registration.subclass](
-                registration.params, scope=self, name=registration.name())
+            widgetclass = self.widgetdict[registration.subclass]
         except KeyError:
             # Otherwise, just use a parameter table.
             widget = parameterwidgets.ParameterTable(
+                registration.params, scope=self, name=registration.name())
+        else:
+            widget = widgetclass(
                 registration.params, scope=self, name=registration.name())
         self.widgetcallback = switchboard.requestCallbackMain(widget,
                                                               self.widgetCB)

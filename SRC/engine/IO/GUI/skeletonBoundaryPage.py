@@ -335,7 +335,7 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         if parameterwidgets.getParameters(
                 modparam, title="Boundary modifier", scope=self,
                 parentwindow=self.gtk.get_toplevel(),
-                dialog_data=dialog_extra):
+                data=dialog_extra):
             menuitem.callWithDefaults(skeleton=self.skelwidget.get_value(),
                                       boundary=self.boundarylist.get_value())
 

@@ -387,7 +387,11 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # .gtk and .mainbox members.  ".gtk" is the window itself,
         # and .mainbox is a gtk.VBox that holds the menu bar.
         windowname = utils.underscore2space("OOF2 " + name)
-        subWindow.SubWindow.__init__(self, windowname, menu=self.menu)
+        subWindow.SubWindow.__init__(self, windowname, menu=self.menu,
+                                     parent=self)
+        # Setting "gfxwindow" in the WidgetScope data allows widgets
+        # to be built using relevant data from this graphics window.
+        self.setData("gfxwindow", self)
 
         # The ContourMapData structure is created in the
         # GhostGfxWindow constructor, and the widgets can't be made
@@ -403,7 +407,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         filemenu.Quit.data = self.gtk.get_toplevel()
 
         layermenu = self.menu.Layer
-        # layermenu.New doesn't need a GUI callback.
+        layermenu.New.add_gui_callback(self.newLayer_gui)
         layermenu.Edit.add_gui_callback(self.editLayer_gui)
         layermenu.Delete.add_gui_callback(self.deleteLayer_gui)
         layermenu.Hide.add_gui_callback(self.hideLayer_gui)

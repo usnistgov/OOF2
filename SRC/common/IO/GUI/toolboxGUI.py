@@ -27,7 +27,7 @@ class GfxToolbox(widgetscope.WidgetScope):
         gtklogger.setWidgetName(self.gtk, name)
         self.active = 0
         self._name = name
-        widgetscope.WidgetScope.__init__(self, parent=None)
+        widgetscope.WidgetScope.__init__(self, parent=self.gfxwindow())
     def name(self):
         return self._name
     def close(self):

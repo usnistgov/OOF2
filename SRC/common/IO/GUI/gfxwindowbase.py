@@ -350,6 +350,19 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
 
     # Layer callbacks
     ######################################################
+
+    def newLayer_gui(self, menuitem):
+        # The only difference between this call to getParameters and
+        # the call that MenuCallBackWrapper would use if this method
+        # were not defined is that this one sets the scope, which
+        # allows enclosed widgets to resolve Who proxies.
+        if parameterwidgets.getParameters(
+                *menuitem.params,
+                title=menuitem.gui_title or menuitem.name,
+                data={'menuitem':menuitem},
+                parentwindow=self.gtk,
+                scope=self):
+            menuitem.callWithDefaults()
                 
     def editLayer_gui(self, menuitem):
         if self.selectedLayer is not None:

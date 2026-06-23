@@ -19,8 +19,10 @@ from ooflib.engine import boundarymodifier
 class BoundaryModParamWidget(regclassfactory.RegisteredClassFactory):
     def __init__(self, registry, obj=None, title=None,
                  callback=None, scope=None, name=None, **kwargs):
-        # scope.parent is the ParameterDialog box in which we live.
-        self.modifiertype = scope.parent.modifiertype
+        # scope.parent is the WidgetScope for ParameterDialog box
+        # containing this widget.  modifiertype is WidgetScope data
+        # set in SkeletonBoundaryPage.modifyBoundaryCB().
+        self.modifiertype = scope.findData('modifiertype')
         regclassfactory.RegisteredClassFactory.__init__(
             self, registry, obj=obj, title=title, callback=callback,
             scope=scope, name=name, **kwargs)

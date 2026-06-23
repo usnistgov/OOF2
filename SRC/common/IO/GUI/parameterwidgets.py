@@ -72,6 +72,8 @@ class ParameterWidget:
                  compact=False):
         debug.mainthreadTest()
         self.gtk = gtk                  # base of gtk widget heirarchy
+        ## TODO: Should ParameterWidget be derived from WidgetScope
+        ## instead of containing a WidgetScope?
         self.scope = scope              # WidgetScope containing this widget
         self._valid = 0
         # expandable is used when the widget appears in a
@@ -1030,7 +1032,7 @@ class ParameterDialog(widgetscope.WidgetScope):
         # with a 'scope' keyword.  If a parent window is specified
         # with the 'parentwindow' argument, the dialog will be brought
         # up as a transient window for it.
-
+        
         parentwindow = kwargs['parentwindow'] # required!
         assert isinstance(parentwindow, Gtk.Window)
 
@@ -1038,18 +1040,12 @@ class ParameterDialog(widgetscope.WidgetScope):
         widgetscope.WidgetScope.__init__(self, scope)
 
         try:
-            data_dict = kwargs['dialog_data']
-        except KeyError:
-            pass
-        else:
-            self.__dict__.update(data_dict)
-
-        try:
             scopedata = kwargs['data']
         except KeyError:
             pass
         else:
             for key,value in scopedata.items():
+                # Set key,value pair in this WidgetScope.
                 self.setData(key, value)
             
         self.parameters = parameters

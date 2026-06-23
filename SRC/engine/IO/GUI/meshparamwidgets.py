@@ -165,20 +165,19 @@ class MeshFieldLister:
         self.outofplane = outofplane
         self.timederivative = timederivative
     def __call__(self, meshctxt):
-        ## TODO: If there's no Mesh and you bring up a New Graphics
-        ## Layer window and try to define a new Filled Contour layer,
-        ## you get AttributeError: 'WhoProxy' object has no attribute
-        ## 'all_timederivative_subproblem_fields'.
-        ##
-        ## Necessary to call meshctxt.resolve(gfxwindow) in case
-        ## meshctxt is a proxy, and to check the return value to
-        ## ensure it's not None.  Does this always know its gfxwindow?
-        ## Or can the caller call resolve()?
-        if issubclass(meshctxt.__class__, whoville.WhoProxy):
+        # If meshctxt is a proxy, make sure that it can be resolved in
+        # the current scope. 
+        if isinstance(meshctxt, whoville.WhoProxy):
+            # "gfxwindow" is set in the GfxWindow's WidgetScope, which
+            # encloses this widget's scope.  WhoProxies only exist
+            # inside graphics windows, so gfxwindow will always be
+            # defined in the scope.
             gfxwindow = self.scope.findData("gfxwindow")
             meshctxt = meshctxt.resolve(gfxwindow)
             if meshctxt is None:
-                return
+                # The proxy can't be resolved, so there are no Fields
+                # to list.  Returning None stops the iteration.
+                return None
         
         tdfields = meshctxt.all_timederivative_subproblem_fields()
         oopfields = meshctxt.all_outofplane_subproblem_fields()

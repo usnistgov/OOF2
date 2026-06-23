@@ -29,7 +29,8 @@ from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO.GUI import gfxmenu
 from ooflib.common.IO.GUI import gtklogger
-from ooflib.common.IO.GUI import quit 
+from ooflib.common.IO.GUI import quit
+from ooflib.common.IO.GUI import widgetscope
 
 import gi
 gi.require_version("Gtk", "3.0")
@@ -60,12 +61,14 @@ from gi.repository import Gtk
 ## MessageWindow (reporter_GUI.py)   passes self.menu_name
 ## TutorialClassGUI (tutorialsGUI.py) passes ""
 
-class SubWindow:
+class SubWindow(widgetscope.WidgetScope):
     # Base class for non-modal windows which want to be destroyed when
     # the main OOF GUI window, which from here is top().gtk, gets
     # destroyed.
-    def __init__(self, title, menu=None, callback=None, guiloggable=True):
+    def __init__(self, title, menu=None, callback=None, guiloggable=True,
+                 parent=None):
         debug.mainthreadTest()
+        widgetscope.WidgetScope.__init__(self, parent)
         self.gtk = Gtk.Window(type=Gtk.WindowType.TOPLEVEL, title=title)
         if guiloggable:
             gtklogger.newTopLevelWidget(self.gtk, title)

@@ -205,7 +205,7 @@ class BdyModSegmentAggregateWidget(SegmentAggregateWidget, SegmentGroupWidget):
         
         # The modifierwidget's scope's parent is the ParameterDialog
         # box, which has the boundary name.
-        self.bdy_name = self.modifierwidget.scope.parent.boundaryname
+        self.bdy_name = self.modifierwidget.scope.findData('boundaryname')
         self.widgetChanged(self.local_validity(), interactive=False)
         
     def selectCB(self, gtkobj, result):

@@ -45,8 +45,9 @@ class WidgetScope:
     def __init__(self, parent):
         self.parent = parent            # another WidgetScope, or None
         self.children = []              # WidgetScopes
-        self.widgetlist = []               # widget wrappers
+        self.widgetlist = []            # widget wrappers
         self.scope_data = {}            # Optional scope data.
+        ## TODO: should scope_data be a weak value dictionary?
         if parent is not None:
             parent._addChild(self)
     def _addChild(self, child):
@@ -102,3 +103,8 @@ class WidgetScope:
             if self.parent:
                 return self.parent.findData(key)
             raise
+
+    def scopes(self, ancestors=[]):
+        if not self.parent:
+            return [self]
+        return self.parent.scopes() + ancestors
