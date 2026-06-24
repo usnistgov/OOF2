@@ -10,6 +10,10 @@
 
 # Classes and functions for reading and replaying log files.
 
+## TODO: Add a way to resume execution of a script after an assertion
+## error.  That would allow more than one failure to be corrected
+## without restarting the test and/or rebuilding the program.
+
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
