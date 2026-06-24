@@ -167,7 +167,7 @@ OOF2 provides three different methods of moving nodes in adapting to material bo
 
 <b>Snap Nodes</b> first looks for boundary points -- intersections between material boundaries and element edges -- and moves nodes to the corresponding points, if the result is favorable.
 
-<b>Anneal</b>, on the other hand, moves nodes to randomly chosen points and accepts only the ones that are beneficial.
+<b>Anneal</b>, on the other hand, moves nodes to randomly chosen points and accepts only the moves that are beneficial.
 
 The <b>Move Nodes</b> toolbox in the <b>Graphics</b> window allows you to move nodes manually.  """
     ),
@@ -187,7 +187,7 @@ The quality of a Skeleton element is quantified by a functional, E, which is cal
 
 By setting <b>alpha</b>=1, we've told the <b>Snap Nodes</b> tool that it's ok if moving a node creates badly shaped elements, as long as doing so makes them more homogeneous. (We'll fix the bad shapes next.)
 
-Click <b>OK</b> to make changes.  Notice that the <b>Homogeneity Index</b> increases from 0.924 to 0.979.""",
+Click <b>OK</b> to make changes.  Notice that the <b>Homogeneity Index</b> increases from about 0.924 to 0.976.""",
     ),
 
     TutoringItem(

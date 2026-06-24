@@ -8,33 +8,28 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-# Some tutorial pages were deleted after this session was recorded, so
-# there were extra 'Skeleton:Next' button presses in the log.  Extra
-# ones were deleted at from the end of log, instead of deleting the
-# ones corresponding to the deleted tutorial steps. As a result the
-# tutorial pages are out of sync with the actions in the log.
-
 import tests
 
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
-findWidget('OOF2').resize(792, 512)
+findWidget('OOF2').resize(782, 524)
+findMenu(findWidget('OOF2:MenuBar'), ['Help', 'Tutorials']).activate()
 findMenu(findWidget('OOF2:MenuBar'), ['Help', 'Tutorials']).activate()
 findMenu(findWidget('OOF2:MenuBar'), ['Help', 'Tutorials', 'Skeleton']).activate()
 checkpoint toplevel widget mapped Skeleton
-findWidget('Skeleton').resize(504, 300)
-findWidget('OOF2').resize(792, 549)
-findWidget('Skeleton').resize(504, 300)
+findWidget('Skeleton').resize(500, 300)
+findWidget('OOF2').resize(782, 560)
+findWidget('Skeleton').resize(500, 300)
 findWidget('Skeleton:Next').clicked()
 findWidget('OOF2:Navigation:Next').clicked()
 checkpoint page installed Microstructure
-findWidget('OOF2:Microstructure Page:Pane').set_position(237)
+findWidget('OOF2:Microstructure Page:Pane').set_position(242)
 checkpoint meshable button set
 checkpoint microstructure page sensitized
-findWidget('OOF2:Microstructure Page:Pane').set_position(186)
+findWidget('OOF2:Microstructure Page:Pane').set_position(188)
 findWidget('OOF2:Microstructure Page:NewFromFile').clicked()
 checkpoint toplevel widget mapped Dialog-Load Image and create Microstructure
-findWidget('Dialog-Load Image and create Microstructure').resize(240, 200)
+findWidget('Dialog-Load Image and create Microstructure').resize(256, 200)
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('e')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('ex')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('exa')
@@ -57,9 +52,9 @@ findWidget('Dialog-Load Image and create Microstructure:widget_GTK_RESPONSE_OK')
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
-checkpoint active area status updated
 checkpoint pixel page sensitized
-findWidget('OOF2:Microstructure Page:Pane').set_position(190)
+checkpoint active area status updated
+findWidget('OOF2:Microstructure Page:Pane').set_position(194)
 checkpoint mesh bdy page updated
 checkpoint Field page sensitized
 checkpoint Materials page updated
@@ -72,16 +67,22 @@ checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint skeleton selection page groups sensitized Element
 checkpoint Solver page sensitized
-findWidget('OOF2').resize(792, 550)
+checkpoint image page sensitized
 checkpoint microstructure page sensitized
+checkpoint image page sensitized
+checkpoint image page sensitized
 checkpoint OOF.Microstructure.Create_From_ImageFile
 findWidget('Skeleton:Next').clicked()
-findWidget('OOF2:Navigation:Next').clicked()
+wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
+checkpoint toplevel widget mapped chooserPopup-PageMenu
+findMenu(findWidget('chooserPopup-PageMenu'), ['Image']).activate() # MenuItemLogger
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
+checkpoint image page sensitized
 checkpoint page installed Image
-findWidget('OOF2:Image Page:Pane').set_position(559)
+findWidget('OOF2:Image Page:Pane').set_position(547)
 findWidget('OOF2:Image Page:Group').clicked()
 checkpoint toplevel widget mapped Dialog-AutoGroup
-findWidget('Dialog-AutoGroup').resize(208, 92)
+findWidget('Dialog-AutoGroup').resize(224, 92)
 findWidget('Dialog-AutoGroup:widget_GTK_RESPONSE_OK').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
@@ -91,31 +92,34 @@ checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint OOF.Image.AutoGroup
-findWidget('OOF2:Navigation:PrevHist').clicked()
+findWidget('OOF2:Navigation:Prev').clicked()
 checkpoint page installed Microstructure
 checkpoint meshable button set
 checkpoint microstructure page sensitized
+# Pixel groups have been created
 findWidget('Skeleton:Next').clicked()
+findWidget('Skeleton').resize(500, 323)
 wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Skeleton
-findWidget('OOF2:Skeleton Page:Pane').set_position(433)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha').set_position(146)
+findWidget('OOF2:Skeleton Page:Pane').set_position(410)
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha').set_position(145)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold').set_position(100)
 checkpoint skeleton page sensitized
 checkpoint skeleton page sensitized
 findWidget('Skeleton:Next').clicked()
+findWidget('Skeleton').resize(500, 337)
 findWidget('OOF2:Skeleton Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-New skeleton
-findWidget('Dialog-New skeleton').resize(352, 255)
+findWidget('Dialog-New skeleton').resize(368, 257)
 findWidget('Dialog-New skeleton:widget_GTK_RESPONSE_OK').clicked()
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton page sensitized
 checkpoint mesh bdy page updated
@@ -129,17 +133,17 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton page info updated
 checkpoint skeleton selection page selection sensitized Element
 checkpoint Solver page sensitized
+# Skeleton created
 checkpoint OOF.Skeleton.New
-checkpoint skeleton selection page updated
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page updated
 checkpoint skeleton page sensitized
 assert tests.skeletonSizeCheck('small.ppm:skeleton', 16, 25)
-
 findWidget('Skeleton:Next').clicked()
-findWidget('Skeleton').resize(504, 342)
+findWidget('Skeleton').resize(500, 397)
 findMenu(findWidget('OOF2:MenuBar'), ['Settings', 'Graphics_Defaults', 'New_Layer_Policy']).activate()
 checkpoint toplevel widget mapped Dialog-New_Layer_Policy
-findWidget('Dialog-New_Layer_Policy').resize(208, 87)
+findWidget('Dialog-New_Layer_Policy').resize(208, 89)
 wevent(findWidget('Dialog-New_Layer_Policy:policy'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New_Layer_Policy:policy').get_window())
 checkpoint toplevel widget mapped chooserPopup-policy
 findMenu(findWidget('chooserPopup-policy'), ['Single']).activate() # MenuItemLogger
@@ -152,103 +156,26 @@ checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 findWidget('OOF2 Graphics 1:Pane0').set_position(362)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(211)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:time:timeslider').set_position(187)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(213)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:time:timeslider').set_position(177)
 checkpoint toplevel widget mapped OOF2 Graphics 1
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path(Gtk.TreePath([10]))
 checkpoint OOF.Graphics_1.Layer.Select
-findWidget('OOF2 Graphics 1').resize(800, 495)
+findWidget('OOF2 Graphics 1').resize(800, 497)
+checkpoint Graphics_1 Pixel Info ms plugin updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Windows.Graphics.New
-findWidget('OOF2 Graphics 1').resize(800, 495)
 findWidget('Skeleton:Next').clicked()
-findWidget('Skeleton').resize(504, 509)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:slider').get_adjustment().set_value( 1.0000000000000e+00)
+findWidget('Skeleton').resize(500, 575)
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:entry').set_text('')
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:entry').set_text('1')
+checkpoint skeleton page sensitized
+checkpoint skeleton page sensitized
+widget_0=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:entry'))
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set_text('0.')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set_text('0.5')
-widget_0=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry'))
-if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
-findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint boundary page updated
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint contourmap info updated for Graphics_1
-assert tests.skeletonSizeCheck('small.ppm:skeleton', 64, 78)
-
-checkpoint OOF.Skeleton.Modify
-findWidget('Skeleton:Next').clicked()
-findWidget('OOF2:Skeleton Page:Pane:Modification:Undo').clicked()
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint boundary page updated
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Skeleton.Undo
-findWidget('OOF2:Skeleton Page:Pane:Modification:Redo').clicked()
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint boundary page updated
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Skeleton.Redo
-findWidget('Skeleton:Next').clicked()
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:entry').set_text('')
-checkpoint skeleton page sensitized
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:entry').set_text('0')
-checkpoint skeleton page sensitized
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:entry').set_text('0.')
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:entry').set_text('0.9')
-widget_1=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:entry'))
+widget_1=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry'))
 if widget_1(): wevent(widget_1(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1().get_window())
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized
@@ -280,6 +207,96 @@ checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 64, 78)
+assert tests.homogeneityIndex(0.817181)
+
+findWidget('Skeleton:Next').clicked()
+findWidget('OOF2').resize(782, 560)
+findWidget('OOF2:Skeleton Page:Pane:Modification:Undo').clicked()
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint contourmap info updated for Graphics_1
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page updated
+checkpoint contourmap info updated for Graphics_1
+checkpoint boundary page updated
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint Graphics_1 Skeleton Info sensitized
+checkpoint Graphics_1 Move Nodes sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Skeleton.Undo
+assert tests.homogeneityIndex(0.730589)
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 16, 25)
+
+findWidget('OOF2:Skeleton Page:Pane:Modification:Redo').clicked()
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint contourmap info updated for Graphics_1
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page updated
+checkpoint contourmap info updated for Graphics_1
+checkpoint boundary page updated
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint Graphics_1 Skeleton Info sensitized
+checkpoint Graphics_1 Move Nodes sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Skeleton.Redo
+assert tests.homogeneityIndex(0.817181)
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 64, 78)
+
+findWidget('Skeleton:Next').clicked()
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:entry').set_text('')
+checkpoint skeleton page sensitized
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:entry').set_text('0')
+checkpoint skeleton page sensitized
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:entry').set_text('0.')
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:entry').set_text('0.9')
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
+findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
+checkpoint skeleton page sensitized
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint Graphics_1 Move Nodes sensitized
+checkpoint Move Node toolbox writable changed
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint contourmap info updated for Graphics_1
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page updated
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint Graphics_1 Skeleton Info sensitized
+checkpoint Graphics_1 Move Nodes sensitized
+checkpoint boundary page updated
+checkpoint skeleton page sensitized
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint Graphics_1 Move Nodes sensitized
+checkpoint Move Node toolbox writable changed
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Skeleton.Modify
+assert tests.homogeneityIndex(0.923985)
 assert tests.skeletonSizeCheck('small.ppm:skeleton', 213, 188)
 
 findWidget('Skeleton:Next').clicked()
@@ -289,14 +306,14 @@ wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser'), Gdk
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Snap Nodes']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Page:Pane').set_position(446)
+findWidget('OOF2:Skeleton Page:Pane').set_position(422)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha').set_position(100)
 checkpoint skeleton page sensitized
 wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:targets:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:targets:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Heterogeneous Elements']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Page:Pane').set_position(426)
+findWidget('OOF2:Skeleton Page:Pane').set_position(401)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha').set_position(111)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:targets:Heterogeneous Elements:threshold').set_position(100)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:entry').set_text('')
@@ -335,18 +352,22 @@ checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 213, 188)
+assert tests.homogeneityIndex(0.978962)
+
 findWidget('Skeleton:Next').clicked()
 wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Rationalize']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2').resize(792, 689)
-findWidget('OOF2:Skeleton Page:Pane').set_position(286)
+findWidget('OOF2').resize(782, 701)
+findWidget('OOF2:Skeleton Page:Pane').set_position(259)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:method:Specified:rationalizers:Remove Bad Triangles:obtuse_angle').set_position(100)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:method:Specified:rationalizers:Remove Bad Triangles:acute_angle').set_position(100)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:method:Specified:rationalizers:Split Wide Quads:angle').set_position(124)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha').set_position(186)
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha').set_position(184)
 checkpoint skeleton page sensitized
+findWidget('OOF2').resize(782, 701)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('')
 checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('0')
@@ -384,41 +405,37 @@ checkpoint skeleton selection page groups sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
-assert tests.skeletonSizeCheck('small.ppm:skeleton', 214, 171)
-
 checkpoint OOF.Skeleton.Modify
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 214, 171)
+assert tests.homogeneityIndex(0.978816)
+
 findWidget('Skeleton:Next').clicked()
-wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-checkpoint toplevel widget mapped chooserPopup-RCFChooser
-findWidget('chooserPopup-RCFChooser').deactivate() # MenuLogger
 wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton Selection']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint skeleton selection page grouplist Element
 checkpoint page installed Skeleton Selection
-findWidget('OOF2:Skeleton Selection Page:Pane').set_position(485)
+findWidget('OOF2:Skeleton Selection Page:Pane').set_position(473)
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 wevent(findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementAction:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementAction:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Select by Homogeneity']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementAction:Select by Homogeneity:threshold').set_position(109)
+findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementAction:Select by Homogeneity:threshold').set_position(104)
 findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementHistory:OK').clicked()
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
 checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
-assert tests.skeletonElementSelectionSizeCheck('small.ppm:skeleton', 11)
 checkpoint OOF.ElementSelection.Select_by_Homogeneity
+assert tests.skeletonElementSelectionSizeCheck('small.ppm:skeleton', 11)
+
 findWidget('Skeleton:Next').clicked()
-wevent(findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementAction:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementAction:RCFChooser').get_window())
-checkpoint toplevel widget mapped chooserPopup-RCFChooser
-findWidget('chooserPopup-RCFChooser').deactivate() # MenuLogger
 wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuItemLogger
@@ -429,7 +446,7 @@ wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser'), Gdk
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Split Quads']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Page:Pane').set_position(438)
+findWidget('OOF2:Skeleton Page:Pane').set_position(417)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Split Quads:criterion:Average Energy:alpha').set_position(100)
 checkpoint skeleton page sensitized
 wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Split Quads:targets:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Split Quads:targets:RCFChooser').get_window())
@@ -438,6 +455,9 @@ findMenu(findWidget('chooserPopup-RCFChooser'), ['Selected Elements']).activate(
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Split Quads:criterion:Average Energy:alpha:entry').set_text('0.')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Split Quads:criterion:Average Energy:alpha:entry').set_text('0.9')
+wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Split Quads:split_how:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Split Quads:split_how:RCFChooser').get_window())
+checkpoint toplevel widget mapped chooserPopup-RCFChooser
+findWidget('chooserPopup-RCFChooser').deactivate() # MenuLogger
 widget_4=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Split Quads:criterion:Average Energy:alpha:entry'))
 if widget_4(): wevent(widget_4(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_4().get_window())
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
@@ -453,9 +473,9 @@ checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page selection sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint skeleton page info updated
 checkpoint skeleton page info updated
@@ -471,104 +491,10 @@ checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
-wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
-checkpoint toplevel widget mapped chooserPopup-PageMenu
-findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton Selection']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-checkpoint page installed Skeleton Selection
+assert tests.homogeneityIndex(0.98207)
 assert tests.skeletonElementSelectionSizeCheck('small.ppm:skeleton', 15)
-wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
-checkpoint toplevel widget mapped chooserPopup-PageMenu
-findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-checkpoint page installed Skeleton
-checkpoint skeleton page sensitized
 assert tests.skeletonSizeCheck('small.ppm:skeleton', 218, 171)
 
-findWidget('Skeleton:Next').clicked()
-wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-checkpoint toplevel widget mapped chooserPopup-RCFChooser
-findWidget('chooserPopup-RCFChooser').deactivate() # MenuLogger
-wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-checkpoint toplevel widget mapped chooserPopup-RCFChooser
-findMenu(findWidget('chooserPopup-RCFChooser'), ['Rationalize']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Page:Pane').set_position(286)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:method:Specified:rationalizers:Remove Bad Triangles:obtuse_angle').set_position(100)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:method:Specified:rationalizers:Remove Bad Triangles:acute_angle').set_position(100)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:method:Specified:rationalizers:Split Wide Quads:angle').set_position(124)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha').set_position(186)
-checkpoint skeleton page sensitized
-findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page selection sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint boundary page updated
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Skeleton.Modify
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('')
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('.')
-checkpoint skeleton page sensitized
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('.9')
-checkpoint skeleton page sensitized
-widget_5=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry'))
-if widget_5(): wevent(widget_5(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_5().get_window())
-findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint boundary page updated
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Skeleton.Modify
 findWidget('Skeleton:Next').clicked()
 wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
@@ -577,68 +503,41 @@ deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Skeleton Selection
 findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementHistory:OK').clicked()
 checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page updated
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page updated
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
-assert tests.skeletonElementSelectionSizeCheck('small.ppm:skeleton', 9)
+# 9 of 212 elements selected
 checkpoint OOF.ElementSelection.Select_by_Homogeneity
 findWidget('Skeleton:Next').clicked()
-wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
-checkpoint toplevel widget mapped chooserPopup-PageMenu
-findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
+findWidget('OOF2').resize(782, 701)
+findWidget('OOF2:Navigation:PrevHist').clicked()
 checkpoint page installed Skeleton
 checkpoint skeleton page sensitized
 wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
-findMenu(findWidget('chooserPopup-RCFChooser'), ['Split Quads']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Page:Pane').set_position(438)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Split Quads:criterion:Average Energy:alpha').set_position(100)
-checkpoint skeleton page sensitized
-event(Gdk.EventType.KEY_PRESS, keyval=Gdk.keyval_from_name('KP_Enter'), state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-event(Gdk.EventType.KEY_PRESS, keyval=Gdk.keyval_from_name('KP_Enter'), state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-event(Gdk.EventType.KEY_PRESS, keyval=Gdk.keyval_from_name('KP_Enter'), state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-event(Gdk.EventType.KEY_PRESS, keyval=Gdk.keyval_from_name('KP_Enter'), state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-event(Gdk.EventType.KEY_PRESS, keyval=Gdk.keyval_from_name('KP_Enter'), state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-event(Gdk.EventType.KEY_PRESS, keyval=Gdk.keyval_from_name('KP_Enter'), state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-event(Gdk.EventType.KEY_PRESS, keyval=Gdk.keyval_from_name('KP_Enter'), state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-event(Gdk.EventType.KEY_PRESS, keyval=Gdk.keyval_from_name('KP_Enter'), state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-event(Gdk.EventType.KEY_PRESS, keyval=Gdk.keyval_from_name('KP_Enter'), state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-event(Gdk.EventType.KEY_PRESS, keyval=Gdk.keyval_from_name('KP_Enter'), state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-event(Gdk.EventType.KEY_PRESS, keyval=Gdk.keyval_from_name('KP_Enter'), state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-event(Gdk.EventType.KEY_PRESS, keyval=Gdk.keyval_from_name('KP_Enter'), state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Anneal']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Page:Pane').set_position(446)
+findWidget('OOF2:Skeleton Page:Pane').set_position(422)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha').set_position(100)
 checkpoint skeleton page sensitized
-wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-checkpoint toplevel widget mapped chooserPopup-RCFChooser
-findWidget('chooserPopup-RCFChooser').deactivate() # MenuLogger
 wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:targets:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:targets:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Selected Elements']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:iteration:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:iteration:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
-findWidget('chooserPopup-RCFChooser').deactivate() # MenuLogger
-wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:iteration:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:iteration:RCFChooser').get_window())
-checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Conditional Iteration']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Page:Pane').set_position(302)
+findWidget('OOF2:Skeleton Page:Pane').set_position(271)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:iteration:Conditional Iteration:condition:Acceptance Rate:acceptance_rate').set_position(100)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha').set_position(180)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:iteration:Conditional Iteration:extra').set_text('')
+checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:iteration:Conditional Iteration:extra').set_text('3')
 checkpoint skeleton page sensitized
-checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized
 checkpoint skeleton selection page selection sensitized Element
@@ -831,6 +730,62 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint skeleton page info updated
 checkpoint skeleton page info updated
 checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
 checkpoint skeleton page info updated
 checkpoint skeleton page info updated
 checkpoint skeleton page sensitized
@@ -841,283 +796,23 @@ checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
+assert tests.homogeneityIndex(0.985652)
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 218, 171)
+
 findWidget('Skeleton:Next').clicked()
-wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-checkpoint toplevel widget mapped chooserPopup-RCFChooser
-findMenu(findWidget('chooserPopup-RCFChooser'), ['Rationalize']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Page:Pane').set_position(286)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:method:Specified:rationalizers:Remove Bad Triangles:obtuse_angle').set_position(100)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:method:Specified:rationalizers:Remove Bad Triangles:acute_angle').set_position(100)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:method:Specified:rationalizers:Split Wide Quads:angle').set_position(124)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha').set_position(186)
-checkpoint skeleton page sensitized
-findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint boundary page updated
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Skeleton.Modify
-findWidget('OOF2:Skeleton Page:Pane:Modification:Undo').clicked()
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint boundary page updated
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Skeleton.Undo
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('0.')
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('0.5')
-widget_6=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry'))
-if widget_6(): wevent(widget_6(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_6().get_window())
-findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint boundary page updated
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Skeleton.Modify
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Undo').clicked()
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint boundary page updated
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Skeleton.Undo
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('0.')
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('0.3')
-if widget_6(): wevent(widget_6(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_6().get_window())
-findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint boundary page updated
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Skeleton.Modify
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 2.9746835443038e-01)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 2.7848101265823e-01)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 2.2151898734177e-01)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 1.3291139240506e-01)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 5.0632911392405e-02)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 1.2658227848101e-02)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 6.3291139240506e-03)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('0.')
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('0.1')
-if widget_6(): wevent(widget_6(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_6().get_window())
-if widget_6(): wevent(widget_6(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_6().get_window())
-findWidget('OOF2:Skeleton Page:Pane:Modification:Undo').clicked()
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint boundary page updated
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Skeleton.Undo
-findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint boundary page updated
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Skeleton.Modify
-findWidget('OOF2:Skeleton Page:Pane:Modification:Undo').clicked()
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint boundary page updated
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Skeleton.Undo
-findWidget('OOF2:Skeleton Page:Pane:Modification:Redo').clicked()
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint boundary page updated
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Skeleton.Redo
-wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
-checkpoint toplevel widget mapped chooserPopup-PageMenu
-findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton Selection']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
+findWidget('OOF2:Navigation:NextHist').clicked()
 checkpoint page installed Skeleton Selection
 findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementHistory:OK').clicked()
 checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page updated
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page updated
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.ElementSelection.Select_by_Homogeneity
 assert tests.skeletonElementSelectionSizeCheck('small.ppm:skeleton', 1)
-checkpoint OOF.ElementSelection.Select_by_Homogeneity
-findWidget('Skeleton:Next').clicked()
+
 findWidget('Skeleton:Next').clicked()
 wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
@@ -1125,151 +820,116 @@ findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuIte
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Skeleton
 checkpoint skeleton page sensitized
-wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
-checkpoint toplevel widget mapped chooserPopup-RCFChooser
-findMenu(findWidget('chooserPopup-RCFChooser'), ['Anneal']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Page:Pane').set_position(302)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:iteration:Conditional Iteration:condition:Acceptance Rate:acceptance_rate').set_position(100)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha').set_position(180)
-checkpoint skeleton page sensitized
-findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint boundary page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Skeleton.Modify
-findWidget('Skeleton:Next').clicked()
 findWidget('Skeleton:Next').clicked()
 wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
-findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton Selection']).activate() # MenuItemLogger
+findMenu(findWidget('chooserPopup-PageMenu'), ['Pin Nodes']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-checkpoint page installed Skeleton Selection
-findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementAction:Select by Homogeneity:threshold:entry').set_text('0.')
-findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementAction:Select by Homogeneity:threshold:entry').set_text('0.8')
-widget_7=weakRef(findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementAction:Select by Homogeneity:threshold:entry'))
-if widget_7(): wevent(widget_7(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_7().get_window())
-findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementHistory:OK').clicked()
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.ElementSelection.Select_by_Homogeneity
-if widget_7(): wevent(widget_7(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_7().get_window())
-if widget_7(): wevent(widget_7(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_7().get_window())
-if widget_7(): wevent(widget_7(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_7().get_window())
-wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
-checkpoint toplevel widget mapped chooserPopup-PageMenu
-findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-if widget_7(): wevent(widget_7(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_7().get_window())
-checkpoint page installed Skeleton
-checkpoint skeleton page sensitized
-findWidget('Skeleton:Next').clicked()
-findWidget('Skeleton:Next').clicked()
-findWidget('OOF2:Navigation:Next').clicked()
 checkpoint page installed Pin Nodes
-findWidget('OOF2:Pin Nodes Page:Pane').set_position(560)
+findWidget('OOF2:Pin Nodes Page:Pane').set_position(551)
 wevent(findWidget('OOF2:Pin Nodes Page:Pane:Modify:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Pin Nodes Page:Pane:Modify:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Pin Internal Boundary Nodes']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Pin Nodes Page:Pane').set_position(515)
+findWidget('OOF2:Pin Nodes Page:Pane').set_position(499)
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:OK').clicked()
 checkpoint contourmap info updated for Graphics_1
+# 90 of 163 nodes pinned
 checkpoint OOF.Skeleton.PinNodes.Pin_Internal_Boundary_Nodes
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Settings', 'List_All_Layers']).activate()
 checkpoint OOF.Graphics_1.Settings.List_All_Layers
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.2000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.2000000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.1900000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.1700000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.1800000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.1600000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.1500000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.1400000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.1300000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.1100000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0900000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0700000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0500000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0400000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0300000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0100000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.9800000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.9700000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.9500000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.9400000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.9200000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.8700000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.9100000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.9000000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.8900000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.8800000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.8600000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.8400000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.8300000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.8200000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.8100000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.8000000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.7900000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.7800000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.7700000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.7600000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.7500000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.7400000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.7300000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.7200000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.7100000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.7000000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.6900000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.6800000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.6700000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.6600000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.6500000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.6400000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.6300000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.6200000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.6100000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.6000000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.5900000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.5800000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.5700000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.5600000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.5500000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.5400000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.5300000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.5200000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.5100000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.5000000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.4900000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.4800000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.4700000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.4600000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.4500000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.4400000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.4300000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.4200000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.4100000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.4000000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.3900000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.3800000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.3700000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.3400000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.3600000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.3500000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.3300000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.3200000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.3100000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.2900000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.2700000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.2600000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.2500000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.2400000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.2300000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.2200000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.2100000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.2000000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.1900000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.1800000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.1700000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.1600000000000e+02)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.1500000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.1400000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.1300000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.1200000000000e+02)
@@ -1285,102 +945,118 @@ findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.0200000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.0100000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.0000000000000e+02)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 9.9000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 9.8000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 9.7000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 9.6000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 9.5000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 9.4000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 9.3000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 9.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 9.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 9.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 8.9000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 8.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 8.7000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 8.6000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 8.5000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 8.4000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 8.3000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 8.2000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 8.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 8.0000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 7.9000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 7.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 7.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 7.7000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 7.5000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 7.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 7.3000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 7.2000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 7.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 7.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.9000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.7000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.5000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.4000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.3000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.2000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.0000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 5.9000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 5.8000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 5.7000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 5.5000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 5.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 5.3000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 5.2000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 5.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 5.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.9000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.7000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.5000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.3000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.2000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.9000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.7000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.5000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.4000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.3000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.9000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.7000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.6000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.5000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.3000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.2000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.9000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.8000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.5000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.7000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.4000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.3000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.2000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.0000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 9.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 8.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 7.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 5.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.8432817079474e-01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.2843281707947e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.2843281707947e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.2843281707947e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 9.2843281707947e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.1284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.3284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.5284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.7284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.8284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.1284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.2284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.3284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.4284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.5284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.6284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.7284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.8284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.9284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.0284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.1284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.2284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.3284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.4284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.5284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.6284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.7284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.8284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.9284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.5284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.1284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.6284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.5284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.1284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 8.2843281707947e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.2843281707947e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 5.2843281707947e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.2843281707947e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.2843281707947e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.2843281707947e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.2843281707947e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 7.2843281707947e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.0284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.4284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.8284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.2284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.5284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.7284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.9284328170795e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.0284328170795e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 6.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 8.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 9.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.5000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 1.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.6000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.7000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.8000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.9000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.0000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.1000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.2000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.3000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.4000000000000e+01)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.5000000000000e+01)
 wevent(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path(Gtk.TreePath([2]))
 checkpoint OOF.Graphics_1.Layer.Select
@@ -1388,17 +1064,16 @@ wevent(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), Gdk.EventType.
 tree=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList')
 column = tree.get_column(3)
 tree.row_activated(Gtk.TreePath([2]), column)
-findWidget('Dialog-Edit Graphics Layer:how:Pinned Nodes:size').set_position(121)
+findWidget('Dialog-Edit Graphics Layer:how:Pinned Nodes:size').set_position(120)
 findWidget('Dialog-Edit Graphics Layer:how:Pinned Nodes:color:RGBAColor:red').set_position(100)
-findWidget('Dialog-Edit Graphics Layer:how:Pinned Nodes:size').set_position(126)
+findWidget('Dialog-Edit Graphics Layer:how:Pinned Nodes:size').set_position(125)
 findWidget('Dialog-Edit Graphics Layer:how:Pinned Nodes:color:RGBAColor:red').set_position(109)
 checkpoint toplevel widget mapped Dialog-Edit Graphics Layer
-findWidget('Dialog-Edit Graphics Layer').resize(368, 453)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 3.0000000000000e+01)
+findWidget('Dialog-Edit Graphics Layer').resize(384, 463)
 findWidget('Dialog-Edit Graphics Layer:how:Pinned Nodes:size:entry').set_text('')
 findWidget('Dialog-Edit Graphics Layer:how:Pinned Nodes:size:entry').set_text('3')
-widget_8=weakRef(findWidget('Dialog-Edit Graphics Layer:how:Pinned Nodes:size:entry'))
-if widget_8(): wevent(widget_8(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_8().get_window())
+widget_5=weakRef(findWidget('Dialog-Edit Graphics Layer:how:Pinned Nodes:size:entry'))
+if widget_5(): wevent(widget_5(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_5().get_window())
 findWidget('Dialog-Edit Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.2000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.4000000000000e+01)
@@ -1412,8 +1087,8 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Edit
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Settings', 'List_All_Layers']).activate()
 checkpoint OOF.Graphics_1.Settings.List_All_Layers
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 4.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_property('vadjustment').set_value( 0.0000000000000e+00)
+findWidget('Skeleton:Next').clicked()
 wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuItemLogger
@@ -1424,13 +1099,13 @@ wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser'), Gdk
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Swap Edges']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Page:Pane').set_position(446)
+findWidget('OOF2:Skeleton Page:Pane').set_position(422)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Swap Edges:criterion:Average Energy:alpha').set_position(100)
 checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Swap Edges:criterion:Average Energy:alpha:entry').set_text('0.')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Swap Edges:criterion:Average Energy:alpha:entry').set_text('0.5')
-widget_9=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Swap Edges:criterion:Average Energy:alpha:entry'))
-if widget_9(): wevent(widget_9(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_9().get_window())
+widget_6=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Swap Edges:criterion:Average Energy:alpha:entry'))
+if widget_6(): wevent(widget_6(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_6().get_window())
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized
 checkpoint skeleton selection page selection sensitized Element
@@ -1445,8 +1120,8 @@ checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
 checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint skeleton page info updated
 checkpoint skeleton page info updated
@@ -1462,6 +1137,10 @@ checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 221, 174)
+assert tests.homogeneityIndex(0.985652)
+assert tests.skeletonElementSelectionSizeCheck('small.ppm:skeleton', 0)
+
 findWidget('OOF2:Skeleton Page:Pane:Modification:Undo').clicked()
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
@@ -1483,6 +1162,10 @@ checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Undo
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 218, 171)
+assert tests.homogeneityIndex(0.985652)
+assert tests.skeletonElementSelectionSizeCheck('small.ppm:skeleton', 1)
+
 findWidget('OOF2:Skeleton Page:Pane:Modification:Redo').clicked()
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
@@ -1492,8 +1175,8 @@ checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
 checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint boundary page updated
 checkpoint skeleton page info updated
@@ -1504,20 +1187,20 @@ checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Redo
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 221, 174)
+assert tests.homogeneityIndex(0.985652)
+assert tests.skeletonElementSelectionSizeCheck('small.ppm:skeleton', 0)
+
 wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Rationalize']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Page:Pane').set_position(286)
+findWidget('OOF2:Skeleton Page:Pane').set_position(259)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:method:Specified:rationalizers:Remove Bad Triangles:obtuse_angle').set_position(100)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:method:Specified:rationalizers:Remove Bad Triangles:acute_angle').set_position(100)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:method:Specified:rationalizers:Split Wide Quads:angle').set_position(124)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha').set_position(186)
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha').set_position(184)
 checkpoint skeleton page sensitized
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('0.')
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('0.5')
-widget_10=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry'))
-if widget_10(): wevent(widget_10(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_10().get_window())
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized
 checkpoint skeleton selection page selection sensitized Element
@@ -1532,8 +1215,8 @@ checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
 checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint skeleton page info updated
 checkpoint skeleton page info updated
@@ -1549,59 +1232,30 @@ checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('0.')
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('0.1')
-if widget_10(): wevent(widget_10(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_10().get_window())
-findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint contourmap info updated for Graphics_1
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint Graphics_1 Skeleton Info sensitized
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint boundary page updated
-checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Graphics_1 Move Nodes sensitized
-checkpoint Move Node toolbox writable changed
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Skeleton.Modify
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 221, 174)
+assert tests.homogeneityIndex(0.985652)
+assert tests.skeletonElementSelectionSizeCheck('small.ppm:skeleton', 0)
+
+findWidget('Skeleton:Next').clicked()
 wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Merge Triangles']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Page:Pane').set_position(446)
+findWidget('OOF2:Skeleton Page:Pane').set_position(422)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Merge Triangles:criterion:Average Energy:alpha').set_position(100)
 checkpoint skeleton page sensitized
 wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Merge Triangles:criterion:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Merge Triangles:criterion:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Limited Unconditional']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Page:Pane').set_position(398)
+findWidget('OOF2:Skeleton Page:Pane').set_position(373)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Merge Triangles:criterion:Limited Unconditional:shape_energy').set_position(100)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Merge Triangles:criterion:Limited Unconditional:alpha').set_position(100)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Merge Triangles:criterion:Limited Unconditional:homogeneity').set_position(100)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Merge Triangles:criterion:Limited Unconditional:alpha:entry').set_text('0.')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Merge Triangles:criterion:Limited Unconditional:alpha:entry').set_text('0.5')
-widget_11=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Merge Triangles:criterion:Limited Unconditional:alpha:entry'))
-if widget_11(): wevent(widget_11(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_11().get_window())
+widget_7=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Merge Triangles:criterion:Limited Unconditional:alpha:entry'))
+if widget_7(): wevent(widget_7(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_7().get_window())
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized
 checkpoint skeleton selection page selection sensitized Element
@@ -1616,8 +1270,8 @@ checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
 checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint skeleton page info updated
 checkpoint skeleton page info updated
@@ -1633,6 +1287,7 @@ checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
+findWidget('OOF2').resize(782, 701)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Undo').clicked()
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
@@ -1642,8 +1297,8 @@ checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
 checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint boundary page updated
 checkpoint skeleton page info updated
@@ -1663,8 +1318,8 @@ checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
 checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint boundary page updated
 checkpoint skeleton page info updated
@@ -1675,18 +1330,23 @@ checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Redo
+findWidget('Skeleton:Next').clicked()
+wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
+checkpoint toplevel widget mapped chooserPopup-PageMenu
+findWidget('chooserPopup-PageMenu').deactivate() # MenuLogger
 wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Smooth']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Page:Pane').set_position(446)
+findWidget('OOF2:Skeleton Page:Pane').set_position(422)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Smooth:criterion:Average Energy:alpha').set_position(100)
 checkpoint skeleton page sensitized
+findWidget('OOF2').resize(782, 701)
 wevent(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Smooth:criterion:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Smooth:criterion:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Limited Unconditional']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Skeleton Page:Pane').set_position(398)
+findWidget('OOF2:Skeleton Page:Pane').set_position(373)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Smooth:criterion:Limited Unconditional:shape_energy').set_position(100)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Smooth:criterion:Limited Unconditional:alpha').set_position(100)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Smooth:criterion:Limited Unconditional:homogeneity').set_position(100)
@@ -1744,10 +1404,29 @@ checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
+findWidget('Skeleton:Next').clicked()
+findWidget('Skeleton:Next').clicked()
+findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Skeleton']).activate()
+checkpoint toplevel widget mapped Dialog-Skeleton
+findWidget('Dialog-Skeleton').resize(208, 230)
+findWidget('Dialog-Skeleton:filename').set_text('s')
+findWidget('Dialog-Skeleton:filename').set_text('sk')
+findWidget('Dialog-Skeleton:filename').set_text('ske')
+findWidget('Dialog-Skeleton:filename').set_text('skel')
+findWidget('Dialog-Skeleton:filename').set_text('skele')
+findWidget('Dialog-Skeleton:filename').set_text('skelet')
+findWidget('Dialog-Skeleton:filename').set_text('skeleto')
+findWidget('Dialog-Skeleton:filename').set_text('skeleton')
+findWidget('Dialog-Skeleton:filename').set_text('skeleton.')
+findWidget('Dialog-Skeleton:filename').set_text('skeleton.d')
+findWidget('Dialog-Skeleton:filename').set_text('skeleton.da')
+findWidget('Dialog-Skeleton:filename').set_text('skeleton.dat')
+findWidget('Dialog-Skeleton:widget_GTK_RESPONSE_OK').clicked()
+checkpoint OOF.File.Save.Skeleton
 findWidget('Skeleton:Close').clicked()
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Python_Log']).activate()
 checkpoint toplevel widget mapped Dialog-Python_Log
-findWidget('Dialog-Python_Log').resize(208, 123)
+findWidget('Dialog-Python_Log').resize(208, 125)
 findWidget('Dialog-Python_Log:filename').set_text('s')
 findWidget('Dialog-Python_Log:filename').set_text('se')
 findWidget('Dialog-Python_Log:filename').set_text('ses')
