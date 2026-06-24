@@ -28,6 +28,7 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
+from ooflib.image import checktifffile
 from ooflib.image import imagecontext
 from ooflib.image import imagemodifier
 import ooflib.common.microstructure
@@ -37,7 +38,10 @@ import itertools
 import numpy
 import os.path
 import skimage
-import tifffile
+
+if checktifffile.OK:
+    import tifffile
+    
 from matplotlib import pyplot
 
 imagemenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
@@ -197,7 +201,7 @@ def saveImage(menuitem, image, filename, overwrite):
             numpy.save(filename, saveimg)
         elif ext == ".npz":
             numpy.savez_compressed(filename, image=saveimg)
-        elif ext in (".tiff", ".tif"):
+        elif checktifffile.OK and ext in (".tiff", ".tif"):
             tifffile.imwrite(filename, saveimg)
         elif oofimage.getImage(image).isGray():
             # The documentation for matplotlib.pyplot.imsave says "If you

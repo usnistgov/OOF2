@@ -11,6 +11,7 @@
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common import primitives
+from ooflib.image import checktifffile
 from ooflib.image import imagecontext
 
 import matplotlib
@@ -19,7 +20,9 @@ import os
 import pickle
 import skimage
 import sys
-import tifffile
+
+if checktifffile.OK:
+    import tifffile
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -48,7 +51,7 @@ def getNumpyData(filename):
                 f"Image file {filename} must contain exactly one image.")
         (imgname,) = imagedict # unpack keys into a tuple
         return imagedict[imgname]
-    if extension in (".tif", ".tiff"):
+    if checktifffile.OK and extension in (".tif", ".tiff"):
         return tifffile.imread(filename)
     return matplotlib.pyplot.imread(filename)
         
