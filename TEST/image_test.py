@@ -24,6 +24,7 @@ from ooflib.common.IO.automatic import automatic
 from ooflib.image import denoise
 from ooflib.image import threshold
 from ooflib.image import imagemodifier
+from ooflib.image import checktifffile
 
 from . import memorycheck
 from .UTILS.file_utils import reference_file
@@ -237,7 +238,10 @@ class OOF_Image(unittest.TestCase):
         # Save in a bunch of standard image formats.  pdf, eps, and ps
         # are omitted because they might contain system dependent
         # metadata.
-        for ext in ("png", "gif", "jpg", "ppm", "pgm", "tif", "tiff"):
+        extensions = ("png", "gif", "jpg", "ppm", "pgm")
+        if checktifffile.OK:
+            extensions = extensions + ("tif", "tiff")
+        for ext in  extensions: 
             OOF.File.Save.Image(filename="image_save_test."+ext,
                                 image="gray:si3n4-blur.npy",
                                 overwrite=False)
@@ -260,16 +264,9 @@ class OOF_Image(unittest.TestCase):
                     reference_file("image_data", "saved_gray."+ext)))
         if swapbytes:
             img.makeBigEndian()
-            
-        os.remove("image_save_test.gif")
-        os.remove("image_save_test.jpg")
-        os.remove("image_save_test.npy")
-        os.remove("image_save_test.npz")
-        os.remove("image_save_test.pgm")
-        os.remove("image_save_test.png")
-        os.remove("image_save_test.ppm")
-        os.remove("image_save_test.tif")
-        os.remove("image_save_test.tiff")        
+
+        for ext in extensions + ("npy", "npz"):
+            os.remove("image_save_test." + ext)
 
     @memorycheck.check()
     def Modify(self):
