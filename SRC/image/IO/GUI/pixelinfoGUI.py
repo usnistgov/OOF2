@@ -170,6 +170,3 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.text2.set_text('???')
         self.text3.set_text('???')
 
-
-pixelinfoGUIplugin.registerPlugInClass(ImagePlugIn)
-

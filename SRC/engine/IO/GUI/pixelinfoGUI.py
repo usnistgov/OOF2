@@ -61,5 +61,3 @@ class MaterialPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
     def matchanged(self, ms):
         if ms is self.toolbox.findMicrostructure():
             self.update(self.toolbox.currentPixel())
-
-pixelinfoGUIplugin.registerPlugInClass(MaterialPlugIn)

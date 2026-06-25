@@ -376,9 +376,4 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# The OrientMapPixelInfoPlugIn must be created before the
-# MisorientationPixelInfoPlugIn in each graphics window, so it must be
-# registered first here.
 
-pixelinfoGUIplugin.registerPlugInClass(OrientMapPixelInfoPlugIn)
-pixelinfoGUIplugin.registerPlugInClass(MisorientationPixelInfoPlugIn)
