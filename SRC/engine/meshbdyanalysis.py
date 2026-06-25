@@ -11,8 +11,8 @@
 from ooflib.SWIG.engine import bdyanalysis
 from ooflib.SWIG.engine import planarity
 from ooflib.common import debug
+from ooflib.common import outputsettings
 from ooflib.common import registeredclass
-from ooflib.common.IO import formatchars
 from ooflib.common.IO import parameter
 from ooflib.engine.IO import meshparameters
 import ooflib.SWIG.engine.flux
@@ -25,7 +25,7 @@ class MeshBdyAnalyzer(registeredclass.RegisteredClass):
         edgeset = femesh.getBoundary(boundary).edgeset
         result = self.do_analysis(femesh, edgeset) # defined in subclasses
 
-        if formatchars.showTime():
+        if outputsettings.showTime():
             print(time, end=' ', file=destination)
         for x in result.valuePtr().value_list():
             print(x, end=' ', file=destination)
@@ -38,7 +38,7 @@ class MeshBdyAnalyzer(registeredclass.RegisteredClass):
         destination.comment("Boundary:", boundary)
         destination.comment("Columns:")
         cnames = self.columnNames() # defined in subclasses
-        if formatchars.showTime():
+        if outputsettings.showTime():
             cnames = ["time"] + cnames
         for i, colname in enumerate(cnames):
             destination.comment("%d."%(i+1), colname)
@@ -123,12 +123,12 @@ registeredclass.Registration(
 #     destination.comment("Boundary:", boundary)
 #     destination.comment("Columns:")
 #     cnames = analyzer.columnNames(result)
-#     if formatchars.showTime():
+#     if outputsettings.showTime():
 #         cnames = ["time"] + cnames
 #     for i, colname in enumerate(cnames):
 #         destination.comment("%d."%(i+1), colname)
 #     # Write data
-#     if formatchars.showTime():
+#     if outputsettings.showTime():
 #         print >> destination, time,
 #     for x in result.valuePtr().value_list():
 #         print >> destination, x,

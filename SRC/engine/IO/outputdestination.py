@@ -12,10 +12,10 @@ from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common import oofenum
+from ooflib.common import outputsettings
 from ooflib.common import registeredclass
 from ooflib.common import utils
 from ooflib.common.IO import datafile
-from ooflib.common.IO import formatchars
 from ooflib.common.IO import filenameparam
 from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
@@ -177,11 +177,11 @@ class BaseOutputStream:
             self.beginline = True
         else:
             if not self.beginline:
-                self.file.write(formatchars.getSeparator())
+                self.file.write(outputsettings.getSeparator())
             self.file.write(text)
             self.beginline = False
     def comment(self, *args):
-        self.file.write(" ".join([formatchars.getCommentChar()] + 
+        self.file.write(" ".join([outputsettings.getCommentChar()] + 
                                  [x for x in args] ))
         self.file.write("\n")
         self.beginline = True

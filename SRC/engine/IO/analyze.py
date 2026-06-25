@@ -16,10 +16,10 @@
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.engine import outputval
 from ooflib.common import debug
+from ooflib.common import outputsettings
 from ooflib.common import parallel_enable
 from ooflib.common import registeredclass
 from ooflib.common import utils
-from ooflib.common.IO import formatchars
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine.IO import outputClones
 
@@ -80,12 +80,12 @@ class DataOperationRegistration(registeredclass.Registration):
 class OneLineDataOperation(DataOperation):
     def columnNames(self, output, sampling):
         names = sampling.get_col_names() + self.colNames(output)
-        if formatchars.showTime():
+        if outputsettings.showTime():
             return ["time"] + names
         return names
 
     def printResults(self, time, results, destination):
-        if formatchars.showTime():
+        if outputsettings.showTime():
             print(time, end=' ', file=destination) 
         for x in results:
             print(x, end=' ', file=destination)
@@ -118,7 +118,7 @@ class DirectOutput(DataOperation):
         olist = sampling.evaluate(domain, output)
         header = sampling.get_col_names()
 
-        if formatchars.showTime():
+        if outputsettings.showTime():
             destination.comment("time:", repr(time))
             
         for (s,v) in olist:

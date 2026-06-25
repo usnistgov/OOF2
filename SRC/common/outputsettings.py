@@ -139,8 +139,6 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-## TODO: This should be obsolete, or at least not in this file. 
-
 def showTime():
     return settingsmenu.Show_Time.value
 

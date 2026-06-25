@@ -14,9 +14,9 @@ from ooflib.SWIG.engine import corientation
 from ooflib.SWIG.orientationmap import orientmapdata
 from ooflib.common import debug
 from ooflib.common import oofenum
+from ooflib.common import outputsettings
 from ooflib.common import primitives
 from ooflib.common import utils
-from ooflib.common.IO import formatchars
 from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
 from ooflib.common.IO import xmlmenudump
@@ -270,8 +270,8 @@ orientmapdata.OrientMapRegistration(
             tip="Skip input lines beginning with this character."),
         parameter.RegisteredParameter(
             "separator", 
-            formatchars.InputSeparator,
-            formatchars.WhiteSpaceSeparator(),
+            outputsettings.InputSeparator,
+            outputsettings.WhiteSpaceSeparator(),
             tip="How columns are divided in the input file."),
         parameter.PositiveIntParameter(
             'angle_column', 1,
