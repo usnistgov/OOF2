@@ -69,8 +69,8 @@ std::vector<std::string> *autogroup(CMicrostructure *ms, OOFImage *image,
 				    const std::string &name_template)
 {
   ICoord size(ms->sizeInPixels());
-  const size_t width = size(0);
-  const size_t height = size(1);
+  const size_t width = size[0];
+  const size_t height = size[1];
   const double npixels = height*width; // double, used as denominator
   size_t ndone = 0;	    // number of pixels that have been checked
   size_t nlists = 0;	    // number of pixel lists created by all threads

@@ -296,8 +296,8 @@ void PixelSet::setFromBitmap(const BitmapOverlay &bitmap) {
   // area, because it's assumed that the Bitmap is already set
   // correctly.
   const ICoord &bitmapsize = bitmap.sizeInPixels();
-  int xmin = bitmapsize(0) < geometry(0) ? bitmapsize(0) : geometry(0);
-  int ymin = bitmapsize(1) < geometry(1) ? bitmapsize(1) : geometry(1);
+  int xmin = bitmapsize[0] < geometry[0] ? bitmapsize[0] : geometry[0];
+  int ymin = bitmapsize[1] < geometry[1] ? bitmapsize[1] : geometry[1];
   const Array<bool> sub(bitmap.data.subarray(ICoord(0,0), ICoord(xmin, ymin)));
   member_lock.acquire();
   for(Array<bool>::const_iterator i=sub.begin(); i!=sub.end(); ++i)

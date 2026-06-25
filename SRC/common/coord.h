@@ -155,9 +155,6 @@ public:
   virtual ~ICoord() {}
   ICoord(int x0, int x1) { x[0] = x0; x[1] = x1; }
   ICoord() { x[0] = 0; x[1] = 0; }
-  // TODO: Remove operator().  Use operator[] instead.
-  inline int operator()(int i) const { return x[i]; }
-  inline int &operator()(int i) { return x[i]; }
   inline int operator[](int i) const { return x[i]; }
   inline int &operator[](int i) { return x[i]; }
   ICoord &operator+=(const ICoord &c) {
@@ -213,7 +210,7 @@ inline Coord operator+(const ICoord &b, const Coord &a) {
 }
 
 inline Coord operator-(const ICoord &a, const Coord &b) {
-  Coord result(a(0), a(1));
+  Coord result(a[0], a[1]);
   result -= b;
   return result;
 }
@@ -225,7 +222,7 @@ inline ICoord operator*(const ICoord &a, int x) {
 }
 
 inline Coord operator*(const ICoord &a, double x) {
-  Coord b(a(0), a(1));
+  Coord b(a[0], a[1]);
   b *= x;
   return b;
 }

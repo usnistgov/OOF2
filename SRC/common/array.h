@@ -18,7 +18,7 @@
 // Constructors:
 //	Array<TYPE>::Array();	       		creates an empty 0x0 array
 //	Array<TYPE>::Array(int width, int height);
-//	Array<TYPE>::Array(ICoord &size);	size(0)=width, size(1)=height
+//	Array<TYPE>::Array(ICoord &size);	size[0]=width, size[1]=height
 
 // STL-style Iterators:
 // To loop over an array, there is a typedef
@@ -60,13 +60,13 @@
 // array was created like this:
 //	Array<TYPE> array(ICoord(w, h));
 // then
-//	0 <= index(0) < w
-//	0 <= index(1) < h
+//	0 <= index[0] < w
+//	0 <= index[1] < h
 // If the array is a subarray,
 //	Array<TYPE> array=otherarray.subarray(ICoord(lft,btm), ICoord(rgt,top))
 // then
-// 	lft <= index(0) < rgt
-//	btm <= index(1) < top
+// 	lft <= index[0] < rgt
+//	btm <= index[1] < top
 // assuming that lft <= rgt and btm <= top.
 
 // The copy constructor does not make a new independent array, it
@@ -132,16 +132,16 @@ private:
   void allocate() {
     int i;
 
-    data = new TYPE*[size(1)];
+    data = new TYPE*[size[1]];
     if(!data) {
-      std::cerr << "ArrayData: Failed to allocate array of " << size(1)
+      std::cerr << "ArrayData: Failed to allocate array of " << size[1]
 		<< " pointers!" << std::endl;
       exit(1);			// should throw an exception 
     }
 		
     // Size can be 0x0, in which case dereferencing "data" is not allowed.
-    if (size(1)>0) {
-      data[0] = new TYPE[size(0)*size(1)];
+    if (size[1]>0) {
+      data[0] = new TYPE[size[0]*size[1]];
       if(!data[0]) {
 	std::cerr << "ArrayData: Failed to allocate array of " << size 
 		  << " objects of size " << sizeof(TYPE) << "!" << std::endl;
@@ -150,8 +150,8 @@ private:
     }
 		
     // set the pointers to point to the right part of the 1D array.
-    for(i=1; i<size(1); i++) 
-      data[i] = data[i-1] + size(0);
+    for(i=1; i<size[1]; i++) 
+      data[i] = data[i-1] + size[0];
   }
   void resize(const ICoord &newsize) { // destroys contents
     if(newsize == size) return;
@@ -161,7 +161,7 @@ private:
   }
   void free() {
     if(data) {
-      if (size(1)>0)
+      if (size[1]>0)
 	delete [] data[0];
       delete [] data;
     }
@@ -170,11 +170,11 @@ public:		       // these have to be available to Array subclasses
   int refcount;
   ICoord size;
   void copy(const ArrayData<TYPE> &other) {
-    if (size(1)>0) 
-      (void) memcpy(data[0], other.data[0], size(0)*size(1)*sizeof(TYPE));
+    if (size[1]>0) 
+      (void) memcpy(data[0], other.data[0], size[0]*size[1]*sizeof(TYPE));
   }
   void clear(const TYPE &t) {
-    int n = size(0)*size(1);
+    int n = size[0]*size[1];
     if (n>0) {
       TYPE *d = data[0];
       for(int i=0; i<n; i++)
@@ -182,10 +182,10 @@ public:		       // these have to be available to Array subclasses
     }
   }
   TYPE &get(const ICoord &z) {
-    return data[z(1)][z(0)];
+    return data[z[1]][z[0]];
   }
   const TYPE &get(const ICoord &z) const {
-    return data[z(1)][z(0)];
+    return data[z[1]][z[0]];
   }
 };
 
@@ -207,13 +207,13 @@ protected:
       delete dataptr;
   }
 public:
-  Array() : dataptr(0), bounds_(ICoord(0,0), ICoord(0,0)) { allocate(); }
+  Array() : dataptr(nullptr), bounds_(ICoord(0,0), ICoord(0,0)) { allocate(); }
   Array(int w, int h)
-    : dataptr(0), bounds_(ICoord(0,0), ICoord(w,h)) { allocate(); }
+    : dataptr(nullptr), bounds_(ICoord(0,0), ICoord(w,h)) { allocate(); }
   Array(const ICoord &size)
-    : dataptr(0), bounds_(ICoord(0,0), size) { allocate(); }
+    : dataptr(nullptr), bounds_(ICoord(0,0), size) { allocate(); }
   Array(const ICoord &size, const TYPE &x0)
-    : dataptr(0), bounds_(ICoord(0,0), size) { allocate(); clear(x0); }
+    : dataptr(nullptr), bounds_(ICoord(0,0), size) { allocate(); clear(x0); }
   Array(const ICoord &size, ArrayData<TYPE> *dataptr)
     : dataptr(dataptr), bounds_(ICoord(0,0), size)
   {
@@ -221,7 +221,7 @@ public:
       allocate();
   }
   Array(const ICRectangle &bounds) //used in clone
-    : dataptr(0), bounds_(bounds) { allocate(); }
+    : dataptr(nullptr), bounds_(bounds) { allocate(); }
 
   // The copy constructor does not make an independent copy-- it makes
   // a new Array that shares data with the original.  This is the
@@ -279,19 +279,19 @@ public:
   
   inline TYPE &operator[](const ICoord &z) {
 #ifdef DEBUG
-    assert(z(0) < bounds_.xmax());
-    assert(z(1) < bounds_.ymax());
-    assert(z(0) >= bounds_.xmin());
-    assert(z(1) >= bounds_.ymin());
+    assert(z[0] < bounds_.xmax());
+    assert(z[1] < bounds_.ymax());
+    assert(z[0] >= bounds_.xmin());
+    assert(z[1] >= bounds_.ymin());
 #endif	
     return dataptr->get(z);
   }
   inline const TYPE &operator[](const ICoord &z) const {
 #ifdef DEBUG
-    assert(z(0) < bounds_.xmax());
-    assert(z(1) < bounds_.ymax());
-    assert(z(0) >= bounds_.xmin());
-    assert(z(1) >= bounds_.ymin());
+    assert(z[0] < bounds_.xmax());
+    assert(z[1] < bounds_.ymax());
+    assert(z[0] >= bounds_.xmin());
+    assert(z[1] >= bounds_.ymin());
 #endif	
     return dataptr->get(z);
   }
@@ -380,24 +380,24 @@ public:
     : location(array.bounds_.lowerleft()),
       array(&array) {}
 
-  ArrayIterator() : array(0) {}
+  ArrayIterator() : array(nullptr) {}
 
   void operator++() {
-    location(0)++;
-    if(location(0) == array->bounds_.xmax()) {
-      location(0) = array->bounds_.xmin();
-      location(1)++;
+    location[0]++;
+    if(location[0] == array->bounds_.xmax()) {
+      location[0] = array->bounds_.xmin();
+      location[1]++;
     }
   }
 
   void reset() {
-    location(0) = array->bounds_.xmin();
-    location(1) = array->bounds_.ymin();
+    location[0] = array->bounds_.xmin();
+    location[1] = array->bounds_.ymin();
   }
 
   bool done() const {
-    if (location(0) == array->bounds_.xmax()-1 && 
-	location(1) == array->bounds_.ymax()-1)
+    if (location[0] == array->bounds_.xmax()-1 && 
+	location[1] == array->bounds_.ymax()-1)
       return true;
     return false;
   }
@@ -434,12 +434,12 @@ public:
     : location(array.bounds_.lowerleft()), 
       array(&array)
   {}
-  ConstArrayIterator() : array(0) {}
+  ConstArrayIterator() : array(nullptr) {}
   void operator++() {
-    location(0)++;
-    if(location(0) == array->bounds_.xmax()) {
-      location(0) = array->bounds_.xmin();
-      location(1)++;
+    location[0]++;
+    if(location[0] == array->bounds_.xmax()) {
+      location[0] = array->bounds_.xmin();
+      location[1]++;
     }
   }
   inline const TYPE &operator*() {
@@ -448,8 +448,8 @@ public:
   inline const ICoord &coord() const { return location; }
 
   bool done() const {
-    if (location(0) == array->bounds_.xmax()-1 && 
-	location(1) == array->bounds_.ymax()-1)
+    if (location[0] == array->bounds_.xmax()-1 && 
+	location[1] == array->bounds_.ymax()-1)
       return true;
     return false;
   }

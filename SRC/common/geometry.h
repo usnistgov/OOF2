@@ -112,7 +112,7 @@ public:
     if(limits.ymin() > lowleft[1])
       lowleft[1] = min(upright[1], limits.ymin());
     if(limits.ymax() < upright[1])
-      upright[1] = max(lowleft(1), limits.ymax());
+      upright[1] = max(lowleft[1], limits.ymax());
     size_ = upright - lowleft;
   }
 
@@ -156,7 +156,7 @@ public:
     : CRectangle_<double, Coord>(a,b)
   {}
   CRectangle(const ICoord &a, const ICoord &b)
-    : CRectangle_<double, Coord>(Coord(a(0), a(1)), Coord(b(0), b(1)))
+    : CRectangle_<double, Coord>(Coord(a[0], a[1]), Coord(b[0], b[1]))
   {}
   friend std::ostream& operator<<(std::ostream &os, const CRectangle &rect) {
     os << "CRectangle(" << rect.lowleft << ", " << rect.upright << ")";

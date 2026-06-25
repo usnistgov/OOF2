@@ -174,8 +174,8 @@ OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 const CColor OOFImage::operator[](const ICoord &coord) const {
-  int r = coord(1);		// row
-  int c = coord(0);		// column
+  int r = coord[1];		// row
+  int c = coord[0];		// column
   if(!isgray_) {
     double *red = (double*) PyArray_GETPTR3(npobject, r, c, 0);
     double *grn = red + 1;
@@ -187,8 +187,8 @@ const CColor OOFImage::operator[](const ICoord &coord) const {
 }
 
 void OOFImage::set(const ICoord &coord, const CColor &color) {
-  int r = coord(1);
-  int c = coord(0);
+  int r = coord[1];
+  int c = coord[0];
   if(isgray_ and !color.isGray()) {
     throw ErrProgrammingError(
 	      "Cannot insert an non-gray color into a gray image.",
@@ -280,9 +280,9 @@ bool operator!=(const ConstOOFImageIterator &a, const ConstOOFImageIterator &b){
 
 // std::vector<unsigned short> *OOFImage::getPixels() {
 //   // Magick::Image::write isn't const, so this function isn't const either.
-//   int n = 3*sizeInPixels_(0)*sizeInPixels_(1);
+//   int n = 3*sizeInPixels_[0]*sizeInPixels_[1];
 //   std::vector<unsigned short> *pxls = new std::vector<unsigned short>(n);
-//   image.write(0, 0, sizeInPixels_(0), sizeInPixels_(1),
+//   image.write(0, 0, sizeInPixels_[0], sizeInPixels_[1],
 // 	      "RGB", Magick::ShortPixel, &(*pxls)[0]);
 //   return pxls;
 // }

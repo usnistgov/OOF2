@@ -304,7 +304,7 @@ public:
 
 %extend ICoord {
   int __getitem__(int i) {
-    return (*self)(i);
+    return (*self)[i];
   }
   int __len__() {
     return DIM;

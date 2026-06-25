@@ -43,7 +43,7 @@ BitMask::iterator BitMask::raw_begin() {
 
 BitMask::iterator BitMask::begin() {
   iterator start = BitMaskIterator(*this);
-  while(start.location(1) < data.height() && !*start)
+  while(start.location[1] < data.height() && !*start)
     start.raw_incr();
   return start;
 }
@@ -54,7 +54,7 @@ BitMask::const_iterator BitMask::raw_begin() const {
 
 BitMask::const_iterator BitMask::begin() const {
   const_iterator start = ConstBitMaskIterator(*this);
-  while(start.location(1) < data.height() && !*start)
+  while(start.location[1] < data.height() && !*start)
     start.raw_incr();
   return start;
 }
@@ -72,31 +72,31 @@ BitMask::const_iterator BitMask::end() const {
 }
 
 void BitMaskIterator::raw_incr() {
-  location(0)++;
-  if(location(0) == bitmask.data.width()) {
-    location(0) = 0;
-    location(1)++;
+  location[0]++;
+  if(location[0] == bitmask.data.width()) {
+    location[0] = 0;
+    location[1]++;
   }
 }
 
 void BitMaskIterator::operator++() {
   do
     raw_incr();
-  while (location(1) < bitmask.data.height() && !*(*this));
+  while (location[1] < bitmask.data.height() && !*(*this));
 }
 
 void ConstBitMaskIterator::raw_incr() {
-  location(0)++;
-  if(location(0) == bitmask.data.width()) {
-    location(0) = 0;
-    location(1)++;
+  location[0]++;
+  if(location[0] == bitmask.data.width()) {
+    location[0] = 0;
+    location[1]++;
   }
 }
 
 void ConstBitMaskIterator::operator++() {
   do
     raw_incr();
-  while(location(1) < bitmask.data.height() && !*(*this));
+  while(location[1] < bitmask.data.height() && !*(*this));
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

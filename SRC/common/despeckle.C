@@ -24,8 +24,8 @@ static ICoord northwest(-1, 1);
 static int Nnbrs(const ICoord &pxl, const BoolArray &sel) {
   int w = sel.width() - 1;
   int h = sel.height() - 1;
-  int x = pxl(0);
-  int y = pxl(1);
+  int x = pxl[0];
+  int y = pxl[1];
   int howmany = 0;	// number of neighbors selected
   if(x > 0) if(sel[pxl - east]) howmany++;
   if(x < w) if(sel[pxl + east]) howmany++;
@@ -53,8 +53,8 @@ static void addnbrs_unsel(const ICoord &pxl, const BoolArray &sel,
 {
   int w = sel.width() - 1;
   int h = sel.height() - 1;
-  int x = pxl(0);
-  int y = pxl(1);
+  int x = pxl[0];
+  int y = pxl[1];
   if(x > 0) if(isUnselected(pxl-east, sel)) grp.add(pxl-east);
   if(x < w) if(isUnselected(pxl+east, sel)) grp.add(pxl+east);
   if(y > 0) if(isUnselected(pxl-north, sel)) grp.add(pxl-north);
@@ -74,8 +74,8 @@ static void addnbrs_sel(const ICoord &pxl, const BoolArray &sel,
 {
   int w = sel.width() - 1;
   int h = sel.height() - 1;
-  int x = pxl(0);
-  int y = pxl(1);
+  int x = pxl[0];
+  int y = pxl[1];
   if(x > 0) if(isSelected(pxl-east, sel)) grp.add(pxl-east);
   if(x < w) if(isSelected(pxl+east, sel)) grp.add(pxl+east);
   if(y > 0) if(isSelected(pxl-north, sel)) grp.add(pxl-north);

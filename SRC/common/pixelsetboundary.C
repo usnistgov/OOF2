@@ -149,9 +149,9 @@ Coord intersection(const ICoord &a0, const ICoord &a1,
   assert(denom != 0); // because the segment and line are known to intersect
   double alpha = cross(b0-a0, b1-b0)/denom;
   if(alpha < 0.0)
-    return Coord(a0(0), a0(1));
+    return Coord(a0[0], a0[1]);
   if(alpha > 1.0)
-    return Coord(a1(0), a1(1));
+    return Coord(a1[0], a1[1]);
   return a0 + (a1-a0)*alpha;
 }
 
@@ -931,7 +931,7 @@ void ClippedPixelBdyLoop::add(const Coord &pt) {
 }
 
 void ClippedPixelBdyLoop::add(const ICoord &pt) {
-  add(Coord(pt(0), pt(1)));
+  add(Coord(pt[0], pt[1]));
 }
 
 std::ostream &operator<<(std::ostream &os, const ClippedPixelBdyLoop &pbl) {
