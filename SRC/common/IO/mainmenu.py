@@ -824,11 +824,11 @@ def _noop(menuitem):
     pass
 
 debugmenu.addItem(OOFMenuItem('NoOp', no_doc=True,
-                              secret=not debug.debug(),
+                              no_gui=not debug.debug(),
                               callback=_noop))
 
 errmenu = debugmenu.addItem(OOFMenuItem('Error', no_doc=True, 
-                                        secret=not debug.debug()))
+                                        no_cli=not debug.debug()))
 
 
 def _warning(menuitem):
@@ -921,7 +921,7 @@ import time
 rw = lock.RWLock()
 
 lockmenu = debugmenu.addItem(OOFMenuItem("LockTest", no_doc=True,
-                                         secret=not debug.debug()))
+                                         no_cli=not debug.debug()))
 
 def _py_read(menuitem, seconds):
     global rw
@@ -971,7 +971,7 @@ def _random(menuitem, n):
 debugmenu.addItem(OOFMenuItem(
         'Random',
         callback=_random,
-        secret=not debug.debug(),
+        no_cli=not debug.debug(),
         params=[IntParameter('n', 10, tip='How many numbers to generate.')],
         help='Generate some random numbers.',
     discussion="""<para>For debugging the random number generator.

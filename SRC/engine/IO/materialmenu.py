@@ -288,7 +288,7 @@ _materialmenu.addItem(OOFMenuItem(
 _materialmenu.addItem(
     _materialmenu.Add_Property.clone(
         name='Add_property',
-        no_doc=True, secret=True, 
+        no_doc=True, no_gui=True, no_cli=True,
         discussion=xmlmenudump.emptyDiscussion
     )) 
 
@@ -331,7 +331,6 @@ _materialmenu.addItem(OOFMenuItem(
 _materialmenu.addItem(
     _materialmenu.Remove_Property.clone(
         name="Remove_property",
-        secret=True,            ## TODO: Check that this is correct
         discussion=xmlmenudump.emptyDiscussion
     ))
                       
@@ -589,8 +588,8 @@ _interfacemenu=_materialmenu.addItem(OOFMenuItem(
 The items in this menu are disabled in &oof2; 2.1.  They will be
 restored in a future version.
     """,
-    secret=True,
-    no_doc=True))
+    no_doc=True    # Remove this line if interfaces are ever finished.
+))
 
 def _assigninterfacemat(menuitem, microstructure, material,
                         skeleton,interfaces):
@@ -646,7 +645,6 @@ _interfacemenu.addItem(OOFMenuItem(
 _loadmatinterfacemenu=mainmenu.OOF.LoadData.addItem(
     oofmenu.OOFMenuItem('Interface',
                         no_doc=True, # TODO: remove when Interfaces supported
-                        secret=True
                         ))
 
 #OOF.LoadData.Material.Interface.Assign

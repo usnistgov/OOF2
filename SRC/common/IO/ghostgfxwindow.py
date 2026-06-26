@@ -691,7 +691,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         zoommenu.addItem(OOFMenuItem(
             'InFocussed',
             callback=self.zoomInFocussed,
-            secret=1,
+            no_gui=1,
             params=[primitives.PointParameter('focus',
                                               tip='Point to magnify about.')],
             help='Magnify the image about a mouse click.',
@@ -715,7 +715,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         zoommenu.addItem(OOFMenuItem(
             'OutFocussed',
             callback=self.zoomOutFocussed,
-            secret=1,
+            no_gui=1,
             params=[primitives.PointParameter('focus',
                                               tip='Point to demagnify about.')],
             help='Magnify the image about a mouse click.',

@@ -305,8 +305,7 @@ micromenu.addItem(oofmenu.OOFMenuItem(
     'SetHomogeneityParameters',
     callback=setHomogParams,
     ordering=1000,
-    secret=True,
-    no_doc=True,
+    no_cli=True, no_gui=True, no_doc=True,
     params=[
         parameter.FloatRangeParameter(
             'factor', range=(0.0, 1.0, 0.01), default=0.5,
@@ -325,8 +324,7 @@ micromenu.addItem(oofmenu.OOFMenuItem(
     'ResetHomogeneityParameters',
     callback=resetHomogParams,
     ordering=1001,
-    secret=True,
-    no_doc=True,
+    no_cli=True, no_gui=True, no_doc=True
 ))
     
 
@@ -339,8 +337,7 @@ def recategorize(menuitem, microstructure):
 micromenu.addItem(oofmenu.OOFMenuItem(
     'Recategorize',
     callback=recategorize,
-    secret=True,
-    no_doc=True,
+    no_cli=True, no_gui=True, no_doc=True,
     params=[whoville.WhoParameter('microstructure',
                                   ooflib.common.microstructure.microStructures,
                                   tip=parameter.emptyTipString)],

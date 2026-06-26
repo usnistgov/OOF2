@@ -50,7 +50,7 @@ ops_menu = mainmenu.OOF.Mesh.addItem(oofmenu.OOFMenuItem(
 if parallel_enable.enabled():
     from ooflib.common.IO import parallelmainmenu
     ipcops_menu = parallelmainmenu.ipcmenu.addItem(
-        oofmenu.OOFMenuItem('Analyze', secret=1, no_log=1)
+        oofmenu.OOFMenuItem('Analyze', no_cli=1, no_gui=1, no_log=1)
         )
 
 # Parameters to all the menu items.

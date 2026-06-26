@@ -961,7 +961,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
 _symmetryTestMenu = subproblemMenu.addItem(oofmenu.OOFMenuItem(
         'SymmetryTest',
         help='Testing tools for checking matrix symmetry',
-        secret=True, no_doc=True))
+        no_cli=True, no_gui=True, no_doc=True))
 
 def _checkSymmetry(subproblem, material, fn, symmetric):
     subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblem]

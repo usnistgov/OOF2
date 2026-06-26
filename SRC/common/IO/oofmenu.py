@@ -82,10 +82,6 @@
 #               accelerator.  accel='equal' makes Alt-= the
 #               accelerator.  [default value = None]
 
-# secret:       Shorthand for setting the options no_cli and no_gui to
-#               True. [default value = False].
-#               TODO: Get rid of this option.  Just use no_gui, etc.
-              
 # ellipsis:     If ellipsis=True, then the item's name has '...' appended
 #               to it when displayed. [default value = False]
               
@@ -472,7 +468,6 @@ class OOFMenuItem:
                  gui_callback=None,     # callback for GUI (defaults to CLI cb)
                  gui_title=None,        # title for GUI dialog (default is name)
                  accel=None,            # GUI accelerator
-                 secret=False,          # not visible in GUI or CLI
                  ellipsis=False,        # append '...' to displayed names?
                  help_menu=False,       # is this a right justified help menu?
                  help=None,             # string describing command
@@ -534,9 +529,6 @@ class OOFMenuItem:
         self.debug = False
         
         # additional options
-        if secret:
-            self.setOption("no_cli", True)
-            self.setOption("no_gui", True)
         for opt,val in kwargs.items():
             if opt in _allowed_options: # check validity
                 self.setOption(opt, val)
@@ -547,8 +539,7 @@ class OOFMenuItem:
 
         _allMenuItems.add(self)
 
-    def clone(self,name=None, help=None, discussion=None,# secret=None,
-              xrefs=[], **kwargs):
+    def clone(self,name=None, help=None, discussion=None, xrefs=[], **kwargs):
         # Clone menu item, but NOT its submenus.  self.params may be a
         # ParameterGroup or a list, so we have to check the type when
         # copying.  Unfortunately, list and ParameterGroup have
@@ -805,10 +796,6 @@ class OOFMenuItem:
         self.bar_name = self.path() +'(' + stringjoin(arglist, ', ') + ')'
 
         self.hireWorker(argdict=argdict)
-
-##    def callSecretly(self, **kwargs):   # Doesn't log. 
-##        self.bar_name = self.path()
-##        self.hireWorker(argdict=kwargs)
 
     def hireWorker(self, argtuple=(), argdict={}, workerclass=None):
         # Create and start the appropriate kind of Worker to perform

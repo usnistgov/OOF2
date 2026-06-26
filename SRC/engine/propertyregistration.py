@@ -128,7 +128,7 @@ class PropertyManager:
         
         def kwarg_func(obj):    # Extra kwargs for OOFMenuItem ctor.
             if obj and obj.secret():
-                return {'secret':1, 'no_doc':1}
+                return {'no_cli':True, 'no_gui':True, 'no_doc':True}
             return {}
 
         # Menu items are put into OOF.Property for scripts and
@@ -250,7 +250,7 @@ class PropertyManager:
 
         def kwarg_func(obj):         # Extra kwargs for OOFMenuItem ctor.
             if obj and obj.secret():
-                return {'secret':1, 'no_doc':1}
+                return {'no_cli':True, 'no_gui':True, 'no_doc':True}
             return {}
 
         # Take the ipc menu already created in propertymenuIPC and

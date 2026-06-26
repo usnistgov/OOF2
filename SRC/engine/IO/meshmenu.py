@@ -1531,8 +1531,7 @@ solversettingsmenu.addItem(oofmenu.OOFMenuItem(
 meshsettingsmenu.addItem(oofmenu.OOFMenuItem(
     "SelfConsistency",
     callback=_consistencyTolerance,
-    secret=True,
-    no_doc=True,
+    no_cli=True, no_gui=True, no_doc=True,
     params=[
         parameter.FloatParameter(
             "tolerance",

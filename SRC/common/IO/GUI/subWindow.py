@@ -84,9 +84,14 @@ class SubWindow(widgetscope.WidgetScope):
         if isinstance(menu, (str, bytes)):
             # If no menu is provided, then build a non-logging local
             # one with 'Close' and 'Quit'.
+
+            ## TODO: the no_xxx flags here seem all wrong. no_doc and
+            ## no_cli should be applied to Close and Quit, but the
+            ## File menu shouldn't set them, in case more items are
+            ## added by the subwindow subclass. Etc.
             self.subwindow_menu = oofmenu.OOFMenuItem(
                 menu,
-                secret=True,
+                no_cli=True,
                 no_log=True,
                 no_bar=True,
                 no_doc=True)

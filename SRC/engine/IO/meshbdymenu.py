@@ -75,7 +75,6 @@ def _meshBdyAnalyze(menuitem, mesh, time, boundary, analyzer, destination):
     
 bdyanalysismenu.addItem(oofmenu.OOFMenuItem(
     'Analyze',
-    secret=1,
     callback=_meshBdyAnalyze,
     params = [mesh_param, time_param, bdy_param, analyzer_param,
               destination_param],
