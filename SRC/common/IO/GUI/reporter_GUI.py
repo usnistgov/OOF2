@@ -72,7 +72,6 @@ class MessageWindow(subWindow.SubWindow):
             named <quote>Messages_n</quote> to the front.
             </para>""",
             no_log=True,
-            no_bar=True,
             gui_callback=self.raise_window) )
             
         MessageWindow.count += 1

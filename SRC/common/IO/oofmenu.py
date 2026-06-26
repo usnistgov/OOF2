@@ -414,12 +414,14 @@ _nonrecursive_options = [
 # The difference between the options no_bar and no_gui is that no_bar
 # prevents a menu item from appearing in a menu bar, but no_gui
 # prevents it from appearing anywhere in the GUI.  Many menu items are
-# implemented by widgets a window's interior, and not by pull down
+# implemented by widgets in a window's interior, and not by pull down
 # menus from the window's menu bar.  Those items should be in a
-# submenu that has no_bar==True.  There could be another submenu
-# contained in the first submenu, and the inner one might need to be
-# displayed in another menu bar, so the no_bar option is not
-# recursive.
+# submenu that has no_bar==True, if the submenu's parent is the menu
+# displayed by the menu bar.
+#
+# There could be another submenu contained in the first submenu, and
+# the inner one might need to be displayed in another menu bar, so the
+# no_bar option is not recursive.
 
 ######################################
 

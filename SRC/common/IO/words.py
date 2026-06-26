@@ -79,8 +79,10 @@ for key in words:
     menuitem = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
         key,
         callback=_fancyprint,
+        no_gui=True,
+        no_cli=True,
         no_bar=True,
-        secret=True,
+        no_log=True,
         help=help_,
         discussion=xmlify(words[key])
         ))

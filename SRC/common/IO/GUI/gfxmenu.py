@@ -47,7 +47,6 @@ def gtkOOFMenu(menu, accelgroup=None, parentwindow=None):
 def gtkOOFMenuBar(menu, bar=None, accelgroup=None, parentwindow=None):
     # Function to turn an OOFMenu into a Gtk3 MenuBar.  Reuse the
     # given GtkMenuBar, if one is provided.
-    # debug.fmsg("gtkOOFMenuBar")
     debug.mainthreadTest()
     menu.parentwindow = parentwindow
     if bar is not None:
@@ -63,10 +62,9 @@ def gtkOOFMenuBar(menu, bar=None, accelgroup=None, parentwindow=None):
     bar.connect("destroy", menu.gtkmenu_destroyed)
     
     # menu.setOption('accelgroup', accelgroup)
-    # debug.fmsg(f"items={list(i.name for i in menu)}")
     for item in menu:
-        item.construct_gui(menu, bar, accelgroup)
-    # debug.fmsg("gtkOOFMenuBar: done")
+        if not (item.getOption('no_gui') or item.getOption('no_bar')):
+            item.construct_gui(menu, bar, accelgroup)
     return bar
 
 ###########################
@@ -208,9 +206,7 @@ def _OOFMenuItem_construct_gui(self, base, gtk_parent, accelgroup,
             gtklogger.set_submenu(new_gtkitem, new_gtkmenu)
             for item in self.items:
                 # recursively construct submenu
-                if not (item.getOption('no_gui') or
-                        isinstance(gtk_parent, Gtk.MenuBar) and
-                        item.getOption('no_bar')):
+                if not item.getOption('no_gui'):
                     item.construct_gui(self, new_gtkmenu,
                                        accelgroup, popup=popup)
         else:                   # no submenu, create command

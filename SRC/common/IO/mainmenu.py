@@ -113,12 +113,10 @@ _loadmenu = _filemenu.addItem(OOFMenuItem(
 # file names from setting the default values of parameters in the load
 # menu.
 
-## TODO: This menu needs to be secret, so that it doesn't appear in
-## the GUI, but it *should* appear in the manual.  The 'secret'
-## keyword is overloaded poorly.
 _startupmenu = _filemenu.addItem(OOFMenuItem(
     'LoadStartUp',
-    secret=True,
+    no_gui=True,
+    no_cli=True,
     help="Load start-up datafiles and scripts.",
     discussion="""<para> Commands to load datafiles and scripts from
     command line arguments at start-up time. These commands are the
@@ -504,9 +502,6 @@ _windowmenu.addItem(OOFMenuItem(
     help="Open or raise the Python console interface.",
     no_log=True,
     no_cli=True,
-    ## TODO: Setting no_bar==True here prevents the menu item from
-    ## appearing in the Windows menu.  Why is that?  It should have no
-    ## effect on the Windows menu.
     disabled=config.nanoHUB(),  # executing arbitrary python is a
                                 # security hole on nanoHUB.
     discussion="""<para>

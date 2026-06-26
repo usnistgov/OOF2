@@ -206,7 +206,6 @@ class GhostGfxWindow:
 
         self.menu = OOF.addItem(OOFMenuItem(
             self.name,
-            # secret=True,
             no_bar=True,
             help = "Commands dependent on a particular Graphics window.",
             discussion=xmlmenudump.loadFile(
