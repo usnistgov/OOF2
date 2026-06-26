@@ -22,8 +22,8 @@ from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 import sys, traceback
 
-def printTraceBack(e_type, e_value, e_traceback):
-    traceback.print_exception(e_type, e_value, e_traceback)
+def printTraceBack(e_value):
+    traceback.print_exception(e_value)
     
 # displayTraceBack is overridden by reporter_GUI.py, so that in GUI mode
 # it brings up a pop-up window.
@@ -39,7 +39,7 @@ class OOFexceptHook:
     # __call__() needs to have the same arguments as the
     # sys.__excepthook__(), although we only use one.
     def __call__(self, e_type, e_value, tback):
-        displayTraceBack(e_type, e_value, tback)
+        displayTraceBack(e_value)
 
     ## Not sure why __cmp__ was defined.  OOFexceptHook seems to work
     ## properly without it in python2, and it's not used in python3.
