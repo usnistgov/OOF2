@@ -125,7 +125,7 @@ class Registration(registeredclass.Registration):
     def monkeypatch(self, reprname):
         # Redefine the subclass's __init__ so that it keeps a list of
         # its arguments.
-        ## TODO PYTHON3: This isn't going to work if we use swig -builtin.
+        ## TODO: This isn't going to work if we use swig -builtin.
         self.subclass.oldinit = self.subclass.__init__
         def newinit(ego, *args):
             # Registration.setDefaultParams expects a list, not a

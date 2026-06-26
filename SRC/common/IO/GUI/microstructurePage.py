@@ -464,11 +464,6 @@ class MicrostructurePage(oofGUI.MainPage):
         ngrps = 0
         msctxt = self.currentMScontext()
         if msctxt:
-            # TODO: This is incorrect.  Don't call begin_reading here.
-            # The ms may be doing some long calculation, and the
-            # buttons should be desensitized because of it.  Calling
-            # begin_reading will lock and prevent densensitization
-            # until after the calculation is done!
             msctxt.begin_reading()
             try:
                 ms = msctxt.getObject()

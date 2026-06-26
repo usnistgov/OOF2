@@ -30,8 +30,6 @@
 #include "common/pixelsetboundary.h"
 #include "common/random.h"
 
-using namespace std;		// TODO: Don't do this.
-
 // TODO: Are groups_attributes_lock and category_lock still required?
 // Shouldn't the locks in the Who class be sufficient?
 
@@ -1225,9 +1223,8 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 
   // There are no stairsteps if the entire segment is horizontal or
   // vertical or if there aren't enough sections.
-  // TODO PYTHON3: Should we eliminate stairsteps of only two
-  // sections?  It would probably be best to treat that as a special
-  // case.
+  // TODO: Should we eliminate stairsteps of only two sections?  It
+  // would probably be best to treat that as a special case.
 
   if(nsections <= 2 || totalspan[0] == 0 || totalspan[1] == 0) {
     // If there are no steps, there still might be short segment to be

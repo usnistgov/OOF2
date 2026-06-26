@@ -18,7 +18,7 @@
 ## is recorded, making it easier to instrument it later.  It also can
 ## filter the log file to remove redundant lines.
 
-## TODO GTK3: This isn't quitting on EOF on Linux.
+## TODO: This isn't quitting on EOF on Linux.
 
 ## TODO: If log lines all ended with a comment indicating their
 ## origin, the postprocessing done here could be more specific.  For

@@ -178,7 +178,7 @@ class oofGUI(widgetscope.WidgetScope):
         self.currentPageName = pagename
         self.pageStack.set_visible_child_name(pagename)
         if oldPage is not None:
-            oldPage.hidden()
+            oldPage.uninstalled()
         allPages[self.currentPageName].installed()
         self.sensitize()
         gtklogger.checkpoint("page installed " + self.currentPageName)
@@ -392,18 +392,19 @@ class MainPage(widgetscope.WidgetScope):
     # always want to show all their widgets.  show() should call the
     # gtk.show method on the components of the page.  It's called when
     # the page is constructed.  It's *not* called when the GUI
-    # switches to the page.  For that, see installed() and hidden(),
-    # below.
+    # switches to the page.  For that, see installed() and
+    # uninstalled(), below.
     def show(self):
         self.gtk.show_all()
     def hide(self):                     # This seems not be called at all...
         self.gtk.hide()
 
     # Pages that have to do some calculation when they become visible
-    # can redefine installed() and hidden(). 
+    # can redefine installed() and uninstalled().  These are called
+    # just after the GUI switches to a page or away from it.
     def installed(self):
         pass
-    def hidden(self):           # TODO: rename to "uninstalled"
+    def uninstalled(self):
         pass
     def is_current(self):
         return gui.currentPageName == self.name

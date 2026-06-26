@@ -109,10 +109,11 @@ class ActivityViewer(subWindow.SubWindow):
         self.proglock.acquire()
         try:
             for worker in threadmanager.threadManager.allWorkers():
-                ## TODO PYTHON3: worker.threadstate is sometimes None.
-                ## There must be a missing synchronization lock.
-                ## Maybe the worker has joined its thread after this
-                ## loop has started?
+                ## TODO: worker.threadstate is sometimes None.  There
+                ## must be a missing synchronization lock.  Maybe the
+                ## worker has joined its thread after this loop has
+                ## started?  Haven't seen this error recently -- maybe
+                ## it's no longer a problem.
                 worker.threadstate.acquireProgressLock()
                 try:
                     progressnames = worker.threadstate.getProgressNames()

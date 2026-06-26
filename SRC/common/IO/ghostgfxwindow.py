@@ -424,7 +424,7 @@ class GhostGfxWindow:
                     "how", tip="How to display the object.")],
             help="Add a new graphics layer.",
             discussion=xmlmenudump.loadFile(
-                # TODO GTK3: Fix this manual page.
+                # TODO MANUAL: Fix this manual page.
                 'DISCUSSIONS/common/menu/newlayer.xml')
             ))
         layermenu.addItem(OOFMenuItem(
@@ -848,13 +848,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             self.contourmapdata.canvas.newLayer("tick")
 
     def drawable(self):
-        # Can any layer be drawn?  Used when testing the gui.
-        ## TODO: Does this need a lock?  I haven't seen any gui
-        ## testing errors that might be due to a missing lock.  The
-        ## gtk2 version had a separate SLock that controlled access to
-        ## the list of layers, and it was acquired here.  This is
-        ## called from the main thread during gui tests, and can't use
-        ## self.gfxlock, because that's not an SLock.
+        # Can any layer be drawn?  Used when testing the gui.  It's
+        # always called on the main thread and so it doesn't have a
+        # lock.
         for layer in self.layers:
             if not layer.incomputable(self):
                 return True

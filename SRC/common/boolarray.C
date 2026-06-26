@@ -74,7 +74,7 @@ std::vector<ICoord> *BoolArray::pixels(bool v) const {
 }
 
 int BoolArray::nset() const {
-  // TODO LATER: Keep track of number of set bits, and don't loop
+  // TODO MAYBE: Keep track of number of set bits, and don't loop
   // here!  This is actually quite difficult to do with the current
   // Array architecture.  One problem is that in order to maintain an
   // always up-to-date count of the set bits, operator[](ICoord) has
@@ -92,8 +92,8 @@ int BoolArray::nset() const {
 }
 
 bool BoolArray::empty() const {
-  // TODO LATER: Keep track of number of set bits, and don't loop here!  See
-  // comment above.
+  // TODO MAYBE: Keep track of number of set bits, and don't loop
+  // here!  See comment above.
   for(const_iterator i=begin(); i!=end(); ++i)
     if(*i)
       return false;

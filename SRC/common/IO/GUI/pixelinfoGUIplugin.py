@@ -39,11 +39,12 @@ class PixelInfoGUIPlugIn:
     # Subclasses are automatically inserted into the plugInClasses
     # list, which is kept sorted.  Because the ordering is not
     # available until after the subclass is created, it must be done
-    # via __init_subclass__, and not by metaclass.
+    # via __init_subclass__, and not by a metaclass.
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls._register()
-    # _register could conceivably be redefined in a subclass, I suppose.
+    # _register could conceivably be redefined in a subclass, so it's
+    # done outside of __init_subclass__.
     @classmethod
     def _register(cls):
         plugInClasses.append(cls)

@@ -17,7 +17,6 @@ from gi.repository import Gtk
 
 # TODO: Add gui logging somehow
 
-
 fsdialog = None
 
 def getFontName(parentwindow=None):
@@ -26,9 +25,6 @@ def getFontName(parentwindow=None):
         fsdialog = Gtk.FontChooserDialog("OOF2 Font Chooser", parentwindow)
         currentfont = Gtk.Settings.get_default().get_property("gtk-font-name")
         fsdialog.set_font(currentfont)
-    # At the moment (16 Dec 2024) fsdialog.run() segfaults on Mac,
-    # possibly due to this bug:
-    # https://github.com/GNOME/pango/commit/8133eceab8598cd00da2980cb3760ee2fe869ddb
     result = fsdialog.run()
     newfont = fsdialog.get_font()
     fsdialog.hide()

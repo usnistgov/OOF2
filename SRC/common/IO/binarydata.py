@@ -42,7 +42,7 @@
 # instance of MenuParser, and supports the required getMenuItem() and
 # getArguments().  See menuparser.py.
 
-## TODO: Allow None to be a parameter value for all Parameter
+## TODO MAYBE: Allow None to be a parameter value for all Parameter
 ## types in binary data files.  Currently it only works for
 ## RegisteredParameters.  Making it work for all Parameters would
 ## require that all Parameters' binaryReprs use a type flag, the way

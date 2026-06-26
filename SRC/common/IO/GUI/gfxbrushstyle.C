@@ -16,8 +16,8 @@
 void GfxCircleBrush::start(OOFCanvas::CanvasLayer *layer,
 			   const OOFCanvas::Coord &pt)
 {
-  // TODO GTK3: Get dashlength, linewidth, and colors from parameters
-  // in genericSelectGUI.py
+  // TODO: Get dashlength, linewidth, and colors from parameters in
+  // genericSelectGUI.py
   double dashLength = 7;
   double lineWidth = 2;
   circle = new OOFCanvas::CanvasCircle(pt, r);
@@ -39,8 +39,8 @@ void GfxCircleBrush::stop() {
 void GfxSquareBrush::start(OOFCanvas::CanvasLayer *layer,
 			   const OOFCanvas::Coord &pt)
 {
-  // TODO GTK3: Get dashlength, linewidth, and colors from parameters
-  // in genericSelectGUI.py
+  // TODO: Get dashlength, linewidth, and colors from parameters in
+  // genericSelectGUI.py
   double dashLength = 7;
   double lineWidth = 2;
 

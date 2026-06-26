@@ -610,7 +610,7 @@ class ChooserComboWidget:
         # kwargs, eg, halign.  This doesn't seem to be a problem in
         # the few cases in which this widget is used.  kwargs is set
         # (I think) by ParameterTable.makeSingleWidget().
-        ## TODO GTK3? Don't use Gtk.ComboBox, because it looks
+        ## TODO MAYBE: Don't use Gtk.ComboBox, because it looks
         ## different from the chooser widget varieties used elsewhere.
         ## Build a new widget in the style of ChooserWidget.  This
         ## will be a fair amount of work for a small aesthetic gain.

@@ -81,8 +81,6 @@ instead of int.  Or maybe to std::size_t.
 
 Fix statgroups.C.  See TODO there.
 
-Fix meshparamwidgets.C.  See TODOs there about proxies.
-
 Remove the shapefunction caching in sftable and sfcache, and eliminate
 the virtual functions in MasterCoord and GaussPoint that enable
 it.  See if matrix construction speed increases.
