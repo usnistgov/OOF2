@@ -97,7 +97,6 @@
 #include <iostream>
 #include <string.h>		// for memcpy
 #include <assert.h>
-using namespace std;
 
 template <class TYPE> class Array;
 template <class TYPE> class ArrayIterator;

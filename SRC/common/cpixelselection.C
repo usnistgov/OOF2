@@ -11,7 +11,6 @@
 
 #include <oofconfig.h>
 #include <iostream>
-using namespace std;
 
 #include "common/activearea.h"
 #include "common/cmicrostructure.h"

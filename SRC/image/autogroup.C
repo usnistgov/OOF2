@@ -126,7 +126,7 @@ std::vector<std::string> *autogroup(CMicrostructure *ms, OOFImage *image,
   // has to be done serially.
 
   ColorGroupMap colorgroupmap;
-  vector<CColor> colors;
+  std::vector<CColor> colors;
   std::vector<std::string> *groupnames = new std::vector<std::string>;
 
   progress->setMessage("Creating groups");
