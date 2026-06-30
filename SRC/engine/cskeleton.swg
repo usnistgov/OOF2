@@ -72,8 +72,6 @@ public:
   Coord size();
   bool illegal();
   bool interior(Coord *Point);
-  %newobject underlying_pixels;
-  std::vector<ICoord> *underlying_pixels(CMicrostructure&);
   double homogeneity(CMicrostructure&, bool);
   int dominantPixel(CMicrostructure&);
   void copyHomogeneity(CSkeletonElement&);

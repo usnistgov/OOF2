@@ -80,12 +80,6 @@ class SkeletonElementBase:
         if mat:
             return mat.name()
 
-    def underlyingPixels(self, microstructure):
-        # Returns a list of all pixels that overlap with this element.
-        dx, dy = microstructure.sizeOfPixels()
-        nx, ny = microstructure.sizeInPixels()
-        return self.underlying_pixels(microstructure) # C++
-
     def energyTotal(self, skeleton, alpha):
         if alpha == 0.0:
             return self.energyShape()

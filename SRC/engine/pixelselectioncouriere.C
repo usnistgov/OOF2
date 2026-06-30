@@ -31,6 +31,7 @@ ElementSelection::~ElementSelection() {
 void ElementSelection::start() {
   selected = element->underlying_pixels(*ms);  // get the pixel vector
   sel_iter = selected->begin();
+  done_ = sel_iter == selected->end();
 }
 
 ICoord ElementSelection::currentPoint() const {
@@ -58,8 +59,12 @@ SegmentSelection::SegmentSelection(CMicrostructure *ms,
 
 void SegmentSelection::start() {
   bool dummy;
-  selected = ms->segmentPixels(n0, n1, dummy, dummy);  // get the pixel array
+  if(ms->contains(n0) && ms->contains(n1)) 
+    selected = ms->segmentPixels(n0, n1, dummy, dummy);  // get the pixel array
+  else
+    selected.clear();
   sel_iter = selected.begin();
+  done_ = sel_iter == selected.end();
 }
 
 ICoord SegmentSelection::currentPoint() const {

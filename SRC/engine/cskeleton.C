@@ -474,6 +474,14 @@ HomogeneityData CSkeletonElement::c_homogeneity(const CMicrostructure &ms,
   return HomogeneityData(homogeneity, category);
 }
 
+bool CSkeletonElement::illegalNodes(const CMicrostructure &ms) const {
+  for(const CSkeletonNode* node : nodes) {
+    if(!ms.contains(node->position()))
+      return true;
+  }
+  return false;
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 CSkeletonQuad::CSkeletonQuad(CSkeletonNode *n0, CSkeletonNode *n1,
@@ -570,6 +578,9 @@ bool CSkeletonQuad::illegal() const {
 
 const std::vector<ICoord> *
 CSkeletonQuad::underlying_pixels(const CMicrostructure &microstructure) const {
+  if(illegal() || illegalNodes(microstructure))
+    return new std::vector<ICoord>(0);
+  
   // Divide the quad into two triangles with positive area, and mark
   // the pixels under them.  This avoids the possibly complicated
   // geometry of quadrilaterals.
@@ -663,6 +674,9 @@ const std::vector<ICoord> *
 CSkeletonTriangle::underlying_pixels(const CMicrostructure &microstructure)
   const
 {
+  if(illegal() || illegalNodes(microstructure))
+    return new std::vector<ICoord>(0);
+  
   Coord p0 = nodes[0]->position();
   Coord p1 = nodes[1]->position();
   Coord p2 = nodes[2]->position();

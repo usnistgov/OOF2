@@ -194,9 +194,13 @@ ICoord CMicrostructure::clip(const ICoord &pt) const {
 }
 
 bool CMicrostructure::contains(const ICoord &ip) const {
-  if ((ip[0]>=0 && ip[0]<pxlsize_[0]) && (ip[1]>=0 && ip[1]<pxlsize_[1]))
-    return true;
-  return false;
+  return (ip[0]>=0 && ip[0]<pxlsize_[0] &&
+	  ip[1]>=0 && ip[1]<pxlsize_[1]);
+}
+
+bool CMicrostructure::contains(const Coord &pt) const {
+  return (pt[0] >= 0 && pt[0] <= size_[0] &&
+	  pt[1] >= 0 && pt[1] <= size_[1]);
 }
 
 std::vector<ICoord> CMicrostructure::shuffledPix() const {
@@ -553,8 +557,7 @@ static const ICoord southwest(-1, -1);
 // Geometry routines for identifying pixels in the microstructure that
 // are under segments and elements. 
 
-// Return a list (vector) of pixels underlying a segment.  It's the
-// responsibility of the caller to delete the vector.
+// Return a list (vector) of pixels underlying a segment. 
 
 std::vector<ICoord> CMicrostructure::segmentPixels(const Coord &c0,
 						   const Coord &c1,
@@ -584,19 +587,9 @@ std::vector<ICoord> CMicrostructure::segmentPixels(const Coord &c0,
   if(ip1[1] == p1[1] && ip0[1] < ip1[1])
     ip1[1] -= 1;
 
-  // Round off error may have put a point out of bounds.  Fix it.
-  if(ip0[0] == pxlsize_[0]) ip0[0] -= 1;
-  if(ip0[1] == pxlsize_[1]) ip0[1] -= 1;
-  if(ip1[0] == pxlsize_[0]) ip1[0] -= 1;
-  if(ip1[1] == pxlsize_[1]) ip1[1] -= 1;
-  if(ip0[0] < 0) ip0[0] = 0;
-  if(ip0[1] < 0) ip0[1] = 0;
-  if(ip1[0] < 0) ip1[0] = 0;
-  if(ip1[1] < 0) ip1[1] = 0;
-
-  // For vertical and horizontal segments that exactly lie along
-  // the pixel boundaries, we need to pick a right row or column of pixels.
-  // For instance,
+  // For vertical and horizontal segments that exactly lie along the
+  // pixel boundaries, we need to pick the correct row or column of
+  // pixels.  For instance,
   //
   //  |    element B  |
   //  |xxxxxxxxxxxxxxx|
@@ -605,11 +598,10 @@ std::vector<ICoord> CMicrostructure::segmentPixels(const Coord &c0,
   //  |    element A  |
   //
   //  From element A's point of view, pixels along the segment a-b
-  //  should be "ooooo", whereas from element B's p.o.v, corresponding
-  //  pixels should be "xxxxx".
-  //  Followings will deal with this adjustment.
+  //  should be "ooooo", whereas from element B's p.o.v, the pixels
+  //  should be "xxxxx".
 
-  // The users of the pixel data may need to know if the order of the
+  // The user of the pixel data may need to know if the order of the
   // pixels has been flipped.
   flipped = false;
 
@@ -801,7 +793,10 @@ std::vector<ICoord> *CMicrostructure::markedPixels(MarkInfo *mm) const {
   return mm->markedregion.pixels(true); // returns new'd vector
 }
 
-// Mark the pixels underlying a segment.
+// Mark the pixels underlying a segment.  It is assumed that both
+// endpoints of the segment lie within the bounds of the
+// Microstructure.  (This is not the same as the markSegment methods
+// in the SegmentDivider subclasses in refine.py.)
 
 void CMicrostructure::markSegment(MarkInfo *mm, 
 				  const Coord &c0, const Coord &c1) const
@@ -815,7 +810,9 @@ void CMicrostructure::markSegment(MarkInfo *mm,
 
 
 // Mark the pixels under a triangle by marking the pixels under its
-// edges, then using a burn algorithm to mark the ones inside.
+// edges, then using a burn algorithm to mark the ones inside.  It is
+// assumed that all of the nodes of the triangle lie within the bounds
+// of the Microstructure.
 
 void CMicrostructure::markTriangle(MarkInfo *mm, const Coord &c0,
 				   const Coord &c1, const Coord &c2)
@@ -869,7 +866,7 @@ void CMicrostructure::markTriangle(MarkInfo *mm, const Coord &c0,
     double d = 1.0;
     bool ok = false;		// found a starting point yet?
     while(d < maxdist && !ok) {
-      start = clip(pixelFromPoint(mid + d*r));
+      start = pixelFromPoint(mid + d*r);
       if(!mm->markedregion[start])
 	ok = true;
       d += 1.0;

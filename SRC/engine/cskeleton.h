@@ -132,7 +132,8 @@ private:
   mutable CachedValue<HomogeneityData> homogeneityData;	// see below
 public:
   virtual double area() const = 0;
-  virtual bool illegal() const = 0;
+  virtual bool illegal() const = 0; // based on angles, not positions.
+  bool illegalNodes(const CMicrostructure&) const; // are nodes out of bounds?
   virtual const std::vector<ICoord> *underlying_pixels(const CMicrostructure&)
     const = 0;
   DoubleVec categoryAreas(const CMicrostructure&, bool) const;

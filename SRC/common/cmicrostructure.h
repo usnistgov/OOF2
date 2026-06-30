@@ -154,8 +154,9 @@ public:
   // neighboring pixels inside the microstructure.  Use contains() to
   // check that a pixel is inside, and clip() to put it inside.
   ICoord pixelFromPoint(const Coord&) const; // Pixel containing the given point
-  ICoord clip(const ICoord&) const;   // Put the point in bounds
-  bool contains(const ICoord&) const; // Is the point in bounds?
+  ICoord clip(const ICoord&) const;   // Put the pixel in bounds
+  bool contains(const ICoord&) const; // Is the pixel in bounds?
+  bool contains(const Coord&) const;   // Is the point in bounds?
   
   TimeStamp &getTimeStamp();
   const TimeStamp &getTimeStamp() const;

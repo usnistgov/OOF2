@@ -14,6 +14,7 @@ from ooflib.common import pixelselection
 from ooflib.common import pixelselectionmod
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
+from ooflib.common.IO import reporter
 from ooflib.common.IO import whoville
 from ooflib.engine import materialmanager
 from ooflib.engine import skeletoncontext
@@ -26,10 +27,17 @@ class SelectPixelsInElement(pixelselectionmod.SelectionModifier):
     def __call__(self, ms, selection):
         skel = skeletoncontext.skeletonContexts[self.skeleton].getObject()
         selection.start()
+        nbad = 0
         for el in skel.elements:
             if el.selected:
-                selection.select(ElementSelection(ms, el))
-
+                if el.illegal():
+                    nbad += 1
+                else:
+                    selection.select(ElementSelection(ms, el))
+        if nbad > 0:
+            reporter.warn(
+                f"Skipped {nbad} illegal Element{'s' if nbad != 1 else ''}")
+                
 registeredclass.Registration(
     'Select Element Pixels',
     registeredclass=pixelselectionmod.SelectionModifier,
