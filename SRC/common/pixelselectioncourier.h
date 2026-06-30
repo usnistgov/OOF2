@@ -47,7 +47,7 @@ public:
 // Point
 class PointSelection : public PixelSelectionCourier {
 private:
-  const Coord mousepoint;
+  const ICoord pt;
 public:
   PointSelection(CMicrostructure *ms, const Coord *mp);
   virtual ~PointSelection() {}
@@ -81,8 +81,7 @@ public:
 // Rectangle
 class RectangleSelection : public PixelSelectionCourier {
 private:
-  const ICoord ll;
-  const ICoord ur;
+  const ICoord llpxl, urpxl;
   ICoord currentpt;
 public:
   RectangleSelection(CMicrostructure *ms,
@@ -99,8 +98,7 @@ class CircleSelection : public PixelSelectionCourier {
 private:
   const Coord center;
   const double radius2;
-  const ICoord ll;
-  const ICoord ur;
+  const ICoord llpxl, urpxl;
   ICoord currentpt;
   bool interior();
   void advance();
@@ -118,11 +116,10 @@ public:
 // Ellipse
 class EllipseSelection : public PixelSelectionCourier {
 private:
-  const ICoord ll;
-  const ICoord ur;
+  const ICoord llpxl, urpxl;
   const Coord center;
-  const double aa;
-  const double bb;
+  double aa;
+  double bb;
   ICoord currentpt;
   bool interior();
   void advance();

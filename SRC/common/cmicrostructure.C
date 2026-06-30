@@ -166,13 +166,25 @@ Coord CMicrostructure::pixel2Physical(const Coord &pt) const {
 }
 
 // Return the coordinates of the pixel that contains the given point.
+// Don't clip, but *do* include the top and right boundaries in the
+// top and right pixels.
 ICoord CMicrostructure::pixelFromPoint(const Coord &pt) const {
   Coord p = physical2Pixel(pt);
   int xx = (int) floor(p[0]);
   int yy = (int) floor(p[1]);
+  if(pt[0] == size_[0])
+    --xx;
+  if(pt[1] == size_[1])
+    --yy;
+  return ICoord(xx, yy);
+}
+
+ICoord CMicrostructure::clip(const ICoord &pt) const {
+  double xx = pt[0];
+  double yy = pt[1];
   if(xx >= pxlsize_[0])
     --xx;
-  if(xx < 0.0)			// round-off can make xx==-1.
+  if(xx < 0.0)	
     xx = 0.0;
   if(yy >= pxlsize_[1])
     --yy;
@@ -439,7 +451,11 @@ int CMicrostructure::category(const Coord &where) const {
   category_lock.acquire();
   if(!categorized) 
     categorize();
-  int res = categorymap[pixelFromPoint(where)];
+  ICoord pt = pixelFromPoint(where);
+  if(!contains(pt))
+    throw ErrProgrammingError("Point is outside microstructure",
+			      __FILE__, __LINE__);
+  int res = categorymap[pt];
   category_lock.release();
   return res;
 }
@@ -773,8 +789,6 @@ MarkInfo *CMicrostructure::beginMarking(const CRectangle &bbox) const {
   MarkInfo *mm = new MarkInfo(sizeInPixels());
   ICoord p0 = pixelFromPoint(bbox.lowerleft());
   ICoord p1 = pixelFromPoint(bbox.upperright()) + northeast;
-  if(p1[0] >= pxlsize_[0]) p1[0] = pxlsize_[0];
-  if(p1[1] >= pxlsize_[1]) p1[1] = pxlsize_[1];
   mm->markedregion = mm->markedpixels.subarray(p0, p1);
   mm->markedregion.clear(false);
   return mm;
@@ -855,7 +869,7 @@ void CMicrostructure::markTriangle(MarkInfo *mm, const Coord &c0,
     double d = 1.0;
     bool ok = false;		// found a starting point yet?
     while(d < maxdist && !ok) {
-      start = pixelFromPoint(mid + d*r);
+      start = clip(pixelFromPoint(mid + d*r));
       if(!mm->markedregion[start])
 	ok = true;
       d += 1.0;
@@ -962,7 +976,7 @@ int getInitialCat(const CMicrostructure *ms, const Coord &pt0, const Coord &pt1)
   // We can't just call category(x0, y0) because that assumes the
   // coordinates are physical, not pixel.  That means that we have to
   // check for x and y on the left and upper boundaries of the
-  // microstructure too, the way that pixelFromPoint does.
+  // microstructure too, the way that clip() does.
   ICoord sz = ms->sizeInPixels();
   if(x0 >= sz[0]) x0 -= 1;
   if(y0 >= sz[1]) y0 -= 1;

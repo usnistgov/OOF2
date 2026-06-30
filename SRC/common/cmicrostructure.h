@@ -149,8 +149,14 @@ public:
   Coord physical2Pixel(const Coord *pt) const { return physical2Pixel(*pt); }
   Coord pixel2Physical(const ICoord&) const;
   Coord pixel2Physical(const Coord&) const;
-  ICoord pixelFromPoint(const Coord&) const; // pixel containing the given point
-  bool contains(const ICoord&) const;
+  // pixelFromPoint() does no bounds checking, other than ensuring
+  // that points exactly on the top or right edge are mapped to the
+  // neighboring pixels inside the microstructure.  Use contains() to
+  // check that a pixel is inside, and clip() to put it inside.
+  ICoord pixelFromPoint(const Coord&) const; // Pixel containing the given point
+  ICoord clip(const ICoord&) const;   // Put the point in bounds
+  bool contains(const ICoord&) const; // Is the point in bounds?
+  
   TimeStamp &getTimeStamp();
   const TimeStamp &getTimeStamp() const;
 

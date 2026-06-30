@@ -122,7 +122,6 @@ class BrushSelector(SelectionMethod):
 
         xmax = self.ms.size().x
         ymax = self.ms.size().y
-        points = [p for p in points if 0<=p.x<=xmax and 0<=p.y<=ymax]
         selector(BrushSelection(self.ms, self.style, points))
 
     def contiguous(self, prev, next):

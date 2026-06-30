@@ -210,38 +210,32 @@ class Microstructure(cmicrostructure.CMicrostructure):
 
     # For this one, "where" is a Point.
     def categoryFromPoint(self, where):
+        ## TODO: Should this clip, or raise an error if the point is
+        ## out of bounds?  Check the calling functions.
         xx=where.x/self._delta[0]
         if xx==self._isize[0]: xx=self._isize[0]-1
         yy=where.y/self._delta[1]
         if yy==self._isize[1]: yy=self._isize[1]-1
         if config.dimension() == 2:
             return self.category(primitives.iPoint(xx,yy))
-        elif config.dimension() == 3:
-            zz=where.z/self._delta[2]
-            if zz==self._isize[2]: zz=self._isize[2]-1
-            return self.category(primitives.iPoint(xx,yy,zz))
 
-    # Return the iPoint pixel index corresponding to the passed-in Point.
+    # Return the iPoint pixel index corresponding to the passed-in
+    # Point.  Like CMicrostructure::pixelFromPoint, this does *not*
+    # clip to the Microstructure bounds.
     def pixelFromPoint(self, where):
-        xx=where.x/self._delta[0]
-        if xx==1.0*self._isize[0]: xx=self._isize[0]-1
-        yy=where.y/self._delta[1]
-        if yy==1.0*self._isize[1]: yy=self._isize[1]-1
-        if config.dimension() == 2:
-            return primitives.iPoint(xx,yy)
-        elif config.dimension() == 3:
-            zz=where.z/self._delta[2]
-            if zz==1.0*self._isize[2]: zz=self._isize[2]-1
-            return primitives.iPoint(xx,yy,zz)
+        xx = where.x/self._delta[0]
+        yy = where.y/self._delta[1]
+        # Include the top and right boundaries in the topmost and
+        # rightmost pixels.
+        if xx==1.0*self._isize[0]:
+            xx = self._isize[0] - 1
+        if yy==1.0*self._isize[1]:
+            yy = self._isize[1] - 1
+        return primitives.iPoint(xx, yy)
 
     def pixelInBounds(self, where):
-        if where.x < 0 or where.x >= self._isize[0] or \
-           where.y<0 or where.y >= self._isize[1]:
-            return False
-        if config.dimension() == 3:
-            if where.z<0 or where.z >= self._isize[2]:
-                return False
-        return True
+        return not (where.x < 0 or where.x >= self._isize[0] or 
+                    where.y < 0 or where.y >= self._isize[1])
 
     def pointFromPixel(self, where):
         # This returns the center of the pixel, given integer pixel
@@ -249,18 +243,13 @@ class Microstructure(cmicrostructure.CMicrostructure):
         # transformation from (floating point) pixel coordinates to
         # physical coordinates, which is done by
         # CMicrostructure::pixel2Physical.
-        if config.dimension() == 2:
-            return primitives.Point((where.x+0.5)*self._delta[0],
-                                    (where.y+0.5)*self._delta[1])
-        elif config.dimension() == 3:
-            return primitives.Point((where.x+0.5)*self._delta[0],
-                                    (where.y+0.5)*self._delta[1],
-                                    (where.z+0.5)*self._delta[2])
+        return primitives.Point((where.x+0.5)*self._delta[0],
+                                (where.y+0.5)*self._delta[1])
 
     def activePoint(self,point):
-        # Is the given point in the active area?  No need to check
-        # bounds, since isSelected calls BitmapOverlay::get(), which
-        # does the checking.
+        # Is the given point in the active area?
+        # ActiveArea.isActive() returns False if the point is out of
+        # bounds.
         return self.activearea.isActive(self.pixelFromPoint(point))
 
     def saveActiveArea(self, name):

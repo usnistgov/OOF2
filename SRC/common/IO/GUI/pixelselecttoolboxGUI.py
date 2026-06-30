@@ -27,12 +27,6 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-## TODO: Fix these bugs:
-## * With the Point selector, clicking a single point outside the MS
-##   selects a point on the boundary.
-## * With the Rectangle selector, selecting a rectangle entirely
-##   outside the MS selects points on the boundary.
-
 class PixelSelectionMethodFactory(regclassfactory.RegisteredClassFactory):
     def __init__(self, registry, obj=None, title=None, callback=None,
                  scope=None, name=None, widgetdict={}, **kwargs):

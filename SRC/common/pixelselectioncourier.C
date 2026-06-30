@@ -25,6 +25,8 @@ PixelSelectionCourier::PixelSelectionCourier(CMicrostructure *ms)
  {}
 
 ICoord PixelSelectionCourier::pixelFromPoint(const Coord &pt) const {
+  // CMicrostructure::pixelFromPoint does not clip the point to the
+  // Microstructure bounds.
   return ms->pixelFromPoint(pt);
 }
 
@@ -32,10 +34,13 @@ ICoord PixelSelectionCourier::pixelFromPoint(const Coord &pt) const {
 
 PointSelection::PointSelection(CMicrostructure *ms, const Coord *mp)
   : PixelSelectionCourier(ms),
-    mousepoint(*mp) {}
+    pt(pixelFromPoint(*mp))
+{
+  done_ = !ms->contains(pt);
+}
 
 ICoord PointSelection::currentPoint() const {
-  return pixelFromPoint(mousepoint);
+  return pt;
 }
 
 void PointSelection::next() {
@@ -45,12 +50,13 @@ void PointSelection::next() {
 //////////
 
 BrushSelection::BrushSelection(CMicrostructure *ms, BrushStyle *brush,
-			       const std::vector<Coord> *points)
+			       const std::vector<Coord> *pnts)
   : PixelSelectionCourier(ms),
     brush(brush),
-    points(*points),
+    points(std::move(*pnts)),
     master(ms->sizeInPixels()),
-    offset(0, 0) {}
+    offset(0, 0)
+{}
 
 void BrushSelection::start() {
   if(points.empty()) {
@@ -94,13 +100,15 @@ void BrushSelection::next() {
 RectangleSelection::RectangleSelection(CMicrostructure *ms,
 				       const Coord *ll, const Coord *ur)
   : PixelSelectionCourier(ms),
-    ll(pixelFromPoint(*ll)),
-    ur(pixelFromPoint(*ur))
+    llpxl(ms->clip(pixelFromPoint(*ll))),
+    urpxl(ms->clip(pixelFromPoint(*ur)))
 {
+  done_ = not CRectangle(*ll, *ur).intersects(
+		      CRectangle(Coord(0.,0.), Coord(ms->size())));
 }
 
 void RectangleSelection::start() {
-  currentpt = ll;
+  currentpt = llpxl;
 }
 
 ICoord RectangleSelection::currentPoint() const {
@@ -109,11 +117,11 @@ ICoord RectangleSelection::currentPoint() const {
 
 void RectangleSelection::next() {
   currentpt[0]++;
-  if(currentpt[0] > ur[0]) {
-    currentpt[0] = ll[0];
+  if(currentpt[0] > urpxl[0]) {
+    currentpt[0] = llpxl[0];
     currentpt[1]++;
   }
-  if(currentpt[1] > ur[1])
+  if(currentpt[1] > urpxl[1])
     done_ = true;
 }
 
@@ -125,10 +133,9 @@ CircleSelection::CircleSelection(CMicrostructure *ms,
   : PixelSelectionCourier(ms),
     center(*c),
     radius2(r*r),
-    ll(pixelFromPoint(*ll)),
-    ur(pixelFromPoint(*ur))
-{
-}
+    llpxl(ms->clip(pixelFromPoint(*ll))),
+    urpxl(ms->clip(pixelFromPoint(*ur)))
+{}
 
 bool CircleSelection::interior() {
   double dx = (currentpt[0]+0.5)*ms->sizeOfPixels()[0] - center[0];
@@ -137,7 +144,7 @@ bool CircleSelection::interior() {
 }
 
 void CircleSelection::start() {
-  currentpt = ll;
+  currentpt = llpxl;;
   if (!interior()) next();
 }
 
@@ -147,11 +154,11 @@ ICoord CircleSelection::currentPoint() const {
 
 void CircleSelection::advance() {
   currentpt[0]++;
-  if(currentpt[0] > ur[0]) {
-    currentpt[0] = ll[0];
+  if(currentpt[0] > urpxl[0]) {
+    currentpt[0] = llpxl[0];
     currentpt[1]++;
   }
-  if(currentpt[1] > ur[1])
+  if(currentpt[1] > urpxl[1])
     done_ = true;
 }
 
@@ -168,11 +175,15 @@ void CircleSelection::next() {
 EllipseSelection::EllipseSelection(CMicrostructure *ms,
 				   const Coord *ll, const Coord *ur)
   : PixelSelectionCourier(ms),
-    ll(pixelFromPoint(*ll)),
-    ur(pixelFromPoint(*ur)),
-    center(Coord(0.5*((*ll)[0]+(*ur)[0]), 0.5*((*ll)[1]+(*ur)[1]))),
-    aa( 1.0/(0.5*((*ur)[0]-(*ll)[0])*0.5*((*ur)[0]-(*ll)[0])) ),
-    bb( 1.0/(0.5*((*ur)[1]-(*ll)[1])*0.5*((*ur)[1]-(*ll)[1])) ) {}
+    llpxl(ms->clip(pixelFromPoint(*ll))),
+    urpxl(ms->clip(pixelFromPoint(*ur))),
+    center(0.5*(*ll + *ur))
+{
+  // half width and height
+  Coord half = 0.5*(*ur - *ll);
+  aa = 1./(half[0]*half[0]);
+  bb = 1./(half[1]*half[1]);
+}
 
 bool EllipseSelection::interior() {
   double dx = (currentpt[0]+0.5)*ms->sizeOfPixels()[0] - center[0];
@@ -182,7 +193,7 @@ bool EllipseSelection::interior() {
 }
 
 void EllipseSelection::start() {
-  currentpt = ll;
+  currentpt = llpxl;
   if (!interior()) next();
 }
 
@@ -192,11 +203,11 @@ ICoord EllipseSelection::currentPoint() const {
 
 void EllipseSelection::advance() {
   currentpt[0]++;
-  if(currentpt[0] > ur[0]) {
-    currentpt[0] = ll[0];
+  if(currentpt[0] > urpxl[0]) {
+    currentpt[0] = llpxl[0];
     currentpt[1]++;
   }
-  if(currentpt[1] > ur[1])
+  if(currentpt[1] > urpxl[1])
     done_ = true;
 }
 
@@ -423,7 +434,7 @@ std::ostream &operator<<(std::ostream &os, const PixelSelectionCourier &psc) {
 }
 
 void PointSelection::print(std::ostream &os) const {
-  os << "PointSelection(" << mousepoint << ")";
+  os << "PointSelection(" << pt << ")";
 }
 
 #if DIM==2
@@ -433,7 +444,7 @@ void BrushSelection::print(std::ostream &os) const {
 #endif
 
 void RectangleSelection::print(std::ostream &os) const {
-  os << "RectangleSelection(" << ll << ", " << ur << ")";
+  os << "RectangleSelection(" << llpxl << ", " << urpxl << ")";
 }
 
 void CircleSelection::print(std::ostream &os) const {
@@ -441,7 +452,7 @@ void CircleSelection::print(std::ostream &os) const {
 }
 
 void EllipseSelection::print(std::ostream &os) const {
-  os << "EllipseSelection(" << ll << ", " << ur << ")";
+  os << "EllipseSelection(" << llpxl << ", " << urpxl << ")";
 }
 
 void GroupSelection::print(std::ostream &os) const {
