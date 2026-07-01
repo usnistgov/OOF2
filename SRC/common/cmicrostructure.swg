@@ -101,8 +101,12 @@ public:
   double edgeHomogeneity(const Coord &Point, const Coord &Point);
   SegmentSectionVec *getSegmentSections(const Coord* Point, const Coord *Point,
 					double);
-
 };
+
+%extend CMicrostructure {
+  bool containsPixel(ICoord *iPoint) { return self->contains(*iPoint); }
+  bool containsPoint(Coord *Point) { return self->contains(*Point); }
+}
 
 long get_globalMicrostructureCount();
 

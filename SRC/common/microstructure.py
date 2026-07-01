@@ -199,30 +199,23 @@ class Microstructure(cmicrostructure.CMicrostructure):
                         yield primitives.iPoint(i, j, k)
 
     def renameGroup(self, oldname, newname):
-#         grp = self.findGroup(oldname)
         realnewname = self.uniqueGroupName(newname, oldname)
         self.renameGroupC(oldname, realnewname)
-#         grp.rename(realnewname)
         
-
     def uniqueGroupName(self, name, oldname=None):
         return utils.uniqueName(name, self.groupNames(), exclude=oldname)
 
-    # For this one, "where" is a Point.
     def categoryFromPoint(self, where):
-        ## TODO: Should this clip, or raise an error if the point is
-        ## out of bounds?  Check the calling functions.
-        xx=where.x/self._delta[0]
-        if xx==self._isize[0]: xx=self._isize[0]-1
-        yy=where.y/self._delta[1]
-        if yy==self._isize[1]: yy=self._isize[1]-1
-        if config.dimension() == 2:
-            return self.category(primitives.iPoint(xx,yy))
-
-    # Return the iPoint pixel index corresponding to the passed-in
-    # Point.  Like CMicrostructure::pixelFromPoint, this does *not*
-    # clip to the Microstructure bounds.
+        # "where" is a Point.
+        pxl = self.pixelFromPoint(where)
+        if self.containsPixel(pxl):
+            return self.category(pxl)
+    
     def pixelFromPoint(self, where):
+        # Return the iPoint pixel index corresponding to the passed-in
+        # Point.  Like CMicrostructure::pixelFromPoint, this does
+        # *not* clip to the Microstructure bounds.  It can return the
+        # coordinates of a nonexistent pixel.
         xx = where.x/self._delta[0]
         yy = where.y/self._delta[1]
         # Include the top and right boundaries in the topmost and

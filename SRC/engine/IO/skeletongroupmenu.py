@@ -115,11 +115,14 @@ def _auto_group(menuitem, skeleton):
         # Find objects to add to groups
         for obj in menuitem.iterator(skelc.getObject().sheriffSkeleton()):
             cat = obj.dominantPixel(ms) # dominant pxl category
-            repPix = ms.getRepresentativePixel(cat) # representative pixel
-            # grplist contains all pixel group names at the repr. pixel
-            grplist = pixelgroup.pixelGroupNames(ms, repPix)
-            for name in grplist:
-                gdict.setdefault(name, []).append(obj)
+            # The dominant pixel categorycould be None if the object
+            # is an illegal Node.
+            if cat is not None:
+                repPix = ms.getRepresentativePixel(cat) # representative pixel
+                # grplist contains all pixel group names at the repr. pixel
+                grplist = pixelgroup.pixelGroupNames(ms, repPix)
+                for name in grplist:
+                    gdict.setdefault(name, []).append(obj)
 
         # Actually add objects to groups
         groupset.addToGroup(**gdict)
