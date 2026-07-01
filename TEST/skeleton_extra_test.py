@@ -25,18 +25,14 @@ reference_file = file_utils.reference_file
 fp_file_compare = file_utils.fp_file_compare
 file_utils.generate = False
 
+from ooflib.SWIG.common import cmicrostructure
+from ooflib.SWIG.engine import cskeleton
+from ooflib.common import microstructure
+from ooflib.common.IO import gfxmanager
+from ooflib.engine import skeletoncontext
+
 class OOF_Skeleton_Extra(unittest.TestCase):
     def setUp(self):
-        global gfxmanager
-        from ooflib.common.IO import gfxmanager
-        global skeletoncontext
-        from ooflib.engine import skeletoncontext
-        global microstructure
-        from ooflib.common import microstructure
-        global cmicrostructure
-        from ooflib.SWIG.common import cmicrostructure
-        global cskeleton
-        from ooflib.SWIG.engine import cskeleton
         OOF.Microstructure.Create_From_ImageFile(
             filename=reference_file("ms_data","small.ppm"),
             microstructure_name="skeltest",
@@ -296,8 +292,54 @@ class OOF_Skeleton_Extra(unittest.TestCase):
         pixelselection = ms.getSelectionContext()
         self.assertEqual(pixelselection.size(), 1159)
 
+        OOF.PixelSelection.Clear(
+            microstructure='skeltest')
+        self.assertEqual(pixelselection.size(), 0)
+        
+        ## TODO: Test with illegal elements, including ones with
+        ## out-of-bounds nodes.
+        # Create an single illegal element in the interior -- a quad
+        # with an acute exterior angle.
+        OOF.Graphics_1.Toolbox.Move_Nodes.AllowIllegal(allowed=True)
+        OOF.Graphics_1.Toolbox.Move_Nodes.MoveNode(
+            origin=Point(7.434666666666666,12.565333333333331),
+            destination=Point(5.7, 10.6))
+        # Select the illegal element
+        OOF.Graphics_1.Toolbox.Select_Element.Single_Element(
+            skeleton='skeltest:skelextra',
+            points=[Point(5.562666666666666,10.415999999999999)],
+            shift=False, ctrl=False)
+        # Try to select the illegal element's pixels
+        OOF.PixelSelection.Select_Element_Pixels(
+            microstructure='skeltest', skeleton='skeltest:skelextra')
+        self.assertEqual(pixelselection.size(), 0)
+        # Select a legal element too.
+        OOF.Graphics_1.Toolbox.Select_Element.Single_Element(
+            skeleton='skeltest:skelextra',
+            points=[Point(11.317333333333332,10.970666666666666)],
+            shift=True, ctrl=False)
+        # Select pixels again
+        OOF.PixelSelection.Select_Element_Pixels(
+            microstructure='skeltest', skeleton='skeltest:skelextra')
+        self.assertEqual(pixelselection.size(), 361)
 
-
+        # Fix the bad quad, and move another node outside the
+        # boundary.
+        OOF.Skeleton.Undo(skeleton='skeltest:skelextra')
+        OOF.Graphics_1.Toolbox.Move_Nodes.MoveNode(
+            origin=Point(17.488,9.861333333333333),
+            destination=Point(21.232,8.474666666666666))
+        # Select a bad element
+        OOF.Graphics_1.Toolbox.Select_Element.Single_Element(
+            skeleton='skeltest:skelextra',
+            points=[Point(18.955066666666664,11.664)],
+            shift=False, ctrl=False)
+        # Try to select pixels under it
+        OOF.PixelSelection.Select_Element_Pixels(
+            microstructure='skeltest',
+            skeleton='skeltest:skelextra')
+        self.assertEqual(pixelselection.size(), 361)
+        
 class OOF_Skeleton_SmallBuffer(unittest.TestCase):
     def setUp(self):
         from ooflib.engine import skeletoncontext
@@ -432,8 +474,6 @@ class OOF_Skeleton_CyclicBoundary(unittest.TestCase):
 
 class OOF_Skeleton_CategoryBug(unittest.TestCase):
     def setUp(self):
-        global skeletoncontext
-        from ooflib.engine import skeletoncontext
         OOF.Microstructure.Create_From_ImageFile(
             filename=reference_file("skeleton_data", "diamond.png"),
             microstructure_name='diamond.png',
