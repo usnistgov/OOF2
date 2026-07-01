@@ -16,18 +16,32 @@
 # Need to be able to open a graphics window and make selections,
 # also, of course.
 
-
 import unittest, os
 from . import memorycheck
 from .UTILS import file_utils
 reference_file = file_utils.reference_file
 
+from ooflib.common import color
+from ooflib.common import microstructure
+from ooflib.common import pixelselection
+from ooflib.common.IO import gfxmanager
+from ooflib.common.IO.reporter import messagemanager
+
+def pixelSelectionCtxt(msname):
+    return pixelselection.pixelselectionWhoClass[msname]
+
+def pixelSelectionObj(msname):
+    return pixelselection.pixelselectionWhoClass[msname].getObject()
+
+def pixelSelectionSize(msname):
+    return len(pixelSelectionObj(msname))
+
+def pixelSelection(msname):
+    return pixelSelectionObj(msname).members()
+
 # Prerequisite for making toolbox selections is the existence of a
 # graphics window.  These tests just open and close a graphics window.
 class Graphics_Ops(unittest.TestCase):
-    def setUp(self):
-        global gfxmanager
-        from ooflib.common.IO import gfxmanager
 
     # Opens a new graphics window, assuming that none are open (so
     # that the name will be "Graphics_1").
@@ -65,17 +79,17 @@ class Graphics_Ops(unittest.TestCase):
 # OOF.Toolbox.Pixel_Select items:
 #   Point, Brush, Rectangle, Circle, Ellipse, Color, Burn.
 # Selection modifiers from the same menu, Clear, Undo, Redo, Invert
+
 class Direct_Pixel_Selection(unittest.TestCase):
     def setUp(self):
-        global gfxmanager
-        global pixelselection
-        from ooflib.common.IO import gfxmanager
-        from ooflib.common import pixelselection
         OOF.Microstructure.Create_From_ImageFile(
             filename=reference_file("image_data","image_test.png"),
             microstructure_name=automatic,
             height=automatic, width=automatic)
         OOF.Windows.Graphics.New()
+
+    def tearDown(self):
+        OOF.Graphics_1.File.Close()
 
     # Direct selection operations -- these are toolbox ops in the
     # graphics window.
@@ -86,9 +100,8 @@ class Direct_Pixel_Selection(unittest.TestCase):
             source="image_test.png:image_test.png",
             points=[Point(66.0,55.0), Point(87.6,41.8)],
             shift=0, ctrl=0)
-        ps = pixelselection.pixelselectionWhoClass['image_test.png']
         # Size should be 2000 pixels.
-        self.assertEqual(ps.getObject().len(), 2000)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 2000)
 
     # Makes and clears a selection.  Uses the circle selector, so
     # that one should be tested first.
@@ -98,11 +111,10 @@ class Direct_Pixel_Selection(unittest.TestCase):
             source="image_test.png:image_test.png",
             points=[Point(66.0,55.0), Point(87.6,41.8)],
             shift=0, ctrl=0)
-        ps = pixelselection.pixelselectionWhoClass['image_test.png']
-        self.assertNotEqual(ps.getObject().len(), 0)
+        self.assertNotEqual(pixelSelectionSize('image_test.png'), 0)
         OOF.Graphics_1.Toolbox.Pixel_Select.Clear(
             source="image_test.png:image_test.png")
-        self.assertEqual(ps.getObject().len(), 0)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 0)
 
     # Remining direct selection methods --
     # Point, Brush, Rectangle, Ellipse, Color, Burn.
@@ -112,11 +124,9 @@ class Direct_Pixel_Selection(unittest.TestCase):
         OOF.Graphics_1.Toolbox.Pixel_Select.Point(
             source="image_test.png:image_test.png",
             points=[Point(52.0, 70.0)], shift=0, ctrl=0)
-        ps = pixelselection.pixelselectionWhoClass['image_test.png']
         # Size should be 1 pixel, of course.
-        self.assertEqual(ps.getObject().len(), 1)
-        psi = ps.getObject()
-        self.assertEqual(psi.members(), [iPoint(52,70)])
+        self.assertEqual(pixelSelectionSize('image_test.png'), 1)
+        self.assertEqual(pixelSelection('image_test.png'), [iPoint(52,70)])
 
     # Brush points were recorded from an actual user session.
     @memorycheck.check("image_test.png")
@@ -145,8 +155,7 @@ class Direct_Pixel_Selection(unittest.TestCase):
                     Point(37.9106,60.239), Point(38.4325,60.239), 
                     Point(38.9545,60.239), Point(39.4765,60.239), 
                     Point(39.9984,60.239)], shift=0, ctrl=0)
-        ps =  pixelselection.pixelselectionWhoClass['image_test.png']
-        self.assertEqual(ps.getObject().len(), 99)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 99)
 
 
     @memorycheck.check("image_test.png")
@@ -155,8 +164,7 @@ class Direct_Pixel_Selection(unittest.TestCase):
             source='image_test.png:image_test.png',
             points=[Point(23.3,57.0), Point(123.0,24.75)],
             shift=0, ctrl=0)
-        ps = pixelselection.pixelselectionWhoClass['image_test.png']
-        self.assertEqual(ps.getObject().len(), 3434)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 3434)
         
     @memorycheck.check("image_test.png")
     def Ellipse(self):
@@ -164,8 +172,7 @@ class Direct_Pixel_Selection(unittest.TestCase):
             source='image_test.png:image_test.png',
             points=[Point(23.3,57.0), Point(123.0,24.75)],
             shift=0, ctrl=0)
-        ps = pixelselection.pixelselectionWhoClass['image_test.png']
-        self.assertEqual(ps.getObject().len(), 2526)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 2526)
 
     @memorycheck.check("image_test.png")
     def Color(self):
@@ -173,8 +180,7 @@ class Direct_Pixel_Selection(unittest.TestCase):
             source='image_test.png:image_test.png',
             range=DeltaRGB(delta_red=0.3, delta_green=0.3, delta_blue=0.3),
             points=[Point(14.7,62.1)], shift=0, ctrl=0)
-        ps = pixelselection.pixelselectionWhoClass['image_test.png']
-        self.assertEqual(ps.getObject().len(), 4204)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 4204)
 
     @memorycheck.check("image_test.png")
     def Burn(self):
@@ -183,34 +189,32 @@ class Direct_Pixel_Selection(unittest.TestCase):
             local_flammability=0.1,global_flammability=0.2,
             color_space_norm="L1", next_nearest=False,
             points=[Point(14.7,62.1)], shift=0, ctrl=0)
-        ps = pixelselection.pixelselectionWhoClass['image_test.png']
-        self.assertEqual(ps.getObject().len(), 4195)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 4195)
 
 
     # Then, mechanical ones -- Undo, Redo, Invert.
 
     @memorycheck.check("image_test.png")
     def Undo(self):
-        ps = pixelselection.pixelselectionWhoClass['image_test.png']
-        self.assertEqual(ps.getObject().len(), 0)
-        self.assertTrue(not ps.undoable())
-        ps_0_id = id(ps.getObject())
+        self.assertEqual(pixelSelectionSize('image_test.png'), 0)
+        self.assertTrue(not pixelSelectionCtxt('image_test.png').undoable())
+        ps_0_id = id(pixelSelectionObj('image_test.png'))
         OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
             source="image_test.png:image_test.png",
             points=[Point(66.0,55.0), Point(87.6,41.8)],
             shift=0, ctrl=0)
-        self.assertTrue(ps.undoable())
-        ps_1_id = id(ps.getObject())
+        self.assertTrue(pixelSelectionCtxt('image_test.png').undoable())
+        ps_1_id = id(pixelSelectionObj('image_test.png'))
         self.assertNotEqual(ps_0_id, ps_1_id)
         OOF.Graphics_1.Toolbox.Pixel_Select.Undo(
             source="image_test.png:image_test.png")
-        ps_2_id = id(ps.getObject())
+        ps_2_id = id(pixelSelectionObj('image_test.png'))
         self.assertEqual(ps_0_id, ps_2_id)
-        self.assertEqual(ps.getObject().len(), 0)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 0)
 
     @memorycheck.check("image_test.png")
     def Redo(self):
-         ps = pixelselection.pixelselectionWhoClass['image_test.png']
+         ps = pixelSelectionCtxt('image_test.png')
          ps_0_id = id(ps.getObject())
          OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
              source="image_test.png:image_test.png",
@@ -227,7 +231,7 @@ class Direct_Pixel_Selection(unittest.TestCase):
 
     @memorycheck.check("image_test.png")
     def Clear(self):
-        ps = pixelselection.pixelselectionWhoClass["image_test.png"]
+        ps = pixelSelectionCtxt("image_test.png")
         ps_0_id = id(ps.getObject())
         OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
              source="image_test.png:image_test.png",
@@ -245,36 +249,355 @@ class Direct_Pixel_Selection(unittest.TestCase):
              source="image_test.png:image_test.png",
              points=[Point(66.2,55.0), Point(87.6,41.8)],
              shift=0, ctrl=0)
-         ps = pixelselection.pixelselectionWhoClass['image_test.png']
          OOF.Graphics_1.Toolbox.Pixel_Select.Invert(
              source="image_test.png:image_test.png")
-         # Magic number is total minus circle-selected number.
-         self.assertEqual(ps.getObject().len(), 16166)
-         
+         self.assertEqual(pixelSelectionSize('image_test.png'), 16166)
 
-         
+    # Tests for selections in which the initial and/or final mouse
+    # points are outside the bounds of the Microstructure.
+    
+    @memorycheck.check("image_test.png")
+    def ExoPoint(self):
+        OOF.Graphics_1.Toolbox.Pixel_Select.Point(
+            source='image_test.png:image_test.png',
+            points=[Point(-5.8, 61.0)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 0)
+        OOF.Graphics_1.Toolbox.Pixel_Select.Point(
+            source='image_test.png:image_test.png',
+            points=[Point(74.,132.)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 0)
+        OOF.Graphics_1.Toolbox.Pixel_Select.Point(
+            source='image_test.png:image_test.png',
+            points=[Point(157.,57.)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 0)
+        OOF.Graphics_1.Toolbox.Pixel_Select.Point(
+            source='image_test.png:image_test.png',
+            points=[Point(74.,-10.)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 0)
+
+    @memorycheck.check("image_test.png")
+    def ExoBrush(self):
+        # Path starts and ends inside, but crosses the image
+        OOF.Graphics_1.Toolbox.Pixel_Select.Brush(
+            source='image_test.png:image_test.png',
+            style=CircleBrush(radius=10),
+            points=[Point(-12.14420000000001,104.544),
+                    Point(-11.515000000000011,104.544),
+                    Point(-5.8522000000000105,105.8024),
+                    Point(2.3273999999999906,107.69),
+                    Point(10.506999999999993,110.836),
+                    Point(17.428199999999993,113.982),
+                    Point(24.349399999999996,117.128),
+                    Point(34.416599999999995,120.9032),
+                    Point(44.483799999999995,124.6784),
+                    Point(47.629799999999996,126.566),
+                    Point(49.517399999999995,128.4536)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 737)
+        # Path starts and ends outside on the left, without touching
+        # the image
+        OOF.Graphics_1.Toolbox.Pixel_Select.Brush(
+            source='image_test.png:image_test.png',
+            style=CircleBrush(radius=10),
+            points=[Point(-14.031800000000011,94.4768),
+                    Point(-14.031800000000011,94.4768),
+                    Point(-14.031800000000011,94.4768),
+                    Point(-14.031800000000011,93.8476),
+                    Point(-14.031800000000011,91.3308),
+                    Point(-13.402600000000012,88.814),
+                    Point(-12.773400000000011,85.668),
+                    Point(-12.14420000000001,83.15119999999999),
+                    Point(-11.515000000000011,80.6344),
+                    Point(-11.515000000000011,79.376),
+                    Point(-11.515000000000011,78.1176),
+                    Point(-11.515000000000011,78.1176),
+                    Point(-11.515000000000011,77.48839999999998),
+                    Point(-11.515000000000011,77.48839999999998),
+                    Point(-11.515000000000011,77.48839999999998),
+                    Point(-11.515000000000011,77.48839999999998),
+                    Point(-11.515000000000011,77.48839999999998),
+                    Point(-11.515000000000011,76.85919999999999),
+                    Point(-11.515000000000011,76.85919999999999),
+                    Point(-11.515000000000011,76.85919999999999),
+                    Point(-11.515000000000011,76.85919999999999),
+                    Point(-10.88580000000001,76.85919999999999)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 0)
+        # Path starts and ends outside on the right, without touching
+        # the image
+        OOF.Graphics_1.Toolbox.Pixel_Select.Brush(
+            source='image_test.png:image_test.png',
+            style=CircleBrush(radius=10),
+            points=[Point(166.5486,93.8476),
+                    Point(166.5486,93.2184),
+                    Point(166.5486,92.5892),
+                    Point(165.9194,91.3308),
+                    Point(165.9194,88.814),
+                    Point(165.9194,85.0388),
+                    Point(165.9194,83.15119999999999),
+                    Point(165.9194,81.8928),
+                    Point(165.9194,80.6344),
+                    Point(165.9194,79.376),
+                    Point(165.9194,79.376),
+                    Point(165.9194,79.376),
+                    Point(165.9194,79.376)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 0)
+        # Path starts outside and ends inside
+        OOF.Graphics_1.Toolbox.Pixel_Select.Brush(
+            source='image_test.png:image_test.png',
+            style=CircleBrush(radius=10),
+            points=[Point(79.0898,141.0376),
+                    Point(79.0898,141.0376),
+                    Point(78.4606,140.4084),
+                    Point(78.4606,138.5208),
+                    Point(78.4606,134.7456),
+                    Point(78.4606,130.34120000000001),
+                    Point(78.4606,127.8244),
+                    Point(78.4606,124.6784),
+                    Point(78.4606,121.5324),
+                    Point(78.4606,117.128),
+                    Point(79.0898,113.982),
+                    Point(79.0898,110.836),
+                    Point(79.0898,110.2068),
+                    Point(79.0898,110.2068),
+                    Point(79.0898,109.5776),
+                    Point(79.0898,108.94839999999999),
+                    Point(79.0898,107.69),
+                    Point(79.0898,106.4316),
+                    Point(79.0898,105.8024),
+                    Point(79.0898,105.8024),
+                    Point(79.0898,105.8024),
+                    Point(79.0898,105.8024),
+                    Point(79.0898,105.8024),
+                    Point(76.57300000000001,105.8024)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 498)
+        # Path starts inside and ends outside
+        OOF.Graphics_1.Toolbox.Pixel_Select.Brush(
+            source='image_test.png:image_test.png',
+            style=CircleBrush(radius=10),
+            points=[Point(83.4942,12.05159999999998),
+                    Point(83.4942,12.05159999999998),
+                    Point(83.4942,9.53479999999999),
+                    Point(83.4942,5.759599999999978),
+                    Point(83.4942,-0.5324000000000098),
+                    Point(83.4942,-6.195200000000014),
+                    Point(83.4942,-13.116400000000013),
+                    Point(83.4942,-18.779200000000017),
+                    Point(84.1234,-24.44200000000002),
+                    Point(84.1234,-25.700400000000016),
+                    Point(84.1234,-25.700400000000016),
+                    Point(84.1234,-25.700400000000016),
+                    Point(84.1234,-25.700400000000016),
+                    Point(84.1234,-25.700400000000016)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 394)
+
+    @memorycheck.check("image_test.png")
+    def ExoRectangle(self):
+        # Fully out of bounds on the left
+        OOF.Graphics_1.Toolbox.Pixel_Select.Rectangle(
+            source='image_test.png:image_test.png',
+            points=[Point(-18.,85.), Point(-7.,49.)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 0)
+        # Fully out of bounds on the right
+        OOF.Graphics_1.Toolbox.Pixel_Select.Rectangle(
+            source='image_test.png:image_test.png',
+            points=[Point(157.,86.), Point(166.,40.)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 0)
+        # Crossing from top to bottom
+        OOF.Graphics_1.Toolbox.Pixel_Select.Rectangle(
+            source='image_test.png:image_test.png',
+            points=[Point(97.33,131.60), Point(125.02,-14.37)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 3509)
+        # Starting outside, ending outside, enclosing a corner
+        OOF.Graphics_1.Toolbox.Pixel_Select.Rectangle(
+            source='image_test.png:image_test.png',
+            points=[Point(131.31,132.85), Point(165.29,96.36)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 475)
+        # Starting outside, ending inside
+        OOF.Graphics_1.Toolbox.Pixel_Select.Rectangle(
+            source='image_test.png:image_test.png',
+            points=[Point(158.99,48.54), Point(109.92,66.16)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 779)
+
+    @memorycheck.check("image_test.png")
+    def ExoCircle(self):
+        # Fully out of bounds on the top
+        OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
+            source='image_test.png:image_test.png',
+            points=[Point(68.39,142.92), Point(76.57,133.48)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 0)
+        # Center out of bounds on the top, mouse release in bounds
+        OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
+            source='image_test.png:image_test.png',
+            points=[Point(74.0562,132.858), Point(76.57300000000001,110.2068)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 302)
+        # Center in bounds, but mouse release out of bounds
+        OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
+            source='image_test.png:image_test.png',
+            points=[Point(140.12,10.16), Point(156.48,-6.19)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 969)
+        # Center and release out of bounds, but circle partly in bounds
+        OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
+            source='image_test.png:image_test.png',
+            points=[Point(-7.11,61.12), Point(-10.25,40.99)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 367)
+
+    @memorycheck.check("image_test.png")
+    def ExoEllipse(self):
+        # Fully out of bounds below
+        OOF.Graphics_1.Toolbox.Pixel_Select.Ellipse(
+            source='image_test.png:image_test.png',
+            points=[Point(43.85,-6.82), Point(111.17,-26.32)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 0)
+        # Crossing from outside on the left to outside on the right
+        OOF.Graphics_1.Toolbox.Pixel_Select.Ellipse(
+            source='image_test.png:image_test.png',
+            points=[Point(-10.25,69.30), Point(157.11,44.76)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 3088)
+        # Mouse points out of bounds, ellipse grazing an edge
+        OOF.Graphics_1.Toolbox.Pixel_Select.Ellipse(
+            source='image_test.png:image_test.png',
+            points=[Point(33.15,128.45), Point(92.93,117.75)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('image_test.png'), 126)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Test a subset of the pixel selection operations for non-square
+# pixels.
+
+class NonSquare(unittest.TestCase):
+    def setUp(self):
+        OOF.Microstructure.Create_From_ImageFile(
+            filename=reference_file("ms_data", "small.ppm"),
+            microstructure_name=automatic,
+            height=2., width=1.618)
+        OOF.Windows.Graphics.New()
+              
     def tearDown(self):
         OOF.Graphics_1.File.Close()
-        
 
-# Then pixel group creation/manipulation options.
+    @memorycheck.check("small.ppm")
+    def Point(self):
+        OOF.Graphics_1.Toolbox.Pixel_Select.Point(
+            source='small.ppm:small.ppm',
+            points=[Point(0.3895,1.65173)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('small.ppm'), 1)
+        self.assertEqual(pixelSelection('small.ppm'), [iPoint(36,123)])
+
+    @memorycheck.check("small.ppm")
+    def Brush(self):
+        OOF.Graphics_1.Toolbox.Pixel_Select.Brush(
+            source='small.ppm:small.ppm',
+            style=CircleBrush(radius=0.1),
+            points=[Point(-0.17900000000000002,1.0832),
+                    Point(-0.17900000000000002,1.0832),
+                    Point(-0.17900000000000002,1.0832),
+                    Point(-0.17206666666666667,1.0901333333333332),
+                    Point(-0.17206666666666667,1.0901333333333332),
+                    Point(-0.17206666666666667,1.0901333333333332),
+                    Point(-0.16513333333333335,1.0901333333333332),
+                    Point(-0.1582,1.0970666666666666),
+                    Point(-0.1512666666666667,1.104),
+                    Point(-0.14433333333333337,1.1109333333333333),
+                    Point(-0.13046666666666668,1.1178666666666666),
+                    Point(-0.11660000000000001,1.1248),
+                    Point(-0.10273333333333334,1.1317333333333333),
+                    Point(-0.09580000000000001,1.1386666666666665),
+                    Point(-0.08193333333333334,1.1456),
+                    Point(-0.06806666666666668,1.1456),
+                    Point(-0.04726666666666668,1.1525333333333334),
+                    Point(-0.026466666666666677,1.1525333333333334),
+                    Point(-0.005666666666666674,1.1594666666666666),
+                    Point(0.028999999999999995,1.1594666666666666),
+                    Point(0.0498,1.1663999999999999),
+                    Point(0.09833333333333333,1.1663999999999999),
+                    Point(0.133,1.1663999999999999),
+                    Point(0.1746,1.1663999999999999),
+                    Point(0.22313333333333332,1.1663999999999999),
+                    Point(0.2786,1.1663999999999999),
+                    Point(0.3340666666666667,1.1594666666666666),
+                    Point(0.36873333333333336,1.1525333333333334),
+                    Point(0.4103333333333333,1.1456),
+                    Point(0.43806666666666666,1.1386666666666665),
+                    Point(0.47273333333333334,1.1317333333333333),
+                    Point(0.5004666666666667,1.1178666666666666),
+                    Point(0.549,1.0970666666666666),
+                    Point(0.5836666666666667,1.0762666666666667),
+                    Point(0.6183333333333334,1.0554666666666668),
+                    Point(0.653,1.0277333333333334),
+                    Point(0.6807333333333333,1.0138666666666667),
+                    Point(0.6876666666666666,1.0069333333333332)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('small.ppm'), 1122)
+
+    @memorycheck.check("small.ppm")
+    def Rectangle(self):
+        OOF.Graphics_1.Toolbox.Pixel_Select.Rectangle(
+            source='small.ppm:small.ppm',
+            points=[Point(0.2647333333333333,0.6741333333333333),
+                    Point(0.7847333333333334,0.23039999999999994)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('small.ppm'), 1666)
+
+    @memorycheck.check("small.ppm")
+    def Circle(self):
+        OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
+            source='small.ppm:small.ppm',
+            points=[Point(0.7500666666666667,1.1802666666666668),
+                    Point(0.9164666666666668,1.0277333333333334)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('small.ppm'), 1099)
+        # Both positions out of bounds
+        OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
+            source='small.ppm:small.ppm',
+            points=[Point(1.7346000000000001,0.5978666666666665),
+                    Point(1.8039333333333334,0.8058666666666665)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('small.ppm'), 188)
+
+    @memorycheck.check('small.ppm')
+    def Ellipse(self):
+        OOF.Graphics_1.Toolbox.Pixel_Select.Ellipse(
+            source='small.ppm:small.ppm',
+            points=[Point(0.29246666666666665,1.5477333333333334),
+                    Point(0.48660000000000003,0.6949333333333332)],
+            shift=False, ctrl=False)
+        self.assertEqual(pixelSelectionSize('small.ppm'), 909)
+
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Pixel group creation and manipulation tests.
 
 # OOF.PixelGroup:
 # New Rename Copy Delete Meshable AddSelection RemoveSelection Clear
 # Query
 
-# Pixel group creation/manipulation -- assume that selections are
-# possible.  These tests use the "small.ppm" image, which autogroups
-# reasonably cleanly, rather than the more difficult image_test.png.
+# These tests use the "small.ppm" image, which autogroups
+# cleanly, rather than the more difficult image_test.png.
 
 class Pixel_Groups(unittest.TestCase):
     def setUp(self):
-        global microstructure
-        global gfxmanager
-        global pixelselection
-        from ooflib.common import microstructure
-        from ooflib.common.IO import gfxmanager
-        from ooflib.common import pixelselection
         OOF.Microstructure.Create_From_ImageFile(
             filename=reference_file("ms_data","small.ppm"),
             microstructure_name=automatic,
@@ -381,7 +704,6 @@ class Pixel_Groups(unittest.TestCase):
         
     @memorycheck.check("small.ppm")
     def AutoGroup(self):
-        from ooflib.common import color
         def colordiff(c1,c2):
             return (c1.red-c2.red)**2 + \
                    (c1.green-c2.green)**2 + \
@@ -426,7 +748,6 @@ class Pixel_Groups(unittest.TestCase):
             group='#f80000',
             units='Physical',
             contiguous=False)
-        from ooflib.common.IO.reporter import messagemanager
         lines = messagemanager.latest(9)
         # Dump lines to a file so as to use fp_file_compare.
         phile = open("test.dat", "w")
@@ -518,16 +839,15 @@ class Pixel_Groups(unittest.TestCase):
             os.path.join('ms_data', 'pixelinfo5.dat'),
             1.e-6))
         file_utils.remove('test.dat')
-        
-
+    
     # Meshable may be better tested at skel-mod time.
-    
-    
+        
     def tearDown(self):
         OOF.Graphics_1.File.Close()
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Then pixel selection modifers.
+# Pixel selection modifers.
 # OOF.PixelSelection:
 # Undo Redo Clear Invert Select_Group Add_Group Unselect_Group
 # Intersect_Group Despeckle Elkcepsed Expand Shrink Color_Range Copy
@@ -538,12 +858,6 @@ class Pixel_Groups(unittest.TestCase):
 
 class Selection_Modify(unittest.TestCase):
     def setUp(self):
-        global microstructure
-        global gfxmanager
-        global pixelselection
-        from ooflib.common import microstructure
-        from ooflib.common.IO import gfxmanager
-        from ooflib.common import pixelselection
         OOF.Microstructure.Create_From_ImageFile(
             filename=reference_file("ms_data","small.ppm"),
             microstructure_name=automatic,
@@ -779,7 +1093,6 @@ class Selection_Modify(unittest.TestCase):
     # the autogroup and circle-selection tests, also in this file.
     @memorycheck.check("small.ppm")
     def Rich_MS_Copy(self):
-        from ooflib.common import color
         OOF.Image.AutoGroup(image="small.ppm:small.ppm")
         OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
             source="small.ppm:small.ppm",
@@ -828,7 +1141,7 @@ class Selection_Modify(unittest.TestCase):
     def tearDown(self):
         OOF.Graphics_1.File.Close()
     
-
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
     
 test_set = [
     Graphics_Ops("New"),
@@ -845,6 +1158,16 @@ test_set = [
     Direct_Pixel_Selection("Redo"),
     Direct_Pixel_Selection("Clear"),
     Direct_Pixel_Selection("Invert"),
+    Direct_Pixel_Selection("ExoPoint"),
+    Direct_Pixel_Selection("ExoBrush"),
+    Direct_Pixel_Selection("ExoRectangle"),
+    Direct_Pixel_Selection("ExoCircle"),
+    Direct_Pixel_Selection("ExoEllipse"),
+    NonSquare("Point"),
+    NonSquare("Brush"),
+    NonSquare("Rectangle"),
+    NonSquare("Circle"),
+    NonSquare("Ellipse"),
     Pixel_Groups("AutoGroup"),
     Pixel_Groups("New"),
     Pixel_Groups("Delete"),
@@ -867,7 +1190,5 @@ test_set = [
     Selection_Modify("Shrink"),
     Selection_Modify("Color_Range"),
     Selection_Modify("Rich_MS_Copy"),
-    # Do this last because it does some group modification that hasn't
-    # been tested yet when the other Pixel_Groups tests are run.
-    Pixel_Groups("Query"),
+    Pixel_Groups("Query"),      # Should be after modifier tests.
 ]
