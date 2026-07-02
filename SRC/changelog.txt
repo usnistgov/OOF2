@@ -1,5 +1,16 @@
 OOF2 2.4.0
 
+* Fixed two pixel selection bugs:
+
+   * Clicking outside the bounds of the microstructure would select
+     pixels on the edge.
+     
+   * The brush selector would not select any pixels unless the center
+     of the brush was inside the microstructure for some part of its
+     path.
+
+* Dropped support for Python 3.9.  3.10 or later is required.
+
 * ScalarField::components(Planarity) and
   TwoVectorField::components(Planarity) no longer ignore their
   arguments.  They now return no components if Planarity is
