@@ -74,7 +74,7 @@ class EarliestPlaceHolder(PlaceHolder):
     idtag = 'earliest'
                              
 
-# TODO: update the docs.
+# TODO MANUAL: update the docs.
 xmlmenudump.XMLObjectDoc(
     'Placeholder',
     xmlmenudump.loadFile("DISCUSSIONS/common/object/placeholder.xml"))

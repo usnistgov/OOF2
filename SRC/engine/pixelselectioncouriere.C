@@ -22,7 +22,8 @@ ElementSelection::ElementSelection(CMicrostructure *ms,
 				   const CSkeletonElement *element)
   : PixelSelectionCourier(ms),
     element(element),
-    selected(0) {}
+    selected(0)
+{}
 
 ElementSelection::~ElementSelection() {
   delete selected;

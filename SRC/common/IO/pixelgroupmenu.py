@@ -618,7 +618,7 @@ pixgrpmenu.addItem(OOFMenuItem(
             tip="Report info for each contiguous region separately?")
     ],
     help="Query the given PixelGroup.",
-    ## TODO: Describe the output in more detail.
+    ## TODO MANUAL: Describe the output in more detail.
     discussion="<para>Print some information about the given &pixelgroup;.</para>"))
     
 ############################

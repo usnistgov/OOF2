@@ -296,8 +296,6 @@ class OOF_Skeleton_Extra(unittest.TestCase):
             microstructure='skeltest')
         self.assertEqual(pixelselection.size(), 0)
         
-        ## TODO: Test with illegal elements, including ones with
-        ## out-of-bounds nodes.
         # Create an single illegal element in the interior -- a quad
         # with an acute exterior angle.
         OOF.Graphics_1.Toolbox.Move_Nodes.AllowIllegal(allowed=True)

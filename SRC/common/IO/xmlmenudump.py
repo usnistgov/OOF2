@@ -379,7 +379,6 @@ def dumpMenuItem(phile, menuitem):
     # state of the flag isn't relevant to the documentation. Don't
     # print options unless the option list contains something other
     # than "disabled".
-    ## TODO: "disabled" shouldn't be an OOFMenuItem option.
     if menuitem.options and list(menuitem.options.keys()) != ['disabled']:
         print("  <listitem><simpara>", file=phile)
         print("   Options:", file=phile)

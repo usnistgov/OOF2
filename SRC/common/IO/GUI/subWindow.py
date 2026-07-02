@@ -60,6 +60,7 @@ from gi.repository import Gtk
 ##   SubWindow.__init__ from gfxwindow.py) passes self.menu
 ## MessageWindow (reporter_GUI.py)   passes self.menu_name
 ## TutorialClassGUI (tutorialsGUI.py) passes ""
+## SandBox passes "dummy"
 
 class SubWindow(widgetscope.WidgetScope):
     # Base class for non-modal windows which want to be destroyed when
@@ -85,62 +86,37 @@ class SubWindow(widgetscope.WidgetScope):
             # If no menu is provided, then build a non-logging local
             # one with 'Close' and 'Quit'.
 
-            ## TODO: the no_xxx flags here seem all wrong. no_doc and
-            ## no_cli should be applied to Close and Quit, but the
-            ## File menu shouldn't set them, in case more items are
-            ## added by the subwindow subclass. Etc.
-            self.subwindow_menu = oofmenu.OOFMenuItem(
-                menu,
-                no_cli=True,
-                no_log=True,
-                no_bar=True,
-                no_doc=True)
+            self.subwindow_menu = mainmenu.OOF.addItem(
+                oofmenu.OOFMenuItem(menu, no_bar=True))
 
-            file_item = oofmenu.OOFMenuItem('File',
-                                            no_cli=True,
-                                            no_gui=False,
-                                            no_log=True)
+            file_item = oofmenu.OOFMenuItem('File')
             self.subwindow_menu.addItem(file_item)
 
             file_item.addItem(oofmenu.OOFMenuItem(
                 'Close',
                 help="Close this window.",
                 callback=self.menu_close,
-                no_log=True, # TODO: Why?
-                no_gui=False,
-                no_cli=True,
+                no_doc=True,
                 accel='w'))
             
             file_item.addItem(oofmenu.OOFMenuItem(
                 'Quit', gui_callback=quit.queryQuit,
-                no_log=True,
-                no_cli=True,
-                no_gui=False,
                 help="Quit the OOF application.",
+                no_doc=True,
                 accel='q',
                 threadable = oofmenu.UNTHREADABLE))
             # quit.queryQuit uses menuitem.data to know which window
             # to use as the base for its dialog box.
             file_item.Quit.data = self.gtk
                               
-            mainmenu.OOF.addItem(self.subwindow_menu)
             self._local_menu = menu
         elif isinstance(menu, oofmenu.OOFMenuItem):
             self.subwindow_menu = menu
             self._local_menu = None # Flag indicating menu was passed in.
-            # # This menuitem is the parent menu of all of the items in
-            # # this window's menu bar.  The GUI pull-down menu will be
-            # # constructed for items in the menu bar, but not the
-            # # parent menu.
-
-            # # If an item in the submenu is *not* supposed to be
-            # # displayed, it will have no_gui==True.  But we can't use
-            # # getOption to discover that, because getoption will
-            # # search the hierarchy, including this menu, which should
-            # # already have no_gui==True so that it doesn't appear in
-            # # its main window's menu bar.
-            # for item in menu.items:
-            #     if item.
+            # This menuitem is the parent menu of all of the items in
+            # this window's menu bar.  The GUI pull-down menu will be
+            # constructed for items in the menu bar, but not the
+            # parent menu.
         else:
             raise TypeError("Incorrect type passed as menu to SubWindow.")
 

@@ -254,32 +254,17 @@ class RegisteredClassFactory(RCFBase):
             self.currentOption = registration
 
             if newsubclass:
-                # It's important *not* to call makeWidget if we're not
-                # changing subclasses. Keyboard focus will shift
-                # unexpectedly if widgets are destroyed and rebuilt.
+                # Don't call makeWidget if we're not changing
+                # subclasses. Keyboard focus will shift unexpectedly
+                # if widgets are destroyed and rebuilt.  (It's not
+                # clear if this ever happens, though.  The widget
+                # isn't going to change unless something else happened
+                # to make it change, so the widget that caused the
+                # change will have focus.)
                 self.paramWidget = self.makeWidget(registration)
                 self.box.pack_start(self.paramWidget.gtk,
                                     expand=True, fill=True, padding=0)
             else:
-                # This will call makeWidgets for the components of the
-                # ParameterTable, and any subwidget that has keyboard
-                # focus will lose it. Do ParameterTables need to have
-                # a way of setting widgets without rebuilding them?
-                # No. Something had to have happened outside this
-                # widget if its value is being changed by this method,
-                # so this widget *can't* currently have focus, so it
-                # can't lose it.
-                ## TODO: This comment contradicts the previous one.
-                ## Does focus shift unexpectedly or not?  It can, if
-                ## using a widget invokes a menu command that then
-                ## updates the widget, even if the update won't
-                ## actually change the widget.  When the process gets
-                ## to this point, the widget will be rebuilt and will
-                ## lose focus.  HOWEVER, this situation should be
-                ## avoided because it will clutter up the log file
-                ## with menu commands for all intermediate states of
-                ## the widget.  Menu commands should not be called for
-                ## intermediate values of sliders or entries.
                 self.paramWidget.set_values()
 
             if self.readonly:

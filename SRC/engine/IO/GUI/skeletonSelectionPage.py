@@ -336,6 +336,10 @@ class SkeletonSelectionPage(oofGUI.MainPage):
 # selected by the mesh widget.  The GroupGUI has a local selection
 # state.
 
+## TODO NOW: Several of the tooltips for buttons refer to pixels when
+## they should refter to the contents of the groups (Elements, Nodes,
+## or Segments).
+
 class GroupGUI:
     def __init__(self, parent):
         debug.mainthreadTest()

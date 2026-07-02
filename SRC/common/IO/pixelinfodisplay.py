@@ -134,8 +134,7 @@ pixelInfoDisplay = registeredclass.Registration(
 # Image or Microstructure.  We can then create a predefined layer for
 # the WhoClass.
 
-## TODO PYTHON3: Can PixelSelection and PixelInfo layers be treated
-## similarly?
+## TODO: Can PixelSelection and PixelInfo layers be treated similarly?
 ##
 ## Currently, the WhoClass Top Bitmap only has one DisplayMethod,
 ## PixelInfo, and only takes one "what", <top bitmap>.  But for pixel
