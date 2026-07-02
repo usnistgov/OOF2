@@ -75,8 +75,6 @@ from ooflib.common import utils
 import struct
 import weakref
 
-from ooflib.common.utils import stringjoin
-
 _allRegistrations = weakref.WeakSet()
 
 class Registration:
@@ -311,8 +309,8 @@ class RegisteredClass:
     def paramrepr(self):
         values = self.getParamValues()
         names = [p.name for p in self.getRegistration().params]
-        return stringjoin(['%s=%s' % (name, repr(value))
-                           for (name, value) in zip(names, values)], ',')
+        return ','.join([f'{name}={repr(value)}'
+                         for (name, value) in zip(names, values)])
 
     def shortparamrepr(self):
         values = self.getParamValues()
@@ -346,13 +344,10 @@ class RegisteredClass:
         return result
 
     def __repr__(self):
-        return '%s(%s)' % (self.__class__.__name__, self.paramrepr())
-## Including the module name, as below, clutters up the scripts and is
-## unnecessary since Registration.__init__ checks for uniqueness in
-## the OOF namespace.
-##        classname = self.__class__.__name__
-##        modulename = stringsplit(self.__module__, '.')[-1]
-##        return '%s.%s(%s)' % (modulename, classname, self.paramrepr())
+        # Including the module name clutters up the scripts and is
+        # unnecessary since Registration.__init__ checks for
+        # uniqueness in the OOF namespace.
+        return f"{self.__class__.__name__}({self.paramrepr()})"
 
     def shortrepr(self):
         params = self.shortparamrepr()

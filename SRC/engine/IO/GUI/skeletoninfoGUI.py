@@ -21,7 +21,6 @@ from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
 from ooflib.engine.IO import skeletoninfo
 
-from ooflib.common.utils import stringjoin
 from ooflib.common.runtimeflags import digits
 
 import gi
@@ -165,9 +164,7 @@ class SkeletonInfoMode:
 
     def updateGroup(self, obj):
         # called only when Skeleton readlock has been obtained.
-        mainthread.runBlock(self.group.set_text,
-                            (stringjoin(obj.groups, ', '),))
-
+        mainthread.runBlock(self.group.set_text, (', '.join(obj.groups),))
 
     def makeSegmentList(self, column, row):
         debug.mainthreadTest()
@@ -289,7 +286,7 @@ class ElementMode(SkeletonInfoMode):
                 domCat = element.dominantPixel(skeleton.MS)
                 repPix = skeleton.MS.getRepresentativePixel(domCat)
                 pixGrp = pixelgroup.pixelGroupNames(skeleton.MS, repPix)
-                pixgrps = stringjoin(pixGrp, ", ")
+                pixgrps = ', '.join(pixGrp)
                 # Change False to True in this line to get verbose
                 # output from the homogeneity calculation.
                 ehom = f"{element.homogeneity(skeleton.MS, False):.{digits()}f}"
@@ -420,7 +417,7 @@ class NodeMode(SkeletonInfoMode):
             for key, bdy in skeleton.pointboundaries.items():
                 if node in bdy.nodes:
                     bdys.append(key)
-            bdynames = stringjoin(bdys, ", ")
+            bdynames = ', '.join(bdys)
         finally:
             container.context.end_reading()
         mainthread.runBlock(self.updateSomething_thread,

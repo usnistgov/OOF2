@@ -18,8 +18,6 @@ from ooflib.common.IO import xmlmenudump
 import math
 import os.path
 
-from ooflib.common.utils import stringsplit
-
 class HKLreader(orientmapdata.OrientMapReader):
     def __init__(self):
         self.phaselists = {}
@@ -30,13 +28,13 @@ class HKLreader(orientmapdata.OrientMapReader):
         line = next(lineiter)
         while not line.startswith('XCells'):
             line = next(lineiter)
-        xcells = int(stringsplit(line)[1])
+        xcells = int(line.split()[1])
         line = next(lineiter)
-        ycells = int(stringsplit(line)[1])
+        ycells = int(line.split()[1])
         line = next(lineiter)
-        xstep = float(stringsplit(line)[1])
+        xstep = float(line.split()[1])
         line = next(lineiter)
-        ystep = float(stringsplit(line)[1])
+        ystep = float(line.split()[1])
         line = next(lineiter)
 
 
@@ -44,7 +42,7 @@ class HKLreader(orientmapdata.OrientMapReader):
             primitives.iPoint(xcells, ycells),
             primitives.Point(xcells*xstep, ycells*ystep))
         
-        while not stringsplit(line)[0] == 'Phase':
+        while not line.split()[0] == 'Phase':
             line = next(lineiter)
         prog = progress.getProgress(os.path.basename(filename),
                                     progress.DEFINITE)
@@ -52,7 +50,7 @@ class HKLreader(orientmapdata.OrientMapReader):
             count = 0
             npts = xcells*ycells
             for line in lineiter:
-                vals = stringsplit(line)
+                vals = line.split()
                 phase = vals[0]
                 x = float(vals[1])
                 y = float(vals[2])

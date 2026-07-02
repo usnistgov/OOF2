@@ -19,8 +19,6 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 import struct
 
-from ooflib.common.utils import stringjoin
-
 structIntFmt = '>i'
 structIntSize = struct.calcsize(structIntFmt)
 
@@ -247,7 +245,7 @@ class Output:
         params = self.getSettableParams() # dictionary keyed by alias
         args = ["'%s'" % self.getPath()] + ['%s=%s' % (alias, repr(p.value))
                                             for alias, p in params.items()]
-        return stringjoin(args, ',')
+        return ','.join(args)
 
     def outputInstance(self): 
         # outputInstance returns an instance of the OutputVal subclass
@@ -322,7 +320,7 @@ class Output:
 
     # Return all parameter names as colon separated paths, unaliased.
     def listAllParameterNames(self, fltr=lambda x: True):
-        return [stringjoin(path, ':')
+        return [':'.join(path)
                 for path in self.listAllParameterPaths(fltr)]
 
     # Return a dictionary of clones of the settable Parameters, keyed
@@ -456,8 +454,7 @@ class Output:
                 try:
                     # If the parameter belongs to one of our inputs,
                     # our name for it is (input's name):(param's alias)
-                    return stringjoin([inputname,
-                                        input.getAliasForParam(param)], ':')
+                    return ':'.join([inputname, input.getAliasForParam(param)])
                 except KeyError:
                     pass
             raise KeyError              # Not one of us.
@@ -563,7 +560,7 @@ def prependHierarchyName(name, hier):
         if isinstance(hier[i], list):
             hier[i] = prependHierarchyName(name, hier[i])
         else:
-            hier[i] = stringjoin([name, hier[i]], ':')
+            hier[i] = ':'.join([name, hier[i]])
     return hier
 
 ################################################################

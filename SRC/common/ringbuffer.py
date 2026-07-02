@@ -57,7 +57,6 @@
 # sublists of self.data.
 
 from ooflib.common import debug
-from ooflib.common.utils import stringjoin
 
 ## TODO MAYBE: Make RingBuffer a true iterable object.  Since the
 ## RingBuffer has a concept of its current position, it's not a simple
@@ -242,7 +241,7 @@ class RingBuffer:
         if self.overwrite:
             repr += ', overwritefunc=' + self.overwrite.__name__
         if self.ndata > 0:
-            repr += ', data=[' + stringjoin([repr(obj) for obj in self], ',')+']'
+            repr += ', data=[' + ','.join([repr(obj) for obj in self])+']'
         repr += ')'
         return repr
 

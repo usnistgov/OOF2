@@ -43,8 +43,6 @@ import math
 import re
 import struct
 
-from ooflib.common.utils import stringjoin
-
 ## TODO: Should have chosen little-endian for this and many other
 ## struct formats in this file, since it's the native format for most
 ## computers.  Is it too late to change?  Change it and update the
@@ -110,7 +108,7 @@ class TypeChecker:
     def __repr__(self):
         if len(self.types)==1:
             return self.types[0].__name__
-        return '[' + stringjoin([t.__name__ for t in self.types], ',') + ']'
+        return '[' + ','.join([t.__name__ for t in self.types]) + ']'
     def __len__(self):
         return len(self.types)
     def __getitem__(self, i):
@@ -1089,8 +1087,7 @@ class RegisteredParameter(Parameter):
     def classRepr(self):
         return "%s(%s)" % (self.__class__.__name__, self.regname())
     def valueRepr(self):
-        return stringjoin([reg.subclass.__name__ for reg in self.registry],
-                           '\n')
+        return '\n'.join([reg.subclass.__name__ for reg in self.registry])
     def valueDesc(self):
         from ooflib.common.IO import xmlmenudump # delayed to avoid import loops
         nm = self.regname()

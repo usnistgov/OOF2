@@ -24,8 +24,6 @@ import ooflib.SWIG.common.lock
 import sys
 import traceback
 
-from ooflib.common.utils import stringjoin, stringsplit
-
 # List of allowed message classes.
 messageclasses = ["Log", "Warning", "Report", "Query", "Error"]
 
@@ -145,7 +143,7 @@ class MessageManager:
     # database.  This function also returns the message, although
     # most of the calls discard it, except "warning".
     def _append(self, mtype, *args):
-        message = stringjoin([str(x) for x in args], ' ')
+        message = ' '.join([str(x) for x in args])
         MessageManager.lock.acquire()
         try:
             if debug.debug() and mtype!="Log" and guitop.top():
@@ -259,7 +257,7 @@ class ReportFile:
     def write(self, data):
         global messagemanager
         self.buffer += data
-        stringset = stringsplit(self.buffer, '\n')
+        stringset = self.buffer.split('\n')
         for s in stringset[:-1]:
             messagemanager.report(s)
         self.buffer = stringset[-1]

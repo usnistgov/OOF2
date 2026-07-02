@@ -718,7 +718,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         if bdy:
             outlist.append("Size: %i" % bdy.size(self.getObject()))
         
-        return utils.stringjoin(outlist,"\n")
+        return "\n".join(outlist)
         
     def getMaterialNameFromInterfaceName(self, edgementname):
         #Interface branch -- untested
@@ -799,7 +799,7 @@ def getSkeleton(ms, name):
 
 def extractSkeletonPath(somepath):
     #Calling labeltree.makePath may be a more formal way to do this.
-    pathlist=utils.stringsplit(somepath,":")
+    pathlist=somepath.split(":")
     if len(pathlist)<2:
         #Shouldn't happen
         return somepath

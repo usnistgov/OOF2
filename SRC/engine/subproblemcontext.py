@@ -232,7 +232,7 @@ class SubProblemContext(whoville.Who):
     def preremoveCB(self, path):
         # If one of our dependencies is being removed, we're done for.
         # We might as well end it all right now.
-        path = utils.stringjoin(path, ':')
+        path = ':'.join(path)
         if path in self.subptype.get_dependencies():
             self.reserve()
             self.begin_writing()

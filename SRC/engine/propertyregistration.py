@@ -30,8 +30,6 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.common import parallel_enable
 from ooflib.common.labeltree import LabelTree, makePath
 
-from ooflib.common.utils import stringjoin, stringsplit
-
 # Load the convertible registered types used as parameters
 # by the properties.
 from ooflib.engine.IO import isocijkl
@@ -167,7 +165,7 @@ class PropertyManager:
             collision = self.data[key]
         except KeyError:
             # Key not found, OK to insert. 
-            propclass = stringsplit(key,':')[-1]
+            propclass = key.split(':')[-1]
 
             # Add it to the labeltree.
             self.data.__setitem__(key, value, ordering=value.ordering)
@@ -188,8 +186,8 @@ class PropertyManager:
     def new_prop(self, oldname, newname):
         oldreg = self.data[oldname].object
         if hasattr(oldreg , "parent"):
-            namelist = stringsplit(oldname, ':')[:-1]
-            fullname = stringjoin(namelist+[newname], ':')
+            namelist = oldname.split(':')[:-1]
+            fullname = ':'.join(namelist+[newname])
         else:
             fullname = oldname+":"+newname
         newreg = oldreg.named_copy(fullname)
@@ -234,7 +232,7 @@ class PropertyManager:
             # Translate the menuitem's path to the tree's path.  The first
             # three words of the path are OOF.Property.Parametrize.
             # We want the remainder.
-            treepath = stringsplit(menuitem.path(),".")[3:]
+            treepath = menuitem.path().split(".")[3:]
             reg = self.data[treepath].object
             reg.new_params(**kwargs)
             switchboard.notify("redraw")
@@ -268,7 +266,7 @@ class PropertyManager:
         # The first five words of menuitem.path() are
         # OOF.LoadData.IPC.Property.Parametrize
         # We want the remainder.
-        treepath = stringsplit(menuitem.path(),".")[5:]
+        treepath = menuitem.path().split(".")[5:]
         reg = self.data[treepath].object
         reg.new_params(**kwargs)
         switchboard.notify("redraw")
@@ -280,7 +278,7 @@ class PropertyManager:
     # PropertyRegistration and NamedPropertyRegistration's writeData
     # methods ensure that "reg" is always a PropertyRegistration.
     def creatorcallback(self, menuitem, **kwargs):
-        treepath = stringsplit(menuitem.path(),".")[3:]
+        treepath = menuitem.path().split(".")[3:]
         reg = self.data[treepath].object
         name = menuitem.params[0].value
 
@@ -310,7 +308,7 @@ class PropertyManager:
             # No collision, we must create a new NamedRegistration.
             # We know it's a NamedRegistration because unnamed
             # property registrations *always* produce a name conflict.
-            fullname = stringjoin( treepath + [name], ":")
+            fullname = ':'.join( treepath + [name])
             newreg = reg.named_copy(fullname, menuitem.params[1:])
             switchboard.notify("redraw")
 
@@ -715,7 +713,7 @@ class NamedPropertyRegistration(PropertyRegistration):
         PropertyRegistrationParent.__init__(self, subclass, ordering, secret)
 
         self._name = name
-        self.moniker = stringsplit(name,":")[-1]
+        self.moniker = name.split(":")[-1]
         self.parent = parent
         self.materials = {}
         self.params = params
@@ -861,7 +859,7 @@ def _parametrizeHelp(menuitem):
                    % ('n'*(name[0] in 'aeiouAEOIU'), name)
     splitpath = menuitem.path().split('.')
     proppath = splitpath[3:]            # remove "OOF.Property.Parametrize"
-    return "Set parameters for %s Properties." % stringjoin(proppath, '.')
+    return "Set parameters for %s Properties." % ".".join(proppath)
     
 
 def _loadDiscussion(menuitem):
@@ -925,7 +923,7 @@ def _loadHelp(menuitem):
                    % ('n'*(name[0] in 'aeiouAEIOU'), name)
     splitpath = menuitem.path().split('.')
     proppath = splitpath[3:]            # remove "OOF.LoadDataProperty"
-    return "Set parameters for %s Properties." % stringjoin(proppath, '.')
+    return "Set parameters for %s Properties." % ",".join(proppath)
     
 
 def xmldocs(phile):

@@ -18,8 +18,6 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine.IO import output
 
-from ooflib.common.utils import stringjoin
-
 import struct
 
 # See the note in symmatrix.swg -- SymmMatrix3.__getitem__ works
@@ -53,8 +51,8 @@ def _SymmMatrix___repr__(self):
         collist = []
         for j in range(self.size()):
             collist.append("%f" % self.get(i,j))
-        rowlist.append("{ " + stringjoin(collist,", ") + " }")
-    return "SymmMatrix { " + stringjoin(rowlist,", ") + " }"
+        rowlist.append("{ " + ", ".join(collist) + " }")
+    return "SymmMatrix { " + ", ".join(rowlist) + " }"
 
 SymmMatrix.__repr__ = _SymmMatrix___repr__
 
@@ -140,7 +138,7 @@ SymmMatrix3.voigtValues = _SymmMatrix3_voigtValues
 
 def _SymmMatrix3___repr__(self):
     args = ["%s=%s" % nv for nv in zip(voigtNames, self.voigtValues())]
-    return "SymmMatrix3(%s)" % stringjoin(args, ',')
+    return "SymmMatrix3(%s)" % ','.join(args)
 
 SymmMatrix3.__repr__ = _SymmMatrix3___repr__
 
@@ -153,7 +151,7 @@ utils.OOFdefine('SymmMatrix3', SymmMatrix3)
 class TriclinicRank2Tensor(SymmMatrix3):
     def __repr__(self):
         args = ["%s=%s" % nv for nv in zip(voigtNames, self.voigtValues())]
-        return "TriclinicRank2Tensor(%s)" % stringjoin(args, ',')
+        return "TriclinicRank2Tensor(%s)" % ','.join(args)
 
 utils.OOFdefine('TriclinicRank2Tensor', TriclinicRank2Tensor)
 

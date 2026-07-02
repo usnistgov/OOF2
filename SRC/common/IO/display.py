@@ -21,7 +21,6 @@ from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import registeredclass
 from ooflib.common import subthread
-from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import placeholder
 from ooflib.common.IO import whoville
@@ -317,7 +316,7 @@ def _addMethodList(text, obj):
         lines.append("</itemizedlist></para></listitem>")
 
     lines.append("</itemizedlist></para>")
-    return text + utils.stringjoin(lines, '\n')
+    return text + '\n'.join(lines)
 
 DisplayMethod.tip = "Methods for drawing &oof2; objects in the graphics window."
 DisplayMethod.discussion = xmlmenudump.loadFile(

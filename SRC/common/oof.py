@@ -53,8 +53,6 @@ from ooflib.common.IO import automatic
 from ooflib.common.IO import reporter
 from ooflib.common.IO import progressbar
 
-from ooflib.common.utils import stringjoin
-
 ########################################
 
 # Option processing:
@@ -470,9 +468,9 @@ def front_end(no_interp=None):
             nblanks = (width - len(welcome))//2
             banner = wiggles*nwiggles + "//\n\n" \
                      + " "*nblanks + welcome + "\n" + \
-                     stringjoin(utils.format(banner1, width),"\n") + \
+                     "\n".join(utils.format(banner1, width)) + \
                      "\n\n" +  wiggles*nwiggles + "//\n" + \
-                     stringjoin(utils.format(banner2, width), "\n")
+                     "\n".join(utils.format(banner2, width))
         else:
             banner = ""
             

@@ -376,9 +376,6 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
 import weakref
 
-from ooflib.common.utils import stringjoin, stringsplit
-
-
 #####################################
 
 # Options for menu items are given by keyword arguments in the
@@ -598,7 +595,7 @@ class OOFMenuItem:
         for item in self.items:
             if item.name == name:
                 return item
-        raise KeyError("%s Menu has no item %s" % (self.name, name))
+        raise KeyError(f"{self.name} Menu has no item {name}")
 
     def removeItem(self, name):
         for i in range(len(self.items)):
@@ -609,7 +606,7 @@ class OOFMenuItem:
                 ## self.items[i].parent = None
                 del self.items[i]
                 return
-        raise KeyError("%s Menu has no item %s" % (self.name, name))
+        raise KeyError(f"{self.name} Menu has no item {name}")
 
     def add_gui_callback(self, callback):
         self.gui_callback = callback
@@ -662,7 +659,7 @@ class OOFMenuItem:
 
     def descendPath(self, path):
         if isinstance(path, (str, bytes)):
-            return self.descendPath(stringsplit(path, '.'))
+            return self.descendPath(path.split('.'))
         if not path:
             return self
         return self.getItem(path[0]).descendPath(path[1:])
@@ -685,8 +682,7 @@ class OOFMenuItem:
             if arg.name == name:
                 return arg
         raise TypeError(
-            "OOFMenuItem %s got an unexpected keyword argument '%s'"
-            % (self.path(), name))
+      f"OOFMenuItem {self.path()} got an unexpected keyword argument '{name}'")
 
     def replace_args(self, params):
         self.params = params
@@ -792,8 +788,8 @@ class OOFMenuItem:
         arglist = ["%s=%s" % (name, repr(argdict[name]))
                    for name in [p.name for p in self.params]
                    if argdict[name] is not None]
-        self.log(self.path() +'(' + stringjoin(arglist, ', ') + ')')
-        self.bar_name = self.path() +'(' + stringjoin(arglist, ', ') + ')'
+        self.log(self.path() +'(' + ', '.join(arglist) + ')')
+        self.bar_name = self.path() +'(' + ', '.join(arglist) + ')'
 
         self.hireWorker(argdict=argdict)
 
@@ -867,17 +863,15 @@ class OOFMenuItem:
         for item in self.items:
             if item.name == attr:
                 return item
-        raise AttributeError('Menu %s has no entry %s!' % (self.path(), attr))
+        raise AttributeError(f'Menu {self.path()} has no entry {attr}!')
 
     def __getitem__(self, idx):
         return self.items[idx]
     def __len__(self):
         return len(self.items)
     def __repr__(self):
-        return stringjoin([self.name+":"] + \
-                           [item.name for item in self.items
-                            if item.visible_cli()],
-                           ' ')
+        return ' '.join([self.name+":"] + [item.name for item in self.items
+                                           if item.visible_cli()])
     def help(self):
         return self.helpstr
 
@@ -917,8 +911,8 @@ class OOFMenuItem:
             for param in self.params:
                 xmlmenudump.process_param(param)
                 print("  <varlistentry>", file=file)
-                print("    <term><varname>%s</varname></term>" \
-                      % param.name, file=file)
+                print(f"    <term><varname>{param.name}</varname></term>",
+                      file=file)
                 print("      <listitem>", file=file)
                 if param.tip is not parameter.emptyTipString:
                     tip = param.tip or "MISSING TIP STRING."
@@ -935,9 +929,8 @@ class OOFMenuItem:
             
     def xmlSynopsis(self, file):        # make the Synopsis section
         print(" <refsynopsisdiv><simpara>", file=file)
-        args = stringjoin(['<varname>%s</varname>' % p.name
-                            for p in self.params], ', ')
-        print("  <command>%s</command>(%s)" % (self.path(), args), file=file)
+        args = ', '.join([f'<varname>{p.name}</varname>' for p in self.params])
+        print(f"  <command>{self.path()}</command>({args})", file=file)
         print(" </simpara></refsynopsisdiv>", file=file)
 
     def _xmlXRefs(self):

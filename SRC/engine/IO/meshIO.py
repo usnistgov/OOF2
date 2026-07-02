@@ -976,7 +976,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                             if node.index() not in cornernodelist:
                                 listbuf2.append(
                                     "%d" % (nodedict[node.position()]))
-                        listbuf.append(utils.stringjoin(listbuf2,", ")+"\n")
+                        listbuf.append(", ".join(listbuf2) + "\n")
             buffer.extend(listbuf)
         except KeyError:
             ## TODO: Which KeyError are we ignoring here?  Use
@@ -1003,7 +1003,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                 else:
                     listbuf.append("%d" % (somevalue))
                 i+=1
-        buffer.append(utils.stringjoin(listbuf,", ")+"\n")
+        buffer.append(", ".join(listbuf) + "\n")
 
     buffer.append("** Edge boundaries in OOF2\n")
     ebnames = meshcontext.edgeBoundaryNames()
@@ -1024,7 +1024,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                 else:
                     listbuf.append("%d" % (somevalue))
                 i+=1
-        buffer.append(utils.stringjoin(listbuf,", ")+"\n")
+        buffer.append(", ".join(listbuf) + "\n")
 
     for matname in materiallist:
         ## TODO OPT: Use a separate buffer for each material, and only
@@ -1040,7 +1040,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                     else:
                         listbuf.append("%d" % elementdict[el.get_index()])
                     i+=1
-        buffer.append(utils.stringjoin(listbuf,", ") +
+        buffer.append(', '.join(listbuf) +
                       "\n*SOLID SECTION, ELSET=%s, MATERIAL=%s\n" % (matname,
                                                                      matname))
 

@@ -30,8 +30,6 @@ from ooflib.common import primitives
 from ooflib.common import debug
 from functools import reduce
 
-from ooflib.common.utils import stringjoin
-
 StringParameter = parameter.StringParameter
 
 ## General definitions
@@ -262,7 +260,7 @@ def copyMesh_parallel(menuitem, mesh, name,
         newmesh.begin_writing()
         try:
             copiedmesh = skelpath+[copiedmeshname]
-            copiedmeshfullname = stringjoin(copiedmesh,":")
+            copiedmeshfullname = ":".join(copiedmesh)
             for subpctxt in basemesh.subproblems():
                 subp = subpctxt.getObject()
                 newsubp = subpctxt.getObject().clone() # CSubProblem object
@@ -740,7 +738,7 @@ def parallel_mesh_info_query(menuitem, targetname, position, mesh):
                             if fnode.hasField(field):
                                 for i in range(field.ndof()):
                                     reportsubpfields.append(16*" "+("%g" % field.value(fnode,i)))
-            reportstring+=stringjoin(reportsubpfields,"\n")
+            reportstring+="\n".join(reportsubpfields)
 
         if _rank==0:
             #Get list of squares of distance of node to the click point
@@ -794,10 +792,10 @@ def parallel_mesh_info_query(menuitem, targetname, position, mesh):
     nodes=%s
     material=%s\n""" % (felem.masterelement().name(),
                         felem.get_index(),
-                        stringjoin(["%s %d at (%g, %g)" % 
-                                     (obj.classname(), obj.index(),
-                                      obj.position().x, obj.position().y)
-                                     for obj in felem.node_iterator()],","),
+                        ".".join(["%s %d at (%g, %g)" % 
+                                  (obj.classname(), obj.index(),
+                                   obj.position().x, obj.position().y)
+                                  for obj in felem.node_iterator()]),
                         matname)
                 #Get the subproblems defined on the mesh,
                 #get the active fields in each subproblem, and find the values
@@ -814,7 +812,7 @@ def parallel_mesh_info_query(menuitem, targetname, position, mesh):
                             valuelist=o.valuePtr().value_list()
                             for val in valuelist:
                                 reportsubpfields.append(16*" "+repr(val))
-                reportstring+=stringjoin(reportsubpfields,"\n")
+                reportstring+="\n".join(reportsubpfields)
 
         if _rank==0:
             distance2list=[distance2]

@@ -40,9 +40,6 @@ from ooflib.common import labeltree
 from ooflib.SWIG.common import pixelgroup
 from functools import reduce
 
-from ooflib.common.utils import stringjoin
-
-
 WhoParameter = whoville.WhoParameter
 microStructures = microstructure.microStructures
 RegisteredParameter = parameter.RegisteredParameter
@@ -600,8 +597,9 @@ def parallel_skel_info_query(menuitem, targetname, position, skeleton):
                     nmob = "fixed"
                 nneighborelements="None"
                 if node.neighborElements(skelobj):
-                    nneighborelements=stringjoin(["Element %d" % obj.index
-                                                   for obj in node.neighborElements(skelobj)],",")
+                    nneighborelements=",".join(
+                        ["Element %d" % obj.index
+                         for obj in node.neighborElements(skelobj)])
                 reportstring="""
     index=%d
     position=(%g,%g)
@@ -685,11 +683,11 @@ def parallel_skel_info_query(menuitem, targetname, position, skeleton):
     elements=%s
     length=%s
     homogeneity=%s""" % (sindex,
-                         stringjoin(["Node %d at (%g, %g)" % (obj.index,
-                                                               obj.position().x,
-                                                               obj.position().y)
-                                      for obj in sgmt.get_nodes()],","),
-                         stringjoin(["Element %d" % obj.index for obj in sgmt.getElements()],","),
+                         ",".join(["Node %d at (%g, %g)" %
+                                   (obj.index, obj.position().x, obj.position().y)
+                                      for obj in sgmt.get_nodes()]),
+                         ",".join(["Element %d" % obj.index
+                                   for obj in sgmt.getElements()]),
                          length,
                          homogval)
 
@@ -743,7 +741,7 @@ def parallel_skel_info_query(menuitem, targetname, position, skeleton):
                     domCat = elem.dominantPixel(skelobj.MS)
                     repPix = skelobj.MS.getRepresentativePixel(domCat)
                     pixGrp = pixelgroup.pixelGroupNames(skelobj.MS, repPix)
-                    pixgrps = stringjoin(pixGrp, ", ")
+                    pixgrps = ", ".join(pixGrp)
                     ehom = "%f" % elem.homogeneity(skelobj.MS)
                     eshape = "%f" % elem.energyShape()
 
@@ -769,14 +767,15 @@ def parallel_skel_info_query(menuitem, targetname, position, skeleton):
     shape energy=%s
     material=%s""" % (eindex,
                       etype,
-                      stringjoin(["Node %d at (%g, %g)" % (obj.index,
-                                                            obj.position().x,
-                                                            obj.position().y)
-                                   for obj in elem.nodes],","),
-                      stringjoin(["Segment %d, nodes (%d, %d) (length: %g)" %
-                                   (obj.index, obj.nodes()[0].index, obj.nodes()[1].index,
-                                    obj.length())
-                                   for obj in elem.getSegments(skelobj)],","),
+                      ",".join(["Node %d at (%g, %g)" % (obj.index,
+                                                         obj.position().x,
+                                                         obj.position().y)
+                                for obj in elem.nodes]),
+                      ",".join(["Segment %d, nodes (%d, %d) (length: %g)" %
+                                (obj.index, obj.nodes()[0].index,
+                                 obj.nodes()[1].index,
+                                 obj.length())
+                                for obj in elem.getSegments(skelobj)]),
                       earea,
                       pixgrps,
                       ehom,

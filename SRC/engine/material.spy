@@ -13,7 +13,6 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import ooferror
 from ooflib.SWIG.engine import property
 from ooflib.common import debug
-from ooflib.common import utils
 from ooflib.common.IO import oofmenu
 import copy
 
@@ -214,7 +213,7 @@ def _Material___repr_(self):
     out = ["Material('" + self.name() + "'"]
     for prop in self.properties:
         out.append(repr(prop))
-    out = utils.stringjoin(out, ",\n\t")
+    out = ",\n\t".join(out)
     return out + ")"
 
 Material.__repr__ = _Material___repr_

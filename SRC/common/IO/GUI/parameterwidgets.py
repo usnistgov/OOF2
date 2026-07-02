@@ -33,8 +33,6 @@ from gi.repository import Gtk
 import math
 import sys
 
-from ooflib.common.utils import stringlstrip
-
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 ## TODO: There is confusion in the type checking mechanisms in the
@@ -207,7 +205,7 @@ class GenericWidget(ParameterWidget):
         # either do the oofeval if it gets a string, or be broken up
         # into "validStringValue" and "validParameterValue" or
         # something similar.
-        return value is not None and stringlstrip(value) != ""
+        return value is not None and value.lstrip() != ""
 
     # GenericWidgets are sometimes included in other widgets with fake
     # parameters, which may need control over the emission of the
@@ -236,7 +234,7 @@ class StringWidget(GenericWidget):
     def set_value(self, value):
         debug.mainthreadTest()
         self.block_signal()
-        if isinstance(value, StringType) and stringlstrip(value) != "":
+        if isinstance(value, StringType) and value.lstrip() != "":
             self.gtk.set_text(value)
             self.widgetChanged(1, interactive=0)
         else:
@@ -413,7 +411,7 @@ class AutoWidget(ParameterWidget):
     def validValue(self, value):
         # See comment in GenericWidget.validValue.
         return (value is automatic.automatic or
-                (isinstance(value, StringType) and stringlstrip(value) != ""))
+                (isinstance(value, StringType) and value.lstrip() != ""))
 
     def enterAutoMode(self):
         self.automatic = True
@@ -460,7 +458,7 @@ class RestrictedAutoNameWidget(AutoNameWidget):
     def validValue(self, value):
         if value is automatic.automatic:
             return True
-        return (isinstance(value, StringType) and utils.stringstrip(value) != ""
+        return (isinstance(value, StringType) and value.strip() != ""
                 and self.prog.match(value))
 
 def _RestrictedAutoNameParam_makeWidget(self, scope, **kwargs):
@@ -1290,7 +1288,7 @@ class ValueSetParameterWidget(GenericWidget):
         if value is None:
             return 0
         if isinstance(value, StringType):
-            if stringlstrip(value)=="":
+            if value.lstrip()=="":
                 return 0
             return 1 # Nontrival strings are OK.
         
@@ -1320,7 +1318,7 @@ class AutomaticValueSetParameterWidget(AutoWidget):
         if value is None:
             return 0
         if isinstance(value, StringType):
-            if stringlstrip(value)=="":
+            if value.lstrip()=="":
                 return 0
             return 1
         

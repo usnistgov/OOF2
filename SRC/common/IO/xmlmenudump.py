@@ -11,7 +11,6 @@
 from ooflib.common import debug
 from ooflib.common import oofenum
 from ooflib.common import labeltree
-from ooflib.common import utils
 from ooflib.common.IO import parameter
 import sys
 
@@ -693,8 +692,7 @@ may be members of more than one
         print("  </refnamediv>", file=phile)
 
         print("  <refsynopsisdiv><simpara>", file=phile)
-        args = utils.stringjoin(['<varname>%s</varname>' % p.name
-             for p in reg.params], ', ')
+        args = ', '.join([f'<varname>{p.name}</varname>' for p in reg.params])
         print("   <classname>%s</classname>(%s)" % (name, args), file=phile)
         print("  </simpara></refsynopsisdiv>", file=phile)
         

@@ -17,7 +17,6 @@ from ooflib.common import oofenum
 from ooflib.common import labeltree
 from ooflib.common import microstructure
 from ooflib.common import parallel_enable
-from ooflib.common import utils
 from ooflib.common.IO import automatic
 from ooflib.common.IO import datafile
 from ooflib.common.IO import filenameparam
@@ -284,7 +283,7 @@ def copyMesh(menuitem, mesh, name, copy_field, copy_equation, copy_bc):
         newmesh.begin_writing()
         try:
             copiedmesh = skelpath+[copiedmeshname]
-            copiedmeshfullname = utils.stringjoin(copiedmesh,":")
+            copiedmeshfullname = ":".join(copiedmesh)
             for subpctxt in basemesh.subproblems():
                 newsubpctxt = subpctxt.clone(newmesh, copy_field, copy_equation,
                                              notifications)

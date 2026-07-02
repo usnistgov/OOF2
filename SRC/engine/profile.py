@@ -16,8 +16,6 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.engine import profilefunction
 import struct
 
-from ooflib.common.utils import stringjoin
-
 # Object for aggregating location information for boundaries. 
 # All profile __call__ methods take one of these as an argument.
 
@@ -44,7 +42,7 @@ class Location:
             val = getattr(self, s)
             if val is not None:
                 attrlist.append("%s=%s" % (s, repr(val)) )
-        result += stringjoin(attrlist, ", ") + ")"
+        result += ", ".join(attrlist) + ")"
         return result
                                 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -383,7 +381,7 @@ class FluxProfileSet:
                 return True
         return False
     def description(self):
-        return "(%s)" % stringjoin([x.description() for x in self.data],", ")
+        return "(%s)" % ", ".join([x.description() for x in self.data])
     def __repr__(self):
         # The FluxProfileSetParameter accepts lists of Profiles or a
         # single Profile, so there's no need to write out
