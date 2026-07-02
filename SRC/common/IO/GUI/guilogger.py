@@ -134,7 +134,7 @@ def loggererror(exc, line):
     # Display the error dialog.
     from ooflib.common.IO.GUI import reporter_GUI
     tipe, value, tb = sys.exc_info()
-    reporter_GUI.gui_printTraceBack(tipe, value, tb)
+    reporter_GUI.gui_printTraceBack(value)
     return True          # don't re-raise the exception from gtklogger
 
 ####
