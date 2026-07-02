@@ -19,13 +19,12 @@
 // directly (such as %{ ... %} blocks), except for what is needed by
 // the %exception typemap.
 
-// TODO PYTHON3: Swig's -builtin doesn't work because it's not
-// compatible with the %exception typemap.  If there's ever a fix for
-// that, go through all the swigged classes and use python slots
-// whereever possible.
+// TODO: Swig's -builtin doesn't work because it's not compatible with
+// the %exception typemap.  If there's ever a fix for that, go through
+// all the swigged classes and use python slots whereever possible.
 
 // TODO: Change the xxxxxVec* "in" typemaps so that they accept any
-// Python iterator, not just lists and tuples.
+// Python iterable, not just lists and tuples.
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -81,7 +80,7 @@
 // so it's useful as long as the class has defined operator<<.  It
 // should come before the class declaration in the swig file if the
 // swig file hasn't already #included common/tostring.h.
-// TODO PYTHON3? Implement it for -builtin.
+// TODO? Implement it for -builtin.
 
 // Note that it's not sufficient to add a __repr__ to a base class and
 // hope to have it used for the derived classes.  Swig will override

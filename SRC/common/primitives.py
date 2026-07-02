@@ -11,6 +11,10 @@
 ## Classes representing primitive graphics objects.  Each class should
 ## have an enclosing_rectangle() function which returns a Rectangle.
 
+## TODO: Why are all these classes exported to the main namespace with
+## OOFdefine?  Are they expected to be appear in argument lists in
+## scripts?  Are they actually used like that?
+
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
@@ -67,7 +71,7 @@ class Point:
         return self.x*other.y - self.y*other.x
 
     # Power defined only for squaring -- finds the squared magnitude.
-    # TODO: It's better to use Point.norm2.  Is this used?
+    # TODO: This is ugly. It's better to use Point.norm2(). 
     def __pow__(self, other):
         if other!=2:
             raise ValueError(
@@ -267,6 +271,8 @@ class Rectangle:
 
 utils.OOFdefine('Rectangle', Rectangle)
 
+# iRectangle might be used someday.
+
 class iRectangle(Rectangle):
     def __init__(self, pt0, pt1):
         self.lowleft = iPoint(min(pt0[0], pt1[0]), min(pt0[1], pt1[1]))
@@ -280,10 +286,7 @@ class iRectangle(Rectangle):
                 for i in range(self.lowleft.x, self.upright.x+1)
                 for j in range(self.lowleft.y, self.upright.y+1)]
 
-## TODO: Is the iRectangle class ever used?  Apparently it's not,
-## because in the OOF scope 'iRectangle' is defined to be Rectangle.
-## Is this a typo or an undocumented subtlety?
-utils.OOFdefine('iRectangle', Rectangle)
+utils.OOFdefine('iRectangle', iRectangle)
 
 #################################
 
