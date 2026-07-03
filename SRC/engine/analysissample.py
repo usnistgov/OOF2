@@ -16,11 +16,6 @@
 #  - What is the value of output O(location)^n on you?
 #  - (advanced) What fraction of you satisfies x < O(location) < y?
 
-## TODO: There used to be an identifier() method, which wasn't used,
-## so it's been commented out.  Either restore it if it's useful, or
-## delete it entirely.
-
-#
 # Element samples understand "value" to mean "integral".  The area of
 # an element can be found by evaluating an output to the zeroth power.
 # 
@@ -124,8 +119,6 @@ class ElementSample(Sample):
     def __init__(self, element):
         self.element = element
         self.index = element.get_index()
-    # def identifier(self):
-    #     return self.index
     def integrate(self, domain, output, order, power=1):
         femesh = domain.meshctxt.getObject()
         gauss_pts = list(self.element.integrator(order))
@@ -156,8 +149,6 @@ class PointSample(Sample):
     columnNames = ["X", "Y"]
     def __init__(self, point):
         self.point = point
-    # def identifier(self):
-    #     return self.point
     def outputData(self):
         return [repr(self.point.x), repr(self.point.y)]
 
@@ -172,8 +163,6 @@ class LineSample(PointSample):
         PointSample.__init__(self, point)
         self.fraction = fraction
         self.distance = distance
-    # def identifier(self):
-    #     return (self.point, self.fraction, self.distance)
     def outputData(self):
         return [repr(self.distance), repr(self.fraction),
                 repr(self.point.x), repr(self.point.y)] 
@@ -196,8 +185,6 @@ class ElementLineSample(Sample):
         for val in values:
             vmin, vmax = Sample.expandRange(self, val, vmin, vmax)
         return (vmin, vmax)
-    # def identifier(self):
-    #     return (self.segment, self.element)
     # Because there are multiple points, this class has a local
     # evaluate routine.  Returns a tuple of length n_points>2,
     # of evenly-spaced points.  
@@ -245,8 +232,6 @@ class PixelSample(Sample):
         pt_x = float(self.pixel[0])*size[0] + 0.5*size[0]
         pt_y = float(self.pixel[1])*size[1] + 0.5*size[1]
         self.point = primitives.Point(pt_x, pt_y)
-    # def identifier(self):
-    #     return self.pixel
     def outputData(self):
         return [ "(%d %d)" % (self.pixel[0], self.pixel[1]),
                  repr(self.point[0]), repr(self.point[1]) ]
