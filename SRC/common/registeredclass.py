@@ -64,7 +64,7 @@
 
 ## QUESTION Can this be made to work even if the registry isn't a
 ## simple list?  If it's a LabelTree?  The RegisteredClassFactory will
-## have to be able to create a heirarchical GtkOptionMenu.
+## have to be able to create a hierarchical GtkOptionMenu.
 
 
 from ooflib.SWIG.common import ooferror

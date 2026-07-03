@@ -909,7 +909,7 @@ MasterEndPointComparator QuadrilateralMaster::bdysorter() const {
 // -------
 
 // Dealing with Edge elements the same way is sort of dumb, since
-// contouring is never done on edge elements.  But the class heirarchy
+// contouring is never done on edge elements.  But the class hierarchy
 // requires it at the moment.
 // TODO LATER: Fix that.
 static bool edgeMasterEndPointComparator(const MasterEndPoint &a,

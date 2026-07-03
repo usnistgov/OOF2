@@ -69,8 +69,8 @@ from functools import reduce
 # Domains need to indicate what kinds of Sampling methods make sense for
 # them, using the constants defined here. 
 
-## TODO: Use the Sample or SampleSet class heirarchy, instead of
-## these.  The class heirarchy should reflect the 3 topological
+## TODO: Use the Sample or SampleSet class hierarchy, instead of
+## these.  The class hierarchy should reflect the 3 topological
 ## distinct sampling methods:
 ### Continuous -- integrals can be performed using shape functions.
 ### Griddable -- output can be evaluated at points, but the points can

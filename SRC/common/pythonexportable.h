@@ -35,7 +35,7 @@
 
 // To use this class, you need to do two things:
 
-// 1) Derive a C++ class heirarchy from the templated base class
+// 1) Derive a C++ class hierarchy from the templated base class
 //    PythonExportable.  The template parameter must be the name of
 //    the class derived from PythonExportable.  Each derived type must
 //    supply a classname() virtual function that returns the name of
@@ -73,7 +73,7 @@
 //    PythonExportable.  This can be done by passing the base class
 //    name to the PYTHONEXPORTABLE macro defined in typemaps.swg.
 
-// If the C++ class heirarchy derived from PythonExportable is
+// If the C++ class hierarchy derived from PythonExportable is
 // swigged, and the swigged Python classes are extended by Python
 // inheritance, then the above mechanism doesn't quite work.  The
 // class which is to be used as a base class for the Python

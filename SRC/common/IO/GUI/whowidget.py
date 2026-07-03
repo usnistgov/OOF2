@@ -233,7 +233,7 @@ class WhoWidgetBase:
             self.callback(self.currentPath)
     def comboCB(self, widget):          # ChooserComboWidget callback
         # Since the ChooserComboWidget represents a leaf of the
-        # WhoClass heirarchy, there's no need to rebuild the other
+        # WhoClass hierarchy, there's no need to rebuild the other
         # widgets.  We just have to tell the world that the value has
         # changed.
         switchboard.notify(self, interactive=1)

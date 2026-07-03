@@ -22,7 +22,7 @@
 # in a specified order.
 
 # The LabelTree classes can construct a corresponding OOFMenu
-# heirarchy with the makeOOFMenu() function.  Because it may be
+# hierarchy with the makeOOFMenu() function.  Because it may be
 # necessary to make more than one OOFMenu from a single LabelTree, the
 # makeOOFMenu() and getOOFMenu() functions take a 'key' argument,
 # which can be anything, almost.  The tree objects use the keys to

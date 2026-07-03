@@ -10,8 +10,8 @@
 
 # The WidgetScope class is used to arrange wrapped gtk widgets
 # (usually instances of ParameterWidget subclasses) into a
-# heirarchical (tree) structure.  Widgets can then search the
-# heirarchy for other widgets on which they depend.  For example, the
+# hierarchical (tree) structure.  Widgets can then search the
+# hierarchy for other widgets on which they depend.  For example, the
 # PixelGroupWidget presents a list of pixel groups, but since the
 # groups are defined in a Microstructure, it needs to know which
 # Microstructure's groups to list.  Therefore it uses the WidgetScope

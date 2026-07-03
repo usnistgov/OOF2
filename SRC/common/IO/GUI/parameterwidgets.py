@@ -69,7 +69,7 @@ class ParameterWidget:
     def __init__(self, gtk, scope=None, name=None, expandable=False,
                  compact=False):
         debug.mainthreadTest()
-        self.gtk = gtk                  # base of gtk widget heirarchy
+        self.gtk = gtk                  # base of gtk widget hierarchy
         ## TODO: Should ParameterWidget be derived from WidgetScope
         ## instead of containing a WidgetScope?
         self.scope = scope              # WidgetScope containing this widget

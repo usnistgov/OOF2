@@ -9,7 +9,7 @@
 # oof_manager@nist.gov. 
 
 # Lots of other graphics components need to be able to find the
-# component at the top of the widget heirarchy.  This is it.  Checking
+# component at the top of the widget hierarchy.  This is it.  Checking
 # to see if 'top' is non-None is a good way to see if the graphics
 # system is up and running.  That's why this file is here, in common,
 # instead of in common/IO/GUI.
