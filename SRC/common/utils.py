@@ -557,47 +557,6 @@ class ReorderableIterator:
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
-## TODO: Delete these
-import os
-
-# Some functions needed for using patterns to specify multiple files.
-
-# Check if a filename matches a pattern.
-def matchpattern(pattern, filename):
-    # "*" in regular expressions doesn't have the same effect as
-    # "*" in file pattern matching, in re's it is greedy, so we
-    # need to replace it with ".*?".  We also need to escape the
-    # string.
-    escaped_pattern = re.escape(os.path.basename(pattern)).replace(
-        "\\*", ".*?")
-    match = re.match(escaped_pattern, filename)
-    if match is None:
-        return False
-    span = match.span()
-    # is this the right condition?
-    if span[0]==0 and span[1] == len(filename):
-        return True
-    return False
-
-# we need a special function where * means any integer.
-def matchvtkpattern(pattern, filename):
-    # "*" in regular expressions doesn't have the same effect as
-    # "*" in file pattern matching, in re's it is greedy, so we
-    # need to replace it with ".*?".  We also need to escape the
-    # string.
-    escaped_pattern = re.escape(os.path.basename(pattern)).replace(
-        "\\*", "[0-9]*")
-    match = re.match(escaped_pattern, filename)
-    if match is None:
-        return False
-    span = match.span()
-    # is this the right condition?
-    if span[0]==0 and span[1] == len(filename):
-        return True
-    return False
-
-#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
-
 machine_epsilon = sys.float_info.epsilon
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
