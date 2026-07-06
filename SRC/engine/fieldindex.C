@@ -169,8 +169,7 @@ void OutOfPlaneSymTensorIndex::print(std::ostream &os) const {
 
 // SymTensor components are often needed independent of a flux or
 // field, so they can be retrieved from this...
-// TODO: This should be const.
-SymTensorIJComponents symTensorIJComponents;
+const SymTensorIJComponents symTensorIJComponents;
 
 // ... or via this which is more like the other field index machinery
 const Components* getSymTensorComponents(Planarity plan) {

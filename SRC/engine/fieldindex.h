@@ -663,6 +663,6 @@ public:
   SymTensorIJIterator end() const { return SymTensorIJIterator(6); }
 };
 
-extern SymTensorIJComponents symTensorIJComponents;
+extern const SymTensorIJComponents symTensorIJComponents;
 
 #endif // FIELDINDEX_H

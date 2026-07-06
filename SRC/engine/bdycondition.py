@@ -716,10 +716,10 @@ class FloatBCBase(BC):
                 # field must be a CompoundField, which means we can
                 # meaningfully ask about its time derivative.
                 
-                ## TODO 2.1 BDYS: For periodic BCs and the automatic
-                ## float BCs created for internal boundaries, we want
-                ## to also constrain the out-of-plane parts of the
-                ## field.
+                ## TODO: For periodic BCs and the automatic float BCs
+                ## created for internal boundaries, we want to also
+                ## constrain the out-of-plane parts of the field.
+                
                 # To get these bits for this topological case:
                 # self.field.out_of_plane()
                 # self.field.out_of_plane_time_derivative()
@@ -1206,7 +1206,7 @@ def _build_oops(field, eqn, boundary):
     oop_field = field.out_of_plane()
 
     oop_eqn = None
-    # TODO 2.2: Later on, there will be non-flux equations -- when
+    # TODO LATER: Later on, there will be non-flux equations -- when
     # that happens, this ".flux" de-reference should be made more
     # robust.
     dflux = eqn.flux()
