@@ -37,7 +37,6 @@ def autoSkeleton(menuitem, name, microstructure,
                   maxscale, minscale, units, threshold):
     # Run the actual callback in the main namespace, so that it can
     # use menu and registeredclass names trivially.
-    ## TODO: Why is the progress bar title showing up as "Thread-XX"?
     prog = progress.getProgress(menuitem.name, progress.DEFINITE)
     utils.OOFrun(_autoSkeletonMain, prog, name, microstructure,
                  left_right_periodicity, top_bottom_periodicity,
@@ -120,7 +119,7 @@ def _autoSkeletonMain(prog, name, microstructure,
     # 1/10 of the pixel size.  This is arbitrary, but should be good
     # enough.  It's virtually zero on any meaningful physical scale,
     # but not so small that round-off can create illegal elements.
-    ## TODO PYTHON3: Should mindist be larger?  1.0?
+    ## TODO: Should mindist be larger?  1.0?
     mindist = 0.1
     OOF.Skeleton.Modify(
         skeleton=skelname,

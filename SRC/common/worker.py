@@ -131,7 +131,7 @@ class NonThreadedWorker(Worker, WorkerCore):
                 try:
                     mainthread.runBlock(self.menuitem.precall)
                     mainthread.runBlock(self.menuitem.callback,
-                                        (self,)+self.args,
+                                        (self.menuitem,)+self.args,
                                         self.kwargs)
                     # remove_excepthook is called here only if no
                     # exception occured.  If an exception occured,
@@ -179,7 +179,8 @@ class ThreadedWorkerCore(threading.Thread, WorkerCore):
                 self.initialize()
                 try:
                     self.menuitem.precall()
-                    self.menuitem.callback(self, *self.args, **self.kwargs)
+                    self.menuitem.callback(self.menuitem, *self.args,
+                                           **self.kwargs)
                     # remove_excepthook is called here only if no
                     # exception occured.  If an exception occured,
                     # remove_excepthook can't be called until after
