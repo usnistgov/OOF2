@@ -57,7 +57,6 @@ import tempfile
 delaystr = None
 debug = False
 no_checkpoints = False
-sync = False
 unthreaded = False
 retries = 0
 dryrun = False
@@ -157,13 +156,11 @@ def really_run_tests(homedir, dirs, counter, rerecord):
         
         global delaystr
         if delaystr:
-            extraargs += ["--replaydelay=", delaystr]
+            extraargs += ["--replaydelay", delaystr]
         if debug:
             extraargs += ["--debug"]
         if no_checkpoints:
             extraargs += ["--no-checkpoints"]
-        if sync:
-            extraargs += ["--gtk=", "--sync"]
         if unthreaded:
             extraargs += ["--unthreaded"]
         if rerecord:
@@ -302,7 +299,6 @@ Options are:
    --delay  ms        Delay (in milliseconds) between lines of each test.
    --debug            Run tests in debug mode.
    --unthreaded       Run tests in unthreaded mode.
-   --sync             Run tests in X11 sync mode (very slow over a network!).
    --rerecord         Re-record log files, without actually testing.
                       This is useful if new checkpoints have been added.
    --no-checkpoints   Ignore checkpoints in log files (not very useful).
@@ -322,13 +318,13 @@ def run(homedir):
                                        'list',
                                        'from=', 'after=', 'to=',
                                        'rerecord', 'no-checkpoints',
-                                       'sync', 'unthreaded', 'dryrun',
+                                       'unthreaded', 'dryrun',
                                        'forever', 'retries=',
                                        'help'])
     except getopt.GetoptError as message:
         errormsg(message)
 
-    global debug, unthreaded, sync, no_checkpoints, delaystr, retries, dryrun
+    global debug, unthreaded, no_checkpoints, delaystr, retries, dryrun
     fromdir = None
     afterdir = None
     todir = None
@@ -356,12 +352,12 @@ def run(homedir):
             no_checkpoints = True
         elif opt[0] == '--unthreaded':
             unthreaded = True
-        elif opt[0] == '--sync':
-            sync = True
         elif opt[0] == '--forever':
             forever = True
         elif opt[0] == '--retries':
             retries = int(opt[1])
+            if retries < 0:
+                errormsg("retries must be a non-negative integer!")
         elif opt[0] == '--list':
             listtests = True
         elif opt[0] == '--dryrun':
