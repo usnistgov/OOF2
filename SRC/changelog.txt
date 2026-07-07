@@ -1,5 +1,8 @@
 OOF2 2.4.0
 
+* Fixed a bug that could print incorrect information in progress bars,
+  and (probably) had no other effect.
+
 * Fixed two pixel selection bugs:
 
    * Clicking outside the bounds of the microstructure would select
