@@ -198,8 +198,8 @@ public:
 
   std::vector<ICoord> segmentPixels(const Coord&, const Coord&, bool&, bool&)
     const;
-  std::vector<SegmentSection*> *getSegmentSections(const Coord*, const Coord*,
-						   double) const;
+  std::vector<SegmentSection*> getSegmentSections(const Coord*, const Coord*,
+						  double) const;
   
   MarkInfo *beginMarking(const CRectangle&) const; // sets active subarray of markedpixels
   void markSegment(MarkInfo*, const Coord&, const Coord&) const;

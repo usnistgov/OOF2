@@ -99,8 +99,8 @@ public:
   NewArrayInt *getCategoryMapRO();
   ICoord getRepresentativePixel(int category);
   double edgeHomogeneity(const Coord &Point, const Coord &Point);
-  SegmentSectionVec *getSegmentSections(const Coord* Point, const Coord *Point,
-					double);
+  SegmentSectionVec getSegmentSections(const Coord* Point, const Coord *Point,
+				       double);
 };
 
 %extend CMicrostructure {

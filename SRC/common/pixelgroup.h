@@ -81,7 +81,7 @@ public:
   void expand(double range, BoolArray &selected) const;
   void shrink(double range, BoolArray &selected) const;
 
-  std::vector<PixelSet*> *contiguousSubSets() const;
+  std::vector<PixelSet*> contiguousSubSets() const;
 };
 
 class PixelGroup : public PixelSet {

@@ -1019,9 +1019,9 @@ void CMicrostructure::segmentCats(const std::vector<SegmentSection> &sections,
 // SegmentSection objects, which give the end points and category each
 // section.
 
-std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
-				  const Coord *c0, const Coord *c1,
-				  double minlength)
+std::vector<SegmentSection*> CMicrostructure::getSegmentSections(
+					 const Coord *c0, const Coord *c1,
+					 double minlength)
   const
 {
   // Get the pixels under the segment.
@@ -1352,8 +1352,8 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
   // sections to the result vector.
 
   nsections = adaSections.size();
-  std::vector<SegmentSection*> *result = new std::vector<SegmentSection*>;
-  result->reserve(nsections);
+  std::vector<SegmentSection*> result;
+  result.reserve(nsections);
   double totallength = 0;
   int maxcat = -1;     // dominant category of a set of short sections
   // Consecutive short sections are accumulated until a non-short
@@ -1364,7 +1364,7 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
     // lastcat is the category of the pixels under the previously
     // found section.  Its default value, -1, is never a valid
     // category.
-    int lastcat = result->empty() ? -1 : result->back()->category;
+    int lastcat = result.empty() ? -1 : result.back()->category;
     SegmentSection &section = adaSections[i];
     if(section.pixelLength() < minlength) {
       // This section is too short.  Store it and deal with it later.
@@ -1377,10 +1377,10 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 	if(section.category == lastcat) {
 	  // This section is the same category as the previous one.
 	  // Extend previous section.
-	  result->back()->p1 = section.p1;
+	  result.back()->p1 = section.p1;
 	}
 	else {
-	  result->push_back(new SegmentSection(section));
+	  result.push_back(new SegmentSection(section));
 	}
       }	// end if the previous segment was not short
       else {
@@ -1398,34 +1398,34 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 	  // current and previous long sections, so merge all of them.
 	  // This can't happen when result is empty, because lastcat
 	  // would be -1 then.
-	  result->back()->p1 = section.p1;
+	  result.back()->p1 = section.p1;
 	}
 	else if(maxcat == lastcat) {
 	  // Absorb the short sections into the previous section and
 	  // add the current section.  This also can't happen when
 	  // result is empty.
-	  result->back()->p1 = adaSections[shortSections.back()].p1;
-	  result->push_back(new SegmentSection(section));
+	  result.back()->p1 = adaSections[shortSections.back()].p1;
+	  result.push_back(new SegmentSection(section));
 	}
 	else if(maxcat == section.category) {
 	  // Create a new section from the short ones and the current one.
-	  result->push_back(new SegmentSection(section));
-	  result->back()->p0 = adaSections[shortSections.front()].p0;
+	  result.push_back(new SegmentSection(section));
+	  result.back()->p0 = adaSections[shortSections.front()].p0;
 	}
 	else if(totallength < minlength) {
 	  // the short sections don't match the category of either of
 	  // the long sections on either side, but are too short to
 	  // include.  Split them between the two long sections.
 	  Coord midpoint;
-	  if(result->size() > 0) {
-	    midpoint = 0.5*(result->back()->p1 + section.p0);
-	    result->back()->p1 = midpoint;
+	  if(result.size() > 0) {
+	    midpoint = 0.5*(result.back()->p1 + section.p0);
+	    result.back()->p1 = midpoint;
 	  }
 	  else {
 	    midpoint = adaSections[shortSections.front()].p0;
 	  }
-	  result->push_back(new SegmentSection(section));
-	  result->back()->p0 = midpoint;
+	  result.push_back(new SegmentSection(section));
+	  result.back()->p0 = midpoint;
 	}
 	else {
 	  // The assembled short sections are long enough to form
@@ -1434,11 +1434,11 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 	  // section.
 	  // std::cerr << "CMicrostructure::getSegmentSections:"
 	  // 	    << " combined short sections are long enough" << std::endl;
-	  result->push_back(new SegmentSection(this,
+	  result.push_back(new SegmentSection(this,
 				       adaSections[shortSections.front()].p0,
 				       adaSections[shortSections.back()].p1,
 				       maxcat, maxcat));
-	  result->push_back(new SegmentSection(section));
+	  result.push_back(new SegmentSection(section));
 	}
       }	// end if the previous section was short but this one isn't
       
@@ -1456,13 +1456,13 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
     double totallength;
     int maxcat;
     segmentCats(adaSections, shortSections, totallength, maxcat);
-    if(result->empty() ||	   // no previous sections
+    if(result.empty() ||	   // no previous sections
        (totallength > minlength && // or sum of lengths isn't still too short
-	maxcat != result->back()->category)) // and category doesn't match
+	maxcat != result.back()->category)) // and category doesn't match
       {
 	// Make a new section from the total set of short sections,
 	// and append it.
-	result->push_back(new SegmentSection(this,
+	result.push_back(new SegmentSection(this,
 			     adaSections[shortSections.front()].p0,
 			     adaSections[shortSections.back()].p1,
 					   maxcat,
@@ -1470,7 +1470,7 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
     }
     else {
       // absorb short lengths into the last part of result.
-      result->back()->p1 = adaSections[shortSections.back()].p1;
+      result.back()->p1 = adaSections[shortSections.back()].p1;
       }
     } // end if there are shortSections left over
     
@@ -1481,15 +1481,14 @@ std::vector<SegmentSection*>* CMicrostructure::getSegmentSections(
 
 double CMicrostructure::edgeHomogeneity(const Coord &c0, const Coord &c1) const
 {
-  std::vector<SegmentSection*> *sections = getSegmentSections(&c0, &c1, 0);
-  if(sections->size() == 1)
+  std::vector<SegmentSection*> sections(getSegmentSections(&c0, &c1, 0));
+  if(sections.size() == 1)
     return 1.0;
   std::vector<double> slengths(nCategories(), 0.0);
-  for(SegmentSection *s : *sections) {
+  for(SegmentSection *s : sections) {
     slengths[s->category] += s->physicalLength();
     delete s;
   }
-  delete sections;
 
   double lmax = 0.0;
   for(double length : slengths)

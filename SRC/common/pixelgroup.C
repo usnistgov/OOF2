@@ -406,7 +406,7 @@ void PixelSet::stats(double* avg_x, double* avg_y,
 // Split a PixelSet into subsets, each of which is connected.  This is
 // very similar to burn() in common/burn.C.
 
-std::vector<PixelSet*> *PixelSet::contiguousSubSets() const {
+std::vector<PixelSet*> PixelSet::contiguousSubSets() const {
   // candidates[pt] is true if the pt is in the original PixelSet and
   // not yet in any subset.
   SimpleArray2D<bool> candidates(microstructure->sizeInPixels());
@@ -416,12 +416,12 @@ std::vector<PixelSet*> *PixelSet::contiguousSubSets() const {
   static std::vector<ICoord> directions(
 		{ICoord(1, 0), ICoord(0,1), ICoord(-1, 0), ICoord(0, -1)});
   
-  std::vector<PixelSet*> *subsets = new std::vector<PixelSet*>();
+  std::vector<PixelSet*> subsets;
   for(auto &pt : members_) {	// Look for a pixel not in a subset.
     if(candidates[pt]) {
       // This pixel is not already in a subset.  Start a new subset.
       PixelSet *subset = new PixelSet(&geometry, microstructure);
-      subsets->push_back(subset);
+      subsets.push_back(subset);
       // Put initial pixel in subset
       candidates[pt] = false;
       subset->addWithoutLock(pt);

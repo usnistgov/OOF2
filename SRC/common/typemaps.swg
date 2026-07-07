@@ -632,6 +632,20 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
   }
 }
 
+// Non-pointer version of the above.
+%typemap(out) TYPE##Vec {
+  // typemap(out) TYPE##Vec via MAKE_LISTVEC_TYPEMAPS for TYPE
+  TYPE##Vec::size_type sz = $1.size();
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <=PY_SSIZE_T_MAX);
+  $result = PyList_New((Py_ssize_t) sz);
+  for(TYPE##Vec::size_type i=0; i<sz; i++) {
+    PyObject *tmp = SWIG_NewPointerObj(SWIG_as_voidptr($1[i]),
+				       $descriptor(TYPE*),
+				       SWIG_POINTER_OWN);
+    PyList_SET_ITEM($result, (Py_ssize_t) i, tmp);
+  }
+}
+
 %typemap(out) TYPE##RefVec* {
   // typemap(out) TYPE##RefVec* via MAKE_LISTVEC_TYPEMAPS for TYPE
   TYPE##RefVec::size_type sz = $1->size();

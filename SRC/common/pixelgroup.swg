@@ -49,7 +49,7 @@ public:
 	     Coord *Coord_argout, Coord *Coord_argout,
 	     double *OUTPUT, double *OUTPUT);
 
-  PixelSetVec *contiguousSubSets() const;
+  PixelSetVec contiguousSubSets() const;
 };
 
 %extend PixelSet {
