@@ -565,14 +565,15 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 // std::vector<TYPE*>  <--> [TYPE]
 
 // MAKE_LISTVEC_TYPEMAPS defines unnamed in, out, and newfree typemaps
-// for converting between a C++ std::vector* of TYPE*s and a list of
-// swigged TYPEs.  It does not copy the objects -- the swigged
-// pointers point to the original C++ objects.
+// for converting between a C++ std::vector or std::vector* of TYPE*s
+// and a list of swigged TYPEs.  It does not copy the objects -- the
+// swigged pointers point to the original C++ objects.
 
-// out: TYPEVec *      (transfers ownership of TYPE objects to python)
-// out: TYPERefVec *   (does not transfer ownership to python)
-// out: TYPESubClassVec * (uses pythonexportable, transfers ownership)
+// out: TYPEVec *            (transfers ownership of TYPE objects to python)
+// out: TYPERefVec *         (does not transfer ownership to python)
+// out: TYPESubClassVec *    (uses pythonexportable, transfers ownership)
 // out: TYPESubClassRefVec * (uses pythonexportable, doesn't transfer ownership)
+// out: TYPESubClassRefVec   (ditto, but no allocation/freeing required)
 // in:  TYPEVec*
 
 // If you use std::vector<TYPE*>* as the return type of a function ,
@@ -606,6 +607,10 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 // The current code does *not* do this.
 
 %define MAKE_LISTVEC_TYPEMAPS(TYPE)
+
+ // TODO: Add non-pointer versions of TYPEVec, TYPERefVec, and
+ // TYPESubClassVec, and check to see if any uses of the pointer
+ // versions would be better with the non-pointer versions.
 
 %{
   typedef std::vector<TYPE*> TYPE##Vec;
@@ -655,6 +660,17 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
   $result = PyList_New((Py_ssize_t) sz);
   for(TYPE##SubClassVec::size_type i=0; i<sz; i++) {
     PyObject *tmp = (*$1)[i]->pythonObject(false); // don't take ownership
+    PyList_SET_ITEM($result, (Py_ssize_t) i, tmp);
+  }
+ }
+
+// This is the same as above, but for an output vector, not a vector*.
+%typemap(out) TYPE##SubClassRefVec {
+  // typemap(out) TYPE##SubClassRefVec via MAKE_LISTVEC_TYPEMAPS for TYPE
+  TYPE##SubClassVec::size_type sz = $1.size();
+  $result = PyList_New((Py_ssize_t) sz);
+  for(TYPE##SubClassVec::size_type i=0; i<sz; i++) {
+    PyObject *tmp = ($1)[i]->pythonObject(false); // don't take ownership
     PyList_SET_ITEM($result, (Py_ssize_t) i, tmp);
   }
  }

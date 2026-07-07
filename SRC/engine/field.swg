@@ -41,23 +41,24 @@ typedef FieldIndex NewFieldIndex;
 // mechanism because the Field class uses too much virtual inheritance
 // for PythonExportable to work properly.  The typemap instead
 // extracts Field names and calls the Python getField function
-// (defined in field.spy).
+// (defined in field.spy).  That function uses a dictionary lookup,
+// unlike the C++ Field::getField() method, which uses linear search.
 
 // ** Do not use MAKE_LISTVEC_TYPEMAPS for CompoundField! **
 
 // There is no typemap for Field*.  Field objects should never be
 // returned from C++ to Python.  Use getField() instead.
 
-// TODO PYTHON3 LATER: If Field had a swigged __eq__ method that
-// compared objectid()s, would it be safe to return Fields from Python
-// to C++?  The reason for not doing that was that two separately
-// swigged instances of the same field don't compare equal, so we
-// ensure than there is only one instance of a given Field in C++.  Is
-// there some subtle reason that just providing __eq__ (and maybe also
-// __hash__ and __lt__) doesn't work?
+// TODO LATER: If Field had a swigged __eq__ method that compared
+// objectid()s, would it be safe to return Fields from Python to C++?
+// The reason for not doing that was that two separately swigged
+// instances of the same field don't compare equal, so we ensure than
+// there is only one instance of a given Field in C++.  Is there some
+// subtle reason that just providing __eq__ (and maybe also __hash__
+// and __lt__) doesn't work?
 
-%typemap(out) CompoundFieldVec * {
-  // typemap(out) CompoundFieldVec*
+%typemap(out) CompoundFieldVec {
+  // typemap(out) CompoundFieldVec
   static PyObject *getField = 0;
   if(!getField) {
     PyObject *module = PyImport_ImportModule("ooflib.SWIG.engine.field");
@@ -66,18 +67,13 @@ typedef FieldIndex NewFieldIndex;
     if(!getField)
       SWIG_fail;
   }
-  std::vector<CompoundField*>::size_type sz = $1->size();
+  std::vector<CompoundField*>::size_type sz = $1.size();
   $result = PyList_New((Py_ssize_t) sz);
   for(std::vector<CompoundField*>::size_type i=0; i<sz; i++) {
     PyObject *fldobj = PyObject_CallFunction(getField, "(s)",
-					     (*$1)[i]->name().c_str());
+					     ($1)[i]->name().c_str());
     PyList_SET_ITEM($result, (Py_ssize_t) i, fldobj);
   }
-}
-
-%typemap(newfree) CompoundFieldVec * {
-  // typemap(newfree) CompoundFieldVec*
-  delete $1;
 }
 
 ////////////////////////////

@@ -166,21 +166,14 @@ void LinearizedSystem::fieldLooper(
 	   void (LinearizedSystem::*fn)(const Field&, const Field&, bool))
 {
   // Loop over CompoundFields
-  const std::vector<CompoundField*> *fields = subproblem->all_compound_fields();
-  for(unsigned int f=0; f<fields->size(); ++f) {
-    CompoundField *field = (*fields)[f];
+  for(const CompoundField *field : subproblem->all_compound_fields()) {
     Field *tdfield = field->time_derivative();
     bool tddefined = subproblem->is_defined_field(*tdfield);
-    if(subproblem->is_defined_field(*field)) {
-      (this->*fn)(*field, *tdfield, tddefined);
-#if DIM==2
-      Field *zfield = field->out_of_plane();
-      Field *tdzfield = field->out_of_plane_time_derivative();
-      (this->*fn)(*zfield, *tdzfield, tddefined);
-#endif // DIM==2
-    }
+    (this->*fn)(*field, *tdfield, tddefined);
+    Field *zfield = field->out_of_plane();
+    Field *tdzfield = field->out_of_plane_time_derivative();
+    (this->*fn)(*zfield, *tdzfield, tddefined);
   }
-  delete fields;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

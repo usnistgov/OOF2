@@ -349,18 +349,14 @@ void CSubProblem::fieldLooper(
 		      void *data)
 const
 {
-  const std::vector<CompoundField*> *fields = all_compound_fields();
-  for(CompoundField *field : *fields) {
-    if(is_defined_field(*field)) {
-      Field *tdfield = field->time_derivative();
-      bool tddefined = is_defined_field(*tdfield);
-      (*fn)(data, *field, *tdfield, tddefined);
-      Field *zfield = field->out_of_plane();
-      Field *tdzfield = field->out_of_plane_time_derivative();
-      (*fn)(data, *zfield, *tdzfield, tddefined);
-    }
+  for(CompoundField *field : all_compound_fields()) {
+    Field *tdfield = field->time_derivative();
+    bool tddefined = is_defined_field(*tdfield);
+    (*fn)(data, *field, *tdfield, tddefined);
+    Field *zfield = field->out_of_plane();
+    Field *tdzfield = field->out_of_plane_time_derivative();
+    (*fn)(data, *zfield, *tdzfield, tddefined);
   }
-  delete fields;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -368,79 +364,55 @@ const
 // Return a list of all the defined compound fields.  Compound fields
 // are the ones that correspond directly to physical fields.
 
-// TODO: all_compound_fields should return a std::vector and not a
-// pointer to a new one.  The move constructor will eliminate the
-// copy.  Or maybe it should return a reference to a list that's
-// stored in the class and updated when a field is defined or
-// undefined.
-
-std::vector<CompoundField*>* CSubProblem::all_compound_fields() const {
-  std::vector<CompoundField*>* flist = new std::vector<CompoundField*>;
+std::vector<CompoundField*> CSubProblem::all_compound_fields() const {
+  std::vector<CompoundField*> flist;
+  flist.reserve(fielddata.size()); // might not use all slots
   std::vector<CompoundField*> &allfields = CompoundField::allcompoundfields();
-  flist->reserve(fielddata.size());
   for(std::vector<CompoundField*>::size_type i=0; i<allfields.size(); i++) {
     // TODO PLASTICITY: This only picks up explicitly defined Fields.
     // Should it look at Node::fieldset instead?  Should there be
     // another function that retrieves implicit Fields that may not be
     // in CSubProblem::fielddata?
     if(is_defined_field(*allfields[i]))
-      flist->push_back(allfields[i]);
+      flist.push_back(allfields[i]);
   }
   return flist;
 }
 
 int CSubProblem::ndof() const {
-  std::vector<CompoundField*> *fields = all_compound_fields();
   int ncomponents = 0;
-  for(std::vector<CompoundField*>::const_iterator f=fields->begin();
-      f<fields->end(); ++f)
-    {
-      const CompoundField &field = *(*f);
-      ncomponents += 
-	field.ndof()
-	+ field.time_derivative()->ndof()
-#if DIM==2
-	+ field.out_of_plane()->ndof()
-	+ field.out_of_plane_time_derivative()->ndof()
-#endif // DIM==2
-	;
-    }
-  delete fields;
+  for(const CompoundField *field : all_compound_fields()) {
+    ncomponents += 
+      field->ndof()
+      + field->time_derivative()->ndof()
+      + field->out_of_plane()->ndof()
+      + field->out_of_plane_time_derivative()->ndof();
+  }
   return ncomponents*nNodes_;
 }
 
 // Likewise for Equation objects.
-std::vector<Equation*>* CSubProblem::all_equations() const {
-  std::vector<Equation*> *eqlist = new std::vector<Equation*>;
+std::vector<Equation*> CSubProblem::all_equations() const {
   std::vector<Equation*> &alleqns = Equation::all();
-  eqlist->reserve(eqndata.size());
+  std::vector<Equation*> eqlist;
+  eqlist.reserve(eqndata.size());
   for(std::vector<Equation*>::size_type i=0; i<alleqns.size(); i++) {
     if(is_active_equation(*alleqns[i]))
-      eqlist->push_back(alleqns[i]);
+      eqlist.push_back(alleqns[i]);
   }
   return eqlist;
 }
 
 int CSubProblem::neqn() const {
-  std::vector<Equation*> *eqns = all_equations();
+  std::vector<Equation*> eqns = all_equations();
   int n = 0;
-  for(auto e=eqns->begin(); e<eqns->end(); ++e)
-    n += (*e)->dim();
-  delete eqns;
+  for(const Equation *e : all_equations()) {
+    n += e->dim();
+  }
   return n*nNodes_;
 }
 
-std::vector<Flux*>* CSubProblem::all_fluxes() const {
-  std::vector<Flux*> *fluxlist = new std::vector<Flux*>;
-  std::vector<Flux*> &allfluxen = Flux::allfluxes();
-  for(std::vector<Flux*>::size_type i=0; i<allfluxen.size(); i++) {
-    if(is_active_flux(*allfluxen[i]))
-      fluxlist->push_back(allfluxen[i]);
-  }
-  return fluxlist;
-}
-
-std::vector<Flux*> CSubProblem::allFluxes() const {  // non-swigged version.
+std::vector<Flux*> CSubProblem::all_fluxes() const {
   std::vector<Flux*> fluxlist;
   std::vector<Flux*> &allfluxen = Flux::allfluxes();
   for(std::vector<Flux*>::size_type i=0; i<allfluxen.size(); i++) {
@@ -857,25 +829,21 @@ static std::vector<int> &getLocalMap_(FuncNode::FieldSet &fieldset,
     // filled, which is ok if there are no unmapped Fields.  We don't
     // know that yet.
 
-    const std::vector<CompoundField*> *fields =
-      subproblem->all_compound_fields();
-    for(unsigned int f=0; f<fields->size(); ++f) {
-      CompoundField &field = *(*fields)[f];
-      if(subproblem->is_active_field(field)) {
-	std::set<const Field*>::iterator look = usedfields.find(&field);
+    const std::vector<CompoundField*> fields(
+				      subproblem->all_compound_fields());
+    for(const CompoundField *field : fields) {
+      if(subproblem->is_active_field(*field)) {
+	std::set<const Field*>::iterator look = usedfields.find(field);
 	if(look == usedfields.end()) {
-	  mapLocalNonConjField(field, lmap, lowestrow, fieldset);
-#if DIM==2
-	  Field *oop = field.out_of_plane();
+	  mapLocalNonConjField(*field, lmap, lowestrow, fieldset);
+	  Field *oop = field->out_of_plane();
 	  if(subproblem->is_active_field(*oop)) {
 	    // Check if oop is in usedfields?
 	    mapLocalNonConjField(*oop, lmap, lowestrow, fieldset);
 	  }
-#endif
 	}
       }	// end if field is active
     } // end loop over fields
-    delete fields;
 
     localmaps.insert(LocalMapDict::value_type(key, lmap)); // copies lmap
 
@@ -1604,7 +1572,7 @@ void CSubProblem::init_nodalfluxes() {
 
 // recover fluxes
 void CSubProblem::recover_fluxes() {
-  std::vector<Flux*> allfluxes = allFluxes();
+  std::vector<Flux*> allfluxes = all_fluxes();
   for(auto iter=scpatches.begin(); iter!=scpatches.end(); iter++)
     (iter->second)->recover_fluxes(allfluxes);
 }
@@ -1639,7 +1607,7 @@ DoubleVec *CSubProblem::get_recovered_flux(const Flux *fluks,
 // compute all the recovered fluxes at Coord -- swigged one
 void CSubProblem::report_recovered_fluxes(const Element *elem,
 					  const Coord *point) {
-  std::vector<Flux*> fluxes = allFluxes();
+  std::vector<Flux*> fluxes = all_fluxes();
   for (std::vector<Flux*>::size_type i=0; i<fluxes.size(); i++) {
     std::cerr << fluxes[i]->name() << std::endl;
     int dim = fluxes[i]->ndof();

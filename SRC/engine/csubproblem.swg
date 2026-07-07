@@ -88,14 +88,11 @@ public:
   LinearizedSystem *new_linear_system(double);
   void make_linear_system(LinearizedSystem*, CNonlinearSolver*);
 
-  %newobject all_compound_fields;
   // Don't use MAKE_LISTVEC_TYPEMAPS for CompoundField. See comments
   // and typemap in field.swg.
-  CompoundFieldVec* all_compound_fields();
-  %newobject all_equations;
-  EquationSubClassRefVec *all_equations();
-  %newobject all_fluxes;
-  FluxSubClassRefVec *all_fluxes();
+  CompoundFieldVec all_compound_fields();
+  EquationSubClassRefVec all_equations();
+  FluxSubClassRefVec all_fluxes();
 
   %newobject getMaterials;
   MaterialSet *getMaterials();

@@ -48,10 +48,9 @@ CSubProblem.get_dependencies = _get_dependencies
 # Returns a list of badly defined materials.
 def _check_materials(self):
     badmatls = set()
-    for f in self.all_fluxes():
-        if self.is_active_flux(f):
-            # check_flux returns a list of bad materials
-            badmatls.update(self.check_flux(f))
+    for f in self.all_fluxes(): # all active fluxes in this subproblem
+        # check_flux returns a list of bad materials
+        badmatls.update(self.check_flux(f))
     return list(badmatls)
 CSubProblem.check_materials = _check_materials
 
@@ -75,20 +74,19 @@ CSubProblem.check_flux = _check_flux
 # Material Property.
 ## TODO: This isn't sufficient.  There needs to be a contribution to
 ## the highest derivative (?) term in the equation from all Materials.
-## If solving the heat equation and some material have no thermal
+## If solving the heat equation and some materials have no thermal
 ## conductivity, the matrices will not be square.
 
 def _check_equations(self):
     bad_eqns = []
-    for e in self.all_equations():
-        if self.is_active_equation(e):
-            ## TODO: This only applies to FluxEquations
-            flx = e.flux()
-            for mat in self.getMaterials():
-                if mat and mat.contributes_to_flux(flx):
-                    break
-            else:
-                bad_eqns.append(e)
+    for e in self.all_equations(): # all active equations in this subproblem
+        ## TODO: This only applies to FluxEquations
+        flx = e.flux()
+        for mat in self.getMaterials():
+            if mat and mat.contributes_to_flux(flx):
+                break
+        else:
+            bad_eqns.append(e)
     return bad_eqns
 CSubProblem.check_equations = _check_equations
 

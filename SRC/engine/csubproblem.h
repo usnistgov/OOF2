@@ -264,10 +264,9 @@ public:
   bool is_defined_field(const Field&) const;
 
   // List of this subproblem's defined fields.
-  std::vector<CompoundField*>* all_compound_fields() const;
-  std::vector<Equation*>* all_equations() const;
-  std::vector<Flux*>* all_fluxes() const;
-  std::vector<Flux*> allFluxes() const;  // no need to free memory.
+  std::vector<CompoundField*> all_compound_fields() const;
+  std::vector<Equation*> all_equations() const;
+  std::vector<Flux*> all_fluxes() const;
 
   // Call requirePrecompute() when Materials change or Fields are
   // defined.  The actual precompute() function is in csubproblem.spy.
