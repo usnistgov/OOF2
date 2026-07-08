@@ -287,7 +287,7 @@ public:
 
   // A routine which returns Edge objects corresponding to all of the
   // edges of the element -- used to draw the element.
-  std::vector<Edge*> *perimeter() const;
+  std::vector<Edge*> perimeter() const;
 
   friend std::ostream &operator<<(std::ostream&, const Element&);
 

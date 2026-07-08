@@ -75,8 +75,7 @@ public:
   const MasterElement &masterelement();
   double area();
   BoundaryEdge *getBndyEdge(const FuncNode *, const FuncNode *);
-  %newobject perimeter;
-  EdgeVec* perimeter();
+  EdgeVec perimeter();
 
   GaussPointIntegrator integrator(int);
 

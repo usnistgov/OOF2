@@ -36,8 +36,7 @@ class Edge {
 public:
   Edge(const Element *, const FuncNode*, const FuncNode*);
   ~Edge();
-  %newobject position_;
-  CoordVec* position(const std::vector<double>*);
+  CoordVec position(const std::vector<double>*);
   %newobject outputFields;
   ArithmeticOutputValueVec *outputFields(const FEMesh*, const Field&,
 					 const std::vector<double>*);

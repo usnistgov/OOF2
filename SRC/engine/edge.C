@@ -54,12 +54,12 @@ double Edge::master_length() const {
 // Take a vector of doubles, each of which is a number between 0 and 
 // one, and for each input value, output the corresponding real coordinate
 // of the element.
-std::vector<Coord*> *Edge::position(const std::vector<double> *x) const {
+std::vector<Coord*> Edge::position(const std::vector<double> *x) const {
   int size = x->size();
-  std::vector<Coord*> *res = new std::vector<Coord*>(size);
+  std::vector<Coord*> res(size);
   for(int i=0; i<size; i++) {
     // These Coords get passed out and are owned by Python:
-    (*res)[i] = new Coord(el->from_master(start + (*x)[i]*director));
+    res[i] = new Coord(el->from_master(start + (*x)[i]*director));
   }
   return res;
 }

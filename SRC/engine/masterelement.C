@@ -25,10 +25,17 @@
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+// masterElementList is used to return a list of MasterElements to
+// python.  Since the list is static and may be returned multiple
+// times, return a pointer to it and not the list itself.  C++ retains
+// ownership of the list.
+
 std::vector<MasterElement*>* masterElementList() {
   static std::vector<MasterElement*> the_list;
   return &the_list;
 }
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 MasterElement::MasterElement(const std::string &nm, const std::string &desc,
 			     int nn, int ns, int nsc)

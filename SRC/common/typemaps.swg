@@ -576,6 +576,9 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 // out: TYPESubClassRefVec   (ditto, but no allocation/freeing required)
 // in:  TYPEVec*
 
+// Versions of the typemaps with Const prepended to the name are used
+// to export std::vector<const TYPE*>s.
+
 // If you use std::vector<TYPE*>* as the return type of a function ,
 // it will be interpreted as TYPEVec, and Python will take ownership
 // of the objects.  You need to explicitly use TYPERefVec* (eg,
@@ -617,6 +620,8 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
   typedef std::vector<TYPE*> TYPE##RefVec;
   typedef std::vector<TYPE*> TYPE##SubClassVec;
   typedef std::vector<TYPE*> TYPE##SubClassRefVec;
+
+  typedef std::vector<const TYPE*> Const##TYPE##Vec;
 %}
 
 %typemap(out) TYPE##Vec* {
@@ -641,6 +646,18 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
   for(TYPE##Vec::size_type i=0; i<sz; i++) {
     PyObject *tmp = SWIG_NewPointerObj(SWIG_as_voidptr($1[i]),
 				       $descriptor(TYPE*),
+				       SWIG_POINTER_OWN);
+    PyList_SET_ITEM($result, (Py_ssize_t) i, tmp);
+  }
+}
+
+%typemap(out) Const##TYPE##Vec {
+  // typemap(out) Const##TYPE##Vec via MAKE_LISTVEC_TYPEMAPS for TYPE
+  Const##TYPE##Vec::size_type sz = $1.size();
+  $result = PyList_New((Py_ssize_t) sz);
+  for(Const##TYPE##Vec::size_type i=0; i<sz; i++) {
+    PyObject *tmp = SWIG_NewPointerObj(SWIG_as_voidptr($1[i]),
+				       $descriptor(TYPE*), // const TYPE*?
 				       SWIG_POINTER_OWN);
     PyList_SET_ITEM($result, (Py_ssize_t) i, tmp);
   }

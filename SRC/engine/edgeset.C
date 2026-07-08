@@ -59,15 +59,11 @@ void EdgeSet::addEdge_(BoundaryEdge *ed_in) {
 }
 
 
-
 // Build a big list of node pointers, and pass it out.  Let
 // the caller (presumed to be a Python routine) iterate over it.
 // This is where we fulfill the promise of uniqueness.
-std::vector<const EdgeNodeDistance*> *EdgeSet::ndlist() {
-  // This object gets deleted by the copy-out typemap in boundary.swg
-  std::vector<const EdgeNodeDistance*> *elist = 
-    new std::vector<const EdgeNodeDistance*>;
-
+std::vector<const EdgeNodeDistance*> EdgeSet::ndlist() {
+  std::vector<const EdgeNodeDistance*> elist;
   //  Trace("EdgeSet::ndlist");
   EdgeSetIterator i = EdgeSetIterator(this);
   double edge_length = i.total_length();
@@ -79,16 +75,16 @@ std::vector<const EdgeNodeDistance*> *EdgeSet::ndlist() {
       // as we go along here.  Push the node on the list only if it's
       // not already the most recent one.  Pointer comparison is safe
       // here because the nodes are guaranteed to be FuncNodes.
-      int listsize = elist->size();
-      if ( (listsize==0)  || (*elist)[listsize-1]->node != e.funcnode() ) {
+      int listsize = elist.size();
+      if((listsize==0)  || elist[listsize-1]->node != e.funcnode()) {
 	// NB: This is the undistorted boundary length.
 	double distance = i.traversed_length() + 
 	  e.fraction()*(i.edge()->lab_length());
 
 	double edgeset_fraction = distance/edge_length;
-	elist->push_back(new EdgeNodeDistance( e.funcnode(),
-					       index, distance,
-					       edgeset_fraction) );
+	elist.push_back(new EdgeNodeDistance(e.funcnode(),
+					     index, distance,
+					     edgeset_fraction));
 	index++;
       }
     }

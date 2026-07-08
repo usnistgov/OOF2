@@ -52,7 +52,7 @@ public:
   EdgeSet(FEMesh *m);
   ~EdgeSet();
 
-  std::vector<const EdgeNodeDistance*> *ndlist();
+  std::vector<const EdgeNodeDistance*> ndlist();
   int size() const; 
 
   // The boundary class takes care of adding edges

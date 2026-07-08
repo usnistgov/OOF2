@@ -813,11 +813,10 @@ void Element::add_b_edge(BoundaryEdge *ed_in) {
   edgeset.push_back(ed_in);
 }
 
-std::vector<Edge*> *Element::perimeter() const {
-  std::vector<Edge*> *brim = new std::vector<Edge*>(master.nedges());
+std::vector<Edge*> Element::perimeter() const {
+  std::vector<Edge*> brim(master.nedges());
   for(ElementCornerNodeIterator it=cornernode_iterator(); !it.end(); ++it) {
-    (*brim)[it.index()] = new Edge(this,
-				   it.mastercoord(), (it+1).mastercoord());
+    brim[it.index()] = new Edge(this, it.mastercoord(), (it+1).mastercoord());
   }
   return brim;
 }

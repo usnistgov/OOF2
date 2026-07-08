@@ -24,7 +24,6 @@
 #include "engine/flux.h"	// SWIGBUG
 #include "common/pixelgroup.h"	// SWIGBUG
 #include "common/ccolor.h"	// SWIGBUG
-typedef std::vector<const EdgeNodeDistance*> vecdist;
 %}
 
 MAKE_LISTVEC_TYPEMAPS(EdgeNodeDistance);
@@ -35,8 +34,7 @@ public:
   ~EdgeSet();
   void addEdge_(BoundaryEdge *); // Should make the nlistcache stale.
 
-  %newobject ndlist;
-  EdgeNodeDistanceVec *ndlist();
+  ConstEdgeNodeDistanceVec ndlist();
   int size();
   // EdgeSetIterator edge_iterator();
 };

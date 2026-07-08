@@ -70,7 +70,7 @@ public:
   double master_length() const; 
 
   // Functions to support output to the GUI. 
-  std::vector<Coord*>* position(const std::vector<double>*) const;
+  std::vector<Coord*> position(const std::vector<double>*) const;
   // Evaluate a Field at a bunch of positions along the edge.  The
   // positions are doubles between 0 and 1.
   std::vector<ArithmeticOutputValue>* outputFields(
