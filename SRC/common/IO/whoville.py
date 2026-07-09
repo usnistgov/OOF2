@@ -594,6 +594,10 @@ class WhoClass:
     def actualMembers(self):            # returns a list of non-proxy members
         return [who for who in self.members.getObjects()
                 if not isinstance(who, WhoProxy)]
+
+    def memberIDs(self):
+        # This can be useful when debugging.
+        return [f"0x{id(who):x}" for who in self.actualMembers()]
         
     def __len__(self):
         return self.nmembers
