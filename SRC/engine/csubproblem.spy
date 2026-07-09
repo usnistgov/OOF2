@@ -11,31 +11,41 @@
 from ooflib.SWIG.common import config
 from ooflib.common import debug
 from ooflib.engine import scpatch
+import sys
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# CSubProblem objects store pointers to their FEMesh and Mesh in C++.
+# The meshes might not be known when the subproblem is constructed
+# (TODO: Is that true) so they're set with this function.  The
+# pointers are stored in C++ so that if more than one swig wrapped
+# CSubProblem wraps the one CSubProblem, the mesh data is present in
+# all of them. This is as issue inside pypropertywrapper functions.
 
 def _set_mesh(self, meshctxt):
-    # TODO: get rid of self.mesh, which is redundant with
-    # CSubProblem.get_mesh(), which is the better thing to
-    # use. (Different swig-wrapped CSubProblems can refer to the same
-    # C++ CSubProblem, but mesh and meshctxt will be set in only one
-    # of the wrapped CSubProblems.  This is a issue inside
-    # pypropertywrapper functions.)  The property code below may be
-    # useful.  We probably need to get rid of self.meshcontext as
-    # well, which may mean storing it in C++ as a PyObject*.
-    self.meshcontext = meshctxt
-    if  meshctxt is not None:
-        self.mesh = meshctxt.getObject()
-        self.set_femesh(self.mesh)
-    else:
-        self.mesh = None
+    assert meshctxt is not None
+    self.set_femesh(meshctxt.getObject(), meshctxt)
 CSubProblem.set_mesh = _set_mesh
 
-## Code that may be useful when getting rid of self.mesh.
-# def _mesh_setter(self, meshobj):
-#     raise ooferror.ErrPyProgrammingError("Don't set CSubProblem.mesh!")
-# def _mesh_getter(self):
-#     return self.get_femesh()
-# CSubProblem.mesh = property(_mesh_getter, _mesh_setter)
+# A CSubProblem's FEMesh and Mesh used to to stored only in the swig
+# wrapper, as CSubProblem.mesh and CSubProblem.meshcontext.  Adding
+# these properties means that we don't need to find all the places
+# where they were used.  TODO: Find those places and use get_mesh()
+# and get_meshctxt() instead.  Raise an exception inside the getters.
 
+def _mesh_setter(self, dummy):
+    raise ooferror.ErrPyProgrammingError("Don't set CSubProblem.mesh!")
+def _mesh_getter(self):
+    return self.get_mesh()
+CSubProblem.mesh = property(_mesh_getter, _mesh_setter)
+
+def _meshctxt_setter(self, dummy):
+    raise ooferror.ErrPyProgrammingError("Don't set CSubProblem.meshcontext!")
+def _meshctxt_getter(self):
+    return self.get_meshctxt()
+CSubProblem.meshcontext = property(_meshctxt_getter, _meshctxt_setter)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Return the paths to the other subproblems on which this subproblem
 # depends.  This function must be overridden in derived classes.

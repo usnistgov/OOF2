@@ -40,10 +40,10 @@ CSCPatch::CSCPatch(CSubProblem *subp, const int order, const Material *mat,
 {
   // adding elements
   for(std::vector<int>::size_type i=0; i<elems->size(); i++)
-    elements.push_back(subproblem->mesh->getElement((*elems)[i]));
+    elements.push_back(subproblem->get_mesh()->getElement((*elems)[i]));
   // adding nodes
   for(std::vector<int>::size_type i=0; i<nds->size(); i++)
-    nodes.push_back(subproblem->mesh->getNode((*nds)[i]));
+    nodes.push_back(subproblem->get_mesh()->getNode((*nds)[i]));
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -255,7 +255,8 @@ void CSCPatch::solve(const int &size_, const Flux *fluks,
   // evaluating flux and store.
   std::vector<DoubleVec*> stored_flux;
   for(std::vector<MasterCoord>::size_type i=0; i<stored_mscp.size(); i++) {
-    stored_flux.push_back(fluks->evaluate(subproblem->mesh, elements[elmap[i]],
+    stored_flux.push_back(fluks->evaluate(subproblem->get_mesh(),
+					  elements[elmap[i]],
 					  stored_mscp[i]) );
   }
   SmallMatrix Amtx_copy(Amtx);  // Amtx is damaged when solving.

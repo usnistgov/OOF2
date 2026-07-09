@@ -72,6 +72,9 @@ private:
   DoFMap mesh2subpEqnMap;
   int nNodes_;
   std::set<int> slaveDoFs;
+protected:
+  FEMesh *mesh;
+  PyObject *meshctxt;
 public:
   CSubProblem();
   virtual ~CSubProblem();
@@ -79,10 +82,10 @@ public:
   // set_femesh must be called right after initialization.  It's not
   // called by the constructor because the constructor is called by a
   // RegisteredClass registration, before the mesh is known.
-  void set_femesh(FEMesh *msh);
+  void set_femesh(FEMesh *msh, PyObject *meshctxt);
   void set_nnodes(int);		// n FUNC nodes
-  FEMesh *mesh;
   FEMesh *get_mesh() const { return mesh; }
+  PyObject *get_meshctxt() const;
 
   Lock precomputeLock;
   bool precomputeRequired;

@@ -249,7 +249,7 @@ bool CompoundField::in_plane(const FEMesh *mesh) const {
 }
 
 bool CompoundField::in_plane(const CSubProblem *subproblem) const {
-  return subproblem->mesh->in_plane(*this);
+  return subproblem->get_mesh()->in_plane(*this);
 }
 
 void CompoundField::define(CSubProblem *subproblem) const {
@@ -266,7 +266,7 @@ void CompoundField::undefine(CSubProblem *subproblem) const {
 
 void CompoundField::activate(CSubProblem *subproblem) const {
   subproblem->do_activate_field(*this);
-  if(!in_plane(subproblem->mesh))
+  if(!in_plane(subproblem->get_mesh()))
     subproblem->do_activate_field(*zfield_);
 }
 

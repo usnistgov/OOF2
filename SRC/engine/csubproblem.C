@@ -20,6 +20,7 @@
 #include "common/lock.h"
 #include "common/printvec.h"	// debugging
 #include "common/progress.h"
+#include "common/pythonlock.h"
 #include "common/tostring.h"
 #include "common/trace.h"
 #include "engine/cconjugate.h"
@@ -66,8 +67,9 @@ long CSubProblem::globalCSubProblemCount = 0;
 SLock globalCSubProblemCountLock;
 
 CSubProblem::CSubProblem()
-  : rwlock(0),
-    mesh(0),
+  : rwlock(nullptr),
+    mesh(nullptr),
+    meshctxt(nullptr),
     precomputeRequired(true),
     n_active_eqn(0),
     n_active_field(0),
@@ -99,10 +101,29 @@ CSubProblem::~CSubProblem() {
   globalCSubProblemCountLock.acquire();
   --globalCSubProblemCount;
   globalCSubProblemCountLock.release();
+
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(meshctxt) {
+    Py_DECREF(meshctxt);
+    meshctxt = nullptr;
+  }
 }
 
-void CSubProblem::set_femesh(FEMesh *msh) {
+void CSubProblem::set_femesh(FEMesh *msh, PyObject *mshctxt) {
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(meshctxt) {
+    Py_DECREF(meshctxt);
+  }
   mesh = msh;
+  meshctxt = mshctxt;
+  Py_INCREF(meshctxt);
+  PYTHON_THREAD_END_BLOCK;
+}
+
+PyObject *CSubProblem::get_meshctxt() const {
+  PYTHON_THREAD_BEGIN_BLOCK;
+  Py_INCREF(meshctxt);
+  return meshctxt;
 }
 
 void CSubProblem::set_nnodes(int n) {

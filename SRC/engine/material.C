@@ -384,7 +384,7 @@ void Material::make_linear_system(const CSubProblem *subproblem,
 {
   // By the time we are called, we are promised that cross_reference
   // has been run, and that the material is in a consistent state.
-  FEMesh *mesh = subproblem->mesh;
+  FEMesh *mesh = subproblem->get_mesh();
 
   FluxSysMap fluxdata;
 
