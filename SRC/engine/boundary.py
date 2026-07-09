@@ -51,7 +51,6 @@ from ooflib.common import registeredclass
 from ooflib.common import utils
 from ooflib.engine import profile
 import copy
-import ooflib.engine.mesh
 PyErrSetupError = ooferror.PyErrSetupError
 
 # This class describes the value of a profile (associated with a
@@ -180,7 +179,6 @@ class Boundary:
                         if not (bc.is_disabled(subproblem) or bc.isFixed()):
                             # See bdycondition.py
                             bc.setMeshValue(subproblem, node, location)
-                            # bc.expand(subproblem, node, location)
 
     # def setFloatValues(self, subproblem, linearsystem, time, bc):
     #     if not (bc.is_disabled(subproblem) or bc.isFixed()):

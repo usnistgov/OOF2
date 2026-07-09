@@ -1365,6 +1365,9 @@ class Mesh(whoville.Who):
     def dumpDoFs(self, filename):
         self.getObject().dumpDoFs(filename)
 
+    def dumpInfo(self):
+        return f"addr=0x{id(self):x} refcount={sys.getrefcount(self)}"
+
 #################
 
 # Utility functions used by Mesh.compare
@@ -1391,6 +1394,9 @@ meshes = whoville.WhoClass(
 
 utils.OOFdefine('meshes', meshes)
 
+def getMeshInfo(meshname):
+    return meshes[meshname].dumpInfo()
+    
 #################
 
 class SyncMeshParameter(whoville.WhoParameter):

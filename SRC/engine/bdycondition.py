@@ -863,24 +863,6 @@ class FloatBCBase(BC):
                 comp = self.field.getIndex(self.field_component).integer()
                 self.field.setvalue(mesh, node, comp, value)
 
-    ## Boundary.expandFloat used to call this routine instead of
-    ## setMeshValue:
-    # def expand(self, subproblem, node, location):
-    #     # Before calling expand(), LinearizedSystem::set_meshdofs()
-    #     # set all of the entries in LinearizedSystem::dofvalues
-    #     # corresponding to a FloatBC to the value of the DoF that was
-    #     # actually solved for.  That DoF's profile value is
-    #     # root.profileStart.  All DoF's deviate from their profiles by
-    #     # the same amount, so we just have to adjust each value by the
-    #     # difference between its profile and profileStart.
-
-    #     if (not self.is_disabled(subproblem) and node in self.ownNodes):
-    #         correction = (self.profile(location) + self.profileOffset
-    #                       - self.root.profileStart)
-    #         comp = self.field.getIndex(self.field_component).integer()
-    #         self.field.dof(node, comp).increment(
-    #             subproblem.mesh, correction)
-
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
     def display(self):

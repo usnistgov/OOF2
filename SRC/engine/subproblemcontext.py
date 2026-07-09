@@ -33,9 +33,9 @@ import datetime
 class SubProblemContext(whoville.Who):
     def __init__(self, name, classname, obj, parent, subptype, secretFlag=0):
         whoville.Who.__init__(self, name, classname, obj, parent, secretFlag)
-        obj.set_rwlock(self.rwLock)
-        # Obj is a CSubProblem.
 
+        # Obj is a CSubProblem.
+        obj.set_rwlock(self.rwLock)
         obj.set_mesh(parent)
         obj.set_nnodes(self.nfuncnodes())
 
@@ -253,7 +253,6 @@ class SubProblemContext(whoville.Who):
             self.getObject().undefine_field(fld)
         for eqn in self.all_equations():
             self.getObject().deactivate_equation(eqn)
-        self.getObject().set_mesh(None)
         subproblems.remove(self.path())
         from ooflib.engine import evolve
         evolve.removeSubProblem(self)
@@ -1131,7 +1130,7 @@ class SubProblemContext(whoville.Who):
 
         # Copy from vals into the mesh.  After this, all dofs in the
         # same FloatBC have the value of that BC's reference point.
-        changed = self.getObject().set_meshdofs(vals) 
+        changed = self.getObject().set_meshdofs(vals)
         
         # Apply the FloatBC profiles, giving the dofs in the FloatBCs
         # their true values.
@@ -1145,7 +1144,7 @@ class SubProblemContext(whoville.Who):
                 self.getObject(), time)
         if changed:
             self.fieldsInstalled.increment()
-
+            
     def interpolateValues(self, time):
         ## TODO: The interpolation order should depend on the
         ## stepper.  High order steppers will need to somehow store
