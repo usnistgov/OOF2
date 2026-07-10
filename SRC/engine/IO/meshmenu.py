@@ -222,8 +222,11 @@ def deleteMesh(menuitem, mesh):
 
     meshctxt = ooflib.engine.mesh.meshes[mesh]
 
-    subproblems = meshctxt.subproblems()
-    for subproblem in subproblems:
+    # Deleting one subproblem can cause others to be deleted as well,
+    # so don't simply loop over the list of subproblems.  Check for
+    # surviving subproblems on each iteration.
+    while meshctxt.subproblems():
+        subproblem = meshctxt.subproblems()[0]
         subproblem.begin_writing()
         try:
             subproblem.destroy()
@@ -233,7 +236,7 @@ def deleteMesh(menuitem, mesh):
     meshctxt.reserve()
     meshctxt.begin_writing()
     try:
-        meshctxt.destroy()         # removes mesh from ooflib.engine.mesh.meshes
+        meshctxt.destroy() # removes mesh from ooflib.engine.mesh.meshes
     finally:
         meshctxt.end_writing()
         meshctxt.cancel_reservation()
