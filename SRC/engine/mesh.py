@@ -204,7 +204,8 @@ class Mesh(whoville.Who):
 
     def createDefaultSubProblem(self):
         subptype = entiremeshsubproblem.entiremeshreg()
-        self.newSubProblem(subptype.create(), subptype,
+        self.newSubProblem(subptype.create(self.getObject(), self),
+                           subptype,
                            self.path() + ":" + defaultSubProblemName)
 
     def rebuildMesh(self):
@@ -230,9 +231,6 @@ class Mesh(whoville.Who):
         for field in self.all_compound_subproblem_fields():
             planarity[field] = old_femesh.in_plane(field)
 
-        # Call to setFEMesh() must precede calls to
-        # CSubProblem.set_mesh(), which are made by the
-        # SubProblemContext constructor.
         self.setFEMesh(new_femesh)
 
         subprobs = []

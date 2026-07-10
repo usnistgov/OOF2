@@ -26,7 +26,7 @@
 
 class CPixelGroupSubProblem: public CSubProblem {
 public:
-  CPixelGroupSubProblem(char*);
+  CPixelGroupSubProblem(char*, FEMesh*, PyObject*);
   ~CPixelGroupSubProblem();
 };
 

@@ -76,13 +76,9 @@ protected:
   FEMesh *mesh;
   PyObject *meshctxt;
 public:
-  CSubProblem();
+  CSubProblem(FEMesh*, PyObject*);
   virtual ~CSubProblem();
 
-  // set_femesh must be called right after initialization.  It's not
-  // called by the constructor because the constructor is called by a
-  // RegisteredClass registration, before the mesh is known.
-  void set_femesh(FEMesh *msh, PyObject *meshctxt);
   void set_nnodes(int);		// n FUNC nodes
   FEMesh *get_mesh() const { return mesh; }
   PyObject *get_meshctxt() const;

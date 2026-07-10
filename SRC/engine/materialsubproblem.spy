@@ -18,9 +18,9 @@ from ooflib.engine.IO import materialparameter
 # name to a Material object.
 
 _old_init_ = CMaterialSubProblem.__init__
-def _CMaterialSubProblem___init__(self, material):
+def _CMaterialSubProblem___init__(self, material, mesh, meshctxt):
     self.material = material            # material name
-    _old_init_(self, materialmanager.getMaterial(self.material))
+    _old_init_(self, materialmanager.getMaterial(self.material), mesh, meshctxt)
 
 CMaterialSubProblem.__init__ = _CMaterialSubProblem___init__
 
@@ -64,8 +64,8 @@ def _startup(subpctxt):
 class MaterialSubProblem(subproblemtype.SubProblemType):
     def __init__(self, material):
         self.material = material
-    def create(self):
-        return CMaterialSubProblem(self.material)
+    def create(self, mesh, meshctxt):
+        return CMaterialSubProblem(self.material, mesh, meshctxt)
 
 registeredclass.Registration(
     "Material",

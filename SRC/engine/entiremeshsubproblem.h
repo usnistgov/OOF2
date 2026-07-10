@@ -20,7 +20,7 @@
 
 class CEntireMeshSubProblem : public CSubProblem {
 public:
-  CEntireMeshSubProblem();
+  CEntireMeshSubProblem(FEMesh*, PyObject*);
   virtual ~CEntireMeshSubProblem();
   virtual void redefined() {}
 

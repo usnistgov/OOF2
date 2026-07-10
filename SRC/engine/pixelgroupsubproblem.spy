@@ -40,8 +40,8 @@ def _startup(subpctxt):
 class PixelGroupSubProblem(subproblemtype.SubProblemType):
     def __init__(self, group):
         self.group = group
-    def create(self):
-        return CPixelGroupSubProblem(self.group)
+    def create(self, mesh, meshctxt):
+        return CPixelGroupSubProblem(self.group, mesh, meshctxt)
 
 registeredclass.Registration(
     "PixelGroup",

@@ -73,7 +73,8 @@ def _new_subproblem(menuitem, name, mesh, subproblem):
 ##        return
     meshcontext = ooflib.engine.mesh.meshes[mesh]
     # 'subproblem' is a SubProblemType instance
-    subpobj = subproblem.create()
+    ## TODO: Pass subproblem to Mesh.newSubProblem and call create there.
+    subpobj = subproblem.create(meshcontext.getObject(), meshcontext)
     meshcontext.newSubProblem(subpobj,
                               subproblem,
                               labeltree.makePath(mesh)+[name])
@@ -103,8 +104,8 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
 
 #############
 
-## TODO: A lot of code is shared between _copy_subproblem and
-## _edit_subproblem and could possibly be shared.
+## TODO: _copy_subproblem and _edit_subproblem duplicate a lot of each
+## others code, which could be shared.
 
 def _copy_subproblem(menuitem, subproblem, mesh, name):
     if parallel_enable.enabled():
@@ -112,7 +113,8 @@ def _copy_subproblem(menuitem, subproblem, mesh, name):
         return
     sourcectxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
     sourceobj = sourcectxt.getObject()
-    copyobj = sourcectxt.subptype.create() # new CSubProblem
+    meshctxt = ooflib.engine.mesh.meshes[mesh]
+    copyobj = sourcectxt.subptype.create(meshctxt.getObject(), meshctxt)
 
     sourcectxt.begin_reading()
     try:
@@ -123,7 +125,6 @@ def _copy_subproblem(menuitem, subproblem, mesh, name):
     finally:
         sourcectxt.end_reading()
 
-    meshctxt = ooflib.engine.mesh.meshes[mesh]
     copyctxt = meshctxt.newSubProblem(copyobj, sourcectxt.subptype,
                                       mesh+':'+name) # new context
     copyname = copyctxt.path()
@@ -202,7 +203,7 @@ def _edit_subproblem(menuitem, name, subproblem):
         oldsubp.cancel_reservation()
 
     # Create context for new subproblem.
-    newsubpobj = subproblem.create()
+    newsubpobj = subproblem.create(meshctxt.getObject(), meshctxt)
     newsubp = meshctxt.newSubProblem(newsubpobj, subproblem, name)
     meshctxt.reserve()
     meshctxt.begin_writing()

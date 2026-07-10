@@ -33,7 +33,7 @@ public:
 class CPixelGroupSubProblem:
   public PredicateSubProblem<PixelGroupSubProblemPredicate> {
 public:
-  CPixelGroupSubProblem(const std::string &groupname);
+  CPixelGroupSubProblem(const std::string &groupname, FEMesh*, PyObject*);
   virtual ~CPixelGroupSubProblem();
 };
 #endif // PXLGROUPSUBPROBLEM_H
