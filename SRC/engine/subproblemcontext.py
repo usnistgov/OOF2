@@ -228,6 +228,8 @@ class SubProblemContext(whoville.Who):
         newsubpctxt.solveFlag = self.solveFlag
         return newsubpctxt
 
+    # Switchboard callback for "preremove who", which is sent by
+    # WhoClass.remove before removing an object. 
     def preremoveCB(self, path):
         # If one of our dependencies is being removed, we're done for.
         # We might as well end it all right now.
@@ -252,7 +254,7 @@ class SubProblemContext(whoville.Who):
             self.getObject().undefine_field(fld)
         for eqn in self.all_equations():
             self.getObject().deactivate_equation(eqn)
-        subproblems.remove(self.path())
+        subproblems.remove(self.path()) # Can't use getObject() after this
         from ooflib.engine import evolve
         evolve.removeSubProblem(self)
 
