@@ -13,13 +13,17 @@ from ooflib.common import debug
 from ooflib.engine import subproblemcontext
 from ooflib.engine import subproblemtype
 
+# TODO? Check that subproblems that refer to other subproblems have
+# the same Mesh and FEMesh as their referents?  The GUI should ensure
+# this.
+
 class BinaryCompoundSubProblem(subproblemtype.SubProblemType):
     def __init__(self, one, another):
         self.one = one
         self.another = another
     def get_dependencies(self):
         return [self.one, self.another]
-    def create(self):
+    def create(self, mesh, meshctxt):
         return self.cclass(
             subproblemcontext.subproblems[self.one].getObject(),
             subproblemcontext.subproblems[self.another].getObject())
@@ -96,7 +100,7 @@ CComplementSubProblem.__init__ = _CComplementSubProblem___init__
 class ComplementSubProblem(subproblemtype.SubProblemType):
     def __init__(self, complement_of):
         self.complement_of = complement_of
-    def create(self):
+    def create(self, mesh, meshctxt):
         return CComplementSubProblem(self.complement_of)
     def get_dependencies(self):
         return [self.complement_of]

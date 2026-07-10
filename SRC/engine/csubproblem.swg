@@ -58,7 +58,6 @@ public:
 
   void set_rwlock(RWLock *rw);
   RWLock * get_rwlock();
-  void set_femesh(FEMesh*, PyObject*);
   FEMesh *get_mesh();
   PyObject *get_meshctxt();
   

@@ -26,6 +26,8 @@ public:
   CSubProblem *subB;
 };
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 class UnionSBPredicate: public BinarySubproblemPredicate {
 public:
   UnionSBPredicate(CSubProblem *a, CSubProblem *b)
@@ -37,7 +39,8 @@ public:
 class CUnionSubProblem: public PredicateSubProblem<UnionSBPredicate> {
 public:
   CUnionSubProblem(CSubProblem *a, CSubProblem *b)
-    : PredicateSubProblem<UnionSBPredicate>(UnionSBPredicate(a, b))
+    : PredicateSubProblem<UnionSBPredicate>(
+	    UnionSBPredicate(a, b), a->get_mesh(), a->get_meshctxt())
   {}
   virtual MaterialSet *getMaterials() const;
 };
@@ -57,7 +60,8 @@ class CIntersectionSubProblem:
 {
 public:
   CIntersectionSubProblem(CSubProblem *a, CSubProblem *b)
-    : PredicateSubProblem<IntersectionSBPredicate>(IntersectionSBPredicate(a,b))
+    : PredicateSubProblem<IntersectionSBPredicate>(
+	   IntersectionSBPredicate(a,b), a->get_mesh(), a->get_meshctxt())
   {}
 };
 
@@ -76,7 +80,8 @@ class CXorSubProblem:
 {
 public:
   CXorSubProblem(CSubProblem *a, CSubProblem *b)
-    : PredicateSubProblem<XorSBPredicate>(XorSBPredicate(a,b))
+    : PredicateSubProblem<XorSBPredicate>(
+		  XorSBPredicate(a,b), a->get_mesh(), a->get_meshctxt())
   {}
 };
 
@@ -93,7 +98,8 @@ public:
 class CComplementSubProblem: public PredicateSubProblem<ComplementSBPredicate> {
 public:
   CComplementSubProblem(CSubProblem *comp)
-    : PredicateSubProblem<ComplementSBPredicate>(ComplementSBPredicate(comp))
+    : PredicateSubProblem<ComplementSBPredicate>(
+	 ComplementSBPredicate(comp), comp->get_mesh(), comp->get_meshctxt())
   {}
 };
 

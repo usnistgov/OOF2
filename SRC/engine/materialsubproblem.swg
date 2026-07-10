@@ -27,7 +27,7 @@
 
 class CMaterialSubProblem : public CSubProblem {
 public:
-  CMaterialSubProblem(Material*);
+  CMaterialSubProblem(Material*, FEMesh*, PyObject*);
 };
 
 %pythoncode "engine/materialsubproblem.spy"

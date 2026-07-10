@@ -36,7 +36,6 @@ class SubProblemContext(whoville.Who):
 
         # Obj is a CSubProblem.
         obj.set_rwlock(self.rwLock)
-        obj.set_mesh(parent)
         obj.set_nnodes(self.nfuncnodes())
 
         # These shouldn't be accessed directly.  They store the values
@@ -184,7 +183,7 @@ class SubProblemContext(whoville.Who):
         # function when all the cloning is complete.
         subp = self.getObject()
         newsubptype = self.subptype.clone()
-        newsubpobj = newsubptype.create()
+        newsubpobj = newsubptype.create(newmesh.getObject(), newmesh)
         # create new subproblem context with a temporary name so that
         # it won't overwrite an old subproblem until we're done with
         # the old one (in case we're recreating an old subproblem, as

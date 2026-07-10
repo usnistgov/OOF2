@@ -12,8 +12,8 @@ from ooflib.engine import subproblemtype
 from ooflib.common import registeredclass
 
 class EntireMeshSubProblem(subproblemtype.SubProblemType):
-    def create(self):
-        return CEntireMeshSubProblem()
+    def create(self, mesh, meshctxt):
+        return CEntireMeshSubProblem(mesh, meshctxt)
 
 entiremeshreg = registeredclass.Registration(
     "EntireMesh",

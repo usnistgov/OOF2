@@ -20,17 +20,18 @@ class Material;
 
 class MaterialPredicate {
 private:
-  Material *const material;
+  Material* const material;
 public:
-  MaterialPredicate(Material * const);
-  bool operator()(const FEMesh*, const Element *element) const;
+  MaterialPredicate(Material* const);
+  bool operator()(const FEMesh*, const Element* element) const;
   friend class CMaterialSubProblem;
 };
 
 class CMaterialSubProblem: public PredicateSubProblem<MaterialPredicate> {
 public:
-  CMaterialSubProblem(Material * const mat)
-    : PredicateSubProblem<MaterialPredicate>(MaterialPredicate(mat))
+  CMaterialSubProblem(Material* const mat, FEMesh* mesh, PyObject* meshctxt)
+    : PredicateSubProblem<MaterialPredicate>(MaterialPredicate(mat),
+					     mesh, meshctxt)
   {}
   virtual MaterialSet *getMaterials() const;
 };

@@ -14,7 +14,9 @@
 #include "engine/meshiterator.h"
 #include "engine/entiremeshsubproblem.h"
 
-CEntireMeshSubProblem::CEntireMeshSubProblem() {}
+CEntireMeshSubProblem::CEntireMeshSubProblem(FEMesh* mesh, PyObject* meshctxt)
+  : CSubProblem(mesh, meshctxt)
+{}
 
 CEntireMeshSubProblem::~CEntireMeshSubProblem() {}
 

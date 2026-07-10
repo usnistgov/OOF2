@@ -26,7 +26,7 @@
 
 class CEntireMeshSubProblem : public CSubProblem {
 public:
-  CEntireMeshSubProblem();
+  CEntireMeshSubProblem(FEMesh*, PyObject*);
   ~CEntireMeshSubProblem();
 };
 

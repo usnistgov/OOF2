@@ -17,17 +17,14 @@
 #include "engine/pixelgroupsubproblem.h"
 #include <iostream>
 
-CPixelGroupSubProblem::CPixelGroupSubProblem(const std::string &groupname)
+CPixelGroupSubProblem::CPixelGroupSubProblem(const std::string &groupname,
+					     FEMesh* mesh, PyObject* meshctxt)
   : PredicateSubProblem<PixelGroupSubProblemPredicate>
-    (PixelGroupSubProblemPredicate(groupname))
+  (PixelGroupSubProblemPredicate(groupname), mesh, meshctxt)
 {
-//   std::cerr << "** Creating CPixelGroupSubProblem " << groupname << " " << this
-// 	    << std::endl;
 }
 
-CPixelGroupSubProblem::~CPixelGroupSubProblem() {
-//   std::cerr << "** Destroying CPixelGroupSubProblem ** " << this << std::endl;
-}
+CPixelGroupSubProblem::~CPixelGroupSubProblem() {}
 
 PixelGroupSubProblemPredicate::PixelGroupSubProblemPredicate(
 			const std::string &groupname)

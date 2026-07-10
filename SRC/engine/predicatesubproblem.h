@@ -74,8 +74,9 @@ private:
   ElementSet &element_cache() const;
   EdgementSet &edgement_cache() const;
 public:
-  PredicateSubProblem(const PRDCT &p)
-    : predicate(p),
+  PredicateSubProblem(const PRDCT &p, FEMesh *mesh, PyObject* meshctxt)
+    : CSubProblem(mesh, meshctxt),
+      predicate(p),
       nodes_(nullptr),
       funcnodes_(nullptr),
       elements_(nullptr),
