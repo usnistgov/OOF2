@@ -10,13 +10,25 @@
 
 # Test suite for the menu commands under OOF.Subproblem.
 
+from ooflib.SWIG.common import cmicrostructure
+from ooflib.SWIG.engine import cskeleton
+from ooflib.SWIG.engine import femesh
+from ooflib.engine import mesh
+from ooflib.engine import subproblemcontext
+from ooflib.engine.skeletoncontext import skeletonContexts
+
 import unittest, os
 from . import memorycheck
 from .UTILS.file_utils import reference_file
 
+def subProblemNames(meshpath):
+    return set(k[0] for k in subproblemcontext.subproblems.keys(meshpath))
+    
+
 # Utility functions to test the iterators in meshiterator.*.
 
 def count_nodes(subproblem):
+    # CSubProblem.nodes() returns an iterator that doesn't know its length.
     n = 0
     for node in subproblem.getObject().nodes():
         n += 1
@@ -31,15 +43,6 @@ def count_funcnodes(subproblem):
 
 class OOF_Subproblem(unittest.TestCase):
     def setUp(self):
-        global mesh
-        global subproblemcontext
-        from ooflib.engine import subproblemcontext
-        from ooflib.engine.skeletoncontext import skeletonContexts
-        from ooflib.engine import mesh
-        global femesh, cskeleton, cmicrostructure
-        from ooflib.SWIG.engine import cskeleton
-        from ooflib.SWIG.engine import femesh
-        from ooflib.SWIG.common import cmicrostructure
         OOF.Microstructure.New(name='subptest',
                                width=1.0, height=1.0,
                                width_in_pixels=10, height_in_pixels=10)
@@ -174,6 +177,11 @@ class OOF_Subproblem(unittest.TestCase):
         self.assertNotEqual(id(sub.getObject()), id(sub3.getObject()))
         self.assertNotEqual(id(sub2.getObject()), id(sub3.getObject()))
 
+        ## TODO: Test copying a CompoundSubProblem.  If it's copied to
+        ## a different Mesh, does it refer to subproblems in the new
+        ## Mesh?  What happens if it's copied to a Mesh where the
+        ## subproblems it depends on aren't present?
+
     @memorycheck.check('subptest')
     def Rename(self):
         OOF.Mesh.New(name='mesh', skeleton='subptest:skeleton',
@@ -215,15 +223,6 @@ class OOF_Subproblem(unittest.TestCase):
 
 class OOF_Subproblem_Varieties(unittest.TestCase):
     def setUp(self):
-        global mesh
-        global subproblemcontext
-        from ooflib.engine import subproblemcontext
-        from ooflib.engine import mesh
-        global femesh, cskeleton, cmicrostructure
-        from ooflib.SWIG.engine import cskeleton
-        from ooflib.SWIG.engine import femesh
-        from ooflib.SWIG.common import cmicrostructure
-
         OOF.Microstructure.Create_From_ImageFile(
             filename=reference_file('ms_data', 'small.ppm'),
             microstructure_name='small.ppm', height=automatic, width=automatic)
@@ -695,6 +694,111 @@ class OOF_Material_Symmetry(unittest.TestCase):
             subproblem='microstructure:skeleton:mesh:default',
             material='material',
             symmetric=False)
+
+class OOF_Subproblem_Compound(OOF_Subproblem):
+    def setUp(self):
+        OOF_Subproblem.setUp(self)
+        OOF.Mesh.New(
+            name='mesh', skeleton='subptest:skeleton',
+            element_types=['T3_3', 'Q4_4'])
+        OOF.Subproblem.New(
+            name='corner',
+            mesh='subptest:skeleton:mesh',
+            subproblem=PixelGroupSubProblem(group='corner'))
+        OOF.Subproblem.New(
+            name='material',
+            mesh='subptest:skeleton:mesh',
+            subproblem=MaterialSubProblem(material='salami'))
+        OOF.Subproblem.New(
+            name='compound',
+            mesh='subptest:skeleton:mesh',
+            subproblem=IntersectionSubProblem(
+                one='subptest:skeleton:mesh:corner',
+                another='subptest:skeleton:mesh:material'))
+
+    @memorycheck.check('subptest')
+    def DeleteMesh(self):
+        #  This just has to not crash. Deleting a Mesh containing a
+        # CompoundSubproblem used to crash.
+        OOF.Mesh.Delete(mesh='subptest:skeleton:mesh')
+
+    @memorycheck.check('subptest')
+    def DeleteCompound(self):
+        subps = subProblemNames('subptest:skeleton:mesh')
+        self.assertEqual(subps,
+                         set(['default', 'corner', 'material', 'compound']))
+        OOF.Subproblem.Delete(
+            subproblem='subptest:skeleton:mesh:compound')
+        # Deleting the compound subproblem should not affect its
+        # dependencies.
+        subps = subProblemNames('subptest:skeleton:mesh')
+        self.assertEqual(subps, set(['default', 'corner', 'material']))
+
+    
+    @memorycheck.check('subptest')
+    def DeleteDependency(self):
+        subps = subProblemNames('subptest:skeleton:mesh')
+        self.assertEqual(subps,
+                         set(['default', 'corner', 'material', 'compound']))
+        OOF.Subproblem.Delete(
+            subproblem='subptest:skeleton:mesh:corner')
+        # The compound subproblem that depended on the deleted
+        # subproblem should also have been deleted.
+        subps = subProblemNames('subptest:skeleton:mesh')
+        self.assertEqual(subps, set(['default', 'material']))
+
+    @memorycheck.check('subptest')
+    def Copy(self):
+        self.assertEqual(subproblemcontext.subproblems.nActual(), 4)
+        # Copy compound subproblem to same mesh
+        OOF.Subproblem.Copy(
+            subproblem='subptest:skeleton:mesh:compound',
+            mesh='subptest:skeleton:mesh',
+            name='facsimile')
+        self.assertEqual(subproblemcontext.subproblems.nActual(), 5)
+        sub1 = subproblemcontext.subproblems['subptest:skeleton:mesh:compound']
+        sub2 = subproblemcontext.subproblems['subptest:skeleton:mesh:facsimile']
+        self.assertNotEqual(id(sub1), id(sub2))
+        subps = subProblemNames('subptest:skeleton:mesh')
+        self.assertEqual(subps, set(['default', 'corner', 'material',
+                                     'compound', 'facsimile']))
+
+        # Delete the copy
+        OOF.Subproblem.Delete(
+            subproblem='subptest:skeleton:mesh:facsimile')
+        # Chcck that original compound subproblem is the same
+        sub1orig = subproblemcontext.subproblems[
+            'subptest:skeleton:mesh:compound']
+        self.assertEqual(id(sub1), id(sub1orig))
+        self.assertEqual(subproblemcontext.subproblems.nActual(), 4)
+
+        # Make a new copy in the same mesh
+        OOF.Subproblem.Copy(
+            subproblem='subptest:skeleton:mesh:compound',
+            mesh='subptest:skeleton:mesh',
+            name='facsimile')
+        self.assertEqual(subproblemcontext.subproblems.nActual(), 5)
+        # Delete a dependency
+        OOF.Subproblem.Delete(
+            subproblem='subptest:skeleton:mesh:corner')
+        # Check that both the original and copy are deleted.
+        self.assertEqual(subproblemcontext.subproblems.nActual(), 2)
+        subps = subProblemNames('subptest:skeleton:mesh')
+        self.assertEqual(subps, set(['default', 'material']))
+
+        
+        # Copy compound subproblem to a different mesh
+        # Check that dependencies are also copied.
+        # Delete dependency in original
+        # Check that copy is unaffected
+        
+
+        
+    # Check that copying a compound subproblem within a Mesh works.
+    # Check that copying it to another Mesh works.
+    # Check that renaming a dependency changes to dependent?
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
     
 basic_set = [
     OOF_Subproblem("New"),
@@ -702,7 +806,7 @@ basic_set = [
     OOF_Subproblem("Copy"),
     OOF_Subproblem("Rename"),
     OOF_Subproblem("Edit")
-    ]
+]
 
 variety_set = [
     OOF_Subproblem_Varieties("Material"),
@@ -712,7 +816,7 @@ variety_set = [
     OOF_Subproblem_Varieties("Xor"),
     OOF_Subproblem_Varieties("Complement"),
     OOF_Subproblem_Varieties("Entire")
-    ]
+]
 
 field_equation_set = [
     OOF_Subproblem_FieldEquation("DefineField"),
@@ -720,19 +824,28 @@ field_equation_set = [
     OOF_Subproblem_FieldEquation("ActivateField"),
     OOF_Subproblem_FieldEquation("In_PlaneField"),
     OOF_Subproblem_FieldEquation("ActivateEquation")
-    ]
+]
 
 extra_set = [
     OOF_Subproblem_Extra("Copy_Field_State"),
     OOF_Subproblem_Extra("Copy_Equation_State")
-    ]
+]
 
 symmetry_set = [
     OOF_Material_Symmetry("Basic"),
     OOF_Material_Symmetry("ThermalExpansion"),
     OOF_Material_Symmetry("PiezoElectricity"),
     OOF_Material_Symmetry("PyroElectricity")
-    ]
+]
+
+compound_set = [
+    OOF_Subproblem_Compound("DeleteMesh"),
+    OOF_Subproblem_Compound("DeleteCompound"),
+    OOF_Subproblem_Compound("DeleteDependency"),
+    OOF_Subproblem_Compound("Copy"),
+]
 
 test_set = basic_set + variety_set + field_equation_set + \
-           extra_set + symmetry_set
+           extra_set + symmetry_set + compound_set
+
+#test_set = compound_set
