@@ -10,6 +10,7 @@
 
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import masterelement
+from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import gtklogger
@@ -36,9 +37,15 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name=name)
         self.nclasses = 0    # number of enum classes (ie element topologies)
         self.classwidgets = []          # widgets for each enum class
-        self.build(interactive=0)       # construct everything
-        if param.value:
-            self.set_value(param.value)
+        self.build()                    # construct widgets
+        if not param.value:
+            # Insert the choices in the choosers, if possible.
+            ok = self.setChoices()
+            self.widgetChanged(validity=ok, interactive=False)
+        else:
+            # Insert the choices in the choosers, and select the given value.
+            self.set_value(param.value, interactive=False)
+
         self.sbcallback = switchboard.requestCallbackMain("new master element",
                                                           self.newElementCB)
     def cleanUp(self):
@@ -48,14 +55,15 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
         del self.classwidgets
         del self.tablelabels
     def newElementCB(self):             # switchboard "new master element"
-        self.build(interactive=0)
-    def build(self, interactive):
+        self.build()
+        
+    def build(self):
         debug.mainthreadTest()
         elclasses = masterelement.getMasterElementEnumClasses()
         elgeometries = masterelement.getMasterElementGeometries()
         nclasses = len(elclasses)
 
-        # Build the widgets
+        # Build the widgets, if necessary
         if self.table is None or nclasses != self.nclasses:
             self.nclasses = nclasses
             if self.table:
@@ -90,7 +98,7 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
 
             # Choosers for each element geometry
             row = 2
-            self.classwidgets = []
+            self.classwidgets = {}
             for geometry, elclass in zip(elgeometries, elclasses):
                 label = Gtk.Label(label=repr(geometry)+'-cornered element:',
                                   halign=Gtk.Align.END)
@@ -102,61 +110,89 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
                 ewidget = chooser.ChooserWidget(
                     [], name="%d-cornered"%geometry,
                     hexpand=True, halign=Gtk.Align.FILL)
-                self.classwidgets.append((elclass, ewidget))
+                self.classwidgets[elclass] = ewidget
                 self.table.attach(ewidget.gtk, 1,row, 1,1)
                 row += 1
 
-        # Set the allowed values for each chooser.
-        # Find out which mapping and interpolation orders have to be listed.
-        maporderdict = {}
-        funorderdict = {}
+            # Find out which mapping and interpolation orders have to be listed.
+            mapordset = set()
+            funordset = set()
+
+            for elclass in elclasses:
+                for elname in elclass.names:
+                    el = masterelement.getMasterElementFromEnum(elclass(elname))
+                    mapordset.add(el.map_order())
+                    funordset.add(el.fun_order())
+            maporders = sorted(mapordset)
+            funorders = sorted(funordset)
+            # List the orders in the widgets
+            self.mapchooser.update([repr(order) for order in maporders])
+            self.funchooser.update([repr(order) for order in funorders])
+
+    def setChoices(self, maporder=None, funorder=None):
+        # Set the allowed values for the chooser for each geometry.
+        # The allowed values are the element types with the current
+        # mapping and interpolation orders.  The return value
+        # indicates whether or not suitable element types were found
+        # for each geometry.
+
+        # Use the current interpolation orders or the ones from the
+        # arguments.
+        current_map = maporder or int(self.mapchooser.get_value())
+        current_fun = funorder or int(self.funchooser.get_value())
+        
+        ok = True # Do all classes contain at least one suitable element type?
+        elclasses = masterelement.getMasterElementEnumClasses()
         for elclass in elclasses:
+            names = []
             for elname in elclass.names:
                 el = masterelement.getMasterElementFromEnum(elclass(elname))
-                maporderdict[el.map_order()] = 1
-                funorderdict[el.fun_order()] = 1
-        maporders = sorted(list(maporderdict.keys()))
-        funorders = list(funorderdict.keys())
-        funorders.sort()
-        # List the orders in the widgets
-        self.mapchooser.update([repr(order) for order in maporders])
-        self.funchooser.update([repr(order) for order in funorders])
-        try:
-            current_map = int(self.mapchooser.get_value())
-            current_fun = int(self.funchooser.get_value())
-        except:
-            # If the choosers don't have values, it's because there
-            # aren't any elements defined. 
-            self.widgetChanged(validity=False, interactive=interactive)
-        else:
-            # Find and list the element types for the current orders
-            ok = True
-            for elclass, ewidget in self.classwidgets:
-                elements = masterelement.getMasterElementsFromEnumClass(elclass)
-                okels = [el for el in elements
-                         if el.map_order() == current_map
-                         and el.fun_order() == current_fun]
-                ok = ok and len(okels) > 0
-                ewidget.update([el.name() for el in okels],
-                               elclass.helpdict)
-            self.widgetChanged(validity=ok, interactive=interactive)
+                if (el.map_order() == current_map and
+                    el.fun_order() == current_fun):
+                    names.append(el.name())
+            ok = ok and bool(names)
 
+            # classwidgets[elclass] is the chooser widget for the
+            # geometry of the master elements in elclass.
+            self.classwidgets[elclass].update(names)
+        return ok
+        
     def orderCB(self, *args, **kwargs):
         # Mapping or interpolation order has been changed by the user.
-        self.build(interactive=1)
+        ok = self.setChoices()
+        self.widgetChanged(validity=ok, interactive=True)
 
-    def set_value(self, value):
-        # value is a list of enums.  Pick the first one, and get the
-        # MasterElement that it corresponds to, and set the mapchooser
-        # and funchooser accordingly.  This assumes that all enums in
-        # value correspond to elements with the same orders.
-        el = masterelement.getMasterElementFromEnum(value[0])
-        self.mapchooser.set_state(repr(el.map_order()))
-        self.funchooser.set_state(repr(el.fun_order()))
-        self.build(interactive=0)
-        for val, (elclass, ewidget) in zip(value, self.classwidgets):
+    def set_value(self, value, interactive):
+        # value is a list of enums for master element types.  Check
+        # that all of them have the same interpolation orders.
+        maporder = funorder = None
+        for val in value:
+            el = masterelement.getMasterElementFromEnum(val)
+            mo = el.map_order()
+            fo = el.fun_order()
+            if maporder is None:
+                maporder = mo
+                funorder = fo
+            else:
+                if mo != maporder or fo != funorder:
+                    raise ooferror.PyErrUserError(
+                        f"Inconsistent element types: {value}")
+                    
+        ok = self.setChoices(maporder, funorder)
+        if not ok:
+            self.widgetChanged(validity=False, interactive=interactive)
+            return
+        
+        self.mapchooser.set_state(repr(maporder))
+        self.funchooser.set_state(repr(funorder))
+
+        # For each element type in value, set the corresponding
+        # widget.
+        for val in value:
+            ewidget = self.classwidgets[val.__class__]
             ewidget.set_state(val.name)
-        self.widgetChanged(validity=1, interactive=0)
+            
+        self.widgetChanged(validity=True, interactive=interactive)
 
     def show(self):
         debug.mainthreadTest()
@@ -166,12 +202,12 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
         self.funchooser.show()
         for labelbox in self.tablelabels:
             labelbox.show_all()
-        for elclass, ewidget in self.classwidgets:
+        for ewidget in self.classwidgets.values():
             ewidget.show()
 
     def get_value(self):
         return [eclass(ewidget.get_value())
-                for eclass, ewidget in self.classwidgets]
+                for eclass, ewidget in self.classwidgets.items()]
 
 def _MasterElementTypesParameter_makeWidget(self, scope=None, **kwargs):
     return MasterElementTypesWidget(self, scope, name=self.name, **kwargs)
