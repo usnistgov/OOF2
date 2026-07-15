@@ -18,12 +18,12 @@ from ooflib.common.IO import xmlmenudump
 _masterElementDict = {}
 
 def getMasterElementDict():
-    ## TODO: Each time this is called, it fetches the list of master
-    ## elements from C++ and checks to see if there are any new ones.
-    ## This seems inefficient.  If we just required all MasterElement
-    ## classes to register themselves when first imported, we could
-    ## wrap them and put them in _masterElementDict then, and not have
-    ## to fetch the list all the time.
+    ## TODO NOW: Each time this is called, it fetches the list of
+    ## master elements from C++ and checks to see if there are any new
+    ## ones.  This seems inefficient.  If we just required all
+    ## MasterElement classes to register themselves when first
+    ## imported, we could wrap them and put them in _masterElementDict
+    ## then, and not have to fetch the list all the time.
     lst = masterElementList()
     for me in lst:
         # This is where the singleton instance of each MasterElement
@@ -64,6 +64,13 @@ def getMasterElementEnums():
     # is a separate enum class for each element geometry (number of
     # sides).  This function returns a dictionary containing the
     # classes, keyed by the number of sides of the elements.
+
+    # The Enum classes created here are named 'Element2', 'Element3',
+    # and 'Element4'.  Those names don't appear explicitly in the
+    # program anywhere outside of this comment, but do appear
+    # occasionally in tracebacks and error messages.  As a favor to
+    # future developers, please don't delete this comment!
+    
     edict = getMasterElementDict()
     for name, el in edict.items():
         try:
@@ -84,7 +91,7 @@ def getMasterElementEnums():
             enumclass._sorted = 0
     for enumclass in _masterElementEnumDict.values():
         if not enumclass._sorted:
-            enumclass.names.sort(key=melcomparisionkey)
+            enumclass.names.sort(key=_melcomparisionkey)
             enumclass._sorted = 1
     return _masterElementEnumDict
 
@@ -104,7 +111,7 @@ def getMasterElementsFromEnumClass(enumclass):
     edict = getMasterElementDict()
     return [edict[name] for name in enumclass.names]
         
-def melcomparisionkey(elem):
+def _melcomparisionkey(elem):
     # For sorting MasterElement names to determine their position in the GUI.
     edict = getMasterElementDict()
     el = edict[elem]

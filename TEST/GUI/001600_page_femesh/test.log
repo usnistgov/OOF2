@@ -150,8 +150,8 @@ event(Gdk.EventType.BUTTON_PRESS,x= 5.1000000000000e+01,y= 1.1000000000000e+01,b
 checkpoint toplevel widget mapped chooserPopup-Map
 findMenu(findWidget('chooserPopup-Map'), ['2']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Map') # MenuItemLogger
-# After changing just one of the interpolation order widgets, the OK
-# button should not be sensitive
+# After changing just the mapping interpolation widget, the OK button
+# should not be sensitive
 assert not tests.is_sensitive('Dialog-Create a new mesh:widget_GTK_RESPONSE_OK')
 
 # After changing the other one, the button is sensitive again.
