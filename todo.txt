@@ -89,6 +89,10 @@ Use something like SparseMat::set_from_doublets when constructing a
 SparseMat by using maps to extract a submatrix.  That might be as fast
 as using setFromTriplets and use a lot less memory.
 
+Add GUI test: create a Mesh by reading a script like subptest.py, and
+then create another one interactively, to make sure the widgets for
+element types are created correctly.
+
 THINGS TO FIX IN TUTORIALS
 
 The Basics tutorial leaves out a step in the creation of pixel

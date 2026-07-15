@@ -1,5 +1,12 @@
 OOF2 2.4.0
 
+* Fixed a bug that prevented new Meshes from being created in the GUI
+  after reading a OOF.Mesh.New command from an old script that
+  predated the implementation of linear elements.
+
+* Fixed a bug that could crash the program when deleting a Mesh that
+  contained the more complicated types of SubProblems.
+
 * Fixed a bug that could print incorrect information in progress bars,
   and (probably) had no other effect.
 

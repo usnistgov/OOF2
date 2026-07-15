@@ -18,12 +18,15 @@ from ooflib.common.IO import xmlmenudump
 _masterElementDict = {}
 
 def getMasterElementDict():
-    ## TODO NOW: Each time this is called, it fetches the list of
-    ## master elements from C++ and checks to see if there are any new
-    ## ones.  This seems inefficient.  If we just required all
-    ## MasterElement classes to register themselves when first
-    ## imported, we could wrap them and put them in _masterElementDict
-    ## then, and not have to fetch the list all the time.
+    ## TODO: Each time this is called, it fetches the list of master
+    ## elements from C++ and checks to see if there are any new ones.
+    ## This seems inefficient.  If we just required all MasterElement
+    ## classes to register themselves when first imported, we could
+    ## wrap them and put them in _masterElementDict then, and not have
+    ## to fetch the list all the time.  This function is called often
+    ## from newmeshWidget.py, but there aren't a lot of master
+    ## elements and it's never called in a time-critical situation, so
+    ## fixing this isn't crucial.
     lst = masterElementList()
     for me in lst:
         # This is where the singleton instance of each MasterElement

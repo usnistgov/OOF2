@@ -13,7 +13,6 @@ from ooflib.common import debug
 from ooflib.engine import subproblemcontext
 from ooflib.engine import subproblemtype
 
-
 # TODO: If a compound subproblem is copied to another Mesh, it should 
 # expect to find its dependencies in the new Mesh, with the same names
 # as the dependencies in the original Mesh.

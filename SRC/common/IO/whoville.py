@@ -598,9 +598,12 @@ class WhoClass:
     def memberIDs(self):
         # This can be useful when debugging.
         return [f"0x{id(who):x}" for who in self.actualMembers()]
-        
+
     def __len__(self):
         return self.nmembers
+
+    ## TODO? This definition of __getitem__ means that we can't use
+    ## constructions like "for w in whoclass".
     def __getitem__(self, which):
         obj = self.members[which].object
         if obj is None:
