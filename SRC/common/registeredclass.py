@@ -136,9 +136,6 @@ class Registration:
     def __hash__(self):
         return hash(self.name())^hash(self.subclass)^hash(self.ordering)
 
-    # Some registration objects need to know when the parameters have
-    # been updated.  They should over-ride "new_params" and do
-    # whatever needs doing in that.
     def setDefaultParams(self, values):
         # Given a list or dictionary of values, set the values of the
         # Parameters.
@@ -274,12 +271,19 @@ class RegisteredClass:
         raise KeyError("RegisteredClass %s has no parameter named %s!"
                        % (self.__class__.__name__, paramname))
 
-    def setDefaultParams(self):
+    def setDefaultParams(self, values={}):
         # Make the Parameter values for this object the default values
-        # for new objects.  The default values are stored in the
-        # class's Registration.
+        # for new objects, by setting them in the class's
+        # Registration.  The argument is a dictionary of name:value
+        # pairs that will be used instead of the local values.
+        ## TODO: This isn't thread safe at all!
         registration = self.getRegistration()
-        registration.setDefaultParams(self.getParamValues())
+        paramdict = {}
+        for p in registration.params:
+            paramdict[p.name] = getattr(self, p.name)
+        for name,val in values.items():
+            paramdict[name] = val
+        registration.setDefaultParams(paramdict)
 
     def getDefaultParams(self):
         return self.getRegistration().params
@@ -294,7 +298,6 @@ class RegisteredClass:
         for reg in cls.registry:
             if reg.name() == name:
                 return reg
-            
 
     # clone() defined like this can be dangerous, if subclasses
     # contain have parameters that are themselves registered
@@ -302,8 +305,8 @@ class RegisteredClass:
     # parent objects.  This causes an infinite loop.  Such subclasses
     # must redefine clone(). (TODO WTF: Really?  If such a class is
     # found, please document it here.)
-    def clone(self):
-        self.setDefaultParams()
+    def clone(self, paramvals={}):
+        self.setDefaultParams(paramvals)
         return self.getRegistration()()
     
     def paramrepr(self):
