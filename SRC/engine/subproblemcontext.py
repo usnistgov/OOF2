@@ -75,7 +75,14 @@ class SubProblemContext(whoville.Who):
 
         self.requestCallback(("preremove who", "SubProblem"),
                              self.preremoveCB)
-        self.requestCallback("subproblem redefined", self.redefinedCB)
+
+        # When a subproblem is redefined, it sends the switchboard
+        # signal (path, "redefined").  If this subproblem depends on
+        # that subproblem, it catches the signal, calls its
+        # redefined() method, and signals that it itself has been
+        # redefined.
+        for dep in subptype.get_dependencies().values():
+            self.requestCallback((dep, "redefined"), self.redefined)
 
         self.matrix_symmetry_K = symstate.SymState()
         self.matrix_symmetry_C = symstate.SymState()
@@ -234,7 +241,7 @@ class SubProblemContext(whoville.Who):
         # If one of our dependencies is being removed, we're done for.
         # We might as well end it all right now.
         path = ':'.join(path)
-        if path in self.subptype.get_dependencies():
+        if path in self.subptype.get_dependencies().values():
             self.reserve()
             self.begin_writing()
             try:
@@ -271,10 +278,7 @@ class SubProblemContext(whoville.Who):
         return self.getObject().funcnodes().size()
 
     def area(self):
-        a = 0.0
-        for element in self.elements():
-            a += element.area()
-        return a
+        return self.getObject().area();
 
     def solved(self):
         switchboard.notify("subproblem changed", self)
@@ -302,13 +306,15 @@ class SubProblemContext(whoville.Who):
         # itself have changed.  For example, a MaterialSubProblem is
         # redefined when its Material is assigned to or removed from
         # pixels.
+        #
+        # This routine can be redefined in subclasses, but the new
+        # subclass method should probably call this method too.
+        #
+        # This routine is also the switchboard callback for (deppath,
+        # "redefined") where deppath is the path to one of this
+        # subproblem's dependencies.
         self.getObject().redefined()
-        switchboard.notify("subproblem redefined", self.path())
-
-    def redefinedCB(self, subppath):
-        for dep in self.subptype.get_dependencies():
-            if dep == subppath:
-                self.redefined()
+        switchboard.notify((self.path(), "redefined"))
 
     def has_solution(self):
         return self.solutiontimestamp > max(self.defnChanged,

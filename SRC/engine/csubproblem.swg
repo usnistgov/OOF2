@@ -65,6 +65,7 @@ public:
 
   int ndof();
   int neqn();
+  double area();
 
   bool containsNode(Node*);
 

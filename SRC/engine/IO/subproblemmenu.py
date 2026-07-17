@@ -26,10 +26,10 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.engine import materialmanager
 from ooflib.engine import meshstatus
 from ooflib.engine import solvermode
+from ooflib.engine import subproblemcontext
 from ooflib.engine import subproblemtype
 from ooflib.engine.IO import meshparameters
 import ooflib.engine.mesh
-import ooflib.engine.subproblemcontext
 
 SyncMeshParameter = ooflib.engine.mesh.SyncMeshParameter
 
@@ -49,6 +49,8 @@ subproblemMenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
     </para>"""
 ))
 
+#############
+
 # Look for an enclosing subproblem parameter -- if not found, use the
 # enclosing mesh parameter.  SubProblem copying needs the first case,
 # new SubProblem construction needs the second.
@@ -61,8 +63,7 @@ def subproblemNameResolver(param, startname):
     meshname = param.group['mesh'].value
     if meshname is not None:
         meshpath = labeltree.makePath(meshname)
-        return ooflib.engine.subproblemcontext.subproblems.uniqueName(meshpath +
-                                                                    [basename])
+        return subproblemcontext.subproblems.uniqueName(meshpath + [basename])
 
 #############
 
@@ -107,14 +108,67 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
 ## TODO: _copy_subproblem and _edit_subproblem duplicate a lot of each
 ## others code, which could be shared.
 
+## TODO: The default name of a copied SubProblem should be the name of
+## SubProblem being copied, not "subproblem". 
+
 def _copy_subproblem(menuitem, subproblem, mesh, name):
     if parallel_enable.enabled():
         ipcsubpmenu.Copy(name=name, mesh=mesh, subproblem=subproblem)
         return
-    sourcectxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
+    sourcectxt = subproblemcontext.subproblems[subproblem]
     sourceobj = sourcectxt.getObject()
+    targetmeshpath = labeltree.makePath(mesh)
     meshctxt = ooflib.engine.mesh.meshes[mesh]
-    copyobj = sourcectxt.subptype.create(meshctxt.getObject(), meshctxt)
+
+    # If copying to a different Mesh, SubProblem dependencies may need
+    # to be copied first.  A copy is needed if the target mesh has no
+    # subproblem with the name of the dependency, or if the subproblem
+    # with the name is not defined the same way as the subproblem
+    # being copied.  Because the dependencies have dependencies, this
+    # process is recursive.
+
+    namechanges = {}
+
+    ## TODO: Lock the Mesh(es).  Recursion means that the locks need
+    ## to be acquired *outside* of this function.
+    if sourcectxt.parent is not meshctxt: # Copying to a different Mesh
+        for param, dep in sourcectxt.subptype.get_dependencies().items():
+            # dep is the complete Who path to the dependency in the source.
+            # srcdepsub is the WhoContext for the depndency in the source.
+            srcdepsub = subproblemcontext.subproblems[dep]
+            depname = labeltree.makePath(dep)[-1]
+            # Look for a subproblem with the same name and definition
+            # in the target mesh.
+            try:
+                targetsub = subproblemcontext.subproblems[targetmeshpath +
+                                                          [depname]]
+            except KeyError:
+                # There's no subproblem with that name.  Make one.
+                _copy_subproblem(menuitem, dep, mesh, depname)
+            else:
+                # There is a subproblem in target with the name of the
+                # source dependency.  Does it have the same definition?
+                if targetsub.subptype != srcdepsub.subptype:
+                    # The subproblem with the same name is different,
+                    # so a new name is needed.
+                    newsubpname = subproblemcontext.subproblems.uniqueName(
+                        targetmeshpath + [depname])
+                    _copy_subproblem(menuitem, dep, mesh, newsubpname)
+                    namechanges[param] = newsubpname
+    
+    # If dependency names were changed, change the values of the
+    # parameters in subptype before calling create.  The Parameters
+    # are in the Registration for the SubProblemType.  The values of
+    # those parameters that are use in SubProblemType.create() are
+    # stored in the SubProblemType instance.  Should this be done in
+    # the SubProblemParameter class?  We need to keep track of which
+    # dependency goes with which Parameter.
+
+    # Work with a copy of the source SubProblemType, so as not to
+    # change anything in the source Mesh.
+    targetsubptype = sourcectxt.subptype.clone(namechanges)
+
+    copyobj = targetsubptype.create(meshctxt.getObject(), meshctxt)
 
     sourcectxt.begin_reading()
     try:
@@ -126,7 +180,7 @@ def _copy_subproblem(menuitem, subproblem, mesh, name):
         sourcectxt.end_reading()
 
     copyctxt = meshctxt.newSubProblem(copyobj, sourcectxt.subptype,
-                                      mesh+':'+name) # new context
+                                      targetmeshpath + [name]) # new context
     copyname = copyctxt.path()
 
     # Set Fields and Equations in the copy
@@ -152,13 +206,15 @@ def _copy_subproblem(menuitem, subproblem, mesh, name):
     for notice in notifications:
         switchboard.notify(*notice)
 
+    # end _copy_subproblem
+
 subproblemMenu.addItem(oofmenu.OOFMenuItem(
     'Copy',
     callback=_copy_subproblem,
     threadable=oofmenu.THREADABLE,
     params=parameter.ParameterGroup(
     whoville.WhoParameter('subproblem',
-                          ooflib.engine.subproblemcontext.subproblems,
+                          subproblemcontext.subproblems,
                           tip='The subproblem to be copied.'),
     SyncMeshParameter('mesh', tip='The copy will be in this mesh.'),
     whoville.AutoWhoNameParameter('name', value=automatic.automatic,
@@ -183,7 +239,7 @@ def _edit_subproblem(menuitem, name, subproblem):
 ##        ## TODO: out of date
 ##        ipcsubpmenu.Edit(name=name, subproblem=subproblem)
 ##        return
-    oldsubp = ooflib.engine.subproblemcontext.subproblems[name]
+    oldsubp = subproblemcontext.subproblems[name]
     if oldsubp.name() == ooflib.engine.mesh.defaultSubProblemName:
         raise ooferror.PyErrUserError("You can't edit the default Subproblem!")
     meshctxt = oldsubp.getParent()
@@ -242,7 +298,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     threadable=oofmenu.THREADABLE,
     params=[
     # This used to be just a StringParameter.  Why?
-    whoville.WhoParameter('name', ooflib.engine.subproblemcontext.subproblems,
+    whoville.WhoParameter('name', subproblemcontext.subproblems,
                           value=None,
                           tip='The name of the subproblem being edited.'),
     parameter.RegisteredParameter('subproblem', subproblemtype.SubProblemType,
@@ -267,7 +323,7 @@ def _rename_subproblem(menuitem, subproblem, name):
         ipcsubpmenu.Rename(name=name, subproblem=subproblem)
         return
     oldpath = labeltree.makePath(subproblem)
-    subprob = ooflib.engine.subproblemcontext.subproblems[oldpath]
+    subprob = subproblemcontext.subproblems[oldpath]
     if subprob.name() == ooflib.engine.mesh.defaultSubProblemName:
         raise ooferror.PyErrUserError("You can't rename the default Subproblem!")
     subprob.reserve()
@@ -283,7 +339,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     callback=_rename_subproblem,
     threadable=oofmenu.THREADABLE,
     params=[whoville.WhoParameter('subproblem',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString),
             whoville.WhoNameParameter('name', value='',
                                        tip='New name for the subproblem.')],
@@ -297,7 +353,7 @@ def _delete_subproblem(menuitem, subproblem):
     if parallel_enable.enabled():
         ipcsubpmenu.Delete(subproblem=subproblem)
         return
-    subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
+    subpctxt = subproblemcontext.subproblems[subproblem]
     if subpctxt.name() == ooflib.engine.mesh.defaultSubProblemName:
         raise ooferror.PyErrUserError("You can't delete the default Subproblem!")
     subpctxt.reserve()
@@ -313,7 +369,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     callback=_delete_subproblem,
     threadable=oofmenu.THREADABLE,
     params=[whoville.WhoParameter('subproblem',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString)],
     help='Delete a Subproblem.',
     discussion="<para>Delete the given &subproblem; from its &mesh;.</para>",
@@ -327,7 +383,7 @@ def _info_subproblem(menuitem, subproblem):
     if parallel_enable.enabled():
         ipcsubpmenu.Info(subproblem=subproblem)
         return
-    subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
+    subpctxt = subproblemcontext.subproblems[subproblem]
     subpctxt.begin_reading()
     try:
         reporter.report(
@@ -345,7 +401,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     callback=_info_subproblem,
     threadable=oofmenu.THREADABLE,
     params=[whoville.WhoParameter('subproblem',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString)],
     help="Print information about a subproblem",
     discussion="""<para>
@@ -373,7 +429,7 @@ def _defineField(menuitem, subproblem, field):
         ipcsubpmenu.Field.Define(subproblem=subproblem, field=field)
     else:
         # subproblem is a name, not an object
-        subpcontext = ooflib.engine.subproblemcontext.subproblems[subproblem]
+        subpcontext = subproblemcontext.subproblems[subproblem]
         subpcontext.reserve()
         subpcontext.begin_writing()
         didsomething = False
@@ -403,7 +459,7 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
     threadable=oofmenu.THREADABLE,
     callback=_defineField,
     params=[whoville.WhoParameter('subproblem',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString),
             meshparameters.FieldParameter('field', tip=parameter.emptyTipString)
     ],
@@ -417,7 +473,7 @@ def _undefineField(menuitem, subproblem, field):
     if parallel_enable.enabled():
         ipcsubpmenu.Field.Undefine(subproblem=subproblem,field=field)
     else:
-        subpcontext = ooflib.engine.subproblemcontext.subproblems[subproblem]
+        subpcontext = subproblemcontext.subproblems[subproblem]
         subpcontext.reserve()
         subpcontext.begin_writing()
         try:
@@ -445,7 +501,7 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
     threadable=oofmenu.THREADABLE,
     callback=_undefineField,
     params=[whoville.WhoParameter('subproblem',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString),
             meshparameters.FieldParameter('field', tip=parameter.emptyTipString)
             ],
@@ -465,7 +521,7 @@ def _activateField(menuitem, subproblem, field):
     if parallel_enable.enabled():
         ipcsubpmenu.Field.Activate(subproblem=subproblem,field=field)
     else:
-        subpcontext = ooflib.engine.subproblemcontext.subproblems[subproblem]
+        subpcontext = subproblemcontext.subproblems[subproblem]
         subpcontext.reserve()
         subpcontext.begin_writing()
         try:
@@ -492,7 +548,7 @@ def _deactivateField(menuitem, subproblem, field):
     if parallel_enable.enabled():
         ipcsubpmenu.Field.Deactivate(subproblem=subproblem,field=field)
     else:
-        subpcontext = ooflib.engine.subproblemcontext.subproblems[subproblem]
+        subpcontext = subproblemcontext.subproblems[subproblem]
         subpcontext.reserve()
         subpcontext.begin_writing()
         try:
@@ -519,7 +575,7 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
     threadable=oofmenu.THREADABLE,
     callback=_activateField,
     params=[whoville.WhoParameter('subproblem',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString),
             meshparameters.FieldParameter('field', tip=parameter.emptyTipString)
     ],
@@ -533,7 +589,7 @@ fieldmenu.addItem(oofmenu.OOFMenuItem(
     threadable=oofmenu.THREADABLE,
     callback=_deactivateField,
     params=[whoville.WhoParameter('subproblem',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString),
             meshparameters.FieldParameter('field', tip=parameter.emptyTipString)
             ],
@@ -562,7 +618,7 @@ def _activateEquation(menuitem, subproblem, equation):
         ipcsubpmenu.Equation.Activate(subproblem=subproblem,
                                           equation=equation)
     else:
-        subpcontext = ooflib.engine.subproblemcontext.subproblems[subproblem]
+        subpcontext = subproblemcontext.subproblems[subproblem]
         subpcontext.reserve()
         subpcontext.begin_writing()
         try:
@@ -582,7 +638,7 @@ def _deactivateEquation(menuitem, subproblem, equation):
         ipcsubpmenu.Equation.Deactivate(subproblem=subproblem,
                                             equation=equation)
     else:
-        subpcontext = ooflib.engine.subproblemcontext.subproblems[subproblem]
+        subpcontext = subproblemcontext.subproblems[subproblem]
         subpcontext.reserve()
         subpcontext.begin_writing()
         try:
@@ -602,7 +658,7 @@ eqnmenu.addItem(oofmenu.OOFMenuItem(
     callback=_activateEquation,
     threadable=oofmenu.THREADABLE,
     params=[whoville.WhoParameter('subproblem',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString),
             meshparameters.EquationParameter('equation',
                                              tip=parameter.emptyTipString)
@@ -629,7 +685,7 @@ eqnmenu.addItem(oofmenu.OOFMenuItem(
     callback=_deactivateEquation,
     threadable=oofmenu.THREADABLE,
     params=[whoville.WhoParameter('subproblem',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString),
             meshparameters.EquationParameter('equation',
                                              tip=parameter.emptyTipString)
@@ -657,8 +713,8 @@ def _copyFieldState(menuitem, source, target):
         return
 
     notifications = []
-    source_subp = ooflib.engine.subproblemcontext.subproblems[source]
-    target_subp = ooflib.engine.subproblemcontext.subproblems[target]
+    source_subp = subproblemcontext.subproblems[source]
+    target_subp = subproblemcontext.subproblems[target]
     source_subp.begin_reading()
     target_subp.reserve()
     target_subp.begin_writing()
@@ -724,10 +780,10 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     callback=_copyFieldState,
     threadable=oofmenu.THREADABLE,
     params=[whoville.WhoParameter('source',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString),
             whoville.WhoParameter('target',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString)],
     help="Copy the Field state (defined, active, etc) from one Subproblem to another.",
     discussion="""<para>
@@ -756,8 +812,8 @@ def _copyEquationState(menuitem, source, target):
         return
 
     notifications = []
-    source_subp = ooflib.engine.subproblemcontext.subproblems[source]
-    target_subp = ooflib.engine.subproblemcontext.subproblems[target]
+    source_subp = subproblemcontext.subproblems[source]
+    target_subp = subproblemcontext.subproblems[target]
     source_subp.begin_reading()
     target_subp.reserve()
     target_subp.begin_writing()
@@ -796,10 +852,10 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     callback=_copyEquationState,
     threadable=oofmenu.THREADABLE,
     params=[whoville.WhoParameter('source',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString),
             whoville.WhoParameter('target',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString)],
     help="Copy the set of active Equations from one Subproblem to another.",
     discussion="""<para>
@@ -815,7 +871,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
 # Time-dependent solver stuff
 
 def _setSolvable(menuitem, subproblem):
-    subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
+    subpctxt = subproblemcontext.subproblems[subproblem]
     subpctxt.begin_writing()
     try:
         subpctxt.solveFlag = True
@@ -829,7 +885,7 @@ def _setSolvable(menuitem, subproblem):
         meshstatus.Unsolved("Solvability changed"))
 
 def _unsetSolvable(menuitem, subproblem):
-    subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
+    subpctxt = subproblemcontext.subproblems[subproblem]
     subpctxt.begin_writing()
     try:
         subpctxt.solveFlag = False
@@ -844,7 +900,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     callback=_setSolvable,
     threadable=oofmenu.THREADABLE,
     params=[whoville.WhoParameter('subproblem',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString)],
     help="Enable a subproblem's solution by the next Solve command.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/enablesoln.xml'),
@@ -856,7 +912,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     callback=_unsetSolvable,
     threadable=oofmenu.THREADABLE,
     params=[whoville.WhoParameter('subproblem',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString)],
     help="Prevent a subproblem's solution by the next Solve command.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/disablesoln.xml'),
@@ -866,7 +922,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
 ################
 
 def setSolver(menuitem, subproblem, solver_mode):
-    subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
+    subpctxt = subproblemcontext.subproblems[subproblem]
     subpctxt.begin_writing()
     try:
         subpctxt.solver_mode = solver_mode
@@ -884,7 +940,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     threadable=oofmenu.THREADABLE,
     params=[
         whoville.WhoParameter('subproblem',
-                              ooflib.engine.subproblemcontext.subproblems,
+                              subproblemcontext.subproblems,
                               tip=parameter.emptyTipString),
         parameter.RegisteredParameter(
             'solver_mode',
@@ -899,8 +955,8 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
 ################
 
 def _copySolver(menuitem, source, target):
-    sourceCtxt = ooflib.engine.subproblemcontext.subproblems[source]
-    targetCtxt = ooflib.engine.subproblemcontext.subproblems[target]
+    sourceCtxt = subproblemcontext.subproblems[source]
+    targetCtxt = subproblemcontext.subproblems[target]
     sourceCtxt.begin_reading()
     try:
         solver = sourceCtxt.solver_mode.clone()
@@ -913,10 +969,10 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     callback=_copySolver,
     params=[
         whoville.WhoParameter('source',
-                              ooflib.engine.subproblemcontext.subproblems,
+                              subproblemcontext.subproblems,
                               tip="Subproblem to copy the solver from."),
         whoville.WhoParameter('target',
-                              ooflib.engine.subproblemcontext.subproblems,
+                              subproblemcontext.subproblems,
                               tip="Subproblem to which to copy the solver.")
     ],
     help="Copy a solver from one subproblem to another.",
@@ -928,7 +984,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
 ################
 
 def _removeSolver(menuitem, subproblem):
-    subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
+    subpctxt = subproblemcontext.subproblems[subproblem]
     subpctxt.begin_writing()
     try:
         subpctxt.solver_mode = None
@@ -942,7 +998,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     callback=_removeSolver,
     threadable=oofmenu.THREADABLE,
     params=[whoville.WhoParameter('subproblem',
-                                  ooflib.engine.subproblemcontext.subproblems,
+                                  subproblemcontext.subproblems,
                                   tip=parameter.emptyTipString)],
     help="Unspecify the solution method for a subproblem.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/removesolver.xml'),
@@ -965,7 +1021,7 @@ _symmetryTestMenu = subproblemMenu.addItem(oofmenu.OOFMenuItem(
         no_cli=True, no_gui=True, no_doc=True))
 
 def _checkSymmetry(subproblem, material, fn, symmetric):
-    subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
+    subpctxt = subproblemcontext.subproblems[subproblem]
     mat = materialmanager.getMaterial('material')
     if fn(subpctxt, mat) != symmetric:
         raise ooferror.PyErrPyProgrammingError("symmetry check failed")
@@ -990,7 +1046,7 @@ def _checkSymmetryM(menuitem, subproblem, material, symmetric):
 
 _symTestParams = [
     whoville.WhoParameter('subproblem',
-                          ooflib.engine.subproblemcontext.subproblems),
+                          subproblemcontext.subproblems),
     parameter.StringParameter('material'),
     parameter.BooleanParameter('symmetric')
     ]

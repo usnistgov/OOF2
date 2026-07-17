@@ -133,6 +133,13 @@ void CSubProblem::setStaticStepper(bool x) {
   staticStepper_ = x; 
 }
 
+double CSubProblem::area() const {
+  double a = 0.0;
+  for(Element* element : elements())
+    a += element->area();
+  return a;
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 CSubProblem::EquationData::EquationData()

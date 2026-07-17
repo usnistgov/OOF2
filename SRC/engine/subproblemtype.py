@@ -26,7 +26,8 @@ class SubProblemType(registeredclass.RegisteredClass):
     xrefs=["Section-Tasks-FEMesh"]
     
     def get_dependencies(self):
-        # Return the paths (colon separated strings) to the other
-        # subproblems on which this one depends. 
-        return []
-
+        # Return the paths to the other subproblems on which this one
+        # depends, in the form of a dictionary keyed by the name of
+        # the Parameter defining the dependency, and the path of the
+        # dependency.
+        return {}

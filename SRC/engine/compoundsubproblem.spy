@@ -10,30 +10,19 @@
 
 from ooflib.common import registeredclass
 from ooflib.common import debug
+from ooflib.common import labeltree
 from ooflib.engine import subproblemcontext
 from ooflib.engine import subproblemtype
 
-# TODO: If a compound subproblem is copied to another Mesh, it should 
-# expect to find its dependencies in the new Mesh, with the same names
-# as the dependencies in the original Mesh.
-#
-# If a subproblem has dependencies that aren't found by name in the
-# target Mesh, it should create them.  If dependencies exist in the
-# target but have different definitions, new dependencies should be
-# created with modified names (append <digit>).
-#
-# Currently when a CompoundSubProblem is copied, the GUI isn't showing
-# the right values, because the widget only displays existing
-# subproblems.
-
-
 class BinaryCompoundSubProblem(subproblemtype.SubProblemType):
     def __init__(self, one, another):
+        # Args are Who paths.
         self.one = one
         self.another = another
     def get_dependencies(self):
-        return [self.one, self.another]
+        return {'one':self.one, 'another':self.another}
     def create(self, mesh, meshctxt):
+        mpath = labeltree.makePath(meshctxt.path())
         return self.cclass(
             subproblemcontext.subproblems[self.one].getObject(),
             subproblemcontext.subproblems[self.another].getObject())
@@ -65,7 +54,6 @@ registeredclass.Registration(
 class IntersectionSubProblem(BinaryCompoundSubProblem):
     cclass = CIntersectionSubProblem
     def __init__(self, *args, **kwargs):
-        debug.fmsg(f"Creating IntersectionSubProblem, {args=} {kwargs=}")
         super(IntersectionSubProblem, self).__init__(*args, **kwargs)
 
 registeredclass.Registration(
@@ -116,7 +104,7 @@ class ComplementSubProblem(subproblemtype.SubProblemType):
     def create(self, mesh, meshctxt):
         return CComplementSubProblem(self.complement_of)
     def get_dependencies(self):
-        return [self.complement_of]
+        return {'complement_of':self.complement_of}
 
 registeredclass.Registration(
     "Complement",

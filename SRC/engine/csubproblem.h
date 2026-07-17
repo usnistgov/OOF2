@@ -107,6 +107,7 @@ public:
   VContainerP<InterfaceElement> interface_elements() const {
     return VContainerP<InterfaceElement>(c_interface_elements());
   }
+  double area() const;
   
   virtual VContainer<Node>* c_nodes() const = 0;
   virtual VContainer<FuncNode>* c_funcnodes() const = 0;

@@ -13,6 +13,10 @@ from ooflib.common import debug
 from ooflib.engine import scpatch
 import sys
 
+## TODO?  A confused or malicious user could create a dependency loop
+## of CompoundSubProblems.  Is it worth detecting loops?  Using one
+## would probably crash the program.
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # A CSubProblem's FEMesh and Mesh used to be stored only in the swig
@@ -39,7 +43,7 @@ CSubProblem.meshcontext = property(_meshctxt_getter, _meshctxt_setter)
 # Return the paths to the other subproblems on which this subproblem
 # depends.  This function must be overridden in derived classes.
 def _get_dependencies(self):
-    return []
+    return {}
 CSubProblem.get_dependencies = _get_dependencies
 
 
