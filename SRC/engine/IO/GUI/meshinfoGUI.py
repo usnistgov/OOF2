@@ -136,7 +136,7 @@ class ElementMode(MeshInfoMode):
         coord = container.mesh_position
         
         self.type.set_text(element.masterelement().name())
-        self.index.set_text(repr(element.get_index()))
+        self.index.set_text(repr(element.index()))
 
         self.updateNodeList(self.nodes, element.node_iterator())
 

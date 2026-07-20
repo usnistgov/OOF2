@@ -87,7 +87,7 @@ void Element::set_index(int i) {
   index_=i;
 }
 
-int Element::get_index() const {
+int Element::index() const {
   return index_;
 }
 
@@ -294,10 +294,8 @@ ElementMapNodeIterator Element::mapnode_iterator() const {
 
 // This returns a pointer, so that the caller can get either an
 // ElementFuncNodeIterator or an InterfaceElementFuncNodeIterator with
-// appropriate sidedness, according to context.  This uglifies some of
-// the loops.  TODO LATER: Making a templated clever pointer container
-// with deletion-on-scope-exit semantics might help to re-prettify
-// them.
+// appropriate sidedness, according to context.
+
 ElementFuncNodeIterator *Element::funcnode_iterator() const {
   return new ElementFuncNodeIterator(*this);
 }

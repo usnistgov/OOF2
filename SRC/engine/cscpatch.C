@@ -79,7 +79,7 @@ CSCPatch::~CSCPatch()
 std::vector<int> *CSCPatch::get_elements() const {
   std::vector<int> *elems = new std::vector<int>;
   for(std::vector<Element*>::size_type i=0; i<elements.size(); i++)
-    elems->push_back(elements[i]->get_index());
+    elems->push_back(elements[i]->index());
   return elems;
 }
 

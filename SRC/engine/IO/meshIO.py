@@ -906,7 +906,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
             melname = emasterelement.name()
             if melname not in masterElementDict:
                 masterElementDict[melname] = emasterelement
-            elementdict[el.get_index()] = i
+            elementdict[el.index()] = i
             i += 1
 
     buffer.append("** Materials defined by OOF2:\n")
@@ -964,7 +964,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
             for el in femesh.elements():
                 if el.material():
                     if el.masterelement().name()==ename.name():
-                        listbuf2=["%d" % (elementdict[el.get_index()])]
+                        listbuf2=["%d" % (elementdict[el.index()])]
                         cornernodelist=[]
                         # List corner nodes first, as preferred by ABAQUS
                         for node in el.cornernode_iterator():
@@ -1036,9 +1036,9 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
             if el.material():
                 if el.material().name()==matname:
                     if i>0 and i%16==0:
-                        listbuf.append("\n%d" % elementdict[el.get_index()])
+                        listbuf.append("\n%d" % elementdict[el.index()])
                     else:
-                        listbuf.append("%d" % elementdict[el.get_index()])
+                        listbuf.append("%d" % elementdict[el.index()])
                     i+=1
         buffer.append(', '.join(listbuf) +
                       "\n*SOLID SECTION, ELSET=%s, MATERIAL=%s\n" % (matname,

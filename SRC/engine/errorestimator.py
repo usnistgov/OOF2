@@ -77,7 +77,7 @@ class WeightedL2ErrorNorm(ErrorNorm):
         self.weights = subproblem.zz_L2_weights(flux, bottom, top)
     #AMR subproblem, pass subproblem
     def __call__(self, element, subproblem, flux):
-        index = element.get_index()
+        index = element.index()
         return subproblem.zz_L2_estimate(element, flux)*self.weights[index]
     
 registeredclass.Registration(

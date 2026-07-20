@@ -118,7 +118,7 @@ class ElementSample(Sample):
     columnNames = ["Element"]
     def __init__(self, element):
         self.element = element
-        self.index = element.get_index()
+        self.index = element.index()
     def integrate(self, domain, output, order, power=1):
         femesh = domain.meshctxt.getObject()
         gauss_pts = list(self.element.integrator(order))
