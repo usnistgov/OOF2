@@ -326,20 +326,3 @@ namedanalysismenu.addItem(oofmenu.OOFMenuItem(
     help="Save the definitions of named analysis operations to a file.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/saveanal.xml')
     ))
-
-###########
-    
-## TODO: Do we need this menu item?  It has no consequences for
-## scripts.
-
-def _retrieveNamedAnalyis(menuitem, name):
-    switchboard.notify("retrieve analysis", name)
-
-namedanalysismenu.addItem(oofmenu.OOFMenuItem(
-    "RetrieveNamedAnalysis",
-    callback=_retrieveNamedAnalyis,
-    params=[namedanalysis.BulkAnalysisNameParameter(
-                "name", tip="Name of the analysis to be retrieved")],
-    help="Set the Analysis Page widgets to the parameters of a stored named analysis.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/retrieveanal.xml')
-))

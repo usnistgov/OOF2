@@ -170,16 +170,3 @@ bdyanalysismenu.addItem(oofmenu.OOFMenuItem(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/savebdyanal.xml')
     ))
 
-def _retrieveNamedAnalyis(menutiem, name):
-    switchboard.notify("retrieve boundary analysis", name)
-
-bdyanalysismenu.addItem(oofmenu.OOFMenuItem(
-        "RetrieveNamedAnalysis",
-        callback=_retrieveNamedAnalyis,
-        params=[namedanalysis.BdyAnalysisNameParameter(
-                "name", tip="Name of the boundary analysis to be retrieved")],
-        help="Set the Boundary Analysis Page widgets to the parameters of a stored analysis operation.",
-        discussion=xmlmenudump.loadFile(
-            'DISCUSSIONS/engine/menu/retrievebdyanal.xml')
-        ))
-        

@@ -355,8 +355,6 @@ class AnalyzePage(BaseAnalysisPage):
                                         self.sensitize_widgets)
         switchboard.requestCallbackMain("named analyses changed",
                                         self.analysesChanged)
-        switchboard.requestCallbackMain("retrieve analysis",
-                                        self.retrieve_analysis)
         switchboard.requestCallbackMain("mesh status changed",
                                         self.sensitize_widgets)
 
@@ -546,17 +544,8 @@ class AnalyzePage(BaseAnalysisPage):
             menuitem.callWithDefaults()
 
     def retrieveCB(self, name): # retrieve named analysis
-        if name:                        # can be empty
-            menuitem = analyzemenu.namedanalysismenu.RetrieveNamedAnalysis
-            menuitem.get_arg('name').value = name
-            menuitem.callWithDefaults()
-
-    # "Retrieve" means fetch a value from the store of named analyses
-    # and put it into the widgets so that the user can use it or edit
-    # it.
-
-    def retrieve_analysis(self, name): # switchboard "retrieve analysis"
-        assert name is not None
+        if not name:
+            return
         analysis = namedanalysis.getNamedBulkAnalysis(name)
         for signal in self.namedAnalysisSignals:
             signal.block()

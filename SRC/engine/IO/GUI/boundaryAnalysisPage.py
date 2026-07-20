@@ -124,8 +124,6 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
         switchboard.requestCallbackMain("boundary renamed", self.newbdyCB)
         switchboard.requestCallbackMain("named boundary analyses changed",
                                         self.analysesChangedCB)
-        switchboard.requestCallbackMain("retrieve boundary analysis",
-                                        self.retrieve_analysis)
         switchboard.requestCallbackMain(('validity', self.timeWidget), 
                                         self.validityChangeCB)
         switchboard.requestCallbackMain("mesh status changed",
@@ -271,12 +269,8 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
             menuitem.callWithDefaults()
 
     def retrieveCB(self, name):
-        if name:
-            menuitem = meshbdymenu.bdyanalysismenu.RetrieveNamedAnalysis
-            menuitem.get_arg('name').value = name
-            menuitem.callWithDefaults()
-
-    def retrieve_analysis(self, name): # sb "retrieve boundary analysis"
+        if not name:
+            return
         analysis = namedanalysis.getNamedBdyAnalysis(name)
         for signal in self.namedAnalysisSignals:
             signal.block()
