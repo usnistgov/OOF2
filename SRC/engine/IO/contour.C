@@ -379,11 +379,8 @@ ContourCellSet *contourCellCache(MasterElement *master, int n) {
   ContourCellCacheID id(master, n);
   ContourCellCache::iterator i = cache.find(id);
   if(i == cache.end()) {
-    // contourcells returns a "new" pointer, so SWIG will not make
-    // extra copies -- this is slightly ugly for us here.
-    //* TODO: that comment is obsolete.  contourcells isn't swigged
-    //* anymore.  If the ContourCellSet constructor took master and n
-    //* as args, then we wouldn't need skel here at all.
+    // TODO: If the ContourCellSet constructor took master and n as
+    // args, then we wouldn't need skel here at all.
     cacheLock.acquire();
     ContourCellSet *cset = 0;
     try {

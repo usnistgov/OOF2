@@ -40,13 +40,12 @@ from gi.repository import Gtk
 
 # Base class for AnalyzePage and BoundaryAnalysisPage.
 
-## TODO PYTHON3: "Go" button isn't desensitized when XY function arg
+## TODO: The "Go" button isn't desensitized when the XY function arg
 ## is empty, or when Sampling args have illegal values.  newSampleCB
 ## is called when the Sampling subclass is changed, but not when the
-## parameters change.  (Not actually a Python3 bug -- 2.1.19 has the
-## same problem.  This should be fixed in conjunction with combining
-## the Scalar and Aggregate outputs, and combining the bulk and
-## boundary analysis pages, as in OOF3D.)
+## parameters change.  This should be fixed in conjunction with
+## combining the Scalar and Aggregate outputs, and combining the bulk
+## and boundary analysis pages, as in OOF3D.
 
 class BaseAnalysisPage(oofGUI.MainPage):
     def buildBottomRow(self, mainbox):

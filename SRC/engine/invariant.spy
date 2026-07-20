@@ -136,7 +136,8 @@ cregisteredclass.Registration(
 ## Invariant and have it appear in the aggregateOutputs tree but not
 ## the scalarOutputs tree.  It would be possible if EigenValue(s) was
 ## an Output itself, and not a parameter value for the Invariant
-## Output.
+## Output.  Would it be easier if we didn't distinguish between scalar
+## and aggregate Outputs, as in OOF3D?
 
 ###############################
 

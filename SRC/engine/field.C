@@ -163,8 +163,6 @@ int Field::localindex(const FuncNode *node, const FieldIndex &component) const
 
 // Get the value of a Field at a Node.
 
-// TODO: Should the last argument be a FieldIndex?
-
 double Field::value(const FEMesh *mesh, const FuncNode *node, int component)
   const
 {
@@ -220,10 +218,6 @@ double Field::gradient(const FEMesh *mesh, const Element *element,
   GenericFieldFunc func(mesh, this, comp);
   return element->interpolate_deriv(pos, gradindex, func);
 }
-
-// TODO: Concrete subclasses of Field should define a non-virtual
-// method, value(mesh, element, pt), that returns an appropriate object
-// (scalar, vector, etc).
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

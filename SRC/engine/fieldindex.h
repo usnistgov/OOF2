@@ -227,9 +227,6 @@ public:
 //  2 1  3
 //  2 2  2
 
-// TODO: Use a separate variety of IndexType for a Voigt index?  Get
-// rid of IndexType completely and just use int?
-
 class SymTensorIndex : public FieldIndex {
 protected:
   int v;			// voigt index

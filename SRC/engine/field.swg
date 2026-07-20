@@ -49,7 +49,7 @@ typedef FieldIndex NewFieldIndex;
 // There is no typemap for Field*.  Field objects should never be
 // returned from C++ to Python.  Use getField() instead.
 
-// TODO LATER: If Field had a swigged __eq__ method that compared
+// TODO: If Field had a swigged __eq__ method that compared
 // objectid()s, would it be safe to return Fields from Python to C++?
 // The reason for not doing that was that two separately swigged
 // instances of the same field don't compare equal, so we ensure than
@@ -113,7 +113,7 @@ public:
 };
 
 %extend Field {
-  // TODO LATER: Get rid of setvalue, if possible.  Use
+  // TODO: Get rid of setvalue, if possible.  Use
   // setValueFromOutputValue instead, since it sets all components.
   // setvalue is used in _loadFieldValues in meshIO.py, and also in
   // the field initialization code in fieldinit.py. And in

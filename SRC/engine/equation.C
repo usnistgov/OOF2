@@ -305,7 +305,6 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	  if(c.nonzero(eqcomp, ldof)) {
 	    int global_col = dofmap[ldof];
 	    double value = sf * c(eqcomp, ldof);
-	    // TODO: Does this need negfactor?
 	    linsys.insertC(global_row, global_col, value*weight);
 	  }
 	}

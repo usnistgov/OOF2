@@ -442,12 +442,6 @@ VContainer<InterfaceElement>* FEMesh::c_interface_elements() const {
   return new MeshInterfaceElementContainer(this, nedgements());
 }
 
-// TODO: FEMesh::nodes() is never used in C++.  That means that
-// the complications arising from iterating over two vectors in C++
-// aren't an issue.  It's called from python in Mesh.compare() and
-// SubproblemContxt.nnodes().  CSubProblem::nodes is called in
-// _CSubProblem_create_bdy_node_map.
-
 VContainerP<Node> FEMesh::nodes() const {
   return VContainerP<Node>(c_nodes());
 }
@@ -492,10 +486,10 @@ FuncNode *FEMesh::getFuncNode(unsigned int i) const {
 // Finding the closest node to the mouse point.
 // Used in MeshInfo
 
-// TODO LATER: use hash table lookup here, instead of looping over all
-// nodes.  Or maybe find enclosing element and search its nodes and its
-// neighbors' nodes?  In perverse situations the closest node may be
-// many elements away.
+// TODO: use hash table lookup here, instead of looping over all
+// nodes.  Or maybe find enclosing element and search its nodes and
+// its neighbors' nodes?  In perverse situations the closest node may
+// be many elements away.
 
 Node *FEMesh::closestNode(const double x, const double y) {
   double min = std::numeric_limits<double>::max();
