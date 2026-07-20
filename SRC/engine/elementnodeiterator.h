@@ -30,9 +30,9 @@ class ProtoNode;
 // Element, and is the base class for the specialized iterators, which
 // loop over subsets of the Nodes.
 
-// TODO PYTHON3 LATER: Make these into real C++ iterators.  (The
-// python versions are already real iterators -- see
-// elementnodeiterator.spy.)  A more natural syntax would be
+// TODO: Make these into real C++ iterators.  (The python versions are
+// already real iterators -- see elementnodeiterator.spy.)  A more
+// natural syntax would be
 //
 //  for(Node *node : element->nodes()) ...
 //  for(FuncNode *node : element->funcnodes()) ...

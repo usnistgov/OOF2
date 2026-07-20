@@ -798,7 +798,7 @@ class AutoWhoNameParameter(parameter.RestrictedAutomaticNameParameter):
             self.__class__.__name__,
             self.name, self.resolver, self.truevalue, self.tip)
     def valueDesc(self):
-        # The base class define valueDesc by printing out the regexp
+        # The base class defines valueDesc by printing out the regexp
         # pattern, which probably isn't useful to many users.  This is
         # simpler.
         return "A character string containing no colons (:), or the value <constant>automatic</constant>."

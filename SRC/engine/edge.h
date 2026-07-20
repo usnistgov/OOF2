@@ -113,9 +113,9 @@ public:
   friend class EdgeGaussPoint;
 };
 
-// TODO PYTHON3 LATER: Turn EdgeNodeIterator into a real iterator,
-// after ElementNodeIterator is converted.  ElementNodeIterator is a
-// base class.
+// TODO: Turn EdgeNodeIterator into a real iterator, after
+// ElementNodeIterator is converted.  ElementNodeIterator is a base
+// class.
 
 class EdgeNodeIterator : public ElementShapeFuncIterator {
 private:
