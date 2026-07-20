@@ -165,8 +165,8 @@ class ConcatenatedOutputsWidget:
     def subWidgetChanged(self, interactive):
         switchboard.notify(self)
 
-def _ConcatenatedOutputs_makeWidget(self):
-    return ConcatenatedOutputsWidget(self)
+def _ConcatenatedOutputs_makeWidget(self, **kwargs):
+    return ConcatenatedOutputsWidget(self, **kwargs)
         
 outputClones.ConcatenatedOutputVal.makeWidget = _ConcatenatedOutputs_makeWidget
 
