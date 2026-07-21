@@ -10,9 +10,6 @@
 
 ## Window for displaying mesh data.
 
-## TODO: The window needs to be updated when the Microstructure,
-## Skeleton, or Mesh is renamed.
-
 ## TODO: Put the output widgets their values in a table, so that the
 ## values are to the right of and lined up with the widgets.  Then
 ## there would be no confusion about which values go with widgets.
@@ -279,7 +276,13 @@ class MeshDataGUI(widgetscope.WidgetScope):
             switchboard.requestCallbackMain('mesh data changed',
                                             self.meshDataChanged),
             switchboard.requestCallbackMain((gfxwindow, "time changed"),
-                                            self.timeChanged)
+                                            self.timeChanged),
+            switchboard.requestCallbackMain(("rename who", "Mesh"),
+                                            self.namesChanged),
+            switchboard.requestCallbackMain(("rename who", "Skeleton"),
+                                            self.namesChanged),
+            switchboard.requestCallbackMain(("rename who", "Microstructure"),
+                                            self.namesChanged)
             ]
 
         
@@ -411,6 +414,9 @@ class MeshDataGUI(widgetscope.WidgetScope):
         debug.mainthreadTest()
         if not self.freezeTimeFlag and not self.tEditMode:
             self.updateTime(self.currentGfxWindow().displayTime)
+
+    def namesChanged(self, oldpath, newname):
+        self.updateMesh()
             
     def tEditCB(self, button):
         if not self.tEditMode:
