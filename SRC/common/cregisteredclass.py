@@ -30,9 +30,7 @@ def registerCClass(klass):
 
     if not hasattr(klass, 'getRegistration'):
         def getRegistration(self):
-            for reg in self.registry:
-                if reg.subclass is self.__class__:
-                    return reg
+            return self.registration # set by Registration.__call__
         klass.getRegistration = getRegistration
 
     if not hasattr(klass, 'getParamValues'):
@@ -156,6 +154,8 @@ class Registration(registeredclass.Registration):
         # class is just adding graphics capability.
         oldclass = self.subclass
         self.subclass = newclass
+        self.subclass.registration = self
+        del oldclass.registration
         self.monkeypatch(reprname=oldclass.__name__)
 
     def __call__(self, *args, **kwargs):
@@ -169,4 +169,5 @@ class Registration(registeredclass.Registration):
         argvals = [p.value for p in self.params]
         obj = self.subclass(*argvals)
         obj.timestamp = timestamp.TimeStamp()
+        obj.registration = self
         return obj

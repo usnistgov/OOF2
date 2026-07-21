@@ -84,6 +84,7 @@ class Registration:
 
         self._name = name
         self.subclass = subclass
+        self.subclass.registration = self
         
         if isinstance(registeredclass, (list, tuple)):
             self.registeredclasses = tuple(registeredclass[:])
@@ -165,7 +166,7 @@ class Registration:
     
     # Set any parameters that you can from the keyword arguments,
     # and then create an instance of the RegisteredClass.
-    def __call__(self,**kwargs):
+    def __call__(self, **kwargs):
         # Check for extra arguments
         paramnames = [p.name for p in self.params]
         for argname in list(kwargs.keys()):
@@ -190,6 +191,8 @@ class Registration:
         
         if not hasattr(obj, 'timestamp'):
             obj.timestamp = timestamp.TimeStamp()
+
+        obj.registration = self
         return obj
 
     def __repr__(self):
@@ -233,21 +236,16 @@ class ConvertibleRegistration(Registration):
     
 class RegisteredClass:
 
-    ## TODO: If Registration.__call__() installed a (weak) reference
-    ## to the Registration in every subclass object it instantiated,
-    ## then getRegistration() et al wouldn't be necessary.
-
+    ## TODO: Get rid of getRegistration() and getClassRegistration()
+    ## and just use registration directly.
+    
     def getRegistration(self):
         # Return this object's subclass's registration. 
-        for reg in self.registry:
-            if self.__class__ == reg.subclass:
-                return reg
+        return self.registration # set by Registration.__call__
 
     @classmethod
     def getClassRegistration(cls):
-        for reg in cls.registry:
-            if cls == reg.subclass:
-                return reg
+        return cls.registration # set by Registration.__init__
 
     @classmethod
     def getRegistrationForName(cls, name):
