@@ -128,13 +128,13 @@ class TimeStepper(registeredclass.RegisteredClass):
         # stepper is assumed not to need time derivative fields unless
         # the equations are second order.
         try:
-            return self.getRegistration().require_timederiv
+            return self.registration.require_timederiv
         except:
             return False
 
     def explicit(self):
         try:
-            return self.getRegistration().explicit
+            return self.registration.explicit
         except:
             return False
 

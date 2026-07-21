@@ -35,7 +35,7 @@ CMaterialSubProblem.__init__ = _CMaterialSubProblem___init__
 class MaterialSubProbNotifier:
     def __init__(self, subpctxt):
         self.subpctxt = subpctxt
-        param = subpctxt.subptype.getRegistration().getParameter('material')
+        param = subpctxt.subptype.registration.getParameter('material')
         self.material = param.value
     def matchanged(self, microstructure):
         ## switchboard callback for "materials changed in microstructure"

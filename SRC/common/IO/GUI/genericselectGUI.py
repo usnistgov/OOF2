@@ -236,9 +236,9 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         if selectionMethod is not None:
             self.historian.record(HistoricalSelection(selectionMethod,
                                                       pointlist))
-            self.setCoordDisplay(selectionMethod.getRegistration(), pointlist)
+            self.setCoordDisplay(selectionMethod.registration, pointlist)
             self.selectionMethodFactory.setByRegistration(
-                selectionMethod.getRegistration())
+                selectionMethod.registration)
             self.sensitize()
 
     def changedSelection(self):         # switchboard callback
@@ -252,7 +252,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.selectionMethodFactory.set(historicalSelection.selectionMethod,
                                         interactive=1)
         self.setCoordDisplay(
-            historicalSelection.selectionMethod.getRegistration(),
+            historicalSelection.selectionMethod.registration,
             historicalSelection.points)
 
     def sensitize(self):

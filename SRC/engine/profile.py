@@ -68,7 +68,7 @@ class Profile(registeredclass.RegisteredClass):
     # default parameters.  This is probably harmless.
     def clone(self):
         self.setDefaultParams()
-        return self.getRegistration()() # Retrieve and run the registration.
+        return self.registration() # Retrieve and run the registration.
 
     def isTimeDependent(self):
         return False

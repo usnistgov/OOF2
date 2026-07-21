@@ -101,7 +101,7 @@ class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
                 abg = orientation.abg()
                 if self.param.value is not None:
                     klass = self.param.value.__class__
-                    reg = self.param.value.getRegistration()
+                    reg = self.param.value.registration
                 else:
                     reg = orientationmatrix.Orientation.registry[0]
                     klass = reg.subclass

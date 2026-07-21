@@ -40,13 +40,12 @@ def registerCClass(klass):
 
     if not hasattr(klass, 'setDefaultParams'):
         def setDefaultParams(self):
-            registration = self.getRegistration()
-            registration.setDefaultParams(self.getParamValues())
+            self.registration.setDefaultParams(self.getParamValues())
         klass.setDefaultParams = setDefaultParams
 
     if not hasattr(klass, 'getDefaultParams'):
         def getDefaultParams(self):
-            return self.getRegistration().params
+            return self.registration.params
         klass.getDefaultParams = getDefaultParams
 
     if not hasattr(klass, 'clone'):
@@ -57,20 +56,20 @@ def registerCClass(klass):
         # subclasses must redefine clone().
         def clone(self):
             self.setDefaultParams()
-            return self.getRegistration()()
+            return self.registration()
         klass.clone = clone
 
     if not hasattr(klass, 'paramrepr'):
         def paramrepr(self):
             values = self.getParamValues()
-            names = [p.name for p in self.getRegistration().params]
+            names = [p.name for p in self.registration.params]
             return ','.join([f"{name}={repr(value)}"
                              for (name, value) in zip(names, values)])
         klass.paramrepr = paramrepr
 
     if not hasattr(klass, 'shortrepr'):
         def shortrepr(self):
-            return self.getRegistration().name()
+            return self.registration.name()
         klass.shortrepr = shortrepr
 
     if not hasattr(klass, '__eq__'):
@@ -79,8 +78,7 @@ def registerCClass(klass):
                 return 0
             if self.__class__ != other.__class__:
                 return 0
-            reg = self.getRegistration()
-            if hasattr(reg, "to_base"):
+            if hasattr(self.registration, "to_base"):
                 self_base = self.to_base
                 other_base = other.to_base()
                 return self_base.getParamValues() == other_base.getParamValues()
@@ -95,10 +93,9 @@ def registerCClass(klass):
     if not hasattr(klass, 'binaryRepr'):
         def binaryRepr(self, datafile):
             repstrings = []
-            registration = self.getRegistration()
-            regkey = datafile.oofObjID(registration)
+            regkey = datafile.oofObjID(self.registration)
             repstrings.append(struct.pack('>i', regkey))
-            for param,value in zip(registration.params, self.getParamValues()):
+            for param,value in zip(self.registration.params, self.getParamValues()):
                 repstrings.append(param.binaryRepr(datafile, value))
             return b''.join(repstrings)
         klass.binaryRepr = binaryRepr

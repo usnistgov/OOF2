@@ -108,8 +108,8 @@ class Registration:
                             % subclass.__name__)
 
         self.__dict__.update(kwargs)
-        # Store the registration.  Extract it first, so that it also
-        # works for the RegisteredCClasses.
+
+        # Store the registration. .
         for registeredclass in self.registeredclasses:
             registeredclass.registry.append(self)
             # Sorting each time is inefficient, but doesn't happen often.
@@ -204,6 +204,8 @@ class Registration:
     def cleanUp(self):
         self.params = []
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class ConvertibleRegistration(Registration):
     def __init__(self, name, registeredclasses, subclass, ordering,
                  params=[], secret=0, to_base=None, from_base=None, **kwargs):
@@ -222,7 +224,6 @@ class ConvertibleRegistration(Registration):
         ## ConvertibleRegistration.getParamValuesAsBase, which gets
         ## them from ConvertibleRegistration.to_base...
         
-        ## TODO: Remove the 1st arg from from_base?
         # 'base' is an instance of the base subclass of the
         # ConvertibleRegisteredClass.
         self.setDefaultParams(self.from_base(base))
@@ -233,19 +234,9 @@ class ConvertibleRegistration(Registration):
                     self.name(), self.subclass.__name__,
                     repr(self.ordering), repr(self.params))
                
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
     
 class RegisteredClass:
-
-    ## TODO: Get rid of getRegistration() and getClassRegistration()
-    ## and just use registration directly.
-    
-    def getRegistration(self):
-        # Return this object's subclass's registration. 
-        return self.registration # set by Registration.__call__
-
-    @classmethod
-    def getClassRegistration(cls):
-        return cls.registration # set by Registration.__init__
 
     @classmethod
     def getRegistrationForName(cls, name):
@@ -256,12 +247,10 @@ class RegisteredClass:
     def getParamValues(self):
         # Return a list of the values of the registered Parameters of
         # this object.
-        registration = self.getRegistration()
-        return [self.__dict__[p.name] for p in registration.params]
+        return [self.__dict__[p.name] for p in self.registration.params]
 
     def getParamValue(self, paramname):
-        registration = self.getRegistration()
-        for p in registration.params:
+        for p in self.registration.params:
             if p.name == paramname:
                 return self.__dict__[paramname]
         raise KeyError("RegisteredClass %s has no parameter named %s!"
@@ -273,16 +262,15 @@ class RegisteredClass:
         # Registration.  The argument is a dictionary of name:value
         # pairs that will be used instead of the local values.
         ## TODO: This isn't thread safe at all!
-        registration = self.getRegistration()
         paramdict = {}
-        for p in registration.params:
+        for p in self.registration.params:
             paramdict[p.name] = getattr(self, p.name)
         for name,val in values.items():
             paramdict[name] = val
-        registration.setDefaultParams(paramdict)
+        self.registration.setDefaultParams(paramdict)
 
     def getDefaultParams(self):
-        return self.getRegistration().params
+        return self.registration.params
 
     # clone() defined like this can be dangerous, if subclasses
     # contain have parameters that are themselves registered
@@ -292,17 +280,17 @@ class RegisteredClass:
     # found, please document it here.)
     def clone(self, paramvals={}):
         self.setDefaultParams(paramvals)
-        return self.getRegistration()()
+        return self.registration()
     
     def paramrepr(self):
         values = self.getParamValues()
-        names = [p.name for p in self.getRegistration().params]
+        names = [p.name for p in self.registration.params]
         return ','.join([f'{name}={repr(value)}'
                          for (name, value) in zip(names, values)])
 
     def shortparamrepr(self):
         values = self.getParamValues()
-        names = [p.name for p in self.getRegistration().params]
+        names = [p.name for p in self.registration.params]
         valreprs = []
         for val in values:
             try:
@@ -346,10 +334,9 @@ class RegisteredClass:
 
     def binaryRepr(self, datafile):
         repstrings = []
-        registration = self.getRegistration()
-        regkey = datafile.oofObjID(registration)
+        regkey = datafile.oofObjID(self.registration)
         repstrings.append(struct.pack('>i', regkey))
-        for param,value in zip(registration.params, self.getParamValues()):
+        for param,value in zip(self.registration.params, self.getParamValues()):
             if value is None:
                 nonekey = datafile.oofObjID(None)
                 repstrings.append(struct.pack('>i', nonekey))
@@ -360,13 +347,8 @@ class RegisteredClass:
         # The timestamp is created by Registration.__call__.
         return self.timestamp
 
-def getRegistration(regclass, registry):
-    # TODO LATER: Make registries instances of a Registry class, which can
-    # do this lookup more efficiently.
-    for registration in registry:
-        if registration.subclass is regclass:
-            return registration
-
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+    
 def binaryReadRegClass(parser, registry):
     (regkey,) = struct.unpack('>i', parser.getBytes(struct.calcsize('>i')))
     registration = parser.getObject(regkey)
@@ -377,19 +359,21 @@ def binaryReadRegClass(parser, registry):
         argdict[param.name] = param.binaryRead(parser)
     return registration(**argdict)
         
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class ConvertibleRegisteredClass(RegisteredClass):
     # Instance-level conversion machinery is the only addition to
     # the ordinary RegisteredClass.
     def to_base(self):
-        reg = self.getRegistration()
-        return reg.to_base(reg, self.getParamValues())
+        ## TODO: Why do we need the first argument here?  See also
+        ## getParamValuesAsBase in ConvertibleRegistration.
+        return self.registration.to_base(self.registration,
+                                         self.getParamValues())
     # Compare base representations in the convertible case.
     def __eq__(self, other):
         if other is None:
             return 0
-        reg = self.getRegistration()
-        for registeredclass in reg.registeredclasses:
+        for registeredclass in self.registration.registeredclasses:
             if issubclass(other.__class__, registeredclass):
                 self_base = self.to_base()
                 other_base = other.to_base()

@@ -304,7 +304,7 @@ class BoundaryCondPage(oofGUI.MainPage):
             # extract the parameter value and then explicity pass that
             # value to callWithDefaults since the boundary parameter
             # type might not match.
-            boundaryparam = condition_obj.getRegistration().getParameter(
+            boundaryparam = condition_obj.registration.getParameter(
                 "boundary").clone()
             bc = ooflib.engine.mesh.meshes[currentmesh].getBdyCondition(bcname)
             boundaryparam.set(bc.boundary)

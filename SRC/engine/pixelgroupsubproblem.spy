@@ -24,7 +24,7 @@ from ooflib.engine import subproblemtype
 class PixGrpSubProbNotifier:
     def __init__(self, subpctxt):
         self.subpctxt = subpctxt
-        param = subpctxt.subptype.getRegistration().getParameter('group')
+        param = subpctxt.subptype.registration.getParameter('group')
         self.groupname = param.value
     def __call__(self, group, microstructurename):
         if (group.name() == self.groupname and

@@ -44,7 +44,8 @@ AngleRangeParameter = parameter.AngleRangeParameter
 # Base class.  Should be able to answer questions about its values
 # in different representations, using the member *instance*'s to_base
 # functions.  
-class Orientation(registeredclass.ConvertibleRegisteredClass, metaclass=utils.PrintableClass):
+class Orientation(registeredclass.ConvertibleRegisteredClass,
+                  metaclass=utils.PrintableClass):
     registry = []
     # Orientation needs a special equality checker, because
     # it's value is not a composite Python object, as assumed by
@@ -89,10 +90,9 @@ class Orientation(registeredclass.ConvertibleRegisteredClass, metaclass=utils.Pr
         alpha, beta, gamma = map(math.degrees,
                                  (abg.alpha(), abg.beta(), abg.gamma()))
         newabg = Abg(alpha, beta, gamma+angle)
-        reg = self.getRegistration()
-        args = reg.from_base(newabg)
-        reg.setDefaultParams(args)
-        return reg()
+        args = self.registration.from_base(newabg)
+        self.registration.setDefaultParams(args)
+        return self.registration()
 
 # Enum class for choosing an orientation representation, generated
 # automatically by the registrations for the Orientation subclasses.
@@ -134,7 +134,8 @@ class OrientationRegistration(registeredclass.ConvertibleRegistration):
 ## The base representation for the ConvertibleRegisteredClass
 ## mechanism (which is not the same thing as the base class) is the
 ## Abg subclass.  corient_to_base converts any COrientation subclass
-## to an Abg object.
+## to an Abg object, and is used by the to_base() methods in each
+## Registration.
 
 def corient_to_base(corient):
     abg = corient.abg()
@@ -318,10 +319,7 @@ OrientationRegistration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Axis-and-angle.  Also uses _quaternion_to_base_ and
-# _quaternion_from_base, but since they're data, this isn't
-# proper (structural) inheritance.
-
+# Axis-and-angle. 
 
 class Axis(Orientation):
     def __init__(self, angle, x, y, z):

@@ -435,7 +435,7 @@ class OutputPage(oofGUI.MainPage):
         self.editDestinationButton.set_sensitive(outputok and
                                                 output.settableDestination)
         self.rewindDestButton.set_sensitive(
-            destinationok and output.destination.getRegistration().rewindable)
+            destinationok and output.destination.registration.rewindable)
         
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

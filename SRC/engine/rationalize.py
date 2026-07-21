@@ -45,7 +45,7 @@ class Rationalizer(registeredclass.RegisteredClass):
         # modifies the Skeleton's element list. 
         elements = targets(skel, context, copy=1)
         crandom.shuffle(elements)
-        executed_action = self.getRegistration().gerund
+        executed_action = self.registration.gerund
         processed = set()
         count = 0
         done = 0  # No. of rationalized elements
@@ -75,7 +75,7 @@ class Rationalizer(registeredclass.RegisteredClass):
 
         skel.cleanUp()
         reporter.report("%d elements rationalized : %s."
-                        % (done, self.getRegistration().name()))
+                        % (done, self.registration.name()))
 
     tip = "Specific tools to remove badly shaped Elements from Skeletons."
     discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/rationalizer.xml')

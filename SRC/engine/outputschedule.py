@@ -32,7 +32,7 @@ class ScheduleType(registeredclass.RegisteredClass):
     xrefs=["Section-Tasks-ScheduledOutput"]
 
     def shortrepr(self):
-        return self.getRegistration().name()
+        return self.registration.name()
 
 class AbsoluteOutputSchedule(ScheduleType):
     conditional = False

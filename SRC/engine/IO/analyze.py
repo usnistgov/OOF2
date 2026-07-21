@@ -51,7 +51,7 @@ class DataOperation(registeredclass.RegisteredClass):
     xrefs=["Section-Tasks-Analysis", "MenuItem-OOF.Mesh.Analyze"]
     
     def shortrepr(self):
-        return self.getRegistration().name()
+        return self.registration.name()
 
 class DataOperationRegistration(registeredclass.Registration):
     def __init__(self, name, subclass, ordering, params=[],

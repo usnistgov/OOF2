@@ -83,8 +83,8 @@ class IsotropicRank4TensorCij(IsotropicRank4Tensor):
 
 # vlist, if provided, should be an indexable with vlist[0]=c11,
 # vlist[1]=c12.  
-def _cij_to_base(cijkl_reg, vlist = None):
-    vset = vlist or cijkl_reg.getParamValues() # Gets c11 and c12.
+def _cij_to_base(self, vlist = None):
+    vset = vlist or self.getParamValues() # Gets c11 and c12.
     return IsoCijklValueBase(c11=vset[0], c12=vset[1])
 
 def _cij_from_base(base):
@@ -115,8 +115,8 @@ class IsotropicRank4TensorLame(IsotropicRank4Tensor):
         self.mu = mu
 
 # vlist should again be an indexable with vlist[0]=lmbda, vlist[1]=mu
-def _lame_to_base(lame_reg, vlist=None):
-    (lmbda, mu) = vlist or lame_reg.getParamValues()
+def _lame_to_base(self, vlist=None):
+    (lmbda, mu) = vlist or self.getParamValues()
     c11 = lmbda + 2.0*mu
     c12 = lmbda
     return IsoCijklValueBase(c11=c11, c12=c12)
@@ -151,8 +151,8 @@ class IsotropicRank4TensorEnu(IsotropicRank4Tensor):
         self.poisson = poisson
 
 # vlist, if provided, is indexable.
-def _enu_to_base(enu_reg, vlist=None):
-    (young, poisson) = vlist or enu_reg.getParamValues()
+def _enu_to_base(self, vlist=None):
+    (young, poisson) = vlist or self.getParamValues()
     if poisson == 0.5:
         raise ValueError("poisson=0.5 is pathological.  Values not converted!")
     if poisson == -1.0:
@@ -190,8 +190,8 @@ class IsotropicRank4TensorBulkShear(IsotropicRank4Tensor):
         self.bulk = bulk
         self.shear = shear
 
-def _bs_to_base(bs_reg, vlist=None):
-    (bulk, shear) = vlist or bs_reg.getParamValues()
+def _bs_to_base(self, vlist=None):
+    (bulk, shear) = vlist or self.getParamValues()
     c11 = bulk+(4.0/3.0)*shear
     c12 = bulk-(2.0/3.0)*shear
     return IsoCijklValueBase(c11=c11, c12=c12)

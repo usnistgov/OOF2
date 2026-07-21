@@ -40,7 +40,7 @@ class OutputDestinationWidget(regclassfactory.RegisteredClassFactory):
     def includeRegistration(self, reg):
         return issubclass(
             reg.subclass,
-            self.outputWidget.get_value().getRegistration().destinationClass)
+            self.outputWidget.get_value().registration.destinationClass)
     def outputCB(self, *args):
         self.refresh()
     def cleanUp(self):

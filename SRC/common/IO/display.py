@@ -174,19 +174,18 @@ class DisplayMethod(registeredclass.RegisteredClass):
         return self.acceptsWhoClass(who.getClass())
     def acceptsWhoClass(self, whoclass):
         whoclassname = whoclass.name()
-        registration = self.getRegistration()
-        return whoclassname in registration.whoclasses
+        return whoclassname in self.registration.whoclasses
         
     def clone(self):
         self.setDefaultParams()
-        bozo = self.getRegistration()()
+        bozo = self.registration()
         bozo.hidden = self.hidden
         bozo.listed = self.listed
         bozo.frozen = self.frozen
         return bozo
 
     def name(self):
-        return self.getRegistration().name()
+        return self.registration.name()
 
     # Distinct methods with the same values should not compare
     # equally, so override RegisteredClass's __eq__.  This is so that
@@ -260,7 +259,7 @@ class DisplayMethod(registeredclass.RegisteredClass):
         self.canvaslayer.lowerBy(howfar)
 
     def layerordering(self):
-        return self.getRegistration().layerordering
+        return self.registration.layerordering
     
     # The short name is just the classname and the "what", if there is
     # one.  Used by the gfxwindow's layer display, if the appropriate

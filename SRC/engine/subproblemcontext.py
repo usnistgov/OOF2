@@ -94,7 +94,7 @@ class SubProblemContext(whoville.Who):
         # 'cleanup' function is called when the subproblem is
         # destroyed.
         try:
-            startupfn = self.subptype.getRegistration().startup
+            startupfn = self.subptype.registration.startup
         except AttributeError:
             pass
         else:

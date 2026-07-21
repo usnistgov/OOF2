@@ -72,7 +72,7 @@ class ScheduledOutput(registeredclass.RegisteredClass):
         self.schedule = None
         self.scheduleType = None
     def setDestination(self, destination):
-        if not isinstance(destination, self.getRegistration().destinationClass):
+        if not isinstance(destination, self.registration.destinationClass):
             raise ooferror.PyErrInvalidDestination()
         self.destination = destination
     def deleteDestination(self, meshctxt):

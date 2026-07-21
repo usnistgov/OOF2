@@ -48,7 +48,7 @@ class SampleRCF(regclassfactory.RegisteredClassFactory):
                 switchboard.requestCallbackMain(self.domainWidget,
                                                 self.domainCB))
         else:                   # domainClass was specified
-            self.sample_types = domainClass.getClassRegistration().sample_types
+            self.sample_types = domainClass.registration.sample_types
 
         # Ditto for the operationClass.
         if operationClass is None:
@@ -61,7 +61,7 @@ class SampleRCF(regclassfactory.RegisteredClassFactory):
                 switchboard.requestCallbackMain(self.operationWidget,
                                                 self.operationCB))
         else: # operationClass is not None, set directness accordingly
-            self.directness = operationClass.getClassRegistration().direct
+            self.directness = operationClass.registration.direct
         self.refresh(obj)
 
     def cleanUp(self):

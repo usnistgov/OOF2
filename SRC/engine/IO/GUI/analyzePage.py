@@ -584,7 +584,7 @@ class AnalyzePage(BaseAnalysisPage):
     # perform the action.
     def go_buttonCB(self, gtkobj):
         op_reg = self.op_obj.get_value()
-        regname = op_reg.getRegistration().name()
+        regname = op_reg.registration.name()
         menuitem = analyzemenu.ops_menu.getItem(
             utils.space2underscore(regname))
 

@@ -228,12 +228,11 @@ class RegisteredClassFactory(RCFBase):
     # programmatic, some widgets use it to make sure their displays
     # remain self-consistent.
     def set(self, obj, interactive):
-        registration = obj.getRegistration()
-        if self.includeRegistration(registration):
+        if self.includeRegistration(obj.registration):
             # Set the registration's parameters
             obj.setDefaultParams()
             self.useDefault = False
-            self.setByRegistration(obj.getRegistration(), interactive)
+            self.setByRegistration(obj.registration, interactive)
 
     # Returns the currently-selected registration, or None.
     def getRegistration(self):
@@ -673,7 +672,7 @@ class RegisteredClassListFactory(RCFBase):
     def set(self, *objlist):
         for obj in objlist:
             obj.setDefaultParams()
-        self.setByRegistrations([obj.getRegistration() for obj in objlist])
+        self.setByRegistrations([obj.registration for obj in objlist])
 
     def setByRegistrations(self, registrations):
         for reg in self.registry:
