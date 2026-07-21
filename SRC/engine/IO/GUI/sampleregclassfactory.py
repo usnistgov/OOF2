@@ -38,7 +38,7 @@ class SampleRCF(regclassfactory.RegisteredClassFactory):
         # only be used on a particular type of domain, and it won't be
         # necessary to synchronize with a Domain widget.
         if domainClass is None:
-            # Find widget to synch with.
+            # Find widget to sync with.
             self.domainWidget = self.findWidget(
                 lambda w: (isinstance(w, regclassfactory.RegisteredClassFactory)
                            and w.registry is analysisdomain.Domain.registry))
@@ -48,11 +48,7 @@ class SampleRCF(regclassfactory.RegisteredClassFactory):
                 switchboard.requestCallbackMain(self.domainWidget,
                                                 self.domainCB))
         else:                   # domainClass was specified
-            # Find the registration for the class
-            ## TODO: Use domainClass.getRegistration instead of looping
-            for reg in analysisdomain.Domain.registry:
-                if reg.subclass is domainClass:
-                    self.sample_types = reg.sample_types
+            self.sample_types = domainClass.getClassRegistration().sample_types
 
         # Ditto for the operationClass.
         if operationClass is None:
@@ -65,11 +61,7 @@ class SampleRCF(regclassfactory.RegisteredClassFactory):
                 switchboard.requestCallbackMain(self.operationWidget,
                                                 self.operationCB))
         else: # operationClass is not None, set directness accordingly
-            ## TODO: Use operationClass.getRegistration instead of looping
-            for reg in analyze.DataOperation.registry:
-                if reg.subclass is operationClass:
-                    self.directness = reg.direct
-                    break
+            self.directness = operationClass.getClassRegistration().direct
         self.refresh(obj)
 
     def cleanUp(self):

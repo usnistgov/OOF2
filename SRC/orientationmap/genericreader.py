@@ -197,8 +197,7 @@ class GenericReader(orientmapdata.OrientMapReader):
         # The number of angle components to read is the number of
         # parameters in the Registration for the selected Orientation
         # subclass.
-        reg = orientationmatrix.Orientation.getRegistrationForSubclass(
-            self.angle_type)
+        reg = self.angle_type.getClassRegistration()
         nAngleComps = len(reg.params)
 
         xycol0 = self.xy_column - 1   # UI uses fortran indexing

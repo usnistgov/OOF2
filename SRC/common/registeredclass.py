@@ -66,7 +66,6 @@
 ## simple list?  If it's a LabelTree?  The RegisteredClassFactory will
 ## have to be able to create a hierarchical GtkOptionMenu.
 
-
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import timestamp
@@ -233,30 +232,29 @@ class ConvertibleRegistration(Registration):
                
     
 class RegisteredClass:
-#     def getRegistrationIndex(self):
-#         # Return the position of this object's subclass in the list of
-#         # all subclasses (ie in the registry).
-#         for i in range(len(self.registry)):
-#             if self.__class__ == self.registry[i].subclass:
-#                 return i
 
-#     def getNonSecretRegistrationIndex(self):
-#         # Return the position of this object's subclass in the list of
-#         # all subclasses, not counting subclasses with
-#         # Registration.secret==1.
-#         count = 0
-#         for registration in self.registry:
-#             if isinstance(self, registration.subclass):
-#                 return count
-#             if not registration.secret:
-#                 count += 1
-            
+    ## TODO: If Registration.__call__() installed a (weak) reference
+    ## to the Registration in every subclass object it instantiated,
+    ## then getRegistration() et al wouldn't be necessary.
+
     def getRegistration(self):
         # Return this object's subclass's registration. 
         for reg in self.registry:
             if self.__class__ == reg.subclass:
                 return reg
-        
+
+    @classmethod
+    def getClassRegistration(cls):
+        for reg in cls.registry:
+            if cls == reg.subclass:
+                return reg
+
+    @classmethod
+    def getRegistrationForName(cls, name):
+        for reg in cls.registry:
+            if reg.name() == name:
+                return reg
+
     def getParamValues(self):
         # Return a list of the values of the registered Parameters of
         # this object.
@@ -287,17 +285,6 @@ class RegisteredClass:
 
     def getDefaultParams(self):
         return self.getRegistration().params
-
-    @staticmethod
-    def getRegistrationForSubclass(subclass):
-        for reg in subclass.registry:
-            if reg.subclass is subclass:
-                return reg
-    @classmethod
-    def getRegistrationForName(cls, name):
-        for reg in cls.registry:
-            if reg.name() == name:
-                return reg
 
     # clone() defined like this can be dangerous, if subclasses
     # contain have parameters that are themselves registered
