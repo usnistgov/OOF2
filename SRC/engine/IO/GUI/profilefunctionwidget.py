@@ -114,10 +114,10 @@ class FluxProfileSetWidget(parameterwidgets.ParameterWidget):
         self.profileset = [] # Profiles themselves.
         self.widgetset = []  # LabelledProfileRCF objects
         self.set_value(param.value)
-        # TODO LATER: The real right way to handle validity is to behave
-        # as a proper container, and catch the validity changes of the
-        # enclosed RCFs.  However, we happen to know that we are always
-        # valid, so we do it the simple way.
+        # The real right way to handle validity is to behave as a
+        # proper container, and catch the validity changes of the
+        # enclosed RCFs.  However, we happen to know that we are
+        # always valid, so we do it the simple way.
         self.widgetChanged(1, interactive=0)
 
     # Changes the length of the list of profile sets, padding with

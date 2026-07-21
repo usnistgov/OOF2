@@ -341,7 +341,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         # before this method returns, because the Canvas will want to
         # use it right away.  A reference to it is held here to ensure
         # that it won't be destroyed before we're done with it.
-        ## TODO GTK3: Make rubber band parameters settable.
+        ## TODO: Make rubber band parameters settable.
         self.rb = oofcanvasgui.SpiderRubberBand()
         self.rb.setLineWidth(1)
         self.rb.setColor(oofcanvas.black)

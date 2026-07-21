@@ -36,8 +36,7 @@ from gi.repository import Gtk
 
 ## TODO: Add a SegmentMode that will display interface materials.
 
-## TODO LATER: Can SkeletonToolboxGUI and MeshToolboxGUI share a base
-## class?
+## TODO: Can SkeletonToolboxGUI and MeshToolboxGUI share a base class?
 
 class MeshInfoMode:
     # Base class for ElementMode, NodeMode.
