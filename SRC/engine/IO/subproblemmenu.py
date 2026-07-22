@@ -51,6 +51,8 @@ subproblemMenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
 
 #############
 
+## TODO: This comment seems to have been copied from meshNameResolver
+## in meshmenu.py and doesn't apply here!
 # Look for an enclosing subproblem parameter -- if not found, use the
 # enclosing mesh parameter.  SubProblem copying needs the first case,
 # new SubProblem construction needs the second.
@@ -105,9 +107,6 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
 
 #############
 
-## TODO: _copy_subproblem and _edit_subproblem duplicate a lot of each
-## others code, which could be shared.
-
 ## TODO: The default name of a copied SubProblem should be the name of
 ## SubProblem being copied, not "subproblem". 
 
@@ -116,21 +115,41 @@ def _copy_subproblem(menuitem, subproblem, mesh, name):
         ipcsubpmenu.Copy(name=name, mesh=mesh, subproblem=subproblem)
         return
     sourcectxt = subproblemcontext.subproblems[subproblem]
+    meshctxt = ooflib.engine.mesh.meshes[mesh]
+    notifications = []
+    
+    # _copy_subproblem_core is called recursively if copying a
+    # compound subproblem that depends on another subproblem, so the
+    # locks must be acquired before it's called.
+    meshctxt.reserve()
+    meshctxt.begin_writing()
+    if sourcectxt.parent is not meshctxt:
+        sourcectxt.begin_reading()
+    try:
+        _copy_subproblem_core(sourcectxt, mesh, meshctxt, name, notifications)
+    finally:
+        if sourcectxt.parent is not meshctxt:
+            sourcectxt.end_reading()
+        meshctxt.end_writing()
+        meshctxt.cancel_reservation()
+
+    for notice in notifications:
+        switchboard.notify(*notice)
+        
+def _copy_subproblem_core(sourcectxt, mesh, meshctxt, name, notifications):
+
     sourceobj = sourcectxt.getObject()
     targetmeshpath = labeltree.makePath(mesh)
-    meshctxt = ooflib.engine.mesh.meshes[mesh]
 
     # If copying to a different Mesh, SubProblem dependencies may need
     # to be copied first.  A copy is needed if the target mesh has no
     # subproblem with the name of the dependency, or if the subproblem
     # with the name is not defined the same way as the subproblem
-    # being copied.  Because the dependencies have dependencies, this
-    # process is recursive.
+    # being copied.  Because the dependencies may have dependencies,
+    # this process is recursive.
 
     namechanges = {}
 
-    ## TODO: Lock the Mesh(es).  Recursion means that the locks need
-    ## to be acquired *outside* of this function.
     if sourcectxt.parent is not meshctxt: # Copying to a different Mesh
         for param, dep in sourcectxt.subptype.get_dependencies().items():
             # dep is the complete Who path to the dependency in the source.
@@ -144,7 +163,7 @@ def _copy_subproblem(menuitem, subproblem, mesh, name):
                                                           [depname]]
             except KeyError:
                 # There's no subproblem with that name.  Make one.
-                _copy_subproblem(menuitem, dep, mesh, depname)
+                _copy_subproblem(srcdepdub, mesh, meshctxt, depname)
             else:
                 # There is a subproblem in target with the name of the
                 # source dependency.  Does it have the same definition?
@@ -170,43 +189,28 @@ def _copy_subproblem(menuitem, subproblem, mesh, name):
 
     copyobj = targetsubptype.create(meshctxt.getObject(), meshctxt)
 
-    sourcectxt.begin_reading()
-    try:
-        fields = sourcectxt.all_compound_fields()
-        activefields = [field for field in fields
-                        if sourcectxt.getObject().is_active_field(field)]
-        equations = sourceobj.all_equations()
-    finally:
-        sourcectxt.end_reading()
-
+    fields = sourcectxt.all_compound_fields()
+    activefields = [field for field in fields
+                    if sourcectxt.getObject().is_active_field(field)]
+    equations = sourceobj.all_equations()
     copyctxt = meshctxt.newSubProblem(copyobj, sourcectxt.subptype,
                                       targetmeshpath + [name]) # new context
     copyname = copyctxt.path()
 
     # Set Fields and Equations in the copy
-    copyctxt.reserve()
-    copyctxt.begin_writing()
-    notifications = []
-    try:
-        for field in fields:
-            copyobj.define_field(field)
-            notifications.append(("field defined", copyname, field.name(), 1))
-        for field in activefields:
-            copyobj.activate_field(field)
-            notifications.append(("field activated", copyname, field.name(), 1))
-        for eqn in sourceobj.all_equations():
-            copyobj.activate_equation(eqn)
-            notifications.append(("equation activated", copyname, eqn.name(), 1))
-        if copyctxt.autoenableBCs():
-            notifications.append(("boundary conditions changed", copyctxt))
-    finally:
-        copyctxt.end_writing()
-        copyctxt.cancel_reservation()
+    for field in fields:
+        copyobj.define_field(field)
+        notifications.append(("field defined", copyname, field.name(), 1))
+    for field in activefields:
+        copyobj.activate_field(field)
+        notifications.append(("field activated", copyname, field.name(), 1))
+    for eqn in sourceobj.all_equations():
+        copyobj.activate_equation(eqn)
+        notifications.append(("equation activated", copyname, eqn.name(), 1))
+    if copyctxt.autoenableBCs():
+        notifications.append(("boundary conditions changed", copyctxt))
 
-    for notice in notifications:
-        switchboard.notify(*notice)
-
-    # end _copy_subproblem
+    # end _copy_subproblem_core
 
 subproblemMenu.addItem(oofmenu.OOFMenuItem(
     'Copy',
