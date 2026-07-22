@@ -190,7 +190,6 @@ class SubProblemContext(whoville.Who):
         # function when all the cloning is complete.
         subp = self.getObject()
         newsubptype = self.subptype.clone()
-        newsubpobj = newsubptype.create(newmesh.getObject(), newmesh)
         # create new subproblem context with a temporary name so that
         # it won't overwrite an old subproblem until we're done with
         # the old one (in case we're recreating an old subproblem, as
@@ -198,8 +197,8 @@ class SubProblemContext(whoville.Who):
         # delete the original subproblems and rename the new ones.
         desiredname = newmesh.path() + ':' + self.name()
         temppath = newmesh.path() + ":" + subproblems.uniqueName(desiredname)
-        newsubpctxt = newmesh.newSubProblem(newsubpobj, newsubptype, temppath)
-        oldmesh = self.getParent()
+        newsubpctxt = newmesh.newSubProblem(newsubptype, temppath)
+        newsubpobj = newsubpctxt.getObject()
         # CSubProblem.set_mesh() must have been called with the new
         # meshctxt *before* this point, or new DoFs and NodalEqns
         # won't be stored in the right object.  Mesh.setFEMesh must be

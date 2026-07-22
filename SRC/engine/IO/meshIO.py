@@ -366,9 +366,7 @@ def _newSubProblem(menuitem, mesh, name, subproblem):
     meshcontext.reserve()
     meshcontext.begin_writing()
     try:
-        subpobj = subproblem.create(meshcontext.getObject(), meshcontext)
-        meshcontext.newSubProblem(subpobj, subproblem,
-                                  labeltree.makePath(mesh)+[name])
+        meshcontext.newSubProblem(subproblem, labeltree.makePath(mesh)+[name])
     finally:
         meshcontext.end_writing()
         meshcontext.cancel_reservation()

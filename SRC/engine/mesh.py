@@ -204,8 +204,7 @@ class Mesh(whoville.Who):
 
     def createDefaultSubProblem(self):
         subptype = entiremeshsubproblem.entiremeshreg()
-        self.newSubProblem(subptype.create(self.getObject(), self),
-                           subptype,
+        self.newSubProblem(subptype,
                            self.path() + ":" + defaultSubProblemName)
 
     def rebuildMesh(self):
@@ -415,7 +414,8 @@ class Mesh(whoville.Who):
 
     # Subproblem management
 
-    def newSubProblem(self, subproblem, subptype, path):
+    def newSubProblem(self, subptype, path):
+        subproblem = subptype.create(self.getObject(), self)
         # "subproblem" is a SubProblem object.  Adding it to the
         # SubProblem Who class creates a SubProblemContext.
         from ooflib.engine import subproblemcontext  # avoid import loop

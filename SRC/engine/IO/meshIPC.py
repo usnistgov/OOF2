@@ -262,6 +262,8 @@ def copyMesh_parallel(menuitem, mesh, name,
             copiedmesh = skelpath+[copiedmeshname]
             copiedmeshfullname = ":".join(copiedmesh)
             for subpctxt in basemesh.subproblems():
+                ## TODO: This is not correct.  See _copy_subproblem in
+                ## subproblemmenu.py.
                 subp = subpctxt.getObject()
                 newsubp = subpctxt.getObject().clone() # CSubProblem object
                 newsubpctxt = newmesh.newSubProblem(

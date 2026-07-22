@@ -68,11 +68,7 @@ def _new_subproblem(menuitem, name, mesh, subproblem):
 ##        return
     meshcontext = ooflib.engine.mesh.meshes[mesh]
     # 'subproblem' is a SubProblemType instance
-    ## TODO: Pass subproblem to Mesh.newSubProblem and call create there.
-    subpobj = subproblem.create(meshcontext.getObject(), meshcontext)
-    meshcontext.newSubProblem(subpobj,
-                              subproblem,
-                              labeltree.makePath(mesh)+[name])
+    meshcontext.newSubProblem(subproblem, labeltree.makePath(mesh)+[name])
 
 subproblemMenu.addItem(oofmenu.OOFMenuItem(
     'New',
@@ -191,17 +187,16 @@ def _copy_subproblem_core(sourcectxt, mesh, meshctxt, name, notifications):
     # change anything in the source Mesh.
     targetsubptype = sourcectxt.subptype.clone(namechanges)
 
-    copyobj = targetsubptype.create(meshctxt.getObject(), meshctxt)
+    copyctxt = meshctxt.newSubProblem(targetsubptype,
+                                      targetmeshpath + [name]) # new context
+    copyobj = copyctxt.getObject()
+    copyname = copyctxt.path()
 
+    # Set Fields and Equations in the copy
     fields = sourcectxt.all_compound_fields()
     activefields = [field for field in fields
                     if sourcectxt.getObject().is_active_field(field)]
     equations = sourceobj.all_equations()
-    copyctxt = meshctxt.newSubProblem(copyobj, sourcectxt.subptype,
-                                      targetmeshpath + [name]) # new context
-    copyname = copyctxt.path()
-
-    # Set Fields and Equations in the copy
     for field in fields:
         copyobj.define_field(field)
         notifications.append(("field defined", copyname, field.name(), 1))
@@ -267,8 +262,8 @@ def _edit_subproblem(menuitem, name, subproblem):
         oldsubp.cancel_reservation()
 
     # Create context for new subproblem.
-    newsubpobj = subproblem.create(meshctxt.getObject(), meshctxt)
-    newsubp = meshctxt.newSubProblem(newsubpobj, subproblem, name)
+    newsubp = meshctxt.newSubProblem(subproblem, name)
+    newsubpobj = newsubp.getObject()
     meshctxt.reserve()
     meshctxt.begin_writing()
     # Gather switchboard messages and send them all after the lock has

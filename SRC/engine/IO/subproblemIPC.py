@@ -63,6 +63,10 @@ ipcsubproblemmenu.addItem(oofmenu.OOFMenuItem(
 ## TODO: The code in _copy_subproblem and _edit_subproblem is
 ## virtually identical and should be shared.
 
+## TODO: parallel_copy_subproblem has not been updated for changes in
+## how subproblems are handled. See _copy_subproblem in
+## subproblemmenu.py.
+
 def parallel_copy_subproblem(menuitem, subproblem, mesh, name):
     debug.fmsg()
     sourcectxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
