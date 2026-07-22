@@ -51,13 +51,7 @@ subproblemMenu = mainmenu.OOF.addItem(oofmenu.OOFMenuItem(
 
 #############
 
-## TODO: This comment seems to have been copied from meshNameResolver
-## in meshmenu.py and doesn't apply here!
-# Look for an enclosing subproblem parameter -- if not found, use the
-# enclosing mesh parameter.  SubProblem copying needs the first case,
-# new SubProblem construction needs the second.
-
-def subproblemNameResolver(param, startname):
+def newSubproblemNameResolver(param, startname):
     if param.automatic():
         basename = 'subproblem'
     else:
@@ -66,8 +60,6 @@ def subproblemNameResolver(param, startname):
     if meshname is not None:
         meshpath = labeltree.makePath(meshname)
         return subproblemcontext.subproblems.uniqueName(meshpath + [basename])
-
-#############
 
 def _new_subproblem(menuitem, name, mesh, subproblem):
 ##    if parallel_enable.enabled():
@@ -88,7 +80,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     threadable=oofmenu.THREADABLE,
     params=parameter.ParameterGroup(
     whoville.AutoWhoNameParameter('name', value=automatic.automatic,
-                                  resolver=subproblemNameResolver,
+                                  resolver=newSubproblemNameResolver,
                                   tip="Name of the new SubProblem"),
     SyncMeshParameter('mesh', tip=parameter.emptyTipString),
     parameter.RegisteredParameter('subproblem',
@@ -107,9 +99,21 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
 
 #############
 
-## TODO: The default name of a copied SubProblem should be the name of
-## SubProblem being copied, not "subproblem". 
-
+def copySubproblemNameResolver(param, startname):
+    if param.automatic():
+        # basename is the name of the copy.  If the name of the new
+        # subproblem is automatic, the name of the copy is the name of
+        # the source, plus <x> if necessary to make it unique.
+        basename = labeltree.makePath(param.group['subproblem'].value)[-1]
+    else:
+        basename = startname
+    if not basename:
+        basename = 'subproblem'
+    meshname = param.group['mesh'].value # full name target mesh
+    if meshname is not None:
+        meshpath = labeltree.makePath(meshname)
+        return subproblemcontext.subproblems.uniqueName(meshpath + [basename])
+    
 def _copy_subproblem(menuitem, subproblem, mesh, name):
     if parallel_enable.enabled():
         ipcsubpmenu.Copy(name=name, mesh=mesh, subproblem=subproblem)
@@ -217,13 +221,13 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
     callback=_copy_subproblem,
     threadable=oofmenu.THREADABLE,
     params=parameter.ParameterGroup(
-    whoville.WhoParameter('subproblem',
-                          subproblemcontext.subproblems,
-                          tip='The subproblem to be copied.'),
-    SyncMeshParameter('mesh', tip='The copy will be in this mesh.'),
-    whoville.AutoWhoNameParameter('name', value=automatic.automatic,
-                                  resolver=subproblemNameResolver,
-                                  tip="Name to give to the copy")
+        whoville.WhoParameter('subproblem',
+                              subproblemcontext.subproblems,
+                              tip='The subproblem to be copied.'),
+        SyncMeshParameter('mesh', tip='The copy will be in this mesh.'),
+        whoville.AutoWhoNameParameter('name', value=automatic.automatic,
+                                      resolver=copySubproblemNameResolver,
+                                      tip="Name to give to the copy")
     ),
     help="Copy a subproblem.",
     discussion="""<para>
