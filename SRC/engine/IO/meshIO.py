@@ -38,10 +38,7 @@ from ooflib.engine import skeletonboundary
 from ooflib.engine import skeletoncontext
 from ooflib.engine import solvermode
 from ooflib.engine import subproblemtype
-if config.dimension() == 2:
-    from ooflib.engine import skeletonelement
-elif config.dimension() == 3:
-    from ooflib.engine import skeletonelement3d as skeletonelement
+from ooflib.engine import skeletonelement
 from ooflib.engine.IO import meshparameters
 from ooflib.engine.IO import outputdestination
 from ooflib.engine.IO import scheduledoutput

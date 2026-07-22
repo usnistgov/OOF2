@@ -35,7 +35,8 @@ from functools import reduce
 ## TODO: Output.evaluate() should return an iterator instead of a list
 ## of outputvals.  Some code that uses outputs tries to index a list
 ## (eg MeshDataGUI.updateData), and some code needs to make multiple
-## passes (eg, contour), so those bits will have to be changed. 
+## passes (eg, contour), so those bits will have to be changed.  See
+## TODO in output.py about using numpy arrays.
 
 ## TODO: Add progress bars to more outputs?
 
@@ -672,7 +673,7 @@ def _rescaleOutput(mesh, elements, coords, minimum, maximum, inputdata):
         if mx == mn:
             return 0.5*(tmin + tmax)    # arbitrary
         return tmin + (tmax-tmin)*(x-mn)/(mx-mn)
-    ## TODO: Use imap instead of map.  See comment at top of file.
+    ## TODO: Use imap instead of map. Or numpy. See comment at top of file.
     return list(map(rescale, inputdata))
 
 def _rescale_instancefn(self):

@@ -20,11 +20,11 @@
 
 ## TODO: A command that resets all Properties -- delete named
 ## properties and reset the parameters in the built-in ones.  This
-## will to eliminate conflicts when running a script multiple times.
+## will eliminate conflicts when running a script multiple times.
 ## Should it also delete Materials?  If the command is available even
 ## when no Materials or Properties need to be saved, then users can
 ## put it at the beginning of a script in order to be sure that the
-## script starts in clean state.
+## script starts in a clean state.
 
 from ooflib.SWIG.common import ooferror 
 from ooflib.SWIG.common import switchboard

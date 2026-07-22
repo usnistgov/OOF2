@@ -189,20 +189,15 @@ class MeshInfoToolbox(toolbox.Toolbox):
         if position == self.last_position:
             meshpos = self.querier.mesh_position
         else:
-            if config.dimension() == 2:
+            try:
+                context.restoreCachedData(self.gfxwindow().displayTime)
                 try:
-                    context.restoreCachedData(self.gfxwindow().displayTime)
-                    try:
-                        meshpos = self.meshlayer.undisplaced_from_displaced(
-                            self.gfxwindow(), position)
-                    finally:
-                        context.releaseCachedData()
-                except ooferror.PyErrBoundsError:
-                    return
-            elif config.dimension() == 3:
-                # skip handling displaced meshes in 3D for now. 
-                # TODO 3D Later: figure this out
-                meshpos = position
+                    meshpos = self.meshlayer.undisplaced_from_displaced(
+                        self.gfxwindow(), position)
+                finally:
+                    context.releaseCachedData()
+            except ooferror.PyErrBoundsError:
+                return
             
         femesh = context.getObject()
         skeleton = context.getSkeleton()
@@ -225,29 +220,21 @@ class MeshInfoToolbox(toolbox.Toolbox):
         if position == self.last_position:
             meshpos = self.querier.mesh_position
         else:
-            if config.dimension() == 2:
+            try:
+                context.restoreCachedData(self.gfxwindow().displayTime)
                 try:
-                    context.restoreCachedData(self.gfxwindow().displayTime)
-                    try:
-                        meshpos = self.meshlayer.undisplaced_from_displaced(
-                            self.gfxwindow(), position)
-                    finally:
-                        context.releaseCachedData()
-                except ooferror.PyErrBoundsError:
-                    return
-            elif config.dimension() == 3:
-                # skip handling displaced meshes in 3D for now.  
-                # TODO 3D Later: figure this out
-                meshpos = position
+                    meshpos = self.meshlayer.undisplaced_from_displaced(
+                        self.gfxwindow(), position)
+                finally:
+                    context.releaseCachedData()
+            except ooferror.PyErrBoundsError:
+                return
 
         femesh = context.getObject()
         skeleton = context.getSkeleton()
         selem = skeleton.enclosingElement(meshpos)
         felem = femesh.getElement(selem.meshindex)
-        if config.dimension() == 2:
-            fnode = femesh.closestNode(meshpos.x, meshpos.y)
-        elif config.dimension() == 3:
-            fnode = femesh.closestNode(meshpos.x, meshpos.y, meshpos.z)
+        fnode = femesh.closestNode(meshpos.x, meshpos.y)
         self.finishQuery(fnode, felem, "Node", position, meshpos)
 
     def finishQuery(self, obj, element, targetname, mouse_pos, mesh_pos):

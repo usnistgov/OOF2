@@ -93,7 +93,7 @@ bdyanalysismenu.addItem(oofmenu.OOFMenuItem(
 ## boundary analyses are different, for no apparent reason. The bulk
 ## commands are in OOF.Named_Analysis while the boundary commands are
 ## in OOF.Mesh.Boundary_Analysis.  Both should be in
-## OOF.Named_Analysis.
+## OOF.Named_Analysis.  Fix when bulk and boundary analyses are merged.
 
 def _nameAnalysis(menuitem, name, boundary, analyzer):
     namedanalysis.NamedBdyAnalysis(name, boundary, analyzer)

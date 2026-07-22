@@ -97,6 +97,8 @@ Putting OOF.Help.No_Warnings(1) in a script that causes a warning
 (such as displaying a Mesh with no Materials) causes all sorts of
 errors when the warning would have been displayed.
 
+Use numpy for Outputs.  TODOs in output.py and outputClones.py.
+
 THINGS TO FIX IN TUTORIALS
 
 The Basics tutorial leaves out a step in the creation of pixel

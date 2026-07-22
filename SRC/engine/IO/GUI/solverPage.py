@@ -37,10 +37,6 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import GObject
 from gi.repository import Gtk
 
-## TODO: The Remove_All button in the Solver pane isn't being
-## sensitized correctly.
-
-# allFields = ooflib.SWIG.engine.field.allFields
 meshmenu = ooflib.engine.IO.meshmenu.meshmenu
 subpmenu = ooflib.engine.IO.subproblemmenu.subproblemMenu
 
@@ -893,7 +889,12 @@ class SolverPage(oofGUI.MainPage):
             cell_renderer.set_property('text', '')
 
     def updateInitializers(self):
-        ## TODO GTK3: why is this called so often?
+        ## TODO: This is called a lot.  The switchboard stack
+        ## shows multiple invocations from 'subproblem changed', 'mesh
+        ## changed', 'mesh status changed', 'field defined', etc.
+        ## Sometimes one message is received multiple times from a
+        ## single menu command. 
+        ##
         ## This does not indirectly call self.sensitize(), it seems.
         #debug.fmsg("switchboard stack:", switchboard.messageStack.current())
         debug.mainthreadTest()

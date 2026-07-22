@@ -220,8 +220,9 @@ class TextOutputDestination(OutputDestination):
 
 # OutputStream directs output to a file, specified by a file name and
 # mode. If two OutputStreams have the same filename but different
-# modes, the *last* mode specified is used.  TODO: Make sure that the
-# documentation is correct about that. It used to be different.
+# modes, the *last* mode specified is used.  TODO MANUAL: Make sure
+# that the documentation is correct about that. It used to be
+# different.
 
 class OutputStream(TextOutputDestination):
     def __init__(self, filename, mode):

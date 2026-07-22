@@ -20,7 +20,7 @@
 # handle the conversion from degrees (used in the UI) to radians (used
 # internally in COrientation subclasses).
 
-# TODO: Use Convertible CRegisteredClasses instead.
+# TODO LATER MAYBE: Use Convertible CRegisteredClasses instead.
 
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.engine import corientation

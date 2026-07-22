@@ -10,16 +10,6 @@
 
 # Menu commands for reading a Skeleton from a file.
 
-# TODO: the name of the Skeleton appears many times in the file, in
-# each menu command.  That makes it hard for the user to edit the file
-# to change the name.  Ugly solution: have a global "currentskeleton"
-# variable which is set by the initial Skeleton.New command.  Better
-# solution: allow variables to be set locally *in* the data file, and
-# store the skeleton name there.
-
-# even easier solution: users can just use sed or the find/change
-# option in most text editors
-
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
