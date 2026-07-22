@@ -1345,7 +1345,7 @@ class ConvertibleRegisteredParameter(RegisteredParameter):
 # or by concatenating groups like this:
 #    ParameterGroup(p0, p1) + ParameterGroup(p2, p3)
 
-# This class used to have a more list-list interface, but that was not
+# This class used to have a more list-like interface, but that was not
 # compatible with the hierarchical modifications, so the most of the
 # list-like API was deleted.
 

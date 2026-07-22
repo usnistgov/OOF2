@@ -1032,7 +1032,6 @@ DoubleVec *LinearizedSystem::extract_MCa_dofs(const DoubleVec *v) const {
   unsigned int n1 = nonEmptyCColMap.range();
   unsigned int n0 = nonEmptyKColMap.range();
   assert(v->size() == 2*n2+n1+n0);
-  // TODO(lizhong): long run fails. Possible memory leak here.
   DoubleVec *mca = new DoubleVec(2*n2 + n1);
 
   (*mca).subvec_copy(0, *v, 0, n2+n1);

@@ -642,6 +642,7 @@ Array<PixelAttribute*> &getMaterialMap(const CMicrostructure *ms) {
 const Array<PixelAttribute*> &getConstMaterialMap(const CMicrostructure *ms) {
   return matattrreg->map(ms);
 }
+
 // Find all the MaterialAttributes in the given microstructure which
 // refer to this material, and clear them.  If the material count is
 // nonzero, iterate over all of of the MaterialAttributes and check
