@@ -122,8 +122,17 @@ Material.precompute = _Material_precompute
 # Return true if we have any active nonlinear property.
 
 def _Material_nonlinear(self, subproblem, fields):
-    ## TODO: Remove the 'fields' arg.  This is called in
-    ## SubProblemContext.nonlinear(), and possibly elsewhere.
+    ## TODO: Remove the 'fields' arg, which isn't used.  This is
+    ## called only by SubProblemContext.nonlinear(). But
+    ## SubProblemContext.nonlinear() is called by
+    ## SubProblemContext.nonlinear_activefields(), which sounds like
+    ## it ought to depend on the fields.  This *does* depend on the
+    ## fields as written because currently_nonlinear returns cached
+    ## nonlinearity flags computing by _Material_precompute.  If there
+    ## is no difference between SubProblemContext.nonlinear and
+    ## SubProblemContext.nonlinear_activefields, and if
+    ## Material.nonlinear is only called after Material.precompute,
+    ## then there's no need for the fields argument here.
     for p in self.properties:
         if p.currently_active(subproblem):
             if p.currently_nonlinear(subproblem):

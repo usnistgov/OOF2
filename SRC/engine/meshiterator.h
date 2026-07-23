@@ -20,7 +20,7 @@
   returned aren't stored in a simple std::vector or std::set.
   However, it may not be worth the effort...
 
-  The iterators are now real STL-style iterators that can be used like
+  The iterators are real STL-style iterators that can be used like
   this:
 
     for(Node *node : subproblem->nodes()) { ... }

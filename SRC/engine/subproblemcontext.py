@@ -199,6 +199,7 @@ class SubProblemContext(whoville.Who):
         temppath = newmesh.path() + ":" + subproblems.uniqueName(desiredname)
         newsubpctxt = newmesh.newSubProblem(newsubptype, temppath)
         newsubpobj = newsubpctxt.getObject()
+
         # CSubProblem.set_mesh() must have been called with the new
         # meshctxt *before* this point, or new DoFs and NodalEqns
         # won't be stored in the right object.  Mesh.setFEMesh must be

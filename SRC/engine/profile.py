@@ -353,11 +353,6 @@ registeredclass.Registration(
 # Currently only supports ProfileXT.  If other types of Profiles are
 # required, there will have to be other varieties of FluxProfileSet.
 
-# TODO LATER: 3D profiles may have more components in general, so this
-# object will probably be extended.  It will probably become more
-# desirable at that point to make multicomponent profiles
-# independently save- and loadable.
-
 class FluxProfileSet:
     def __init__(self, profile_list):
         self.data = profile_list

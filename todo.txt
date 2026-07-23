@@ -99,6 +99,8 @@ errors when the warning would have been displayed.
 
 Use numpy for Outputs.  TODOs in output.py and outputClones.py.
 
+Many optimization TODOs in linearizedsystem.C and linearizedsystem.h
+
 THINGS TO FIX IN TUTORIALS
 
 The Basics tutorial leaves out a step in the creation of pixel
