@@ -28,25 +28,6 @@ public:
   virtual const std::string &classname() const;
 };
 
-// TODO: Is ErrDuplicateField ever used?
-class ErrDuplicateField : public ErrUserErrorBase<ErrDuplicateField> {
-private:
-  const std::string field;
-  const std::string oldtype;
-  const std::string newtype;
-public:
-  ErrDuplicateField(const std::string &field,
-		    const std::string &newtype,
-		    const std::string &oldtype)
-    : ErrUserErrorBase<ErrDuplicateField>("New field " + field + " of type " + newtype + " conflicts with old field of type " + oldtype),
-      field(field),
-      oldtype(oldtype),
-      newtype(newtype)
-  {}
-  virtual ~ErrDuplicateField() {}
-  virtual const std::string &classname() const;
-};
-
 // Trying to get a property that a Material doesn't have.
 
 class ErrNoSuchProperty : public ErrUserErrorBase<ErrNoSuchProperty> {

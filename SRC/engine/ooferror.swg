@@ -29,13 +29,6 @@ public:
 };
 WRAP_OOFERROR_CLASS(ErrNoSuchField);
 
-class ErrDuplicateField : public ErrError {
-public:
-  ErrDuplicateField(char*, char*, char*);
-  ~ErrDuplicateField();
-};
-WRAP_OOFERROR_CLASS(ErrDuplicateField);
-
 class ErrNoSuchProperty : public ErrError {
 public:
   ErrNoSuchProperty(char*, char*);

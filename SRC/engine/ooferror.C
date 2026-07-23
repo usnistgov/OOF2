@@ -46,11 +46,6 @@ const std::string &ErrNoSuchField::classname() const {
   return s;
 }
 
-const std::string &ErrDuplicateField::classname() const {
-  static std::string s("ErrDuplicateField");
-  return s;
-}
-
 const std::string &ErrNoSuchProperty::classname() const {
   static std::string s("ErrNoSuchProperty");
   return s;
