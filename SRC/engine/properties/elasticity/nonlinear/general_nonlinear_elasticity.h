@@ -30,36 +30,15 @@ class SmallTensor4;
 class SymmetricTensorFlux;
 class TwoVectorField;
 
-// TODO: No need for NoDeriv versions anymore. 
-
-class GeneralNonlinearElasticityNoDeriv : public FluxProperty {
+class GeneralNonlinearElasticity : public FluxProperty {
 public:
-  GeneralNonlinearElasticityNoDeriv(const std::string &name,
-				    PyObject *registration);
-  virtual ~GeneralNonlinearElasticityNoDeriv() {}
+  GeneralNonlinearElasticity(const std::string &name, PyObject *registration);
+  virtual ~GeneralNonlinearElasticity() {}
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return false; }
   virtual void flux_value(const FEMesh*, const Element*, const Flux*,
 			  const MasterPosition&, double time,  void*,
-			  SmallSystem*)
-    const;
-protected:
-  TwoVectorField *displacement;
-  SymmetricTensorFlux *stress_flux;
-
-  virtual SmallMatrix nonlin_stress(const Coord &pt, double time,
-				    const DoubleVec &displacement,
-				    const SmallMatrix &dispGrad) const = 0;
-
-}; // GeneralNonlinearElasticityNoDeriv
-
-
-class GeneralNonlinearElasticity : public GeneralNonlinearElasticityNoDeriv {
-public:
-  GeneralNonlinearElasticity(const std::string &name, PyObject *registration)
-    : GeneralNonlinearElasticityNoDeriv(name, registration)
-  {};
-  virtual ~GeneralNonlinearElasticity() {}
+			  SmallSystem*) const;
   virtual void flux_matrix(const FEMesh *mesh,
 			   const Element *element,
 			   const ElementFuncNodeIterator &nu,
@@ -68,11 +47,16 @@ public:
 			   double time, void*, 
 			   SmallSystem *fluxmtx) const;
 protected:
+  TwoVectorField *displacement;
+  SymmetricTensorFlux *stress_flux;
+
+  virtual SmallMatrix nonlin_stress(const Coord &pt, double time,
+				    const DoubleVec &displacement,
+				    const SmallMatrix &dispGrad) const = 0;
   virtual SmallTensor3 nonlin_stress_deriv_wrt_displacement(
 			    const Coord &pt, double time,
 			    const DoubleVec &displacement,
 			    const SmallMatrix &dispGrad) const = 0;
-
   virtual SmallTensor4 nonlin_stress_deriv_wrt_displacement_gradient(
 			     const Coord &pt, double time,
 			     const DoubleVec &displacement,
@@ -81,27 +65,6 @@ protected:
 }; // GeneralNonlinearElasticity
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-
-class TestGeneralNonlinearElasticityNoDeriv :
-  public GeneralNonlinearElasticityNoDeriv
-{
-public:
-  TestGeneralNonlinearElasticityNoDeriv(const std::string &name,
-					PyObject *registration,
-					int testno)
-    : GeneralNonlinearElasticityNoDeriv(name, registration),
-      testNo(testno)
-  {};
-  virtual ~TestGeneralNonlinearElasticityNoDeriv() {}
-
-protected:
-  int testNo;
-  virtual SmallMatrix nonlin_stress(const Coord &pt, double time,
-			     const DoubleVec &displacement,
-			     const SmallMatrix &dispGrad) const;
-}; // TestGeneralNonlinearElasticityNoDeriv
-
 
 class TestGeneralNonlinearElasticity : public GeneralNonlinearElasticity{
 

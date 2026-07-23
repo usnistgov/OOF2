@@ -22,19 +22,9 @@
 #include "engine/properties/heatsource/nonlinear/nonlinear_heat_source.h"
 %}
 
-%nodefaultctor NonlinearHeatSourceNoDeriv;
-
-class NonlinearHeatSourceNoDeriv : public EqnProperty {
-};
-
 %nodefaultctor NonlinearHeatSource;
 
-class NonlinearHeatSource : public NonlinearHeatSourceNoDeriv {
-};
-
-class TestNonlinearHeatSourceNoDeriv : public NonlinearHeatSourceNoDeriv {
-public:
-  TestNonlinearHeatSourceNoDeriv(std::string &name, PyObject *reg, int testno);
+class NonlinearHeatSource : public EqnProperty {
 };
 
 class TestNonlinearHeatSource : public NonlinearHeatSource {

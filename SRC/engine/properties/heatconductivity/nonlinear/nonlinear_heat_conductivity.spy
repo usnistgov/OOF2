@@ -17,22 +17,6 @@ from ooflib.engine import propertyregistration
 PropertyRegistration = propertyregistration.PropertyRegistration
 
 
-## Nonlinear heat conductivity test property without the analytical derivative
-
-reg = PropertyRegistration(
-    name='Thermal:Conductivity:TestNonlinearHeatConductivityNoDeriv',
-    subclass=TestNonlinearHeatConductivityNoDeriv,
-    ordering=110,
-    params=[parameter.IntParameter('testno', 1, tip="Test number for the nonlinear heat conductivity property.")],
-    propertyType="ThermalConductivity",
-    secret=True,
-    tip="Nonlinear heat conductivity property with no derivative used for testing."
-    )
-
-reg.fluxInfo(fluxes=[problem.Heat_Flux], fields=[problem.Temperature],
-             time_derivs=[0], nonlinear=True)
-
-
 ## Nonlinear heat conductivity test property
 
 reg = PropertyRegistration(

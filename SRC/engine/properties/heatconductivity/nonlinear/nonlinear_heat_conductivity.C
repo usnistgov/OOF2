@@ -32,9 +32,8 @@
 #include <string>
 
 
-NonlinearHeatConductivityNoDeriv::NonlinearHeatConductivityNoDeriv(
-						   const std::string &nm,
-						   PyObject *reg)
+NonlinearHeatConductivity::NonlinearHeatConductivity(const std::string &nm,
+						     PyObject *reg)
   : FluxProperty(nm, reg)
 {
   temperature = dynamic_cast<ScalarField*>(Field::getField("Temperature"));
@@ -42,8 +41,8 @@ NonlinearHeatConductivityNoDeriv::NonlinearHeatConductivityNoDeriv(
 }
 
 
-int NonlinearHeatConductivityNoDeriv::integration_order(const CSubProblem *subp,
-							const Element *el) const
+int NonlinearHeatConductivity::integration_order(const CSubProblem *subp,
+						 const Element *el) const
 {
   if(temperature->in_plane(subp))
     return el->dshapefun_degree(); 
@@ -51,12 +50,12 @@ int NonlinearHeatConductivityNoDeriv::integration_order(const CSubProblem *subp,
 }
 
 
-void NonlinearHeatConductivityNoDeriv::flux_value(const FEMesh *mesh,
-						  const Element *element,
-						  const Flux *flux,
-						  const MasterPosition &pt,
-						  double time, void*, 
-						  SmallSystem *fluxdata)
+void NonlinearHeatConductivity::flux_value(const FEMesh *mesh,
+					   const Element *element,
+					   const Flux *flux,
+					   const MasterPosition &pt,
+					   double time, void*, 
+					   SmallSystem *fluxdata)
   const
 {
   // first evaluate the temperature field and the temperature gradient
@@ -247,22 +246,6 @@ SmallMatrix nonlin_heat_flux_deriv_wrt_temperature_gradient_3(
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-
-DoubleVec TestNonlinearHeatConductivityNoDeriv::nonlin_heat_flux(
-			    const Coord &pt, double time, double temperature,
-			    const DoubleVec &gradtemp)
-  const
-{
-  switch(testNo) {
-  case 1:
-    return nonlin_heat_flux_1(pt, time, temperature, gradtemp);
-  case 2:
-    return nonlin_heat_flux_2(pt, time, temperature, gradtemp);
-  case 3:
-    return nonlin_heat_flux_3(pt, time, temperature, gradtemp);
-  }
-  return DoubleVec(3);
-} 
 
 DoubleVec TestNonlinearHeatConductivity::nonlin_heat_flux(
 			     const Coord &pt, double time, double temperature,

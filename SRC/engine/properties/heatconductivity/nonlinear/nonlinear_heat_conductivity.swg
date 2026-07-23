@@ -22,20 +22,9 @@
 #include "engine/properties/heatconductivity/nonlinear/nonlinear_heat_conductivity.h"
 %}
 
-%nodefaultctor NonlinearHeatConductivityNoDeriv;
-
-class NonlinearHeatConductivityNoDeriv : public FluxProperty {
-};
-
 %nodefaultctor NonlinearHeatConductivity;
 
-class NonlinearHeatConductivity : public NonlinearHeatConductivityNoDeriv {
-};
-
-class TestNonlinearHeatConductivityNoDeriv : public NonlinearHeatConductivityNoDeriv {
-public:
-  TestNonlinearHeatConductivityNoDeriv(std::string &name, PyObject *reg,
-				       int testno);
+class NonlinearHeatConductivity : public FluxProperty {
 };
 
 class TestNonlinearHeatConductivity : public NonlinearHeatConductivity {

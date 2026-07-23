@@ -12,29 +12,9 @@ from ooflib.common.IO import parameter
 from ooflib.engine import problem
 from ooflib.engine import propertyregistration
 
-
-PropertyRegistration = propertyregistration.PropertyRegistration
-
-
-## General Nonlinear Elasticity test property without the analytical derivative
-
-reg = PropertyRegistration(
-    name='Mechanical:Elasticity:TestGeneralNonlinearElasticityNoDeriv',
-    subclass=TestGeneralNonlinearElasticityNoDeriv,
-    ordering=201,
-    params=[parameter.IntParameter('testno', 1, tip="Test number for the general nonlinear elasticity property.")],
-    propertyType="Elasticity",
-    secret=True,
-    tip="General nonlinear elasticity with no derivative used for testing."
-    )
-
-reg.fluxInfo( fluxes=[problem.Stress], fields=[problem.Displacement],
-              time_derivs=[0], nonlinear=True )
-
-
 ## General Nonlinear Elasticity test property
 
-reg = PropertyRegistration(
+reg = propertyregistration.PropertyRegistration(
     name='Mechanical:Elasticity:TestGeneralNonlinearElasticity',
     subclass=TestGeneralNonlinearElasticity,
     ordering=202,

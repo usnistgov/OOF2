@@ -21,22 +21,9 @@
 %include "common/typemaps.swg"
 %import "engine/property.swg"
 
-%nodefaultctor GeneralNonlinearElasticityNoDeriv;
-
-class GeneralNonlinearElasticityNoDeriv : public FluxProperty {
-};
-
 %nodefaultctor GeneralNonlinearElasticity;
 
-class GeneralNonlinearElasticity : public GeneralNonlinearElasticityNoDeriv {
-};
-
-class TestGeneralNonlinearElasticityNoDeriv
-  : public GeneralNonlinearElasticityNoDeriv
-{
-public:
-  TestGeneralNonlinearElasticityNoDeriv(std::string& name, PyObject *reg,
-					int testno);
+class GeneralNonlinearElasticity : public FluxProperty {
 };
 
 class TestGeneralNonlinearElasticity : public GeneralNonlinearElasticity {

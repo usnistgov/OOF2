@@ -31,10 +31,10 @@ class SmallMatrix;
 class DoubleVec;
 
 
-class NonlinearForceDensityNoDeriv : public EqnProperty {
+class NonlinearForceDensity : public EqnProperty {
 public:
-  NonlinearForceDensityNoDeriv(const std::string &name, PyObject *reg);
-  virtual ~NonlinearForceDensityNoDeriv() {}
+  NonlinearForceDensity(const std::string &name, PyObject *reg);
+  virtual ~NonlinearForceDensity() {}
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return false; }
   virtual void precompute(FEMesh*);
@@ -42,22 +42,6 @@ public:
 		   const FEMesh*, const Element*, const Equation*,
 		   const MasterPosition&, double time, void*,
 		   SmallSystem*) const;
-protected:
-  TwoVectorField *displacement;
-  SymmetricTensorFlux *stress_flux;
-
-  virtual DoubleVec nonlin_force_density(const Coord &pt, double time,
-				    const DoubleVec &displacement)
-    const = 0;
-}; // NonlinearForceDensityNoDeriv
-
-
-class NonlinearForceDensity : public NonlinearForceDensityNoDeriv {
-public:
-  NonlinearForceDensity(const std::string &name, PyObject *reg)
-    : NonlinearForceDensityNoDeriv(name, reg)
-  {}
-  virtual ~NonlinearForceDensity() {}
   virtual void force_deriv_matrix(const FEMesh *mesh,
 				  const Element *element,
 				  const ElementFuncNodeIterator &node,
@@ -66,26 +50,15 @@ public:
 				  void*, 
 				  SmallSystem *eqndata) const;
 protected:
+  TwoVectorField *displacement;
+  SymmetricTensorFlux *stress_flux;
+  virtual DoubleVec nonlin_force_density(const Coord &pt, double time,
+				    const DoubleVec &displacement)
+    const = 0;
   virtual SmallMatrix nonlin_force_density_deriv(const Coord &pt, double time,
 					  const DoubleVec &displacement)
     const = 0;
 };
-
-
-class TestNonlinearForceDensityNoDeriv : public NonlinearForceDensityNoDeriv {
-public:
-  TestNonlinearForceDensityNoDeriv(const std::string &name,
-				   PyObject *registration,
-				   int testno)
-    : NonlinearForceDensityNoDeriv(name, registration),
-      testNo(testno)
-  {}
-  virtual ~TestNonlinearForceDensityNoDeriv() {}
-protected:
-  int testNo;
-  virtual DoubleVec nonlin_force_density(const Coord &pt, double time,
-				    const DoubleVec &displacement) const;
-}; // TestNonlinearForceDensityNoDeriv
 
 
 class TestNonlinearForceDensity : public NonlinearForceDensity {
@@ -102,6 +75,6 @@ protected:
 				    const DoubleVec &displacement) const;
   virtual SmallMatrix nonlin_force_density_deriv(const Coord &pt, double time,
 					  const DoubleVec &displacement) const;
-}; // TestNonlinearForceDensity
+};
 
-#endif
+#endif // NONLINEAR_FORCE_DENSITY_H

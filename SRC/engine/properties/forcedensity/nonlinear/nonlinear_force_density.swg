@@ -21,19 +21,9 @@
 #include "engine/properties/forcedensity/nonlinear/nonlinear_force_density.h"
 %}
 
-%nodefaultctor NonlinearForceDensityNoDeriv;
-
-class NonlinearForceDensityNoDeriv : public EqnProperty {
-};
-
 %nodefaultctor NonlinearForceDensity;
 
-class NonlinearForceDensity : public NonlinearForceDensityNoDeriv {
-};
-
-class TestNonlinearForceDensityNoDeriv : public NonlinearForceDensityNoDeriv {
-public:
-  TestNonlinearForceDensityNoDeriv(std::string&, PyObject*, int testno);
+class NonlinearForceDensity : public EqnProperty {
 };
 
 class TestNonlinearForceDensity : public NonlinearForceDensity {

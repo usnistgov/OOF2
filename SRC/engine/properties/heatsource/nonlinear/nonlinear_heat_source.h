@@ -27,11 +27,17 @@ class ScalarField;
 class VectorFlux;
 class ElementNodeIterator;
 
-
-class NonlinearHeatSourceNoDeriv : public EqnProperty {
+class NonlinearHeatSource : public EqnProperty {
 public:
-  NonlinearHeatSourceNoDeriv(const std::string &name, PyObject *registration);
-  virtual ~NonlinearHeatSourceNoDeriv() {}
+  NonlinearHeatSource(const std::string &name, PyObject *registration);
+  virtual ~NonlinearHeatSource() {}
+  virtual void force_deriv_matrix(const FEMesh *mesh,
+				  const Element *el,
+				  const ElementFuncNodeIterator &j,
+ 				  const Equation *eqn,
+				  const MasterPosition &pt,
+				  double time, void*,
+				  SmallSystem *eqndata ) const;
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return false; }
   virtual void force_value(const FEMesh*, const Element*,
@@ -45,42 +51,10 @@ protected:
 
   virtual double nonlin_heat_source(
 		    const Coord&, double time, double temperature) const = 0;
-}; // NonlinearHeatSourceNoDeriv
-
-
-class NonlinearHeatSource : public NonlinearHeatSourceNoDeriv {
-public:
-  NonlinearHeatSource(const std::string &name, PyObject *registration)
-    : NonlinearHeatSourceNoDeriv(name, registration)
-  {}
-  virtual ~NonlinearHeatSource() {}
-  virtual void force_deriv_matrix(const FEMesh *mesh,
-				  const Element *el,
-				  const ElementFuncNodeIterator &j,
- 				  const Equation *eqn,
-				  const MasterPosition &pt,
-				  double time, void*,
-				  SmallSystem *eqndata ) const;
-protected:
   virtual double nonlin_heat_source_deriv_wrt_temperature(
 			  const Coord &pt, double time, double temperature)
     const = 0;
-}; // NonlinearHeatSource
-
-
-class TestNonlinearHeatSourceNoDeriv : public NonlinearHeatSourceNoDeriv {
-public:
-  TestNonlinearHeatSourceNoDeriv(const std::string &name,
-				 PyObject *registration, int testno)
-    : NonlinearHeatSourceNoDeriv(name, registration),
-      testNo(testno)
-  {}
-  virtual ~TestNonlinearHeatSourceNoDeriv() {}
-protected:
-  int testNo;
-  virtual double nonlin_heat_source(
-		    const Coord &pt, double time, double temperature) const;
-}; // TestNonlinearHeatSourceNoDeriv
+};
 
 
 class TestNonlinearHeatSource : public NonlinearHeatSource {
@@ -98,6 +72,6 @@ protected:
   virtual double nonlin_heat_source_deriv_wrt_temperature(
 		  const Coord &pt, double time, double temperature) const;
 
-}; // TestNonlinearHeatSource
+};
 
 #endif

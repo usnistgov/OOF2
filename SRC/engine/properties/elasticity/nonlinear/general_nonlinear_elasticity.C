@@ -32,9 +32,8 @@
 #include "general_nonlinear_elasticity.h"
 
 
-GeneralNonlinearElasticityNoDeriv::GeneralNonlinearElasticityNoDeriv(
-				     const std::string &nm,
-				     PyObject *registration)
+GeneralNonlinearElasticity::GeneralNonlinearElasticity(const std::string &nm,
+						       PyObject *registration)
   : FluxProperty(nm, registration)
 {
   displacement = dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));
@@ -42,9 +41,8 @@ GeneralNonlinearElasticityNoDeriv::GeneralNonlinearElasticityNoDeriv(
 }
 
 
-int GeneralNonlinearElasticityNoDeriv::integration_order(
-						 const CSubProblem *subp,
-						 const Element *el) const
+int GeneralNonlinearElasticity::integration_order(const CSubProblem *subp,
+						  const Element *el) const
 {
   if(displacement->in_plane(subp))
     return el->dshapefun_degree();
@@ -52,12 +50,12 @@ int GeneralNonlinearElasticityNoDeriv::integration_order(
 }
 
 
-void GeneralNonlinearElasticityNoDeriv::flux_value(const FEMesh  *mesh,
-						   const Element *element,
-						   const Flux *flux,
-						   const MasterPosition &pt,
-						   double time, void*, 
-						   SmallSystem *fluxdata)
+void GeneralNonlinearElasticity::flux_value(const FEMesh  *mesh,
+					    const Element *element,
+					    const Flux *flux,
+					    const MasterPosition &pt,
+					    double time, void*, 
+					    SmallSystem *fluxdata)
   const
 {
   // first compute the displacement and its gradient at the given point
@@ -74,7 +72,7 @@ void GeneralNonlinearElasticityNoDeriv::flux_value(const FEMesh  *mesh,
   for(SymTensorIndex ij : symTensorIJComponents)
     fluxdata->flux_vector_element(ij) += stress(ij.row(), ij.col());
 
-} // GeneralNonlinearElasticityNoDeriv::flux_value
+} // GeneralNonlinearElasticity::flux_value
 
 
 void GeneralNonlinearElasticity::flux_matrix(
@@ -249,22 +247,6 @@ SmallTensor4 nonlin_stress_deriv_wrt_displacement_gradient_2(
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-SmallMatrix TestGeneralNonlinearElasticityNoDeriv::nonlin_stress(
-                                        const Coord &pt, double time,
-					const DoubleVec &displacement,
-					const SmallMatrix &dispGrad)
-  const
-{
-  switch (testNo) {
-  case 1:
-    return nonlin_stress_1(pt, time, displacement, dispGrad);
-  case 2:
-    return nonlin_stress_2(pt, time, displacement, dispGrad);
-  }
-  throw ErrProgrammingError("Bad test number", __FILE__, __LINE__);
-}
-
-
 SmallMatrix TestGeneralNonlinearElasticity::nonlin_stress(
                                         const Coord &pt, double time,
 					const DoubleVec &displacement,
@@ -278,8 +260,7 @@ SmallMatrix TestGeneralNonlinearElasticity::nonlin_stress(
     return nonlin_stress_2(pt, time, displacement, dispGrad);
   }
   throw ErrProgrammingError("Bad test number", __FILE__, __LINE__);
-} 
-
+}
 
 SmallTensor3
 TestGeneralNonlinearElasticity::nonlin_stress_deriv_wrt_displacement(
@@ -298,7 +279,6 @@ TestGeneralNonlinearElasticity::nonlin_stress_deriv_wrt_displacement(
   }
   throw ErrProgrammingError("Bad test number", __FILE__, __LINE__);
 } 
-
 
 SmallTensor4
 TestGeneralNonlinearElasticity::nonlin_stress_deriv_wrt_displacement_gradient(

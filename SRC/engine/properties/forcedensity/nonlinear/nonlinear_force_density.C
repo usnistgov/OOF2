@@ -28,25 +28,18 @@
 #include "engine/material.h"
 #include "nonlinear_force_density.h"
 
-// TODO: The NonLinearForceDensityNoDeriv base class was for testing
-// the numerical differentation that used to be supported, when users
-// didn't want to write the derivative classes.  It's not supported
-// any more, because it was too flaky.  The base class should be
-// merged into NonlinearForceDensity.
-
-NonlinearForceDensityNoDeriv::NonlinearForceDensityNoDeriv(
-						   const std::string &nm,
-						   PyObject *reg)
+NonlinearForceDensity::NonlinearForceDensity(const std::string &nm,
+					     PyObject *reg)
   : EqnProperty(nm,reg)
 {
   displacement = dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));
   stress_flux  = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
 }
 
-void NonlinearForceDensityNoDeriv::precompute(FEMesh*) {
+void NonlinearForceDensity::precompute(FEMesh*) {
 }
 
-int NonlinearForceDensityNoDeriv::integration_order(const CSubProblem*,
+int NonlinearForceDensity::integration_order(const CSubProblem*,
 						    const Element *el)
   const
 {
@@ -54,11 +47,11 @@ int NonlinearForceDensityNoDeriv::integration_order(const CSubProblem*,
 }
 
 
-void NonlinearForceDensityNoDeriv::force_value(
-			      const FEMesh *mesh, const Element *element,
-			      const Equation *eqn, const MasterPosition &point,
-			      double time, void*,
-			      SmallSystem *eqndata) const
+void NonlinearForceDensity::force_value(
+			const FEMesh *mesh, const Element *element,
+			const Equation *eqn, const MasterPosition &point,
+			double time, void*,
+			SmallSystem *eqndata) const
 {
   // first compute the current value of the displacement field at the
   // gauss point
@@ -74,7 +67,7 @@ void NonlinearForceDensityNoDeriv::force_value(
   
   eqndata->forceVector() += force;
 
-} // end of 'NonlinearForceDensityNoDeriv::force_value'
+} // end of 'NonlinearForceDensity::force_value'
 
 
 void NonlinearForceDensity::force_deriv_matrix(const FEMesh *mesh,
@@ -250,23 +243,6 @@ DoubleVec TestNonlinearForceDensity::nonlin_force_density(
   throw ErrProgrammingError("Bad test number", __FILE__, __LINE__);
 }
 
-
-DoubleVec TestNonlinearForceDensityNoDeriv::nonlin_force_density(
-	    const Coord &pt, double time, const DoubleVec &displacement)
-  const
-{
-  switch (testNo) {
-  case 1:
-    return nonlin_force_density_1(pt, time, displacement);
-  case 2:
-    return nonlin_force_density_2(pt, time, displacement);
-  case 3:
-    return nonlin_force_density_3(pt, time, displacement);
-  case 4:
-    return nonlin_force_density_4(pt, time, displacement);
-  }
-  throw ErrProgrammingError("Bad test number", __FILE__, __LINE__);
-} 
 
 SmallMatrix TestNonlinearForceDensity::nonlin_force_density_deriv(
 		  const Coord &pt, double time, const DoubleVec &displacement)

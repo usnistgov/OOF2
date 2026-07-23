@@ -28,46 +28,10 @@ class ScalarField;
 class VectorFlux;
 class ElementNodeIterator;
 
-// There's an extra layer in the class hierarchy here so that test
-// properties that don't provide a flux_matrix method can be defined.
-// These are used in the regression tests.  Users deriving their own
-// nonlinear heat conductivity properties using the examples in
-// EXTENSION_TEMPLATES should ignore NonlinearHeatConductivityBase and
-// TestNonlinearHeatConductivity, and just use
-// NonlinearHeatConductivity.
 
-// NOTE: defining Properties without providing a flux_matrix method is
-// currently not allowed.  The class definitions have been kept here
-// so that they can be restored if and when numerical differentiation
-// in the FluxProperty base class is fixed, but the tests that use the
-// Properties in nonlinear_property_test have been commented out.
-
-class NonlinearHeatConductivityNoDeriv : public FluxProperty {
+class NonlinearHeatConductivity : public FluxProperty {
 public:
-  NonlinearHeatConductivityNoDeriv(const std::string &name, PyObject *reg);
-  virtual int  integration_order(const CSubProblem*, const Element*) const;
-  virtual bool constant_in_space() const { return false; }
-  // virtual bool is_symmetric_K(const CSubProblem*) const { return false; }
-  virtual void flux_value(const FEMesh*, const Element*, const Flux*,
-			  const MasterPosition&, double time, void*,
-			  SmallSystem*)
-    const;
-protected:
-  ScalarField *temperature;
-  VectorFlux  *heat_flux;
-
-  virtual DoubleVec nonlin_heat_flux(const Coord &pt, double time,
-				     double temperature,
-				     const DoubleVec &temperature_gradient)
-    const = 0;
-};
-
-
-class NonlinearHeatConductivity : public NonlinearHeatConductivityNoDeriv {
-public:
-  NonlinearHeatConductivity(const std::string &name, PyObject *registration)
-    : NonlinearHeatConductivityNoDeriv(name, registration)
-  {}
+  NonlinearHeatConductivity(const std::string &name, PyObject *registration);
   virtual ~NonlinearHeatConductivity() {}
   virtual void flux_matrix(const FEMesh*, const Element*,
 			   const ElementFuncNodeIterator&,
@@ -75,8 +39,17 @@ public:
 			   const MasterPosition&,
 			   double time, void*,
 			   SmallSystem*) const;
+  virtual int  integration_order(const CSubProblem*, const Element*) const;
+  virtual bool constant_in_space() const { return false; }
+  // virtual bool is_symmetric_K(const CSubProblem*) const { return false; }
+  virtual void flux_value(const FEMesh*, const Element*, const Flux*,
+			  const MasterPosition&, double time, void*,
+			  SmallSystem*) const;
 
 protected:
+  ScalarField *temperature;
+  VectorFlux  *heat_flux;
+
   virtual DoubleVec nonlin_heat_flux_deriv_wrt_temperature(
 				   const Coord &pt, double time,
 				   double temperature,
@@ -88,29 +61,13 @@ protected:
 				      double temperature,
 				      const DoubleVec &temperature_gradient)
     const = 0;
+  virtual DoubleVec nonlin_heat_flux(const Coord &pt, double time,
+				     double temperature,
+				     const DoubleVec &temperature_gradient)
+    const = 0;
 }; 
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-
-class TestNonlinearHeatConductivityNoDeriv
-  : public NonlinearHeatConductivityNoDeriv
-{
-
-public:
-  TestNonlinearHeatConductivityNoDeriv(const std::string &name,
-				       PyObject *registration, int testno)
-    : NonlinearHeatConductivityNoDeriv(name, registration),
-      testNo(testno)
-  {}
-  virtual ~TestNonlinearHeatConductivityNoDeriv() {}
-
-protected:
-  int testNo;
-  virtual DoubleVec nonlin_heat_flux(const Coord &pt,
-				double time, double temperature,
-				const DoubleVec &temperature_gradient) const;
-};
 
 
 class TestNonlinearHeatConductivity : public NonlinearHeatConductivity {
