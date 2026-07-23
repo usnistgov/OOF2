@@ -109,11 +109,7 @@ registeredclass.Registration(
     params=[
         materialparameter.AnyMaterialParameter(
             'material',
-            ## TODO PYTHON3: The tooltip should read <Any>, but the
-            ## xml requires &lt;Any&gt;.  Tooltips should be processed
-            ## before being written to the xml file, replacing < with
-            ## &lt;, etc.
-            tip='The name of a material, or Any, or None.'
+            tip='The name of a material, or <Any>, or <None>.'
         )
     ],
     tip="Select pixels to which a given Material has been assigned.",

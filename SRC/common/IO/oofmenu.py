@@ -916,6 +916,7 @@ class OOFMenuItem:
                 print("      <listitem>", file=file)
                 if param.tip is not parameter.emptyTipString:
                     tip = param.tip or "MISSING TIP STRING."
+                    tip = tip.replace('<', '&lt;').replace('>', '&gt;')
                     if not tip.endswith('.'):
                         tip = tip + "."
                 else:
