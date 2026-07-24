@@ -69,14 +69,18 @@ SmallMatrix findDisplacementGradientRate(const FEMesh *mesh,
 					 const MasterPosition &pt)
 {
   // compute the matrix dU(i,j) = d/dx_j d(u_i)/dt
-
   static const TwoVectorField *displacement =
     dynamic_cast<const TwoVectorField*>(Field::getField("Displacement"));
-  static const TwoVectorField *displacement_t =
-    dynamic_cast<const TwoVectorField*>(displacement->time_derivative());
+  static const TwoVectorFieldBase *displacement_t =
+    dynamic_cast<const TwoVectorFieldBase*>(displacement->time_derivative());
   static const ThreeVectorField *displacement_zt =
     dynamic_cast<const ThreeVectorField*>(
 			     displacement->out_of_plane_time_derivative());
+
+  if(displacement_t == nullptr)
+    throw ErrProgrammingError("displacement_t is not defined",
+			      __FILE__, __LINE__);
+
   SmallMatrix result(3, 3);
   try {
     for(int j=0; j<2; j++) { // gradient component
@@ -85,6 +89,9 @@ SmallMatrix findDisplacementGradientRate(const FEMesh *mesh,
 	result(i, j) = du[i];
     }
     if(!displacement->in_plane(mesh)) {
+      if(displacement_zt == nullptr)
+	throw ErrProgrammingError("displacement_zt is not defined",
+				  __FILE__, __LINE__);
       DoubleVec uz = displacement_zt->values(mesh, element, pt);
       for(int i=0; i<3; i++)
 	result(i, 2) = uz[i];
