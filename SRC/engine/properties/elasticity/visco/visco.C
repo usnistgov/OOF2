@@ -78,19 +78,16 @@ void CViscoElasticity::flux_matrix(const FEMesh *mesh,
 // DEFINED AT THE NODES. findGeometricStrainRate will return zeros if
 // the time derivative field isn't defined.
 
-// TODO TIMEDERIV:  Does this work now?
-
 // void CViscoElasticity::flux_value(const FEMesh *mesh, const Element *element,
 // 				  const Flux *flux, const MasterPosition &pt,
-// 				  double time, SmallSystem *fluxdata)
+// 				  double time, void*, SmallSystem *fluxdata)
 //   const
 // {
+//   std::cerr << "CViscoElasticity::flux_value: pt=" << pt << std::endl;
 //   if(*flux != *stress_flux) {
 //     throw ErrProgrammingError("Unexpected flux", __FILE__, __LINE__);
 //   }
-
-//   SymmMatrix3 strainrate;
-//   findGeometricStrainRate(mesh, element, pt, &strainrate, false);
+//   SymmMatrix3 strainrate = findGeometricStrainRate(mesh, element, pt, false);
 
 //   SymmMatrix3 stress = g_ijkl*strainrate;
   

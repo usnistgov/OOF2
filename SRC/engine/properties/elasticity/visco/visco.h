@@ -47,8 +47,13 @@ public:
 			   const MasterPosition &x,
 			   double time, void*,
 			   SmallSystem *fluxmtx) const;
-  // virtual void flux_value(const FEMesh*, const Element*, const Flux*,
-  // 			  const MasterPosition&, double, SmallSystem*) const;
+  // virtual void flux_value(const FEMesh* mesh,
+  // 			  const Element* element,
+  // 			  const Flux* flux,
+  //  			  const MasterPosition& x,
+  // 			  double time,
+  // 			  void *localdata,
+  // 			  SmallSystem*) const;
   virtual int integration_order(const CSubProblem*, const Element*) const;
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);

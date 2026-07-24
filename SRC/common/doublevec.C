@@ -139,6 +139,22 @@ std::ostream& operator<<(std::ostream& os, const DoubleVec& vec) {
   return os;
 }
 
+std::string DoubleVec::sparsePrint() const {
+  // Only print non-zero entries
+  std::ostringstream os;
+  os << "[";
+  bool first = true;
+  for(std::size_t i=0; i<data.size(); i++) {
+    if(data[i] != 0.0) {
+      if(!first) os << ", ";
+      first = false;
+      os << "(" << i << "," << data[i] << ")";
+    }
+  }
+  os << "]";
+  return os.str();
+};
+
 // TODO: Eigen 3.4.90 documentation says to use saveMarketDense and
 // loadMarketDense instead of saveMarketVector and loadMarketVector,
 // but it doesn't compile that way.  Perhaps because we're using

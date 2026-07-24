@@ -103,6 +103,8 @@ public:
   friend bool save_vec(const DoubleVec&, const std::string&);
   friend bool load_vec(DoubleVec&, const std::string&);
 
+  std::string sparsePrint() const;
+
   static DoubleVec* testIterator(DoubleVec&);
 };
 
