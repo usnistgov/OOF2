@@ -15,23 +15,22 @@
 
 // Default constructor clears all the objects.
 SmallSystem::SmallSystem(int nr, int nc) :
-  current_row(0), current_col(0),
   fluxVector_(nr, 0.0), forceVector_(nr, 0.0), offsetVector_(nr, 0.0),
-  mMatrix(nr,nc), cMatrix(nr,nc), kMatrix(nr,nc), dfMatrix(nr,nc),
+  mMatrix_(nr,nc), cMatrix_(nr,nc), kMatrix_(nr,nc), dfMatrix_(nr,nc),
   m_clean(true), c_clean(true), k_clean(true), df_clean(true),
   flux_clean(true), force_clean(true), offset_clean(true)
 {
-  mMatrix.clear();
-  cMatrix.clear();
-  kMatrix.clear();
-  dfMatrix.clear();
+  mMatrix_.clear();
+  cMatrix_.clear();
+  kMatrix_.clear();
+  dfMatrix_.clear();
 }
 
 void SmallSystem::reset() {
-  mMatrix.clear();
-  cMatrix.clear();
-  kMatrix.clear();
-  dfMatrix.clear();
+  mMatrix_.clear();
+  cMatrix_.clear();
+  kMatrix_.clear();
+  dfMatrix_.clear();
   fluxVector_.zero();
   forceVector_.zero();
   offsetVector_.zero();
@@ -45,11 +44,11 @@ void SmallSystem::reset() {
 }
 
 int SmallSystem::nrows() const {
-  return mMatrix.rows();
+  return mMatrix_.rows();
 }
 
 int SmallSystem::ncols() const {
-  return mMatrix.cols();
+  return mMatrix_.cols();
 }
 
 const DoubleVec &SmallSystem::fluxVector() const {
@@ -79,9 +78,47 @@ DoubleVec &SmallSystem::offsetVector() {
   return offsetVector_;
 }
 
+SmallSparseMatrix& SmallSystem::mMatrix() {
+  m_clean = false;
+  return mMatrix_;
+}
+
+const SmallSparseMatrix& SmallSystem::mMatrix() const {
+  return mMatrix_;
+}
+
+SmallSparseMatrix& SmallSystem::cMatrix() {
+  c_clean = false;
+  return cMatrix_;
+}
+
+const SmallSparseMatrix& SmallSystem::cMatrix() const {
+  return cMatrix_;
+}
+
+SmallSparseMatrix& SmallSystem::kMatrix() {
+  k_clean = false;
+  return kMatrix_;
+}
+
+const SmallSparseMatrix& SmallSystem::kMatrix() const {
+  return kMatrix_;
+}
+
+SmallSparseMatrix& SmallSystem::dfMatrix() {
+  df_clean = false;
+  return dfMatrix_;
+}
+
+const SmallSparseMatrix& SmallSystem::dfMatrix() const {
+  return dfMatrix_;
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// SmallSystem::_set_index is inlined, and is in the .h file.
+#define SET_INDEX(i, j, fluxindex, field, fieldindex, nodeiter)	\
+  int i = fluxindex.integer(); \
+  int j = nodeiter.localindex(*field, &fieldindex);
 
 double &SmallSystem::stiffness_matrix_element(
 				      const FieldIndex &fi,
@@ -90,8 +127,8 @@ double &SmallSystem::stiffness_matrix_element(
 				      const ElementFuncNodeIterator &efi)
 {
   k_clean = false;
-  _set_index(fi, field, fieldindex, efi);
-  return kMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, fieldindex, efi);
+  return kMatrix_(i, j);
 }
 
 double &SmallSystem::stiffness_matrix_element(
@@ -101,8 +138,8 @@ double &SmallSystem::stiffness_matrix_element(
 {
   k_clean = false;
   ScalarFieldIndex sfi;
-  _set_index(fi, field, sfi, efi);
-  return kMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, sfi, efi);
+  return kMatrix_(i, j);
 }
 
 double SmallSystem::stiffness_matrix_element(const FieldIndex &fi,
@@ -111,8 +148,8 @@ double SmallSystem::stiffness_matrix_element(const FieldIndex &fi,
 					     const ElementFuncNodeIterator &efi)
   const
 {
-  _set_index(fi, field, fieldindex, efi);
-  return kMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, fieldindex, efi);
+  return kMatrix_(i, j);
 }
 
 double SmallSystem::stiffness_matrix_element(const FieldIndex &fi,
@@ -121,8 +158,8 @@ double SmallSystem::stiffness_matrix_element(const FieldIndex &fi,
   const
 {
   ScalarFieldIndex sfi;
-  _set_index(fi, field, sfi, efi);
-  return kMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, sfi, efi);
+  return kMatrix_(i, j);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -134,8 +171,8 @@ double &SmallSystem::force_deriv_matrix_element(
 					const ElementFuncNodeIterator &efi)
 {
   df_clean = false;
-  _set_index(fi, field, fieldindex, efi);
-  return dfMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, fieldindex, efi);
+  return dfMatrix_(i, j);
 }
 
 double &SmallSystem::force_deriv_matrix_element(
@@ -146,8 +183,8 @@ double &SmallSystem::force_deriv_matrix_element(
 {
   df_clean = false;
   ScalarFieldIndex sfi;
-  _set_index(fi, field, sfi, efi);
-  return dfMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, sfi, efi);
+  return dfMatrix_(i, j);
 }
 
 double SmallSystem::force_deriv_matrix_element(
@@ -157,8 +194,8 @@ double SmallSystem::force_deriv_matrix_element(
 				       const ElementFuncNodeIterator &efi)
   const
 {
-  _set_index(fi, field, fieldindex, efi);
-  return dfMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, fieldindex, efi);
+  return dfMatrix_(i, j);
 }
 
 double SmallSystem::force_deriv_matrix_element(
@@ -168,8 +205,8 @@ double SmallSystem::force_deriv_matrix_element(
   const
 {
   ScalarFieldIndex sfi;
-  _set_index(fi, field, sfi, efi);
-  return dfMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, sfi, efi);
+  return dfMatrix_(i, j);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -180,8 +217,8 @@ double &SmallSystem::damping_matrix_element(const FieldIndex &fi,
 					    const ElementFuncNodeIterator &efi)
 {
   c_clean = false;
-  _set_index(fi, field, fieldindex, efi);
-  return cMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, fieldindex, efi);
+  return cMatrix_(i, j);
 }
 
 double &SmallSystem::damping_matrix_element(const FieldIndex &fi,
@@ -190,8 +227,8 @@ double &SmallSystem::damping_matrix_element(const FieldIndex &fi,
 {
   c_clean = false;
   ScalarFieldIndex sfi;
-  _set_index(fi, field, sfi, efi);
-  return cMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, sfi, efi);
+  return cMatrix_(i, j);
 }
 
 double SmallSystem::damping_matrix_element(const FieldIndex &fi,
@@ -200,8 +237,8 @@ double SmallSystem::damping_matrix_element(const FieldIndex &fi,
 					   const ElementFuncNodeIterator &efi)
   const
 {
-  _set_index(fi, field, fieldindex, efi);
-  return cMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, fieldindex, efi);
+  return cMatrix_(i, j);
 }
 
 double SmallSystem::damping_matrix_element(const FieldIndex &fi,
@@ -210,8 +247,8 @@ double SmallSystem::damping_matrix_element(const FieldIndex &fi,
   const
 {
   ScalarFieldIndex sfi;
-  _set_index(fi, field, sfi, efi);
-  return cMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, sfi, efi);
+  return cMatrix_(i, j);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -222,8 +259,8 @@ double &SmallSystem::mass_matrix_element(const FieldIndex &fi,
 					 const ElementFuncNodeIterator &efi)
 {
   m_clean = false;
-  _set_index(fi, field, fieldindex, efi);
-  return mMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, fieldindex, efi);
+  return mMatrix_(i, j);
 }
 
 double &SmallSystem::mass_matrix_element(const FieldIndex &fi,
@@ -232,8 +269,8 @@ double &SmallSystem::mass_matrix_element(const FieldIndex &fi,
 {
   m_clean = false;
   ScalarFieldIndex sfi;
-  _set_index(fi, field, sfi, efi);
-  return mMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, sfi, efi);
+  return mMatrix_(i, j);
 }
 
 double SmallSystem::mass_matrix_element(const FieldIndex &fi,
@@ -242,8 +279,8 @@ double SmallSystem::mass_matrix_element(const FieldIndex &fi,
 					const ElementFuncNodeIterator &efi)
   const
 {
-  _set_index(fi, field, fieldindex, efi);
-  return mMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, fieldindex, efi);
+  return mMatrix_(i, j);
 }
 
 double SmallSystem::mass_matrix_element(const FieldIndex &fi,
@@ -252,8 +289,8 @@ double SmallSystem::mass_matrix_element(const FieldIndex &fi,
   const
 {
   ScalarFieldIndex sfi;
-  _set_index(fi, field, sfi, efi);
-  return mMatrix(current_row, current_col);
+  SET_INDEX(i, j, fi, field, sfi, efi);
+  return mMatrix_(i, j);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -288,16 +325,16 @@ double SmallSystem::offset_vector_element(int fi) const {
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 std::ostream& operator<<(std::ostream &os, const SmallSystem &ss) {
-  os << ss.kMatrix;
+  os << ss.kMatrix_;
   return os;
 }
 
 void SmallSystem::operator+=(const SmallSystem &other)
 {
-  mMatrix  += other.mMatrix;
-  cMatrix  += other.cMatrix;
-  kMatrix  += other.kMatrix;
-  dfMatrix += other.dfMatrix;
+  mMatrix_  += other.mMatrix_;
+  cMatrix_  += other.cMatrix_;
+  kMatrix_  += other.kMatrix_;
+  dfMatrix_ += other.dfMatrix_;
 
   fluxVector_   += other.fluxVector_;
   forceVector_  += other.forceVector_;
@@ -336,4 +373,20 @@ void SmallSparseMatrix::operator+=(const SmallSparseMatrix &other) {
   data += other.data;
   for(unsigned int i=0; i<nonzero_.size(); i++)
     nonzero_[i] = nonzero_[i] || other.nonzero_[i];
+}
+
+std::ostream& operator<<(std::ostream& os, const SmallSparseMatrix& mat) {
+  bool first = true;
+  os << "[";
+  for(int i=0; i<mat.rows(); i++) {
+    for(int j=0; j<mat.cols(); j++) {
+      if(mat.nonzero(i,j)) {
+	if(!first) os << ", ";
+	first = false;
+	os << "(" << i << "," << j << "," << mat(i,j) << ")";
+      }
+    }
+  }
+  os << "]";
+  return os;
 }

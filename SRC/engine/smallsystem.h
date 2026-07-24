@@ -52,22 +52,26 @@ public:
   bool nonzero(int, int) const;
 };
 
+std::ostream &operator<<(std::ostream&, const SmallSparseMatrix&);
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 class SmallSystem {
 
 private:
-  mutable int current_row, current_col;
-  void _set_index(const FieldIndex&,
-		  const Field*,
-		  const FieldIndex&,
-		  const ElementFuncNodeIterator&) const;
+  SmallSystem(const SmallSystem&) = delete;
   DoubleVec fluxVector_, forceVector_, offsetVector_;
-  SmallSystem(const SmallSystem&); // prohibited!
+  SmallSparseMatrix mMatrix_, cMatrix_, kMatrix_, dfMatrix_;
 public:
 
-  // TODO: Make these private, and add accessors like fluxVector_'s.
-  SmallSparseMatrix mMatrix, cMatrix, kMatrix, dfMatrix;
+  SmallSparseMatrix& mMatrix();
+  SmallSparseMatrix& cMatrix();
+  SmallSparseMatrix& kMatrix();
+  SmallSparseMatrix& dfMatrix();
+  const SmallSparseMatrix& mMatrix() const;
+  const SmallSparseMatrix& cMatrix() const;
+  const SmallSparseMatrix& kMatrix() const;
+  const SmallSparseMatrix& dfMatrix() const;
 
   // These booleans keep track of whether or not the various matrices
   // in the smallsystem have been written to.  They're true at
@@ -168,23 +172,3 @@ public:
   void operator+=(const SmallSystem&);
 
 };
-
-
-inline void SmallSystem::_set_index(const FieldIndex &fluxindex,
-				    const Field *field,
-				    const FieldIndex &fieldindex,
-				    const ElementFuncNodeIterator &efi)
-
-  const {
-  // TODO OPT: Compute and cache the global index for the
-  // field/node/component combo that you can see here.
-
-  // TODO: This should be a preprocessor macro, so that current_row
-  // and current_col can be local variables instead of class data.
-  current_row = fluxindex.integer();
-  current_col = efi.localindex(*field, &fieldindex);
-  assert(0 <= current_row && current_row < nrows());
-  assert(0 <= current_col && current_col < ncols());
-}
-
-

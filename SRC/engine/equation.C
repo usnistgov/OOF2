@@ -180,7 +180,7 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	std::vector<int> cmap = (*fi).first->contraction_map(eqcomp);
 	// (*fi).second is a SmallSystem*
 	if(!(*fi).second->k_clean) {
-	  const SmallSparseMatrix &k = (*fi).second->kMatrix;
+	  const SmallSparseMatrix &k = (*fi).second->kMatrix();
 
 	  // This loops over all dofs, not just the ones that
 	  // contribute to K.  That's ok, because SmallSparseMatrix k
@@ -219,7 +219,7 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	} // k-matrix
 
 	if(!(*fi).second->c_clean) {
-	  const SmallSparseMatrix &c = (*fi).second->cMatrix;
+	  const SmallSparseMatrix &c = (*fi).second->cMatrix();
 	  for(int ldof = 0; ldof < element->ndof(); ++ldof) {
 	    int global_col = dofmap[ldof];
 	    double sum = 0.0;
@@ -237,7 +237,7 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
 	} // c-matrix 
 	
 	if (!(*fi).second->m_clean) {
-	  const SmallSparseMatrix &m = (*fi).second->mMatrix;
+	  const SmallSparseMatrix &m = (*fi).second->mMatrix();
 	  
 	  for(int ldof = 0; ldof < element->ndof(); ++ldof) {
 	    int global_col = dofmap[ldof];
@@ -289,7 +289,7 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
       // Direct equation contributions.
 
       if(!eqndata->df_clean && needJacobian) {
-	const SmallSparseMatrix &df = eqndata->dfMatrix;
+	const SmallSparseMatrix &df = eqndata->dfMatrix();
 	for(int ldof = 0; ldof < element->ndof(); ++ldof) {
 	  if(df.nonzero(eqcomp, ldof)) {
 	    int global_col = dofmap[ldof];
@@ -300,7 +300,7 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
       }
 
       if(!eqndata->c_clean) {
-	const SmallSparseMatrix &c = eqndata->cMatrix;
+	const SmallSparseMatrix &c = eqndata->cMatrix();
 	for (int ldof = 0; ldof < element->ndof(); ++ldof) {
 	  if(c.nonzero(eqcomp, ldof)) {
 	    int global_col = dofmap[ldof];
@@ -311,7 +311,7 @@ DivergenceEquation::make_linear_system(const CSubProblem *subproblem,
       }
 
       if(!eqndata->m_clean) {
-	const SmallSparseMatrix &m = eqndata->mMatrix;
+	const SmallSparseMatrix &m = eqndata->mMatrix();
 	for (int ldof = 0; ldof < element->ndof(); ++ldof) {
 	  if(m.nonzero(eqcomp, ldof)) {
 	    int global_col = dofmap[ldof];
@@ -380,7 +380,7 @@ PlaneFluxEquation::make_linear_system(const CSubProblem *subproblem,
 	  int fluxcomp = pmap[eqcomp]; // flux component
 	  // (*fi).second is a SmallSystem*
 	  if ( !(*fi).second->k_clean ) {
-	    const SmallSparseMatrix &k = (*fi).second->kMatrix;
+	    const SmallSparseMatrix &k = (*fi).second->kMatrix();
 	    for(int ldof = 0; ldof < element->ndof(); ++ldof) {
 	      // dofmap is the Element's localDoFmap, which maps local
 	      // Element dof indices to global ones.
@@ -397,7 +397,7 @@ PlaneFluxEquation::make_linear_system(const CSubProblem *subproblem,
 	  } // k-matrix
 
 	  if ( !(*fi).second->c_clean ) {
-	    const SmallSparseMatrix &c = (*fi).second->cMatrix;
+	    const SmallSparseMatrix &c = (*fi).second->cMatrix();
 	    for(int ldof = 0; ldof < element->ndof(); ++ldof) {
 	      if(c.nonzero(fluxcomp, ldof)) {
 		int global_col = dofmap[ldof];
@@ -408,7 +408,7 @@ PlaneFluxEquation::make_linear_system(const CSubProblem *subproblem,
 	  } // c-matrix
 
 	  if ( !(*fi).second->m_clean ) {
-	    const SmallSparseMatrix &m = (*fi).second->mMatrix;
+	    const SmallSparseMatrix &m = (*fi).second->mMatrix();
 	    for(int ldof = 0; ldof < element->ndof(); ++ldof) {
 	      if(m.nonzero(fluxcomp, ldof)) {
 		int global_col = dofmap[ldof];

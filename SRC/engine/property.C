@@ -239,12 +239,20 @@ void FluxProperty::flux_value(const FEMesh *mesh, const Element *element,
   catch (ErrNoSuchField &exc) {}
 
   fluxdata->fluxVector() += localFluxData.offsetVector();
-  fluxdata->fluxVector() += localFluxData.kMatrix*localdofs;
+  fluxdata->fluxVector() += localFluxData.kMatrix()*localdofs;
 
   // If localdofs includes time derivative fields we can do this.  If
   // localdofs doesn't include time derivative fields, then doing this
   // is a no-op. TODO: Skip the call if it's a no-op.
-  fluxdata->fluxVector() += localFluxData.cMatrix*localdofs;
+  
+  auto incr = localFluxData.cMatrix()*localdofs;
+  // std::cerr << "FluxProperty::flux_value: localdofs=" << localdofs.sparsePrint()
+  // 	    << std::endl;
+  // std::cerr << "FluxProperty::flux_value: cMatrix=" << localFluxData.cMatrix()
+  // 	    << std::endl;
+  // std::cerr << "FluxProperty::flux_value: incr=" << incr << std::endl;
+  fluxdata->fluxVector() += localFluxData.cMatrix()*localdofs;
+  // std::cerr << "FluxProperty::flux_value: vector=" << fluxdata->fluxVector() << std::endl;
 } // FluxProperty::flux_value
 
 //=\\=//=\\=//=\\=//
