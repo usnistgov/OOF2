@@ -78,7 +78,6 @@ void SkeletonRelaxationRate::flux_offset(const FEMesh *mesh,
   // don't know, but we can ask the element, and then pass the result
   // through.
   double energyH = skelel->energyHomogeneity(*mesh->get_microstructure());
-  // TODO OPT: compute S in-line.
   const SymmMatrix3 S = shapetensor(element);
   for(SymTensorIndex ij : symTensorIJComponents) {
     double &offset_el = fluxdata->offset_vector_element(ij); // reference!
@@ -123,17 +122,7 @@ SymmMatrix3 SkeletonRelaxationRate::shapetensor(const Element *element) const {
   if (traceI == 0)
     traceI = 1.0;
   etensor(0,1) = xy/traceI;
-#if DIM==2
   etensor(0,0) = (xx - yy)/(2.0*traceI);
   etensor(1,1) = -etensor(0,0);
-#elif DIM==3
-  double onethird = 1.0/3.0;
-  double twothirds = 2.0/3.0;
-  etensor(0,0) = (twothirds * xx - onethird * (yy + zz)) / traceI;
-  etensor(1,1) = (twothirds * yy - onethird * (xx + zz)) / traceI;
-  etensor(2,2) = (twothirds * zz - onethird * (xx + yy)) / traceI;
-  etensor(0,2) = xz/traceI;
-  etensor(1,2) = yz/traceI;
-#endif
   return etensor;
 }

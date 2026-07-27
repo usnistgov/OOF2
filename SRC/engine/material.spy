@@ -172,7 +172,7 @@ def _Material_timeDependent(self, subproblem, fields):
 Material.timeDependent = _Material_timeDependent
 
 
-def _Material__symmetric(self, subprobctxt, fn):
+def _Material_symmetric(self, subprobctxt, fn):
     subprobctxt.solver_precompute()
     subproblem = subprobctxt.getObject()
     for p in self.properties:
@@ -180,7 +180,7 @@ def _Material__symmetric(self, subprobctxt, fn):
             if not fn(p, subproblem):
                 return False
     return True
-Material._is_symmetric = _Material__symmetric
+Material._is_symmetric = _Material_symmetric
 
 def _Material_symmetric_K(self, subproblem):
     return self._is_symmetric(subproblem,
