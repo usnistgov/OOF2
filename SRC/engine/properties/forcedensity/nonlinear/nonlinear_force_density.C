@@ -36,9 +36,6 @@ NonlinearForceDensity::NonlinearForceDensity(const std::string &nm,
   stress_flux  = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
 }
 
-void NonlinearForceDensity::precompute(FEMesh*) {
-}
-
 int NonlinearForceDensity::integration_order(const CSubProblem*,
 						    const Element *el)
   const

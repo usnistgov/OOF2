@@ -106,7 +106,6 @@ private:
   // Various subproblem-dependent flags are cached in these maps:
   typedef std::map<const CSubProblem*, bool, ltidobject<CSubProblem>> SubProblemFlagCache;
   SubProblemFlagCache activity;
-  SubProblemFlagCache computability;
   SubProblemFlagCache nonlinearity;
 public:
   Property(const std::string &nm, PyObject *registration);
@@ -126,19 +125,18 @@ public:
   virtual const std::string &classname() const { return classname_; }
 
   // A Property is computable if all the Fields it requires are
-  // defined on a Mesh.  A property is active if it is computable and
-  // contributes to an active equation or active flux.  Activity and
-  // computability are computed during the precomputation steps of
-  // stiffness matrix construction and output computation.
-  // bool is_active(const CSubProblem*) is in python
-  // void find_active(const CSubProblem*) is in python
+  // defined on a Mesh.
+  bool is_computable(const CSubProblem*) const;
+
+  // A property is active if it is computable and contributes to an
+  // active equation or active flux.  Activity is computed during the
+  // precomputation steps of stiffness matrix construction and output
+  // computation.  Property.is_active() is defined in Python, but the
+  // result is cached in C++.  Nonlinearity is handled similarly.
   void cache_active(const CSubProblem*, bool);
   bool currently_active(const CSubProblem*) const; // returns cached value
-  bool is_computable(const CSubProblem*) const;
-  // void find_computable(const CSubProblem*);
-  // bool currently_computable(const CSubProblem*) const;
   void cache_nonlinearity(const CSubProblem*, bool);
-  bool currently_nonlinear(const CSubProblem*) const;
+  bool currently_nonlinear(const CSubProblem*) const; // returns cached value
 
   // List of fields required to compute this Property
   const std::vector<const Field*> &fields_required() const {
@@ -164,7 +162,6 @@ public:
 
   // compute things that don't depend on Element.  The argument is
   // non-const so that FEMesh::set_property_data can be used.
-  // TODO: Some properties redefine a trivial precompute(). Why?  Delete it.
   virtual void precompute(FEMesh*) {}
 
   virtual bool constant_in_space() const { return true; }

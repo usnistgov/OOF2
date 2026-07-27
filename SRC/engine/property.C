@@ -80,42 +80,30 @@ void Property::require_field(const Field &field) {
 }
 
 // A property is computable if all fields that it uses are defined.
+// The return value of is_computable() should not be cached.  It's
+// only used during precomputation stages. If it's necessary to cache
+// precomputation results, it should be done by Material.precompute().
+
+// Where is is_computable() used?
+//   * called by _Property_is_active() in property.spy
+//     * called by _Material_precompute()
+//       * called by SubProblemContext.precomputeMaterials()
+//         * called by Mesh.precompute_all_subproblems()
+//         * called by SubProblemContext.solver_precompute()
+//         * called by _PORegBase.opfunc() in propertyoutput.spy
+//               (base class for PropertyOutputRegistrations)
 
 bool Property::is_computable(const CSubProblem *subproblem) const {
-  for(std::vector<Field*>::size_type i=0; i<fields_reqd.size(); i++) {
-    if(!subproblem->is_defined_field(*fields_reqd[i])) {
+  for(const Field* field : fields_reqd) {
+    if(!subproblem->is_defined_field(*field))
       return false;
-    }
   }
   return true;
 }
 
-// TODO: currently_computable() and find_computable() aren't used.
-// Apparently they were intended to cache the result of
-// is_computable().  Is there any need to do that?  The functions
-// should probably be deleted.
-
-// void Property::find_computable(const CSubProblem *subproblem) {
-//   computability[subproblem] = is_computable(subproblem);
-// }
-
-// bool Property::currently_computable(const CSubProblem *subproblem) const {
-//   SubProblemFlagCache::const_iterator where = computability.find(subproblem);
-//   if(where != computability.end())
-//     return (*where).second;
-//   return false;
-// }
-
 // A property is active if it's computable and is used in an active
-// Flux or Equation.
-
-// bool Property::is_active(const CSubProblem *subproblem) const {
-//   if(!is_computable(subproblem))
-//     return false;
-//   // Look in the Property's registration to find the fluxes and
-//   // equations that it's used in.
-
-// }
+// Flux or Equation.  Property.is_active() is defined in property.spy
+// and calld by Material.precompute() in material.spy.
 
 void Property::cache_active(const CSubProblem *subproblem, bool active) {
   activity[subproblem] = active;

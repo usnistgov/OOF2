@@ -37,7 +37,6 @@ public:
   virtual ~NonlinearForceDensity() {}
   virtual int  integration_order(const CSubProblem*, const Element*) const;
   virtual bool constant_in_space() const { return false; }
-  virtual void precompute(FEMesh*);
   virtual void force_value(
 		   const FEMesh*, const Element*, const Equation*,
 		   const MasterPosition&, double time, void*,
