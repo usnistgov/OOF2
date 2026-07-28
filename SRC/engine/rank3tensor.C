@@ -121,7 +121,6 @@ Rank3Tensor Rank3Tensor::transform(const COrientation *orient) const {
   SmallMatrix A = orient->rotation();
   assert(A.rows() == nrows);
   // from Nye page 111, equation 5
-  // TODO: Use partial sums to speed this up?
   Rank3Tensor result;
   for(unsigned int i=0; i<nrows; i++) {
     for(unsigned int j=0; j<nrows; j++) {

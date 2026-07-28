@@ -57,14 +57,6 @@ class ScheduledOutput(registeredclass.RegisteredClass):
         return hash(self.id)
     def __eq__(self, other):
         return isinstance(other, ScheduledOutput) and self.id == other.id
-    ## __del__ was commented out because it was leading to
-    ## OutputDestinations being closed too often in some tests (eg,
-    ## solver_test.ElasticTimeSteppers("CNPlaneStrainSaveRestore").
-    ## If it's necessary to restore __del__, make sure to fix the
-    ## error, and explain here why __del__ is required.
-    # def __del__(self):
-    #     if self.destination is not None:
-    #         self.destination.close()
     def setSchedule(self, schedule, scheduleType):
         self.schedule = schedule
         self.scheduleType = scheduleType

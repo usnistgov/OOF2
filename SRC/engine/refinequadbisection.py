@@ -193,7 +193,7 @@ def markExtras(skeleton, markedEdges):
             ## TODO: Is there a better way of determining that the
             ## method has failed?
 
-            # The magic number "100" is just an arbitrary choice.
+            # The magic number "10" is just an arbitrary choice.
             if repeat>10:
                 reporter.report("Failed to preserve quadrilateral topology for %s." % element)
                 break

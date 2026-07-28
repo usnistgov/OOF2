@@ -101,6 +101,12 @@ Use numpy for Outputs.  TODOs in output.py and outputClones.py.
 
 Many optimization TODOs in linearizedsystem.C and linearizedsystem.h
 
+Rework how elements and segments are marked for refinement.  TODO in
+refinementtarget.py.
+
+Don't recreate the Mesh at each step of Skeleton relaxation.  See TODO
+in relaxation.py.
+
 THINGS TO FIX IN TUTORIALS
 
 The Basics tutorial leaves out a step in the creation of pixel

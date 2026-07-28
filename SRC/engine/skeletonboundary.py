@@ -15,10 +15,10 @@
 # edges of its own.  The "boundaryset" dictionary contains weak
 # references to all the boundaries in the context which have the name.
 
-# TODO LATER: Skeleton boundaries only have limited editability at
-# present -- one has to construct a selection of nodes or segments,
-# and then delete the segments from the boundary.  Eventually, we'd
-# like to have more direct editabilty, probably from a toolbox, where
+# TODO: Skeleton boundaries only have limited editability at present
+# -- one has to construct a selection of nodes or segments, and then
+# delete the segments from the boundary.  Eventually, we'd like to
+# have more direct editability, probably from a toolbox, where
 # boundary components can be added or removed in one step by clicking
 # on them.
 
@@ -29,14 +29,18 @@ from ooflib.SWIG.common import timestamp
 from ooflib.common import debug
 from ooflib.engine import skeletonsegment
 from ooflib.engine import boundarymodifier
-import weakref
+import enum
 import sys
+import weakref
 
-# Special constants for specifying the direction of the map.
-## TODO: Use an Enum.
-MAP_DOWN = 0
-MAP_UP = 1
+# Special constants for specifying the direction of the map when
+# propagating boundaries up and down a series of modified Skeletons.
 
+class BdyMapDirection(enum.Enum):
+    DOWN = 1
+    UP = 2
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class SkelContextBoundary:
     def __init__(self, context, name, skeleton=None, boundary=None):
@@ -155,13 +159,13 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
     # Propagate a boundary up to its parent or down to its child.
     # Caller must ensure that the skeleton passed through as
     # "new_skeleton" in fact contains the appropriately-related
-    # segments (parents for MAP_UP, children for MAP_DOWN) with
-    # respect to first skeleton.  Caller is also responsible for
-    # issuing the "new_boundaries" signal.
+    # segments (parents for BdyMapDirection.UP, children for
+    # BdyMapDirection.DOWN) with respect to first skeleton.  Caller is
+    # also responsible for issuing the "new_boundaries" signal.
     # Called by Skeleton.mapBoundary, which is called by
     # SkeletonContext.pushModification.
     def map(self, skeleton, new_skeleton,
-            direction=MAP_DOWN, exterior=None, local=1):
+            direction=BdyMapDirection.DOWN, exterior=None, local=1):
 
         old_bdy = self.boundaryset[skeleton]
         
@@ -184,17 +188,11 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
         while len(old_edges) > 0:
             # Start from the back, so list removal is efficient.
             e = old_edges[-1]
-            
-            # HERE: With a too-small undo buffer, m.source is mangled here,
-            # causing map_end to be null, causing boundaries not to be
-            # propagated.
-            ## TODO: Does the above comment refer to an existing
-            ## problem which still needs to be fixed?
-            if direction==MAP_DOWN:
+            if direction==BdyMapDirection.DOWN:
                 m = e.segment.map()
                 map_start = m.source
                 map_end = m.target
-            else: # direction==MAP_UP
+            else: # direction==BdyMapDirection.UP
                 if len(e.segment.getParents())==0:
                     del old_edges[-1]
                     continue
@@ -216,15 +214,15 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
                            if edg in old_edges])
                 # Remove them from the old-edge list.
                 # This assumes that the old edges are contiguous
-                # at the end of the list, which is true if the
-                # boundary is sequenceable.  TODO: is it always?
+                # at the end of the list, which is true since the
+                # boundary is sequenceable.
                 del old_edges[-len(source_eset):]
 
                 # Sequence the source edges -- this is the path the
                 # original boundary takes through the source part
                 # of the map.
                 try:
-                    (edge_seq, node_seq, winding) = skeletonsegment.segSequence(
+                    edge_seq, node_seq, winding = skeletonsegment.segSequence(
                         source_eset)
                 except skeletonsegment.SequenceError:
                     continue # Re-enter the while loop.
@@ -239,11 +237,11 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
                 # relation to the boundary part of the parent.
                 sub_target = []
                 for e in edge_seq:
-                    if direction==MAP_DOWN:
+                    if direction==BdyMapDirection.DOWN:
                         for c in e.segment.getChildren():
                             if c not in sub_target:
                                 sub_target.append(c)
-                    else: # direction==MAP_UP:
+                    else: # direction==BdyMapDirection.UP:
                         for p in e.segment.getParents():
                             if p not in sub_target:
                                 sub_target.append(p)
@@ -260,7 +258,7 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
                         
                 # Find the counterparts of the endpoints of the path, if
                 # they exist and are unique, otherwise fail.
-                if direction==MAP_DOWN:
+                if direction==BdyMapDirection.DOWN:
                     start_shadow = node_seq[0].getChildren()
                     end_shadow = node_seq[-1].getChildren()
                 else:
@@ -310,18 +308,20 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
     def draw(self, display, skeleton):  # double dispatch function
         display.drawEdgeBoundary(self, skeleton)
     
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class ExteriorSkelContextEdgeBoundary(SkelContextEdgeBoundary):
     # Exterior version needs to restrict itself to new segments which
     # have only one element.  Call the base class method with
     # exterior=1.
-    def map(self, skeleton, new_skeleton, direction=MAP_DOWN, local=1):
+    def map(self, skeleton, new_skeleton, direction=BdyMapDirection.DOWN,
+            local=1):
         SkelContextEdgeBoundary.map(self, skeleton, new_skeleton,
                                     direction=direction,
                                     local=local, exterior=1)
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-            
 class SkelContextPointBoundary(SkelContextBoundary):
     modifiertype = boundarymodifier.PointBoundaryModifier
     def __init__(self, context, name, skeleton=None, boundary=None):
@@ -358,7 +358,7 @@ class SkelContextPointBoundary(SkelContextBoundary):
             
     # Point boundary propagation is much easier.
     def map(self, skeleton, new_skeleton,
-            direction=MAP_DOWN, exterior=None, local=1):
+            direction=BdyMapDirection.DOWN, exterior=None, local=1):
         old_bdy = self.boundaryset[skeleton]
         new_bdy = new_skeleton.makePointBoundary(self.name, exterior=exterior)
         if local:
@@ -366,7 +366,7 @@ class SkelContextPointBoundary(SkelContextBoundary):
 
         target_list = []
         for n in old_bdy.nodes:
-            if direction==MAP_DOWN:
+            if direction==BdyMapDirection.DOWN:
                 sub_nodes = n.getChildren()
             else:
                 sub_nodes = n.getParents()
@@ -379,7 +379,7 @@ class SkelContextPointBoundary(SkelContextBoundary):
         new_node_list = []
         for n in target_list:
             valid = 1
-            if direction==MAP_DOWN:
+            if direction==BdyMapDirection.DOWN:
                 sources = n.getParents()
             else:
                 sources = n.getChildren()
@@ -397,14 +397,16 @@ class SkelContextPointBoundary(SkelContextBoundary):
     def draw(self, display, skeleton):  # double dispatch function
         display.drawPointBoundary(self, skeleton)
     
-
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class ExteriorSkelContextPointBoundary(SkelContextPointBoundary):
-    def map(self, skeleton, new_skeleton, direction=MAP_DOWN, local=1):
+    def map(self, skeleton, new_skeleton, direction=BdyMapDirection.DOWN,
+            local=1):
         SkelContextPointBoundary.map(self, skeleton, new_skeleton,
                                      direction=direction,
                                      local=local, exterior=1)
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
         
 class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
     def __init__(self, name):
@@ -493,7 +495,8 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
             sequence_node = self.edges[0].get_nodes()[0]
         else:
             raise skeletonsegment.SequenceError(
-                "Topology problem with boundary %s, unable to sequence." % repr(self._name))
+             f"Topology problem with boundary {self._name}, unable to sequence."
+            )
 
         # Now, finally, we have a starting node.  Chain the edges
         # together from this node.  Proceed until dictionary retrieval
@@ -516,7 +519,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
         else:
             # This can occur if the boundary is made up of disjoint loops.
             raise skeletonsegment.SequenceError(
-                "Sequenced boundary %s did not use all edges." % repr(self._name))
+                f"Sequenced boundary {self._name} did not use all edges.")
         
     def reverse(self):
         self.edges.reverse()            # reverses list in place
@@ -548,7 +551,8 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
         all_segments = new_segments.union([x.segment for x in self.edges])
 
         try:
-            (seg_list, node_list, winding) = skeletonsegment.segSequence(all_segments)
+            seg_list, node_list, winding = skeletonsegment.segSequence(
+                all_segments)
             return 1
         except skeletonsegment.SequenceError:
             return 0
@@ -567,7 +571,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
         self.sequence()  # Make sure we're in order, first.  
         all_segments = new_segments.union([x.segment for x in self.edges])
 
-        (seg_list, node_list, winding) = skeletonsegment.segSequence(all_segments)
+        seg_list, node_list, winding = skeletonsegment.segSequence(all_segments)
 
         # Explicitly check for the loop case -- if it occurs, the
         # seg_list needs to be "manually" brought into correspondence
@@ -666,7 +670,8 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
             old_segments.remove(d)
 
         try:
-            (seg_list, node_list, winding) = skeletonsegment.segSequence(old_segments)
+            seg_list, node_list, winding = skeletonsegment.segSequence(
+                old_segments)
             return 1
         except skeletonsegment.SequenceError:
             return 0
@@ -693,7 +698,8 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
 
         #Interface branch
         if self._sequenceable:
-            (seg_list, node_list, winding) = skeletonsegment.segSequence(old_segments)
+            seg_list, node_list, winding = skeletonsegment.segSequence(
+                old_segments)
 
         # If sequencing worked, then the modified boundary is
         # topologically OK.  It is permissible to modify our edges list.
@@ -717,7 +723,9 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
 
     def exterior(self):
         return 0
-        
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class ExteriorSkeletonEdgeBoundary(SkeletonEdgeBoundary):
     def addEdge(self, edge):
         if config.dimension() == 2 and edge.segment.nElements() != 1:
@@ -732,6 +740,8 @@ class ExteriorSkeletonEdgeBoundary(SkeletonEdgeBoundary):
 
     def exterior(self):
         return 1
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class SkeletonPointBoundary: # corresponds to a realskeleton's NodeSet
     def __init__(self, name):
@@ -773,6 +783,8 @@ class SkeletonPointBoundary: # corresponds to a realskeleton's NodeSet
     def exterior(self):
         return 0
     
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class ExteriorSkeletonPointBoundary(SkeletonPointBoundary):
     def makeContextBoundary(self, context, name, skeleton):
         return ExteriorSkelContextPointBoundary(context, name, skeleton, self)
@@ -783,7 +795,7 @@ class ExteriorSkeletonPointBoundary(SkeletonPointBoundary):
     def exterior(self):
         return 1
 
-
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # This function returns a list of edges with the properties that:
 #  - The target list edges trace a path from the edge's start node
@@ -799,15 +811,16 @@ def edgesFromSegs(edge, target_segs, direction):
     # If the target segments are forked or otherwise complex,
     # return an empty list.
     try:
-        (seg_list, node_list, winding) = skeletonsegment.segSequence( target_segs )
+        (seg_list, node_list, winding) = skeletonsegment.segSequence(
+            target_segs)
     except skeletonsegment.SequenceError:
         return []
     
     ordered_nodes = edge.get_nodes()
 
-    if direction==MAP_UP:
+    if direction==BdyMapDirection.UP:
         target_start = ordered_nodes[0].getParents()
-    else: # direction==MAP_DOWN
+    else: # direction==BdyMapDirection.DOWN
         target_start = ordered_nodes[0].getChildren()
         # the problem is that target_start is not in the "target"
 
@@ -830,7 +843,8 @@ def edgesFromSegs(edge, target_segs, direction):
         
         if len(overlap): # elif node_list.intersection(target_start)
             try:
-                (seg_list, node_list, winding) = skeletonsegment.segSequence( target_segs, overlap[0] )
+                seg_list, node_list, winding = skeletonsegment.segSequence(
+                    target_segs, overlap[0] )
             except skeletonsegment.SequenceError:
                 return []
 
@@ -851,6 +865,8 @@ def edgesFromSegs(edge, target_segs, direction):
             target_list.append(skeletonsegment.SkeletonEdge(s,direction=-1))
         
     return target_list
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 from ooflib.common import utils
 utils.OOFdefine('SkeletonEdgeBoundary', SkeletonEdgeBoundary)

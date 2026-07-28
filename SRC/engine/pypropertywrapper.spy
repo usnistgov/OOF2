@@ -13,8 +13,17 @@ from ooflib.common import debug
 ## TODO: FIX THIS.  We shouldn't have to import smallsystem here.  But
 ## if we don't, then the SmallSystem that gets passed to flux_matrix
 ## in PyHeatConductivity, for example, doesn't have the methods that
-## are added to it by smallsystem.py.  The simplest fix would be to
-## move those methods to C++ and swig them.
+## are added to it by smallsystem.py (the swig-generated file).  The
+## simplest fix would be to move those methods to C++ and swig them.
+##
+## Comment out the import line and run 'oof2-test pyproperty_test' to
+## see the problem.
+##
+##   File "/Users/langer/lib/python3.14/site-packages/oof2/ooflib/engine/properties/heatconductivity/pyheatconductivity.py", line 56, in flux_matrix
+##    fluxdata.add_stiffness_matrix_element(
+##    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## AttributeError: 'swig_runtime_data5.SwigPyObject' object has no attribute 'add_stiffness_matrix_element'
+
 from ooflib.SWIG.engine import smallsystem
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

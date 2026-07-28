@@ -188,9 +188,6 @@ class SkeletonElement(SkeletonElementBase,
             lastnode = node
         self.nodes = []
 
-    # def getFEelement(self):
-    #     return self.element
-
     def getSegments(self, skeleton):
         lastnode = self.nodes[-1]
         for node in self.nodes:
@@ -610,7 +607,7 @@ class ProvisionalElement(SkeletonElementBase):
         element.copyHomogeneity(self)
         return element
     def __repr__(self):
-        # TODO: This repr redundant with the base class repr, but
+        # This repr is redundant with the base class repr, but
         # sometimes it's convenient to change the base class in ways
         # that aren't compatible with this class.  That means that the
         # base class repr should be in the other derived classes, I

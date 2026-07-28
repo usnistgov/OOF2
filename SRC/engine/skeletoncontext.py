@@ -23,13 +23,14 @@ from ooflib.common import runtimeflags
 from ooflib.common import utils
 from ooflib.common.IO import whoville
 from ooflib.engine import materialmanager
-from ooflib.engine import skeletonboundary
 from ooflib.engine import skeletongroups
 from ooflib.engine import skeletonnode
 from ooflib.engine import skeletonselectable
 from ooflib.engine.IO import movenode
 import itertools
 import sys
+
+from ooflib.engine.skeletonboundary import BdyMapDirection
 
 # When propagating boundaries, Deputies shouldn't be around - since they
 # don't have nothing to do with boundaries!
@@ -188,9 +189,6 @@ class SkeletonContext(whoville.WhoDoUndo):
         finally:
             self.cancel_reservation()
     
-    # Remove must be sure to break circular references. TODO: Really?
-    # The Python garbage collector does that automatically, as long as
-    # the objects don't have __del__ methods.
     def remove(self):
         # WhoDoUndo.remove destroys all the objects in the undobuffer.
         whoville.WhoDoUndo.remove(self)
@@ -202,13 +200,6 @@ class SkeletonContext(whoville.WhoDoUndo):
         self.segmentgroups.destroy()
         self.elementgroups.destroy()
         self.pinnednodes.destroy()
-        del self.nodeselection
-        del self.segmentselection
-        del self.elementselection
-        del self.pinnednodes
-        del self.nodegroups
-        del self.elementgroups
-        del self.segmentgroups
 
     def pushModification(self, skeleton):
         old = self.getObject()
@@ -361,14 +352,14 @@ class SkeletonContext(whoville.WhoDoUndo):
         children = self.undobuffer.getToTop()
         for c in withoutDeputies(children[1:]):
             c.mapBoundary(context_bdy, current,
-                          direction=skeletonboundary.MAP_DOWN)
+                          direction=BdyMapDirection.DOWN)
             current = c
 
         current = self.getObject()
         parents = self.undobuffer.getToBottom()
         for p in withoutDeputies(parents[1:]):
             p.mapBoundary(context_bdy, current,
-                          direction=skeletonboundary.MAP_UP)
+                          direction=BdyMapDirection.UP)
             current = p
 
         switchboard.notify("new boundary created", self)
@@ -399,14 +390,14 @@ class SkeletonContext(whoville.WhoDoUndo):
         children = self.undobuffer.getToTop()
         for c in withoutDeputies(children[1:]):
             c.mapBoundary(context_bdy, current,
-                          direction=skeletonboundary.MAP_DOWN)
+                          direction=BdyMapDirection.DOWN)
             current = c
 
         current = self.getObject()
         parents = self.undobuffer.getToBottom()
         for p in withoutDeputies(parents[1:]):
             p.mapBoundary(context_bdy, current,
-                          direction=skeletonboundary.MAP_UP)
+                          direction=BdyMapDirection.UP)
             current = p
 
         switchboard.notify("new boundary created", self)
@@ -433,14 +424,14 @@ class SkeletonContext(whoville.WhoDoUndo):
         children = self.undobuffer.getToTop()
         for c in withoutDeputies(children[1:]):
             c.mapBoundary(context_bdy, current,
-                          direction=skeletonboundary.MAP_DOWN)
+                          direction=BdyMapDirection.DOWN)
             current = c
 
         current = self.getObject()
         parents = self.undobuffer.getToBottom()
         for p in withoutDeputies(parents[1:]):
             p.mapBoundary(context_bdy, current,
-                          direction=skeletonboundary.MAP_UP)
+                          direction=BdyMapDirection.UP)
             current = p
 
         switchboard.notify("new boundary created", self)
@@ -652,7 +643,7 @@ class SkeletonContext(whoville.WhoDoUndo):
             if not c is start:
                 contextbdy.remove(c)
                 contextbdy.map(current, c,
-                               direction=skeletonboundary.MAP_DOWN)
+                               direction=BdyMapDirection.DOWN)
                 current = c
 
         current = start
@@ -660,7 +651,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         for p in withoutDeputies(parents[1:]):
             if not p is start:
                 contextbdy.remove(p)
-                contextbdy.map(current, p, direction=skeletonboundary.MAP_UP)
+                contextbdy.map(current, p, direction=BdyMapDirection.UP)
                 current = p
 
         # Update the boundaries in the Meshes to match the boundaries

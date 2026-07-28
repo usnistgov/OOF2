@@ -76,10 +76,6 @@ class SkeletonNode(skeletonselectable.SkeletonSelectable,
     def getPartners(self):
         return []
 
-    # # TODO throw exception?  Better to just not define it.
-    # def addPartner(self,node):
-    #     pass
-
     def getPartnerPair(self,node):
         return None
 

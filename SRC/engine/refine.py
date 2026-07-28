@@ -17,15 +17,15 @@
 # used to actually refine the elements, according to how many times
 # each edge is marked.
 
-## TODO PYTHON3: This currently doesn't deal with transition points at
-## element corners.  If there is a transition point at a corner, we
-## could use no more than one transition point on the adjacent edges,
-## and keep the number of rules down.  Can we treat the point at the
-## corner as the limit of a point *near* the corner, so that we can
-## use the same signature machinery?  The refinement rules would have
-## to notice that some quads become triangles and some triangles
-## disappear.  getProvisionalElement could detect non-unique nodes and
-## do the right thing.
+## TODO: This currently doesn't deal with transition points at element
+## corners.  If there is a transition point at a corner, we could use
+## no more than one transition point on the adjacent edges, and keep
+## the number of rules down.  Can we treat the point at the corner as
+## the limit of a point *near* the corner, so that we can use the same
+## signature machinery?  The refinement rules would have to notice
+## that some quads become triangles and some triangles disappear.
+## getProvisionalElement could detect non-unique nodes and do the
+## right thing.
 ##
 ## The TransitionPoints SegmentDivider is very good at creating
 ## transition points at element corners, and then being unable to
@@ -280,6 +280,8 @@ class SegmentMarks:
             fibest = None
             fjbest = None
             # TODO: This is an o(n^2) algorithm. Can it be improved?
+            # Does it matter?  We don't expect the number of
+            # intersections to be very large.
             for i in range(len(self.fractions)-1):
                 fi = self.fractions[i]
                 fi2 = fi*fi
@@ -685,6 +687,5 @@ registeredclass.Registration(
         skeletonmodifier.alphaParameter
             ],
     tip="Subdivide elements.",
-    ## TODO PYTHON3: Update docs!
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/refine.xml')
 )

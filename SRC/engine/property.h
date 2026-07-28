@@ -190,8 +190,9 @@ public:
   // condition is stress-dependent.
   virtual void post_process(CSubProblem *, const Element *) const {}
 
-
-  // Output function.
+  // output() makes this Property's contribution to various output
+  // quantities.  It is not const, because it may need to call
+  // precompute(), which isn't const.
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*)
     { return; }

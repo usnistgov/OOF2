@@ -265,20 +265,19 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-## TODO LATER: These classes are oddly defined.
-## CheckHeterogeneousSegments uses a SegmentChooser to choose the set
-## of segments to consider.  The choices are SelectedElements,
-## SelectedSegments, and AllSegments.  But CheckSelectedEdges doesn't
-## use a SegmentChooser, although it could. CheckAllEdges with a
-## SegmentChooser could reproduce CheckSelectedSegments and
-## CheckSegmentGroup and Check...
+## TODO: These classes are oddly defined.  CheckHeterogeneousSegments
+## uses a SegmentChooser to choose the set of segments to consider.
+## The choices are SelectedElements, SelectedSegments, and
+## AllSegments.  But CheckSelectedEdges doesn't use a SegmentChooser,
+## although it could. CheckAllEdges with a SegmentChooser could
+## reproduce CheckSelectedSegments and CheckSegmentGroup and Check...
 ##
 ## In fact, there could be a top level Elements option, with an
 ## ElementChooser parameter that switches between All Elements,
 ## Selected Elements, Selected Segments, and Element Group.  A top
 ## level Segments option would have a SegmentChooser with equivalent
 ## options.
-
+#
 # Currently implemented/2.3.x scheme
 #
 # Refine
@@ -307,7 +306,7 @@ registeredclass.Registration(
 #      minlength
 #   rules (Quick, Large)
 #   alpha (0-1)
-
+#
 # Potential new scheme:
 #
 # Refine
@@ -337,10 +336,10 @@ registeredclass.Registration(
 #   alpha (0-1)
 #
 # But that doesn't have the useful functionality of the choose from option.
-
-# Maybe the better thing would be to have a bunch of checkboxes to
-# select which criteria to use.  Objects would be refined if they meet
-# all of the chosen criteria.
+#
+# A better solution would be to have a bunch of checkboxes to select
+# which criteria to use.  Objects would be refined if they meet all of
+# the chosen criteria.
 #
 # Refine
 #   targets

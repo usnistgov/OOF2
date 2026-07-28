@@ -54,7 +54,6 @@ void PyPropertyMethods::py_precompute(FEMesh *mesh) {
   if(!PyObject_HasAttrString(referent_, "precompute")) {
     // The function isn't defined in the derived class.  Call the
     // base class method instead.
-    PyErr_Clear();		// TODO: Why? There should be no error here
     dynamic_cast<Property*>(this)->Property::precompute(mesh);
   }
   else {
@@ -170,7 +169,7 @@ void PyPropertyMethods::py_post_process(CSubProblem *m, const Element *el) const
 // returned.
 
 // PyPropertyMethods::py_output is not const because Property::output
-// is not const.  TODO: Why is Property::output not const?
+// is not const.
 
 void PyPropertyMethods::py_output(FEMesh *mesh, const Element *el,
 				  const PropertyOutput *propout,
@@ -222,9 +221,8 @@ bool PyPropertyMethods::py_constant_in_space() const {
     throw ErrUserError("constant_in_space method is missing from Property "
 		       + dynamic_cast<const Property*>(this)->name());
   }
-  // TODO: Use PyObject_CallMethodNoArgs in Python 3.9 and later
   PyObject *method = PyUnicode_FromString("constant_in_space");
-  PyObject *result = PyObject_CallMethodObjArgs(referent_, method, NULL);
+  PyObject *result = PyObject_CallMethodNoArgs(referent_, method);
 						
   Py_XDECREF(method);
   if(result == NULL) {
@@ -804,9 +802,7 @@ PyObject *PyPropertyElementData::data() {
 
 PyPropertyElementData::~PyPropertyElementData() {
   PYTHON_THREAD_BEGIN_BLOCK;
-  // It's an error if this refcount is already zero -- avoid XDECREF.
-  // TODO: Why would it already be zero?
-  Py_DECREF(_data);
+  Py_XDECREF(_data);
 }
 
 // PyPropertyElementData-handling functions.  Simple wrappers, mostly.

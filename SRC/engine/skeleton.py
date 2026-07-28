@@ -495,9 +495,8 @@ class SkeletonBase:
     
     # Utility function, finds all the intersections of passed-in
     # segment (a primitives.Segment object) with the passed-in
-    # skeleton element.  Actually returns a dictionary, indexed by
-    # points, whose values are lists of the intersecting segments, as
-    # a tuple, (intersection-point, next-element)
+    # skeleton element.  Returns a dictionary of intersecting segments
+    # keyed by intersection points.
     def _get_intersections_with_element(self, local_seg, skel_el):
         isec_set = {}
         for s in skel_el.getSegments(self): 
@@ -521,14 +520,6 @@ class SkeletonBase:
     def get_intersection_and_next_element(self, local_seg, skel_el,
                                           entry, prior_element):
 
-
-        # print >> sys.stderr, "\nEntering get_intersection_and_next_element."
-        # print >> sys.stderr, "Local segment: "
-        # print >> sys.stderr, local_seg
-        # print >> sys.stderr, "Current element:"
-        # print >> sys.stderr, skel_el
-        # print >> sys.stderr, "Prior element:"
-        # print >> sys.stderr, prior_element
         # First, see if we're already done -- if the current element
         # encloses the trailing point of the local segment, there is
         # no next element.
@@ -541,42 +532,39 @@ class SkeletonBase:
         # Remove the intersection we already know about -- it's not an
         # allowed "exit" intersection.
 
-        # print >> sys.stderr, "Intersection set:"
-        # print >> sys.stderr, isec_set
-        # print >> sys.stderr, "Entry: ", entry
-
         # The code below handles a case where, if an element is
         # degenerate, or if the ray "nicks the corner" of the element,
-        # the entry point and the exit point can coincide, in which
+        # the entry point and the exit point can coincide. In that
         # case just deleting the segment list indexed by the entry
         # point will incorrectly lead to the algorithm finding no
         # exits, and concluding that the ray terminates inside the
         # element.  Instead, if we find a matching key for the entry
-        # point, we make some checks.  If there's only one segment in the
-        # entry list, then the entry is unique, delete it. (This is the prior
-        # "naive" behavior).  Alternatively, if there is no prior element, delete
-        # the entry.  Also, independently of how long the entry-segment list is,
-        # if there are other non-entry intersections, then delete all the
-        # entry segments.  This last one handles a special case where you enter
-        # via the corner but exit elsewhere.
-        #   Failing all of that, if the entry point is the only point, and it has
-        # many segments, then only remove the segment adjacent to the prior
-        # element.  the segment list, and if there's more than
-        # one segment.  Do this by rebuilding this list without the segment whose
-        # element list contains the element we came from.
-        # 
-        # TODO: Prior behavior is preserved if you call it with
+        # point, we make some checks.  If there's only one segment in
+        # the entry list, then the entry is unique, delete it. (This
+        # is the prior "naive" behavior).  Alternatively, if there is
+        # no prior element, delete the entry.  Also, independently of
+        # how long the entry-segment list is, if there are other
+        # non-entry intersections, then delete all the entry segments.
+        # This last one handles a special case where you enter via the
+        # corner but exit elsewhere.
+        
+        # Failing all of that, if the entry point is the only point,
+        # and it has many segments, then only remove the segment
+        # adjacent to the prior element.  Do this by rebuilding this
+        # list without the segment whose element list contains the
+        # element we came from.
+
+        # Prior behavior is preserved if you call this method with
         # "None" as the prior element. Analsysidomain.py does this.
         if entry:
             entry_segs = isec_set[entry]
-            if ((prior_element is None) or
-                (len(entry_segs)==1) or
-                (len(isec_set)>1)): # was len(isec_set.keys()) > 1
+            if ((prior_element is None) or (len(entry_segs)==1) or
+                (len(isec_set)>1)): 
                 del isec_set[entry]
             else:
                 # If *none* of the segments have the prior element,
-                # then we entered through a corner from a non-adjacent element, and
-                # we should still delete the whole entry.
+                # then we entered through a corner from a non-adjacent
+                # element, and we should still delete the whole entry.
                 prior_adjacency = []
                 for s in entry_segs:
                     if (prior_element in s.getElements()):
@@ -615,8 +603,7 @@ class SkeletonBase:
         ## of which would be illegal, but the algorithm works on
         ## illegal triangles).
         if len(isec_set) !=1:
-            # print >> sys.stderr, "Multiple exits:"
-            # print >> sys.stderr, isec_set
+            debug.fmsg(f"{isec_set=}")
             raise ooferror.PyErrPyProgrammingError(
                 "Segment exits element multiple times.")
             
