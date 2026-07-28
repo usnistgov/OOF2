@@ -429,7 +429,7 @@ class _PropertyStructureInfo:
 # whereas the latter accept one as an argument.  Both prepend the
 # resulting name as a parameter to their parameter list.
 
-class PropertyRegistrationParent:
+class PropertyRegistrationBase:
     def __init__(self, subclass, ordering, secret):
         self.subclass = subclass        # for PythonExportability of Property
         self.ordering = ordering
@@ -454,7 +454,7 @@ class PropertyRegistrationParent:
 # passing "nonlinear=1" in to here.  Nonlinear properties force the
 # recomputation of the stiffness matrix when mesh.make_stiffness is
 # called, even if the mesh itself hasn't changed.
-class PropertyRegistration(PropertyRegistrationParent):
+class PropertyRegistration(PropertyRegistrationBase):
     def __init__(self, name=None, subclass=None, ordering=None,
                  propertyType=None,
                  params=[],
@@ -470,7 +470,7 @@ class PropertyRegistration(PropertyRegistrationParent):
         assert ordering is not None
         assert propertyType is not None
         
-        PropertyRegistrationParent.__init__(self, subclass, ordering, secret)
+        PropertyRegistrationBase.__init__(self, subclass, ordering, secret)
 
         # Save the fully-qualified name for error reporting.  This
         # datum should not be confused with the parameter "name",
@@ -708,9 +708,13 @@ class NamedPropertyRegistration(PropertyRegistration):
     def __init__(self, parent, name, subclass, ordering, params, secret):
         
         ## TODO: Why does NamedPropertyRegistration inherit from
-        ## PropertyRegistration, but call PropertyRegistrationParent's
-        ## __init__?  Is the class hierarchy strange?
-        PropertyRegistrationParent.__init__(self, subclass, ordering, secret)
+        ## PropertyRegistration, but call PropertyRegistrationBase's
+        ## __init__?  Is the class hierarchy strange?  All
+        ## PropertyRegistration methods other than __init__ and those
+        ## defined in NamedPropertyRegistration should be moved to
+        ## PropertyRegistrationBase, and NamedPropertyRegistration
+        ## should be derived from it.
+        PropertyRegistrationBase.__init__(self, subclass, ordering, secret)
 
         self._name = name
         self.moniker = name.split(":")[-1]
