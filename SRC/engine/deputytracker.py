@@ -37,20 +37,30 @@ class DeputySelectionTracker:
         pass
     
     # When selecting or deselecting objects up and down the Skeleton
-    # stack, there's nothing to be done
-
+    # stack, there's nothing to be done except to go on to the next
+    # tracker.
     def selectDown(self, selectable, clist):
         if len(clist) > 1:
             clist[1].selectDown(selectable, clist[1:])
     def selectUp(self, selectable, plist):
+        ## TODO? If there are multiple deputy Skeletons, it might be
+        ## possible to skip some iterations of the
+        ## DeputySkeletonTracker.selectUp() +
+        ## SkeletonSelectable.selectUp() loop, by calling
+        ## sheriff().selectUp() here.  It would require figuring out
+        ## how many items to chop off of the beginning of plist,
+        ## though.
         if len(plist) > 1:
             plist[1].selectUp(selectable, plist[1:])
     def deselectDown(self, selectable, clist):
         if len(clist) > 1:
             clist[1].deselectDown(selectable, clist[1:])
     def deselectUp(self, selectable, plist):
+        ## TODO? Skip iterations as described in the comment in
+        ## selectUp()?
         if len(plist) > 1:
             plist[1].deselectUp(selectable, plist[1:])
+
     def __repr__(self):
         return "DeputySelectionTracker(%d, %d)" % (id(self), id(self.tracker))
     def sheriff(self):

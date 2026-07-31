@@ -319,6 +319,20 @@ class DeputyPinnedNodeTracker(skeletonnode.PinnedNodeTracker):
     # in a deputy skeleton.  DeputyPinnedNodeTrackers and
     # PinnedNodeTrackers differ only in how the pinned state is
     # propagated from skeleton to skeleton.
+    ## TODO: This comment is wrong.  Where is the data in the tracker?
+    ## It's not here...
+
+    ## TODO: These methods are identical to those in
+    ## PinnedNodeTracker. Is that correct?  That would make them
+    ## unnecessary here.
+
+    ## TODO: If there's no need here pinDown, etc, then there's no
+    ## need for them in PinnedNodeTracker, either.  Instead of calling
+    ## PinnedNodeTracker.pinDown, can SkeletonNode.pinDown just call
+    ## child.pinDown?
+
+    ## TODO: Add tests that use DeputyPinnedNodeTracker.  There are
+    ## none at the moment.
 
     def pinDown(self, node, clist, where):
         node.pinDown(clist, where)

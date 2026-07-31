@@ -24,24 +24,134 @@ import weakref
 # causes the newly current SelectionSet to be written into the
 # SkeletonContext's stack of Skeletons (which is also a RingBuffer).
 # A SelectionSet contains a dictionary of SelectionTrackers, one entry
-# for each Skeleton in the SkeletonContext.
+# for each Skeleton in the SkeletonContext.  Undoing or redoing a
+# Skeleton modification changes which of these SelectionTrackers is in
+# use.
 
+# Class summary:
+#
+# SkeletonSelectable
+#   Base class for SkeletonNode, SkeletonSegment, and SkeletonElement.
+#   Knows parents and children (created by Skeleton modification).
+#   SkeletonSelectable.selected==True if selected.
+#   SkeletonNode has setPinned(bool) and bool pinned() (defined in
+#     C++, so not a simple datum like selected).
+#
+# ----
+#
+# SelectionSetBase
+#   Base class for SelectionSet and PinnedNodeSet.
+#   Occupies the undo/redo RingBuffer for selection/pinning modifications.
+#   Keeps a dict of trackers keyed by Skeletons (ie skeleton modifications).
+#
+# SelectionSet
+#   Subclass of SelectionSetBase for selection operations.
+#
+# PinnedNodeSet
+#   Subclass of SelectionSetBase for node pinning operations.
+#
+# ----
+#
+# SelectionBase
+#  Base class for Selection and PinnedNodeSelection.
+#
+# Selection
+#   Subclass of SelectionBase.
+#   Base class for NodeSelection, SegmentSelection, ElementSelection.
+#   Instances of each subclass live in the SkeletonContext.
+#   Contains stack, a RingBuffer of SelectionSets, for select undo/redo.
+#
+# PinnedNodeSelection
+#   Subclass of SelectionBase.
+#   Contains stack, a RingBuffer of PinnedNodeSets, for pin undo/redo.
+#
+# ----
+#
+# SelectionTrackerBase
+#   Base class for SelectionTracker and PinnedNodeTracker.
+#   Contains data, a set of SkeletonSelectables.  which are the objects
+#     that will be selected/pinned in a single Skeleton
+#   Subclasses define write(), which sets/pins data.
+#
+# SelectionTracker
+#   Can select or deselect SkeletonSelectables in a single Skeleton
+#
+# PinnedNodeTracker
+#   Can pin or unpin SkeletonNodes in a single Skeleton
+#
+# ----
+#
+# SkeletonContext
+#   Contains a RingBuffer of Skeletons.
+#   Contains instances of Selection subclasses
+#    (ElementSelection, PinnedNodeSelection, et al).
+#
+# ----
+#
+# I've skipped the complications created by DeputySkeletons, which
+# require DeputySelectionTrackers.
+#
+# ----
+#
+# Process of making a selection:
+#
+# 1. Menu item (eg, OOF.Graphics_1.Toolbox.Select_Node.Single_Node)
+#    calls Selection.select() with a list of SkeletonSelectables.
+#    For pinning, PinnedNodeSelection.pin(nodelist) is equivalent
+
+# 2. Selection.select() calls Selection.trackerlist() to get initial
+#    lists of trackers, one list for Skeleton parents (plist) and one
+#    for children (clist).  PinnedNodeSelection.trackerlist() is just
+#    SelectionBase.trackerlist().  Selection.trackerlist() calls
+#    SelectionBase.trackerlist() but also ensures that the starting
+#    point is not a DeputyTracker.  Both clist and plist include the
+#    current Skeleton as their first element.
+
+# 3. Selection.select() calls SkeletonSelectable.select(clist, plist)
+#    for each selectable in the tracker list.
+
+# 4. SkeletonSelectable.select() first adds itself (a
+#    SkeletonSelectable) to the data in clist[0] (the tracker for the
+#    current Skeleton).  Then it calls SelectionTracker.selectDown()
+#    for all of the SkeletonSelectable's children, and
+#    SelectionTracker.selectUp() for all of its parents.  clist and
+#    plist are passed to selectDown and selectUp, after deleting their
+#    first element.
+
+# 5. SelectionTracker.selectDown (or selectUp) just calls
+#    SkeletonSelectable.selectDown (or selectUp).  (Deputies do this
+#    slightly differently.)
+
+# 6. SkeletonSelectable.selectDown (or selectUp) selects itself only
+#    if the selection state should propagate to it, depending on
+#    whether all of it's parent (or children) are selected.  If it
+#    does make the selection, it removes its Tracker from clist (or
+#    plist) and calls SelectionTracker.selectDown (or selectUp) on the
+#    first entry in the list.  Now go back to step 5 until clist (or
+#    plist) is empty.
 
 #########
 
 # The SkeletonSelectable class.  This is the parent class of nodes,
-# segments, and elements.  Every selectable can have zero or more parents
-# and zero or more children, and should propagate its selection state
-# upwards and downwards in a sensible way.  This allows the selection
-# state to be propagated across skeleton modification events.  The
-# "groups" datum contains identifiers of the groups of which this
+# segments, and elements.
+
+# Every selectable can have zero or more parents and zero or more
+# children, and should propagate its selection state upwards and
+# downwards in a sensible way. (Child/parent relationships are created
+# in Skeleton modification operations.  For example, merging two
+# elements creates a new element with two parents.  Bisecting a
+# segment creates two segments that share a parent.)  This allows the
+# selection state to be propagated across skeleton modification
+# events.
+
+# The "groups" datum contains identifiers of the groups of which this
 # selectable is a member.
 
 class SkeletonSelectable:
     def __init__(self, index):
         self.parent = []
         self.children = []
-        self.selected = 0
+        self.selected = False
         self.groups = set()
         self.index = index
 
@@ -80,73 +190,112 @@ class SkeletonSelectable:
         return self.index
     
     # On selection, recursively select_down all your children, then
-    # select_up your parents.  The reason for the two selection paths
-    # is to prevent having to process spurious selections from children.
+    # recursively select_up your parents.  The reason for the two
+    # selection paths is to prevent having to process spurious
+    # selections from children.
     def select(self, clist, plist):
-        self.selected = 1
+        self.selected = True
+        # clist[0] is plist[0], so add self to just one of them.
         clist[0].add(self)
+        # Propagate the selection to children and parents of the
+        # Skeleton.
         if len(clist) > 1:
             for c in self.children:
                 clist[1].selectDown(c, clist[1:])
         if len(plist) > 1:
             for p in self.parent:
                 plist[1].selectUp(p, plist[1:])
+                
     def selectDown(self, clist):
+        if self.selected:
+            return
+        # Select this child only if all its parents are selected.
         for p in self.parent:
             if not p.selected:
                 return
-        self.selected = 1
-        clist[0].add(self)
+        self.selected = True
+        clist[0].add(self)  
         if len(clist) > 1:
             for c in self.children:
-                clist[1].selectDown(c, clist[1:])
+                if not c.selected:
+                    clist[1].selectDown(c, clist[1:])
+                    
     def selectUp(self, plist):
+        if self.selected:
+            return
+        # Select this parent only if all its children are selected.
         for c in self.children:
             if not c.selected:
                 return
-        self.selected = 1
+        self.selected = True
         plist[0].add(self)
         if len(plist) > 1:
             for p in self.parent:
-                plist[1].selectUp(p, plist[1:])
+                if not p.selected:
+                    plist[1].selectUp(p, plist[1:])
         
     # Deselect the same way, except that the deselect only gets
-    # propagated upwards if all the children are deselected.
+    # propagated upwards if all the children are deselected.  Also,
+    # it's an error to deselect an object more than once, since it
+    # can't be removed from a tracker more than once.  Multiple
+    # deselections can occur when an object has multiple parents or
+    # children.
+    
     def deselect(self, clist, plist):
-        self.selected = 0
+        # Some commands will attempt to deselect unselected objects.
+        # That's ok. Just ignore the unselected ones.
+        if not self.selected:
+            return
+        self.selected = False
+        # clist[0] *is* plist[0], so only remove self from one of them.
         clist[0].remove(self)
+        # Propagate the deselection to children and parents in other
+        # versions of the Skeleton.
         if len(clist) > 1:
             for c in self.children:
                 clist[1].deselectDown(c, clist[1:])
         if len(plist) > 1:
             for p in self.parent:
                 plist[1].deselectUp(p, plist[1:])
+                
     def deselectDown(self, clist):
+        if not self.selected:
+            return
+        # Only deselect children if no parents are selected.
         for p in self.parent:
             if p.selected:
                 return
-        self.selected = 0
+            
+        self.selected = False
         clist[0].remove(self)
+        
         if len(clist) > 1:
             for c in self.children:
-                clist[1].deselectDown(c, clist[1:])
+                # If self is not the first parent of a child, the
+                # child and its children may have already been
+                # deselected.  Don't do it again. 
+                if c.selected:
+                    clist[1].deselectDown(c, clist[1:])
+                    
     def deselectUp(self, plist):
+        if not self.selected:
+            return
+        # Only deselect parents if no children are selected.
         for c in self.children:
             if c.selected:
                 return
-        self.selected = 0
+            
+        self.selected = False
         plist[0].remove(self)
+
         if len(plist) > 1:
             for p in self.parent:
-                plist[1].deselectUp(p, plist[1:])
-
-    # Also need nonrecursive "local" selection, for writing the
-    # selection state.
-    def local_select(self):
-        self.selected = 1
-
-    def local_deselect(self):
-        self.selected = 0
+                # If self is not the first child of a parent, the
+                # parent and its parents may have already been
+                # deselected and removed from the tracker.  Don't do
+                # it again.
+                if p.selected:
+                    plist[1].deselectUp(p, plist[1:])
 
     # Implied selection -- answers the question, "If I were selecting
     # you right now, whom else would I be selecting?"  "current" and
@@ -239,7 +388,7 @@ class SkeletonSelectable:
         
     # Create a copy of the original, which has the original as
     # its parent.  Provides the copy with the passed-in index.
-    def copy_child(self,index,points=None):
+    def copy_child(self,index, points=None):
         if points is None:
             new = self.new_child(index)
         else:
@@ -281,7 +430,7 @@ class SkeletonSelectable:
             p.add_child(newcomer)
             newcomer.add_parent(p)
     
-    # Routine to disconnect a selectable from its parents and children.
+    # Disconnect a selectable from its parents and children.
     def disconnect(self):
         for c in self.children:
             c.parent.remove(self)
@@ -380,16 +529,9 @@ class SelectionTrackerBase:
         shakes.data = self.data.copy()
         return shakes
     def remove(self, obj):
-        # TODO: Replacing 'discard' by 'remove' in the following line
-        # causes the Direct_Pin_Nodes.UnPin test in
-        # skeleton_select_test.py to fail.  The difference between
-        # remove and discard is that discard doesn't complain if the
-        # object isn't found.  So this may be a symptom of something
-        # else going wrong, or maybe it's supposed to work this way
-        # and is just sloppy programming and/or commenting.
-        self.data.discard(obj)
+        self.data.remove(obj)
     def get(self):
-        return self.data                # Returns the host uniqueList.
+        return self.data
     def size(self):
         return len(self.data)
     def copy(self, other):
@@ -402,17 +544,19 @@ class SelectionTrackerBase:
 class SelectionTracker(SelectionTrackerBase):
     def clear(self):
         for e in self.data:
-            e.local_deselect()
+            e.selected = False
         self.data.clear()
     def write(self):
         for e in self.data:
-            e.local_select()
+            e.selected = True
     def clearskeleton(self):
         for e in self.data:
-            e.local_deselect()
+            e.selected = False
     def implied_select(self, othertracker):
         for e in othertracker.get():
             e.implied_select(othertracker, self)
+    # selectDown(), selectUp(), deselectDown(), deselectUp(), and
+    # redeputize() are defined differently in DeputySelectionTracker.
     def selectDown(self, selectable, clist):
         selectable.selectDown(clist)
     def selectUp(self, selectable, plist):
@@ -424,8 +568,8 @@ class SelectionTracker(SelectionTrackerBase):
     def redeputize(self, oldtracker, newtracker):
         pass
     def __repr__(self):
-        return "SelectionTracker(%d)" % id(self)
-        
+        return f"{self.__class__.__name__}({self.data})"
+        # return f"SelectionTracker(0x{id(self):})"
             
 #############################
         
@@ -443,7 +587,6 @@ class SelectionTracker(SelectionTrackerBase):
 class SelectionSetBase:
     def __init__(self, skeletoncontext):
         self.skeletoncontext = skeletoncontext
-
         # Dictionary of Trackers, keyed by Skeletons
         self.selected = weakref.WeakKeyDictionary()
 
@@ -477,13 +620,12 @@ class SelectionSetBase:
     def clearable(self):
         for tracker in self.selected.values():
             if tracker.size() > 0:
-                return 1
-        return 0
+                return True
+        return False
 
     # NB repr is not constructor, but shows selection state.
     def __repr__(self):
-        return "%s(%d)" % (self.__class__.__name__, id(self))
-    
+        return f"{self.__class__.__name__}(self=0x{id(self):x} nskels={len(self.selected)}"
 
 class SelectionSet(SelectionSetBase):
 
@@ -496,7 +638,6 @@ class SelectionSet(SelectionSetBase):
         if oldskel is not newskel:      # ie, not the initial skeleton
             oldtracker = self.selected[oldskel]
             tracker.implied_select(oldtracker)
-    
 
     # clearskeletons() is called when undoing or redoing a selection
     # operation.  It clears the selection state of all objects in the
@@ -547,11 +688,7 @@ class SelectionSet(SelectionSetBase):
             except KeyError:
                 pass
                                      
-        
-        
-
 ##++--++####++--++####++--++####++--++####++--++####++--++####++--++##
-
 
 # The selection object for all the selections and the set of pinned
 # nodes.  This is the master object, which lives at the
@@ -589,8 +726,8 @@ class SelectionBase:
     def whoChanged0(self, context, oldskeleton, newskeleton):
         if self.skeletoncontext is context:
             # Loop over SelectionSets in the RingBuffer.
-            for set in self.stack:
-                set.implied_select(oldskeleton, newskeleton)
+            for sset in self.stack:
+                sset.implied_select(oldskeleton, newskeleton)
             self.stack.current().writeskeleton(newskeleton)
 
     def newSkeleton(self):
@@ -618,19 +755,19 @@ class SelectionBase:
         return self.stack.current().selected[skel].get()
 
     def trackerlist(self):
-        set = self.stack.current()
+        sset = self.stack.current()
         # Get trackers for all child and parent skeletons at the
         # current selection state.  The current skeleton's tracker is
         # element 0 of both lists.
-        clist = [set.selected[x]
+        clist = [sset.selected[x]
                  for x in self.skeletoncontext.getChildList()]
-        plist = [set.selected[x]
+        plist = [sset.selected[x]
                  for x in self.skeletoncontext.getParentList()]
         return clist, plist
 
     def promoteDeputyTrackers(self, deputyskeleton):
-        for set in self.stack:
-            set.promoteDeputyTracker(deputyskeleton)
+        for sset in self.stack:
+            sset.promoteDeputyTracker(deputyskeleton)
 
     # Selection stack manipulation stuff.
     def undo(self):
@@ -721,6 +858,8 @@ class Selection(SelectionBase):
     def trackerlist(self):
         clist, plist = SelectionBase.trackerlist(self)
         # Make sure that the starting point isn't a DeputyTracker.
+        # There is always a non-deputy at the beginning of clist,
+        # although it might not be the most recent one.
         while clist[0].sheriff() is not clist[0]:
             clist[0:0] = [plist[1]]
             del plist[0]
@@ -770,7 +909,9 @@ class Selection(SelectionBase):
                     o.select(clist, plist)
         self.timestamp.increment()
 
-    # Selects objects from already selected ones
+    # Select objects from already selected ones.  That is, deselect
+    # any selected object that is not in objlist. (This does not
+    # appear to be used.)
     def selectSelected(self, objlist):
         (clist, plist) = self.trackerlist()
         skeleton = self.skeletoncontext.getObject()

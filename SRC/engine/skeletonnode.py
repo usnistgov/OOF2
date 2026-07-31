@@ -19,8 +19,6 @@ from ooflib.common import ringbuffer
 from ooflib.engine import skeletonselectable
 import weakref
 
-# Most of this code is dimension independent.
-
 class SkeletonNode(skeletonselectable.SkeletonSelectable,
                    cskeleton.CSkeletonNode):
 
@@ -38,8 +36,8 @@ class SkeletonNode(skeletonselectable.SkeletonSelectable,
 
     def __repr__(self):
         p = self.position()
-        return f"SkeletonNode({p.x}, {p.y}, [{self.index}])"
-        # return f"SkeletonNode({self.index})"
+        # return f"SkeletonNode({p.x}, {p.y}, [{self.index}])"
+        return f"SkeletonNode({self.index})"
 
     def repr_position(self):
         return self.position()
@@ -152,39 +150,75 @@ class SkeletonNode(skeletonselectable.SkeletonSelectable,
     # pin and unpin are analogous to select and deselect in the
     # SkeletonSelectable class.  They pin and unpin this node and its
     # children and parents.  The clist and plist args are lists of
-    # trackers corresponding to the children and parents in the
-    # SkeletonContext's stack of skeletons.  Some of those Skeletons
-    # may be DeputySkeletons, which share nodes instead of having
-    # parent/child nodes.  For those Skeletons the tracker is a
+    # PinnedNodeTrackers corresponding to the children and parents in
+    # the SkeletonContext's stack of skeletons.  Some of those
+    # Skeletons may be DeputySkeletons, which share nodes instead of
+    # having parent/child nodes.  For those Skeletons the tracker is a
     # DeputyPinnedNodeTracker instead of a PinnedNodeTracker.
 
     def pin(self, clist, plist):
+        # clist[0] is plist[0], so add self to just one of them.
+        clist[0].add(self)
         self.setPinned(True)
         here = self.position()
-        self.pinDown(clist, here)
-        self.pinUp(plist, here)
+        if len(clist) > 1:
+            for c in self.children:
+                clist[1].pinDown(c, clist[1:], here)
+        if len(plist) > 1:
+            for p in self.parent:
+                plist[1].pinUp(p, plist[1:], here)
     def pinDown(self, clist, here):
+        if self.pinned():
+            return
+        self.setPinned(True)
+        # Propagate the pinned state to child nodes.  Don't pin a
+        # child node unless it's at the same position as its parent.
+        # PinnedNodeTracker.nodePosition() returns the position of the
+        # node in the tracker's Skeleton.
         if clist[0].nodePosition(self) == here:
             clist[0].add(self)
             if len(clist) > 1:
                 clist[1].pinDown(self, clist[1:], here)
     def pinUp(self, plist, here):
+        # Propagate the pinned state to parent nodes.  Don't pin a
+        # parent node unless it's at the same position as its child.
+        if self.pinned():
+            return
+        self.setPinned(True)
         if plist[0].nodePosition(self) == here:
             plist[0].add(self)
             if len(plist) > 1:
                 plist[0].pinUp(self, plist[1:], here)
             
     def unpin(self, clist, plist):
+        # Unpin this node, which is in the PinnedNodeTracker at the
+        # head of both clist and plist.  Then unpin its co-located
+        # parents and children and remove them from the other trackers
+        # in the lists.
+        if not self.pinned():
+            return
+        # clist[0] is plist[0], so remove self from just one of them.
+        clist[0].remove(self)
         self.setPinned(False)
         here = self.position()
-        self.unpinDown(clist, here)
-        self.unpinUp(plist, here)
+        if len(clist) > 1:
+            for c in self.children:
+                clist[1].unpinDown(c, clist[1:], here)
+        if len(plist) > 1:
+            for p in self.parent:
+                plist[1].unpinUp(p, plist[1:], here)
     def unpinDown(self, clist, here):
+        if not self.pinned():
+            return
+        self.setPinned(False)
         if clist[0].nodePosition(self) == here:
             clist[0].remove(self)
             if len(clist) > 1:
                 clist[1].unpinDown(self, clist[1:], here)
     def unpinUp(self, plist, here):
+        if not self.pinned():
+            return
+        self.setPinned(False)
         if plist[0].nodePosition(self) == here:
             plist[0].remove(self)
             if len(plist) > 1:
@@ -463,8 +497,11 @@ class HashedNodes:
             nodes += self[primitives.iPoint(i,j)][:]
         return nodes
 
-###############################################################
-    
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Node pinning
+
 # The set of pinned nodes acts much like a set of selected objects, so
 # it derives a lot of its code from skeletonselectable.  See comments
 # in SelectionSetBase and SelectionSet in skeletonselectable.py.
@@ -504,6 +541,8 @@ class PinnedNodeSet(skeletonselectable.SelectionSetBase):
             bozo.selected[skel] = trclone
         return bozo
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class PinnedNodeTracker(skeletonselectable.SelectionTrackerBase):
     def __init__(self, skeleton):
         self.skeleton = weakref.ref(skeleton)
@@ -540,21 +579,18 @@ class PinnedNodeTracker(skeletonselectable.SelectionTrackerBase):
                     self.add(child)
                     
     def pinDown(self, pnode, clist, where):
-        for c in pnode.getChildren():
-            c.pinDown(clist, where)
+        pnode.pinDown(clist, where)
     def pinUp(self, cnode, plist, where):
-        for p in cnode.getParents():
-            p.pinUp(plist, where)
-
+        cnode.pinUp(plist, where)
     def unpinDown(self, pnode, clist, where):
-        for c in pnode.getChildren():
-            c.unpinDown(clist, where)
+        pnode.unpinDown(clist, where)
     def unpinUp(self, cnode, plist, where):
-        for p in cnode.getParents():
-            p.unpinUp(plist, where)
+        cnode.unpinUp(plist, where)
             
     def __repr__(self):
-        return "PinnedNodeTracker"
+        return f"PinnedNodeTracker({self.data})"
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 stacksize = 50
 
@@ -601,9 +637,10 @@ class PinnedNodeSelection(skeletonselectable.SelectionBase):
     def unpin(self, nodelist):
         (clist, plist) = self.trackerlist()
         for n in nodelist:
-            n.unpin(clist, plist)
-            for partner in n.getPartners():
-                partner.unpin(clist, plist)
+            if n.pinned():
+                n.unpin(clist, plist)
+                for partner in n.getPartners():
+                    partner.unpin(clist, plist)
         self.timestamp.increment()
 
     def toggle(self, nodelist):
