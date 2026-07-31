@@ -18,10 +18,11 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.common.IO import whoville
 from ooflib.engine import skeletoncontext
 
-# Toolbox for pinning nodes.  Pinned nodes don't move during mesh
-# modification operations.  They *can* move during equilibration --
-# they're not boundary conditions.  Pinned nodes are treated much like
-# Skeleton Selectables, and share a lot of code with them.
+# Toolbox for pinning Skeleton nodes.  Pinned nodes don't move during
+# Skeleton modification operations.  They *can* move during Mesh
+# equilibration -- they're not boundary conditions.  Pinned nodes are
+# treated much like SkeletonSelectables, and share a lot of code with
+# them.
 
 class PinnedNodesToolbox(toolbox.Toolbox):
     def __init__(self, gfxwindow):
