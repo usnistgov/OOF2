@@ -455,7 +455,7 @@ def createMSFromImage(menuitem, name, width, height, image):
         from ooflib.image.IO import oofimageIPC
         oofimageIPC.imenu.Create_From_Image_Parallel(
             msname=name, image=image)
-        # TODO: If parallel mode is every fixed, is this supposed to
+        # TODO: If parallel mode is ever fixed, is this supposed to
         # return here?
         
     imagepath = labeltree.makePath(image)

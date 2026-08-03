@@ -164,7 +164,7 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
             tpcache[node] = NearestPoints(node, skel)
 
         # Keep track of which segments have been handled already
-        ## TODO PYTHON3: Only move nodes once?
+        ## TODO: Only move nodes once?
         usedsegments = set()
         usednodes = set()
 
@@ -226,8 +226,8 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
 # The SnapNodeTargets classes have a __call__ method that returns an
 # iterable of SkeletonNodes.
 
-## TODO PYTHON3 LATER: Does SnapNodes really need its own set of
-## Target classes?  In particular, should SnapNodesTargets and
+## TODO LATER: Does SnapNodes really need its own set of Target
+## classes?  In particular, should SnapNodesTargets and
 ## FiddleNodesTargets be merged?  Different kinds of skeleton
 ## modifiers require different things from their Target classes, but
 ## the fundamental choices that the classes make are the same, as well
@@ -235,7 +235,7 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
 ## have methods for supporting all of the modifiers, and none of those
 ## methods should be called __call__.  There might be some Targets
 ## that are inappropriate for some modifiers, so perhaps the
-## modifiers' registrations could list the acceptable targets classes.
+## modifiers' registrations could list the acceptable targets' classes.
 
 class SnapNodeTargets(registeredclass.RegisteredClass):
     registry = []

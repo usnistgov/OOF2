@@ -21,7 +21,7 @@ from ooflib.common import registeredclass
 from ooflib.common import microstructure
 from ooflib.common.IO import xmlmenudump
 
-## TODO: Document the file format expected by each OrientMapReader.
+## TODO MANUAL: Document the file format expected by each OrientMapReader.
 
 class OrientMapReader(COrientMapReader, registeredclass.RegisteredClass):
     registry = []

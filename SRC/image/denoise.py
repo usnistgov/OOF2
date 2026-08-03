@@ -34,7 +34,7 @@ class DenoiseMethod(registeredclass.RegisteredClass):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-## TODO NUMPY LATER: DenoiseBilateral shifts the image down and to the
+## TODO LATER: DenoiseBilateral shifts the image down and to the
 ## right, which seems to be a bug in the skimage routine.  Until it's
 ## fixed, the Registration is marked "secret".
 
@@ -147,9 +147,9 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-## TODO NUMPY LATER: Wavelet denoising appears not to work. It returns
-## RGB values that are outside the range [0,1].  Is it assuming that
-## the data is [-1,1] instead of [0,1]?
+## TODO LATER: Wavelet denoising appears not to work. It returns RGB
+## values that are outside the range [0,1].  Is it assuming that the
+## data is [-1,1] instead of [0,1]?
 
 if False:
     class WaveletDenoisingMode(oofenum.EnumClass(
@@ -333,7 +333,7 @@ registeredclass.Registration(
 # are defined as those pixels within the given radius, specified in
 # units of the pixel size. A suitable radius will be chosen
 # automatically if radius is zero."
-# TODO NUMPY MAYBE: Fix this.  See comment in reducenoise.C.
+## TODO MAYBE: Fix this.  See comment in reducenoise.C.
 
 class ReduceNoise(imagemodifier.ImageModifierToRGB):
     def __init__(self, radius=1.0):

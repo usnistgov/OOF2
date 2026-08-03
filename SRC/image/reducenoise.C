@@ -158,7 +158,7 @@ PyArrayObject* OOFImage::reduce_noise(PyArrayObject *mask,
 	nreplaced++;
       }
       else {
-	// TODO NUMPY: Copying here is probably inefficient. newimage
+	// TODO: Copying here is probably inefficient. newimage
 	// should be initialized with a copy of the original image.
 	for(int k=0; k<imageshape[2]; k++)
 	  *(double*) PyArray_GETPTR3(newimage, p0, p1, k) =

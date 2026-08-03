@@ -17,7 +17,10 @@ from ooflib.common import debug
 ## simplest fix would be to move those methods to C++ and swig them.
 ##
 ## Comment out the import line and run 'oof2-test pyproperty_test' to
-## see the problem.
+## see the problem. (Remember that after editing this .spy file, it
+## may be necessary to remove <build>/SRC/engine/pyproperty.py
+## manually before rebuilding oof2. cmake isn't automatically
+## detecting swig dependencies on .spy files.)
 ##
 ##   File "/Users/langer/lib/python3.14/site-packages/oof2/ooflib/engine/properties/heatconductivity/pyheatconductivity.py", line 56, in flux_matrix
 ##    fluxdata.add_stiffness_matrix_element(

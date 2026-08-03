@@ -157,8 +157,7 @@ public:
 			     const ElementFuncNodeIterator&) const;
 
   // It's not necessary to have access methods that take a FieldIndex,
-  // because FieldIndex can be converted to int.  TODO: These should
-  // probably use unsigned int instead of int, though.
+  // because FieldIndex can be converted to int. 
   double &flux_vector_element(int);
   double flux_vector_element(int) const;
   double &force_vector_element(int);

@@ -38,13 +38,6 @@ from gi.repository import Gtk
 
 meshmenu = mainmenu.OOF.Mesh
 
-## TODO NOW: Check that the time is updated correctly in the Mesh info
-## pane after solving or using the time slider in the gfx window.  The
-## time in the mesh page should always agree with the current time on
-## the solver page, and be independent of the time on the gfx window.
-## (Which is it?  Should the times in the main window agree or be
-## independent of the time in the gfx window?)
-
 class MeshPage(oofGUI.MainPage):
     def __init__(self):
         self.built = False

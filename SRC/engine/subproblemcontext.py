@@ -1061,7 +1061,7 @@ class SubProblemContext(whoville.Who):
         # self.startValues, and returns the result.
 
         ## TODO: StepResult.endValues is a different kind of vector
-        ## than SubProblem.endValues.  The one is StepResult is a
+        ## than SubProblem.endValues.  The one in StepResult is a
         ## vector of unknowns.  The one in SubProblem contains all the
         ## dofs.  Change the name of one of them.
 

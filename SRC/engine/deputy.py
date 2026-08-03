@@ -326,7 +326,7 @@ class DeputyPinnedNodeTracker(skeletonnode.PinnedNodeTracker):
     ## PinnedNodeTracker. Is that correct?  That would make them
     ## unnecessary here.
 
-    ## TODO: If there's no need here pinDown, etc, then there's no
+    ## TODO: If there's no need here for pinDown, etc, then there's no
     ## need for them in PinnedNodeTracker, either.  Instead of calling
     ## PinnedNodeTracker.pinDown, can SkeletonNode.pinDown just call
     ## child.pinDown?

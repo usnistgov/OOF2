@@ -24,11 +24,10 @@ from ooflib.engine import skeletonmodifier
 
 ProvisionalTriangle = skeletonelement.ProvisionalTriangle
 
-## TODO PYTHON3 LATER: Use segment categories instead of neighboring
-## element dominant pixels.  Require segment homogeneities to be
-## greater than some threshold.  Divide any corner that has different
-## categories on each of its segments.  Divide on both diagonals if
-## necessary.
+## TODO LATER: Use segment categories instead of neighboring element
+## dominant pixels.  Require segment homogeneities to be greater than
+## some threshold.  Divide any corner that has different categories on
+## each of its segments.  Divide on both diagonals if necessary.
 
 # Utility routines for dividing a quad into two triangles.
 

@@ -16,10 +16,6 @@ from ooflib.engine import matrixmethod
 from ooflib.engine import nonlinearsolver
 from ooflib.engine import timestepper
 
-## TODO PYTHON3: Why don't progress bars appear during long equilibrations?
-## TODO PYTHON3: Why is a python trace printed after a convergence failure?
-
-
 class SolverMode(registeredclass.RegisteredClass):
     registry = []
     tip='How to choose the solution methods.'

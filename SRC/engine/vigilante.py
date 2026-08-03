@@ -79,12 +79,7 @@ class FixIllegal(skeletonmodifier.SkeletonModifier):
 
         # move a node to its average position w.r.t. its neighbor
         # nodes 
-        # TODO 3D: create thing in primitives that returns zero
-        # vector of appropriate dimension
-        if config.dimension() == 2:
-            avgPos = primitives.Point(0.,0.)
-        elif config.dimension() == 3:
-            avgPos = primitives.Point(0.,0.,0.)
+        avgPos = primitives.Point(0.,0.)
         nbrNodes = node.neighborNodes(skel)
         for n in nbrNodes:
             avgPos += n.position()
