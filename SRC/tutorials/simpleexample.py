@@ -293,8 +293,6 @@ Click the <b>New</b> button to get a dialog box for creating a new Mesh.  Here y
 The pull-down menus labelled <b>2-cornered element</b>, <b>3-cornered element</b> and <b>4-cornered element</b> list the available element types that are consistent with the polynomial orders chosen.  There's only one choice for each: <b>D2_2</b>, <b>T3_3</b> and <b>Q4_4</b>.  Positioning the mouse over the menus will bring up a tooltip describing the element type.
 
 Click <b>OK</b> to create an FE Mesh.  The new mesh is displayed in the graphics window, but at the moment it looks just like the Skeleton, so it's hard to see. """,
-        ## TODO GTK3: there are supposed to be tooltips for the
-        ## element types
     ),
 
     TutoringItem(

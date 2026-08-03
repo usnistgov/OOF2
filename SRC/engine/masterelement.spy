@@ -94,7 +94,7 @@ def getMasterElementEnums():
             enumclass._sorted = 0
     for enumclass in _masterElementEnumDict.values():
         if not enumclass._sorted:
-            enumclass.names.sort(key=_melcomparisionkey)
+            enumclass.names.sort(key=_melcomparisonkey)
             enumclass._sorted = 1
     return _masterElementEnumDict
 
@@ -110,11 +110,11 @@ def getMasterElementFromEnum(elementenum):
     edict = getMasterElementDict()
     return edict[elementenum.name]
 
-def getMasterElementsFromEnumClass(enumclass):
+def getMasterElementsFromEnumClass(enumclass): # Not used. Delete?
     edict = getMasterElementDict()
     return [edict[name] for name in enumclass.names]
         
-def _melcomparisionkey(elem):
+def _melcomparisonkey(elem):
     # For sorting MasterElement names to determine their position in the GUI.
     edict = getMasterElementDict()
     el = edict[elem]

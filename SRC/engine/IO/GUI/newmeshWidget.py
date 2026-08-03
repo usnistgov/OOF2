@@ -154,7 +154,7 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
 
             # classwidgets[elclass] is the chooser widget for the
             # geometry of the master elements in elclass.
-            self.classwidgets[elclass].update(names)
+            self.classwidgets[elclass].update(names, elclass.helpdict)
         return ok
         
     def orderCB(self, *args, **kwargs):
