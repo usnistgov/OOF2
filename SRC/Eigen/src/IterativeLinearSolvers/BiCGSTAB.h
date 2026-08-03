@@ -72,7 +72,7 @@ bool bicgstab(const MatrixType& mat, const Rhs& rhs, Dest& x, const Precondition
 
   LogDefiniteProgress *progress =	// OOF
     dynamic_cast<LogDefiniteProgress*>( // OOF
-		       getProgress("matrix solver", LOGDEFINITE)); // OOF
+		       getProgress("BiCGStab matrix solver", LOGDEFINITE)); // OOF
   progress->setRange(r0_norm, tol); // OOF
   
   while (r_norm > tol && i < maxIters

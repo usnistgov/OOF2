@@ -72,7 +72,7 @@ EIGEN_DONT_INLINE void conjugate_gradient(const MatrixType& mat, const Rhs& rhs,
 
   LogDefiniteProgress *progress =	// OOF
     dynamic_cast<LogDefiniteProgress*>( // OOF
-		       getProgress("matrix solver", LOGDEFINITE)); // OOF
+		       getProgress("CG matrix solver", LOGDEFINITE)); // OOF
 
   // OOF: The ending condition compares the initial residualNorm2 to
   // threshold, and threshold is tol0*rhsNorm.  We want the lower

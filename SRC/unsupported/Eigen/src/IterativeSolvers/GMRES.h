@@ -117,7 +117,7 @@ bool gmres(const MatrixType& mat, const Rhs& rhs, Dest& x, const Preconditioner&
 
   LogDefiniteProgress *progress =	// OOF
     dynamic_cast<LogDefiniteProgress*>( // OOF
-			getProgress("matrix solver", LOGDEFINITE)); // OOF
+			getProgress("GMRES matrix solver", LOGDEFINITE)); // OOF
   progress->setRange(r0Norm, tol_error); // OOF
 
 

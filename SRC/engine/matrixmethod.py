@@ -28,6 +28,11 @@ import math
 # and returns a tuple containing the number of iterations taken and
 # the final residual.
 
+## TODO: Add progress bars if possible.  The Eigen code needs to be
+## hacked.  Currently there are progress bars in CG, BiCBStab, and
+## GMRES.  I don't know if they can be added easily to the direct
+## solvers.
+
 class MatrixMethod(registeredclass.RegisteredClass):
     registry = []
     def shortrepr(self):
