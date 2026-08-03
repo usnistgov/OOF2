@@ -444,6 +444,42 @@ registeredclass.Registration(
     discussion=xmlmenudump.loadFile("DISCUSSIONS/image/reg/contrast.xml")
 )
 
+## Use a rectangular mask, just to test enhance_contrast, which ought
+## not to care what the mask shape is.  This is just for debugging and
+## doesn't appear in the GUI.
+
+class ContrastImageRect(ImageModifierToEither):
+    def __init__(self, width, height, mode):
+        self.width = width
+        self.height = height
+        self.mode = mode
+    def modify(self, image):
+        mask = numpy.full((self.height, self.width), True)
+        if self.mode == 'RGB':
+            return contrast_rgb(image.npImage(), mask)
+        else:
+            return contrast_hsv(image.npImage(), mask)
+
+registeredclass.Registration(
+    'ContrastRect',
+    ImageModifier,
+    ContrastImageRect,
+    ordering=2.0011,
+    secret=True,
+    params=[
+        parameter.PositiveIntParameter(
+            'width', 5,
+            tip='Width of the pixel neighborhood'),
+        parameter.PositiveIntParameter(
+            'height', 5,
+            tip='Height of the pixel neighborhood'),
+        modifierModeParam,
+        ],
+    tip="Enhance intensity differences",
+    discussion=xmlmenudump.loadFile("DISCUSSIONS/image/reg/contrast.xml")
+)
+
+
 #=--=#
 
 # This version of ContrastImage only uses Python calls to numpy and

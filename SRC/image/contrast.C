@@ -44,11 +44,13 @@ void enhance_contrast(PyArrayObject* image,
   const npy_intp* newshape = PyArray_SHAPE(newimage);
   assert(newshape[0]==imageshape[0] && newshape[1]==imageshape[1]);
 
-  // Get the center of the mask in mask coordinates.  The shape of the
-  // mask is (2*mc0+1, 2*mc1+1).  The lengths of the edges of masks
-  // created by skimage.morphology.disk are always odd.  TODO: Check
-  // that this works with other mask shapes that might have even
-  // lengths.
+  // Get the center of the mask in mask coordinates.  If the size of
+  // the mask is even, then the 'center' is between two pixels, and
+  // will be rounded down.  The final result may be skewed.  If this
+  // is a problem, ensure that the height and width are odd.
+  //
+  // The shape of the mask is (2*mc0+1, 2*mc1+1) if the height and
+  // width are odd.
   int mc0 = maskshape[0]/2;	// integer division
   int mc1 = maskshape[1]/2;	// integer division
 
