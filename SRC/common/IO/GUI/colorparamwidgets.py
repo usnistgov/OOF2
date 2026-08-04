@@ -84,6 +84,52 @@ class LabelledSliderSet:
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# OneColorBox draws a single rectangle and fills it with a color.
+# It's meant to display a single color that is being chosen by the
+# user.  If the user needs to compare to different color (perhaps a
+# previous value), use TwoColorBox instead.
+
+class OneColorBox:
+    def __init__(self, xsize=100, ysize=100):
+        debug.mainthreadTest()
+        self.gtk = Gtk.DrawingArea()
+        self.gtk.set_size_request(xsize, ysize)
+        self.gtk.connect("draw", self.drawCB)
+    def set_color(self, clr):
+        self.color = clr
+    def change_color(self, clr):
+        self.color = clr
+        self.gtk.queue_draw()
+    def drawCB(self, widget, context):
+        # context is a Cairo::Context
+        width = widget.get_allocated_width()
+        height = widget.get_allocated_height()
+        # Draw white and black triangles on the background, in case
+        # the color is not opaque.
+        context.set_source_rgb(0, 0, 0)
+        context.move_to(0, 0)
+        context.line_to(width, 0)
+        context.line_to(0, height)
+        context.close_path()
+        context.fill()
+        context.set_source_rgb(1, 1, 1)
+        context.move_to(width, 0)
+        context.move_to(width, height)
+        context.move_to(0, height)
+        context.close_path()
+        context.fill()
+        # Draw the rectangle
+        context.set_source_rgba(self.color.getRed(), self.color.getGreen(),
+                                self.color.getBlue(), self.color.getAlpha())
+        context.move_to(0, 0)
+        context.line_to(width, 0)
+        context.line_to(width, height)
+        context.line_to(0, height)
+        context.close_path()
+        context.fill()
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 # TwoColorBox divides its drawing area into two rectangles.  Initially
 # both rectangles are filled with the color passed to set_color().  If
 # a color is passed to change_color(), only the right hand rectangle
@@ -279,3 +325,63 @@ regclassfactory.addWidget(
     color.OpaqueColorParameter, color.Gray, GrayWidget)
 regclassfactory.addWidget(
     color.TranslucentColorParameter, color.TranslucentGray, TransGrayWidget)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# PlainGrayWidget is the widget for GrayParameter, which is just a
+# float between 0 and 1, and not convertible to any other color
+# format.  The widget displays a gray box drawn with the current color.
+
+## TODO: Unlike the other color widgets, PlainGrayWidget displays only
+## one color in its box.  That's because the other widgets are used in
+## dialog boxes where the color parameters have an initial value, and
+## it's useful to display it as a reference.  But GrayParameter (at
+## the moment) occurs only as a parameter for an ImageModifier, which
+## is displayed in the Image page, and is not necessarily
+## re-initialized between uses.  That makes choosing a reference color
+## difficult, which is why PlainGrayWidget uses OneColorBox instead of
+## TwoColorBox.  But this could lead to a situation in which the
+## correct widget for a Parameter depends on the context in which it's
+## used, which we haven't considered before.
+
+## TODO: Can PlainGrayWidget be derived from FloatRangeWidget?  It
+## could if LabelledSlider had a hook called from its __init__ that
+## allowed other gtk objects to be added to it.  The color box here
+## just provides feedback to the user, and doesn't interact.
+
+class PlainGrayWidget(parameterwidgets.ParameterWidget):
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        debug.mainthreadTest()
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        parameterwidgets.ParameterWidget.__init__(self, vbox, scope, name)
+        self.param = param
+
+        self.slider = labelledslider.FloatLabelledSlider(
+            value=param.value,
+            vmin=0.0, vmax=1.0,
+            step=param.range[2],
+            callback=self.slider_callback, name=name,
+            hexpand=True, halign=Gtk.Align.FILL)
+
+        self.colorbox = OneColorBox(160, 40)
+        
+        self.gtk.pack_start(self.slider.gtk,
+                            expand=True, fill=True, padding=0)
+        self.gtk.pack_start(self.colorbox.gtk,
+                            expand=False, fill=False, padding=0)
+        self.colorbox.set_color(color.Gray(param.value))
+        
+        self.widgetChanged(True, interactive=False)
+
+    def slider_callback(self, slider, value):
+        debug.mainthreadTest()
+        self.colorbox.change_color(color.Gray(value))
+        self.widgetChanged(0 <= value <= 1, interactive=True)
+
+    def get_value(self):
+        return self.slider.get_value()
+
+def _PlainGray_makeWidget(self, scope=None, **kwargs):
+    return PlainGrayWidget(self, scope=scope, name=self.name, **kwargs)
+
+color.GrayParameter.makeWidget = _PlainGray_makeWidget

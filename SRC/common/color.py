@@ -486,3 +486,14 @@ utils.OOFdefine('gray50', gray50)
 def canvasColor(color):
     clr = oofcanvas.Color(color.getRed(), color.getGreen(), color.getBlue())
     return clr.opacity(color.getAlpha())
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# GrayParameter is just a double in [0, 1], and is not convertible to
+# RGB or any other color format.
+
+class GrayParameter(parameter.FloatRangeParameter):
+    def __init__(self, name, value=0.0, default=None, tip=None):
+        parameter.FloatRangeParameter.__init__(self, name, range=(0,1,0.01),
+                                               value=value, default=default,
+                                               tip=tip)

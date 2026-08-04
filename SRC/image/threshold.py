@@ -9,6 +9,7 @@
 # oof_manager@nist.gov.
 
 from ooflib.SWIG.common import config
+from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import registeredclass
 from ooflib.common.IO import automatic
@@ -48,9 +49,7 @@ registeredclass.Registration(
     ManualThreshold,
     ordering=0,
     params = [
-        # TODO NUMPY: Use a GrayParameter w/ special widget?
-        parameter.FloatRangeParameter(
-            'value', (0,1,.01), value=0.5, tip="Threshold value.")
+        color.GrayParameter(name='value', value=0.5, tip="Threshold value.")
     ],
     tip = "Make all pixels brighter than the given value white, and the rest black.",
     discussion=xmlmenudump.loadFile("DISCUSSIONS/image/reg/thresholdmanual.xml")
