@@ -240,7 +240,7 @@ def _imageFromOrientationMap(menuitem, microstructure, imagename, colorscheme):
     # OrientMap::createImage because the C++ API for creating the
     # array isn't working.
     mssize = ms.getObject().sizeInPixels()
-    shape = (mssize[1], mssize[0], 3) ## TODO NUMPY: Check using a non-square map!
+    shape = (mssize[1], mssize[0], 3) ## TODO: Check using a non-square map!
     npdata = numpy.zeros(shape) # default dtype is float64
     
     immidge = orientdata.createImage(imagename, colorscheme, npdata)

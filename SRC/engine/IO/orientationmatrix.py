@@ -33,7 +33,6 @@ from ooflib.common.IO import xmlmenudump
 import math
 
 FloatParameter = parameter.FloatParameter
-FloatRangeParameter = parameter.FloatRangeParameter
 AngleRangeParameter = parameter.AngleRangeParameter
 
 

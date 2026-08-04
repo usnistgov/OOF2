@@ -337,7 +337,7 @@ class SkeletonSelectionPage(oofGUI.MainPage):
 # state.
 
 ## TODO NOW: Several of the tooltips for buttons refer to pixels when
-## they should refter to the contents of the groups (Elements, Nodes,
+## they should refer to the contents of the groups (Elements, Nodes,
 ## or Segments).
 
 class GroupGUI:
