@@ -18,29 +18,21 @@
 #include <map>
 #include <algorithm>
 
-#include "common/doublevec.h"
 #include "common/lock.h"
 #include "common/printvec.h"
 #include "common/pythonlock.h"
-#include "common/smallmatrix.h"
 #include "common/tostring.h"
 #include "common/trace.h"
 #include "engine/cscpatch.h"
-#include "engine/csubproblem.h"
 #include "engine/dofmap.h"
 #include "engine/element.h"
-#include "engine/elementnodeiterator.h"
 #include "engine/equation.h"
 #include "engine/femesh.h"
 #include "engine/field.h"
-#include "engine/flux.h"
-#include "engine/gausspoint.h"
 #include "engine/material.h"
-#include "engine/meshiterator.h"
 #include "engine/nodalequation.h"
 #include "engine/node.h"
 #include "engine/ooferror.h"
-#include "engine/outputval.h"
 #include "engine/property.h"
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
