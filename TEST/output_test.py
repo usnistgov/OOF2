@@ -19,6 +19,19 @@ reference_file = file_utils.reference_file
 # Should be false unless you really know what you're doing.
 file_utils.generate = True
 
+from ooflib.SWIG.common import cmicrostructure
+from ooflib.SWIG.engine import femesh
+from ooflib.SWIG.engine import mastercoord
+from ooflib.SWIG.engine import ooferror
+from ooflib.SWIG.engine import cskeleton
+from ooflib.common import primitives
+from ooflib.common import utils
+from ooflib.common.IO import gfxmanager
+from ooflib.engine import mesh
+from ooflib.engine.IO import analyze
+from ooflib.engine.IO import output
+from ooflib.engine.IO import outputdestination
+
 ## TODO: Add tests for all different domain and sampling types.
 ## Include non-rectangular pixel groups and selections.
 
@@ -31,12 +44,6 @@ file_utils.generate = True
 
 class OOF_Output(unittest.TestCase):
     def setUp(self):
-        global femesh, cskeleton
-        from ooflib.SWIG.engine import femesh, cskeleton
-        global cmicrostructure
-        from ooflib.SWIG.common import cmicrostructure
-        global outputdestination
-        from ooflib.engine.IO import outputdestination
         build_position_output_args()
         build_scalar_output_args()
         build_aggregate_output_args()
@@ -55,7 +62,6 @@ class OOF_Output(unittest.TestCase):
     ## pdf files.  Can skimage?
     @memorycheck.check("microstructure")
     def PDFOutput(self):
-        from ooflib.common.IO import gfxmanager
         # Load the output mesh, and draw a nice filled contour plot.
         OOF.File.Load.Data(filename=reference_file('output_data',
                                                  'position_mesh'))
@@ -98,10 +104,6 @@ class OOF_Output(unittest.TestCase):
     def PositionOutputs(self):
         global position_output_args
         tolerance = 1.0e-08
-        from ooflib.common import utils
-        from ooflib.engine import mesh
-        from ooflib.engine.IO import output
-        from ooflib.SWIG.engine import mastercoord
         tree = output.positionOutputs
         outputpaths = tree.leafpaths()
         outputnames = [ ':'.join(x) for x in outputpaths ]
@@ -144,9 +146,6 @@ class OOF_Output(unittest.TestCase):
     @memorycheck.check("thermms", "electroms", "anisothermms", "electroms2",
                        "electroms2r", "isomesh")
     def outputs(self, treename, tree, args, tolerance):
-        from ooflib.common import utils
-        from ooflib.engine.IO import analyze
-
         outputpaths = tree.leafpaths()
         outputnames = [ ':'.join(x) for x in outputpaths ]
 
@@ -263,7 +262,6 @@ class OOF_Output(unittest.TestCase):
     def ScalarOutputs(self):
         global scalar_output_args
         tolerance = 1.0e-08
-        from ooflib.engine.IO import output
         self.outputs("Scalar Outputs",
                      output.scalarOutputs,
                      scalar_output_args,
@@ -272,7 +270,6 @@ class OOF_Output(unittest.TestCase):
     def AggregateOutputs(self):
         global aggregate_output_args
         tolerance = 1.0e-08
-        from ooflib.engine.IO import output
         self.outputs("Aggregate Outputs",
                      output.aggregateOutputs,
                      aggregate_output_args,
@@ -287,7 +284,6 @@ class OOF_Output(unittest.TestCase):
 
 position_output_args = {}
 def build_position_output_args():
-    from ooflib.common import primitives
     Point = primitives.Point
     global position_output_args
     if position_output_args:
@@ -1224,6 +1220,9 @@ class OOF_AnisoPlaneStress(unittest.TestCase):
 class OOF_BadMaterial(unittest.TestCase):
     @memorycheck.check("microstructure")
     def Analyze(self):
+        # TODO: Not sure why this import is needed here, since it's
+        # also at the top of the file. Without this import,
+        # ooferror.PyErrBadMaterial is not defined.
         from ooflib.SWIG.engine import ooferror
         OOF.Microstructure.New(
             name='microstructure',
@@ -1393,25 +1392,11 @@ class OOF_MiscOutput(OOF_Output):
         outputdestination.forgetTextOutputStreams()
 
 class OOF_ViscoOutput(unittest.TestCase):
-    def setUp(self):
-        global outputdestination
-        from ooflib.engine.IO import outputdestination
-        OOF.File.Load.Data(
-            filename=reference_file('mesh_data', 'viscomesh.dat'))
-    
-    def tearDown(self):
-        OOF.Material.Delete(name='material')
-        OOF.Property.Delete(
-            property='Mechanical:Elasticity:Isotropic:instance')
-        OOF.Property.Delete(
-            property='Mechanical:ForceDensity:ConstantForceDensity:instance')
-        OOF.Property.Delete(
-            property='Mechanical:MassDensity:ConstantMassDensity:instance')
-        OOF.Property.Delete(
-            property='Mechanical:Viscosity:Isotropic:instance')
         
     @memorycheck.check("microstructure")
     def Stress(self):
+        OOF.File.Load.Data(
+            filename=reference_file('mesh_data', 'viscomesh.dat'))
         OOF.Mesh.Analyze.Direct_Output(
             mesh='microstructure:skeleton:mesh',
             time=4.0,
@@ -1432,6 +1417,98 @@ class OOF_ViscoOutput(unittest.TestCase):
         file_utils.remove('test.dat')
         outputdestination.forgetTextOutputStreams()
         
+        OOF.Material.Delete(name='material')
+        OOF.Property.Delete(
+            property='Mechanical:Elasticity:Isotropic:instance')
+        OOF.Property.Delete(
+            property='Mechanical:ForceDensity:ConstantForceDensity:instance')
+        OOF.Property.Delete(
+            property='Mechanical:MassDensity:ConstantMassDensity:instance')
+        OOF.Property.Delete(
+            property='Mechanical:Viscosity:Isotropic:instance')
+
+    @memorycheck.check("microstructure")
+    def Simple(self):
+
+        OOF.Microstructure.New(
+            name='microstructure',
+            width=1, height=1,
+            width_in_pixels=10, height_in_pixels=10)
+        OOF.Material.New(
+            name='material', material_type='bulk')
+        OOF.Material.Assign(
+            material='material',
+            microstructure='microstructure',
+            pixels=every)
+        ##  TODO: Don't use unnamed Properties.
+        OOF.Property.Parametrize.Mechanical.Viscosity.Isotropic(
+            gijkl=IsotropicRank4TensorCij(c11=1.0,c12=0.5))
+        OOF.Property.Parametrize.Mechanical.MassDensity.ConstantMassDensity(
+            rho=1)
+        OOF.Material.Add_Property(
+            name='material', property='Mechanical:MassDensity:ConstantMassDensity')
+        OOF.Material.Add_Property(
+            name='material', property='Mechanical:Viscosity:Isotropic')
+        OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic(
+            cijkl=IsotropicRank4TensorCij(c11=1.0,c12=0.5))
+        OOF.Material.Add_Property(
+            name='material', property='Mechanical:Elasticity:Isotropic')
+        
+        OOF.Skeleton.New(
+            name='skeleton',
+            microstructure='microstructure',
+            x_elements=4, y_elements=4,
+            skeleton_geometry=QuadSkeleton(
+                left_right_periodicity=False,top_bottom_periodicity=False))
+        OOF.Mesh.New(
+            name='mesh',
+            skeleton='microstructure:skeleton',
+            element_types=['D2_2', 'T3_3', 'Q4_4'])
+        OOF.Subproblem.Field.Define(
+            subproblem='microstructure:skeleton:mesh:default',
+            field=Displacement)
+        OOF.Subproblem.Field.Activate(
+            subproblem='microstructure:skeleton:mesh:default',
+            field=Displacement)
+        OOF.Mesh.Field.In_Plane(
+            mesh='microstructure:skeleton:mesh',
+            field=Displacement)
+        OOF.Subproblem.Equation.Activate(
+            subproblem='microstructure:skeleton:mesh:default',
+            equation=Force_Balance)
+
+        OOF.Subproblem.Set_Solver(
+            subproblem='microstructure:skeleton:mesh:default',
+            solver_mode=BasicSolverMode(
+                time_stepper=BasicUniformDriver(stepsize=1),
+                matrix_method=BasicIterative(
+                    tolerance=1e-13,
+                    max_iterations=1000)))
+
+        # Zero displacement, non-zero strain rate
+        OOF.Mesh.Set_Field_Initializer(
+            mesh='microstructure:skeleton:mesh',
+            field=Displacement,
+            initializer=ConstTwoVectorFieldInit(cx=0,cy=0))
+        OOF.Mesh.Set_Field_Initializer(
+            mesh='microstructure:skeleton:mesh',
+            field=Displacement_t,
+            initializer=FuncTwoVectorFieldInit(fx='0.0',fy='y'))
+        OOF.Mesh.Apply_Field_Initializers(mesh='microstructure:skeleton:mesh')
+
+        ## TODO: Don't do this.  Use analysis page.
+        OOF.Windows.Graphics.New()
+        OOF.Graphics_1.Layer.New(
+            category='Mesh',
+            what='microstructure:skeleton:mesh',
+            how=FilledContourDisplay(
+                when=latest,
+                what=getOutput('Flux:Component',component='yy',flux=Stress),
+                where=getOutput('original'),
+                min=automatic,max=automatic,levels=11,nbins=5,
+                colormap=ThermalMap()))
+
+
 test_set = [
     ##OOF_Output("PDFOutput"),
     OOF_Output("PositionOutputs"),

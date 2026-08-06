@@ -3745,5 +3745,5 @@ test_set = (
 
 ## Run a single test.
 # test_set = [
-#     ThermalExpansionTest("Basic"),
+#     OOF_ViscoElasticity("SS22")
 # ]

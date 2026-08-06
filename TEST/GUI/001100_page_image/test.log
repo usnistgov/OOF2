@@ -311,7 +311,7 @@ checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Threshold']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('OOF2:Image Page:Pane').set_position(426)
-findWidget('OOF2:Image Page:Pane:Method:Threshold:method:Manual:value').set_position(100)
+findWidget('OOF2:Image Page:Pane:Method:Threshold:method:Manual:value:value:slider').get_adjustment().set_value(0.5)
 findGfxWindow('Graphics_1').simulateMouse('scroll', -0, -0, 0, False, False)
 findWidget('OOF2:Image Page:Pane:OK').clicked()
 checkpoint contourmap info updated for Graphics_1

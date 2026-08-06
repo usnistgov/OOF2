@@ -160,7 +160,7 @@ checkpoint Solver page sensitized
 checkpoint page installed Solver
 assert tests.sensitization0()
 assert tests.selection(None)
-assert tests.listCheck('Temperature', 'Temperature_z')
+assert tests.listCheck('Temperature', 'Temperature_z', 'Temperature_t')
 
 # Select a field
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([0]))
@@ -289,20 +289,20 @@ findWidget('OOF2:Navigation:PrevHist').clicked()
 checkpoint Solver page sensitized
 checkpoint page installed Solver
 assert tests.sensitization1()
-assert tests.listCheck("Temperature", "Temperature_z", "Displacement")
+assert tests.listCheck("Temperature", "Temperature_z", "Temperature_t", "Displacement", "Displacement_t")
 assert tests.selection(0)
 
 # Select new field
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 1.0000000000000e+00)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 2.0000000000000e+00)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 8.0000000000000e+00)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([2]))
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([3]))
 checkpoint Solver page sensitized
 
 # Initialize second field
 tree=findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers')
 column = tree.get_column(1)
-tree.row_activated(Gtk.TreePath([2]), column)
+tree.row_activated(Gtk.TreePath([3]), column)
 checkpoint toplevel widget mapped Dialog-Initialize field Displacement
 findWidget('Dialog-Initialize field Displacement').resize(215, 170)
 findWidget('Dialog-Initialize field Displacement:initializer:Constant:cx').set_text('')
@@ -315,7 +315,7 @@ checkpoint Solver page sensitized
 # checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Set_Field_Initializer
 assert tests.sensitization2()
-assert tests.selection(2)
+assert tests.selection(3)
 
 # Apply initializers.  There are no explicit tests here, other the
 # checkpoint that confirms that the command has completed, and the log
@@ -385,7 +385,7 @@ deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Solver page sensitized
 checkpoint page installed Solver
 assert tests.sensitization2()
-assert tests.listCheck("Temperature", "Temperature_z", "Displacement")
+assert tests.listCheck("Temperature", "Temperature_z", "Temperature_t", "Displacement", "Displacement_t")
 
 # Switch to second mesh
 event(Gdk.EventType.BUTTON_PRESS,x= 4.6000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Solver Page:Mesh').get_window())
@@ -404,7 +404,7 @@ findMenu(findWidget('chooserPopup-Mesh'), ['mesh']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 checkpoint Solver page sensitized
 assert tests.sensitization4()
-assert tests.listCheck("Temperature", "Temperature_z", "Displacement")
+assert tests.listCheck("Temperature", "Temperature_z", "Temperature_t", "Displacement", "Displacement_t")
 
 # Copy initializers to second mesh
 findWidget('OOF2:Solver Page:VPane:FieldInit:CopyInit').clicked()
@@ -455,7 +455,7 @@ findWidget('OOF2:Navigation:PrevHist').clicked()
 checkpoint Solver page sensitized
 checkpoint page installed Solver
 assert tests.sensitization0()
-assert tests.listCheck("Temperature", "Temperature_z")
+assert tests.listCheck("Temperature", "Temperature_z", "Temperature_t")
 
 # Switch to first mesh
 event(Gdk.EventType.BUTTON_PRESS,x= 4.2000000000000e+01,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('OOF2:Solver Page:Mesh').get_window())
@@ -464,7 +464,7 @@ findMenu(findWidget('chooserPopup-Mesh'), ['mesh']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 checkpoint Solver page sensitized
 assert tests.sensitization4()
-assert tests.listCheck("Temperature", "Temperature_z", "Displacement")
+assert tests.listCheck("Temperature", "Temperature_z", "Temperature_t", "Displacement", "Displacement_t")
 
 # Define initializer for T
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([0]))
@@ -490,7 +490,7 @@ deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 findWidget('Dialog-Select a target Mesh:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.Mesh.Copy_Field_Initializers
 assert tests.sensitization2()
-assert tests.listCheck("Temperature", "Temperature_z", "Displacement")
+assert tests.listCheck("Temperature", "Temperature_z", "Temperature_t", "Displacement", "Displacement_t")
 
 # Switch to second mesh
 event(Gdk.EventType.BUTTON_PRESS,x= 6.4000000000000e+01,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Solver Page:Mesh').get_window())
@@ -499,7 +499,7 @@ findMenu(findWidget('chooserPopup-Mesh'), ['mesh<2>']).activate() # MenuItemLogg
 deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 checkpoint Solver page sensitized
 assert tests.sensitization2()
-assert tests.listCheck("Temperature", "Temperature_z")
+assert tests.listCheck("Temperature", "Temperature_z", "Temperature_t")
 
 # Undefine field on second mesh
 findWidget('OOF2:Navigation:NextHist').clicked()
@@ -530,7 +530,7 @@ findMenu(findWidget('chooserPopup-Mesh'), ['mesh']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 checkpoint Solver page sensitized
 assert tests.sensitization4()
-assert tests.listCheck("Temperature", "Temperature_z", "Displacement")
+assert tests.listCheck("Temperature", "Temperature_z", "Temperature_t", "Displacement", "Displacement_t")
 
 # Switch back to second mesh, then delete it.
 event(Gdk.EventType.BUTTON_PRESS,x= 6.8000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Solver Page:Mesh').get_window())
@@ -563,7 +563,7 @@ findWidget('OOF2:Navigation:NextHist').clicked()
 checkpoint Solver page sensitized
 checkpoint page installed Solver
 assert tests.sensitization4()
-assert tests.listCheck("Temperature", "Temperature_z", "Displacement")
+assert tests.listCheck("Temperature", "Temperature_z", "Temperature_t", "Displacement", "Displacement_t")
 
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Python_Log']).activate()
 checkpoint toplevel widget mapped Dialog-Python_Log
