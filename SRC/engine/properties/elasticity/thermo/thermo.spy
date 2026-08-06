@@ -33,4 +33,5 @@ if config.devel()>=1:
     reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Displacement], 
                  time_derivs=[0])
     reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Temperature],
-                 time_derivs=[], nonlinear=True)
+                 time_derivs=[], # TODO: Is this correct?
+                 nonlinear=True)

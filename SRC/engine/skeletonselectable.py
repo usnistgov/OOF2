@@ -195,7 +195,8 @@ class SkeletonSelectable:
     # selections from children.
     def select(self, clist, plist):
         self.selected = True
-        # clist[0] is plist[0], so add self to just one of them.
+        # clist[0] is the same as plist[0], so it's not necessary to
+        # call plist[0].add(self).
         clist[0].add(self)
         # Propagate the selection to children and parents of the
         # Skeleton.
