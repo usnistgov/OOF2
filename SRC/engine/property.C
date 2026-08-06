@@ -206,10 +206,10 @@ void FluxProperty::flux_value(const FEMesh *mesh, const Element *element,
   DoubleVec localdofs(element->localDoFs(mesh));
 
   // We want to increment the fluxVector in the passed-in fluxdata
-  // object, but we can't use its kMatrix and offsetVector.  Those may
-  // already contain values from other Properties.  So here we create
-  // a new SmallSystem to use as a local fluxdata, just to compute
-  // kMatrix and offsetVector.
+  // object, but we can't use its kMatrix, cMatrix, and offsetVector.
+  // Those may already contain values from other Properties.  So here
+  // we create a new SmallSystem to use as a local fluxdata, just to
+  // compute kMatrix, cMatrix, and offsetVector.
   SmallSystem localFluxData(fluxdata->nrows(), fluxdata->ncols());
 
   for(CleverPtr<ElementFuncNodeIterator>eni(element->funcnode_iterator()); 
@@ -236,6 +236,8 @@ void FluxProperty::flux_value(const FEMesh *mesh, const Element *element,
   auto incr = localFluxData.cMatrix()*localdofs;
   // std::cerr << "FluxProperty::flux_value: localdofs=" << localdofs.sparsePrint()
   // 	    << std::endl;
+  // std::cerr << "FluxProperty::flux_value: kMatrix=" << localFluxData.kMatrix()
+  // 	    << std::endl;
   // std::cerr << "FluxProperty::flux_value: cMatrix=" << localFluxData.cMatrix()
   // 	    << std::endl;
   // std::cerr << "FluxProperty::flux_value: incr=" << incr << std::endl;
@@ -246,8 +248,10 @@ void FluxProperty::flux_value(const FEMesh *mesh, const Element *element,
 //=\\=//=\\=//=\\=//
 
 // The default static_flux_value is the flux_value.  Properties that
-// make non-static contributions to the flux need to redefine this
-// function.
+// make nonlinear non-static contributions to the flux need to
+// redefine this function.  THIS IS CURRENTLY NOT USED.  It had been
+// needed when we were trying to use numerical differentiation to find
+// matrix elements.
 
 void FluxProperty::static_flux_value(
 			     const FEMesh *mesh, const Element *element,

@@ -519,13 +519,9 @@ class Mesh(whoville.Who):
             for f in s.all_compound_fields():
                 if self.is_defined_field(f):
                     fields.add(f)
-                    if config.dimension() == 2:
-                        if not f.in_plane(self.getObject()):
-                            fields.add(f.out_of_plane())
-                    if (s.time_stepper is not None
-                        and s.time_stepper.derivOrder() > 0
-                        and f in s.second_order_fields()):
-                        fields.add(f.time_derivative())
+                    if not f.in_plane(self.getObject()):
+                        fields.add(f.out_of_plane())
+                    fields.add(f.time_derivative())
 #                         if not f.in_plane(self.getObject()):
 #                             fields.add(f.out_of_plane_time_derivative())
         return fields

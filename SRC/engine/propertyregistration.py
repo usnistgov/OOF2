@@ -402,6 +402,15 @@ class _PropertyStructureInfo:
             except KeyError:
                 pass
         return list(flds)
+    def all_time_deriv_fields(self):
+        flds = set()
+        ## TODO: This a convoluted way of getting the fields.
+        ## info.fields_of_order(x) loops over all fields.  The info we
+        ## need can be extracted directly.
+        for info in self._dict.values():
+            flds.update(info.fields_of_order(1))
+            flds.update(info.fields_of_order(2))
+        return flds
     def all(self):
         return list(self._dict.keys())
     def nonlinear(self, fields):
@@ -526,6 +535,10 @@ class PropertyRegistration(PropertyRegistrationBase):
     # which the Property is nonlinear, or a bool.  If it's a bool, it
     # applies to all Fields in the fields arg.
 
+    ## TODO: Why is time_derivs a list?  Most Properties have
+    ## time_derivs=[0].  One has time_derivs=[].  Is there a
+    ## difference?
+
     def fluxInfo(self, fluxes, fields=[None], time_derivs=[0],
                  nonlinear=False, time_dependent=False):
         assert issubclass(self.subclass, property.FluxProperty)
@@ -575,6 +588,11 @@ class PropertyRegistration(PropertyRegistrationBase):
         return self._equations.first_order_fields(equations)
     def time_deriv_fields(self, *equations):
         return self._equations.time_deriv_fields(equations)
+    def all_time_deriv_fields(self):
+        # Return all Fields whose time derivatives the property might
+        # use, even if the associated equations aren't active.
+        return (self._equations.all_time_deriv_fields() |
+                self._fluxes.all_time_deriv_fields())
     def fluxes(self):
         return self._fluxes.all()
     def equations(self):
@@ -743,6 +761,8 @@ class NamedPropertyRegistration(PropertyRegistration):
         return self.parent.first_order_fields(*eqns)
     def time_deriv_fields(self, *eqns):
         return self.parent.time_deriv_fields(*eqns)
+    def all_time_deriv_fields(self):
+        return self.parent.all_time_deriv_fields()
     def fluxes(self):
         return self.parent.fluxes()
     def equations(self):

@@ -407,6 +407,43 @@ class SubProblemContext(whoville.Who):
         return self._second_order_fields
 
     def define_timederiv_fields(self):
+        # Time derivative fields are needed if any Properties in the
+        # subproblem use them in any way.  This is true even if a
+        # solver is not set, because the fields could be initialized
+        # and used to compute an Output quantity, for example.  So
+        # this routine defines all Fields that have time_deriv>0
+        # in their PropertyRegistrations.
+
+        ## TODO: It's necessary to undefine Fields that are no longer
+        ## needed, but we don't want to undefine all and redefine just
+        ## the ones that are still used, because that would lose the
+        ## data and initializers for the fields that are kept.
+
+        # cfields contains the CompoundFields whose time derivatives
+        # are used in any Property.
+        cfields = set()
+        for material in self.getObject().getMaterials():
+            for prop in material.properties:
+                cfields.update(prop.registration().all_time_deriv_fields())
+        # tdfields contains the time derivative fields from cfields.
+        tdfields = (set(f.time_derivative() for f in cfields) |
+                    set(f.out_of_plane_time_derivative() for f in cfields
+                        if self.is_defined_field(f.out_of_plane())))
+        # Define the fields, and return the ones that weren't already
+        # defined.
+        return set(f for f in tdfields if self.getObject().define_field(f))
+        
+
+    def define_timederiv_fieldsOLD(self):
+        # TODO: Time derivative fields are also needed if any
+        # Properties in the subproblem couple to them explicitly, like
+        # viscoelasticity.  This is true even if a solver is not set,
+        # because the fields could be defined and could still be
+        # computed.  So define the time derivatives if any Property in
+        # any Material in the SubProblem has time_derivs > 0 in
+        # fluxInfo or eqnInfo, and ignore solver_mdoe, solveFlag, and
+        # time_stepper.derivOrder.
+
         # Make sure that the time derivative fields are defined if
         # needed.  They're possibly needed if a non-static solver is
         # being used.  Some solvers require time derivatives for all
@@ -433,7 +470,6 @@ class SubProblemContext(whoville.Who):
                     td = fld.out_of_plane_time_derivative()
                     if self.getObject().define_field(td):
                         newfields.add(td)
-            
         return newfields
 
     def solver_precompute(self, solving=False):

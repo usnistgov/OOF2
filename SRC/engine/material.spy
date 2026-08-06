@@ -141,14 +141,14 @@ def _Material_nonlinear(self, subproblem, fields):
 
 Material.nonlinear = _Material_nonlinear
 
-def _Material_first_order_field(self, subproblem, field, eqns):
-    for p in self.properties:
-        if p.currently_active(subproblem):
-            if field in p.registration().first_order_fields(*eqns):
-                return True
-    return False
+# def _Material_first_order_field(self, subproblem, field, eqns):
+#     for p in self.properties:
+#         if p.currently_active(subproblem):
+#             if field in p.registration().first_order_fields(*eqns):
+#                 return True
+#     return False
 
-Material.is_first_order_field = _Material_first_order_field
+# Material.is_first_order_field = _Material_first_order_field
 
 def _Material_second_order_field(self, subproblem, field, eqns):
     for p in self.properties:
