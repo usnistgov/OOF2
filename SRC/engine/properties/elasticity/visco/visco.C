@@ -24,6 +24,8 @@ CViscoElasticity::CViscoElasticity(const std::string &nm,
     g_ijkl(g)
 {
   displacement = dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));
+  displacement_t = dynamic_cast<TwoVectorFieldBase*>(
+					     displacement->time_derivative());
   stress_flux = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
 }
 
@@ -54,17 +56,17 @@ void CViscoElasticity::flux_matrix(const FEMesh *mesh,
 
   for(IndexP ij : *flux->components(ALL_INDICES)) {
     // loop over displacement components for in-plane strain contributions
-    for(IndexP ell : *displacement->components(ALL_INDICES)) {
+    for(IndexP ell : *displacement_t->components(ALL_INDICES)) {
       // loop over k=0,1 is written out explicitly to save a tiny bit of time
       SymTensorIndex ell0(0, ell);
       SymTensorIndex ell1(1, ell);
-      fluxmtx->damping_matrix_element(ij, displacement, ell, nu)
+      fluxmtx->damping_matrix_element(ij, displacement_t, ell, nu)
 	+= g_ijkl(ij, ell0)*dsf0 + g_ijkl(ij, ell1)*dsf1;
     }
 
     // loop over out-of-plane strains
     if(!displacement->in_plane(mesh)) {
-      Field *oopfield = displacement->out_of_plane();
+      Field *oopfield = displacement->out_of_plane_time_derivative();
       for(IndexP ell : *oopfield->components(ALL_INDICES)) {
 	double diag_factor = ell.integer()==2 ? 1.0 : 0.5;
 	fluxmtx->damping_matrix_element(ij, oopfield, ell, nu)
@@ -74,26 +76,23 @@ void CViscoElasticity::flux_matrix(const FEMesh *mesh,
   }
 }
 
-// THIS VERSION ONLY WORKS IF THE TIME DERIVATIVE FIELD IS
-// DEFINED AT THE NODES. findGeometricStrainRate will return zeros if
-// the time derivative field isn't defined.
+#ifndef GENERIC_FLUX_VALUE
+void CViscoElasticity::flux_value(const FEMesh *mesh, const Element *element,
+				  const Flux *flux, const MasterPosition &pt,
+				  double time, void*, SmallSystem *fluxdata)
+  const
+{
+  if(*flux != *stress_flux) {
+    throw ErrProgrammingError("Unexpected flux", __FILE__, __LINE__);
+  }
+  SymmMatrix3 strainrate = findGeometricStrainRate(mesh, element, pt, false);
 
-// void CViscoElasticity::flux_value(const FEMesh *mesh, const Element *element,
-// 				  const Flux *flux, const MasterPosition &pt,
-// 				  double time, void*, SmallSystem *fluxdata)
-//   const
-// {
-//   std::cerr << "CViscoElasticity::flux_value: pt=" << pt << std::endl;
-//   if(*flux != *stress_flux) {
-//     throw ErrProgrammingError("Unexpected flux", __FILE__, __LINE__);
-//   }
-//   SymmMatrix3 strainrate = findGeometricStrainRate(mesh, element, pt, false);
+  SymmMatrix3 stress = g_ijkl*strainrate;
+  for(IndexP ij : *stress.components())
+    fluxdata->flux_vector_element(ij) += stress[ij];
+}
+#endif // GENERIC_FLUX_VALUE
 
-//   SymmMatrix3 stress = g_ijkl*strainrate;
-  
-//   for(IndexP ij : *stress.components())
-//     fluxdata->flux_vector_element(ij) += stress[ij];
-// }
 
 void CViscoElasticity::output(FEMesh *mesh,
 			      const Element *element,

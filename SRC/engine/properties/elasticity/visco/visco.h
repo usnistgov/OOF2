@@ -28,14 +28,22 @@ class FEMesh;
 class MasterPosition;
 class SmallSystem;
 class TwoVectorField;
+class TwoVectorFieldBase;
 class SymmetricTensorFlux;
 
 // TODO: Add all symmetries.
+
+// TODO: This setting allows the definition of
+// CViscoElasticity::flux_value to be turned on and off, in order to
+// compare its results to those of the generic
+// FluxProperty::flux_value.
+//#define GENERIC_FLUX_VALUE
 
 class CViscoElasticity : public FluxProperty {
 private:
   Cijkl g_ijkl;
   TwoVectorField *displacement;
+  TwoVectorFieldBase *displacement_t;
   SymmetricTensorFlux *stress_flux;
 public:
   CViscoElasticity(const std::string &name, PyObject *registration, Cijkl &g);
@@ -47,13 +55,15 @@ public:
 			   const MasterPosition &x,
 			   double time, void*,
 			   SmallSystem *fluxmtx) const;
-  // virtual void flux_value(const FEMesh* mesh,
-  // 			  const Element* element,
-  // 			  const Flux* flux,
-  //  			  const MasterPosition& x,
-  // 			  double time,
-  // 			  void *localdata,
-  // 			  SmallSystem*) const;
+#ifndef GENERIC_FLUX_VALUE
+  virtual void flux_value(const FEMesh* mesh,
+			  const Element* element,
+			  const Flux* flux,
+   			  const MasterPosition& x,
+			  double time,
+			  void *localdata,
+			  SmallSystem*) const;
+#endif // GENERIC_FLUX_VALUE
   virtual int integration_order(const CSubProblem*, const Element*) const;
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);
