@@ -33,7 +33,7 @@ class OutputType(oofenum.EnumClass('Scalar', 'Aggregate')):
 ## eventually users will be able to construct new Output operations at
 ## run-time by assembling predefined Outputs into new Output chains.
 
-## TODO NUMPY: Use numpy for the Output's data?  Would that obviate the
+## TODO: Use numpy for the Output's data?  Would that obviate the
 ## TODOs about using generators and iterators instead of lists?  Would
 ## it make the Python/C++ interface cleaner and faster?
 

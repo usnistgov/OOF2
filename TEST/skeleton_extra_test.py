@@ -221,7 +221,34 @@ class OOF_Skeleton_Extra(unittest.TestCase):
             self.sk_context.elementselection.currentSelection()), id(sel1))
         self.assertEqual(id(self.sk_context.getObject()), id(sk1))
 
+    @memorycheck.check("skeltest")
+    def PinnedCommutativity(self):
+        # Test that skeleton undo/redo and pinning undo/redo commute
+        # properly.
+        ## TODO: Write this.
 
+        # Pin nodes in original skeleton
+        # Move a few unpinned nodes
+        # Check that nodes are still pinned
+        # Pin a few more nodes, including the moved ones
+        # Undo the move
+        # Check that only the unmoved nodes are still pinned
+        # Redo the move
+        # Check for correct pins
+        # Undo some of the pins
+        # Undo the move
+        # Check the pins
+        # Refine all elements
+        # Check the pins
+        # Pin some of the new nodes
+        # Undo the refinement
+        # Check the pins
+        # Redo the refinement
+        # Check the pins
+        # etc
+        pass
+        
+        
     # Special test for a bug in which the "selected" flag wasn't being
     # set correctly by undo/redo operations.
     @memorycheck.check("skeltest")
@@ -517,6 +544,7 @@ test_set = [
     OOF_Skeleton_Extra("RichSave"),
     OOF_Skeleton_Extra("RichLoad"),
     OOF_Skeleton_Extra("Commutativity"),
+    OOF_Skeleton_Extra("PinnedCommutativity"),
     OOF_Skeleton_Extra("SelectionStateBug"),
     OOF_Skeleton_Extra("SelectSegmentPixels"),
     OOF_Skeleton_Extra("SelectElementPixels"),
@@ -524,3 +552,7 @@ test_set = [
     OOF_Skeleton_CyclicBoundary("CycleSave"),
     OOF_Skeleton_CategoryBug("CheckGroup")
 ]
+
+# test_set = [
+#     OOF_Skeleton_Extra("PinnedCommutativity")
+# ]

@@ -33,11 +33,12 @@ class SymmetricTensorFlux;
 
 // TODO: Add all symmetries.
 
-// TODO: This setting allows the definition of
-// CViscoElasticity::flux_value to be turned on and off, in order to
+// GENERIC_FLUX_VALUE allows the definition of
+// CViscoElasticity::flux_value() to be turned on and off, in order to
 // compare its results to those of the generic
-// FluxProperty::flux_value.
-//#define GENERIC_FLUX_VALUE
+// FluxProperty::flux_value().  For general operation
+// GENERIC_FLUX_VALUE should be undefined.
+// #define GENERIC_FLUX_VALUE
 
 class CViscoElasticity : public FluxProperty {
 private:

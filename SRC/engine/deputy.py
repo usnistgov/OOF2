@@ -331,8 +331,11 @@ class DeputyPinnedNodeTracker(skeletonnode.PinnedNodeTracker):
     ## PinnedNodeTracker.pinDown, can SkeletonNode.pinDown just call
     ## child.pinDown?
 
-    ## TODO: Add tests that use DeputyPinnedNodeTracker.  There are
-    ## none at the moment.
+    ## TODO NOW: Add tests that use DeputyPinnedNodeTracker.  There
+    ## are none at the moment.
+
+    ## TODO NOW: Pinned state isn't being propagated properly from
+    ## deputy skeletons to non-deputies, and vice versa.
 
     def pinDown(self, node, clist, where):
         node.pinDown(clist, where)

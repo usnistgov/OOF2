@@ -261,7 +261,10 @@ class RegisteredClass:
         # for new objects, by setting them in the class's
         # Registration.  The argument is a dictionary of name:value
         # pairs that will be used instead of the local values.
-        ## TODO: This isn't thread safe at all!
+        ## TODO: This isn't thread safe, but it's not clear where a
+        ## lock should be acquired.  The calling code presumably wants
+        ## to ensure that that the parameter values set by
+        ## setDefaultParams stay set until they're used.
         paramdict = {}
         for p in self.registration.params:
             paramdict[p.name] = getattr(self, p.name)
