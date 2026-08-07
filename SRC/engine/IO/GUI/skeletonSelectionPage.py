@@ -336,10 +336,6 @@ class SkeletonSelectionPage(oofGUI.MainPage):
 # selected by the mesh widget.  The GroupGUI has a local selection
 # state.
 
-## TODO NOW: Several of the tooltips for buttons refer to pixels when
-## they should refer to the contents of the groups (Elements, Nodes,
-## or Segments).
-
 class GroupGUI:
     def __init__(self, parent):
         debug.mainthreadTest()
@@ -423,8 +419,6 @@ class GroupGUI:
                             fill=False, expand=False, padding=0)
         self.groupandselectionbuttons.append(self.add_button)
         gtklogger.connect(self.add_button, "clicked", self.addToGroupCB)
-        self.add_button.set_tooltip_text(
-            "Add the currently selected pixels to the selected group.")
 
         self.remove_button = Gtk.Button(label="Remove")
         gtklogger.setWidgetName(self.remove_button, 'Remove')
@@ -432,24 +426,18 @@ class GroupGUI:
                             fill=False, expand=False, padding=0)
         self.groupandselectionbuttons.append(self.remove_button)
         gtklogger.connect(self.remove_button, "clicked", self.removeFromGroupCB)
-        self.remove_button.set_tooltip_text(
-            "Remove the currently selected pixels from the selected group.")
         
         self.clear_button = Gtk.Button(label="Clear")
         gtklogger.setWidgetName(self.clear_button, 'Clear')
         rbuttons.pack_start(self.clear_button,
                             fill=False, expand=False, padding=0)
         gtklogger.connect(self.clear_button, "clicked", self.clearGroupCB)
-        self.clear_button.set_tooltip_text(
-            "Remove all pixels from the selected group.")
 
         self.clearAll_button = Gtk.Button(label="Clear All")
         gtklogger.setWidgetName(self.clearAll_button, 'ClearAll')
         rbuttons.pack_start(self.clearAll_button,
                             fill=False, expand=False, padding=0)
         gtklogger.connect(self.clearAll_button, "clicked", self.clearAllCB)
-        self.clearAll_button.set_tooltip_text(
-            "Remove all pixels from all groups.")
 
         self.info_button = Gtk.Button(label="Info")
         gtklogger.setWidgetName(self.info_button, 'Info')
@@ -709,6 +697,16 @@ class GroupGUI:
     def pickerCB(self, mode):
         self.gtk.set_label(mode.name() + " group operations")
         self.draw_grouplist()
+        # Update the tooltips that refer to objects
+        self.add_button.set_tooltip_text(
+            f"Add the currently selected {mode.name()}s to the selected group.")
+        self.remove_button.set_tooltip_text(
+            f"Remove the currently selected {mode.name()}s"
+            " from the selected group.")
+        self.clear_button.set_tooltip_text(
+            f"Remove all {mode.name()}s from the selected group.")
+        self.clearAll_button.set_tooltip_text(
+            f"Remove all {mode.name()}s from all groups.")
         # Don't call self.sensitize here.  It's already been called
         # via self.draw_grouplist.
 
