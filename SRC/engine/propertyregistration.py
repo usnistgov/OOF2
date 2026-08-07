@@ -372,7 +372,7 @@ class _PropertyStructureInfo:
         flds = set()
         for pinfo in self._dict.values():
             flds.update(pinfo.fields())
-        return [f for f in flds  if f is not None]
+        return [f for f in flds if f is not None]
 
     # These functions *could* use the "fields_of_order(x)" scheme, but
     # in the calling context (subproblem and materials), they're
@@ -393,6 +393,9 @@ class _PropertyStructureInfo:
             except KeyError:
                 pass
         return list(flds)
+
+    # time_deriv_fields(objs) returns the time derivative Fields used
+    # by the given Equations and Fluxes in this Property. 
     def time_deriv_fields(self, objs):
         flds = set()
         for obj in objs:
@@ -401,7 +404,14 @@ class _PropertyStructureInfo:
                 flds.update(self._dict[obj].fields_of_order(2))
             except KeyError:
                 pass
+
+        from ooflib.SWIG.engine import field # DEBUGGING
+        assert all(isinstance(f, field.CompoundField) for f in flds)
+
         return list(flds)
+
+    # all_time_deriv_fields() returns all the time derivative Fields
+    # used by this Property in any Equation or Flux.
     def all_time_deriv_fields(self):
         flds = set()
         ## TODO: This a convoluted way of getting the fields.
@@ -410,7 +420,10 @@ class _PropertyStructureInfo:
         for info in self._dict.values():
             flds.update(info.fields_of_order(1))
             flds.update(info.fields_of_order(2))
+        from ooflib.SWIG.engine import field # DEBUGGING
+        assert all(isinstance(f, field.CompoundField) for f in flds)
         return flds
+
     def all(self):
         return list(self._dict.keys())
     def nonlinear(self, fields):
