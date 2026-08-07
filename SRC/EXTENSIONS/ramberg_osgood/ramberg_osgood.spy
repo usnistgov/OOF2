@@ -38,8 +38,7 @@ reg = propertyregistration.PropertyRegistration(
             'cijkl',
             isocijkl.IsotropicRank4TensorCij(c11=1.0,c12=0.5),
             tip=parameter.emptyTipString),
-        # TODO NOW: alpha needs a tip string
-        parameter.FloatParameter('alpha',0.0,tip=parameter.emptyTipString),
+        parameter.FloatParameter('alpha',0.0, tip="Nonlinear coefficient"),
         parameter.FloatParameter('s0',1.0,tip="Yield stress"),
         parameter.FloatParameter('n',1.0,tip="Exponent")],
     propertyType="Elasticity",
