@@ -277,29 +277,29 @@ checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
-checkpoint Field page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
-checkpoint Field page sensitized
-checkpoint Solver page sensitized
+#checkpoint Field page sensitized
+#checkpoint mesh page sensitized
+#checkpoint Solver page sensitized
+#checkpoint Field page sensitized
+#checkpoint Solver page sensitized
 checkpoint OOF.Subproblem.Field.Define
 findWidget('OOF2:Fields & Equations Page:HPane:Fields:Displacement active').clicked()
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
-checkpoint Field page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
+# checkpoint Field page sensitized
+# checkpoint mesh page sensitized
+# checkpoint Solver page sensitized
 checkpoint OOF.Subproblem.Field.Activate
 findWidget('OOF2:Fields & Equations Page:HPane:Fields:Displacement in-plane').clicked()
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
-checkpoint Field page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
+# checkpoint Field page sensitized
+# checkpoint mesh page sensitized
+# checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Field.In_Plane
 findWidget('OOF2:Fields & Equations Page:HPane:Equations:Force_Balance active').clicked()
 checkpoint Field page sensitized
