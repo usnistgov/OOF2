@@ -14,6 +14,11 @@
 # know how to verify that a given row and column of a tree view
 # contains a given string.
 
+# This test was originally written before the program was changed to
+# almost always define time derivative fields.  There are a number of
+# places where it used to check that time derivative fields could or
+# could not be initialized.  Now those tests are sort of meaningless.
+
 import tests
 
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
@@ -393,16 +398,16 @@ findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment'
 # Check that floatdisp initializer is displayed correctly (min=0).
 
 # Set the temperature initializer
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([0]))
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([4]))
 checkpoint Solver page sensitized
 tree=findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers')
 column = tree.get_column(1)
 tree.row_activated(Gtk.TreePath([4]), column)
 checkpoint toplevel widget mapped Dialog-Initialize BC floattemp
 findWidget('Dialog-Initialize BC floattemp').resize(232, 134)
-# Check that value can be set, but not time_derivative.
+# Check that value can be set, and time_derivative.
 assert tests.value_settable('floattemp')
-assert not tests.time_deriv_settable('floattemp')
+assert tests.time_deriv_settable('floattemp')
 # Check that correct initializers are listed.
 assert tests.optionsCheck('floattemp')
 
@@ -448,11 +453,11 @@ findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment'
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 3.6000000000000e+01)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 3.7000000000000e+01)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 4.4000000000000e+01)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([4]))
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([5]))
 checkpoint Solver page sensitized
 tree=findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers')
 column = tree.get_column(1)
-tree.row_activated(Gtk.TreePath([4]), column)
+tree.row_activated(Gtk.TreePath([5]), column)
 checkpoint toplevel widget mapped Dialog-Initialize BC floatdisp
 findWidget('Dialog-Initialize BC floatdisp').resize(284, 170)
 assert tests.time_deriv_settable('floatdisp')
@@ -470,15 +475,15 @@ findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment'
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 4.4000000000000e+01)
 # Check that initializer listed for floatdisp is min=0, time_derivative=0.1
 
-# Check that time_derivative isn't settable for floattemp.
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([3]))
+# Check that time_derivative isn't^H^H^H settable for floattemp.
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([4]))
 checkpoint Solver page sensitized
 tree=findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers')
 column = tree.get_column(1)
-tree.row_activated(Gtk.TreePath([3]), column)
+tree.row_activated(Gtk.TreePath([4]), column)
 checkpoint toplevel widget mapped Dialog-Initialize BC floattemp
 findWidget('Dialog-Initialize BC floattemp').resize(232, 134)
-assert not tests.time_deriv_settable('floattemp')
+assert tests.time_deriv_settable('floattemp')
 assert tests.value_settable('floattemp')
 
 findWidget('Dialog-Initialize BC floattemp:initializer:Minimum:value').set_text('0.')
@@ -533,16 +538,16 @@ deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Solver page sensitized
 checkpoint page installed Solver
 
-# Check that the time derivative of floatdisp isn't settable.
+# Check that the time derivative of floatdisp isn't^H^H^H settable.
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 9.0000000000000e+00)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 2.4000000000000e+01)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_property('vadjustment').set_value( 2.6000000000000e+01)
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([3]))
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([5]))
 checkpoint Solver page sensitized
 findWidget('OOF2:Solver Page:VPane:FieldInit:Set').clicked()
 checkpoint toplevel widget mapped Dialog-Initialize BC floatdisp
 findWidget('Dialog-Initialize BC floatdisp').resize(232, 134)
-assert not tests.time_deriv_settable('floatdisp')
+assert tests.time_deriv_settable('floatdisp')
 assert tests.value_settable('floatdisp')
 assert tests.checkInitializees('Temperature', 'Temperature_t', 'Displacement', 'Displacement_t', 'floattemp', 'floatdisp')
 
