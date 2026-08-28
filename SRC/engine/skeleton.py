@@ -1180,6 +1180,13 @@ class Skeleton(SkeletonBase):
     def getNode(self, index):
         return self.nodes[index]
 
+    def containsNode(self, node):
+        # This is slow and may need to be done more intelligently.
+        # It's used in the node pinning machinery.  Storing nodes in
+        # an OrderedSet instead of a list isn't an option because we
+        # sometimes refer to nodes by index. 
+        return node in self.nodes
+
     # # This returns a node based on its unique index number: the inverse
     # # operation of node.getIndex().
     # ## TODO: change name of "index" to distinguish between list

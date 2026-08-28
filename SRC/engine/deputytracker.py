@@ -18,7 +18,10 @@ class DeputySelectionTracker:
     # the SkeletonContext's skeleton stack.  DeputySkeletons don't
     # contain any data except for the positions of moved nodes, so the
     # selection state in a deputy must be exactly the same as in the
-    # associated (sheriff) Skeleton. 
+    # associated (sheriff) Skeleton.
+    #
+    # Because the deputy tracker doesn't store a selection state, it
+    # isn't derived from SelectionTracker.
     
     def __init__(self, tracker):
         self.tracker = tracker

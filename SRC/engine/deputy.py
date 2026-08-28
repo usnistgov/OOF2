@@ -64,7 +64,6 @@ class DeputySkeleton(skeleton.SkeletonBase):
         if parallel_enable.enabled():
             self.all_skeletons = skel.all_skeletons
 
-
     def getIndexBase(self):
         return (self.skeleton.node_index,
                 self.skeleton.segment_index,
@@ -313,48 +312,66 @@ class DeputyProvisionalChanges:
         pass
 
 class DeputyPinnedNodeTracker(skeletonnode.PinnedNodeTracker):
-    # Unlike the other deputy trackers, the DeputyPinnedNodeTracker
-    # has its own data and doesn't refer to another tracker.  That's
-    # because the same node can be pinned in a skeleton and unpinned
-    # in a deputy skeleton.  DeputyPinnedNodeTrackers and
-    # PinnedNodeTrackers differ only in how the pinned state is
-    # propagated from skeleton to skeleton.
-    ## TODO: This comment is wrong.  Where is the data in the tracker?
-    ## It's not here...
-
-    ## TODO: These methods are identical to those in
-    ## PinnedNodeTracker. Is that correct?  That would make them
-    ## unnecessary here.
-
-    ## TODO: If there's no need here for pinDown, etc, then there's no
-    ## need for them in PinnedNodeTracker, either.  Instead of calling
-    ## PinnedNodeTracker.pinDown, can SkeletonNode.pinDown just call
-    ## child.pinDown?
+    # Unlike the other deputy trackers (in deputytracker.py), the
+    # DeputyPinnedNodeTracker *does* have its own data (stored by the
+    # base class, SelectionTrackerBase) and doesn't refer to another
+    # tracker.  That's because a node can be pinned in a Skeleton and
+    # unpinned in a DeputySkeleton, if they're at different positions.
 
     ## TODO NOW: Add tests that use DeputyPinnedNodeTracker.  There
     ## are none at the moment.
 
-    ## TODO NOW: Pinned state isn't being propagated properly from
-    ## deputy skeletons to non-deputies, and vice versa.
+    # pinDown and pinUp in a DeputySkeleton use the same SkeletonNode
+    # as the caller, but move on to the next tracker.
 
-    def pinDown(self, node, clist, where):
-        node.pinDown(clist, where)
+    def pinDown(self, parentnode, trackerlist, where):
+        # Pin the node in this tracker, and then pin the children.
+        # 'node' is a node in the parent skeleton, which is the same
+        # object as the node in this skeleton, because this one is a
+        # DeputySkeleton.
+        assert trackerlist[0] is self
+        # Don't pin a child node unless it's at the same position as
+        # its parent.
+        if self.nodePosition(parentnode) == where:
+            self.add(parentnode)
+            debug.fmsg(f"{self} {trackerlist=} {len(trackerlist)=}")
+            if len(trackerlist) > 1:
+                trackerlist[1].pinDown(parentnode, trackerlist[1:], where)
+
+    def pinUp(self, childnode, trackerlist, where):
+        # Pin the node in this tracker's *parent*.  childnode is a
+        # node in the current Skeleton, but because the current
+        # Skeleton is a deputy, it's also a node in the parent.
+        assert len(trackerlist) > 1
+        parenttracker = trackerlist[1]
+        if parenttracker.nodePosition(childnode) == where:
+            parenttracker.add(childnode)
+            parenttracker.pinUp(childnode, trackerlist[1:], where)
         
-    def pinUp(self, node, plist, where):
-        node.pinUp(plist, where)
-
     def unpinDown(self, node, clist, where):
-        node.unpinDown(clist, where)
+        if self.nodePosition(node) == where:
+            self.remove(node)
+            if len(clist) > 1:
+                clist[1].unpinDown(node, clist[1:], where)
+        # node.unpinDown(clist, where)
 
     def unpinUp(self, node, plist, where):
-        node.unpinUp(plist, where)
+        if self.nodePosition(node) == where:
+            self.remove(node)
+            if len(plist) > 1:
+                plist[1].unpinUp(node, plist[1:], where)
+        # node.unpinUp(plist, where)
 
     def implied_pin(self, oldtracker):
+        # Called by PinnedNodeSet.implied_select() when creating a new
+        # Skeleton.  This initializes the tracker for the new Skeleton
+        # from the tracker in the old Skeleton. Because the new
+        # Skeleton is a DeputySkeleton, it uses the same nodes as the
+        # old Skeleton.
         for n in oldtracker.get():
             there = oldtracker.nodePosition(n)
-            here = self.nodePosition(n)
-            if here == there:
+            if self.nodePosition(n) == there:
                 self.add(n)
 
     def __repr__(self):
-        return "DeputyPinnedNodeTracker"
+        return f"DeputyPinnedNodeTracker(0x{id(self.skeleton()):x} {self.data})"
