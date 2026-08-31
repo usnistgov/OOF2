@@ -149,14 +149,17 @@ class SkeletonNode(skeletonselectable.SkeletonSelectable,
 
     # pin and unpin are partially analogous to select and deselect in
     # the SkeletonSelectable class.  They pin and unpin this node and
-    # its children and parents, but only if the node and its children
-    # and parents are all at the same position.  The clist and plist
-    # args are lists of PinnedNodeTrackers corresponding to the
-    # children and parents in the SkeletonContext's stack of
-    # skeletons.  Some of those Skeletons may be DeputySkeletons,
-    # which share nodes instead of having parent/child nodes.  For
-    # those Skeletons the tracker is a DeputyPinnedNodeTracker instead
-    # of a PinnedNodeTracker.
+    # those of its children and parents that are at the same position
+    # as this node.  That is, parents are pinned or unpinned
+    # recursively starting from the node's immediate parent until a
+    # parent is found that is at a different position.
+    
+    # The clist and plist args are lists of PinnedNodeTrackers
+    # corresponding to the children and parents in the
+    # SkeletonContext's stack of skeletons.  Some of those Skeletons
+    # may be DeputySkeletons, which share nodes instead of having
+    # parent/child nodes.  For those Skeletons the tracker is a
+    # DeputyPinnedNodeTracker instead of a PinnedNodeTracker.
 
     def pin(self, clist, plist):
         if self.pinned():
@@ -192,7 +195,6 @@ class SkeletonNode(skeletonselectable.SkeletonSelectable,
         # Unpin this node, which is in the PinnedNodeTracker at the
         # head of both clist and plist.  Then remove its co-located
         # parents and children from the other trackers in the lists.
-        debug.fmsg(f"{self=} {clist=} {plist=}")
         if not self.pinned():
             return
         clist[0].remove(self)
@@ -202,29 +204,6 @@ class SkeletonNode(skeletonselectable.SkeletonSelectable,
             clist[1].unpinDown(parentnode=self, trackerlist=clist[1:], where=here)
         if len(plist) > 1:
             plist[0].unpinUp(childnode=self, trackerlist=plist, where=here)
-        debug.fmsg(f"after up/dn, {clist=} {plist=}")
-        # if len(clist) > 1:
-        #     for c in self.children:
-        #         clist[1].unpinDown(c, clist[1:], here)
-        # if len(plist) > 1:
-        #     for p in self.parent:
-        #         plist[1].unpinUp(p, plist[1:], here)
-    # def unpinDown(self, clist, here):
-    #     if not self.pinned():
-    #         return
-    #     self.setPinned(False)
-    #     if clist[0].nodePosition(self) == here:
-    #         clist[0].remove(self)
-    #         if len(clist) > 1:
-    #             clist[1].unpinDown(self, clist[1:], here)
-    # def unpinUp(self, plist, here):
-    #     if not self.pinned():
-    #         return
-    #     self.setPinned(False)
-    #     if plist[0].nodePosition(self) == here:
-    #         plist[0].remove(self)
-    #         if len(plist) > 1:
-    #             plist[0].unpinUp(self, plist[1:], here)
 
     ##############
                 
@@ -619,26 +598,14 @@ class PinnedNodeTracker(skeletonselectable.SelectionTrackerBase):
 
     def unpinDown(self, parentnode, trackerlist, where):
         assert trackerlist[0] is self
-        debug.fmsg(f"children={parentnode.getChildren()}")
         for node in parentnode.getChildren():
             if self.nodePosition(node) == where:
                 self.remove(node)
                 if len(trackerlist) > 1:
                     trackerlist[1].unpinDown(node, trackerlist[1:], where)
-        # if self.nodePosition(node) == where:
-        #     if not first:
-        #         self.remove(node)
-        #     if len(clist) > 1:
-        #         for c in node.getChildren():
-        #             clist[1].unpinDown(c, clist[1:], where, False)
-        # # if node.position() == where:
-        # #     node.unpinDown(clist, where)
-        # # else:
-        # #     debug.fmsg(f"{node.position()}-{where}={node.position()-where}")
         
     def unpinUp(self, childnode, trackerlist, where):
         assert trackerlist[0] is self
-        debug.fmsg(f"parents={childnode.getParents()}")
         if len(trackerlist) == 1:
             return
         parenttracker = trackerlist[1]
@@ -646,16 +613,6 @@ class PinnedNodeTracker(skeletonselectable.SelectionTrackerBase):
             if parenttracker.nodePosition(node) == where:
                 trackerlist[1].remove(node)
                 trackerlist[1].unpinUp(node, trackerlist[1:], where)
-        # if self.nodePosition(node) == where:
-        #     if not first:
-        #         self.remove(node)
-        #     if len(plist) > 1:
-        #         for p in self.getParents():
-        #             plist[1].unpinUp(p, plist[1:], where, False)
-        # # if node.position() == where:
-        # #     node.unpinUp(plist, where)
-        # # else:
-        # #     debug.fmsg(f"{node.position()}-{where}={node.position()-where}")
             
     def __repr__(self):
         return f"PinnedNodeTracker(0x{id(self.skeleton()):x} {self.data})"
@@ -705,7 +662,6 @@ class PinnedNodeSelection(skeletonselectable.SelectionBase):
         self.timestamp.increment()
 
     def unpin(self, nodelist):
-        debug.fmsg(f"{nodelist=}")
         (clist, plist) = self.trackerlist()
         for n in nodelist:
             if n.pinned():

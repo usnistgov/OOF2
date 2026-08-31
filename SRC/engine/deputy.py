@@ -352,11 +352,6 @@ class DeputyPinnedNodeTracker(skeletonnode.PinnedNodeTracker):
             self.remove(parentnode)
             if len(trackerlist) > 1:
                 trackerlist[1].unpinDown(parentnode, trackerlist[1:], where)
-        # if self.nodePosition(node) == where:
-        #     self.remove(node)
-        #     if len(clist) > 1:
-        #         clist[1].unpinDown(node, clist[1:], where)
-        # # node.unpinDown(clist, where)
 
     def unpinUp(self, childnode, trackerlist, where):
         assert len(trackerlist) > 1
@@ -364,11 +359,6 @@ class DeputyPinnedNodeTracker(skeletonnode.PinnedNodeTracker):
         if parenttracker.nodePosition(childnode) == where:
             parenttracker.remove(childnode)
             parenttracker.unpinUp(childnode, trackerlist[1:], where)
-        # if self.nodePosition(node) == where:
-        #     self.remove(node)
-        #     if len(plist) > 1:
-        #         plist[1].unpinUp(node, plist[1:], where)
-        # # node.unpinUp(plist, where)
 
     def implied_pin(self, oldtracker):
         # Called by PinnedNodeSet.implied_select() when creating a new
