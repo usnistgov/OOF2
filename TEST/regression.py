@@ -35,6 +35,7 @@ test_module_names = [
     "skeleton_periodic_bdy_test",
     "skeleton_selectionmod_test",
     "skeleton_extra_test",
+    "skeleton_pin_test",
     "material_property_test",
     "pixel_extra_test",
     "mesh_test",

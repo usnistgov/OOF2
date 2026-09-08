@@ -544,7 +544,6 @@ test_set = [
     OOF_Skeleton_Extra("RichSave"),
     OOF_Skeleton_Extra("RichLoad"),
     OOF_Skeleton_Extra("Commutativity"),
-    OOF_Skeleton_Extra("PinnedCommutativity"),
     OOF_Skeleton_Extra("SelectionStateBug"),
     OOF_Skeleton_Extra("SelectSegmentPixels"),
     OOF_Skeleton_Extra("SelectElementPixels"),
@@ -553,6 +552,3 @@ test_set = [
     OOF_Skeleton_CategoryBug("CheckGroup")
 ]
 
-# test_set = [
-#     OOF_Skeleton_Extra("PinnedCommutativity")
-# ]
