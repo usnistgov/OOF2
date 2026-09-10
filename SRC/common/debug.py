@@ -298,3 +298,27 @@ class DelNotifier:
                 self.objid, self.message)
         else:
             msg("DelNotifier: deleting tracked object", self.objid)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Temporarily copied here from TEST/UTILS/file_utils.py to help
+# debugging the memory leak in SkeletonInfoToolboxGUI.  It doesn't
+# belong here long term.
+
+def objectInventory(microstructures=0, nodes=0, elements=0, meshes=0):
+    from ooflib.SWIG.common import cmicrostructure
+    from ooflib.SWIG.engine import cskeleton, femesh
+    counts = (cmicrostructure.get_globalMicrostructureCount(),
+              cskeleton.get_globalNodeCount(),
+              cskeleton.get_globalElementCount(),
+              femesh.get_globalFEMeshCount())
+    expected = (microstructures, nodes, elements, meshes)
+    if counts != expected:
+        print(
+            "!!!! objectInventory failed.\n"
+           f"!!!! Expected  {expected} (micro, nodes, elems, meshes)\n"
+           f"!!!!      Got  {counts}",
+           file=sys.stderr)
+    return counts == expected
+
+            

@@ -384,12 +384,20 @@ class NewChooserWidget(ChooserWidget):
 ## probably isn't important.  Most, maybe all, ChooserListWidgets
 ## display user-created objects, and don't have helpdicts.
 
+## "verbose" flags were added to aid in debugging a memory leak in
+## SkeletonInfoToolboxGUI, which may be due to a gtk problem.  See
+## comments in skeletoninfoGUI.py.
+
 class ChooserListWidgetBase:
     def __init__(self, objlist=None, displaylist=[], callback=None,
                  dbcallback=None, autoselect=True, helpdict={},
                  comparator=None, markup=False,
+                 verbose=False,
                  name=None, separator_func=None, **kwargs):
+        if verbose:
+            debug.fmsg(f"new ChooserListWidgetBase 0x{id(self):x} {name=}")
         debug.mainthreadTest()
+        self.verbose = verbose
         self.liststore = Gtk.ListStore(GObject.TYPE_STRING,
                                        GObject.TYPE_PYOBJECT)
         self.treeview = Gtk.TreeView(model=self.liststore, **kwargs)
@@ -442,10 +450,9 @@ class ChooserListWidgetBase:
     def find_obj_index(self, obj):
         debug.mainthreadTest()
         if obj is not None:
-            objlist = [r[1] for r in self.liststore]
-            for which in range(len(objlist)):
-                if self.comparator(obj, objlist[which]):
-                    return which
+            for i, obji in enumerate(self.liststore):
+                if self.comparator(obj, obji[1]):
+                    return i
         raise ValueError
 
     def rowactivatedCB(self, treeview, path, col):
@@ -502,19 +509,26 @@ class ChooserListWidget(ChooserListWidgetBase):
     # possible.
     def update(self, objlist, displaylist=[], helpdict={}):
         debug.mainthreadTest()
+        if self.verbose:
+            debug.fmsg(f"0x{id(self):x} {objlist=}")
         self.suppress_signals()
         old_obj = self.get_value()
         self.liststore.clear()
+        if self.verbose:
+            debug.fmsg(f"0x{id(self):x} Cleared liststore")
         # Either objlist or displaylist could be a generator instead
-        # of an actual list.
+        # of an actual list.  We don't know if they're empty without
+        # iterating over them.
         empty = True
         for obj, dispname in itertools.zip_longest(objlist, displaylist):
-            self.liststore.append([obj if dispname is None else dispname,
-                                   obj])
+            if self.verbose:
+                debug.fmsg(f"0x{id(self):x} Appending {dispname} {obj}")
+            self.liststore.append([obj if dispname is None else dispname, obj])
             empty = False
         self.treeview.set_sensitive(not empty)
         if empty:
-            self.liststore.append(["None", None]) # Is this needed?
+            # Write "None" in an empty list.  It will be grayed out.
+            self.liststore.append(["None", None]) 
         try:
             index = self.find_obj_index(old_obj)
         except ValueError:
@@ -682,6 +696,7 @@ class ChooserComboWidget:
 class FramedChooserListWidget(ChooserListWidget):
     def __init__(self, objlist=None, displaylist=[],
                  callback=None, dbcallback=None, autoselect=True,
+                 verbose=False,
                  comparator=None, name=None, **kwargs):
         ChooserListWidget.__init__(self,
                                    objlist=objlist,
@@ -690,6 +705,7 @@ class FramedChooserListWidget(ChooserListWidget):
                                    dbcallback=dbcallback,
                                    autoselect=autoselect,
                                    comparator=comparator,
+                                   verbose=verbose,
                                    name=name)
         quargs = kwargs.copy()
         quargs.setdefault("shadow_type", Gtk.ShadowType.IN)

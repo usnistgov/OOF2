@@ -57,8 +57,8 @@ class SkeletonInfoDisplay(display.DisplayMethod):
     def draw(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Skeleton_Info")
         # Drawing "queried" item.
-        if toolbox.querier and toolbox.querier.object:
-            self.drawFuncs[toolbox.querier.targetname](toolbox.querier.object,
+        if toolbox.querier and toolbox.querier.obj:
+            self.drawFuncs[toolbox.querier.targetname](toolbox.querier.obj,
                                                        which="query")
         # Drawing "peeked" item.
         if toolbox.peeker:

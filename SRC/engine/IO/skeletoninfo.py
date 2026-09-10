@@ -47,13 +47,13 @@ class SkeletonQueryContainer:
     def __init__(self, context):
         self.context = context
         self.skeleton = context.getObject()
-        self.object = None
+        self.obj = None
         self.position = None
         self.targetname = None
 
     def set(self, context=None, obj=None, targetname=None, position=None):
         self.context = context
-        self.object = obj
+        self.obj = obj
         self.targetname = targetname
         self.position = position
 
@@ -65,27 +65,29 @@ class SkeletonQueryContainer:
     def clone(self):
         krusty = SkeletonQueryContainer(self.context)
         krusty.skeleton = self.skeleton
-        krusty.object = self.object
+        krusty.obj = self.obj
         krusty.targetname = self.targetname
         krusty.position = self.position
         return krusty
 
     def clearable(self):
-        return not not self.object
+        return self.obj is not None
 
     def __repr__(self):
         return "SkeletonQueryContainer(%s, %s, %s)" % (self.object, self.position, self.targetname)
 
-class SkeletonPeekContainer(SkeletonQueryContainer):
+class SkeletonPeekContainer:   #(SkeletonQueryContainer):
+    _objtypes = ("Element", "Segment", "Node")
     def __init__(self, toolbox, context):
         self.toolbox = toolbox
         self.context = context
         self.skeleton = context.getObject()
         # self.objects is used by skeletoninfodisplay.py
-        self.objects = {"Element":None, "Segment":None, "Node":None}
+        self.objects = {name:None for name in self._objtypes}
 
-    def assignObject(self, object, objtype):
-        self.objects[objtype] = object
+    def assignObject(self, obj, objtype):
+        assert objtype in self._objtypes
+        self.objects[objtype] = obj
         self.toolbox.timestamp.increment()
 
     def removeObject(self, objtype):
@@ -115,7 +117,7 @@ class SkeletonInfoToolbox(toolbox.Toolbox):
                                         self.newLayers),
             # Looks for a skeleton modification.
             switchboard.requestCallback(('who changed', 'Skeleton'),
-                                        self.skelChanged)
+                                        self.skelChanged),
             ]
 
     def close(self):
@@ -234,7 +236,7 @@ class SkeletonInfoToolbox(toolbox.Toolbox):
             self.peeker = SkeletonPeekContainer(self, skelcontext)
             self.querysignal()
         self.timestamp.increment()
-        
+
     def resetRecords(self):
         self.records.clear()
 

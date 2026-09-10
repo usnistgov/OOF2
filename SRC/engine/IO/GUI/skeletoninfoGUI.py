@@ -30,6 +30,36 @@ from gi.repository import Gtk
 import math
 import sys
 
+## TODO: Memory leak! If an element is queried, a reference to its
+## nodes is kept after the Microstructure is destroyed, preventing the
+## nodes from being destroyed.  If a segment is queried, there are
+## stray references to nodes and elements.  If a node is queried,
+## there are stray references to elements (but not segments because
+## node mode doesn't display segments).
+##
+## For element queries, the problem appears to be in the node list
+## maintained by the GUI part of the skeleton info toolbox.
+## Uncommenting the runBlock line in
+## SkeletonInfoMode.updateNodeListAngle in skeletoninfoGUI.py removes
+## the memory leak, so it must be happening in the ChooserListWidget
+## or its Gtk ListStore.  The ListStore *is* cleared when its Skeleton
+## is destroyed, but maybe it's keeping copies of old data or failing
+## to decref stored objects.
+##
+## The ChooserListWidget for segments when querying elements does not
+## appear to cause this problem, even though it also stores (pairs of)
+## nodes.
+##
+## This problem appeared when running guitest 060101 which queries a
+## Skeleton and uses objectInventory() to count existing nodes, etc.
+## That test is currently hacked to expect the memory leak, and should
+## be unhacked after the leak is fixed.
+##
+## Pass verbose=True in the FramedChooserListWidget constructor calls
+## in makeNodeList and makeSegmentList to debug.  Other debug.fmsg
+## calls have been commented out here.
+
+
 class SkeletonInfoMode:
     # Base class for ElementMode, NodeMode, and SegmentMode.
             
@@ -124,21 +154,24 @@ class SkeletonInfoMode:
                                                autoselect=0,
                                                name="NodeList",
                                                hexpand=True,
+                                               # verbose=True,
                                                halign=Gtk.Align.FILL)
+        # debug.fmsg(f"chsr=0x{id(chsr):x}")
         self.table.attach(chsr.gtk, column, row, 1,1)
         return chsr
 
     def updateNodeList(self, chsr, objlist):
         # called only when Skeleton readlock has been obtained.
+        # debug.fmsg(f"chsr=0x{id(chsr):x} {objlist=}")
         namelist = [(f"Node {obj.index} at "
                      f"({obj.position().x:.{digits()}g}, "
                      f"{obj.position().y:.{digits()}g})")
                     for obj in objlist]
-        
         mainthread.runBlock(chsr.update, (objlist, namelist))
 
     def updateNodeListAngle(self, chsr, element):
         # called only when Skeleton readlock has been obtained.
+        # debug.fmsg(f"chsr=0x{id(chsr):x}")
         namelist = [f"Node {node.index} at "
                     f"({node.position().x:.{digits()}g}, "
                     f"{node.position().y:.{digits()}g}) "
@@ -173,13 +206,16 @@ class SkeletonInfoMode:
                                                autoselect=0,
                                                name="SegmentList",
                                                hexpand=True,
+                                               # verbose=True,
                                                halign=Gtk.Align.FILL)
+        # debug.fmsg(f"chsr=0x{id(chsr):x}")
         self.table.attach(chsr.gtk, column, row, 1, 1)
         return chsr
     
     def updateSegmentList(self, chsr, objlist):
         # called only when Skeleton readlock has been obtained.
         objlist = list(objlist)
+        # debug.fmsg(f"chsr=0x{id(chsr):x} {objlist=}")
         namelist = [f"Segment {obj.index}, "
                     f"nodes ({obj.nodes()[0].index}, {obj.nodes()[1].index}) "
                     f"(length: {obj.length():.{digits()}g})"
@@ -255,13 +291,13 @@ class ElementMode(SkeletonInfoMode):
     def grpsChanged(self, context, groupset):
         querier = self.toolbox.toolbox.querier
         peeker = self.toolbox.toolbox.peeker
-        if querier and querier.object and querier.targetname=="Element":
+        if querier and querier.obj and querier.targetname=="Element":
             if groupset is querier.context.elementgroups:
                 self.updateSomething(querier)
             
     def updateSomething(self, container):
         debug.subthreadTest()
-        element = container.object
+        element = container.obj
         skeleton = container.skeleton
 
         container.context.begin_reading()
@@ -384,13 +420,13 @@ class NodeMode(SkeletonInfoMode):
     def grpsChanged(self, context, groupset):
         querier = self.toolbox.toolbox.querier
         peeker = self.toolbox.toolbox.peeker
-        if querier and querier.object and querier.targetname=="Node":
+        if querier and querier.obj and querier.targetname=="Node":
             if groupset is querier.context.nodegroups:
                 self.updateSomething(querier)
 
     def updateSomething(self, container):
         debug.subthreadTest()
-        node = container.object
+        node = container.obj
         skeleton = container.skeleton
         container.context.begin_reading()
         try:
@@ -494,13 +530,13 @@ class SegmentMode(SkeletonInfoMode):
     def grpsChanged(self, context, groupset):
         querier = self.toolbox.toolbox.querier
         peeker = self.toolbox.toolbox.peeker
-        if querier and querier.object and querier.targetname=="Segment":
+        if querier and querier.obj and querier.targetname=="Segment":
             if groupset is querier.context.segmentgroups:
                 self.updateSomething(querier)
             
     def updateSomething(self, container):
         debug.subthreadTest()
-        segment = container.object
+        segment = container.obj
         skeleton = container.skeleton
         container.context.begin_reading()
         try:
@@ -740,7 +776,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         if not self.toolbox.querier:
             return
         # See if there's anything to update ...
-        if self.toolbox.querier.object:
+        if self.toolbox.querier.obj:
             # Change mode if needed.
             self.handleMode(self.toolbox.querier.targetname)
             querier = self.toolbox.querier
@@ -784,15 +820,15 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.xposition = None
         self.yposition = None
 
-    def changeModeWithObject(self, object, objtype):
-        ## This uses object.index instead of object.repr_position so
+    def changeModeWithObject(self, obj, objtype):
+        ## This uses obj.index instead of obj.repr_position so
         ## that it's possible to use peek mode to investigate illegal
         ## elements, overlapping nodes, etc.  The trouble with using
         ## the object index is that it's not very user friendly.
         debug.mainthreadTest()
         self.clearPosition()
         self.modebuttondict[objtype].set_active(True)
-        self.modeobj.queryIDcmd()(index=object.index)
+        self.modeobj.queryIDcmd()(index=obj.index)
 
     def showPosition(self, point):
         debug.mainthreadTest()

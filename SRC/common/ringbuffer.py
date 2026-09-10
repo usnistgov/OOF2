@@ -27,6 +27,7 @@
 # The following 5 functions change the current position:
 #   push(obj)		inserts obj above current position and makes it current
 #   pop()		removes & returns obj at current position
+#                       (Currently commented out.  See comments below.)
 #   next()		goes to next object and returns it
 #   prev()		goes to previous object and returns it
 #   first()		goes to oldest remaining object and returns it
