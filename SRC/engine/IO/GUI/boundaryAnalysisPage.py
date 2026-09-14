@@ -167,7 +167,7 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
             bdynames = mesh.edgeBoundaryNames()
             self.bdylist.update(bdynames)
         else:
-            self.bdylist.update([])
+            self.bdylist.update()
         self.sensitize()
         gtklogger.checkpoint("mesh bdy page updated")
 

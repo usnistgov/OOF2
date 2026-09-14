@@ -196,11 +196,7 @@ def chooserCheck(widgetpath, choices):
     return True
 
 def chooserListCheck(widgetpath, choices, tolerance=None):
-    if choices:
-        return treeViewColCheck(widgetpath, 0, choices, tolerance)
-    return (treeViewColCheck(widgetpath, 0, ['None']) and
-            not gtklogger.findWidget(widgetpath).get_sensitive())
-    
+    return treeViewColCheck(widgetpath, 0, choices, tolerance)
 
 def treeViewColCheck(widgetpath, col, choices, tolerance=None):
     # Check that the contents of the given column of a TreeView match

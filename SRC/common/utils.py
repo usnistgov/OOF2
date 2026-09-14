@@ -349,6 +349,8 @@ class OrderedDict(dict):
                 self[k] = olddict[k]
             except KeyError:
                 pass
+    def index(self, val):
+        return list(self.values()).index(val)
         
 class OrderedSet:
     def __init__(self, iterable=None):
@@ -362,8 +364,15 @@ class OrderedSet:
         return item in self.data
     def __iter__(self):
         return iter(self.data.keys())
+    def index(self, val):
+        return self.data.index(val)
     def add(self, item):
         self.data[item] = 1
+    def __getitem__(self, which):
+        for i, v in enumerate(self.data):
+            if i == which:
+                return v
+        raise IndexError("Index out of range in OrderedSet")
     def remove(self, item):
         del self.data[item]
     def discard(self, item):

@@ -165,8 +165,6 @@ def selectedMatlPropertyCheck(propertypath):
         return True
     if model[iter][0] == propertypath:
         return True
-    print("Selected property is %s. Expected %s." \
-          % (model[iter][0], propertypath))
     return False
 
 def skeletonPageSensitivityCheck0():

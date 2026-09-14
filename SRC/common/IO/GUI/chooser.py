@@ -11,6 +11,7 @@
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
+from ooflib.common import utils
 from ooflib.common.IO.GUI import gtklogger
 
 import itertools
@@ -369,8 +370,21 @@ class NewChooserWidget(ChooserWidget):
 
 # Like a ChooserWidget, but makes a list instead of a pull-down menu.
 # Locally stateful.  Callback gets called when selection state
-# changes, with the newly-selected string or "None".  Takes both a
-# list of objects, and a list of display strings for those objects.
+# changes, with the newly-selected string or "None".  Takes a list of
+# objects and/or a list of display strings for those objects.  If both
+# are provided, the display strings are displayed and the
+# corresponding object is returned by get_value().  If only the
+# objects are provided, their str() is displayed.  If only the strings
+# are provided, they are also used as the return values.
+
+# The display strings are displayed by a Gtk TreeView which gets its
+# values from a Gtk ListStore.  The code would be simpler if the
+# ListStore also stored the python objects that the chooser is
+# choosing from.  It used to be done that way, but then Gtk started
+# screwing up the reference counts for the stored objects.  So now the
+# objects are stored in a dictionary managed by the ChooserWidget.
+# (The 'verbose' flags were added to help debug this problem.)
+
 # If comparison of two objects is nontrivial and not implemented by
 # the objects' __eq__ function, the 'comparator' arg should be
 # provided.  It should be a function of two objects that returns 1 if
@@ -384,22 +398,18 @@ class NewChooserWidget(ChooserWidget):
 ## probably isn't important.  Most, maybe all, ChooserListWidgets
 ## display user-created objects, and don't have helpdicts.
 
-## "verbose" flags were added to aid in debugging a memory leak in
-## SkeletonInfoToolboxGUI, which may be due to a gtk problem.  See
-## comments in skeletoninfoGUI.py.
-
 class ChooserListWidgetBase:
-    def __init__(self, objlist=None, displaylist=[], callback=None,
+    def __init__(self, objlist=None, displaylist=None, callback=None,
                  dbcallback=None, autoselect=True, helpdict={},
                  comparator=None, markup=False,
                  verbose=False,
                  name=None, separator_func=None, **kwargs):
         if verbose:
             debug.fmsg(f"new ChooserListWidgetBase 0x{id(self):x} {name=}")
+            debug.fmsg(f"{objlist=} {displaylist=}")
         debug.mainthreadTest()
         self.verbose = verbose
-        self.liststore = Gtk.ListStore(GObject.TYPE_STRING,
-                                       GObject.TYPE_PYOBJECT)
+        self.liststore = Gtk.ListStore(GObject.TYPE_STRING)
         self.treeview = Gtk.TreeView(model=self.liststore, **kwargs)
         self.gtk = self.treeview
         self.treeview.set_property("headers-visible", 0)
@@ -433,7 +443,25 @@ class ChooserListWidgetBase:
                               access_method=self.treeview.get_selection)
         self.selectsignal = gtklogger.connect(self.selection, 'changed',
                                              self.selectionchangedCB)
-        self.update(objlist or [], displaylist, helpdict=helpdict)
+        self.update(objlist=objlist, displaylist=displaylist, helpdict=helpdict)
+
+    def make_objdict(self, objlist, displaylist):
+        # Use OrderedDict instead of dict because it has an index() method.
+        if self.verbose:
+            debug.fmsg(f"{objlist=} {displaylist=}")
+        if not objlist and not displaylist:
+            self.objdict = utils.OrderedDict()
+        elif not objlist:
+            # objects are strings
+            self.objdict = utils.OrderedDict(
+                {name:name for name in displaylist})
+        elif not displaylist:
+            # displayed names are derived from the objects
+            self.objdict = utils.OrderedDict(
+                {str(obj):obj for obj in objlist})
+        else:
+            self.objdict = utils.OrderedDict(
+                {name:obj for name,obj in zip(displaylist, objlist)})
 
     def grab_focus(self):
         self.treeview.grab_focus()
@@ -448,12 +476,7 @@ class ChooserListWidgetBase:
         self.selectsignal.unblock()
 
     def find_obj_index(self, obj):
-        debug.mainthreadTest()
-        if obj is not None:
-            for i, obji in enumerate(self.liststore):
-                if self.comparator(obj, obji[1]):
-                    return i
-        raise ValueError
+        return self.objdict.index(obj)
 
     def rowactivatedCB(self, treeview, path, col):
         self.dbcallback(self.get_value())
@@ -467,17 +490,11 @@ class ChooserListWidgetBase:
         debug.mainthreadTest()
         self.gtk.hide()
     def destroy(self):
+        self.objdict = {}
         debug.mainthreadTest()
         self.gtk.destroy()
 
 class ChooserListWidget(ChooserListWidgetBase):
-    # Get the index of the current selection.
-    def get_index(self):
-        debug.mainthreadTest()
-        treeselection = self.treeview.get_selection() # gtk.TreeSelection obj
-        (model, iter) = treeselection.get_selected() #gtk.ListStore,gtk.TreeIter
-        if iter is not None:
-            return model.get_path(iter)[0]  # integer!
     def has_selection(self):
         debug.mainthreadTest()
         selection = self.treeview.get_selection()
@@ -488,7 +505,7 @@ class ChooserListWidget(ChooserListWidgetBase):
         selection = self.treeview.get_selection()
         model, iter = selection.get_selected()
         if iter is not None:
-            return model[iter][1]
+            return self.objdict[model[iter][0]]
     def set_selection(self, obj):
         debug.mainthreadTest()
         self.suppress_signals()
@@ -507,38 +524,43 @@ class ChooserListWidget(ChooserListWidgetBase):
         
     # Replace the contents, preserving the selection state, if
     # possible.
-    def update(self, objlist, displaylist=[], helpdict={}):
+    def update(self, objlist=None, displaylist=None, helpdict={}):
         debug.mainthreadTest()
+        
         if self.verbose:
-            debug.fmsg(f"0x{id(self):x} {objlist=}")
+            debug.fmsg(f"0x{id(self):x} {objlist=} {self.autoselect=}")
         self.suppress_signals()
+
+        # Get the old selection, if any, before changing self.objlist.
         old_obj = self.get_value()
-        self.liststore.clear()
         if self.verbose:
-            debug.fmsg(f"0x{id(self):x} Cleared liststore")
-        # Either objlist or displaylist could be a generator instead
-        # of an actual list.  We don't know if they're empty without
-        # iterating over them.
-        empty = True
-        for obj, dispname in itertools.zip_longest(objlist, displaylist):
-            if self.verbose:
-                debug.fmsg(f"0x{id(self):x} Appending {dispname} {obj}")
-            self.liststore.append([obj if dispname is None else dispname, obj])
-            empty = False
-        self.treeview.set_sensitive(not empty)
-        if empty:
-            # Write "None" in an empty list.  It will be grayed out.
-            self.liststore.append(["None", None]) 
+            debug.fmsg(f"{old_obj=}")
+
+        self.make_objdict(objlist, displaylist)
+        if self.verbose:
+            debug.fmsg(f"0x{id(self):x} {self.objdict=}")
+        
+        self.liststore.clear()
+        empty = len(self.objdict) == 0
+        for key in self.objdict:
+            self.liststore.append([key])
+
+        # Set the selection, if there was a selection in the old list
+        # that matches an entry in the current list.
         try:
             index = self.find_obj_index(old_obj)
         except ValueError:
-            if self.autoselect and len(objlist) == 1:
+            if self.autoselect and len(self.objdict) == 1:
                 # select the only object in the list
+                if self.verbose:
+                    debug.fmsg("Selecting only object")
                 treeselection = self.treeview.get_selection()
                 treeselection.select_path(0)
             # New value differs from old value, so callback must be invoked.
             self.callback(self.get_value(), interactive=False)
         else:                           # reselect current_obj
+            if self.verbose:
+                debug.fmsg(f"{index=}")
             treeselection = self.treeview.get_selection()
             treeselection.select_path(index)
         self.allow_signals()
@@ -546,14 +568,16 @@ class ChooserListWidget(ChooserListWidgetBase):
 # List widget that allows multiple selections
 
 class MultiListWidget(ChooserListWidgetBase):
-    def __init__(self, objlist, displaylist=[], callback=None,
+    def __init__(self, objlist=None, displaylist=None, callback=None,
                  dbcallback=None, autoselect=True, helpdict={},
                  comparator=None, name=None, separator_func=None,
+                 verbose=False,
                  markup=False, **kwargs):
         ChooserListWidgetBase.__init__(self, objlist, displaylist, callback,
                                        dbcallback, autoselect, helpdict,
                                        comparator=comparator, name=name,
                                        separator_func=separator_func,
+                                       verbose=verbose,
                                        markup=markup, **kwargs)
         selection = self.treeview.get_selection()
         selection.set_mode(Gtk.SelectionMode.MULTIPLE)
@@ -561,20 +585,27 @@ class MultiListWidget(ChooserListWidgetBase):
         debug.mainthreadTest()
         selection = self.treeview.get_selection()
         model, rows = selection.get_selected_rows()
-        return [model[r][1] for r in rows]
+        return [self.objdict[model[r][0]] for r in rows]
     def has_selection(self):
         debug.mainthreadTest()
         selection = self.treeview.get_selection()
         model, rows = selection.get_selected_rows()
         return len(rows) > 0
-    def update(self, objlist, displaylist=[], helpdict={}):
+    def update(self, objlist=None, displaylist=None, helpdict={}):
         debug.mainthreadTest()
+        if self.verbose:
+            debug.fmsg(f"{objlist=} {displaylist=}")
         self.suppress_signals()
         old_objs = self.get_value()
+
+        self.make_objdict(objlist, displaylist)
+        if self.verbose:
+            debug.fmsg(f"{self.objdict=}")
+
         self.liststore.clear()
-        for obj, dispname in itertools.zip_longest(objlist, displaylist):
-            self.liststore.append([obj if dispname is None else dispname,
-                                   obj])
+        for key in self.objdict:
+            self.liststore.append([key])
+
         treeselection = self.treeview.get_selection()
         for obj in old_objs:
             try:
@@ -589,7 +620,6 @@ class MultiListWidget(ChooserListWidgetBase):
         # does not unselect anything, or emit signals
         debug.mainthreadTest()
         self.suppress_signals()
-        objlist = [r[1] for r in self.liststore]
         treeselection = self.treeview.get_selection()
         if selectedobjs:
             for obj in selectedobjs:
@@ -715,7 +745,7 @@ class FramedChooserListWidget(ChooserListWidget):
 class ScrolledChooserListWidget(ChooserListWidget):
     def __init__(self, objlist=None, displaylist=[], callback=None,
                  dbcallback=None, autoselect=True, comparator=None, name=None,
-                 separator_func=None, markup=False, **kwargs):
+                 separator_func=None, markup=False, verbose=False, **kwargs):
         ChooserListWidget.__init__(self,
                                    objlist=objlist,
                                    displaylist=displaylist,
@@ -725,6 +755,7 @@ class ScrolledChooserListWidget(ChooserListWidget):
                                    comparator=comparator,
                                    name=name,
                                    separator_func=separator_func,
+                                   verbose=verbose,
                                    markup=markup)
         quargs = kwargs.copy()
         quargs.setdefault('shadow_type', Gtk.ShadowType.IN)
@@ -736,8 +767,10 @@ class ScrolledChooserListWidget(ChooserListWidget):
 
 class ScrolledMultiListWidget(MultiListWidget):
     def __init__(self, objlist=None, displaylist=[], callback=None, name=None,
+                 verbose=False,
                  separator_func=None, **kwargs):
         MultiListWidget.__init__(self, objlist, displaylist, callback,
+                                 verbose=verbose,
                                  name=name, separator_func=separator_func)
         mlist = self.gtk
         self.gtk = Gtk.ScrolledWindow(**kwargs)
