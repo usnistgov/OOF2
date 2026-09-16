@@ -17,14 +17,33 @@
 # because the modified version numbers will create conflicts.  There
 # should be no need to merge them anyway.
 
-# This script is created by running "make make_dist" after creating
-# the build tools by running cmake.
+# The make_dist script is created from make_dist.in by cmake, and
+# lives in the build directory.  None of the optional settings in
+# cmake are relevant for make_dist, so it doesn't matter which build
+# directory is used.
 
-# The options are:
-#    --comment     a string containing no dots (optional)
-#    --branch      Use the given branch, instead of master. (optional)
+# To build a distribution:
+
+#  0. Merge all code into master and set the project version number in
+#     CMakeLists.txt.
+
+#  1. Make sure that the master branch on the git server is up-to-date.
+
+#  2. Run cmake or ccmake in a build directory to create make_dist.
+
+#  3. Run make_dist.  The options are:
+#    --branch      Use the given source branch, instead of master.
 #                  The branch is still retrieved from github, so it must
-#                  be committed and pushed. 
+#                  be committed and pushed.
+#    --dryrun      Don't push the distribution to the git server.
+#    --noclean     Don't delete the temp directory.
+
+#  4. make_dist will create oof2-[version].tar.gz, and print its size
+#     and various checksums.  It will create a branch called oof2-[version]
+#     on the server.  If --comment was used, its value is added to the branch
+#     name.   (Why?  Shouldn't it be a commit message?)
+
+
 
 import getopt
 import os
@@ -49,13 +68,10 @@ def osCall(*args):
         
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-options = ['comment=', 'dryrun', 'help', 'noclean', 'branch=']
+options = ['dryrun', 'help', 'noclean', 'branch=']
 
 def state_options_and_quit():
     print("""Options are:
---comment=<comment>        Optional comment, cannot contain dots or spaces 
-
-Debugging options are:
 --noclean              Don't remove temp directory
 --dryrun               Don't actually commit, tag, or push in git
 --branch=<branchname>  Use the given branch, not master. 
@@ -64,7 +80,6 @@ Debugging options are:
     sys.exit()
 
 version = "@oof2_VERSION@"
-comment = None
 branch = None
 dryrun = False
 noclean = False
@@ -76,9 +91,7 @@ except getopt.error as message:
     sys.exit()
 
 for opt in optlist:
-    if opt[0] == '--comment':
-        comment = opt[1]
-    elif opt[0] == '--noclean':
+    f opt[0] == '--noclean':
         noclean = True
     elif opt[0] == '--dryrun':
         dryrun = True
@@ -124,22 +137,17 @@ try:
 
     # Construct the commit message and new branch name (aka tag)
     commit_msg = f"Building oof2 release version {version}"
-    if comment:
-        commit_msg += " -- " + comment
     tag = "oof2-" + version
-    if comment:
-        oldtag = tag
-        comment.replace(' ', '-')
-        tag += "--" + comment
     # Check and/or fix the tag if it's not legal
     cmd = ['git', 'check-ref-format', '--normalize', '--allow-onelevel', tag]
     proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode == 0:    # success
         tag = proc.stdout.strip()
     else:
-        print("Failed to convert '%s' to a legal tag." % tag, file=sys.stderr)
-        print("Using '%s' instead." % oldtag, file=sys.stderr)
-        tag = oldtag
+        print(f"Failed to convert '{tag}' to a legal branch name.",
+              file=sys.stderr)
+        print("Aborting", file=sys.stderr)
+        sys.exit(1)
     
     # Create a branch for the release.  This is done in the cloned
     # repository in the temp directory, so if dryrun==True it has no
@@ -205,14 +213,10 @@ try:
         "NOTES", 
         "3DSandbox",
         "SRC/DOC",
+        "SRC/archived",
         "SRC/TEST-DATA", "SRC/TEST-SRC",
         "SRC/common/EXTRA",
-        "SRC/engine/EXTRA",
-        "SRC/engine/PETSc",
-        "SRC/image/GRAINBDY",
-        "SRC/image/SEGMENTATION",
-        "SRC/image/imagemanip",
-        "TEST/BENCHMARK"
+        "SRC/engine/EXTRA"
     ]
 
     globalExcludeFiles = [
@@ -222,7 +226,7 @@ try:
     excludeFiles = [
         "fixlinks.py",
         "make_dist.in",
-        "oof2-build", "oof2-clean",
+        "todo.txt",
         "SRC/header", "SRC/header.py",
         "SRC/maketags", "SRC/switchboard.txt",
         "SRC/TODO", "SRC/commentline",
