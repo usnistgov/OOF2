@@ -40,9 +40,7 @@
 
 #  4. make_dist will create oof2-[version].tar.gz, and print its size
 #     and various checksums.  It will create a branch called oof2-[version]
-#     on the server.  If --comment was used, its value is added to the branch
-#     name.   (Why?  Shouldn't it be a commit message?)
-
+#     on the server.
 
 
 import getopt
