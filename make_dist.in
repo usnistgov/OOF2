@@ -89,7 +89,7 @@ except getopt.error as message:
     sys.exit()
 
 for opt in optlist:
-    f opt[0] == '--noclean':
+    if opt[0] == '--noclean':
         noclean = True
     elif opt[0] == '--dryrun':
         dryrun = True
