@@ -11,12 +11,12 @@
 # extensions.  They're in a separate file so that they can be shared
 # easily.
 
-# The initial value of OOF2_PYTHON3_VERSION is "Latest" so that the
+# The initial value of OOF2_PYTHON_VERSION is "Latest" so that the
 # initial configuration pass doesn't raise an error if the requested
 # version isn't found.
-## TODO: Can we list only the available versions of swig and python?
-set(OOF2_PYTHON3_VERSION "Latest" CACHE STRING "Use this version of Python")
-set_property(CACHE OOF2_PYTHON3_VERSION PROPERTY STRINGS
+## TODO: Can we list only the available versions of python?
+set(OOF2_PYTHON_VERSION "Latest" CACHE STRING "Use this version of Python")
+set_property(CACHE OOF2_PYTHON_VERSION PROPERTY STRINGS
   Latest 3.14 3.13 3.12 3.11 3.10)
 
 
@@ -151,11 +151,11 @@ list(APPEND CMAKE_SWIG_FLAGS $<$<CONFIG:Debug>:-DDEBUG>)
 set(CMAKE_FIND_FRAMEWORK LAST)
 
 include(FindPython)
-if(${OOF2_PYTHON3_VERSION} STREQUAL "Latest")
+if(${OOF2_PYTHON_VERSION} STREQUAL "Latest")
   find_package(Python3 COMPONENTS Interpreter Development)
 else()
   find_package(
-    Python3 ${OOF2_PYTHON3_VERSION} EXACT
+    Python3 ${OOF2_PYTHON_VERSION} EXACT
     COMPONENTS Interpreter Development)
 endif()
 set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})

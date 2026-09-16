@@ -123,6 +123,10 @@ OOF2 2.4.0
 * Fixed some inefficiencies in matrix construction. This makes
   solving large meshes significantly faster.
 
+* In cmake, OOF2_PYTHON3_VERSION is now OOF2_PYTHON_VERSION (without
+  the '3') for consistency with OOFCanvas.
+
+
 OOF2 2.3.3
 
 * Disabled selection of interface segments since interface properties
