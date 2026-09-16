@@ -3,9 +3,11 @@
     website, generate html with pandoc and pipe the output through
     fixlinks.py:
        pandoc -t html README.md | python fixlinks.py > README.html
+    To create the plain text version, run:
+       pandoc -t plain README.md  > README.txt
 -->
  
-This is the README file for OOF2, version 2.3.3 or later.
+This is the README file for OOF2, version 2.4.0 or later.
 
 # What is OOF2?
 
@@ -38,8 +40,9 @@ sudo make install
 but please read the rest of this file before proceeding.
 
 If something goes wrong, your system adminstrator may be able to help
-you, or you can contact the oof developers at oof_manager@nist.gov.
-It's diagnostically useful to include all of the output from the
+you, or you can contact the oof developers at
+[oof_manager@nist.gov](mailto:oof_manager@nist.gov).  It's
+diagnostically useful to include all of the output from the
 installation commands.
 
 OOF2 has been built and tested on recent versions of Ubuntu Linux and
@@ -58,9 +61,12 @@ page](http://www.ctcms.nist.gov/oof/oof2/prerequisites.html).  Those
 instructions may be more up-to-date than the ones here.
 
 OOF2 requires [OOFCanvas](http://www.ctcms.nist.gov/oof/oofcanvas),
-version 1.1 or later.  Most of the other OOF2 prerequisites are also
+version 1.2 or later.  Most of the other OOF2 prerequisites are also
 OOFCanvas prerequisites, and are listed on the
 [OOFCanvas](http://www.ctcms.nist.gov/oof/oofcanvas) page.
+
+In addition, OOF2 requires the [Matplotlib](https://matplotlib.org/)
+visualization library.
 
 You should also have the ability to run *lapack* and the *blas* basic
 linear algebra subroutines.  On macOS no special libraries are
@@ -70,7 +76,7 @@ part of a "-dev" package).
 
 Macintosh users can install either native Quartz or X11 versions of
 gtk3, cairo, and pango.  If using X11, they will have to also install
-an X11 server to run OOF2. But there seem to be some problems with
+an X11 server to run OOF2.  But there seem to be some problems with
 gtk3 and X11 on Macs, so Quartz is recommended.
 
 ## Installing OOF2
@@ -89,7 +95,7 @@ before proceeding.
 
 Download the latest OOF2 source distribution from the [OOF2
 website](http://www.ctcms.nist.gov/oof/oof2/).  That will create a
-file called something like oof2-2.3.0.tar.gz.
+file called something like oof2-2.4.0.tar.gz.
 
 ### 2. Create a working directory and move to it
 
@@ -104,9 +110,9 @@ Unpack the .tar.gz file.  The usual way is to run `tar -xf` on the
 file you want to unpack.  If the file is in your Downloads directory,
 type
 
-    % tar -xf ~/Downloads/oof2-2.3.0.tar.gz
+    % tar -xf ~/Downloads/oof2-2.4.0.tar.gz
     
-This will create a subdirectory named `oof2-2.3.0` in the
+This will create a subdirectory named `oof2-2.4.0` in the
 oof2 directory (if you followed the instructions in step 2).
 
 ### 4. Set PKG_CONFIG_PATH 
@@ -140,29 +146,28 @@ Create a build directory.
 If you want to use the default settings, run `cmake`, pointing it to
 the unpacked source directory:
 
-    % cmake ../oof2-2.3.3
+    % cmake ../oof2-2.4.0
     
 but beware that this will cause OOF2 to be installed in a system
 directory like `/usr` or `/usr/local`, where you might not have
 permission to create files.  It's better to use `ccmake`, which will
 let you edit settings:
 
-    % ccmake ../oof2-2.3.3
+    % ccmake ../oof2-2.4.0
     
-See https://cmake.org/cmake/help/latest/manual/ccmake.1.html for
+See [CMake](https://cmake.org/cmake/help/latest/manual/ccmake.1.html) for
 full instructions on how to use ccmake.  At a minimum
 
 - Type `c` to do the initial configuration
-- Use the arrow keys to navigate to `CMAKE_INSTALL_PREFIX`, which is
-  where OOF2 will be installed. 
+- Use the up and down arrow keys to navigate to
+  `CMAKE_INSTALL_PREFIX`, which is where OOF2 will be installed.
 - Type `<return>`, edit the prefix, and type `<return>` again.
   Set the prefix to a directory where you can write files, such as your home
   directory.  If you're installing into an Anaconda environment named `OOF2`,
   set `CMAKE_INSTALL_PREFIX` to `~/Anaconda3/envs/OOF2`.
-- Similarly, change `OOF2_PYTHON_VERSION` to the version of python3
-  that you have installed.  Use the same value you used when
-  installing OOFCanvas.  Use `<return>` to cycle through the allowed
-  values.
+- Change `OOF2_PYTHON_VERSION` to the version of Python3 that you have
+  installed.  Use the same value you used when installing OOFCanvas.
+  Use `<return>` to cycle through the allowed values.
 - If you are going to build OOF2 extension modules, set
   `OOF2_DEV_INSTALL` to `ON`.  This will install the C++ headers and
   other useful files.
@@ -185,7 +190,7 @@ build OOF2 faster by including the `-j` option
     % make -j 10 install
     
 Replace `10` by however many compilation processes you can run
-simultaneously. 
+simultaneously.  More is not always better.
 
 If you don't have permission to create files in the installation
 directory (possibly because you didn't change `CMAKE_INSTALL_PREFIX`
@@ -241,6 +246,11 @@ apparatus that makes a few of the tests fail erratically.  If
 reason) until they work, with
 
     % oof2-guitest --retries=20
+    
+(On Macs, after a GUI test fails in this matter, the computer may ask
+you if you want to reopen windows when the test restarts.  It doesn't
+matter whether you say yes or no, but you have to click something.
+This is annoying.)
 
 ## Uninstalling OOF2
 
@@ -275,7 +285,7 @@ If you encounter bugs in the program, please send e-mail to
 information as possible -- it is extremely difficult for us to fix a
 bug if we can't reproduce it.  In particular, include
 
-* What version of OOF2 you're using.  Starting OOF with the `-version`
+* What version of OOF2 you're using.  Starting OOF with the `--version`
   flag will print the version number.
 
 * What type of computer and what operating system you're using.
@@ -292,7 +302,7 @@ bug if we can't reproduce it.  In particular, include
   directory, which is probably named `tmp`.  Look for a file named
   `oof2-abcdef.py` where `abcdef` is a random string of characters.
   You can change the location of the temp directory by setting the
-  `OOFTMP` environment variable.
+  `OOFTMP` environment variable before running OOF2.
   
 * Be sure to include any files that the script requires, such as
   images or other scripts that it loads.

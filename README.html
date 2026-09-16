@@ -2,9 +2,9 @@
     To generate an html version of this file suitable for the NIST
     website, generate html with pandoc and pipe the output through
     fixlinks.py:
-       pandoc -t html manual.md | python fixlinks.py > manual.html
+       pandoc -t html README.md | python fixlinks.py > README.html
 -->
-<p>This is the README file for OOF2, version 2.3.3 or later.</p>
+<p>This is the README file for OOF2, version 2.4.0 or later.</p>
 <h1 id="what-is-oof2">What is OOF2?</h1>
 <p><a href="http://www.ctcms.nist.gov/oof/">OOF2</a> is designed to help
 materials scientists calculate macroscopic properties from images of
@@ -28,7 +28,8 @@ make
 sudo make install</code></pre>
 <p>but please read the rest of this file before proceeding.</p>
 <p>If something goes wrong, your system adminstrator may be able to help
-you, or you can contact the oof developers at oof_manager@nist.gov. It’s
+you, or you can contact the oof developers at <a
+href="mailto:oof_manager@nist.gov">oof_manager@nist.gov</a>. It’s
 diagnostically useful to include all of the output from the installation
 commands.</p>
 <p>OOF2 has been built and tested on recent versions of Ubuntu Linux and
@@ -44,9 +45,11 @@ Prerequisites page</a>. Those instructions may be more up-to-date than
 the ones here.</p>
 <p>OOF2 requires <a
 href="http://www.ctcms.nist.gov/oof/oofcanvas">OOFCanvas</a>, version
-1.1 or later. Most of the other OOF2 prerequisites are also OOFCanvas
+1.2 or later. Most of the other OOF2 prerequisites are also OOFCanvas
 prerequisites, and are listed on the <a
 href="http://www.ctcms.nist.gov/oof/oofcanvas">OOFCanvas</a> page.</p>
+<p>In addition, OOF2 requires the <a
+href="/cgi-bin/redirect.py?url=https://matplotlib.org/">Matplotlib</a> visualization library.</p>
 <p>You should also have the ability to run <em>lapack</em> and the
 <em>blas</em> basic linear algebra subroutines. On macOS no special
 libraries are required. On Linux and commercial Unix systems, they may
@@ -67,7 +70,7 @@ of this file before proceeding.</p>
 <h3 id="download">1. Download</h3>
 <p>Download the latest OOF2 source distribution from the <a
 href="http://www.ctcms.nist.gov/oof/oof2/">OOF2 website</a>. That will
-create a file called something like oof2-2.3.0.tar.gz.</p>
+create a file called something like oof2-2.4.0.tar.gz.</p>
 <h3 id="create-a-working-directory-and-move-to-it">2. Create a working
 directory and move to it</h3>
 <p>In your home directory or some other convenient location, enter</p>
@@ -77,8 +80,8 @@ directory and move to it</h3>
 <p>Unpack the .tar.gz file. The usual way is to run <code>tar -xf</code>
 on the file you want to unpack. If the file is in your Downloads
 directory, type</p>
-<pre><code>% tar -xf ~/Downloads/oof2-2.3.0.tar.gz</code></pre>
-<p>This will create a subdirectory named <code>oof2-2.3.0</code> in the
+<pre><code>% tar -xf ~/Downloads/oof2-2.4.0.tar.gz</code></pre>
+<p>This will create a subdirectory named <code>oof2-2.4.0</code> in the
 oof2 directory (if you followed the instructions in step 2).</p>
 <h3 id="set-pkg_config_path">4. Set PKG_CONFIG_PATH</h3>
 <p>The OOF2 installation process uses the <code>pkg-config</code>
@@ -91,9 +94,9 @@ number, nothing needs to be done. If it says it can’t find oofcanvas,
 set the environment variable <code>PKG_CONFIG_PATH</code> to the
 location of <code>oofcanvas.pc</code>. For example, if OOFCanvas was
 installed into your home directory, the file will be in
-<code>~/lib/pgkconfig</code>, and after you run</p>
+<code>~/lib/pkgconfig</code>, and after you run</p>
 <pre><code>% export PKG_CONFIG_PATH=~/lib/pkgconfig</code></pre>
-<p><code>pgk-config</code> will be able to find it. (The syntax for
+<p><code>pkg-config</code> will be able to find it. (The syntax for
 setting environment variables depends on what shell you’re using.)</p>
 <h3 id="configure">5. Configure</h3>
 <p>Create a build directory.</p>
@@ -101,27 +104,28 @@ setting environment variables depends on what shell you’re using.)</p>
 % cd build</code></pre>
 <p>If you want to use the default settings, run <code>cmake</code>,
 pointing it to the unpacked source directory:</p>
-<pre><code>% cmake ../oof2-2.3.3</code></pre>
+<pre><code>% cmake ../oof2-2.4.0</code></pre>
 <p>but beware that this will cause OOF2 to be installed in a system
 directory like <code>/usr</code> or <code>/usr/local</code>, where you
 might not have permission to create files. It’s better to use
 <code>ccmake</code>, which will let you edit settings:</p>
-<pre><code>% ccmake ../oof2-2.3.3</code></pre>
-<p>See https://cmake.org/cmake/help/latest/manual/ccmake.1.html for full
-instructions on how to use ccmake. At a minimum</p>
+<pre><code>% ccmake ../oof2-2.4.0</code></pre>
+<p>See <a
+href="/cgi-bin/redirect.py?url=https://cmake.org/cmake/help/latest/manual/ccmake.1.html">CMake</a>
+for full instructions on how to use ccmake. At a minimum</p>
 <ul>
 <li>Type <code>c</code> to do the initial configuration</li>
-<li>Use the arrow keys to navigate to <code>CMAKE_INSTALL_PREFIX</code>,
-which is where OOF2 will be installed.</li>
+<li>Use the up and down arrow keys to navigate to
+<code>CMAKE_INSTALL_PREFIX</code>, which is where OOF2 will be
+installed.</li>
 <li>Type <code>&lt;return&gt;</code>, edit the prefix, and type
 <code>&lt;return&gt;</code> again. Set the prefix to a directory where
 you can write files, such as your home directory. If you’re installing
 into an Anaconda environment named <code>OOF2</code>, set
 <code>CMAKE_INSTALL_PREFIX</code> to
 <code>~/Anaconda3/envs/OOF2</code>.</li>
-<li>Similarly, change <code>OOF2_PYTHON_VERSION</code> to the version of
-python3 that you have installed, and <code>OOF2_SWIG_VERSION</code> to
-the version of swig4. Use the same values you used when installing
+<li>Change <code>OOF2_PYTHON_VERSION</code> to the version of Python3
+that you have installed. Use the same value you used when installing
 OOFCanvas. Use <code>&lt;return&gt;</code> to cycle through the allowed
 values.</li>
 <li>If you are going to build OOF2 extension modules, set
@@ -143,7 +147,7 @@ jobs, you can build OOF2 faster by including the <code>-j</code>
 option</p>
 <pre><code>% make -j 10 install</code></pre>
 <p>Replace <code>10</code> by however many compilation processes you can
-run simultaneously.</p>
+run simultaneously. More is not always better.</p>
 <p>If you don’t have permission to create files in the installation
 directory (possibly because you didn’t change
 <code>CMAKE_INSTALL_PREFIX</code> in step 3) you should run the build
@@ -175,10 +179,6 @@ OOF2 the hard way by by typing <code>&lt;prefix&gt;/bin/oof2</code>).
 <code>echo $PATH</code> will print the current value of your path. The
 method for setting environment variables depends on which Unix shell
 you’re using.)</p>
-<p>On Linux, if <code>&lt;prefix&gt;/lib</code> is not in the list of
-directories that the dynamic linker searches for libraries, you’ll have
-to add it by setting the <code>LD_LIBRARY_PATH</code> environment
-variable. This should <em>not</em> be necessary on macOS.</p>
 <h3 id="test">7. Test</h3>
 <p>If you want to test the installation, run <code>oof2-test</code> and
 <code>oof2-guitest</code>.</p>
@@ -192,11 +192,15 @@ it’s best to just sit back and watch it run.</p>
 <code>&lt;prefix&gt;/lib/python3.x/site-packages/oof2/TEST/GUI</code>.
 Each of those directories has a <code>README</code> file that may be
 helpful.</p>
-<p>In version 2.3.x there is something wrong with the GUI testing
+<p>In version 2.4.x there is something wrong with the GUI testing
 apparatus that makes a few of the tests fail erratically. If
 <code>oof2-guitest</code> fails, you can tell it to keep trying the
 tests (within reason) until they work, with</p>
 <pre><code>% oof2-guitest --retries=20</code></pre>
+<p>(On Macs, after a GUI test fails in this matter, the computer may ask
+you if you want to reopen windows when the test restarts. It doesn’t
+matter whether you say yes or no, but you have to click something. This
+is annoying.)</p>
 <h2 id="uninstalling-oof2">Uninstalling OOF2</h2>
 <p>Go to the build directory and run <code>make uninstall</code>. This
 deletes all the installed files but unfortunately leaves empty
@@ -224,7 +228,7 @@ information as possible – it is extremely difficult for us to fix a bug
 if we can’t reproduce it. In particular, include</p>
 <ul>
 <li><p>What version of OOF2 you’re using. Starting OOF with the
-<code>-version</code> flag will print the version number.</p></li>
+<code>--version</code> flag will print the version number.</p></li>
 <li><p>What type of computer and what operating system you’re
 using.</p></li>
 <li><p>A complete description of the problem: what happened and what did
