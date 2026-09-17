@@ -194,10 +194,11 @@ def really_run_tests(homedir, dirs, counter, rerecord):
             # reference data files.
             os.environ["OOFTESTDIR"] = directory
 
-            result = subprocess.call(cmd) # Actually run the test.
+            # Actually run the test.            
+            result = subprocess.run(cmd)
 
-            if result < 0:
-                print(f"Child was terminated by signal {-result}",
+            if result.returncode < 0:
+                print(f"Child was terminated by signal {-result.returncode}",
                       file=sys.stderr)
                 print(f"Test {directory} failed!", file=sys.stderr)
                 print(f"Not removing {tmpdir}", file=sys.stderr)
@@ -205,11 +206,11 @@ def really_run_tests(homedir, dirs, counter, rerecord):
                     print("Test iteration limit exceeded.", file=sys.stderr)
                     sys.exit(result)
 
-            elif result != exitstatus:
-                print(f"Test {directory} failed! Status={result}, expected={exitstatus}",
+            elif result.returncode != exitstatus:
+                print(f"Test {directory} failed! Status={result.returncode}, expected={exitstatus}",
                       file=sys.stderr)
                 if iteration==retries:
-                    sys.exit(result)
+                    sys.exit(result.returncode)
             else:
                 break           # success.  Don't retry.
             # end retry loop
