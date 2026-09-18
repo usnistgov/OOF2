@@ -116,7 +116,7 @@ variables depends on what shell you’re using.)
 
 5. Configure
 
-Create a build directory.
+Create a build directory and move to it.
 
     % mkdir build
     % cd build
@@ -144,7 +144,8 @@ See CMake for full instructions on how to use ccmake. At a minimum
   OOF2, set CMAKE_INSTALL_PREFIX to ~/Anaconda3/envs/OOF2.
 - Change OOF2_PYTHON_VERSION to the version of Python3 that you have
   installed. Use the same value you used when installing OOFCanvas. Use
-  <return> to cycle through the allowed values.
+  the left and right arrow keys or<return> to cycle through the allowed
+  values.
 - If you are going to build OOF2 extension modules, set OOF2_DEV_INSTALL
   to ON. This will install the C++ headers and other useful files.
 - Type c to update the configuration.
@@ -170,7 +171,7 @@ simultaneously. More is not always better.
 
 If you don’t have permission to create files in the installation
 directory (possibly because you didn’t change CMAKE_INSTALL_PREFIX in
-step 3) you should run the build and installation steps separately so
+step 5) you should run the build and installation steps separately so
 that you can use superuser privileges for installation:
 
     % make -j 10
@@ -181,6 +182,7 @@ oof2-test, and oof2-guitest in <prefix>/bin, a bunch of shared libraries
 called liboof2*.so or liboof2*.dylib in <prefix>/lib, a directory called
 oof2 in <prefix>/lib/python3.x/site-packages (where 3.x is your python
 version number), and some example files in <prefix>/share/oof2/examples.
+<prefix> is the value you gave to CMAKE_INSTALL_PREFIX in ccmake.
 
 In addition, if OOF2_DEV_INSTALL was set, oof2-extension-setup will be
 installed in <prefix>/bin, the OOF2 C++ headers and swig files will be
@@ -208,14 +210,14 @@ or type in one of its windows, so it’s best to just sit back and watch
 it run.
 
 The test files are installed into
-<prefix>/lib/python3.x/site-packages/oof2/TEST and
-<prefix>/lib/python3.x/site-packages/oof2/TEST/GUI. Each of those
-directories has a README file that may be helpful.
+<prefix>/lib/python3.xx/site-packages/oof2/TEST and
+<prefix>/lib/python3.xx/site-packages/oof2/TEST/GUI. Each of those
+directories has a README file with more information. (Replace 3.xx with
+the correct version number in the directory names.)
 
-In version 2.4.x there is something wrong with the GUI testing apparatus
-that makes a few of the tests fail erratically. If oof2-guitest fails,
-you can tell it to keep trying the tests (within reason) until they
-work, with
+There is something wrong with the GUI testing apparatus that makes a few
+of the tests fail erratically. If oof2-guitest fails, you can tell it to
+keep trying the tests (within reason) until they work, with
 
     % oof2-guitest --retries=20
 
@@ -223,6 +225,11 @@ work, with
 you if you want to reopen windows when the test restarts. It doesn’t
 matter whether you say yes or no, but you have to click something. This
 is annoying.)
+
+For more information about testing, see the README files in the TEST and
+TEST/GUI directories. These can be found in the source distribution or
+in <prefix>/lib/python3.xx/site-packages/oof2. (Replace 3.xx with the
+correct Python version number.)
 
 Uninstalling OOF2
 
