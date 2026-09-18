@@ -3,6 +3,8 @@
     website, generate html with pandoc and pipe the output through
     fixlinks.py:
        pandoc -t html README.md | python fixlinks.py > README.html
+    To create the plain text version, run:
+       pandoc -t plain README.md  > README.txt
 -->
 <p>This is the README file for OOF2, version 2.4.0 or later.</p>
 <h1 id="what-is-oof2">What is OOF2?</h1>
@@ -99,7 +101,7 @@ installed into your home directory, the file will be in
 <p><code>pkg-config</code> will be able to find it. (The syntax for
 setting environment variables depends on what shell you’re using.)</p>
 <h3 id="configure">5. Configure</h3>
-<p>Create a build directory.</p>
+<p>Create a build directory and move to it.</p>
 <pre><code>% mkdir build
 % cd build</code></pre>
 <p>If you want to use the default settings, run <code>cmake</code>,
@@ -126,8 +128,8 @@ into an Anaconda environment named <code>OOF2</code>, set
 <code>~/Anaconda3/envs/OOF2</code>.</li>
 <li>Change <code>OOF2_PYTHON_VERSION</code> to the version of Python3
 that you have installed. Use the same value you used when installing
-OOFCanvas. Use <code>&lt;return&gt;</code> to cycle through the allowed
-values.</li>
+OOFCanvas. Use the left and right arrow keys
+or<code>&lt;return&gt;</code> to cycle through the allowed values.</li>
 <li>If you are going to build OOF2 extension modules, set
 <code>OOF2_DEV_INSTALL</code> to <code>ON</code>. This will install the
 C++ headers and other useful files.</li>
@@ -150,7 +152,7 @@ option</p>
 run simultaneously. More is not always better.</p>
 <p>If you don’t have permission to create files in the installation
 directory (possibly because you didn’t change
-<code>CMAKE_INSTALL_PREFIX</code> in step 3) you should run the build
+<code>CMAKE_INSTALL_PREFIX</code> in step 5) you should run the build
 and installation steps separately so that you can use superuser
 privileges for installation:</p>
 <pre><code>% make -j 10
@@ -162,7 +164,9 @@ in <code>&lt;prefix&gt;/bin</code>, a bunch of shared libraries called
 <code>&lt;prefix&gt;/lib</code>, a directory called <code>oof2</code> in
 <code>&lt;prefix&gt;/lib/python3.x/site-packages</code> (where 3.x is
 your python version number), and some example files in
-<code>&lt;prefix&gt;/share/oof2/examples</code>.</p>
+<code>&lt;prefix&gt;/share/oof2/examples</code>.
+<code>&lt;prefix&gt;</code> is the value you gave to
+<code>CMAKE_INSTALL_PREFIX</code> in ccmake.</p>
 <p>In addition, if <code>OOF2_DEV_INSTALL</code> was set,
 <code>oof2-extension-setup</code> will be installed in
 <code>&lt;prefix&gt;/bin</code>, the OOF2 C++ headers and swig files
@@ -188,19 +192,25 @@ runs GUI-dependent tests. It doesn’t takes as long but it can get
 confused if you accidentally click or type in one of its windows, so
 it’s best to just sit back and watch it run.</p>
 <p>The test files are installed into
-<code>&lt;prefix&gt;/lib/python3.x/site-packages/oof2/TEST</code> and
-<code>&lt;prefix&gt;/lib/python3.x/site-packages/oof2/TEST/GUI</code>.
-Each of those directories has a <code>README</code> file that may be
-helpful.</p>
-<p>In version 2.4.x there is something wrong with the GUI testing
-apparatus that makes a few of the tests fail erratically. If
-<code>oof2-guitest</code> fails, you can tell it to keep trying the
-tests (within reason) until they work, with</p>
+<code>&lt;prefix&gt;/lib/python3.xx/site-packages/oof2/TEST</code> and
+<code>&lt;prefix&gt;/lib/python3.xx/site-packages/oof2/TEST/GUI</code>.
+Each of those directories has a <code>README</code> file with more
+information. (Replace <code>3.xx</code> with the correct version number
+in the directory names.)</p>
+<p>There is something wrong with the GUI testing apparatus that makes a
+few of the tests fail erratically. If <code>oof2-guitest</code> fails,
+you can tell it to keep trying the tests (within reason) until they
+work, with</p>
 <pre><code>% oof2-guitest --retries=20</code></pre>
 <p>(On Macs, after a GUI test fails in this matter, the computer may ask
 you if you want to reopen windows when the test restarts. It doesn’t
 matter whether you say yes or no, but you have to click something. This
 is annoying.)</p>
+<p>For more information about testing, see the <code>README</code> files
+in the <code>TEST</code> and <code>TEST/GUI</code> directories. These
+can be found in the source distribution or in
+<code>&lt;prefix&gt;/lib/python3.xx/site-packages/oof2</code>. (Replace
+<code>3.xx</code> with the correct Python version number.)</p>
 <h2 id="uninstalling-oof2">Uninstalling OOF2</h2>
 <p>Go to the build directory and run <code>make uninstall</code>. This
 deletes all the installed files but unfortunately leaves empty
@@ -242,7 +252,8 @@ will be saved automatically in the your operating system’s temp
 directory, which is probably named <code>tmp</code>. Look for a file
 named <code>oof2-abcdef.py</code> where <code>abcdef</code> is a random
 string of characters. You can change the location of the temp directory
-by setting the <code>OOFTMP</code> environment variable.</p></li>
+by setting the <code>OOFTMP</code> environment variable before running
+OOF2.</p></li>
 <li><p>Be sure to include any files that the script requires, such as
 images or other scripts that it loads.</p></li>
 </ul>
