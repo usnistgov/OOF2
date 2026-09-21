@@ -19,7 +19,7 @@ project(%MODULENAME% VERSION 0.0.0)
 # *before* loading oofbuildtools.cmake, sets the default value to the
 # one from the oof2 build, transferred here when oof2-extension-setup
 # replaced the template strings.
-set(OOF2_PYTHON3_VERSION %PYTHON% CACHE STRING "Use this version of Python")
+set(OOF2_PYTHON_VERSION %PYTHON% CACHE STRING "Use this version of Python")
 
 include("%OOF2PREFIX%/share/oof2/tools/oofbuildtools.cmake")
 
