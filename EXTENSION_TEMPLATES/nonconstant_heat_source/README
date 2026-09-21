@@ -7,6 +7,6 @@
  * oof_manager@nist.gov.
  */
 
-The files in this directory are used by the copy_extension.py script
-in the parent directory to build an OOF2 extension Property that can
-be customized by the user.  The files should not be used directly.
+The files in this directory are used by the oof2-extension-setup
+script to build an OOF2 extension Property that can be customized by
+the user.  The files should not be used directly.

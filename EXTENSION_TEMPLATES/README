@@ -100,7 +100,7 @@ Follow the steps below to write and build an OOF2 extension.
       a subdirectory named %MODULENAME% will be created within the
       installation directory.
 
-    * OOF2_PYTHON3_VERSION is preset to the version of Python that was
+    * OOF2_PYTHON_VERSION is preset to the version of Python that was
       used to build OOF2.  You should not have to change this, unless
       you are re-using a Property that you originally created with a
       different version of Python.  Make sure that the version of
