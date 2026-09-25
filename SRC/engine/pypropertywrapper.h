@@ -67,7 +67,7 @@ public:
 
 class PyFluxProperty : public FluxProperty,
 		       public PyPhysicalPropertyMethods,
-		       virtual public PythonNative<Property>
+		       public PythonNative<Property>
 {
 public:
   PyFluxProperty(const std::string &name, PyObject *regstn, PyObject *referent);
@@ -134,7 +134,7 @@ public:
 
 class PyEqnProperty : public EqnProperty,
 		      public PyPhysicalPropertyMethods,
-		      virtual public PythonNative<Property>
+		      public PythonNative<Property>
 {
 public:
   PyEqnProperty(const std::string &name,  PyObject *regstn, PyObject *referent);
@@ -214,7 +214,7 @@ public:
 
 class PyAuxProperty : public AuxiliaryProperty,
 		      public PyPropertyMethods,
-		      virtual public PythonNative<Property>
+		      public PythonNative<Property>
 {
 public:
   PyAuxProperty(const std::string &name, PyObject *regstn, PyObject *referent);

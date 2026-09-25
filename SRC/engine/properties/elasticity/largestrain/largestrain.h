@@ -38,7 +38,7 @@ public:
 };
 
 class CIsoLargeStrainElasticity
-  : public CLargeStrainElasticity, virtual public PythonNative<Property>
+  : public CLargeStrainElasticity, public PythonNative<Property>
 {
 private:
   Cijkl c_ijkl;
@@ -55,7 +55,7 @@ public:
 };
 
 class CAnisoLargeStrainElasticity
-  : public CLargeStrainElasticity, virtual public PythonNative<Property>
+  : public CLargeStrainElasticity, public PythonNative<Property>
 {
 private:
   const OrientationPropBase *orientation;

@@ -21,7 +21,7 @@ class SmallMatrix;
 class SmallTensor4;
 
 class CRambergOsgood
-  : public GeneralNonlinearElasticity, virtual public PythonNative<Property>
+  : public GeneralNonlinearElasticity, public PythonNative<Property>
 {
 
 private:

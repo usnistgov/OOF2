@@ -24,7 +24,7 @@ class OrientationPropBase;
 // subclassed in Python, it must be derived from PythonNative.
 
 class CAnisoElasticity
-  : public Elasticity, virtual public PythonNative<Property>
+  : public Elasticity, public PythonNative<Property>
 {
 public:
   CAnisoElasticity(const std::string &nm, PyObject *registration,

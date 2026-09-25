@@ -21,7 +21,7 @@
 #include <string>
 
 class CIsoElasticityProp 
-  : public Elasticity, virtual public PythonNative<Property> 
+  : public Elasticity, public PythonNative<Property> 
 {
 private:
   Cijkl c_ijkl;
