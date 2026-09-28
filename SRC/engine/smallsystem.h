@@ -39,7 +39,7 @@ class SmallSparseMatrix : public SmallMatrix {
 private:
   // using vector<char> instead of vector<bool>
   // because bit shifting operations of vector<bool> cause
-  // many cache misses when access nonzero_ elements.
+  // many cache misses when accessing nonzero_ elements.
   std::vector<char> nonzero_;
 
 public:

@@ -39,19 +39,19 @@
 //    PythonExportable.  The template parameter must be the name of
 //    the class derived from PythonExportable.  Each derived type must
 //    supply a classname() virtual function that returns the name of
-//    the derived class .  If the C++ derived classes will be swigged
+//    the derived class.  If the C++ derived classes will be swigged
 //    and used as base classes for Python classes, then the
 //    PythonExportable must be a *virtual* base class (see
 //    PythonNative, below).
 //
 //    For example:
 //      class MyExportable : public PythonExportable<MyExportable> {
-//      public:
+//         ...
 //      }
 //      class Oil : public MyExportable {
 //      public:
 //         virtual const std::string &classname() const {
-///           static const std::string name("Oil");
+//            static const std::string name("Oil");
 //            return name;
 //         }
 //      }
@@ -62,30 +62,56 @@
 //            return name;
 //         }
 //      }
-
+//
 // 2) In every swig file containing a function that returns a base
 //    class pointer ("MyExportable*" in the example above), include
-//    the following typemap:
-//    %typemap(out) BASECLASS* {
-//      $target = $source->pythonObject();
-//    }
-//    where BASECLASS is the base class of the hierarchy derived from
-//    PythonExportable.  This can be done by passing the base class
-//    name to the PYTHONEXPORTABLE macro defined in typemaps.swg.
+//    the line
+//
+//         PYTHONEXPORTABLE(MyExportable)
+//
+//    PYTHONEXPORTABLE is defined in SRC/common/typemaps.swg.  It
+//    defines a swig typemap for MyExportable* that ensures that a
+//    derived class object is returned for any swigged function that
+//    returns MyExportable*:
+//
+//        MyExportable* func();
+//
+//    PYTHONEXPORTABLE also defines a typemap for NewMyExportable*
+//    (the class name with "New" prepended).  A function declared in
+//    the swig file like:
+//        NewMyExportable* func2();
+//    will also return a derived class object, but Python will take
+//    ownership of it, deleting it when there are no more references
+//    to it.  
 
 // If the C++ class hierarchy derived from PythonExportable is
 // swigged, and the swigged Python classes are extended by Python
 // inheritance, then the above mechanism doesn't quite work.  The
-// class which is to be used as a base class for the Python
+// class which is to be used as the immediate base class for the Python
 // inheritance must be derived from PythonExportable and *also*
 // PythonNative.  PythonNative is a template, and must have the same
-// template parameter as PythonExportable. 
+// template parameter as PythonExportable.  The C++ constructor must
+// have a PyObject* argument and pass it to the PythonNative
+// constructor.
+//
+// If you use PythonNative, then PythonExportable must be a virtual
+// base class:
+//    class MyExportable : virtual public PythonExportable<MyExportable> {
+//        ...
+//    }
+// It is legal to use PythonExportable as a virtual base class even if
+// you don't use PythonNative, but there may be a small performance
+// penalty.
 
 // For example, if Cheese is swigged and extended in Python,
 // then it needs to have been defined like this in C++:
-//    class Cheese
-//       : public MyExportable, virtual public PythonNative<MyExportable>
-//    { ... }
+//    class MyExportable : virtual public PythonExportable<MyExportable>
+//    {
+//      ...
+//    }
+//    class Cheese : public MyExportable, public PythonNative<MyExportable> {
+//      ...
+//     }
 // with a constructor that passes the Python object pointer to PythonNative:
 //    Cheese::Cheese(PyObject *self) : PythonNative(self) { ... }
 // and a Python constructor for the derived class that also passes the pointer:
@@ -96,11 +122,6 @@
 // The second "self" in the line above is the "PyObject *self" in the C++
 // Cheese constructor.
 
-// If you use PythonNative, then PythonExportable must be a virtual base class:
-//    class MyExportable : virtual public PythonExportable<MyExportable> { ... }
-// It is legal to use PythonExportable as a virtual base class even if
-// you don't use PythonNative, but there may be a small performance
-// penalty.
 
 #include <iostream>
 

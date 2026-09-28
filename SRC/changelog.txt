@@ -1,3 +1,7 @@
+OOF2 2.4.1
+
+* Swigged Element::delData and Element::delDataByName.
+
 OOF2 2.4.0
 
 * Fixed a bug that prevented new Meshes from being created in the GUI
