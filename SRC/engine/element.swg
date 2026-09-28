@@ -95,13 +95,17 @@ public:
   int dshapefun_degree() const;
   int mapfun_degree() const;
 
-  // Data retrieval methods.
+  // Data retrieval methods.  TODO: If the ElementData subclass is a
+  // Python object, these functions need to adjust the reference
+  // counts.
   int appendData(ElementData *x);
   void setData(int i, ElementData *x);
   void setDataByName(ElementData *x);
   ElementData *getData(int i);
   int getIndexByName(char *name);
   ElementData *getDataByName(char *name);
+  void delData(int i);
+  void delDataByName(char *name);
 
   //Interface branch
   Node* getCornerNode(int i) const;
