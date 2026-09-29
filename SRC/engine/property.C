@@ -233,16 +233,7 @@ void FluxProperty::flux_value(const FEMesh *mesh, const Element *element,
   // localdofs doesn't include time derivative fields, then doing this
   // is a no-op. TODO: Skip the call if it's a no-op.
   
-  auto incr = localFluxData.cMatrix()*localdofs;
-  // std::cerr << "FluxProperty::flux_value: localdofs=" << localdofs.sparsePrint()
-  // 	    << std::endl;
-  // std::cerr << "FluxProperty::flux_value: kMatrix=" << localFluxData.kMatrix()
-  // 	    << std::endl;
-  // std::cerr << "FluxProperty::flux_value: cMatrix=" << localFluxData.cMatrix()
-  // 	    << std::endl;
-  // std::cerr << "FluxProperty::flux_value: incr=" << incr << std::endl;
   fluxdata->fluxVector() += localFluxData.cMatrix()*localdofs;
-  // std::cerr << "FluxProperty::flux_value: vector=" << fluxdata->fluxVector() << std::endl;
 } // FluxProperty::flux_value
 
 //=\\=//=\\=//=\\=//
