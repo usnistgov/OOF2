@@ -511,7 +511,7 @@ class RestrictedStringParameter(StringParameter):
             if not isinstance(value, StringType):
                 raise ParameterMismatch(
                     "Expected a character string for Parameter: " + self.name)
-            match = self.prog.match(value)
+            match = self.prog.fullmatch(value)
             if not match:
                 raise ParameterMismatch(
                     "Parameter '%s' must match the pattern '%s'"

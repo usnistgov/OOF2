@@ -192,8 +192,10 @@ def loadmodule(menuitem, module):
 _loadmenu.addItem(OOFMenuItem(
     'Module',
     callback=loadmodule,
-    params=[parameter.StringParameter("module",
-                                      tip="The name of a Python module")],
+    params=[
+        parameter.RestrictedStringParameter("module",
+                                            pattern=r"(\.?\w+)*",
+                                            tip="The name of a Python module")],
     ellipsis=True,
     help="Load a Python module.",
     discussion="""<para>

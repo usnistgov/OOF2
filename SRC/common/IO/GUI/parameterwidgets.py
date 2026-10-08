@@ -252,7 +252,7 @@ class RestrictedStringWidget(StringWidget):
         self.prog = param.prog  # compiled regular expression
         StringWidget.__init__(self, param, scope, name, **kwargs)
     def validValue(self, value):
-        if self.prog.match(value):
+        if value is not None and self.prog.fullmatch(value):
             return StringWidget.validValue(self, value)
         return False
 
