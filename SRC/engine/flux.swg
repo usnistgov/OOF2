@@ -55,6 +55,9 @@ ADD_REPR(Flux, repr);
   }
 };
 
+// finishConstruction should be called by the derived class
+// constructor, so it can't just be appended to the base class method.
+
 %pythonappend VectorFlux::VectorFlux %{
   finishConstruction(self)
 %}

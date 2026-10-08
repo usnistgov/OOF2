@@ -10,6 +10,7 @@
 
 from ooflib.common import debug
 from ooflib.common import utils
+from ooflib.SWIG.engine import ooferror
 from ooflib.SWIG.engine import planarity
 from ooflib.SWIG.common import switchboard
 
@@ -27,23 +28,39 @@ def _Flux___lt__(self, other):
     except:
         return NotImplemented
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# C++ keeps a list of base class Flux pointers, one for each defined
+# Flux.  Python keeps a dict of derived class objects in _AllFluxes,
+# keyed by name.  The main OOF2 python namespace also stores each Flux
+# by name in its dict.  That dict would be unnecessary if we were
+# willing to run OOFeval(fluxname) in getFlux().  OOFeval should be
+# only used where absolutely necessary.
+
 class _AllFluxes:
+    def __init__(self):
+        self.fluxDict = {} 
     def __getitem__(self, indx):
         if isinstance(indx, int):
-            if indx >= countFluxes():
-                raise IndexError("Bad flux index: " + str(indx))
+            if not 0 <= indx < len(self.fluxDict):
+                raise ooferror.PyErrPyProgrammingError(
+                    f"Bad flux index: {indx}")
             return getFluxByIndex(indx)
         elif isinstance(indx, (str, bytes)):
             try:
-                flx = utils.OOFeval(indx)
-            except NameError:
-                raise IndexError("Bad flux name: " + indx)
-            if not isinstance(flx, Flux):
-                raise IndexError("Bad flux name: " + indx)
-            return flx
+                return self.fluxDict[indx]
+            except KeyError as exc:
+                raise ooferror.PyErrPyProgrammingError(f"Bad flux name: {indx}")
     def __len__(self):
-        return countFluxes()
-
+        return len(self.fluxDict)
+    def addFlux(self, flux):
+        if flux.name() in self.fluxDict:
+            raise ooferror.PyErrPyProgrammingError(
+                f"Flux {flux.name()} is multiply defined")
+        self.fluxDict[flux.name()] = flux
+        utils.OOFdefine(flux.name(), flux)
+        switchboard.notify("new flux")
+    
 allFluxes = _AllFluxes()
 
 def getFlux(which):
@@ -52,11 +69,10 @@ def getFlux(which):
 utils.OOFdefine('getFlux', getFlux)
 
 # finishConstruction is called after the swigged constructors for all
-# of the Flux subclasses.  It's installed by %pythonappend lines in
-# flux.swg.
+# of the Flux subclasses.
+
 def finishConstruction(flx):
-    utils.OOFdefine(flx.name(), flx)
-    switchboard.notify("new flux")
+    allFluxes.addFlux(flx)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
