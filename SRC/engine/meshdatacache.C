@@ -341,12 +341,10 @@ std::vector<double>& DiskDataCache::fetchOne(double time) {
     throw ErrProgrammingError("Attempt to set wrong number of values",
 			       __FILE__, __LINE__);
     
-  localdata.clear();
   // If nfile < dofvalues->size(), then new fields have been defined since
   // this data was cached.  The new fields are at the end of the list,
   // so we just fill the list with zeros.
-  if(n > nfile)
-    localdata.resize(n, 0.0);
+  localdata.resize(n, 0.0);
   // Read data
   if(fread(&localdata[0], sizeof(double), nfile, file) != nfile) {
     if(feof(file))
