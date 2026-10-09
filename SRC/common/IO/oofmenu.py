@@ -1018,7 +1018,10 @@ debugcounter = 0
         
 class OOFRootMenu(OOFMenuItem):
     def __init__(self, *args, **kwargs):
-        OOFMenuItem.__init__(*((self,)+args), **kwargs)
+        OOFMenuItem.__init__(self, *args, **kwargs)
+        ## Why was the base class constructor called like this?  It
+        ## dates back to 2015 if not earlier.
+        ## OOFMenuItem.__init__(*((self,)+args), **kwargs)
         
         self.logbook = []
         self.loggers = []               # additional logging functions
