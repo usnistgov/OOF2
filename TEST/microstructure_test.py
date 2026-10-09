@@ -180,6 +180,7 @@ class OOF_Microstructure(unittest.TestCase):
     # Also test basic load and save.  This is currently only for the
     # MS itself -- as with "Copy", later versions should also test for
     # correct propagation of MS contents, like pixel groups.
+
     @memorycheck.check("save_test")
     def Save(self):
         import filecmp, os
@@ -190,7 +191,21 @@ class OOF_Microstructure(unittest.TestCase):
                                      format="ascii",
                                      microstructure="save_test")
         self.assertTrue(filecmp.cmp("ms_save_test",
-                                 reference_file("ms_data","saved_ms")))
+                                 reference_file("ms_data","saved_ms_ascii")))
+        os.remove("ms_save_test")
+        OOF.File.Save.Microstructure(filename="ms_save_test",
+                                     mode="w",
+                                     format="script",
+                                     microstructure="save_test")
+        self.assertTrue(filecmp.cmp("ms_save_test",
+                                 reference_file("ms_data","saved_ms_script")))
+        os.remove("ms_save_test")
+        OOF.File.Save.Microstructure(filename="ms_save_test",
+                                     mode="w",
+                                     format="binary",
+                                     microstructure="save_test")
+        self.assertTrue(filecmp.cmp("ms_save_test",
+                                 reference_file("ms_data","saved_ms_binary")))
         os.remove("ms_save_test")
 
     @memorycheck.check("save_test")
