@@ -150,13 +150,13 @@ class PrintableClass(type):
 
 mainmodule = sys.modules['__main__']
 
-def OOFglobals():
+def OOFglobals():               # not used?
     return mainmodule.__dict__
 
 def OOFexec(command):
     exec(command, mainmodule.__dict__)
 
-def OOFexeclines(commands):
+def OOFexeclines(commands):     # not used?
     for command in commands:
         debug.fmsg(command)
         exec(command, mainmodule.__dict__)
@@ -164,7 +164,7 @@ def OOFexeclines(commands):
 def OOFeval(expr):
     return eval(expr, mainmodule.__dict__)
 
-def OOFexecfile(file):
+def OOFexecfile(file):          # not used?
     exec(compile(open(file, "rb").read(), file, 'exec'), mainmodule.__dict__)
 
 # Run a function as if it were defined in the main namespace.

@@ -21,6 +21,10 @@
 #include "engine/smallsystem.h"
 %}
 
+// TODO: Use python @properties (not oof2 Properties) to avoid needing
+// "get" and "set" methods here.  But using += with a @property calls
+// both its getter and its setter.  Is that ok?
+
 class SmallSystem {
 public:
   SmallSystem(int, int);
