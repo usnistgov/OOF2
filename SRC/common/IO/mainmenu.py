@@ -213,14 +213,28 @@ _loadmenu.addItem(OOFMenuItem(
 # "Data" files are distinguished from scripts in that they're not read
 # by the Python interpreter directly, and therefore can't contain
 # arbitrary Python code.  They can only contain menu commands from the
-# OOF.LoadData menu.  The command arguments can be constants or
+# LoadData menu.  The command arguments can be constants or
 # variables and functions that are defined in the main OOF namespace,
 # or lists and tuples thereof.
+
+loadDataMenu = oofmenu.OOFRootMenu(
+    "LoadData",
+    no_bar=True,
+    help="Commands used in data files.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loaddata.xml'),
+    post_hook=None, # Don't include checkpoints in gui logs
+    xrefs=["MenuItem-OOF.File.Load.Data", "MenuItem-OOF.File.Save"]
+    )
+
+# Even though LoadData is not a submenu of OOF, it should be
+# accessible via OOF.LoadData in script data files.
+
+OOF.LoadData = loadDataMenu
 
 def loaddata(menuitem, filename):
     if filename is not None:
         from ooflib.common.IO import datafile
-        datafile.readDataFile(filename, OOF.LoadData)
+        datafile.readDataFile(filename, loadDataMenu)
 
 _loadmenu.addItem(OOFMenuItem(
     'Data',
@@ -244,16 +258,6 @@ _startupmenu.addItem(OOFMenuItem(
     help="Load a data file.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loaddatafile.xml'),
     ))
-
-OOF.addItem(oofmenu.OOFMenuItem(
-    "LoadData",
-    no_bar=True,
-    help="Commands used in data files.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/loaddata.xml'),
-    post_hook=None, # Don't include checkpoints in gui logs
-    xrefs=["MenuItem-OOF.File.Load.Data", "MenuItem-OOF.File.Save"]
-    ))
-
 
 def saveLog(menuitem, filename, mode):
     file = open(filename, mode.string())

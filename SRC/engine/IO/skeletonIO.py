@@ -30,9 +30,7 @@ import sys
 
 OOFMenuItem = oofmenu.OOFMenuItem
 
-OOF = mainmenu.OOF
-
-skelmenu = OOF.LoadData.addItem(
+skelmenu = mainmenu.loadDataMenu.addItem(
     OOFMenuItem(
         'Skeleton',
         help="Load a Skeleton from a data file.",
@@ -73,7 +71,7 @@ skelmenu.addItem(OOFMenuItem(
     &skels; are stored in data files as a series of commands.  This is
     the first one.  It's called <quote>NewPeriodic</quote> because its
     arguments set the &skel;'s periodicity.  The old <xref
-    linkend="MenuItem-OOF.LoadData.Skeleton.New"/> command, without
+    linkend="MenuItem-LoadData.Skeleton.New"/> command, without
     periodicity parameters, still exists for backwards compatibility,
     but should never be used in new data files.  </para><para> This
     command is used only in data files and is not directly accessible
@@ -98,7 +96,7 @@ skelmenu.addItem(OOFMenuItem(
     help="Old command for creating a Skeleton.",
     discussion="""<para>
     This is an old version of <xref
-    linkend="MenuItem-OOF.LoadData.Skeleton.NewPeriodic"/>.  It's
+    linkend="MenuItem-LoadData.Skeleton.NewPeriodic"/>.  It's
     just like that command, but doesn't specify the &skel;'s
     periodicity.  This command is kept for backwards compatibility but
     should not be used in new data files.
@@ -133,7 +131,7 @@ skelmenu.addItem(OOFMenuItem(
     discussion="""<para>
     Create &nodes; in a &skel; that is being loaded from a data file.
     This command must come after <xref
-    linkend="MenuItem-OOF.LoadData.Skeleton.NewPeriodic"/> in the data
+    linkend="MenuItem-LoadData.Skeleton.NewPeriodic"/> in the data
     file.  It is only used in data files and is not directly
     accessible from the &oof2; user interface.
     </para>"""
@@ -169,7 +167,7 @@ skelmenu.addItem(OOFMenuItem(
     If a &skel; stored in a data file is periodic, this command is
     used to establish the correspondence between nodes on the periodic
     boundaries. It must come after <xref
-    linkend="MenuItem-OOF.LoadData.Skeleton.Nodes"/> in the file.  It
+    linkend="MenuItem-LoadData.Skeleton.Nodes"/> in the file.  It
     is only used in data files and is not directly accessible from the
     &oof2; user interface.
     </para>"""))
@@ -202,7 +200,7 @@ skelmenu.addItem(OOFMenuItem(
     discussion="""<para>
     Create the &elems; in a &skel; that is being loaded from a data
     file.  It must come after <xref
-    linkend="MenuItem-OOF.LoadData.Skeleton.Nodes"/> in the file.
+    linkend="MenuItem-LoadData.Skeleton.Nodes"/> in the file.
     This command is only used in data files and is not directly
     accessible in the &oof2; user interface.
     </para>"""
@@ -229,7 +227,7 @@ skelmenu.addItem(OOFMenuItem(
     discussion="""<para>
     <link linkend="Section-Graphics-PinNodes">Pin Nodes</link> in a
     &skel; that is being loaded from a data file.  This command must
-    come after <xref linkend="MenuItem-OOF.LoadData.Skeleton.Nodes"/>
+    come after <xref linkend="MenuItem-LoadData.Skeleton.Nodes"/>
     in the file. It is only used in data files and is not directly
     accessible in the &oof2; user interface.
     </para>"""
@@ -265,7 +263,7 @@ skelmenu.addItem(OOFMenuItem(
     linkend='Section-Concepts-Skeleton-Boundary-Point'>point boundary</link>
     in a &skel; that is being loaded from a data file.  This command
     must come after <xref
-    linkend="MenuItem-OOF.LoadData.Skeleton.Nodes"/> in the file. It
+    linkend="MenuItem-LoadData.Skeleton.Nodes"/> in the file. It
     is only used in data files and is not directly accessible in the
     &oof2; user interface.
     </para>"""
@@ -322,7 +320,7 @@ skelmenu.addItem(OOFMenuItem(
     linkend='Section-Concepts-Skeleton-Boundary-Edge'>edge
     boundary</link> in a &skel; that is being loaded from a data file.
     This command must come after <xref
-    linkend="MenuItem-OOF.LoadData.Skeleton.Elements"/> in the
+    linkend="MenuItem-LoadData.Skeleton.Elements"/> in the
     file. It is only used in data files and is not directly accessible
     in the &oof2; user interface.
     </para>"""
@@ -352,7 +350,7 @@ skelmenu.addItem(OOFMenuItem(
     Create a <link linkend='Section-Concepts-Skeleton-Groups'>&node;
     group</link> in a &skel; that is being loaded from a data file.
     This command must come after <xref
-    linkend="MenuItem-OOF.LoadData.Skeleton.Nodes"/> in the file. It
+    linkend="MenuItem-LoadData.Skeleton.Nodes"/> in the file. It
     is only used in data files and is not directly accessible in the
     &oof2; user interface.
     </para>"""
@@ -380,7 +378,7 @@ skelmenu.addItem(OOFMenuItem(
     Create a <link linkend='Section-Concepts-Skeleton-Groups'>&elem;
     group</link> in a &skel; that is being loaded from a data file.
     This command must come after <xref
-    linkend="MenuItem-OOF.LoadData.Skeleton.Elements"/> in the file. It
+    linkend="MenuItem-LoadData.Skeleton.Elements"/> in the file. It
     is only used in data files and is not directly accessible in the
     &oof2; user interface.
     </para>"""
@@ -410,7 +408,7 @@ skelmenu.addItem(OOFMenuItem(
     Create a <link linkend='Section-Concepts-Skeleton-Groups'>&sgmt;
     group</link> in a &skel; that is being loaded from a data file.
     This command must come after <xref
-    linkend="MenuItem-OOF.LoadData.Skeleton.Elements"/> in the file. It
+    linkend="MenuItem-LoadData.Skeleton.Elements"/> in the file. It
     is only used in data files and is not directly accessible in the
     &oof2; user interface.
     </para>"""
@@ -433,8 +431,8 @@ skelmenu.addItem(OOFMenuItem(
     discussion="""<para>
     Add a &material; to an &elem; group in a &skel; that is being
     loaded from a data file.  The material and group definitions (via
-    <xref linkend="MenuItem-OOF.LoadData.Material"/> and <xref
-    linkend="MenuItem-OOF.LoadData.Skeleton.ElementGroup"/>) must
+    <xref linkend="MenuItem-LoadData.Material"/> and <xref
+    linkend="MenuItem-LoadData.Skeleton.ElementGroup"/>) must
     precede this command in the file.  This command is ony used in
     data files and is not directly accessible in the &oof2; user
     interface.
@@ -615,7 +613,8 @@ def writeSkeleton(datafile, skelcontext):
             #Interface branch
             interfacematname=skelcontext.getBoundary(ebname)._interfacematerial
             if interfacematname is not None:
-                datafile.startCmd(OOF.LoadData.Material.Interface.Assign)
+                datafile.startCmd(
+                    mainmenu.loadDataMenu.Material.Interface.Assign)
                 datafile.argument('microstructure',skeleton.MS.name())
                 datafile.argument('material',interfacematname)
                 datafile.argument('interfaces',[skelcontext.name()+":"+ebname])

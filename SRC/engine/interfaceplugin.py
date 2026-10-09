@@ -81,9 +81,6 @@ interface_mat_type = None
 if runtimeflags.surface_mode:
     interface_mat_type = material.MATERIALTYPE_INTERFACE
 
-
-OOF = mainmenu.OOF
-
 class InterfaceMSPlugIn(microstructure.MicrostructurePlugIn):
     def __init__(self, ms):
         microstructure.MicrostructurePlugIn.__init__(self, ms)
@@ -1045,8 +1042,8 @@ registeredclass.Registration(
 ## Define a Microstructure IO PlugIn so that Interfaces
 ## will be written to Microstructure data files.
 
-#OOF.LoadData.Microstructure.Interface.New is defined in interfacemenu.py
-#OOF.LoadData.Material.Interface.Assign is defined in materialmenu.py
+#loadDataMenu.Microstructure.Interface.New is defined in interfacemenu.py
+#loadDataMenu.Material.Interface.Assign is defined in materialmenu.py
 
 def writeInterface(datafile, mscontext):
     #Interface branch
@@ -1057,7 +1054,7 @@ def writeInterface(datafile, mscontext):
     msobj=mscontext.getObject()
     interfacemsplugin=msobj.getPlugIn("Interfaces")
     for interfacename, interfacedef in interfacemsplugin.namedinterfaces.items():
-        datafile.startCmd(OOF.LoadData.Microstructure.Interface.New)
+        datafile.startCmd(mainmenu.loadDataMenu.Microstructure.Interface.New)
         datafile.argument('microstructure',msobj.name())
         datafile.argument('name',interfacename)
         datafile.argument('interface_type',interfacedef)
@@ -1074,14 +1071,14 @@ def writeInterface(datafile, mscontext):
     for matname, interfacenames in interfacemsplugin._materialassignments.items():
         if len(interfacenames)==0:
             continue
-##        datafile.startCmd(OOF.LoadData.MaterialandType)
+##        datafile.startCmd(mainmenu.loadDataMenu.MaterialandType)
 ##        datafile.argument('name',matname)
 ##        matobj=materialmanager.getMaterial(matname)
 ##        datafile.argument('properties', [prop.reistration().name()
 ##                                         for prop in matobj.properties])
 ##        datafile.argument('materialtype',matobj.type())
 ##        datafile.endCmd()
-        datafile.startCmd(OOF.LoadData.Material.Interface.Assign)
+        datafile.startCmd(mainmenu.loadDataMenu.Material.Interface.Assign)
         datafile.argument('microstructure',msobj.name())
         datafile.argument('material',matname)
         datafile.argument('interfaces',interfacenames)

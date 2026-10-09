@@ -91,7 +91,7 @@ versionCmd = oofmenu.OOFMenuItem(
     linkend='Section-Concepts-FileFormats'/>.</para>
     """)
 
-mainmenu.OOF.LoadData.addItem(versionCmd)
+mainmenu.loadDataMenu.addItem(versionCmd)
 
 class AsciiDataFile:
     def __init__(self, file, format):
@@ -102,7 +102,12 @@ class AsciiDataFile:
     def startCmd(self, command):
         path = command.path()
         if self.format == ASCII:
-            path = '.'.join(path.split('.')[2:])
+            path = '.'.join(path.split('.')[1:]) # Strip "LoadData."
+        elif self.format == SCRIPT:
+            # This is sort of ugly.  The menu items that appear in a
+            # script data file should all begin with "OOF", even
+            # though the LoadData menu isn't really a submenu of OOF.
+            path = '.'.join(["OOF", path]) # Add "OOF."
         self.buffer = path + "("
         self.nargs = 0
     def endCmd(self):

@@ -33,7 +33,7 @@ import ooflib.common.microstructure
 _rank = mpitools.Rank()
 _size = mpitools.Size()
 
-## OOF.LoadData.IPC.Image
+## LoadData.IPC.Image
 imenu = parallelmainmenu.ipcmenu.addItem(
     oofmenu.OOFMenuItem('Image',
                         secret=1,

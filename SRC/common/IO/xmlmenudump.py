@@ -531,11 +531,13 @@ def mainMenuSection(phile):
     # The section containing the main menu is handled differently from
     # all the other menus.  Its id is MenuItem-OOF so that
     # automatically generated references to root menu go to it.
-    print("<section id='MenuItem-OOF' xreflabel='The Main OOF Menu'>", file=phile)
+    print("<section id='MenuItem-OOF' xreflabel='The Main OOF Menu'>",
+          file=phile)
     print("  <title>Menus</title>", file=phile)
 
     from ooflib.common.IO import mainmenu      # delayed, to avoid import loop
     dumpMenu(phile, mainmenu.OOF, toplevel=1)
+    dumpMenu(phile, mainmenu.loadDataMenu, toplevel=1)
     print("</section>", file=phile)         # end of menu item listing
 
 addSection(mainMenuSection, 0)

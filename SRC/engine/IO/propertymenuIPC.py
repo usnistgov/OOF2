@@ -16,7 +16,7 @@ from ooflib.engine import propertyregistration
 AllProperties = propertyregistration.AllProperties
 StringParameter = parameter.StringParameter
 
-## OOF.LoadData.IPC.Property
+## LoadData.IPC.Property
 ipcpropmenu = parallelmainmenu.ipcmenu.addItem(
     oofmenu.OOFMenuItem('Property', secret=1, no_log=1)
     )

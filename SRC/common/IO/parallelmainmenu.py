@@ -29,7 +29,7 @@ _size = mpitools.Size()
 ## any OOF.Windows.
 
 
-## --OOF.LoadData.IPC hosts all the Inter Processor Communication menu items
+## --loadDataMenu.IPC hosts all the Inter Processor Communication menu items
 ## which are used by the developer to coordinate interprocessor actions
 
 
@@ -37,15 +37,15 @@ _size = mpitools.Size()
 ## OOF.Windows.Parallel Menu
 menusystem = mainmenu.OOF.Windows.addItem(oofmenu.OOFMenuItem('Parallel', secret=0, no_log=0))
 
-## OOF.LoadData.IPC Menu
-ipcmenu = mainmenu.OOF.LoadData.addItem(oofmenu.OOFMenuItem('IPC', secret=1, no_log=1))
+## loadDataMenu.IPC Menu
+ipcmenu = mainmenu.loadDataMenu.addItem(oofmenu.OOFMenuItem('IPC', secret=1, no_log=1))
 
 ## Add the MenuKey and ObjKey menus to keep the parser happy
 ipcmenu.addItem(oofmenu.OOFMenuItem('MenuKey', callback = binarydata.menuKeyCB, secret=1, params=[parameter.StringParameter('path'), parameter.IntParameter('key')] ))
 ipcmenu.addItem(oofmenu.OOFMenuItem('ObjKey', callback = binarydata.objectKeyCB, secret=1, params=[parameter.StringParameter('obj'), parameter.IntParameter('key')] ))
 
 
-## OOF.LoadData.IPC.Quit
+## loadDataMenu.IPC.Quit
 ## Quit should never ever be run on a separate thread.
 def _quit(menuitem):
     global _rank
@@ -71,7 +71,7 @@ ipcmenu.addItem(oofmenu.OOFMenuItem('Quit', callback = _quit, secret=1, threadab
 ## The cost is saved inside virtualMachine object, which lives in the front
 ## end and knows the performance of each processor.
 
-## OOF.LoadData.IPC.SetComputationPerformance
+## loadDataMenu.IPC.SetComputationPerformance
 def _computation_cost(menuitem):
     debug.fmsg()
     parallel_performance.set_performance_cost()
@@ -79,19 +79,19 @@ def _computation_cost(menuitem):
     mpitools.mpi_barrier()
 ipcmenu.addItem(oofmenu.OOFMenuItem('SetComputationPerformance', callback = _computation_cost, secret=1, no_log=1, threadable = oofmenu.PARALLEL_THREADABLE ))
 
-## OOF.LoadData.IPC.SetCommunicationPerformance
+## loadDataMenu.IPC.SetCommunicationPerformance
 def _communication_cost(menuitem, processor_number):
     debug.fmsg()
     parallel_performance.set_communication_cost(processor_number)
     ## makes a crude estimate of the inherent communication latency
 ipcmenu.addItem(oofmenu.OOFMenuItem('SetCommunicationPerformance', callback = _communication_cost, secret=1, no_log=1, threadable = oofmenu.PARALLEL_THREADABLE, params=[parameter.IntParameter('processor_number')] ))
 
-## OOF.LoadData.IPC.GetComputationPerformance
+## loadDataMenu.IPC.GetComputationPerformance
 def _get_computation_cost(menuitem, processor_number): 
     return parallel_performance.virtualMachineParameters.get_computation_cost(processor_number)
 ipcmenu.addItem(oofmenu.OOFMenuItem('GetComputationPerformance', callback = _get_computation_cost, secret=1, no_log=1, threadable = oofmenu.PARALLEL_THREADABLE, params=[parameter.IntParameter('processor_number')] ))
 
-## OOF.LoadData.IPC.GetCommunicationPerformance
+## loadDataMenu.IPC.GetCommunicationPerformance
 def _get_communication_cost(menuitem, processor_number):
     parallel_performance.virtualMachineParameters.get_communication_cost(processor_number)
 ipcmenu.addItem(oofmenu.OOFMenuItem('GetCommunicationPerformance', callback = _get_communication_cost, secret=1, no_log=1, threadable = oofmenu.PARALLEL_THREADABLE, params=[parameter.IntParameter('processor_number')] ))

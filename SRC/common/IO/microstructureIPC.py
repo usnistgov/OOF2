@@ -23,7 +23,7 @@ import ooflib.common.microstructure
 _rank = mpitools.Rank()
 _size = mpitools.Size()
 
-# OOF.LoadData.IPC.Microstructure
+# loadDataMenu.IPC.Microstructure
 msmenu = parallelmainmenu.ipcmenu.addItem(
     oofmenu.OOFMenuItem('Microstructure',
                         secret=1,
@@ -61,7 +61,7 @@ msmenu.addItem(
     ))
 
 
-### OOF.LoadData.IPC.Microstructure.Initialize
+### loadDataMenu.IPC.Microstructure.Initialize
 ### Transfers the microstructure to the back-end
 
 ##def _parallel_init_mic(menuitem, microstructure, pixelsize, physicalsize):
@@ -109,7 +109,7 @@ msmenu.addItem(
 ##        # image.addMicrostructure will be set automatically once the name is resolved
 
 
-### OOF.LoadData.Microstructure.AddImageContext
+### loadDataMenu.Microstructure.AddImageContext
 ##msmenu.addItem(
 ##    oofmenu.OOFMenuItem('AddImageContext',
 ##                        callback = _add_img_context,

@@ -46,7 +46,7 @@ ops_menu = mainmenu.OOF.Mesh.addItem(oofmenu.OOFMenuItem(
     xrefs=["Section-Tasks-Analysis"]
 ))
 
-## OOF.LoadData.IPC.Analyze
+## LoadData.IPC.Analyze
 if parallel_enable.enabled():
     from ooflib.common.IO import parallelmainmenu
     ipcops_menu = parallelmainmenu.ipcmenu.addItem(
@@ -264,7 +264,7 @@ namedanalysismenu.addItem(oofmenu.OOFMenuItem(
 # The data file command for loading a named analysis uses the same
 # callback as the command for naming it.
 
-mainmenu.OOF.LoadData.addItem(oofmenu.OOFMenuItem(
+mainmenu.loadDataMenu.addItem(oofmenu.OOFMenuItem(
     'NamedAnalysis',
     callback=_nameAnalysis,
     params=[parameter.StringParameter('name',tip=parameter.emptyTipString),
@@ -297,7 +297,7 @@ namedanalysismenu.addItem(oofmenu.OOFMenuItem(
 
 def saveAnalysisDef(dfile, analysisname):
     analysis = namedanalysis.getNamedAnalysis(analysisname)
-    dfile.startCmd(mainmenu.OOF.LoadData.NamedAnalysis)
+    dfile.startCmd(mainmenu.loadDataMenu.NamedAnalysis)
     dfile.argument('name', analysisname)
     dfile.argument('operation', analysis.operation)
     dfile.argument('data', analysis.data)

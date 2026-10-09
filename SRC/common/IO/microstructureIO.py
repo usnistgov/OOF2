@@ -22,8 +22,9 @@ from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
 import ooflib.common.microstructure
 
-OOF = mainmenu.OOF
-micromenu = OOF.LoadData.addItem(oofmenu.OOFMenuItem(
+loadDataMenu = mainmenu.loadDataMenu
+
+micromenu = mainmenu.loadDataMenu.addItem(oofmenu.OOFMenuItem(
     'Microstructure',
     help='Commands describing Microstructures in data files.',
     discussion=xmlmenudump.loadFile(
@@ -53,7 +54,7 @@ micromenu.addItem(oofmenu.OOFMenuItem(
     
     discussion="""<para>Create a new <quote>empty</quote> &micro;,
     containing no data other than its size.  This command is used only
-    in <link linkend='MenuItem-OOF.LoadData.Microstructure'>data
+    in <link linkend='MenuItem-LoadData.Microstructure'>data
     files</link>.</para>"""
     ))
 
@@ -88,7 +89,7 @@ micromenu.addItem(oofmenu.OOFMenuItem(
     discussion="""<para>Create <link
     linkend='Section-Concepts-Microstructure-Pixel_Group'>pixel
     groups</link> in a &micro; <link
-    linkend='MenuItem-OOF.LoadData.Microstructure'>data
+    linkend='MenuItem-LoadData.Microstructure'>data
     file</link>.  This command is only used in data files.</para>"""
     ))
 
@@ -183,7 +184,7 @@ micromenu.addItem(oofmenu.OOFMenuItem(
 
     discussion="""<para>Clean up the data structures used to define
     <link linkend='Definition:Category'>pixel categories</link> in
-    <link linkend='MenuItem-OOF.LoadData.Microstructure'>data
+    <link linkend='MenuItem-LoadData.Microstructure'>data
     files</link> usage.  This command is not used outside of data
     files.</para>"""
 
@@ -216,7 +217,7 @@ def writeMicrostructure(datafile, mscontext):
     
     mscontext.begin_reading()
     try:
-        datafile.startCmd(OOF.LoadData.Microstructure.New)
+        datafile.startCmd(loadDataMenu.Microstructure.New)
         datafile.argument('name', ms.name())
         datafile.argument('size', ms.size())
         datafile.argument('isize', ms.sizeInPixels())
@@ -230,20 +231,20 @@ def writeMicrostructure(datafile, mscontext):
         # Store pixel attributes by storing category definitions.
         for grpname in ms.groupNames():
             grp = ms.findGroup(grpname)
-            datafile.startCmd(OOF.LoadData.Microstructure.PixelGroup)
+            datafile.startCmd(loadDataMenu.Microstructure.PixelGroup)
             datafile.argument('microstructure', ms.name())
             datafile.argument('group', grpname)
             datafile.argument('meshable', grp.is_meshable())
             datafile.endCmd()
         # Create the actual active areas themselves.
         for aaname in ms.activeAreaNames():
-            datafile.startCmd(OOF.LoadData.Microstructure.NewActiveArea)
+            datafile.startCmd(loadDataMenu.Microstructure.NewActiveArea)
             datafile.argument('microstructure', ms.name())
             datafile.argument('name', aaname)
             datafile.endCmd()
         categories = ms.getCategoryMapRO()
         # Save categories
-        datafile.startCmd(OOF.LoadData.Microstructure.Categories)
+        datafile.startCmd(loadDataMenu.Microstructure.Categories)
         datafile.argument('microstructure', ms.name())
         datafile.argument('categories', categories)
         datafile.endCmd()
@@ -274,14 +275,14 @@ def writeMicrostructure(datafile, mscontext):
             for category in range(len(reppxls)):
                 reppxl = reppxls[category]
                 datafile.startCmd(getattr(
-                    OOF.LoadData.Microstructure.DefineCategory, reg.name()))
+                    loadDataMenu.Microstructure.DefineCategory, reg.name()))
                 datafile.argument('microstructure', ms.name())
                 datafile.argument('category', category)
                 if reg.writeData(datafile, ms, reppxl):
                     datafile.endCmd()
                 else:
                     datafile.discardCmd()
-        datafile.startCmd(OOF.LoadData.Microstructure.EndCategories)
+        datafile.startCmd(loadDataMenu.Microstructure.EndCategories)
         datafile.argument('microstructure', ms.name())
         datafile.endCmd()
 

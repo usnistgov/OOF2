@@ -21,7 +21,7 @@ import ooflib.engine.mesh
 import ooflib.engine.profile
 from ooflib.common import debug
 
-## OOF.LoadData.IPC.Boundary_Conditions
+## LoadData.IPC.Boundary_Conditions
 ipcbcmenu = parallelmainmenu.ipcmenu.addItem(
     oofmenu.OOFMenuItem('Boundary_Conditions', secret=1, no_log=1)
     )
@@ -33,7 +33,7 @@ def parallel_buildbc(menuitem,name,mesh,condition):
     condition.add_to_mesh(name, mesh)
     switchboard.notify("mesh changed", ooflib.engine.mesh.meshes[mesh])
 
-## OOF.LoadData.IPC.Boundary_Conditions.buildbc
+## LoadData.IPC.Boundary_Conditions.buildbc
 ipcbcmenu.addItem(oofmenu.OOFMenuItem(
     'buildbc',
     callback=parallel_buildbc,
@@ -193,7 +193,7 @@ ipcbcmenu.addItem(oofmenu.OOFMenuItem(
 ### Similar for Profiles.
 ##############################
 
-## OOF.LoadData.IPC.Profiles
+## LoadData.IPC.Profiles
 ipcpfmenu = parallelmainmenu.ipcmenu.addItem(
     oofmenu.OOFMenuItem('Profiles', secret=1, no_log=1)
     )

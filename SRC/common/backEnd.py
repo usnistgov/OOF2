@@ -25,6 +25,6 @@ def back_end():
     ## debug.fmsg()
     ## listen to messages from front end
     message_source = socket2me.getSocketInput() ## assumes already initialized
-    parser = menuparser.MenuParser(message_source, mainmenu.OOF.LoadData, menuparser.MenuParser.mode_binary)
+    parser = menuparser.MenuParser(message_source, mainmenu.LoadData, menuparser.MenuParser.mode_binary)
     parser.run() ## executes messages passed from the front-end through an message_source object
     

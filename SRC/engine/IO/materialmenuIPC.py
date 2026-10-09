@@ -25,12 +25,12 @@ import ooflib.common.microstructure
 
 _rank = mpitools.Rank()
 _size = mpitools.Size()
-## OOF.LoadData.IPC.Microstructure
+## loadDataMenu.IPC.Microstructure
 ipcmaterialmenu = parallelmainmenu.ipcmenu.addItem(
     oofmenu.OOFMenuItem('Material', secret=1, no_log=1))
 
 
-## OOF.LoadData.IPC.Material.New
+## loadDataMenu.IPC.Material.New
 ## Mirrors a newly created material on the back-end
 
 def _parallel_newmaterial(menuitem, name):
@@ -54,7 +54,7 @@ ipcmaterialmenu.addItem(oofmenu.OOFMenuItem(
     ))
 
 
-## OOF.LoadData.IPC.Material.Delete
+## loadDataMenu.IPC.Material.Delete
 ## Applies a material destruction request on the back-end
 def _parallel_deletematerial(menuitem, name):
     ## microstructure is the name of the microstructure
@@ -76,7 +76,7 @@ ipcmaterialmenu.addItem(oofmenu.OOFMenuItem(
     ))
 
 
-## OOF.LoadData.IPC.Material.Copy
+## loadDataMenu.IPC.Material.Copy
 ## Applies a material Copy command on the back-end
 def _parallel_copymaterial(menuitem, name, new_name):
     ## microstructure is the name of the microstructure
@@ -99,7 +99,7 @@ ipcmaterialmenu.addItem(oofmenu.OOFMenuItem(
     ))
 
 
-## OOF.LoadData.IPC.Material.Add_property
+## loadDataMenu.IPC.Material.Add_property
 ## Adds a property to a material on the back-end
 def _parallel_addprop(menuitem, name, property):
     ## property is assumed to be a string
@@ -122,7 +122,7 @@ ipcmaterialmenu.addItem(oofmenu.OOFMenuItem(
     params=[parameter.StringParameter('name'), parameter.StringParameter('property')]
     ))
 
-## OOF.LoadData.IPC.Material.Remove_property
+## loadDataMenu.IPC.Material.Remove_property
 ## Adds a property to a material on the back-end
 def _parallel_removeprop(menuitem, name, property):
     ## property is assumed to be a string
@@ -146,7 +146,7 @@ ipcmaterialmenu.addItem(oofmenu.OOFMenuItem(
     ))
 
 
-## OOF.LoadData.IPC.Material.Assign
+## loadDataMenu.IPC.Material.Assign
 ## Assigns a material to the associated pixels on the back-end
 def _parallel_assign(menuitem, material, microstructure, pixels):
     ## property is assumed to be a string

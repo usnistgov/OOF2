@@ -114,7 +114,7 @@ bdyanalysismenu.addItem(oofmenu.OOFMenuItem(
             'DISCUSSIONS/engine/menu/newnamedbdyanal.xml')
     ))
 
-mainmenu.OOF.LoadData.addItem(oofmenu.OOFMenuItem(
+mainmenu.loadDataMenu.addItem(oofmenu.OOFMenuItem(
         'NamedBdyAnalysis',
         callback=_nameAnalysis,
         params=[
@@ -148,7 +148,7 @@ def _saveAnalysis(menuitem, filename, mode, format, names):
     dfile = datafile.writeDataFile(filename, mode.string(), format)
     for analysisname in names:
         analysis = namedanalysis.getNamedBdyAnalysis(analysisname)
-        dfile.startCmd(mainmenu.OOF.LoadData.NamedBdyAnalysis)
+        dfile.startCmd(mainmenu.loadDataMenu.NamedBdyAnalysis)
         dfile.argument('name', analysisname)
         dfile.argument('boundary', analysis.boundary)
         dfile.argument('analyzer', analysis.analyzer)

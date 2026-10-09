@@ -12,7 +12,7 @@
 
 # Binary data files, like the ascii data files, consist only of menu
 # commands and their arguments.  The menu commands must be in the
-# OOF.LoadData menu.  The arguments, like all OOFMenu arguments, are
+# LoadData menu.  The arguments, like all OOFMenu arguments, are
 # Parameter instances.  All Parameter classes have a binaryRepr
 # function which returns a 'string' containing the binary
 # representation of a parameter value (the string should be
@@ -24,14 +24,14 @@
 # time it's used.  The dictionary is built as the commands are issued
 # when writing the data file.  Before each command is used in the
 # file, the file must contain the command that associates the new
-# command with the integer key.  This command, OOF.LoadData.MenuKey,
-# is preloaded into the dictionary.
+# command with the integer key.  This command, LoadData.MenuKey, is
+# preloaded into the dictionary.
 
 # Other objects defined in the main oof namespace can be transmitted
 # as binary keys as well.  The binaryRepr of the associated parameter
 # must obtain the key from BinaryDataFile.oofObjID(), which returns a
 # key and inserts the command defining it into the data file.  This
-# command, OOF.LoadData.ObjKey, is also preloaded into the command
+# command, LoadData.ObjKey, is also preloaded into the command
 # dictionary.
 
 # For all this machinery to work, the data file must be written *only*
@@ -59,7 +59,7 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 import struct
 
-OOF = mainmenu.OOF
+loadData = mainmenu.loadDataMenu
 
 cmdformat = ">i"
 cmdsize = struct.calcsize(cmdformat)
@@ -69,7 +69,7 @@ cmdsize = struct.calcsize(cmdformat)
 def menuKeyCB(menuitem, path, key):
     menuitem.parser.mode.defineMenuKey(path, key)
 
-OOF.LoadData.addItem(oofmenu.OOFMenuItem(
+loadData.addItem(oofmenu.OOFMenuItem(
     'MenuKey',
     callback=menuKeyCB,
     params=[parameter.StringParameter('path'),
@@ -79,7 +79,7 @@ OOF.LoadData.addItem(oofmenu.OOFMenuItem(
 def objectKeyCB(menuitem, obj, key):
     menuitem.parser.mode.defineObjKey(utils.OOFeval_r(obj), key)
 
-OOF.LoadData.addItem(oofmenu.OOFMenuItem(
+loadData.addItem(oofmenu.OOFMenuItem(
     'ObjKey',
     callback=objectKeyCB,
     params=[parameter.StringParameter('obj'),
@@ -94,8 +94,8 @@ class BinaryDataFile:
         # cmdmap maps menuitems to integers.  It only contains items
         # actually used in the data file.
         self.cmdmap = {} 
-        self.cmdmap[OOF.LoadData.MenuKey] = 0
-        self.cmdmap[OOF.LoadData.ObjKey] = 1
+        self.cmdmap[loadData.MenuKey] = 0
+        self.cmdmap[loadData.ObjKey] = 1
         self.ncmds = len(self.cmdmap)
         self.curMenuItems = []
         # objmap maps objects in the OOF namespace to integers.  It
@@ -117,8 +117,8 @@ class BinaryDataFile:
         except KeyError:
             cmdid = self.cmdmap[menuitem] = self.ncmds
             self.ncmds += 1
-            self.startCmd(OOF.LoadData.MenuKey)
-            self.argument('path', menuitem.path()[len('OOF.LoadData.'):])
+            self.startCmd(loadData.MenuKey)
+            self.argument('path', menuitem.path()[len('loadData.'):])
             self.argument('key', cmdid)
             self.endCmd()
         return cmdid
@@ -131,7 +131,7 @@ class BinaryDataFile:
             self.nobjs += 1
             # obj hasn't been used in the datafile yet.  Insert the
             # command that defines it.
-            self.startCmd(OOF.LoadData.ObjKey)
+            self.startCmd(loadData.ObjKey)
             if obj is None:
                 self.argument('obj', 'None')
             elif isinstance(obj, type):

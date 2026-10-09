@@ -31,7 +31,7 @@ import ooflib.engine.subproblemcontext
 from ooflib.common.IO import parallelmainmenu
 from ooflib.SWIG.common import mpitools
 
-## OOF.LoadData.IPC.Subproblem
+## LoadData.IPC.Subproblem
 ipcsubproblemmenu = parallelmainmenu.ipcmenu.addItem(
     oofmenu.OOFMenuItem('Subproblem', secret=1, no_log=1)
     )

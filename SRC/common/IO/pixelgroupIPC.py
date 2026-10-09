@@ -33,7 +33,7 @@ import ooflib.common.microstructure      # a local variable is named 'microstruc
 BooleanParameter = parameter.BooleanParameter
 StringParameter = parameter.StringParameter
 
-#OOF.LoadData.IPC.PixelGroup
+#loadDataMenu.IPC.PixelGroup
 ipcpixgrpmenu = parallelmainmenu.ipcmenu.addItem(
     OOFMenuItem('PixelGroup', secret=1, no_log=1)
     )

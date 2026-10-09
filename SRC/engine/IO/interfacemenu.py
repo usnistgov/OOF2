@@ -118,7 +118,7 @@ _interfaceloaddatamenu = microstructureIO.micromenu.addItem(
     ))
 
 
-#OOF.LoadData.Microstructure.Interface.New
+#LoadData.Microstructure.Interface.New
 _interfaceloaddatamenu.addItem(oofmenu.OOFMenuItem(
     'New',
     callback=_newInterfaceCB, #Use the same callback as OOF.Microstructure.Interface.New

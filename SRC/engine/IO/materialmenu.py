@@ -487,7 +487,7 @@ def writeMaterials(dfile, materials, excludeProps={}):
             props[path].registration().writeData(dfile)
     # Write the materials.
     for material in materials:
-        dfile.startCmd(mainmenu.OOF.LoadData.MaterialandType)
+        dfile.startCmd(mainmenu.loadDataMenu.MaterialandType)
         dfile.argument('name', material.name())
         dfile.argument('properties', [prop.registration().name()
                                       for prop in material.properties])
@@ -541,7 +541,7 @@ def loadMaterial(menuitem, name, properties):
         name, MATERIALTYPE_BULK, *props)
 
 
-mainmenu.OOF.LoadData.addItem(oofmenu.OOFMenuItem(
+mainmenu.loadDataMenu.addItem(oofmenu.OOFMenuItem(
     'Material',
     callback = loadMaterial,
     params=[
@@ -564,7 +564,7 @@ def loadMaterialandType(menuitem, name, properties, materialtype):
                                                  *props)
 
 
-mainmenu.OOF.LoadData.addItem(oofmenu.OOFMenuItem(
+mainmenu.loadDataMenu.addItem(oofmenu.OOFMenuItem(
     'MaterialandType',
     callback = loadMaterialandType,
     params=[
@@ -640,14 +640,14 @@ _interfacemenu.addItem(OOFMenuItem(
     </para>"""
     ))
 
-#OOF.LoadData.Material.Interface
-#Note that OOF.LoadData.Material has a callback
-_loadmatinterfacemenu=mainmenu.OOF.LoadData.addItem(
+#loadDataMenu.Material.Interface
+#Note that loadDataMenu.Material has a callback
+_loadmatinterfacemenu=mainmenu.loadDataMenu.addItem(
     oofmenu.OOFMenuItem('Interface',
                         no_doc=True, # TODO: remove when Interfaces supported
                         ))
 
-#OOF.LoadData.Material.Interface.Assign
+#loadDataMenu.Material.Interface.Assign
 _loadmatinterfacemenu.addItem(oofmenu.OOFMenuItem(
     'Assign',
     callback=_assigninterfacemat,

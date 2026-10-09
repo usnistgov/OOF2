@@ -47,6 +47,7 @@ from ooflib.engine.IO import interfaceparameters
 # their parent.
 
 OOF = mainmenu.OOF
+loadDataMenu = mainmenu.loadDataMenu
 
 OOF.addItem(oofmenu.OOFMenuItem(
     'Property',
@@ -68,7 +69,7 @@ OOF.addItem(oofmenu.OOFMenuItem(
     xrefs=["Section-Tasks-Materials"]
     ))
 
-OOF.LoadData.addItem(oofmenu.OOFMenuItem(
+loadDataMenu.addItem(oofmenu.OOFMenuItem(
     'Property',
     discussion="""<para>
 
@@ -130,7 +131,7 @@ class PropertyManager:
             return {}
 
         # Menu items are put into OOF.Property for scripts and
-        # OOF.LoadData.Property for data files.  The menus are created
+        # loadDataMenu.Property for data files.  The menus are created
         # automatically by the LabelTree, which uses the given key to
         # distinguish them.
         OOF.Property.addItem(self.data.makeOOFMenu(
@@ -144,7 +145,7 @@ class PropertyManager:
             help=xmlmenudump.DiscussionFunc(_parametrizeHelp),
             discussion=xmlmenudump.DiscussionFunc(_parametrizeDiscussion)))
 
-        OOF.LoadData.addItem(self.data.makeOOFMenu(
+        loadDataMenu.addItem(self.data.makeOOFMenu(
             name='Property',
             key=self.loadkey,
             param_func = paramcopy,
@@ -227,7 +228,7 @@ class PropertyManager:
     # object is relevant, and run its new_params() method.
     def parametrizercallback(self, menuitem, **kwargs):
         if parallel_enable.enabled():
-            OOF.LoadData.IPC.Property.Parametrize(**kwargs)
+            loadDataMenu.IPC.Property.Parametrize(**kwargs)
         else:
             # Translate the menuitem's path to the tree's path.  The first
             # three words of the path are OOF.Property.Parametrize.
@@ -239,7 +240,7 @@ class PropertyManager:
 
     # This method is called by propertymenuIPC.py during
     # initialization.  It is not placed in PropertyManager.__init__
-    # because OOF.LoadData.IPC.Property has not been added yet.
+    # because loadDataMenu.IPC.Property has not been added yet.
     def set_parallel_parametrizercallback(self):
         def paramcopy(obj):
             if obj:
@@ -253,7 +254,7 @@ class PropertyManager:
 
         # Take the ipc menu already created in propertymenuIPC and
         # build a menu for parametrizing to all processes
-        ipcpropmenu=OOF.LoadData.IPC.Property
+        ipcpropmenu=loadDataMenu.IPC.Property
         ipcpropmenu.addItem(self.data.makeOOFMenu(
             name='Parametrize',
             key=self.parametrizekey,
@@ -264,21 +265,21 @@ class PropertyManager:
 
     def parallel_parametrizercallback(self, menuitem, **kwargs):
         # The first five words of menuitem.path() are
-        # OOF.LoadData.IPC.Property.Parametrize
+        # loadDataMenu.IPC.Property.Parametrize
         # We want the remainder.
         treepath = menuitem.path().split(".")[5:]
         reg = self.data[treepath].object
         reg.new_params(**kwargs)
         switchboard.notify("redraw")
 
-    # Menu callback for OOF.LoadData.Property.  "reg" is the
+    # Menu callback for loadDataMenu.Property.  "reg" is the
     # registration entry corresponding to the menu item that initiated
     # the callback, e.g.
-    # "OOF.LoadData.Property.Create.Elasticity.IsoElasticity".  The
+    # "loadDataMenu.Property.Create.Elasticity.IsoElasticity".  The
     # PropertyRegistration and NamedPropertyRegistration's writeData
     # methods ensure that "reg" is always a PropertyRegistration.
     def creatorcallback(self, menuitem, **kwargs):
-        treepath = menuitem.path().split(".")[3:]
+        treepath = menuitem.path().split(".")[2:]
         reg = self.data[treepath].object
         name = menuitem.params[0].value
 
@@ -646,7 +647,7 @@ class PropertyRegistration(PropertyRegistrationBase):
     # Collision looks for the name under this tree, and if it finds
     # it, checks if the parameter values are all equal.  Called by
     # PropertyManager.creatorcallback, which is the callback for
-    # OOF.LoadData.Property.
+    # loadDataMenu.Property.
 
     # Return value is (namecollision, parametercollision)
     def collision(self, name, params):
@@ -930,17 +931,17 @@ def _loadDiscussion(menuitem):
 
     # No discussion section for intermediate nodes in the Property
     # tree, except for the root.
-    if menuitem.path() == 'OOF.LoadData.Property':
+    if menuitem.path() == 'LoadData.Property':
         return """<para>
 
-        The <command>OOF.LoadData.Property</command> menu contains an
+        The <command>LoadData.Property</command> menu contains an
         entry for each <emphasis>unnamed</emphasis> &property;.  The
         menu hierarchy echoes the hierarchical arrangement of the
         &properties; themselves.  The commands are used only in data
         files, where each command sets the parameters of a &property;.
         Unlike the <xref linkend='MenuItem-OOF.Property.Parametrize'/>
         menu, which is also based on the &property; hierarchy, the
-        <command>OOF.LoadData.Property</command> menu does not include
+        <command>LoadData.Property</command> menu does not include
         named properties.  Instead, each command has a
         <varname>name</varname> argument, which is set to an empty
         string (<userinput>''</userinput>) when assigning parameters
@@ -959,7 +960,7 @@ def _loadHelp(menuitem):
             return "Define a%s %s Property." \
                    % ('n'*(name[0] in 'aeiouAEIOU'), name)
     splitpath = menuitem.path().split('.')
-    proppath = splitpath[3:]            # remove "OOF.LoadDataProperty"
+    proppath = splitpath[2:]            # remove "loadDataMenuProperty"
     return "Set parameters for %s Properties." % ",".join(proppath)
     
 

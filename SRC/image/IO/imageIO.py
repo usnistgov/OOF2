@@ -26,7 +26,7 @@ import sys
 import numpy
 import skimage
 
-imgmenu = mainmenu.OOF.LoadData.addItem(
+imgmenu = mainmenu.loadDataMenu.addItem(
     oofmenu.OOFMenuItem(
         'Image',
         help="Read Image data from a data file.",
@@ -49,7 +49,7 @@ class ImageData(registeredclass.RegisteredClass):
     discussion = """<para>
     <classname>ImageData</classname> objects are used to store &image;
     pixels in &oof2; data files, as the <varname>pixels</varname>
-    parameter in the <xref linkend='MenuItem-OOF.LoadData.Image.New'/>
+    parameter in the <xref linkend='MenuItem-LoadData.Image.New'/>
     command.
     </para>"""
 
@@ -216,7 +216,7 @@ imgmenu.addItem(oofmenu.OOFMenuItem(
     ))
 
 def writeImage(datafile, imagecontext):
-    datafile.startCmd(mainmenu.OOF.LoadData.Image.New)
+    datafile.startCmd(mainmenu.loadDataMenu.Image.New)
     datafile.argument('name', imagecontext.name())
     datafile.argument('microstructure', imagecontext.getMicrostructure().name())
     npimage = imagecontext.npImage()

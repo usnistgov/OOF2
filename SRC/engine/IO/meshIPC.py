@@ -36,13 +36,13 @@ StringParameter = parameter.StringParameter
 _rank = mpitools.Rank()
 _size = mpitools.Size()
 
-## OOF.LoadData.IPC.Mesh
+## LoadData.IPC.Mesh
 ipcmeshmenu = parallelmainmenu.ipcmenu.addItem(
     oofmenu.OOFMenuItem('Mesh', secret=1, no_log=1)
     )
 
 #
-# This is the callback for OOF.LoadData.IPC.Mesh.femesh
+# This is the callback for LoadData.IPC.Mesh.femesh
 # This is run in every processor.
 #
 def parallel_femesh(menuitem,name,skeleton,
@@ -72,7 +72,7 @@ def parallel_femesh(menuitem,name,skeleton,
 #
 # This menu command called by parallel_newMesh in this file
 #
-## OOF.LoadData.IPC.Mesh.femesh
+## LoadData.IPC.Mesh.femesh
 # secret and no_log inherited from ipcmeshmenu (above)?
 ipcmeshmenu.addItem(oofmenu.OOFMenuItem(
     'femesh',
@@ -325,7 +325,7 @@ ipcmeshmenu.addItem(oofmenu.OOFMenuItem(
 # Field (Define/Undefine, Activate/Deactivate, In_Plane/Out_of_Plane)
 ########################################################################
 
-## OOF.LoadData.IPC.Field
+## LoadData.IPC.Field
 ipcfieldmenu = parallelmainmenu.ipcmenu.addItem(
     oofmenu.OOFMenuItem('Field', secret=1, no_log=1)
     )
@@ -499,7 +499,7 @@ ipcfieldmenu.addItem(oofmenu.OOFMenuItem(
 # Equation (Activate/Deactivate)
 #####################################################################
 
-## OOF.LoadData.IPC.Equation
+## LoadData.IPC.Equation
 ipceqnmenu = parallelmainmenu.ipcmenu.addItem(
     oofmenu.OOFMenuItem('Equation', secret=1, no_log=1)
     )

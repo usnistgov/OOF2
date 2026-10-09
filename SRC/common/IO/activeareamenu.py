@@ -46,7 +46,7 @@ def _namedactivearea(menuitem, microstructure, category, active_areas):
 # The name of this menu item is set by the name passed in to the
 # singleton instance of the ActiveAreasAttributeRegistration object.
 
-# This item is a sub-item of OOF.LoadData.Microstructure.DefineCategory.
+# This item is a sub-item of LoadData.Microstructure.DefineCategory.
 microstructureIO.categorymenu.addItem(
     oofmenu.OOFMenuItem(
         'NamedActiveArea',
@@ -65,7 +65,7 @@ microstructureIO.categorymenu.addItem(
         a file.  This menu item is only used in data files.</para>""",
         xrefs=["Section-Concepts-FileFormats",
                "Section-Tasks-Active_Area",
-               "MenuItem-OOF.LoadData.Microstructure"]
+               "MenuItem-LoadData.Microstructure"]
     ))                    
 
 

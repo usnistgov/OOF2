@@ -47,7 +47,7 @@ def cleanup(shutdownfn, exitstatus):
             from ooflib.SWIG.common import mpitools
             if mpitools.Rank() == 0:
                 # tell back-end to start quit process
-                mainmenu.OOF.LoadData.IPC.Quit()
+                mainmenu.loadDataMenu.IPC.Quit()
         except ImportError:
             pass
     

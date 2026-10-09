@@ -50,15 +50,13 @@ microStructures = microstructure.microStructures
 SkeletonModifier = skeletonmodifier.SkeletonModifier
 
 ## General definitions
-#RCL: OOF does not seem to be referenced in this file
-OOF = mainmenu.OOF
 _rank = mpitools.Rank()
 _size = mpitools.Size()
 
-## OOF.LoadData.IPC.Skeleton
+## LoadData.IPC.Skeleton
 smenu = parallelmainmenu.ipcmenu.addItem(oofmenu.OOFMenuItem('Skeleton', secret=1, no_log=1))
 
-# OOF.LoadData.IPC.Skeleton.Initialize
+# LoadData.IPC.Skeleton.Initialize
 def _parallel_init(menuitem, name, microstructure, x_elements, y_elements,
                    skeleton_geometry):
     initializer = InitializeSkeletonParallel(name, microstructure,
