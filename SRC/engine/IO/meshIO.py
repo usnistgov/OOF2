@@ -477,6 +477,10 @@ def _loadFieldValues(menuitem, mesh, fields, field_values):
     fieldlist = [getFieldObj(fld) for fld in fields] # get objects from names
     for fv in field_values:
         index = fv[0]
+        # Node index is read from a file so it's worth checking that
+        # nothing sleazy is going on.
+        if index < 0 or index >= femesh.nnodes():
+            raise ooferror.PyErrBoundsError("Node index out of bounds.")
         node = femesh.getNode(index)
         pointer = 1
         for field in fieldlist:
