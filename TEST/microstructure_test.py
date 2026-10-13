@@ -211,12 +211,27 @@ class OOF_Microstructure(unittest.TestCase):
     @memorycheck.check("save_test")
     def Load(self):
         from ooflib.common import primitives
-        OOF.File.Load.Data(filename=reference_file("ms_data","saved_ms"))
+        OOF.File.Load.Data(filename=reference_file("ms_data","saved_ms_ascii"))
         ms_0 = getMicrostructure("save_test")
         self.assertEqual(ms_0.sizeInPixels(), primitives.iPoint(10, 10))
         self.assertEqual(ms_0.size(), primitives.Point(2.5, 3.5))
         self.assertEqual(ms_0.sizeOfPixels(), (2.5/10, 3.5/10 ))
+        OOF.Microstructure.Delete(microstructure="save_test")
 
+        OOF.File.Load.Data(filename=reference_file("ms_data","saved_ms_binary"))
+        ms_0 = getMicrostructure("save_test")
+        self.assertEqual(ms_0.sizeInPixels(), primitives.iPoint(10, 10))
+        self.assertEqual(ms_0.size(), primitives.Point(2.5, 3.5))
+        self.assertEqual(ms_0.sizeOfPixels(), (2.5/10, 3.5/10 ))
+        OOF.Microstructure.Delete(microstructure="save_test")
+
+        OOF.File.Load.Script(filename=reference_file(
+            "ms_data","saved_ms_script"))
+        ms_0 = getMicrostructure("save_test")
+        self.assertEqual(ms_0.sizeInPixels(), primitives.iPoint(10, 10))
+        self.assertEqual(ms_0.size(), primitives.Point(2.5, 3.5))
+        self.assertEqual(ms_0.sizeOfPixels(), (2.5/10, 3.5/10 ))
+        
     def tearDown(self):
         pass
 
