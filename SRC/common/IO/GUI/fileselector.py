@@ -472,7 +472,7 @@ class WriteFileSelectorWidget(FileSelectorWidget):
             self.fileEntry.set_position(-1) # cursor at end
         finally:
             self.fileEntrySignal.unblock()
-        
+
     
 # Utility functions used by FileSelectorWidget
 
@@ -485,17 +485,23 @@ def _escape(s):
     s = s.replace(">", "&gt;")
     return s;
 
+# _addMarkup makes directory names bold.
 def _addMarkup(directory, filename):
     if filename and os.path.isdir(os.path.join(directory, filename)):
         return "<b>" + _escape(filename) + "</b>"
     return _escape(filename)
 
-def _filename_cmp(model, column, key, iter, data):
-    # Comparisons made while searching in the file list use the raw
-    # file name, in column 1 of the model, instead of the marked-up
-    # file name in column 0.
-    name = model[iter][1]
-    return not name.startswith(key)
+def _filename_cmp(model, column, key, itr, data):
+    name = model[itr][0]
+    # The user is typing the bare name, without escapes or markup.
+    # But the ChooserListWidget contains just the escaped name,
+    # with markup for the bolded directory names.  Remove markup
+    # from name, if it has any, and add escapes to key before
+    # comparing them.
+    if name.startswith("<b>") and name.endswith("</b>"):
+        name = name[3:-3]
+    esckey = _escape(key)
+    return not name.startswith(esckey)
 
 def endSlash(dirname):
     # Make sure all directory names end consistently with "/" so that
