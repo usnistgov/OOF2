@@ -11,6 +11,7 @@
 
 #include <oofconfig.h>
 #include "common/ccolor.h"
+#include "common/ooferror.h"
 #include "engine/angle2color.h"
 #include "orientationmap/orientmapdata.h"
 #include <iostream>
@@ -20,6 +21,8 @@
 void COrientMapReader::set_angle(OrientMap &data, const ICoord *where,
 				 const COrientation *angle) const 
 {
+  if(!data.angles.contains(*where))
+    throw ErrBoundsError("Coordinate out of bounds in COrientMapReader.");
   data.angles[*where] = angle->abg();
 }
 

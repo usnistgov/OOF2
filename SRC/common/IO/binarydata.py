@@ -201,6 +201,9 @@ class BinaryMenuParser(menuparser.MenuParserMode):
         self.cmdmap[key] = self.menu.descendPath(path)
 
     def defineObjKey(self, obj, key):
+        if key in self.objmap:
+            raise ooferror.PyErrPyProgrammingError(
+                "Binary menu key multiply defined!")
         self.objmap[key] = obj
 
     def getObject(self, key):
