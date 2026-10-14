@@ -2,6 +2,16 @@ OOF2 2.4.1
 
 * Swigged Element::delData and Element::delDataByName.
 
+* Fixed a bug in DiskDataCache which could have retrieved data
+  incorrectly.
+
+* Separated the LoadData menu, used in data files, from the OOF menu,
+  used interactively.  This is a security measure to prevent commands
+  in ascii format data files from calling arbitrary menu items.
+
+* Fixed the file selector widget which was generating errors if the
+  user tried to select a name from the list with the keyboard.
+
 OOF2 2.4.0
 
 * Fixed a bug that prevented new Meshes from being created in the GUI
