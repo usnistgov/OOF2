@@ -48,10 +48,23 @@ import os.path
 # row number will change, breaking the test script.  So when recording
 # or replaying, we replace the fancy FileSelectorWidget machinery with
 # a simple StringWidget, which doesn't have this problem.  However, if
-# useFakeFileSelector is False, the fake selector won't be used even
-# in gui test mode.
+# useFakeFileSelector is 'never', the fake selector won't be used even
+# in gui test mode.  If useFakeFileSelector is 'always', the fake
+# selector will be used even when not in test mode.  The default value
+# is 'sometimes', meaning that it will be used only when testing.
+#
 from ooflib.common import runtimeflags
 useFakeFileSelector = runtimeflags.useFakeFileSelector
+#
+# TODO: The FileSelector widgets should be included in the GUI tests,
+# though.  This could be done by making a directory tree inside
+# GUI/TEST_DATA, containing a subdirectory or two and some files to be
+# loaded.  The test should have an args file that includes
+# --no-fake-fileselector. The test script can begin by cd'ing to the
+# test directory with os.chdir(). (TEST_DATA is symlinked in the temp
+# directory where the tests are run.)  At the moment, however, I don't
+# know how to catch and replay keystrokes in a ChooserListWidget,
+# which will be necessary in any test.
 
 # Globals _last_file and _last_dir are dictionaries used to initialize
 # FileSelectorWidgets to the final state of the previous widget with
