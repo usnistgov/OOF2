@@ -642,6 +642,12 @@ def _readPixelGroups(menuitem, microstructure, category, groups):
     all_group_dict = {}
     try:
         pixels = microstructureIO.getCategoryPixels(microstructure, category)
+        # Check that pixels are actually in the microstructure.  A
+        # corrupt data file could cause them to be outside.
+        for pixel in pixels:
+            if not ms.containsPixel(pixel):
+                raise ooferror.PyErrBoundsError(
+                    f"Pixel {pixel} is out of bounds.")
         for groupname in groups:
             (grp, newness) = ms.getGroup(groupname)
             grp.add(pixels)
