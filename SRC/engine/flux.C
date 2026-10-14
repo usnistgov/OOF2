@@ -125,11 +125,25 @@ const Components* VectorFlux::outOfPlaneComponents() const {
 }
 
 FieldIndex *VectorFlux::getIndex(const std::string &str) const {
-  return new VectorFieldIndex(str[0] - 'x');
+  // If FieldIndexParameter were a RestrictedStringParameter, this
+  // could be safely written as
+  //    return new VectorFieldIndex(str[0]-'x');
+  // See TODO in FieldIndexParameter.
+  if(str[0] == 'x')
+    return new VectorFieldIndex(0);
+  if(str[0] == 'y')
+    return new VectorFieldIndex(1);
+  throw ErrBoundsError("Illegal flux component '" + str + "'");
 }
 
 FieldIndex *VectorFlux::getOutOfPlaneIndex(const std::string &str) const {
-  return new OutOfPlaneVectorFieldIndex(str[0] - 'x');
+  // If FieldIndexParameter were a RestrictedStringParameter, this
+  // could be safely written as
+  //    return new OutOfPlaneVectorFieldIndex(str[0]-'x');
+  // See TODO in FieldIndexParameter.
+  if(str[0] >= 'x' && str[0] <= 'z')
+    return new OutOfPlaneVectorFieldIndex(str[0] - 'x');
+  throw ErrBoundsError("Illegal field component '" + str + "'");
 }
 
 FieldIndex *VectorFlux::divergence_getIndex(const std::string&) const {
@@ -176,7 +190,13 @@ FieldIndex *SymmetricTensorFlux::getOutOfPlaneIndex(const std::string &str)
 FieldIndex *SymmetricTensorFlux::divergence_getIndex(const std::string &str)
   const
 {
-  return new VectorFieldIndex(str[0] - 'x');
+  // If FieldIndexParameter were a RestrictedStringParameter, this
+  // could be safely written as
+  //    return new VectorFieldIndex(str[0]-'x');
+  // See TODO in FieldIndexParameter.
+  if(str[0] >= 'x' && str[0] <= 'z')
+    return new VectorFieldIndex(str[0] - 'x');
+  throw ErrBoundsError("Divergence index out of range: " + str);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

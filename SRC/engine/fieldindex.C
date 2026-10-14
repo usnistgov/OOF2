@@ -10,9 +10,10 @@
  */
 
 #include <oofconfig.h>
-#include "fieldindex.h"
-#include "outputval.h"
 #include "common/tostring.h"
+#include "engine/fieldindex.h"
+#include "engine/ooferror.h"
+#include "engine/outputval.h"
 
 bool operator==(const FieldIndex &a, const FieldIndex &b) {
   return a.integer() == b.integer();
@@ -125,6 +126,21 @@ const std::string &SymTensorIndex::classname() const {
 const std::string &OutOfPlaneSymTensorIndex::classname() const {
   static const std::string nm("OutOfPlaneSymTensorIndex");
   return nm;
+}
+
+int SymTensorIndex::ij2voigt(int i, int j) { // static
+  if(i >= 0 && i <= 5 && j >= 0 && j <= 5) {
+    return i == j ? i : 6 - i - j;
+  }
+  throw ErrBoundsError("Illegal indices in ij2voigt: " + tostring(i)
+		       + " " + tostring(j));
+}
+
+int SymTensorIndex::str2voigt(const std::string &str) { // static
+  // str must be 'pq' where p and q are in ('x', 'y', 'z')
+  if(str[0] >= 'x' and str[0] <= 'z' and str[1] >= 'x' and str[1] <= 'z')
+    return ij2voigt(str[0]-'x', str[1]-'x');
+  throw ErrBoundsError("Illegal indices in str2voigt: " + str);
 }
 
 int SymTensorIndex::row() const {

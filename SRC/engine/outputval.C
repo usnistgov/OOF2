@@ -297,13 +297,17 @@ double &VectorOutputVal::operator[](const FieldIndex &fi) {
 
 FieldIndex *VectorOutputVal::getIndex(const std::string &str) const {
   // TODO: Specify the names of the components in the constructor?
-  // Not all 2D or 3D vectors are space vectors.
-  if(size_ <= 3) {
+  // Give different subclasses of VectorOutputVal different kinds of
+  // index strings?  Not all 2D or 3D vectors are space vectors.
+  if(size_ <= 3 && str[0] >= 'x' && str[0] <= 'z') {
     // str must be "x", "y", or "z"
     return new VectorFieldIndex(str[0] - 'x');
   }
   // str must be "0", "1", "2", etc.
-  return new VectorFieldIndex(str[0] - '0');
+  int i = std::stoi(str);
+  if(0 <= i && i < size_)
+    return new VectorFieldIndex(i);
+  throw ErrBoundsError("Vector output index out of range: " + str);
 }
 
 double VectorOutputVal::magnitude() const {

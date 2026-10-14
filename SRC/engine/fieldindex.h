@@ -244,12 +244,10 @@ public:
   bool diagonal() const { return v < 3; }
   virtual bool in_plane() const { return v < 2 || v == 5; }
   virtual void print(std::ostream&) const;
-  static int ij2voigt(int i, int j) { return ( i==j ? i : 6-i-j ); }
+  static int ij2voigt(int i, int j);
   // The argument str in str2voigt must be "pq" where p and q are in
   // ('x', 'y', 'z')
-  static int str2voigt(const std::string &str) {
-    return ij2voigt(str[0]-'x', str[1]-'x');
-  }
+  static int str2voigt(const std::string &str);
   virtual const std::string &shortrepr() const;
 };
 

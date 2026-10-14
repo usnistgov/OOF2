@@ -92,6 +92,15 @@ class EquationBCParameter(parameter.ObjParameter, parameter.Parameter):
 class SubProblemEquationBCParameter(EquationBCParameter):
     pass
 
+## TODO: Make FieldIndexParameter a RestrictedStringParameter.  Use
+## ParameterGroups to find which indices are legal.  In
+## bdycondition.py, FieldIndexParameter is already grouped with
+## another param named 'field' or 'equation'.  However, in
+## ComponentOutput in outputClones, there's no group, and it's
+## probably hard to create one.  If this were done, then spots where a
+## string is converted to Field, Flux, or Output index wouldn't have
+## to check that the string is a legal value.
+
 class FieldIndexParameter(parameter.StringParameter):
     def valueDesc(self):
         return "A character string representing a field or flux index (eg, <userinput>'x'</userinput>)."

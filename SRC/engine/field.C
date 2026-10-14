@@ -545,7 +545,15 @@ const Components* TwoVectorFieldBase::outOfPlaneComponents() const {
 }
 
 FieldIndex *TwoVectorFieldBase::getIndex(const std::string &str) const {
-  return new VectorFieldIndex(str[0] - 'x');
+  // If FieldIndexParameter were a RestrictedStringParameter, this
+  // could be safely written as
+  //    return new VectorFieldIndex(str[0]-'x');
+  // See TODO in FieldIndexParameter.
+  if(str[0] == 'x')
+    return new VectorFieldIndex(0);
+  if(str[0] == 'y')
+    return new VectorFieldIndex(1);
+  throw ErrBoundsError("Illegal field component '" + str + "'");
 }
 
 const std::string TwoVectorFieldBase::classname_("TwoVectorFieldBase");
@@ -655,7 +663,13 @@ const Components* VectorFieldBase::outOfPlaneComponents() const {
 }
 
 FieldIndex *VectorFieldBase::getIndex(const std::string &str) const {
-  return new VectorFieldIndex(str[0] - 'x');
+  // If FieldIndexParameter were a RestrictedStringParameter, this
+  // could be safely written as
+  //    return new VectorFieldIndex(str[0]-'x');
+  // See TODO in FieldIndexParameter.
+  if(str[0] >= 'x' && str[0] <= 'z')
+    return new VectorFieldIndex(str[0] - 'x');
+  throw ErrBoundsError("Illegal field component '" + str + "'");
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
