@@ -15,6 +15,7 @@
 #include <assert.h>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <math.h>		// for sqrt()
 #include <stdlib.h>		// for abs()
@@ -52,17 +53,21 @@ CMicrostructure::CMicrostructure(const std::string &name,
     ncategories(0),
     name_(name)
 {
+  // Check for integer overflow in the number of pixels.  It could
+  // cause problems later in various indexing operations. Smaller
+  // large pixel numbers could still cause other issues, though.
+  if(pxlsize_[0] > (std::numeric_limits<int>::max()/pxlsize_[1]))
+    throw ErrSetupError("Too many pixels!  Ensure that nx*ny <=" +
+			tostring(std::numeric_limits<int>::max()));
+  
   globalMicrostructureCountLock.acquire();
   ++globalMicrostructureCount;
   globalMicrostructureCountLock.release();
   
   delta_ = Coord((*sz)[0]/(*isz)[0], (*sz)[1]/(*isz)[1]);
   categorymap = Array<int>((*isz)[0], (*isz)[1]);
-  // Initialize pixel attribute maps.  Lock probably not actually
-  // required -- who would contend for data during construction? --
-  // but certainly harmless, and maybe safe.
-  // std::cerr << "Acquire." << std::endl;
-  // category_lock.acquire();
+
+  // Initialize pixel attribute maps. 
   for(std::vector<Array<PixelAttribute*> >::size_type i=0;
       i<attributeMap.size(); i++)
     {
