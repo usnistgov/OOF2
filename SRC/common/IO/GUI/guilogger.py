@@ -29,6 +29,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 import os
+import shutil
 import sys
 import traceback
 
@@ -210,7 +211,7 @@ def rerecordLog(menuitem, filename, checkpoints, use_gui):
             if not os.path.exists(trialname):
                 backupname = trialname
             count += 1
-    os.system('cp '+filename+' '+backupname)
+    shutil.copy2(filename, backupname)
     debug.fmsg("Loading gui script", backupname)
 
     gtklogger.replay(
