@@ -362,7 +362,14 @@
 
 # To get help, simply type an item's name, without the trailing parentheses.
 
-# """
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+## TODO: Allow multiple Parameter types for a single argument, perhaps
+## by passing tuple of Parameters.  In interactive operation the first
+## Parameter in the tuple will be used.  In scripts and data files,
+## however, any Parameter type in the tuple will be accepted.  This
+## will make it possible to change Parameter types while maintaining
+## backwards compatibility with old scripts and data files.
 
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import lock

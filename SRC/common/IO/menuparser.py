@@ -101,7 +101,7 @@ class FileInput(InputSource):
         self.filename = filename
         self.file = open(filename, 'rb')
         self.bytecount = 0
-        self.totalbytes = os.stat(filename).st_size
+        self.totalbytes = os.path.getsize(filename)
     def getLine(self):
         line = self.file.readline()
         self.bytecount += len(line)

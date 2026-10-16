@@ -807,6 +807,17 @@ class ListOfTuplesOfIntsParameter(Parameter):
     def binaryRead(self, parser):
         b = parser.getBytes(structIntSize)
         (length,) = struct.unpack(structIntFmt, b)
+        # TOOO: It would be nice to have a sanity check here before
+        # allocating val, which could be a large array.  We could
+        # check that the data file is big enough to contain the entire
+        # list.  The trouble is that we don't know how big the list
+        # is, because we don't know the sizes of the tuples in it.
+        # The tuples do not have to all be the same size.  Storing the
+        # sum of the tuple lengths at the start of the data would
+        # break data files.  Maybe define a new version of this
+        # Parameter that would include the total length, and modify
+        # the menu commands that use it so that they can use either
+        # this Parameter or the new one.
         val = [None]*length
         for i in range(length):
             b = parser.getBytes(structIntSize)
