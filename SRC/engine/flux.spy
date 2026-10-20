@@ -39,18 +39,14 @@ def _Flux___lt__(self, other):
 
 class _AllFluxes:
     def __init__(self):
-        self.fluxDict = {} 
-    def __getitem__(self, indx):
-        if isinstance(indx, int):
-            if not 0 <= indx < len(self.fluxDict):
-                raise ooferror.PyErrPyProgrammingError(
-                    f"Bad flux index: {indx}")
-            return getFluxByIndex(indx)
-        elif isinstance(indx, (str, bytes)):
-            try:
-                return self.fluxDict[indx]
-            except KeyError as exc:
-                raise ooferror.PyErrPyProgrammingError(f"Bad flux name: {indx}")
+        self.fluxDict = {}
+    def __iter__(self):
+        return iter(self.fluxDict.values())
+    def __getitem__(self, name):
+        try:
+            return self.fluxDict[name]
+        except KeyError as exc:
+            raise ooferror.PyErrPyProgrammingError(f"Bad flux name: {name}")
     def __len__(self):
         return len(self.fluxDict)
     def addFlux(self, flux):
