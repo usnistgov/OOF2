@@ -56,7 +56,7 @@ if parallel_enable.enabled():
 
 FloatRangeParameter = parameter.FloatRangeParameter
 IntRangeParameter = parameter.IntRangeParameter
-AutoNumericParameter = parameter.AutoNumericParameter
+AutoFloatParameter = parameter.AutoFloatParameter
 
 ##################
 
@@ -832,10 +832,10 @@ registeredclass.Registration(
             parameter.RegisteredParameter('colormap', colormap.ColorMap,
                                           colormap.ThermalMap(),
                                           tip="color scheme"),
-            AutoNumericParameter('min', automatic.automatic,
+            AutoFloatParameter('min', automatic.automatic,
                                tip="lowest energy to display, or 'automatic'"),
-            AutoNumericParameter('max', automatic.automatic,
-                              tip="highest energy to display, or 'automatic'")
+            AutoFloatParameter('max', automatic.automatic,
+                               tip="highest energy to display, or 'automatic'")
             ],
     tip="Color each element according to its effective energy.",
     discussion=xmlmenudump.loadFile(

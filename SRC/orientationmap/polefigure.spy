@@ -130,10 +130,10 @@ orientmapmenu.orientmapmenu.addItem(
                 tip="The number of bins to use in the x and y directions"
                 " in the projected plot."
                 ),
-            parameter.AutoNumericParameter(
+            parameter.AutoFloatParameter(
                 "min", 0,
                 tip="Minimum value to plot (MRD), or 'automatic'"),
-            parameter.AutoNumericParameter(
+            parameter.AutoFloatParameter(
                 "max", automatic.automatic,
                 tip="Maximum value to plot (MRD), or 'automatic'"),
             parameter.RegisteredParameter(

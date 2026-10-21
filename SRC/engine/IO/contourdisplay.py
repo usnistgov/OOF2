@@ -37,7 +37,7 @@ RegisteredParameter = parameter.RegisteredParameter
 IntParameter = parameter.IntParameter
 IntRangeParameter = parameter.IntRangeParameter
 FloatParameter = parameter.FloatParameter
-AutoNumericParameter = parameter.AutoNumericParameter
+AutoFloatParameter = parameter.AutoFloatParameter
 ValueSetParameter = parameter.ValueSetParameter
 
 # ZDisplayParams does not include the "level" one, because it needs to
@@ -54,10 +54,10 @@ zdisplayparams = [
     output.ScalarOutputParameter('what', tip='Quantity to be plotted'),
     output.PositionOutputParameter('where', outputDefs.originalPosition,
                             tip="Plot at displaced or original position?"),
-    AutoNumericParameter('min', automatic.automatic, 
-                         tip="level of lowest contour, or 'automatic'"),
-    AutoNumericParameter('max', automatic.automatic,
-                         tip="level of highest contour, or 'automatic'")
+    AutoFloatParameter('min', automatic.automatic, 
+                       tip="level of lowest contour, or 'automatic'"),
+    AutoFloatParameter('max', automatic.automatic,
+                       tip="level of highest contour, or 'automatic'")
     ]
 
 

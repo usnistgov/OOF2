@@ -89,14 +89,14 @@ buildImageModMenu()
 
 # Size params are reused several times
 sizeparams = parameter.ParameterGroup(
-    parameter.AutoNumericParameter('height',
-                                   automatic.automatic,
-                                   tip= \
-                                   "Physical height of image, or 'automatic'."),
-    parameter.AutoNumericParameter('width',
-                                   automatic.automatic,
-                                   tip= \
-                                   "Physical width of image, or 'automatic'."))
+    parameter.AutoFloatParameter(
+        'height',
+        automatic.automatic,
+        tip="Physical height of image, or 'automatic'."),
+    parameter.AutoFloatParameter(
+        'width',
+        automatic.automatic,
+        tip="Physical width of image, or 'automatic'."))
 
 ###################################
 
@@ -510,10 +510,10 @@ microstructuremenu.micromenu.addItem(
         'name', msImageNameResolver,
         automatic.automatic,
         tip="Name of the new Microstructure."),
-        parameter.AutoNumericParameter(
+        parameter.AutoFloatParameter(
             'width', automatic.automatic,
             tip="Width in physical units, or automatic to use the image width."),
-        parameter.AutoNumericParameter(
+        parameter.AutoFloatParameter(
             'height', automatic.automatic,
             tip="Height in physical units. or automatic to use the image height."),
         whoville.WhoParameter(

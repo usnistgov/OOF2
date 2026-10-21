@@ -467,7 +467,8 @@ parameter.RestrictedAutomaticNameParameter.makeWidget = \
                                          _RestrictedAutoNameParam_makeWidget
 #########################
 
-# Allows a value of "automatic", or an integer.
+# Allows a value of "automatic", or a number.
+
 class AutoNumberWidget(AutoWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
         self.param = param      # TODO: Put this in the baseclass __init__?
@@ -506,11 +507,8 @@ class AutoNumberWidget(AutoWidget):
 def _AutoNumberWidget_makeWidget(self, scope, **kwargs):
     return AutoNumberWidget(self, scope=scope, name=self.name, **kwargs)
 
-parameter.AutoIntParameter.makeWidget = _AutoNumberWidget_makeWidget
-
-parameter.AutoNumericParameter.makeWidget = _AutoNumberWidget_makeWidget
-
 parameter.AutoFloatParameter.makeWidget = _AutoNumberWidget_makeWidget
+parameter.AutoIntParameter.makeWidget = _AutoNumberWidget_makeWidget
 parameter.PositiveAutoFloatParameter.makeWidget = _AutoNumberWidget_makeWidget
 parameter.PositiveAutoIntParameter.makeWidget = _AutoNumberWidget_makeWidget
 

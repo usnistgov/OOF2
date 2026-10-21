@@ -424,38 +424,6 @@ class AngleRangeParameter(FloatRangeParameter):
                     'Parameter value out of range for %s. value=%s, range=%s'
                                  % (self.name, value, self.range))
             
-# Parameter class that can take a float or an integer,
-# or the special value "automatic". 
-class AutoNumericParameter(Parameter):
-    types = (FloatType, IntType, automatic.Automatic)
-    def valueRepr(self):
-        return "Int, Float, or automatic"
-    def valueDesc(self):
-        return "An integer, a real number, or the value <constant>automatic</constant>."
-
-
-class AutoIntParameter(Parameter):
-    structfmt = ">ii"
-    structsize = struct.calcsize(structfmt)
-    types = (IntType, automatic.Automatic)
-    def valueRepr(self):
-        return "Int or automatic"
-    def valueDesc(self):
-        return "An integer, or the value <constant>automatic</constant>."
-    def binaryRepr(self, datafile, value):
-        auto = (value == automatic.automatic)
-        if auto:
-            return struct.pack(AutoIntParameter.structfmt, 1, 0)
-        else:
-            return struct.pack(AutoIntParameter.structfmt, 0, value)
-    def binaryRead(self, parser):
-        b = parser.getBytes(AutoIntParameter.structsize)
-        (auto, val) = struct.unpack(AutoIntParameter.structfmt, b)
-        if auto:
-            return automatic.automatic
-        return val
-    
-
 # Parameter type for an integer number of values or a list of specific
 # float values -- used for the set of levels in the contour maps, but
 # possibly useful elsewhere.
@@ -657,24 +625,26 @@ class NonNegativeIntParameter(IntParameter):
     def valueDesc(self):
         return "A non-negative integer."
 
-# ## TODO: Why isn't PositiveIntParameter derived from IntParameter?
-# ## See PositiveFloatParameter, above.
-# class PositiveIntParameter(Parameter):
-#     def __init__(self, name, value=None, default=1, tip=None):
-#         Parameter.__init__(self, name, value=value, default=default, tip=tip)
-#     def checker(self, x):
-#         if not isinstance(x, IntType) or x <= 0:
-#             raiseTypeError(x, "a positive integer")
-#     def binaryRepr(self, datafile, value):
-#         return struct.pack(structIntFmt, value)
-#     def binaryRead(self, parser):
-#         b = parser.getBytes(structIntSize)
-#         (val,) = struct.unpack(structIntFmt, b)
-#         return val
-#     def __repr__(self):
-#         return "PositiveIntParameter(%s,%s)" % (repr(self.name), repr(self.value))
-#     def valueDesc(self):
-#         return "A positive integer."
+class AutoIntParameter(Parameter):
+    structfmt = ">ii"
+    structsize = struct.calcsize(structfmt)
+    types = (IntType, automatic.Automatic)
+    def valueRepr(self):
+        return "Int or automatic"
+    def valueDesc(self):
+        return "An integer, or the value <constant>automatic</constant>."
+    def binaryRepr(self, datafile, value):
+        auto = (value == automatic.automatic)
+        if auto:
+            return struct.pack(AutoIntParameter.structfmt, 1, 0)
+        else:
+            return struct.pack(AutoIntParameter.structfmt, 0, value)
+    def binaryRead(self, parser):
+        b = parser.getBytes(AutoIntParameter.structsize)
+        (auto, val) = struct.unpack(AutoIntParameter.structfmt, b)
+        if auto:
+            return automatic.automatic
+        return val
 
 class PositiveIntParameter(IntParameter):
     def checker(self, x):
