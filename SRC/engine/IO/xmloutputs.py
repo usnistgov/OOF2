@@ -30,7 +30,7 @@ def outputDump(file):
     _catalogPaths(positions, xmlids, 'Output-Position-')
     _catalogPaths(aggregates, xmlids, 'Output-Aggregates-')
 
-    print("<section id='Section-Output'>", file=file)
+    print("<section id='Section-Output' role='toc-never'>", file=file)
     print(" <title>Outputs</title>", file=file)
     print("<!--this section produced by SRC/engine/IO/xmloutputs.py-->", file=file)
     print("""

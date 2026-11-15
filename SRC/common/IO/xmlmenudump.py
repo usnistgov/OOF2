@@ -17,12 +17,6 @@ import sys
 enumdict = {}
 regclassdict = {}
 
-## TODO MANUAL: What determines the order of the refsects?  The List
-## of Figures for menu items and registered classes seems to be almost
-## completely random.
-
-#################
-
 # Keep track of which parameter types need to be documented.  This
 # function is called on every parameter that appears in a menu item.
 
@@ -60,22 +54,22 @@ otherregclasses = []
 def addRegisteredClass(regclass):
     otherregclasses.append(regclass)
 
-##################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 indexItems = []
 
 def xmlIndexEntry(name, category, xmlid):
     indexItems.append((name, category, xmlid))
 
-##################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
         
 def regclassID(regclass):
     # xml id string to mark the definition of a base RegisteredClass
-    return "RegisteredClass-%s" % regclass.__name__
-def registrationID(reg):
-    return "RegisteredClass-%s" % reg.subclass.__name__
+    return f"RegisteredClass-{regclass.__name__}"
+def regID(reg):
+    return f"RegisteredClass-{reg.subclass.__name__}"
 
-###################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##
 
 # xrefListing converts a list of docbook ids to a list of xref links
 # for the "See Also" sections of menuitems and registeredclasses.  The
@@ -145,7 +139,7 @@ def sectionsorter(xmlid):
     return (100, xmlid)
    
 
-###################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##
 
 # RegisteredClasses, Registrations, MenuItems, and Enums (and possibly
 # other classes) have 'discussion' strings, which go into the xml
@@ -161,7 +155,6 @@ def sectionsorter(xmlid):
 #
 # The discussion section can be suppressed by setting discussion to
 # emptyDiscussion. 
-
 
 def loadFile(filename, func=None):
     return DiscussionFile(filename, func)
@@ -215,7 +208,7 @@ def getHelp(obj):                       # get help, helpstr, or tip
 
 emptyDiscussion = DiscussionFile(None, None)
 
-##################    
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#    
 
 # Keep track of other objects that need to be documented -- this
 # includes anything except for RegisteredClasses, Enums, Outputs, and
@@ -242,19 +235,25 @@ otherSections = []
 def addSection(callback, ordering):
     otherSections.append((ordering, callback))
 
-###################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def dumpMenu(phile, menu, toplevel):
+def dumpMenu(phile, menu, parent):
+    # parent is passed in as an argument so that the LoadData menu,
+    # which has no parent data, can still be listed as a submenu of
+    # the main menu.  Not giving it a parent makes it harder for data
+    # files to escape the LoadMenu submenu, but logically to the user
+    # it's still a submenu.
     if menu.getOption('no_doc'):
         return
     path = menu.path()
-    if not toplevel:
-        print('<section xreflabel="%s" id="MenuItem-%s" role="Menu">' \
-              % (path, path), file=phile)
-        print("<title>%s</title>" % path, file=phile)
-        xmlIndexEntry(path, "Menu", "MenuItem-%s" % path)
+    role = 'Menu' if parent else 'RootMenu'
+    attrs = f'xreflabel="{path}" id="MenuItem-{path}" role="{role}"'
+    print(f"<section {attrs}>", file=phile)
+    print(f"<title>{path}</title>", file=phile)
+    
+    xmlIndexEntry(path, "Menu", f"MenuItem-{path}")
     try:
-        print("<subtitle>%s</subtitle>" % getHelp(menu), file=phile)
+        print(f"<subtitle>{getHelp(menu)}</subtitle>", file=phile)
     except AttributeError:
         pass
     try:
@@ -265,9 +264,10 @@ def dumpMenu(phile, menu, toplevel):
         if discus is not emptyDiscussion:
             print(discus, file=phile)
 
-    if not toplevel:
-        print("<simpara>Parent Menu: <xref linkend='MenuItem-%s'/></simpara>" \
-              % menu.parent.path(), file=phile)
+    if parent is not None:
+        linkend = f"MenuItem-{parent.path()}"
+        print(f"<simpara>Parent Menu: <xref linkend='{linkend}'/></simpara>",
+              file=phile)
 
     # Create alphabetical lists of submenus and commands.  It's more
     # convenient to find things in alphabetical lists in the manual,
@@ -298,9 +298,9 @@ def dumpMenu(phile, menu, toplevel):
             print(f"  <link linkend='MenuItem-{itempath}'><command>{itempath}</command></link>",
                   file=phile)
             try:
-                help = getHelp(item)
-                if help:
-                    print("&emdash;", help, file=phile)
+                helpstr = getHelp(item)
+                if helpstr:
+                    print("&emdash;", helpstr, file=phile)
             except AttributeError:
                 pass
             print(" </simpara></listitem>", file=phile)
@@ -317,9 +317,9 @@ def dumpMenu(phile, menu, toplevel):
             print(" <listitem><simpara>", file=phile)
             print(f"  <xref linkend='MenuItem-{itempath}'/>", file=phile)
             try:
-                help = getHelp(item)
-                if help:
-                    print("&emdash;", help, file=phile)
+                helpstr = getHelp(item)
+                if helpstr:
+                    print("&emdash;", helpstr, file=phile)
             except AttributeError:
                 pass
             print(" </simpara></listitem>", file=phile)
@@ -332,34 +332,32 @@ def dumpMenu(phile, menu, toplevel):
         print(f"   <para>{xrefListing(xrefs)}</para>", file=phile)
         print(" </simplesect>", file=phile)
 
-    if not toplevel:
-        print("</section> <!-- %s -->" % path, file=phile)
-
-
     for submenu in submenus:
-        dumpMenu(phile, menu.getItem(submenu), toplevel=0)
+        dumpMenu(phile, menu.getItem(submenu), menu)
     for command in commands:
         dumpMenuItem(phile, menu.getItem(command))
+
+    print(f"</section> <!-- {path} -->", file=phile)
 
 
 def dumpMenuItem(phile, menuitem):
     if menuitem.getOption('no_doc'):
         return
     path = menuitem.path()
-    xmlIndexEntry(path, "Menu Item", "MenuItem-%s" % path)
-    print('<refentry xreflabel="%s" id="MenuItem-%s" role="MenuItem">'\
-          % (path, path), file=phile)
+    xmlIndexEntry(path, "Menu Item", f"MenuItem-{path}")
+    print(f'<refentry xreflabel="{path}" id="MenuItem-{path}" role="MenuItem">',
+          file=phile)
     print(" <refnamediv>", file=phile)
-    print("  <refname>%s</refname>" % path, file=phile)
+    print(f"  <refname>{path}</refname>", file=phile)
     try:
-        help = getHelp(menuitem)
-        if help:
-            print("  <refpurpose>%s</refpurpose>" % help, file=phile)
+        helpstr = getHelp(menuitem)
+        if helpstr:
+            print(f"  <refpurpose>{helpstr}</refpurpose>", file=phile)
         else:
-            print("   <refpurpose></refpurpose>", file=phile)
+            print("  <refpurpose></refpurpose>", file=phile)
     except AttributeError:
-        print("  <refpurpose>MISSING HELP STRING: %s</refpurpose>" \
-              % path, file=phile)
+        print(f"  <refpurpose>MISSING HELP STRING: {path}</refpurpose>",
+              file=phile)
     print(" </refnamediv>", file=phile)
 
     menuitem.xmlSynopsis(phile)
@@ -367,12 +365,24 @@ def dumpMenuItem(phile, menuitem):
     print(" <refsect1>", file=phile)
     print("   <title>Details</title>", file=phile)
     print("   <itemizedlist>", file=phile)
-    print("    <listitem><simpara>Parent Menu: <xref linkend='MenuItem-%s'/></simpara></listitem>" % menuitem.parent.path(), file=phile)
+    print(
+        f"""
+        <listitem>
+          <simpara>
+            Parent Menu: <xref linkend='MenuItem-{menuitem.parent.path()}'/>
+          </simpara>
+        </listitem>""",
+        file=phile)
     if menuitem.callback:
         fname, mname = menuitem.getcallbackname()
-        print("  <listitem><simpara>", file=phile)
-        print("   Callback: function <function>%s</function> in module <filename>%s</filename>" % (fname, mname), file=phile)
-        print("  </simpara></listitem>", file=phile)
+        print(
+          f"""
+          <listitem>
+             <simpara>
+                Callback: function <function>{fname}</function> in module <filename>{mname}</filename>
+             </simpara>
+          </listitem>""",
+        file=phile)
 
     # Menu items are enabled and disabled dynamically, so the current
     # state of the flag isn't relevant to the documentation. Don't
@@ -383,8 +393,9 @@ def dumpMenuItem(phile, menuitem):
         print("   Options:", file=phile)
         for key, val in list(menuitem.options.items()):
             if key != "disabled":
-                print(" <varname>%s</varname>=<constant>%s</constant>"
-                      %(key, repr(val)), file=phile)
+                print(
+                  f" <varname>{key}</varname>=<constant>{repr(val)}</constant>",
+                  file=phile)
         print("  </simpara></listitem>", file=phile)
 
     menuitem.xmlParams(phile)
@@ -415,7 +426,7 @@ def dumpMenuItem(phile, menuitem):
     
     print("</refentry>", file=phile)
 
-###################        
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def xmlmenudump(phile, xmlids):
     global iddict
@@ -430,14 +441,12 @@ def xmlmenudump(phile, xmlids):
 
     print("<!-- This file is generated by xmlmenudump.  DO NOT EDIT IT. -->", file=phile)
     print(file=phile)
-    print("<chapter id='Chapter-Reference'><title>Reference</title>", file=phile)
+    print("<chapter id='Chapter-Reference'><title>User Reference</title>", file=phile)
     print("""
-
-    <section id="Section-Reference:HowTo">
-      <title>How to use this Chapter</title>
+    <section id="Section-Reference-HowTo">
+    <title>How to Use This Section</title>
       <para>
-      
-      This chapter consists of a set of reference pages for some of
+      This chapter consists of sets of reference pages for some of
       the important objects that appear in &oof2; scripts. Since all
       &oof2; operations can be scripted, these reference pages are the
       penultimate source for details on how everything works in
@@ -474,28 +483,26 @@ def xmlmenudump(phile, xmlids):
       pages!  The base class page often contains important information
       relevant to all of the subclasses.
       </para>
-
     </section>
-
     """, file=phile)
 
-    ## Add other sections defined elsewhere.  (Misleading comment!
-    ## Sections defined here are also in otherSections.)
+    ## Add sections defined elsewhere.
     otherSections.sort()
     for ordering, otherSectionCB in otherSections:
         otherSectionCB(phile)
 
     ########
 
-    print("<section id='Section-OtherObjects'>", file=phile)
+    print("<section id='Section-OtherObjects' role='toc-never'>", file=phile)
     print(" <title>Other Objects</title>", file=phile)
     print(""" <para>
 
-    This section covers objects that can occur in &oof2; commands but
-    aren't included in the above sections, for various reasons.
+    This section covers other objects that are used as arguments to
+    &oof2; commands.
 
     </para>""", file=phile)
 
+    # TODO: Sort alphabetically?
     objDocs.apply2(function=printObjDocs, postfunc=postPrintObjDocs,
                    phile=phile)
     print("</section>", file=phile)         # end of other objects section
@@ -518,37 +525,43 @@ def xmlmenudump(phile, xmlids):
     print('<table rowsep="0" colsep="0" frame="none" pgwide="0">', file=phile)
     print('<tgroup cols="2"><tbody>', file=phile)
     for name, category, xmlid in indexItems:
-        print("<row>", file=phile)
-        print("<entry><simpara><link linkend='%s'>%s</link></simpara></entry>" % (xmlid, name), file=phile)
-        print("<entry><simpara>%s</simpara></entry>" % category, file=phile)
-        print("</row>", file=phile)
+        print(f"""
+        <row>
+          <entry>
+            <simpara>
+              <link linkend='{xmlid}'>{name}</link>
+            </simpara>
+          </entry>
+          <entry>
+            <simpara>{category}</simpara>
+          </entry>
+        </row>
+        """,
+        file=phile)
     print("</tbody></tgroup></table>", file=phile)
     print("</section>", file=phile)
 
     print("</chapter>", file=phile)
 
-def mainMenuSection(phile):
-    # The section containing the main menu is handled differently from
-    # all the other menus.  Its id is MenuItem-OOF so that
-    # automatically generated references to root menu go to it.
-    print("<section id='MenuItem-OOF' xreflabel='The Main OOF Menu'>",
-          file=phile)
-    print("  <title>Menus</title>", file=phile)
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+def mainMenuSection(phile):
     from ooflib.common.IO import mainmenu      # delayed, to avoid import loop
-    dumpMenu(phile, mainmenu.OOF, toplevel=1)
-    dumpMenu(phile, mainmenu.loadDataMenu, toplevel=1)
-    print("</section>", file=phile)         # end of menu item listing
+    dumpMenu(phile, mainmenu.OOF, None)
 
 addSection(mainMenuSection, 0)
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+## RegisteredClasses
+
 def regClassSection(phile):
-    ## RegisteredClasses
 
     for regclass in otherregclasses:
         processRegClass(regclass)
     
-    print("<section id='Section-RegisteredClasses'>", file=phile)
+    print("<section id='Section-RegisteredClasses' role='toc-always'>",
+          file=phile)
     print(" <title>Registered Classes</title>", file=phile)
     print("""<para>
 
@@ -572,62 +585,112 @@ may be members of more than one
     </para>""", file=phile)
     regclassnames = sorted(list(regclassdict.keys()))
     registrationdict = {}
-    print("<section id='Section-RegisteredBaseClasses'>", file=phile)
-    print(" <title>Base RegisteredClasses</title>", file=phile)
+    print("<section id='Section-RegisteredBaseClasses' role='toc-never'>",
+          file=phile)
+    print(" <title>RegisteredClass Base Classes</title>", file=phile)
     print(" <itemizedlist spacing='compact'>", file=phile)
 
+    #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
     ## List of RegisteredClass base classes
+    
     for regclassname in regclassnames:
         regclass = regclassdict[regclassname]
+        for reg in regclass.registry:
+            registrationdict[reg.subclass.__name__] = reg
         try:
             tip = getHelp(regclass)
         except AttributeError:
-            tip = "MISSING TIP STRING: %s" % regclassname
-        print(" <listitem><simpara>", file=phile)
-        print("  <xref linkend='%s'/> &#x2014; %s" % (regclassID(regclass),\
-                                                         tip), file=phile)
-        print(" </simpara></listitem>", file=phile)        
-    print(" </itemizedlist>", file=phile)
+            tip = f"MISSING TIP STRING: {regclassname}"
+        print(f"""
+        <listitem>
+          <simpara>
+            <xref linkend='{regclassID(regclass)}'/>  &emdash; {tip}
+          </simpara>
+        </listitem>
+        """,
+              file=phile)
+            
+    print("  </itemizedlist>", file=phile)
+    print("</section>", file=phile)
+    
+    #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-    ## Reference pages for each base class
+    ## List of subclasses for all base classes, sorted by name.
+
+    subclassnames = sorted(list(registrationdict.keys()))
+
+    print("<section id='Section-RegisteredSubclasses' role='toc-never'>", file=phile)
+    print(" <title>RegisteredClass Subclasses</title>", file=phile)
+    print(" <itemizedlist spacing='compact'>", file=phile)
+    for name in subclassnames:
+        try:
+            reg = registrationdict[name]
+        except KeyError:
+            continue
+        print("  <listitem><simpara>", file=phile)
+        try:
+            tip = getHelp(reg)
+        except AttributeError:
+            tip = f"MISSING TIP STRING: {name}"
+        print(f"    <xref linkend='{regID(reg)}'/> &emdash; {tip}",
+              file=phile)
+        print("  </simpara></listitem>", file=phile)
+    print(" </itemizedlist>", file=phile)
+    print("</section>", file=phile)
+
+    #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+    ## Reference pages for each base class and subclass.
+
     for regclassname in regclassnames:
         regclass = regclassdict[regclassname]
         xmlIndexEntry(regclassname,"RegisteredClass base class",
                       regclassID(regclass))
-        print(" <refentry xreflabel='%s' id='%s' role='RegisteredClass'>" % \
-              (regclassname, regclassID(regclass)), file=phile)
-        print("  <refnamediv>", file=phile)
-        print("   <refname>%s</refname>" % regclassname, file=phile)
+
+        # Reference page for the base class
         try:
             tip = getHelp(regclass)
         except AttributeError:
-            tip = "MISSING TIP STRING: %s" % regclassname
-        print("   <refpurpose>%s</refpurpose>" % tip, file=phile)
-        print("  </refnamediv>", file=phile)
-        print("  <refsect1>", file=phile)
-        print("   <title>Subclasses</title>", file=phile)
-        print("""   <para>
-        Subclasses are listed as they appear in the GUI and (in
-        parentheses) as they appear in scripts.
-        </para>""", file=phile)
-        print("   <itemizedlist spacing='compact'>", file=phile)
-        # Don't sort... registrations are listed in the order in which
-        # they appear in the GUI.
+            tip = f"MISSING TIP STRING: {regclassname}"
+        print(f"""
+<refentry xreflabel='{regclassname}' id='{regclassID(regclass)}' role='RegisteredClass'>
+  <refnamediv>
+    <refname>{regclassname}</refname>
+    <refpurpose>{tip}</refpurpose>
+  </refnamediv>
+  <refsect1>
+    <title>Subclasses</title>
+      <para>
+         Subclasses are listed as they appear in the GUI and (in
+         parentheses) as they appear in scripts.
+      </para>
+      <itemizedlist spacing='compact'>""",
+      file=phile)
+
+        # Don't sort.  Registrations are listed on the base class page
+        # in the order in which they appear in the GUI.
         for reg in regclass.registry:
-            if not reg.secret:
-                registrationdict[reg.subclass.__name__] = reg
-                try:
-                    tip = getHelp(reg)
-                except AttributeError:
-                    tip = "MISSING TIP STRING: %s" % reg.subclass.__name__
-                print("   <listitem><simpara>", file=phile)
-                print("    <link linkend='%s'>%s (<classname>%s</classname>)</link> &#x2014; %s" % \
-                      (registrationID(reg), reg.name(), reg.subclass.__name__,
-                       tip), file=phile)
-                print("   </simpara></listitem>", file=phile)
-        print("   </itemizedlist>", file=phile)        
-        print("  </refsect1>", file=phile)
-        
+            if reg.secret:
+                continue
+            registrationdict[reg.subclass.__name__] = reg
+            try:
+                tip = getHelp(reg)
+            except AttributeError:
+                tip = f"MISSING TIP STRING: {reg.subclass.__name__}"
+            print(f"""
+            <listitem>
+              <simpara>
+                <link linkend='{regID(reg)}'>{reg.name()}</link>   (<classname>{reg.subclass.__name__}</classname>) &emdash; {tip}
+              </simpara>
+            </listitem>
+            """,
+                  file=phile)
+        print(
+            """
+        </itemizedlist>
+      </refsect1>""", file=phile)
+
         try:
             discus = getDiscussion(regclass)
         except AttributeError:
@@ -649,106 +712,99 @@ may be members of more than one
             print(f"<para>{xrefListing(xrefs)}</para>", file=phile)
             print("</refsect1>", file=phile)
 
-        print(" </refentry>", file=phile) # end refentry for registered base class
+        print(f" </refentry> <!-- {regID(reg)} -->", file=phile)
 
-    print("</section>", file=phile)
+        # Loop over subclasses of regclass
 
-    subclassnames = sorted(list(registrationdict.keys()))
+        for reg in regclass.registry:
+            if reg.secret:
+                continue
+            name = reg.subclass.__name__
+            xmlIndexEntry(name, "RegisteredClass subclass",
+                              regID(reg))
+            try:
+                tip = getHelp(reg)
+            except AttributeError:
+                tip = f"MISSING TIP STRING: {name}"
+            args = ', '.join([f'<varname>{p.name}</varname>'
+                              for p in reg.params])
+            print(f"""
+<refentry xreflabel='{name}' id='{regID(reg)}' role='RegisteredClass'>
+  <refnamediv>
+    <refname>{reg.name()} ({name})</refname>
+    <refpurpose>{tip}</refpurpose>
+  </refnamediv>
+  <refsynopsisdiv>
+     <simpara>
+       <classname>{name}</classname>({args})
+     </simpara>
+   </refsynopsisdiv>
+   <refsect1>
+     <title>Details</title>
+     <itemizedlist>
+       <listitem>
+         <simpara>
+            Base class{'es' if len(reg.registeredclasses)>1 else ''}:
+                """, file=phile)
+            # List base classes of this subclass
+            for regclass in reg.registeredclasses:
+                print(
+                    f""" <link linkend='{regclassID(regclass)}'>
+                    <classname>{regclass.__name__}</classname>
+                    </link>""",
+                    file=phile)
+            print(" </simpara>\n</listitem>", file=phile)
+            # List parameters
+            if reg.params:
+                print("""
+                <listitem>
+                   <para>
+                     Parameters:
+                     <variablelist>
+                """, file=phile)
+                for param in reg.params:
+                    try:
+                        tip = getHelp(param)
+                    except AttributeError:
+                        tip = f"MISSING TIP STRING: {name, param.name}"
+                    print(f"""
+                       <varlistentry>
+                         <term><varname>{param.name}</varname></term>
+                         <listitem>
+                            <simpara>{tip} <emphasis>Type</emphasis>: {param.valueDesc()}</simpara>
+                         </listitem>
+                        </varlistentry>""", file=phile)
+                print("""
+                     </variablelist> <!-- End of parameter list -->
+                   </para>
+                </listitem>""", file=phile)
+                # end if there are parameters
+            # Discussion section
+            try:
+                discus = getDiscussion(reg)
+            except AttributeError:
+                discus = f"<para>MISSING REGCLASS DISCUSSION: {name}</para>"
+            print(f"""
+            </itemizedlist>
+            </refsect1> <!-- End of details section -->
+            <refsect1>
+              <title>Description</title>
+            {discus}
+            </refsect1>
+            """, file=phile)
+            # Cross references
+            if reg.xrefs:
+                print(f"""
+                <refsect1>
+                  <title>See Also</title>
+                  <para>{xrefListing(reg.xrefs)}</para>
+                </refsect1>
+                """, file=phile)
+            print("</refentry>", file=phile)
 
-    print("<section id='Section-RegisteredSubclasses'>", file=phile)
-    print(" <title>Subclasses</title>", file=phile)
+    # End loop over base RegisteredClasses
+    print("</section> <!-- End of RegisteredClass section -->", file=phile)
 
-    ## List of subclasses
-    print(" <itemizedlist spacing='compact'>", file=phile)
-    for name in subclassnames:
-        try:
-            reg = registrationdict[name]
-        except KeyError:
-            continue
-        print("  <listitem><simpara>", file=phile)
-        try:
-            tip = getHelp(reg)
-        except AttributeError:
-            tip = "MISSING TIP STRING: %s" % name
-        print("    <xref linkend='%s'/> &#x2014; %s" % \
-              (registrationID(reg), tip), file=phile)
-        print("  </simpara></listitem>", file=phile)
-    print(" </itemizedlist>", file=phile)
-
-    ## Reference page for each subclass
-    for name in subclassnames:
-        try:
-            reg = registrationdict[name]
-        except KeyError:
-            continue
-        xmlIndexEntry(name, "RegisteredClass subclass", registrationID(reg))
-        print(" <refentry xreflabel='%s' id='%s' role='Registration'>"\
-              % (name, registrationID(reg)), file=phile)
-        print("  <refnamediv>", file=phile)
-        print("    <refname>%s (%s)</refname>" % (reg.name(), name), file=phile)
-        try:
-            tip = getHelp(reg)
-        except AttributeError:
-            tip = "MISSING TIP STRING: %s" % name
-        print("     <refpurpose>%s</refpurpose>" % tip, file=phile)
-        print("  </refnamediv>", file=phile)
-
-        print("  <refsynopsisdiv><simpara>", file=phile)
-        args = ', '.join([f'<varname>{p.name}</varname>' for p in reg.params])
-        print("   <classname>%s</classname>(%s)" % (name, args), file=phile)
-        print("  </simpara></refsynopsisdiv>", file=phile)
-        
-        print("  <refsect1>", file=phile)
-        print("    <title>Details</title>", file=phile)
-        print("    <itemizedlist>", file=phile)
-        print("     <listitem><simpara>", file=phile)
-        print("      Base class%s:"%("es"*(len(reg.registeredclasses)>1)), file=phile)
-        for regclass in reg.registeredclasses:
-            print("      <link linkend='%s'><classname>%s</classname></link>" \
-            % (regclassID(regclass), regclass.__name__), file=phile)
-        print("     </simpara></listitem>", file=phile)
-        if reg.params:
-            print("     <listitem><para>", file=phile)
-            print("      Parameters:", file=phile)
-            print("      <variablelist>", file=phile)
-            for param in reg.params:
-                print("       <varlistentry>", file=phile)
-                print("        <term><varname>%s</varname></term>" \
-                      % param.name, file=phile)
-                print("         <listitem>", file=phile)
-                try:
-                    tip = getHelp(param)
-                except AttributeError:
-                    tip = "MISSING TIP STRING: %s:%s" % (name, param.name)
-                print("          <simpara>%s <emphasis>Type</emphasis>: %s</simpara>" \
-                      % (tip, param.valueDesc()), file=phile)
-                print("         </listitem>", file=phile)
-                print("       </varlistentry>", file=phile)
-            print("      </variablelist>", file=phile) # end of parameter list
-            print("     </para></listitem>", file=phile)
-        print("    </itemizedlist>", file=phile) # end of Details list
-        print("  </refsect1>", file=phile) # end of Details section
-        print("  <refsect1>", file=phile)
-        print("   <title>Description</title>", file=phile)
-        try:
-            discus = getDiscussion(reg)
-        except AttributeError:
-            print(f"<para>MISSING REGCLASS DISCUSSION: {name}</para>",
-                  file=phile)
-        else:
-            print(f"   {discus}", file=phile)
-        print("  </refsect1>", file=phile)
-        if reg.xrefs:
-            print("   <refsect1>", file=phile)
-            print("   <title>See Also</title>", file=phile)
-            print(f"   <para>{xrefListing(reg.xrefs)}</para>",
-                  file=phile)
-            print("   </refsect1>", file=phile)
-        print(" </refentry>", file=phile)
-
-    print("</section>", file=phile)         # end of registered subclasses
-
-    print("</section>", file=phile)         # end of registered classes section
 
 # This section has a large ordering value so that it comes *after* any
 # section that calls process_param, ensuring that all RegisteredClass
@@ -756,8 +812,10 @@ may be members of more than one
 
 addSection(regClassSection, ordering=1000)
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 def enumSection(phile):
-    print("<section id='Section-Enums'>", file=phile)
+    print("<section id='Section-Enums' role='toc-never'>", file=phile)
     print(" <title>Enumerated Types</title>", file=phile)
     print(""" <para>
 
@@ -801,24 +859,25 @@ def enumSection(phile):
         try:
             tip = getHelp(enumclass)
         except AttributeError:
-            tip = "MISSING ENUM TIP STRING: %s" % enumname
+            tip = f"MISSING ENUM TIP STRING: {enumname}"
         print("<listitem><simpara>", file=phile)
-        print(" <xref linkend='Enum-%s'/> &#x2014; %s" % (enumname, tip), file=phile)
+        print(f" <xref linkend='Enum-{enumname}'/> &emdash; {tip}", file=phile)
         print("</simpara></listitem>", file=phile)        
     print("</itemizedlist>", file=phile)
     
     for enumname in enumnames:
         enumclass = enumdict[enumname]
-        xmlIndexEntry(enumname, "Enum class", 'Enum-%s' % enumname)
-        print(" <refentry xreflabel='%s' id='Enum-%s' role='Enum'>" \
-              % (enumname, enumname), file=phile)
+        xmlIndexEntry(enumname, f"Enum class", f"Enum-{enumname}")
+        print(
+         f" <refentry xreflabel='{enumname}' id='Enum-{enumname}' role='Enum'>",
+         file=phile)
         print("  <refnamediv>", file=phile)
-        print("   <refname>%s</refname>" % enumname, file=phile)
+        print(f"   <refname>{enumname}</refname>", file=phile)
         try:
             tip = getHelp(enumclass)
         except AttributeError:
-            tip = "MISSING ENUM TIP STRING: %s" % enumname
-        print("   <refpurpose>%s</refpurpose>" % tip, file=phile)
+            tip = f"MISSING ENUM TIP STRING: {enumname}"
+        print(f"   <refpurpose>{tip}</refpurpose>", file=phile)
         print("  </refnamediv>", file=phile)        
 
         try:
@@ -844,7 +903,8 @@ def enumSection(phile):
             except KeyError:
                 helpstr = ""
             print("   <listitem><simpara>", file=phile)
-            print("   <userinput>%s</userinput>%s" % (name, helpstr), file=phile)
+            # The missing space before {helpstr} is intentional.
+            print(f"   <userinput>{name}</userinput>{helpstr}", file=phile)
             print("   </simpara></listitem>", file=phile)
         print("  </itemizedlist>", file=phile)
             
@@ -864,7 +924,15 @@ def enumSection(phile):
 
 addSection(enumSection, ordering=1001)
 
-    
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Callbacks used by LabelTree.apply2 when printing the contents of the
+# objDocs tree.
+
+# The <refentry>s for these items set role='OtherObj', which keeps
+# them from being listed in tables of contents (per a template in
+# oofhtml.xml).
+
 def printObjDocs(path, obj, phile):
     if obj is not None:
         try:
@@ -877,24 +945,29 @@ def printObjDocs(path, obj, phile):
                 print(discus, file=phile)
     else:
         # obj is None, meaning that this is a meta section.  Print toc.
-        if path:                        # no path means we're at the top level
-            print("<section id='Object-%s'>" % path, file=phile)
-            print("  <title>%s</title>" % path, file=phile)
+        if path:    # no path means we're at the top level of the tree
+            print(f"<section id='Object-{path}' role='toc-never'>", file=phile)
+            print(f"  <title>{path}</title>", file=phile)
         print("  <itemizedlist spacing='compact'>", file=phile)
         node = objDocs[path]
         for subnode in node.nodes:
-            print("<listitem><simpara>", file=phile)
-            print("<link linkend='Object-%(name)s'>%(name)s</link>" \
-                  % {'name':subnode.name}, file=phile)
-            print("</simpara></listitem>", file=phile)
-            xmlIndexEntry(subnode.name, "Object", "Object-%s" % subnode.name)
+            # Only print leaf nodes of the LabelTree.  The other nodes
+            # are in the automatically generated table of
+            # contents.
+            if not subnode.nodes:
+                name = subnode.name
+                print("<listitem><simpara>", file=phile)
+                print(f"<link linkend='Object-{name}'>{name}</link>",
+                      file=phile)
+                print("</simpara></listitem>", file=phile)
+                xmlIndexEntry(subnode.name, "Object", f"Object-{name}")
         print("  </itemizedlist>", file=phile)
 
 def postPrintObjDocs(path, obj, phile):
     if obj is None:
         if path:
-            print("</section> <!-- %s -->" % path, file=phile)
+            print(f"</section> <!-- {path} -->", file=phile)
 
-###############################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 XMLObjectDoc('list', loadFile('DISCUSSIONS/common/object/list.xml'))
