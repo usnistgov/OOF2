@@ -505,6 +505,8 @@ class OOFMenuItem:
         self.discussion = discussion
         self.alphabetize = alphabetize
         self.verbose = verbose
+        self.pathprefix = None
+        
         # The default value for xrefs in the __init__ args must be
         # None, and not [].  If it were [], then all menu items that
         # have no xrefs would share an empty list, and if any of the
@@ -577,7 +579,8 @@ class OOFMenuItem:
         self.items =  []
         self.params = []
                               
-    def addItem(self, item):            # add a menu item to this menu
+    def addItem(self, item, disconnected=False): # add a menu item to this menu
+        # Set disconnected=True if item should *not* have its parent set.
         for i in range(len(self.items)): # see if new item replaces an old one
             if item.name == self.items[i].name:
                 self.items[i] = item    # replace an old item
@@ -595,7 +598,13 @@ class OOFMenuItem:
                         break
                 else:
                     self.items.append(item)
-        item.parent = self
+        if not disconnected:
+            item.parent = self
+        else:
+            # Even if the item doesn't contain a pointer to its
+            # parent, it still needs to be able to print its path in
+            # the documentation, so it stores the path to its parent.
+            item.pathprefix = self.path()
         return item
 
     def getItem(self, name):
@@ -661,8 +670,12 @@ class OOFMenuItem:
     
     def path(self):
         if self.parent is None:
+            if self.pathprefix:
+                return ".".join([self.pathprefix, self.name])
             return self.name
-        return self.parent.path() + "." + self.name
+        if self.pathprefix:
+            return ".".join([self.pathprefix, self.parent.path(), self.name])
+        return ".".join([self.parent.path(), self.name])
 
     def descendPath(self, path):
         if isinstance(path, (str, bytes)):
@@ -856,7 +869,6 @@ class OOFMenuItem:
 
     ####################################
 
-    
     def log(self, strng):
         if self.getOption('no_log') != 1:
             root = self.root()
