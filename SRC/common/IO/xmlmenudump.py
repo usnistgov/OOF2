@@ -237,7 +237,7 @@ def addSection(callback, ordering):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def dumpMenu(phile, menu, parent):
+def dumpMenu(phile, menu, parent, sectiontitle=None):
     # parent is passed in as an argument so that the LoadData menu,
     # which has no parent data, can still be listed as a submenu of
     # the main menu.  Not giving it a parent makes it harder for data
@@ -249,7 +249,7 @@ def dumpMenu(phile, menu, parent):
     role = 'Menu' if parent else 'RootMenu'
     attrs = f'xreflabel="{path}" id="MenuItem-{path}" role="{role}"'
     print(f"<section {attrs}>", file=phile)
-    print(f"<title>{path}</title>", file=phile)
+    print(f"<title>{sectiontitle or path}</title>", file=phile)
     
     xmlIndexEntry(path, "Menu", f"MenuItem-{path}")
     try:
@@ -547,7 +547,7 @@ def xmlmenudump(phile, xmlids):
 
 def mainMenuSection(phile):
     from ooflib.common.IO import mainmenu      # delayed, to avoid import loop
-    dumpMenu(phile, mainmenu.OOF, None)
+    dumpMenu(phile, mainmenu.OOF, None, sectiontitle="The Main OOF Menu")
 
 addSection(mainMenuSection, 0)
 
