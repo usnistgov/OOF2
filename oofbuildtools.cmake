@@ -17,7 +17,7 @@
 ## TODO: Can we list only the available versions of python?
 set(OOF2_PYTHON_VERSION "Latest" CACHE STRING "Use this version of Python")
 set_property(CACHE OOF2_PYTHON_VERSION PROPERTY STRINGS
-  Latest 3.14 3.13 3.12 3.11 3.10)
+  Latest 3.15 3.14 3.13 3.12 3.11 3.10)
 
 
 include(GNUInstallDirs)
