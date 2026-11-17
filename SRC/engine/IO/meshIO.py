@@ -428,7 +428,7 @@ subpmenu.addItem(OOFMenuItem(
     Load the list of the names of the defined &fields; for a
     &subproblem;, excluding the time derivative &fields;.  Auxiliary
     time derivative &fields; are handled by <xref
-    linkend="MenuItem-LoadData.Subproblem.Time_Derivative_Fields"/>.
+    linkend="MenuItem-OOF.LoadData.Subproblem.Time_Derivative_Fields"/>.
     </para><para> This command is used within data files and is not
     invoked directly by the &oof2; user interface.
     </para>"""
@@ -465,7 +465,7 @@ subpmenu.addItem(OOFMenuItem(
     for a &subproblem;.  These are treated separately from the other
     &fields; for backwards compatibility with old data files.  See
     <xref
-    linkend="MenuItem-LoadData.Subproblem.Fields"/>.</para><para>
+    linkend="MenuItem-OOF.LoadData.Subproblem.Fields"/>.</para><para>
     This command is used within data files and is not invoked directly
     by the &oof2; user interface.
     </para>"""
@@ -562,7 +562,7 @@ meshmenu.addItem(OOFMenuItem(
     user interface.</para>
 
     <para>Cached fields are stored in a data file as a series of <xref
-    linkend="MenuItem-LoadData.Mesh.Load_Field"/> commands
+    linkend="MenuItem-OOF.LoadData.Mesh.Load_Field"/> commands
     followed by a call to <command>Cache_Fields</command>, which moves
     the data into the cache.
     
@@ -674,7 +674,7 @@ meshmenu.addItem(OOFMenuItem(
     help="Initialize a Field.",
     discussion="""<para>
     Initialize a &field; on a saved &mesh;.  If <link
-    linkend='MenuItem-LoadData.Mesh.Load_Field'>field data</link>
+    linkend='MenuItem-OOF.LoadData.Mesh.Load_Field'>field data</link>
     is saved as well, it will overwrite the &fields; from the
     initializer.  This command is used within data files and not
     invoked directly by the &oof2; user interface.

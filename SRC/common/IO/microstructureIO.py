@@ -54,7 +54,7 @@ micromenu.addItem(oofmenu.OOFMenuItem(
     
     discussion="""<para>Create a new <quote>empty</quote> &micro;,
     containing no data other than its size.  This command is used only
-    in <link linkend='MenuItem-LoadData.Microstructure'>data
+    in <link linkend='MenuItem-OOF.LoadData.Microstructure'>data
     files</link>.</para>"""
     ))
 
@@ -89,7 +89,7 @@ micromenu.addItem(oofmenu.OOFMenuItem(
     discussion="""<para>Create <link
     linkend='Section-Concepts-Microstructure-Pixel_Group'>pixel
     groups</link> in a &micro; <link
-    linkend='MenuItem-LoadData.Microstructure'>data
+    linkend='MenuItem-OOF.LoadData.Microstructure'>data
     file</link>.  This command is only used in data files.</para>"""
     ))
 
@@ -184,7 +184,7 @@ micromenu.addItem(oofmenu.OOFMenuItem(
 
     discussion="""<para>Clean up the data structures used to define
     <link linkend='Definition:Category'>pixel categories</link> in
-    <link linkend='MenuItem-LoadData.Microstructure'>data
+    <link linkend='MenuItem-OOF.LoadData.Microstructure'>data
     files</link> usage.  This command is not used outside of data
     files.</para>"""
 

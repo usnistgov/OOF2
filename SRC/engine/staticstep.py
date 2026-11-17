@@ -167,5 +167,5 @@ registeredclass.Registration(
     timestepper.TimeStepper,
     _StaticStepper,
     tip="Used internally by the Static StepDriver",
-    secret=True,
+    no_gui=True, no_doc=True,   # secret
     ordering=10000)

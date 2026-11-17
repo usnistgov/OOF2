@@ -36,7 +36,7 @@ class DenoiseMethod(registeredclass.RegisteredClass):
 
 ## TODO LATER: DenoiseBilateral shifts the image down and to the
 ## right, which seems to be a bug in the skimage routine.  Until it's
-## fixed, the Registration is marked "secret".
+## fixed, the Registration has no_gui=no_doc=True.
 
 class DenoiseBilateral(DenoiseMethod):
     def __init__(self, window_size, sigma_color, sigma_spatial, bins):
@@ -74,7 +74,8 @@ registeredclass.Registration(
     DenoiseMethod,
     DenoiseBilateral,
     ordering = 1,
-    secret = True,   
+    no_gui = True,
+    no_doc = True,
     params = [
         parameter.PositiveAutoIntParameter(
             'window_size', automatic.automatic,
@@ -325,9 +326,9 @@ registeredclass.Registration(
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # ReduceNoise is kept for backward compatibility with an ImageMagick
-# routine.  The registration is marked "secret" because it doesn't
-# work.  Perhaps the description in the ImageMagick docs is wrong.
-# The documentation says "Smooth the contours of an image while still
+# routine.  The registration is secret because it doesn't work.
+# Perhaps the description in the ImageMagick docs is wrong.  The
+# documentation says "Smooth the contours of an image while still
 # preserving edge information. The algorithm works by replacing each
 # pixel with its neighbor closest in value. The neighbors of a pixel
 # are defined as those pixels within the given radius, specified in
@@ -347,7 +348,7 @@ registeredclass.Registration(
     'ReduceNoise',
     imagemodifier.ImageModifier,
     ReduceNoise,
-    secret=True,                # See above
+    no_gui=True, no_doc=True,   # See above
     ordering = 2.08,
     params = [parameter.PositiveFloatParameter(
         'radius', 5.0,

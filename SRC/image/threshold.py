@@ -346,7 +346,7 @@ registeredclass.Registration(
     imagemodifier.ImageModifier,
     ThresholdImage,
     ordering = 100,
-    secret = True,
+    no_gui=True,
     params = [
         parameter.FloatRangeParameter('T', (0,1,.01),
                                       value=0.5, tip="Threshold value.") ],

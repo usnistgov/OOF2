@@ -53,14 +53,15 @@ class SelectionMethod(registeredclass.RegisteredClass):
         pass
 
 class PixelSelectionRegistration(registeredclass.Registration):
-    def __init__(self, name, subclass, ordering, params=[], secret=0, **kwargs):
+    def __init__(self, name, subclass, ordering, params=[],
+                 no_gui=False, no_doc=False, **kwargs):
         registeredclass.Registration.__init__(self,
                                               name=name,
                                               registeredclass=SelectionMethod,
                                               subclass=subclass,
                                               ordering=ordering,
                                               params=params,
-                                              secret=secret,
+                                              no_gui=no_gui, no_doc=no_doc,
                                               **kwargs)
 
 ###################

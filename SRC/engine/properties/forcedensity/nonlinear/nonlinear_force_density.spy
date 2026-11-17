@@ -24,7 +24,8 @@ reg = propertyregistration.PropertyRegistration(
             'testno', 1,
             tip="Test number for the nonlinear force density property.")],
     propertyType="ForceDensity",
-    secret=True,
+    no_doc=True,
+    no_gui=True,
     tip="Test property for nonlinear force density."
     )
 

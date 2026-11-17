@@ -118,7 +118,7 @@ class BinaryDataFile:
             cmdid = self.cmdmap[menuitem] = self.ncmds
             self.ncmds += 1
             self.startCmd(loadData.MenuKey)
-            self.argument('path', menuitem.path()[len('loadData.'):])
+            self.argument('path', menuitem.path()[len('OOF.LoadData.'):])
             self.argument('key', cmdid)
             self.endCmd()
         return cmdid

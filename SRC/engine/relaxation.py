@@ -61,7 +61,8 @@ class Relax(skeletonmodifier.SkeletonModifier):
         ## SkeletonRelaxationRateTensor is the PropertyRegistration for the
         ## SkeletonRelaxationRate property.
         relaxPropReg = skeletonrelaxationrate.SkeletonRelaxationRateTensor.\
-            named_copy("__relaxationrate%d__" % threadno, secret=True)
+            named_copy(f"__relaxationrate{threadno}__",
+                       no_gui=True, no_doc=True)
         relaxPropReg.getParameter("gamma").value = self.gamma
         relaxPropReg.getParameter("alpha").value = self.alpha
         self.skelRelRate = relaxPropReg.createProperty()
@@ -80,7 +81,7 @@ class Relax(skeletonmodifier.SkeletonModifier):
 
         # isotropic elasticity
         stiffnessPropReg = iso.IsotropicElasticity.named_copy(
-            "__stiffness%d__" % threadno, secret=True)
+            f"__stiffness{threadno}__", no_gui=True, no_doc=True)
         stiffnessPropReg.getParameter('cijkl').value = \
             isocijkl.IsotropicRank4TensorCij(c11=1.0, c12=0.5)
         self.stiffness = stiffnessPropReg.createProperty()

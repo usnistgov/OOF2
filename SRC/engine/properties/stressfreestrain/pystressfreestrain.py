@@ -56,6 +56,7 @@ reg = propertyregistration.PropertyRegistration(
     10000,
     propertyType="StressFreeStrain",
     tip = "Isotropic stress-free strain implemented in Python.",
-    secret=True)
+    no_gui=True,
+    no_doc=True)
 
 reg.fluxInfo(fluxes=[problem.Stress])

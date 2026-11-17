@@ -25,7 +25,8 @@ reg = PropertyRegistration(
     ordering=102,
     params=[parameter.IntParameter('testno', 1, tip="Test number for the nonconstant force density property.")],
     propertyType="ForceDensity",
-    secret=True,
+    no_gui=True,
+    no_doc=True,
     tip="Test property for nonconstant force density."
     )
 

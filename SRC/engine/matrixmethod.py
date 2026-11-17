@@ -243,7 +243,7 @@ registeredclass.Registration(
     BiConjugateGradient,
     ordering=2.2,
     symmetricOnly=False,
-    secret=True,
+    no_gui=True,
     params=[
         preconditioner.PreconditionerParameter(
             "preconditioner",
@@ -344,9 +344,9 @@ registeredclass.Registration(
     DirectMatrixSolver,
     ordering=204,
     symmetricOnly=True,
-    secret=True,        # so that it won't be used in new computations
+    no_gui=True,        # so that it won't be used in new computations
     tip="An obsolete matrix solver preserved for compitability."
-    # no discussion is necessary -- secret registrations aren't in the manual
+    # TODO: Discussion.
 )
 
 registeredclass.Registration(

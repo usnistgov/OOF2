@@ -25,7 +25,8 @@ reg = PropertyRegistration(
     ordering=111,
     params=[parameter.IntParameter('testno', 1, tip="Test number for the nonlinear heat conductivity property.")],
     propertyType="ThermalConductivity",
-    secret=True,
+    no_gui=True,
+    no_doc=True,
     tip="Test property for nonlinear thermal conductivity."
     )
 

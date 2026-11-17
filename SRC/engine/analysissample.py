@@ -372,7 +372,8 @@ registeredclass.Registration(
 # widget to help it decide which Registrations to list.
 
 def DirectSampleSetRegistration(name, subclass, ordering, params=[],
-                                secret=0, tip=None, discussion=None,
+                                no_gui=False, no_doc=False,
+                                tip=None, discussion=None,
                                 **kwargs):
 
     class NonDirectSubclass(subclass):
@@ -391,7 +392,8 @@ def DirectSampleSetRegistration(name, subclass, ordering, params=[],
         NonDirectSubclass,
         ordering,
         params=non_direct_params,
-        secret=secret,
+        no_gui=no_gui,
+        no_doc=no_doc,
         tip=tip,
         direct=False,
         discussion="""<para>
@@ -413,8 +415,9 @@ def DirectSampleSetRegistration(name, subclass, ordering, params=[],
             tip="Include or exclude this data from the output.") )
 
     return registeredclass.Registration(
-        name, SampleSet, subclass, ordering, params, secret,
-        tip, discussion, direct=True, **kwargs)
+        name, SampleSet, subclass, ordering, params,
+        no_gui=no_gui, no_doc=no_doc,
+        tip=tip, discussion=discussion, direct=True, **kwargs)
 
 #=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#
 

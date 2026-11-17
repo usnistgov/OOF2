@@ -72,7 +72,7 @@ class RCFBase(parameterwidgets.ParameterWidget,
     # classes can redefine this function. The default behavior is to
     # exclude secret registrations.
     def includeRegistration(self, registration):
-        return not registration.secret
+        return not registration.no_gui
 
     def set_callback(self, callback, *args, **kwargs):
         self.callback = callback

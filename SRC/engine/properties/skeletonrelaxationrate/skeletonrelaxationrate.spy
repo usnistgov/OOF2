@@ -23,7 +23,7 @@ SkeletonRelaxationRateTensor = PropertyRegistration(
             skeletonmodifier.alphaParameter],
     outputs=[],
     propertyType="SkeletonRelaxationRate",
-    secret=True)
+    no_gui=True, no_doc=True)
     
 SkeletonRelaxationRateTensor.fluxInfo(fluxes=[problem.Stress],
                                       fields=[problem.Displacement],

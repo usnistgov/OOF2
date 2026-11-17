@@ -65,7 +65,7 @@ microstructureIO.categorymenu.addItem(
         a file.  This menu item is only used in data files.</para>""",
         xrefs=["Section-Concepts-FileFormats",
                "Section-Tasks-Active_Area",
-               "MenuItem-LoadData.Microstructure"]
+               "MenuItem-OOF.LoadData.Microstructure"]
     ))                    
 
 

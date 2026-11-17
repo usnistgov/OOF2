@@ -80,7 +80,8 @@ reg = propertyregistration.PropertyRegistration(
     PyHeatConductivity,
     ordering=10000,
     propertyType="ThermalConductivity",
-    secret=True
+    no_gui=True,
+    no_doc=True
 )
 
 reg.fluxInfo(fluxes=[problem.Heat_Flux], fields=[problem.Temperature],
@@ -98,5 +99,6 @@ reg = propertyregistration.PropertyRegistration(
     ProfessorButts,
     ordering=12345678,
     propertyType="TESTING",
-    secret=True
+    no_gui=True,
+    no_doc=True
 )

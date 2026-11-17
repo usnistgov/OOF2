@@ -21,7 +21,8 @@ reg = propertyregistration.PropertyRegistration(
     ordering=152,
     params=[parameter.IntParameter('testno', 1, tip="Test number for the nonlinear heat source property.")],
     propertyType="HeatSource",
-    secret=True,
+    no_gui=True,
+    no_doc=True,
     tip="Nonlinear heat source property used for testing.")
 
 reg.eqnInfo( equations=[problem.HeatBalanceEquation],

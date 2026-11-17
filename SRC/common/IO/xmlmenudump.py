@@ -35,7 +35,7 @@ def process_param(param):
 
 def processRegClass(regclass):
     try:
-        if regclass.secret:
+        if regclass.no_doc:
             return
     except AttributeError:
         pass
@@ -236,6 +236,12 @@ def addSection(callback, ordering):
     otherSections.append((ordering, callback))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+## TODO: The "Next" button on the Main OOF Menu page is going to to
+## the first ActiveArea command, instead of to the ActiveArea menu.
+## Is that because the <refentry>s for the commands are created before
+## the <section>s for the menus?
+
 
 def dumpMenu(phile, menu, parent, sectiontitle=None):
     # parent is passed in as an argument so that the LoadData menu,
@@ -560,7 +566,7 @@ def regClassSection(phile):
     for regclass in otherregclasses:
         processRegClass(regclass)
     
-    print("<section id='Section-RegisteredClasses' role='toc-always'>",
+    print("<section id='Section-RegisteredClasses' role='toc-never'>",
           file=phile)
     print(" <title>Registered Classes</title>", file=phile)
     print("""<para>
@@ -671,7 +677,7 @@ may be members of more than one
         # Don't sort.  Registrations are listed on the base class page
         # in the order in which they appear in the GUI.
         for reg in regclass.registry:
-            if reg.secret:
+            if reg.no_doc:
                 continue
             registrationdict[reg.subclass.__name__] = reg
             try:
@@ -717,7 +723,7 @@ may be members of more than one
         # Loop over subclasses of regclass
 
         for reg in regclass.registry:
-            if reg.secret:
+            if reg.no_doc:
                 continue
             name = reg.subclass.__name__
             xmlIndexEntry(name, "RegisteredClass subclass",

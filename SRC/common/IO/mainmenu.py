@@ -213,13 +213,18 @@ _loadmenu.addItem(OOFMenuItem(
 # "Data" files are distinguished from scripts in that they're not read
 # by the Python interpreter directly, and therefore can't contain
 # arbitrary Python code.  They can only contain menu commands from the
-# LoadData menu.  The command arguments can be constants or variables
-# and functions that are defined in the main OOF namespace, or lists
-# and tuples thereof.  Making the LoadData menu 'disconnected' makes
-# it harder for data file to reach commands outside the intended menu.
+# LoadData menu.  LoadData is an OOFRootMenu, because it's used that
+# way in data files, but it is also used as a submenu of the OOF menu.
+# Python OOF2 scripts can use the datafile commands via OOF.LoadData,
+# but ascii and binary data files think the root menu is LoadData.
+#
+# The arguments to LoadData commands can be constants or variables and
+# functions that are defined in the main OOF namespace, or lists and
+# tuples thereof.  Making the LoadData menu 'disconnected' makes it
+# harder for data file to reach commands outside the intended menu.
 
 loadDataMenu = OOF.addItem(
-    oofmenu.OOFMenuItem(
+    oofmenu.OOFRootMenu(
         "LoadData",
         no_bar=True,
         help="Commands used in data files.",

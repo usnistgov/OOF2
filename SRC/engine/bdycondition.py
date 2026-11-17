@@ -1037,7 +1037,8 @@ class FloatBCInitMethod(registeredclass.RegisteredClass):
 ## FloatBC has to be initialized, it's done via a new argument to
 ## Set_BC_Initializer, instead of a new BC.
 
-def registerFloatBCInitMethod(name, subclass, ordering=0, params=[], secret=0,
+def registerFloatBCInitMethod(name, subclass, ordering=0, params=[],
+                              no_gui=False, no_doc=False,
                               tip=None, discussion=None, **kwargs):
     # Normal registration
     registeredclass.Registration(name,
@@ -1045,7 +1046,8 @@ def registerFloatBCInitMethod(name, subclass, ordering=0, params=[], secret=0,
                                  subclass,
                                  ordering=ordering,
                                  params=params,
-                                 secret=secret,
+                                 no_gui=no_gui,
+                                 no_doc=no_doc,
                                  tip=tip,
                                  discussion=discussion,
                                  time_derivative=False,
@@ -1077,7 +1079,8 @@ def registerFloatBCInitMethod(name, subclass, ordering=0, params=[], secret=0,
         FloatBCInitIncludingTimeDeriv,
         ordering=ordering+0.5,
         params=tparams,
-        secret=secret,
+        no_gui=no_gui,
+        no_doc=no_doc,
         discussion=f"""<para>This is just like <xref
         linkend="RegisteredClass-{subclass.__name__}"/>, but the time
         derivative of the offset is also set.</para>""",

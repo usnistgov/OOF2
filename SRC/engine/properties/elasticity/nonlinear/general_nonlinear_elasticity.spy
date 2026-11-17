@@ -20,7 +20,8 @@ reg = propertyregistration.PropertyRegistration(
     ordering=202,
     params=[parameter.IntParameter('testno', 1, tip="Test number for the general nonlinear elasticity property.")],
     propertyType="Elasticity",
-    secret=True,
+    no_gui=True,
+    no_doc=True,
     tip="Test property for general nonlinear elasticity."
     )
 

@@ -133,7 +133,8 @@ reg = propertyregistration.PropertyRegistration(
     ordering=10000,
     outputs=["Energy"],
     propertyType="Elasticity",
-    secret=True,
+    no_gui=True,
+    no_doc=True,
     tip="Isotropic linear elasticity implemented in Python.")
 
 reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Displacement],

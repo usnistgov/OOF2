@@ -49,7 +49,7 @@ class ImageData(registeredclass.RegisteredClass):
     discussion = """<para>
     <classname>ImageData</classname> objects are used to store &image;
     pixels in &oof2; data files, as the <varname>pixels</varname>
-    parameter in the <xref linkend='MenuItem-LoadData.Image.New'/>
+    parameter in the <xref linkend='MenuItem-OOF.LoadData.Image.New'/>
     command.
     </para>"""
 

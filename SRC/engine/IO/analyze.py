@@ -55,14 +55,15 @@ class DataOperation(registeredclass.RegisteredClass):
 
 class DataOperationRegistration(registeredclass.Registration):
     def __init__(self, name, subclass, ordering, params=[],
-                 secret=0, tip=None, discussion=None,
+                 no_gui=False, no_doc=False, tip=None, discussion=None,
                  outputFilter=None,
                  **kwargs):
         self.outputFilter = outputFilter or (lambda x: True)
         registeredclass.Registration.__init__(
             self, name, registeredclass=DataOperation,
             subclass=subclass, ordering=ordering, params=params,
-            secret=secret, tip=tip, discussion=discussion, **kwargs)
+            no_gui=no_gui, no_doc=no_doc, tip=tip, discussion=discussion,
+            **kwargs)
     def acceptsOutput(self, output):
         return self.outputFilter(output)
 

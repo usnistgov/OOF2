@@ -38,12 +38,12 @@ class Property(unittest.TestCase):
     def labeltree2list(self, lt):
         result = []
         if lt.nodes:
-            if lt.object and not lt.object.secret():
+            if lt.object and not lt.object.no_gui:
                 result = [lt]
             for c in lt.nodes:
                 result.extend(self.labeltree2list(c))
         else:
-            if not lt.secret():
+            if lt.object and not lt.object.no_gui:
                 result = [lt]
         return result
 
@@ -161,10 +161,10 @@ class Property(unittest.TestCase):
                         # mistakenly assume that Property parameters
                         # have their default values.
                         thisparammenu.callWithDefaults(**old_values)
+                        os.remove("prop_save_test")
 
         finally:
             OOF.Material.Delete(name="prop_mat")
-            os.remove("prop_save_test")
 
 
 class MaterialBasic(unittest.TestCase):

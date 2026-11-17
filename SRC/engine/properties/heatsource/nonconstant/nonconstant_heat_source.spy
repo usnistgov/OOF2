@@ -26,7 +26,8 @@ reg = PropertyRegistration(
     ordering=151,
     params=[parameter.IntParameter('testno', 1, tip="Test number for the nonconstant heat source property.")],
     propertyType="HeatSource",
-    secret=True,
+    no_gui=True,
+    no_doc=True,
     tip="Nonconstant heat source property used for testing.")
 
 reg.eqnInfo( equations=[problem.HeatBalanceEquation], time_dependent=True )

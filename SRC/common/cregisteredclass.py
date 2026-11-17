@@ -108,12 +108,13 @@ def registerCClass(klass):
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class Registration(registeredclass.Registration):
-    def __init__(self, name, regclass, subclass, ordering,
-                 params=[], secret=0, **kwargs):
+    def __init__(self, name, regclass, subclass, ordering, params=[],
+                 no_gui=False, no_doc=False, **kwargs):
 
-        registeredclass.Registration.__init__(self, name, regclass, subclass,
-                                              ordering, params, secret,
-                                              **kwargs)
+        registeredclass.Registration.__init__(
+            self, name, regclass, subclass,
+            ordering=ordering, params=params, no_gui=no_gui, no_doc=no_doc,
+            **kwargs)
         self.monkeypatch(reprname=subclass.__name__)
 
     def monkeypatch(self, reprname):

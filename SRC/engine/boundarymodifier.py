@@ -50,12 +50,11 @@ class EdgeBoundaryModifier(BoundaryModifier):
 # subclass of a known type.
 class BoundaryModifierRegistration(registeredclass.Registration):
     def __init__(self, name, regclass,
-                 ordering, params=[], secret=0, tip=None,
+                 ordering, params=[], no_gui=False, no_doc=False, tip=None,
                  **kwargs):
-        registeredclass.Registration.__init__(self, name, BoundaryModifier,
-                                              regclass, ordering,
-                                              params=params, secret=secret,
-                                              tip=tip, **kwargs)
+        registeredclass.Registration.__init__(
+            self, name, BoundaryModifier, regclass, ordering, params=params,
+            no_gui=no_gui, no_doc=no_doc, tip=tip, **kwargs)
         if issubclass(regclass, PointBoundaryModifier):
             self.modifiertype = PointBoundaryModifier
         elif issubclass(regclass, EdgeBoundaryModifier):

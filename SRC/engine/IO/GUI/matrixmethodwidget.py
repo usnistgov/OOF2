@@ -22,7 +22,7 @@ from ooflib.engine import timestepper
 
 class AsymmetricMatrixMethodFactory(regclassfactory.RegisteredClassFactory):
     def includeRegistration(self, reg):
-        return not reg.symmetricOnly and not reg.secret
+        return not reg.symmetricOnly and not reg.no_gui
 
 def _makeAsymMtxMethodWidget(self, scope=None, **kwargs):
     return AsymmetricMatrixMethodFactory(self.registry, obj=self.value,
@@ -46,7 +46,7 @@ class PreconditionerWidget(regclassfactory.RegisteredClassFactory):
     def includeRegistration(self, reg):
         # A preconditioner should be listed if it's in the solver_map
         # for the currently selected matrix method.
-        return (not reg.secret and
+        return (not reg.no_gui and
                 reg.subclass in self.matrixmethod.solver_map)
 
 def _makePreconditionerWidget(self, scope=None, **kwargs):

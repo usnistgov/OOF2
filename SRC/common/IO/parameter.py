@@ -1073,11 +1073,11 @@ class RegisteredParameter(Parameter):
         from ooflib.common.IO import xmlmenudump # delayed to avoid import loops
         nm = self.regname()
         try:
-            # RegisteredClasses that are secret don't appear in the
+            # RegisteredClasses with no_doc==True don't appear in the
             # manual, although menu commands in the manual may refer
             # to them.  Here we have to make sure that we don't
             # actually link to the nonexistent pages.
-            if self.reg.secret:
+            if self.reg.no_doc:
                 return "An object of the <classname>%s</classname> class." % nm
         except AttributeError:
             return \
@@ -1196,6 +1196,9 @@ class MetaRegisteredParameter(Parameter):
 # Parameter.__init__.  It stores the raw input in
 # self.truevalue.
 ## TODO: It should use a Python property for that.
+
+# The difference between the *NameParameters and the *StringParameters
+# is that the former have a resolver function and the latter don't.
 
 class AutomaticNameParameter(Parameter):
     types = (StringType, automatic.Automatic)

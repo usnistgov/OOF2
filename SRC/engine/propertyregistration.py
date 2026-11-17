@@ -43,8 +43,8 @@ from ooflib.engine.IO import interfaceparameters
 # registration entries.  There are two kinds of leaf entities on the
 # tree, those corresponding to imported property classes and hosting a
 # "generic" (or "unnamed") potential-instance, and their immediate
-# children, are named instances of the property class corresponding to
-# their parent.
+# children, which are named instances of the property class
+# corresponding to their parent.
 
 OOF = mainmenu.OOF
 loadDataMenu = mainmenu.loadDataMenu
@@ -126,8 +126,10 @@ class PropertyManager:
             return []
         
         def kwarg_func(obj):    # Extra kwargs for OOFMenuItem ctor.
-            if obj and obj.secret():
-                return {'no_cli':True, 'no_gui':True, 'no_doc':True}
+            if obj:
+                return {'no_cli':obj.no_gui,
+                        'no_gui':obj.no_gui,
+                        'no_doc':obj.no_doc}
             return {}
 
         # Menu items are put into OOF.Property for scripts and
@@ -279,7 +281,9 @@ class PropertyManager:
     # PropertyRegistration and NamedPropertyRegistration's writeData
     # methods ensure that "reg" is always a PropertyRegistration.
     def creatorcallback(self, menuitem, **kwargs):
-        treepath = menuitem.path().split(".")[2:]
+        # The menuitem path begins with "OOF.LoadData,Property" which
+        # is not part of the LabelTree label.
+        treepath = menuitem.path().split(".")[3:]
         reg = self.data[treepath].object
         name = menuitem.params[0].value
 
@@ -453,13 +457,14 @@ class _PropertyStructureInfo:
 # resulting name as a parameter to their parameter list.
 
 class PropertyRegistrationBase:
-    def __init__(self, subclass, ordering, secret):
+    def __init__(self, subclass, ordering, no_gui=False, no_doc=False):
         self.subclass = subclass        # for PythonExportability of Property
         self.ordering = ordering
         # The registry is class-level data inserted into the Property
         # class in property.spy.
         property.Property.registry.append(self)
-        self._secret = secret
+        self.no_gui = no_gui
+        self.no_doc = no_doc
 
     def unregister(self):
         del property.Property.registry[self.getIndex()]
@@ -468,8 +473,6 @@ class PropertyRegistrationBase:
         for i in range(len(property.Property.registry)):
             if property.Property.registry[i] is self:
                 return i
-    def secret(self):
-        return self._secret
     
 # PropertyRegistration knows special things about itself, like the
 # fact that all properties have names as their first arguments.
@@ -482,7 +485,7 @@ class PropertyRegistration(PropertyRegistrationBase):
                  propertyType=None,
                  params=[],
                  outputs=[],
-                 secret=False,
+                 no_gui=False, no_doc=False,
                  interfaceCompatibility=interfaceparameters.COMPATIBILITY_BULK_ONLY,
                  interfaceDiscontinuousFields=[],
                  tip=None,
@@ -493,7 +496,8 @@ class PropertyRegistration(PropertyRegistrationBase):
         assert ordering is not None
         assert propertyType is not None
         
-        PropertyRegistrationBase.__init__(self, subclass, ordering, secret)
+        PropertyRegistrationBase.__init__(self, subclass, ordering,
+                                          no_gui=no_gui, no_doc=no_doc)
 
         # Save the fully-qualified name for error reporting.  This
         # datum should not be confused with the parameter "name",
@@ -717,15 +721,17 @@ class PropertyRegistration(PropertyRegistrationBase):
     # Create a NamedPropertyRegistration from yourself.
     # Called from PropertyManager.new_prop() and
     # PropertyManager.creatorcallback()
-    def named_copy(self, name, instance_params=[], secret=None):
-        if secret is None:
-            secret = self._secret
+    def named_copy(self, name, instance_params=[], no_gui=None, no_doc=None):
+        if no_gui is None:
+            no_gui = self.no_gui
+        if no_doc is None:
+            no_doc = self.no_doc
         old_params = instance_params or self.params
         new_params = [parameter.StringParameter('name',name)] + \
                      [p.clone() for p in old_params]
         return NamedPropertyRegistration(self, name, self.subclass,
                                          self.ordering, new_params,
-                                         secret)
+                                         no_gui, no_doc)
     def getParameter(self, name):
         for p in self.params:
             if p.name == name:
@@ -737,7 +743,8 @@ class PropertyRegistration(PropertyRegistrationBase):
 # being created automatically by the tree, and by having a "parent"
 # attribute which refers to a PropertyRegistration object.
 class NamedPropertyRegistration(PropertyRegistration):
-    def __init__(self, parent, name, subclass, ordering, params, secret):
+    def __init__(self, parent, name, subclass, ordering, params,
+                 no_gui, no_doc):
         
         ## TODO: Why does NamedPropertyRegistration inherit from
         ## PropertyRegistration, but call PropertyRegistrationBase's
@@ -746,7 +753,8 @@ class NamedPropertyRegistration(PropertyRegistration):
         ## defined in NamedPropertyRegistration should be moved to
         ## PropertyRegistrationBase, and NamedPropertyRegistration
         ## should be derived from it.
-        PropertyRegistrationBase.__init__(self, subclass, ordering, secret)
+        PropertyRegistrationBase.__init__(self, subclass, ordering,
+                                          no_gui, no_doc)
 
         self._name = name
         self.moniker = name.split(":")[-1]
@@ -816,16 +824,18 @@ class NamedPropertyRegistration(PropertyRegistration):
 
     # Similar to parent "named_copy", except it gets the ordering from
     # the parent.
-    def named_copy(self, name, instance_params = [], secret=None):
-        if secret is None:
-            secret = self._secret
+    def named_copy(self, name, instance_params = [], no_gui=None, no_doc=None):
+        if no_gui is None:
+            no_gui = self.no_gui
+        if no_doc is None:
+            no_doc = self.no_doc
         # Don't clone the name parameter, since the new property has a new name.
         non_name_params = instance_params or self.params[1:]
         new_params = [parameter.StringParameter('name', name)] + \
                      [p.clone() for p in non_name_params]
         return NamedPropertyRegistration(self.parent, name, self.subclass,
                                          self.parent.ordering, new_params,
-                                         secret)
+                                         no_gui, no_doc)
     
     # Return all except the "name" parameter, which is fixed by
     # the tree structure.
@@ -971,7 +981,7 @@ def xmldocs(phile):
     ptypedict = {}  # lists of Properties of each PropertyType.
     propdict = {}   # lists of Properties for each equation, field, or flux
     for reg in AllProperties.data.getObjects():
-        if reg.secret():
+        if reg.no_doc:
             continue
         ptype = reg.propertyType()
         try:
@@ -1021,7 +1031,7 @@ requires and which &fluxes; and/or &equations; it contributes to.
 
     # Create a refentry page for each Property
     for reg in AllProperties.data.getObjects():
-        if reg.secret():
+        if reg.no_doc:
             continue
         name = reg.name()
         idname = name.replace(':', '-')

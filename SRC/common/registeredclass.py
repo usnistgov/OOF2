@@ -9,56 +9,64 @@
 # oof_manager@nist.gov. 
 
 
-## A RegisteredClass is one that keeps a registry of all of its
-## subclasses, enabling objects of the class to be constructed by the
-## UI.  The registry is a list of Registrations, each of which
-## contains a name, the class object to be instantiated, and a list of
-## Parameters whose values are the arguments to the classes
-## constructor, and an ordering.  Classes are listed in order of
-## increasing ordering when they're listed by the UI.  Additional
-## keyword arguments to the Registration constructor are stored as
-## data within the Registration object.
+# A RegisteredClass is one that keeps a registry of all of its
+# subclasses, enabling objects of the class to be constructed by the
+# UI.  The registry is a list of Registrations, each of which
+# contains a name, the class object to be instantiated, and a list of
+# Parameters whose values are the arguments to the classes
+# constructor, and an ordering.  Classes are listed in order of
+# increasing ordering when they're listed by the UI.  Additional
+# keyword arguments to the Registration constructor are stored as
+# data within the Registration object.
 
-## Invoking a Registration's __call__ method creates an instance of
-## the registered subclass, using the current values of the Parameters
-## for constructor arguments.
+# Invoking a Registration's __call__ method creates an instance of
+# the registered subclass, using the current values of the Parameters
+# for constructor arguments.
 
-## Classes derived from RegisteredClass must have a list called
-## 'registry' at the class level.  Eg,
-##   class MyRegisteredClass(RegisteredClass):
-##      registry = []
-##      def __init__(self): etc.
+# Classes derived from RegisteredClass must have a list called
+# 'registry' at the class level.  Eg,
+#   class MyRegisteredClass(RegisteredClass):
+#      registry = []
+#      def __init__(self): etc.
 
-## If the class's Parameters aren't stored as internal variables whose
-## names are the corresponding Parameter.name's, then the class must
-## override RegisteredClass.getParamValues().
+# If the class's Parameters aren't stored as internal variables whose
+# names are the corresponding Parameter.name's, then the class must
+# override RegisteredClass.getParamValues().
 
-## DOCUMENTATION:
+# DOCUMENTATION:
 
-## Registered classes should have 'discussion' and 'tip' members that
-## contain docbook xml that can go into <para> and <refsect1>
-## elements, respectively.  They describe the purpose of the *base*
-## class and are data members of the *base* class:
-##    class MyRegisteredClass(RegisteredClass):
-##        tip = "Don't take any wooden nickels"
-##        discussion = "<para>.... and that's what it's all about!</para>"
-## The 'tip' is a short one-line description of the class.  The
-## 'discussion' should be longer and in-depth.  It can be read from a
-## file using xmlmenudump.loadFile.
+# Registered classes should have 'discussion' and 'tip' members that
+# contain docbook xml that can go into <para> and <refsect1>
+# elements, respectively.  They describe the purpose of the *base*
+# class and are data members of the *base* class:
+#    class MyRegisteredClass(RegisteredClass):
+#        tip = "Don't take any wooden nickels"
+#        discussion = "<para>.... and that's what it's all about!</para>"
+# The 'tip' is a short one-line description of the class.  The
+# 'discussion' should be longer and in-depth.  It can be read from a
+# file using xmlmenudump.loadFile.
 
-## Registrations also have 'tip' and 'discussion' strings.  They are
-## given as arguments to the Registration constructor, and are
-## instance data, not class data.  The tip is used for both the table
-## of contents in the manual and for the tooltip in the GUI, so it
-## should not contain xml tags.
+# Registrations also have 'tip' and 'discussion' strings.  They are
+# given as arguments to the Registration constructor, and are
+# instance data, not class data.  The tip is used for both the table
+# of contents in the manual and for the tooltip in the GUI, so it
+# should not contain xml tags.
 
-## Both base registered classes (those with a registry) and subclass
-## Registrations can have an "xrefs" member, which is a list of xml
-## ids that will appear in the "See Also" section of the manual pages.
-## The list entries can be a bare xmlid, or an (xmlid,text) tuple if
-## the default id text isn't sufficient for some reason.  If both the
-## base class and registration have xrefs, both will appear on the man
-## page for the subclass.
+# Registrations have optional 'no_gui' and 'no_doc' flags, which both
+# default to False.  Subclasses with no_gui=True aren't listed as
+# choices in the gui, but can be used in scripts, and are listed in
+# the manual.  This is intended for classes that are obsolete but are
+# still supported, because they may be used in old scripts.
+# Subclasses with no_doc=True don't appear in the manual, and should
+# probably have no_gui=True as well.
+
+# Both base registered classes (those with a registry) and subclass
+# Registrations can have an "xrefs" member, which is a list of xml
+# ids that will appear in the "See Also" section of the manual pages.
+# The list entries can be a bare xmlid, or an (xmlid,text) tuple if
+# the default id text isn't sufficient for some reason.  If both the
+# base class and registration have xrefs, both will appear on the man
+# page for the subclass.
 
 ####
 
@@ -77,10 +85,14 @@ import weakref
 _allRegistrations = weakref.WeakSet()
 
 class Registration:
-    def __init__(self, name, registeredclass, subclass, ordering,
-                 params=[], secret=0,
+    def __init__(self, name, registeredclass, subclass, ordering, params=[],
+                 no_gui=False, no_doc=False,
                  tip=None, discussion=None, xrefs=[], # for documentation
                  **kwargs):
+
+        # Debugging the switch from secret to no_gui and no_doc.
+        assert "secret" not in kwargs, \
+            f"Found 'secret' arg in {subclass.__name__} Registration"
 
         self._name = name
         self.subclass = subclass
@@ -92,7 +104,8 @@ class Registration:
             self.registeredclasses = (registeredclass,)
         self.ordering = ordering
         self.params = params
-        self.secret = secret
+        self.no_gui = no_gui    # not listed in GUI
+        self.no_doc = no_doc    # not listed in manual
         self.tip = tip
         self.discussion = discussion
         self.xrefs = getattr(registeredclass, "xrefs", []) + xrefs
@@ -207,12 +220,14 @@ class Registration:
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class ConvertibleRegistration(Registration):
-    def __init__(self, name, registeredclasses, subclass, ordering,
-                 params=[], secret=0, to_base=None, from_base=None, **kwargs):
+    def __init__(self, name, registeredclasses, subclass, ordering, params=[],
+                 no_gui=False, no_doc=False,
+                 to_base=None, from_base=None, **kwargs):
         self.to_base = to_base
         self.from_base = from_base
         Registration.__init__(self, name, registeredclasses,
-                              subclass, ordering, params, secret, **kwargs) 
+                              subclass, ordering, params=params,
+                              no_gui=no_gui, no_doc=no_doc, **kwargs) 
         
     # Convertible equivalent of getParamValues, returns a base object.
     def getParamValuesAsBase(self):

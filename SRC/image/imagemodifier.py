@@ -465,7 +465,7 @@ registeredclass.Registration(
     ImageModifier,
     ContrastImageRect,
     ordering=2.0011,
-    secret=True,
+    no_gui=True, no_doc=True,
     params=[
         parameter.PositiveIntParameter(
             'width', 5,
@@ -485,7 +485,7 @@ registeredclass.Registration(
 # This version of ContrastImage only uses Python calls to numpy and
 # scikit-image routines.  It is faster than the other versions but
 # only works with 8 bit images, so there is a loss of precision.  It's
-# here for future reference, but marked "secret".
+# here for future reference, but doesn't appear in the gui or manual.
 
 @adapt_rgb(hsv_value)
 def contrastSK_hsv(image, mask):
@@ -515,7 +515,7 @@ registeredclass.Registration(
     ImageModifier,
     ContrastImageSK,
     ordering = 2.021,
-    secret = True,              
+    no_gui=True, no_doc=True,   # secret
     params = [
         parameter.PositiveIntParameter(
             'radius', 5,
