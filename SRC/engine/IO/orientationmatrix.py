@@ -312,7 +312,7 @@ OrientationRegistration(
             FloatParameter('e1', 0.0, tip="Rotation axis x-component times sine of half the rotation angle."),
             FloatParameter('e2', 0.0, tip="Rotation axis y-component times sine of half the rotation angle."),
             FloatParameter('e3', 1.0, tip="Rotation axis z-component times sine of half the rotation angle.")],
-    tip="The Quaternion representation for 3D orientations.  e0 is the cosine of the half-angle of the rotation, and e1 through e3 are the x, y, and z components of the rotation axis times the sine of the half-angle.  The rotation brings the crystal axes into coincidence with the lab axes.",
+    tip="The Quaternion representation for 3D orientations.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/quaternion.xml')
     )
 
