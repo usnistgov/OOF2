@@ -63,6 +63,7 @@ public:
   virtual ArithmeticOutputVal &operator+=(const ArithmeticOutputVal&) = 0;
   virtual ArithmeticOutputVal &operator-=(const ArithmeticOutputVal&) = 0;
   virtual ArithmeticOutputVal &operator*=(double) = 0;
+  virtual ArithmeticOutputVal &operator/=(double) = 0;
   // Component-wise operations.
   virtual void component_pow(int) = 0;
   virtual void component_square() = 0;
@@ -114,6 +115,10 @@ public:
   }
   virtual ArithmeticOutputVal &operator*=(double a) {
     val *= a;
+    return *this;
+  }
+  virtual ArithmeticOutputVal &operator/=(double a) {
+    val /= a;
     return *this;
   }
   ScalarOutputVal &operator+=(double x) {
@@ -183,6 +188,11 @@ public:
   virtual ArithmeticOutputVal &operator*=(double a) {
     for(unsigned int i=0; i<size_; i++)
       data[i] *= a;
+    return *this;
+  }
+  virtual ArithmeticOutputVal &operator/=(double a) {
+    for(unsigned int i=0; i<size_; i++)
+      data[i] /= a;
     return *this;
   }
 
@@ -373,7 +383,8 @@ public:
   
   const ArithmeticOutputValue &operator+=(const ArithmeticOutputValue &other);
   const ArithmeticOutputValue &operator-=(const ArithmeticOutputValue &other);
-  const ArithmeticOutputValue &operator *=(double x);
+  const ArithmeticOutputValue &operator*=(double x);
+  const ArithmeticOutputValue &operator/=(double x);
 
   // In principle, operator[](FieldIndex) should be defined in the base
   // classes OutputValue and OutputVal.  However, it's a bit of a pain

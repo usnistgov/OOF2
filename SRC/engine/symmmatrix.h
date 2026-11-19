@@ -126,6 +126,11 @@ public:
     SymmMatrix::operator*=(x);
     return *this;
   }
+  ArithmeticOutputVal &operator/=(double x) {
+    dirtyeigs_ = true;
+    SymmMatrix::operator/=(x);
+    return *this;
+  }
   ArithmeticOutputVal &operator+=(const ArithmeticOutputVal &x) {
     dirtyeigs_ = true;
     const SymmMatrix3 &sm = dynamic_cast<const SymmMatrix3&>(x);
@@ -136,11 +141,6 @@ public:
     dirtyeigs_ = true;
     const SymmMatrix3 &sm = dynamic_cast<const SymmMatrix3&>(x);
     SymmMatrix::operator-=(sm);
-    return *this;
-  }
-  SymmMatrix3 &operator/=(double x) {
-    dirtyeigs_ = true;
-    SymmMatrix::operator/=(x);
     return *this;
   }
   SymmMatrix3 &operator+=(const SymmMatrix3 &x) {
