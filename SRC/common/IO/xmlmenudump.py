@@ -634,6 +634,8 @@ may be members of more than one
             reg = registrationdict[name]
         except KeyError:
             continue
+        if reg.no_doc:
+            continue
         print("  <listitem><simpara>", file=phile)
         try:
             tip = getHelp(reg)
