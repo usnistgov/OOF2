@@ -29,7 +29,7 @@ import math
 # the final residual.
 
 ## TODO: Add progress bars if possible.  The Eigen code needs to be
-## hacked.  Currently there are progress bars in CG, BiCBStab, and
+## hacked.  Currently there are progress bars in CG, BiCGStab, and
 ## GMRES.  I don't know if they can be added easily to the direct
 ## solvers.
 
@@ -258,7 +258,7 @@ registeredclass.Registration(
     tip="Actually the same as BiCGStab.  Preserved for backwards compatibility.",
     discussion="""<para>
     This method is kept for backwards compatibility, but
-    <xref linkend="RegisteredClass-BiCBStab"/> is used instead.
+    <xref linkend="RegisteredClass-StabilizedBiConjugateGradient"/> is used instead.
     </para>"""
 )
 
