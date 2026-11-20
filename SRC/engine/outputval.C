@@ -191,6 +191,12 @@ ScalarOutputVal operator/(const ScalarOutputVal &a, double b) {
   return result;
 }
 
+ScalarOutputVal operator/(double b, const ScalarOutputVal &a) {
+  ScalarOutputVal result(a);
+  result *= (1./b);
+  return result;
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 VectorOutputVal::VectorOutputVal()

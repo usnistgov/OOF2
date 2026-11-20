@@ -150,6 +150,7 @@ ScalarOutputVal operator-(const ScalarOutputVal&, const ScalarOutputVal&);
 ScalarOutputVal operator*(const ScalarOutputVal&, double);
 ScalarOutputVal operator*(double, const ScalarOutputVal&);
 ScalarOutputVal operator/(ScalarOutputVal&, double);
+ScalarOutputVal operator/(double, ScalarOutputVal&);
 
 class VectorOutputVal : public ArithmeticOutputVal {
 private:
