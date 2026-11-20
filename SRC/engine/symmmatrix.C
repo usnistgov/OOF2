@@ -324,7 +324,7 @@ OutputVal *SymmMatrix3::clone() const {
   return new SymmMatrix3(*this);
 }
 
-OutputVal *SymmMatrix3::zero() const {
+SymmMatrix3 *SymmMatrix3::zero() const {
   return new SymmMatrix3();
 }
 

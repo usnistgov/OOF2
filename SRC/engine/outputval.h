@@ -42,7 +42,6 @@ public:
   virtual const OutputVal &operator=(const OutputVal&) = 0;
   virtual unsigned int dim() const = 0;
   virtual OutputVal *clone() const = 0;
-  virtual OutputVal *zero() const = 0;
   // IO ops.
   virtual std::vector<double> *value_list() const = 0;
   virtual void print(std::ostream&) const = 0;
@@ -59,6 +58,7 @@ public:
 
 class ArithmeticOutputVal : public OutputVal {
 public:
+  virtual ArithmeticOutputVal *zero() const = 0;
   virtual ArithmeticOutputVal *one() const = 0;
   virtual ArithmeticOutputVal &operator+=(const ArithmeticOutputVal&) = 0;
   virtual ArithmeticOutputVal &operator-=(const ArithmeticOutputVal&) = 0;

@@ -92,7 +92,7 @@ public:
   virtual const SymmMatrix3 &operator=(const OutputVal &other);
   virtual unsigned int dim() const { return 6; }
   virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
+  virtual SymmMatrix3 *zero() const;
   virtual SymmMatrix3 *one() const;
   virtual const std::string &classname() const { return classname_; }
   SymmMatrix3 &operator=(const SymmMatrix3 &x) {

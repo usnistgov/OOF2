@@ -89,7 +89,6 @@ public:
   // IndexP getIndex(char *);
   NewFieldIndex *getIndex(const std::string&) const;
   NewOutputVal *clone();
-  NewOutputVal *zero();
   %newobject value_list;
   std::vector<double> *value_list();
   const Components* components();
@@ -105,6 +104,7 @@ public:
 
 class ArithmeticOutputVal : public OutputVal {
 public:
+  NewOutputVal *zero();
   NewOutputVal *one();
   void component_pow(int);
   void component_square();
